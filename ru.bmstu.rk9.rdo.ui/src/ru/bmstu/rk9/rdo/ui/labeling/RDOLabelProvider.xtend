@@ -79,16 +79,68 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 		super(delegate);
 	}
 	
-	// Name getters
-	def getNameGeneric(EObject object) {
-		switch object {
-			ResourceType: object.name
-			ResourceTypeParameter: object.eContainer.nameGeneric + "." + object.name
-			default: "ERROR"
+	def RDOModel getModelRoot(EObject object){
+		switch object{
+			RDOModel: return object
+			default : return object.eContainer.modelRoot
 		}
 	}
 	
-	def getTypeGeneric(EObject type)
+	// Name getters
+	def getNameGeneric(EObject object) {
+		switch object {
+
+			RDOModel: {
+				var name = object.eResource().getURI().lastSegment()
+				if (name.endsWith(".rdo"))
+					name = name.substring(0, name.length() - 4)
+				name.replace(".", "_")
+				return name
+			}
+
+			ResourceType:
+				return object.name
+
+			ResourceTypeParameter:
+				return object.name
+
+			default:
+				return "ERROR"
+		}
+	}
+	
+	def getFullyQualifiedName(EObject object) {
+		switch object {
+
+			RDOModel:
+				return object.nameGeneric
+
+			ResourceType:
+				return object.eContainer.nameGeneric + "." + object.name
+
+			ResourceTypeParameter:
+				return object.eContainer.eContainer.nameGeneric +
+					"." + object.eContainer.nameGeneric + "." + object.name
+
+			default:
+				return "ERROR"
+		}
+	}
+
+	def getFullyQualifiedName(EObject object, EObject context) {
+		var oname = object.fullyQualifiedName
+		var cname = context.fullyQualifiedName
+		
+		while (oname.startsWith(cname.substring(0,
+			if (cname.indexOf(".") > 0)	cname.indexOf(".") else (cname.length - 1))))
+		{
+			oname = oname.substring(oname.indexOf(".") + 1)
+			cname = cname.substring(cname.indexOf(".") + 1)			
+		}
+		return oname
+	}
+	
+	def String getTypeGeneric(EObject type)
 	{
 		switch type {
 			
@@ -103,7 +155,12 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 			RDOBoolean: " : " + type.type
 			RDOString : " : " + type.type
 			RDOEnum   : " : enumerative"
-			RDOSuchAs : " : such_as " + getNameGeneric(type.type)
+			RDOSuchAs : " : such_as " + switch type.eContainer {
+				RDORTPParameterSuchAs:
+					getFullyQualifiedName(type.type, type.eContainer.eContainer.eContainer)
+				default: getFullyQualifiedName(type.type, type.modelRoot)
+			}
+			
 			RDOArray  : " : array" + getTypeGeneric(type.arraytype)
 			RDOOwnType: " : " + type.id.nameGeneric
 			
