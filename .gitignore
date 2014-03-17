@@ -30,6 +30,7 @@ local.properties
 #################
 
 generated/
+*.xml_gen
 
 #############
 ## Windows detritus
