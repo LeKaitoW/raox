@@ -16,8 +16,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDOArray
 import ru.bmstu.rk9.rdo.rdo.RDOOwnType
-
-
+import ru.bmstu.rk9.rdo.customizations.RDOQualifiedNameProvider
 
 class RDOGenerator implements IGenerator {
 	
@@ -26,9 +25,10 @@ class RDOGenerator implements IGenerator {
 //			fsa.generateFile("resourceTypes/" + e.name + ".java", e.compile)
 //		}
 		
-		val rssName = if (resource.URI.lastSegment.endsWith(".rdo")) resource.URI.lastSegment.substring(0, resource.URI.lastSegment.length - 4) else resource.URI.lastSegment
+		val rssName = RDOQualifiedNameProvider.computeFromURI(resource.contents.head as RDOModel)
 
-		fsa.generateFile("resources/" + rssName + ".java", compileResources(resource.contents.head as RDOModel))
+		if (rssName.length > 0)
+			fsa.generateFile("resources/" + rssName + ".java", compileResources(resource.contents.head as RDOModel))
 	}
 
 //	def compile(ResourceType rtp) {
