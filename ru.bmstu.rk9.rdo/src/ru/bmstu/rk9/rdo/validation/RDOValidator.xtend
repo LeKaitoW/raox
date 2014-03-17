@@ -93,8 +93,8 @@ class RDOValidator extends AbstractRDOValidator {
 	
 	def boolean resolveCyclicSuchAs(EObject object, SuchAsHistory history) {
 		
-		if (object.eContainer == null)
-			return false
+		if (object.eContainer == null)	// check unresolved reference in order
+		    return false              	// to avoid exception in second switch
 		
 		switch object {
 			ResourceTypeParameter: {
@@ -131,9 +131,6 @@ class RDOValidator extends AbstractRDOValidator {
 
 	@Check
 	def checkCyclicSuchAs(RDOSuchAs ref) {
-
-		if (ref.type.eContainer == null)
-			return
 
 		var EObject first
 
