@@ -493,8 +493,7 @@ ResultWatchQuant:
 
 ResultWatchValue:
 	'watch_value' resource = [ResourceType|ID]
-	( 'NoCheck' expression = Expression
-	| logic = Expression (expression = Primary | ':' expression = Expression)) // POSSIBLE FAULTY WORKAROUND
+	( 'NoCheck'? | logic = Expression ) ':' expression = Expression
 ;
 
 ResultGetValue:
