@@ -86,33 +86,39 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 				
 				val groupRelRes = new VirtualOutlineNode(parentNode, parentNode.image, "Relevant resources", false)
 				for (r : pat.eAllContents.toIterable.filter(typeof(RuleRelevantResource))) {
-					createEObjectNode(groupRelRes, r) }
+					createEObjectNode(groupRelRes, r)
+				}
 				
 				val groupRelBody = new VirtualOutlineNode(parentNode, parentNode.image, "Body", false)
 				for (b : pat.eAllContents.toIterable.filter(typeof(RuleConvert))) {
-					createEObjectNode(groupRelBody, b) }
+					createEObjectNode(groupRelBody, b)
+				}
 				
 			}
 			Operation: {
 				
 				val groupRelRes = new VirtualOutlineNode(parentNode, parentNode.image, "Relevant resources", false)
 				for (r : pat.eAllContents.toIterable.filter(typeof(OperationRelevantResource))) {
-					createEObjectNode(groupRelRes, r) }
+					createEObjectNode(groupRelRes, r)
+				}
 				
 				val groupRelBody = new VirtualOutlineNode(parentNode, parentNode.image, "Body", false)
 				for (b : pat.eAllContents.toIterable.filter(typeof(OperationConvert))) {
-					createEObjectNode(groupRelBody, b) }
+					createEObjectNode(groupRelBody, b)
+				}
 
 			}
 			Event: {
 				
 				val groupRelRes = new VirtualOutlineNode(parentNode, parentNode.image, "Relevant resources", false)
 				for (r : pat.eAllContents.toIterable.filter(typeof(EventRelevantResource))) {
-					createEObjectNode(groupRelRes, r) }
+					createEObjectNode(groupRelRes, r)
+				}
 				
 				val groupRelBody = new VirtualOutlineNode(parentNode, parentNode.image, "Body", false)
 				for (b : pat.eAllContents.toIterable.filter(typeof(EventConvert))) {
-					createEObjectNode(groupRelBody, b) }
+					createEObjectNode(groupRelBody, b)
+				}
 
 			}
 		}
