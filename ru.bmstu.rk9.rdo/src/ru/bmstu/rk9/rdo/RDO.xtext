@@ -699,19 +699,10 @@ ExpressionList returns Expression:
 // Assignment: left associative, higher priority (-1)
 ExpressionAssignment returns Expression:
 	ExpressionOr (
-		op = AssignmentOperator {ExpressionAssignment.left = current} next = ExpressionOr
+		=> op = ('='|'+='|'-='|'*='|'/='|'%=') {ExpressionAssignment.left = current} next = ExpressionOr
 	)*	
 ;
 
-AssignmentOperator
-	: {Equal} '='
-	| {PlusEqual} '+='
-	| {MinusEqual} '-='
-	| {MultiEqual} '*='
-	| {DivEqual} '/='
-	| {ModuloEqual} '%='
-;
- 
 // Or: left associative, priority 0
 ExpressionOr returns Expression:
 	ExpressionAnd (
@@ -769,7 +760,7 @@ ExpressionExponentiation returns Expression:
 ;
 
 Primary returns Expression
-	: '(' Expression ')'
+	: {Primary}'(' exp = Expression ')'
 	| Atomic
 ;
 
