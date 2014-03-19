@@ -15,6 +15,10 @@ import ru.bmstu.rk9.rdo.customizations.RDOQualifiedNameProvider
 import org.eclipse.emf.ecore.EObject
 
 import ru.bmstu.rk9.rdo.generator.RDONaming
+import ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
 
 class RDOGenerator implements IGenerator
 {
@@ -94,11 +98,24 @@ class RDOGenerator implements IGenerator
 		{
 
 			«FOR parameter : rtp.parameters»
-			public «compileType(parameter.type)» «parameter.name»;
+			public «compileType(parameter.type)» «parameter.name»«parameter.type.getDefault»;
 			«ENDFOR»
 
 		}
 		'''
+	}
+	
+	def String getDefault(RDORTPParameterType parameter)
+	{
+		switch parameter
+		{
+			RDORTPParameterBasic:
+				return if (parameter.^default != null) " = " + RDOExpressionCompiler.compileExpression(parameter.^default) else ""
+			RDORTPParameterString:
+				return if (parameter.^default != null) ' = "' + parameter.^default + '"' else ""
+			default:
+				return ""
+		}
 	}
 	
 	def compileResourceFactory(ResourceType rtp, String filename)
@@ -108,7 +125,7 @@ class RDOGenerator implements IGenerator
 
 		public class «rtp.name»Factory extends rdo_lib.ResourceTypeList
 		{
-			public «filename».«rtp.name» addResource(/*SIGNATURE*/)
+			public «filename».«rtp.name» addResource(/*PARAMETERS*/)
 			{
 				«filename».«rtp.name» res = new «filename».«rtp.name»();
 				resources.add(res);
@@ -135,7 +152,7 @@ class RDOGenerator implements IGenerator
 				«ENDFOR»
 
 				«FOR r : model.eAllContents.toIterable.filter(typeof(ResourceDeclaration))»
-					«r.reference.fullyQualifiedName» «r.name» = «r.reference.nameGeneric»List.addResource(/*PARAMETERS*/);
+					«r.reference.fullyQualifiedName» «r.name» = «r.reference.nameGeneric»List.addResource(/**/);
 				«ENDFOR»
 
 			}
