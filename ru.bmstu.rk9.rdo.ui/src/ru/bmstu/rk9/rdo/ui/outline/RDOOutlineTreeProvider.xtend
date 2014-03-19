@@ -41,29 +41,31 @@ import ru.bmstu.rk9.rdo.rdo.ProcessQueue
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 
 
-public class VirtualOutlineNode extends AbstractOutlineNode {
-
-protected new(IOutlineNode parent, Image image, Object text, boolean isLeaf) {
+public class VirtualOutlineNode extends AbstractOutlineNode
+{
+	protected new(IOutlineNode parent, Image image, Object text, boolean isLeaf)
+	{
 		super(parent, image, text, isLeaf)
 	}
-
 }
 
-class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.DefaultOutlineTreeProvider {
-
+class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.DefaultOutlineTreeProvider
+{
 	// Resource Types
 	def _isLeaf(ResourceTypeParameter rtp) { true }
 
 	// Resources
 	def _isLeaf(ResourceDeclaration rss) { true }
-	def _isLeaf(ResourceTrace rsstrc) { true }
+	def _isLeaf(ResourceTrace rsstrc)    { true }
 
 	// Sequence
 	def _isLeaf(Sequence seq) { true }
 
 	// Functions
-	def _createChildren(IOutlineNode parentNode, Function fun) {
-		for (e : fun.eAllContents.toIterable.filter(typeof(FunctionParameter))) {
+	def _createChildren(IOutlineNode parentNode, Function fun)
+	{
+		for (e : fun.eAllContents.toIterable.filter(typeof(FunctionParameter)))
+		{
 			createNode(parentNode, e)
 		}
 	}
@@ -73,71 +75,78 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 	def _isLeaf (ConstantDeclaration c) { true }
 	
 	// Pattern
-	def _createChildren(IOutlineNode parentNode, Pattern pat) {
-		if (pat.eAllContents.toList.filter(typeof(PatternParameter)).size > 0) {
+	def _createChildren(IOutlineNode parentNode, Pattern pat)
+	{
+		if (pat.eAllContents.toList.filter(typeof(PatternParameter)).size > 0)
+		{
 			val groupParameters = new VirtualOutlineNode(parentNode, parentNode.image, "Parameters", false)
-			for (p : pat.eAllContents.toIterable.filter(typeof(PatternParameter))) {
+			for (p : pat.eAllContents.toIterable.filter(typeof(PatternParameter)))
+			{
 				createEObjectNode(groupParameters, p)
 			}
 		}
 		
-		switch pat {
-			Rule: {
-				
+		switch pat
+		{
+			Rule:
+			{
 				val groupRelRes = new VirtualOutlineNode(parentNode, parentNode.image, "Relevant resources", false)
-				for (r : pat.eAllContents.toIterable.filter(typeof(RuleRelevantResource))) {
+				for (r : pat.eAllContents.toIterable.filter(typeof(RuleRelevantResource)))
+				{
 					createEObjectNode(groupRelRes, r)
 				}
 				
 				val groupRelBody = new VirtualOutlineNode(parentNode, parentNode.image, "Body", false)
-				for (b : pat.eAllContents.toIterable.filter(typeof(RuleConvert))) {
+				for (b : pat.eAllContents.toIterable.filter(typeof(RuleConvert)))
+				{
 					createEObjectNode(groupRelBody, b)
 				}
-				
 			}
-			Operation: {
-				
+			Operation:
+			{
 				val groupRelRes = new VirtualOutlineNode(parentNode, parentNode.image, "Relevant resources", false)
-				for (r : pat.eAllContents.toIterable.filter(typeof(OperationRelevantResource))) {
+				for (r : pat.eAllContents.toIterable.filter(typeof(OperationRelevantResource)))
+				{
 					createEObjectNode(groupRelRes, r)
 				}
 				
 				val groupRelBody = new VirtualOutlineNode(parentNode, parentNode.image, "Body", false)
-				for (b : pat.eAllContents.toIterable.filter(typeof(OperationConvert))) {
+				for (b : pat.eAllContents.toIterable.filter(typeof(OperationConvert)))
+				{
 					createEObjectNode(groupRelBody, b)
 				}
-
 			}
-			Event: {
-				
+			Event:
+			{				
 				val groupRelRes = new VirtualOutlineNode(parentNode, parentNode.image, "Relevant resources", false)
-				for (r : pat.eAllContents.toIterable.filter(typeof(EventRelevantResource))) {
+				for (r : pat.eAllContents.toIterable.filter(typeof(EventRelevantResource)))
+				{
 					createEObjectNode(groupRelRes, r)
 				}
 				
 				val groupRelBody = new VirtualOutlineNode(parentNode, parentNode.image, "Body", false)
-				for (b : pat.eAllContents.toIterable.filter(typeof(EventConvert))) {
+				for (b : pat.eAllContents.toIterable.filter(typeof(EventConvert)))
+				{
 					createEObjectNode(groupRelBody, b)
 				}
-
 			}
 		}
 	}
 	
-	def _isLeaf(RuleConvert c) { true }
+	def _isLeaf(RuleConvert c)      { true }
 	def _isLeaf(OperationConvert c) { true }
-	def _isLeaf(EventConvert c) { true }
+	def _isLeaf(EventConvert c)     { true }
 	
 	// Decision points
 	def _isLeaf(DecisionPointSearchActivities d) { true }
-	def _isLeaf(DecisionPointActivities d) { true }
+	def _isLeaf(DecisionPointActivities d)       { true }
 	
 	// Process
-	def _isLeaf(ProcessGenerate pg) { true }
-	def _isLeaf(ProcessAdvance pa) { true }
-	def _isLeaf(ProcessAssign pa) { true }
+	def _isLeaf(ProcessGenerate pg)  { true }
+	def _isLeaf(ProcessAdvance pa)   { true }
+	def _isLeaf(ProcessAssign pa)    { true }
 	def _isLeaf(ProcessTerminate pt) { true }
-	def _isLeaf(ProcessQueue pq) { true }
+	def _isLeaf(ProcessQueue pq)     { true }
 	
 	// Results
 	def _isLeaf(ResultDeclaration r) { true }
