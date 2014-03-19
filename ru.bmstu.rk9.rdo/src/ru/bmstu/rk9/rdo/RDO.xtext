@@ -709,6 +709,7 @@ AssignmentOperator
 	| {MinusEqual} '-='
 	| {MultiEqual} '*='
 	| {DivEqual} '/='
+	| {ModuloEqual} '%='
 ;
  
 // Or: left associative, priority 0
