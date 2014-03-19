@@ -6,14 +6,7 @@ import org.eclipse.emf.ecore.EObject
 
 import ru.bmstu.rk9.rdo.rdo.RDOModel
 
-import ru.bmstu.rk9.rdo.rdo.RDOInteger
-import ru.bmstu.rk9.rdo.rdo.RDOReal
-import ru.bmstu.rk9.rdo.rdo.RDOBoolean
-import ru.bmstu.rk9.rdo.rdo.RDOString
-import ru.bmstu.rk9.rdo.rdo.RDOEnum
-import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
-import ru.bmstu.rk9.rdo.rdo.RDOArray
-import ru.bmstu.rk9.rdo.rdo.RDOOwnType
+import ru.bmstu.rk9.rdo.generator.RDONaming
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
@@ -66,11 +59,8 @@ import ru.bmstu.rk9.rdo.rdo.ResultWatchState
 import ru.bmstu.rk9.rdo.rdo.ResultWatchQuant
 import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
 import ru.bmstu.rk9.rdo.rdo.ResultGetValue
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
+
+
 
 class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider {
 
@@ -79,94 +69,15 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 		super(delegate);
 	}
 	
-	def RDOModel getModelRoot(EObject object){
-		switch object{
-			RDOModel: return object
-			default : return object.eContainer.modelRoot
-		}
-	}
-	
-	// Name getters
-	def getNameGeneric(EObject object) {
-		switch object {
+	//====== Extension methods ================================================================//
+	def getModelRoot           (EObject o)            { RDONaming.getModelRoot           (o)    }
+	def getNameGeneric         (EObject o)            { RDONaming.getNameGeneric         (o)    }
+	def getFullyQualifiedName  (EObject o)            { RDONaming.getFullyQualifiedName  (o)    }
+	def getContextQualifiedName(EObject o, EObject c) { RDONaming.getContextQualifiedName(o, c) }
+	def compileType            (EObject o)            { RDONaming.compileType            (o)    }
+	def getTypeGeneric         (EObject o)            { RDONaming.getTypeGeneric         (o)    }
+	//=========================================================================================//
 
-			RDOModel: {
-				var name = object.eResource().getURI().lastSegment()
-				if (name.endsWith(".rdo"))
-					name = name.substring(0, name.length() - 4)
-				name.replace(".", "_")
-				return name
-			}
-
-			ResourceType:
-				return object.name
-
-			ResourceTypeParameter:
-				return object.name
-
-			default:
-				return "ERROR"
-		}
-	}
-	
-	def getFullyQualifiedName(EObject object) {
-		switch object {
-
-			RDOModel:
-				return object.nameGeneric
-
-			ResourceType:
-				return object.eContainer.nameGeneric + "." + object.name
-
-			ResourceTypeParameter:
-				return object.eContainer.eContainer.nameGeneric +
-					"." + object.eContainer.nameGeneric + "." + object.name
-
-			default:
-				return "ERROR"
-		}
-	}
-
-	def getFullyQualifiedName(EObject object, EObject context) {
-		var oname = object.fullyQualifiedName
-		var cname = context.fullyQualifiedName
-		
-		while (oname.startsWith(cname.substring(0,
-			if (cname.indexOf(".") > 0)	cname.indexOf(".") else (cname.length - 1))))
-		{
-			oname = oname.substring(oname.indexOf(".") + 1)
-			cname = cname.substring(cname.indexOf(".") + 1)			
-		}
-		return oname
-	}
-	
-	def String getTypeGeneric(EObject type)
-	{
-		switch type {
-			
-			RDORTPParameterBasic : getTypeGeneric(type.type)
-			RDORTPParameterString: getTypeGeneric(type.type)
-			RDORTPParameterEnum  : getTypeGeneric(type.type)
-			RDORTPParameterSuchAs: getTypeGeneric(type.type)
-			RDORTPParameterArray : getTypeGeneric(type.type)
-			
-			RDOInteger: " : " + type.type
-			RDOReal   : " : " + type.type
-			RDOBoolean: " : " + type.type
-			RDOString : " : " + type.type
-			RDOEnum   : " : enumerative"
-			RDOSuchAs : " : such_as " + switch type.eContainer {
-				RDORTPParameterSuchAs:
-					getFullyQualifiedName(type.type, type.eContainer.eContainer.eContainer)
-				default: getFullyQualifiedName(type.type, type.modelRoot)
-			}
-			
-			RDOArray  : " : array" + getTypeGeneric(type.arraytype)
-			RDOOwnType: " : " + type.id.nameGeneric
-			
-			default: ""
-		}
-	}
 
 	// Model
 	def image(RDOModel m) { "model.gif" }

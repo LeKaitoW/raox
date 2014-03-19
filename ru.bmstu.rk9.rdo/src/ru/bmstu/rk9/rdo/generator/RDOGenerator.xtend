@@ -10,97 +10,22 @@ import ru.bmstu.rk9.rdo.rdo.ResourceType
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
-import ru.bmstu.rk9.rdo.rdo.RDOType
-
-import ru.bmstu.rk9.rdo.rdo.RDOEnum
-import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
-import ru.bmstu.rk9.rdo.rdo.RDOArray
-import ru.bmstu.rk9.rdo.rdo.RDOOwnType
 import ru.bmstu.rk9.rdo.customizations.RDOQualifiedNameProvider
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
-import ru.bmstu.rk9.rdo.rdo.RDOInteger
-import ru.bmstu.rk9.rdo.rdo.RDOReal
-import ru.bmstu.rk9.rdo.rdo.RDOBoolean
+
 import org.eclipse.emf.ecore.EObject
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
+
+import ru.bmstu.rk9.rdo.generator.RDONaming
 
 class RDOGenerator implements IGenerator
 {
-
-	def RDOModel getModelRoot(EObject object)
-	{
-		switch object
-		{
-			RDOModel: return object
-			default : return object.eContainer.modelRoot
-		}
-	}
-	
-	// Name getters
-	def getNameGeneric(EObject object)
-	{
-		switch object
-		{
-			RDOModel:
-			{
-				var name = object.eResource().getURI().lastSegment()
-				if (name.endsWith(".rdo"))
-					name = name.substring(0, name.length() - 4)
-				name.replace(".", "_")
-				return name
-			}
-
-			ResourceType:
-				return object.name
-
-			ResourceTypeParameter:
-				return object.name
-
-			default:
-				return "ERROR"
-		}
-	}
-	
-	def getFullyQualifiedName(EObject object) 
-	{
-		switch object
-		{
-			RDOModel:
-				return object.nameGeneric
-
-			ResourceType:
-				return object.eContainer.nameGeneric + "." + object.name
-
-			ResourceTypeParameter:
-				return object.eContainer.eContainer.nameGeneric +
-					"." + object.eContainer.nameGeneric + "." + object.name
-
-			default:
-				return "ERROR"
-		}
-	}
-
-	def processType(EObject type)
-	{
-		switch type
-		{
-			RDORTPParameterBasic :
-			{
-				val basic = type.type
-				switch basic
-				{
-					RDOInteger: "Integer"
-					RDOReal: "Double"
-					RDOBoolean: "Boolean"
-					default: "Integer"
-				}
-			}
-			RDORTPParameterString: "String"
-			default: "Integer"
-		}
-	}
+	//====== Extension methods ================================================================//
+	def getModelRoot           (EObject o)            { RDONaming.getModelRoot           (o)    }
+	def getNameGeneric         (EObject o)            { RDONaming.getNameGeneric         (o)    }
+	def getFullyQualifiedName  (EObject o)            { RDONaming.getFullyQualifiedName  (o)    }
+	def getContextQualifiedName(EObject o, EObject c) { RDONaming.getContextQualifiedName(o, c) }
+	def compileType            (EObject o)            { RDONaming.compileType            (o)    }
+	def getTypeGeneric         (EObject o)            { RDONaming.getTypeGeneric         (o)    }
+	//=========================================================================================//
 
 	override void doGenerate(Resource resource, IFileSystemAccess fsa)
 	{
@@ -169,7 +94,7 @@ class RDOGenerator implements IGenerator
 		{
 
 			«FOR parameter : rtp.parameters»
-			public «processType(parameter.type)» «parameter.name»;
+			public «compileType(parameter.type)» «parameter.name»;
 			«ENDFOR»
 
 		}
