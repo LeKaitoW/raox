@@ -20,16 +20,74 @@ import ru.bmstu.rk9.rdo.rdo.ExpressionOr
 import ru.bmstu.rk9.rdo.rdo.ExpressionAssignment
 import ru.bmstu.rk9.rdo.rdo.ExpressionList
 import ru.bmstu.rk9.rdo.rdo.Primary
+import ru.bmstu.rk9.rdo.rdo.IntConstant
+import ru.bmstu.rk9.rdo.rdo.DoubleConstant
+import ru.bmstu.rk9.rdo.rdo.StringConstant
+import ru.bmstu.rk9.rdo.rdo.BoolConstant
+import ru.bmstu.rk9.rdo.rdo.GroupExpression
+import ru.bmstu.rk9.rdo.rdo.ArrayValues
+import ru.bmstu.rk9.rdo.rdo.VariableIncDecExpression
+import org.eclipse.emf.ecore.EObject
+import ru.bmstu.rk9.rdo.rdo.VariableMethodCallExpression
+import ru.bmstu.rk9.rdo.rdo.VariableExpression
 
 class RDOExpressionCompiler
 {
 	private static boolean collectA = false
 	private static boolean collectL = false
 	
-	def static String compileExpression(Expression expr)
+	def static String compileExpression(EObject expr)
 	{
 		switch expr
 		{
+			IntConstant:
+				return expr.value.toString
+				
+			DoubleConstant:
+				return expr.value.toString
+				
+			StringConstant:
+				return '"' + expr.value + '"'
+				
+			BoolConstant:
+				return expr.value.toString
+
+			GroupExpression:
+				return "groupby"
+				
+			ArrayValues:
+			{
+				collectL = true
+				var array = "[ "
+				array = array + expr.values.compileExpression
+				array = array + " ]"
+				collectL = false
+				return array
+			}
+			
+			VariableIncDecExpression:
+				return if (expr.pre != null) expr.pre else "" +
+					expr.^var.compileExpression + if (expr.post != null) expr.post else ""
+			
+			VariableMethodCallExpression:
+			{
+				var mcall = ""
+				var flag = false
+				
+				for (c : expr.calls)
+				{
+					mcall = mcall + (if(flag) "." else "") + c.compileExpression
+					flag = true 
+				}
+	
+				return mcall 
+			}
+			
+			VariableExpression:
+				return expr.call +
+					( if(expr.isfunction) "(" + expr.args.compileExpression     + ")" else "" ) +
+					( if(expr.isarray)    "[" + expr.iterator.compileExpression + "]" else "")
+
 			Primary:
 				return "( " + expr.exp.compileExpression + " )"
 			

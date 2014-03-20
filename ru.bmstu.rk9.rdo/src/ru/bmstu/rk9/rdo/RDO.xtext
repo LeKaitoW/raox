@@ -106,7 +106,7 @@ ResourceExpressionList:
 
 ResourceParameterExpression
 	: {RDODefaultParameter} '*'
-	| Primary
+	| Expression
 ;
 
 ResourceTrace:
@@ -463,7 +463,7 @@ FunctionListValue:
 // ==========================================================
 Results:
 	'$Results' name = ID?
-		(results += ResultDeclaration)*
+		(results += ResultDeclaration)+
 	'$End'
 ;
 
@@ -601,12 +601,12 @@ RDOOwnType:
 //                      Statement language
 // ==========================================================
 StatementList:
-	(statements += Statement)*
+	(statements += Statement)+
 ;
 
 Statement
 	: empty ?= ';'
-	| Expression ';'
+	| Expression ';' // LIST?
 	| NestedStatement
 	| LocalVariableDeclaration ';'
 	| IfStatement
@@ -685,15 +685,12 @@ LegacySetStatement:
 // ==========================================================
 //                      Expression language
 // ==========================================================
-Expression
-	: ExpressionList
+ExpressionList:
+	values += Expression  (',' values += Expression)*	
 ;
 
-// List: left associative, lowest possible priority (-2)
-ExpressionList returns Expression:
-	ExpressionAssignment (
-		',' {ExpressionList.left = current} next = ExpressionAssignment
-	)*	
+Expression
+	: ExpressionAssignment
 ;
 
 // Assignment: left associative, higher priority (-1)
@@ -771,11 +768,11 @@ Atomic returns Expression
 	| {BoolConstant}   value = BOOL
 	| {GroupExpression} type = BuiltInLogical '(' arg = GroupBy ')'
 	| ArrayValues
-	| VariableMethodCallExpressionIncDec
+	| VariableIncDecExpression
 ;
 
 ArrayValues:
-	'[' values = ExpressionList ']'
+	'[' {ArrayValues} values = ExpressionList? ']'
 ;
 
 enum BuiltInLogical
@@ -790,19 +787,19 @@ GroupBy:
 		(condition = Expression | 'NoCheck')
 ;
 
-VariableMethodCallExpressionIncDec returns Expression
+VariableIncDecExpression
 	: (pre  = '++' | pre  = '--' ) => var = VariableMethodCallExpression
 	| var = VariableMethodCallExpression ( => post = '++' | => post = '--' )?
 ;
 
-VariableMethodCallExpression returns Expression
+VariableMethodCallExpression
 	: calls += VariableExpression ('.' calls += VariableExpression)*
 ;
 
 // будешь сидеть и валидировать этот ID до посинения
-VariableExpression returns Expression
+VariableExpression
 	: call = ID
-		( => isfunction ?= '(' (args = Expression)? ')' )?
+		( => isfunction ?= '(' (args = ExpressionList)? ')' )?
 		( => isarray ?= '[' iterator = Expression ']')?
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
