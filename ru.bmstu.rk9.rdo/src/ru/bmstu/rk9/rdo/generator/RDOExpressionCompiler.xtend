@@ -179,26 +179,14 @@ class RDOExpressionCompiler
 			}		
 			ExpressionList:
 			{
-				var String list = "" 
+				var String list = ""
+				var flag = false
 				
-				var boolean donottouchL = false
-				
-				if (collectL == false)
+				for (e : expr.values)
 				{
-					collectL = true
-					list = list + "("
-				}
-				else donottouchL = true
-				
-				list = list + expr.left.compileExpression +
-				       ", " + expr.next.compileExpression
-				
-				if (collectL == true && !donottouchL)
-				{
-					collectL = false
-					list = list + ")"
-				}
-				
+					list = list + ( if(flag) ", " else "" ) + e.compileExpression
+					flag = true
+				}	
 				return list
 			}
 			default:
