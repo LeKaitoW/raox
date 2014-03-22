@@ -19,6 +19,7 @@ import ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
+import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOGenerator implements IGenerator
 {
@@ -27,8 +28,7 @@ class RDOGenerator implements IGenerator
 	def getNameGeneric         (EObject o)            { RDONaming.getNameGeneric         (o)    }
 	def getFullyQualifiedName  (EObject o)            { RDONaming.getFullyQualifiedName  (o)    }
 	def getContextQualifiedName(EObject o, EObject c) { RDONaming.getContextQualifiedName(o, c) }
-	def compileType            (EObject o)            { RDONaming.compileType            (o)    }
-	def getTypeGeneric         (EObject o)            { RDONaming.getTypeGeneric         (o)    }
+	def compileType            (EObject o)            { RDOExpressionCompiler.compileType(o)    }
 	//=========================================================================================//
 
 	override void doGenerate(Resource resource, IFileSystemAccess fsa)
@@ -36,75 +36,122 @@ class RDOGenerator implements IGenerator
 
 		val filename = RDOQualifiedNameProvider.computeFromURI(resource.contents.head as RDOModel)
 		
-		fsa.generateFile("rdo_lib/ResourceType.java", makeResourceType())
-		fsa.generateFile("rdo_lib/ResourceTypeList.java", makeResourceTypeList())
+//		fsa.generateFile("rdo_model/AllEnums.java", makeEnumsClass(resource.allContents.toIterable.filter(typeof(RDOEnum))))
 		
 		for (e : resource.allContents.toIterable.filter(typeof(ResourceType)))
 		{
 			fsa.generateFile(filename + "/" + e.name + ".java", e.compileResourceType(filename))
-			fsa.generateFile("model/" + filename + "/" + e.name + "Factory.java", e.compileResourceFactory(filename))
 		}
 		
 		if (filename.length > 0)
-			fsa.generateFile("model/" + filename + "/ResourcesDeclaration.java", compileResources(resource.contents.head as RDOModel, filename))
+			fsa.generateFile("rdo_model/" + filename + "_ResourcesDeclaration.java", compileResources(resource.contents.head as RDOModel, filename))
 	}
 	
-	def makeResourceType()
+//	def makeEnumsClass(Iterable<RDOEnum> enums)
+//	{
+//		'''
+//		package rdo_model;
+//		
+//		public class AllEnums
+//		{
+//
+//			«FOR e : enums»
+//				public enum enum_in_«RDONaming.getEnumName(e)»
+//				{
+//					«e.makeEnumBody»
+//				}
+//
+//		«ENDFOR»
+//		}
+//		'''
+//	}
+	
+	def makeEnumBody(RDOEnum e)
 	{
-		'''
-		package rdo_lib;
+		var flag = false
+		var body = ""
 
-		public abstract class ResourceType {}
-		'''
-	}
-
-	def makeResourceTypeList()
-	{
-		'''
-		package rdo_lib;
-		
-		import java.util.ArrayList;
-		
-		public abstract class ResourceTypeList
+		for (i : e.enums)
 		{
-			protected ArrayList<ResourceType> resources;
-			
-			public abstract ResourceType addResource();
-		
-			public int getResourceCount()
-			{
-				return resources.size();
-			}
-		
-			public ResourceType getResource(int index)
-			{
-				return resources.get(index);
-			}
-		
-			public int findResource(ResourceType resource)
-			{
-				return resources.indexOf(resource);
-			}
+			if (flag)
+				body = body + ", "
+			body = body + i.name
+			flag = true
 		}
-		'''
+		return body
 	}
-
+	
 	def compileResourceType(ResourceType rtp, String filename)
 	{
 		'''
 		package «filename»;
 
-		public class «rtp.name» extends rdo_lib.ResourceType
+		public class «rtp.name»
 		{
+			private static java.util.ArrayList<«rtp.name»> resources;
 
+			private «rtp.name»(/*PARAMETERS*/)
+			{
+				
+			}
+
+			public static «rtp.name» addResource(/*PARAMETERS*/)
+			{
+				«rtp.name» res = new «rtp.name»(/*PARAMETERS*/);
+				resources.add(res);
+				return res;
+			}
+
+			public static int getResourceCount()
+			{
+				return resources.size();
+			}
+		
+			public static «rtp.name» getResource(int index)
+			{
+				return resources.get(index);
+			}
+		
+			public static int findResource(«rtp.name» resource)
+			{
+				return resources.indexOf(resource);
+			}
+
+			// ENUMS
+			«FOR e : rtp.eAllContents.toIterable.filter(typeof(RDOEnum))»
+			enum «RDONaming.getEnumParentName(e, false)»_enum
+			{
+				«e.makeEnumBody»
+			}
+
+			«ENDFOR»
+			// PARAMETERS
 			«FOR parameter : rtp.parameters»
 			public «compileType(parameter.type)» «parameter.name»«parameter.type.getDefault»;
 			«ENDFOR»
-
 		}
 		'''
 	}
-	
+
+	def compileResources(RDOModel model, String filename)
+	{
+		'''
+		package rdo_model;
+
+		@SuppressWarnings("unused")
+		
+		class «filename»_ResourcesDeclaration
+		{
+			«filename»_ResourcesDeclaration()
+			{
+				«FOR r : model.eAllContents.toIterable.filter(typeof(ResourceDeclaration))»
+					«r.reference.fullyQualifiedName» «r.name» = «r.reference.fullyQualifiedName».addResource(/**/);
+				«ENDFOR»
+			}
+		}
+		'''
+	}
+
 	def String getDefault(RDORTPParameterType parameter)
 	{
 		switch parameter
@@ -117,49 +164,5 @@ class RDOGenerator implements IGenerator
 				return ""
 		}
 	}
-	
-	def compileResourceFactory(ResourceType rtp, String filename)
-	{
-		'''
-		package model.«filename»;
-
-		public class «rtp.name»Factory extends rdo_lib.ResourceTypeList
-		{
-			public «filename».«rtp.name» addResource(/*PARAMETERS*/)
-			{
-				«filename».«rtp.name» res = new «filename».«rtp.name»();
-				resources.add(res);
-				return res;
-			}
-		}
-		'''
-	}	
-
-	def compileResources(RDOModel model, String name)
-	{
-		'''
-		package model.«name»;
-
-		@SuppressWarnings("unused")
-		
-		class ResourcesDeclaration
-		{
-
-			ResourcesDeclaration()
-			{
-				«FOR r : model.eAllContents.toIterable.filter(typeof(ResourceType))»
-					«r.name»Factory «r.name»List = new «r.name»Factory();
-				«ENDFOR»
-
-				«FOR r : model.eAllContents.toIterable.filter(typeof(ResourceDeclaration))»
-					«r.reference.fullyQualifiedName» «r.name» = «r.reference.nameGeneric»List.addResource(/**/);
-				«ENDFOR»
-
-			}
-
-		}
-		'''
-	}
 
 }
-

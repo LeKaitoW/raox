@@ -19,6 +19,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOArray
 import ru.bmstu.rk9.rdo.rdo.RDOOwnType
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
 
 class RDONaming
 {
@@ -60,7 +61,7 @@ class RDONaming
 				return "ERROR"
 		}
 	}
-	
+
 	def static getFullyQualifiedName(EObject object) 
 	{
 		switch object
@@ -94,35 +95,15 @@ class RDONaming
 		return oname
 	}
 
-	def static compileType(EObject type)
+	def static String getTypeGenericLabel(EObject type)
 	{
 		switch type
 		{
-			RDORTPParameterBasic :
-			{
-				val basic = type.type
-				switch basic
-				{
-					RDOInteger: "Integer"
-					RDOReal: "Double"
-					RDOBoolean: "Boolean"
-					default: "Integer"
-				}
-			}
-			RDORTPParameterString: "String"
-			default: "Integer"
-		}
-	}	
-
-	def static String getTypeGeneric(EObject type)
-	{
-		switch type
-		{
-			RDORTPParameterBasic : getTypeGeneric(type.type)
-			RDORTPParameterString: getTypeGeneric(type.type)
-			RDORTPParameterEnum  : getTypeGeneric(type.type)
-			RDORTPParameterSuchAs: getTypeGeneric(type.type)
-			RDORTPParameterArray : getTypeGeneric(type.type)
+			RDORTPParameterBasic : getTypeGenericLabel(type.type)
+			RDORTPParameterString: getTypeGenericLabel(type.type)
+			RDORTPParameterEnum  : getTypeGenericLabel(type.type)
+			RDORTPParameterSuchAs: getTypeGenericLabel(type.type)
+			RDORTPParameterArray : getTypeGenericLabel(type.type)
 			
 			RDOInteger: " : " + type.type
 			RDOReal   : " : " + type.type
@@ -136,12 +117,29 @@ class RDONaming
 				default: getContextQualifiedName(type.type, type.modelRoot)
 			}
 			
-			RDOArray  : " : array" + getTypeGeneric(type.arraytype)
+			RDOArray  : " : array" + getTypeGenericLabel(type.arraytype)
 			RDOOwnType: " : " + type.id.nameGeneric
 			
 			default: ""
 		}
 	}
-
 	
+	def static String getEnumParentName(RDOEnum enm, boolean isFQN)
+	{
+		var container = enm.eContainer
+
+		while (container instanceof RDOArray)
+		{
+			container = container.eContainer
+		}
+		
+		if (container instanceof RDORTPParameterType)
+				container = container.eContainer
+		
+		if (isFQN)
+			return container.fullyQualifiedName
+		else
+			return container.nameGeneric
+	}
+
 }

@@ -799,8 +799,9 @@ VariableMethodCallExpression
 // будешь сидеть и валидировать этот ID до посинения
 VariableExpression
 	: call = ID
-		( => isfunction ?= '(' (args = ExpressionList)? ')' )?
-		( => isarray ?= '[' iterator = Expression ']')?
+	( => functionfirst ?= '(' (args = ExpressionList)? ')' ( => arraylast ?= '[' iterator = Expression ']' )?
+	| => arrayfirst ?= '[' iterator = Expression ']' ( => functionlast ?= '(' (args = ExpressionList)? ')' )?
+	)?
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

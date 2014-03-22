@@ -59,8 +59,7 @@ import ru.bmstu.rk9.rdo.rdo.ResultWatchState
 import ru.bmstu.rk9.rdo.rdo.ResultWatchQuant
 import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
 import ru.bmstu.rk9.rdo.rdo.ResultGetValue
-
-
+import ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler
 
 class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider {
 
@@ -74,8 +73,8 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def getNameGeneric         (EObject o)            { RDONaming.getNameGeneric         (o)    }
 	def getFullyQualifiedName  (EObject o)            { RDONaming.getFullyQualifiedName  (o)    }
 	def getContextQualifiedName(EObject o, EObject c) { RDONaming.getContextQualifiedName(o, c) }
-	def compileType            (EObject o)            { RDONaming.compileType            (o)    }
-	def getTypeGeneric         (EObject o)            { RDONaming.getTypeGeneric         (o)    }
+	def compileType            (EObject o)            { RDOExpressionCompiler.compileType(o)    }
+	def getTypeGenericLabel    (EObject o)            { RDONaming.getTypeGenericLabel    (o)    }
 	//=========================================================================================//
 
 
@@ -86,7 +85,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def  text(ResourceType rtp) { "RTP : " + rtp.name }
 	def image(ResourceType rtp) { if (rtp.type.literal == "permanent") "puzzle_plus.gif" else "puzzle_plus_gray.gif" }
 	
-	def  text(ResourceTypeParameter p) { p.name + p.type.typeGeneric }
+	def  text(ResourceTypeParameter p) { p.name + p.type.typeGenericLabel }
 	def image(ResourceTypeParameter p) { "parameter.gif" }
 		
 	// Resources
@@ -110,21 +109,21 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def image(Constants c) { "floppy.gif" }
 	
 	def image(ConstantDeclaration c) { "constant2.gif" }
-	def  text(ConstantDeclaration c) { c.name + c.type.typeGeneric }
+	def  text(ConstantDeclaration c) { c.name + c.type.typeGenericLabel }
 	
 	// Sequence
 	def  text(Sequence seq) { "SEQ : " + seq.name + " : " + (
 		if (seq.type.enumerative != null) "enumerative" else "" +
 		if (seq.type.regular != null) seq.type.regular.type.literal else "" +
-		if (seq.type.histogram != null) "histogram" else "" ) + seq.returntype.typeGeneric }
+		if (seq.type.histogram != null) "histogram" else "" ) + seq.returntype.typeGenericLabel }
 	def image(Sequence seq) { "chart.gif" }
 	
 	// Function
-	def  text(Function fun) { "FUN : " + fun.name + fun.returntype.typeGeneric }
+	def  text(Function fun) { "FUN : " + fun.name + fun.returntype.typeGenericLabel }
 	def image(Function fun) { "calc_arrow.gif" }
 	
 	def image(FunctionParameter p) { "parameter.gif" }
-	def  text(FunctionParameter p) { p.name + p.type.typeGeneric }
+	def  text(FunctionParameter p) { p.name + p.type.typeGenericLabel }
 	
 	// Event
 	def  text(Event evn) { "EVN : " + evn.name + " : event" + if (evn.trace) " , traced" else "" }
