@@ -44,6 +44,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOArray
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
 import ru.bmstu.rk9.rdo.rdo.RDOString
 import ru.bmstu.rk9.rdo.generator.RDONaming
+import ru.bmstu.rk9.rdo.rdo.TimeNow
 
 class RDOExpressionCompiler
 {
@@ -56,7 +57,10 @@ class RDOExpressionCompiler
 				
 			DoubleConstant:
 				return expr.value.toString
-				
+			
+			TimeNow:
+				return "rdo_lib.Simulator.getTime()"
+			
 			StringConstant:
 				return '"' + expr.value + '"'
 				

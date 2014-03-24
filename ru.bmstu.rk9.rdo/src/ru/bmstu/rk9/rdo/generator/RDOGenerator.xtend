@@ -36,7 +36,7 @@ class RDOGenerator implements IGenerator
 
 		val filename = RDOQualifiedNameProvider.computeFromURI(resource.contents.head as RDOModel)
 		
-//		fsa.generateFile("rdo_model/AllEnums.java", makeEnumsClass(resource.allContents.toIterable.filter(typeof(RDOEnum))))
+		fsa.generateFile("rdo_lib/Simulator.java", compileLibSimulator())
 		
 		for (e : resource.allContents.toIterable.filter(typeof(ResourceType)))
 		{
@@ -46,25 +46,6 @@ class RDOGenerator implements IGenerator
 		if (filename.length > 0)
 			fsa.generateFile("rdo_model/" + filename + "_ResourcesDeclaration.java", compileResources(resource.contents.head as RDOModel, filename))
 	}
-	
-//	def makeEnumsClass(Iterable<RDOEnum> enums)
-//	{
-//		'''
-//		package rdo_model;
-//		
-//		public class AllEnums
-//		{
-//
-//			«FOR e : enums»
-//				public enum enum_in_«RDONaming.getEnumName(e)»
-//				{
-//					«e.makeEnumBody»
-//				}
-//
-//		«ENDFOR»
-//		}
-//		'''
-//	}
 	
 	def makeEnumBody(RDOEnum e)
 	{
@@ -117,7 +98,7 @@ class RDOGenerator implements IGenerator
 				return resources.indexOf(resource);
 			}
 
-			// ENUMS
+			«IF rtp.eAllContents.filter(typeof(RDOEnum)).toList.size > 0»// ENUMS«ENDIF»
 			«FOR e : rtp.eAllContents.toIterable.filter(typeof(RDOEnum))»
 			enum «RDONaming.getEnumParentName(e, false)»_enum
 			{
@@ -163,6 +144,23 @@ class RDOGenerator implements IGenerator
 			default:
 				return ""
 		}
+	}
+
+	def compileLibSimulator()
+	{
+		'''
+		package rdo_lib;
+		
+		public class Simulator
+		{
+			private static double time = 0;
+
+			public static double getTime()
+			{
+				return time;
+			}
+		}
+		'''
 	}
 
 }
