@@ -385,7 +385,7 @@ class RDOValidator extends AbstractRDOValidator
 						for (c : convertlist)
 							if (c.relres == r)
 								error("Multiple converts for relevant resource " + r.name,
-										c, RdoPackage.Literals.OPERATION_CONVERT__RELRES)
+										c, RdoPackage.Literals.EVENT_CONVERT__RELRES)
 					if (!found)
 						error("No convert found for relevant resource " + r.name,
 							r, RdoPackage.Literals.EVENT_RELEVANT_RESOURCE__NAME)
