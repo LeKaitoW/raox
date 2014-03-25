@@ -20,6 +20,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOOwnType
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
+import ru.bmstu.rk9.rdo.rdo.Pattern
 
 class RDONaming
 {
@@ -75,6 +76,9 @@ class RDONaming
 			ResourceTypeParameter:
 				return object.eContainer.eContainer.nameGeneric +
 					"." + object.eContainer.nameGeneric + "." + object.name
+
+			Pattern:
+				return object.eContainer.nameGeneric + "." + object.name
 
 			default:
 				return "ERROR"
