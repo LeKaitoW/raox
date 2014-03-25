@@ -606,7 +606,7 @@ StatementList:
 
 Statement
 	: empty ?= ';'
-	| Expression ';' // LIST?
+	| ExpressionStatement ';'
 	| NestedStatement
 	| LocalVariableDeclaration ';'
 	| IfStatement
@@ -614,7 +614,6 @@ Statement
 	| BreakStatement ';'
 	| ReturnStatement ';'
 //	| process_input_statement
-//	| member_statement
 	| NoChangeStatement ';'
 	| StoppingStatement ';' // ?????????
 	| PlanningStatement ';'
@@ -622,7 +621,10 @@ Statement
 //	| watch_start
 //	| watch_stop
 ;
-// приход_клиента.stopping();
+
+ExpressionStatement:
+	expr = ExpressionAssignment
+;
 
 NestedStatement:
 	'{' statements = StatementList  '}'
