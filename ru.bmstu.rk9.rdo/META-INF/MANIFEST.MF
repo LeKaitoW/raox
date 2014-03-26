@@ -31,4 +31,5 @@ Export-Package: ru.bmstu.rk9.rdo,
  ru.bmstu.rk9.rdo.validation,
  ru.bmstu.rk9.rdo.scoping,
  ru.bmstu.rk9.rdo.generator,
- ru.bmstu.rk9.rdo.formatting
+ ru.bmstu.rk9.rdo.formatting,
+ ru.bmstu.rk9.rdo.customizations
