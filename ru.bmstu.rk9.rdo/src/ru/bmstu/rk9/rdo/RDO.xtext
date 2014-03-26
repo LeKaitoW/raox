@@ -90,7 +90,7 @@ enum ResourceTypeKind
 //                           Resources
 // ==========================================================
 Resources:
-	'$Resources'
+	object = '$Resources'
 		(resources += ResourceDeclaration | trace += ResourceTrace)+
 	'$End'
 ;
