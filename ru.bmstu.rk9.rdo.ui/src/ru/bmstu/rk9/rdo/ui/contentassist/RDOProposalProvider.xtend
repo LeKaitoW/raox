@@ -9,7 +9,10 @@ import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 
 import org.eclipse.emf.ecore.EObject
+
 import ru.bmstu.rk9.rdo.rdo.Resources
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
+import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
 
 class RDOProposalProvider extends AbstractRDOProposalProvider
 {
@@ -31,5 +34,23 @@ class RDOProposalProvider extends AbstractRDOProposalProvider
 		lookupCrossReference(assignment.terminal as CrossReference, context, acceptor, [r |
 			!(context.previousModel.eContainer as Resources).trace.map[t | t.trace].contains(r.EObjectOrProxy as EObject) &&
 		     (context.previousModel.eContainer as Resources).resources.contains(r.EObjectOrProxy as EObject) ])
+	}
+	
+	override completeRDOSuchAs_Type(
+		EObject element,
+		Assignment assignment,
+		ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor)
+	{
+		val container = switch context.previousModel.eContainer
+			{
+				RDORTPParameterSuchAs:
+					context.previousModel.eContainer.eContainer
+				ConstantDeclaration:
+					context.previousModel.eContainer
+				default: null
+			}
+		lookupCrossReference(assignment.terminal as CrossReference, context, acceptor, [r |
+			(r.EObjectOrProxy as EObject) != container ])
 	}
 }
