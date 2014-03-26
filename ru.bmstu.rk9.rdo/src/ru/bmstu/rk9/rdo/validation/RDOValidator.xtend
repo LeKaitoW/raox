@@ -269,6 +269,10 @@ class RDOValidator extends AbstractRDOValidator
 				if (rule == 'Keep')
 					error("Invalid convert status: "+rule+" couldn't be used for resource type in event",
 							RdoPackage.Literals.EVENT_RELEVANT_RESOURCE__RULE)
+			ResourceDeclaration:
+				if (rule == 'Create')
+					error("Invalid convert status: "+rule+" couldn't be used for resource in event",
+							RdoPackage.Literals.EVENT_RELEVANT_RESOURCE__RULE)
 		}
 	}
 
