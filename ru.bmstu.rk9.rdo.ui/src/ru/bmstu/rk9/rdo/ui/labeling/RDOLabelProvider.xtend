@@ -105,7 +105,8 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 		def image(ResourceTrace rsstrc) { "tag.gif" }
 	
 	// Constants
-	def  text(Constants c) { "CON : " + c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size.toString + " constants" }
+	def  text(Constants c) { "CON : " + c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size.toString +
+		" constant" + if (c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size % 10 != 1) "s" else ""}
 	def image(Constants c) { "floppy.gif" }
 	
 	def image(ConstantDeclaration c) { "constant2.gif" }
