@@ -61,14 +61,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 				{
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileEvent(filename))
 				}
-		
-				if (filename.length > 0)
-					fsa.generateFile("rdo_model/" + filename + "_ResourcesDeclaration.java", compileResources(resource.contents.head as RDOModel, filename))
 			}
 
 		fsa.generateFile("rdo_model/MainClass.java", compileMain(resources))
 	}
-	
+
 	def compileMain(ResourceSet rs)
 	{
 		'''
@@ -78,8 +75,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 		{
 			public static void main(String[] args)
 			{
-				«FOR r : rs.resources.map(r|r.allContents.toIterable.filter(typeof(ResourceDeclaration)))»
-				
+				«FOR rl : rs.resources.map(r|r.allContents.toIterable.filter(typeof(ResourceDeclaration)))»
+					«FOR r : rl»
+						«r.reference.fullyQualifiedName».addResource("«r.name»", new «r.reference.fullyQualifiedName»());
+					«ENDFOR»
 				«ENDFOR»
 			}
 		}
@@ -169,23 +168,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«FOR e : evn.algorithms»
 				// Statement list
 				«RDOStatementCompiler.compileStatement(e)»
-				«ENDFOR»
-			}
-		}
-		'''
-	}
-
-	def compileResources(RDOModel model, String filename)
-	{
-		'''
-		package rdo_model;
-
-		class «filename»_ResourcesDeclaration
-		{
-			«filename»_ResourcesDeclaration()
-			{
-				«FOR r : model.eAllContents.toIterable.filter(typeof(ResourceDeclaration))»
-					«r.reference.fullyQualifiedName».addResource("«r.name»", new «r.reference.fullyQualifiedName»());
 				«ENDFOR»
 			}
 		}
