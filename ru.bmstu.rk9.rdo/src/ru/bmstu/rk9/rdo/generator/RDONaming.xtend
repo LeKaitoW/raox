@@ -21,9 +21,15 @@ import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
 import ru.bmstu.rk9.rdo.rdo.Pattern
+import org.eclipse.emf.common.util.URI
 
 class RDONaming
 {
+	def static getProjectName(URI uri)
+	{
+		return uri.toPlatformString(false).substring(1, uri.toPlatformString(true).indexOf("/", 1))
+	} 
+	
 	def static RDOModel getModelRoot(EObject object)
 	{
 		switch object
