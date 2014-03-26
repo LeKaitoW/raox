@@ -12,6 +12,10 @@ import java.util.List
 import java.util.ArrayList
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.VariableMethodCallExpression
+import ru.bmstu.rk9.rdo.rdo.IfStatement
+
+import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
+import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 
 class RDOStatementCompiler
 {	
@@ -34,7 +38,7 @@ class RDOStatementCompiler
 						for (e : st.statements.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
 							for (c : e.calls)
 							{
-								var repl = (st.relres.type as ResourceDeclaration).reference.name +
+								var repl = (st.relres.type as ResourceDeclaration).reference.fullyQualifiedName +
 									'.getResource("' +	st.relres.type.name + '")'
 								
 								if(c.call == st.relres.name && e.calls.size == 2)
@@ -80,6 +84,15 @@ class RDOStatementCompiler
 				{
 					«st.statements.compileStatement»
 				}
+				'''
+			
+			IfStatement:
+				'''
+				if(«st.condition.compileExpression»)
+					«st.then.compileStatement»
+				«IF st.^else != null»else
+					«st.^else.compileStatement»
+				«ENDIF»
 				'''
 			
 			PlanningStatement:

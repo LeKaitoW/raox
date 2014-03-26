@@ -26,17 +26,13 @@ import ru.bmstu.rk9.rdo.customizations.IMultipleResourceGenerator
 import org.eclipse.emf.ecore.resource.ResourceSet
 
 import static extension org.eclipse.xtext.xbase.lib.IteratorExtensions.*
+import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+
+import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
+import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
 class RDOGenerator implements IMultipleResourceGenerator
 {
-	//====== Extension methods ================================================================//
-	def getModelRoot           (EObject o)            { RDONaming.getModelRoot           (o)    }
-	def getNameGeneric         (EObject o)            { RDONaming.getNameGeneric         (o)    }
-	def getFullyQualifiedName  (EObject o)            { RDONaming.getFullyQualifiedName  (o)    }
-	def getContextQualifiedName(EObject o, EObject c) { RDONaming.getContextQualifiedName(o, c) }
-	def compileType            (EObject o)            { RDOExpressionCompiler.compileType(o)    }
-	//=========================================================================================//
-	
 	override void doGenerate(Resource resource, IFileSystemAccess fsa)
 	{}
 
@@ -63,6 +59,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 				}
 			}
 
+		fsa.generateFile("rdo_model/Constants.java", compileConstants(resources))
+
 		fsa.generateFile("rdo_model/MainClass.java", compileMain(resources))
 	}
 
@@ -71,16 +69,55 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package rdo_model;
 		
-		class MainClass
+		public class MainClass
 		{
 			public static void main(String[] args)
 			{
-				«FOR rl : rs.resources.map(r|r.allContents.toIterable.filter(typeof(ResourceDeclaration)))»
-					«FOR r : rl»
+				long startTime = System.currentTimeMillis();
+
+				System.out.println(" === RDO-Simulator ===\n");
+				System.out.println("   Project «RDONaming.getProjectName(rs.resources.get(0).URI)»");
+				System.out.println("   Source files are «rs.resources.map[r | r.contents.head.nameGeneric].toString»\n");
+				System.out.println("   Initialization:");
+				«FOR rl : rs.resources»
+					«FOR r : rl.contents.head.eAllContents.filter(typeof(ResourceDeclaration)).toIterable»
 						«r.reference.fullyQualifiedName».addResource("«r.name»", new «r.reference.fullyQualifiedName»());
+						System.out.println("      Added resource: '«r.name»' of type '«r.reference.fullyQualifiedName»'");
 					«ENDFOR»
 				«ENDFOR»
+
+				System.out.println("\n   Started model");
+
+				rdo_lib.Simulator.run();
+
+				System.out.println("\n   Finished model in " + String.valueOf((System.currentTimeMillis() - startTime)/1000.0) + "s");
+
 			}
+		}
+		'''
+	}
+	
+	def compileConstants(ResourceSet rs)
+	{
+		'''
+		package rdo_model;
+
+		@SuppressWarnings("all")
+
+		public class Constants
+		{
+			«FOR rl : rs.resources»«IF rl.contents.head.eAllContents.filter(typeof(ConstantDeclaration)).size > 0»
+				private static class Constants_«rl.contents.head.nameGeneric»
+				{
+					«FOR r : rl.contents.head.eAllContents.filter(typeof(ConstantDeclaration)).toIterable»
+						public static final «r.type.compileType» «r.name» = «r.value.compileExpression»;
+					«ENDFOR»
+				}
+
+			«ENDIF»«ENDFOR»
+			«FOR rl : rs.resources»«IF rl.contents.head.eAllContents.filter(typeof(ConstantDeclaration)).size > 0»
+				public static final Constants_«rl.contents.head.nameGeneric» «rl.contents.head.nameGeneric» = new Constants_«rl.contents.head.nameGeneric»();
+			«ENDIF»«ENDFOR»
 		}
 		'''
 	}
@@ -92,7 +129,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 		public class «rtp.name»
 		{
-			private static java.util.Map<String, «rtp.name»> resources;
+			private static java.util.Map<String, «rtp.name»> resources = new java.util.HashMap<String, «rtp.name»>();
 
 			public static void addResource(String name, «rtp.name» res)
 			{
@@ -116,15 +153,15 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			«IF rtp.eAllContents.filter(typeof(RDOEnum)).toList.size > 0»// ENUMS«ENDIF»
 			«FOR e : rtp.eAllContents.toIterable.filter(typeof(RDOEnum))»
-			enum «RDONaming.getEnumParentName(e, false)»_enum
-			{
-				«e.makeEnumBody»
-			}
+				enum «RDONaming.getEnumParentName(e, false)»_enum
+				{
+					«e.makeEnumBody»
+				}
 
 			«ENDFOR»
 			// PARAMETERS
 			«FOR parameter : rtp.parameters»
-			public «compileType(parameter.type)» «parameter.name»«parameter.type.getDefault»;
+				public «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
 			«ENDFOR»
 
 			public «rtp.name»(/*PARAMETERS*/)
@@ -161,13 +198,19 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				super(time);
 			}
+
+			@Override
+			public String getName()
+			{
+				return "«evn.fullyQualifiedName»";
+			}
 		
 			@Override
 			public void calculateEvent()
 			{
 				«FOR e : evn.algorithms»
-				// Statement list
-				«RDOStatementCompiler.compileStatement(e)»
+					// Statement list
+					«RDOStatementCompiler.compileStatement(e)»
 				«ENDFOR»
 			}
 		}
@@ -197,7 +240,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		
 		import rdo_lib.AbstractEvent;
 		
-		public class Simulator
+		public abstract class Simulator
 		{
 			private static double time = 0;
 		
@@ -205,29 +248,42 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				return time;
 			}
+
+			private class EventTimeComparator implements Comparator<AbstractEvent>
+			{
+				@Override
+				public int compare(AbstractEvent x, AbstractEvent y)
+				{
+					if (x.getTimePlanned() < y.getTimePlanned()) return -1;
+					if (x.getTimePlanned() > y.getTimePlanned()) return  1;
+					return 0;
+				}
+			}
 		
 			private static EventTimeComparator comparator;
-			private static PriorityQueue<AbstractEvent> eventList = new PriorityQueue<AbstractEvent>(0, comparator);
+			private static PriorityQueue<AbstractEvent> eventList = new PriorityQueue<AbstractEvent>(1, comparator);
 		
 			public static void pushEvent(AbstractEvent event)
 			{
 				eventList.add(event);
 			}
 			
-			public static AbstractEvent popEvent()
+			private static AbstractEvent popEvent()
 			{
 				return eventList.remove();
 			}
-		
-			private class EventTimeComparator implements Comparator<AbstractEvent>
+
+			public static void run()
 			{
-				@Override
-			    public int compare(AbstractEvent x, AbstractEvent y)
-			    {
-		    		if (x.getTimePlanned() < y.getTimePlanned()) return -1;
-					if (x.getTimePlanned() > y.getTimePlanned()) return  1;
-					return 0;
-			    }
+				while(eventList.size() > 0)
+				{
+					AbstractEvent event = popEvent();
+		
+					time = event.getTimePlanned();
+					System.out.println("      " + String.valueOf(time) + ":	'" + event.getName() + "' happens");
+		
+					event.calculateEvent();
+				}
 			}
 		}
 		'''
@@ -251,6 +307,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				return plannedFor;
 			}
+
+			public abstract String getName();
 
 			public abstract void calculateEvent();
 		}
