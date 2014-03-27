@@ -194,9 +194,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 		
 		public class «evn.name» extends rdo_lib.AbstractEvent
 		{
-			public «evn.name»(double time)
+			public «evn.name»(/* PARAMETERS */)
 			{
-				super(time);
 			}
 
 			@Override
@@ -248,41 +247,62 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				return time;
 			}
+		
+			private static class PlannedEvent
+			{
+				private AbstractEvent event;
+				private double plannedFor;
+				
+				public AbstractEvent getEvent()
+				{
+					return event;
+				}
+				
+				public double getTimePlanned()
+				{
+					return plannedFor;
+				}
+				
+				public PlannedEvent(AbstractEvent event, double time)
+				{
+					this.event = event;
+					this.plannedFor = time;
+				}
+			}
 
-			private class EventTimeComparator implements Comparator<AbstractEvent>
+			private static Comparator<PlannedEvent> comparator = new Comparator<PlannedEvent>()
 			{
 				@Override
-				public int compare(AbstractEvent x, AbstractEvent y)
+				public int compare(PlannedEvent x, PlannedEvent y)
 				{
 					if (x.getTimePlanned() < y.getTimePlanned()) return -1;
 					if (x.getTimePlanned() > y.getTimePlanned()) return  1;
 					return 0;
 				}
-			}
+			};
+
+			private static PriorityQueue<PlannedEvent> eventList = new PriorityQueue<PlannedEvent>(1, comparator);
 		
-			private static EventTimeComparator comparator;
-			private static PriorityQueue<AbstractEvent> eventList = new PriorityQueue<AbstractEvent>(1, comparator);
-		
-			public static void pushEvent(AbstractEvent event)
+			public static void pushEvent(AbstractEvent event, double time)
 			{
-				eventList.add(event);
+				eventList.add(new PlannedEvent(event, time));
 			}
 			
-			private static AbstractEvent popEvent()
+			private static PlannedEvent popEvent()
 			{
 				return eventList.remove();
 			}
-
+		
 			public static void run()
 			{
 				while(eventList.size() > 0)
 				{
-					AbstractEvent event = popEvent();
+					PlannedEvent current = popEvent();
 		
-					time = event.getTimePlanned();
-					System.out.println("      " + String.valueOf(time) + ":	'" + event.getName() + "' happens");
+					time = current.getTimePlanned();
+					System.out.println("      " + String.valueOf(time) + ":	'" + current.getEvent().getName() + "' happens");
 		
-					event.calculateEvent();
+					current.getEvent().calculateEvent();
 				}
 			}
 		}
@@ -293,23 +313,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 	{
 		'''
 		package rdo_lib;
-
+		
 		public abstract class AbstractEvent
 		{
-			public AbstractEvent(double time)
-			{
-				this.plannedFor = time;
-			}
-
-			double plannedFor;
-
-			public double getTimePlanned()
-			{
-				return plannedFor;
-			}
-
 			public abstract String getName();
-
 			public abstract void calculateEvent();
 		}
 		'''

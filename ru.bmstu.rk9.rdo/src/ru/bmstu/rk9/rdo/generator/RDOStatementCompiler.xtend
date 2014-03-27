@@ -97,8 +97,8 @@ class RDOStatementCompiler
 			
 			PlanningStatement:
 				"rdo_lib.Simulator.pushEvent(new " +
-					RDONaming.getFullyQualifiedName(st.event) +	"(" +
-						RDOExpressionCompiler.compileExpression(st.value) + "));"
+					RDONaming.getFullyQualifiedName(st.event) +	"(/* PARAMETERS */), " +
+						RDOExpressionCompiler.compileExpression(st.value) + ");"
 		}
 	}
 	
