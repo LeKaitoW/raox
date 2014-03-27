@@ -40,7 +40,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 	{
 		//===== rdo_lib =======================================================
 		fsa.generateFile("rdo_lib/Simulator.java",     compileLibSimulator ())
-		fsa.generateFile("rdo_lib/AbstractEvent.java", compileAbstractEvent())
+		fsa.generateFile("rdo_lib/Event.java", compileEvent())
 		//=====================================================================
 		
 		for (resource : resources.resources)
@@ -192,7 +192,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package «filename»;
 		
-		public class «evn.name» extends rdo_lib.AbstractEvent
+		public class «evn.name» extends rdo_lib.Event
 		{
 			public «evn.name»(/* PARAMETERS */)
 			{
@@ -237,7 +237,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		import java.util.PriorityQueue;
 		import java.util.Comparator;
 		
-		import rdo_lib.AbstractEvent;
+		import rdo_lib.Event;
 		
 		public abstract class Simulator
 		{
@@ -250,10 +250,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 		
 			private static class PlannedEvent
 			{
-				private AbstractEvent event;
+				private Event event;
 				private double plannedFor;
 				
-				public AbstractEvent getEvent()
+				public Event getEvent()
 				{
 					return event;
 				}
@@ -263,7 +263,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 					return plannedFor;
 				}
 				
-				public PlannedEvent(AbstractEvent event, double time)
+				public PlannedEvent(Event event, double time)
 				{
 					this.event = event;
 					this.plannedFor = time;
@@ -283,7 +283,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			private static PriorityQueue<PlannedEvent> eventList = new PriorityQueue<PlannedEvent>(1, comparator);
 		
-			public static void pushEvent(AbstractEvent event, double time)
+			public static void pushEvent(Event event, double time)
 			{
 				eventList.add(new PlannedEvent(event, time));
 			}
@@ -309,12 +309,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 	}
 
-	def compileAbstractEvent()
+	def compileEvent()
 	{
 		'''
 		package rdo_lib;
 		
-		public abstract class AbstractEvent
+		public abstract class Event
 		{
 			public abstract String getName();
 			public abstract void calculateEvent();
