@@ -74,8 +74,8 @@ class RDOExpressionCompiler
 				return "[" + expr.values.compileExpression + "]"
 			
 			VariableIncDecExpression:
-				return if (expr.pre != null) expr.pre else "" +
-					expr.^var.compileExpression + if (expr.post != null) expr.post else ""
+				return (if (expr.pre != null) expr.pre else "") +
+					expr.^var.compileExpression + (if (expr.post != null) expr.post else "")
 			
 			VariableMethodCallExpression:
 			{
