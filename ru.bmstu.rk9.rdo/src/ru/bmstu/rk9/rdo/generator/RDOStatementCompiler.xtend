@@ -20,9 +20,11 @@ import ru.bmstu.rk9.rdo.rdo.BreakStatement
 import ru.bmstu.rk9.rdo.rdo.ReturnStatement
 import ru.bmstu.rk9.rdo.rdo.LocalVariableDeclaration
 import ru.bmstu.rk9.rdo.rdo.VariableDeclarationList
+import ru.bmstu.rk9.rdo.rdo.ForStatement
+import ru.bmstu.rk9.rdo.rdo.LegacySetStatement
 
 class RDOStatementCompiler
-{	
+{
 	def static String compileStatement(EObject st)
 	{
 		switch st
@@ -119,6 +121,27 @@ class RDOStatementCompiler
 				«ENDIF»
 				'''
 			
+			ForStatement:
+				'''
+				for («
+					if (st.declaration != null)
+						st.declaration.compileStatement.cutLastChars(1) + ""
+					else
+						if (st.init != null)
+							st.init.compileExpression + ";" 
+						else ";"
+					» «
+					if (st.condition != null)
+						st.condition.compileExpression
+					else ""
+					»; «
+					if (st.update != null)
+						st.update.compileExpression
+					else ""
+					»)
+				«IF !(st.body instanceof NestedStatement)»	«ENDIF»«st.body.compileStatement»
+				'''			
+			
 			BreakStatement:
 				'''
 				break;
@@ -133,7 +156,16 @@ class RDOStatementCompiler
 				"rdo_lib.Simulator.pushEvent(new " +
 					RDONaming.getFullyQualifiedName(st.event) +	"(/* PARAMETERS */), " +
 						RDOExpressionCompiler.compileExpression(st.value) + ");"
+						
+			LegacySetStatement:
+				'''
+				«st.call» = «st.value.compileExpression»;
+				'''
 		}
 	}
-	
+
+	def static String cutLastChars(String s, int c)
+	{
+		return s.substring(0, s.length - 1 - c)
+	}
 }
