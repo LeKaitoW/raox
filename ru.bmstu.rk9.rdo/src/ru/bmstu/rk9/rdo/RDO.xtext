@@ -635,11 +635,11 @@ LocalVariableDeclaration:
 ;
 
 VariableDeclarationList:
-	declarations += VariableDeclarationInit (declarations += VariableDeclarationInit)*
+	declarations += VariableDeclarationInit (',' declarations += VariableDeclarationInit)*
 ;
 
 VariableDeclarationInit:
-	name = ID ('=' value = Expression)?
+	name = ID ('=' value = ExpressionOr)?
 ;
 
 IfStatement:
@@ -663,7 +663,7 @@ BreakStatement:
 ;
 
 ReturnStatement:
-	'return' return = Expression
+	invoke = 'return' return = Expression?
 ;
 
 NoChangeStatement:

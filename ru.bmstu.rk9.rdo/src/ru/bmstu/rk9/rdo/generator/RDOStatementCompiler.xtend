@@ -16,6 +16,10 @@ import ru.bmstu.rk9.rdo.rdo.IfStatement
 
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
+import ru.bmstu.rk9.rdo.rdo.BreakStatement
+import ru.bmstu.rk9.rdo.rdo.ReturnStatement
+import ru.bmstu.rk9.rdo.rdo.LocalVariableDeclaration
+import ru.bmstu.rk9.rdo.rdo.VariableDeclarationList
 
 class RDOStatementCompiler
 {	
@@ -86,13 +90,43 @@ class RDOStatementCompiler
 				}
 				'''
 			
+			LocalVariableDeclaration:
+				'''
+				«st.type.compileType» «st.list.compileStatement»;
+				'''
+			
+			VariableDeclarationList:
+			{
+				var flag = false
+				var list = ""
+				
+				for (d : st.declarations)
+				{
+					list = list + (if (flag) ", " else "") + d.name +
+						(if (d.value != null) " = " + d.value.compileExpression else "")
+					flag = true
+				}
+				
+				return list
+			}
+			
 			IfStatement:
 				'''
 				if(«st.condition.compileExpression»)
-					«st.then.compileStatement»
+				«IF !(st.then instanceof NestedStatement)»	«ENDIF»«st.then.compileStatement»
 				«IF st.^else != null»else
-					«st.^else.compileStatement»
+				«IF !(st.^else instanceof NestedStatement)»	«ENDIF»«st.^else.compileStatement»
 				«ENDIF»
+				'''
+			
+			BreakStatement:
+				'''
+				break;
+				'''
+			
+			ReturnStatement:
+				'''
+				return«IF st.^return != null» «st.^return.compileExpression»«ENDIF»;
 				'''
 			
 			PlanningStatement:

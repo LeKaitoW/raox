@@ -12,8 +12,6 @@ import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
 import ru.bmstu.rk9.rdo.customizations.RDOQualifiedNameProvider
 
-import org.eclipse.emf.ecore.EObject
-
 import ru.bmstu.rk9.rdo.generator.RDONaming
 import ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
@@ -52,7 +50,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				{
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileResourceType(filename))
 				}
-		
+
 				for (e : resource.allContents.toIterable.filter(typeof(Event)))
 				{
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileEvent(filename))
