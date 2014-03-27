@@ -627,7 +627,7 @@ ExpressionStatement:
 ;
 
 NestedStatement:
-	'{' statements = StatementList  '}'
+	invoke = '{' statements = StatementList?  '}'
 ;
 
 LocalVariableDeclaration:
