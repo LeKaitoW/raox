@@ -79,7 +79,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 				System.out.println("   Initialization:");
 				«FOR rl : rs.resources»
 					«FOR r : rl.contents.head.eAllContents.filter(typeof(ResourceDeclaration)).toIterable»
-						«r.reference.fullyQualifiedName».addResource("«r.name»", new «r.reference.fullyQualifiedName»());
+						«r.reference.fullyQualifiedName».addResource("«r.name»", new «r.reference.fullyQualifiedName»(«
+							if (r.parameters != null) r.parameters.compileExpression else ""»));
 						System.out.println("      Added resource: '«r.name»' of type '«r.reference.fullyQualifiedName»'");
 					«ENDFOR»
 				«ENDFOR»
@@ -196,9 +197,18 @@ class RDOGenerator implements IMultipleResourceGenerator
 				public «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
 			«ENDFOR»
 
-			public «rtp.name»(/*PARAMETERS*/)
+			public «rtp.name»(«
+				IF rtp.parameters.size > 0»«rtp.parameters.get(0).type.compileType» «
+					rtp.parameters.get(0).name»«
+					FOR parameter : rtp.parameters.subList(1, rtp.parameters.size)», «
+						parameter.type.compileType» «
+						parameter.name»«
+					ENDFOR»«
+				ENDIF»)
 			{
-
+				«FOR parameter : rtp.parameters»
+					if («parameter.name» != null) this.«parameter.name» = «parameter.name»;
+				«ENDFOR»
 			}
 		}
 		'''
@@ -257,8 +267,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«FOR r : evn.relevantresources»
 					«IF r.type instanceof ResourceType»
 						«(r.type as ResourceType).fullyQualifiedName» «
-							r.name» = new «(r.type as ResourceType).fullyQualifiedName»(/*«
-								(r.type as ResourceType).parameters.size.compileAllDefault»*/);
+							r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
+								(r.type as ResourceType).parameters.size.compileAllDefault»);
 					«ELSE»
 						«(r.type as ResourceDeclaration).reference.fullyQualifiedName» «r.name» = «
 							(r.type as ResourceDeclaration).reference.fullyQualifiedName».getResource("«
