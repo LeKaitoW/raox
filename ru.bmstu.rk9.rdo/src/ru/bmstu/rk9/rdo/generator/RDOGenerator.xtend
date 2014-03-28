@@ -134,20 +134,54 @@ class RDOGenerator implements IMultipleResourceGenerator
 				resources.put(name, res);
 			}
 
-			public static int getResourceCount()
-			{
-				return resources.size();
-			}
-
 			public static «rtp.name» getResource(String name)
 			{
 				return resources.get(name);
 			}
 
-			public static java.util.Collection<«rtp.name»> getAll()
-			{
-				return resources.values();
-			}
+			«IF rtp.type.literal == "temporary"»
+				private static java.util.Map<Integer, «rtp.name»> temporary = new java.util.HashMap<Integer, «rtp.name»>();
+
+				private static java.util.Queue<Integer> vacantList = new java.util.LinkedList<Integer>();
+				private static int currentLast = 0;
+
+				public static void addResource(«rtp.name» res)
+				{
+					int number;
+					if (vacantList.size() > 0)
+						number = vacantList.poll();
+					else
+						number = currentLast++;
+					
+					res.number = number;
+					temporary.put(number, res);
+				}
+
+				public static void eraseResource(«rtp.name» resource)
+				{
+					temporary.remove(resource.number);
+					vacantList.add(resource.number);
+				}
+
+				public static java.util.Collection<«rtp.name»> getAll()
+				{
+					java.util.Collection<MSA> all = resources.values();
+					all.addAll(temporary.values());		
+					return all;
+				}
+
+				public static java.util.Collection<«rtp.name»> getTemporary()
+				{
+					return temporary.values();
+				}
+
+				private int number;
+			«ELSE»
+				public static java.util.Collection<«rtp.name»> getAll()
+				{
+					return resources.values();
+				}
+			«ENDIF»
 
 			«IF rtp.eAllContents.filter(typeof(RDOEnum)).toList.size > 0»// ENUMS«ENDIF»
 			«FOR e : rtp.eAllContents.toIterable.filter(typeof(RDOEnum))»
@@ -219,10 +253,31 @@ class RDOGenerator implements IMultipleResourceGenerator
 			@Override
 			public void calculateEvent()
 			{
-				«FOR e : evn.algorithms»
-					// Statement list
-					«RDOStatementCompiler.compileStatement(e)»
+				// retrieve/create relevant resources
+				«FOR r : evn.relevantresources»
+					«IF r.type instanceof ResourceType»
+						«(r.type as ResourceType).fullyQualifiedName» «
+							r.name» = new «(r.type as ResourceType).fullyQualifiedName»(/*«
+								(r.type as ResourceType).parameters.size.compileAllDefault»*/);
+					«ELSE»
+						«(r.type as ResourceDeclaration).reference.fullyQualifiedName» «r.name» = «
+							(r.type as ResourceDeclaration).reference.fullyQualifiedName».getResource("«
+								(r.type as ResourceDeclaration).name»");
+					«ENDIF»
 				«ENDFOR»
+
+				«FOR e : evn.algorithms»
+					«RDOStatementCompiler.compileStatement(e)»
+
+				«ENDFOR»
+				«IF evn.relevantresources.map[t | t.type].filter(typeof(ResourceType)).size > 0»
+					// add created resources
+					«FOR r : evn.relevantresources»
+						«IF r.type instanceof ResourceType»
+							«(r.type as ResourceType).fullyQualifiedName».addResource(«r.name»);
+						«ENDIF»
+					«ENDFOR»
+				«ENDIF»
 			}
 		}
 		'''

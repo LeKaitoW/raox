@@ -37,41 +37,26 @@ class RDOStatementCompiler
 				switch st.relres.type
 				{
 					ResourceDeclaration:
-					{
 						for (p : (st.relres.type as ResourceDeclaration).reference.parameters)
 							paramlist.add(p.name)
-
-						for (e : st.statements.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
-							for (c : e.calls)
-							{
-								var repl = (st.relres.type as ResourceDeclaration).reference.fullyQualifiedName +
-									'.getResource("' +	st.relres.type.name + '")'
-
-								if(c.call == st.relres.name && e.calls.size == 2)
-									c.setCall(repl)
-
-								if (paramlist.contains(c.call) && e.calls.size == 1)
-									c.setCall(repl + '.' + c.call)
-							}
-						return
-							st.statements.compileStatement
-					}
+						
 					ResourceType:
-					{
-						return
-							'''
-							«FOR p : (st.relres.type as ResourceType).parameters»
-							«RDOExpressionCompiler.compileType(p.type)» «p.name»«RDOGenerator.getDefault(p.type)»;
-							«ENDFOR»
-							«st.statements.compileStatement»
-							/*«RDONaming.getFullyQualifiedName(st.relres.type)».addResource(new «RDONaming.getFullyQualifiedName(st.relres.type)»(
-								«var flag = false»«FOR p : (st.relres.type as ResourceType).parameters»
-									«IF flag», «ENDIF»«flag = true»«p.name»
-								«ENDFOR»
-							));*/
-							'''
-					}
+						for (p : (st.relres.type as ResourceType).parameters)
+							paramlist.add(p.name)
 				}
+
+				for (e : st.statements.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
+					for (c : e.calls)
+						if (paramlist.contains(c.call) && e.calls.size == 1)
+							c.setCall(st.relres.name + '.' + c.call)
+
+				return
+					'''
+					// «st.relres.name» convert event
+					{
+						«st.statements.compileStatement»
+					}
+					'''
 			}
 			//======================================
 
