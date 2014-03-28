@@ -109,7 +109,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		public class Constants
 		{
 			«FOR rl : rs.resources»«IF rl.contents.head.eAllContents.filter(typeof(ConstantDeclaration)).size > 0»
-				private static class Constants_«rl.contents.head.nameGeneric»
+				public static class Constants_«rl.contents.head.nameGeneric»
 				{
 					«FOR r : rl.contents.head.eAllContents.filter(typeof(ConstantDeclaration)).toIterable»
 						public static final «r.type.compileType» «r.name» = «r.value.compileExpression»;
