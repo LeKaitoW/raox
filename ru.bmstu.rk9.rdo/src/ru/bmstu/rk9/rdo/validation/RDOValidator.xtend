@@ -266,9 +266,15 @@ class RDOValidator extends AbstractRDOValidator
 		switch type
 		{
 			ResourceType:
+			{
 				if (rule == 'Keep')
 					error("Invalid convert status: "+rule+" couldn't be used for resource type in event",
 							RdoPackage.Literals.EVENT_RELEVANT_RESOURCE__RULE)
+				else
+					if (type.type.literal == "permanent")
+						error("Invalid resource type: '"+type.name+"' is not temporary",
+								RdoPackage.Literals.EVENT_RELEVANT_RESOURCE__TYPE)
+			}
 			ResourceDeclaration:
 				if (rule == 'Create')
 					error("Invalid convert status: "+rule+" couldn't be used for resource in event",
