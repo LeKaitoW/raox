@@ -1,9 +1,13 @@
 package ru.bmstu.rk9.rdo.ui.contentassist
 
 import org.eclipse.emf.ecore.EObject
-import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
+
 import ru.bmstu.rk9.rdo.rdo.ResourceType
+
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+
+import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
+
 
 class RDOKeywordProposalValidator
 {

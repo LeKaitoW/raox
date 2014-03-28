@@ -1,27 +1,33 @@
 package ru.bmstu.rk9.rdo.generator
 
-import org.eclipse.emf.ecore.EObject
-
-import ru.bmstu.rk9.rdo.rdo.StatementList
-import ru.bmstu.rk9.rdo.rdo.NestedStatement
-import ru.bmstu.rk9.rdo.rdo.PlanningStatement
-import ru.bmstu.rk9.rdo.rdo.ExpressionStatement
-import ru.bmstu.rk9.rdo.rdo.EventConvert
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 import java.util.List
 import java.util.ArrayList
-import ru.bmstu.rk9.rdo.rdo.ResourceType
-import ru.bmstu.rk9.rdo.rdo.VariableMethodCallExpression
-import ru.bmstu.rk9.rdo.rdo.IfStatement
 
-import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
+import org.eclipse.emf.ecore.EObject
+
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
-import ru.bmstu.rk9.rdo.rdo.BreakStatement
-import ru.bmstu.rk9.rdo.rdo.ReturnStatement
+import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
+
+import ru.bmstu.rk9.rdo.rdo.ResourceType
+
+import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+
+import ru.bmstu.rk9.rdo.rdo.EventConvert
+
+import ru.bmstu.rk9.rdo.rdo.VariableMethodCallExpression
+
+import ru.bmstu.rk9.rdo.rdo.StatementList
+import ru.bmstu.rk9.rdo.rdo.ExpressionStatement
+import ru.bmstu.rk9.rdo.rdo.NestedStatement
 import ru.bmstu.rk9.rdo.rdo.LocalVariableDeclaration
 import ru.bmstu.rk9.rdo.rdo.VariableDeclarationList
+import ru.bmstu.rk9.rdo.rdo.IfStatement
 import ru.bmstu.rk9.rdo.rdo.ForStatement
+import ru.bmstu.rk9.rdo.rdo.BreakStatement
+import ru.bmstu.rk9.rdo.rdo.ReturnStatement
+import ru.bmstu.rk9.rdo.rdo.PlanningStatement
 import ru.bmstu.rk9.rdo.rdo.LegacySetStatement
+
 
 class RDOStatementCompiler
 {
@@ -139,7 +145,7 @@ class RDOStatementCompiler
 
 			PlanningStatement:
 				"rdo_lib.Simulator.pushEvent(new " +
-					RDONaming.getFullyQualifiedName(st.event) +	"(" +
+					st.event.getFullyQualifiedName + "(" +
 						(if (st.parameters != null) st.parameters.compileExpression else
 							compileAllDefault(st.event.parameters.size)) +
 								"), " + RDOExpressionCompiler.compileExpression(st.value) + ");"

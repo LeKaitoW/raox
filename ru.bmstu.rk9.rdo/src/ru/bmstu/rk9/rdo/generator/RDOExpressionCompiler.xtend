@@ -1,5 +1,26 @@
 package ru.bmstu.rk9.rdo.generator
 
+import org.eclipse.emf.ecore.EObject
+
+import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
+import ru.bmstu.rk9.rdo.rdo.RDODefaultParameter
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
+
+import ru.bmstu.rk9.rdo.rdo.ResourceExpressionList
+
+import ru.bmstu.rk9.rdo.rdo.RDOInteger
+import ru.bmstu.rk9.rdo.rdo.RDOReal
+import ru.bmstu.rk9.rdo.rdo.RDOBoolean
+import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
+import ru.bmstu.rk9.rdo.rdo.RDOEnum
+import ru.bmstu.rk9.rdo.rdo.RDOArray
+import ru.bmstu.rk9.rdo.rdo.RDOString
+
+import ru.bmstu.rk9.rdo.rdo.ExpressionList
 import ru.bmstu.rk9.rdo.rdo.ExpressionExponentiation
 import ru.bmstu.rk9.rdo.rdo.ExpressionNegate
 import ru.bmstu.rk9.rdo.rdo.ExpressionMultiplication
@@ -16,8 +37,6 @@ import ru.bmstu.rk9.rdo.rdo.ExpressionEqual
 import ru.bmstu.rk9.rdo.rdo.ExpressionNot_Equal
 import ru.bmstu.rk9.rdo.rdo.ExpressionAnd
 import ru.bmstu.rk9.rdo.rdo.ExpressionOr
-
-import ru.bmstu.rk9.rdo.rdo.ExpressionList
 import ru.bmstu.rk9.rdo.rdo.Primary
 import ru.bmstu.rk9.rdo.rdo.IntConstant
 import ru.bmstu.rk9.rdo.rdo.DoubleConstant
@@ -26,27 +45,12 @@ import ru.bmstu.rk9.rdo.rdo.BoolConstant
 import ru.bmstu.rk9.rdo.rdo.GroupExpression
 import ru.bmstu.rk9.rdo.rdo.ArrayValues
 import ru.bmstu.rk9.rdo.rdo.VariableIncDecExpression
-import org.eclipse.emf.ecore.EObject
 import ru.bmstu.rk9.rdo.rdo.VariableMethodCallExpression
 import ru.bmstu.rk9.rdo.rdo.VariableExpression
 import ru.bmstu.rk9.rdo.rdo.ExpressionAssignment
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
-import ru.bmstu.rk9.rdo.rdo.RDOInteger
-import ru.bmstu.rk9.rdo.rdo.RDOReal
-import ru.bmstu.rk9.rdo.rdo.RDOBoolean
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
-import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
-import ru.bmstu.rk9.rdo.rdo.RDOEnum
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
-import ru.bmstu.rk9.rdo.rdo.RDOArray
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
-import ru.bmstu.rk9.rdo.rdo.RDOString
-import ru.bmstu.rk9.rdo.generator.RDONaming
+
 import ru.bmstu.rk9.rdo.rdo.TimeNow
-import ru.bmstu.rk9.rdo.rdo.ResourceExpressionList
-import ru.bmstu.rk9.rdo.rdo.RDODefaultParameter
+
 
 class RDOExpressionCompiler
 {

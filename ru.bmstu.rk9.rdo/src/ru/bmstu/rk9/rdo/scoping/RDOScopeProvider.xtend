@@ -6,8 +6,8 @@ import org.eclipse.xtext.scoping.Scopes
 
 import org.eclipse.emf.ecore.EReference
 
-import ru.bmstu.rk9.rdo.rdo.ResourceTrace
 import ru.bmstu.rk9.rdo.rdo.Resources
+import ru.bmstu.rk9.rdo.rdo.ResourceTrace
 
 class RDOScopeProvider extends AbstractDeclarativeScopeProvider {
 

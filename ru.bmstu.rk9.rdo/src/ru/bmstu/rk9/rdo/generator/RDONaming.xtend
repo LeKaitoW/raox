@@ -1,27 +1,35 @@
 package ru.bmstu.rk9.rdo.generator
 
-import ru.bmstu.rk9.rdo.rdo.RDOModel
+import org.eclipse.emf.common.util.URI
+
 import org.eclipse.emf.ecore.EObject
+
+import ru.bmstu.rk9.rdo.rdo.RDOModel
+
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
-import ru.bmstu.rk9.rdo.rdo.RDOInteger
-import ru.bmstu.rk9.rdo.rdo.RDOReal
-import ru.bmstu.rk9.rdo.rdo.RDOBoolean
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
+
+import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+
+import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+
+import ru.bmstu.rk9.rdo.rdo.RDOInteger
+import ru.bmstu.rk9.rdo.rdo.RDOReal
+import ru.bmstu.rk9.rdo.rdo.RDOBoolean
 import ru.bmstu.rk9.rdo.rdo.RDOString
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDOArray
 import ru.bmstu.rk9.rdo.rdo.RDOOwnType
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
-import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
+
 import ru.bmstu.rk9.rdo.rdo.Pattern
-import org.eclipse.emf.common.util.URI
+
 
 class RDONaming
 {

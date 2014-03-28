@@ -1,9 +1,9 @@
 package ru.bmstu.rk9.rdo.ui.outline
 
+import org.eclipse.swt.graphics.Image
+
 import org.eclipse.xtext.ui.editor.outline.impl.AbstractOutlineNode
 import org.eclipse.xtext.ui.editor.outline.IOutlineNode
-
-import org.eclipse.swt.graphics.Image
 
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 

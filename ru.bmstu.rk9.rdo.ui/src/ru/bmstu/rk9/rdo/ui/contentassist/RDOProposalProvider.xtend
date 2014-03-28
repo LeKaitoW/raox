@@ -10,9 +10,12 @@ import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 
 import org.eclipse.emf.ecore.EObject
 
-import ru.bmstu.rk9.rdo.rdo.Resources
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
+
+import ru.bmstu.rk9.rdo.rdo.Resources
+
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+
 
 class RDOProposalProvider extends AbstractRDOProposalProvider
 {

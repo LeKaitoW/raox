@@ -4,9 +4,9 @@ import com.google.inject.Inject
 
 import org.eclipse.emf.ecore.EObject
 
-import ru.bmstu.rk9.rdo.rdo.RDOModel
+import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 
-import ru.bmstu.rk9.rdo.generator.RDONaming
+import ru.bmstu.rk9.rdo.rdo.RDOModel
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
@@ -59,7 +59,6 @@ import ru.bmstu.rk9.rdo.rdo.ResultWatchState
 import ru.bmstu.rk9.rdo.rdo.ResultWatchQuant
 import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
 import ru.bmstu.rk9.rdo.rdo.ResultGetValue
-import ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler
 
 class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider {
 
@@ -67,16 +66,6 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	new(org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider delegate) {
 		super(delegate);
 	}
-
-	//====== Extension methods ================================================================//
-	def getModelRoot           (EObject o)            { RDONaming.getModelRoot           (o)    }
-	def getNameGeneric         (EObject o)            { RDONaming.getNameGeneric         (o)    }
-	def getFullyQualifiedName  (EObject o)            { RDONaming.getFullyQualifiedName  (o)    }
-	def getContextQualifiedName(EObject o, EObject c) { RDONaming.getContextQualifiedName(o, c) }
-	def compileType            (EObject o)            { RDOExpressionCompiler.compileType(o)    }
-	def getTypeGenericLabel    (EObject o)            { RDONaming.getTypeGenericLabel    (o)    }
-	//=========================================================================================//
-
 
 	// Model
 	def image(RDOModel m) { "model.gif" }

@@ -1,16 +1,22 @@
 package ru.bmstu.rk9.rdo.validation
 
 import java.util.List
+import java.util.ArrayList
 
 import org.eclipse.xtext.validation.Check
 
-import ru.bmstu.rk9.rdo.rdo.RdoPackage
-
 import org.eclipse.emf.ecore.EObject
 
-import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
+import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
+
+import ru.bmstu.rk9.rdo.customizations.RDOQualifiedNameProvider
+
+import ru.bmstu.rk9.rdo.rdo.RdoPackage
+
+import ru.bmstu.rk9.rdo.rdo.RDOModel
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
+import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
@@ -29,11 +35,9 @@ import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 import ru.bmstu.rk9.rdo.rdo.EventConvert
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
-import java.util.ArrayList
-import ru.bmstu.rk9.rdo.rdo.RDOModel
-import ru.bmstu.rk9.rdo.customizations.RDOQualifiedNameProvider
-import ru.bmstu.rk9.rdo.generator.RDONaming
+
+import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
+
 
 class SuchAsHistory
 {
@@ -48,10 +52,10 @@ class SuchAsHistory
 		switch first
 		{
 			ResourceTypeParameter:
-				text = RDONaming.getNameGeneric(first.eContainer) + "." + RDONaming.getNameGeneric(first)
+				text = first.eContainer.getNameGeneric + "." + first.getNameGeneric
 
 			default:
-				text = RDONaming.getNameGeneric(first)
+				text = first.getNameGeneric
 		}
 	}
 
@@ -68,10 +72,10 @@ class SuchAsHistory
 		switch object
 		{
 			ResourceTypeParameter:
-				text = text + " \u2192 " + extmodel + RDONaming.getNameGeneric(object.eContainer) + "." + RDONaming.getNameGeneric(object)
+				text = text + " \u2192 " + extmodel + object.eContainer.getNameGeneric + "." + object.getNameGeneric
 
 			default:
-				text = text + " \u2192 " + extmodel + RDONaming.getNameGeneric(object)
+				text = text + " \u2192 " + extmodel + object.getNameGeneric
 		}
 		return ret
 	}
@@ -84,10 +88,6 @@ class SuchAsHistory
 
 class RDOValidator extends AbstractRDOValidator
 {
-	//====== Extension methods =================================//
-	def getNameGeneric (EObject o) { RDONaming.getNameGeneric(o) }
-	//==========================================================//
-
 	def boolean resolveCyclicSuchAs(EObject object, SuchAsHistory history)
 	{
 		if (object.eContainer == null)	// check unresolved reference in order

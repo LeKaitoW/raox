@@ -1,33 +1,32 @@
 package ru.bmstu.rk9.rdo.generator
 
 import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.emf.ecore.resource.ResourceSet
 
 import org.eclipse.xtext.generator.IFileSystemAccess
+
+import static extension org.eclipse.xtext.xbase.lib.IteratorExtensions.*
+
+import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
+import static extension ru.bmstu.rk9.rdo.customizations.RDOQualifiedNameProvider.*
+import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
+
+import ru.bmstu.rk9.rdo.customizations.IMultipleResourceGenerator
 
 import ru.bmstu.rk9.rdo.rdo.RDOModel
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
-
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
-
-import ru.bmstu.rk9.rdo.customizations.RDOQualifiedNameProvider
-
-import ru.bmstu.rk9.rdo.generator.RDONaming
-import ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
-import ru.bmstu.rk9.rdo.rdo.Event
-import ru.bmstu.rk9.rdo.customizations.IMultipleResourceGenerator
 
-import org.eclipse.emf.ecore.resource.ResourceSet
+import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
-import static extension org.eclipse.xtext.xbase.lib.IteratorExtensions.*
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
 
-import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
-import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
+import ru.bmstu.rk9.rdo.rdo.Event
+
 
 class RDOGenerator implements IMultipleResourceGenerator
 {
@@ -44,7 +43,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		for (resource : resources.resources)
 			if (resource.contents.head != null)
 			{
-				val filename = RDOQualifiedNameProvider.computeFromURI(resource.contents.head as RDOModel)
+				val filename = (resource.contents.head as RDOModel).computeFromURI
 
 				for (e : resource.allContents.toIterable.filter(typeof(ResourceType)))
 				{
