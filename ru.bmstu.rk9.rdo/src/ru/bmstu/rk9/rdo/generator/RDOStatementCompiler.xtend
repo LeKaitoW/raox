@@ -154,8 +154,10 @@ class RDOStatementCompiler
 
 			PlanningStatement:
 				"rdo_lib.Simulator.pushEvent(new " +
-					RDONaming.getFullyQualifiedName(st.event) +	"(/* PARAMETERS */), " +
-						RDOExpressionCompiler.compileExpression(st.value) + ");"
+					RDONaming.getFullyQualifiedName(st.event) +	"(" +
+						(if (st.parameters != null) st.parameters.compileExpression else
+							compileAllDefault(st.event.parameters.size)) +
+								"), " + RDOExpressionCompiler.compileExpression(st.value) + ");"
 
 			LegacySetStatement:
 				'''

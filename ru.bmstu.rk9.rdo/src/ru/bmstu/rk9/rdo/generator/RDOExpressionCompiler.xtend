@@ -45,6 +45,8 @@ import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
 import ru.bmstu.rk9.rdo.rdo.RDOString
 import ru.bmstu.rk9.rdo.generator.RDONaming
 import ru.bmstu.rk9.rdo.rdo.TimeNow
+import ru.bmstu.rk9.rdo.rdo.ResourceExpressionList
+import ru.bmstu.rk9.rdo.rdo.RDODefaultParameter
 
 class RDOExpressionCompiler
 {
@@ -190,6 +192,24 @@ class RDOExpressionCompiler
 				}
 				return list
 			}
+
+			ResourceExpressionList:
+			{
+				var String list = ""
+				var flag = false
+
+				for (e : expr.expressions)
+				{
+					list = list + ( if(flag) ", " else "" ) +
+						if (e instanceof RDODefaultParameter)
+							"null"
+						else
+							e.compileExpression
+					flag = true
+				}
+				return list
+			}
+
 			default:
 				return "VAL"
 		}
@@ -217,6 +237,19 @@ class RDOExpressionCompiler
 
 			default: "Integer /* TYPE IS ACTUALLY UNKNOWN */"
 		}
+	}
+	
+	def static String compileAllDefault(int count)
+	{
+				var String list = ""
+				var flag = false
+
+				for (i : 0 ..< count)
+				{
+					list = list + ( if(flag) ", " else "" ) + "null"
+					flag = true
+				}
+				return list
 	}
 
 }

@@ -192,8 +192,22 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 		public class «evn.name» extends rdo_lib.Event
 		{
-			public «evn.name»(/* PARAMETERS */)
+			«FOR parameter : evn.parameters»
+				private «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
+			«ENDFOR»
+
+			public «evn.name»(«
+			IF evn.parameters.size > 0»«evn.parameters.get(0).type.compileType» «
+				evn.parameters.get(0).name»«
+				FOR parameter : evn.parameters.subList(1, evn.parameters.size)», «
+					parameter.type.compileType» «
+					parameter.name»«
+				ENDFOR»«
+			ENDIF»)
 			{
+				«FOR parameter : evn.parameters»
+					if («parameter.name» != null) this.«parameter.name» = «parameter.name»;
+				«ENDFOR»
 			}
 
 			@Override

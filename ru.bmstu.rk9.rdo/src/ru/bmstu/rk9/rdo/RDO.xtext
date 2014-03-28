@@ -106,7 +106,7 @@ ResourceExpressionList:
 
 ResourceParameterExpression
 	: {RDODefaultParameter} '*'
-	| Expression
+	| ExpressionOr
 ;
 
 ResourceTrace:
@@ -218,7 +218,7 @@ enum PatternChoiceWithType
 ;
 
 PatternParameter:
-	name = ID ':' type = RDOType
+	name = ID ':' type = RDORTPParameterType
 ;
 
 enum PatternConvertStatus
@@ -676,6 +676,7 @@ StoppingStatement:
 
 PlanningStatement:
 	event = [Event|ID] '.' 'planning' '(' value = Expression ')'
+	('(' parameters = ResourceExpressionList ')')?
 ;
 
 LegacySetStatement:
