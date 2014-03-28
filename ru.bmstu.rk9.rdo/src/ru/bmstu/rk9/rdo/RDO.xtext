@@ -4,16 +4,6 @@ import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 
 generate rdo "http://www.bmstu.ru/rk9/rdo/RDO"
 
-  //++++++++++++++++++//
- //       TODO       // 
-//++++++++++++++++++//
-//  - implement SELECT
-
-  //++++++++++++++++++//
- //      ISSUES      // 
-//++++++++++++++++++//
-//  - Activity parameters - non-LL behavior required
-
 // ==========================================================
 //                          Root tokens
 // ==========================================================
