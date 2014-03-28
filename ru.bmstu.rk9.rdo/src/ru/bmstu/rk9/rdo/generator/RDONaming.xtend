@@ -28,8 +28,8 @@ class RDONaming
 	def static getProjectName(URI uri)
 	{
 		return uri.toPlatformString(false).substring(1, uri.toPlatformString(true).indexOf("/", 1))
-	} 
-	
+	}
+
 	def static RDOModel getModelRoot(EObject object)
 	{
 		switch object
@@ -69,7 +69,7 @@ class RDONaming
 		}
 	}
 
-	def static getFullyQualifiedName(EObject object) 
+	def static getFullyQualifiedName(EObject object)
 	{
 		switch object
 		{
@@ -95,12 +95,12 @@ class RDONaming
 	{
 		var oname = object.fullyQualifiedName
 		var cname = context.fullyQualifiedName
-		
+
 		while (oname.startsWith(cname.substring(0,
 			if (cname.indexOf(".") > 0)	cname.indexOf(".") else (cname.length - 1))))
 		{
 			oname = oname.substring(oname.indexOf(".") + 1)
-			cname = cname.substring(cname.indexOf(".") + 1)			
+			cname = cname.substring(cname.indexOf(".") + 1)
 		}
 		return oname
 	}
@@ -114,7 +114,7 @@ class RDONaming
 			RDORTPParameterEnum  : getTypeGenericLabel(type.type)
 			RDORTPParameterSuchAs: getTypeGenericLabel(type.type)
 			RDORTPParameterArray : getTypeGenericLabel(type.type)
-			
+
 			RDOInteger: " : " + type.type
 			RDOReal   : " : " + type.type
 			RDOBoolean: " : " + type.type
@@ -126,14 +126,14 @@ class RDONaming
 					getContextQualifiedName(type.type, type.eContainer.eContainer.eContainer)
 				default: getContextQualifiedName(type.type, type.modelRoot)
 			}
-			
+
 			RDOArray  : " : array" + getTypeGenericLabel(type.arraytype)
 			RDOOwnType: " : " + type.id.nameGeneric
-			
+
 			default: ""
 		}
 	}
-	
+
 	def static String getEnumParentName(RDOEnum enm, boolean isFQN)
 	{
 		var container = enm.eContainer
@@ -142,10 +142,10 @@ class RDONaming
 		{
 			container = container.eContainer
 		}
-		
+
 		if (container instanceof RDORTPParameterType)
 				container = container.eContainer
-		
+
 		if (isFQN)
 			return container.fullyQualifiedName
 		else

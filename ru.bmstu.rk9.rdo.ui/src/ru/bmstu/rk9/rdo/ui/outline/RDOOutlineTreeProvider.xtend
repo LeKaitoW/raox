@@ -70,10 +70,10 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 		}
 	}
 	def _isLeaf(FunctionParameter p) { true }
-	
+
 	// Constants
 	def _isLeaf (ConstantDeclaration c) { true }
-	
+
 	// Pattern
 	def _createChildren(IOutlineNode parentNode, Pattern pat)
 	{
@@ -85,7 +85,7 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 				createEObjectNode(groupParameters, p)
 			}
 		}
-		
+
 		switch pat
 		{
 			Rule:
@@ -95,7 +95,7 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 				{
 					createEObjectNode(groupRelRes, r)
 				}
-				
+
 				val groupRelBody = new VirtualOutlineNode(parentNode, parentNode.image, "Body", false)
 				for (b : pat.eAllContents.toIterable.filter(typeof(RuleConvert)))
 				{
@@ -109,7 +109,7 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 				{
 					createEObjectNode(groupRelRes, r)
 				}
-				
+
 				val groupRelBody = new VirtualOutlineNode(parentNode, parentNode.image, "Body", false)
 				for (b : pat.eAllContents.toIterable.filter(typeof(OperationConvert)))
 				{
@@ -117,13 +117,13 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 				}
 			}
 			Event:
-			{				
+			{
 				val groupRelRes = new VirtualOutlineNode(parentNode, parentNode.image, "Relevant resources", false)
 				for (r : pat.eAllContents.toIterable.filter(typeof(EventRelevantResource)))
 				{
 					createEObjectNode(groupRelRes, r)
 				}
-				
+
 				val groupRelBody = new VirtualOutlineNode(parentNode, parentNode.image, "Body", false)
 				for (b : pat.eAllContents.toIterable.filter(typeof(EventConvert)))
 				{
@@ -132,22 +132,22 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 			}
 		}
 	}
-	
+
 	def _isLeaf(RuleConvert c)      { true }
 	def _isLeaf(OperationConvert c) { true }
 	def _isLeaf(EventConvert c)     { true }
-	
+
 	// Decision points
 	def _isLeaf(DecisionPointSearchActivities d) { true }
 	def _isLeaf(DecisionPointActivities d)       { true }
-	
+
 	// Process
 	def _isLeaf(ProcessGenerate pg)  { true }
 	def _isLeaf(ProcessAdvance pa)   { true }
 	def _isLeaf(ProcessAssign pa)    { true }
 	def _isLeaf(ProcessTerminate pt) { true }
 	def _isLeaf(ProcessQueue pq)     { true }
-	
+
 	// Results
 	def _isLeaf(ResultDeclaration r) { true }
 

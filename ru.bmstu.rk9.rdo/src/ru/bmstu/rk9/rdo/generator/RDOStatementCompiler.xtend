@@ -46,7 +46,7 @@ class RDOStatementCompiler
 							{
 								var repl = (st.relres.type as ResourceDeclaration).reference.fullyQualifiedName +
 									'.getResource("' +	st.relres.type.name + '")'
-								
+
 								if(c.call == st.relres.name && e.calls.size == 2)
 									c.setCall(repl)
 
@@ -72,9 +72,9 @@ class RDOStatementCompiler
 							'''
 					}
 				}
-			}	
+			}
 			//======================================
-			
+
 			StatementList:
 				'''
 				«FOR s : st.statements»
@@ -84,34 +84,34 @@ class RDOStatementCompiler
 
 			ExpressionStatement:
 				RDOExpressionCompiler.compileExpression(st.expr) + ";"
-			
+
 			NestedStatement:
 				'''
 				{
 					«st.statements.compileStatement»
 				}
 				'''
-			
+
 			LocalVariableDeclaration:
 				'''
 				«st.type.compileType» «st.list.compileStatement»;
 				'''
-			
+
 			VariableDeclarationList:
 			{
 				var flag = false
 				var list = ""
-				
+
 				for (d : st.declarations)
 				{
 					list = list + (if (flag) ", " else "") + d.name +
 						(if (d.value != null) " = " + d.value.compileExpression else "")
 					flag = true
 				}
-				
+
 				return list
 			}
-			
+
 			IfStatement:
 				'''
 				if(«st.condition.compileExpression»)
@@ -120,7 +120,7 @@ class RDOStatementCompiler
 				«IF !(st.^else instanceof NestedStatement)»	«ENDIF»«st.^else.compileStatement»
 				«ENDIF»
 				'''
-			
+
 			ForStatement:
 				'''
 				for («
@@ -128,7 +128,7 @@ class RDOStatementCompiler
 						st.declaration.compileStatement.cutLastChars(1) + ""
 					else
 						if (st.init != null)
-							st.init.compileExpression + ";" 
+							st.init.compileExpression + ";"
 						else ";"
 					» «
 					if (st.condition != null)
@@ -140,23 +140,23 @@ class RDOStatementCompiler
 					else ""
 					»)
 				«IF !(st.body instanceof NestedStatement)»	«ENDIF»«st.body.compileStatement»
-				'''			
-			
+				'''
+
 			BreakStatement:
 				'''
 				break;
 				'''
-			
+
 			ReturnStatement:
 				'''
 				return«IF st.^return != null» «st.^return.compileExpression»«ENDIF»;
 				'''
-			
+
 			PlanningStatement:
 				"rdo_lib.Simulator.pushEvent(new " +
 					RDONaming.getFullyQualifiedName(st.event) +	"(/* PARAMETERS */), " +
 						RDOExpressionCompiler.compileExpression(st.value) + ");"
-						
+
 			LegacySetStatement:
 				'''
 				«st.call» = «st.value.compileExpression»;

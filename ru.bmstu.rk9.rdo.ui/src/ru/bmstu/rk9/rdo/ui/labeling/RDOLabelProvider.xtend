@@ -67,7 +67,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	new(org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider delegate) {
 		super(delegate);
 	}
-	
+
 	//====== Extension methods ================================================================//
 	def getModelRoot           (EObject o)            { RDONaming.getModelRoot           (o)    }
 	def getNameGeneric         (EObject o)            { RDONaming.getNameGeneric         (o)    }
@@ -80,14 +80,14 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	// Model
 	def image(RDOModel m) { "model.gif" }
-	
+
 	// Resource types
 	def  text(ResourceType rtp) { "RTP : " + rtp.name }
 	def image(ResourceType rtp) { if (rtp.type.literal == "permanent") "puzzle_plus.gif" else "puzzle_plus_gray.gif" }
-	
+
 	def  text(ResourceTypeParameter p) { p.name + p.type.typeGenericLabel }
 	def image(ResourceTypeParameter p) { "parameter.gif" }
-		
+
 	// Resources
 	def  text(Resources rss) {"RSS : " +
 		(if (rss.resources.size > 0) {rss.resources.size.toString + " objects"} else "") +
@@ -95,47 +95,47 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 		(if (rss.trace.size > 0) {rss.trace.size.toString + " traced"} else "") +
 		(if (rss.resources.size + rss.trace.size == 0) "empty" else "") }
 	def image(Resources rss) { "puzzle.gif" }
-	
+
 		// Resource declaration
 		def  text(ResourceDeclaration rss) { "rss : " + rss.name }
 		def image(ResourceDeclaration rss) { "plus.gif" }
-		
+
 		// Trace
 		def  text(ResourceTrace rsstrc) { "trc : " + rsstrc.trace.name.toString }
 		def image(ResourceTrace rsstrc) { "tag.gif" }
-	
+
 	// Constants
 	def  text(Constants c) { "CON : " + c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size.toString +
 		" constant" + if (c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size % 10 != 1) "s" else ""}
 	def image(Constants c) { "floppy.gif" }
-	
+
 	def image(ConstantDeclaration c) { "constant2.gif" }
 	def  text(ConstantDeclaration c) { c.name + c.type.typeGenericLabel }
-	
+
 	// Sequence
 	def  text(Sequence seq) { "SEQ : " + seq.name + " : " + (
 		if (seq.type.enumerative != null) "enumerative" else "" +
 		if (seq.type.regular != null) seq.type.regular.type.literal else "" +
 		if (seq.type.histogram != null) "histogram" else "" ) + seq.returntype.typeGenericLabel }
 	def image(Sequence seq) { "chart.gif" }
-	
+
 	// Function
 	def  text(Function fun) { "FUN : " + fun.name + fun.returntype.typeGenericLabel }
 	def image(Function fun) { "calc_arrow.gif" }
-	
+
 	def image(FunctionParameter p) { "parameter.gif" }
 	def  text(FunctionParameter p) { p.name + p.type.typeGenericLabel }
-	
+
 	// Event
 	def  text(Event evn) { "EVN : " + evn.name + " : event" + if (evn.trace) " , traced" else "" }
 	def image(Event evn) { "event.gif" }
-	
+
 	def  text(EventConvert c) { c.relres.name }
 	def image(EventConvert c) { "parameter.gif" }
-	
+
 	def image(EventRelevantResource r) { "parameter.gif" }
 	def  text(EventRelevantResource r) { r.name + r.type.relResName }
-	
+
 	// Operation
 	def  text(Operation pat) { "PAT : " + pat.name + " : " + pat.type.literal + if (pat.trace) " , traced" else "" }
 	def image(Operation pat) { "script_block.gif" }
@@ -145,30 +145,30 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	def image(OperationRelevantResource r) { "parameter.gif" }
 	def  text(OperationRelevantResource r) { r.name + r.type.relResName }
-	
+
 	// Rule
 	def  text(Rule pat) { "PAT : " + pat.name + " : rule" + if (pat.trace) " , traced" else "" }
 	def image(Rule pat) { "script_block.gif" }
 
 	def  text(RuleConvert c) { c.relres.name }
 	def image(RuleConvert c) { "parameter.gif" }
-	
+
 	def image(RuleRelevantResource r) { "parameter.gif" }
 	def  text(RuleRelevantResource r) { r.name + r.type.relResName }
-	
+
 	// Common for patterns
 	def getRelResName(EObject object) {
 		switch object {
 			ResourceType: " : RTP : " + object.name
 			ResourceDeclaration: " : RSS : " + object.name
-			default: "" 
+			default: ""
 		}
 	}
-	
+
 	// Decision points
 	def image(DecisionPointSearchActivities d) { "script_block.gif" }
 	def image(DecisionPointActivities d) { "script_block.gif" }
-	
+
 	// DecisionPointSome
 	def  text(DecisionPointSome dpt) { "DPT : " + dpt.name + " : some" }
 	def image(DecisionPointSome dpt) { "block.gif" }
@@ -176,42 +176,42 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	// DecisionPointPrior
 	def  text(DecisionPointPrior dpt) { "DPT : " + dpt.name + " : prior" }
 	def image(DecisionPointPrior dpt) { "block_prior.gif" }
-	
+
 	// DecisionPointSearch
 	def  text(DecisionPointSearch dpt) {"DPT : " + dpt.name + " : search" }
 	def image(DecisionPointSearch dpt) { "search.gif" }
-	
+
 	// Processes
 	def  text(Process prc) { "PRC : " + prc.name }
 	def image(Process prc) { "processor.gif" }
-	
+
 	def  text(ProcessGenerate pg) { "GENERATE" }
-	
+
 	def  text(ProcessSeize ps) { "SEIZE" }
 	def image(SeizeID s) { "parameter.gif" }
-	
+
 	def  text(ProcessRelease pr) { "RELEASE" }
 	def  text(ReleaseID r) { r.id.name }
 	def image(ReleaseID r) { "parameter.gif" }
-	
+
 	def  text(ProcessAdvance pa) { "ADVANCE" }
-	
+
 	def  text(ProcessQueue pq) { "QUEUE" }
 
 	def  text(ProcessDepart pd) { "DEPART" }
-		
+
 	def  text(ProcessAssign pa) { "ASSIGN" }
-	
+
 	def  text(ProcessTerminate pt) { "TERMINATE" }
-	
+
 	def image(ProcessCommand pc) { "process.gif" }
-	
+
 	// Results
 	def  text(Results r) {
 		"Results : " + (if (r.name != null) {r.name + " : "} else "") +
 			r.eAllContents.toList.filter(typeof(ResultDeclaration)).size.toString + " positions" }
 	def image(Results r) { "clipboard.gif" }
-	
+
 	def  text(ResultDeclaration d) { d.name + " : " + resultype(d)}
 	def resultype(ResultDeclaration declaration) {
 		switch declaration.type {
@@ -223,5 +223,5 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 		}
 	}
 	def image(ResultDeclaration d) { "parameter.gif" }
-	
+
 }

@@ -39,12 +39,12 @@ class SuchAsHistory
 {
 	private List<EObject> history
 	private String text
-	
+
 	new(EObject first)
 	{
 		history = new ArrayList<EObject>
 		history.add(first)
-		
+
 		switch first
 		{
 			ResourceTypeParameter:
@@ -54,17 +54,17 @@ class SuchAsHistory
 				text = RDONaming.getNameGeneric(first)
 		}
 	}
-	
+
 	public def boolean add(EObject object)
 	{
 		var ret = !history.contains(object)
 		history.add(object)
-		
+
 		var extmodel = ""
 		var extname = RDOQualifiedNameProvider.computeFromURI((object.eContainer.eContainer as RDOModel))
 		if (RDOQualifiedNameProvider.computeFromURI((history.head.eContainer.eContainer as RDOModel)) != extname)
 			extmodel = extmodel + extname + "."
-		
+
 		switch object
 		{
 			ResourceTypeParameter:
@@ -75,7 +75,7 @@ class SuchAsHistory
 		}
 		return ret
 	}
-	
+
 	public def String getText()
 	{
 		return text
@@ -87,12 +87,12 @@ class RDOValidator extends AbstractRDOValidator
 	//====== Extension methods =================================//
 	def getNameGeneric (EObject o) { RDONaming.getNameGeneric(o) }
 	//==========================================================//
-	
+
 	def boolean resolveCyclicSuchAs(EObject object, SuchAsHistory history)
 	{
 		if (object.eContainer == null)	// check unresolved reference in order
 		    return false              	// to avoid exception in second switch
-		
+
 		switch object
 		{
 			ResourceTypeParameter:
@@ -106,8 +106,8 @@ class RDOValidator extends AbstractRDOValidator
 						else
 							return true
 					}
-					default: return false 
-				} 
+					default: return false
+				}
 			}
 			ConstantDeclaration:
 			{
@@ -127,8 +127,8 @@ class RDOValidator extends AbstractRDOValidator
 			{
 				error("This is a bug. Please, let us know and send us the text of your model.",
 					RdoPackage.Literals.META_SUCH_AS__NAME)
-				return false	
-			}		
+				return false
+			}
 		}
 	}
 
@@ -145,7 +145,7 @@ class RDOValidator extends AbstractRDOValidator
 			ConstantDeclaration:
 				first = ref.eContainer
 
-			default: return		
+			default: return
 		}
 		var SuchAsHistory history = new SuchAsHistory(first)
 		if (resolveCyclicSuchAs(ref.type, history))
@@ -195,11 +195,11 @@ class RDOValidator extends AbstractRDOValidator
 					if (begin == "NonExist" && end != "Create")
 						error("Invalid convert status: "+end+" - for NonExist convert begin status a resource should be created",
 								RdoPackage.Literals.OPERATION_RELEVANT_RESOURCE__END)
-	
+
 					if (begin == "Erase" && end != "NonExist")
 						error("Invalid convert status: "+end+" - convert end status for erased resource should be NonExist",
 								RdoPackage.Literals.OPERATION_RELEVANT_RESOURCE__END)
-	
+
 					if (end == "NonExist" && begin != "Erase")
 						error("Invalid convert status: "+begin+" - relevant resource isn't being erased",
 								RdoPackage.Literals.OPERATION_RELEVANT_RESOURCE__BEGIN)
@@ -218,13 +218,13 @@ class RDOValidator extends AbstractRDOValidator
 			}
 		}
 	}
-	
+
 	@Check
 	def checkConvertStatus(RuleRelevantResource relres)
 	{
 		val type = relres.type
 		val rule = relres.rule.literal
-		
+
 		if (rule == "NonExist") {
 			error("Invalid convert status: "+rule+" couldn't be used in condition-action rule",
 					RdoPackage.Literals.RULE_RELEVANT_RESOURCE__RULE)
@@ -233,7 +233,7 @@ class RDOValidator extends AbstractRDOValidator
 
 		switch type
 		{
-			ResourceType: 
+			ResourceType:
 			{
 				if (type.type.literal == "permanent")
 					if (rule == "Create" || rule == "Erase")
@@ -247,8 +247,8 @@ class RDOValidator extends AbstractRDOValidator
 							RdoPackage.Literals.RULE_RELEVANT_RESOURCE__RULE)
 			}
 		}
-	}	
-	
+	}
+
 	// и почему это для типов ресурсов нельзя использовать Keep
 	@Check
 	def checkConvertStatus(EventRelevantResource relres)
@@ -281,14 +281,14 @@ class RDOValidator extends AbstractRDOValidator
 	{
 		var count = 0; var i = 0; var j = 0
 		var found = false
-		
+
 		switch o
 		{
 			Operation:
 			{
 				val relreslist  = o.eAllContents.toList.filter(typeof(OperationRelevantResource))
 				val convertlist = o.eAllContents.toList.filter(typeof(OperationConvert))
-				
+
 				for (r : relreslist)
 				{
 					i = i + 1
@@ -300,7 +300,7 @@ class RDOValidator extends AbstractRDOValidator
 							count = count + 1
 							found = true
 						}
-	
+
 					if (count > 1)
 						for (c : convertlist)
 							if (c.relres == r)
@@ -324,7 +324,7 @@ class RDOValidator extends AbstractRDOValidator
 									i = i + 1
 						}
 				}
-				
+
 			}
 			Rule:
 			{
@@ -342,7 +342,7 @@ class RDOValidator extends AbstractRDOValidator
 							count = count + 1
 							found = true
 						}
-	
+
 					if (count > 1)
 						for (c : convertlist)
 							if (c.relres == r)
@@ -384,7 +384,7 @@ class RDOValidator extends AbstractRDOValidator
 							count = count + 1
 							found = true
 						}
-	
+
 					if (count > 1)
 						for (c : convertlist)
 							if (c.relres == r)
@@ -411,13 +411,13 @@ class RDOValidator extends AbstractRDOValidator
 			}
 		}
 	}
-	
+
 	@Check
 	def checkConvertAssociations(OperationConvert c)
 	{
 		val begin = c.relres.begin.literal
 		val end   = c.relres.end.literal
-		
+
 		if (begin == "Keep" || begin == "Create")
 			if (!c.havebegin)
 				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" is missing a convert begin",
@@ -438,12 +438,12 @@ class RDOValidator extends AbstractRDOValidator
 				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" shouldn't have a convert end",
 					RdoPackage.Literals.OPERATION_CONVERT__HAVEEND)
 	}
-	
+
 	@Check
 	def checkConvertAssociations(RuleConvert c)
 	{
 		val rule = c.relres.rule.literal
-		
+
 		if (rule == "Keep" || rule == "Create")
 			if (!c.haverule)
 				error("Resource " + c.relres.name + " with convert status "+rule+" is missing a convert rule",
@@ -454,20 +454,20 @@ class RDOValidator extends AbstractRDOValidator
 				error("Resource " + c.relres.name + " with convert status "+rule+" shouldn't have a convert rule",
 					RdoPackage.Literals.RULE_CONVERT__HAVERULE)
 	}
-	
+
 	@Check
 	def checkForCombinationalChioceMethod(Pattern pat)
 	{
 		var havechoicemethods = false
 		var iscombinatorial = false
-		
+
 		for (e : pat.eAllContents.toList.filter(typeof(PatternChoiceMethod)))
 		{
 			switch e.eContainer
 			{
 				Operation: iscombinatorial = true
 				Rule     : iscombinatorial = true
-	
+
 				OperationConvert: havechoicemethods = true
 				RuleConvert     : havechoicemethods = true
 			}

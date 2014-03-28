@@ -21,8 +21,8 @@ class RDOProposalProvider extends AbstractRDOProposalProvider
 		if (RDOKeywordProposalValidator.check(keyword.value, context.previousModel))
 			super.completeKeyword(keyword, context, acceptor)
 	}
-	
-	 // USAGE 
+
+	 // USAGE
 	// acceptor.accept(createCompletionProposal(text to insert, description text, image, context))
 
 	override completeResourceTrace_Trace(
@@ -35,7 +35,7 @@ class RDOProposalProvider extends AbstractRDOProposalProvider
 			!(context.previousModel.eContainer as Resources).trace.map[t | t.trace].contains(r.EObjectOrProxy as EObject) &&
 		     (context.previousModel.eContainer as Resources).resources.contains(r.EObjectOrProxy as EObject) ])
 	}
-	
+
 	override completeRDOSuchAs_Type(
 		EObject element,
 		Assignment assignment,

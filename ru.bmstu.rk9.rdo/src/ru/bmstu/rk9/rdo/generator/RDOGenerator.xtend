@@ -40,12 +40,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 		fsa.generateFile("rdo_lib/Simulator.java",     compileLibSimulator ())
 		fsa.generateFile("rdo_lib/Event.java", compileEvent())
 		//=====================================================================
-		
+
 		for (resource : resources.resources)
 			if (resource.contents.head != null)
 			{
 				val filename = RDOQualifiedNameProvider.computeFromURI(resource.contents.head as RDOModel)
-		
+
 				for (e : resource.allContents.toIterable.filter(typeof(ResourceType)))
 				{
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileResourceType(filename))
@@ -66,7 +66,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 	{
 		'''
 		package rdo_model;
-		
+
 		public class MainClass
 		{
 			public static void main(String[] args)
@@ -94,7 +94,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		}
 		'''
 	}
-	
+
 	def compileConstants(ResourceSet rs)
 	{
 		'''
@@ -119,7 +119,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		}
 		'''
 	}
-	
+
 	def compileResourceType(ResourceType rtp, String filename)
 	{
 		'''
@@ -133,17 +133,17 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				resources.put(name, res);
 			}
-		
+
 			public static int getResourceCount()
 			{
 				return resources.size();
 			}
-		
+
 			public static «rtp.name» getResource(String name)
 			{
 				return resources.get(name);
 			}
-		
+
 			public static java.util.Collection<«rtp.name»> getAll()
 			{
 				return resources.values();
@@ -164,7 +164,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			public «rtp.name»(/*PARAMETERS*/)
 			{
-				
+
 			}
 		}
 		'''
@@ -184,12 +184,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 		}
 		return body
 	}
-	
+
 	def compileEvent(Event evn, String filename)
 	{
 		'''
 		package «filename»;
-		
+
 		public class «evn.name» extends rdo_lib.Event
 		{
 			public «evn.name»(/* PARAMETERS */)
@@ -201,7 +201,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				return "«evn.fullyQualifiedName»";
 			}
-		
+
 			@Override
 			public void calculateEvent()
 			{
@@ -231,36 +231,36 @@ class RDOGenerator implements IMultipleResourceGenerator
 	{
 		'''
 		package rdo_lib;
-		
+
 		import java.util.PriorityQueue;
 		import java.util.Comparator;
-		
+
 		import rdo_lib.Event;
-		
+
 		public abstract class Simulator
 		{
 			private static double time = 0;
-		
+
 			public static double getTime()
 			{
 				return time;
 			}
-		
+
 			private static class PlannedEvent
 			{
 				private Event event;
 				private double plannedFor;
-				
+
 				public Event getEvent()
 				{
 					return event;
 				}
-				
+
 				public double getTimePlanned()
 				{
 					return plannedFor;
 				}
-				
+
 				public PlannedEvent(Event event, double time)
 				{
 					this.event = event;
@@ -280,26 +280,26 @@ class RDOGenerator implements IMultipleResourceGenerator
 			};
 
 			private static PriorityQueue<PlannedEvent> eventList = new PriorityQueue<PlannedEvent>(1, comparator);
-		
+
 			public static void pushEvent(Event event, double time)
 			{
 				eventList.add(new PlannedEvent(event, time));
 			}
-			
+
 			private static PlannedEvent popEvent()
 			{
 				return eventList.remove();
 			}
-		
+
 			public static void run()
 			{
 				while(eventList.size() > 0)
 				{
 					PlannedEvent current = popEvent();
-		
+
 					time = current.getTimePlanned();
 					System.out.println("      " + String.valueOf(time) + ":	'" + current.getEvent().getName() + "' happens");
-		
+
 					current.getEvent().calculateEvent();
 				}
 			}
@@ -311,7 +311,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 	{
 		'''
 		package rdo_lib;
-		
+
 		public abstract class Event
 		{
 			public abstract String getName();
