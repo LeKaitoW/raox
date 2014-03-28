@@ -25,6 +25,11 @@ import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
 
+import ru.bmstu.rk9.rdo.rdo.Function
+import ru.bmstu.rk9.rdo.rdo.FunctionTable
+import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic
+import ru.bmstu.rk9.rdo.rdo.FunctionList
+
 import ru.bmstu.rk9.rdo.rdo.Event
 
 
@@ -46,14 +51,13 @@ class RDOGenerator implements IMultipleResourceGenerator
 				val filename = (resource.contents.head as RDOModel).computeFromURI
 
 				for (e : resource.allContents.toIterable.filter(typeof(ResourceType)))
-				{
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileResourceType(filename))
-				}
+				
+				for (e : resource.allContents.toIterable.filter(typeof(Function)))
+					fsa.generateFile(filename + "/" + e.name + ".java", e.compileFunction(filename))
 
 				for (e : resource.allContents.toIterable.filter(typeof(Event)))
-				{
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileEvent(filename))
-				}
 			}
 
 		fsa.generateFile("rdo_model/Constants.java", compileConstants(resources))
@@ -226,6 +230,37 @@ class RDOGenerator implements IMultipleResourceGenerator
 			flag = true
 		}
 		return body
+	}
+
+	def compileFunction(Function fun, String filename)
+	{
+		'''
+		package «filename»;
+		
+		public class «fun.name»
+		'''
+		 +
+		switch fun.type
+		{
+			FunctionAlgorithmic:
+			'''
+			{
+				
+			}
+			'''
+			FunctionTable:
+			'''
+			{
+				
+			}
+			'''
+			FunctionList:
+			'''
+			{
+				
+			}
+			'''
+		}
 	}
 
 	def compileEvent(Event evn, String filename)
