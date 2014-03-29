@@ -40,10 +40,16 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 	override void doGenerate(ResourceSet resources, IFileSystemAccess fsa)
 	{
-		//===== rdo_lib =======================================================
-		fsa.generateFile("rdo_lib/Simulator.java",     compileLibSimulator ())
-		fsa.generateFile("rdo_lib/Event.java", compileEvent())
-		//=====================================================================
+		//===== rdo_lib ====================================================================
+		fsa.generateFile("rdo_lib/Simulator.java",                compileLibSimulator    ())
+		fsa.generateFile("rdo_lib/Event.java",                    compileEvent           ())
+		fsa.generateFile("rdo_lib/PermanentResourceFactory.java", compilePermanentFactory())
+		fsa.generateFile("rdo_lib/TemporaryResourceFactory.java", compileTemporaryFactory())
+		//==================================================================================
+
+		val declarationList = new java.util.ArrayList<ResourceDeclaration>();
+		for (resource : resources.resources)
+			declarationList.addAll(resource.allContents.filter(typeof(ResourceDeclaration)).toIterable)
 
 		for (resource : resources.resources)
 			if (resource.contents.head != null)
@@ -51,8 +57,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 				val filename = (resource.contents.head as RDOModel).computeFromURI
 
 				for (e : resource.allContents.toIterable.filter(typeof(ResourceType)))
-					fsa.generateFile(filename + "/" + e.name + ".java", e.compileResourceType(filename))
-				
+					fsa.generateFile(filename + "/" + e.name + ".java", e.compileResourceType(filename,
+						declarationList.filter[r | r.reference.fullyQualifiedName == e.fullyQualifiedName]))
+
 				for (e : resource.allContents.toIterable.filter(typeof(Function)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileFunction(filename))
 
@@ -79,14 +86,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 				System.out.println(" === RDO-Simulator ===\n");
 				System.out.println("   Project «RDONaming.getProjectName(rs.resources.get(0).URI)»");
 				System.out.println("   Source files are «rs.resources.map[r | r.contents.head.nameGeneric].toString»\n");
-				System.out.println("   Initialization:");
-				«FOR rl : rs.resources»
-					«FOR r : rl.contents.head.eAllContents.filter(typeof(ResourceDeclaration)).toIterable»
-						«r.reference.fullyQualifiedName».addResource("«r.name»", new «r.reference.fullyQualifiedName»(«
-							if (r.parameters != null) r.parameters.compileExpression else ""»));
-						System.out.println("      Added resource: '«r.name»' of type '«r.reference.fullyQualifiedName»'");
-					«ENDFOR»
-				«ENDFOR»
 
 				System.out.println("\n   Started model");
 
@@ -123,69 +122,26 @@ class RDOGenerator implements IMultipleResourceGenerator
 		}
 		'''
 	}
+	
+	def withFirstUpper(String s)
+	{
+		return Character.toUpperCase(s.charAt(0)) + s.substring(1)
+	}
 
-	def compileResourceType(ResourceType rtp, String filename)
+	def compileResourceType(ResourceType rtp, String filename, Iterable<ResourceDeclaration> instances)
 	{
 		'''
 		package «filename»;
 
 		public class «rtp.name»
 		{
-			private static java.util.Map<String, «rtp.name»> resources = new java.util.HashMap<String, «rtp.name»>();
+			private final static rdo_lib.«rtp.type.literal.withFirstUpper
+				»ResourceFactory<MSA> factory = new rdo_lib.«rtp.type.literal.withFirstUpper»ResourceFactory<MSA>();
 
-			public static void addResource(String name, «rtp.name» res)
+			public static rdo_lib.«rtp.type.literal.withFirstUpper»ResourceFactory<MSA> getFactory()
 			{
-				resources.put(name, res);
+				return factory;
 			}
-
-			public static «rtp.name» getResource(String name)
-			{
-				return resources.get(name);
-			}
-
-			«IF rtp.type.literal == "temporary"»
-				private static java.util.Map<Integer, «rtp.name»> temporary = new java.util.HashMap<Integer, «rtp.name»>();
-
-				private static java.util.Queue<Integer> vacantList = new java.util.LinkedList<Integer>();
-				private static int currentLast = 0;
-
-				public static void addResource(«rtp.name» res)
-				{
-					int number;
-					if (vacantList.size() > 0)
-						number = vacantList.poll();
-					else
-						number = currentLast++;
-					
-					res.number = number;
-					temporary.put(number, res);
-				}
-
-				public static void eraseResource(«rtp.name» resource)
-				{
-					temporary.remove(resource.number);
-					vacantList.add(resource.number);
-				}
-
-				public static java.util.Collection<«rtp.name»> getAll()
-				{
-					java.util.Collection<MSA> all = resources.values();
-					all.addAll(temporary.values());		
-					return all;
-				}
-
-				public static java.util.Collection<«rtp.name»> getTemporary()
-				{
-					return temporary.values();
-				}
-
-				private int number;
-			«ELSE»
-				public static java.util.Collection<«rtp.name»> getAll()
-				{
-					return resources.values();
-				}
-			«ENDIF»
 
 			«IF rtp.eAllContents.filter(typeof(RDOEnum)).toList.size > 0»// ENUMS«ENDIF»
 			«FOR e : rtp.eAllContents.toIterable.filter(typeof(RDOEnum))»
@@ -195,7 +151,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 				}
 
 			«ENDFOR»
-			// PARAMETERS
 			«FOR parameter : rtp.parameters»
 				public «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
 			«ENDFOR»
@@ -210,9 +165,18 @@ class RDOGenerator implements IMultipleResourceGenerator
 				ENDIF»)
 			{
 				«FOR parameter : rtp.parameters»
-					if («parameter.name» != null) this.«parameter.name» = «parameter.name»;
+					if («parameter.name» != null)
+						this.«parameter.name» = «parameter.name»;
 				«ENDFOR»
 			}
+			«FOR r : instances»
+
+				public static final «rtp.name» «r.name» = new «rtp.name»(«
+					if (r.parameters != null) r.parameters.compileExpression else ""»);
+				{
+					«rtp.name».getFactory().addResource("«r.name»", «r.name»);
+				}
+			«ENDFOR»			
 		}
 		'''
 	}
@@ -270,6 +234,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 		public class «evn.name» extends rdo_lib.Event
 		{
+			@Override
+			public String getName()
+			{
+				return "«evn.fullyQualifiedName»";
+			}
+
 			«FOR parameter : evn.parameters»
 				private «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
 			«ENDFOR»
@@ -284,14 +254,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 			ENDIF»)
 			{
 				«FOR parameter : evn.parameters»
-					if («parameter.name» != null) this.«parameter.name» = «parameter.name»;
+					if («parameter.name» != null)
+						this.«parameter.name» = «parameter.name»;
 				«ENDFOR»
-			}
-
-			@Override
-			public String getName()
-			{
-				return "«evn.fullyQualifiedName»";
 			}
 
 			@Override
@@ -305,8 +270,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 								(r.type as ResourceType).parameters.size.compileAllDefault»);
 					«ELSE»
 						«(r.type as ResourceDeclaration).reference.fullyQualifiedName» «r.name» = «
-							(r.type as ResourceDeclaration).reference.fullyQualifiedName».getResource("«
-								(r.type as ResourceDeclaration).name»");
+							(r.type as ResourceDeclaration).reference.fullyQualifiedName».«
+								(r.type as ResourceDeclaration).name»;
 					«ENDIF»
 				«ENDFOR»
 
@@ -318,7 +283,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 					// add created resources
 					«FOR r : evn.relevantresources»
 						«IF r.type instanceof ResourceType»
-							«(r.type as ResourceType).fullyQualifiedName».addResource(«r.name»);
+							«(r.type as ResourceType).fullyQualifiedName».getFactory().addResource(«r.name»);
 						«ENDIF»
 					«ENDFOR»
 				«ENDIF»
@@ -338,6 +303,82 @@ class RDOGenerator implements IMultipleResourceGenerator
 			default:
 				return ""
 		}
+	}
+	
+	def compilePermanentFactory()
+	{
+		'''
+		package rdo_lib;
+
+		public class PermanentResourceFactory<T>
+		{
+			protected java.util.Map<String, T> resources = new java.util.HashMap<String, T>();
+
+			public void addResource(String name, T res)
+			{
+				resources.put(name, res);
+			}
+
+			public T getResource(String name)
+			{
+				return resources.get(name);
+			}
+			
+			public java.util.Collection<T> getAll()
+			{
+				return resources.values();
+			}
+		}
+		'''
+	}
+	
+	def compileTemporaryFactory()
+	{
+		'''
+		package rdo_lib;
+
+		public class TemporaryResourceFactory<T> extends PermanentResourceFactory<T>
+		{
+			private java.util.Map<T, Integer> temporary = new java.util.HashMap<T, Integer>();
+
+			private java.util.Queue<Integer> vacantList = new java.util.LinkedList<Integer>();
+			private int currentLast = 0;
+
+			public void addResource(T res)
+			{
+				if (temporary.containsKey(res))
+					return;
+
+				int number;
+				if (vacantList.size() > 0)
+					number = vacantList.poll();
+				else
+					number = currentLast++;
+
+				temporary.put(res, number);
+			}
+
+			public void eraseResource(T res)
+			{
+				vacantList.add(temporary.get(res));
+				temporary.remove(res);
+			}
+
+			@Override
+			public java.util.Collection<T> getAll()
+			{
+				java.util.Collection<T> all = resources.values();
+				all.addAll(temporary.keySet());
+				return all;
+			}
+
+			public java.util.Collection<T> getTemporary()
+			{
+				return temporary.keySet();
+			}
+
+		}
+		'''
 	}
 
 	def compileLibSimulator()
