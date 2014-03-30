@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rdo.generator
 
+import java.util.List
+
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
 
@@ -16,6 +18,7 @@ import ru.bmstu.rk9.rdo.customizations.IMultipleResourceGenerator
 import ru.bmstu.rk9.rdo.rdo.RDOModel
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
+import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
@@ -26,10 +29,12 @@ import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.Function
+import ru.bmstu.rk9.rdo.rdo.FunctionParameter
 import ru.bmstu.rk9.rdo.rdo.FunctionTable
 import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic
 import ru.bmstu.rk9.rdo.rdo.FunctionList
 
+import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.Event
 
 
@@ -155,14 +160,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				public «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
 			«ENDFOR»
 
-			public «rtp.name»(«
-				IF rtp.parameters.size > 0»«rtp.parameters.get(0).type.compileType» «
-					rtp.parameters.get(0).name»«
-					FOR parameter : rtp.parameters.subList(1, rtp.parameters.size)», «
-						parameter.type.compileType» «
-						parameter.name»«
-					ENDFOR»«
-				ENDIF»)
+			public «rtp.name»(«rtp.parameters.compileResourceTypeParameters»)
 			{
 				«FOR parameter : rtp.parameters»
 					if («parameter.name» != null)
@@ -244,14 +242,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				private «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
 			«ENDFOR»
 
-			public «evn.name»(«
-			IF evn.parameters.size > 0»«evn.parameters.get(0).type.compileType» «
-				evn.parameters.get(0).name»«
-				FOR parameter : evn.parameters.subList(1, evn.parameters.size)», «
-					parameter.type.compileType» «
-					parameter.name»«
-				ENDFOR»«
-			ENDIF»)
+			public «evn.name»(«evn.parameters.compilePatternParameters»)
 			{
 				«FOR parameter : evn.parameters»
 					if («parameter.name» != null)
@@ -304,7 +295,46 @@ class RDOGenerator implements IMultipleResourceGenerator
 				return ""
 		}
 	}
-	
+
+	def static compileResourceTypeParameters(List<ResourceTypeParameter> parameters)
+	{
+		'''
+		«IF parameters.size > 0»«parameters.get(0).type.compileType» «
+			parameters.get(0).name»«
+			FOR parameter : parameters.subList(1, parameters.size)», «
+				parameter.type.compileType» «
+				parameter.name»«
+			ENDFOR»«
+		ENDIF»
+		'''
+	}
+
+	def static compilePatternParameters(List<PatternParameter> parameters)
+	{
+		'''
+		«IF parameters.size > 0»«parameters.get(0).type.compileType» «
+			parameters.get(0).name»«
+			FOR parameter : parameters.subList(1, parameters.size)», «
+				parameter.type.compileType» «
+				parameter.name»«
+			ENDFOR»«
+		ENDIF»
+		'''
+	}
+
+	def static compileFunctionParameters(List<FunctionParameter> parameters)
+	{
+		'''
+		«IF parameters.size > 0»«parameters.get(0).type.compileType» «
+			parameters.get(0).name»«
+			FOR parameter : parameters.subList(1, parameters.size)», «
+				parameter.type.compileType» «
+				parameter.name»«
+			ENDFOR»«
+		ENDIF»
+		'''
+	}
+
 	def compilePermanentManager()
 	{
 		'''
