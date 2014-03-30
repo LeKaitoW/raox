@@ -43,8 +43,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 		//===== rdo_lib ====================================================================
 		fsa.generateFile("rdo_lib/Simulator.java",                compileLibSimulator    ())
 		fsa.generateFile("rdo_lib/Event.java",                    compileEvent           ())
-		fsa.generateFile("rdo_lib/PermanentResourceFactory.java", compilePermanentFactory())
-		fsa.generateFile("rdo_lib/TemporaryResourceFactory.java", compileTemporaryFactory())
+		fsa.generateFile("rdo_lib/PermanentResourceManager.java", compilePermanentManager())
+		fsa.generateFile("rdo_lib/TemporaryResourceManager.java", compileTemporaryManager())
 		//==================================================================================
 
 		val declarationList = new java.util.ArrayList<ResourceDeclaration>();
@@ -136,11 +136,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 		public class «rtp.name»
 		{
 			private final static rdo_lib.«rtp.type.literal.withFirstUpper
-				»ResourceFactory<MSA> factory = new rdo_lib.«rtp.type.literal.withFirstUpper»ResourceFactory<MSA>();
+				»ResourceManager<MSA> manager = new rdo_lib.«rtp.type.literal.withFirstUpper»ResourceManager<MSA>();
 
-			public static rdo_lib.«rtp.type.literal.withFirstUpper»ResourceFactory<MSA> getFactory()
+			public static rdo_lib.«rtp.type.literal.withFirstUpper»ResourceManager<MSA> getManager()
 			{
-				return factory;
+				return manager;
 			}
 
 			«IF rtp.eAllContents.filter(typeof(RDOEnum)).toList.size > 0»// ENUMS«ENDIF»
@@ -174,7 +174,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				public static final «rtp.name» «r.name» = new «rtp.name»(«
 					if (r.parameters != null) r.parameters.compileExpression else ""»);
 				{
-					«rtp.name».getFactory().addResource("«r.name»", «r.name»);
+					«rtp.name».getManager().addResource("«r.name»", «r.name»);
 				}
 			«ENDFOR»			
 		}
@@ -283,7 +283,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 					// add created resources
 					«FOR r : evn.relevantresources»
 						«IF r.type instanceof ResourceType»
-							«(r.type as ResourceType).fullyQualifiedName».getFactory().addResource(«r.name»);
+							«(r.type as ResourceType).fullyQualifiedName».getManager().addResource(«r.name»);
 						«ENDIF»
 					«ENDFOR»
 				«ENDIF»
@@ -305,12 +305,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 		}
 	}
 	
-	def compilePermanentFactory()
+	def compilePermanentManager()
 	{
 		'''
 		package rdo_lib;
 
-		public class PermanentResourceFactory<T>
+		public class PermanentResourceManager<T>
 		{
 			protected java.util.Map<String, T> resources = new java.util.HashMap<String, T>();
 
@@ -332,12 +332,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 	}
 	
-	def compileTemporaryFactory()
+	def compileTemporaryManager()
 	{
 		'''
 		package rdo_lib;
 
-		public class TemporaryResourceFactory<T> extends PermanentResourceFactory<T>
+		public class TemporaryResourceManager<T> extends PermanentResourceManager<T>
 		{
 			private java.util.Map<T, Integer> temporary = new java.util.HashMap<T, Integer>();
 
