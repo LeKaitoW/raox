@@ -65,8 +65,8 @@ class SuchAsHistory
 		history.add(object)
 
 		var extmodel = ""
-		var extname = RDOQualifiedNameProvider.computeFromURI((object.eContainer.eContainer as RDOModel))
-		if (RDOQualifiedNameProvider.computeFromURI((history.head.eContainer.eContainer as RDOModel)) != extname)
+		var extname = RDOQualifiedNameProvider.filenameFromURI((object.eContainer.eContainer as RDOModel))
+		if (RDOQualifiedNameProvider.filenameFromURI((history.head.eContainer.eContainer as RDOModel)) != extname)
 			extmodel = extmodel + extname + "."
 
 		switch object
@@ -126,7 +126,7 @@ class RDOValidator extends AbstractRDOValidator
 			default:
 			{
 				error("This is a bug. Please, let us know and send us the text of your model.",
-					RdoPackage.Literals.META_SUCH_AS__NAME)
+					RdoPackage.eINSTANCE.META_SuchAs_Name)
 				return false
 			}
 		}
@@ -150,7 +150,7 @@ class RDOValidator extends AbstractRDOValidator
 		var SuchAsHistory history = new SuchAsHistory(first)
 		if (resolveCyclicSuchAs(ref.type, history))
 			error("Cyclic such_as found in '" + first.nameGeneric + "': " + history.text +". Resulting type is unknown.",
-				first, RdoPackage.Literals.META_SUCH_AS__NAME)
+				first, RdoPackage.eINSTANCE.META_SuchAs_Name)
 	}
 
 	@Check
@@ -164,7 +164,7 @@ class RDOValidator extends AbstractRDOValidator
 			for (e : trc.eContainer.eContainer.eAllContents.filter(typeof(ResourceTrace)).toIterable)
 				if (trc.trace == e.trace)
 					error("Multiple trace statements for '" + trc.trace.name + "'.",
-						e, RdoPackage.Literals.RESOURCE_TRACE__TRACE)
+						e, RdoPackage.eINSTANCE.resourceTrace_Trace)
 	}
 
 	// чем обоснован запрет Create в convert_end при отличных от NonExist статусах convert_begin
@@ -184,25 +184,25 @@ class RDOValidator extends AbstractRDOValidator
 				{
 					if (begin == "Create" || begin == "Erase" || begin == "NonExist")
 						error("Invalid convert status: "+begin+" - resource type " + type.getNameGeneric + " is permanent",
-								RdoPackage.Literals.OPERATION_RELEVANT_RESOURCE__BEGIN)
+							RdoPackage.eINSTANCE.operationRelevantResource_Begin)
 
 					if (end == "Create" || end == "Erase" || end == "NonExist")
 						error("Invalid convert status: "+end+" - resource type " + type.getNameGeneric + " is permanent",
-								RdoPackage.Literals.OPERATION_RELEVANT_RESOURCE__END)
+							RdoPackage.eINSTANCE.operationRelevantResource_End)
 				}
 				else
 				{
 					if (begin == "NonExist" && end != "Create")
 						error("Invalid convert status: "+end+" - for NonExist convert begin status a resource should be created",
-								RdoPackage.Literals.OPERATION_RELEVANT_RESOURCE__END)
+							RdoPackage.eINSTANCE.operationRelevantResource_End)
 
 					if (begin == "Erase" && end != "NonExist")
 						error("Invalid convert status: "+end+" - convert end status for erased resource should be NonExist",
-								RdoPackage.Literals.OPERATION_RELEVANT_RESOURCE__END)
+							RdoPackage.eINSTANCE.operationRelevantResource_End)
 
 					if (end == "NonExist" && begin != "Erase")
 						error("Invalid convert status: "+begin+" - relevant resource isn't being erased",
-								RdoPackage.Literals.OPERATION_RELEVANT_RESOURCE__BEGIN)
+							RdoPackage.eINSTANCE.operationRelevantResource_Begin)
 				}
 			}
 
@@ -210,11 +210,11 @@ class RDOValidator extends AbstractRDOValidator
 			{
 				if (begin == "Create" || begin == "Erase" || begin == "NonExist")
 					error("Invalid convert status: "+begin+" - only Keep and NoChange statuses could be used for resource",
-							RdoPackage.Literals.OPERATION_RELEVANT_RESOURCE__BEGIN)
+						RdoPackage.eINSTANCE.operationRelevantResource_Begin)
 
 				if (end == "Create" || end == "Erase" || end == "NonExist")
 					error("Invalid convert status: "+end+" - only Keep and NoChange statuses could be used for resource",
-							RdoPackage.Literals.OPERATION_RELEVANT_RESOURCE__END)
+						RdoPackage.eINSTANCE.operationRelevantResource_End)
 			}
 		}
 	}
@@ -227,7 +227,7 @@ class RDOValidator extends AbstractRDOValidator
 
 		if (rule == "NonExist") {
 			error("Invalid convert status: "+rule+" couldn't be used in condition-action rule",
-					RdoPackage.Literals.RULE_RELEVANT_RESOURCE__RULE)
+				RdoPackage.eINSTANCE.ruleRelevantResource_Rule)
 			return
 		}
 
@@ -238,13 +238,13 @@ class RDOValidator extends AbstractRDOValidator
 				if (type.type.literal == "permanent")
 					if (rule == "Create" || rule == "Erase")
 							error("Invalid convert status: "+rule+" - resource type " + type.getNameGeneric + " is permanent",
-									RdoPackage.Literals.RULE_RELEVANT_RESOURCE__RULE)
+								RdoPackage.eINSTANCE.ruleRelevantResource_Rule)
 			}
 			ResourceDeclaration:
 			{
 				if (rule == "Create" || rule == "Erase")
 					error("Invalid convert status: "+rule+" - only Keep and NoChange statuses could be used for resource",
-							RdoPackage.Literals.RULE_RELEVANT_RESOURCE__RULE)
+						RdoPackage.eINSTANCE.ruleRelevantResource_Rule)
 			}
 		}
 	}
@@ -259,7 +259,7 @@ class RDOValidator extends AbstractRDOValidator
 		if (rule == "NonExist" || rule == "Erase" || rule == "NoChange")
 		{
 			error("Invalid convert status: "+rule+" couldn't be used in event",
-					RdoPackage.Literals.EVENT_RELEVANT_RESOURCE__RULE)
+				RdoPackage.eINSTANCE.eventRelevantResource_Rule)
 			return
 		}
 
@@ -269,16 +269,16 @@ class RDOValidator extends AbstractRDOValidator
 			{
 				if (rule == 'Keep')
 					error("Invalid convert status: "+rule+" couldn't be used for resource type in event",
-							RdoPackage.Literals.EVENT_RELEVANT_RESOURCE__RULE)
+						RdoPackage.eINSTANCE.eventRelevantResource_Rule)
 				else
 					if (type.type.literal == "permanent")
 						error("Invalid resource type: '"+type.name+"' is not temporary",
-								RdoPackage.Literals.EVENT_RELEVANT_RESOURCE__TYPE)
+							RdoPackage.eINSTANCE.eventRelevantResource_Rule)
 			}
 			ResourceDeclaration:
 				if (rule == 'Create')
 					error("Invalid convert status: "+rule+" couldn't be used for resource in event",
-							RdoPackage.Literals.EVENT_RELEVANT_RESOURCE__RULE)
+						RdoPackage.eINSTANCE.eventRelevantResource_Rule)
 		}
 	}
 
@@ -311,10 +311,10 @@ class RDOValidator extends AbstractRDOValidator
 						for (c : convertlist)
 							if (c.relres == r)
 								error("Multiple converts for relevant resource " + r.name,
-										c, RdoPackage.Literals.OPERATION_CONVERT__RELRES)
+									c, RdoPackage.eINSTANCE.operationConvert_Relres)
 					if (!found)
 						error("No convert found for relevant resource " + r.name,
-							r, RdoPackage.Literals.OPERATION_RELEVANT_RESOURCE__NAME)
+							r, RdoPackage.eINSTANCE.operationRelevantResource_Name)
 
 					j = 0
 					if (found && (count == 1))
@@ -325,7 +325,7 @@ class RDOValidator extends AbstractRDOValidator
 								if (c.relres.name != null)
 									error("Wrong relevant resource converts order: found " +
 										c.relres.name +	" instead of " + r.name, c,
-											RdoPackage.Literals.OPERATION_CONVERT__RELRES)
+											RdoPackage.eINSTANCE.operationConvert_Relres)
 								else
 									i = i + 1
 						}
@@ -353,10 +353,10 @@ class RDOValidator extends AbstractRDOValidator
 						for (c : convertlist)
 							if (c.relres == r)
 								error("Multiple converts for relevant resource " + r.name,
-										c, RdoPackage.Literals.RULE_CONVERT__RELRES)
+									c, RdoPackage.eINSTANCE.ruleConvert_Relres)
 					if (!found)
 						error("No convert found for relevant resource " + r.name,
-							r, RdoPackage.Literals.RULE_RELEVANT_RESOURCE__NAME)
+							r, RdoPackage.eINSTANCE.ruleRelevantResource_Name)
 
 					j = 0
 					if (found && (count == 1))
@@ -367,7 +367,7 @@ class RDOValidator extends AbstractRDOValidator
 								if (c.relres.name != null)
 									error("Wrong relevant resource converts order: found " +
 										c.relres.name +	" instead of " + r.name, c,
-											RdoPackage.Literals.RULE_CONVERT__RELRES)
+											RdoPackage.eINSTANCE.ruleConvert_Relres)
 								else
 									i = i + 1
 						}
@@ -395,10 +395,10 @@ class RDOValidator extends AbstractRDOValidator
 						for (c : convertlist)
 							if (c.relres == r)
 								error("Multiple converts for relevant resource " + r.name,
-										c, RdoPackage.Literals.EVENT_CONVERT__RELRES)
+									c, RdoPackage.eINSTANCE.eventConvert_Relres)
 					if (!found)
 						error("No convert found for relevant resource " + r.name,
-							r, RdoPackage.Literals.EVENT_RELEVANT_RESOURCE__NAME)
+							r, RdoPackage.eINSTANCE.eventRelevantResource_Name)
 
 					j = 0
 					if (found && (count == 1))
@@ -409,7 +409,7 @@ class RDOValidator extends AbstractRDOValidator
 								if (c.relres.name != null)
 									error("Wrong relevant resource converts order: found " +
 										c.relres.name +	" instead of " + r.name, c,
-											RdoPackage.Literals.EVENT_CONVERT__RELRES)
+											RdoPackage.eINSTANCE.eventConvert_Relres)
 								else
 									i = i + 1
 						}
@@ -427,22 +427,22 @@ class RDOValidator extends AbstractRDOValidator
 		if (begin == "Keep" || begin == "Create")
 			if (!c.havebegin)
 				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" is missing a convert begin",
-					RdoPackage.Literals.OPERATION_CONVERT__RELRES)
+					RdoPackage.eINSTANCE.operationConvert_Relres)
 
 		if (end == "Keep" || end == "Create")
 			if (!c.haveend)
 				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" is missing a convert end",
-					RdoPackage.Literals.OPERATION_CONVERT__RELRES)
+					RdoPackage.eINSTANCE.operationConvert_Relres)
 
 		if (begin == "Erase" || begin == "NonExist" || begin == "NoChange")
 			if (c.havebegin)
 				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" shouldn't have a convert begin",
-					RdoPackage.Literals.OPERATION_CONVERT__HAVEBEGIN)
+					RdoPackage.eINSTANCE.operationConvert_Havebegin)
 
 		if (end == "Erase" || end == "NonExist" || end == "NoChange")
 			if (c.haveend)
 				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" shouldn't have a convert end",
-					RdoPackage.Literals.OPERATION_CONVERT__HAVEEND)
+					RdoPackage.eINSTANCE.operationConvert_Haveend)
 	}
 
 	@Check
@@ -453,12 +453,12 @@ class RDOValidator extends AbstractRDOValidator
 		if (rule == "Keep" || rule == "Create")
 			if (!c.haverule)
 				error("Resource " + c.relres.name + " with convert status "+rule+" is missing a convert rule",
-					RdoPackage.Literals.RULE_CONVERT__RELRES)
+					RdoPackage.eINSTANCE.ruleConvert_Relres)
 
 		if (rule == "Erase" || rule == "NoChange")
 			if (c.haverule)
 				error("Resource " + c.relres.name + " with convert status "+rule+" shouldn't have a convert rule",
-					RdoPackage.Literals.RULE_CONVERT__HAVERULE)
+					RdoPackage.eINSTANCE.ruleConvert_Haverule)
 	}
 
 	@Check
@@ -486,11 +486,11 @@ class RDOValidator extends AbstractRDOValidator
 				{
 					OperationConvert:
 						error("Operation " + pat.name + " already uses combinational approach for relevant resources search",
-								e.eContainer, RdoPackage.Literals.OPERATION_CONVERT__CHOICEMETHOD)
+							e.eContainer, RdoPackage.eINSTANCE.operationConvert_Choicemethod)
 
 					RuleConvert:
 						error("Rule " + pat.name + " already uses combinational approach for relevant resources search",
-								e.eContainer, RdoPackage.Literals.RULE_CONVERT__CHOICEMETHOD)
+							e.eContainer, RdoPackage.eINSTANCE.ruleConvert_Choicemethod)
 				}
 			}
 	}

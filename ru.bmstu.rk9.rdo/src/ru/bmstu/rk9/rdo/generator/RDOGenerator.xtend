@@ -59,7 +59,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		for (resource : resources.resources)
 			if (resource.contents.head != null)
 			{
-				val filename = (resource.contents.head as RDOModel).computeFromURI
+				val filename = (resource.contents.head as RDOModel).filenameFromURI
 
 				for (e : resource.allContents.toIterable.filter(typeof(ResourceType)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileResourceType(filename,
@@ -298,41 +298,35 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 	def static compileResourceTypeParameters(List<ResourceTypeParameter> parameters)
 	{
-		'''
-		«IF parameters.size > 0»«parameters.get(0).type.compileType» «
+		'''«IF parameters.size > 0»«parameters.get(0).type.compileType» «
 			parameters.get(0).name»«
 			FOR parameter : parameters.subList(1, parameters.size)», «
 				parameter.type.compileType» «
 				parameter.name»«
 			ENDFOR»«
-		ENDIF»
-		'''
+		ENDIF»'''
 	}
 
 	def static compilePatternParameters(List<PatternParameter> parameters)
 	{
-		'''
-		«IF parameters.size > 0»«parameters.get(0).type.compileType» «
+		'''«IF parameters.size > 0»«parameters.get(0).type.compileType» «
 			parameters.get(0).name»«
 			FOR parameter : parameters.subList(1, parameters.size)», «
 				parameter.type.compileType» «
 				parameter.name»«
 			ENDFOR»«
-		ENDIF»
-		'''
+		ENDIF»'''
 	}
 
 	def static compileFunctionParameters(List<FunctionParameter> parameters)
 	{
-		'''
-		«IF parameters.size > 0»«parameters.get(0).type.compileType» «
+		'''«IF parameters.size > 0»«parameters.get(0).type.compileType» «
 			parameters.get(0).name»«
 			FOR parameter : parameters.subList(1, parameters.size)», «
 				parameter.type.compileType» «
 				parameter.name»«
 			ENDFOR»«
-		ENDIF»
-		'''
+		ENDIF»'''
 	}
 
 	def compilePermanentManager()
