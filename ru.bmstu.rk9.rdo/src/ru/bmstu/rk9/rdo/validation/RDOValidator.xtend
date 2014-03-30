@@ -6,6 +6,7 @@ import java.util.ArrayList
 import org.eclipse.xtext.validation.Check
 
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EStructuralFeature
 
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 
@@ -22,7 +23,11 @@ import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 import ru.bmstu.rk9.rdo.rdo.ResourceTrace
 
+import ru.bmstu.rk9.rdo.rdo.Sequence
+
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+
+import ru.bmstu.rk9.rdo.rdo.Function
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.Operation
@@ -35,6 +40,10 @@ import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 import ru.bmstu.rk9.rdo.rdo.EventConvert
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
+
+import ru.bmstu.rk9.rdo.rdo.DecisionPoint
+
+import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
 
@@ -88,6 +97,75 @@ class SuchAsHistory
 
 class RDOValidator extends AbstractRDOValidator
 {
+	@Check
+	def checkDuplicateNamesForEntities(RDOModel model)
+	{
+		val List<String> entities = new ArrayList<String>()
+		val List<String> duplicates = new ArrayList<String>()
+
+		val List<EObject> checklist = model.eAllContents.filter[e |
+			e instanceof ResourceType        ||
+			e instanceof ResourceDeclaration ||
+			e instanceof Sequence            ||
+			e instanceof ConstantDeclaration ||
+			e instanceof Function            ||
+			e instanceof Pattern             ||
+			e instanceof DecisionPoint       ||
+			e instanceof ResultDeclaration
+		].toList
+
+		for (e : checklist)
+		{
+			val name = e.fullyQualifiedName
+			if (entities.contains(name))
+			{
+				if (!duplicates.contains(name))
+					duplicates.add(name)
+			}
+			else
+				entities.add(name)
+		}
+
+		if (duplicates.size > 0)
+			for (e : checklist)
+			{
+				val name = e.fullyQualifiedName
+				if (duplicates.contains(name))
+					error("Error - multiple declarations of object '" + name + "'.", e,
+						e.getNameStructuralFeature)
+			}
+	}
+
+	def EStructuralFeature getNameStructuralFeature (EObject object)
+	{
+		switch object
+		{
+			ResourceType:
+				RdoPackage.eINSTANCE.META_RelResType_Name
+
+			ResourceDeclaration:
+				RdoPackage.eINSTANCE.META_RelResType_Name
+
+			Sequence:
+				RdoPackage.eINSTANCE.sequence_Name
+
+			ConstantDeclaration:
+				RdoPackage.eINSTANCE.META_SuchAs_Name
+
+			Function:
+				RdoPackage.eINSTANCE.function_Name
+
+			Pattern:
+				RdoPackage.eINSTANCE.pattern_Name
+
+			DecisionPoint:
+				RdoPackage.eINSTANCE.decisionPoint_Name
+
+			ResultDeclaration:
+				RdoPackage.eINSTANCE.resultDeclaration_Name
+		}
+	}
+
 	def boolean resolveCyclicSuchAs(EObject object, SuchAsHistory history)
 	{
 		if (object.eContainer == null)	// check unresolved reference in order

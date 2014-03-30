@@ -17,7 +17,18 @@ import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
+import ru.bmstu.rk9.rdo.rdo.Sequence
+
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+
+import ru.bmstu.rk9.rdo.rdo.Function
+
+import ru.bmstu.rk9.rdo.rdo.Pattern
+
+import ru.bmstu.rk9.rdo.rdo.DecisionPoint
+
+import ru.bmstu.rk9.rdo.rdo.Results
+import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.RDOReal
@@ -27,8 +38,6 @@ import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDOArray
 import ru.bmstu.rk9.rdo.rdo.RDOOwnType
-
-import ru.bmstu.rk9.rdo.rdo.Pattern
 
 
 class RDONaming
@@ -69,7 +78,25 @@ class RDONaming
 			ResourceDeclaration:
 				return object.name
 
+			Sequence:
+				return object.name
+
 			ConstantDeclaration:
+				return object.name
+
+			Function:
+				return object.name
+
+			Pattern:
+				return object.name
+
+			DecisionPoint:
+				return object.name
+
+			Results:
+				return (if(object.name == null) "*null*" else object.name)
+
+			ResultDeclaration:
 				return object.name
 
 			default:
@@ -91,8 +118,30 @@ class RDONaming
 				return object.eContainer.eContainer.nameGeneric +
 					"." + object.eContainer.nameGeneric + "." + object.name
 
+			ResourceDeclaration:
+				return object.eContainer.eContainer.nameGeneric + "." + object.name
+
+			Sequence:
+				return object.eContainer.nameGeneric + "." + object.name
+
+			ConstantDeclaration:
+				return object.eContainer.eContainer.nameGeneric + "." + object.name
+
+			Function:
+				return object.eContainer.nameGeneric + "." + object.name
+
 			Pattern:
 				return object.eContainer.nameGeneric + "." + object.name
+
+			DecisionPoint:
+				return object.eContainer.nameGeneric + "." + object.name
+
+			Results:
+				return object.eContainer.nameGeneric + "." + object.nameGeneric
+
+			ResultDeclaration:
+				return object.eContainer.eContainer.nameGeneric + "." +
+					object.eContainer.nameGeneric + "." + object.name
 
 			default:
 				return "ERROR"
