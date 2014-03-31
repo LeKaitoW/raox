@@ -65,17 +65,22 @@ class RDOGenerator implements IMultipleResourceGenerator
 		for (resource : resources.resources)
 			simulationList.addAll(resource.allContents.filter(typeof(SimulationRun)).toIterable)
 
-		var Resource resWithSMR = null
-		if (simulationList.size > 1)
+		var Resource resWithSMR
+		switch simulationList.size
 		{
-			resWithSMR = simulationList.get(0).eResource
+			case 0:
+				resWithSMR = null
 
-			val options = new HashMap<String, Resource>()
+			case 1:
+				resWithSMR = simulationList.get(0).eResource
 
-			for (s : simulationList)
-				options.put(s.eResource.URI.lastSegment, s.eResource)
-
-			resWithSMR = options.get(options.keySet.toList.get(SMRSelectDialog.invoke(options.keySet.toList)))
+			default:
+			{
+				val options = new HashMap<String, Resource>()
+				for (s : simulationList)
+					options.put(s.eResource.URI.lastSegment, s.eResource)
+				resWithSMR = options.get(options.keySet.toList.get(SMRSelectDialog.invoke(options.keySet.toList)))
+			}
 		}
 
 		for (resource : resources.resources)
@@ -114,11 +119,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 				System.out.println("   Project «RDONaming.getProjectName(rs.resources.get(0).URI)»");
 				System.out.println("   Source files are «rs.resources.map[r | r.contents.head.nameGeneric].toString»\n");
 
-				«IF smr != null»// SMR«
-				FOR c :smr.allContents.filter(typeof(SimulationRun)).head.commands»
+				«IF smr != null»«FOR c :smr.allContents.filter(typeof(SimulationRun)).head.commands»
 					«c.compileStatement»
-				«ENDFOR»
-				«ENDIF»
+				«ENDFOR»«ENDIF»
 
 				System.out.println("\n   Started model");
 
@@ -140,18 +143,19 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 		public class Constants
 		{
-			«FOR rl : rs.resources»«IF rl.contents.head.eAllContents.filter(typeof(ConstantDeclaration)).size > 0»
+			«FOR rl : rs.resources»«IF rl.contents.head != null»
+			«IF rl.contents.head.eAllContents.filter(typeof(ConstantDeclaration)).size > 0»
 				public static class Constants_«rl.contents.head.nameGeneric»
 				{
 					«FOR r : rl.contents.head.eAllContents.filter(typeof(ConstantDeclaration)).toIterable»
 						public static final «r.type.compileType» «r.name» = «r.value.compileExpression»;
 					«ENDFOR»
 				}
-
+			«ENDIF»
 			«ENDIF»«ENDFOR»
-			«FOR rl : rs.resources»«IF rl.contents.head.eAllContents.filter(typeof(ConstantDeclaration)).size > 0»
+			«FOR rl : rs.resources»«IF rl.contents.head != null»«IF rl.contents.head.eAllContents.filter(typeof(ConstantDeclaration)).size > 0»
 				public static final Constants_«rl.contents.head.nameGeneric» «rl.contents.head.nameGeneric» = new Constants_«rl.contents.head.nameGeneric»();
-			«ENDIF»«ENDFOR»
+			«ENDIF»«ENDIF»«ENDFOR»
 		}
 		'''
 	}

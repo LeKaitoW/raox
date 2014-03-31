@@ -60,7 +60,6 @@ public class SMRSelectDialog
 			{
 				Object[] result = dialog.getResult();
 				String rs = (String)(result[0]);
-				System.out.println(rs);
 				this.result.set(input.indexOf(rs));
 			}
 			else
