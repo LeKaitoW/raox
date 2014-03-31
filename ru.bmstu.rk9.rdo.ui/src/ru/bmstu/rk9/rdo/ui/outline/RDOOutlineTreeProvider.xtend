@@ -40,6 +40,8 @@ import ru.bmstu.rk9.rdo.rdo.ProcessQueue
 
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 
+import ru.bmstu.rk9.rdo.rdo.SimulationRun
+
 
 public class VirtualOutlineNode extends AbstractOutlineNode
 {
@@ -150,5 +152,7 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 
 	// Results
 	def _isLeaf(ResultDeclaration r) { true }
-
+	
+	// Simulation run
+	def _isLeaf(SimulationRun smr) { true }
 }

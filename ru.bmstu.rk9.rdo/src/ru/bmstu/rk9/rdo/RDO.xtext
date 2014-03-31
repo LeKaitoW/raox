@@ -496,7 +496,7 @@ ResultGetValue:
 //               Meta types for cross-references
 // ==========================================================
 SimulationRun:
-	instance = '$Simulation_run'
+	name = '$Simulation_run'
 		(commands += SimulationCommand ';')*
 	'$End'
 ;

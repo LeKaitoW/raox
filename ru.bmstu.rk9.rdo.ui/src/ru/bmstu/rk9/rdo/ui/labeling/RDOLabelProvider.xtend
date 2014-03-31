@@ -60,6 +60,9 @@ import ru.bmstu.rk9.rdo.rdo.ResultWatchQuant
 import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
 import ru.bmstu.rk9.rdo.rdo.ResultGetValue
 
+import ru.bmstu.rk9.rdo.rdo.SimulationRun
+
+
 class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider {
 
 	@Inject
@@ -213,4 +216,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	}
 	def image(ResultDeclaration d) { "parameter.gif" }
 
+	// Simulation run
+	def  text(SimulationRun smr) { "SMR : Simulation run" }
+	def image(SimulationRun smr) { "run.gif" }
 }
