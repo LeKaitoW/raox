@@ -245,8 +245,6 @@ class RDOValidator extends AbstractRDOValidator
 						e, RdoPackage.eINSTANCE.resourceTrace_Trace)
 	}
 
-	// чем обоснован запрет Create в convert_end при отличных от NonExist статусах convert_begin
-	// создадим два ресурса, какие проблемы
 	@Check
 	def checkConvertStatus(OperationRelevantResource relres)
 	{
@@ -327,7 +325,6 @@ class RDOValidator extends AbstractRDOValidator
 		}
 	}
 
-	// и почему это для типов ресурсов нельзя использовать Keep
 	@Check
 	def checkConvertStatus(EventRelevantResource relres)
 	{

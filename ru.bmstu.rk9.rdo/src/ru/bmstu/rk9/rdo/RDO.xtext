@@ -22,7 +22,7 @@ RDOEntity
 	| Process        // PRC
 //	| Frame          // FRM
 	| Results        // PMD
-//	| SimulationRun  // SMR
+	| SimulationRun  // SMR
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -495,6 +495,26 @@ ResultGetValue:
 // ==========================================================
 //               Meta types for cross-references
 // ==========================================================
+SimulationRun:
+	instance = '$Simulation_run'
+		(commands += SimulationCommand ';')*
+	'$End'
+;
+
+SimulationCommand
+	: statement = (ExpressionStatement | PlanningStatement)
+	| termcondition = TerminateIf
+;
+
+TerminateIf:
+	term = 'Terminate_if' => condition = ExpressionOr
+;
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+// ==========================================================
+//               Meta types for cross-references
+// ==========================================================
 META_RelResType
 	: ResourceType
 	| ResourceDeclaration
@@ -661,11 +681,11 @@ NoChangeStatement:
 ;
 
 StoppingStatement:
-	event = [Event|ID] '.' 'stopping' '(' ')'
+	event = [Event|FQN] '.' 'stopping' '(' ')'
 ;
 
 PlanningStatement:
-	event = [Event|ID] '.' 'planning' '(' value = Expression ')'
+	event = [Event|FQN] '.' 'planning' '(' value = Expression ')'
 	('(' parameters = ResourceExpressionList ')')?
 ;
 
