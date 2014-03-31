@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rdo.generator
 
 import java.util.List
+import java.util.HashMap
 
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
@@ -12,8 +13,10 @@ import static extension org.eclipse.xtext.xbase.lib.IteratorExtensions.*
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.customizations.RDOQualifiedNameProvider.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
+import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
 
 import ru.bmstu.rk9.rdo.customizations.IMultipleResourceGenerator
+import ru.bmstu.rk9.rdo.customizations.SMRSelectDialog
 
 import ru.bmstu.rk9.rdo.rdo.RDOModel
 
@@ -37,6 +40,8 @@ import ru.bmstu.rk9.rdo.rdo.FunctionList
 import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.Event
 
+import ru.bmstu.rk9.rdo.rdo.SimulationRun
+
 
 class RDOGenerator implements IMultipleResourceGenerator
 {
@@ -56,6 +61,23 @@ class RDOGenerator implements IMultipleResourceGenerator
 		for (resource : resources.resources)
 			declarationList.addAll(resource.allContents.filter(typeof(ResourceDeclaration)).toIterable)
 
+		val simulationList = new java.util.ArrayList<SimulationRun>();
+		for (resource : resources.resources)
+			simulationList.addAll(resource.allContents.filter(typeof(SimulationRun)).toIterable)
+
+		var Resource resWithSMR = null
+		if (simulationList.size > 1)
+		{
+			resWithSMR = simulationList.get(0).eResource
+
+			val options = new HashMap<String, Resource>()
+
+			for (s : simulationList)
+				options.put(s.eResource.URI.lastSegment, s.eResource)
+
+			resWithSMR = options.get(options.keySet.toList.get(SMRSelectDialog.invoke(options.keySet.toList)))
+		}
+
 		for (resource : resources.resources)
 			if (resource.contents.head != null)
 			{
@@ -74,10 +96,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 		fsa.generateFile("rdo_model/Constants.java", compileConstants(resources))
 
-		fsa.generateFile("rdo_model/MainClass.java", compileMain(resources))
+		fsa.generateFile("rdo_model/MainClass.java", compileMain(resources, resWithSMR))
 	}
 
-	def compileMain(ResourceSet rs)
+	def compileMain(ResourceSet rs, Resource smr)
 	{
 		'''
 		package rdo_model;
@@ -91,6 +113,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 				System.out.println(" === RDO-Simulator ===\n");
 				System.out.println("   Project «RDONaming.getProjectName(rs.resources.get(0).URI)»");
 				System.out.println("   Source files are «rs.resources.map[r | r.contents.head.nameGeneric].toString»\n");
+
+				«IF smr != null»// SMR«
+				FOR c :smr.allContents.filter(typeof(SimulationRun)).head.commands»
+					«c.compileStatement»
+				«ENDFOR»
+				«ENDIF»
 
 				System.out.println("\n   Started model");
 

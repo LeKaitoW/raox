@@ -497,13 +497,13 @@ ResultGetValue:
 // ==========================================================
 SimulationRun:
 	name = '$Simulation_run'
-		(commands += SimulationCommand ';')*
+		commands += SimulationCommand*
 	'$End'
 ;
 
 SimulationCommand
-	: statement = (ExpressionStatement | PlanningStatement)
-	| termcondition = TerminateIf
+	: Statement
+	| TerminateIf ';'
 ;
 
 TerminateIf:
