@@ -136,7 +136,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 					System.out.println("\n   Stopped (no more events)");
 
 				System.out.println("\n   Finished model in " + String.valueOf((System.currentTimeMillis() - startTime)/1000.0) + "s");
-
 			}
 		}
 		'''
@@ -150,12 +149,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 		public class «con.name»
 		{
 			public static final «con.type.compileType» value = «con.value.compileExpression»;
+			«IF con.type instanceof RDOEnum»
 
-			«IF con.type instanceof RDOEnum
-			»public enum «(con.type as RDOEnum).getEnumParentName(false)»_enum
-			{
-				«(con.type as RDOEnum).makeEnumBody»
-			}«
+				public enum «(con.type as RDOEnum).getEnumParentName(false)»_enum
+				{
+					«(con.type as RDOEnum).makeEnumBody»
+				}«
 			ENDIF»
 		}
 		'''
