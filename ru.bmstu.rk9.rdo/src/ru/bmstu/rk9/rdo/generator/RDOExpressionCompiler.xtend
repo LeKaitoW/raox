@@ -2,6 +2,8 @@ package ru.bmstu.rk9.rdo.generator
 
 import org.eclipse.emf.ecore.EObject
 
+import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
+
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 import ru.bmstu.rk9.rdo.rdo.RDODefaultParameter
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
@@ -235,7 +237,7 @@ class RDOExpressionCompiler
 			RDOReal   : "Double"
 			RDOBoolean: "Boolean"
 			RDOString : "String"
-			RDOEnum   : RDONaming.getEnumParentName(type, true) + "_enum"
+			RDOEnum   : type.getEnumParentName(true) + "_enum"
 			RDOSuchAs : type.type.compileType
 			RDOArray  : "java.util.ArrayList<" + type.arraytype.compileType + ">"
 

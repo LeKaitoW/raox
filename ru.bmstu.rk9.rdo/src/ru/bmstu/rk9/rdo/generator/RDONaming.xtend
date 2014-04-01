@@ -200,11 +200,15 @@ class RDONaming
 			container = container.eContainer
 		}
 
+		var doubleclass = true
 		if (container instanceof RDORTPParameterType)
-				container = container.eContainer
+		{
+			doubleclass = false
+			container = container.eContainer
+		}
 
 		if (isFQN)
-			return container.fullyQualifiedName
+			return container.fullyQualifiedName + (if(doubleclass) ("." + container.nameGeneric) else "")
 		else
 			return container.nameGeneric
 	}

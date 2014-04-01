@@ -50,7 +50,7 @@ RDORTPParameterType
 ;
 
 RDORTPParameterBasic:
-	type = (RDOInteger | RDOReal | RDOBoolean) ('=' default = Expression)?
+	type = (RDOInteger | RDOReal | RDOBoolean) ('=' default = ExpressionOr)?
 ;
 
 RDORTPParameterString:
@@ -62,7 +62,7 @@ RDORTPParameterEnum:
 ;
 
 RDORTPParameterSuchAs:
-	type = RDOSuchAs ('=' default = Expression)?
+	type = RDOSuchAs ('=' default = ExpressionOr)?
 ;
 
 RDORTPParameterArray:
@@ -100,7 +100,7 @@ ResourceParameterExpression
 ;
 
 ResourceTrace:
-	trace = [ResourceDeclaration|ID] '.' 'trace' '(' ')' ';'
+	trace = [ecore::EObject|FQN] '.' 'trace' '(' ')' ';'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -121,7 +121,7 @@ Operation:
 	 '$Relevant_resources'
 		 relevantresources += OperationRelevantResource+
 		(combinational = PatternChoiceMethod)?
-	 '$Time' '=' time = Expression
+	 '$Time' '=' time = ExpressionOr
 	 '$Body'
 		algorithms += OperationConvert+
 	 '$End'
@@ -193,13 +193,13 @@ EventConvert:
 ;
 
 PatternChoiceFrom
-	: 'from' logic = Expression
+	: 'from' logic = ExpressionOr
 	| nocheck ?= 'NoCheck'
 ;
 
 PatternChoiceMethod
 	: first ?= 'first'
-	| withtype = PatternChoiceWithType expression = Expression
+	| withtype = PatternChoiceWithType expression = ExpressionOr
 ;
 
 enum PatternChoiceWithType
@@ -232,8 +232,8 @@ DecisionPoint
 
 DecisionPointSome:
 	 '$Decision_point' name = ID ':' 'some' trace ?= 'trace'?
-	('$Parent' parent = [DecisionPoint|ID])?
-	('$Condition' (condition = Expression | 'NoCheck'))?
+	('$Parent' parent = [DecisionPoint|FQN])?
+	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
 	 '$Activities'
 		activities += DecisionPointActivities+
 	 '$End'
@@ -241,9 +241,9 @@ DecisionPointSome:
 
 DecisionPointPrior:
 	 '$Decision_point' name = ID ':' 'prior' trace ?= 'trace'?
-	('$Parent' parent = [DecisionPoint|ID])?
-	('$Condition' (condition = Expression | 'NoCheck'))?
-	 '$Priority' priority = Expression
+	('$Parent' parent = [DecisionPoint|FQN])?
+	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
+	 '$Priority' priority = ExpressionOr
 	 '$Activities'
 		activities += DecisionPointActivities+
 	 '$End'
@@ -252,10 +252,10 @@ DecisionPointPrior:
 DecisionPointSearch:
 	 '$Decision_point' name = ID ':' 'search'
 	( trace ?= 'trace' | traceall ?= 'trace_all')?
-	('$Parent' parent = [DecisionPoint|ID])?
-	('$Condition' (condition = Expression | 'NoCheck'))?
-	 '$Term_condition' termination = Expression
-	 '$Evaluate_by' evaluateby = Expression // что тут с контекстом?
+	('$Parent' parent = [DecisionPoint|FQN])?
+	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
+	 '$Term_condition' termination = ExpressionOr
+	 '$Evaluate_by' evaluateby = ExpressionOr // что тут с контекстом?
 	 '$Compare_tops' '=' ((comparetops ?= 'YES') | 'NO')
 	 '$Activities'
 		activities += DecisionPointSearchActivities+
@@ -264,8 +264,8 @@ DecisionPointSearch:
 
 DecisionPointSearchActivities:
 	name = ID ':' pattern = [Pattern|ID] parameters += Primary*
-	('value before' valuebefore = Expression
-	|'value after'  valueafter = Expression)
+	('value before' valuebefore = ExpressionOr
+	|'value after'  valueafter = ExpressionOr)
 ;
 
 DecisionPointActivities:
@@ -295,7 +295,7 @@ ProcessCommand
 ;
 
 ProcessGenerate:
-	'GENERATE' time = Expression
+	'GENERATE' time = ExpressionOr
 ;
 
 ProcessSeize:
@@ -315,7 +315,7 @@ ReleaseID:
 ;
 
 ProcessAdvance:
-	'ADVANCE' time = Expression
+	'ADVANCE' time = ExpressionOr
 ;
 
 ProcessQueue:
@@ -331,11 +331,11 @@ ProcessDepart:
 ;
 
 ProcessAssign:
-	'ASSIGN' parameter = [ResourceTypeParameter|FQN] '=' value = Expression
+	'ASSIGN' parameter = [ResourceTypeParameter|FQN] '=' value = ExpressionOr
 ;
 
 ProcessTerminate:
-	'TERMINATE' delta = Expression
+	'TERMINATE' delta = ExpressionOr
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -390,7 +390,7 @@ Constants:
 ;
 
 ConstantDeclaration:
-	name = ID ':' type = RDOType '=' value = Expression
+	name = ID ':' type = RDOType '=' value = ExpressionOr
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -399,7 +399,7 @@ ConstantDeclaration:
 //                          Functions
 // ==========================================================
 Function:
-	'$Function' name = ID ':' returntype = RDOType ('=' default = Expression)?
+	'$Function' name = ID ':' returntype = RDOType ('=' default = ExpressionOr)?
 	'$Type' '=' type = FunctionType
 ;
 
@@ -443,7 +443,7 @@ FunctionParameter:
 ;
 
 FunctionListValue:
-	parameters += Primary+ '=' value = Expression
+	parameters += Primary+ '=' value = ExpressionOr
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -470,24 +470,24 @@ ResultType
 ;
 
 ResultWatchParameter:
-	'watch_par' parameter = Expression
+	'watch_par' parameter = [ResourceTypeParameter|FQN]
 ;
 
 ResultWatchState:
-	'watch_state' logic = Expression  
+	'watch_state' logic = ExpressionOr
 ;
 
 ResultWatchQuant:
-	'watch_quant' resource = [ResourceType|ID] ('NoCheck' | logic = Expression)
+	'watch_quant' resource = [ResourceType|ID] ('NoCheck' | logic = ExpressionOr)
 ;
 
 ResultWatchValue:
 	'watch_value' resource = [ResourceType|ID]
-	( 'NoCheck'? | logic = Expression ) ':' expression = Expression
+	( 'NoCheck'? | logic = ExpressionOr ) ':' expression = ExpressionOr
 ;
 
 ResultGetValue:
-	'get_value' expression = Expression 
+	'get_value' expression = ExpressionOr
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -507,7 +507,7 @@ SimulationCommand
 ;
 
 TerminateIf:
-	term = 'Terminate_if' => condition = ExpressionOr
+	term = 'Terminate_if' => condition = Expression
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -649,7 +649,7 @@ VariableDeclarationList:
 ;
 
 VariableDeclarationInit:
-	name = ID ('=' value = ExpressionOr)?
+	name = ID ('=' value = Expression)?
 ;
 
 IfStatement:

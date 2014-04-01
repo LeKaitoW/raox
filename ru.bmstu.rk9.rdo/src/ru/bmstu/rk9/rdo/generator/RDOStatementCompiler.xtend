@@ -152,7 +152,7 @@ class RDOStatementCompiler
 
 			LegacySetStatement:
 				'''
-				«st.call» = «st.value.compileExpression»;
+				«st.call» = («st.value.compileExpression»);
 				'''
 		}
 	}

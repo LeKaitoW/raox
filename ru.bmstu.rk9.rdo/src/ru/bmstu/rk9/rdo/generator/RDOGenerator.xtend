@@ -92,14 +92,15 @@ class RDOGenerator implements IMultipleResourceGenerator
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileResourceType(filename,
 						declarationList.filter[r | r.reference.fullyQualifiedName == e.fullyQualifiedName]))
 
+				for (e : resource.allContents.toIterable.filter(typeof(ConstantDeclaration)))
+					fsa.generateFile(filename + "/" + e.name + ".java", e.compileConstant(filename))
+
 				for (e : resource.allContents.toIterable.filter(typeof(Function)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileFunction(filename))
 
 				for (e : resource.allContents.toIterable.filter(typeof(Event)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileEvent(filename))
 			}
-
-		fsa.generateFile("rdo_model/Constants.java", compileConstants(resources))
 
 		fsa.generateFile("rdo_model/MainClass.java", compileMain(resources, resWithSMR))
 	}
@@ -134,28 +135,21 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 	}
 
-	def compileConstants(ResourceSet rs)
+	def compileConstant(ConstantDeclaration con, String filename)
 	{
 		'''
-		package rdo_model;
+		package «filename»;
 
-		@SuppressWarnings("all")
-
-		public class Constants
+		public class «con.name»
 		{
-			«FOR rl : rs.resources»«IF rl.contents.head != null»
-			«IF rl.contents.head.eAllContents.filter(typeof(ConstantDeclaration)).size > 0»
-				public static class Constants_«rl.contents.head.nameGeneric»
-				{
-					«FOR r : rl.contents.head.eAllContents.filter(typeof(ConstantDeclaration)).toIterable»
-						public static final «r.type.compileType» «r.name» = «r.value.compileExpression»;
-					«ENDFOR»
-				}
-			«ENDIF»
-			«ENDIF»«ENDFOR»
-			«FOR rl : rs.resources»«IF rl.contents.head != null»«IF rl.contents.head.eAllContents.filter(typeof(ConstantDeclaration)).size > 0»
-				public static final Constants_«rl.contents.head.nameGeneric» «rl.contents.head.nameGeneric» = new Constants_«rl.contents.head.nameGeneric»();
-			«ENDIF»«ENDIF»«ENDFOR»
+			public static final «con.type.compileType» value = «con.value.compileExpression»;
+
+			«IF con.type instanceof RDOEnum
+			»public enum «(con.type as RDOEnum).getEnumParentName(false)»_enum
+			{
+				«(con.type as RDOEnum).makeEnumBody»
+			}«
+			ENDIF»
 		}
 		'''
 	}
@@ -182,7 +176,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			«IF rtp.eAllContents.filter(typeof(RDOEnum)).toList.size > 0»// ENUMS«ENDIF»
 			«FOR e : rtp.eAllContents.toIterable.filter(typeof(RDOEnum))»
-				enum «RDONaming.getEnumParentName(e, false)»_enum
+				public enum «e.getEnumParentName(false)»_enum
 				{
 					«e.makeEnumBody»
 				}
