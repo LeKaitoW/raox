@@ -14,6 +14,8 @@ import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.EventConvert
 
+import ru.bmstu.rk9.rdo.rdo.TerminateIf
+
 import ru.bmstu.rk9.rdo.rdo.VariableMethodCallExpression
 
 import ru.bmstu.rk9.rdo.rdo.StatementList
@@ -153,6 +155,21 @@ class RDOStatementCompiler
 			LegacySetStatement:
 				'''
 				«st.call» = («st.value.compileExpression»);
+				'''
+
+			TerminateIf:
+				'''
+				rdo_lib.Simulator.addTerminateCondition
+				(
+					new rdo_lib.TerminateCondition()
+					{
+						@Override
+						public boolean check()
+						{
+							return «st.condition.compileExpression»;
+						}
+					}
+				);
 				'''
 		}
 	}

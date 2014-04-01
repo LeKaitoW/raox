@@ -55,6 +55,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		fsa.generateFile("rdo_lib/Event.java",                    compileEvent           ())
 		fsa.generateFile("rdo_lib/PermanentResourceManager.java", compilePermanentManager())
 		fsa.generateFile("rdo_lib/TemporaryResourceManager.java", compileTemporaryManager())
+		fsa.generateFile("rdo_lib/TerminateCondition.java",       compileTerminate       ())
 		//==================================================================================
 
 		val declarationList = new java.util.ArrayList<ResourceDeclaration>();
@@ -118,15 +119,21 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				System.out.println(" === RDO-Simulator ===\n");
 				System.out.println("   Project «RDONaming.getProjectName(rs.resources.get(0).URI)»");
-				System.out.println("   Source files are «rs.resources.map[r | r.contents.head.nameGeneric].toString»\n");
+				System.out.println("      Source files are «rs.resources.map[r | r.contents.head.nameGeneric].toString»\n");
 
 				«IF smr != null»«FOR c :smr.allContents.filter(typeof(SimulationRun)).head.commands»
 					«c.compileStatement»
 				«ENDFOR»«ENDIF»
 
-				System.out.println("\n   Started model");
+				System.out.println("   Started model");
 
-				rdo_lib.Simulator.run();
+				int result = rdo_lib.Simulator.run();
+
+				if (result == 1)
+					System.out.println("\n   Stopped by terminate condition");
+
+				if (result == 0)
+					System.out.println("\n   Stopped (no more events)");
 
 				System.out.println("\n   Finished model in " + String.valueOf((System.currentTimeMillis() - startTime)/1000.0) + "s");
 
@@ -360,9 +367,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package rdo_lib;
 
+		import java.util.Map;
+		import java.util.HashMap;
+
 		public class PermanentResourceManager<T>
 		{
-			protected java.util.Map<String, T> resources = new java.util.HashMap<String, T>();
+			protected Map<String, T> resources = new HashMap<String, T>();
 
 			public void addResource(String name, T res)
 			{
@@ -387,11 +397,19 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package rdo_lib;
 
+		import java.util.Map;
+		import java.util.HashMap;
+
+		import java.util.Queue;
+		import java.util.LinkedList;
+
+		import java.util.Collection;
+
 		public class TemporaryResourceManager<T> extends PermanentResourceManager<T>
 		{
-			private java.util.Map<T, Integer> temporary = new java.util.HashMap<T, Integer>();
+			private Map<T, Integer> temporary = new HashMap<T, Integer>();
 
-			private java.util.Queue<Integer> vacantList = new java.util.LinkedList<Integer>();
+			private Queue<Integer> vacantList = new LinkedList<Integer>();
 			private int currentLast = 0;
 
 			public void addResource(T res)
@@ -415,14 +433,14 @@ class RDOGenerator implements IMultipleResourceGenerator
 			}
 
 			@Override
-			public java.util.Collection<T> getAll()
+			public Collection<T> getAll()
 			{
-				java.util.Collection<T> all = resources.values();
+				Collection<T> all = resources.values();
 				all.addAll(temporary.keySet());
 				return all;
 			}
 
-			public java.util.Collection<T> getTemporary()
+			public Collection<T> getTemporary()
 			{
 				return temporary.keySet();
 			}
@@ -436,8 +454,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package rdo_lib;
 
-		import java.util.PriorityQueue;
+		import java.util.List;
+		import java.util.ArrayList;
+
 		import java.util.Comparator;
+		import java.util.PriorityQueue;
 
 		import rdo_lib.Event;
 
@@ -495,7 +516,14 @@ class RDOGenerator implements IMultipleResourceGenerator
 				return eventList.remove();
 			}
 
-			public static void run()
+			private static List<TerminateCondition> terminateList = new ArrayList<TerminateCondition>();
+
+			public static void addTerminateCondition(TerminateCondition c)
+			{
+				terminateList.add(c);
+			}
+
+			public static int run()
 			{
 				while(eventList.size() > 0)
 				{
@@ -505,8 +533,25 @@ class RDOGenerator implements IMultipleResourceGenerator
 					System.out.println("      " + String.valueOf(time) + ":	'" + current.getEvent().getName() + "' happens");
 
 					current.getEvent().calculateEvent();
+					
+					for (TerminateCondition c : terminateList)
+						if (c.check())
+							return 1;
 				}
-			}
+				return 0;
+			}	
+		}
+		'''
+	}
+
+	def compileTerminate()
+	{
+		'''
+		package rdo_lib;
+
+		public abstract class TerminateCondition
+		{
+			abstract public boolean check();
 		}
 		'''
 	}
