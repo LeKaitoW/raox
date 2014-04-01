@@ -100,7 +100,7 @@ ResourceParameterExpression
 ;
 
 ResourceTrace:
-	trace = [ecore::EObject|FQN] '.' 'trace' '(' ')' ';'
+	trace = [ResourceDeclaration|ID] '.' 'trace' '(' ')' ';'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
