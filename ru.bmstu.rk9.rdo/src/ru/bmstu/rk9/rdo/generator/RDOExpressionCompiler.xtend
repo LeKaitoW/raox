@@ -14,6 +14,11 @@ import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
 
 import ru.bmstu.rk9.rdo.rdo.ResourceExpressionList
 
+import ru.bmstu.rk9.rdo.rdo.PatternChoiceFrom
+import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
+import ru.bmstu.rk9.rdo.rdo.Rule
+import ru.bmstu.rk9.rdo.rdo.RuleConvert
+
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.RDOReal
 import ru.bmstu.rk9.rdo.rdo.RDOBoolean
@@ -60,6 +65,40 @@ class RDOExpressionCompiler
 	{
 		switch expr
 		{
+			PatternChoiceFrom:
+			{
+				var relres = (expr.eContainer as RuleConvert).relres.name
+				var relreslist = (expr.eContainer.eContainer as Rule).relevantresources.map[r | r.name]
+				for (e : expr.logic.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
+					if (e.calls.size == 2 && relreslist.contains(e.calls.get(0).call) && e.calls.get(0).call != relres)
+						e.calls.get(0).setCall("pattern." + e.calls.get(0).call)
+
+				return expr.logic.compileExpression
+			}
+
+			PatternChoiceMethod:
+			{
+				var String sign;
+				if (expr.withtype.literal == "with_min")
+					sign = " < "
+				else
+					sign = " > "
+
+				var relres = (expr.eContainer as RuleConvert).relres.name
+				var relreslist = (expr.eContainer.eContainer as Rule).relevantresources.map[r | r.name]
+				for (e : expr.expression.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
+				{
+					if (e.calls.size == 2 && relreslist.contains(e.calls.get(0).call) && e.calls.get(0).call != relres)
+						e.calls.get(0).setCall("pattern." + e.calls.get(0).call)
+					if (e.calls.size == 2 && e.calls.get(0).call == relres)
+						e.calls.get(0).setCall("@RES")
+				}
+				var ret = expr.expression.compileExpression
+
+				return ret.replaceAll("@RES", "x") + sign + ret.replaceAll("@RES", "y")
+
+			}
+
 			IntConstant:
 				return expr.value.toString
 

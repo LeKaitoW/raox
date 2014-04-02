@@ -12,6 +12,7 @@ import ru.bmstu.rk9.rdo.rdo.ResourceType
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
+import ru.bmstu.rk9.rdo.rdo.RuleConvert
 import ru.bmstu.rk9.rdo.rdo.EventConvert
 
 import ru.bmstu.rk9.rdo.rdo.TerminateIf
@@ -61,6 +62,35 @@ class RDOStatementCompiler
 				return
 					'''
 					// «st.relres.name» convert event
+					{
+						«st.statements.compileStatement»
+					}
+					'''
+			}
+
+			RuleConvert:
+			{
+				var List<String> paramlist = new ArrayList<String>
+
+				switch st.relres.type
+				{
+					ResourceDeclaration:
+						for (p : (st.relres.type as ResourceDeclaration).reference.parameters)
+							paramlist.add(p.name)
+						
+					ResourceType:
+						for (p : (st.relres.type as ResourceType).parameters)
+							paramlist.add(p.name)
+				}
+
+				for (e : st.statements.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
+					for (c : e.calls)
+						if (paramlist.contains(c.call) && e.calls.size == 1)
+							c.setCall(st.relres.name + '.' + c.call)
+
+				return
+					'''
+					// «st.relres.name» convert rule
 					{
 						«st.statements.compileStatement»
 					}

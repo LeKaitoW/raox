@@ -269,7 +269,7 @@ DecisionPointSearchActivities:
 ;
 
 DecisionPointActivities:
-	name = ID ':' pattern = [Pattern|ID] parameters += Primary*
+	name = ID ':' pattern = [META_DecisionPointActivity|FQN] parameters += Primary*
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -525,10 +525,9 @@ META_SuchAs
 	| ConstantDeclaration
 ;
 
-// объявление переменных с типом ресурса это та еще смелость непонятно,
-// где это надо, кроме селекта. причем того, который getArray во фрейме 
-META_TypeDeclaration
-	: ResourceType
+META_DecisionPointActivity
+	: Operation
+	| Rule
 ;
 
 // это не работает. FQN рушит вызов методов, линкер требует нормальных имен
@@ -602,7 +601,7 @@ RDOArray:
 ;
 
 RDOOwnType:
-	id = [META_TypeDeclaration|ID]
+	id = [ResourceType|ID]
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -155,8 +155,14 @@ class RDOValidator extends AbstractRDOValidator
 			Function:
 				RdoPackage.eINSTANCE.function_Name
 
-			Pattern:
-				RdoPackage.eINSTANCE.pattern_Name
+			Operation:
+				RdoPackage.eINSTANCE.operation_Name
+
+			Rule:
+				RdoPackage.eINSTANCE.rule_Name
+
+			Event:
+				RdoPackage.eINSTANCE.event_Name
 
 			DecisionPoint:
 				RdoPackage.eINSTANCE.decisionPoint_Name
@@ -534,6 +540,14 @@ class RDOValidator extends AbstractRDOValidator
 			if (c.haverule)
 				error("Resource " + c.relres.name + " with convert status "+rule+" shouldn't have a convert rule",
 					RdoPackage.eINSTANCE.ruleConvert_Haverule)
+
+		if (rule == "Create" && c.havechoice)
+			error("Relevant resource " + c.relres.name + " with convert status "+rule+" shouldn't have a choice from",
+				RdoPackage.eINSTANCE.ruleConvert_Havechoice)
+
+		if (c.relres.type instanceof ResourceDeclaration && c.havechoice)
+			error("Relevant resource " + c.relres.name + " shouldn't have a choice from for being a resource declaration",
+				RdoPackage.eINSTANCE.ruleConvert_Havechoice)
 	}
 
 	@Check
@@ -560,11 +574,11 @@ class RDOValidator extends AbstractRDOValidator
 				switch e.eContainer
 				{
 					OperationConvert:
-						error("Operation " + pat.name + " already uses combinational approach for relevant resources search",
+						error("Operation " + (pat as Operation).name + " already uses combinational approach for relevant resources search",
 							e.eContainer, RdoPackage.eINSTANCE.operationConvert_Choicemethod)
 
 					RuleConvert:
-						error("Rule " + pat.name + " already uses combinational approach for relevant resources search",
+						error("Rule " + (pat as Rule).name + " already uses combinational approach for relevant resources search",
 							e.eContainer, RdoPackage.eINSTANCE.ruleConvert_Choicemethod)
 				}
 			}

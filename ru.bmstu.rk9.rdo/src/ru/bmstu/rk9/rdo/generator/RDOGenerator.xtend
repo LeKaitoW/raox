@@ -37,7 +37,12 @@ import ru.bmstu.rk9.rdo.rdo.FunctionTable
 import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic
 import ru.bmstu.rk9.rdo.rdo.FunctionList
 
+import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.PatternParameter
+import ru.bmstu.rk9.rdo.rdo.PatternChoiceFrom
+import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
+import ru.bmstu.rk9.rdo.rdo.Operation
+import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.Event
 
 import ru.bmstu.rk9.rdo.rdo.SimulationRun
@@ -52,9 +57,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 	{
 		//===== rdo_lib ====================================================================
 		fsa.generateFile("rdo_lib/Simulator.java",                compileLibSimulator    ())
-		fsa.generateFile("rdo_lib/Event.java",                    compileEvent           ())
 		fsa.generateFile("rdo_lib/PermanentResourceManager.java", compilePermanentManager())
 		fsa.generateFile("rdo_lib/TemporaryResourceManager.java", compileTemporaryManager())
+		fsa.generateFile("rdo_lib/SimpleChoiceFrom.java",         compileSimpleChoiceFrom())
+		fsa.generateFile("rdo_lib/Event.java",                    compileEvent           ())
+		fsa.generateFile("rdo_lib/Rule.java",                     compileRule            ())
 		fsa.generateFile("rdo_lib/TerminateCondition.java",       compileTerminate       ())
 		//==================================================================================
 
@@ -98,6 +105,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				for (e : resource.allContents.toIterable.filter(typeof(Function)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileFunction(filename))
+	
+				for (e : resource.allContents.toIterable.filter(typeof(Rule)))
+					fsa.generateFile(filename + "/" + e.name + ".java", e.compileRule(filename))
 
 				for (e : resource.allContents.toIterable.filter(typeof(Event)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileEvent(filename))
@@ -262,7 +272,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package «filename»;
 
-		public class «evn.name» extends rdo_lib.Event
+		public class «evn.name» implements rdo_lib.Event
 		{
 			@Override
 			public String getName()
@@ -313,6 +323,118 @@ class RDOGenerator implements IMultipleResourceGenerator
 			}
 		}
 		'''
+	}
+
+	def compileRule(Rule rule, String filename)
+	{
+		'''
+		package «filename»;
+
+		public class «rule.name» implements rdo_lib.Rule
+		{
+			@Override
+			public String getName()
+			{
+				return "«filename».«rule.name»";
+			}
+
+			«FOR relres : rule.relevantresources»
+				«IF relres.type instanceof ResourceDeclaration»
+					public «(relres.type as ResourceDeclaration).reference.fullyQualifiedName» «
+						relres.name» = «(relres.type as ResourceDeclaration).reference.fullyQualifiedName».«
+							(relres.type as ResourceDeclaration).name»;
+				«ELSE»
+					public «(relres.type as ResourceType).fullyQualifiedName» «
+						relres.name»;
+				«ENDIF»
+			«ENDFOR»
+
+			@Override
+			public boolean tryRule()
+			{
+				«FOR rc : rule.algorithms.filter[r | r.relres.type instanceof ResourceType &&
+					r.relres.rule.literal != "Create"]»
+				// choice «rc.relres.name»
+				rdo_lib.SimpleChoiceFrom<«rule.name», «rc.relres.type.fullyQualifiedName»> «rc.relres.name»Choice =
+					new rdo_lib.SimpleChoiceFrom<«rule.name», «rc.relres.type.fullyQualifiedName»>
+					(
+						«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.fullyQualifiedName, rc.relres.name)»,
+						«rc.choicemethod.compileChoiceMethod(rule.name, rc.relres.type.fullyQualifiedName)»
+					);
+
+				«rc.relres.name» = «rc.relres.name»Choice.find(«rc.relres.type.fullyQualifiedName».getManager().get«
+					IF rc.relres.rule.literal == "Erase"»Temporary«ELSE»All«ENDIF»());
+				if («rc.relres.name» == null)
+					return false;
+
+				«ENDFOR»
+				«FOR e : rule.algorithms»
+					«RDOStatementCompiler.compileStatement(e)»
+
+				«ENDFOR»
+				«IF rule.relevantresources.filter[t | t.rule.literal == 'Create'].map[t | t.type].size > 0»
+					// add created resources
+					«FOR r : rule.relevantresources.filter[t | t.rule.literal == 'Create']»
+						«IF r.type instanceof ResourceType»
+							«(r.type as ResourceType).fullyQualifiedName».getManager().addResource(«r.name»);
+						«ENDIF»
+					«ENDFOR»
+				«ENDIF»
+
+				return true;
+			}
+		}
+		'''
+	}
+
+	def static compileChoiceFrom(PatternChoiceFrom cf, Pattern pattern, String resource, String relres)
+	{
+		val havecf = cf != null && !cf.nocheck;
+
+		var List<String> relreslist;
+
+		switch pattern
+		{
+			Operation:
+				relreslist = pattern.relevantresources.map[r | r.name]
+
+			Rule:
+				relreslist = pattern.relevantresources.map[r | r.name]
+		}
+
+		return
+			'''
+			new rdo_lib.SimpleChoiceFrom.Checker<«pattern.nameGeneric», «resource»>(this)
+			{
+				@Override
+				public boolean check(«resource» «relres»)
+				{
+					return «IF havecf»(«cf.compileExpression»)«ELSE»true«ENDIF»«FOR r : relreslist»«IF relres != r»	
+						«"\t"»&& «relres» != pattern.«r»«ENDIF»«ENDFOR»;
+				}
+			}'''
+	}
+
+	def compileChoiceMethod(PatternChoiceMethod cm, String pattern, String resource)
+	{
+		if (cm == null || cm.first)
+			return "null"
+		else
+		{
+			return
+				'''
+				new rdo_lib.SimpleChoiceFrom.ChoiceMethod<«pattern», «resource»>(this)
+				{
+					@Override
+					public int compare(«resource» x, «resource» y)
+					{
+						if («cm.compileExpression»)
+							return  1;
+						else
+							return -1;
+					}
+				}'''
+		}
 	}
 
 	def static String getDefault(RDORTPParameterType parameter)
@@ -443,7 +565,80 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				return temporary.keySet();
 			}
+		}
+		'''
+	}
 
+	def compileSimpleChoiceFrom()
+	{
+		'''
+		package rdo_lib;
+
+		import java.util.Collection;
+		import java.util.Iterator;
+
+		import java.util.PriorityQueue;
+		import java.util.Comparator;
+
+		public class SimpleChoiceFrom<P, T>
+		{
+			public static abstract class Checker<P, T>
+			{
+				protected P pattern;
+
+				public Checker(P pattern)
+				{
+					this.pattern = pattern;
+				}
+
+				public abstract boolean check(T res);
+			}
+
+			public static abstract class ChoiceMethod<P, T> implements Comparator<T>
+			{
+				protected P pattern;
+				
+				public ChoiceMethod(P pattern)
+				{
+					this.pattern = pattern;
+				}
+			}
+
+			private Checker<P, T> checker;
+			private ChoiceMethod<P, T> comparator;
+
+			public SimpleChoiceFrom(Checker<P, T> checker, ChoiceMethod<P, T> comparator)
+			{
+				if (checker != null)
+					this.checker = checker;
+
+				if (comparator != null)
+					 matchingList = new PriorityQueue<T>(1, comparator);
+				else
+					this.comparator = comparator;
+			}
+
+			private PriorityQueue<T> matchingList;
+
+			public T find(Collection<T> reslist)
+			{
+				T res;
+				for (Iterator<T> iterator = reslist.iterator(); iterator.hasNext();)
+				{
+					res = iterator.next();
+
+					if (checker == null || checker.check(res))
+						if (comparator == null)
+							return res;
+						else
+							matchingList.add(res);
+				}
+
+				if (matchingList.size() == 0)
+					return null;
+				else
+					return matchingList.poll();
+			}
 		}
 		'''
 	}
@@ -548,9 +743,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package rdo_lib;
 
-		public abstract class TerminateCondition
+		public interface TerminateCondition
 		{
-			abstract public boolean check();
+			public boolean check();
 		}
 		'''
 	}
@@ -560,10 +755,23 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package rdo_lib;
 
-		public abstract class Event
+		public interface Event
 		{
-			public abstract String getName();
-			public abstract void calculateEvent();
+			public String getName();
+			public void calculateEvent();
+		}
+		'''
+	}
+
+	def compileRule()
+	{
+		'''
+		package rdo_lib;
+
+		public interface Rule 
+		{
+			public String getName();
+			public boolean tryRule();
 		}
 		'''
 	}
