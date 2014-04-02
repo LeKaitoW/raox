@@ -609,8 +609,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			public SimpleChoiceFrom(Checker<P, T> checker, ChoiceMethod<P, T> comparator)
 			{
-				if (checker != null)
-					this.checker = checker;
+				this.checker = checker;
 
 				if (comparator != null)
 					 matchingList = new PriorityQueue<T>(1, comparator);
@@ -627,7 +626,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				{
 					res = iterator.next();
 
-					if (checker == null || checker.check(res))
+					if (checker.check(res))
 						if (comparator == null)
 							return res;
 						else
