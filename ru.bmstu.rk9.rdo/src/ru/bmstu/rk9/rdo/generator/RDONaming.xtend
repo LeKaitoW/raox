@@ -23,9 +23,13 @@ import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.Function
 
+import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.Operation
+import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
 import ru.bmstu.rk9.rdo.rdo.Rule
+import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource
 import ru.bmstu.rk9.rdo.rdo.Event
+import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 
@@ -89,13 +93,25 @@ class RDONaming
 			Function:
 				return object.name
 
+			PatternParameter:
+				return object.name
+
 			Operation:
+				return object.name
+
+			OperationRelevantResource:
 				return object.name
 
 			Rule:
 				return object.name
 
+			RuleRelevantResource:
+				return object.name
+
 			Event:
+				return object.name
+
+			EventRelevantResource:
 				return object.name
 
 			DecisionPoint:
