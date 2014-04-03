@@ -340,7 +340,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				return "«filename».«rule.name»";
 			}
+			«IF rule.parameters.size > 0»
 
+			«ENDIF»
+			«FOR parameter : rule.parameters»
+				public «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
+			«ENDFOR»
 			«FOR relres : rule.relevantresources»
 				«IF relres.type instanceof ResourceDeclaration»
 					public «(relres.type as ResourceDeclaration).reference.fullyQualifiedName» «
@@ -403,6 +408,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				return "«filename».«op.name»";
 			}
+			«IF op.parameters.size > 0»
+
+			«ENDIF»
+			«FOR parameter : op.parameters»
+				public «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
+			«ENDFOR»
 
 			«FOR relres : op.relevantresources»
 				«IF relres.type instanceof ResourceDeclaration»
@@ -514,9 +525,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 					public int compare(«resource» x, «resource» y)
 					{
 						if («cm.compileExpression»)
-							return  1;
-						else
 							return -1;
+						else
+							return  1;
 					}
 				}'''
 		}
@@ -690,29 +701,43 @@ class RDOGenerator implements IMultipleResourceGenerator
 			}
 
 			private Checker<P, T> checker;
-			private ChoiceMethod<P, T> comparator;
 
 			public SimpleChoiceFrom(Checker<P, T> checker, ChoiceMethod<P, T> comparator)
 			{
 				this.checker = checker;
-
-				if (comparator != null)
-					 matchingList = new PriorityQueue<T>(1, comparator);
-				else
-					this.comparator = comparator;
+				matchingList = new PriorityQueue<T>(1, comparator);
 			}
 
 			private PriorityQueue<T> matchingList;
 
-			public T find(Collection<T> reslist)
+			public Collection<T> findAll(Collection<T> reslist)
 			{
+				if (matchingList.comparator() == null)
+					return matchingList;
+
+				matchingList.clear();
+
 				T res;
 				for (Iterator<T> iterator = reslist.iterator(); iterator.hasNext();)
 				{
 					res = iterator.next();
-
 					if (checker.check(res))
-						if (comparator == null)
+						matchingList.add(res);
+				}
+
+				return matchingList;
+			}
+
+			public T find(Collection<T> reslist)
+			{
+				matchingList.clear();
+
+				T res;
+				for (Iterator<T> iterator = reslist.iterator(); iterator.hasNext();)
+				{
+					res = iterator.next();
+					if (checker.check(res))
+						if (matchingList.comparator() == null)
 							return res;
 						else
 							matchingList.add(res);
