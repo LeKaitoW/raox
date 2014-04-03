@@ -278,6 +278,10 @@ class RDOValidator extends AbstractRDOValidator
 						error("Invalid convert status: "+end+" - for NonExist convert begin status a resource should be created",
 							RdoPackage.eINSTANCE.operationRelevantResource_End)
 
+					if (end == "Create" && begin != "NonExist")
+						error("Invalid convert status: "+begin+" - for Create convert end status there is no resource initially",
+							RdoPackage.eINSTANCE.operationRelevantResource_Begin)
+
 					if (begin == "Erase" && end != "NonExist")
 						error("Invalid convert status: "+end+" - convert end status for erased resource should be NonExist",
 							RdoPackage.eINSTANCE.operationRelevantResource_End)
