@@ -105,6 +105,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				for (e : resource.allContents.toIterable.filter(typeof(Function)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileFunction(filename))
+
+				for (e : resource.allContents.toIterable.filter(typeof(Operation)))
+					fsa.generateFile(filename + "/" + e.name + ".java", e.compileOperation(filename))
 	
 				for (e : resource.allContents.toIterable.filter(typeof(Rule)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileRule(filename))
@@ -309,7 +312,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«ENDFOR»
 
 				«FOR e : evn.algorithms»
-					«RDOStatementCompiler.compileStatement(e)»
+					«e.compileConvert(0)»
 
 				«ENDFOR»
 				«IF evn.relevantresources.map[t | t.type].filter(typeof(ResourceType)).size > 0»
@@ -344,8 +347,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 						relres.name» = «(relres.type as ResourceDeclaration).reference.fullyQualifiedName».«
 							(relres.type as ResourceDeclaration).name»;
 				«ELSE»
-					public «(relres.type as ResourceType).fullyQualifiedName» «
-						relres.name»;
+					public «(relres.type as ResourceType).fullyQualifiedName» «relres.name»«
+						IF relres.rule.literal == "Create"» = new «(relres.type as ResourceType).fullyQualifiedName»(«
+								(relres.type as ResourceType).parameters.size.compileAllDefault»)«ENDIF»;
 				«ENDIF»
 			«ENDFOR»
 
@@ -369,7 +373,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				«ENDFOR»
 				«FOR e : rule.algorithms»
-					«RDOStatementCompiler.compileStatement(e)»
+					«e.compileConvert(0)»
 
 				«ENDFOR»
 				«IF rule.relevantresources.filter[t | t.rule.literal == 'Create'].map[t | t.type].size > 0»
@@ -379,9 +383,90 @@ class RDOGenerator implements IMultipleResourceGenerator
 							«(r.type as ResourceType).fullyQualifiedName».getManager().addResource(«r.name»);
 						«ENDIF»
 					«ENDFOR»
+
 				«ENDIF»
+				return true;
+			}
+		}
+		'''
+	}
+
+	def compileOperation(Operation op, String filename)
+	{
+		'''
+		package «filename»;
+
+		public class «op.name» implements rdo_lib.Rule, rdo_lib.Event
+		{
+			@Override
+			public String getName()
+			{
+				return "«filename».«op.name»";
+			}
+
+			«FOR relres : op.relevantresources»
+				«IF relres.type instanceof ResourceDeclaration»
+					public «(relres.type as ResourceDeclaration).reference.fullyQualifiedName» «
+						relres.name» = «(relres.type as ResourceDeclaration).reference.fullyQualifiedName».«
+							(relres.type as ResourceDeclaration).name»;
+				«ELSE»
+					public «(relres.type as ResourceType).fullyQualifiedName» «relres.name»«IF relres.begin.literal ==
+						"Create" || relres.end.literal == "Create"» = new «(relres.type as ResourceType).fullyQualifiedName
+							»(«(relres.type as ResourceType).parameters.size.compileAllDefault»)«ENDIF»;
+				«ENDIF»
+			«ENDFOR»
+
+			@Override
+			public boolean tryRule()
+			{
+				«FOR rc : op.algorithms.filter[r | r.relres.type instanceof ResourceType &&
+					r.relres.begin.literal != "Create" && r.relres.end.literal != "Create" && r.havebegin]»
+				// choice «rc.relres.name»
+				rdo_lib.SimpleChoiceFrom<«op.name», «rc.relres.type.fullyQualifiedName»> «rc.relres.name»Choice =
+					new rdo_lib.SimpleChoiceFrom<«op.name», «rc.relres.type.fullyQualifiedName»>
+					(
+						«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.fullyQualifiedName, rc.relres.name)»,
+						«rc.choicemethod.compileChoiceMethod(op.name, rc.relres.type.fullyQualifiedName)»
+					);
+
+				«rc.relres.name» = «rc.relres.name»Choice.find(«rc.relres.type.fullyQualifiedName».getManager().get«
+					IF rc.relres.begin.literal == "Erase" || rc.relres.end.literal == "Erase"»Temporary«ELSE»All«ENDIF»());
+				if («rc.relres.name» == null)
+					return false;
+
+				«ENDFOR»
+				«FOR e : op.algorithms.filter[r | r.havebegin]»
+					«e.compileConvert(0)»
+
+				«ENDFOR»
+				«IF op.relevantresources.filter[t | t.begin.literal == "Create"].size > 0»
+					// add created resources
+					«FOR r : op.relevantresources.filter[t | t.begin.literal == "Create"]»
+						«IF r.type instanceof ResourceType»
+							«(r.type as ResourceType).fullyQualifiedName».getManager().addResource(«r.name»);
+						«ENDIF»
+					«ENDFOR»
+
+				«ENDIF»
+				rdo_lib.Simulator.pushEvent(this, rdo_lib.Simulator.getTime() + «op.time.compileExpression»);
 
 				return true;
+			}
+
+			@Override
+			public void calculateEvent()
+			{
+				«FOR e : op.algorithms.filter[r | r.haveend]»
+					«e.compileConvert(1)»
+
+				«ENDFOR»
+				«IF op.relevantresources.filter[t | t.end.literal == "Create"].size > 0»
+					// add created resources
+					«FOR r : op.relevantresources.filter[t | t.end.literal == "Create"]»
+						«IF r.type instanceof ResourceType»
+							«(r.type as ResourceType).fullyQualifiedName».getManager().addResource(«r.name»);
+						«ENDIF»«ENDFOR»
+				«ENDIF»
 			}
 		}
 		'''

@@ -12,6 +12,7 @@ import ru.bmstu.rk9.rdo.rdo.ResourceType
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
+import ru.bmstu.rk9.rdo.rdo.OperationConvert
 import ru.bmstu.rk9.rdo.rdo.RuleConvert
 import ru.bmstu.rk9.rdo.rdo.EventConvert
 
@@ -34,11 +35,10 @@ import ru.bmstu.rk9.rdo.rdo.LegacySetStatement
 
 class RDOStatementCompiler
 {
-	def static String compileStatement(EObject st)
+	def static String compileConvert(EObject st, int parameter)
 	{
 		switch st
 		{
-			//==== Context-dependent statements ====
 			EventConvert:
 			{
 				var List<String> paramlist = new ArrayList<String>
@@ -96,8 +96,60 @@ class RDOStatementCompiler
 					}
 					'''
 			}
-			//======================================
 
+			OperationConvert:
+			{
+				var List<String> paramlist = new ArrayList<String>
+
+				switch st.relres.type
+				{
+					ResourceDeclaration:
+						for (p : (st.relres.type as ResourceDeclaration).reference.parameters)
+							paramlist.add(p.name)
+
+					ResourceType:
+						for (p : (st.relres.type as ResourceType).parameters)
+							paramlist.add(p.name)
+				}
+
+				if (parameter == 0)
+				{
+					for (e : st.beginstatements.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
+					for (c : e.calls)
+						if (paramlist.contains(c.call) && e.calls.size == 1)
+							c.setCall(st.relres.name + '.' + c.call)
+
+					return
+						'''
+						// «st.relres.name» convert begin
+						{
+							«st.beginstatements.compileStatement»
+						}
+						'''
+				}
+				else
+				{
+					for (e : st.endstatements.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
+					for (c : e.calls)
+						if (paramlist.contains(c.call) && e.calls.size == 1)
+							c.setCall(st.relres.name + '.' + c.call)
+
+					return
+						'''
+						// «st.relres.name» convert end
+						{
+							«st.endstatements.compileStatement»
+						}
+						'''
+				}
+			}
+		}
+	}
+
+	def static String compileStatement(EObject st)
+	{
+		switch st
+		{
 			StatementList:
 				'''
 				«FOR s : st.statements»
