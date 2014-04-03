@@ -30,6 +30,7 @@ import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
 import ru.bmstu.rk9.rdo.rdo.Function
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
+import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
 import ru.bmstu.rk9.rdo.rdo.OperationConvert
@@ -136,6 +137,29 @@ class RDOValidator extends AbstractRDOValidator
 			}
 	}
 
+	@Check
+	def checkNamesInPatterns (Pattern pat)
+	{
+		val List<EObject> paramlist  = pat.eAllContents.filter[e |
+			e instanceof PatternParameter
+		].toList
+		val List<EObject> relreslist = pat.eAllContents.filter[e |
+			e instanceof OperationRelevantResource ||
+			e instanceof RuleRelevantResource      ||
+			e instanceof EventRelevantResource
+		].toList
+
+		for (e : paramlist)
+			if (relreslist.map[r | r.nameGeneric].contains(e.nameGeneric))
+				error("Error - parameter name shouldn't match relevant resource name '" + e.nameGeneric + "'.", e,
+					e.getNameStructuralFeature)
+
+		for (e : relreslist)
+			if (paramlist.map[r | r.nameGeneric].contains(e.nameGeneric))
+				error("Error - relevant resource name shouldn't match parameter name '" + e.nameGeneric + "'.", e,
+					e.getNameStructuralFeature)
+	}
+
 	def EStructuralFeature getNameStructuralFeature (EObject object)
 	{
 		switch object
@@ -169,6 +193,18 @@ class RDOValidator extends AbstractRDOValidator
 
 			ResultDeclaration:
 				RdoPackage.eINSTANCE.resultDeclaration_Name
+				
+			PatternParameter:
+				RdoPackage.eINSTANCE.patternParameter_Name
+
+			OperationRelevantResource:
+				RdoPackage.eINSTANCE.operationRelevantResource_Name
+
+			RuleRelevantResource:
+				RdoPackage.eINSTANCE.ruleRelevantResource_Name
+
+			EventRelevantResource:
+				RdoPackage.eINSTANCE.eventRelevantResource_Name
 		}
 	}
 
@@ -386,7 +422,7 @@ class RDOValidator extends AbstractRDOValidator
 					count = 0
 					found = false
 					for (c : convertlist)
-						if (c.relres == r)
+						if (c.relres.name == r.name)
 						{
 							count = count + 1
 							found = true
@@ -428,7 +464,7 @@ class RDOValidator extends AbstractRDOValidator
 					count = 0
 					found = false
 					for (c : convertlist)
-						if (c.relres == r)
+						if (c.relres.name == r.name)
 						{
 							count = count + 1
 							found = true
@@ -470,7 +506,7 @@ class RDOValidator extends AbstractRDOValidator
 					count = 0
 					found = false
 					for (c : convertlist)
-						if (c.relres == r)
+						if (c.relres.name == r.name)
 						{
 							count = count + 1
 							found = true
