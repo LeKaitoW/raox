@@ -63,6 +63,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		fsa.generateFile("rdo_lib/CombinationalChoiceFrom.java",  compileCommonChoiceFrom())
 		fsa.generateFile("rdo_lib/Event.java",                    compileEvent           ())
 		fsa.generateFile("rdo_lib/Rule.java",                     compileRule            ())
+		fsa.generateFile("rdo_lib/DecisionPoint.java",            compileDecisionPoint   ())
 		fsa.generateFile("rdo_lib/TerminateCondition.java",       compileTerminate       ())
 		//==================================================================================
 
@@ -1141,7 +1142,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 					PlannedEvent current = popEvent();
 
 					time = current.getTimePlanned();
-					System.out.println("      " + String.valueOf(time) + ":	'" + current.getEvent().getName() + "' happens");
+					System.out.println("      " + String.valueOf(time) + ":	'" + current.getEvent().getName() + "' happened");
 
 					current.getEvent().calculateEvent();
 
@@ -1196,7 +1197,70 @@ class RDOGenerator implements IMultipleResourceGenerator
 	def compileDecisionPoint()
 	{
 		'''
-		
+		package rdo_lib;
+
+		import java.util.List;
+		import java.util.LinkedList;
+
+		public class DecisionPoint
+		{
+			private String name;
+			private DecisionPoint parent;
+			private Double priority;
+
+			public static interface Condition
+			{
+				public boolean check();
+			}
+
+			private Condition condition;
+
+			public DecisionPoint(String name, DecisionPoint parent, Double priority, Condition condition)
+			{
+				this.name = name;
+				this.parent = parent;
+				this.priority = priority;
+				this.condition = condition;
+			}
+
+			public String getName()
+			{
+				return name;
+			}
+
+			public Double getPriority()
+			{
+				return priority;
+			}
+
+			private List<Rule> activities = new LinkedList<Rule>();
+
+			public void addActivity(Rule a)
+			{
+				activities.add(a);
+			}
+
+			public void addActivities(Rule[] ac)
+			{
+				for (Rule a : ac)
+					addActivity(a);
+			}
+
+			public boolean checkActivities()
+			{
+				if (!condition.check())
+					return false;
+
+				for (Rule a : activities)
+					if (a.tryRule())
+					{
+						System.out.println("      " + String.valueOf(Simulator.getTime()) + ":	'" + a.getName() + "' issued");
+						return true;
+					}
+
+				return false;
+			}
+		}
 		'''
 	}
 }
