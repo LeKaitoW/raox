@@ -45,6 +45,10 @@ import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.Event
 
+import ru.bmstu.rk9.rdo.rdo.DecisionPoint
+import ru.bmstu.rk9.rdo.rdo.DecisionPointPrior
+import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
+
 import ru.bmstu.rk9.rdo.rdo.SimulationRun
 
 
@@ -116,6 +120,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				for (e : resource.allContents.toIterable.filter(typeof(Event)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileEvent(filename))
+
+				for (e : resource.allContents.toIterable.filter(typeof(DecisionPoint)))
+					fsa.generateFile(filename + "/" + e.name + ".java", e.compileDecisionPoint(filename))
 			}
 
 		fsa.generateFile("rdo_model/MainClass.java", compileMain(resources, resWithSMR))
@@ -188,9 +195,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 		public class «rtp.name»
 		{
 			private final static rdo_lib.«rtp.type.literal.withFirstUpper
-				»ResourceManager<MSA> manager = new rdo_lib.«rtp.type.literal.withFirstUpper»ResourceManager<MSA>();
+				»ResourceManager<«rtp.name»> manager = new rdo_lib.«rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»>();
 
-			public static rdo_lib.«rtp.type.literal.withFirstUpper»ResourceManager<MSA> getManager()
+			public static rdo_lib.«rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»> getManager()
 			{
 				return manager;
 			}
@@ -743,6 +750,55 @@ class RDOGenerator implements IMultipleResourceGenerator
 		ENDIF»'''
 	}
 
+	def compileDecisionPoint(DecisionPoint dpt, String filename)
+	{
+		val activities = switch dpt
+		{
+			DecisionPointSome : dpt.activities
+			DecisionPointPrior: dpt.activities
+		}
+		
+		return
+			'''
+			package «filename»;
+
+			public class «dpt.name»
+			{
+				private static rdo_lib.DecisionPoint dpt =
+					new rdo_lib.DecisionPoint
+					(
+						"«dpt.fullyQualifiedName»",
+						«IF dpt.parent != null»«dpt.parent.fullyQualifiedName».getDPT()«ELSE»null«ENDIF»,
+						«IF dpt instanceof DecisionPointPrior»«dpt.priority.compileExpression»«ELSE»null«ENDIF»,
+						«IF dpt.condition != null
+						»new rdo_lib.DecisionPoint.Condition()
+						{
+							@Override
+							public boolean check()
+							{
+								return true;
+							}
+						}«ELSE»null«ENDIF»
+					);
+				static
+				{
+					«IF dpt instanceof DecisionPointSome || dpt instanceof DecisionPointPrior»
+					«FOR a : activities»
+						dpt.addActivity(new «a.pattern.fullyQualifiedName»());
+					«ENDFOR»
+
+					«ENDIF»
+					rdo_lib.Simulator.addDecisionPoint(dpt);
+				}
+
+				public rdo_lib.DecisionPoint getDPT()
+				{
+					return dpt;
+				}
+			}
+			'''
+	}
+
 	def compilePermanentManager()
 	{
 		'''
@@ -1240,15 +1296,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 				activities.add(a);
 			}
 
-			public void addActivities(Rule[] ac)
-			{
-				for (Rule a : ac)
-					addActivity(a);
-			}
-
 			public boolean checkActivities()
 			{
-				if (!condition.check())
+				if (condition != null && !condition.check())
 					return false;
 
 				for (Rule a : activities)
