@@ -1042,11 +1042,13 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package rdo_lib;
 
-		import java.util.List;
-		import java.util.ArrayList;
+		import java.util.Iterator;
 
-		import java.util.Comparator;
+		import java.util.List;
+		import java.util.LinkedList;
+
 		import java.util.PriorityQueue;
+		import java.util.Comparator;
 
 		import rdo_lib.Event;
 
@@ -1104,30 +1106,50 @@ class RDOGenerator implements IMultipleResourceGenerator
 				return eventList.remove();
 			}
 
-			private static List<TerminateCondition> terminateList = new ArrayList<TerminateCondition>();
+			private static List<TerminateCondition> terminateList = new LinkedList<TerminateCondition>();
 
 			public static void addTerminateCondition(TerminateCondition c)
 			{
 				terminateList.add(c);
 			}
 
+			private static List<DecisionPoint> dptList = new LinkedList<DecisionPoint>();
+
+			public static void addDecisionPoint(DecisionPoint dpt)
+			{
+				dptList.add(dpt);
+			}
+
+			private static boolean checkDPT()
+			{
+				Iterator<DecisionPoint> dptIterator = dptList.iterator();
+
+				while (dptIterator.hasNext())
+					if (dptIterator.next().checkActivities())
+						return true;
+
+				return false;
+			}
+
 			public static int run()
 			{
 				while(eventList.size() > 0)
 				{
+					while(checkDPT());
+
 					PlannedEvent current = popEvent();
 
 					time = current.getTimePlanned();
 					System.out.println("      " + String.valueOf(time) + ":	'" + current.getEvent().getName() + "' happens");
 
 					current.getEvent().calculateEvent();
-					
+
 					for (TerminateCondition c : terminateList)
 						if (c.check())
 							return 1;
 				}
 				return 0;
-			}	
+			}
 		}
 		'''
 	}
@@ -1162,11 +1184,19 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package rdo_lib;
 
-		public interface Rule 
+		public interface Rule
 		{
 			public String getName();
 			public boolean tryRule();
 		}
 		'''
 	}
+
+	def compileDecisionPoint()
+	{
+		'''
+		
+		'''
+	}
 }
+
