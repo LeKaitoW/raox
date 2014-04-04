@@ -299,6 +299,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				return "«evn.fullyQualifiedName»";
 			}
 
+			«IF evn.parameters.size > 0»
 			«FOR parameter : evn.parameters»
 				private «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
 			«ENDFOR»
@@ -311,6 +312,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«ENDFOR»
 			}
 
+			«ENDIF»
 			@Override
 			public void calculateEvent()
 			{
@@ -356,13 +358,21 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				return "«filename».«rule.name»";
 			}
-			«IF rule.parameters.size > 0»
 
+			«IF rule.parameters.size > 0»
 			«FOR parameter : rule.parameters»
 				public «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
 			«ENDFOR»
-			«ENDIF»
 
+			public «rule.name»(«rule.parameters.compilePatternParameters»)
+			{
+				«FOR parameter : rule.parameters»
+					if («parameter.name» != null)
+						this.«parameter.name» = «parameter.name»;
+				«ENDFOR»
+			}
+
+			«ENDIF»
 			«FOR relres : rule.relevantresources»
 				«IF relres.type instanceof ResourceDeclaration»
 					public «(relres.type as ResourceDeclaration).reference.fullyQualifiedName» «
@@ -502,13 +512,21 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				return "«filename».«op.name»";
 			}
-			«IF op.parameters.size > 0»
 
+			«IF op.parameters.size > 0»
 			«FOR parameter : op.parameters»
 				public «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
 			«ENDFOR»
-			«ENDIF»
 
+			public «op.name»(«op.parameters.compilePatternParameters»)
+			{
+				«FOR parameter : op.parameters»
+					if («parameter.name» != null)
+						this.«parameter.name» = «parameter.name»;
+				«ENDFOR»
+			}
+
+			«ENDIF»
 			«FOR relres : op.relevantresources»
 				«IF relres.type instanceof ResourceDeclaration»
 					public «(relres.type as ResourceDeclaration).reference.fullyQualifiedName» «
