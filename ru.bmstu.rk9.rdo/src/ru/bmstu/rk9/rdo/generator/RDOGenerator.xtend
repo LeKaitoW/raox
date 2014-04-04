@@ -673,6 +673,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 		import java.util.Collection;
 		import java.util.Iterator;
 
+		import java.util.Queue;
+		import java.util.LinkedList;
+
 		import java.util.PriorityQueue;
 		import java.util.Comparator;
 
@@ -702,19 +705,19 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			private Checker<P, T> checker;
 
-			public SimpleChoiceFrom(Checker<P, T> checker, ChoiceMethod<P, T> comparator)
+			public SimpleChoiceFrom(Checker<P, T> checker, Comparator<T> comparator)
 			{
 				this.checker = checker;
-				matchingList = new PriorityQueue<T>(1, comparator);
+				if (comparator != null)
+					matchingList = new PriorityQueue<T>(1, comparator);
+				else
+					matchingList = new LinkedList<T>();
 			}
 
-			private PriorityQueue<T> matchingList;
+			private Queue<T> matchingList;
 
 			public Collection<T> findAll(Collection<T> reslist)
 			{
-				if (matchingList.comparator() == null)
-					return matchingList;
-
 				matchingList.clear();
 
 				T res;
@@ -737,7 +740,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				{
 					res = iterator.next();
 					if (checker.check(res))
-						if (matchingList.comparator() == null)
+						if (matchingList instanceof LinkedList)
 							return res;
 						else
 							matchingList.add(res);
