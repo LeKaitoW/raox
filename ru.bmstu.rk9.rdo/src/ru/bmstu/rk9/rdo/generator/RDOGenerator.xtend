@@ -217,6 +217,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				public static final «rtp.name» «r.name» = new «rtp.name»(«
 					if (r.parameters != null) r.parameters.compileExpression else ""»);
+				static
 				{
 					«rtp.name».getManager().addResource("«r.name»", «r.name»);
 				}
