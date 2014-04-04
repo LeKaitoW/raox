@@ -987,7 +987,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 					else
 					{
 						if (all.size() > 0)
-							if (matchingList.iterator() == null)
+							if (matchingList.comparator() == null)
 							{
 								setter.set(pattern, all.iterator().next());
 								return true;
