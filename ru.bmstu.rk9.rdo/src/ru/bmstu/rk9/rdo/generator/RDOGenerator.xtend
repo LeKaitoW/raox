@@ -147,6 +147,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 					«c.compileStatement»
 				«ENDFOR»«ENDIF»
 
+				«FOR r : rs.resources»
+				«FOR c : r.allContents.filter(typeof(DecisionPoint)).toIterable»
+					new «c.fullyQualifiedName»();
+				«ENDFOR»
+				«ENDFOR»
+
 				System.out.println("   Started model");
 
 				int result = rdo_lib.Simulator.run();
@@ -425,7 +431,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 							IF rc.relres.rule.literal == "Erase"»Temporary«ELSE»All«ENDIF»(),
 						new rdo_lib.SimpleChoiceFrom<«rule.name», «rc.relres.type.fullyQualifiedName»>
 						(
-							«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.fullyQualifiedName, rc.relres.name)»,
+							«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.fullyQualifiedName, rc.relres.name, rc.relres.type.fullyQualifiedName)»,
 							null
 						),
 						new rdo_lib.CombinationalChoiceFrom.Setter<«rule.name», «rc.relres.type.fullyQualifiedName»>()
@@ -449,7 +455,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				rdo_lib.SimpleChoiceFrom<«rule.name», «rc.relres.type.fullyQualifiedName»> «rc.relres.name»Choice =
 					new rdo_lib.SimpleChoiceFrom<«rule.name», «rc.relres.type.fullyQualifiedName»>
 					(
-						«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.fullyQualifiedName, rc.relres.name)»,
+						«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.fullyQualifiedName, rc.relres.name, rc.relres.type.fullyQualifiedName)»,
 						«rc.choicemethod.compileChoiceMethod(rule.name, rc.relres.type.fullyQualifiedName)»
 					);
 
@@ -571,7 +577,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 							IF rc.relres.begin.literal == "Erase" || rc.relres.end.literal == "Erase"»Temporary«ELSE»All«ENDIF»(),
 						new rdo_lib.SimpleChoiceFrom<«op.name», «rc.relres.type.fullyQualifiedName»>
 						(
-							«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.fullyQualifiedName, rc.relres.name)»,
+							«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.fullyQualifiedName, rc.relres.name, rc.relres.type.fullyQualifiedName)»,
 							null
 						),
 						new rdo_lib.CombinationalChoiceFrom.Setter<«op.name», «rc.relres.type.fullyQualifiedName»>()
@@ -595,7 +601,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				rdo_lib.SimpleChoiceFrom<«op.name», «rc.relres.type.fullyQualifiedName»> «rc.relres.name»Choice =
 					new rdo_lib.SimpleChoiceFrom<«op.name», «rc.relres.type.fullyQualifiedName»>
 					(
-						«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.fullyQualifiedName, rc.relres.name)»,
+						«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.fullyQualifiedName, rc.relres.name, rc.relres.type.fullyQualifiedName)»,
 						«rc.choicemethod.compileChoiceMethod(op.name, rc.relres.type.fullyQualifiedName)»
 					);
 
@@ -654,19 +660,36 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 	}
 
-	def static compileChoiceFrom(PatternChoiceFrom cf, Pattern pattern, String resource, String relres)
+	def static compileChoiceFrom(PatternChoiceFrom cf, Pattern pattern, String resource, String relres, String relrestype)
 	{
 		val havecf = cf != null && !cf.nocheck;
 
 		var List<String> relreslist;
+		var List<String> relrestypes;
 
 		switch pattern
 		{
 			Operation:
+			{
 				relreslist = pattern.relevantresources.map[r | r.name]
+				relrestypes = pattern.relevantresources.map[r |
+					if (r.type instanceof ResourceType)
+						(r.type as ResourceType).fullyQualifiedName
+					else
+						(r.type as ResourceDeclaration).reference.fullyQualifiedName
+				]
+			}
 
 			Rule:
+			{
 				relreslist = pattern.relevantresources.map[r | r.name]
+				relrestypes = pattern.relevantresources.map[r |
+					if (r.type instanceof ResourceType)
+						(r.type as ResourceType).fullyQualifiedName
+					else
+						(r.type as ResourceDeclaration).reference.fullyQualifiedName
+				]
+			}
 		}
 
 		return
@@ -676,8 +699,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 				@Override
 				public boolean check(«resource» «relres»)
 				{
-					return «IF havecf»(«cf.compileForPattern»)«ELSE»true«ENDIF»«FOR r : relreslist»«IF relres != r»
-						«"\t"»&& «relres» != pattern.«r»«ENDIF»«ENDFOR»;
+					return «IF havecf»(«cf.compileForPattern»)«ELSE»true«ENDIF»«FOR i : 0 ..< relreslist.size»«
+						IF relres != relreslist.get(i) && relrestype == relrestypes.get(i)»
+							«"\t"»&& «relres» != pattern.«relreslist.get(i)»«ENDIF»«ENDFOR»;
 				}
 			}'''
 	}
@@ -757,7 +781,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 			DecisionPointSome : dpt.activities
 			DecisionPointPrior: dpt.activities
 		}
-		
+
 		return
 			'''
 			package «filename»;
@@ -784,7 +808,22 @@ class RDOGenerator implements IMultipleResourceGenerator
 				{
 					«IF dpt instanceof DecisionPointSome || dpt instanceof DecisionPointPrior»
 					«FOR a : activities»
-						dpt.addActivity(new «a.pattern.fullyQualifiedName»());
+						dpt.addActivity(
+							new rdo_lib.DecisionPoint.Activity()
+							{
+								@Override
+								public String getName()
+								{
+									return "«a.name»";
+								}
+
+								@Override
+								public boolean checkActivity()
+								{
+									return (new «a.pattern.fullyQualifiedName»()).tryRule();
+								}
+							}
+						);
 					«ENDFOR»
 
 					«ENDIF»
@@ -1289,9 +1328,15 @@ class RDOGenerator implements IMultipleResourceGenerator
 				return priority;
 			}
 
-			private List<Rule> activities = new LinkedList<Rule>();
+			public static interface Activity
+			{
+				public String getName();
+				public boolean checkActivity();
+			}
 
-			public void addActivity(Rule a)
+			private List<Activity> activities = new LinkedList<Activity>();
+
+			public void addActivity(Activity a)
 			{
 				activities.add(a);
 			}
@@ -1301,8 +1346,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 				if (condition != null && !condition.check())
 					return false;
 
-				for (Rule a : activities)
-					if (a.tryRule())
+				for (Activity a : activities)
+					if (a.checkActivity())
 					{
 						System.out.println("      " + String.valueOf(Simulator.getTime()) + ":	'" + a.getName() + "' issued");
 						return true;
