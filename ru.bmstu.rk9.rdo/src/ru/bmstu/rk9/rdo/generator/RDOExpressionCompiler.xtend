@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rdo.generator
 
+import java.util.List
+
 import org.eclipse.emf.ecore.EObject
 
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
@@ -18,6 +20,8 @@ import ru.bmstu.rk9.rdo.rdo.PatternChoiceFrom
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
 import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.RuleConvert
+import ru.bmstu.rk9.rdo.rdo.Operation
+import ru.bmstu.rk9.rdo.rdo.OperationConvert
 
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.RDOReal
@@ -61,14 +65,44 @@ import ru.bmstu.rk9.rdo.rdo.TimeNow
 
 class RDOExpressionCompiler
 {
-	def static String compileExpression(EObject expr)
+	def static String compileForPattern(EObject expr)
 	{
+		val parent = expr.eContainer
+		
+		var String relres
+		var List<String> relreslist
+
+		switch parent
+		{
+			RuleConvert:
+			{
+				relres = parent.relres.name
+				relreslist = (parent.eContainer as Rule).relevantresources.map[r | r.name]
+			}
+
+			OperationConvert:
+			{
+				relres = parent.relres.name
+				relreslist = (parent.eContainer as Operation).relevantresources.map[r | r.name]
+			}
+
+			Rule:
+			{
+				relres = "@NOPE"
+				relreslist = parent.relevantresources.map[r | r.name]
+			}
+
+			Operation:
+			{
+				relres = "@NOPE"
+				relreslist = parent.relevantresources.map[r | r.name]
+			}
+		}
+		
 		switch expr
 		{
 			PatternChoiceFrom:
 			{
-				var relres = (expr.eContainer as RuleConvert).relres.name
-				var relreslist = (expr.eContainer.eContainer as Rule).relevantresources.map[r | r.name]
 				for (e : expr.logic.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
 					if (e.calls.size == 2 && relreslist.contains(e.calls.get(0).call) && e.calls.get(0).call != relres)
 						e.calls.get(0).setCall("pattern." + e.calls.get(0).call)
@@ -84,21 +118,30 @@ class RDOExpressionCompiler
 				else
 					sign = " > "
 
-				var relres = (expr.eContainer as RuleConvert).relres.name
-				var relreslist = (expr.eContainer.eContainer as Rule).relevantresources.map[r | r.name]
 				for (e : expr.expression.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
 				{
 					if (e.calls.size == 2 && relreslist.contains(e.calls.get(0).call) && e.calls.get(0).call != relres)
-						e.calls.get(0).setCall("pattern." + e.calls.get(0).call)
+						e.calls.get(0).setCall("@PAT." + e.calls.get(0).call)
 					if (e.calls.size == 2 && e.calls.get(0).call == relres)
 						e.calls.get(0).setCall("@RES")
 				}
 				var ret = expr.expression.compileExpression
 
+				if (parent instanceof Rule || parent instanceof Operation)
+					return ret.replaceAll("@PAT", "x") + sign + ret.replaceAll("@PAT", "y")
+				else
+					ret = ret.replaceAll("@PAT", "pattern")
+
 				return ret.replaceAll("@RES", "x") + sign + ret.replaceAll("@RES", "y")
 
 			}
+		}
+	}
 
+	def static String compileExpression(EObject expr)
+	{
+		switch expr
+		{
 			IntConstant:
 				return expr.value.toString
 
