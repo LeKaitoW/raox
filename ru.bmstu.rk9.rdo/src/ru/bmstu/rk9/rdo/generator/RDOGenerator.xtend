@@ -832,13 +832,13 @@ class RDOGenerator implements IMultipleResourceGenerator
 								@Override
 								public String getName()
 								{
-									return "«a.name»";
+									return "«filename».«a.name»";
 								}
 
 								@Override
 								public boolean checkActivity()
 								{
-									return (new «a.pattern.fullyQualifiedName»()).tryRule();
+									return (new «a.pattern.fullyQualifiedName»(«a.compileExpression»)).tryRule();
 								}
 							}
 						);

@@ -235,7 +235,7 @@ DecisionPointSome:
 	('$Parent' parent = [DecisionPoint|FQN])?
 	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
 	 '$Activities'
-		activities += DecisionPointActivities+
+		activities += DecisionPointActivity+
 	 '$End'
 ;
 
@@ -245,7 +245,7 @@ DecisionPointPrior:
 	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
 	 '$Priority' priority = ExpressionOr
 	 '$Activities'
-		activities += DecisionPointActivities+
+		activities += DecisionPointActivity+
 	 '$End'
 ;
 
@@ -268,7 +268,7 @@ DecisionPointSearchActivities:
 	|'value after'  valueafter = ExpressionOr)
 ;
 
-DecisionPointActivities:
+DecisionPointActivity:
 	name = ID ':' pattern = [META_DecisionPointActivity|FQN] parameters += Primary*
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
