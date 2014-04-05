@@ -1249,10 +1249,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			public static int run()
 			{
+				while(checkDPT());
+
 				while(eventList.size() > 0)
 				{
-					while(checkDPT());
-
 					PlannedEvent current = popEvent();
 
 					time = current.getTimePlanned();
@@ -1263,6 +1263,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 					for (TerminateCondition c : terminateList)
 						if (c.check())
 							return 1;
+
+					while(checkDPT());
 				}
 				return 0;
 			}
