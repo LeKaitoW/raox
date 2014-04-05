@@ -1090,10 +1090,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 					Iterator<T> iterator = all.iterator();
 					if (finder.hasNext())
 					{
+						Finder<P, ?> currentFinder = finder.next();
 						while (iterator.hasNext())
 						{
 							setter.set(pattern, iterator.next());
-							if (finder.next().find(pattern, finder, matchingList, setManager))
+							if (currentFinder.find(pattern, finder, matchingList, setManager))
 								if (matchingList.iterator() == null)
 									return true;
 						}
