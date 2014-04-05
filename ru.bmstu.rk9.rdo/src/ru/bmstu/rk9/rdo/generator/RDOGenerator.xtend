@@ -1214,7 +1214,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			public static void pushEvent(Event event, double time)
 			{
-				eventList.add(new PlannedEvent(event, time));
+				if (time >= Simulator.time)
+					eventList.add(new PlannedEvent(event, time));
 			}
 
 			private static PlannedEvent popEvent()
