@@ -57,7 +57,7 @@ class RDOStatementCompiler
 				for (e : st.statements.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
 					for (c : e.calls)
 						if (paramlist.contains(c.call) && e.calls.size == 1)
-							c.setCall(st.relres.name + '.' + c.call)
+							c.setCall('resources.' + st.relres.name + '.' + c.call)
 
 				return
 					'''
@@ -117,7 +117,7 @@ class RDOStatementCompiler
 					for (e : st.beginstatements.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
 					for (c : e.calls)
 						if (paramlist.contains(c.call) && e.calls.size == 1)
-							c.setCall(st.relres.name + '.' + c.call)
+							c.setCall('resources.' + st.relres.name + '.' + c.call)
 
 					return
 						'''
@@ -132,7 +132,7 @@ class RDOStatementCompiler
 					for (e : st.endstatements.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
 					for (c : e.calls)
 						if (paramlist.contains(c.call) && e.calls.size == 1)
-							c.setCall(st.relres.name + '.' + c.call)
+							c.setCall('resources.' + st.relres.name + '.' + c.call)
 
 					return
 						'''
@@ -229,10 +229,9 @@ class RDOStatementCompiler
 
 			PlanningStatement:
 				"rdo_lib.Simulator.pushEvent(new " +
-					st.event.getFullyQualifiedName + "(" +
-						(if (st.parameters != null) st.parameters.compileExpression else
-							compileAllDefault(st.event.parameters.size)) +
-								"), " + RDOExpressionCompiler.compileExpression(st.value) + ");"
+					st.event.getFullyQualifiedName + "(" + RDOExpressionCompiler.compileExpression(st.value) +
+						(if (st.parameters != null) (", " + st.parameters.compileExpression) else
+							(compileAllDefault(st.event.parameters.size)) + "));")
 
 			LegacySetStatement:
 				'''

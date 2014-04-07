@@ -142,6 +142,17 @@ class RDOExpressionCompiler
 
 	def static String compileExpression(EObject expr)
 	{
+		val parent = expr.eContainer
+		switch parent
+		{
+			Operation:
+				if (parent.time == expr)
+					for (e : expr.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
+						for (c : e.calls)
+							if (parent.relevantresources.map[r | r.name].contains(c.call) && e.calls.size == 2)
+								c.setCall('matched.' + c.call)
+		}
+
 		switch expr
 		{
 			IntConstant:
