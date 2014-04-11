@@ -353,7 +353,31 @@ class RDOExpressionCompiler
 			default: "Integer /* TYPE IS ACTUALLY UNKNOWN */"
 		}
 	}
-	
+
+	def static String compileTypePrimitive(EObject type)
+	{
+		switch type
+		{
+			ResourceTypeParameter: type.type.compileTypePrimitive
+
+			RDORTPParameterBasic : type.type.compileTypePrimitive
+			RDORTPParameterString: type.type.compileTypePrimitive
+			RDORTPParameterSuchAs: type.type.compileTypePrimitive
+			RDORTPParameterEnum  : type.type.compileTypePrimitive
+			RDORTPParameterArray : type.type.compileTypePrimitive
+
+			RDOInteger: "int"
+			RDOReal   : "double"
+			RDOBoolean: "boolean"
+			RDOString : "String"
+			RDOEnum   : type.getEnumParentName(true) + "_enum"
+			RDOSuchAs : type.type.compileTypePrimitive
+			RDOArray  : "java.util.ArrayList<" + type.arraytype.compileType + ">"
+
+			default: "int /* TYPE IS ACTUALLY UNKNOWN */"
+		}
+	}
+
 	def static String compileAllDefault(int count)
 	{
 				var String list = ""

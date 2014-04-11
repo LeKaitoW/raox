@@ -31,6 +31,11 @@ import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
 
+import ru.bmstu.rk9.rdo.rdo.Sequence
+import ru.bmstu.rk9.rdo.rdo.EnumerativeSequence
+import ru.bmstu.rk9.rdo.rdo.RegularSequence
+import ru.bmstu.rk9.rdo.rdo.RegularSequenceType
+
 import ru.bmstu.rk9.rdo.rdo.Function
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter
 import ru.bmstu.rk9.rdo.rdo.FunctionTable
@@ -50,6 +55,8 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPointPrior
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
 
 import ru.bmstu.rk9.rdo.rdo.SimulationRun
+
+import ru.bmstu.rk9.rdo.rdo.RDOType
 
 
 class RDOGenerator implements IMultipleResourceGenerator
@@ -108,6 +115,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				for (e : resource.allContents.toIterable.filter(typeof(ConstantDeclaration)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileConstant(filename))
+
+				for (e : resource.allContents.toIterable.filter(typeof(Sequence)))
+					fsa.generateFile(filename + "/" + e.name + ".java", e.compileSequence(filename))
 
 				for (e : resource.allContents.toIterable.filter(typeof(Function)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileFunction(filename))
@@ -186,6 +196,93 @@ class RDOGenerator implements IMultipleResourceGenerator
 			ENDIF»
 		}
 		'''
+	}
+
+	def compileSequence(Sequence seq, String filename)
+	{
+		'''
+		package «filename»;
+
+		public class «seq.name»
+		{
+			«IF seq.type instanceof RegularSequence»
+				private static org.apache.commons.math3.random.MersenneTwister prng =
+					new org.apache.commons.math3.random.MersenneTwister(«(seq.type as RegularSequence).seed»);
+
+				public static void setSeed(long seed)
+				{
+					prng.setSeed(seed);
+				}
+
+				«(seq.type as RegularSequence).compileRegularSequence(seq.returntype)»
+			«ENDIF»
+			«IF seq.type instanceof EnumerativeSequence»
+				private «seq.returntype.compileTypePrimitive»[] values = new «seq.returntype.compileTypePrimitive»[]
+					{
+						«FOR i : 0 ..< (seq.type as EnumerativeSequence).values.size»
+							«(seq.type as EnumerativeSequence).values.get(i).compileExpression»«
+								IF i != (seq.type as EnumerativeSequence).values.size - 1»,«ENDIF»
+						«ENDFOR»
+					};
+
+				private int current = 0;
+
+				public «seq.returntype.compileTypePrimitive» getNext()
+				{
+					if (current == values.length)
+						current = 0;
+
+					return values[current++];
+				}
+			«ENDIF»
+			
+		}
+		'''
+	}
+	
+	def compileRegularSequence(RegularSequence seq, RDOType rtype)
+	{
+		switch seq.type
+		{
+			case RegularSequenceType.UNIFORM:
+				return
+					'''
+					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» from, «rtype.compileTypePrimitive» to)
+					{
+						return («rtype.compileTypePrimitive»)((to - from) * prng.nextDouble() + from);
+					}
+					'''
+			case RegularSequenceType.EXPONENTIAL:
+				return
+					'''
+					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» mean)
+					{
+						return («rtype.compileTypePrimitive»)(-1.0 * mean * org.apache.commons.math3.util.FastMath.log(1 - prng.nextDouble()));
+					}
+					'''
+			case RegularSequenceType.NORMAL:
+				return
+					'''
+					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» mean, «rtype.compileTypePrimitive» deviation)
+					{
+						return («rtype.compileTypePrimitive»)(mean + deviation * org.apache.commons.math3.util.FastMath.sqrt(2) * org.apache.commons.math3.special.Erf.erfInv(2 * prng.nextDouble() - 1));
+					}
+					'''
+			case RegularSequenceType.TRIANGULAR:
+				return
+					'''
+					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» a, «rtype.compileTypePrimitive» c, «rtype.compileTypePrimitive» b)
+					{
+						double next = prng.nextDouble();
+						double edge = (double)(c - a) / (double)(b - a);
+
+					if (next < edge)
+							return («rtype.compileTypePrimitive»)(a + org.apache.commons.math3.util.FastMath.sqrt((b - a) * (c - a) * next));
+						else
+							return («rtype.compileTypePrimitive»)(b - org.apache.commons.math3.util.FastMath.sqrt((1 - next) * (b - a) * (b - c)));
+					}
+					'''
+		}
 	}
 
 	def withFirstUpper(String s)
