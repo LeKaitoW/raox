@@ -23,6 +23,10 @@ import ru.bmstu.rk9.rdo.rdo.FunctionParameter
 import ru.bmstu.rk9.rdo.rdo.Constants
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
 
+import ru.bmstu.rk9.rdo.rdo.EnumerativeSequence
+import ru.bmstu.rk9.rdo.rdo.RegularSequence
+import ru.bmstu.rk9.rdo.rdo.HistogramSequence
+
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.Rule
@@ -106,9 +110,9 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	// Sequence
 	def  text(Sequence seq) { "SEQ : " + seq.name + " : " + (
-		if (seq.type.enumerative != null) "enumerative" else "" +
-		if (seq.type.regular != null) seq.type.regular.type.literal else "" +
-		if (seq.type.histogram != null) "histogram" else "" ) + seq.returntype.typeGenericLabel }
+		if (seq.type instanceof EnumerativeSequence) "enumerative" else "" +
+		if (seq.type instanceof RegularSequence) (seq.type as RegularSequence).type.literal else "" +
+		if (seq.type instanceof HistogramSequence) "histogram" else "" ) + seq.returntype.typeGenericLabel }
 	def image(Sequence seq) { "chart.gif" }
 
 	// Function

@@ -350,9 +350,9 @@ Sequence:
 ;
 
 SequenceType
-	: enumerative = EnumerativeSequence
-	| regular = RegularSequence
-	| histogram = HistogramSequence
+	: EnumerativeSequence
+	| RegularSequence
+	| HistogramSequence
 ;
 
 EnumerativeSequence:
