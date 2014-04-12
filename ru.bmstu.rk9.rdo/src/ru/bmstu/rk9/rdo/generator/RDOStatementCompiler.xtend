@@ -231,7 +231,7 @@ class RDOStatementCompiler
 				"rdo_lib.Simulator.pushEvent(new " +
 					st.event.getFullyQualifiedName + "(" + RDOExpressionCompiler.compileExpression(st.value) +
 						(if (st.parameters != null) (", " + st.parameters.compileExpression) else
-							(compileAllDefault(st.event.parameters.size)) + "));")
+							(", " + compileAllDefault(st.event.parameters.size))) + "));"
 
 			LegacySetStatement:
 				'''
