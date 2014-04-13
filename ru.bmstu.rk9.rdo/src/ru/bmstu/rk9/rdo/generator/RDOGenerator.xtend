@@ -421,14 +421,24 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			private static RelevantResources staticResources = new RelevantResources();
 
-			public static class Parameters
+			private static class Parameters
 			{
+				«IF evn.parameters.size > 0»
 				«FOR p : evn.parameters»
 					public «p.type.compileType» «p.name»«p.type.getDefault»;
 				«ENDFOR»
+
+				public Parameters(«evn.parameters.compilePatternParameters»)
+				{
+					«FOR parameter : evn.parameters»
+						if («parameter.name» != null)
+							this.«parameter.name» = «parameter.name»;
+					«ENDFOR»
+				}
+				«ENDIF»
 			}
 
-			private Parameters parameters = new Parameters();
+			private Parameters parameters;
 
 			private double time;
 
@@ -450,7 +460,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 					}
 				};
 
-
 			@Override
 			public void run()
 			{
@@ -468,13 +477,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 			public «evn.name»(double time«IF evn.parameters.size > 0», «ENDIF»«evn.parameters.compilePatternParameters»)
 			{
 				this.time = time;
-				«IF evn.parameters.size > 0»
-
-				«FOR parameter : evn.parameters»
-					if («parameter.name» != null)
-						this.parameters.«parameter.name» = «parameter.name»;
-				«ENDFOR»
-				«ENDIF»
+				this.parameters = new Parameters(«evn.parameters.compilePatternParametersCall»);
 			}
 		}
 		'''
@@ -1011,6 +1014,16 @@ class RDOGenerator implements IMultipleResourceGenerator
 			parameters.get(0).name»«
 			FOR parameter : parameters.subList(1, parameters.size)», «
 				parameter.type.compileType» «
+				parameter.name»«
+			ENDFOR»«
+		ENDIF»'''
+	}
+
+	def static compilePatternParametersCall(List<PatternParameter> parameters)
+	{
+		'''«IF parameters.size > 0»«
+			parameters.get(0).name»«
+			FOR parameter : parameters.subList(1, parameters.size)», «
 				parameter.name»«
 			ENDFOR»«
 		ENDIF»'''
