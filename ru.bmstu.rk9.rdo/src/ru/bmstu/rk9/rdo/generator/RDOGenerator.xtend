@@ -522,6 +522,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			public static class Parameters
 			{
+				«IF rule.parameters.size > 0»
 				«FOR p : rule.parameters»
 					public «p.type.compileType» «p.name»«p.type.getDefault»;
 				«ENDFOR»
@@ -533,6 +534,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 							this.«p.name» = «p.name»;
 					«ENDFOR»
 				}
+				«ENDIF»
 			}
 
 			private Parameters parameters;
@@ -721,6 +723,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			public static class Parameters
 			{
+				«IF op.parameters.size > 0»
 				«FOR p : op.parameters»
 					public «p.type.compileType» «p.name»«p.type.getDefault»;
 				«ENDFOR»
@@ -732,6 +735,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 							this.«p.name» = «p.name»;
 					«ENDFOR»
 				}
+				«ENDIF»
 			}
 
 			private Parameters parameters;
