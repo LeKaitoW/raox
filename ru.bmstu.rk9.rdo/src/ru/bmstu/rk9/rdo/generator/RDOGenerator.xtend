@@ -392,7 +392,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		{
 			private static final String name =  "«evn.fullyQualifiedName»";
 
-			private static class ResourceSet
+			private static class RelevantResources
 			{
 				«FOR r : evn.relevantresources»
 					«IF r.type instanceof ResourceType»
@@ -402,7 +402,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 					«ENDIF»
 				«ENDFOR»
 
-				public ResourceSet init()
+				public RelevantResources init()
 				{
 					«FOR r : evn.relevantresources»
 						«IF r.type instanceof ResourceDeclaration»
@@ -418,16 +418,16 @@ class RDOGenerator implements IMultipleResourceGenerator
 				}
 			}
 
-			private static ResourceSet classSet = new ResourceSet();
+			private static RelevantResources staticResources = new RelevantResources();
 
-			public static class ParameterSet
+			public static class Parameters
 			{
 				«FOR p : evn.parameters»
 					public «p.type.compileType» «p.name»«p.type.getDefault»;
 				«ENDFOR»
 			}
 
-			private ParameterSet parameters = new ParameterSet();
+			private Parameters parameters = new Parameters();
 
 			private double time;
 
@@ -437,11 +437,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 				return time;
 			}
 
-			private static rdo_lib.Converter<ResourceSet, ParameterSet> converter =
-				new rdo_lib.Converter<ResourceSet, ParameterSet>()
+			private static rdo_lib.Converter<RelevantResources, Parameters> converter =
+				new rdo_lib.Converter<RelevantResources, Parameters>()
 				{
 					@Override
-					public void run(ResourceSet resources, ParameterSet parameters)
+					public void run(RelevantResources resources, Parameters parameters)
 					{
 						«FOR e : evn.algorithms»
 							«e.compileConvert(0)»
@@ -453,12 +453,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 			@Override
 			public void run()
 			{
-				converter.run(classSet.init(), parameters);
+				converter.run(staticResources.init(), parameters);
 				«IF evn.relevantresources.filter[t | t.rule.literal == "Create"].size > 0»
 
 					// add resources
 					«FOR r : evn.relevantresources.filter[t |t.rule.literal == "Create"]»
-						«(r.type as ResourceType).fullyQualifiedName».getManager().addResource(classSet.«r.name»);
+						«(r.type as ResourceType).fullyQualifiedName».getManager().addResource(staticResources.«r.name»);
 					«ENDFOR»
 
 				«ENDIF»
@@ -488,7 +488,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		{
 			private static final String name = "«filename».«rule.name»";
 
-			private static class ResourceSet
+			private static class RelevantResources
 			{
 				«FOR r : rule.relevantresources.filter[res | res.rule.literal != "Create"]»
 					«IF r.type instanceof ResourceType»
@@ -498,9 +498,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 					«ENDIF»
 				«ENDFOR»
 
-				public ResourceSet copy()
+				public RelevantResources copy()
 				{
-					ResourceSet clone = new ResourceSet();
+					RelevantResources clone = new RelevantResources();
 
 					«FOR r : rule.relevantresources.filter[res | res.rule.literal != "Create"]»
 						clone.«r.name» = this.«r.name»;
@@ -517,16 +517,16 @@ class RDOGenerator implements IMultipleResourceGenerator
 				}
 			}
 
-			private static ResourceSet classSet = new ResourceSet();
-			private ResourceSet instanceSet;
+			private static RelevantResources staticResources = new RelevantResources();
+			private RelevantResources instanceResources;
 
-			public static class ParameterSet
+			public static class Parameters
 			{
 				«FOR p : rule.parameters»
 					public «p.type.compileType» «p.name»«p.type.getDefault»;
 				«ENDFOR»
 
-				public ParameterSet(«rule.parameters.compilePatternParameters»)
+				public Parameters(«rule.parameters.compilePatternParameters»)
 				{
 					«FOR p : rule.parameters»
 						if («p.name» != null)
@@ -535,27 +535,27 @@ class RDOGenerator implements IMultipleResourceGenerator
 				}
 			}
 
-			private ParameterSet parameters;
+			private Parameters parameters;
 
-			private «rule.name»(double time, ResourceSet resources, ParameterSet ps)
+			private «rule.name»(double time, RelevantResources resources, Parameters parameters)
 			{
 				this.time = time;
-				this.instanceSet = resources;
-				this.parameters = ps;
+				this.instanceResources = resources;
+				this.parameters = parameters;
 			}
 
 			«IF rule.combinational != null»
-			static private rdo_lib.CombinationalChoiceFrom<ResourceSet> choice =
-				new rdo_lib.CombinationalChoiceFrom<ResourceSet>
+			static private rdo_lib.CombinationalChoiceFrom<RelevantResources> choice =
+				new rdo_lib.CombinationalChoiceFrom<RelevantResources>
 				(
-					classSet,
-					«rule.combinational.compileChoiceMethod("ResourceSet", "ResourceSet")»,
-					new rdo_lib.CombinationalChoiceFrom.ResourceSetManager<ResourceSet>()
+					staticResources,
+					«rule.combinational.compileChoiceMethod("RelevantResources", "RelevantResources")»,
+					new rdo_lib.CombinationalChoiceFrom.RelevantResourcesManager<RelevantResources>()
 					{
 						@Override
-						public ResourceSet create(ResourceSet set)
+						public RelevantResources create(RelevantResources set)
 						{
-							ResourceSet clone = new ResourceSet();
+							RelevantResources clone = new RelevantResources();
 
 							«FOR relres : rule.relevantresources.filter[r | r.rule.literal != "Create"]»
 								clone.«relres.name» = set.«relres.name»;
@@ -565,7 +565,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 						}
 
 						@Override
-						public void apply(ResourceSet origin, ResourceSet set)
+						public void apply(RelevantResources origin, RelevantResources set)
 						{
 							«FOR relres : rule.relevantresources.filter[r | r.rule.literal != "Create"]»
 								origin.«relres.name» = set.«relres.name»;
@@ -578,7 +578,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«FOR rc : rule.algorithms.filter[r | r.relres.type instanceof ResourceType && r.relres.rule.literal != "Create"]»
 					choice.addFinder
 					(
-						new rdo_lib.CombinationalChoiceFrom.Finder<ResourceSet, «rc.relres.type.fullyQualifiedName»>
+						new rdo_lib.CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.fullyQualifiedName»>
 						(
 							new rdo_lib.CombinationalChoiceFrom.Retriever<«rc.relres.type.fullyQualifiedName»>()
 							{
@@ -589,14 +589,14 @@ class RDOGenerator implements IMultipleResourceGenerator
 										IF rc.relres.rule.literal == "Erase"»Temporary«ELSE»All«ENDIF»();
 								}
 							},
-							new rdo_lib.SimpleChoiceFrom<ResourceSet, «rc.relres.type.fullyQualifiedName»>
+							new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName»>
 							(
 								«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.fullyQualifiedName, rc.relres.name, rc.relres.type.fullyQualifiedName)»,
 								null
 							),
-							new rdo_lib.CombinationalChoiceFrom.Setter<ResourceSet, «rc.relres.type.fullyQualifiedName»>()
+							new rdo_lib.CombinationalChoiceFrom.Setter<RelevantResources, «rc.relres.type.fullyQualifiedName»>()
 							{
-								public void set(ResourceSet set, «rc.relres.type.fullyQualifiedName» resource)
+								public void set(RelevantResources set, «rc.relres.type.fullyQualifiedName» resource)
 								{
 									set.«rc.relres.name» = resource;
 								}
@@ -610,8 +610,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 			«ELSE»
 			«FOR rc : rule.algorithms.filter[r | r.relres.type instanceof ResourceType && r.relres.rule.literal != "Create"]»
 			// choice «rc.relres.name»
-			private static rdo_lib.SimpleChoiceFrom<ResourceSet, «rc.relres.type.fullyQualifiedName»> «rc.relres.name»Choice =
-				new rdo_lib.SimpleChoiceFrom<ResourceSet, «rc.relres.type.fullyQualifiedName»>
+			private static rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName»> «rc.relres.name»Choice =
+				new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName»>
 				(
 					«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.fullyQualifiedName, rc.relres.name, rc.relres.type.fullyQualifiedName)»,
 					«rc.choicemethod.compileChoiceMethod(rule.name, rc.relres.type.fullyQualifiedName)»
@@ -620,11 +620,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 			«ENDFOR»
 			«ENDIF»
 
-			private static rdo_lib.Converter<ResourceSet, ParameterSet> rule =
-					new rdo_lib.Converter<ResourceSet, ParameterSet>()
+			private static rdo_lib.Converter<RelevantResources, Parameters> rule =
+					new rdo_lib.Converter<RelevantResources, Parameters>()
 					{
 						@Override
-						public void run(ResourceSet resources, ParameterSet ps)
+						public void run(RelevantResources resources, Parameters parameters)
 						{
 							«FOR e : rule.algorithms.filter[r | r.haverule]»
 								«e.compileConvert(0)»
@@ -632,9 +632,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 						}
 					};
 
-			public static boolean tryRule(ParameterSet parameters)
+			public static boolean tryRule(Parameters parameters)
 			{
-				classSet.clear();
+				staticResources.clear();
 
 				«IF rule.combinational != null»
 				if (!choice.find())
@@ -642,15 +642,15 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				«ELSE»
 				«FOR rc : rule.algorithms.filter[r | r.relres.type instanceof ResourceType && r.relres.rule.literal != "Create"]»
-					classSet.«rc.relres.name» = «rc.relres.name»Choice.find(classSet, «rc.relres.type.fullyQualifiedName».getManager().get«
+					staticResources.«rc.relres.name» = «rc.relres.name»Choice.find(staticResources, «rc.relres.type.fullyQualifiedName».getManager().get«
 						IF rc.relres.rule.literal == "Erase"»Temporary«ELSE»All«ENDIF»());
 
-					if (classSet.«rc.relres.name» == null)
+					if (staticResources.«rc.relres.name» == null)
 						return false;
 
 				«ENDFOR»
 				«ENDIF»
-				ResourceSet matched = classSet.copy();
+				RelevantResources matched = staticResources.copy();
 
 				«IF rule.relevantresources.filter[t | t.rule.literal == "Create"].size > 0»
 					// create resources
@@ -687,7 +687,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		{
 			private static final String name = "«filename».«op.name»";
 
-			private static class ResourceSet
+			private static class RelevantResources
 			{
 				«FOR r : op.relevantresources.filter[res | res.begin.literal != "Create" && res.end.literal != "Create"]»
 					«IF r.type instanceof ResourceType»
@@ -697,9 +697,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 					«ENDIF»
 				«ENDFOR»
 
-				public ResourceSet copy()
+				public RelevantResources copy()
 				{
-					ResourceSet clone = new ResourceSet();
+					RelevantResources clone = new RelevantResources();
 
 					«FOR r : op.relevantresources.filter[res | res.begin.literal != "Create" && res.end.literal != "Create"]»
 						clone.«r.name» = this.«r.name»;
@@ -716,16 +716,16 @@ class RDOGenerator implements IMultipleResourceGenerator
 				}
 			}
 
-			private static ResourceSet classSet = new ResourceSet();
-			private ResourceSet instanceSet;
+			private static RelevantResources staticResources = new RelevantResources();
+			private RelevantResources instanceResources;
 
-			public static class ParameterSet
+			public static class Parameters
 			{
 				«FOR p : op.parameters»
 					public «p.type.compileType» «p.name»«p.type.getDefault»;
 				«ENDFOR»
 
-				public ParameterSet(«op.parameters.compilePatternParameters»)
+				public Parameters(«op.parameters.compilePatternParameters»)
 				{
 					«FOR p : op.parameters»
 						if («p.name» != null)
@@ -734,27 +734,27 @@ class RDOGenerator implements IMultipleResourceGenerator
 				}
 			}
 
-			private ParameterSet parameters;
+			private Parameters parameters;
 
-			private «op.name»(double time, ResourceSet resources, ParameterSet ps)
+			private «op.name»(double time, RelevantResources resources, Parameters parameters)
 			{
 				this.time = time;
-				this.instanceSet = resources;
-				this.parameters = ps;
+				this.instanceResources = resources;
+				this.parameters = parameters;
 			}
 
 			«IF op.combinational != null»
-			static private rdo_lib.CombinationalChoiceFrom<ResourceSet> choice =
-				new rdo_lib.CombinationalChoiceFrom<ResourceSet>
+			static private rdo_lib.CombinationalChoiceFrom<RelevantResources> choice =
+				new rdo_lib.CombinationalChoiceFrom<RelevantResources>
 				(
-					classSet,
-					«op.combinational.compileChoiceMethod("ResourceSet", "ResourceSet")»,
-					new rdo_lib.CombinationalChoiceFrom.ResourceSetManager<ResourceSet>()
+					staticResources,
+					«op.combinational.compileChoiceMethod("RelevantResources", "RelevantResources")»,
+					new rdo_lib.CombinationalChoiceFrom.RelevantResourcesManager<RelevantResources>()
 					{
 						@Override
-						public ResourceSet create(ResourceSet set)
+						public RelevantResources create(RelevantResources set)
 						{
-							ResourceSet clone = new ResourceSet();
+							RelevantResources clone = new RelevantResources();
 
 							«FOR relres : op.relevantresources.filter[r | r.begin.literal != "Create" && r.end.literal != "Create"]»
 								clone.«relres.name» = set.«relres.name»;
@@ -764,7 +764,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 						}
 
 						@Override
-						public void apply(ResourceSet origin, ResourceSet set)
+						public void apply(RelevantResources origin, RelevantResources set)
 						{
 							«FOR relres : op.relevantresources.filter[r | r.begin.literal != "Create" && r.end.literal != "Create"]»
 								origin.«relres.name» = set.«relres.name»;
@@ -778,7 +778,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 						r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
 					choice.addFinder
 					(
-						new rdo_lib.CombinationalChoiceFrom.Finder<ResourceSet, «rc.relres.type.fullyQualifiedName»>
+						new rdo_lib.CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.fullyQualifiedName»>
 						(
 							new rdo_lib.CombinationalChoiceFrom.Retriever<«rc.relres.type.fullyQualifiedName»>()
 							{
@@ -789,14 +789,14 @@ class RDOGenerator implements IMultipleResourceGenerator
 										IF rc.relres.begin.literal == "Erase" || rc.relres.end.literal == "Erase"»Temporary«ELSE»All«ENDIF»();
 								}
 							},
-							new rdo_lib.SimpleChoiceFrom<ResourceSet, «rc.relres.type.fullyQualifiedName»>
+							new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName»>
 							(
 								«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.fullyQualifiedName, rc.relres.name, rc.relres.type.fullyQualifiedName)»,
 								null
 							),
-							new rdo_lib.CombinationalChoiceFrom.Setter<ResourceSet, «rc.relres.type.fullyQualifiedName»>()
+							new rdo_lib.CombinationalChoiceFrom.Setter<RelevantResources, «rc.relres.type.fullyQualifiedName»>()
 							{
-								public void set(ResourceSet set, «rc.relres.type.fullyQualifiedName» resource)
+								public void set(RelevantResources set, «rc.relres.type.fullyQualifiedName» resource)
 								{
 									set.«rc.relres.name» = resource;
 								}
@@ -811,8 +811,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 			«FOR rc : op.algorithms.filter[r | r.relres.type instanceof ResourceType &&
 				r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
 			// choice «rc.relres.name»
-			private static rdo_lib.SimpleChoiceFrom<ResourceSet, «rc.relres.type.fullyQualifiedName»> «rc.relres.name»Choice =
-				new rdo_lib.SimpleChoiceFrom<ResourceSet, «rc.relres.type.fullyQualifiedName»>
+			private static rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName»> «rc.relres.name»Choice =
+				new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName»>
 				(
 					«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.fullyQualifiedName, rc.relres.name, rc.relres.type.fullyQualifiedName)»,
 					«rc.choicemethod.compileChoiceMethod(op.name, rc.relres.type.fullyQualifiedName)»
@@ -821,11 +821,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 			«ENDFOR»
 			«ENDIF»
 
-			private static rdo_lib.Converter<ResourceSet, ParameterSet> begin =
-					new rdo_lib.Converter<ResourceSet, ParameterSet>()
+			private static rdo_lib.Converter<RelevantResources, Parameters> begin =
+					new rdo_lib.Converter<RelevantResources, Parameters>()
 					{
 						@Override
-						public void run(ResourceSet resources, ParameterSet ps)
+						public void run(RelevantResources resources, Parameters parameters)
 						{
 							«FOR e : op.algorithms.filter[r | r.havebegin]»
 								«e.compileConvert(0)»
@@ -833,11 +833,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 						}
 					};
 
-			private static rdo_lib.Converter<ResourceSet, ParameterSet> end =
-					new rdo_lib.Converter<ResourceSet, ParameterSet>()
+			private static rdo_lib.Converter<RelevantResources, Parameters> end =
+					new rdo_lib.Converter<RelevantResources, Parameters>()
 					{
 						@Override
-						public void run(ResourceSet resources, ParameterSet ps)
+						public void run(RelevantResources resources, Parameters parameters)
 						{
 							«FOR e : op.algorithms.filter[r | r.haveend]»
 								«e.compileConvert(1)»
@@ -845,9 +845,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 						}
 					};
 
-			public static boolean tryRule(ParameterSet parameters)
+			public static boolean tryRule(Parameters parameters)
 			{
-				classSet.clear();
+				staticResources.clear();
 
 				«IF op.combinational != null»
 				if (!choice.find())
@@ -856,15 +856,15 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«ELSE»
 				«FOR rc : op.algorithms.filter[r | r.relres.type instanceof ResourceType &&
 					r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
-					classSet.«rc.relres.name» = «rc.relres.name»Choice.find(classSet, «rc.relres.type.fullyQualifiedName».getManager().get«
+					staticResources.«rc.relres.name» = «rc.relres.name»Choice.find(staticResources, «rc.relres.type.fullyQualifiedName».getManager().get«
 						IF rc.relres.begin.literal == "Erase" || rc.relres.end.literal == "Erase"»Temporary«ELSE»All«ENDIF»());
 
-					if (classSet.«rc.relres.name» == null)
+					if (staticResources.«rc.relres.name» == null)
 						return false;
 
 				«ENDFOR»
 				«ENDIF»
-				ResourceSet matched = classSet.copy();
+				RelevantResources matched = staticResources.copy();
 
 				«IF op.relevantresources.filter[t | t.begin.literal == "Create"].size > 0»
 					// create resources
@@ -905,15 +905,15 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«IF op.relevantresources.filter[t | t.end.literal == "Create"].size > 0»
 					// create resources
 					«FOR r : op.relevantresources.filter[t |t.end.literal == "Create"]»
-						instanceSet.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
+						instanceResources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 					«ENDFOR»
 					«FOR r : op.relevantresources.filter[t |t.end.literal == "Create"]»
-						«(r.type as ResourceType).fullyQualifiedName».getManager().addResource(instanceSet.«r.name»);
+						«(r.type as ResourceType).fullyQualifiedName».getManager().addResource(instanceResources.«r.name»);
 					«ENDFOR»
 
 				«ENDIF»
-				end.run(instanceSet, parameters);
+				end.run(instanceResources, parameters);
 			}
 		}
 		'''
@@ -953,10 +953,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 		return
 			'''
-			new rdo_lib.SimpleChoiceFrom.Checker<ResourceSet, «resource»>()
+			new rdo_lib.SimpleChoiceFrom.Checker<RelevantResources, «resource»>()
 			{
 				@Override
-				public boolean check(ResourceSet pattern, «resource» «relres»)
+				public boolean check(RelevantResources pattern, «resource» «relres»)
 				{
 					return «IF havecf»(«cf.compileForPattern»)«ELSE»true«ENDIF»«FOR i : 0 ..< relreslist.size»«
 						IF relres != relreslist.get(i) && relrestype == relrestypes.get(i)»
@@ -973,7 +973,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		{
 			return
 				'''
-				new rdo_lib.SimpleChoiceFrom.ChoiceMethod<ResourceSet, «resource»>()
+				new rdo_lib.SimpleChoiceFrom.ChoiceMethod<RelevantResources, «resource»>()
 				{
 					@Override
 					public int compare(«resource» x, «resource» y)
@@ -1057,8 +1057,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«IF dpt instanceof DecisionPointSome || dpt instanceof DecisionPointPrior»
 				«FOR i : 0 ..< activities.size»
 				«IF activities.get(i).parameters.size == parameters.get(i).size»
-				private static «activities.get(i).pattern.fullyQualifiedName».ParameterSet «activities.get(i).name» =
-					new «activities.get(i).pattern.fullyQualifiedName».ParameterSet(«activities.get(i).compileExpression»);
+				private static «activities.get(i).pattern.fullyQualifiedName».Parameters «activities.get(i).name» =
+					new «activities.get(i).pattern.fullyQualifiedName».Parameters(«activities.get(i).compileExpression»);
 				«ENDIF»
 				«ENDFOR»
 
@@ -1308,10 +1308,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 		public class CombinationalChoiceFrom<R>
 		{
 			private R set;
-			private ResourceSetManager<R> setManager;
+			private RelevantResourcesManager<R> setManager;
 			private PriorityQueue<R> matchingList;
 
-			public CombinationalChoiceFrom(R set, ChoiceMethod<R, R> comparator, ResourceSetManager<R> setManager)
+			public CombinationalChoiceFrom(R set, ChoiceMethod<R, R> comparator, RelevantResourcesManager<R> setManager)
 			{
 				this.set = set;
 				this.setManager = setManager;
@@ -1328,7 +1328,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				public Collection<T> getResources();
 			}
 
-			public static abstract class ResourceSetManager<R>
+			public static abstract class RelevantResourcesManager<R>
 			{
 				public abstract R create(R set);
 				public abstract void apply(R origin, R set);
@@ -1347,7 +1347,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 					this.setter  = setter;
 				}
 
-				public boolean find(R set, Iterator<Finder<R, ?>> finder, PriorityQueue<R> matchingList, ResourceSetManager<R> setManager)
+				public boolean find(R set, Iterator<Finder<R, ?>> finder, PriorityQueue<R> matchingList, RelevantResourcesManager<R> setManager)
 				{
 					Collection<T> all = choice.findAll(set, retriever.getResources());
 					Iterator<T> iterator = all.iterator();
