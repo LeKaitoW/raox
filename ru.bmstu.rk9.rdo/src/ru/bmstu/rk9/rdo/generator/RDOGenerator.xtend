@@ -68,12 +68,13 @@ class RDOGenerator implements IMultipleResourceGenerator
 	{
 		//===== rdo_lib ====================================================================
 		fsa.generateFile("rdo_lib/Simulator.java",                compileLibSimulator    ())
+		fsa.generateFile("rdo_lib/EventScheduler.java",           compileEventScheduler  ())
 		fsa.generateFile("rdo_lib/PermanentResourceManager.java", compilePermanentManager())
 		fsa.generateFile("rdo_lib/TemporaryResourceManager.java", compileTemporaryManager())
 		fsa.generateFile("rdo_lib/SimpleChoiceFrom.java",         compileSimpleChoiceFrom())
 		fsa.generateFile("rdo_lib/CombinationalChoiceFrom.java",  compileCommonChoiceFrom())
 		fsa.generateFile("rdo_lib/Converter.java",                compileConverter       ())
-		fsa.generateFile("rdo_lib/EventScheduler.java",           compileEventScheduler  ())
+		fsa.generateFile("rdo_lib/Event.java",                    compileEvent           ())
 		fsa.generateFile("rdo_lib/DecisionPoint.java",            compileDecisionPoint   ())
 		fsa.generateFile("rdo_lib/TerminateCondition.java",       compileTerminate       ())
 		//==================================================================================
@@ -388,7 +389,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package «filename»;
 
-		public class «evn.name» implements rdo_lib.EventScheduler
+		public class «evn.name» implements rdo_lib.Event
 		{
 			private static final String name =  "«evn.fullyQualifiedName»";
 
@@ -685,7 +686,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package «filename»;
 
-		public class «op.name» implements rdo_lib.EventScheduler
+		public class «op.name» implements rdo_lib.Event
 		{
 			private static final String name = "«filename».«op.name»";
 
@@ -1432,9 +1433,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 		import java.util.List;
 		import java.util.LinkedList;
 
-		import java.util.PriorityQueue;
-		import java.util.Comparator;
-
 		public abstract class Simulator
 		{
 			private static double time = 0;
@@ -1444,28 +1442,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 				return time;
 			}
 
-			private static Comparator<EventScheduler> comparator = new Comparator<EventScheduler>()
-			{
-				@Override
-				public int compare(EventScheduler x, EventScheduler y)
-				{
-					if (x.getTime() < y.getTime()) return -1;
-					if (x.getTime() > y.getTime()) return  1;
-					return 0;
-				}
-			};
+			private static EventScheduler eventScheduler = new EventScheduler();
 
-			private static PriorityQueue<EventScheduler> eventList = new PriorityQueue<EventScheduler>(1, comparator);
-
-			public static void pushEvent(EventScheduler event)
+			public static void pushEvent(Event event)
 			{
-				if (event.getTime() >= Simulator.time)
-					eventList.add(event);
-			}
-
-			private static EventScheduler popEvent()
-			{
-				return eventList.poll();
+				eventScheduler.pushEvent(event);
 			}
 
 			private static List<TerminateCondition> terminateList = new LinkedList<TerminateCondition>();
@@ -1497,9 +1478,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				while(checkDPT());
 
-				while(eventList.size() > 0)
+				while(eventScheduler.haveEvents())
 				{
-					EventScheduler current = popEvent();
+					Event current = eventScheduler.popEvent();
 
 					time = current.getTime();
 
@@ -1512,6 +1493,48 @@ class RDOGenerator implements IMultipleResourceGenerator
 					while(checkDPT());
 				}
 				return 0;
+			}
+		}
+		'''
+	}
+
+	def compileEventScheduler()
+	{
+		'''
+		package rdo_lib;
+
+		import java.util.PriorityQueue;
+		import java.util.Comparator;
+
+		class EventScheduler
+		{
+			private static Comparator<Event> comparator = new Comparator<Event>()
+			{
+				@Override
+				public int compare(Event x, Event y)
+				{
+					if (x.getTime() < y.getTime()) return -1;
+					if (x.getTime() > y.getTime()) return  1;
+					return 0;
+				}
+			};
+
+			private PriorityQueue<Event> eventList = new PriorityQueue<Event>(1, comparator);
+
+			void pushEvent(Event event)
+			{
+				if (event.getTime() >= Simulator.getTime())
+					eventList.add(event);
+			}
+
+			Event popEvent()
+			{
+				return eventList.poll();
+			}
+
+			boolean haveEvents()
+			{
+				return eventList.size() > 0;
 			}
 		}
 		'''
@@ -1541,12 +1564,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 	}
 
-	def compileEventScheduler()
+	def compileEvent()
 	{
 		'''
 		package rdo_lib;
 
-		public interface EventScheduler
+		public interface Event
 		{
 			public double getTime();
 			public void run();
