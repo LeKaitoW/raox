@@ -72,6 +72,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		fsa.generateFile("rdo_lib/EventScheduler.java",           compileEventScheduler  ())
 		fsa.generateFile("rdo_lib/PermanentResourceManager.java", compilePermanentManager())
 		fsa.generateFile("rdo_lib/TemporaryResourceManager.java", compileTemporaryManager())
+		fsa.generateFile("rdo_lib/DPTManager.java",               compileDPTManager      ())
 		fsa.generateFile("rdo_lib/HistogramSequence.java",        compileHistogram       ())
 		fsa.generateFile("rdo_lib/SimpleChoiceFrom.java",         compileSimpleChoiceFrom())
 		fsa.generateFile("rdo_lib/CombinationalChoiceFrom.java",  compileCommonChoiceFrom())
@@ -1305,6 +1306,37 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 	}
 
+	def compileDPTManager()
+	{
+		'''
+		package rdo_lib;
+
+		import java.util.Iterator;
+		import java.util.LinkedList;
+
+		class DPTManager
+		{
+			private LinkedList<DecisionPoint> dptList = new LinkedList<DecisionPoint>();
+
+			void addDecisionPoint(DecisionPoint dpt)
+			{
+				dptList.add(dpt);
+			}
+
+			boolean checkDPT()
+			{
+				Iterator<DecisionPoint> dptIterator = dptList.iterator();
+
+				while (dptIterator.hasNext())
+					if (dptIterator.next().checkActivities())
+						return true;
+
+				return false;
+			}
+		}
+		'''
+	}
+
 	def compileHistogram()
 	{
 		'''
@@ -1588,9 +1620,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package rdo_lib;
 
-		import java.util.Iterator;
-
-		import java.util.List;
 		import java.util.LinkedList;
 
 		public abstract class Simulator
@@ -1609,34 +1638,23 @@ class RDOGenerator implements IMultipleResourceGenerator
 				eventScheduler.pushEvent(event);
 			}
 
-			private static List<TerminateCondition> terminateList = new LinkedList<TerminateCondition>();
+			private static LinkedList<TerminateCondition> terminateList = new LinkedList<TerminateCondition>();
 
 			public static void addTerminateCondition(TerminateCondition c)
 			{
 				terminateList.add(c);
 			}
 
-			private static List<DecisionPoint> dptList = new LinkedList<DecisionPoint>();
+			private static DPTManager dptManager = new DPTManager();
 
 			public static void addDecisionPoint(DecisionPoint dpt)
 			{
-				dptList.add(dpt);
-			}
-
-			private static boolean checkDPT()
-			{
-				Iterator<DecisionPoint> dptIterator = dptList.iterator();
-
-				while (dptIterator.hasNext())
-					if (dptIterator.next().checkActivities())
-						return true;
-
-				return false;
+				dptManager.addDecisionPoint(dpt);
 			}
 
 			public static int run()
 			{
-				while(checkDPT());
+				while(dptManager.checkDPT());
 
 				while(eventScheduler.haveEvents())
 				{
@@ -1650,7 +1668,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 						if (c.check())
 							return 1;
 
-					while(checkDPT());
+					while(dptManager.checkDPT());
 				}
 				return 0;
 			}
