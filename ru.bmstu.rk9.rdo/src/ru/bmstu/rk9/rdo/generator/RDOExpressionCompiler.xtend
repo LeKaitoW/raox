@@ -199,13 +199,13 @@ class RDOExpressionCompiler
 				var call = expr.call
 
 				if (expr.functionfirst)
-					call = call + "(" + expr.args.compileExpression + ")"
+					call = call + "(" + (if (expr.args != null) expr.args.compileExpression else "") + ")"
 
 				if (expr.arrayfirst)
 					call = call + "[" + expr.iterator.compileExpression + "]"
 
 				if (expr.functionlast)
-					call = call + "(" + expr.args.compileExpression + ")"
+					call = call + "(" + (if (expr.args != null) expr.args.compileExpression else "") + ")"
 
 				if (expr.arraylast)
 					call = call + "[" + expr.iterator.compileExpression + "]"
