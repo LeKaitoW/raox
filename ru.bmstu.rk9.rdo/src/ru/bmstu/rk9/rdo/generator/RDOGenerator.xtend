@@ -35,6 +35,7 @@ import ru.bmstu.rk9.rdo.rdo.Sequence
 import ru.bmstu.rk9.rdo.rdo.EnumerativeSequence
 import ru.bmstu.rk9.rdo.rdo.RegularSequence
 import ru.bmstu.rk9.rdo.rdo.RegularSequenceType
+import ru.bmstu.rk9.rdo.rdo.HistogramSequence
 
 import ru.bmstu.rk9.rdo.rdo.Function
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter
@@ -71,6 +72,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		fsa.generateFile("rdo_lib/EventScheduler.java",           compileEventScheduler  ())
 		fsa.generateFile("rdo_lib/PermanentResourceManager.java", compilePermanentManager())
 		fsa.generateFile("rdo_lib/TemporaryResourceManager.java", compileTemporaryManager())
+		fsa.generateFile("rdo_lib/HistogramSequence.java",        compileHistogram       ())
 		fsa.generateFile("rdo_lib/SimpleChoiceFrom.java",         compileSimpleChoiceFrom())
 		fsa.generateFile("rdo_lib/CombinationalChoiceFrom.java",  compileCommonChoiceFrom())
 		fsa.generateFile("rdo_lib/Converter.java",                compileConverter       ())
@@ -236,11 +238,97 @@ class RDOGenerator implements IMultipleResourceGenerator
 					return values[current++];
 				}
 			«ENDIF»
-			
+			«IF seq.type instanceof HistogramSequence»
+				private static org.apache.commons.math3.random.MersenneTwister prng =
+					new org.apache.commons.math3.random.MersenneTwister(«(seq.type as HistogramSequence).seed»);
+
+				public static void setSeed(long seed)
+				{
+					prng.setSeed(seed);
+				}
+
+				«IF seq.returntype.compileType.endsWith("_enum")»
+				private static «seq.returntype.compileType»[] enums = new «seq.returntype.compileType»[]{«(seq.type as HistogramSequence).compileHistogramEnums»};
+				«ENDIF»
+
+				private static rdo_lib.HistogramSequence histogram = new rdo_lib.HistogramSequence(
+					new double[]{«(seq.type as HistogramSequence).compileHistogramValues»},
+					new double[]{«(seq.type as HistogramSequence).compileHistogramWeights»}
+				);
+
+				public static «seq.returntype.compileTypePrimitive» getNext()
+				{
+					double x = histogram.calculateValue(prng.nextDouble());
+
+					return «IF seq.returntype.compileType.endsWith("_enum")»enums[ (int)x ]«ELSE»(«seq.returntype.compileTypePrimitive»)x«ENDIF»;
+				}
+			«ENDIF»
 		}
 		'''
 	}
-	
+
+	def compileHistogramValues(HistogramSequence seq)
+	{
+		var ret = ""
+		var flag = false
+		val histEnum =
+			if ((seq.eContainer as Sequence).returntype.compileType.endsWith("_enum"))
+				true
+			else
+				false
+
+		if (histEnum)
+			for (i : 0 ..< seq.values.size/2 + 1)
+			{
+				ret = ret + (if (flag) ", " else "") + i.toString
+				flag = true
+			}
+		else
+		{
+			for (i : 0 ..< seq.values.size/3)
+			{
+				ret = ret + (if (flag) ", " else "") + seq.values.get(3*i).compileExpression
+				flag = true
+			}
+			ret = ret + ", " + seq.values.get(seq.values.size - 2).compileExpression
+		}
+
+		return ret
+	}
+
+	def compileHistogramWeights(HistogramSequence seq)
+	{
+		var ret = ""
+		var flag = false
+		val weightPos =
+			if ((seq.eContainer as Sequence).returntype.compileType.endsWith("_enum"))
+				2
+			else
+				3
+
+		for (i : 0 ..< seq.values.size/weightPos)
+		{
+			ret = ret + (if (flag) ", " else "") + seq.values.get(weightPos*(i + 1) - 1).compileExpression
+			flag = true
+		}
+
+		return ret
+	}
+
+	def compileHistogramEnums(HistogramSequence seq)
+	{
+		var ret = ""
+		var flag = false
+
+		for (i : 0 ..< seq.values.size/2)
+		{
+			ret = ret + (if (flag) ", " else "") + seq.values.get(i*2).compileExpression
+			flag = true
+		}
+
+		return ret
+	}		
+
 	def compileRegularSequence(RegularSequence seq, RDOType rtype)
 	{
 		switch seq.type
@@ -1212,6 +1300,65 @@ class RDOGenerator implements IMultipleResourceGenerator
 			public Collection<T> getTemporary()
 			{
 				return temporary.keySet();
+			}
+		}
+		'''
+	}
+
+	def compileHistogram()
+	{
+		'''
+		package rdo_lib;
+
+		public class HistogramSequence
+		{
+			public HistogramSequence(double[] values, double[] weights)
+			{
+				this.values = values;
+				this.weights = weights;
+
+				this.range = new double[weights.length];
+
+				calculateSum();
+				calculateRange();
+			}
+
+			private double[] values;
+			private double[] weights;
+
+			private double sum = 0;
+			private double[] range;
+
+			private void calculateSum()
+			{
+				for (int i = 0; i < weights.length; i++)
+					sum += weights[i] * (values[i + 1] - values[i]);
+			}
+
+			private void calculateRange()
+			{
+				double crange = 0;
+				for (int i = 0; i < weights.length; i++)
+				{
+					crange += (weights[i] * (values[i + 1] - values[i])) / sum;
+					range[i] = crange;
+				}
+			}
+
+			public double calculateValue(double rand)
+			{
+				double x = values[0];
+
+				for (int i = 0; i < range.length; i++)
+					if (range[i] <= rand)
+						x = values[i + 1];
+					else
+					{
+						x += (sum / weights[i]) * (rand - (i > 0 ? range[i - 1] : 0));
+						break;
+					}
+
+				return x;
 			}
 		}
 		'''
