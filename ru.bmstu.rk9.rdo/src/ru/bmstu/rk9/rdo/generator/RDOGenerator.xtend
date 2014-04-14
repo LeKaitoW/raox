@@ -163,7 +163,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				«FOR r : rs.resources»
 				«FOR c : r.allContents.filter(typeof(DecisionPoint)).toIterable»
-					new «c.fullyQualifiedName»();
+					«c.fullyQualifiedName».init();
 				«ENDFOR»
 				«ENDFOR»
 
@@ -1186,7 +1186,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 							}
 						}«ELSE»null«ENDIF»
 					);
-				static
+
+				public static void init()
 				{
 					«IF dpt instanceof DecisionPointSome || dpt instanceof DecisionPointPrior»
 					«FOR a : activities»
