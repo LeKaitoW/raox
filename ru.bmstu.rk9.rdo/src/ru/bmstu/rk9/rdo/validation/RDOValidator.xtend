@@ -3,7 +3,15 @@ package ru.bmstu.rk9.rdo.validation
 import java.util.List
 import java.util.ArrayList
 
+import com.google.inject.Inject
+
 import org.eclipse.xtext.validation.Check
+
+import org.eclipse.xtext.resource.IResourceDescription
+import org.eclipse.xtext.resource.IResourceDescriptions
+import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
+
+import org.eclipse.xtext.resource.IContainer
 
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
@@ -45,6 +53,8 @@ import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
+
+import ru.bmstu.rk9.rdo.rdo.SimulationRun
 
 import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
 
@@ -98,6 +108,37 @@ class SuchAsHistory
 
 class RDOValidator extends AbstractRDOValidator
 {
+
+	@Inject
+	private ResourceDescriptionsProvider resourceDescriptionsProvider
+
+	@Inject
+	private IContainer.Manager containerManager
+
+	@Check
+	def checkSMRCount(SimulationRun smr)
+	{
+		var index = resourceDescriptionsProvider.createResourceDescriptions() as IResourceDescriptions
+
+		var resDesc = index.getResourceDescription(smr.eResource.getURI()) as IResourceDescription
+
+		if  (resDesc == null)
+			return
+
+		var visibleContainers = containerManager.getVisibleContainers(resDesc, index) as List<IContainer> 
+
+		var ArrayList<SimulationRun> smrs = new ArrayList<SimulationRun>();
+		for (IContainer c : visibleContainers)
+			for (IResourceDescription rd : c.getResourceDescriptions())
+				smrs.addAll(smr.eResource.resourceSet.getResource(rd.getURI(), true).allContents.toIterable.filter(typeof(SimulationRun)))
+
+		if (smrs.size > 1)
+			for (e : smrs)
+				if (e.eResource == smr.eResource)
+					error("Error - project can have no more than one Simulation run block", e,
+						e.getNameStructuralFeature)
+	}
+
 	@Check
 	def checkDuplicateNamesForEntities(RDOModel model)
 	{

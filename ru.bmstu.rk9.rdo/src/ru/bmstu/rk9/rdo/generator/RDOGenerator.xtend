@@ -1,7 +1,6 @@
 package ru.bmstu.rk9.rdo.generator
 
 import java.util.List
-import java.util.HashMap
 
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
@@ -16,7 +15,6 @@ import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
 
 import ru.bmstu.rk9.rdo.customizations.IMultipleResourceGenerator
-import ru.bmstu.rk9.rdo.customizations.SMRSelectDialog
 
 import ru.bmstu.rk9.rdo.rdo.RDOModel
 
@@ -98,23 +96,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		for (resource : resources.resources)
 			simulationList.addAll(resource.allContents.filter(typeof(SimulationRun)).toIterable)
 
-		var Resource resWithSMR
-		switch simulationList.size
-		{
-			case 0:
-				resWithSMR = null
-
-			case 1:
-				resWithSMR = simulationList.get(0).eResource
-
-			default:
-			{
-				val options = new HashMap<String, Resource>()
-				for (s : simulationList)
-					options.put(s.eResource.URI.lastSegment, s.eResource)
-				resWithSMR = options.get(options.keySet.toList.get(SMRSelectDialog.invoke(options.keySet.toList)))
-			}
-		}
+		var smr = if (simulationList.size > 0) simulationList.get(0) else null;
 
 		for (resource : resources.resources)
 			if (resource.contents.head != null)
@@ -152,10 +134,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 							else "") + e.name + ".java", e.compileResult(filename))
 			}
 
-		fsa.generateFile("rdo_model/MainClass.java", compileMain(resources, resWithSMR))
+		fsa.generateFile("rdo_model/MainClass.java", compileMain(resources, smr))
 	}
 
-	def compileMain(ResourceSet rs, Resource smr)
+	def compileMain(ResourceSet rs, SimulationRun smr)
 	{
 		'''
 		package rdo_model;
@@ -170,7 +152,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				System.out.println("   Project «RDONaming.getProjectName(rs.resources.get(0).URI)»");
 				System.out.println("      Source files are «rs.resources.map[r | r.contents.head.nameGeneric].toString»\n");
 
-				«IF smr != null»«FOR c :smr.allContents.filter(typeof(SimulationRun)).head.commands»
+				«IF smr != null»«FOR c :smr.commands»
 					«c.compileStatement»
 				«ENDFOR»«ENDIF»
 
