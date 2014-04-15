@@ -362,7 +362,7 @@ EnumerativeSequence:
 ;
 
 RegularSequence:
-	type = RegularSequenceType seed = INT
+	type = RegularSequenceType seed = INT legacy ?= 'legacy'?
 ;
 
 enum RegularSequenceType
@@ -373,7 +373,7 @@ enum RegularSequenceType
 ;
 
 HistogramSequence:
-	'by_hist' seed = INT
+	'by_hist' seed = INT legacy ?= 'legacy'?
 	'$Body'
 		values += Primary+
 ;

@@ -78,6 +78,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		fsa.generateFile("rdo_lib/PermanentResourceManager.java", compilePermanentManager())
 		fsa.generateFile("rdo_lib/TemporaryResourceManager.java", compileTemporaryManager())
 		fsa.generateFile("rdo_lib/DPTManager.java",               compileDPTManager      ())
+		fsa.generateFile("rdo_lib/RDOLegacyRandom.java",          compileRDOLegacyRandom ())
 		fsa.generateFile("rdo_lib/HistogramSequence.java",        compileHistogram       ())
 		fsa.generateFile("rdo_lib/SimpleChoiceFrom.java",         compileSimpleChoiceFrom())
 		fsa.generateFile("rdo_lib/CombinationalChoiceFrom.java",  compileCommonChoiceFrom())
@@ -233,8 +234,13 @@ class RDOGenerator implements IMultipleResourceGenerator
 		public class «seq.name»
 		{
 			«IF seq.type instanceof RegularSequence»
+				«IF (seq.type as RegularSequence).legacy»
+				private static rdo_lib.RDOLegacyRandom prng =
+					new rdo_lib.RDOLegacyRandom(«(seq.type as RegularSequence).seed»);
+				«ELSE»
 				private static org.apache.commons.math3.random.MersenneTwister prng =
 					new org.apache.commons.math3.random.MersenneTwister(«(seq.type as RegularSequence).seed»);
+				«ENDIF»
 
 				public static void setSeed(long seed)
 				{
@@ -263,8 +269,13 @@ class RDOGenerator implements IMultipleResourceGenerator
 				}
 			«ENDIF»
 			«IF seq.type instanceof HistogramSequence»
+				«IF (seq.type as HistogramSequence).legacy»
+				private static rdo_lib.RDOLegacyRandom prng =
+					new rdo_lib.RDOLegacyRandom(«(seq.type as HistogramSequence).seed»);
+				«ELSE»
 				private static org.apache.commons.math3.random.MersenneTwister prng =
 					new org.apache.commons.math3.random.MersenneTwister(«(seq.type as HistogramSequence).seed»);
+				«ENDIF»
 
 				public static void setSeed(long seed)
 				{
@@ -1399,6 +1410,34 @@ class RDOGenerator implements IMultipleResourceGenerator
 						return true;
 
 				return false;
+			}
+		}
+		'''
+	}
+
+	def compileRDOLegacyRandom()
+	{
+		'''
+		package rdo_lib;
+
+		public class RDOLegacyRandom
+		{
+			private long seed = 0;
+
+			public RDOLegacyRandom(long seed)
+			{
+				this.seed = seed;
+			}
+
+			public void setSeed(long seed)
+			{
+				this.seed = seed;
+			}
+
+			public double nextDouble()
+			{
+				seed = (seed * 69069L + 1L) % 4294967296L;
+				return seed / 4294967296.0;
 			}
 		}
 		'''
