@@ -1353,7 +1353,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 			@Override
 			public Collection<T> getAll()
 			{
-				Collection<T> all = resources.values();
+				Collection<T> all = new LinkedList<T>(resources.values());
 				all.addAll(temporary.keySet());
 				return all;
 			}
