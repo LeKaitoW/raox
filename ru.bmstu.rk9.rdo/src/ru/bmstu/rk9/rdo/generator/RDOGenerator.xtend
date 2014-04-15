@@ -55,6 +55,11 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 import ru.bmstu.rk9.rdo.rdo.DecisionPointPrior
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
 
+import ru.bmstu.rk9.rdo.rdo.Results
+import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResultType
+import ru.bmstu.rk9.rdo.rdo.ResultGetValue
+
 import ru.bmstu.rk9.rdo.rdo.SimulationRun
 
 import ru.bmstu.rk9.rdo.rdo.RDOType
@@ -79,6 +84,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 		fsa.generateFile("rdo_lib/Converter.java",                compileConverter       ())
 		fsa.generateFile("rdo_lib/Event.java",                    compileEvent           ())
 		fsa.generateFile("rdo_lib/DecisionPoint.java",            compileDecisionPoint   ())
+		fsa.generateFile("rdo_lib/Result.java",                   compileResult          ())
+		fsa.generateFile("rdo_lib/ResultManager.java",            compileResultManager   ())
 		fsa.generateFile("rdo_lib/TerminateCondition.java",       compileTerminate       ())
 		//==================================================================================
 
@@ -137,6 +144,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				for (e : resource.allContents.toIterable.filter(typeof(DecisionPoint)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileDecisionPoint(filename))
+
+				for (e : resource.allContents.toIterable.filter(typeof(ResultDeclaration)))
+					fsa.generateFile(filename + "/" + (
+						if ((e.eContainer as Results).name != null)	(e.eContainer as Results).name + "_"
+							else "") + e.name + ".java", e.compileResult(filename))
 			}
 
 		fsa.generateFile("rdo_model/MainClass.java", compileMain(resources, resWithSMR))
@@ -167,6 +179,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«ENDFOR»
 				«ENDFOR»
 
+				«FOR r : rs.resources»
+				«FOR c : r.allContents.filter(typeof(ResultDeclaration)).toIterable»
+					«c.fullyQualifiedName».init();
+				«ENDFOR»
+				«ENDFOR»
+
 				System.out.println("   Started model");
 
 				int result = rdo_lib.Simulator.run();
@@ -178,6 +196,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 					System.out.println("\n   Stopped (no more events)");
 
 				System.out.println("\n   Finished model in " + String.valueOf((System.currentTimeMillis() - startTime)/1000.0) + "s");
+
+				System.out.println("\nResults:");
+				System.out.println("-------------------------------------------------------------------------------");
+				rdo_lib.Simulator.getResults();
+				System.out.println("-------------------------------------------------------------------------------");
 			}
 		}
 		'''
@@ -1221,6 +1244,49 @@ class RDOGenerator implements IMultipleResourceGenerator
 			'''
 	}
 
+	def compileResult(ResultDeclaration result, String filename)
+	{
+		'''
+		package «filename»;
+
+		public class «IF (result.eContainer as Results).name != null»«(result.eContainer as Results).name
+			»_«ENDIF»«result.name»
+		{
+			private static rdo_lib.Result result = new rdo_lib.Result()
+				{
+					«result.type.compileResultBody»
+				};
+
+			public static void init()
+			{
+				rdo_lib.Simulator.addResult(result);
+			}
+		}
+		'''
+	}
+
+	def compileResultBody (ResultType type)
+	{
+		switch type
+		{
+			ResultGetValue:
+				'''
+				@Override
+				public void update() {}
+
+				@Override
+				public void get()
+				{
+					System.out.println("«(type.eContainer as ResultDeclaration).name»\t\t|\tType: get_value\t\t|\tValue: " +
+						«type.expression.compileExpression»);
+				}
+				'''
+			default:
+				'''
+				'''
+		}
+	}
+
 	def compilePermanentManager()
 	{
 		'''
@@ -1653,6 +1719,18 @@ class RDOGenerator implements IMultipleResourceGenerator
 				dptManager.addDecisionPoint(dpt);
 			}
 
+			private static ResultManager resultManager = new ResultManager();
+
+			public static void addResult(Result result)
+			{
+				resultManager.addResult(result);
+			}	
+
+			public static void getResults()
+			{
+				resultManager.getResults();
+			}
+
 			public static int run()
 			{
 				while(dptManager.checkDPT());
@@ -1819,6 +1897,44 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				return false;
 			}
+		}
+		'''
+	}
+
+	def compileResultManager()
+	{
+		'''
+		package rdo_lib;
+
+		import java.util.LinkedList;
+
+		class ResultManager
+		{
+			private LinkedList<Result> results = new LinkedList<Result>();
+
+			void addResult(Result result)
+			{
+				results.add(result);
+			}
+
+			void getResults()
+			{
+				for (Result r : results)
+					r.get();
+			}
+		}
+		'''
+	}
+
+	def compileResult()
+	{
+		'''
+		package rdo_lib;
+
+		public interface Result
+		{
+			public void update();
+			public void get();
 		}
 		'''
 	}

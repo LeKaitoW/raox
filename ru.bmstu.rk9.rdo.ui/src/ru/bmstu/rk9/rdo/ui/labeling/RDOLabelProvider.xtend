@@ -204,8 +204,8 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	// Results
 	def  text(Results r) {
-		"Results : " + (if (r.name != null) {r.name + " : "} else "") +
-			r.eAllContents.toList.filter(typeof(ResultDeclaration)).size.toString + " positions" }
+		"Results : " + (if (r.name != null) {r.name + " "} else "") + "(" +
+			r.eAllContents.toList.filter(typeof(ResultDeclaration)).size.toString + ")" }
 	def image(Results r) { "clipboard.gif" }
 
 	def  text(ResultDeclaration d) { d.name + " : " + resultype(d)}

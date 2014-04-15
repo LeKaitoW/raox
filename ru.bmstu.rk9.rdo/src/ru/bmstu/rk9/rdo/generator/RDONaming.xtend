@@ -171,7 +171,8 @@ class RDONaming
 
 			ResultDeclaration:
 				return object.eContainer.eContainer.nameGeneric + "." +
-					object.eContainer.nameGeneric + "." + object.name
+					(if (object.eContainer.nameGeneric != "*null*")
+						(object.eContainer.nameGeneric + "_") else "") + object.name
 
 			default:
 				return "ERROR"
