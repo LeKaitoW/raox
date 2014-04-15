@@ -40,7 +40,7 @@ import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
 import ru.bmstu.rk9.rdo.rdo.DecisionPointPrior
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
-import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivities
+import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
 
 import ru.bmstu.rk9.rdo.rdo.Process
@@ -162,7 +162,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	}
 
 	// Decision points
-	def image(DecisionPointSearchActivities d) { "script_block.gif" }
+	def image(DecisionPointSearchActivity d) { "script_block.gif" }
 	def image(DecisionPointActivity d) { "script_block.gif" }
 
 	// DecisionPointSome

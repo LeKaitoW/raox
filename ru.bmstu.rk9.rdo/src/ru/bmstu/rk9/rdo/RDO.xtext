@@ -255,15 +255,15 @@ DecisionPointSearch:
 	('$Parent' parent = [DecisionPoint|FQN])?
 	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
 	 '$Term_condition' termination = ExpressionOr
-	 '$Evaluate_by' evaluateby = ExpressionOr // что тут с контекстом?
+	 '$Evaluate_by' evaluateby = ExpressionOr
 	 '$Compare_tops' '=' ((comparetops ?= 'YES') | 'NO')
 	 '$Activities'
-		activities += DecisionPointSearchActivities+
+		activities += DecisionPointSearchActivity+
 	 '$End'
 ;
 
-DecisionPointSearchActivities:
-	name = ID ':' pattern = [Pattern|ID] parameters += Primary*
+DecisionPointSearchActivity:
+	name = ID ':' pattern = [Rule|FQN] parameters += Primary*
 	('value before' valuebefore = ExpressionOr
 	|'value after'  valueafter = ExpressionOr)
 ;
@@ -780,6 +780,7 @@ Atomic returns Expression
 	| {StringConstant} value = STRING
 	| {BoolConstant}   value = BOOL
 	| {GroupExpression} type = BuiltInLogical '(' arg = GroupBy ')'
+	| {SelectExpression} 'Select' '(' arg = GroupBy ')' '.' method = SelectMethod '(' (arg2 = ExpressionOr | 'NoCheck'?) ')'
 	| ArrayValues
 	| VariableIncDecExpression
 ;
@@ -795,9 +796,18 @@ enum BuiltInLogical
 	| NOTFORALL = 'Not_For_All'
 ;
 
+enum SelectMethod
+	: EXIST = 'Exist'
+	| NOTEXIST = 'Not_Exist'
+	| FORALL = 'For_All'
+	| NOTFORALL = 'Not_For_All'
+	| EMPTY = 'Empty'
+	| SIZE = 'Size'
+;
+
 GroupBy:
-	type = [ResourceType|ID] ':'
-		(condition = Expression | 'NoCheck')
+	type = [ResourceType|FQN] ':'
+		(condition = ExpressionOr | 'NoCheck')
 ;
 
 VariableIncDecExpression
