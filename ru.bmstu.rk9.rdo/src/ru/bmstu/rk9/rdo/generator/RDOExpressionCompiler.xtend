@@ -56,6 +56,7 @@ import ru.bmstu.rk9.rdo.rdo.DoubleConstant
 import ru.bmstu.rk9.rdo.rdo.StringConstant
 import ru.bmstu.rk9.rdo.rdo.BoolConstant
 import ru.bmstu.rk9.rdo.rdo.GroupExpression
+import ru.bmstu.rk9.rdo.rdo.SelectExpression
 import ru.bmstu.rk9.rdo.rdo.ArrayValues
 import ru.bmstu.rk9.rdo.rdo.VariableIncDecExpression
 import ru.bmstu.rk9.rdo.rdo.VariableMethodCallExpression
@@ -171,7 +172,36 @@ class RDOExpressionCompiler
 				return expr.value.toString
 
 			GroupExpression:
-				return "groupby"
+				return
+					'''
+					rdo_lib.Select.«expr.type.literal»(
+						«expr.arg.type.fullyQualifiedName».getManager().getAll(),
+						new rdo_lib.Select.Checker<«expr.arg.type.fullyQualifiedName»>()
+						{
+							@Override
+							public boolean check(«expr.arg.type.fullyQualifiedName» current)
+							{
+								return «IF expr.arg.condition == null»true«ELSE»«expr.arg.condition.compileExpression»«ENDIF»;
+							}
+						}
+					)
+					'''
+
+			SelectExpression:
+				return
+					'''
+					rdo_lib.Select.«expr.method.literal»(
+						«expr.arg.type.fullyQualifiedName».getManager().getAll(),
+						new rdo_lib.Select.Checker<«expr.arg.type.fullyQualifiedName»>()
+						{
+							@Override
+							public boolean check(«expr.arg.type.fullyQualifiedName» current)
+							{
+								return «IF expr.arg.condition == null»true«ELSE»«expr.arg.condition.compileExpression»«ENDIF»«IF expr.arg2 != null» && «expr.arg2.compileExpression»«ENDIF»;
+							}
+						}
+					)
+					'''
 
 			ArrayValues:
 				return "[" + expr.values.compileExpression + "]"
