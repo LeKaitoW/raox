@@ -1272,7 +1272,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				public void get()
 				{
 					System.out.println("«(type.eContainer as ResultDeclaration).name»\t\t|\tType: get_value\t\t|\tValue: " +
-						«type.expression.compileExpression»);
+						(«type.expression.compileExpression»));
 				}
 				'''
 			default:

@@ -184,8 +184,7 @@ class RDOExpressionCompiler
 								return «IF expr.arg.condition == null»true«ELSE»«expr.arg.condition.compileExpression»«ENDIF»;
 							}
 						}
-					)
-					'''
+					)'''
 
 			SelectExpression:
 				return
@@ -200,8 +199,7 @@ class RDOExpressionCompiler
 								return «IF expr.arg.condition == null»true«ELSE»«expr.arg.condition.compileExpression»«ENDIF»«IF expr.arg2 != null» && «expr.arg2.compileExpression»«ENDIF»;
 							}
 						}
-					)
-					'''
+					)'''
 
 			ArrayValues:
 				return "[" + expr.values.compileExpression + "]"
