@@ -1199,7 +1199,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 							@Override
 							public boolean check()
 							{
-								return true;
+								return «dpt.condition.compileExpression»;
 							}
 						}«ELSE»null«ENDIF»
 					);
@@ -1938,7 +1938,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				public boolean check();
 			}
 
-			private Condition condition;
+			protected Condition condition;
 
 			public DecisionPoint(String name, DecisionPoint parent, Double priority, Condition condition)
 			{
