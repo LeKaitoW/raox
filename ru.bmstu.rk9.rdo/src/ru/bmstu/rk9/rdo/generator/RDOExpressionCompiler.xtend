@@ -106,9 +106,14 @@ class RDOExpressionCompiler
 		{
 			PatternChoiceFrom:
 			{
-				for (e : expr.logic.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
+				for (e : expr.logic.eAllContents.toSet.filter(typeof(VariableMethodCallExpression)))
+				{
 					if (e.calls.size == 2 && relreslist.contains(e.calls.get(0).call) && e.calls.get(0).call != relres)
 						e.calls.get(0).setCall("pattern." + e.calls.get(0).call)
+
+					if (e.calls.size == 2 && relreslist.contains(e.calls.get(0).call))
+						e.calls.get(1).setCall("get_" + e.calls.get(1).call + "()")
+				}
 
 				return expr.logic.compileExpression
 			}
@@ -124,9 +129,15 @@ class RDOExpressionCompiler
 				for (e : expr.expression.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
 				{
 					if (e.calls.size == 2 && relreslist.contains(e.calls.get(0).call) && e.calls.get(0).call != relres)
+					{
 						e.calls.get(0).setCall("@PAT." + e.calls.get(0).call)
+						e.calls.get(1).setCall("get_" + e.calls.get(1).call + "()")
+					}
 					if (e.calls.size == 2 && e.calls.get(0).call == relres)
+					{
 						e.calls.get(0).setCall("@RES")
+						e.calls.get(1).setCall("get_" + e.calls.get(1).call + "()")
+					}
 				}
 				var ret = expr.expression.compileExpression
 
@@ -175,7 +186,7 @@ class RDOExpressionCompiler
 				return
 					'''
 					rdo_lib.Select.«expr.type.literal»(
-						«expr.arg.type.fullyQualifiedName».getManager().getAll(),
+						«expr.arg.type.fullyQualifiedName».getAll(),
 						new rdo_lib.Select.Checker<«expr.arg.type.fullyQualifiedName»>()
 						{
 							@Override
@@ -190,7 +201,7 @@ class RDOExpressionCompiler
 				return
 					'''
 					rdo_lib.Select.«expr.method.literal»(
-						«expr.arg.type.fullyQualifiedName».getManager().getAll(),
+						«expr.arg.type.fullyQualifiedName».getAll(),
 						new rdo_lib.Select.Checker<«expr.arg.type.fullyQualifiedName»>()
 						{
 							@Override

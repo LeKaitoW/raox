@@ -73,6 +73,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 		//===== rdo_lib ====================================================================
 		fsa.generateFile("rdo_lib/Simulator.java",                compileLibSimulator    ())
 		fsa.generateFile("rdo_lib/EventScheduler.java",           compileEventScheduler  ())
+		fsa.generateFile("rdo_lib/PermanentResource.java",        compilePermanentRes    ())
+		fsa.generateFile("rdo_lib/TemporaryResource.java",        compileTemporaryRes    ())
 		fsa.generateFile("rdo_lib/PermanentResourceManager.java", compilePermanentManager())
 		fsa.generateFile("rdo_lib/TemporaryResourceManager.java", compileTemporaryManager())
 		fsa.generateFile("rdo_lib/DPTManager.java",               compileDPTManager      ())
@@ -402,14 +404,78 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package «filename»;
 
-		public class «rtp.name»
+		public class «rtp.name» implements rdo_lib.«rtp.type.literal.withFirstUpper»Resource
 		{
-			private final static rdo_lib.«rtp.type.literal.withFirstUpper
-				»ResourceManager<«rtp.name»> manager = new rdo_lib.«rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»>();
-
-			public static rdo_lib.«rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»> getManager()
+			private static rdo_lib.«rtp.type.literal.withFirstUpper
+				»ResourceManager<«rtp.name»> managerCurrent = new rdo_lib.«rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»>();
+			«IF instances.size > 0»
+			static
 			{
-				return manager;
+				«FOR i : instances»
+				(new «rtp.name»(«if (i.parameters != null) i.parameters.compileExpression else ""»)).register("«i.name»");
+				«ENDFOR»
+			}
+			«ENDIF»
+
+			private String name;
+
+			@Override
+			public String getName()
+			{
+				return name;
+			}
+
+			«IF rtp.type.literal == "temporary"»
+			private Integer number = null;
+
+			@Override
+			public Integer getNumber()
+			{
+				return number;
+			}
+
+			«ENDIF»
+			public void register(String name)
+			{
+				this.name = name;
+				managerCurrent.addResource(this);
+			}
+
+			«IF rtp.type.literal == "temporary"»
+			public void register()
+			{
+				this.number = managerCurrent.getNextNumber();
+				managerCurrent.addResource(this);
+			}
+
+			«ENDIF»
+			public static «rtp.name» getResource(String name)
+			{
+				return managerCurrent.getResource(name);
+			}
+
+			public static java.util.Collection<«rtp.name»> getAll()
+			{
+				return managerCurrent.getAll();
+			}
+
+			«IF rtp.type.literal == "temporary"»
+			public static java.util.Collection<«rtp.name»> getTemporary()
+			{
+				return managerCurrent.getTemporary();
+			}
+
+			public static void eraseResource(«rtp.name» res)
+			{
+				managerCurrent.eraseResource(res);
+			}
+
+			«ENDIF»
+			private rdo_lib.«rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»> managerOwner = managerCurrent;
+
+			public static void setCurrentManager(rdo_lib.«rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»> manager)
+			{
+				managerCurrent = manager;
 			}
 
 			«IF rtp.eAllContents.filter(typeof(RDOEnum)).toList.size > 0»// ENUMS«ENDIF»
@@ -421,8 +487,42 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			«ENDFOR»
 			«FOR parameter : rtp.parameters»
-				public «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
+				private «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
+
+				public «parameter.type.compileType» get_«parameter.name»()
+				{
+					return «parameter.name»;
+				}
+
+				public void set_«parameter.name»(«parameter.type.compileType» «parameter.name»)
+				{
+					if (managerOwner == managerCurrent)
+						this.«parameter.name» = «parameter.name»;
+					else
+						this.copyForNewOwner().«parameter.name» = «parameter.name»;
+				}
+
 			«ENDFOR»
+				private «rtp.name» copyForNewOwner()
+				{
+					«rtp.name» copy = new «rtp.name»(«rtp.parameters.compileResourceTypeParametersCopyCall»);
+					if (name != null)
+					{
+						copy.name = name;
+						managerCurrent.addResource(copy);
+						return copy;	
+					}
+					«IF rtp.type.literal == "temporary"»
+					if (number != null)
+					{
+						copy.number = number;
+						managerCurrent.addResource(copy);
+						return copy;
+					}
+					«ENDIF»
+					return null;
+				}
+
 
 			public «rtp.name»(«rtp.parameters.compileResourceTypeParameters»)
 			{
@@ -431,17 +531,18 @@ class RDOGenerator implements IMultipleResourceGenerator
 						this.«parameter.name» = «parameter.name»;
 				«ENDFOR»
 			}
-			«FOR r : instances»
-
-				public static final «rtp.name» «r.name» = new «rtp.name»(«
-					if (r.parameters != null) r.parameters.compileExpression else ""»);
-				static
-				{
-					«rtp.name».getManager().addResource("«r.name»", «r.name»);
-				}
-			«ENDFOR»
 		}
 		'''
+	}
+
+	def compileResourceTypeParametersCopyCall(List<ResourceTypeParameter> parameters)
+	{
+		'''«IF parameters.size > 0»«
+			parameters.get(0).name»«
+			FOR parameter : parameters.subList(1, parameters.size)», «
+				parameter.name»«
+			ENDFOR»«
+		ENDIF»'''
 	}
 
 	def makeEnumBody(RDOEnum e)
@@ -513,7 +614,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				{
 					«FOR r : evn.relevantresources»
 						«IF r.type instanceof ResourceDeclaration»
-							«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName».«(r.type as ResourceDeclaration).name»;
+							«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName».getResource("«(r.type as ResourceDeclaration).name»");
 						«ELSE»
 							«IF r.rule.literal == "Create"»
 								«r.name» = new «r.type.fullyQualifiedName»(«(r.type as ResourceType).parameters.size.compileAllDefault»);
@@ -574,7 +675,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 					// add resources
 					«FOR r : evn.relevantresources.filter[t |t.rule.literal == "Create"]»
-						«(r.type as ResourceType).fullyQualifiedName».getManager().addResource(staticResources.«r.name»);
+						staticResources.«r.name».register();
 					«ENDFOR»
 
 				«ENDIF»
@@ -604,7 +705,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 					«IF r.type instanceof ResourceType»
 						public «r.type.fullyQualifiedName» «r.name»;
 					«ELSE»
-						public «(r.type as ResourceDeclaration).reference.fullyQualifiedName» «r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName».«(r.type as ResourceDeclaration).name»;
+						public «(r.type as ResourceDeclaration).reference.fullyQualifiedName» «r.name»;
 					«ENDIF»
 				«ENDFOR»
 
@@ -621,8 +722,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				public void clear()
 				{
-					«FOR r : rule.relevantresources.filter[res | res.type instanceof ResourceType && res.rule.literal != "Create"]»
+					«FOR r : rule.relevantresources.filter[res | res.rule.literal != "Create"]»
+					«IF r.type instanceof ResourceDeclaration»
+						this.«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName».getResource("«(r.type as ResourceDeclaration).name»");
+					«ELSE»
 						this.«r.name» = null;
+					«ENDIF»
 					«ENDFOR»
 				}
 			}
@@ -687,28 +792,36 @@ class RDOGenerator implements IMultipleResourceGenerator
 				);
 				static
 				{
-				«FOR rc : rule.algorithms.filter[r | r.relres.type instanceof ResourceType && r.relres.rule.literal != "Create"]»
+				«FOR rc : rule.algorithms.filter[r | r.relres.rule.literal != "Create"]»
 					choice.addFinder
 					(
-						new rdo_lib.CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.fullyQualifiedName»>
+						new rdo_lib.CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.relResFullyQualifiedName»>
 						(
-							new rdo_lib.CombinationalChoiceFrom.Retriever<«rc.relres.type.fullyQualifiedName»>()
+							new rdo_lib.CombinationalChoiceFrom.Retriever<«rc.relres.type.relResFullyQualifiedName»>()
 							{
 								@Override
-								public java.util.Collection<«rc.relres.type.fullyQualifiedName»> getResources()
+								public java.util.Collection<«rc.relres.type.relResFullyQualifiedName»> getResources()
 								{
-									return «rc.relres.type.fullyQualifiedName».getManager().get«
+									«IF rc.relres.type instanceof ResourceDeclaration»
+									java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»> singlelist =
+										new java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»>();
+									singlelist.add(«rc.relres.type.relResFullyQualifiedName».getResource("«
+										(rc.relres.type as ResourceDeclaration).name»"));
+									return singlelist;
+									«ELSE»
+									return «rc.relres.type.relResFullyQualifiedName».get«
 										IF rc.relres.rule.literal == "Erase"»Temporary«ELSE»All«ENDIF»();
+									«ENDIF»
 								}
 							},
-							new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName»>
+							new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName»>
 							(
-								«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.fullyQualifiedName, rc.relres.name, rc.relres.type.fullyQualifiedName)»,
+								«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.relResFullyQualifiedName, rc.relres.name, rc.relres.type.relResFullyQualifiedName)»,
 								null
 							),
-							new rdo_lib.CombinationalChoiceFrom.Setter<RelevantResources, «rc.relres.type.fullyQualifiedName»>()
+							new rdo_lib.CombinationalChoiceFrom.Setter<RelevantResources, «rc.relres.type.relResFullyQualifiedName»>()
 							{
-								public void set(RelevantResources set, «rc.relres.type.fullyQualifiedName» resource)
+								public void set(RelevantResources set, «rc.relres.type.relResFullyQualifiedName» resource)
 								{
 									set.«rc.relres.name» = resource;
 								}
@@ -720,15 +833,23 @@ class RDOGenerator implements IMultipleResourceGenerator
 				}
 
 			«ELSE»
-			«FOR rc : rule.algorithms.filter[r | r.relres.type instanceof ResourceType && r.relres.rule.literal != "Create"]»
+			«FOR rc : rule.algorithms.filter[r | r.relres.rule.literal != "Create"]»
+			«IF rc.relres.type instanceof ResourceDeclaration»
+			// just checker «rc.relres.name»
+			private static rdo_lib.SimpleChoiceFrom.Checker<RelevantResources, «rc.relres.type.relResFullyQualifiedName»> «
+				rc.relres.name»Checker = «rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.relResFullyQualifiedName,
+						rc.relres.name, rc.relres.type.relResFullyQualifiedName)»;
+
+			«ELSE»
 			// choice «rc.relres.name»
-			private static rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName»> «rc.relres.name»Choice =
-				new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName»>
+			private static rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName»> «rc.relres.name»Choice =
+				new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName»>
 				(
-					«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.fullyQualifiedName, rc.relres.name, rc.relres.type.fullyQualifiedName)»,
-					«rc.choicemethod.compileChoiceMethod(rule.name, rc.relres.type.fullyQualifiedName)»
+					«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.relResFullyQualifiedName, rc.relres.name, rc.relres.type.relResFullyQualifiedName)»,
+					«rc.choicemethod.compileChoiceMethod(rule.name, rc.relres.type.relResFullyQualifiedName)»
 				);
 
+			«ENDIF»
 			«ENDFOR»
 			«ENDIF»
 
@@ -753,13 +874,19 @@ class RDOGenerator implements IMultipleResourceGenerator
 					return false;
 
 				«ELSE»
-				«FOR rc : rule.algorithms.filter[r | r.relres.type instanceof ResourceType && r.relres.rule.literal != "Create"]»
-					staticResources.«rc.relres.name» = «rc.relres.name»Choice.find(staticResources, «rc.relres.type.fullyQualifiedName».getManager().get«
+				«FOR rc : rule.algorithms.filter[r | r.relres.rule.literal != "Create"]»
+				«IF rc.relres.type instanceof ResourceDeclaration»
+					if (!«rc.relres.name»Checker.check(staticResources, staticResources.«rc.relres.name»))
+						return false;
+
+				«ELSE»
+					staticResources.«rc.relres.name» = «rc.relres.name»Choice.find(staticResources, «rc.relres.type.fullyQualifiedName».get«
 						IF rc.relres.rule.literal == "Erase"»Temporary«ELSE»All«ENDIF»());
 
 					if (staticResources.«rc.relres.name» == null)
 						return false;
 
+				«ENDIF»
 				«ENDFOR»
 				«ENDIF»
 				RelevantResources matched = staticResources.copy();
@@ -771,14 +898,14 @@ class RDOGenerator implements IMultipleResourceGenerator
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 					«ENDFOR»
 					«FOR r : rule.relevantresources.filter[t |t.rule.literal == "Create"]»
-						«(r.type as ResourceType).fullyQualifiedName».getManager().addResource(matched.«r.name»);
+						matched.«r.name».register();
 					«ENDFOR»
 
 				«ENDIF»
 				«IF rule.relevantresources.filter[t | t.rule.literal == "Erase"].size > 0»
 					// erase resources
 					«FOR r : rule.relevantresources.filter[t |t.rule.literal == "Erase"]»
-						«(r.type as ResourceType).fullyQualifiedName».getManager().eraseResource(matched.«r.name»);
+						«(r.type as ResourceType).fullyQualifiedName».eraseResource(matched.«r.name»);
 					«ENDFOR»
 
 				«ENDIF»
@@ -805,7 +932,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 					«IF r.type instanceof ResourceType»
 						public «r.type.fullyQualifiedName» «r.name»;
 					«ELSE»
-						public «(r.type as ResourceDeclaration).reference.fullyQualifiedName» «r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName».«(r.type as ResourceDeclaration).name»;
+						public «(r.type as ResourceDeclaration).reference.fullyQualifiedName» «r.name»;
 					«ENDIF»
 				«ENDFOR»
 
@@ -822,8 +949,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				public void clear()
 				{
-					«FOR r : op.relevantresources.filter[res | res.type instanceof ResourceType && res.begin.literal != "Create" && res.end.literal != "Create"]»
+					«FOR r : op.relevantresources.filter[res | res.begin.literal != "Create" && res.end.literal != "Create"]»
+					«IF r.type instanceof ResourceDeclaration»
+						this.«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName».getResource("«(r.type as ResourceDeclaration).name»");
+					«ELSE»
 						this.«r.name» = null;
+					«ENDIF»
 					«ENDFOR»
 				}
 			}
@@ -888,8 +1019,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				);
 				static
 				{
-				«FOR rc : op.algorithms.filter[r | r.relres.type instanceof ResourceType &&
-						r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
+				«FOR rc : op.algorithms.filter[r | r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
 					choice.addFinder
 					(
 						new rdo_lib.CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.fullyQualifiedName»>
@@ -899,8 +1029,16 @@ class RDOGenerator implements IMultipleResourceGenerator
 								@Override
 								public java.util.Collection<«rc.relres.type.fullyQualifiedName»> getResources()
 								{
-									return «rc.relres.type.fullyQualifiedName».getManager().get«
+									«IF rc.relres.type instanceof ResourceDeclaration»
+									java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»> singlelist =
+										new java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»>();
+									singlelist.add(«rc.relres.type.relResFullyQualifiedName».getResource("«
+										(rc.relres.type as ResourceDeclaration).name»"));
+									return singlelist;
+									«ELSE»
+									return «rc.relres.type.relResFullyQualifiedName».get«
 										IF rc.relres.begin.literal == "Erase" || rc.relres.end.literal == "Erase"»Temporary«ELSE»All«ENDIF»();
+									«ENDIF»
 								}
 							},
 							new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName»>
@@ -922,16 +1060,23 @@ class RDOGenerator implements IMultipleResourceGenerator
 				}
 
 			«ELSE»
-			«FOR rc : op.algorithms.filter[r | r.relres.type instanceof ResourceType &&
-				r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
+			«FOR rc : op.algorithms.filter[r | r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
+			«IF rc.relres.type instanceof ResourceDeclaration»
+			// just checker «rc.relres.name»
+			private static rdo_lib.SimpleChoiceFrom.Checker<RelevantResources, «rc.relres.type.relResFullyQualifiedName»> «
+				rc.relres.name»Checker = «rc.choicefrom.compileChoiceFrom(op, rc.relres.type.relResFullyQualifiedName,
+						rc.relres.name, rc.relres.type.relResFullyQualifiedName)»;
+
+			«ELSE»
 			// choice «rc.relres.name»
-			private static rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName»> «rc.relres.name»Choice =
-				new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName»>
+			private static rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName»> «rc.relres.name»Choice =
+				new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName»>
 				(
-					«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.fullyQualifiedName, rc.relres.name, rc.relres.type.fullyQualifiedName)»,
-					«rc.choicemethod.compileChoiceMethod(op.name, rc.relres.type.fullyQualifiedName)»
+					«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.relResFullyQualifiedName, rc.relres.name, rc.relres.type.relResFullyQualifiedName)»,
+					«rc.choicemethod.compileChoiceMethod(op.name, rc.relres.type.relResFullyQualifiedName)»
 				);
 
+			«ENDIF»
 			«ENDFOR»
 			«ENDIF»
 
@@ -968,14 +1113,19 @@ class RDOGenerator implements IMultipleResourceGenerator
 					return false;
 
 				«ELSE»
-				«FOR rc : op.algorithms.filter[r | r.relres.type instanceof ResourceType &&
-					r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
-					staticResources.«rc.relres.name» = «rc.relres.name»Choice.find(staticResources, «rc.relres.type.fullyQualifiedName».getManager().get«
+				«FOR rc : op.algorithms.filter[r | r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
+				«IF rc.relres.type instanceof ResourceDeclaration»
+					if (!«rc.relres.name»Checker.check(staticResources, staticResources.«rc.relres.name»))
+						return false;
+
+				«ELSE»
+					staticResources.«rc.relres.name» = «rc.relres.name»Choice.find(staticResources, «rc.relres.type.fullyQualifiedName».get«
 						IF rc.relres.begin.literal == "Erase" || rc.relres.end.literal == "Erase"»Temporary«ELSE»All«ENDIF»());
 
 					if (staticResources.«rc.relres.name» == null)
 						return false;
 
+				«ENDIF»
 				«ENDFOR»
 				«ENDIF»
 				RelevantResources matched = staticResources.copy();
@@ -987,14 +1137,14 @@ class RDOGenerator implements IMultipleResourceGenerator
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 					«ENDFOR»
 					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Create"]»
-						«(r.type as ResourceType).fullyQualifiedName».getManager().addResource(matched.«r.name»);
+						matched.«r.name».register();
 					«ENDFOR»
 
 				«ENDIF»
 				«IF op.relevantresources.filter[t | t.begin.literal == "Erase" || t.end.literal == "Erase"].size > 0»
 					// erase resources
 					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Erase" || t.end.literal == "Erase"]»
-						«(r.type as ResourceType).fullyQualifiedName».getManager().eraseResource(matched.«r.name»);
+						«(r.type as ResourceType).fullyQualifiedName».eraseResource(matched.«r.name»);
 					«ENDFOR»
 
 				«ENDIF»
@@ -1023,7 +1173,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 					«ENDFOR»
 					«FOR r : op.relevantresources.filter[t |t.end.literal == "Create"]»
-						«(r.type as ResourceType).fullyQualifiedName».getManager().addResource(instanceResources.«r.name»);
+						instanceResources.«r.name».register();
 					«ENDFOR»
 
 				«ENDIF»
@@ -1289,13 +1439,13 @@ class RDOGenerator implements IMultipleResourceGenerator
 		import java.util.Map;
 		import java.util.HashMap;
 
-		public class PermanentResourceManager<T>
+		public class PermanentResourceManager<T extends PermanentResource>
 		{
 			protected Map<String, T> resources = new HashMap<String, T>();
 
-			public void addResource(String name, T res)
+			public void addResource(T res)
 			{
-				resources.put(name, res);
+				resources.put(res.getName(), res);
 			}
 
 			public T getResource(String name)
@@ -1316,52 +1466,56 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package rdo_lib;
 
-		import java.util.Map;
-		import java.util.HashMap;
-
-		import java.util.Queue;
-		import java.util.LinkedList;
-
 		import java.util.Collection;
 
-		public class TemporaryResourceManager<T> extends PermanentResourceManager<T>
-		{
-			private Map<T, Integer> temporary = new HashMap<T, Integer>();
+		import java.util.ArrayList;
+		import java.util.LinkedList;
 
-			private Queue<Integer> vacantList = new LinkedList<Integer>();
+		public class TemporaryResourceManager<T extends TemporaryResource> extends PermanentResourceManager<T>
+		{
+			private ArrayList<T> temporary = new ArrayList<T>();
+
+			private LinkedList<Integer> vacantList = new LinkedList<Integer>();
 			private int currentLast = 0;
 
+			public int getNextNumber()
+			{
+				if (vacantList.size() > 0)
+					return vacantList.poll();
+				else
+					return currentLast++;
+			}
+
+			@Override
 			public void addResource(T res)
 			{
-				if (temporary.containsKey(res))
-					return;
+				if (res.getName() != null)
+					super.addResource(res);
 
-				int number;
-				if (vacantList.size() > 0)
-					number = vacantList.poll();
-				else
-					number = currentLast++;
-
-				temporary.put(res, number);
+				if (res.getNumber() != null)
+					if (res.getNumber() == temporary.size())
+						temporary.add(res);
+					else
+						temporary.set(res.getNumber(), res);
 			}
 
 			public void eraseResource(T res)
 			{
-				vacantList.add(temporary.get(res));
-				temporary.remove(res);
+				vacantList.add(res.getNumber());
+				temporary.set(res.getNumber(), null);
 			}
 
 			@Override
 			public Collection<T> getAll()
 			{
 				Collection<T> all = new LinkedList<T>(resources.values());
-				all.addAll(temporary.keySet());
+				all.addAll(temporary);
 				return all;
 			}
 
 			public Collection<T> getTemporary()
 			{
-				return temporary.keySet();
+				return temporary;
 			}
 		}
 		'''
@@ -1623,7 +1777,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				for (Iterator<T> iterator = reslist.iterator(); iterator.hasNext();)
 				{
 					res = iterator.next();
-					if (checker.check(pattern, res))
+					if (res != null && checker.check(pattern, res))
 						if (matchingList instanceof LinkedList)
 							return res;
 						else
@@ -1878,6 +2032,30 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				return eventList.size() > 0;
 			}
+		}
+		'''
+	}
+
+	def compilePermanentRes()
+	{
+		'''
+		package rdo_lib;
+
+		public interface PermanentResource
+		{
+			public String getName();
+		}
+		'''
+	}
+
+	def compileTemporaryRes()
+	{
+		'''
+		package rdo_lib;
+
+		public interface TemporaryResource extends PermanentResource
+		{
+			public Integer getNumber();
 		}
 		'''
 	}

@@ -17,6 +17,8 @@ import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
+import ru.bmstu.rk9.rdo.rdo.META_RelResType
+
 import ru.bmstu.rk9.rdo.rdo.Sequence
 
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
@@ -177,6 +179,14 @@ class RDONaming
 			default:
 				return "ERROR"
 		}
+	}
+
+	def static relResFullyQualifiedName(META_RelResType relres)
+	{
+		if (relres instanceof ResourceDeclaration)
+			return (relres as ResourceDeclaration).reference.fullyQualifiedName
+		else
+			return relres.fullyQualifiedName
 	}
 
 	def static getContextQualifiedName(EObject object, EObject context)
