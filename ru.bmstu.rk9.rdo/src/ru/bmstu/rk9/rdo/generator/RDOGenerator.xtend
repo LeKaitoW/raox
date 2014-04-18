@@ -2464,6 +2464,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 			@Override
 			public boolean check()
 			{
+				if (terminate.check())
+					return false;
+
 				nodesOpen.clear();
 				nodesClosed.clear();
 
