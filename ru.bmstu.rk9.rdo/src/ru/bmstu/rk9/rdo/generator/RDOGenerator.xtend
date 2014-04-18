@@ -75,6 +75,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		fsa.generateFile("rdo_lib/EventScheduler.java",           compileEventScheduler  ())
 		fsa.generateFile("rdo_lib/PermanentResource.java",        compilePermanentRes    ())
 		fsa.generateFile("rdo_lib/TemporaryResource.java",        compileTemporaryRes    ())
+		fsa.generateFile("rdo_lib/ResourceComparison.java",       compileResComparison   ())
 		fsa.generateFile("rdo_lib/PermanentResourceManager.java", compilePermanentManager())
 		fsa.generateFile("rdo_lib/TemporaryResourceManager.java", compileTemporaryManager())
 		fsa.generateFile("rdo_lib/DPTManager.java",               compileDPTManager      ())
@@ -404,7 +405,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package «filename»;
 
-		public class «rtp.name» implements rdo_lib.«rtp.type.literal.withFirstUpper»Resource
+		public class «rtp.name» implements rdo_lib.«rtp.type.literal.withFirstUpper»Resource, rdo_lib.ResourceComparison<«rtp.name»>
 		{
 			private static rdo_lib.«rtp.type.literal.withFirstUpper
 				»ResourceManager<«rtp.name»> managerCurrent = new rdo_lib.«rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»>();
@@ -503,26 +504,25 @@ class RDOGenerator implements IMultipleResourceGenerator
 				}
 
 			«ENDFOR»
-				private «rtp.name» copyForNewOwner()
+			private «rtp.name» copyForNewOwner()
+			{
+				«rtp.name» copy = new «rtp.name»(«rtp.parameters.compileResourceTypeParametersCopyCall»);
+				if (name != null)
 				{
-					«rtp.name» copy = new «rtp.name»(«rtp.parameters.compileResourceTypeParametersCopyCall»);
-					if (name != null)
-					{
-						copy.name = name;
-						managerCurrent.addResource(copy);
-						return copy;	
-					}
-					«IF rtp.type.literal == "temporary"»
-					if (number != null)
-					{
-						copy.number = number;
-						managerCurrent.addResource(copy);
-						return copy;
-					}
-					«ENDIF»
-					return null;
+					copy.name = name;
+					managerCurrent.addResource(copy);
+					return copy;	
 				}
-
+				«IF rtp.type.literal == "temporary"»
+				if (number != null)
+				{
+					copy.number = number;
+					managerCurrent.addResource(copy);
+					return copy;
+				}
+				«ENDIF»
+				return null;
+			}
 
 			public «rtp.name»(«rtp.parameters.compileResourceTypeParameters»)
 			{
@@ -530,6 +530,17 @@ class RDOGenerator implements IMultipleResourceGenerator
 					if («parameter.name» != null)
 						this.«parameter.name» = «parameter.name»;
 				«ENDFOR»
+			}
+
+			@Override
+			public boolean checkEqual(«rtp.name» other)
+			{
+				«FOR parameter : rtp.parameters»
+					if (this.«parameter.name» != other.«parameter.name»)
+						return false;
+				«ENDFOR»
+
+				return true;
 			}
 		}
 		'''
@@ -1436,12 +1447,13 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package rdo_lib;
 
-		import java.util.Map;
+		import java.util.Iterator;
+
 		import java.util.HashMap;
 
-		public class PermanentResourceManager<T extends PermanentResource>
+		public class PermanentResourceManager<T extends PermanentResource & ResourceComparison<T>>
 		{
-			protected Map<String, T> resources = new HashMap<String, T>();
+			protected HashMap<String, T> resources;
 
 			public void addResource(T res)
 			{
@@ -1457,6 +1469,40 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				return resources.values();
 			}
+
+			public PermanentResourceManager()
+			{
+				this.resources = new HashMap<String, T>();
+			}
+
+			private PermanentResourceManager(PermanentResourceManager<T> source)
+			{
+				this.resources = new HashMap<String, T>(source.resources);
+			}
+
+			public PermanentResourceManager<T> copy()
+			{
+				return new PermanentResourceManager<T>(this);
+			}
+
+			public boolean checkEqual(PermanentResourceManager<T> other)
+			{
+				if (resources.values().size() != other.resources.values().size())
+					System.out.println("Runtime error: resource set in manager was altered");
+
+				Iterator<T> itThis = resources.values().iterator();
+				Iterator<T> itOther = other.resources.values().iterator();
+
+				for (int i = 0; i < resources.values().size(); i++)
+				{
+					T resThis = itThis.next();
+					T resOther = itOther.next();
+
+					if (resThis != resOther && !resThis.checkEqual(resOther))
+						return false;
+				}
+				return true;
+			}
 		}
 		'''
 	}
@@ -1471,12 +1517,14 @@ class RDOGenerator implements IMultipleResourceGenerator
 		import java.util.ArrayList;
 		import java.util.LinkedList;
 
-		public class TemporaryResourceManager<T extends TemporaryResource> extends PermanentResourceManager<T>
-		{
-			private ArrayList<T> temporary = new ArrayList<T>();
+		import java.util.HashMap;
 
-			private LinkedList<Integer> vacantList = new LinkedList<Integer>();
-			private int currentLast = 0;
+		public class TemporaryResourceManager<T extends TemporaryResource & ResourceComparison<T>> extends PermanentResourceManager<T>
+		{
+			private ArrayList<T> temporary;
+
+			private LinkedList<Integer> vacantList;
+			private Integer currentLast;
 
 			public int getNextNumber()
 			{
@@ -1516,6 +1564,45 @@ class RDOGenerator implements IMultipleResourceGenerator
 			public Collection<T> getTemporary()
 			{
 				return temporary;
+			}
+
+			public TemporaryResourceManager()
+			{
+				this.resources = new HashMap<String, T>();
+				this.temporary = new ArrayList<T>();
+				this.vacantList = new LinkedList<Integer>();
+				this.currentLast = 0;
+			}
+
+			private TemporaryResourceManager(TemporaryResourceManager<T> source)
+			{
+				this.resources = new HashMap<String, T>(source.resources);
+				this.temporary = new ArrayList<T>(source.temporary);
+			}
+
+			@Override
+			public TemporaryResourceManager<T> copy()
+			{
+				return new TemporaryResourceManager<T>(this);
+			}
+
+			public boolean checkEqual(TemporaryResourceManager<T> other)
+			{
+				if (!super.checkEqual(this))
+					return false;
+
+				if (temporary.size() != other.temporary.size())
+					System.out.println("Runtime error: temporary resource set in manager was altered");
+
+				for (int i = 0; i < temporary.size(); i++)
+				{
+					T resThis = temporary.get(i);
+					T resOther = other.temporary.get(i);
+
+					if (resThis != resOther && !resThis.checkEqual(resOther))
+						return false;
+				}
+				return true;
 			}
 		}
 		'''
@@ -2056,6 +2143,18 @@ class RDOGenerator implements IMultipleResourceGenerator
 		public interface TemporaryResource extends PermanentResource
 		{
 			public Integer getNumber();
+		}
+		'''
+	}
+
+	def compileResComparison()
+	{
+		'''
+		package rdo_lib;
+
+		public interface ResourceComparison<T>
+		{
+			public boolean checkEqual(T other);
 		}
 		'''
 	}
