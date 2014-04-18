@@ -131,8 +131,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 				for (e : resource.allContents.toIterable.filter(typeof(Event)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileEvent(filename))
 
-				for (e : resource.allContents.toIterable.filter(typeof(DecisionPoint)))
-					fsa.generateFile(filename + "/" + e.name + ".java", e.compileDecisionPoint(filename))
+				for (e : resource.allContents.toIterable.filter[d |
+						d instanceof DecisionPointSome || d instanceof DecisionPointPrior])
+					fsa.generateFile(filename + "/" + (e as DecisionPoint).name + ".java",
+						(e as DecisionPoint).compileDecisionPoint(filename))
 
 				for (e : resource.allContents.toIterable.filter(typeof(ResultDeclaration)))
 					fsa.generateFile(filename + "/" + (
@@ -1432,7 +1434,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			public class «dpt.name»
 			{
-				«IF dpt instanceof DecisionPointSome || dpt instanceof DecisionPointPrior»
 				«FOR i : 0 ..< activities.size»
 				«IF activities.get(i).parameters.size == parameters.get(i).size»
 				private static «activities.get(i).pattern.fullyQualifiedName».Parameters «activities.get(i).name» =
@@ -1440,7 +1441,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«ENDIF»
 				«ENDFOR»
 
-				«ENDIF»
 				private static rdo_lib.DecisionPoint dpt =
 					new rdo_lib.DecisionPoint
 					(
@@ -1460,7 +1460,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				public static void init()
 				{
-					«IF dpt instanceof DecisionPointSome || dpt instanceof DecisionPointPrior»
 					«FOR a : activities»
 						dpt.addActivity(
 							new rdo_lib.DecisionPoint.Activity()
@@ -1486,7 +1485,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 						);
 					«ENDFOR»
 
-					«ENDIF»
 					rdo_lib.Simulator.addDecisionPoint(dpt);
 				}
 
