@@ -854,9 +854,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			private Parameters parameters;
 
-			private «rule.name»(double time, RelevantResources resources, Parameters parameters)
+			private «rule.name»(RelevantResources resources, Parameters parameters)
 			{
-				this.time = time;
 				this.instanceResources = resources;
 				this.parameters = parameters;
 			}
