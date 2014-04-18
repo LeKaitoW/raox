@@ -442,7 +442,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		}
 
 		return ret
-	}		
+	}
 
 	def compileRegularSequence(RegularSequence seq, RDOType rtype)
 	{
@@ -597,7 +597,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				{
 					copy.name = name;
 					managerCurrent.addResource(copy);
-					return copy;	
+					return copy;
 				}
 				«IF rtp.type.literal == "temporary"»
 				if (number != null)
@@ -962,7 +962,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 						}
 					};
 
-			public static boolean tryRule(Parameters parameters)
+			public static boolean findResources(Parameters parameters)
 			{
 				staticResources.clear();
 
@@ -986,6 +986,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«ENDIF»
 				«ENDFOR»
 				«ENDIF»
+				return true;
+			}
+
+			public static void executeRule(Parameters parameters)
+			{
 				RelevantResources matched = staticResources.copy();
 
 				«IF rule.relevantresources.filter[t | t.rule.literal == "Create"].size > 0»
@@ -1007,8 +1012,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				«ENDIF»
 				rule.run(matched, parameters);
-
-				return true;
 			}
 		}
 		'''
@@ -1201,7 +1204,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 						}
 					};
 
-			public static boolean tryRule(Parameters parameters)
+			public static boolean findResources(Parameters parameters)
 			{
 				staticResources.clear();
 
@@ -1225,6 +1228,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«ENDIF»
 				«ENDFOR»
 				«ENDIF»
+				return true;
+			}
+
+			public static void executeRule(Parameters parameters)
+			{
 				RelevantResources matched = staticResources.copy();
 
 				«IF op.relevantresources.filter[t | t.begin.literal == "Create"].size > 0»
@@ -1248,8 +1256,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 				begin.run(matched, parameters);
 
 				rdo_lib.Simulator.pushEvent(new «op.name»(rdo_lib.Simulator.getTime() + «op.time.compileExpression», matched, parameters));
-
-				return true;
 			}
 
 			private double time;
@@ -1467,7 +1473,13 @@ class RDOGenerator implements IMultipleResourceGenerator
 								@Override
 								public boolean checkActivity()
 								{
-									return («a.pattern.fullyQualifiedName».tryRule(«a.name»));
+									return «a.pattern.fullyQualifiedName».findResources(«a.name»);
+								}
+
+								@Override
+								public void executeActivity()
+								{
+									«a.pattern.fullyQualifiedName».executeRule(«a.name»);
 								}
 							}
 						);
@@ -1730,7 +1742,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				Iterator<DecisionPoint> dptIterator = dptList.iterator();
 
 				while (dptIterator.hasNext())
-					if (dptIterator.next().checkActivities())
+					if (dptIterator.next().check())
 						return true;
 
 				return false;
@@ -2150,7 +2162,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 			public static void addResult(Result result)
 			{
 				resultManager.addResult(result);
-			}	
+			}
 
 			public static void getResults()
 			{
@@ -2335,10 +2347,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 				return priority;
 			}
 
-			public static interface Activity
+			public static abstract class Activity
 			{
-				public String getName();
-				public boolean checkActivity();
+				public abstract String getName();
+				public abstract boolean checkActivity();
+				public abstract void executeActivity();
 			}
 
 			private List<Activity> activities = new LinkedList<Activity>();
@@ -2348,14 +2361,22 @@ class RDOGenerator implements IMultipleResourceGenerator
 				activities.add(a);
 			}
 
-			public boolean checkActivities()
+			public boolean check()
 			{
 				if (condition != null && !condition.check())
 					return false;
 
+				return checkActivities();
+			}
+
+			private boolean checkActivities()
+			{
 				for (Activity a : activities)
 					if (a.checkActivity())
+					{
+						a.executeActivity();
 						return true;
+					}
 
 				return false;
 			}
