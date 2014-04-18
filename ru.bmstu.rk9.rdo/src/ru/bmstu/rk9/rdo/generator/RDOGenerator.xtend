@@ -152,7 +152,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package rdo_model;
 
-		class «project»_database implements rdo_lib.Database<«project»_database>
+		public class «project»_database implements rdo_lib.Database<«project»_database>
 		{
 			«FOR r : rs.resources»
 				«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
