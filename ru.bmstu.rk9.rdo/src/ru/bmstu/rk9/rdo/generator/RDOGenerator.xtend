@@ -52,6 +52,7 @@ import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 import ru.bmstu.rk9.rdo.rdo.DecisionPointPrior
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
+import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
 
 import ru.bmstu.rk9.rdo.rdo.Results
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
@@ -135,6 +136,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 						d instanceof DecisionPointSome || d instanceof DecisionPointPrior])
 					fsa.generateFile(filename + "/" + (e as DecisionPoint).name + ".java",
 						(e as DecisionPoint).compileDecisionPoint(filename))
+
+				for (e : resource.allContents.toIterable.filter(typeof(DecisionPointSearch)))
+					fsa.generateFile(filename + "/" + e.name + ".java",	e.compileDecisionPointSearch(filename))
 
 				for (e : resource.allContents.toIterable.filter(typeof(ResultDeclaration)))
 					fsa.generateFile(filename + "/" + (
@@ -1493,6 +1497,98 @@ class RDOGenerator implements IMultipleResourceGenerator
 				}
 			}
 			'''
+	}
+
+`	def compileDecisionPointSearch(DecisionPointSearch dpt, String filename)
+	{
+		val activities = dpt.activities
+		val parameters = activities.map[a | a.pattern.parameters]
+
+		return
+		'''
+			package «filename»;
+
+			public class «dpt.name»
+			{
+				«FOR i : 0 ..< activities.size»
+				«IF activities.get(i).parameters.size == parameters.get(i).size»
+				private static «activities.get(i).pattern.fullyQualifiedName».Parameters «activities.get(i).name» =
+					new «activities.get(i).pattern.fullyQualifiedName».Parameters(«activities.get(i).compileExpression»);
+				«ENDIF»
+				«ENDFOR»
+
+				private static rdo_lib.DecisionPointSearch<rdo_model.«dpt.modelRoot.nameGeneric»_database> dpt =
+					new rdo_lib.DecisionPointSearch<rdo_model.«dpt.modelRoot.nameGeneric»_database>
+					(
+						"«dpt.fullyQualifiedName»",
+						«IF dpt.condition != null
+						»new rdo_lib.DecisionPoint.Condition()
+						{
+							@Override
+							public boolean check()
+							{
+								return «dpt.condition.compileExpression»;
+							}
+						}«ELSE»null«ENDIF»,
+						new rdo_lib.DecisionPoint.Condition()
+						{
+							@Override
+							public boolean check()
+							{
+								return «dpt.termination.compileExpression»;
+							}
+						},
+						«IF dpt.comparetops»true«ELSE»false«ENDIF»,
+						new rdo_lib.DecisionPointSearch.DatabaseRetriever<rdo_model.«dpt.modelRoot.nameGeneric»_database>()
+						{
+							@Override
+							public rdo_model.«dpt.modelRoot.nameGeneric»_database get()
+							{
+								return rdo_model.«dpt.modelRoot.nameGeneric»_database.getCurrent();
+							}
+						}
+					);
+
+				public static void init()
+				{
+					«FOR a : activities»
+						dpt.addActivity(
+							new rdo_lib.DecisionPointSearch.Activity(«IF a.valueafter != null
+								»rdo_lib.DecisionPointSearch.Activity.ApplyMoment.after«
+								ELSE»rdo_lib.DecisionPointSearch.Activity.ApplyMoment.before«ENDIF»)
+							{
+								@Override
+								public String getName()
+								{
+									return "«filename».«a.name»";
+								}
+
+								@Override
+								public boolean checkActivity()
+								{
+									return «a.pattern.fullyQualifiedName».findResources(«a.name»);
+								}
+
+								@Override
+								public void executeActivity()
+								{
+									«a.pattern.fullyQualifiedName».executeRule(«a.name»);
+								}
+
+								@Override
+								public double calculateValue()
+								{
+									return «IF a.valueafter != null»«a.valueafter.compileExpression
+										»«ELSE»«a.valuebefore.compileExpression»«ENDIF»;
+								}
+							}
+						);
+					«ENDFOR»
+
+					rdo_lib.Simulator.addDecisionPoint(dpt);
+				}
+			}
+		'''
 	}
 
 	def compileResult(ResultDeclaration result, String filename)

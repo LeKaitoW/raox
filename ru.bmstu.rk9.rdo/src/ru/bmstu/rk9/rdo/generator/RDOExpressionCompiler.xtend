@@ -24,6 +24,7 @@ import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.OperationConvert
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
+import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivity
 
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.RDOReal
@@ -351,6 +352,20 @@ class RDOExpressionCompiler
 			}
 			
 			DecisionPointActivity:
+			{
+				var String list = ""
+				var flag = false
+
+				for (e : expr.parameters)
+				{
+					list = list + ( if(flag) ", " else "" ) +
+						e.compileExpression
+					flag = true
+				}
+				return list
+			}
+
+			DecisionPointSearchActivity:
 			{
 				var String list = ""
 				var flag = false
