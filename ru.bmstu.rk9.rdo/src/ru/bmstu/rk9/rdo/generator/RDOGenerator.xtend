@@ -78,6 +78,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		fsa.generateFile("rdo_lib/ResourceComparison.java",       compileResComparison   ())
 		fsa.generateFile("rdo_lib/PermanentResourceManager.java", compilePermanentManager())
 		fsa.generateFile("rdo_lib/TemporaryResourceManager.java", compileTemporaryManager())
+		fsa.generateFile("rdo_lib/Database.java",                 compileDatabase        ())
 		fsa.generateFile("rdo_lib/DPTManager.java",               compileDPTManager      ())
 		fsa.generateFile("rdo_lib/Select.java",                   compileSelect          ())
 		fsa.generateFile("rdo_lib/RDOLegacyRandom.java",          compileRDOLegacyRandom ())
@@ -138,7 +139,98 @@ class RDOGenerator implements IMultipleResourceGenerator
 							else "") + e.name + ".java", e.compileResult(filename))
 			}
 
+		fsa.generateFile("rdo_model/" + RDONaming.getProjectName(resources.resources.get(0).URI) +"_database.java",
+			compileDatabase(resources, RDONaming.getProjectName(resources.resources.get(0).URI)))
 		fsa.generateFile("rdo_model/MainClass.java", compileMain(resources, smr))
+	}
+
+	def compileDatabase(ResourceSet rs, String project)
+	{
+		'''
+		package rdo_model;
+
+		class «project»_database implements rdo_lib.Database<«project»_database>
+		{
+			«FOR r : rs.resources»
+				«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
+					rdo_lib.«IF rtp.type.literal == 'temporary'»Temporary«ELSE»Permanent«ENDIF
+						»ResourceManager<«rtp.fullyQualifiedName»> «r.allContents.head.nameGeneric
+							»_«rtp.name»_manager;
+				«ENDFOR»
+			«ENDFOR»
+
+			private static «project»_database current;
+
+			public static void init()
+			{
+				(new «project»_database()).deploy();
+
+				«FOR r : rs.resources»
+					«FOR rtp : r.allContents.filter(typeof(ResourceDeclaration)).toIterable»
+						(new «rtp.reference.fullyQualifiedName»(«if (rtp.parameters != null)
+							rtp.parameters.compileExpression else ""»)).register("«rtp.name»");
+					«ENDFOR»
+				«ENDFOR»
+			}
+
+			public static «project»_database getCurrent()
+			{
+				return current;
+			}
+
+			private «project»_database()
+			{
+				«FOR r : rs.resources»
+					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
+						this.«r.allContents.head.nameGeneric»_«rtp.name»_manager = new rdo_lib.«
+							IF rtp.type.literal == 'temporary'»Temporary«ELSE»Permanent«ENDIF
+								»ResourceManager<«rtp.fullyQualifiedName»>();
+					«ENDFOR»
+				«ENDFOR»
+			}
+
+			private «project»_database(«project»_database other)
+			{
+				«FOR r : rs.resources»
+					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
+						this.«r.allContents.head.nameGeneric»_«rtp.name»_manager = other.«r.allContents.head.nameGeneric»_«rtp.name»_manager.copy();
+					«ENDFOR»
+				«ENDFOR»
+			}
+
+			@Override
+			public void deploy()
+			{
+				current = this;
+
+				«FOR r : rs.resources»
+					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
+						«rtp.fullyQualifiedName».setCurrentManager(«r.allContents.head.nameGeneric»_«rtp.name»_manager);
+					«ENDFOR»
+				«ENDFOR»
+			}
+
+			@Override
+			public «project»_database copy()
+			{
+				return new «project»_database(this);
+			}
+
+			@Override
+			public boolean checkEqual(«project»_database other)
+			{
+				«FOR r : rs.resources»
+					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
+						if (!this.«r.allContents.head.nameGeneric»_«rtp.name»_manager.checkEqual(other.«
+							r.allContents.head.nameGeneric»_«rtp.name»_manager))
+							return false;
+					«ENDFOR»
+				«ENDFOR»
+
+				return true;
+			}
+		}
+		'''
 	}
 
 	def compileMain(ResourceSet rs, SimulationRun smr)
@@ -155,6 +247,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 				System.out.println(" === RDO-Simulator ===\n");
 				System.out.println("   Project «RDONaming.getProjectName(rs.resources.get(0).URI)»");
 				System.out.println("      Source files are «rs.resources.map[r | r.contents.head.nameGeneric].toString»\n");
+
+				«RDONaming.getProjectName(rs.resources.get(0).URI)»_database.init();
 
 				«IF smr != null»«FOR c :smr.commands»
 					«c.compileStatement»
@@ -408,15 +502,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		public class «rtp.name» implements rdo_lib.«rtp.type.literal.withFirstUpper»Resource, rdo_lib.ResourceComparison<«rtp.name»>
 		{
 			private static rdo_lib.«rtp.type.literal.withFirstUpper
-				»ResourceManager<«rtp.name»> managerCurrent = new rdo_lib.«rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»>();
-			«IF instances.size > 0»
-			static
-			{
-				«FOR i : instances»
-				(new «rtp.name»(«if (i.parameters != null) i.parameters.compileExpression else ""»)).register("«i.name»");
-				«ENDFOR»
-			}
-			«ENDIF»
+				»ResourceManager<«rtp.name»> managerCurrent;
 
 			private String name;
 
@@ -1604,6 +1690,20 @@ class RDOGenerator implements IMultipleResourceGenerator
 				}
 				return true;
 			}
+		}
+		'''
+	}
+
+	def compileDatabase()
+	{
+		'''
+		package rdo_lib;
+
+		public interface Database<T>
+		{
+			public void deploy();
+			public T copy();
+			public boolean checkEqual(T other);
 		}
 		'''
 	}
