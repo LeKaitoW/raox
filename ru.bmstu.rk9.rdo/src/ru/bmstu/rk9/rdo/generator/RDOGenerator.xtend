@@ -1499,7 +1499,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 			'''
 	}
 
-`	def compileDecisionPointSearch(DecisionPointSearch dpt, String filename)
+	def compileDecisionPointSearch(DecisionPointSearch dpt, String filename)
 	{
 		val activities = dpt.activities
 		val parameters = activities.map[a | a.pattern.parameters]
