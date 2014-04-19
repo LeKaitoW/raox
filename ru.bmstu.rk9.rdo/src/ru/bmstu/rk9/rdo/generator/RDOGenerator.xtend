@@ -1770,6 +1770,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				this.resources = new HashMap<String, T>(source.resources);
 				this.temporary = new ArrayList<T>(source.temporary);
+				this.vacantList = source.vacantList;
+				this.currentLast = source.currentLast;
 			}
 
 			@Override
