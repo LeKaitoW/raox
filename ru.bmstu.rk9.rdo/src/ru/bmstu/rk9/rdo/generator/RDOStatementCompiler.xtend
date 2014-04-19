@@ -86,7 +86,7 @@ class RDOStatementCompiler
 				for (e : st.statements.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
 					for (c : e.calls)
 						if (paramlist.contains(c.call) && e.calls.size == 1)
-							c.setCall(st.relres.name + '.' + c.call)
+							c.setCall('resources.' + st.relres.name + '.' + c.call)
 
 				return
 					'''
