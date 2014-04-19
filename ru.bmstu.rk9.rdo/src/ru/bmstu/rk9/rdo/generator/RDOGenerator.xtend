@@ -2671,7 +2671,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 						newChild.g = parent.g + value;
 
-						children.add(newChild);
+						if(!newChild.state.checkEqual(parent.state))
+							children.add(newChild);
 
 						parent.state.deploy();
 					}
