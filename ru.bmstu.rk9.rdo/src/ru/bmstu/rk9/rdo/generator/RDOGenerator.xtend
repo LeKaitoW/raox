@@ -2530,6 +2530,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				super(name, null, null, condition);
 				this.terminate = terminate;
 				this.retriever = retriever;
+				this.compareTops = compareTops;
 			}
 
 			public static abstract class Activity extends DecisionPoint.Activity
