@@ -1377,7 +1377,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 						if («cm.compileForPattern»)
 							return -1;
 						else
-							return  1;
+							return 1;
 					}
 				}'''
 		}
@@ -2330,8 +2330,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 				@Override
 				public int compare(Event x, Event y)
 				{
-					if (x.getTime() < y.getTime()) return -1;
-					if (x.getTime() > y.getTime()) return  1;
+					if (x.getTime() < y.getTime())
+						return -1;
+					if (x.getTime() > y.getTime())
+						return 1;
 					return 0;
 				}
 			};
@@ -2574,8 +2576,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 				@Override
 				public int compare(GraphNode x, GraphNode y)
 				{
-					if (x.g + x.h < y.g + y.h) return -1;
-					if (x.g + x.h > y.g + y.h) return  1;
+					if (x.g + x.h < y.g + y.h)
+						return -1;
+					if (x.g + x.h > y.g + y.h)
+						return 1;
 					return 0;
 				}
 			};
