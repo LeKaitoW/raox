@@ -16,6 +16,8 @@ import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
 
 import ru.bmstu.rk9.rdo.rdo.ResourceExpressionList
 
+import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceFrom
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
 import ru.bmstu.rk9.rdo.rdo.Rule
@@ -395,6 +397,8 @@ class RDOExpressionCompiler
 			RDORTPParameterSuchAs: type.type.compileType
 			RDORTPParameterEnum  : type.type.compileType
 			RDORTPParameterArray : type.type.compileType
+
+			ConstantDeclaration: type.type.compileType
 
 			RDOInteger: "Integer"
 			RDOReal   : "Double"
