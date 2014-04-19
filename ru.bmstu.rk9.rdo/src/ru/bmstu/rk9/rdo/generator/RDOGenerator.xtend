@@ -1534,7 +1534,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 			public class «dpt.name»
 			{
 				«FOR i : 0 ..< activities.size»
-				«IF activities.get(i).parameters.size == parameters.get(i).size»
+				«IF (activities.get(i).parameters != null && activities.get(i).parameters.size == parameters.get(i).size) ||
+					(activities.get(i).parameters == null && activities.get(i).pattern.parameters == null)»
 				private static «activities.get(i).pattern.fullyQualifiedName».Parameters «activities.get(i).name» =
 					new «activities.get(i).pattern.fullyQualifiedName».Parameters(«activities.get(i).compileExpression»);
 				«ENDIF»

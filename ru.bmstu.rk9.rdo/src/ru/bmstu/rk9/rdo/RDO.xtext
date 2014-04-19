@@ -263,13 +263,13 @@ DecisionPointSearch:
 ;
 
 DecisionPointSearchActivity:
-	name = ID ':' pattern = [Rule|FQN] parameters += Primary*
+	name = ID ':' pattern = [Rule|FQN] ('(' parameters += ExpressionOr (',' parameters += ExpressionOr)* ')')?
 	('value before' valuebefore = ExpressionOr
-	|'value after'  valueafter = ExpressionOr)
+	|'value after'  valueafter = ExpressionOr) ';'
 ;
 
 DecisionPointActivity:
-	name = ID ':' pattern = [META_DecisionPointActivity|FQN] parameters += Primary*
+	name = ID ':' pattern = [META_DecisionPointActivity|FQN] ('(' parameters += ExpressionOr (',' parameters += ExpressionOr)* ')')? ';'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
