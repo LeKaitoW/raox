@@ -888,8 +888,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 			}
 
 			«IF rule.combinational != null»
-			static private rdo_lib.CombinationalChoiceFrom<RelevantResources> choice =
-				new rdo_lib.CombinationalChoiceFrom<RelevantResources>
+			static private rdo_lib.CombinationalChoiceFrom<RelevantResources, Parameters> choice =
+				new rdo_lib.CombinationalChoiceFrom<RelevantResources, Parameters>
 				(
 					staticResources,
 					«rule.combinational.compileChoiceMethod("RelevantResources", "RelevantResources")»,
@@ -921,7 +921,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«FOR rc : rule.algorithms.filter[r | r.relres.rule.literal != "Create"]»
 					choice.addFinder
 					(
-						new rdo_lib.CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.relResFullyQualifiedName»>
+						new rdo_lib.CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
 						(
 							new rdo_lib.CombinationalChoiceFrom.Retriever<«rc.relres.type.relResFullyQualifiedName»>()
 							{
@@ -940,7 +940,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 									«ENDIF»
 								}
 							},
-							new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName»>
+							new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
 							(
 								«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.relResFullyQualifiedName, rc.relres.name, rc.relres.type.relResFullyQualifiedName)»,
 								null
@@ -962,14 +962,14 @@ class RDOGenerator implements IMultipleResourceGenerator
 			«FOR rc : rule.algorithms.filter[r | r.relres.rule.literal != "Create"]»
 			«IF rc.relres.type instanceof ResourceDeclaration»
 			// just checker «rc.relres.name»
-			private static rdo_lib.SimpleChoiceFrom.Checker<RelevantResources, «rc.relres.type.relResFullyQualifiedName»> «
+			private static rdo_lib.SimpleChoiceFrom.Checker<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «
 				rc.relres.name»Checker = «rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.relResFullyQualifiedName,
 						rc.relres.name, rc.relres.type.relResFullyQualifiedName)»;
 
 			«ELSE»
 			// choice «rc.relres.name»
-			private static rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName»> «rc.relres.name»Choice =
-				new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName»>
+			private static rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «rc.relres.name»Choice =
+				new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
 				(
 					«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.relResFullyQualifiedName, rc.relres.name, rc.relres.type.relResFullyQualifiedName)»,
 					«rc.choicemethod.compileChoiceMethod(rule.name, rc.relres.type.relResFullyQualifiedName)»
@@ -996,18 +996,18 @@ class RDOGenerator implements IMultipleResourceGenerator
 				staticResources.clear();
 
 				«IF rule.combinational != null»
-				if (!choice.find())
+				if (!choice.find(parameters))
 					return false;
 
 				«ELSE»
 				«FOR rc : rule.algorithms.filter[r | r.relres.rule.literal != "Create"]»
 				«IF rc.relres.type instanceof ResourceDeclaration»
-					if (!«rc.relres.name»Checker.check(staticResources, staticResources.«rc.relres.name»))
+					if (!«rc.relres.name»Checker.check(staticResources, staticResources.«rc.relres.name», parameters))
 						return false;
 
 				«ELSE»
 					staticResources.«rc.relres.name» = «rc.relres.name»Choice.find(staticResources, «rc.relres.type.fullyQualifiedName».get«
-						IF rc.relres.rule.literal == "Erase"»Temporary«ELSE»All«ENDIF»());
+						IF rc.relres.rule.literal == "Erase"»Temporary«ELSE»All«ENDIF»(), parameters);
 
 					if (staticResources.«rc.relres.name» == null)
 						return false;
@@ -1118,8 +1118,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 			}
 
 			«IF op.combinational != null»
-			static private rdo_lib.CombinationalChoiceFrom<RelevantResources> choice =
-				new rdo_lib.CombinationalChoiceFrom<RelevantResources>
+			static private rdo_lib.CombinationalChoiceFrom<RelevantResources, Parameters> choice =
+				new rdo_lib.CombinationalChoiceFrom<RelevantResources, Parameters>
 				(
 					staticResources,
 					«op.combinational.compileChoiceMethod("RelevantResources", "RelevantResources")»,
@@ -1151,7 +1151,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«FOR rc : op.algorithms.filter[r | r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
 					choice.addFinder
 					(
-						new rdo_lib.CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.fullyQualifiedName»>
+						new rdo_lib.CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.fullyQualifiedName», Parameters>
 						(
 							new rdo_lib.CombinationalChoiceFrom.Retriever<«rc.relres.type.fullyQualifiedName»>()
 							{
@@ -1170,7 +1170,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 									«ENDIF»
 								}
 							},
-							new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName»>
+							new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName», Parameters>
 							(
 								«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.fullyQualifiedName, rc.relres.name, rc.relres.type.fullyQualifiedName)»,
 								null
@@ -1192,14 +1192,14 @@ class RDOGenerator implements IMultipleResourceGenerator
 			«FOR rc : op.algorithms.filter[r | r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
 			«IF rc.relres.type instanceof ResourceDeclaration»
 			// just checker «rc.relres.name»
-			private static rdo_lib.SimpleChoiceFrom.Checker<RelevantResources, «rc.relres.type.relResFullyQualifiedName»> «
+			private static rdo_lib.SimpleChoiceFrom.Checker<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «
 				rc.relres.name»Checker = «rc.choicefrom.compileChoiceFrom(op, rc.relres.type.relResFullyQualifiedName,
 						rc.relres.name, rc.relres.type.relResFullyQualifiedName)»;
 
 			«ELSE»
 			// choice «rc.relres.name»
-			private static rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName»> «rc.relres.name»Choice =
-				new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName»>
+			private static rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «rc.relres.name»Choice =
+				new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
 				(
 					«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.relResFullyQualifiedName, rc.relres.name, rc.relres.type.relResFullyQualifiedName)»,
 					«rc.choicemethod.compileChoiceMethod(op.name, rc.relres.type.relResFullyQualifiedName)»
@@ -1238,18 +1238,18 @@ class RDOGenerator implements IMultipleResourceGenerator
 				staticResources.clear();
 
 				«IF op.combinational != null»
-				if (!choice.find())
+				if (!choice.find(parameters))
 					return false;
 
 				«ELSE»
 				«FOR rc : op.algorithms.filter[r | r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
 				«IF rc.relres.type instanceof ResourceDeclaration»
-					if (!«rc.relres.name»Checker.check(staticResources, staticResources.«rc.relres.name»))
+					if (!«rc.relres.name»Checker.check(staticResources, staticResources.«rc.relres.name», parameters))
 						return false;
 
 				«ELSE»
 					staticResources.«rc.relres.name» = «rc.relres.name»Choice.find(staticResources, «rc.relres.type.fullyQualifiedName».get«
-						IF rc.relres.begin.literal == "Erase" || rc.relres.end.literal == "Erase"»Temporary«ELSE»All«ENDIF»());
+						IF rc.relres.begin.literal == "Erase" || rc.relres.end.literal == "Erase"»Temporary«ELSE»All«ENDIF»(), parameters);
 
 					if (staticResources.«rc.relres.name» == null)
 						return false;
@@ -1349,10 +1349,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 		return
 			'''
-			new rdo_lib.SimpleChoiceFrom.Checker<RelevantResources, «resource»>()
+			new rdo_lib.SimpleChoiceFrom.Checker<RelevantResources, «resource», Parameters>()
 			{
 				@Override
-				public boolean check(RelevantResources pattern, «resource» «relres»)
+				public boolean check(RelevantResources pattern, «resource» «relres», Parameters parameters)
 				{
 					return «IF havecf»(«cf.compileForPattern»)«ELSE»true«ENDIF»«FOR i : 0 ..< relreslist.size»«
 						IF relres != relreslist.get(i) && relrestype == relrestypes.get(i)»
@@ -1369,7 +1369,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		{
 			return
 				'''
-				new rdo_lib.SimpleChoiceFrom.ChoiceMethod<RelevantResources, «resource»>()
+				new rdo_lib.SimpleChoiceFrom.ChoiceMethod<RelevantResources, «resource», Parameters>()
 				{
 					@Override
 					public int compare(«resource» x, «resource» y)
@@ -2034,27 +2034,29 @@ class RDOGenerator implements IMultipleResourceGenerator
 		import java.util.PriorityQueue;
 		import java.util.Comparator;
 
-		public class SimpleChoiceFrom<P, T>
+		public class SimpleChoiceFrom<P, T, PT>
 		{
-			public static interface Checker<P, T>
+			public static interface Checker<P, T, PT>
 			{
-				public boolean check(P pattern, T res);
+				public boolean check(P pattern, T res, PT parameters);
 			}
 
-			public static abstract class ChoiceMethod<P, T> implements Comparator<T>
+			public static abstract class ChoiceMethod<P, T, PT> implements Comparator<T>
 			{
 				protected P pattern;
+				protected PT parameters;
 
-				private void setPattern(P pattern)
+				private void setPattern(P pattern, PT parameters)
 				{
 					this.pattern = pattern;
+					this.parameters = parameters;
 				}
 			}
 
-			private Checker<P, T> checker;
-			private ChoiceMethod<P, T> comparator;
+			private Checker<P, T, PT> checker;
+			private ChoiceMethod<P, T, PT> comparator;
 
-			public SimpleChoiceFrom(Checker<P, T> checker, ChoiceMethod<P, T> comparator)
+			public SimpleChoiceFrom(Checker<P, T, PT> checker, ChoiceMethod<P, T, PT> comparator)
 			{
 				this.checker = checker;
 				if (comparator != null)
@@ -2068,34 +2070,34 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			private Queue<T> matchingList;
 
-			public Collection<T> findAll(P pattern, Collection<T> reslist)
+			public Collection<T> findAll(P pattern, Collection<T> reslist, PT parameters)
 			{
 				matchingList.clear();
 				if (comparator != null)
-					comparator.setPattern(pattern);
+					comparator.setPattern(pattern, parameters);
 
 				T res;
 				for (Iterator<T> iterator = reslist.iterator(); iterator.hasNext();)
 				{
 					res = iterator.next();
-					if (checker.check(pattern, res))
+					if (checker.check(pattern, res, parameters))
 						matchingList.add(res);
 				}
 
 				return matchingList;
 			}
 
-			public T find(P pattern, Collection<T> reslist)
+			public T find(P pattern, Collection<T> reslist, PT parameters)
 			{
 				matchingList.clear();
 				if (comparator != null)
-					comparator.setPattern(pattern);
+					comparator.setPattern(pattern, parameters);
 
 				T res;
 				for (Iterator<T> iterator = reslist.iterator(); iterator.hasNext();)
 				{
 					res = iterator.next();
-					if (res != null && checker.check(pattern, res))
+					if (res != null && checker.check(pattern, res, parameters))
 						if (matchingList instanceof LinkedList)
 							return res;
 						else
@@ -2126,13 +2128,13 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 		import rdo_lib.SimpleChoiceFrom.ChoiceMethod;
 
-		public class CombinationalChoiceFrom<R>
+		public class CombinationalChoiceFrom<R, PT>
 		{
 			private R set;
 			private RelevantResourcesManager<R> setManager;
 			private PriorityQueue<R> matchingList;
 
-			public CombinationalChoiceFrom(R set, ChoiceMethod<R, R> comparator, RelevantResourcesManager<R> setManager)
+			public CombinationalChoiceFrom(R set, ChoiceMethod<R, R, PT> comparator, RelevantResourcesManager<R> setManager)
 			{
 				this.set = set;
 				this.setManager = setManager;
@@ -2155,30 +2157,30 @@ class RDOGenerator implements IMultipleResourceGenerator
 				public abstract void apply(R origin, R set);
 			}
 
-			public static class Finder<R, T>
+			public static class Finder<R, T, PT>
 			{
 				private Retriever<T> retriever;
-				private SimpleChoiceFrom<R, T> choice;
+				private SimpleChoiceFrom<R, T, PT> choice;
 				private Setter<R, T> setter;
 
-				public Finder(Retriever<T> retriever, SimpleChoiceFrom<R, T> choice, Setter<R, T> setter)
+				public Finder(Retriever<T> retriever, SimpleChoiceFrom<R, T, PT> choice, Setter<R, T> setter)
 				{
 					this.retriever = retriever;
 					this.choice  = choice;
 					this.setter  = setter;
 				}
 
-				public boolean find(R set, Iterator<Finder<R, ?>> finder, PriorityQueue<R> matchingList, RelevantResourcesManager<R> setManager)
+				public boolean find(R set, Iterator<Finder<R, ?, PT>> finder, PriorityQueue<R> matchingList, RelevantResourcesManager<R> setManager, PT parameters)
 				{
-					Collection<T> all = choice.findAll(set, retriever.getResources());
+					Collection<T> all = choice.findAll(set, retriever.getResources(), parameters);
 					Iterator<T> iterator = all.iterator();
 					if (finder.hasNext())
 					{
-						Finder<R, ?> currentFinder = finder.next();
+						Finder<R, ?, PT> currentFinder = finder.next();
 						while (iterator.hasNext())
 						{
 							setter.set(set, iterator.next());
-							if (currentFinder.find(set, finder, matchingList, setManager))
+							if (currentFinder.find(set, finder, matchingList, setManager, parameters))
 								if (matchingList.iterator() == null)
 									return true;
 						}
@@ -2207,23 +2209,23 @@ class RDOGenerator implements IMultipleResourceGenerator
 				}
 			}
 
-			private List<Finder<R, ?>> finders = new ArrayList<Finder<R, ?>>();
+			private List<Finder<R, ?, PT>> finders = new ArrayList<Finder<R, ?, PT>>();
 
-			public void addFinder(Finder<R, ?> finder)
+			public void addFinder(Finder<R, ?, PT> finder)
 			{
 				finders.add(finder);
 			}
 
-			public boolean find()
+			public boolean find(PT parameters)
 			{
 				matchingList.clear();
 
 				if (finders.size() == 0)
 					return false;
 
-				Iterator<Finder<R, ?>> finder = finders.iterator();
+				Iterator<Finder<R, ?, PT>> finder = finders.iterator();
 
-				if (finder.next().find(set, finder, matchingList, setManager)
+				if (finder.next().find(set, finder, matchingList, setManager, parameters)
 					&& matchingList.comparator() == null)
 						return true;
 
