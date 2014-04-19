@@ -2612,20 +2612,31 @@ class RDOGenerator implements IMultipleResourceGenerator
 					add_children:
 					for (GraphNode child : nodeChildren)
 					{
-						for (GraphNode open : nodesOpen)
-							if (child.state.checkEqual(open.state))
-								if(child.g < open.g)
-								{
-									nodesOpen.remove(open);
-									break;
-								}
-								else
-									continue add_children;
-
+						compare_tops:
 						if (compareTops)
+						{
+							for (GraphNode open : nodesOpen)
+								if (child.state.checkEqual(open.state))
+								{
+									if(child.g < open.g)
+									{
+										nodesOpen.remove(open);
+										break compare_tops;
+									}
+									continue add_children;
+								}
+
 							for (GraphNode closed : nodesClosed)
 								if (child.state.checkEqual(closed.state))
+								{
+									if(child.g < closed.g)
+									{
+										nodesClosed.remove(closed);
+										break compare_tops;
+									}
 									continue add_children;
+								}
+						}
 
 						nodesOpen.add(child);
 					}
