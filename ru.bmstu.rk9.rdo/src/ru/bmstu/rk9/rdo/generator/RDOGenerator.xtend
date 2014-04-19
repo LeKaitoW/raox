@@ -666,17 +666,29 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 	def compileFunction(Function fun, String filename)
 	{
+		val type = fun.type
+
+		return
 		'''
 		package «filename»;
 
 		public class «fun.name»
 		'''
 		 +
-		switch fun.type
+		switch type
 		{
 			FunctionAlgorithmic:
 			'''
 			{
+				public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
+					»«type.parameters.parameters.compileFunctionTypeParameters»«ENDIF»)
+				{
+					if (true)
+					{
+						«type.algorithm.compileStatement»
+					}
+					return «IF fun.^default != null»«fun.^default.compileExpression»«ELSE»null«ENDIF»;
+				}
 
 			}
 			'''
@@ -693,6 +705,17 @@ class RDOGenerator implements IMultipleResourceGenerator
 			}
 			'''
 		}
+	}
+
+	def static compileFunctionTypeParameters(List<FunctionParameter> parameters)
+	{
+		'''«IF parameters.size > 0»«parameters.get(0).type.compileType» «
+			parameters.get(0).name»«
+			FOR parameter : parameters.subList(1, parameters.size)», «
+				parameter.type.compileType» «
+				parameter.name»«
+			ENDFOR»«
+		ENDIF»'''
 	}
 
 	def compileEvent(Event evn, String filename)
