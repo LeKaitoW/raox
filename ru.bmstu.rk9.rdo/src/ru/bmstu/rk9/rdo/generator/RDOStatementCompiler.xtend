@@ -59,6 +59,12 @@ class RDOStatementCompiler
 						if (paramlist.contains(c.call) && e.calls.size == 1)
 							c.setCall('resources.' + st.relres.name + '.' + c.call)
 
+				for (e : st.statements.eAllContents.toIterable.filter(typeof(LegacySetStatement)))
+					if (paramlist.contains(e.call))
+						e.setCall('resources.' + st.relres.name + '.' + e.call)
+					else if (e.call.startsWith(st.relres.name + "."))
+						e.setCall('resources.' + e.call)
+
 				return
 					'''
 					// «st.relres.name» convert event
@@ -87,6 +93,12 @@ class RDOStatementCompiler
 					for (c : e.calls)
 						if (paramlist.contains(c.call) && e.calls.size == 1)
 							c.setCall('resources.' + st.relres.name + '.' + c.call)
+
+				for (e : st.statements.eAllContents.toIterable.filter(typeof(LegacySetStatement)))
+					if (paramlist.contains(e.call))
+						e.setCall('resources.' + st.relres.name + '.' + e.call)
+					else if (e.call.startsWith(st.relres.name + "."))
+						e.setCall('resources.' + e.call)
 
 				return
 					'''
@@ -119,6 +131,12 @@ class RDOStatementCompiler
 						if (paramlist.contains(c.call) && e.calls.size == 1)
 							c.setCall('resources.' + st.relres.name + '.' + c.call)
 
+					for (e : st.beginstatements.eAllContents.toIterable.filter(typeof(LegacySetStatement)))
+						if (paramlist.contains(e.call))
+							e.setCall('resources.' + st.relres.name + '.' + e.call)
+						else if (e.call.startsWith(st.relres.name + "."))
+							e.setCall('resources.' + e.call)
+
 					return
 						'''
 						// «st.relres.name» convert begin
@@ -133,6 +151,12 @@ class RDOStatementCompiler
 					for (c : e.calls)
 						if (paramlist.contains(c.call) && e.calls.size == 1)
 							c.setCall('resources.' + st.relres.name + '.' + c.call)
+
+					for (e : st.endstatements.eAllContents.toIterable.filter(typeof(LegacySetStatement)))
+						if (paramlist.contains(e.call))
+							e.setCall('resources.' + st.relres.name + '.' + e.call)
+						else if (e.call.startsWith(st.relres.name + "."))
+							e.setCall('resources.' + e.call)
 
 					return
 						'''
