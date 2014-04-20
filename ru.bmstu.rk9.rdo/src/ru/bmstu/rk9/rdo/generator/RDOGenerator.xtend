@@ -2647,6 +2647,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 					}
 				}
 
+				head.state.deploy();
 				return false;
 			}
 
