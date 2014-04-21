@@ -1,17 +1,22 @@
 package ru.bmstu.rk9.rdo.validation
 
 import java.util.List
+import java.util.LinkedList
 import java.util.ArrayList
+
+import java.util.Map
+import java.util.HashMap
 
 import com.google.inject.Inject
 
 import org.eclipse.xtext.validation.Check
 
 import org.eclipse.xtext.resource.IResourceDescription
-import org.eclipse.xtext.resource.IResourceDescriptions
 import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
 
 import org.eclipse.xtext.resource.IContainer
+
+import org.eclipse.emf.ecore.resource.Resource
 
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
@@ -115,22 +120,126 @@ class RDOValidator extends AbstractRDOValidator
 	@Inject
 	private IContainer.Manager containerManager
 
+	private static List<Resource> resourceIndex = new LinkedList<Resource>
+	private static HashMap<String, VariableInfo> variableIndex = new HashMap<String, VariableInfo>
+
+	@Check
+	def exportResources(RDOModel model)
+	{
+		val index = resourceDescriptionsProvider.createResourceDescriptions
+		val resDesc = index.getResourceDescription(model.eResource.URI)
+
+		resourceIndex.clear
+
+		if(resDesc == null)
+			return
+		else
+		{
+			for (IContainer c : containerManager.getVisibleContainers(resDesc, index))
+				for (IResourceDescription rd : c.getResourceDescriptions())
+				{
+					resourceIndex.add(model.eResource.resourceSet.getResource(rd.URI, true))
+					if(!variableIndex.containsKey(resourceIndex.last.resourceName))
+						variableIndex.put(resourceIndex.last.resourceName, new VariableInfo)
+				}
+
+			if(variableIndex.size != resourceIndex.size)
+			{
+				variableIndex.clear
+				for(r : resourceIndex)
+					variableIndex.put(resourceIndex.last.resourceName, new VariableInfo)
+			}
+		}
+	}
+
+	@Check
+	def exportResourceDeclarations(ResourceDeclaration rss)
+	{
+		val model = rss.modelRoot
+		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
+			return
+
+		val resindex = variableIndex.get(model.nameGeneric).resources
+		val resmodel = model.eAllContents.filter(typeof(ResourceDeclaration)).toMap[name]
+		for(r : resmodel.keySet)
+			if(resindex.get(r) == null || r == rss.name)
+				resindex.put(r, variableIndex.get(model.nameGeneric).newRSS(resmodel.get(r)))
+
+		clearMissing(resindex, resmodel)
+	}
+
+	@Check
+	def exportSequences(Sequence seq)
+	{
+		val model = seq.modelRoot
+		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
+			return
+
+		val seqindex = variableIndex.get(model.nameGeneric).sequences
+		val seqmodel = model.eAllContents.filter(typeof(Sequence)).toMap[name]
+		for(r : seqmodel.keySet)
+			if(seqindex.get(r) == null || r == seq.name)
+				seqindex.put(r, variableIndex.get(model.nameGeneric).newSEQ(seqmodel.get(r)))
+
+		clearMissing(seqindex, seqmodel)
+	}
+
+	@Check
+	def exportConstants(ConstantDeclaration con)
+	{
+		val model = con.modelRoot
+		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
+			return
+
+		val conindex = variableIndex.get(model.nameGeneric).constants
+		val conmodel = model.eAllContents.filter(typeof(ConstantDeclaration)).toMap[name]
+		for(r : conmodel.keySet)
+			if(conindex.get(r) == null || r == con.name)
+				conindex.put(r, variableIndex.get(model.nameGeneric).newCON(conmodel.get(r)))
+
+		clearMissing(conindex, conmodel)
+	}
+
+	@Check
+	def exportFunctions(Function fun)
+	{
+		val model = fun.modelRoot
+		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
+			return
+
+		val funindex = variableIndex.get(model.nameGeneric).functions
+		val funmodel = model.eAllContents.filter(typeof(Function)).toMap[name]
+		for(r : funmodel.keySet)
+			if(funindex.get(r) == null || r == fun.name)
+				funindex.put(r, variableIndex.get(model.nameGeneric).newFUN(funmodel.get(r)))
+
+		clearMissing(funindex, funmodel)
+	}
+
+	def clearMissing(Map<String, ?> index, Map<String, ?> model)
+	{
+		if(index.size != model.size)
+		{
+			var iter = index.keySet.iterator
+			while(iter.hasNext)
+			{
+				val next = iter.next
+				if(model.get(next) == null)
+				{
+					index.remove(next)
+					iter = index.keySet.iterator
+				}
+			}
+		}
+	}
+
 	@Check
 	def checkSMRCount(SimulationRun smr)
 	{
-		var index = resourceDescriptionsProvider.createResourceDescriptions() as IResourceDescriptions
-
-		var resDesc = index.getResourceDescription(smr.eResource.getURI()) as IResourceDescription
-
-		if  (resDesc == null)
-			return
-
-		var visibleContainers = containerManager.getVisibleContainers(resDesc, index) as List<IContainer> 
-
 		var ArrayList<SimulationRun> smrs = new ArrayList<SimulationRun>();
-		for (IContainer c : visibleContainers)
-			for (IResourceDescription rd : c.getResourceDescriptions())
-				smrs.addAll(smr.eResource.resourceSet.getResource(rd.getURI(), true).allContents.toIterable.filter(typeof(SimulationRun)))
+		for(r : resourceIndex)
+			smrs.addAll(r.allContents.toIterable.filter(typeof(SimulationRun)))
+
 
 		if (smrs.size > 1)
 			for (e : smrs)
@@ -234,7 +343,7 @@ class RDOValidator extends AbstractRDOValidator
 
 			ResultDeclaration:
 				RdoPackage.eINSTANCE.resultDeclaration_Name
-				
+
 			PatternParameter:
 				RdoPackage.eINSTANCE.patternParameter_Name
 
