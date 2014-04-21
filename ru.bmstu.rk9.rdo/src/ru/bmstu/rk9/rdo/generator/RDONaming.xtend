@@ -2,6 +2,8 @@ package ru.bmstu.rk9.rdo.generator
 
 import org.eclipse.emf.common.util.URI
 
+import org.eclipse.emf.ecore.resource.Resource
+
 import org.eclipse.emf.ecore.EObject
 
 import ru.bmstu.rk9.rdo.rdo.RDOModel
@@ -55,6 +57,15 @@ class RDONaming
 		return uri.toPlatformString(false).substring(1, uri.toPlatformString(true).indexOf("/", 1))
 	}
 
+	def static getResourceName(Resource res)
+	{
+		var name = res.getURI().lastSegment()
+		if (name.endsWith(".rdo"))
+			name = name.substring(0, name.length() - 4)
+		name.replace(".", "_")
+		return name
+	}
+
 	def static RDOModel getModelRoot(EObject object)
 	{
 		switch object
@@ -69,13 +80,7 @@ class RDONaming
 		switch object
 		{
 			RDOModel:
-			{
-				var name = object.eResource().getURI().lastSegment()
-				if (name.endsWith(".rdo"))
-					name = name.substring(0, name.length() - 4)
-				name.replace(".", "_")
-				return name
-			}
+				return object.eResource.resourceName 
 
 			ResourceType:
 				return object.name
