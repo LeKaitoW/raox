@@ -1562,6 +1562,14 @@ class RDOGenerator implements IMultipleResourceGenerator
 								return «dpt.termination.compileExpression»;
 							}
 						},
+						new rdo_lib.DecisionPointSearch.EvaluateBy()
+						{
+							@Override
+							public double get()
+							{
+								return «dpt.evaluateby.compileExpression»;
+							}
+						},
 						«IF dpt.comparetops»true«ELSE»false«ENDIF»,
 						new rdo_lib.DecisionPointSearch.DatabaseRetriever<rdo_model.«dpt.modelRoot.nameGeneric»_database>()
 						{
@@ -2527,12 +2535,28 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			private boolean compareTops;
 
-			public DecisionPointSearch(String name, Condition condition, Condition terminate, boolean compareTops, DatabaseRetriever<T> retriever)
+			private EvaluateBy evaluateBy;
+
+			public DecisionPointSearch
+			(
+				String name,
+				Condition condition,
+				Condition terminate,
+				EvaluateBy evaluateBy,
+				boolean compareTops,
+				DatabaseRetriever<T> retriever
+			)
 			{
 				super(name, null, null, condition);
 				this.terminate = terminate;
+				this.evaluateBy = evaluateBy;
 				this.retriever = retriever;
 				this.compareTops = compareTops;
+			}
+
+			public static interface EvaluateBy
+			{
+				public double get();
 			}
 
 			public static abstract class Activity extends DecisionPoint.Activity
@@ -2564,6 +2588,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 			private class GraphNode
 			{
 				public GraphNode parent = null;
+
+				public LinkedList<GraphNode> children;
 
 				public double g;
 				public double h;
@@ -2612,48 +2638,16 @@ class RDOGenerator implements IMultipleResourceGenerator
 					if (terminate.check())
 						return true;
 
-					PriorityQueue<GraphNode> nodeChildren = spawnChildren(current);
-
-					add_children:
-					for (GraphNode child : nodeChildren)
-					{
-						compare_tops:
-						if (compareTops)
-						{
-							for (GraphNode open : nodesOpen)
-								if (child.state.checkEqual(open.state))
-								{
-									if(child.g < open.g)
-									{
-										nodesOpen.remove(open);
-										break compare_tops;
-									}
-									continue add_children;
-								}
-
-							for (GraphNode closed : nodesClosed)
-								if (child.state.checkEqual(closed.state))
-								{
-									if(child.g < closed.g)
-									{
-										nodesClosed.remove(closed);
-										break compare_tops;
-									}
-									continue add_children;
-								}
-						}
-
-						nodesOpen.add(child);
-					}
+					current.children = spawnChildren(current);
+					nodesOpen.addAll(current.children);
 				}
-
 				head.state.deploy();
 				return false;
 			}
 
-			private PriorityQueue<GraphNode> spawnChildren(GraphNode parent)
+			private LinkedList<GraphNode> spawnChildren(GraphNode parent)
 			{
-				PriorityQueue<GraphNode> children = new PriorityQueue<GraphNode>(1, nodeComparator);
+				LinkedList<GraphNode> children = new LinkedList<GraphNode>();
 
 				for (Activity a : activities)
 				{
@@ -2675,14 +2669,38 @@ class RDOGenerator implements IMultipleResourceGenerator
 							value = a.calculateValue();
 
 						newChild.g = parent.g + value;
+						newChild.h = evaluateBy.get();
 
-						if(!newChild.state.checkEqual(parent.state))
+						add_child:
+						{
+							compare_tops:
+							if (compareTops)
+							{
+								for (GraphNode open : nodesOpen)
+									if (newChild.state.checkEqual(open.state))
+										if(newChild.g < open.g)
+										{
+											nodesOpen.remove(open);
+											break compare_tops;
+										}
+										else
+											break add_child;
+
+								for (GraphNode closed : nodesClosed)
+									if (newChild.state.checkEqual(closed.state))
+										if(newChild.g < closed.g)
+										{
+											nodesClosed.remove(closed);
+											break compare_tops;
+										}
+										else
+											break add_child;
+							}
 							children.add(newChild);
-
+						}
 						parent.state.deploy();
 					}
 				}
-
 				return children;
 			}
 		}
