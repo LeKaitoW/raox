@@ -507,7 +507,7 @@ SimulationCommand
 ;
 
 TerminateIf:
-	term = 'Terminate_if' => condition = Expression
+	term = 'Terminate_if' => condition = ExpressionOr
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
