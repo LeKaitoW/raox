@@ -4,6 +4,8 @@ import java.util.List
 
 import org.eclipse.emf.ecore.EObject
 
+import ru.bmstu.rk9.rdo.validation.VariableInfo
+
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
@@ -224,6 +226,10 @@ class RDOExpressionCompiler
 
 			VariableMethodCallExpression:
 			{
+				var gcall = expr.lookupGlobal
+				if(gcall != null)
+					return gcall
+
 				var mcall = ""
 				var flag = false
 
@@ -384,6 +390,70 @@ class RDOExpressionCompiler
 			default:
 				return "VAL"
 		}
+	}
+
+	def static boolean checkPlainCall(VariableExpression expr)
+	{
+		return expr.arrayfirst || expr.arraylast || expr.functionfirst || expr.functionlast
+	}
+
+	def static String lookupGlobal(VariableMethodCallExpression expr)
+	{
+		var gcall = ""
+
+		val iter = expr.calls.iterator
+
+		var VariableInfo info = RDOGenerator.variableIndex.get(expr.calls.get(0).call)
+
+		if(info == null)
+		{
+			info = RDOGenerator.variableIndex.get(expr.modelRoot.nameGeneric)
+			gcall = gcall +  expr.modelRoot.nameGeneric
+		}
+		else
+			gcall = gcall + iter.next.call	
+
+		var next = (if(iter.hasNext) iter.next else null)
+
+		if(next == null)
+			return null
+
+		if(info.resources.get(next.call) != null)
+		{
+			val rtp = info.resources.get(next.call).reference
+			gcall = gcall + "." + rtp + ".getResource(\"" + next.call + "\")"
+			next = (if(iter.hasNext) iter.next else null)
+			if(next == null)
+				return null	
+			if(info.restypes.get(rtp).parameters.get(next.call) != null && !iter.hasNext)
+			{
+				gcall = gcall + ".get_"+ next.call +"()"
+				return gcall
+			}
+		}
+
+		if(info.sequences.get(next.call) != null && !iter.hasNext)
+		{
+			gcall = gcall + "." + next.call + ".getNext("
+			if(next.args != null)
+				gcall = gcall + next.args.compileExpression
+			return gcall + ")"
+		}
+
+		if(info.constants.get(next.call) != null && !iter.hasNext)
+		{
+			return gcall + "." + next.call + ".value"
+		}
+
+		if(info.functions.get(next.call) != null && !iter.hasNext)
+		{
+			gcall = gcall + "." + next.call + ".evaluate("
+			if(next.args != null)
+				gcall = gcall + next.args.compileExpression
+			return gcall + ")"
+		}
+
+		return null 
 	}
 
 	def static String compileType(EObject type)

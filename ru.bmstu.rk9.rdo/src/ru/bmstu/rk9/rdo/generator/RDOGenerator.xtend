@@ -2,6 +2,8 @@ package ru.bmstu.rk9.rdo.generator
 
 import java.util.List
 
+import java.util.HashMap
+
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
 
@@ -13,6 +15,8 @@ import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.customizations.RDOQualifiedNameProvider.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
+
+import ru.bmstu.rk9.rdo.validation.VariableInfo
 
 import ru.bmstu.rk9.rdo.customizations.IMultipleResourceGenerator
 
@@ -95,6 +99,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 		fsa.generateFile("rdo_lib/TerminateCondition.java",       compileTerminate       ())
 		//==================================================================================
 
+		exportVariableInfo(resources)
+
 		val declarationList = new java.util.ArrayList<ResourceDeclaration>();
 		for (resource : resources.resources)
 			declarationList.addAll(resource.allContents.filter(typeof(ResourceDeclaration)).toIterable)
@@ -149,6 +155,32 @@ class RDOGenerator implements IMultipleResourceGenerator
 		fsa.generateFile("rdo_model/" + RDONaming.getProjectName(resources.resources.get(0).URI) +"_database.java",
 			compileDatabase(resources, RDONaming.getProjectName(resources.resources.get(0).URI)))
 		fsa.generateFile("rdo_model/MainClass.java", compileMain(resources, smr))
+	}
+
+	public static HashMap<String, VariableInfo> variableIndex = new HashMap<String, VariableInfo>
+
+	def exportVariableInfo(ResourceSet rs)
+	{
+		variableIndex.clear
+		for(r : rs.resources)
+			variableIndex.put(r.resourceName, new VariableInfo)
+
+		for(r : rs.resources)
+		{
+			val info = variableIndex.get(r.resourceName)
+
+			for(rss : r.allContents.filter(typeof(ResourceDeclaration)).toIterable)
+				info.resources.put(rss.name, info.newRSS(rss))
+
+			for(seq : r.allContents.filter(typeof(Sequence)).toIterable)
+				info.sequences.put(seq.name, info.newSEQ(seq))
+
+			for(con : r.allContents.filter(typeof(ConstantDeclaration)).toIterable)
+				info.constants.put(con.name, info.newCON(con))
+
+			for(fun : r.allContents.filter(typeof(Function)).toIterable)
+				info.functions.put(fun.name, info.newFUN(fun))
+		}
 	}
 
 	def compileDatabase(ResourceSet rs, String project)
