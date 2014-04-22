@@ -175,14 +175,14 @@ Event:
 	('$Parameters'
 		parameters += PatternParameter+ )?
 	 '$Relevant_resources'
-		 relevantresources += EventRelevantResource+
+		relevantresources += EventRelevantResource+
 	 '$Body'
 		algorithms += EventConvert+
 	 '$End'
 ;
 
 EventRelevantResource:
-	name = ID ':' type = [META_RelResType|ID]
+	name = ID ':' type = [META_RelResType|FQN]
 	rule = PatternConvertStatus
 ;
 
