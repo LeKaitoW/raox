@@ -7,6 +7,8 @@ import java.util.HashMap
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
 
+import org.eclipse.emf.ecore.EObject
+
 import org.eclipse.xtext.generator.IFileSystemAccess
 
 import static extension org.eclipse.xtext.xbase.lib.IteratorExtensions.*
@@ -50,7 +52,9 @@ import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceFrom
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
 import ru.bmstu.rk9.rdo.rdo.Operation
+import ru.bmstu.rk9.rdo.rdo.OperationConvert
 import ru.bmstu.rk9.rdo.rdo.Rule
+import ru.bmstu.rk9.rdo.rdo.RuleConvert
 import ru.bmstu.rk9.rdo.rdo.Event
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
@@ -620,12 +624,14 @@ class RDOGenerator implements IMultipleResourceGenerator
 					return «parameter.name»;
 				}
 
-				public void set_«parameter.name»(«parameter.type.compileType» «parameter.name»)
+				public «parameter.type.compileType» set_«parameter.name»(«parameter.type.compileType» «parameter.name»)
 				{
 					if (managerOwner == managerCurrent)
 						this.«parameter.name» = «parameter.name»;
 					else
 						this.copyForNewOwner().«parameter.name» = «parameter.name»;
+
+					return «parameter.name»;
 				}
 
 			«ENDFOR»
@@ -1052,27 +1058,27 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			public static void executeRule(Parameters parameters)
 			{
-				RelevantResources matched = staticResources.copy();
+				RelevantResources resources = staticResources.copy();
 
 				«IF rule.relevantresources.filter[t | t.rule.literal == "Create"].size > 0»
 					// create resources
 					«FOR r : rule.relevantresources.filter[t |t.rule.literal == "Create"]»
-						matched.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
+						resources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 					«ENDFOR»
 					«FOR r : rule.relevantresources.filter[t |t.rule.literal == "Create"]»
-						matched.«r.name».register();
+						resources.«r.name».register();
 					«ENDFOR»
 
 				«ENDIF»
 				«IF rule.relevantresources.filter[t | t.rule.literal == "Erase"].size > 0»
 					// erase resources
 					«FOR r : rule.relevantresources.filter[t |t.rule.literal == "Erase"]»
-						«(r.type as ResourceType).fullyQualifiedName».eraseResource(matched.«r.name»);
+						«(r.type as ResourceType).fullyQualifiedName».eraseResource(resources.«r.name»);
 					«ENDFOR»
 
 				«ENDIF»
-				rule.run(matched, parameters);
+				rule.run(resources, parameters);
 			}
 		}
 		'''
@@ -1294,29 +1300,30 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			public static void executeRule(Parameters parameters)
 			{
-				RelevantResources matched = staticResources.copy();
+				RelevantResources resources = staticResources.copy();
 
 				«IF op.relevantresources.filter[t | t.begin.literal == "Create"].size > 0»
 					// create resources
 					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Create"]»
-						matched.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
+						resources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 					«ENDFOR»
 					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Create"]»
-						matched.«r.name».register();
+						resources.«r.name».register();
 					«ENDFOR»
 
 				«ENDIF»
 				«IF op.relevantresources.filter[t | t.begin.literal == "Erase" || t.end.literal == "Erase"].size > 0»
 					// erase resources
 					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Erase" || t.end.literal == "Erase"]»
-						«(r.type as ResourceType).fullyQualifiedName».eraseResource(matched.«r.name»);
+						«(r.type as ResourceType).fullyQualifiedName».eraseResource(resources.«r.name»);
 					«ENDFOR»
 
 				«ENDIF»
-				begin.run(matched, parameters);
+				begin.run(resources, parameters);
 
-				rdo_lib.Simulator.pushEvent(new «op.name»(rdo_lib.Simulator.getTime() + «op.time.compileExpression», matched, parameters));
+				rdo_lib.Simulator.pushEvent(new «op.name»(rdo_lib.Simulator.getTime() + «
+					op.time.compileExpressionContext((new LocalContext).populateFromOperation(op))», resources, parameters));
 			}
 
 			private double time;
@@ -1384,11 +1391,15 @@ class RDOGenerator implements IMultipleResourceGenerator
 			new rdo_lib.SimpleChoiceFrom.Checker<RelevantResources, «resource», Parameters>()
 			{
 				@Override
-				public boolean check(RelevantResources pattern, «resource» «relres», Parameters parameters)
+				public boolean check(RelevantResources resources, «resource» «relres», Parameters parameters)
 				{
-					return «IF havecf»(«cf.compileForPattern»)«ELSE»true«ENDIF»«FOR i : 0 ..< relreslist.size»«
-						IF relres != relreslist.get(i) && relrestype == relrestypes.get(i)»
-							«"\t"»&& «relres» != pattern.«relreslist.get(i)»«ENDIF»«ENDFOR»;
+					return «IF havecf»(«IF pattern instanceof Operation»«
+						cf.logic.compileExpressionContext((new LocalContext).populateFromOperation(pattern as Operation)).
+							replaceAll("resources." + relres + ".", relres + ".")»«	ELSE»«
+								cf.logic.compileExpressionContext((new LocalContext).populateFromRule(pattern as Rule)).
+									replaceAll("resources." + relres + ".", relres + ".")»«ENDIF»)«ELSE»true«ENDIF»«
+										FOR i : 0 ..< relreslist.size»«IF relres != relreslist.get(i) && relrestype ==
+											relrestypes.get(i)»«"\t"»&& «relres» != resources.«relreslist.get(i)»«ENDIF»«ENDFOR»;
 				}
 			}'''
 	}
@@ -1399,6 +1410,21 @@ class RDOGenerator implements IMultipleResourceGenerator
 			return "null"
 		else
 		{
+			var EObject pat;
+			var String relres = "@NOPE";
+			if(cm.eContainer instanceof Rule || cm.eContainer instanceof Operation)
+				pat = cm.eContainer
+			else
+			{
+				pat = cm.eContainer.eContainer
+				relres = (if(cm.eContainer instanceof OperationConvert) (cm.eContainer as OperationConvert).relres.name
+					else (cm.eContainer as RuleConvert).relres.name)
+			}
+
+			val context = (if(pat instanceof Rule) (new LocalContext).populateFromRule(pat as Rule)
+				else (new LocalContext).populateFromOperation(pat as Operation))
+
+			val expr = cm.expression.compileExpressionContext(context)
 			return
 				'''
 				new rdo_lib.SimpleChoiceFrom.ChoiceMethod<RelevantResources, «resource», Parameters>()
@@ -1406,7 +1432,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 					@Override
 					public int compare(«resource» x, «resource» y)
 					{
-						if («cm.compileForPattern»)
+						if («expr.replaceAll("resources." + relres + ".", "x.")» «IF cm.withtype.literal
+							== "with_min"»<«ELSE»>«ENDIF» «expr.replaceAll("resources." + relres + ".", "y.")»)
 							return -1;
 						else
 							return 1;
@@ -2079,17 +2106,17 @@ class RDOGenerator implements IMultipleResourceGenerator
 		{
 			public static interface Checker<P, T, PT>
 			{
-				public boolean check(P pattern, T res, PT parameters);
+				public boolean check(P resources, T res, PT parameters);
 			}
 
 			public static abstract class ChoiceMethod<P, T, PT> implements Comparator<T>
 			{
-				protected P pattern;
+				protected P resources;
 				protected PT parameters;
 
-				private void setPattern(P pattern, PT parameters)
+				private void setPattern(P resources, PT parameters)
 				{
-					this.pattern = pattern;
+					this.resources = resources;
 					this.parameters = parameters;
 				}
 			}
@@ -2111,34 +2138,34 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			private Queue<T> matchingList;
 
-			public Collection<T> findAll(P pattern, Collection<T> reslist, PT parameters)
+			public Collection<T> findAll(P resources, Collection<T> reslist, PT parameters)
 			{
 				matchingList.clear();
 				if (comparator != null)
-					comparator.setPattern(pattern, parameters);
+					comparator.setPattern(resources, parameters);
 
 				T res;
 				for (Iterator<T> iterator = reslist.iterator(); iterator.hasNext();)
 				{
 					res = iterator.next();
-					if (checker.check(pattern, res, parameters))
+					if (checker.check(resources, res, parameters))
 						matchingList.add(res);
 				}
 
 				return matchingList;
 			}
 
-			public T find(P pattern, Collection<T> reslist, PT parameters)
+			public T find(P resources, Collection<T> reslist, PT parameters)
 			{
 				matchingList.clear();
 				if (comparator != null)
-					comparator.setPattern(pattern, parameters);
+					comparator.setPattern(resources, parameters);
 
 				T res;
 				for (Iterator<T> iterator = reslist.iterator(); iterator.hasNext();)
 				{
 					res = iterator.next();
-					if (res != null && checker.check(pattern, res, parameters))
+					if (res != null && checker.check(resources, res, parameters))
 						if (matchingList instanceof LinkedList)
 							return res;
 						else

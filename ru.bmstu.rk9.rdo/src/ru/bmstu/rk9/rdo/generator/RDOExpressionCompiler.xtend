@@ -73,103 +73,19 @@ import ru.bmstu.rk9.rdo.rdo.TimeNow
 
 class RDOExpressionCompiler
 {
-	def static String compileForPattern(EObject expr)
+	private static LocalContext localContext
+
+	def static String compileExpressionContext(EObject expr, LocalContext context)
 	{
-		val parent = expr.eContainer
-		
-		var String relres
-		var List<String> relreslist
+		localContext = context
+		val ret = expr.compileExpression
+		localContext = null
 
-		switch parent
-		{
-			RuleConvert:
-			{
-				relres = parent.relres.name
-				relreslist = (parent.eContainer as Rule).relevantresources.map[r | r.name]
-			}
-
-			OperationConvert:
-			{
-				relres = parent.relres.name
-				relreslist = (parent.eContainer as Operation).relevantresources.map[r | r.name]
-			}
-
-			Rule:
-			{
-				relres = "@NOPE"
-				relreslist = parent.relevantresources.map[r | r.name]
-			}
-
-			Operation:
-			{
-				relres = "@NOPE"
-				relreslist = parent.relevantresources.map[r | r.name]
-			}
-		}
-		
-		switch expr
-		{
-			PatternChoiceFrom:
-			{
-				for (e : expr.logic.eAllContents.toSet.filter(typeof(VariableMethodCallExpression)))
-				{
-					if (e.calls.size == 2 && relreslist.contains(e.calls.get(0).call) && e.calls.get(0).call != relres)
-						e.calls.get(0).setCall("pattern." + e.calls.get(0).call)
-
-					if (e.calls.size == 2 && relreslist.contains(e.calls.get(0).call))
-						e.calls.get(1).setCall("get_" + e.calls.get(1).call + "()")
-				}
-
-				return expr.logic.compileExpression
-			}
-
-			PatternChoiceMethod:
-			{
-				var String sign;
-				if (expr.withtype.literal == "with_min")
-					sign = " < "
-				else
-					sign = " > "
-
-				for (e : expr.expression.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
-				{
-					if (e.calls.size == 2 && relreslist.contains(e.calls.get(0).call) && e.calls.get(0).call != relres)
-					{
-						e.calls.get(0).setCall("@PAT." + e.calls.get(0).call)
-						e.calls.get(1).setCall("get_" + e.calls.get(1).call + "()")
-					}
-					if (e.calls.size == 2 && e.calls.get(0).call == relres)
-					{
-						e.calls.get(0).setCall("@RES")
-						e.calls.get(1).setCall("get_" + e.calls.get(1).call + "()")
-					}
-				}
-				var ret = expr.expression.compileExpression
-
-				if (parent instanceof Rule || parent instanceof Operation)
-					return ret.replaceAll("@PAT", "x") + sign + ret.replaceAll("@PAT", "y")
-				else
-					ret = ret.replaceAll("@PAT", "pattern")
-
-				return ret.replaceAll("@RES", "x") + sign + ret.replaceAll("@RES", "y")
-
-			}
-		}
+		return ret
 	}
 
 	def static String compileExpression(EObject expr)
 	{
-		val parent = expr.eContainer
-		switch parent
-		{
-			Operation:
-				if (parent.time == expr)
-					for (e : expr.eAllContents.toIterable.filter(typeof(VariableMethodCallExpression)))
-						for (c : e.calls)
-							if (parent.relevantresources.map[r | r.name].contains(c.call) && e.calls.size == 2)
-								c.setCall('matched.' + c.call)
-		}
-
 		switch expr
 		{
 			IntConstant:
@@ -188,7 +104,11 @@ class RDOExpressionCompiler
 				return expr.value.toString
 
 			GroupExpression:
-				return
+			{
+				val oldcontext = localContext
+				localContext = (new LocalContext(localContext)).populateFromGroupBy(expr.arg)
+
+				val ret =
 					'''
 					rdo_lib.Select.«expr.type.literal»(
 						«expr.arg.type.fullyQualifiedName».getAll(),
@@ -202,8 +122,16 @@ class RDOExpressionCompiler
 						}
 					)'''
 
+				localContext = oldcontext
+				return ret
+			}
+
 			SelectExpression:
-				return
+			{
+				val oldcontext = localContext
+				localContext = (new LocalContext(localContext)).populateFromGroupBy(expr.arg)
+
+				val ret =				
 					'''
 					rdo_lib.Select.«expr.method.literal»(
 						«expr.arg.type.fullyQualifiedName».getAll(),
@@ -217,6 +145,10 @@ class RDOExpressionCompiler
 						}
 					)'''
 
+				localContext = oldcontext
+				return ret
+			}
+
 			ArrayValues:
 				return "[" + expr.values.compileExpression + "]"
 
@@ -226,6 +158,13 @@ class RDOExpressionCompiler
 
 			VariableMethodCallExpression:
 			{
+				if(localContext != null)
+				{
+					var lcall = expr.lookupLocal
+					if(lcall != null)
+						return lcall
+				}
+
 				var gcall = expr.lookupGlobal
 				if(gcall != null)
 					return gcall
@@ -395,6 +334,23 @@ class RDOExpressionCompiler
 	def static boolean checkPlainCall(VariableExpression expr)
 	{
 		return expr.arrayfirst || expr.arraylast || expr.functionfirst || expr.functionlast
+	}
+
+	def static String lookupLocal(VariableMethodCallExpression expr)
+	{
+		var lcall = ""
+		var flag = false
+
+		val iter = expr.calls.iterator 
+		while(iter.hasNext)
+		{
+			lcall = lcall + (if(flag) "." else "") + iter.next.call
+			flag = true
+			if (localContext.findEntry(lcall) != null && !iter.hasNext)
+				return localContext.findEntry(lcall).generated
+		}
+
+		return null
 	}
 
 	def static String lookupGlobal(VariableMethodCallExpression expr)
