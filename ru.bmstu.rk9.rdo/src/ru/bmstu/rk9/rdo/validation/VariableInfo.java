@@ -117,8 +117,9 @@ public class VariableInfo
 			if(fun.getType() instanceof FunctionList)
 				parameters = ((FunctionList)fun.getType()).getParameters();
 
-			for (FunctionParameter p : parameters.getParameters())
-				this.parameters.addLast(RDOExpressionCompiler.compileType(p.getType()));
+			if(parameters != null)
+				for (FunctionParameter p : parameters.getParameters())
+					this.parameters.addLast(RDOExpressionCompiler.compileType(p.getType()));
 		}
 	}
 
