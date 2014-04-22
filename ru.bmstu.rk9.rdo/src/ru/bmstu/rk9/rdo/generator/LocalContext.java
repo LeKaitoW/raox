@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rdo.generator;
 
+import java.util.LinkedList;
+
 import java.util.HashMap;
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType;
@@ -124,6 +126,17 @@ public class LocalContext
 			for(ResourceTypeParameter p : type.getParameters())
 				this.addRawEntry(relres.getName() + "." + p.getName(), RDOExpressionCompiler.compileType(p), "resources." + relres.getName() + ".get_" + p.getName() + "()");
 		}
+
+		return this;
+	}
+
+	public LocalContext tuneForConvert(String relres)
+	{
+		LinkedList<String> vars = new LinkedList<String>(index.keySet());
+
+		for(String var : vars)
+			if(var.startsWith(relres + ".") && var.indexOf(".", relres.length() + 1) == -1)
+				index.put(var.replace(relres + ".", ""), index.get(var));
 
 		return this;
 	}
