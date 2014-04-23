@@ -104,11 +104,15 @@ public class VariableInfo
 
 		public LinkedList<String> parameters = new LinkedList<String>();
 
+		public String type;
+
 		public FUN(Function fun)
 		{
 			origin = fun;
 
 			FunctionParameters parameters = null;
+
+			type = RDOExpressionCompiler.compileType(fun.getReturntype());
 
 			if(fun.getType() instanceof FunctionAlgorithmic)
 				parameters = ((FunctionAlgorithmic)fun.getType()).getParameters();
