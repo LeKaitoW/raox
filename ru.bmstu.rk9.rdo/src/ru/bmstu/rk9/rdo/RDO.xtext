@@ -776,7 +776,7 @@ Primary returns Expression
 Atomic returns Expression
 	: {IntConstant}    value = INT
 	| {DoubleConstant} value = DOUBLE
-	| {TimeNow} invoke = 'Time_now'
+	| {TimeNow} invoke = ('Time_now' | 'time_now')
 	| {StringConstant} value = STRING
 	| {BoolConstant}   value = BOOL
 	| {GroupExpression} type = BuiltInLogical '(' arg = GroupBy ')'
