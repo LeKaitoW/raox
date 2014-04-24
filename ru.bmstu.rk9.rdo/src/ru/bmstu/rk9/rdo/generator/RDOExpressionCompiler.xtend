@@ -1,12 +1,11 @@
 package ru.bmstu.rk9.rdo.generator
 
-import java.util.List
-
 import org.eclipse.emf.ecore.EObject
 
 import ru.bmstu.rk9.rdo.validation.VariableInfo
 
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
+import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
 
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 import ru.bmstu.rk9.rdo.rdo.RDODefaultParameter
@@ -16,16 +15,13 @@ import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
 
+import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 import ru.bmstu.rk9.rdo.rdo.ResourceExpressionList
 
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
 
-import ru.bmstu.rk9.rdo.rdo.PatternChoiceFrom
-import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
 import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.RuleConvert
 import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.OperationConvert
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivity
@@ -62,20 +58,81 @@ import ru.bmstu.rk9.rdo.rdo.StringConstant
 import ru.bmstu.rk9.rdo.rdo.BoolConstant
 import ru.bmstu.rk9.rdo.rdo.GroupExpression
 import ru.bmstu.rk9.rdo.rdo.SelectExpression
-import ru.bmstu.rk9.rdo.rdo.ArrayValues
 import ru.bmstu.rk9.rdo.rdo.VariableIncDecExpression
 import ru.bmstu.rk9.rdo.rdo.VariableMethodCallExpression
 import ru.bmstu.rk9.rdo.rdo.VariableExpression
 import ru.bmstu.rk9.rdo.rdo.ExpressionAssignment
 
+import ru.bmstu.rk9.rdo.rdo.PlanningStatement
+
 import ru.bmstu.rk9.rdo.rdo.TimeNow
 
+import ru.bmstu.rk9.rdo.rdo.RDOType
+
+enum ExpressionOperation
+{
+	plus, minus, multiplication, division, modulo
+}
+
+class RDOExpression
+{
+	public String value
+	public String type
+
+	new(String value, String type)
+	{
+		this.value = value
+		this.type = type
+	}
+
+	def static RDOExpression getType(RDOExpression left, RDOExpression right, ExpressionOperation op)
+	{
+		var type = "unknown"
+
+		if(left.type == "error" || right.type == "error")
+			type = "error"
+
+		if(left.type == "Integer")
+		{
+			if(right.type == "Integer")
+				type = "Integer"
+			if(right.type == "Double")
+				type = "Double"
+		}
+
+		if(left.type == "Double")
+		{
+			if(right.type == "Integer")
+				type = "Double"
+			if(right.type == "Double")
+				type = "Double"
+		}
+
+		switch op
+		{
+			case division:
+				return new RDOExpression(left.value + " / " + right.value, type)
+
+			case minus:
+				return new RDOExpression(left.value + " - " + right.value, type)
+
+			case modulo:
+				return new RDOExpression(left.value + " % " + right.value, type)
+
+			case multiplication:
+				return new RDOExpression(left.value + " * " + right.value, left.type)
+
+			case plus:
+				return new RDOExpression(left.value + " + " + right.value, left.type)
+		}
+	}
+}
 
 class RDOExpressionCompiler
 {
 	private static LocalContext localContext
 
-	def static String compileExpressionContext(EObject expr, LocalContext context)
+	def static RDOExpression compileExpressionContext(EObject expr, LocalContext context)
 	{
 		localContext = context
 		val ret = expr.compileExpression
@@ -84,24 +141,24 @@ class RDOExpressionCompiler
 		return ret
 	}
 
-	def static String compileExpression(EObject expr)
+	def static RDOExpression compileExpression(EObject expr)
 	{
 		switch expr
 		{
 			IntConstant:
-				return expr.value.toString
+				return new RDOExpression(expr.value.toString, "Integer")
 
 			DoubleConstant:
-				return expr.value.toString
+				return new RDOExpression(expr.value.toString, "Double")
 
 			TimeNow:
-				return "rdo_lib.Simulator.getTime()"
+				return new RDOExpression("rdo_lib.Simulator.getTime()", "Double")
 
 			StringConstant:
-				return '"' + expr.value + '"'
+				return new RDOExpression('"' + expr.value + '"', "String")
 
 			BoolConstant:
-				return expr.value.toString
+				return new RDOExpression(expr.value.toString, "Boolean")
 
 			GroupExpression:
 			{
@@ -117,13 +174,13 @@ class RDOExpressionCompiler
 							@Override
 							public boolean check(«expr.arg.type.fullyQualifiedName» current)
 							{
-								return «IF expr.arg.condition == null»true«ELSE»«expr.arg.condition.compileExpression»«ENDIF»;
+								return «IF expr.arg.condition == null»true«ELSE»«expr.arg.condition.compileExpression.value»«ENDIF»;
 							}
 						}
 					)'''
 
 				localContext = oldcontext
-				return ret
+				return new RDOExpression(ret, "Boolean")
 			}
 
 			SelectExpression:
@@ -131,7 +188,7 @@ class RDOExpressionCompiler
 				val oldcontext = localContext
 				localContext = (new LocalContext(localContext)).populateFromGroupBy(expr.arg)
 
-				val ret =				
+				val ret =
 					'''
 					rdo_lib.Select.«expr.method.literal»(
 						«expr.arg.type.fullyQualifiedName».getAll(),
@@ -140,21 +197,30 @@ class RDOExpressionCompiler
 							@Override
 							public boolean check(«expr.arg.type.fullyQualifiedName» current)
 							{
-								return «IF expr.arg.condition == null»true«ELSE»«expr.arg.condition.compileExpression»«ENDIF»«IF expr.arg2 != null» && «expr.arg2.compileExpression»«ENDIF»;
+								return «IF expr.arg.condition == null»true«ELSE»«expr.arg.condition.compileExpression.value
+									»«ENDIF»«IF expr.arg2 != null» && «expr.arg2.compileExpression.value»«ENDIF»;
 							}
 						}
 					)'''
 
 				localContext = oldcontext
-				return ret
+				return new RDOExpression(ret, if(expr.method.literal == "Size") "Integer" else "Boolean")
 			}
 
-			ArrayValues:
-				return "[" + expr.values.compileExpression + "]"
-
 			VariableIncDecExpression:
-				return (if (expr.pre != null) expr.pre else "") +
-					expr.^var.compileExpression + (if (expr.post != null) expr.post else "")
+			{
+				val ret = expr.^var.compileExpression
+				if(expr.pre != null && ret.value.contains(".get_") && ret.value.endsWith("()") && expr.^var.lookupLocal != null)
+					return new RDOExpression(ret.value.replace(".get_", ".set_").cutLastChars(2) +
+						"(" + ret.value + (if(expr.pre == "--") "- 1" else " + 1") + ")", ret.type)
+
+				if(expr.post != null && ret.value.contains(".get_") && ret.value.endsWith("()") && expr.^var.lookupLocal != null)
+						return new RDOExpression(ret.value.replace(".get_", ".set_").cutLastChars(2) +
+							"_after(" + ret.value + (if(expr.post == "--") " - 1" else " + 1") + ")", ret.type)
+
+				return new RDOExpression((if (expr.pre != null) expr.pre else "") +
+					 ret.value + (if (expr.post != null) expr.post else ""), ret.type)
+			}
 
 			VariableMethodCallExpression:
 			{
@@ -162,23 +228,23 @@ class RDOExpressionCompiler
 				{
 					var lcall = expr.lookupLocal
 					if(lcall != null)
-						return lcall
+						return new RDOExpression(lcall.generated, lcall.type)
 				}
 
 				var gcall = expr.lookupGlobal
 				if(gcall != null)
-					return gcall
+					return new RDOExpression(gcall.generated, gcall.type)
 
 				var mcall = ""
 				var flag = false
 
 				for (c : expr.calls)
 				{
-					mcall = mcall + (if(flag) "." else "") + c.compileExpression
+					mcall = mcall + (if(flag) "." else "") + c.compileExpression.value
 					flag = true
 				}
 
-				return mcall
+				return new RDOExpression(mcall, "unknown")
 			}
 
 			VariableExpression:
@@ -186,149 +252,259 @@ class RDOExpressionCompiler
 				var call = expr.call
 
 				if (expr.functionfirst)
-					call = call + "(" + (if (expr.args != null) expr.args.compileExpression else "") + ")"
+					call = call + "(" + (if (expr.args != null) expr.args.compileExpression.value else "") + ")"
 
 				if (expr.arrayfirst)
-					call = call + "[" + expr.iterator.compileExpression + "]"
+					call = call + "[" + expr.iterator.compileExpression.value + "]"
 
 				if (expr.functionlast)
-					call = call + "(" + (if (expr.args != null) expr.args.compileExpression else "") + ")"
+					call = call + "(" + (if (expr.args != null) expr.args.compileExpression.value else "") + ")"
 
 				if (expr.arraylast)
-					call = call + "[" + expr.iterator.compileExpression + "]"
+					call = call + "[" + expr.iterator.compileExpression.value + "]"
 
-				return call
+				return new RDOExpression(call, "unknown")
 			}
+
 			Primary:
-				return "(" + expr.exp.compileExpression + ")"
+			{
+				val ret = expr.exp.compileExpression
+				return new RDOExpression("(" + ret.value + ")", ret.type)
+			}
 
 			ExpressionExponentiation:
-				return "Math.pow(" + expr.left.compileExpression +
-				             ", " + expr.right.compileExpression + ")"
+				return new RDOExpression("Math.pow(" + expr.left.compileExpression.value +
+					", " + expr.right.compileExpression.value + ")", "Double")
 
 			ExpressionNegate:
-				return "!" + expr.exp.compileExpression
+				return new RDOExpression("!" + expr.exp.compileExpression.value, "Boolean")
 
 			ExpressionInvert:
-				return "-" + expr.exp.compileExpression
+			{
+				val e = expr.exp.compileExpression
+				return new RDOExpression("-" + e.value, e.type)
+			}
 
 			ExpressionMultiplication:
-				return expr.left.compileExpression +
-					" * " + expr.right.compileExpression
+			{
+				val left = expr.left.compileExpression
+				val right = expr.right.compileExpression
+				return RDOExpression.getType(left, right, ExpressionOperation.multiplication)
+			}
 
 			ExpressionDivision:
-				return expr.left.compileExpression +
-					" / " + expr.right.compileExpression
+			{
+				val left = expr.left.compileExpression
+				val right = expr.right.compileExpression
+				return RDOExpression.getType(left, right, ExpressionOperation.division)
+			}
 
 			ExpressionModulo:
-				return expr.left.compileExpression +
-					" % " + expr.right.compileExpression
+			{
+				val left = expr.left.compileExpression
+				val right = expr.right.compileExpression
+				return RDOExpression.getType(left, right, ExpressionOperation.modulo)
+			}
 
 			ExpressionPlus:
-				return expr.left.compileExpression +
-					" + " + expr.right.compileExpression
+			{
+				val left = expr.left.compileExpression
+				val right = expr.right.compileExpression
+				return RDOExpression.getType(left, right, ExpressionOperation.plus)
+			}
 
 			ExpressionMinus:
-				return expr.left.compileExpression +
-					" - " + expr.right.compileExpression
+			{
+				val left = expr.left.compileExpression
+				val right = expr.right.compileExpression
+				return RDOExpression.getType(left, right, ExpressionOperation.minus)
+			}
 
 			ExpressionLarger:
-				return expr.left.compileExpression +
-					" > " + expr.right.compileExpression
+				return new RDOExpression(expr.left.compileExpression.value +
+					" > " + expr.right.compileExpression.value, "Boolean")
 
 			ExpressionLarger_Equal:
-				return expr.left.compileExpression +
-					" >= " + expr.right.compileExpression
+				return new RDOExpression(expr.left.compileExpression.value +
+					" >= " + expr.right.compileExpression.value, "Boolean")
 
 			ExpressionSmaller:
-				return expr.left.compileExpression +
-					" < " + expr.right.compileExpression
+				return new RDOExpression(expr.left.compileExpression.value +
+					" < " + expr.right.compileExpression.value, "Boolean")
 
 			ExpressionSmaller_Equal:
-				return expr.left.compileExpression +
-					" <= " + expr.right.compileExpression
+				return new RDOExpression(expr.left.compileExpression.value +
+					" <= " + expr.right.compileExpression.value, "Boolean")
 
 			ExpressionEqual:
-				return expr.left.compileExpression +
-					" == " + expr.right.compileExpression
+			{
+				val left = expr.left.compileExpression
+				val right = expr.right.compileExpression
+
+				if(left.type == "unknown" && right.type.endsWith("_enum") && left.value.checkSingleID)
+					left.value = right.type + "." + left.value
+
+				if(right.type == "unknown" && left.type.endsWith("_enum") && right.value.checkSingleID)
+					right.value = left.type + "." + right.value
+
+				return new RDOExpression(left.value +
+					" == " + right.value, "Boolean")
+			}
 
 			ExpressionNot_Equal:
-				return expr.left.compileExpression +
-					" != " + expr.right.compileExpression
+			{
+				val left = expr.left.compileExpression
+				val right = expr.right.compileExpression
 
+				if(left.type == "unknown" && right.type.endsWith("_enum") && left.value.checkSingleID)
+					left.value = right.type + "." + left.value
+
+				if(right.type == "unknown" && left.type.endsWith("_enum") && right.value.checkSingleID)
+					right.value = left.type + "." + right.value
+
+				return new RDOExpression(left.value +
+					" != " + right.value, "Boolean")
+			}
 			ExpressionAnd:
-				return expr.left.compileExpression +
-					" && " + expr.right.compileExpression
+				return new RDOExpression(expr.left.compileExpression.value +
+					" && " + expr.right.compileExpression.value, "Boolean")
 
 			ExpressionOr:
-				return expr.left.compileExpression +
-					" || " + expr.right.compileExpression
+				return new RDOExpression(expr.left.compileExpression.value +
+					" || " + expr.right.compileExpression.value, "Boolean")
 
 			ExpressionAssignment:
-				return expr.left.compileExpression +
-				      " " + expr.left.op + " " + expr.next.compileExpression
+			{
 
-			ExpressionList:
+				val left = expr.left.compileExpression
+				val next = expr.next.compileExpression
+
+				if(next.type == "unknown" && left.type.endsWith("_enum") && next.value.checkSingleID)
+					next.value = left.type + "." + next.value
+
+				if(expr.left instanceof VariableIncDecExpression)
+				{
+
+					val idex = expr.left as VariableIncDecExpression
+					var lcall = lookupLocal(idex.^var)
+					if(lcall != null && lcall.generated.contains(".get_") && lcall.generated.endsWith("()"))
+					{
+						var op = (if(idex.op.length > 1) idex.op.substring(0, 1) else null)
+						return new RDOExpression(RDOStatementCompiler.cutLastChars(lcall.generated, 2).replace(".get_", ".set_") + "("
+							+ (if(op != null) lcall.generated + " " + op + " " else "") + next.value + ")", lcall.type)
+					}
+				}
+
+				return new RDOExpression(left.value +
+					" " + expr.left.op + " " + next.value, left.type)
+			}
+
+			ExpressionList:///!!!!!!!!
 			{
 				var String list = ""
 				var flag = false
 
 				for (e : expr.values)
 				{
-					list = list + ( if(flag) ", " else "" ) + e.compileExpression
+					list = list + ( if(flag) ", " else "" ) + e.compileExpression.value
 					flag = true
 				}
-				return list
+				return new RDOExpression(list, "List")
 			}
 
 			ResourceExpressionList:
 			{
+				val parent = expr.eContainer
+				val parameters = switch parent
+				{
+					ResourceDeclaration:
+						parent.reference.parameters.map[p | p.type.compileType]
+
+					PlanningStatement:
+						parent.event.parameters.map[p | p.type.compileType]
+				}
+
 				var String list = ""
 				var flag = false
 
 				for (e : expr.expressions)
 				{
-					list = list + ( if(flag) ", " else "" ) +
-						if (e instanceof RDODefaultParameter)
-							"null"
-						else
-							e.compileExpression
+					if (e instanceof RDODefaultParameter)
+						list = list + ( if(flag) ", " else "" ) + "null"
+					else
+					{
+						val exp = e.compileExpression
+						if(parameters != null && exp.type == "unknown" && exp.value.checkSingleID &&
+							parameters.size > expr.expressions.indexOf(e) &&
+								parameters.get(expr.expressions.indexOf(e)).endsWith("_enum"))
+							exp.value = parameters.get(expr.expressions.indexOf(e)) + "." + exp.value
+						list = list + ( if(flag) ", " else "" ) + exp.value
+					}
 					flag = true
 				}
-				return list
+				return new RDOExpression(list, "List")
 			}
-			
+
 			DecisionPointActivity:
 			{
+				val pattern = expr.pattern
+				val parameters = switch pattern
+				{
+					Rule:
+						pattern.parameters.map[p | p.type.compileType]
+
+					Operation:
+						pattern.parameters.map[p | p.type.compileType]
+				}
+
 				var String list = ""
 				var flag = false
 
 				for (e : expr.parameters)
 				{
-					list = list + ( if(flag) ", " else "" ) +
-						e.compileExpression
+					val exp = e.compileExpression
+					if(parameters != null && exp.type == "unknown" && exp.value.checkSingleID &&
+						parameters.size > expr.parameters.indexOf(e) &&
+							parameters.get(expr.parameters.indexOf(e)).endsWith("_enum"))
+						exp.value = parameters.get(expr.parameters.indexOf(e)) + "." + exp.value
+					list = list + ( if(flag) ", " else "" ) + exp.value
 					flag = true
 				}
-				return list
+				return new RDOExpression(list, "List")
 			}
 
 			DecisionPointSearchActivity:
 			{
+				val parameters = expr.pattern.parameters.map[p | p.type.compileType]
+
 				var String list = ""
 				var flag = false
 
 				for (e : expr.parameters)
 				{
-					list = list + ( if(flag) ", " else "" ) +
-						e.compileExpression
+					val exp = e.compileExpression
+					if(parameters != null && exp.type == "unknown" && exp.value.checkSingleID &&
+						parameters.size > expr.parameters.indexOf(e) &&
+							parameters.get(expr.parameters.indexOf(e)).endsWith("_enum"))
+						exp.value = parameters.get(expr.parameters.indexOf(e)) + "." + exp.value
+					list = list + ( if(flag) ", " else "" ) + exp.value
 					flag = true
 				}
-				return list
+				return new RDOExpression(list, "List")
 			}
 
 			default:
-				return "VAL"
+				return new RDOExpression("VAL", "unknown")
 		}
+	}
+
+	def static boolean checkSingleID(String s)
+	{
+		val sum = s.indexOf(".") + s.indexOf("(") + s.indexOf(")") + s.indexOf(" ")
+		if (sum == -4)
+			return true
+		else
+			return false
 	}
 
 	def static boolean checkPlainCall(VariableExpression expr)
@@ -336,24 +512,24 @@ class RDOExpressionCompiler
 		return expr.arrayfirst || expr.arraylast || expr.functionfirst || expr.functionlast
 	}
 
-	def static String lookupLocal(VariableMethodCallExpression expr)
+	def static LocalContext.ContextEntry lookupLocal(VariableMethodCallExpression expr)
 	{
 		var lcall = ""
 		var flag = false
 
-		val iter = expr.calls.iterator 
+		val iter = expr.calls.iterator
 		while(iter.hasNext)
 		{
 			lcall = lcall + (if(flag) "." else "") + iter.next.call
 			flag = true
 			if (localContext.findEntry(lcall) != null && !iter.hasNext)
-				return localContext.findEntry(lcall).generated
+				return localContext.findEntry(lcall)
 		}
 
 		return null
 	}
 
-	def static String lookupGlobal(VariableMethodCallExpression expr)
+	def static LocalContext.ContextEntry lookupGlobal(VariableMethodCallExpression expr)
 	{
 		var gcall = ""
 
@@ -367,7 +543,7 @@ class RDOExpressionCompiler
 			gcall = gcall +  expr.modelRoot.nameGeneric
 		}
 		else
-			gcall = gcall + iter.next.call	
+			gcall = gcall + iter.next.call
 
 		var next = (if(iter.hasNext) iter.next else null)
 
@@ -380,11 +556,11 @@ class RDOExpressionCompiler
 			gcall = gcall + "." + rtp + ".getResource(\"" + next.call + "\")"
 			next = (if(iter.hasNext) iter.next else null)
 			if(next == null)
-				return null	
+				return null
 			if(info.restypes.get(rtp).parameters.get(next.call) != null && !iter.hasNext)
 			{
 				gcall = gcall + ".get_"+ next.call +"()"
-				return gcall
+				return new LocalContext.ContextEntry(gcall, info.restypes.get(rtp).parameters.get(next.call))
 			}
 		}
 
@@ -392,24 +568,24 @@ class RDOExpressionCompiler
 		{
 			gcall = gcall + "." + next.call + ".getNext("
 			if(next.args != null)
-				gcall = gcall + next.args.compileExpression
-			return gcall + ")"
+				gcall = gcall + next.args.compileExpression.value
+			return new LocalContext.ContextEntry(gcall + ")", info.sequences.get(next.call).type)
 		}
 
 		if(info.constants.get(next.call) != null && !iter.hasNext)
 		{
-			return gcall + "." + next.call + ".value"
+			return new LocalContext.ContextEntry(gcall + "." + next.call + ".value", info.constants.get(next.call).type)
 		}
 
 		if(info.functions.get(next.call) != null && !iter.hasNext)
 		{
 			gcall = gcall + "." + next.call + ".evaluate("
 			if(next.args != null)
-				gcall = gcall + next.args.compileExpression
-			return gcall + ")"
+				gcall = gcall + next.args.compileExpression.value
+			return new LocalContext.ContextEntry(gcall + ")", info.functions.get(next.call).type)
 		}
 
-		return null 
+		return null
 	}
 
 	def static String compileType(EObject type)
@@ -450,6 +626,8 @@ class RDOExpressionCompiler
 			RDORTPParameterEnum  : type.type.compileTypePrimitive
 			RDORTPParameterArray : type.type.compileTypePrimitive
 
+			ConstantDeclaration: type.type.compileTypePrimitive
+
 			RDOInteger: "int"
 			RDOReal   : "double"
 			RDOBoolean: "boolean"
@@ -460,6 +638,33 @@ class RDOExpressionCompiler
 
 			default: "int /* TYPE IS ACTUALLY UNKNOWN */"
 		}
+	}
+
+	def static RDOType resolveAllSuchAs(EObject type)
+	{
+		switch type
+		{
+			ResourceTypeParameter: type.type.resolveAllSuchAs
+
+			RDORTPParameterBasic : type.type
+			RDORTPParameterString: type.type
+			RDORTPParameterSuchAs: type.type.type.resolveAllSuchAs
+			RDORTPParameterEnum  : type.type
+			RDORTPParameterArray : type.type
+
+			ConstantDeclaration: type.type.resolveAllSuchAs
+
+			RDOInteger: type
+			RDOReal   : type
+			RDOBoolean: type
+			RDOString : type
+			RDOEnum   : type
+			RDOSuchAs : type.type.resolveAllSuchAs
+			RDOArray  : type
+
+			default: null
+		}
+
 	}
 
 	def static String compileAllDefault(int count)

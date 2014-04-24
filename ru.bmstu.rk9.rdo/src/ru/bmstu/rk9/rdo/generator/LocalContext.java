@@ -19,6 +19,9 @@ import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource;
 
 import ru.bmstu.rk9.rdo.rdo.GroupBy;
 
+import ru.bmstu.rk9.rdo.rdo.RDOEnum;
+import ru.bmstu.rk9.rdo.rdo.EnumID;
+
 
 public class LocalContext
 {
@@ -27,7 +30,7 @@ public class LocalContext
 		public String type;
 		public String generated;
 
-		public ContextEntry(String type, String generated)
+		public ContextEntry(String generated, String type)
 		{
 			this.type = type;
 			this.generated = generated;
@@ -38,7 +41,7 @@ public class LocalContext
 
 	public void addRawEntry(String name, String type, String generated)
 	{
-		index.put(name, new ContextEntry(type, generated));
+		index.put(name, new ContextEntry(generated, type));
 	}
 
 	public ContextEntry findEntry(String entry)
@@ -57,6 +60,14 @@ public class LocalContext
 			index = new HashMap<String, ContextEntry>(other.index);
 		else
 			index = new HashMap<String, ContextEntry>();
+	}
+
+	public LocalContext populateWithEnums(RDOEnum enm)
+	{
+		for(EnumID id : enm.getEnums())
+			this.addRawEntry(id.getName(), RDOExpressionCompiler.compileType(enm), RDOExpressionCompiler.compileType(enm) + "." + id.getName());
+
+		return this;
 	}
 
 	public LocalContext populateFromGroupBy(GroupBy gb)

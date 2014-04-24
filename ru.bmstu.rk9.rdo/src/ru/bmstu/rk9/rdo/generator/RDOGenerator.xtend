@@ -28,8 +28,9 @@ import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
-import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
@@ -70,6 +71,7 @@ import ru.bmstu.rk9.rdo.rdo.ResultGetValue
 import ru.bmstu.rk9.rdo.rdo.SimulationRun
 
 import ru.bmstu.rk9.rdo.rdo.RDOType
+import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 
 class RDOGenerator implements IMultipleResourceGenerator
@@ -211,7 +213,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«FOR r : rs.resources»
 					«FOR rtp : r.allContents.filter(typeof(ResourceDeclaration)).toIterable»
 						(new «rtp.reference.fullyQualifiedName»(«if (rtp.parameters != null)
-							rtp.parameters.compileExpression else ""»)).register("«rtp.name»");
+							rtp.parameters.compileExpression.value else ""»)).register("«rtp.name»");
 					«ENDFOR»
 				«ENDFOR»
 			}
@@ -337,7 +339,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 		public class «con.name»
 		{
-			public static final «con.type.compileType» value = «con.value.compileExpression»;
+			public static final «con.type.compileType» value = «IF con.type.compileType.endsWith("_enum")»«
+				con.value.compileExpressionContext((new LocalContext).populateWithEnums(
+					con.type.resolveAllSuchAs as RDOEnum)).value»«ELSE»«con.value.compileExpression.value»«ENDIF»;
 			«IF con.type instanceof RDOEnum»
 
 				public enum «(con.type as RDOEnum).getEnumParentName(false)»_enum
@@ -376,7 +380,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				private «seq.returntype.compileTypePrimitive»[] values = new «seq.returntype.compileTypePrimitive»[]
 					{
 						«FOR i : 0 ..< (seq.type as EnumerativeSequence).values.size»
-							«(seq.type as EnumerativeSequence).values.get(i).compileExpression»«
+							«(seq.type as EnumerativeSequence).values.get(i).compileExpression.value»«
 								IF i != (seq.type as EnumerativeSequence).values.size - 1»,«ENDIF»
 						«ENDFOR»
 					};
@@ -445,10 +449,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 		{
 			for (i : 0 ..< seq.values.size/3)
 			{
-				ret = ret + (if (flag) ", " else "") + seq.values.get(3*i).compileExpression
+				ret = ret + (if (flag) ", " else "") + seq.values.get(3*i).compileExpression.value
 				flag = true
 			}
-			ret = ret + ", " + seq.values.get(seq.values.size - 2).compileExpression
+			ret = ret + ", " + seq.values.get(seq.values.size - 2).compileExpression.value
 		}
 
 		return ret
@@ -466,7 +470,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 		for (i : 0 ..< seq.values.size/weightPos)
 		{
-			ret = ret + (if (flag) ", " else "") + seq.values.get(weightPos*(i + 1) - 1).compileExpression
+			ret = ret + (if (flag) ", " else "") + seq.values.get(weightPos*(i + 1) - 1).compileExpression.value
 			flag = true
 		}
 
@@ -478,9 +482,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 		var ret = ""
 		var flag = false
 
+		val context = (new LocalContext).populateWithEnums((seq.eContainer as Sequence).returntype.resolveAllSuchAs as RDOEnum)
+
 		for (i : 0 ..< seq.values.size/2)
 		{
-			ret = ret + (if (flag) ", " else "") + seq.values.get(i*2).compileExpression
+			ret = ret + (if (flag) ", " else "") + seq.values.get(i*2).compileExpressionContext(context).value
 			flag = true
 		}
 
@@ -634,6 +640,15 @@ class RDOGenerator implements IMultipleResourceGenerator
 					return «parameter.name»;
 				}
 
+				public «parameter.type.compileType» set_«parameter.name»_after(«parameter.type.compileType» «parameter.name»)
+				{
+					«parameter.type.compileTypePrimitive» copy = this.«parameter.name»;
+
+					set_«parameter.name»(«parameter.name»);
+
+					return copy;
+				}
+
 			«ENDFOR»
 			private «rtp.name» copyForNewOwner()
 			{
@@ -725,7 +740,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 					{
 						«type.algorithm.compileStatement»
 					}
-					return «IF fun.^default != null»«fun.^default.compileExpression»«ELSE»null«ENDIF»;
+					return «IF fun.^default != null»«IF fun.returntype.compileType.endsWith("_enum")»«
+						fun.^default.compileExpressionContext((new LocalContext).populateWithEnums(
+							fun.returntype.resolveAllSuchAs as RDOEnum)).value»«ELSE»«
+								fun.^default.compileExpression.value»«ENDIF»«ELSE»null«ENDIF»;
 				}
 
 			}
@@ -1323,7 +1341,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				begin.run(resources, parameters);
 
 				rdo_lib.Simulator.pushEvent(new «op.name»(rdo_lib.Simulator.getTime() + «
-					op.time.compileExpressionContext((new LocalContext).populateFromOperation(op))», resources, parameters));
+					op.time.compileExpressionContext((new LocalContext).populateFromOperation(op)).value», resources, parameters));
 			}
 
 			private double time;
@@ -1394,9 +1412,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 				public boolean check(RelevantResources resources, «resource» «relres», Parameters parameters)
 				{
 					return «IF havecf»(«IF pattern instanceof Operation»«
-						cf.logic.compileExpressionContext((new LocalContext).populateFromOperation(pattern as Operation)).
+						cf.logic.compileExpressionContext((new LocalContext).populateFromOperation(pattern as Operation)).value.
 							replaceAll("resources." + relres + ".", relres + ".")»«	ELSE»«
-								cf.logic.compileExpressionContext((new LocalContext).populateFromRule(pattern as Rule)).
+								cf.logic.compileExpressionContext((new LocalContext).populateFromRule(pattern as Rule)).value.
 									replaceAll("resources." + relres + ".", relres + ".")»«ENDIF»)«ELSE»true«ENDIF»«
 										FOR i : 0 ..< relreslist.size»«IF relres != relreslist.get(i) && relrestype ==
 											relrestypes.get(i)»«"\t"»&& «relres» != resources.«relreslist.get(i)»«ENDIF»«ENDFOR»;
@@ -1424,7 +1442,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 			val context = (if(pat instanceof Rule) (new LocalContext).populateFromRule(pat as Rule)
 				else (new LocalContext).populateFromOperation(pat as Operation))
 
-			val expr = cm.expression.compileExpressionContext(context)
+			val expr = cm.expression.compileExpressionContext(context).value
 			return
 				'''
 				new rdo_lib.SimpleChoiceFrom.ChoiceMethod<RelevantResources, «resource», Parameters>()
@@ -1447,9 +1465,21 @@ class RDOGenerator implements IMultipleResourceGenerator
 		switch parameter
 		{
 			RDORTPParameterBasic:
-				return if (parameter.^default != null) " = " + RDOExpressionCompiler.compileExpression(parameter.^default) else ""
+				return if(parameter.^default != null) " = " + RDOExpressionCompiler.compileExpression(parameter.^default).value else ""
+
+			RDORTPParameterEnum:
+				return if(parameter.^default != null) " = " + parameter.type.compileType + "." + parameter.^default.name else ""
+
+			RDORTPParameterSuchAs:
+				if(parameter.type.compileType.endsWith("_enum"))
+					return if(parameter.^default != null) " = " + parameter.^default.compileExpressionContext((new LocalContext).
+						populateWithEnums(parameter.type.resolveAllSuchAs as RDOEnum)).value else ""
+				else
+					return if(parameter.^default != null) " = " + parameter.^default.compileExpression.value else ""
+
 			RDORTPParameterString:
 				return if (parameter.^default != null) ' = "' + parameter.^default + '"' else ""
+
 			default:
 				return ""
 		}
@@ -1522,7 +1552,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«FOR i : 0 ..< activities.size»
 				«IF activities.get(i).parameters.size == parameters.get(i).size»
 				private static «activities.get(i).pattern.fullyQualifiedName».Parameters «activities.get(i).name» =
-					new «activities.get(i).pattern.fullyQualifiedName».Parameters(«activities.get(i).compileExpression»);
+					new «activities.get(i).pattern.fullyQualifiedName».Parameters(«activities.get(i).compileExpression.value»);
 				«ENDIF»
 				«ENDFOR»
 
@@ -1531,14 +1561,14 @@ class RDOGenerator implements IMultipleResourceGenerator
 					(
 						"«dpt.fullyQualifiedName»",
 						«IF dpt.parent != null»«dpt.parent.fullyQualifiedName».getDPT()«ELSE»null«ENDIF»,
-						«IF dpt instanceof DecisionPointPrior»«dpt.priority.compileExpression»«ELSE»null«ENDIF»,
+						«IF dpt instanceof DecisionPointPrior»«dpt.priority.compileExpression.value»«ELSE»null«ENDIF»,
 						«IF dpt.condition != null
 						»new rdo_lib.DecisionPoint.Condition()
 						{
 							@Override
 							public boolean check()
 							{
-								return «dpt.condition.compileExpression»;
+								return «dpt.condition.compileExpression.value»;
 							}
 						}«ELSE»null«ENDIF»
 					);
@@ -1596,7 +1626,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«IF (activities.get(i).parameters != null && activities.get(i).parameters.size == parameters.get(i).size) ||
 					(activities.get(i).parameters == null && activities.get(i).pattern.parameters == null)»
 				private static «activities.get(i).pattern.fullyQualifiedName».Parameters «activities.get(i).name» =
-					new «activities.get(i).pattern.fullyQualifiedName».Parameters(«activities.get(i).compileExpression»);
+					new «activities.get(i).pattern.fullyQualifiedName».Parameters(«activities.get(i).compileExpression.value»);
 				«ENDIF»
 				«ENDFOR»
 
@@ -1610,7 +1640,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 							@Override
 							public boolean check()
 							{
-								return «dpt.condition.compileExpression»;
+								return «dpt.condition.compileExpression.value»;
 							}
 						}«ELSE»null«ENDIF»,
 						new rdo_lib.DecisionPoint.Condition()
@@ -1618,7 +1648,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 							@Override
 							public boolean check()
 							{
-								return «dpt.termination.compileExpression»;
+								return «dpt.termination.compileExpression.value»;
 							}
 						},
 						new rdo_lib.DecisionPointSearch.EvaluateBy()
@@ -1626,7 +1656,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 							@Override
 							public double get()
 							{
-								return «dpt.evaluateby.compileExpression»;
+								return «dpt.evaluateby.compileExpression.value»;
 							}
 						},
 						«IF dpt.comparetops»true«ELSE»false«ENDIF»,
@@ -1669,8 +1699,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 								@Override
 								public double calculateValue()
 								{
-									return «IF a.valueafter != null»«a.valueafter.compileExpression
-										»«ELSE»«a.valuebefore.compileExpression»«ENDIF»;
+									return «IF a.valueafter != null»«a.valueafter.compileExpression.value
+										»«ELSE»«a.valuebefore.compileExpression.value»«ENDIF»;
 								}
 							}
 						);
@@ -1716,7 +1746,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				public void get()
 				{
 					System.out.println("«(type.eContainer as ResultDeclaration).name»\t\t|\tType: get_value\t\t|\tValue: " +
-						(«type.expression.compileExpression»));
+						(«type.expression.compileExpression.value»));
 				}
 				'''
 			default:
