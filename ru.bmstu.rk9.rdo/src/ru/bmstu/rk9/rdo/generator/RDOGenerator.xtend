@@ -374,7 +374,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 					prng.setSeed(seed);
 				}
 
-				«(seq.type as RegularSequence).compileRegularSequence(seq.returntype)»
+				«(seq.type as RegularSequence).compileRegularSequence(seq.returntype, (seq.type as RegularSequence).legacy)»
 			«ENDIF»
 			«IF seq.type instanceof EnumerativeSequence»
 				private «seq.returntype.compileTypePrimitive»[] values = new «seq.returntype.compileTypePrimitive»[]
@@ -493,7 +493,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		return ret
 	}
 
-	def compileRegularSequence(RegularSequence seq, RDOType rtype)
+	def compileRegularSequence(RegularSequence seq, RDOType rtype, boolean legacy)
 	{
 		switch seq.type
 		{
@@ -506,19 +506,38 @@ class RDOGenerator implements IMultipleResourceGenerator
 					}
 					'''
 			case RegularSequenceType.EXPONENTIAL:
-				return
+				return if(!legacy)
 					'''
 					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» mean)
 					{
 						return («rtype.compileTypePrimitive»)(-1.0 * mean * org.apache.commons.math3.util.FastMath.log(1 - prng.nextDouble()));
 					}
 					'''
+				else
+					'''
+					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» mean)
+					{
+						return («rtype.compileTypePrimitive»)(-mean * Math.log(prng.nextDouble()));
+					}
+					'''
 			case RegularSequenceType.NORMAL:
-				return
+				return if(!legacy)
 					'''
 					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» mean, «rtype.compileTypePrimitive» deviation)
 					{
 						return («rtype.compileTypePrimitive»)(mean + deviation * org.apache.commons.math3.util.FastMath.sqrt(2) * org.apache.commons.math3.special.Erf.erfInv(2 * prng.nextDouble() - 1));
+					}
+					'''
+				else
+					'''
+					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» mean, «rtype.compileTypePrimitive» deviation)
+					{
+						double ran = 0;
+						for (int i = 0; i < 12; ++i)
+						{
+							ran += prng.nextDouble();
+						}
+						return deviation * (ran - 6) + mean;
 					}
 					'''
 			case RegularSequenceType.TRIANGULAR:
@@ -530,9 +549,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 						double edge = (double)(c - a) / (double)(b - a);
 
 					if (next < edge)
-							return («rtype.compileTypePrimitive»)(a + org.apache.commons.math3.util.FastMath.sqrt((b - a) * (c - a) * next));
+							return («rtype.compileTypePrimitive»)(a + «IF !legacy»org.apache.commons.math3.util.Fast«ENDIF»Math.sqrt((b - a) * (c - a) * next));
 						else
-							return («rtype.compileTypePrimitive»)(b - org.apache.commons.math3.util.FastMath.sqrt((1 - next) * (b - a) * (b - c)));
+							return («rtype.compileTypePrimitive»)(b - «IF !legacy»org.apache.commons.math3.util.Fast«ENDIF»Math.sqrt((1 - next) * (b - a) * (b - c)));
 					}
 					'''
 		}
@@ -1762,14 +1781,22 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 		import java.util.Iterator;
 
+		import java.util.ArrayList;
+
 		import java.util.HashMap;
 
 		public class PermanentResourceManager<T extends PermanentResource & ResourceComparison<T>>
 		{
 			protected HashMap<String, T> resources;
+			protected ArrayList<T> listResources;
 
 			public void addResource(T res)
 			{
+				if(resources.get(res.getName()) != null)
+					listResources.set(listResources.indexOf(resources.get(res.getName())), res);
+				else
+					listResources.add(res);
+
 				resources.put(res.getName(), res);
 			}
 
@@ -1780,16 +1807,18 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 			public java.util.Collection<T> getAll()
 			{
-				return resources.values();
+				return listResources;
 			}
 
 			public PermanentResourceManager()
 			{
+				this.listResources = new ArrayList<T>();
 				this.resources = new HashMap<String, T>();
 			}
 
 			private PermanentResourceManager(PermanentResourceManager<T> source)
 			{
+				this.listResources = new ArrayList<T>(source.listResources);
 				this.resources = new HashMap<String, T>(source.resources);
 			}
 
