@@ -576,7 +576,7 @@ RDOString:
 ;
 
 DeclarationRange
-	:'[' lo = RangeValue '..' hi = RangeValue ']'
+	:'[' lo = RangeValue ('..' | ':') hi = RangeValue ']'
 ;
 
 RangeValue
