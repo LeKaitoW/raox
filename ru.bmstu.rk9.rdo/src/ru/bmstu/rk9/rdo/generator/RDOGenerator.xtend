@@ -1649,8 +1649,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«ENDIF»
 				«ENDFOR»
 
-				private static rdo_lib.DecisionPointSearch<rdo_model.«dpt.modelRoot.nameGeneric»_database> dpt =
-					new rdo_lib.DecisionPointSearch<rdo_model.«dpt.modelRoot.nameGeneric»_database>
+				private static rdo_lib.DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»_database> dpt =
+					new rdo_lib.DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»_database>
 					(
 						"«dpt.fullyQualifiedName»",
 						«IF dpt.condition != null
@@ -1679,12 +1679,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 							}
 						},
 						«IF dpt.comparetops»true«ELSE»false«ENDIF»,
-						new rdo_lib.DecisionPointSearch.DatabaseRetriever<rdo_model.«dpt.modelRoot.nameGeneric»_database>()
+						new rdo_lib.DecisionPointSearch.DatabaseRetriever<rdo_model.«dpt.eResource.URI.projectName»_database>()
 						{
 							@Override
-							public rdo_model.«dpt.modelRoot.nameGeneric»_database get()
+							public rdo_model.«dpt.eResource.URI.projectName»_database get()
 							{
-								return rdo_model.«dpt.modelRoot.nameGeneric»_database.getCurrent();
+								return rdo_model.«dpt.eResource.URI.projectName»_database.getCurrent();
 							}
 						}
 					);
