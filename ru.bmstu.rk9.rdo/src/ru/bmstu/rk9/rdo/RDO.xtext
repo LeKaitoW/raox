@@ -410,31 +410,33 @@ FunctionType
 ;
 
 FunctionAlgorithmic:
-	'algorithmic'
-		(parameters = FunctionParameters)?
-	'$Body'
+	 'algorithmic'
+	('$Parameters'? | ('$Parameters' 
+		parameters = FunctionParameters))
+	 '$Body'
 		algorithm = StatementList
-	'$End'
+	 '$End'
 ;
 
 FunctionTable:
-	'table'
-		parameters = FunctionParameters
-	'$Body'
+	 'table'
+	('$Parameters'? | ('$Parameters' 
+		parameters = FunctionParameters))
+	 '$Body'
 		table += Primary+ 
-	'$End'
+	 '$End'
 ;
 
 FunctionList:
-	'list'
-		parameters = FunctionParameters
-	'$Body'
+	 'list'
+	('$Parameters'? | ('$Parameters' 
+		parameters = FunctionParameters))
+	 '$Body'
 		list += FunctionListValue+
-	'$End'
+	 '$End'
 ;
 
 FunctionParameters:
-	'$Parameters'
 	parameters += FunctionParameter+
 ;
 
