@@ -18,7 +18,7 @@ Require-Bundle: ru.bmstu.rk9.rdo;visibility:=reexport,
  org.eclipse.compare
 Import-Package: org.apache.log4j,
  org.eclipse.xtext.xbase.lib
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: ru.bmstu.rk9.rdo.ui.quickfix,
  ru.bmstu.rk9.rdo.ui.contentassist,
  ru.bmstu.rk9.rdo.ui.contentassist.antlr,

@@ -33,6 +33,15 @@
 	</natures>
 	<filteredResources>
 		<filter>
+			<id>1399637349384</id>
+			<name></name>
+			<type>22</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-.gitignore</arguments>
+			</matcher>
+		</filter>
+		<filter>
 			<id>1394573733163</id>
 			<name>icons</name>
 			<type>5</type>
