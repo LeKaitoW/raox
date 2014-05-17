@@ -22,6 +22,7 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
+import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
 import ru.bmstu.rk9.rdo.customizations.RDOQualifiedNameProvider
 
@@ -41,6 +42,7 @@ import ru.bmstu.rk9.rdo.rdo.Sequence
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.Function
+import ru.bmstu.rk9.rdo.rdo.FunctionTable
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.PatternParameter
@@ -62,6 +64,8 @@ import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 import ru.bmstu.rk9.rdo.rdo.SimulationRun
 
 import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
+import ru.bmstu.rk9.rdo.rdo.RDOEnum
+import ru.bmstu.rk9.rdo.rdo.RDOInteger
 
 
 class SuchAsHistory
@@ -768,6 +772,21 @@ class RDOValidator extends AbstractRDOValidator
 							e.eContainer, RdoPackage.eINSTANCE.ruleConvert_Choicemethod)
 				}
 			}
+	}
+
+	@Check
+	def checkTableParameters(FunctionTable fun)
+	{
+		if(fun.parameters == null)
+			return;
+
+		for(p : fun.parameters.parameters)
+		{
+			val actual = p.type.resolveAllSuchAs
+			if(!(actual instanceof RDOEnum || (actual instanceof RDOInteger && (actual as RDOInteger).range != null)))
+				error("Invalid parameter type. Table function allows enumerative and ranged integer parameters only",
+					p, RdoPackage.eINSTANCE.functionParameter_Type)			
+		}
 	}
 
 }
