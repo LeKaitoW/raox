@@ -734,10 +734,6 @@ class RDOValidator extends AbstractRDOValidator
 		if (rule == "Create" && c.havechoice)
 			error("Relevant resource " + c.relres.name + " with convert status "+rule+" shouldn't have a choice from",
 				RdoPackage.eINSTANCE.ruleConvert_Havechoice)
-
-		if (c.relres.type instanceof ResourceDeclaration && c.havechoice)
-			error("Relevant resource " + c.relres.name + " shouldn't have a choice from for being a resource declaration",
-				RdoPackage.eINSTANCE.ruleConvert_Havechoice)
 	}
 
 	@Check
