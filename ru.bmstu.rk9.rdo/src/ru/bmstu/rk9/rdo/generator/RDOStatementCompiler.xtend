@@ -146,7 +146,7 @@ class RDOStatementCompiler
 
 				val ret =
 					'''
-					if(«st.condition.compileExpression.value»)
+					if(«st.condition.compileExpressionContext(localContext).value»)
 					«IF !(st.then instanceof NestedStatement)»	«ENDIF»«st.then.compileStatement»
 					«IF st.^else != null»else
 					«IF !(st.^else instanceof NestedStatement)»	«ENDIF»«st.^else.compileStatement»
