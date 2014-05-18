@@ -26,6 +26,7 @@ import ru.bmstu.rk9.rdo.rdo.Sequence
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.Function
+import ru.bmstu.rk9.rdo.rdo.FunctionParameter
 
 import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.Operation
@@ -100,6 +101,9 @@ class RDONaming
 			Function:
 				return object.name
 
+			FunctionParameter:
+				return object.name
+
 			PatternParameter:
 				return object.name
 
@@ -135,7 +139,7 @@ class RDONaming
 		}
 	}
 
-	def static getFullyQualifiedName(EObject object)
+	def static String getFullyQualifiedName(EObject object)
 	{
 		switch object
 		{
@@ -160,6 +164,9 @@ class RDONaming
 
 			Function:
 				return object.eContainer.nameGeneric + "." + object.name
+
+			FunctionParameter:
+				return object.eContainer.eContainer.eContainer.fullyQualifiedName + "." + object.name
 
 			Operation:
 				return object.eContainer.nameGeneric + "." + object.name
@@ -252,6 +259,11 @@ class RDONaming
 			doubleclass = false
 			container = container.eContainer
 		}
+
+		if (container instanceof FunctionParameter)
+		{
+			doubleclass = false
+		}		
 
 		if (isFQN)
 			return container.fullyQualifiedName + (if(doubleclass) ("." + container.nameGeneric) else "")

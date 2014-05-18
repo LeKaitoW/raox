@@ -20,6 +20,10 @@ import ru.bmstu.rk9.rdo.rdo.ResourceExpressionList
 
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
 
+import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic
+import ru.bmstu.rk9.rdo.rdo.FunctionTable
+import ru.bmstu.rk9.rdo.rdo.FunctionList
+
 import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.Operation
 
@@ -134,9 +138,10 @@ class RDOExpressionCompiler
 
 	def static RDOExpression compileExpressionContext(EObject expr, LocalContext context)
 	{
+		val backupContext = localContext
 		localContext = context
 		val ret = expr.compileExpression
-		localContext = null
+		localContext = backupContext
 
 		return ret
 	}
@@ -580,8 +585,35 @@ class RDOExpressionCompiler
 		if(info.functions.get(next.call) != null && !iter.hasNext)
 		{
 			gcall = gcall + "." + next.call + ".evaluate("
-			if(next.args != null)
-				gcall = gcall + next.args.compileExpression.value
+			
+			val fun = info.functions.get(next.call).origin
+			val params = switch fun.type
+			{
+				FunctionAlgorithmic:
+					(fun.type as FunctionAlgorithmic).parameters
+				FunctionTable:
+					(fun.type as FunctionTable).parameters
+				FunctionList:
+					(fun.type as FunctionList).parameters		
+			}
+			
+			if(next.args != null && params != null && params.parameters.size == next.args.values.size)
+			{
+				var flag = false
+				var i = 0
+				for(a : next.args.values)
+				{
+					gcall = gcall + (if(flag) ", " else "") +
+						if(params.parameters.get(i).type.compileType.endsWith("_enum"))
+							a.compileExpressionContext((new LocalContext(localContext)).
+								populateWithEnums(params.parameters.get(i).type.resolveAllSuchAs as RDOEnum)).value
+						else
+							a.compileExpression.value
+					i = i + 1 
+					flag = true
+				}
+				
+			}
 			return new LocalContext.ContextEntry(gcall + ")", info.functions.get(next.call).type)
 		}
 
@@ -602,8 +634,18 @@ class RDOExpressionCompiler
 
 			ConstantDeclaration: type.type.compileType
 
-			RDOInteger: "Integer"
-			RDOReal   : "Double"
+			RDOInteger:
+//					if(type.range != null)
+//						"rdo_lib.RDORangedInteger"
+//					else
+						"Integer"
+
+			RDOReal   :
+//					if(type.range != null)
+//						"rdo_lib.RDORangedDouble"
+//					else
+						"Double"
+
 			RDOBoolean: "Boolean"
 			RDOString : "String"
 			RDOEnum   : type.getEnumParentName(true) + "_enum"
