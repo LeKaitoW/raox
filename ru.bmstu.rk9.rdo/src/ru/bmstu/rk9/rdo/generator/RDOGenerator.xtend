@@ -72,7 +72,10 @@ import ru.bmstu.rk9.rdo.rdo.SimulationRun
 
 import ru.bmstu.rk9.rdo.rdo.RDOType
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
-
+import ru.bmstu.rk9.rdo.rdo.Expression
+import ru.bmstu.rk9.rdo.rdo.RDOInteger
+import ru.bmstu.rk9.rdo.rdo.IntConstant
+import ru.bmstu.rk9.rdo.rdo.DoubleConstant
 
 class RDOGenerator implements IMultipleResourceGenerator
 {
@@ -93,6 +96,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 		fsa.generateFile("rdo_lib/DPTManager.java",               compileDPTManager      ())
 		fsa.generateFile("rdo_lib/Select.java",                   compileSelect          ())
 		fsa.generateFile("rdo_lib/RDOLegacyRandom.java",          compileRDOLegacyRandom ())
+		fsa.generateFile("rdo_lib/RDORangedInteger.java",         compileRDORangedInteger())
+		fsa.generateFile("rdo_lib/RDORangedDouble.java",          compileRDORangedDouble ())
 		fsa.generateFile("rdo_lib/HistogramSequence.java",        compileHistogram       ())
 		fsa.generateFile("rdo_lib/SimpleChoiceFrom.java",         compileSimpleChoiceFrom())
 		fsa.generateFile("rdo_lib/CombinationalChoiceFrom.java",  compileCommonChoiceFrom())
@@ -721,7 +726,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		ENDIF»'''
 	}
 
-	def makeEnumBody(RDOEnum e)
+	def static makeEnumBody(RDOEnum e)
 	{
 		var flag = false
 		var body = ""
@@ -750,38 +755,131 @@ class RDOGenerator implements IMultipleResourceGenerator
 		switch type
 		{
 			FunctionAlgorithmic:
-			'''
 			{
-				public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
-					»«type.parameters.parameters.compileFunctionTypeParameters»«ENDIF»)
-				{
-					if (true)
-					{
-						«type.algorithm.compileStatement»
-					}
-					return «IF fun.^default != null»«IF fun.returntype.compileType.endsWith("_enum")»«
-						fun.^default.compileExpressionContext((new LocalContext).populateWithEnums(
-							fun.returntype.resolveAllSuchAs as RDOEnum)).value»«ELSE»«
-								fun.^default.compileExpression.value»«ENDIF»«ELSE»null«ENDIF»;
-				}
+				var context = (new LocalContext).populateFromFunction(type)
 
+				'''
+				{
+					«IF type.parameters != null»«type.parameters.parameters.compileEnumsForFunction»«ENDIF»
+					public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
+						»«type.parameters.parameters.compileFunctionTypeParameters»«ENDIF»)
+					{
+						if (true)
+						{
+							«type.algorithm.compileStatementContext(context)»
+						}
+						return «IF fun.^default != null»«IF fun.returntype.compileType.endsWith("_enum")»«
+							fun.^default.compileExpressionContext(context).value»«ELSE»«
+									fun.^default.compileExpression.value»«ENDIF»«ELSE»null«ENDIF»;
+					}
+				}
+				'''
 			}
-			'''
+
 			FunctionTable:
 			'''
 			{
+				«IF type.parameters != null»«type.parameters.parameters.compileEnumsForFunction»«ENDIF»
+				private static «fun.returntype.compileType»[] values =
+				{
+					«type.table.compileTable(
+						if(fun.returntype.compileType.endsWith("_enum"))
+							(new LocalContext).populateWithEnums(fun.returntype.resolveAllSuchAs as RDOEnum)
+						else
+							null,
+						type.parameters.parameters.get(0).type.resolveAllSuchAs.tableLength
+					)»
+				};
 
+				public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
+						»«type.parameters.parameters.compileFunctionTypeParameters»«ENDIF»)
+				{
+					return
+						«type.parameters.parameters.compileTableReturn»;
+				}
 			}
 			'''
 			FunctionList:
 			'''
 			{
+				«IF type.parameters != null
+					»«type.parameters.parameters.compileEnumsForFunction»«ENDIF»
 
 			}
 			'''
 		}
 	}
 
+	def static int getTableLength(RDOType type)
+	{
+		switch type
+		{
+			RDOInteger:
+				if(type.range != null)
+					return 
+						if(type.range.hi instanceof IntConstant)
+							(type.range.hi as IntConstant).value
+						else
+							((type.range.hi as DoubleConstant).value as int)
+						-
+						if(type.range.lo instanceof IntConstant)
+							(type.range.lo as IntConstant).value
+						else
+							((type.range.lo as DoubleConstant).value as int)
+				else
+					return 0
+
+			RDOEnum:
+				return type.enums.size
+
+			default:
+				return 0
+		}
+	}
+
+	def static compileTable(List<Expression> table, LocalContext context, int cut)
+	{
+		var values = ""
+		var flag = false
+		var i = 0
+
+		for(e : table)
+		{
+			values = values + (if(flag) "," + if(i != cut) " " else "" else "") + (if(i == cut) "\n" else "") + (
+				if(context != null)
+					e.compileExpressionContext(context).value
+				else
+					e.compileExpression.value)
+			i = i + 1
+			if(i > cut)
+				i = 1
+			flag = true
+		}
+		
+		return values 
+	}
+
+	def static compileTableReturn(List<FunctionParameter> parameters)
+	{
+		val list = newIntArrayOfSize(parameters.size)
+		var multiplier = 1; 
+		for(i : 0 ..< parameters.size)
+		{
+			list.set(i, multiplier)
+			multiplier = multiplier * parameters.get(i).type.resolveAllSuchAs.tableLength
+		}
+
+		var compiled = ""
+		var flag = false
+		for(i : 0 ..< list.size)
+		{
+			compiled = compiled + (if(flag) " +\n" else "") + list.get(i).toString + " * " +
+				parameters.get(i).name + (if(parameters.get(i).type.compileType.endsWith("_enum")) ".ordinal()" else "")
+			flag = true
+		}
+		return compiled		
+	}
+	
 	def static compileFunctionTypeParameters(List<FunctionParameter> parameters)
 	{
 		'''«IF parameters.size > 0»«parameters.get(0).type.compileType» «
@@ -791,6 +889,19 @@ class RDOGenerator implements IMultipleResourceGenerator
 				parameter.name»«
 			ENDFOR»«
 		ENDIF»'''
+	}
+
+	def static compileEnumsForFunction(List<FunctionParameter> parameters)
+	{
+		'''
+		«FOR p : parameters.filter[c | c.type instanceof RDOEnum]»
+		public static enum «p.name»_enum
+		{
+			«(p.type as RDOEnum).makeEnumBody»
+		}
+
+		«ENDFOR»
+		'''
 	}
 
 	def compileEvent(Event evn, String filename)
@@ -909,6 +1020,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 					«ELSE»
 						public «(r.type as ResourceDeclaration).reference.fullyQualifiedName» «r.name»;
 					«ENDIF»
+				«ENDFOR»
+				«FOR r : rule.relevantresources.filter[res | res.rule.literal == "Create"]»
+					public «r.type.fullyQualifiedName» «r.name»;
 				«ENDFOR»
 
 				public RelevantResources copy()
@@ -1138,6 +1252,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 					«ELSE»
 						public «(r.type as ResourceDeclaration).reference.fullyQualifiedName» «r.name»;
 					«ENDIF»
+				«ENDFOR»
+				«FOR r : op.relevantresources.filter[res | res.begin.literal == "Create" || res.end.literal == "Create"]»
+					public «r.type.fullyQualifiedName» «r.name»;
 				«ENDFOR»
 
 				public RelevantResources copy()
@@ -2083,6 +2200,74 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				seed = (seed * 69069L + 1L) % 4294967296L;
 				return seed / 4294967296.0;
+			}
+		}
+		'''
+	}
+
+	def compileRDORangedInteger()
+	{
+		'''
+		package rdo_lib;
+
+		public class RDORangedInteger
+		{
+			private int lo;
+			private int hi;
+
+			public RDORangedInteger(int lo, int hi)
+			{
+				this.lo = lo;
+				this.hi = hi;
+			}
+
+			private int value;
+
+			public void set(int value) throws Exception
+			{
+				if(value > hi || value < lo)
+					throw new Exception("Out of bounds");
+
+				this.value = value;
+			}
+
+			public int get()
+			{
+				return value;
+			}
+		}
+		'''
+	}
+
+	def compileRDORangedDouble()
+	{
+		'''
+		package rdo_lib;
+
+		public class RDORangedDouble
+		{
+			private double lo;
+			private double hi;
+
+			public RDORangedDouble(double lo, double hi)
+			{
+				this.lo = lo;
+				this.hi = hi;
+			}
+
+			private double value;
+
+			public void set(double value) throws Exception
+			{
+				if(value > hi || value < lo)
+					throw new Exception("Out of bounds");
+
+				this.value = value;
+			}
+
+			public double get()
+			{
+				return value;
 			}
 		}
 		'''
