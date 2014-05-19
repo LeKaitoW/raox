@@ -194,15 +194,7 @@ class RDOStatementCompiler
 
 			ReturnStatement:
 			{
-				val ret = (if(st.^return != null) st.^return.compileExpression else null)
-				if(ret != null && ret.type == "unknown" && ret.value.checkSingleID)
-				{
-					var parent = st.eContainer;
-					while(!(parent instanceof FunctionAlgorithmic || parent instanceof Function || parent instanceof RDOModel))
-						parent = parent.eContainer
-					if(parent instanceof FunctionAlgorithmic && (parent.eContainer as Function).returntype.compileType.endsWith("_enum"))
-						ret.value = (parent.eContainer as Function).returntype.compileType + "." + ret.value
-				}
+				val ret = (if(st.^return != null) st.^return.compileExpressionContext(localContext) else null)
 
 				return
 					'''
