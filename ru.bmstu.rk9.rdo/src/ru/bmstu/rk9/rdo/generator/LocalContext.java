@@ -80,6 +80,8 @@ public class LocalContext
 			for(FunctionParameter p : fun.getParameters().getParameters())
 				if(RDOExpressionCompiler.compileType(p.getType()).endsWith("_enum"))
 					this.addRawEntry(p.getName(), RDOExpressionCompiler.compileType(p.getType()), p.getName());
+				else
+					this.addRawEntry(p.getName(), RDOExpressionCompiler.compileTypePrimitive(p.getType()), p.getName());
 
 		if(RDOExpressionCompiler.compileType(((Function)fun.eContainer()).getReturntype()).endsWith("_enum"))
 			this.populateWithEnums((RDOEnum)(RDOExpressionCompiler.resolveAllSuchAs(((Function)fun.eContainer()).getReturntype())));
