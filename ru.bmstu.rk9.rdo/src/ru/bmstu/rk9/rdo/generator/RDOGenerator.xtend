@@ -799,8 +799,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 				public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
 						»«type.parameters.parameters.compileFunctionTypeParameters»«ENDIF»)
 				{
-					return
-						«type.parameters.parameters.compileTableReturn»;
+					return values[
+						«type.parameters.parameters.compileTableReturn»
+					];
 				}
 			}
 			'''
