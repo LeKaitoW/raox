@@ -86,6 +86,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 	{
 		//===== rdo_lib ====================================================================
 		fsa.generateFile("rdo_lib/Simulator.java",                compileLibSimulator    ())
+		fsa.generateFile("rdo_lib/Tracer.java",                   compileTracer          ())
 		fsa.generateFile("rdo_lib/EventScheduler.java",           compileEventScheduler  ())
 		fsa.generateFile("rdo_lib/PermanentResource.java",        compilePermanentRes    ())
 		fsa.generateFile("rdo_lib/TemporaryResource.java",        compileTemporaryRes    ())
@@ -292,6 +293,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 		{
 			public static void main(String[] args)
 			{
+				rdo_lib.Tracer.startTrace();
+
 				long startTime = System.currentTimeMillis();
 
 				System.out.println(" === RDO-Simulator ===\n");
@@ -332,6 +335,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 				System.out.println("-------------------------------------------------------------------------------");
 				rdo_lib.Simulator.getResults();
 				System.out.println("-------------------------------------------------------------------------------");
+
+				rdo_lib.Tracer.stopTrace();
 			}
 		}
 		'''
@@ -2621,6 +2626,58 @@ class RDOGenerator implements IMultipleResourceGenerator
 					while(dptManager.checkDPT());
 				}
 				return 0;
+			}
+		}
+		'''
+	}
+
+	def compileTracer()
+	{
+		'''
+		package rdo_lib;
+
+		import java.io.FileWriter;
+		import java.io.BufferedWriter;
+		import java.io.IOException;
+
+		public class Tracer
+		{
+			private static BufferedWriter trc;
+
+			public static void startTrace()
+			{
+				try
+				{
+					trc = new BufferedWriter(new FileWriter("log.txt"));
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+
+			public static void append(String entry)
+			{
+				try
+				{
+					trc.write(entry + "\n");
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+
+			public static void stopTrace()
+			{
+				try
+				{
+					trc.close();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
 			}
 		}
 		'''
