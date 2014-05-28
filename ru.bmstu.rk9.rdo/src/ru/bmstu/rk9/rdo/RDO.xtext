@@ -686,8 +686,8 @@ StoppingStatement:
 ;
 
 PlanningStatement:
-	event = [Event|FQN] '.' 'planning' '(' value = Expression ')'
-	('(' parameters = ResourceExpressionList ')')?
+	event = [Event|FQN] '.' 'planning' '(' value = Expression
+		(',' parameters = ResourceExpressionList)? ')'
 ;
 
 LegacySetStatement:
