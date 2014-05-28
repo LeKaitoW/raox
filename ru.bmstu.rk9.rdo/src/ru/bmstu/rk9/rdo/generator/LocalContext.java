@@ -11,6 +11,7 @@ import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration;
 
 import ru.bmstu.rk9.rdo.rdo.Function;
 import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic;
+import ru.bmstu.rk9.rdo.rdo.FunctionList;
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter;
 
 import ru.bmstu.rk9.rdo.rdo.PatternParameter;
@@ -75,6 +76,21 @@ public class LocalContext
 	}
 
 	public LocalContext populateFromFunction(FunctionAlgorithmic fun)
+	{
+		if(fun.getParameters() != null)
+			for(FunctionParameter p : fun.getParameters().getParameters())
+				if(RDOExpressionCompiler.compileType(p.getType()).endsWith("_enum"))
+					this.addRawEntry(p.getName(), RDOExpressionCompiler.compileType(p.getType()), p.getName());
+				else
+					this.addRawEntry(p.getName(), RDOExpressionCompiler.compileTypePrimitive(p.getType()), p.getName());
+
+		if(RDOExpressionCompiler.compileType(((Function)fun.eContainer()).getReturntype()).endsWith("_enum"))
+			this.populateWithEnums((RDOEnum)(RDOExpressionCompiler.resolveAllSuchAs(((Function)fun.eContainer()).getReturntype())));
+
+		return this;
+	}
+
+	public LocalContext populateFromFunction(FunctionList fun)
 	{
 		if(fun.getParameters() != null)
 			for(FunctionParameter p : fun.getParameters().getParameters())

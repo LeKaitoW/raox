@@ -773,9 +773,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 						{
 							«type.algorithm.compileStatementContext(context)»
 						}
-						return «IF fun.^default != null»«IF fun.returntype.compileType.endsWith("_enum")»«
-							fun.^default.compileExpressionContext(context).value»«ELSE»«
-									fun.^default.compileExpression.value»«ENDIF»«ELSE»null«ENDIF»;
+						return «IF fun.^default != null»«
+							fun.^default.compileExpressionContext(context).value»«ELSE»null«ENDIF»;
 					}
 				}
 				'''
@@ -806,13 +805,51 @@ class RDOGenerator implements IMultipleResourceGenerator
 			}
 			'''
 			FunctionList:
-			'''
 			{
-				«IF type.parameters != null
-					»«type.parameters.parameters.compileEnumsForFunction»«ENDIF»
+				var context = (new LocalContext).populateFromFunction(type)
 
+				var paramscontext =
+					if (type.parameters != null)
+						type.parameters.parameters.map
+							[ p |
+								if (p.type.compileType.endsWith("_enum"))
+									(new LocalContext).populateWithEnums(p.type.resolveAllSuchAs as RDOEnum)
+								else
+									null
+							]
+					else
+						null
+
+				'''
+				{
+					«IF type.parameters != null
+						»«type.parameters.parameters.compileEnumsForFunction»«ENDIF»
+					public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
+							»«type.parameters.parameters.compileFunctionTypeParameters»«ENDIF»)
+					{
+						«IF type.parameters != null»
+						«FOR i : 0 ..< type.list.size»
+						«IF type.list.get(i).parameters.size == type.parameters.parameters.size»
+							if
+							(
+								«FOR j : 0 ..< type.list.get(i).parameters.size»
+									«type.parameters.parameters.get(j).name» == «
+										type.list.get(i).parameters.get(j).compileExpressionContext(
+											paramscontext.get(j)).value»«
+										IF j < type.list.get(i).parameters.size - 1» &&«ENDIF»
+								«ENDFOR»
+							)
+								return «type.list.get(i).value.compileExpressionContext(context).value»;
+
+						«ENDIF»
+						«ENDFOR»
+						«ENDIF»
+						return «IF fun.^default != null»«
+							fun.^default.compileExpressionContext(context).value»«ELSE»null«ENDIF»;
+					}
+				}
+				'''
 			}
-			'''
 		}
 	}
 
