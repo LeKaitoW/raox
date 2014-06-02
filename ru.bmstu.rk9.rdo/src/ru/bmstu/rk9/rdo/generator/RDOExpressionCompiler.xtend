@@ -2,8 +2,6 @@ package ru.bmstu.rk9.rdo.generator
 
 import org.eclipse.emf.ecore.EObject
 
-import ru.bmstu.rk9.rdo.validation.VariableInfo
-
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
 
@@ -540,7 +538,7 @@ class RDOExpressionCompiler
 
 		val iter = expr.calls.iterator
 
-		var VariableInfo info = RDOGenerator.variableIndex.get(expr.calls.get(0).call)
+		var GlobalContext info = RDOGenerator.variableIndex.get(expr.calls.get(0).call)
 
 		if(info == null)
 		{

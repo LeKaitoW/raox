@@ -21,6 +21,8 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 
+import ru.bmstu.rk9.rdo.generator.GlobalContext
+
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
@@ -125,7 +127,7 @@ class RDOValidator extends AbstractRDOValidator
 	private IContainer.Manager containerManager
 
 	private static List<Resource> resourceIndex = new LinkedList<Resource>
-	private static HashMap<String, VariableInfo> variableIndex = new HashMap<String, VariableInfo>
+	private static HashMap<String, GlobalContext> variableIndex = new HashMap<String, GlobalContext>
 
 	@Check
 	def exportResources(RDOModel model)
@@ -144,14 +146,14 @@ class RDOValidator extends AbstractRDOValidator
 				{
 					resourceIndex.add(model.eResource.resourceSet.getResource(rd.URI, true))
 					if(!variableIndex.containsKey(resourceIndex.last.resourceName))
-						variableIndex.put(resourceIndex.last.resourceName, new VariableInfo)
+						variableIndex.put(resourceIndex.last.resourceName, new GlobalContext)
 				}
 
 			if(variableIndex.size != resourceIndex.size)
 			{
 				variableIndex.clear
 				for(r : resourceIndex)
-					variableIndex.put(resourceIndex.last.resourceName, new VariableInfo)
+					variableIndex.put(resourceIndex.last.resourceName, new GlobalContext)
 			}
 		}
 	}

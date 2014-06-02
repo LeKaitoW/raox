@@ -1,27 +1,30 @@
-package ru.bmstu.rk9.rdo.validation;
+package ru.bmstu.rk9.rdo.generator;
 
 import java.util.LinkedList;
 import java.util.HashMap;
 
-import ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler;
-import ru.bmstu.rk9.rdo.rdo.EnumerativeSequence;
-import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic;
-import ru.bmstu.rk9.rdo.rdo.FunctionList;
-import ru.bmstu.rk9.rdo.rdo.FunctionParameter;
-import ru.bmstu.rk9.rdo.rdo.FunctionParameters;
-import ru.bmstu.rk9.rdo.rdo.FunctionTable;
-import ru.bmstu.rk9.rdo.rdo.HistogramSequence;
-import ru.bmstu.rk9.rdo.rdo.RegularSequence;
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration;
-import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration;
 import ru.bmstu.rk9.rdo.rdo.ResourceType;
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter;
-import ru.bmstu.rk9.rdo.rdo.Sequence;
+
+import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration;
+
+import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration;
+
 import ru.bmstu.rk9.rdo.rdo.Function;
+import ru.bmstu.rk9.rdo.rdo.FunctionParameter;
+import ru.bmstu.rk9.rdo.rdo.FunctionParameters;
+import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic;
+import ru.bmstu.rk9.rdo.rdo.FunctionList;
+import ru.bmstu.rk9.rdo.rdo.FunctionTable;
+
+import ru.bmstu.rk9.rdo.rdo.Sequence;
 import ru.bmstu.rk9.rdo.rdo.SequenceType;
+import ru.bmstu.rk9.rdo.rdo.EnumerativeSequence;
+import ru.bmstu.rk9.rdo.rdo.HistogramSequence;
+import ru.bmstu.rk9.rdo.rdo.RegularSequence;
 
 
-public class VariableInfo
+public class GlobalContext
 {
 	public class RTP
 	{

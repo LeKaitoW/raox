@@ -18,8 +18,6 @@ import static extension ru.bmstu.rk9.rdo.customizations.RDOQualifiedNameProvider
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
 
-import ru.bmstu.rk9.rdo.validation.VariableInfo
-
 import ru.bmstu.rk9.rdo.customizations.IMultipleResourceGenerator
 
 import ru.bmstu.rk9.rdo.rdo.RDOModel
@@ -169,13 +167,13 @@ class RDOGenerator implements IMultipleResourceGenerator
 		fsa.generateFile("rdo_model/MainClass.java", compileMain(resources, smr))
 	}
 
-	public static HashMap<String, VariableInfo> variableIndex = new HashMap<String, VariableInfo>
+	public static HashMap<String, GlobalContext> variableIndex = new HashMap<String, GlobalContext>
 
 	def exportVariableInfo(ResourceSet rs)
 	{
 		variableIndex.clear
 		for(r : rs.resources)
-			variableIndex.put(r.resourceName, new VariableInfo)
+			variableIndex.put(r.resourceName, new GlobalContext)
 
 		for(r : rs.resources)
 		{

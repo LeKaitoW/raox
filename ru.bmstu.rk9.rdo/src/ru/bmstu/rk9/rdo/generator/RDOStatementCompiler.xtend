@@ -5,11 +5,6 @@ import org.eclipse.emf.ecore.EObject
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
-import ru.bmstu.rk9.rdo.rdo.RDOModel
-
-import ru.bmstu.rk9.rdo.rdo.Function
-import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic
-
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.OperationConvert
 import ru.bmstu.rk9.rdo.rdo.Rule
