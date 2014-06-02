@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rdo.customizations;
+package ru.bmstu.rk9.rdo;
 
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.xtext.generator.IFileSystemAccess;

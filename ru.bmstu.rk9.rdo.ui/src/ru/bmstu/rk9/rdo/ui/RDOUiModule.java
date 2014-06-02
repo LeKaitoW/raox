@@ -6,7 +6,7 @@ package ru.bmstu.rk9.rdo.ui;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.xtext.builder.IXtextBuilderParticipant;
 
-import ru.bmstu.rk9.rdo.ui.customizations.MultipleResourceBuilderParticipant;
+import ru.bmstu.rk9.rdo.ui.MultipleResourceBuilderParticipant;
 
 /**
  * Use this class to register components to be used within the IDE.

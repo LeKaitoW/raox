@@ -13,12 +13,13 @@ import org.eclipse.xtext.generator.IFileSystemAccess
 
 import static extension org.eclipse.xtext.xbase.lib.IteratorExtensions.*
 
+import ru.bmstu.rk9.rdo.IMultipleResourceGenerator
+
+import static extension ru.bmstu.rk9.rdo.RDOQualifiedNameProvider.*
+
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
-import static extension ru.bmstu.rk9.rdo.customizations.RDOQualifiedNameProvider.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
-
-import ru.bmstu.rk9.rdo.customizations.IMultipleResourceGenerator
 
 import ru.bmstu.rk9.rdo.rdo.RDOModel
 
@@ -74,6 +75,7 @@ import ru.bmstu.rk9.rdo.rdo.Expression
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.IntConstant
 import ru.bmstu.rk9.rdo.rdo.DoubleConstant
+
 
 class RDOGenerator implements IMultipleResourceGenerator
 {

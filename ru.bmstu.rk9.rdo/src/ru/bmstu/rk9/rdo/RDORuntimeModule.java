@@ -6,9 +6,6 @@ package ru.bmstu.rk9.rdo;
 import org.eclipse.xtext.linking.ILinkingDiagnosticMessageProvider;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 
-import ru.bmstu.rk9.rdo.customizations.IMultipleResourceGenerator;
-import ru.bmstu.rk9.rdo.customizations.RDOLinkingDiagnosticMessageProvider;
-import ru.bmstu.rk9.rdo.customizations.RDOQualifiedNameProvider;
 import ru.bmstu.rk9.rdo.generator.RDOGenerator;
 
 /**

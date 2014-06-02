@@ -26,7 +26,7 @@ import ru.bmstu.rk9.rdo.generator.GlobalContext
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
-import ru.bmstu.rk9.rdo.customizations.RDOQualifiedNameProvider
+import ru.bmstu.rk9.rdo.RDOQualifiedNameProvider
 
 import ru.bmstu.rk9.rdo.rdo.RdoPackage
 

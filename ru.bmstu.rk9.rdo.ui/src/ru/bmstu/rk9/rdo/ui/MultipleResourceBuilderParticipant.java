@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rdo.ui.customizations;
+package ru.bmstu.rk9.rdo.ui;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import org.eclipse.xtext.resource.IResourceDescription.Delta;
 import org.eclipse.xtext.resource.IResourceDescriptions;
 import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider;
 
-import ru.bmstu.rk9.rdo.customizations.IMultipleResourceGenerator;
+import ru.bmstu.rk9.rdo.IMultipleResourceGenerator;
 
 import com.google.inject.Inject;
 

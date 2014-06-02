@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rdo.customizations;
+package ru.bmstu.rk9.rdo;
 
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider;
 import org.eclipse.xtext.naming.QualifiedName;
