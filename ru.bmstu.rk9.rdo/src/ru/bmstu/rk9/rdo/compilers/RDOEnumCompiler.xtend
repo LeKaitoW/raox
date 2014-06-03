@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rdo.compilers
 
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
+
 class RDOEnumCompiler
 {
 	def static public makeEnumBody(RDOEnum e)
@@ -17,5 +18,5 @@ class RDOEnumCompiler
 			flag = true
 		}
 		return body
-	}	
+	}
 }

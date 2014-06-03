@@ -142,7 +142,7 @@ class RDOFunctionCompiler
 		{
 			RDOInteger:
 				if(type.range != null)
-					return 
+					return
 						if(type.range.hi instanceof IntConstant)
 							(type.range.hi as IntConstant).value
 						else
@@ -181,14 +181,14 @@ class RDOFunctionCompiler
 				i = 1
 			flag = true
 		}
-		
-		return values 
+
+		return values
 	}
 
 	def public static compileTableReturn(List<FunctionParameter> parameters)
 	{
 		val list = newIntArrayOfSize(parameters.size)
-		var multiplier = 1; 
+		var multiplier = 1;
 		for(i : 0 ..< parameters.size)
 		{
 			list.set(i, multiplier)
@@ -203,9 +203,9 @@ class RDOFunctionCompiler
 				parameters.get(i).name + (if(parameters.get(i).type.compileType.endsWith("_enum")) ".ordinal()" else "")
 			flag = true
 		}
-		return compiled		
+		return compiled
 	}
-	
+
 	def public static compileFunctionTypeParameters(List<FunctionParameter> parameters)
 	{
 		'''«IF parameters.size > 0»«parameters.get(0).type.compileType» «

@@ -359,7 +359,7 @@ class RDOPatternCompiler
 		}
 		'''
 	}
-	
+
 	def public static compileOperation(Operation op, String filename)
 	{
 		'''
@@ -719,8 +719,8 @@ class RDOPatternCompiler
 					}
 				}'''
 		}
-	}	
-	
+	}
+
 	def public static compilePatternParametersCall(List<PatternParameter> parameters)
 	{
 		'''«IF parameters.size > 0»«

@@ -221,5 +221,5 @@ class RDOSequenceCompiler
 					}
 					'''
 		}
-	}	
+	}
 }

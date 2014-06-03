@@ -3,12 +3,14 @@ package ru.bmstu.rk9.rdo.compilers
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
-import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
+import ru.bmstu.rk9.rdo.rdo.Operation
+import ru.bmstu.rk9.rdo.rdo.Rule
+
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
 import ru.bmstu.rk9.rdo.rdo.DecisionPointPrior
-import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.Rule
+import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
+
 
 class RDODecisionPointCompiler
 {
@@ -194,5 +196,5 @@ class RDODecisionPointCompiler
 				}
 			}
 		'''
-	}	
+	}
 }

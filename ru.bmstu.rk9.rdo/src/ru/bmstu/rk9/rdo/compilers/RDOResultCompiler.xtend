@@ -2,10 +2,11 @@ package ru.bmstu.rk9.rdo.compilers
 
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
+import ru.bmstu.rk9.rdo.rdo.Results
 import ru.bmstu.rk9.rdo.rdo.ResultType
 import ru.bmstu.rk9.rdo.rdo.ResultGetValue
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
-import ru.bmstu.rk9.rdo.rdo.Results
+
 
 class RDOResultCompiler
 {
@@ -50,5 +51,5 @@ class RDOResultCompiler
 				'''
 				'''
 		}
-	}	
+	}
 }
