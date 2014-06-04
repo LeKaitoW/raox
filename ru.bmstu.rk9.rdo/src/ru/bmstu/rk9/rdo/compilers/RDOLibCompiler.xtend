@@ -744,11 +744,21 @@ class RDOLibCompiler
 				resultManager.getResults();
 			}
 
+			private static boolean checkTerminate()
+			{
+				for (TerminateCondition c : terminateList)
+					if (c.check())
+						return true;
+				return false;
+			}
+
 			public static int run()
 			{
-				while(dptManager.checkDPT());
+				while (dptManager.checkDPT())
+					if (checkTerminate())
+						return 1;
 
-				while(eventScheduler.haveEvents())
+				while (eventScheduler.haveEvents())
 				{
 					Event current = eventScheduler.popEvent();
 
@@ -756,11 +766,12 @@ class RDOLibCompiler
 
 					current.run();
 
-					for (TerminateCondition c : terminateList)
-						if (c.check())
-							return 1;
+					if (checkTerminate())
+						return 1;
 
-					while(dptManager.checkDPT());
+					while (dptManager.checkDPT())
+						if (checkTerminate())
+							return 1;
 				}
 				return 0;
 			}
