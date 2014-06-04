@@ -18,9 +18,12 @@ class RDODecisionPointCompiler
 	{
 		val activities = switch dpt
 		{
-			DecisionPointSome :dpt.activities
-			DecisionPointPrior: dpt.activities
+			DecisionPointSome : dpt.activities
+			DecisionPointPrior: dpt.activities.map[a | a.activity]
 		}
+
+		val priorities = if(dpt instanceof DecisionPointPrior)
+			(dpt as DecisionPointPrior).activities.map[a | a.priority] else null
 
 		val parameters = activities.map[a |
 			if(a.pattern instanceof Operation)
@@ -28,6 +31,9 @@ class RDODecisionPointCompiler
 			else
 				(a.pattern as Rule).parameters
 		]
+
+		val priority = if(dpt instanceof DecisionPointPrior)
+			(dpt as DecisionPointPrior).priority else null
 
 		return
 			'''
@@ -42,12 +48,18 @@ class RDODecisionPointCompiler
 				«ENDIF»
 				«ENDFOR»
 
-				private static rdo_lib.DecisionPoint dpt =
-					new rdo_lib.DecisionPoint
+				private static rdo_lib.DecisionPoint«IF dpt instanceof DecisionPointPrior»Prior«ENDIF» dpt =
+					new rdo_lib.DecisionPoint«IF dpt instanceof DecisionPointPrior»Prior«ENDIF»
 					(
 						"«dpt.fullyQualifiedName»",
-						«IF dpt.parent != null»«dpt.parent.fullyQualifiedName».getDPT()«ELSE»null«ENDIF»,
-						«IF dpt instanceof DecisionPointPrior»«dpt.priority.compileExpression.value»«ELSE»null«ENDIF»,
+						«IF priority != null»new rdo_lib.DecisionPoint.Priority()
+						{
+							@Override
+							public void calculate()
+							{
+								priority = «priority.compileExpression.value»;
+							}
+						}«ELSE»null«ENDIF»,
 						«IF dpt.condition != null
 						»new rdo_lib.DecisionPoint.Condition()
 						{
@@ -61,35 +73,47 @@ class RDODecisionPointCompiler
 
 				public static void init()
 				{
-					«FOR a : activities»
+					«FOR i : 0 ..< activities.size»
 						dpt.addActivity(
-							new rdo_lib.DecisionPoint.Activity()
-							{
-								@Override
-								public String getName()
+							new rdo_lib.DecisionPoint«IF dpt instanceof DecisionPointPrior»Prior«
+								ENDIF».Activity«IF dpt instanceof DecisionPointPrior»
+							(
+								«ELSE»(«ENDIF»"«filename».«activities.get(i).name»"«IF dpt instanceof DecisionPointPrior»,
+								«IF priorities.get(i) != null»new rdo_lib.DecisionPoint.Priority()
 								{
-									return "«filename».«a.name»";
-								}
-
+									@Override
+									public void calculate()
+									{
+										priority = «priorities.get(i).compileExpression.value»;
+									}
+								}«ELSE»null«ENDIF»
+							«ENDIF»)
+							{
 								@Override
 								public boolean checkActivity()
 								{
-									return «a.pattern.fullyQualifiedName».findResources(«a.name»);
+									return «activities.get(i).pattern.fullyQualifiedName
+										».findResources(«activities.get(i).name»);
 								}
 
 								@Override
 								public void executeActivity()
 								{
-									«a.pattern.fullyQualifiedName».executeRule(«a.name»);
+									«activities.get(i).pattern.fullyQualifiedName
+										».executeRule(«activities.get(i).name»);
 								}
 							}
 						);
-					«ENDFOR»
 
-					rdo_lib.Simulator.addDecisionPoint(dpt);
+					«ENDFOR»
+					«IF dpt.parent == null»
+						rdo_lib.Simulator.addDecisionPoint(dpt);
+					«ELSE»
+						«dpt.parent.fullyQualifiedName».getDPT().addChild(dpt);
+					«ENDIF»
 				}
 
-				public rdo_lib.DecisionPoint getDPT()
+				public static rdo_lib.DecisionPoint getDPT()
 				{
 					return dpt;
 				}
@@ -160,16 +184,10 @@ class RDODecisionPointCompiler
 				{
 					«FOR a : activities»
 						dpt.addActivity(
-							new rdo_lib.DecisionPointSearch.Activity(«IF a.valueafter != null
-								»rdo_lib.DecisionPointSearch.Activity.ApplyMoment.after«
-								ELSE»rdo_lib.DecisionPointSearch.Activity.ApplyMoment.before«ENDIF»)
+							new rdo_lib.DecisionPointSearch.Activity("«filename».«a.name»",«
+								IF a.valueafter != null»rdo_lib.DecisionPointSearch.Activity.ApplyMoment.after«
+									ELSE»rdo_lib.DecisionPointSearch.Activity.ApplyMoment.before«ENDIF»)
 							{
-								@Override
-								public String getName()
-								{
-									return "«filename».«a.name»";
-								}
-
 								@Override
 								public boolean checkActivity()
 								{
@@ -192,7 +210,16 @@ class RDODecisionPointCompiler
 						);
 					«ENDFOR»
 
-					rdo_lib.Simulator.addDecisionPoint(dpt);
+					«IF dpt.parent == null»
+						rdo_lib.Simulator.addDecisionPoint(dpt);
+					«ELSE»
+						«dpt.parent.fullyQualifiedName».getDPT().addChild(dpt);
+					«ENDIF»
+				}
+
+				public static rdo_lib.DecisionPoint getDPT()
+				{
+					return dpt;
 				}
 			}
 		'''

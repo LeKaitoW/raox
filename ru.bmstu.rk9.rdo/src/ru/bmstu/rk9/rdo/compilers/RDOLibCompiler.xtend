@@ -26,10 +26,11 @@ class RDOLibCompiler
 		fsa.generateFile("rdo_lib/Converter.java",                compileConverter       ())
 		fsa.generateFile("rdo_lib/Event.java",                    compileEvent           ())
 		fsa.generateFile("rdo_lib/DecisionPoint.java",            compileDecisionPoint   ())
+		fsa.generateFile("rdo_lib/DecisionPointPrior.java",       compileDPTPrior        ())
 		fsa.generateFile("rdo_lib/DecisionPointSearch.java",      compileDPTSearch       ())
 		fsa.generateFile("rdo_lib/Result.java",                   compileResult          ())
 		fsa.generateFile("rdo_lib/ResultManager.java",            compileResultManager   ())
-		fsa.generateFile("rdo_lib/TerminateCondition.java",       compileTerminate       ())		
+		fsa.generateFile("rdo_lib/TerminateCondition.java",       compileTerminate       ())
 	}
 
 	def private static compilePermanentManager()
@@ -50,7 +51,7 @@ class RDOLibCompiler
 
 			public void addResource(T res)
 			{
-				if(resources.get(res.getName()) != null)
+				if (resources.get(res.getName()) != null)
 					listResources.set(listResources.indexOf(resources.get(res.getName())), res);
 				else
 					listResources.add(res);
@@ -366,7 +367,7 @@ class RDOLibCompiler
 
 			public void set(int value) throws Exception
 			{
-				if(value > hi || value < lo)
+				if (value > hi || value < lo)
 					throw new Exception("Out of bounds");
 
 				this.value = value;
@@ -400,7 +401,7 @@ class RDOLibCompiler
 
 			public void set(double value) throws Exception
 			{
-				if(value > hi || value < lo)
+				if (value > hi || value < lo)
 					throw new Exception("Out of bounds");
 
 				this.value = value;
@@ -941,14 +942,50 @@ class RDOLibCompiler
 		'''
 		package rdo_lib;
 
+		import java.util.Comparator;
+
 		import java.util.List;
 		import java.util.LinkedList;
+		import java.util.ArrayList;
 
 		public class DecisionPoint
 		{
 			private String name;
-			private DecisionPoint parent;
-			private Double priority;
+
+			public static abstract class Priority
+			{
+				abstract public void calculate();
+
+				protected double priority;
+
+				public double get()
+				{
+					return priority;
+				}
+			}
+
+			protected final Priority priority;
+
+			protected static Comparator<DecisionPoint> prioritizer = new Comparator<DecisionPoint>()
+			{
+				@Override
+				public int compare(DecisionPoint x, DecisionPoint y)
+				{
+					if (x.priority == null)
+						return 1;
+
+					if (y.priority == null)
+						return -1;
+
+					if (x.priority.get() > y.priority.get())
+						return -1;
+
+					if (x.priority.get() <= y.priority.get())
+						return 1;
+
+					return 0;
+				}
+			};
 
 			public static interface Condition
 			{
@@ -957,10 +994,9 @@ class RDOLibCompiler
 
 			protected Condition condition;
 
-			public DecisionPoint(String name, DecisionPoint parent, Double priority, Condition condition)
+			public DecisionPoint(String name, Priority priority, Condition condition)
 			{
 				this.name = name;
-				this.parent = parent;
 				this.priority = priority;
 				this.condition = condition;
 			}
@@ -970,14 +1006,27 @@ class RDOLibCompiler
 				return name;
 			}
 
-			public Double getPriority()
+			protected ArrayList<DecisionPoint> children = new ArrayList<DecisionPoint>();
+
+			public void addChild(DecisionPoint child)
 			{
-				return priority;
+				children.add(child);
 			}
 
 			public static abstract class Activity
 			{
-				public abstract String getName();
+				private String name;
+
+				public Activity(String name)
+				{
+					this.name = name;
+				}
+
+				public String getName()
+				{
+					return name;
+				}
+
 				public abstract boolean checkActivity();
 				public abstract void executeActivity();
 			}
@@ -991,8 +1040,124 @@ class RDOLibCompiler
 
 			public boolean check()
 			{
+				if (!children.isEmpty())
+					for (DecisionPoint c : children)
+						if (c.check())
+							return true;
+
 				if (condition != null && !condition.check())
 					return false;
+
+				return checkActivities();
+			}
+
+			private boolean checkActivities()
+			{
+				for (Activity a : activities)
+					if (a.checkActivity())
+					{
+						a.executeActivity();
+						return true;
+					}
+
+				return false;
+			}
+		}
+		'''
+	}
+
+	def private static compileDPTPrior()
+	{
+		'''
+		package rdo_lib;
+
+		import java.util.Collections;
+		import java.util.Comparator;
+		import java.util.ArrayList;
+
+		public class DecisionPointPrior extends DecisionPoint
+		{
+			public DecisionPointPrior(String name, Priority priority, Condition condition)
+			{
+				super(name, priority, condition);
+			}
+
+			public static abstract class Activity extends DecisionPoint.Activity
+			{
+				public Activity(String name, DecisionPoint.Priority priority)
+				{
+					super(name);
+					this.priority = priority;
+				}
+
+				public final DecisionPoint.Priority priority;
+			}
+
+			private static Comparator<Activity> comparator = new Comparator<Activity>()
+			{
+				@Override
+				public int compare(Activity x, Activity y)
+				{
+					if (x.priority == null)
+						return 1;
+
+					if (y.priority == null)
+						return -1;
+
+					if (x.priority.get() > y.priority.get())
+						return -1;
+
+					if (x.priority.get() <= y.priority.get())
+						return 1;
+
+					return 0;
+				}
+			};
+
+			private ArrayList<Activity> activities = new ArrayList<Activity>();
+
+			public void addActivity(Activity a)
+			{
+				activities.add(a);
+			}
+
+			@Override
+			public boolean check()
+			{
+				ArrayList<DecisionPoint> all = new ArrayList<DecisionPoint>(children);
+
+				all.add(this);
+
+				for (DecisionPoint d : all)
+					if (d.priority != null)
+						d.priority.calculate();
+
+				Collections.sort(all, prioritizer);
+
+				for (DecisionPoint d : all)
+					if (d == this)
+					{
+						if (checkCurrent())
+							return true;
+					}
+					else
+					{
+						if (d.check())
+							return true;
+					}
+						return false;
+					}
+
+			private boolean checkCurrent()
+			{
+				if (condition != null && !condition.check())
+					return false;
+
+				for (Activity a : activities)
+					if (a.priority != null)
+						a.priority.calculate();
+
+				Collections.sort(activities, comparator);
 
 				return checkActivities();
 			}
@@ -1043,7 +1208,7 @@ class RDOLibCompiler
 				DatabaseRetriever<T> retriever
 			)
 			{
-				super(name, null, null, condition);
+				super(name, null, condition);
 				this.terminate = terminate;
 				this.evaluateBy = evaluateBy;
 				this.retriever = retriever;
@@ -1059,8 +1224,9 @@ class RDOLibCompiler
 			{
 				public enum ApplyMoment { before, after }
 
-				public Activity(ApplyMoment applyMoment)
+				public Activity(String name, ApplyMoment applyMoment)
 				{
+					super(name);
 					this.applyMoment = applyMoment;
 				}
 
@@ -1154,14 +1320,14 @@ class RDOLibCompiler
 						GraphNode newChild = new GraphNode();
 						newChild.parent = parent;
 
-						if(a.applyMoment == Activity.ApplyMoment.before)
+						if (a.applyMoment == Activity.ApplyMoment.before)
 							value = a.calculateValue();
 
 						newChild.state = parent.state.copy();
 						newChild.state.deploy();
 						a.executeActivity();
 
-						if(a.applyMoment == Activity.ApplyMoment.after)
+						if (a.applyMoment == Activity.ApplyMoment.after)
 							value = a.calculateValue();
 
 						newChild.g = parent.g + value;
@@ -1174,7 +1340,7 @@ class RDOLibCompiler
 							{
 								for (GraphNode open : nodesOpen)
 									if (newChild.state.checkEqual(open.state))
-										if(newChild.g < open.g)
+										if (newChild.g < open.g)
 										{
 											nodesOpen.remove(open);
 											break compare_tops;
@@ -1184,7 +1350,7 @@ class RDOLibCompiler
 
 								for (GraphNode closed : nodesClosed)
 									if (newChild.state.checkEqual(closed.state))
-										if(newChild.g < closed.g)
+										if (newChild.g < closed.g)
 										{
 											nodesClosed.remove(closed);
 											break compare_tops;
