@@ -1157,7 +1157,7 @@ class RDOLibCompiler
 							return true;
 					}
 						return false;
-					}
+			}
 
 			private boolean checkCurrent()
 			{
