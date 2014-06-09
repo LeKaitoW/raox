@@ -392,5 +392,76 @@
             extensions="rdo">
     </provider>
   </extension>
+  <extension
+        point="org.eclipse.ui.commands">
+     <category
+           id="ru.bmstu.rk9.rdo.ui.runtime"
+           name="RDO runtime UI module">
+     </category>
+     <command
+           categoryId="ru.bmstu.rk9.rdo.ui.runtime"
+           id="ru.bmstu.rk9.rdo.ui.runtime.build"
+           name="Build RDO model">
+     </command>
+     <command
+           categoryId="ru.bmstu.rk9.rdo.ui.runtime"
+           id="ru.bmstu.rk9.rdo.ui.runtime.execute"
+           name="Execute RDO model">
+     </command>
+  </extension>
+  <extension
+        point="org.eclipse.ui.menus">
+     <menuContribution
+           locationURI="menu:org.eclipse.ui.main.menu?after=project">
+        <menu
+              icon="icons/model.gif"
+              id="ru.bmstu.rk9.rdo.ui.runtime.modelMenu"
+              label="Model"
+              mnemonic="M">
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.build"
+                 id="ru.bmstu.rk9.rdo.ui.runtime.menu.build"
+                 label="Build"
+                 mnemonic="B"
+                 style="push">
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.execute"
+                 id="ru.bmstu.rk9.rdo.ui.runtime.menu.execute"
+                 label="Run"
+                 mnemonic="R"
+                 style="push">
+           </command>
+           <visibleWhen
+                 checkEnabled="false">
+              <with
+                    variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                 <equals
+                       value="showActions">
+                 </equals>
+              </with>
+           </visibleWhen>
+        </menu>
+     </menuContribution>
+  </extension>
+  <extension
+        point="org.eclipse.ui.perspectives">
+     <perspective
+           class="ru.bmstu.rk9.rdo.ui.RDOPerspective"
+           icon="icons/rdo_old.gif"
+           id="ru.bmstu.rk9.rdo.ui.perspective"
+           name="RDO">
+     </perspective>
+  </extension>
+  <extension
+        point="org.eclipse.ui.services">
+     <sourceProvider
+           provider="ru.bmstu.rk9.rdo.ui.RDOPerspectiveSourceProvider">
+        <variable
+              name="ru.bmstu.rk9.rdo.ui.handlers.showActions"
+              priorityLevel="workbench">
+        </variable>
+     </sourceProvider>
+  </extension>
 
 </plugin>

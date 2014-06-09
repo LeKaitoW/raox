@@ -3,6 +3,9 @@
  */
 package ru.bmstu.rk9.rdo.ui;
 
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.xtext.builder.IXtextBuilderParticipant;
 
@@ -14,6 +17,36 @@ import ru.bmstu.rk9.rdo.ui.MultipleResourceBuilderParticipant;
 public class RDOUiModule extends ru.bmstu.rk9.rdo.ui.AbstractRDOUiModule {
 	public RDOUiModule(AbstractUIPlugin plugin) {
 		super(plugin);
+		
+		Display.getDefault().asyncExec(new Runnable() {
+		    @Override
+		    public void run() {
+		        // wait until the workbench has been initialized
+		        // if the workbench is still starting, reschedule the execution
+		        // of this runnable
+		        if (PlatformUI.getWorkbench().isStarting()) {
+		            Display.getDefault().timerExec(1000, this);
+		        } else { 
+		            // the workbench finished the initialization process 
+		            IWorkbenchWindow workbenchWindow = PlatformUI
+		                    .getWorkbench().getActiveWorkbenchWindow();
+		            RDOPerspectiveAdapter wsPerspectiveListener = new RDOPerspectiveAdapter();
+		            workbenchWindow
+		                    .addPerspectiveListener(wsPerspectiveListener);
+		 
+		            // update the PerspectiveListener with the current perspective
+		            // we need to perform this update by hand as no event is
+		            // sent by the platform at
+		            // platform initialization and we need to have the current
+		            // perspective set
+		            wsPerspectiveListener.perspectiveActivated(PlatformUI
+		                    .getWorkbench().getActiveWorkbenchWindow()
+		                    .getActivePage(), PlatformUI.getWorkbench()
+		                    .getActiveWorkbenchWindow().getActivePage()
+		                    .getPerspective());
+		        }
+		    }// else - isStarting()
+		});
 	}
 	
 	@Override
