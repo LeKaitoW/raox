@@ -27,6 +27,7 @@ import ru.bmstu.rk9.rdo.rdo.EnumerativeSequence
 import ru.bmstu.rk9.rdo.rdo.RegularSequence
 import ru.bmstu.rk9.rdo.rdo.HistogramSequence
 
+import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.Rule
@@ -121,6 +122,9 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	def image(FunctionParameter p) { "parameter.gif" }
 	def  text(FunctionParameter p) { p.name + p.type.typeGenericLabel }
+
+	// Pattern
+	def image(PatternParameter p) { "parameter.gif" }
 
 	// Event
 	def  text(Event evn) { "EVN : " + evn.name + " : event" + if (evn.trace) " , traced" else "" }

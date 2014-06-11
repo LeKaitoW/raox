@@ -135,6 +135,8 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 		}
 	}
 
+	def _isLeaf(PatternParameter p) { true }
+
 	def _isLeaf(RuleConvert c)      { true }
 	def _isLeaf(OperationConvert c) { true }
 	def _isLeaf(EventConvert c)     { true }
