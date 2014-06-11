@@ -248,12 +248,6 @@
 	</extension>
 
    <extension
-         point="org.eclipse.xtext.builder.participant">
-      <participant
-            class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:org.eclipse.xtext.builder.IXtextBuilderParticipant">
-      </participant>
-   </extension>
-   <extension
             point="org.eclipse.ui.preferencePages">
         <page
             category="ru.bmstu.rk9.rdo.RDO"
@@ -408,6 +402,31 @@
            id="ru.bmstu.rk9.rdo.ui.runtime.execute"
            name="Execute RDO model">
      </command>
+     <command
+           categoryId="ru.bmstu.rk9.rdo.ui.runtime"
+           id="ru.bmstu.rk9.rdo.ui.runtime.stop"
+           name="Stop RDO Model">
+     </command>
+     <command
+           categoryId="ru.bmstu.rk9.rdo.ui.runtime"
+           id="ru.bmstu.rk9.rdo.ui.runtime.noAnimation"
+           name="No Animation">
+     </command>
+     <command
+           categoryId="ru.bmstu.rk9.rdo.ui.runtime"
+           id="ru.bmstu.rk9.rdo.ui.runtime.fastForward"
+           name="Fast Forward">
+     </command>
+     <command
+           categoryId="ru.bmstu.rk9.rdo.ui.runtime"
+           id="ru.bmstu.rk9.rdo.ui.runtime.normalSpeed"
+           name="Normal Speed">
+     </command>
+     <command
+           categoryId="ru.bmstu.rk9.rdo.ui.runtime"
+           id="ru.bmstu.rk9.rdo.ui.runtime.pause"
+           name="Pause">
+     </command>
   </extension>
   <extension
         point="org.eclipse.ui.menus">
@@ -418,20 +437,6 @@
               id="ru.bmstu.rk9.rdo.ui.runtime.modelMenu"
               label="Model"
               mnemonic="M">
-           <command
-                 commandId="ru.bmstu.rk9.rdo.ui.runtime.build"
-                 id="ru.bmstu.rk9.rdo.ui.runtime.menu.build"
-                 label="Build"
-                 mnemonic="B"
-                 style="push">
-           </command>
-           <command
-                 commandId="ru.bmstu.rk9.rdo.ui.runtime.execute"
-                 id="ru.bmstu.rk9.rdo.ui.runtime.menu.execute"
-                 label="Run"
-                 mnemonic="R"
-                 style="push">
-           </command>
            <visibleWhen
                  checkEnabled="false">
               <with
@@ -441,7 +446,199 @@
                  </equals>
               </with>
            </visibleWhen>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.build"
+                 id="ru.bmstu.rk9.rdo.ui.runtime.menu.build"
+                 label="Build"
+                 mnemonic="B"
+                 style="push">
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.execute"
+                 icon="icons/rdo_model_run.gif"
+                 id="ru.bmstu.rk9.rdo.ui.runtime.menu.execute"
+                 label="Run"
+                 mnemonic="R"
+                 style="push">
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.stop"
+                 icon="icons/rdo_stop.gif"
+                 id="ru.bmstu.rk9.rdo.ui.runtime.menu.stop"
+                 label="Stop"
+                 mnemonic="S"
+                 style="push">
+           </command>
+           <separator
+                 name="ru.bmstu.rk9.rdo.ui.runtime.menu.separator1">
+           </separator>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.menu.noAnimation"
+                 icon="icons/rdo_noanimation.gif"
+                 id="ru.bmstu.rk9.rdo.ui.runtime.menu.noAnimation"
+                 label="No Animation"
+                 mnemonic="A"
+                 style="pulldown">
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.fastForward"
+                 icon="icons/rdo_fastforward.gif"
+                 id="ru.bmstu.rk9.rdo.ui.runtime.menu.fastForward"
+                 label="Fast Forward"
+                 mnemonic="F"
+                 style="pulldown">
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.normalSpeed"
+                 icon="icons/rdo_normalspeed.gif"
+                 id="ru.bmstu.rk9.rdo.ui.runtime.menu.normalSpeed"
+                 label="Normal Speed"
+                 mnemonic="N"
+                 style="pulldown">
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.pause"
+                 icon="icons/rdo_pause.gif"
+                 id="ru.bmstu.rk9.rdo.ui.runtime.menu.pause"
+                 label="Pause"
+                 mnemonic="P"
+                 style="pulldown">
+           </command>
         </menu>
+     </menuContribution>
+     <menuContribution
+           allPopups="false"
+           locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+        <toolbar
+              id="ru.bmstu.rk9.rdo.ui.RDOToolbar"
+              label="RDO Toolbar">
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.execute"
+                 icon="icons/rdo_model_run.gif"
+                 id="ru.bmstu.rk9.rdo.ui.RDOToolbar.execute"
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.stop"
+                 icon="icons/rdo_stop.gif"
+                 id="ru.bmstu.rk9.rdo.ui.RDOToolbar.stop"
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <control
+                 class="ru.bmstu.rk9.rdo.ui.contributions.RDOToolbarSeparator">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </control>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.noAnimation"
+                 icon="icons/rdo_noanimation.gif"
+                 id="ru.bmstu.rk9.rdo.ui.RDOToolbar.noAnimation"
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.fastForward"
+                 icon="icons/rdo_fastforward.gif"
+                 id="ru.bmstu.rk9.rdo.ui.RDOToolbar.fastForward"
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.normalSpeed"
+                 icon="icons/rdo_normalspeed.gif"
+                 id="ru.bmstu.rk9.rdo.ui.RDOToolbar.normalSpeed"
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.pause"
+                 icon="icons/rdo_pause.gif"
+                 id="ru.bmstu.rk9.rdo.ui.RDOToolbar.pause"
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <control
+                 class="ru.bmstu.rk9.rdo.ui.contributions.RDOToolbarSeparator">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </control>
+           <control
+                 class="ru.bmstu.rk9.rdo.ui.contributions.RDOToolbarContribution">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </control>
+        </toolbar>
      </menuContribution>
   </extension>
   <extension
