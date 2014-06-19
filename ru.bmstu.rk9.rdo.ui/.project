@@ -42,12 +42,12 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1394573733163</id>
+			<id>1403019006541</id>
 			<name>icons</name>
 			<type>5</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-*.gif</arguments>
+				<arguments>1.0-name-matches-false-true-.+\.(gif|png)</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>
