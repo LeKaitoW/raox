@@ -155,8 +155,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 		{
 			public static void main(String[] args)
 			{
-				rdo_lib.Tracer.startTrace();
-
 				long startTime = System.currentTimeMillis();
 
 				System.out.println(" === RDO-Simulator ===\n");
@@ -197,8 +195,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 				System.out.println("-------------------------------------------------------------------------------");
 				rdo_lib.Simulator.getResults();
 				System.out.println("-------------------------------------------------------------------------------");
-
-				rdo_lib.Tracer.stopTrace();
 			}
 		}
 		'''
