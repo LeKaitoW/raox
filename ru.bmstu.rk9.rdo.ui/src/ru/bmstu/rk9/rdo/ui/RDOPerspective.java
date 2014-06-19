@@ -1,11 +1,11 @@
 package ru.bmstu.rk9.rdo.ui;
 
 import org.eclipse.ui.IPerspectiveFactory;
-
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IFolderLayout;
-
 import org.eclipse.ui.console.IConsoleConstants;
+
+import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
 
 public class RDOPerspective implements IPerspectiveFactory
 {
@@ -49,6 +49,7 @@ public class RDOPerspective implements IPerspectiveFactory
 					IPageLayout.BOTTOM,
 					0.7f,
 					factory.getEditorArea());
+			bottom.addView(RDOConsoleView.ID);
 			bottom.addView(IPageLayout.ID_PROBLEM_VIEW);
 			bottom.addView(IConsoleConstants.ID_CONSOLE_VIEW);
 	}

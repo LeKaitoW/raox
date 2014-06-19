@@ -9,6 +9,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -21,9 +22,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.emf.common.util.URI;
+
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 
 import org.eclipse.ui.IEditorPart;
@@ -31,7 +35,9 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
+
 import org.eclipse.xtext.generator.OutputConfiguration;
+
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import ru.bmstu.rk9.rdo.IMultipleResourceGenerator;
@@ -85,7 +91,32 @@ public class ModelBuilder
 		else
 			return null;
 	}
-	
+
+	public static IMarker[] calculateCompilationErrorMarkers(IProject project)
+	{
+		ArrayList <IMarker> result = new ArrayList <IMarker>();
+		IMarker[] markers = null;
+
+		try
+		{
+			markers = project.findMarkers(null, true, IResource.DEPTH_INFINITE);
+			for (IMarker marker: markers)
+		    {
+		        Integer severityType;
+				severityType = (Integer) marker.getAttribute(IMarker.SEVERITY);
+				if (severityType != null && severityType.intValue() == IMarker.SEVERITY_ERROR &&
+						marker.getType().startsWith("ru.bmstu.rk9.rdo"))
+					result.add(marker);
+			}
+		}
+		catch (CoreException e)
+		{
+			e.printStackTrace();
+		}
+
+	    return result.toArray(new IMarker[result.size()]);
+	}
+
 	static Job build
 	(
 		final ExecutionEvent event,
@@ -99,8 +130,21 @@ public class ModelBuilder
 		{
 			protected IStatus run(IProgressMonitor monitor)
 			{
+				IJobManager jobMan = Job.getJobManager();
+
+				try
+				{
+					jobMan.join(ResourcesPlugin.FAMILY_AUTO_REFRESH, monitor);
+					jobMan.join(ResourcesPlugin.FAMILY_AUTO_BUILD, monitor);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+
 				IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
 				final IProject project = getProject(activeEditor);
+								
 		 		final List<IResource> projectFiles = ModelBuilder.getAllRDOFilesInProject(project);
 				if (project != null)
 				{
@@ -131,8 +175,32 @@ public class ModelBuilder
 		 			fsa.setOutputConfigurations(outputConfigurations);
 		 			
 		 			final ResourceSet resourceSet = resourceSetProvider.get(project);
+		 			
+		 			boolean projectHasErrors = false;
+		 			
 		 			for (IResource res : projectFiles)
-		 				resourceSet.getResource(getURI(res), true);
+		 			{
+		 				Resource loadedResource = resourceSet.getResource(getURI(res), true);
+						if (loadedResource.getErrors().size() > 0)
+							projectHasErrors = true;
+		 			}
+
+		 			if (calculateCompilationErrorMarkers(project).length > 0)
+		 				projectHasErrors = true;
+		 			
+		 			if (projectHasErrors)
+		 			{
+		 				try
+		 				{
+							srcGenFolder.delete(true, new NullProgressMonitor());
+						}
+		 				catch (CoreException e)
+		 				{
+							e.printStackTrace();
+						}
+		 				return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui", "Model has errors");
+		 			}
+
 					generator.doGenerate(resourceSet, fsa);
 
 					try
@@ -144,11 +212,11 @@ public class ModelBuilder
 						e.printStackTrace();
 					}
 				 }
-				 	return Status.OK_STATUS;
-				}
-			 };
+				 return Status.OK_STATUS;
+			}
+		};
 
-		  job.setPriority(Job.BUILD);
-		  return job;		
+		job.setPriority(Job.BUILD);
+		return job;		
 	}
 }
