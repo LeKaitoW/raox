@@ -30,6 +30,7 @@ import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivity
+import ru.bmstu.rk9.rdo.rdo.DecisionPointPriorActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
 
 import ru.bmstu.rk9.rdo.rdo.ProcessGenerate
@@ -143,6 +144,7 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 
 	// Decision points
 	def _isLeaf(DecisionPointSearchActivity d) { true }
+	def _isLeaf(DecisionPointPriorActivity d)  { true }
 	def _isLeaf(DecisionPointActivity d)       { true }
 
 	// Process
