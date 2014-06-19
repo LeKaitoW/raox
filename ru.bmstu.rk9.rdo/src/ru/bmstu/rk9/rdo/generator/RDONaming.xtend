@@ -55,7 +55,7 @@ class RDONaming
 {
 	def static getProjectName(URI uri)
 	{
-		return uri.toPlatformString(false).substring(1, uri.toPlatformString(true).indexOf("/", 1))
+		return uri.toPlatformString(true).substring(1, uri.toPlatformString(true).indexOf("/", 1))
 	}
 
 	def static getResourceName(Resource res)
