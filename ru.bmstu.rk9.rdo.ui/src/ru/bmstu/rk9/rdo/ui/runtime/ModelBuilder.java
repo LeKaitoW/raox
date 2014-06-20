@@ -130,21 +130,20 @@ public class ModelBuilder
 		{
 			protected IStatus run(IProgressMonitor monitor)
 			{
-				IJobManager jobMan = Job.getJobManager();
+				IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
+				final IProject project = getProject(activeEditor);
 
+				IJobManager jobMan = Job.getJobManager();
 				try
 				{
-					jobMan.join(ResourcesPlugin.FAMILY_AUTO_REFRESH, monitor);
-					jobMan.join(ResourcesPlugin.FAMILY_AUTO_BUILD, monitor);
+					for (Job j : jobMan.find(project.getName()))
+						j.join();
 				}
 				catch (Exception e)
 				{
 					e.printStackTrace();
 				}
 
-				IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
-				final IProject project = getProject(activeEditor);
-								
 		 		final List<IResource> projectFiles = ModelBuilder.getAllRDOFilesInProject(project);
 				if (project != null)
 				{
