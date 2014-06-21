@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rdo.ui.runtime;
 
-import java.io.File;
+import java.util.LinkedList;
+
 import java.io.PrintStream;
 
 import java.lang.reflect.Method;
@@ -8,25 +9,20 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.osgi.framework.Bundle;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IPath;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+
+import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
+
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.MessageConsole;
@@ -43,6 +39,9 @@ import ru.bmstu.rk9.rdo.IMultipleResourceGenerator;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+
+import ru.bmstu.rk9.rdo.lib.Result;
+import ru.bmstu.rk9.rdo.lib.Simulator;
 
 
 public class RDOExecutionHandler extends AbstractHandler
@@ -87,6 +86,22 @@ public class RDOExecutionHandler extends AbstractHandler
 				System.setErr(new PrintStream(stream));
 
 				String name = this.getName();
+				this.setName(name + " (waiting for execution to complete)");
+
+				IJobManager jobMan = Job.getJobManager();
+				try
+				{
+					for (Job j : jobMan.find("rdo_model_run"))
+						if (j != this)
+							j.join();
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+
+				this.setName(name);
+
 				this.setName(name + " (waiting for build to complete)");
 
 				try
@@ -107,42 +122,32 @@ public class RDOExecutionHandler extends AbstractHandler
 				{
 					URL model = new URL("file://" + ResourcesPlugin.getWorkspace().
 							getRoot().getLocation().toString() + "/" + project.getName() + "/bin/");
-					URL lib = null;
 
-					Bundle libPlugin = Platform.getBundle("ru.bmstu.rk9.rdo.lib");
-					File libPath = null;
-					libPath = FileLocator.getBundleFile(libPlugin);
-					if (libPath != null)
-					{
-						IPath libPathBinary;
-						if (libPath.isDirectory())
-							libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
-						else
-							libPathBinary = new Path(libPath.getAbsolutePath());
+					URL[] urls = new URL[]{ model };
 
-						lib = new URL("file://" + libPathBinary.toString());
-					}
+					ClassLoader cl = new URLClassLoader(urls, Simulator.class.getClassLoader());
 
-					URL[] urls = new URL[]{model, lib};
+					Class<?> cls = cl.loadClass("rdo_model.EmbeddedModel");
 
-					ClassLoader cl = new URLClassLoader(urls);
-
-					Class<?> cls = cl.loadClass("rdo_model.MainClass");
-
-					Method main = null;
-
-					find_main:
+					Method simulation = null;
+					find_simulation:
 					for (Method method : cls.getMethods())
-						if (method.getName() == "main")
+						if (method.getName() == "runSimulation")
 						{
-							main = method;
-							break find_main;
+							simulation = method;
+							break find_simulation;
 						}
 
-					if (main != null)
+					LinkedList<Result> results = new LinkedList<Result>();
+					int result = -1; 
+					if (simulation != null)
 					{
-						main.invoke(null, (Object)null);
+						result = (int)simulation.invoke(null, (Object)results);
 					}
+					System.out.println(result);
+
+					for (Result r : results)
+						System.out.println(r.get());
 				}
 				catch (Exception e)
 				{
@@ -150,6 +155,12 @@ public class RDOExecutionHandler extends AbstractHandler
 				}
 
 				return Status.OK_STATUS;
+			}
+
+			@Override
+			public boolean belongsTo(Object family)
+			{
+				return ("rdo_model_run").equals(family);
 			}
 		};
 		run.setPriority(Job.LONG);

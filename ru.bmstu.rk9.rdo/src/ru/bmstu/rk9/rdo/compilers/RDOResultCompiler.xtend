@@ -12,23 +12,25 @@ class RDOResultCompiler
 {
 	def public static compileResult(ResultDeclaration result, String filename)
 	{
+		val name =
+			(if ((result.eContainer as Results).name != null)
+				(result.eContainer as Results).name + "_" else "")
+			+ result.name
 		'''
 		package «filename»;
 
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «IF (result.eContainer as Results).name != null»«(result.eContainer as Results).name
-			»_«ENDIF»«result.name»
+		public class «name» implements Result
 		{
-			private static Result result = new Result()
-				{
-					«result.type.compileResultBody»
-				};
+			«result.type.compileResultBody»
+
+			private static «name» INSTANCE = new «name»();
 
 			public static void init()
 			{
-				Simulator.addResult(result);
+				Simulator.addResult(INSTANCE);
 			}
 		}
 		'''
@@ -44,14 +46,22 @@ class RDOResultCompiler
 				public void update() {}
 
 				@Override
-				public void get()
+				public String get()
 				{
-					System.out.println("«(type.eContainer as ResultDeclaration).name»\t\t|\tType: get_value\t\t|\tValue: " +
-						(«type.expression.compileExpression.value»));
+					return "«(type.eContainer as ResultDeclaration).name»\t\t|\tType: get_value\t\t|\tValue: " +
+						String.valueOf(«type.expression.compileExpression.value»);
 				}
 				'''
 			default:
 				'''
+				@Override
+				public void update() {}
+
+				@Override
+				public String get()
+				{
+					return "";
+				}
 				'''
 		}
 	}

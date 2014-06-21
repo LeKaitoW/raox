@@ -2,51 +2,63 @@ package ru.bmstu.rk9.rdo.lib;
 
 import java.util.LinkedList;
 
-public abstract class Simulator
+public class Simulator
 {
-	private static double time = 0;
+	private static Simulator INSTANCE = null;
+
+	public static void initSimulation()
+	{
+		INSTANCE = new Simulator();
+	}
+
+	private double time = 0;
 
 	public static double getTime()
 	{
-		return time;
+		return INSTANCE.time;
 	}
 
-	private static EventScheduler eventScheduler = new EventScheduler();
+	private EventScheduler eventScheduler = new EventScheduler();
 
 	public static void pushEvent(Event event)
 	{
-		eventScheduler.pushEvent(event);
+		INSTANCE.eventScheduler.pushEvent(event);
 	}
 
-	private static LinkedList<TerminateCondition> terminateList = new LinkedList<TerminateCondition>();
+	private LinkedList<TerminateCondition> terminateList = new LinkedList<TerminateCondition>();
 
 	public static void addTerminateCondition(TerminateCondition c)
 	{
-		terminateList.add(c);
+		INSTANCE.terminateList.add(c);
 	}
 
-	private static DPTManager dptManager = new DPTManager();
+	private DPTManager dptManager = new DPTManager();
 
 	public static void addDecisionPoint(DecisionPoint dpt)
 	{
-		dptManager.addDecisionPoint(dpt);
+		INSTANCE.dptManager.addDecisionPoint(dpt);
 	}
 
-	private static ResultManager resultManager = new ResultManager();
+	private ResultManager resultManager = new ResultManager();
 
 	public static void addResult(Result result)
 	{
-		resultManager.addResult(result);
+		INSTANCE.resultManager.addResult(result);
 	}
 
-	public static void getResults()
+	public static void printResults()
 	{
-		resultManager.getResults();
+		INSTANCE.resultManager.printResults();
+	}
+
+	public static LinkedList<Result> getResults()
+	{
+		return INSTANCE.resultManager.getResults();
 	}
 
 	private static boolean checkTerminate()
 	{
-		for (TerminateCondition c : terminateList)
+		for (TerminateCondition c : INSTANCE.terminateList)
 			if (c.check())
 				return true;
 		return false;
@@ -54,22 +66,22 @@ public abstract class Simulator
 
 	public static int run()
 	{
-		while (dptManager.checkDPT())
+		while (INSTANCE.dptManager.checkDPT())
 			if (checkTerminate())
 				return 1;
 
-		while (eventScheduler.haveEvents())
+		while (INSTANCE.eventScheduler.haveEvents())
 		{
-			Event current = eventScheduler.popEvent();
+			Event current = INSTANCE.eventScheduler.popEvent();
 
-			time = current.getTime();
+			INSTANCE.time = current.getTime();
 
 			current.run();
 
 			if (checkTerminate())
 				return 1;
 
-			while (dptManager.checkDPT())
+			while (INSTANCE.dptManager.checkDPT())
 				if (checkTerminate())
 					return 1;
 		}

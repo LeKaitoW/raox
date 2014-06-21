@@ -114,7 +114,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 		fsa.generateFile("rdo_model/" + RDONaming.getProjectName(resources.resources.get(0).URI) +"_database.java",
 			RDODatabaseCompiler.compileDatabase(resources, RDONaming.getProjectName(resources.resources.get(0).URI)))
-		fsa.generateFile("rdo_model/MainClass.java", compileMain(resources, smr))
+		fsa.generateFile("rdo_model/StandaloneModel.java", compileStandalone(resources, smr))
+		fsa.generateFile("rdo_model/EmbeddedModel.java", compileEmbedded(resources, smr))
 	}
 
 	public static HashMap<String, GlobalContext> variableIndex = new HashMap<String, GlobalContext>
@@ -143,7 +144,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		}
 	}
 
-	def compileMain(ResourceSet rs, SimulationRun smr)
+	def compileStandalone(ResourceSet rs, SimulationRun smr)
 	{
 		'''
 		package rdo_model;
@@ -151,11 +152,13 @@ class RDOGenerator implements IMultipleResourceGenerator
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class MainClass
+		public class StandaloneModel
 		{
 			public static void main(String[] args)
 			{
 				long startTime = System.currentTimeMillis();
+
+				Simulator.initSimulation();
 
 				System.out.println(" === RDO-Simulator ===\n");
 				System.out.println("   Project «RDONaming.getProjectName(rs.resources.get(0).URI)»");
@@ -193,8 +196,52 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				System.out.println("\nResults:");
 				System.out.println("-------------------------------------------------------------------------------");
-				Simulator.getResults();
+				Simulator.printResults();
 				System.out.println("-------------------------------------------------------------------------------");
+			}
+		}
+		'''
+	}
+
+	def compileEmbedded(ResourceSet rs, SimulationRun smr)
+	{
+		'''
+		package rdo_model;
+
+		import java.util.List;
+
+		import ru.bmstu.rk9.rdo.lib.*;
+		@SuppressWarnings("all")
+
+		public class EmbeddedModel
+		{
+			public static int runSimulation(List<Result> results)
+			{
+				Simulator.initSimulation();
+
+				«RDONaming.getProjectName(rs.resources.get(0).URI)»_database.init();
+
+				«IF smr != null»«FOR c :smr.commands»
+					«c.compileStatement»
+				«ENDFOR»«ENDIF»
+
+				«FOR r : rs.resources»
+				«FOR c : r.allContents.filter(typeof(DecisionPoint)).toIterable»
+					«c.fullyQualifiedName».init();
+				«ENDFOR»
+				«ENDFOR»
+
+				«FOR r : rs.resources»
+				«FOR c : r.allContents.filter(typeof(ResultDeclaration)).toIterable»
+					«c.fullyQualifiedName».init();
+				«ENDFOR»
+				«ENDFOR»
+
+				int result = Simulator.run();
+
+				results.addAll(Simulator.getResults());
+
+				return result;
 			}
 		}
 		'''
