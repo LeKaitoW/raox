@@ -15,17 +15,20 @@ class RDOResultCompiler
 		'''
 		package «filename»;
 
+		import ru.bmstu.rk9.rdo.lib.*;
+		@SuppressWarnings("all")
+
 		public class «IF (result.eContainer as Results).name != null»«(result.eContainer as Results).name
 			»_«ENDIF»«result.name»
 		{
-			private static rdo_lib.Result result = new rdo_lib.Result()
+			private static Result result = new Result()
 				{
 					«result.type.compileResultBody»
 				};
 
 			public static void init()
 			{
-				rdo_lib.Simulator.addResult(result);
+				Simulator.addResult(result);
 			}
 		}
 		'''

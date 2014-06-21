@@ -49,3 +49,9 @@ $RECYCLE.BIN/
 
 # Mac crap
 .DS_Store
+
+#############
+## Compiled RDO Lib
+#############
+
+ru.bmstu.rk9.rdo.lib*.jar

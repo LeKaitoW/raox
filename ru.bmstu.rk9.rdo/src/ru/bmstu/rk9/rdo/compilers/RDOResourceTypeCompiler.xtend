@@ -30,9 +30,12 @@ class RDOResourceTypeCompiler
 		'''
 		package «filename»;
 
-		public class «rtp.name» implements rdo_lib.«rtp.type.literal.withFirstUpper»Resource, rdo_lib.ResourceComparison<«rtp.name»>
+		import ru.bmstu.rk9.rdo.lib.*;
+		@SuppressWarnings("all")
+
+		public class «rtp.name» implements «rtp.type.literal.withFirstUpper»Resource, ResourceComparison<«rtp.name»>
 		{
-			private static rdo_lib.«rtp.type.literal.withFirstUpper
+			private static «rtp.type.literal.withFirstUpper
 				»ResourceManager<«rtp.name»> managerCurrent;
 
 			private String name;
@@ -89,9 +92,9 @@ class RDOResourceTypeCompiler
 			}
 
 			«ENDIF»
-			private rdo_lib.«rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»> managerOwner = managerCurrent;
+			private «rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»> managerOwner = managerCurrent;
 
-			public static void setCurrentManager(rdo_lib.«rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»> manager)
+			public static void setCurrentManager(«rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»> manager)
 			{
 				managerCurrent = manager;
 			}

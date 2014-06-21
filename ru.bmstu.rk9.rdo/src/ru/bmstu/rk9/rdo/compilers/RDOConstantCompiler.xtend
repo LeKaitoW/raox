@@ -19,6 +19,9 @@ class RDOConstantCompiler
 		'''
 		package «filename»;
 
+		import ru.bmstu.rk9.rdo.lib.*;
+		@SuppressWarnings("all")
+
 		public class «con.name»
 		{
 			public static final «con.type.compileType» value = «IF con.type.compileType.endsWith("_enum")»«

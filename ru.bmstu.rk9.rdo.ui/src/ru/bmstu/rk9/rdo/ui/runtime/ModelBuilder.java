@@ -1,8 +1,12 @@
 package ru.bmstu.rk9.rdo.ui.runtime;
 
+import java.io.File;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+
+import org.osgi.framework.Bundle;
 
 import org.eclipse.core.commands.ExecutionEvent;
 
@@ -17,10 +21,13 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
@@ -29,6 +36,10 @@ import org.eclipse.emf.common.util.URI;
 
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -117,6 +128,49 @@ public class ModelBuilder
 	    return result.toArray(new IMarker[result.size()]);
 	}
 
+	private static void checkProjectClassPath(IProject project, IProgressMonitor monitor)
+	{
+		Bundle lib = Platform.getBundle("ru.bmstu.rk9.rdo.lib");
+		File libPath = null;
+		try
+		{
+			libPath = FileLocator.getBundleFile(lib);
+			if (libPath != null)
+			{
+				IJavaProject jProject = JavaCore.create(project);
+
+				IClasspathEntry[] projectClassPathArray = jProject.getRawClasspath();
+
+				IPath libPathBinary = new Path(libPath.getAbsolutePath() + "/bin");
+
+				if (projectClassPathArray.length > 2)
+				{
+					if (!projectClassPathArray[2].getPath().equals(libPathBinary))
+					{
+						projectClassPathArray[2] = JavaCore.newLibraryEntry(libPathBinary, null, null);
+						jProject.setRawClasspath(projectClassPathArray, monitor);
+					}
+				}
+				else
+				{
+					ArrayList<IClasspathEntry> projectClassPathList =
+						new ArrayList<IClasspathEntry>(Arrays.asList(projectClassPathArray));
+					IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary, null, null);
+					projectClassPathList.add(libEntry);
+
+					jProject.setRawClasspath(
+						(IClasspathEntry[])projectClassPathList.toArray(
+							new IClasspathEntry[projectClassPathList.size()]), monitor);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
 	static Job build
 	(
 		final ExecutionEvent event,
@@ -133,6 +187,8 @@ public class ModelBuilder
 				IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
 				final IProject project = getProject(activeEditor);
 
+				checkProjectClassPath(project, monitor);
+
 				IJobManager jobMan = Job.getJobManager();
 				try
 				{
@@ -144,7 +200,7 @@ public class ModelBuilder
 					e.printStackTrace();
 				}
 
-		 		final List<IResource> projectFiles = ModelBuilder.getAllRDOFilesInProject(project);
+		 		final ArrayList<IResource> projectFiles = ModelBuilder.getAllRDOFilesInProject(project);
 				if (project != null)
 				{
 					IFolder srcGenFolder = project.getFolder("src-gen");

@@ -17,11 +17,14 @@ class RDODatabaseCompiler
 		'''
 		package rdo_model;
 
-		public class «project»_database implements rdo_lib.Database<«project»_database>
+		import ru.bmstu.rk9.rdo.lib.*;
+		@SuppressWarnings("all")
+
+		public class «project»_database implements Database<«project»_database>
 		{
 			«FOR r : rs.resources»
 				«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
-					rdo_lib.«IF rtp.type.literal == 'temporary'»Temporary«ELSE»Permanent«ENDIF
+					«IF rtp.type.literal == 'temporary'»Temporary«ELSE»Permanent«ENDIF
 						»ResourceManager<«rtp.fullyQualifiedName»> «r.allContents.head.nameGeneric
 							»_«rtp.name»_manager;
 				«ENDFOR»
@@ -50,7 +53,7 @@ class RDODatabaseCompiler
 			{
 				«FOR r : rs.resources»
 					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
-						this.«r.allContents.head.nameGeneric»_«rtp.name»_manager = new rdo_lib.«
+						this.«r.allContents.head.nameGeneric»_«rtp.name»_manager = new «
 							IF rtp.type.literal == 'temporary'»Temporary«ELSE»Permanent«ENDIF
 								»ResourceManager<«rtp.fullyQualifiedName»>();
 					«ENDFOR»

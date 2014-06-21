@@ -198,7 +198,7 @@ class RDOStatementCompiler
 			}
 
 			PlanningStatement:
-				"rdo_lib.Simulator.pushEvent(new " +
+				"Simulator.pushEvent(new " +
 					st.event.getFullyQualifiedName + "(" + RDOExpressionCompiler.compileExpression(st.value).value +
 						(if (st.parameters != null) (", " + st.parameters.compileExpression.value) else
 							(if(st.event.parameters != null && st.event.parameters.size > 0)
@@ -211,9 +211,9 @@ class RDOStatementCompiler
 
 			TerminateIf:
 				'''
-				rdo_lib.Simulator.addTerminateCondition
+				Simulator.addTerminateCondition
 				(
-					new rdo_lib.TerminateCondition()
+					new TerminateCondition()
 					{
 						@Override
 						public boolean check()

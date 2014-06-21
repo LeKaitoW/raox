@@ -37,6 +37,9 @@ class RDOFunctionCompiler
 		'''
 		package «filename»;
 
+		import ru.bmstu.rk9.rdo.lib.*;
+		@SuppressWarnings("all")
+
 		public class «fun.name»
 		'''
 		 +

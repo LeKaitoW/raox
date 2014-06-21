@@ -155,7 +155,7 @@ class RDOExpressionCompiler
 				return new RDOExpression(expr.value.toString, "Double")
 
 			TimeNow:
-				return new RDOExpression("rdo_lib.Simulator.getTime()", "Double")
+				return new RDOExpression("Simulator.getTime()", "Double")
 
 			StringConstant:
 				return new RDOExpression('"' + expr.value + '"', "String")
@@ -170,9 +170,9 @@ class RDOExpressionCompiler
 
 				val ret =
 					'''
-					rdo_lib.Select.«expr.type.literal»(
+					Select.«expr.type.literal»(
 						«expr.arg.type.fullyQualifiedName».getAll(),
-						new rdo_lib.Select.Checker<«expr.arg.type.fullyQualifiedName»>()
+						new Select.Checker<«expr.arg.type.fullyQualifiedName»>()
 						{
 							@Override
 							public boolean check(«expr.arg.type.fullyQualifiedName» current)
@@ -193,9 +193,9 @@ class RDOExpressionCompiler
 
 				val ret =
 					'''
-					rdo_lib.Select.«expr.method.literal»(
+					Select.«expr.method.literal»(
 						«expr.arg.type.fullyQualifiedName».getAll(),
-						new rdo_lib.Select.Checker<«expr.arg.type.fullyQualifiedName»>()
+						new Select.Checker<«expr.arg.type.fullyQualifiedName»>()
 						{
 							@Override
 							public boolean check(«expr.arg.type.fullyQualifiedName» current)
@@ -634,13 +634,13 @@ class RDOExpressionCompiler
 
 			RDOInteger:
 //					if(type.range != null)
-//						"rdo_lib.RDORangedInteger"
+//						"RDORangedInteger"
 //					else
 						"Integer"
 
 			RDOReal   :
 //					if(type.range != null)
-//						"rdo_lib.RDORangedDouble"
+//						"RDORangedDouble"
 //					else
 						"Double"
 

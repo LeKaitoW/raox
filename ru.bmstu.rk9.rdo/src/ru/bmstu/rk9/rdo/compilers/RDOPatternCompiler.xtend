@@ -34,7 +34,10 @@ class RDOPatternCompiler
 		'''
 		package «filename»;
 
-		public class «evn.name» implements rdo_lib.Event
+		import ru.bmstu.rk9.rdo.lib.*;
+		@SuppressWarnings("all")
+
+		public class «evn.name» implements Event
 		{
 			private static final String name =  "«evn.fullyQualifiedName»";
 
@@ -93,8 +96,8 @@ class RDOPatternCompiler
 				return time;
 			}
 
-			private static rdo_lib.Converter<RelevantResources, Parameters> converter =
-				new rdo_lib.Converter<RelevantResources, Parameters>()
+			private static Converter<RelevantResources, Parameters> converter =
+				new Converter<RelevantResources, Parameters>()
 				{
 					@Override
 					public void run(RelevantResources resources, Parameters parameters)
@@ -132,6 +135,9 @@ class RDOPatternCompiler
 	{
 		'''
 		package «filename»;
+
+		import ru.bmstu.rk9.rdo.lib.*;
+		@SuppressWarnings("all")
 
 		public class «rule.name»
 		{
@@ -202,12 +208,12 @@ class RDOPatternCompiler
 			}
 
 			«IF rule.combinational != null»
-			static private rdo_lib.CombinationalChoiceFrom<RelevantResources, Parameters> choice =
-				new rdo_lib.CombinationalChoiceFrom<RelevantResources, Parameters>
+			static private CombinationalChoiceFrom<RelevantResources, Parameters> choice =
+				new CombinationalChoiceFrom<RelevantResources, Parameters>
 				(
 					staticResources,
 					«rule.combinational.compileChoiceMethod("RelevantResources", "RelevantResources")»,
-					new rdo_lib.CombinationalChoiceFrom.RelevantResourcesManager<RelevantResources>()
+					new CombinationalChoiceFrom.RelevantResourcesManager<RelevantResources>()
 					{
 						@Override
 						public RelevantResources create(RelevantResources set)
@@ -235,9 +241,9 @@ class RDOPatternCompiler
 				«FOR rc : rule.algorithms.filter[r | r.relres.rule.literal != "Create"]»
 					choice.addFinder
 					(
-						new rdo_lib.CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
+						new CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
 						(
-							new rdo_lib.CombinationalChoiceFrom.Retriever<«rc.relres.type.relResFullyQualifiedName»>()
+							new CombinationalChoiceFrom.Retriever<«rc.relres.type.relResFullyQualifiedName»>()
 							{
 								@Override
 								public java.util.Collection<«rc.relres.type.relResFullyQualifiedName»> getResources()
@@ -254,12 +260,12 @@ class RDOPatternCompiler
 									«ENDIF»
 								}
 							},
-							new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
+							new SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
 							(
 								«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.relResFullyQualifiedName, rc.relres.name, rc.relres.type.relResFullyQualifiedName)»,
 								null
 							),
-							new rdo_lib.CombinationalChoiceFrom.Setter<RelevantResources, «rc.relres.type.relResFullyQualifiedName»>()
+							new CombinationalChoiceFrom.Setter<RelevantResources, «rc.relres.type.relResFullyQualifiedName»>()
 							{
 								public void set(RelevantResources set, «rc.relres.type.relResFullyQualifiedName» resource)
 								{
@@ -276,14 +282,14 @@ class RDOPatternCompiler
 			«FOR rc : rule.algorithms.filter[r | r.relres.rule.literal != "Create"]»
 			«IF rc.relres.type instanceof ResourceDeclaration»
 			// just checker «rc.relres.name»
-			private static rdo_lib.SimpleChoiceFrom.Checker<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «
+			private static SimpleChoiceFrom.Checker<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «
 				rc.relres.name»Checker = «rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.relResFullyQualifiedName,
 						rc.relres.name, rc.relres.type.relResFullyQualifiedName)»;
 
 			«ELSE»
 			// choice «rc.relres.name»
-			private static rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «rc.relres.name»Choice =
-				new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
+			private static SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «rc.relres.name»Choice =
+				new SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
 				(
 					«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.relResFullyQualifiedName, rc.relres.name, rc.relres.type.relResFullyQualifiedName)»,
 					«rc.choicemethod.compileChoiceMethod(rule.name, rc.relres.type.relResFullyQualifiedName)»
@@ -293,8 +299,8 @@ class RDOPatternCompiler
 			«ENDFOR»
 			«ENDIF»
 
-			private static rdo_lib.Converter<RelevantResources, Parameters> rule =
-					new rdo_lib.Converter<RelevantResources, Parameters>()
+			private static Converter<RelevantResources, Parameters> rule =
+					new Converter<RelevantResources, Parameters>()
 					{
 						@Override
 						public void run(RelevantResources resources, Parameters parameters)
@@ -365,7 +371,10 @@ class RDOPatternCompiler
 		'''
 		package «filename»;
 
-		public class «op.name» implements rdo_lib.Event
+		import ru.bmstu.rk9.rdo.lib.*;
+		@SuppressWarnings("all")
+
+		public class «op.name» implements Event
 		{
 			private static final String name = "«filename».«op.name»";
 
@@ -435,12 +444,12 @@ class RDOPatternCompiler
 			}
 
 			«IF op.combinational != null»
-			static private rdo_lib.CombinationalChoiceFrom<RelevantResources, Parameters> choice =
-				new rdo_lib.CombinationalChoiceFrom<RelevantResources, Parameters>
+			static private CombinationalChoiceFrom<RelevantResources, Parameters> choice =
+				new CombinationalChoiceFrom<RelevantResources, Parameters>
 				(
 					staticResources,
 					«op.combinational.compileChoiceMethod("RelevantResources", "RelevantResources")»,
-					new rdo_lib.CombinationalChoiceFrom.RelevantResourcesManager<RelevantResources>()
+					new CombinationalChoiceFrom.RelevantResourcesManager<RelevantResources>()
 					{
 						@Override
 						public RelevantResources create(RelevantResources set)
@@ -468,9 +477,9 @@ class RDOPatternCompiler
 				«FOR rc : op.algorithms.filter[r | r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
 					choice.addFinder
 					(
-						new rdo_lib.CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.fullyQualifiedName», Parameters>
+						new CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.fullyQualifiedName», Parameters>
 						(
-							new rdo_lib.CombinationalChoiceFrom.Retriever<«rc.relres.type.fullyQualifiedName»>()
+							new CombinationalChoiceFrom.Retriever<«rc.relres.type.fullyQualifiedName»>()
 							{
 								@Override
 								public java.util.Collection<«rc.relres.type.fullyQualifiedName»> getResources()
@@ -487,12 +496,12 @@ class RDOPatternCompiler
 									«ENDIF»
 								}
 							},
-							new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName», Parameters>
+							new SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName», Parameters>
 							(
 								«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.fullyQualifiedName, rc.relres.name, rc.relres.type.fullyQualifiedName)»,
 								null
 							),
-							new rdo_lib.CombinationalChoiceFrom.Setter<RelevantResources, «rc.relres.type.fullyQualifiedName»>()
+							new CombinationalChoiceFrom.Setter<RelevantResources, «rc.relres.type.fullyQualifiedName»>()
 							{
 								public void set(RelevantResources set, «rc.relres.type.fullyQualifiedName» resource)
 								{
@@ -509,14 +518,14 @@ class RDOPatternCompiler
 			«FOR rc : op.algorithms.filter[r | r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
 			«IF rc.relres.type instanceof ResourceDeclaration»
 			// just checker «rc.relres.name»
-			private static rdo_lib.SimpleChoiceFrom.Checker<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «
+			private static SimpleChoiceFrom.Checker<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «
 				rc.relres.name»Checker = «rc.choicefrom.compileChoiceFrom(op, rc.relres.type.relResFullyQualifiedName,
 						rc.relres.name, rc.relres.type.relResFullyQualifiedName)»;
 
 			«ELSE»
 			// choice «rc.relres.name»
-			private static rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «rc.relres.name»Choice =
-				new rdo_lib.SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
+			private static SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «rc.relres.name»Choice =
+				new SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
 				(
 					«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.relResFullyQualifiedName, rc.relres.name, rc.relres.type.relResFullyQualifiedName)»,
 					«rc.choicemethod.compileChoiceMethod(op.name, rc.relres.type.relResFullyQualifiedName)»
@@ -526,8 +535,8 @@ class RDOPatternCompiler
 			«ENDFOR»
 			«ENDIF»
 
-			private static rdo_lib.Converter<RelevantResources, Parameters> begin =
-					new rdo_lib.Converter<RelevantResources, Parameters>()
+			private static Converter<RelevantResources, Parameters> begin =
+					new Converter<RelevantResources, Parameters>()
 					{
 						@Override
 						public void run(RelevantResources resources, Parameters parameters)
@@ -538,8 +547,8 @@ class RDOPatternCompiler
 						}
 					};
 
-			private static rdo_lib.Converter<RelevantResources, Parameters> end =
-					new rdo_lib.Converter<RelevantResources, Parameters>()
+			private static Converter<RelevantResources, Parameters> end =
+					new Converter<RelevantResources, Parameters>()
 					{
 						@Override
 						public void run(RelevantResources resources, Parameters parameters)
@@ -601,7 +610,7 @@ class RDOPatternCompiler
 				«ENDIF»
 				begin.run(resources, parameters);
 
-				rdo_lib.Simulator.pushEvent(new «op.name»(rdo_lib.Simulator.getTime() + «
+				Simulator.pushEvent(new «op.name»(Simulator.getTime() + «
 					op.time.compileExpressionContext((new LocalContext).populateFromOperation(op)).value», resources, parameters));
 			}
 
@@ -667,7 +676,7 @@ class RDOPatternCompiler
 
 		return
 			'''
-			new rdo_lib.SimpleChoiceFrom.Checker<RelevantResources, «resource», Parameters>()
+			new SimpleChoiceFrom.Checker<RelevantResources, «resource», Parameters>()
 			{
 				@Override
 				public boolean check(RelevantResources resources, «resource» «relres», Parameters parameters)
@@ -706,7 +715,7 @@ class RDOPatternCompiler
 			val expr = cm.expression.compileExpressionContext(context).value
 			return
 				'''
-				new rdo_lib.SimpleChoiceFrom.ChoiceMethod<RelevantResources, «resource», Parameters>()
+				new SimpleChoiceFrom.ChoiceMethod<RelevantResources, «resource», Parameters>()
 				{
 					@Override
 					public int compare(«resource» x, «resource» y)

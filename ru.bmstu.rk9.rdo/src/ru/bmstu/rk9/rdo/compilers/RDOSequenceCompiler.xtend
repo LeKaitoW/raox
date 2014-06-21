@@ -24,12 +24,15 @@ class RDOSequenceCompiler
 		'''
 		package «filename»;
 
+		import ru.bmstu.rk9.rdo.lib.*;
+		@SuppressWarnings("all")
+
 		public class «seq.name»
 		{
 			«IF seq.type instanceof RegularSequence»
 				«IF (seq.type as RegularSequence).legacy»
-				private static rdo_lib.RDOLegacyRandom prng =
-					new rdo_lib.RDOLegacyRandom(«(seq.type as RegularSequence).seed»);
+				private static RDOLegacyRandom prng =
+					new RDOLegacyRandom(«(seq.type as RegularSequence).seed»);
 				«ELSE»
 				private static org.apache.commons.math3.random.MersenneTwister prng =
 					new org.apache.commons.math3.random.MersenneTwister(«(seq.type as RegularSequence).seed»);
@@ -63,8 +66,8 @@ class RDOSequenceCompiler
 			«ENDIF»
 			«IF seq.type instanceof HistogramSequence»
 				«IF (seq.type as HistogramSequence).legacy»
-				private static rdo_lib.RDOLegacyRandom prng =
-					new rdo_lib.RDOLegacyRandom(«(seq.type as HistogramSequence).seed»);
+				private static RDOLegacyRandom prng =
+					new RDOLegacyRandom(«(seq.type as HistogramSequence).seed»);
 				«ELSE»
 				private static org.apache.commons.math3.random.MersenneTwister prng =
 					new org.apache.commons.math3.random.MersenneTwister(«(seq.type as HistogramSequence).seed»);
@@ -79,7 +82,7 @@ class RDOSequenceCompiler
 				private static «seq.returntype.compileType»[] enums = new «seq.returntype.compileType»[]{«(seq.type as HistogramSequence).compileHistogramEnums»};
 				«ENDIF»
 
-				private static rdo_lib.HistogramSequence histogram = new rdo_lib.HistogramSequence(
+				private static HistogramSequence histogram = new HistogramSequence(
 					new double[]{«(seq.type as HistogramSequence).compileHistogramValues»},
 					new double[]{«(seq.type as HistogramSequence).compileHistogramWeights»}
 				);

@@ -11,7 +11,6 @@ import static extension org.eclipse.xtext.xbase.lib.IteratorExtensions.*
 
 import ru.bmstu.rk9.rdo.IMultipleResourceGenerator
 
-import ru.bmstu.rk9.rdo.compilers.RDOLibCompiler
 import ru.bmstu.rk9.rdo.compilers.RDODatabaseCompiler
 import static extension ru.bmstu.rk9.rdo.compilers.RDOConstantCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOSequenceCompiler.*
@@ -60,8 +59,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 	override void doGenerate(ResourceSet resources, IFileSystemAccess fsa)
 	{
-		RDOLibCompiler.generateAll(fsa)
-
 		exportVariableInfo(resources)
 
 		val declarationList = new java.util.ArrayList<ResourceDeclaration>();
@@ -151,6 +148,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 		package rdo_model;
 
+		import ru.bmstu.rk9.rdo.lib.*;
+		@SuppressWarnings("all")
+
 		public class MainClass
 		{
 			public static void main(String[] args)
@@ -181,7 +181,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				System.out.println("   Started model");
 
-				int result = rdo_lib.Simulator.run();
+				int result = Simulator.run();
 
 				if (result == 1)
 					System.out.println("\n   Stopped by terminate condition");
@@ -193,7 +193,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				System.out.println("\nResults:");
 				System.out.println("-------------------------------------------------------------------------------");
-				rdo_lib.Simulator.getResults();
+				Simulator.getResults();
 				System.out.println("-------------------------------------------------------------------------------");
 			}
 		}
