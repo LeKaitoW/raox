@@ -141,7 +141,11 @@ public class ModelBuilder
 
 				IClasspathEntry[] projectClassPathArray = jProject.getRawClasspath();
 
-				IPath libPathBinary = new Path(libPath.getAbsolutePath() + "/bin");
+				IPath libPathBinary;
+				if (libPath.isDirectory())
+					libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
+				else
+					libPathBinary = new Path(libPath.getAbsolutePath());
 
 				if (projectClassPathArray.length > 2)
 				{

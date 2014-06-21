@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rdo.ui.runtime;
 
+import java.io.File;
 import java.io.PrintStream;
 
 import java.lang.reflect.Method;
@@ -7,18 +8,25 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import org.osgi.framework.Bundle;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.MessageConsole;
@@ -97,9 +105,25 @@ public class RDOExecutionHandler extends AbstractHandler
 
 				try
 				{
-					URL url = new URL("file://" + ResourcesPlugin.getWorkspace().
+					URL model = new URL("file://" + ResourcesPlugin.getWorkspace().
 							getRoot().getLocation().toString() + "/" + project.getName() + "/bin/");
-					URL[] urls = new URL[]{url};
+					URL lib = null;
+
+					Bundle libPlugin = Platform.getBundle("ru.bmstu.rk9.rdo.lib");
+					File libPath = null;
+					libPath = FileLocator.getBundleFile(libPlugin);
+					if (libPath != null)
+					{
+						IPath libPathBinary;
+						if (libPath.isDirectory())
+							libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
+						else
+							libPathBinary = new Path(libPath.getAbsolutePath());
+
+						lib = new URL("file://" + libPathBinary.toString());
+					}
+
+					URL[] urls = new URL[]{model, lib};
 
 					ClassLoader cl = new URLClassLoader(urls);
 
