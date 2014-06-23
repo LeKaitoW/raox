@@ -14,10 +14,14 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.themes.ITheme;
 import org.eclipse.ui.themes.IThemeManager;
 
-public class RDOConsoleView extends ViewPart {
-
+public class RDOConsoleView extends ViewPart
+{
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOConsoleView"; //$NON-NLS-1$
-	private StyledText styledText;
+
+	private static StyledText styledText;
+
+	private static String text = "";
+
 	@Override
 	public void createPartControl(Composite parent) {
 		ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.NONE);
@@ -26,7 +30,8 @@ public class RDOConsoleView extends ViewPart {
 		{
 			styledText = new StyledText(scrolledComposite, SWT.H_SCROLL | SWT.V_SCROLL);
 			styledText.setAlwaysShowScrollBars(false);
-			styledText.setText("123 test");
+			redrawText();
+			styledText.setEditable(false);
 			styledText.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true));
 			styledText.setLeftMargin(2);
 			styledText.setTopMargin (5);
@@ -45,7 +50,40 @@ public class RDOConsoleView extends ViewPart {
 		FontRegistry fontRegistry = currentTheme.getFontRegistry();
 		styledText.setFont(fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
 	}
-	
+
+	public static void clearConsoleText()
+	{
+		text = "";
+		redrawText();
+	}
+
+	public static void addLine(String line)
+	{
+		text = text + line + "\n";
+		redrawText();
+	}
+
+	public static void appendText(String add)
+	{
+		text = text + add;
+		redrawText();
+	}
+
+	public static void redrawText()
+	{
+		if (styledText != null)
+			styledText.getDisplay().asyncExec
+			(
+				new Runnable ()
+				{
+					public void run ()
+					{
+						styledText.setText(text);
+					}
+				}
+			);
+	}
+
 	private void registerTextFontUpdateListener()
 	{
 		IThemeManager themeManager = PlatformUI.getWorkbench().getThemeManager();

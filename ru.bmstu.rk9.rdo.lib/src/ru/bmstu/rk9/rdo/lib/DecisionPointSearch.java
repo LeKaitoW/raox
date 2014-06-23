@@ -99,6 +99,9 @@ public class DecisionPointSearch<T extends Database<T>> extends DecisionPoint
 		if (terminate.check())
 			return false;
 
+		if (Simulator.isExecutionAborted())
+			return false;
+
 		nodesOpen.clear();
 		nodesClosed.clear();
 
@@ -111,6 +114,9 @@ public class DecisionPointSearch<T extends Database<T>> extends DecisionPoint
 
 		while (nodesOpen.size() > 0)
 		{
+			if (Simulator.isExecutionAborted())
+				return false;
+
 			GraphNode current = nodesOpen.poll();
 			nodesClosed.add(current);
 			current.state.deploy();

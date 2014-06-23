@@ -2,8 +2,6 @@ package ru.bmstu.rk9.rdo.ui.runtime;
 
 import java.util.LinkedList;
 
-import java.io.PrintStream;
-
 import java.lang.reflect.Method;
 
 import java.net.URL;
@@ -23,12 +21,13 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.console.MessageConsole;
-import org.eclipse.ui.console.MessageConsoleStream;
+import org.eclipse.swt.widgets.Display;
+
+import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.ui.handlers.HandlerUtil;
+
+import org.eclipse.ui.services.ISourceProviderService;
 
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
@@ -42,6 +41,8 @@ import com.google.inject.Provider;
 
 import ru.bmstu.rk9.rdo.lib.Result;
 import ru.bmstu.rk9.rdo.lib.Simulator;
+
+import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
 
 
 public class RDOExecutionHandler extends AbstractHandler
@@ -57,10 +58,46 @@ public class RDOExecutionHandler extends AbstractHandler
 
 	@Inject
 	private EclipseOutputConfigurationProvider outputConfigurationProvider;
-	
+
+	private static boolean isRunning = false;
+
+	public static boolean getRunningState()
+	{
+		return isRunning;
+	}
+
+	private static void setRunningState
+	(
+		Display display,
+		final ModelExecutionSourceProvider sourceProvider,
+		boolean newstate
+	)
+	{
+		isRunning = newstate;
+		display.syncExec
+		(
+			new Runnable ()
+			{
+				public void run ()
+				{
+					sourceProvider.updateRunningState();
+				}
+			}
+		);
+	}
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
+		final Display display = PlatformUI.getWorkbench().getDisplay();
+		ISourceProviderService sourceProviderService = (ISourceProviderService) HandlerUtil
+			.getActiveWorkbenchWindow(event).getService(ISourceProviderService.class);
+		final ModelExecutionSourceProvider sourceProvider =
+			(ModelExecutionSourceProvider) sourceProviderService.getSourceProvider(
+				ModelExecutionSourceProvider.ModelExecutionKey);
+
+		setRunningState(display, sourceProvider, true);
+
 		final Job build = ModelBuilder.build
 		(
 			event,
@@ -76,15 +113,7 @@ public class RDOExecutionHandler extends AbstractHandler
 		Job run = new Job(project.getName() + " execution")
 		{
 			protected IStatus run(IProgressMonitor monitor) 
-			{			
-				MessageConsole console = new MessageConsole("System Output", null);
-				ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { console });
-				ConsolePlugin.getDefault().getConsoleManager().showConsoleView(console);
-				MessageConsoleStream stream = console.newMessageStream();
-
-				System.setOut(new PrintStream(stream));
-				System.setErr(new PrintStream(stream));
-
+			{
 				String name = this.getName();
 				this.setName(name + " (waiting for execution to complete)");
 
@@ -118,6 +147,8 @@ public class RDOExecutionHandler extends AbstractHandler
 				if (build.getResult() != Status.OK_STATUS)
 					this.cancel();
 
+				RDOConsoleView.clearConsoleText();
+
 				try
 				{
 					URL model = new URL("file://" + ResourcesPlugin.getWorkspace().
@@ -138,19 +169,41 @@ public class RDOExecutionHandler extends AbstractHandler
 							break find_simulation;
 						}
 
+					RDOConsoleView.addLine("Started model " + project.getName());
+					long startTime = System.currentTimeMillis();
+
 					LinkedList<Result> results = new LinkedList<Result>();
 					int result = -1; 
 					if (simulation != null)
 					{
 						result = (int)simulation.invoke(null, (Object)results);
 					}
-					System.out.println(result);
 
+					setRunningState(display, sourceProvider, false);
+
+					switch (result)
+					{
+						case 1:
+							RDOConsoleView.addLine("Stopped by terminate condition");
+							break;
+						case -1:
+							RDOConsoleView.addLine("Model terminated by user");
+							break;
+						default:
+							RDOConsoleView.addLine("No more events");
+					}
+
+					if (results.size() > 0)
+						RDOConsoleView.addLine("Results:");
 					for (Result r : results)
-						System.out.println(r.get());
+						RDOConsoleView.addLine(r.get());
+
+					RDOConsoleView.addLine("Time elapsed: " +
+						String.valueOf(System.currentTimeMillis() - startTime) + "ms");
 				}
 				catch (Exception e)
 				{
+					RDOConsoleView.addLine("Execution error");
 					e.printStackTrace();
 				}
 

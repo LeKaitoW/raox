@@ -443,9 +443,32 @@
            class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:ru.bmstu.rk9.rdo.ui.runtime.RDOExecutionHandler"
            commandId="ru.bmstu.rk9.rdo.ui.runtime.execute">
         <enabledWhen>
-           <reference
-                 definitionId="ru.bmstu.rk9.rdo.RDO.Editor.opened">
-           </reference>
+           <and>
+              <with
+                    variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                 <equals
+                       value="showActions">
+                 </equals>
+              </with>
+              <with
+                    variable="ru.bmstu.rk9.rdo.ui.handlers.simulationRunning">
+                 <equals
+                       value="STOPPED">
+                 </equals>
+              </with>
+           </and>
+        </enabledWhen>
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rdo.ui.runtime.RDOStoppingHandler"
+           commandId="ru.bmstu.rk9.rdo.ui.runtime.stop">
+        <enabledWhen>
+           <with
+                 variable="ru.bmstu.rk9.rdo.ui.handlers.simulationRunning">
+              <equals
+                    value="RUNNING">
+              </equals>
+           </with>
         </enabledWhen>
      </handler>
   </extension>
@@ -677,6 +700,13 @@
            provider="ru.bmstu.rk9.rdo.ui.RDOPerspectiveSourceProvider">
         <variable
               name="ru.bmstu.rk9.rdo.ui.handlers.showActions"
+              priorityLevel="workbench">
+        </variable>
+     </sourceProvider>
+     <sourceProvider
+           provider="ru.bmstu.rk9.rdo.ui.runtime.ModelExecutionSourceProvider">
+        <variable
+              name="ru.bmstu.rk9.rdo.ui.handlers.simulationRunning"
               priorityLevel="workbench">
         </variable>
      </sourceProvider>

@@ -16,7 +16,7 @@ class DPTManager
 	{
 		Iterator<DecisionPoint> dptIterator = dptList.iterator();
 
-		while (dptIterator.hasNext())
+		while (dptIterator.hasNext() && !Simulator.isExecutionAborted())
 			if (dptIterator.next().check())
 				return true;
 

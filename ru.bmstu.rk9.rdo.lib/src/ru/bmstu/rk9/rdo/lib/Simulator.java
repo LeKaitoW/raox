@@ -56,19 +56,46 @@ public class Simulator
 		return INSTANCE.resultManager.getResults();
 	}
 
-	private static boolean checkTerminate()
+	private boolean checkTerminate()
 	{
-		for (TerminateCondition c : INSTANCE.terminateList)
+		for (TerminateCondition c : terminateList)
 			if (c.check())
 				return true;
 		return false;
 	}
 
+	private boolean executionAborted = false;
+
+	public static boolean isExecutionAborted()
+	{
+		return INSTANCE.executionAborted;
+	}
+
+	public static void stopExecution()
+	{
+		if (INSTANCE != null)
+			INSTANCE.executionAborted = true;
+	}
+
+	private int checkDPT()
+	{
+		while (dptManager.checkDPT() && !executionAborted)
+			if (checkTerminate())
+				return  1;
+		if (executionAborted)
+			return -1;
+		return 0;
+	}
+
 	public static int run()
 	{
-		while (INSTANCE.dptManager.checkDPT())
-			if (checkTerminate())
+		switch (INSTANCE.checkDPT())
+		{
+			case 1:
 				return 1;
+			case -1:
+				return -1;
+		}
 
 		while (INSTANCE.eventScheduler.haveEvents())
 		{
@@ -78,12 +105,16 @@ public class Simulator
 
 			current.run();
 
-			if (checkTerminate())
+			if (INSTANCE.checkTerminate())
 				return 1;
 
-			while (INSTANCE.dptManager.checkDPT())
-				if (checkTerminate())
+			switch (INSTANCE.checkDPT())
+			{
+				case 1:
 					return 1;
+				case -1:
+					return -1;
+			}
 		}
 		return 0;
 	}
