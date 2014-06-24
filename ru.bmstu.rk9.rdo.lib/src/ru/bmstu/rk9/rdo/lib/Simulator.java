@@ -8,8 +8,11 @@ public class Simulator
 
 	public static void initSimulation()
 	{
-		INSTANCE = new Simulator();
-		DecisionPointSearch.allowSearch = true;
+		if (!isRunning)
+		{
+			INSTANCE = new Simulator();
+			DecisionPointSearch.allowSearch = true;
+		}
 	}
 
 	private double time = 0;
@@ -65,6 +68,8 @@ public class Simulator
 		return false;
 	}
 
+	private static boolean isRunning = false;
+
 	private boolean executionAborted = false;
 
 	public static void stopExecution()
@@ -89,9 +94,11 @@ public class Simulator
 
 	public static int run()
 	{
+		isRunning = true;
+
 		int dptCheck = INSTANCE.checkDPT();
 		if (dptCheck != 0)
-			return dptCheck;
+			return stop(dptCheck);
 
 		while (INSTANCE.eventScheduler.haveEvents())
 		{
@@ -102,12 +109,18 @@ public class Simulator
 			current.run();
 
 			if (INSTANCE.checkTerminate())
-				return 1;
+				return stop(1);
 
 			dptCheck = INSTANCE.checkDPT();
 			if (dptCheck != 0)
-				return dptCheck;
+				return stop(dptCheck);
 		}
-		return 0;
+		return stop(0);
+	}
+
+	private static int stop(int code)
+	{
+		isRunning = false;
+		return code;
 	}
 }
