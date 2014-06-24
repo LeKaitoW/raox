@@ -93,13 +93,12 @@ public class DecisionPointSearch<T extends Database<T>> extends DecisionPoint
 	private PriorityQueue<GraphNode> nodesOpen = new PriorityQueue<GraphNode>(1, nodeComparator);
 	private LinkedList<GraphNode> nodesClosed = new LinkedList<GraphNode>();
 
+	static boolean allowSearch = true;
+
 	@Override
 	public boolean check()
 	{
-		if (terminate.check())
-			return false;
-
-		if (Simulator.isExecutionAborted())
+		if (terminate.check() && !allowSearch)
 			return false;
 
 		nodesOpen.clear();
@@ -114,7 +113,7 @@ public class DecisionPointSearch<T extends Database<T>> extends DecisionPoint
 
 		while (nodesOpen.size() > 0)
 		{
-			if (Simulator.isExecutionAborted())
+			if (!allowSearch)
 				return false;
 
 			GraphNode current = nodesOpen.poll();

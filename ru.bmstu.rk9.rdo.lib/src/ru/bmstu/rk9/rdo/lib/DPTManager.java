@@ -12,11 +12,13 @@ class DPTManager
 		dptList.add(dpt);
 	}
 
+	boolean dptAllowed = true;
+
 	boolean checkDPT()
 	{
 		Iterator<DecisionPoint> dptIterator = dptList.iterator();
 
-		while (dptIterator.hasNext() && !Simulator.isExecutionAborted())
+		while (dptIterator.hasNext() && dptAllowed)
 			if (dptIterator.next().check())
 				return true;
 

@@ -9,6 +9,7 @@ public class Simulator
 	public static void initSimulation()
 	{
 		INSTANCE = new Simulator();
+		DecisionPointSearch.allowSearch = true;
 	}
 
 	private double time = 0;
@@ -66,15 +67,14 @@ public class Simulator
 
 	private boolean executionAborted = false;
 
-	public static boolean isExecutionAborted()
-	{
-		return INSTANCE.executionAborted;
-	}
-
 	public static void stopExecution()
 	{
 		if (INSTANCE != null)
+		{
 			INSTANCE.executionAborted = true;
+			INSTANCE.dptManager.dptAllowed = false;
+			DecisionPointSearch.allowSearch = false;
+		}
 	}
 
 	private int checkDPT()
@@ -89,13 +89,9 @@ public class Simulator
 
 	public static int run()
 	{
-		switch (INSTANCE.checkDPT())
-		{
-			case 1:
-				return 1;
-			case -1:
-				return -1;
-		}
+		int dptCheck = INSTANCE.checkDPT();
+		if (dptCheck != 0)
+			return dptCheck;
 
 		while (INSTANCE.eventScheduler.haveEvents())
 		{
@@ -108,13 +104,9 @@ public class Simulator
 			if (INSTANCE.checkTerminate())
 				return 1;
 
-			switch (INSTANCE.checkDPT())
-			{
-				case 1:
-					return 1;
-				case -1:
-					return -1;
-			}
+			dptCheck = INSTANCE.checkDPT();
+			if (dptCheck != 0)
+				return dptCheck;
 		}
 		return 0;
 	}
