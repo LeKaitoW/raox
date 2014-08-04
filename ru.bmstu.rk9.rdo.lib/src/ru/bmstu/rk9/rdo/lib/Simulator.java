@@ -8,11 +8,11 @@ public class Simulator
 
 	public static void initSimulation()
 	{
-		if (!isRunning)
-		{
-			INSTANCE = new Simulator();
-			DecisionPointSearch.allowSearch = true;
-		}
+		if (isRunning)
+			return;
+
+		INSTANCE = new Simulator();
+		DecisionPointSearch.allowSearch = true;
 	}
 
 	private double time = 0;
@@ -74,12 +74,12 @@ public class Simulator
 
 	public static void stopExecution()
 	{
-		if (INSTANCE != null)
-		{
-			INSTANCE.executionAborted = true;
-			INSTANCE.dptManager.dptAllowed = false;
-			DecisionPointSearch.allowSearch = false;
-		}
+		if (INSTANCE == null)
+			return;
+
+		INSTANCE.executionAborted = true;
+		INSTANCE.dptManager.dptAllowed = false;
+		DecisionPointSearch.allowSearch = false;
 	}
 
 	private int checkDPT()
