@@ -7,8 +7,6 @@ import org.eclipse.emf.ecore.resource.ResourceSet
 
 import org.eclipse.xtext.generator.IFileSystemAccess
 
-import static extension org.eclipse.xtext.xbase.lib.IteratorExtensions.*
-
 import ru.bmstu.rk9.rdo.IMultipleResourceGenerator
 
 import ru.bmstu.rk9.rdo.compilers.RDODatabaseCompiler

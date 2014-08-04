@@ -12,7 +12,7 @@ class DPTManager
 		dptList.add(dpt);
 	}
 
-	boolean dptAllowed = true;
+	volatile boolean dptAllowed = true;
 
 	boolean checkDPT()
 	{

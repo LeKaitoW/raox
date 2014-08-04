@@ -93,7 +93,7 @@ public class DecisionPointSearch<T extends Database<T>> extends DecisionPoint
 	private PriorityQueue<GraphNode> nodesOpen = new PriorityQueue<GraphNode>(1, nodeComparator);
 	private LinkedList<GraphNode> nodesClosed = new LinkedList<GraphNode>();
 
-	static boolean allowSearch = true;
+	static volatile boolean allowSearch = true;
 
 	@Override
 	public boolean check()

@@ -68,9 +68,9 @@ public class Simulator
 		return false;
 	}
 
-	private static boolean isRunning = false;
+	private static volatile boolean isRunning = false;
 
-	private boolean executionAborted = false;
+	private volatile boolean executionAborted = false;
 
 	public static void stopExecution()
 	{
