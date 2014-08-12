@@ -174,8 +174,8 @@ class RDOStatementCompiler
 						if (st.update != null)
 							st.update.compileExpression.value
 						else ""
-						»)
-					«IF !(st.body instanceof NestedStatement)»	«ENDIF»«st.body.compileStatement»
+					»)«IF st.body.empty»;«ELSE»
+					«IF !(st.body instanceof NestedStatement)»	«ENDIF»«st.body.compileStatement»«ENDIF»
 					'''
 
 				localContext = backupContext
