@@ -5,10 +5,15 @@ import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.themes.ITheme;
@@ -35,6 +40,22 @@ public class RDOConsoleView extends ViewPart
 			styledText.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true));
 			styledText.setLeftMargin(2);
 			styledText.setTopMargin (5);
+
+			Menu popupMenu = new Menu(styledText);
+			MenuItem copy = new MenuItem(popupMenu, SWT.CASCADE);
+			copy.setText("Copy\tCtrl+C");
+			copy.setAccelerator(SWT.CTRL + 'C');
+			copy.addSelectionListener
+			(
+				new SelectionAdapter()
+				{
+					public void widgetSelected(SelectionEvent event)
+					{
+						styledText.invokeAction(ST.COPY);
+					}
+				}
+			);
+			styledText.setMenu(popupMenu);
 		}
 		scrolledComposite.setContent(styledText);
 		scrolledComposite.setMinSize(styledText.computeSize(SWT.DEFAULT, SWT.DEFAULT));
