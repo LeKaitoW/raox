@@ -444,12 +444,9 @@
            commandId="ru.bmstu.rk9.rdo.ui.runtime.execute">
         <enabledWhen>
            <and>
-              <with
-                    variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
-                 <equals
-                       value="showActions">
-                 </equals>
-              </with>
+              <reference
+                    definitionId="ru.bmstu.rk9.rdo.RDO.Editor.opened">
+              </reference>
               <with
                     variable="ru.bmstu.rk9.rdo.ui.handlers.simulationRunning">
                  <equals
