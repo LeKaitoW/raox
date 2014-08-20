@@ -6,7 +6,7 @@ public class Simulator
 {
 	private static Simulator INSTANCE = null;
 
-	public static void initSimulation()
+	public static synchronized void initSimulation()
 	{
 		if (isRunning)
 			return;
@@ -72,7 +72,7 @@ public class Simulator
 
 	private volatile boolean executionAborted = false;
 
-	public static void stopExecution()
+	public static synchronized void stopExecution()
 	{
 		if (INSTANCE == null)
 			return;
