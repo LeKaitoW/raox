@@ -203,6 +203,7 @@ public class RDOExecutionHandler extends AbstractHandler
 				}
 				catch (Exception e)
 				{
+					setRunningState(display, sourceProvider, false);
 					RDOConsoleView.addLine("Execution error");
 					e.printStackTrace();
 				}
