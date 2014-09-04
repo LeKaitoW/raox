@@ -48,6 +48,8 @@ import ru.bmstu.rk9.rdo.rdo.FunctionTable
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.PatternParameter
+import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
+import ru.bmstu.rk9.rdo.rdo.PatternConvertStatus
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
 import ru.bmstu.rk9.rdo.rdo.OperationConvert
@@ -57,7 +59,6 @@ import ru.bmstu.rk9.rdo.rdo.RuleConvert
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 import ru.bmstu.rk9.rdo.rdo.EventConvert
-import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 
@@ -774,6 +775,39 @@ class RDOValidator extends AbstractRDOValidator
 							e.eContainer, RdoPackage.eINSTANCE.ruleConvert_Choicemethod)
 				}
 			}
+	}
+
+	@Check
+	def checkEventRelResTrace(Event evn)
+	{
+		for(ec : evn.algorithms)
+			if(ec.traceevent && ec.relres.rule != PatternConvertStatus.CREATE)
+				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", ec,
+					RdoPackage.eINSTANCE.eventConvert_Traceevent)
+	}
+
+	@Check
+	def checkRuleRelResTrace(Rule rule)
+	{
+		for(rc : rule.algorithms)
+			if(rc.tracerule && rc.relres.rule != PatternConvertStatus.CREATE)
+				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", rc,
+					RdoPackage.eINSTANCE.ruleConvert_Tracerule)
+	}
+
+	@Check
+	def checkOperationRelResTrace(Operation op)
+	{
+		for(oc : op.algorithms)
+		{
+			if(oc.tracebegin && oc.relres.begin != PatternConvertStatus.CREATE)
+				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", oc,
+					RdoPackage.eINSTANCE.operationConvert_Tracebegin)
+
+			if(oc.traceend && oc.relres.end != PatternConvertStatus.CREATE)
+				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", oc,
+					RdoPackage.eINSTANCE.operationConvert_Traceend)
+		}
 	}
 
 	@Check
