@@ -101,7 +101,7 @@ public class CombinationalChoiceFrom<R, PT>
 		matchingList.clear();
 
 		if (finders.size() == 0)
-			return false;
+			return true;
 
 		Iterator<Finder<R, ?, PT>> finder = finders.iterator();
 
