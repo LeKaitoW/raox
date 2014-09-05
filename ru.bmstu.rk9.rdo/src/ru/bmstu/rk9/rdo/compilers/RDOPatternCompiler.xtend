@@ -20,6 +20,7 @@ import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceFrom
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
+import ru.bmstu.rk9.rdo.rdo.PatternConvertStatus
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.OperationConvert
@@ -55,7 +56,8 @@ class RDOPatternCompiler
 				{
 					«FOR r : evn.relevantresources»
 						«IF r.type instanceof ResourceDeclaration»
-							«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName».getResource("«(r.type as ResourceDeclaration).name»");
+							«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName
+								».getResource("«(r.type as ResourceDeclaration).fullyQualifiedName»");
 						«ELSE»
 							«IF r.rule.literal == "Create"»
 								«r.name» = new «r.type.fullyQualifiedName»(«(r.type as ResourceType).parameters.size.compileAllDefault»);
@@ -115,11 +117,21 @@ class RDOPatternCompiler
 				«IF evn.relevantresources.filter[t | t.rule.literal == "Create"].size > 0»
 
 					// add resources
-					«FOR r : evn.relevantresources.filter[t |t.rule.literal == "Create"]»
+					«FOR r : evn.relevantresources.filter[t | t.rule.literal == "Create"]»
 						staticResources.«r.name».register();
+						«IF evn.algorithms.get(evn.relevantresources.indexOf(r)).traceevent»
+							staticResources.«r.name».setTraceState(true);
+						«ENDIF»
 					«ENDFOR»
-
 				«ENDIF»
+
+				// trace resources
+				Tracer tracer = Simulator.getTracer();
+				«FOR r : evn.relevantresources.filter[t |
+						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
+					if(staticResources.«r.name».isBeingTraced())
+						tracer.addResourceEntry(«r.rule.compileResourceTraceStatus», staticResources.«r.name»);
+				«ENDFOR»
 			}
 
 			public «evn.name»(double time«IF evn.parameters.size > 0», «ENDIF»«evn.parameters.compilePatternParameters»)
@@ -129,6 +141,17 @@ class RDOPatternCompiler
 			}
 		}
 		'''
+	}
+
+	def private static compileResourceTraceStatus(PatternConvertStatus status)
+	{
+		switch status
+		{
+			case CREATE: "Tracer.ResourceTraceType.CREATED"
+			case ERASE : "Tracer.ResourceTraceType.ERASED"
+			case KEEP  : "Tracer.ResourceTraceType.ALTERED"
+			default    : "null"
+		}
 	}
 
 	def public static compileRule(Rule rule, String filename)
@@ -171,7 +194,8 @@ class RDOPatternCompiler
 				{
 					«FOR r : rule.relevantresources.filter[res | res.rule.literal != "Create"]»
 					«IF r.type instanceof ResourceDeclaration»
-						this.«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName».getResource("«(r.type as ResourceDeclaration).name»");
+						this.«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName
+							».getResource("«(r.type as ResourceDeclaration).fullyQualifiedName»");
 					«ELSE»
 						this.«r.name» = null;
 					«ENDIF»
@@ -252,7 +276,7 @@ class RDOPatternCompiler
 									java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»> singlelist =
 										new java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»>();
 									singlelist.add(«rc.relres.type.relResFullyQualifiedName».getResource("«
-										(rc.relres.type as ResourceDeclaration).name»"));
+										(rc.relres.type as ResourceDeclaration).fullyQualifiedName»"));
 									return singlelist;
 									«ELSE»
 									return «rc.relres.type.relResFullyQualifiedName».get«
@@ -298,7 +322,6 @@ class RDOPatternCompiler
 			«ENDIF»
 			«ENDFOR»
 			«ENDIF»
-
 			private static Converter<RelevantResources, Parameters> rule =
 					new Converter<RelevantResources, Parameters>()
 					{
@@ -347,9 +370,10 @@ class RDOPatternCompiler
 					«FOR r : rule.relevantresources.filter[t |t.rule.literal == "Create"]»
 						resources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
-					«ENDFOR»
-					«FOR r : rule.relevantresources.filter[t |t.rule.literal == "Create"]»
 						resources.«r.name».register();
+						«IF rule.algorithms.get(rule.relevantresources.indexOf(r)).tracerule»
+							resources.«r.name».setTraceState(true);
+						«ENDIF»
 					«ENDFOR»
 
 				«ENDIF»
@@ -361,6 +385,14 @@ class RDOPatternCompiler
 
 				«ENDIF»
 				rule.run(resources, parameters);
+
+				// trace resources
+				Tracer tracer = Simulator.getTracer();
+				«FOR r : rule.relevantresources.filter[t |
+						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
+					if(resources.«r.name».isBeingTraced())
+						tracer.addResourceEntry(«r.rule.compileResourceTraceStatus», resources.«r.name»);
+				«ENDFOR»
 			}
 		}
 		'''
@@ -406,7 +438,8 @@ class RDOPatternCompiler
 				{
 					«FOR r : op.relevantresources.filter[res | res.begin.literal != "Create" && res.end.literal != "Create"]»
 					«IF r.type instanceof ResourceDeclaration»
-						this.«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName».getResource("«(r.type as ResourceDeclaration).name»");
+						this.«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName
+							».getResource("«(r.type as ResourceDeclaration).fullyQualifiedName»");
 					«ELSE»
 						this.«r.name» = null;
 					«ENDIF»
@@ -488,7 +521,7 @@ class RDOPatternCompiler
 									java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»> singlelist =
 										new java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»>();
 									singlelist.add(«rc.relres.type.relResFullyQualifiedName».getResource("«
-										(rc.relres.type as ResourceDeclaration).name»"));
+										(rc.relres.type as ResourceDeclaration).fullyQualifiedName»"));
 									return singlelist;
 									«ELSE»
 									return «rc.relres.type.relResFullyQualifiedName».get«
@@ -595,9 +628,10 @@ class RDOPatternCompiler
 					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Create"]»
 						resources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
-					«ENDFOR»
-					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Create"]»
 						resources.«r.name».register();
+						«IF op.algorithms.get(op.relevantresources.indexOf(r)).tracebegin»
+							resources.«r.name».setTraceState(true);
+						«ENDIF»
 					«ENDFOR»
 
 				«ENDIF»
@@ -610,6 +644,22 @@ class RDOPatternCompiler
 				«ENDIF»
 				begin.run(resources, parameters);
 
+				// trace resources
+				Tracer tracer = Simulator.getTracer();
+				«FOR r : op.relevantresources.filter[t |
+						t.begin != PatternConvertStatus.NOCHANGE && t.begin != PatternConvertStatus.NONEXIST]»
+					if(resources.«r.name».isBeingTraced())
+						tracer.addResourceEntry(«r.begin.compileResourceTraceStatus», resources.«r.name»);
+				«ENDFOR»
+
+				«IF op.relevantresources.filter[t | t.end == PatternConvertStatus.ERASE].size > 0»
+				// trace erased forehand
+				«FOR r : op.relevantresources.filter[t | t.end == PatternConvertStatus.ERASE]»
+					if(resources.«r.name».isBeingTraced())
+						tracer.addResourceEntry(«r.end.compileResourceTraceStatus», resources.«r.name»);
+				«ENDFOR»
+
+				«ENDIF»
 				Simulator.pushEvent(new «op.name»(Simulator.getTime() + «
 					op.time.compileExpressionContext((new LocalContext).populateFromOperation(op)).value», resources, parameters));
 			}
@@ -630,13 +680,23 @@ class RDOPatternCompiler
 					«FOR r : op.relevantresources.filter[t |t.end.literal == "Create"]»
 						instanceResources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
-					«ENDFOR»
-					«FOR r : op.relevantresources.filter[t |t.end.literal == "Create"]»
 						instanceResources.«r.name».register();
+						«IF op.algorithms.get(op.relevantresources.indexOf(r)).traceend»
+							instanceResources.«r.name».setTraceState(true);
+						«ENDIF»
+						
 					«ENDFOR»
 
 				«ENDIF»
 				end.run(instanceResources, parameters);
+
+				// trace resources
+				Tracer tracer = Simulator.getTracer();
+				«FOR r : op.relevantresources.filter[t |
+						t.end != PatternConvertStatus.NOCHANGE && t.end != PatternConvertStatus.NONEXIST && t.end != PatternConvertStatus.ERASE]»
+					if(instanceResources.«r.name».isBeingTraced())
+						tracer.addResourceEntry(«r.end.compileResourceTraceStatus», instanceResources.«r.name»);
+				«ENDFOR»
 			}
 		}
 		'''
