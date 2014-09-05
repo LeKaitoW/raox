@@ -6,8 +6,10 @@ import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
+import ru.bmstu.rk9.rdo.rdo.ResourceTypeKind
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceTrace
 
 
 class RDODatabaseCompiler
@@ -39,9 +41,9 @@ class RDODatabaseCompiler
 				«FOR r : rs.resources»
 					«FOR rtp : r.allContents.filter(typeof(ResourceDeclaration)).toIterable»
 						(new «rtp.reference.fullyQualifiedName»(«if (rtp.parameters != null)
-							rtp.parameters.compileExpression.value else ""»)).register("«rtp.name»");
+							rtp.parameters.compileExpression.value else ""»)).register("«rtp.fullyQualifiedName»");
 					«ENDFOR»
-				«ENDFOR»
+				«ENDFOR»«rs.makeTracerPart»
 			}
 
 			public static «project»_database getCurrent()
@@ -102,5 +104,53 @@ class RDODatabaseCompiler
 			}
 		}
 		'''
+	}
+
+	def private static String makeTracerPart(ResourceSet rs)
+	{
+		var ret = ""
+		var ret2 = ""
+
+		for(r : rs.resources)
+			for(rtp : r.allContents.filter(typeof(ResourceType)).toIterable)
+				ret2 = ret2 + '''
+					tracer.registerResourceType("«rtp.fullyQualifiedName»", «rtp.fullyQualifiedName».structure, «
+						IF rtp.type == ResourceTypeKind.TEMPORARY»true«ELSE»false«ENDIF»);
+					'''
+
+		if(ret2.length != 0)
+		{
+			ret = ret + "\n" + ret2
+			ret2 = ""
+		}
+
+		
+		for(r : rs.resources)
+			for(rss : r.allContents.filter(typeof(ResourceDeclaration)).toIterable)
+				ret2 = ret2 + '''
+					tracer.registerResource(«rss.reference.fullyQualifiedName».getResource("«
+							rss.fullyQualifiedName»"));
+					'''
+
+		if(ret2.length != 0)
+		{
+			ret = ret + "\n" + ret2
+			ret2 = ""
+		}
+
+		for(r : rs.resources)
+			for(trc : r.allContents.filter(typeof(ResourceTrace)).toIterable)
+				ret2 = ret2 + '''
+					«trc.trace.reference.fullyQualifiedName».getResource("«trc.trace.fullyQualifiedName
+						»").setTraceState(true);
+					'''
+
+		if(ret2.length != 0)
+			ret2 = "\n" + ret2
+
+		if(ret.length > 0)
+			ret = "\nTracer tracer = Simulator.getTracer();\n" + ret
+
+		return ret + ret2
 	}
 }
