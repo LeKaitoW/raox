@@ -556,7 +556,7 @@ class RDOExpressionCompiler
 		if(info.resources.get(next.call) != null)
 		{
 			val rtp = info.resources.get(next.call).reference
-			gcall = gcall + "." + rtp + ".getResource(\"" + next.call + "\")"
+			gcall = gcall + "." + rtp + ".getResource(\"" + gcall + "." + next.call + "\")"
 			next = (if(iter.hasNext) iter.next else null)
 			if(next == null)
 				return null
