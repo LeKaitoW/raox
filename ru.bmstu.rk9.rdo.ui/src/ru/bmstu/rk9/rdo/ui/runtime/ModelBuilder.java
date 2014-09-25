@@ -191,22 +191,22 @@ public class ModelBuilder
 				IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
 				final IProject project = getProject(activeEditor);
 
-				checkProjectClassPath(project, monitor);
-
-				IJobManager jobMan = Job.getJobManager();
-				try
-				{
-					for (Job j : jobMan.find(project.getName()))
-						j.join();
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-
-		 		final ArrayList<IResource> projectFiles = ModelBuilder.getAllRDOFilesInProject(project);
 				if (project != null)
 				{
+					checkProjectClassPath(project, monitor);
+
+					IJobManager jobMan = Job.getJobManager();
+					try
+					{
+						for (Job j : jobMan.find(project.getName()))
+							j.join();
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
+
+					final ArrayList<IResource> projectFiles = ModelBuilder.getAllRDOFilesInProject(project);
 					IFolder srcGenFolder = project.getFolder("src-gen");
 					if (!srcGenFolder.exists())
 					{
@@ -270,8 +270,12 @@ public class ModelBuilder
 					{
 						e.printStackTrace();
 					}
-				 }
-				 return Status.OK_STATUS;
+				}
+				else
+					return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui",
+						"File '" + activeEditor.getTitle() + "' is not a part of any project in workspace.");
+
+				return Status.OK_STATUS;
 			}
 		};
 

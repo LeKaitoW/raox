@@ -110,7 +110,13 @@ public class RDOExecutionHandler extends AbstractHandler
 
 		final IProject project = ModelBuilder.getProject(HandlerUtil.getActiveEditor(event));
 
-		Job run = new Job(project.getName() + " execution")
+		if(project == null)
+		{
+			setRunningState(display, sourceProvider, false);
+			return null;
+		}
+
+		final Job run = new Job(project.getName() + " execution")
 		{
 			protected IStatus run(IProgressMonitor monitor) 
 			{
@@ -145,7 +151,11 @@ public class RDOExecutionHandler extends AbstractHandler
 				this.setName(name);
 
 				if (build.getResult() != Status.OK_STATUS)
-					this.cancel();
+				{
+					setRunningState(display, sourceProvider, false);
+					RDOConsoleView.addLine("Build failed");
+					return new Status(Status.CANCEL, "ru.bmstu.rk9.rdo.ui", "Execution cancelled");
+				}
 
 				RDOConsoleView.clearConsoleText();
 
@@ -206,6 +216,7 @@ public class RDOExecutionHandler extends AbstractHandler
 					setRunningState(display, sourceProvider, false);
 					RDOConsoleView.addLine("Execution error");
 					e.printStackTrace();
+					return new Status(Status.CANCEL, "ru.bmstu.rk9.rdo.ui", "Execution failed");
 				}
 
 				return Status.OK_STATUS;
