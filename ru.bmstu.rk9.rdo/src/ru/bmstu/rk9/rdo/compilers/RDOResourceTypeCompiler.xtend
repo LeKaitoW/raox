@@ -330,7 +330,7 @@ class RDOResourceTypeCompiler
 						«offset»
 					));
 
-					enums.put("«p.name»", «p.name»_enum.values());
+					enums.put("«p.name»", «p.compileType».values());
 					'''
 				offset = offset + basicSizes.ENUM
 			}
