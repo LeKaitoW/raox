@@ -19,7 +19,6 @@ RDOEntity
 	| Function       // FUN-FUN
 	| Pattern        // PAT & EVN
 	| DecisionPoint  // DPT
-	| Process        // PRC
 //	| Frame          // FRM
 	| Results        // PMD
 	| SimulationRun  // SMR
@@ -279,72 +278,6 @@ DecisionPointActivity:
 
 
 // ==========================================================
-//                           Processes
-// ==========================================================
-Process:
-	'$Process' name = ID resourcename = ID
-	commands += ProcessCommand+
-	'$End'
-;
-
-ProcessCommand
-	: ProcessGenerate
-	| ProcessSeize
-	| ProcessRelease
-	| ProcessAdvance
-	| ProcessQueue
-	| ProcessDepart
-	| ProcessAssign
-	| ProcessTerminate
-;
-
-ProcessGenerate:
-	'GENERATE' time = ExpressionOr
-;
-
-ProcessSeize:
-	'SEIZE' resources += SeizeID (',' resources += SeizeID)* 
-;
-
-SeizeID:
-	name = ID
-;
-
-ProcessRelease:
-	'RELEASE' resources += ReleaseID (',' resources += ReleaseID)*
-;
-
-ReleaseID:
-	id = [SeizeID|ID]
-;
-
-ProcessAdvance:
-	'ADVANCE' time = ExpressionOr
-;
-
-ProcessQueue:
-	'QUEUE' queue = QueueID
-;
-
-QueueID:
-	name = ID
-;
-
-ProcessDepart:
-	'DEPART' depart = [QueueID|ID]
-;
-
-ProcessAssign:
-	'ASSIGN' parameter = [ResourceTypeParameter|FQN] '=' value = ExpressionOr
-;
-
-ProcessTerminate:
-	'TERMINATE' delta = ExpressionOr
-;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-// ==========================================================
 //                           Sequences
 // ==========================================================
 Sequence:
@@ -499,7 +432,7 @@ ResultGetValue:
 
 
 // ==========================================================
-//               Meta types for cross-references
+//                      Simulation run
 // ==========================================================
 SimulationRun:
 	name = '$Simulation_run'

@@ -33,12 +33,6 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointPriorActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
 
-import ru.bmstu.rk9.rdo.rdo.ProcessGenerate
-import ru.bmstu.rk9.rdo.rdo.ProcessAdvance
-import ru.bmstu.rk9.rdo.rdo.ProcessAssign
-import ru.bmstu.rk9.rdo.rdo.ProcessTerminate
-import ru.bmstu.rk9.rdo.rdo.ProcessQueue
-
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.SimulationRun
@@ -146,13 +140,6 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 	def _isLeaf(DecisionPointSearchActivity d) { true }
 	def _isLeaf(DecisionPointPriorActivity d)  { true }
 	def _isLeaf(DecisionPointActivity d)       { true }
-
-	// Process
-	def _isLeaf(ProcessGenerate pg)  { true }
-	def _isLeaf(ProcessAdvance pa)   { true }
-	def _isLeaf(ProcessAssign pa)    { true }
-	def _isLeaf(ProcessTerminate pt) { true }
-	def _isLeaf(ProcessQueue pq)     { true }
 
 	// Results
 	def _isLeaf(ResultDeclaration r) { true }

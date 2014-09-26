@@ -45,19 +45,6 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointPriorActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
 
-import ru.bmstu.rk9.rdo.rdo.Process
-import ru.bmstu.rk9.rdo.rdo.ProcessCommand
-import ru.bmstu.rk9.rdo.rdo.ProcessGenerate
-import ru.bmstu.rk9.rdo.rdo.ProcessSeize
-import ru.bmstu.rk9.rdo.rdo.SeizeID
-import ru.bmstu.rk9.rdo.rdo.ProcessRelease
-import ru.bmstu.rk9.rdo.rdo.ReleaseID
-import ru.bmstu.rk9.rdo.rdo.ProcessAdvance
-import ru.bmstu.rk9.rdo.rdo.ProcessQueue
-import ru.bmstu.rk9.rdo.rdo.ProcessDepart
-import ru.bmstu.rk9.rdo.rdo.ProcessAssign
-import ru.bmstu.rk9.rdo.rdo.ProcessTerminate
-
 import ru.bmstu.rk9.rdo.rdo.Results
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 import ru.bmstu.rk9.rdo.rdo.ResultWatchParameter
@@ -182,31 +169,6 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	// DecisionPointSearch
 	def  text(DecisionPointSearch dpt) {"DPT : " + dpt.name + " : search" }
 	def image(DecisionPointSearch dpt) { "search.gif" }
-
-	// Processes
-	def  text(Process prc) { "PRC : " + prc.name }
-	def image(Process prc) { "processor.gif" }
-
-	def  text(ProcessGenerate pg) { "GENERATE" }
-
-	def  text(ProcessSeize ps) { "SEIZE" }
-	def image(SeizeID s) { "parameter.gif" }
-
-	def  text(ProcessRelease pr) { "RELEASE" }
-	def  text(ReleaseID r) { r.id.name }
-	def image(ReleaseID r) { "parameter.gif" }
-
-	def  text(ProcessAdvance pa) { "ADVANCE" }
-
-	def  text(ProcessQueue pq) { "QUEUE" }
-
-	def  text(ProcessDepart pd) { "DEPART" }
-
-	def  text(ProcessAssign pa) { "ASSIGN" }
-
-	def  text(ProcessTerminate pt) { "TERMINATE" }
-
-	def image(ProcessCommand pc) { "process.gif" }
 
 	// Results
 	def  text(Results r) {
