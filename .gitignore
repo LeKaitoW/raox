@@ -33,6 +33,8 @@ local.properties
 generated/
 *.xml_gen
 
+ru.bmstu.rk9.rdo/.antlr-generator-*.jar
+
 #############
 ## Windows detritus
 #############
