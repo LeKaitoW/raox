@@ -161,7 +161,7 @@ public class RDOExecutionHandler extends AbstractHandler
 
 				try
 				{
-					URL model = new URL("file://" + ResourcesPlugin.getWorkspace().
+					URL model = new URL("file:///" + ResourcesPlugin.getWorkspace().
 							getRoot().getLocation().toString() + "/" + project.getName() + "/bin/");
 
 					URL[] urls = new URL[]{ model };
