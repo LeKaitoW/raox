@@ -141,8 +141,8 @@ class RDODatabaseCompiler
 		for(r : rs.resources)
 			for(trc : r.allContents.filter(typeof(ResourceTrace)).toIterable)
 				ret2 = ret2 + '''
-					«trc.trace.reference.fullyQualifiedName».getResource("«trc.trace.fullyQualifiedName
-						»").setTraceState(true);
+					tracer.setTraceState(«trc.trace.reference.fullyQualifiedName».getResource("«trc.trace.fullyQualifiedName
+						»"), true);
 					'''
 
 		if(ret2.length != 0)

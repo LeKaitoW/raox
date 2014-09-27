@@ -5,5 +5,4 @@ import java.nio.ByteBuffer;
 public interface Traceable
 {
 	public ByteBuffer createTracerEntry(int reserve);
-	public boolean isBeingTraced();
 }

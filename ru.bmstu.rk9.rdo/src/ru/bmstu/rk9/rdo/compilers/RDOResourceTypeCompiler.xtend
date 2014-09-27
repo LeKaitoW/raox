@@ -210,19 +210,6 @@ class RDOResourceTypeCompiler
 				«rtp.parameters.compileParameterStructure»
 			}
 
-			private boolean traceState = false;
-
-			public void setTraceState(boolean state)
-			{
-				this.traceState = state;
-			}
-
-			@Override
-			public boolean isBeingTraced()
-			{
-				return traceState;
-			}
-
 			@Override
 			public ByteBuffer createTracerEntry(int reserve)
 			{

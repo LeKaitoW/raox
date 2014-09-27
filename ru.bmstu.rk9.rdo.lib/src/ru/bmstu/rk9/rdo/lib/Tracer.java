@@ -1,7 +1,6 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.nio.ByteBuffer;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -51,6 +50,19 @@ public class Tracer
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	private int currentResourceTypeNumber = 0;
+
+	private HashMap<PermanentResource, Boolean> resourceTraceStateList =
+		new HashMap<PermanentResource, Boolean>();
+
+	public void setTraceState(PermanentResource resource, boolean traceValue)
+	{
+		this.resourceTraceStateList.put(resource, traceValue);
+	}
+
+	public boolean isBeingTraced(PermanentResource resource)
+	{
+		return this.resourceTraceStateList.get(resource);
+	}
 
 	class ResourceEvents
 	{
@@ -123,6 +135,7 @@ public class Tracer
 			resource.getName(),
 			new ResourceEvents(resourceTypeEvents.currentResourceNumber++)
 		);
+		this.setTraceState(resource, false);
 	}
 
 	public void registerResource(TemporaryResource resource)
@@ -134,6 +147,7 @@ public class Tracer
 			resource.getName(),
 			new ResourceEvents(resourceTypeEvents.currentResourceNumber++)
 		);
+		this.setTraceState(resource, false);
 	}
 
 	public static enum ResourceTraceType
@@ -192,7 +206,7 @@ public class Tracer
 				while(resourceTypeEvents.alive.size() < resource.getNumber() + 1)
 					resourceTypeEvents.alive.add(null);
 
-				resourceTypeEvents.alive.set(resource.getNumber(), resourceEvents);				
+				resourceTypeEvents.alive.set(resource.getNumber(), resourceEvents);
 			break;
 
 			case ERASED:
