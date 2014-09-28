@@ -114,22 +114,22 @@ class RDOPatternCompiler
 			public void run()
 			{
 				converter.run(staticResources.init(), parameters);
+				Tracer tracer = Simulator.getTracer();
 				«IF evn.relevantresources.filter[t | t.rule.literal == "Create"].size > 0»
 
 					// add resources
 					«FOR r : evn.relevantresources.filter[t | t.rule.literal == "Create"]»
 						staticResources.«r.name».register();
 						«IF evn.algorithms.get(evn.relevantresources.indexOf(r)).traceevent»
-							staticResources.«r.name».setTraceState(true);
+							tracer.setTraceState(staticResources.«r.name», true);
 						«ENDIF»
 					«ENDFOR»
 				«ENDIF»
 
 				// trace resources
-				Tracer tracer = Simulator.getTracer();
 				«FOR r : evn.relevantresources.filter[t |
 						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
-					if(staticResources.«r.name».isBeingTraced())
+					if(tracer.isBeingTraced(staticResources.«r.name»))
 						tracer.addResourceEntry(«r.rule.compileResourceTraceStatus», staticResources.«r.name»);
 				«ENDFOR»
 			}
@@ -365,6 +365,7 @@ class RDOPatternCompiler
 			{
 				RelevantResources resources = staticResources.copy();
 
+				Tracer tracer = Simulator.getTracer();
 				«IF rule.relevantresources.filter[t | t.rule.literal == "Create"].size > 0»
 					// create resources
 					«FOR r : rule.relevantresources.filter[t |t.rule.literal == "Create"]»
@@ -372,7 +373,7 @@ class RDOPatternCompiler
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 						resources.«r.name».register();
 						«IF rule.algorithms.get(rule.relevantresources.indexOf(r)).tracerule»
-							resources.«r.name».setTraceState(true);
+							tracer.setTraceState(resources.«r.name», true);
 						«ENDIF»
 					«ENDFOR»
 
@@ -387,10 +388,9 @@ class RDOPatternCompiler
 				rule.run(resources, parameters);
 
 				// trace resources
-				Tracer tracer = Simulator.getTracer();
 				«FOR r : rule.relevantresources.filter[t |
 						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
-					if(resources.«r.name».isBeingTraced())
+					if(tracer.isBeingTraced(resources.«r.name»))
 						tracer.addResourceEntry(«r.rule.compileResourceTraceStatus», resources.«r.name»);
 				«ENDFOR»
 			}
@@ -623,6 +623,7 @@ class RDOPatternCompiler
 			{
 				RelevantResources resources = staticResources.copy();
 
+				Tracer tracer = Simulator.getTracer();
 				«IF op.relevantresources.filter[t | t.begin.literal == "Create"].size > 0»
 					// create resources
 					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Create"]»
@@ -630,7 +631,7 @@ class RDOPatternCompiler
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 						resources.«r.name».register();
 						«IF op.algorithms.get(op.relevantresources.indexOf(r)).tracebegin»
-							resources.«r.name».setTraceState(true);
+							tracer.setTraceState(resources.«r.name», true);
 						«ENDIF»
 					«ENDFOR»
 
@@ -645,17 +646,16 @@ class RDOPatternCompiler
 				begin.run(resources, parameters);
 
 				// trace resources
-				Tracer tracer = Simulator.getTracer();
 				«FOR r : op.relevantresources.filter[t |
 						t.begin != PatternConvertStatus.NOCHANGE && t.begin != PatternConvertStatus.NONEXIST]»
-					if(resources.«r.name».isBeingTraced())
+					if(tracer.isBeingTraced(resources.«r.name»))
 						tracer.addResourceEntry(«r.begin.compileResourceTraceStatus», resources.«r.name»);
 				«ENDFOR»
 
 				«IF op.relevantresources.filter[t | t.end == PatternConvertStatus.ERASE].size > 0»
 				// trace erased forehand
 				«FOR r : op.relevantresources.filter[t | t.end == PatternConvertStatus.ERASE]»
-					if(resources.«r.name».isBeingTraced())
+					if(tracer.isBeingTraced(resources.«r.name»))
 						tracer.addResourceEntry(«r.end.compileResourceTraceStatus», resources.«r.name»);
 				«ENDFOR»
 
@@ -675,6 +675,7 @@ class RDOPatternCompiler
 			@Override
 			public void run()
 			{
+				Tracer tracer = Simulator.getTracer();
 				«IF op.relevantresources.filter[t | t.end.literal == "Create"].size > 0»
 					// create resources
 					«FOR r : op.relevantresources.filter[t |t.end.literal == "Create"]»
@@ -682,7 +683,7 @@ class RDOPatternCompiler
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 						instanceResources.«r.name».register();
 						«IF op.algorithms.get(op.relevantresources.indexOf(r)).traceend»
-							instanceResources.«r.name».setTraceState(true);
+							tracer.setTraceState(instanceResources.«r.name», true);
 						«ENDIF»
 						
 					«ENDFOR»
@@ -691,10 +692,9 @@ class RDOPatternCompiler
 				end.run(instanceResources, parameters);
 
 				// trace resources
-				Tracer tracer = Simulator.getTracer();
 				«FOR r : op.relevantresources.filter[t |
 						t.end != PatternConvertStatus.NOCHANGE && t.end != PatternConvertStatus.NONEXIST && t.end != PatternConvertStatus.ERASE]»
-					if(instanceResources.«r.name».isBeingTraced())
+					if(tracer.isBeingTraced(instanceResources.«r.name»))
 						tracer.addResourceEntry(«r.end.compileResourceTraceStatus», instanceResources.«r.name»);
 				«ENDFOR»
 			}
