@@ -211,7 +211,7 @@ class RDOResourceTypeCompiler
 			}
 
 			@Override
-			public ByteBuffer createTracerEntry(int reserve)
+			public ByteBuffer serialize(int reserve)
 			{
 				int size = reserve + «chunkstart + chunknumber * basicSizes.INT»;
 				«rtp.parameters.filter

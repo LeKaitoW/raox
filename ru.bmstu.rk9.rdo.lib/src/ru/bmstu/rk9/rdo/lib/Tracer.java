@@ -157,7 +157,7 @@ public class Tracer
 
 	public void addResourceEntry(ResourceTraceType status, PermanentResource resource)
 	{
-		ByteBuffer entry = resource.createTracerEntry(TraceType.RESOURCE.HEADER_SIZE);
+		ByteBuffer entry = resource.serialize(TraceType.RESOURCE.HEADER_SIZE);
 		entry.rewind();
 
 		PermanentResourceTypeEvents resourceTypeEvents =
@@ -183,7 +183,7 @@ public class Tracer
 			entry = ByteBuffer.allocateDirect(TraceType.RESOURCE.HEADER_SIZE);
 		else
 		{
-			entry = resource.createTracerEntry(TraceType.RESOURCE.HEADER_SIZE);
+			entry = resource.serialize(TraceType.RESOURCE.HEADER_SIZE);
 			entry.rewind();
 		}
 
