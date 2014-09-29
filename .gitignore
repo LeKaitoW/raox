@@ -30,7 +30,7 @@ local.properties
 ## xText
 #################
 
-generated/
+ru.bmstu.rk9.rdo/model
 *.xml_gen
 
 ru.bmstu.rk9.rdo/.antlr-generator-*.jar
