@@ -12,9 +12,9 @@ import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 import ru.bmstu.rk9.rdo.rdo.ResourceTrace
 
 
-class RDODatabaseCompiler
+class RDOModelStateCompiler
 {
-	def public static compileDatabase(ResourceSet rs, String project)
+	def public static compileModelState(ResourceSet rs, String project)
 	{
 		'''
 		package rdo_model;
@@ -22,7 +22,7 @@ class RDODatabaseCompiler
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «project»_database implements Database<«project»_database>
+		public class «project»State implements ModelState<«project»State>
 		{
 			«FOR r : rs.resources»
 				«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
@@ -32,11 +32,11 @@ class RDODatabaseCompiler
 				«ENDFOR»
 			«ENDFOR»
 
-			private static «project»_database current;
+			private static «project»State current;
 
 			public static void init()
 			{
-				(new «project»_database()).deploy();
+				(new «project»State()).deploy();
 
 				«FOR r : rs.resources»
 					«FOR rtp : r.allContents.filter(typeof(ResourceDeclaration)).toIterable»
@@ -46,12 +46,12 @@ class RDODatabaseCompiler
 				«ENDFOR»«rs.makeTracerPart»
 			}
 
-			public static «project»_database getCurrent()
+			public static «project»State getCurrent()
 			{
 				return current;
 			}
 
-			private «project»_database()
+			private «project»State()
 			{
 				«FOR r : rs.resources»
 					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
@@ -62,7 +62,7 @@ class RDODatabaseCompiler
 				«ENDFOR»
 			}
 
-			private «project»_database(«project»_database other)
+			private «project»State(«project»State other)
 			{
 				«FOR r : rs.resources»
 					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
@@ -84,13 +84,13 @@ class RDODatabaseCompiler
 			}
 
 			@Override
-			public «project»_database copy()
+			public «project»State copy()
 			{
-				return new «project»_database(this);
+				return new «project»State(this);
 			}
 
 			@Override
-			public boolean checkEqual(«project»_database other)
+			public boolean checkEqual(«project»State other)
 			{
 				«FOR r : rs.resources»
 					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»

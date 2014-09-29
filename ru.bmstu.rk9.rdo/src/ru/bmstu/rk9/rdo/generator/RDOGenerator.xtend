@@ -9,7 +9,7 @@ import org.eclipse.xtext.generator.IFileSystemAccess
 
 import ru.bmstu.rk9.rdo.IMultipleResourceGenerator
 
-import ru.bmstu.rk9.rdo.compilers.RDODatabaseCompiler
+import ru.bmstu.rk9.rdo.compilers.RDOModelStateCompiler
 import static extension ru.bmstu.rk9.rdo.compilers.RDOConstantCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOSequenceCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOFunctionCompiler.*
@@ -110,8 +110,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 							else "") + e.name + ".java", e.compileResult(filename))
 			}
 
-		fsa.generateFile("rdo_model/" + RDONaming.getProjectName(resources.resources.get(0).URI) +"_database.java",
-			RDODatabaseCompiler.compileDatabase(resources, RDONaming.getProjectName(resources.resources.get(0).URI)))
+		fsa.generateFile("rdo_model/" + RDONaming.getProjectName(resources.resources.get(0).URI) +"State.java",
+			RDOModelStateCompiler.compileModelState(resources, RDONaming.getProjectName(resources.resources.get(0).URI)))
 		fsa.generateFile("rdo_model/StandaloneModel.java", compileStandalone(resources, smr))
 		fsa.generateFile("rdo_model/EmbeddedModel.java", compileEmbedded(resources, smr))
 	}
@@ -162,7 +162,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				System.out.println("   Project «RDONaming.getProjectName(rs.resources.get(0).URI)»");
 				System.out.println("      Source files are «rs.resources.map[r | r.contents.head.nameGeneric].toString»\n");
 
-				«RDONaming.getProjectName(rs.resources.get(0).URI)»_database.init();
+				«RDONaming.getProjectName(rs.resources.get(0).URI)»State.init();
 
 				«IF smr != null»«FOR c :smr.commands»
 					«c.compileStatement»
@@ -217,7 +217,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				Simulator.initSimulation();
 
-				«RDONaming.getProjectName(rs.resources.get(0).URI)»_database.init();
+				«RDONaming.getProjectName(rs.resources.get(0).URI)»State.init();
 
 				«IF smr != null»«FOR c :smr.commands»
 					«c.compileStatement»

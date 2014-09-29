@@ -146,8 +146,8 @@ class RDODecisionPointCompiler
 				«ENDIF»
 				«ENDFOR»
 
-				private static DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»_database> dpt =
-					new DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»_database>
+				private static DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»State> dpt =
+					new DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»State>
 					(
 						"«dpt.fullyQualifiedName»",
 						«IF dpt.condition != null
@@ -176,12 +176,12 @@ class RDODecisionPointCompiler
 							}
 						},
 						«IF dpt.comparetops»true«ELSE»false«ENDIF»,
-						new DecisionPointSearch.DatabaseRetriever<rdo_model.«dpt.eResource.URI.projectName»_database>()
+						new DecisionPointSearch.DatabaseRetriever<rdo_model.«dpt.eResource.URI.projectName»State>()
 						{
 							@Override
-							public rdo_model.«dpt.eResource.URI.projectName»_database get()
+							public rdo_model.«dpt.eResource.URI.projectName»State get()
 							{
-								return rdo_model.«dpt.eResource.URI.projectName»_database.getCurrent();
+								return rdo_model.«dpt.eResource.URI.projectName»State.getCurrent();
 							}
 						}
 					);

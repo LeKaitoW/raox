@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 
-public class DecisionPointSearch<T extends Database<T>> extends DecisionPoint
+public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 {
 	private DecisionPoint.Condition terminate;
 
@@ -60,7 +60,7 @@ public class DecisionPointSearch<T extends Database<T>> extends DecisionPoint
 		activities.add(a);
 	}
 
-	public static interface DatabaseRetriever<T extends Database<T>>
+	public static interface DatabaseRetriever<T extends ModelState<T>>
 	{
 		public T get();
 	}

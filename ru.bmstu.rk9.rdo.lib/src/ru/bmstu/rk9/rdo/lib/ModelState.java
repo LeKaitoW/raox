@@ -1,6 +1,6 @@
 package ru.bmstu.rk9.rdo.lib;
 
-public interface Database<T>
+public interface ModelState<T>
 {
 	public void deploy();
 	public T copy();
