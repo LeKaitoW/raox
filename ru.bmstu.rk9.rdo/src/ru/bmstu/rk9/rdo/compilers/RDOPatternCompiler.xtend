@@ -114,23 +114,23 @@ class RDOPatternCompiler
 			public void run()
 			{
 				converter.run(staticResources.init(), parameters);
-				Tracer tracer = Simulator.getTracer();
+				Database db = Simulator.getDatabase();
 				«IF evn.relevantresources.filter[t | t.rule.literal == "Create"].size > 0»
 
 					// add resources
 					«FOR r : evn.relevantresources.filter[t | t.rule.literal == "Create"]»
 						staticResources.«r.name».register();
 						«IF evn.algorithms.get(evn.relevantresources.indexOf(r)).traceevent»
-							tracer.setTraceState(staticResources.«r.name», true);
+							rdo_model.«r.eResource.URI.projectName
+								»State.getTraceInfo().setTraceState(staticResources.«r.name», true);
 						«ENDIF»
 					«ENDFOR»
 				«ENDIF»
 
-				// trace resources
+				// database operations
 				«FOR r : evn.relevantresources.filter[t |
 						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
-					if(tracer.isBeingTraced(staticResources.«r.name»))
-						tracer.addResourceEntry(«r.rule.compileResourceTraceStatus», staticResources.«r.name»);
+					db.addResourceEntry(«r.rule.compileResourceTraceStatus», staticResources.«r.name»);
 				«ENDFOR»
 			}
 
@@ -147,9 +147,9 @@ class RDOPatternCompiler
 	{
 		switch status
 		{
-			case CREATE: "Tracer.ResourceTraceType.CREATED"
-			case ERASE : "Tracer.ResourceTraceType.ERASED"
-			case KEEP  : "Tracer.ResourceTraceType.ALTERED"
+			case CREATE: "Database.ResourceEntryType.CREATED"
+			case ERASE : "Database.ResourceEntryType.ERASED"
+			case KEEP  : "Database.ResourceEntryType.ALTERED"
 			default    : "null"
 		}
 	}
@@ -365,7 +365,7 @@ class RDOPatternCompiler
 			{
 				RelevantResources resources = staticResources.copy();
 
-				Tracer tracer = Simulator.getTracer();
+				Database db = Simulator.getDatabase();
 				«IF rule.relevantresources.filter[t | t.rule.literal == "Create"].size > 0»
 					// create resources
 					«FOR r : rule.relevantresources.filter[t |t.rule.literal == "Create"]»
@@ -373,7 +373,8 @@ class RDOPatternCompiler
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 						resources.«r.name».register();
 						«IF rule.algorithms.get(rule.relevantresources.indexOf(r)).tracerule»
-							tracer.setTraceState(resources.«r.name», true);
+							rdo_model.«r.eResource.URI.projectName
+								»State.getTraceInfo().setTraceState(resources.«r.name», true);
 						«ENDIF»
 					«ENDFOR»
 
@@ -387,11 +388,10 @@ class RDOPatternCompiler
 				«ENDIF»
 				rule.run(resources, parameters);
 
-				// trace resources
+				// database operations
 				«FOR r : rule.relevantresources.filter[t |
 						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
-					if(tracer.isBeingTraced(resources.«r.name»))
-						tracer.addResourceEntry(«r.rule.compileResourceTraceStatus», resources.«r.name»);
+					db.addResourceEntry(«r.rule.compileResourceTraceStatus», resources.«r.name»);
 				«ENDFOR»
 			}
 		}
@@ -623,7 +623,7 @@ class RDOPatternCompiler
 			{
 				RelevantResources resources = staticResources.copy();
 
-				Tracer tracer = Simulator.getTracer();
+				Database db = Simulator.getDatabase();
 				«IF op.relevantresources.filter[t | t.begin.literal == "Create"].size > 0»
 					// create resources
 					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Create"]»
@@ -631,7 +631,8 @@ class RDOPatternCompiler
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 						resources.«r.name».register();
 						«IF op.algorithms.get(op.relevantresources.indexOf(r)).tracebegin»
-							tracer.setTraceState(resources.«r.name», true);
+							rdo_model.«r.eResource.URI.projectName
+								»State.getTraceInfo().setTraceState(resources.«r.name», true);
 						«ENDIF»
 					«ENDFOR»
 
@@ -645,18 +646,16 @@ class RDOPatternCompiler
 				«ENDIF»
 				begin.run(resources, parameters);
 
-				// trace resources
+				// database operations
 				«FOR r : op.relevantresources.filter[t |
 						t.begin != PatternConvertStatus.NOCHANGE && t.begin != PatternConvertStatus.NONEXIST]»
-					if(tracer.isBeingTraced(resources.«r.name»))
-						tracer.addResourceEntry(«r.begin.compileResourceTraceStatus», resources.«r.name»);
+					db.addResourceEntry(«r.begin.compileResourceTraceStatus», resources.«r.name»);
 				«ENDFOR»
 
 				«IF op.relevantresources.filter[t | t.end == PatternConvertStatus.ERASE].size > 0»
-				// trace erased forehand
+				// query erased forehand
 				«FOR r : op.relevantresources.filter[t | t.end == PatternConvertStatus.ERASE]»
-					if(tracer.isBeingTraced(resources.«r.name»))
-						tracer.addResourceEntry(«r.end.compileResourceTraceStatus», resources.«r.name»);
+					db.addResourceEntry(«r.end.compileResourceTraceStatus», resources.«r.name»);
 				«ENDFOR»
 
 				«ENDIF»
@@ -675,7 +674,7 @@ class RDOPatternCompiler
 			@Override
 			public void run()
 			{
-				Tracer tracer = Simulator.getTracer();
+				Database db = Simulator.getDatabase();
 				«IF op.relevantresources.filter[t | t.end.literal == "Create"].size > 0»
 					// create resources
 					«FOR r : op.relevantresources.filter[t |t.end.literal == "Create"]»
@@ -683,7 +682,8 @@ class RDOPatternCompiler
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 						instanceResources.«r.name».register();
 						«IF op.algorithms.get(op.relevantresources.indexOf(r)).traceend»
-							tracer.setTraceState(instanceResources.«r.name», true);
+							rdo_model.«r.eResource.URI.projectName
+								»State.getTraceInfo().setTraceState(instanceResources.«r.name», true);
 						«ENDIF»
 						
 					«ENDFOR»
@@ -691,11 +691,10 @@ class RDOPatternCompiler
 				«ENDIF»
 				end.run(instanceResources, parameters);
 
-				// trace resources
+				// database operations
 				«FOR r : op.relevantresources.filter[t |
 						t.end != PatternConvertStatus.NOCHANGE && t.end != PatternConvertStatus.NONEXIST && t.end != PatternConvertStatus.ERASE]»
-					if(tracer.isBeingTraced(instanceResources.«r.name»))
-						tracer.addResourceEntry(«r.end.compileResourceTraceStatus», instanceResources.«r.name»);
+					db.addResourceEntry(«r.end.compileResourceTraceStatus», instanceResources.«r.name»);
 				«ENDFOR»
 			}
 		}

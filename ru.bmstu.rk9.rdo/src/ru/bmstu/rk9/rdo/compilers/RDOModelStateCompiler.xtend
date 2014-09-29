@@ -34,6 +34,13 @@ class RDOModelStateCompiler
 
 			private static «project»State current;
 
+			private static TraceInfo traceInfo;
+
+			public static TraceInfo getTraceInfo()
+			{
+				return traceInfo;
+			}
+
 			public static void init()
 			{
 				(new «project»State()).deploy();
@@ -43,7 +50,10 @@ class RDOModelStateCompiler
 						(new «rtp.reference.fullyQualifiedName»(«if (rtp.parameters != null)
 							rtp.parameters.compileExpression.value else ""»)).register("«rtp.fullyQualifiedName»");
 					«ENDFOR»
-				«ENDFOR»«rs.makeTracerPart»
+
+				«ENDFOR»
+				«rs.makeDatabasePart»
+				«rs.makeTracerPart»
 			}
 
 			public static «project»State getCurrent()
@@ -106,51 +116,48 @@ class RDOModelStateCompiler
 		'''
 	}
 
-	def private static String makeTracerPart(ResourceSet rs)
+	def private static String makeDatabasePart(ResourceSet rs)
 	{
 		var ret = ""
 		var ret2 = ""
 
 		for(r : rs.resources)
 			for(rtp : r.allContents.filter(typeof(ResourceType)).toIterable)
-				ret2 = ret2 + '''
-					tracer.registerResourceType("«rtp.fullyQualifiedName»", «rtp.fullyQualifiedName».structure, «
+				ret = ret + '''db.registerResourceType("«rtp.fullyQualifiedName»", «rtp.fullyQualifiedName».structure, «
 						IF rtp.type == ResourceTypeKind.TEMPORARY»true«ELSE»false«ENDIF»);
 					'''
 
-		if(ret2.length != 0)
-		{
-			ret = ret + "\n" + ret2
-			ret2 = ""
-		}
-
-		
 		for(r : rs.resources)
 			for(rss : r.allContents.filter(typeof(ResourceDeclaration)).toIterable)
-				ret2 = ret2 + '''
-					tracer.registerResource(«rss.reference.fullyQualifiedName».getResource("«
+				ret2 = ret2 + '''db.registerResource(«rss.reference.fullyQualifiedName».getResource("«
 							rss.fullyQualifiedName»"));
 					'''
 
 		if(ret2.length != 0)
-		{
 			ret = ret + "\n" + ret2
-			ret2 = ""
-		}
+
+		if(ret.length > 0)
+			ret = "Database db = Simulator.getDatabase();\n\n" + ret
+
+		return ret + "\n"
+	}
+
+	def private static String makeTracerPart(ResourceSet rs)
+	{
+		var ret = ""
 
 		for(r : rs.resources)
 			for(trc : r.allContents.filter(typeof(ResourceTrace)).toIterable)
-				ret2 = ret2 + '''
-					tracer.setTraceState(«trc.trace.reference.fullyQualifiedName».getResource("«trc.trace.fullyQualifiedName
+				ret = ret + '''
+					traceInfo.setTraceState(«trc.trace.reference.fullyQualifiedName».getResource("«trc.trace.fullyQualifiedName
 						»"), true);
 					'''
 
-		if(ret2.length != 0)
-			ret2 = "\n" + ret2
-
 		if(ret.length > 0)
-			ret = "\nTracer tracer = Simulator.getTracer();\n" + ret
+			ret = "\n" + ret
 
-		return ret + ret2
+		ret = "traceInfo = new TraceInfo();\n" + ret
+
+		return ret
 	}
 }

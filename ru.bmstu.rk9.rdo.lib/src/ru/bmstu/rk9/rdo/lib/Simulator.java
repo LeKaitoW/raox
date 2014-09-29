@@ -5,11 +5,11 @@ import java.util.LinkedList;
 public class Simulator
 {
 	private static Simulator INSTANCE = null;
-	private static Tracer TRACER = null;
+	private static Database DB = null;
 
-	public static Tracer getTracer()
+	public static Database getDatabase()
 	{
-		return TRACER;
+		return DB;
 	}
 
 	public static synchronized void initSimulation()
@@ -18,7 +18,7 @@ public class Simulator
 			return;
 
 		INSTANCE = new Simulator();
-		TRACER = new Tracer();
+		DB = new Database();
 		DecisionPointSearch.allowSearch = true;
 	}
 
