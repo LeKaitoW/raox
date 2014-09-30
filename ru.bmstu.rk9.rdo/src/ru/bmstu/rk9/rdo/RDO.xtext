@@ -409,7 +409,7 @@ ResultType
 ;
 
 ResultWatchParameter:
-	'watch_par' parameter = [ResourceTypeParameter|FQN]
+	'watch_par' parameter = ExpressionOr
 ;
 
 ResultWatchState:
@@ -417,11 +417,11 @@ ResultWatchState:
 ;
 
 ResultWatchQuant:
-	'watch_quant' resource = [ResourceType|ID] ('NoCheck' | logic = ExpressionOr)
+	'watch_quant' resource = [ResourceType|FQN] ('NoCheck' | logic = ExpressionOr)
 ;
 
 ResultWatchValue:
-	'watch_value' resource = [ResourceType|ID]
+	'watch_value' resource = [ResourceType|FQN]
 	( 'NoCheck'? | logic = ExpressionOr ) ':' expression = ExpressionOr
 ;
 
@@ -540,7 +540,7 @@ RDOArray:
 ;
 
 RDOOwnType:
-	id = [ResourceType|ID]
+	id = [ResourceType|FQN]
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
