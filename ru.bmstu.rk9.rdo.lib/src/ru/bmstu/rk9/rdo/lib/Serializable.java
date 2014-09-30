@@ -4,5 +4,5 @@ import java.nio.ByteBuffer;
 
 public interface Serializable
 {
-	public ByteBuffer serialize(int reserve);
+	public ByteBuffer serialize();
 }

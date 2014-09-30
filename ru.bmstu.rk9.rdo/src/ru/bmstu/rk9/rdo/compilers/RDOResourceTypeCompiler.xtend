@@ -211,9 +211,9 @@ class RDOResourceTypeCompiler
 			}
 
 			@Override
-			public ByteBuffer serialize(int reserve)
+			public ByteBuffer serialize()
 			{
-				int size = reserve + «chunkstart + chunknumber * basicSizes.INT»;
+				int size = «chunkstart + chunknumber * basicSizes.INT»;
 				«rtp.parameters.filter
 				[ p |
 					val type = p.type.compileType
@@ -224,7 +224,6 @@ class RDOResourceTypeCompiler
 				].compileBufferCalculation»
 
 				ByteBuffer entry = ByteBuffer.allocateDirect(size);
-				entry.position(reserve);
 
 				«rtp.parameters.compileSerialization»
 

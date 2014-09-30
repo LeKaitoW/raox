@@ -11,6 +11,30 @@ public class Database
 		addSystemEntry(SystemEntryType.TRACE_START);
 	}
 
+	public static class Entry
+	{
+		ByteBuffer header;
+		ByteBuffer data;
+
+		Entry(ByteBuffer header, ByteBuffer data)
+		{
+			this.header = header;
+			this.data = data;
+		}
+	}
+
+	class Index
+	{
+		final int number;
+
+		ArrayList<Entry> entries = new ArrayList<Entry>();
+
+		private Index(int number)
+		{
+			this.number = number;
+		}
+	}
+
 	public static enum EntryType
 	{
 		SYSTEM(10), RESOURCE(18), PATTERN(0), DECISION(0), RESULT(0);
@@ -23,7 +47,7 @@ public class Database
 		}
 	}
 
-	ArrayList<ByteBuffer> allEntries = new ArrayList<ByteBuffer>();
+	ArrayList<Entry> allEntries = new ArrayList<Entry>();
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                              SYSTEM ENTRIES                               /
@@ -36,13 +60,13 @@ public class Database
 
 	void addSystemEntry(SystemEntryType type)
 	{
-		ByteBuffer entry = ByteBuffer.allocateDirect(EntryType.SYSTEM.HEADER_SIZE);
+		ByteBuffer header = ByteBuffer.allocate(EntryType.SYSTEM.HEADER_SIZE);
 
-		entry.putDouble(Simulator.getTime());
-		entry.put((byte)EntryType.SYSTEM.ordinal());
-		entry.put((byte)type.ordinal());
+		header.putDouble(Simulator.getTime());
+		header.put((byte)EntryType.SYSTEM.ordinal());
+		header.put((byte)type.ordinal());
 
-		allEntries.add(entry);
+		allEntries.add(new Entry(header, null));
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
@@ -50,18 +74,6 @@ public class Database
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	private int currentResourceTypeNumber = 0;
-
-	class ResourceIndex
-	{
-		final int number;
-
-		ArrayList<ByteBuffer> entries = new ArrayList<ByteBuffer>();
-
-		private ResourceIndex(int number)
-		{
-			this.number = number;
-		}
-	}
 
 	class PermanentResourceTypeIndex
 	{
@@ -71,13 +83,13 @@ public class Database
 
 		private PermanentResourceTypeIndex(int number, ResourceStructure structure)
 		{
-			resources = new HashMap<String, ResourceIndex>();
+			resources = new HashMap<String, Index>();
 			this.structure = structure;
 			this.number = number;
 		}
 
 		final ResourceStructure structure;
-		final HashMap<String, ResourceIndex> resources;
+		final HashMap<String, Index> resources;
 	}
 	
 	HashMap<String, PermanentResourceTypeIndex> permanentResourceIndex =
@@ -85,8 +97,8 @@ public class Database
 
 	class TemporaryResourceTypeIndex extends PermanentResourceTypeIndex
 	{
-		ArrayList<ResourceIndex> all   = new ArrayList<ResourceIndex>();
-		ArrayList<ResourceIndex> alive = new ArrayList<ResourceIndex>();
+		ArrayList<Index> all   = new ArrayList<Index>();
+		ArrayList<Index> alive = new ArrayList<Index>();
 
 		private TemporaryResourceTypeIndex(int number, ResourceStructure structure)
 		{
@@ -120,7 +132,7 @@ public class Database
 		resourceTypeIndex.resources.put
 		(
 			resource.getName(),
-			new ResourceIndex(resourceTypeIndex.currentResourceNumber++)
+			new Index(resourceTypeIndex.currentResourceNumber++)
 		);
 	}
 
@@ -131,7 +143,7 @@ public class Database
 		resourceTypeIndex.resources.put
 		(
 			resource.getName(),
-			new ResourceIndex(resourceTypeIndex.currentResourceNumber++)
+			new Index(resourceTypeIndex.currentResourceNumber++)
 		);
 	}
 
@@ -142,39 +154,32 @@ public class Database
 
 	public void addResourceEntry(ResourceEntryType status, PermanentResource resource)
 	{
-		ByteBuffer entry = resource.serialize(EntryType.RESOURCE.HEADER_SIZE);
-		entry.rewind();
-
 		PermanentResourceTypeIndex resourceTypeIndex =
 			permanentResourceIndex.get(resource.getTypeName());
-		ResourceIndex resourceIndex =
+		Index resourceIndex =
 			resourceTypeIndex.resources.get(resource.getName());
 
-		entry
+		ByteBuffer header = ByteBuffer.allocate(EntryType.RESOURCE.HEADER_SIZE);
+		header
 			.putDouble(Simulator.getTime())
 			.put((byte)EntryType.RESOURCE.ordinal())
 			.put((byte)status.ordinal())
 			.putInt(resourceTypeIndex.number)
 			.putInt(resourceIndex.number);
 
+		ByteBuffer data = resource.serialize();
+
+		Entry entry = new Entry(header, data);
+		
 		allEntries.add(entry);
 		resourceIndex.entries.add(entry);
 	}
 
 	public void addResourceEntry(ResourceEntryType status, TemporaryResource resource)
 	{
-		ByteBuffer entry;
-		if(status == ResourceEntryType.ERASED)
-			entry = ByteBuffer.allocateDirect(EntryType.RESOURCE.HEADER_SIZE);
-		else
-		{
-			entry = resource.serialize(EntryType.RESOURCE.HEADER_SIZE);
-			entry.rewind();
-		}
-
 		TemporaryResourceTypeIndex resourceTypeIndex =
 			temporaryResourceIndex.get(resource.getTypeName());
-		ResourceIndex resourceIndex = null;
+		Index resourceIndex = null;
 		if(resource.getName() != null)
 		{
 			resourceIndex = resourceTypeIndex.resources.get(resource.getName());
@@ -182,7 +187,7 @@ public class Database
 		else switch (status)
 		{
 			case CREATED:
-				resourceIndex = new ResourceIndex
+				resourceIndex = new Index
 				(
 					resource.getNumber() + resourceTypeIndex.currentResourceNumber
 				);
@@ -204,12 +209,17 @@ public class Database
 			break;
 		}
 
-		entry
+		ByteBuffer header = ByteBuffer.allocate(EntryType.RESOURCE.HEADER_SIZE);
+		header
 			.putDouble(Simulator.getTime())
 			.put((byte)EntryType.RESOURCE.ordinal())
 			.put((byte)status.ordinal())
 			.putInt(resourceTypeIndex.number)
 			.putInt(resourceIndex.number);
+
+		ByteBuffer data = (status == ResourceEntryType.ERASED)? null : resource.serialize();
+
+		Entry entry = new Entry(header, data);
 
 		allEntries.add(entry);
 		resourceIndex.entries.add(entry);
