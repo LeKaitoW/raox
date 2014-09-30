@@ -11,14 +11,14 @@ class ResultManager
 		results.add(result);
 	}
 
-	void printResults()
-	{
-		for (Result r : results)
-			System.out.println(r.get());
-	}
-
 	LinkedList<Result> getResults()
 	{
 		return results;
+	}
+
+	void updateAll()
+	{
+		for(Result r : results)
+			r.update();
 	}
 }

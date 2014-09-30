@@ -5,12 +5,6 @@ import java.util.LinkedList;
 public class Simulator
 {
 	private static Simulator INSTANCE = null;
-	private static Database DB = null;
-
-	public static Database getDatabase()
-	{
-		return DB;
-	}
 
 	public static synchronized void initSimulation()
 	{
@@ -18,8 +12,17 @@ public class Simulator
 			return;
 
 		INSTANCE = new Simulator();
-		DB = new Database();
+
+		INSTANCE.database = new Database();
+
 		DecisionPointSearch.allowSearch = true;
+	}
+
+	private Database database;
+
+	public static Database getDatabase()
+	{
+		return INSTANCE.database;
 	}
 
 	private double time = 0;
@@ -57,11 +60,6 @@ public class Simulator
 		INSTANCE.resultManager.addResult(result);
 	}
 
-	public static void printResults()
-	{
-		INSTANCE.resultManager.printResults();
-	}
-
 	public static LinkedList<Result> getResults()
 	{
 		return INSTANCE.resultManager.getResults();
@@ -92,8 +90,13 @@ public class Simulator
 	private int checkDPT()
 	{
 		while (dptManager.checkDPT() && !executionAborted)
+		{
+			resultManager.updateAll();
+
 			if (checkTerminate())
 				return  1;
+		}
+
 		if (executionAborted)
 			return -1;
 		return 0;
@@ -102,6 +105,8 @@ public class Simulator
 	public static int run()
 	{
 		isRunning = true;
+
+		INSTANCE.resultManager.updateAll();
 
 		int dptCheck = INSTANCE.checkDPT();
 		if (dptCheck != 0)
@@ -114,6 +119,8 @@ public class Simulator
 			INSTANCE.time = current.getTime();
 
 			current.run();
+
+			INSTANCE.resultManager.updateAll();
 
 			if (INSTANCE.checkTerminate())
 				return stop(1);

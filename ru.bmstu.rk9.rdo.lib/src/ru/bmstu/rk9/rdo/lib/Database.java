@@ -241,6 +241,29 @@ public class Database
  /                              RESULT ENTRIES                               /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
+	private int currentResultNumber = 0;
 
+	HashMap<String, Index> resultIndex = new HashMap<String, Index>();
 
+	public void registerResult(Result result)
+	{
+		resultIndex.put(result.getName(), new Index(currentResultNumber++));
+	}
+
+	public void addResultEntry(Result result)
+	{
+		Index index = resultIndex.get(result.getName());
+
+		ByteBuffer header = ByteBuffer.allocate(EntryType.RESULT.HEADER_SIZE);
+		header
+			.putDouble(Simulator.getTime())
+			.putInt(index.number);
+
+		ByteBuffer data = result.serialize();
+
+		Entry entry = new Entry(header, data);
+
+		allEntries.add(entry);
+		index.entries.add(entry);
+	}
 }

@@ -194,7 +194,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				System.out.println("\nResults:");
 				System.out.println("-------------------------------------------------------------------------------");
-				Simulator.printResults();
+				for(Result r : Simulator.getResults())
+					System.out.println(r.get());
 				System.out.println("-------------------------------------------------------------------------------");
 			}
 		}
