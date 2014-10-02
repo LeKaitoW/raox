@@ -91,6 +91,14 @@ class RDOResourceTypeCompiler
 			{
 				this.number = managerCurrent.getNextNumber();
 				managerCurrent.addResource(this);
+				lastCreated = this;
+			}
+
+			private static «rtp.name» lastCreated;
+
+			public static «rtp.name» getLastCreated()
+			{
+				return lastCreated;
 			}
 
 			«ENDIF»
@@ -113,9 +121,34 @@ class RDOResourceTypeCompiler
 			public static void eraseResource(«rtp.name» res)
 			{
 				managerCurrent.eraseResource(res);
+				lastDeleted = res;
+				notificationManager.notifySubscribers("RESOURCE.DELETED");
 			}
 
+			private static «rtp.name» lastDeleted;
+
+			public static «rtp.name» getLastDeleted()
+			{
+				return lastDeleted;
+			}
 			«ENDIF»
+
+			private static NotificationManager notificationManager =
+				new NotificationManager
+				(
+					new String[] 
+					{
+						«IF rtp.type.literal == "temporary"»
+						"RESOURCE.DELETED"
+						«ENDIF»
+					}
+				);
+
+			public static Notifier getNotifier()
+			{
+				return notificationManager;
+			}
+
 			private «rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»> managerOwner = managerCurrent;
 
 			public static void setCurrentManager(«rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»> manager)
