@@ -15,6 +15,8 @@ public class Simulator
 
 		INSTANCE.database = new Database();
 
+		INSTANCE.notificationManager = new NotificationManager(new String[] {"StateChange"});
+
 		DecisionPointSearch.allowSearch = true;
 	}
 
@@ -65,6 +67,18 @@ public class Simulator
 		return INSTANCE.resultManager.getResults();
 	}
 
+	private NotificationManager notificationManager;
+
+	public static Notifier getNotifier()
+	{
+		return INSTANCE.notificationManager;
+	}
+
+	private static void notifyStateChange()
+	{
+		INSTANCE.notificationManager.notifySubscribers("StateChange");
+	}
+
 	private boolean checkTerminate()
 	{
 		for (TerminateCondition c : terminateList)
@@ -91,7 +105,7 @@ public class Simulator
 	{
 		while (dptManager.checkDPT() && !executionAborted)
 		{
-			resultManager.updateAll();
+			notifyStateChange();
 
 			if (checkTerminate())
 				return  1;
@@ -106,7 +120,7 @@ public class Simulator
 	{
 		isRunning = true;
 
-		INSTANCE.resultManager.updateAll();
+		notifyStateChange();
 
 		int dptCheck = INSTANCE.checkDPT();
 		if (dptCheck != 0)
@@ -120,7 +134,7 @@ public class Simulator
 
 			current.run();
 
-			INSTANCE.resultManager.updateAll();
+			notifyStateChange();
 
 			if (INSTANCE.checkTerminate())
 				return stop(1);
