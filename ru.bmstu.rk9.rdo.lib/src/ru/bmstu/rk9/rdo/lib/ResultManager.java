@@ -15,10 +15,4 @@ class ResultManager
 	{
 		return results;
 	}
-
-	void updateAll()
-	{
-		for(Result r : results)
-			r.update();
-	}
 }

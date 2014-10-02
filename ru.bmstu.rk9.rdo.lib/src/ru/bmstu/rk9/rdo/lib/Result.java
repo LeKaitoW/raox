@@ -9,6 +9,5 @@ public interface Result extends Serializable
 
 	public String getName();
 	public Type getType();
-	public void update();
 	public String get();
 }
