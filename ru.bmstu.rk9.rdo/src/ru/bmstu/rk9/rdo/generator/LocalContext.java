@@ -27,6 +27,8 @@ import ru.bmstu.rk9.rdo.rdo.GroupBy;
 import ru.bmstu.rk9.rdo.rdo.RDOEnum;
 import ru.bmstu.rk9.rdo.rdo.EnumID;
 
+import ru.bmstu.rk9.rdo.rdo.Expression;
+
 
 public class LocalContext
 {
@@ -44,9 +46,10 @@ public class LocalContext
 
 	private HashMap<String, ContextEntry> index;
 
-	public void addRawEntry(String name, String type, String generated)
+	public LocalContext addRawEntry(String name, String type, String generated)
 	{
 		index.put(name, new ContextEntry(generated, type));
+		return this;
 	}
 
 	public ContextEntry findEntry(String entry)
@@ -107,12 +110,16 @@ public class LocalContext
 
 	public LocalContext populateFromGroupBy(GroupBy gb)
 	{
-		for(ResourceTypeParameter p : gb.getType().getParameters())
-		{
-			this.addRawEntry(gb.getType().getName() + "." + p.getName(), RDOExpressionCompiler.compileType(p), "current.get_" + p.getName() + "()");
-			this.addRawEntry(p.getName(), RDOExpressionCompiler.compileType(p), "current.get_" + p.getName() + "()");
-		}
+		return this.populateWithResourceRename(gb.getType(), "current");
+	}
 
+	public LocalContext populateWithResourceRename(ResourceType rtp, String newName)
+	{
+		for(ResourceTypeParameter p : rtp.getParameters())
+		{
+			this.addRawEntry(rtp.getName() + "." + p.getName(), RDOExpressionCompiler.compileType(p), newName+ ".get_" + p.getName() + "()");
+			this.addRawEntry(p.getName(), RDOExpressionCompiler.compileType(p), newName + ".get_" + p.getName() + "()");
+		}
 		return this;
 	}
 
