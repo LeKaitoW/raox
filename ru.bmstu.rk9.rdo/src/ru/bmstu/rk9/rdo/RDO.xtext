@@ -409,7 +409,7 @@ ResultType
 ;
 
 ResultWatchParameter:
-	'watch_par' parameter = ExpressionOr
+	'watch_par' parameter = FQN
 ;
 
 ResultWatchState:
