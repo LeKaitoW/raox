@@ -409,7 +409,7 @@ ResultType
 ;
 
 ResultWatchParameter:
-	'watch_par' parameter = FQN
+	'watch_par' parameter = VariableMethodCallExpression
 ;
 
 ResultWatchState:
