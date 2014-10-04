@@ -77,6 +77,7 @@ class RDOResultCompiler
 				public static void init()
 				{
 					Simulator.addResult(INSTANCE);
+					Simulator.getDatabase().addSensitivity("«type.eContainer.fullyQualifiedName»");
 				}
 
 				@Override
@@ -103,6 +104,7 @@ class RDOResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 					Simulator.getDatabase().registerResult(INSTANCE);
+					Simulator.getDatabase().addSensitivity("«type.eContainer.fullyQualifiedName»");
 					Simulator.getNotifier().getSubscription("StateChange").addSubscriber(INSTANCE);
 				}
 
@@ -139,6 +141,7 @@ class RDOResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 					Simulator.getDatabase().registerResult(INSTANCE);
+					Simulator.getDatabase().addSensitivity("«type.eContainer.fullyQualifiedName»");
 					«type.resource.fullyQualifiedName»
 						.getNotifier()
 							.getSubscription("RESOURCE.DELETED")
@@ -183,6 +186,7 @@ class RDOResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 					Simulator.getDatabase().registerResult(INSTANCE);
+					Simulator.getDatabase().addSensitivity("«type.eContainer.fullyQualifiedName»");
 					Simulator.getNotifier().getSubscription("StateChange").addSubscriber(INSTANCE);
 				}
 
@@ -219,6 +223,7 @@ class RDOResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 					Simulator.getDatabase().registerResult(INSTANCE);
+					Simulator.getDatabase().addSensitivity("«type.eContainer.fullyQualifiedName»");
 					Simulator.getNotifier().getSubscription("StateChange").addSubscriber(INSTANCE);
 				}
 
