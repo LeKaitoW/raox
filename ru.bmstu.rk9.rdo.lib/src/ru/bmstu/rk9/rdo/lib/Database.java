@@ -37,7 +37,7 @@ public class Database
 
 	public static enum EntryType
 	{
-		SYSTEM(10), RESOURCE(18), PATTERN(0), DECISION(0), RESULT(0);
+		SYSTEM(10), RESOURCE(18), PATTERN(0), DECISION(0), RESULT(13);
 
 		public final int HEADER_SIZE;
 
@@ -257,6 +257,7 @@ public class Database
 		ByteBuffer header = ByteBuffer.allocate(EntryType.RESULT.HEADER_SIZE);
 		header
 			.putDouble(Simulator.getTime())
+			.put((byte)EntryType.RESULT.ordinal())
 			.putInt(index.number);
 
 		ByteBuffer data = result.serialize();
