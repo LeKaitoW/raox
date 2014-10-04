@@ -1,14 +1,33 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.nio.ByteBuffer;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class Database
 {
 	Database()
 	{
 		addSystemEntry(SystemEntryType.TRACE_START);
+	}
+
+	private HashSet<String> sensitivityList = new HashSet<String>();
+
+	public void addSensitivity(String name)
+	{
+		sensitivityList.add(name);
+	}
+
+	public boolean removeSensitivity(String name)
+	{
+		return sensitivityList.remove(name);
+	}
+
+	public boolean sensitiveTo(String name)
+	{
+		return sensitivityList.contains(name);
 	}
 
 	public static class Entry
@@ -152,8 +171,12 @@ public class Database
 		CREATED, ERASED, ALTERED
 	}
 
-	public void addResourceEntry(ResourceEntryType status, PermanentResource resource)
+	public void addResourceEntry(ResourceEntryType status, PermanentResource resource, String sender)
 	{
+		String name = resource.getName();
+		if(!sensitivityList.contains(name))
+			return;
+
 		PermanentResourceTypeIndex resourceTypeIndex =
 			permanentResourceIndex.get(resource.getTypeName());
 		Index resourceIndex =
@@ -175,38 +198,57 @@ public class Database
 		resourceIndex.entries.add(entry);
 	}
 
-	public void addResourceEntry(ResourceEntryType status, TemporaryResource resource)
+	public void addResourceEntry(ResourceEntryType status, TemporaryResource resource, String sender)
 	{
 		TemporaryResourceTypeIndex resourceTypeIndex =
 			temporaryResourceIndex.get(resource.getTypeName());
 		Index resourceIndex = null;
-		if(resource.getName() != null)
+
+		String permanentName = resource.getName();
+		if(permanentName != null)
 		{
+			if(!sensitivityList.contains(permanentName))
+				return;
 			resourceIndex = resourceTypeIndex.resources.get(resource.getName());
 		}
-		else switch (status)
+		else
 		{
-			case CREATED:
-				resourceIndex = new Index
-				(
-					resource.getNumber() + resourceTypeIndex.currentResourceNumber
-				);
-				resourceTypeIndex.all.add(resourceIndex);
+			String typeName = resource.getTypeName();
+			String temporaryName = typeName + "_" + String.valueOf(resource.getNumber());
+			
+			switch (status)
+			{
+				case CREATED:
+					if(sensitivityList.contains(sender))
+						sensitivityList.add(temporaryName);
+					else
+						return;
 
-				while(resourceTypeIndex.alive.size() < resource.getNumber() + 1)
-					resourceTypeIndex.alive.add(null);
-
-				resourceTypeIndex.alive.set(resource.getNumber(), resourceIndex);
-			break;
-
-			case ERASED:
-				resourceIndex = resourceTypeIndex.alive.get(resource.getNumber()); 
-				resourceTypeIndex.alive.set(resource.getNumber(), null);
-			break;
-
-			case ALTERED:
-				resourceIndex = resourceTypeIndex.alive.get(resource.getNumber());
-			break;
+					resourceIndex = new Index
+					(
+						resource.getNumber() + resourceTypeIndex.currentResourceNumber
+					);
+					resourceTypeIndex.all.add(resourceIndex);
+	
+					while(resourceTypeIndex.alive.size() < resource.getNumber() + 1)
+						resourceTypeIndex.alive.add(null);
+	
+					resourceTypeIndex.alive.set(resource.getNumber(), resourceIndex);
+				break;
+	
+				case ERASED:
+					if(!sensitivityList.remove(temporaryName))
+						return;
+					resourceIndex = resourceTypeIndex.alive.get(resource.getNumber()); 
+					resourceTypeIndex.alive.set(resource.getNumber(), null);
+				break;
+	
+				case ALTERED:
+					if(!sensitivityList.contains(temporaryName))
+						return;
+					resourceIndex = resourceTypeIndex.alive.get(resource.getNumber());
+				break;
+			}
 		}
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.RESOURCE.HEADER_SIZE);
@@ -252,7 +294,11 @@ public class Database
 
 	public void addResultEntry(Result result)
 	{
-		Index index = resultIndex.get(result.getName());
+		String name = result.getName();
+		if(!sensitivityList.contains(name))
+			return;
+
+		Index index = resultIndex.get(name);
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.RESULT.HEADER_SIZE);
 		header
