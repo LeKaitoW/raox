@@ -130,7 +130,8 @@ class RDOPatternCompiler
 				// database operations
 				«FOR r : evn.relevantresources.filter[t |
 						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
-					db.addResourceEntry(«r.rule.compileResourceTraceStatus», staticResources.«r.name»);
+					db.addResourceEntry(«r.rule.compileResourceTraceStatus», staticResources.«r.name
+						», "«evn.fullyQualifiedName».«r.name»");
 				«ENDFOR»
 			}
 
@@ -391,7 +392,8 @@ class RDOPatternCompiler
 				// database operations
 				«FOR r : rule.relevantresources.filter[t |
 						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
-					db.addResourceEntry(«r.rule.compileResourceTraceStatus», resources.«r.name»);
+					db.addResourceEntry(«r.rule.compileResourceTraceStatus», resources.«r.name
+						», "«rule.fullyQualifiedName».«r.name»");
 				«ENDFOR»
 			}
 		}
@@ -649,13 +651,15 @@ class RDOPatternCompiler
 				// database operations
 				«FOR r : op.relevantresources.filter[t |
 						t.begin != PatternConvertStatus.NOCHANGE && t.begin != PatternConvertStatus.NONEXIST]»
-					db.addResourceEntry(«r.begin.compileResourceTraceStatus», resources.«r.name»);
+					db.addResourceEntry(«r.begin.compileResourceTraceStatus», resources.«r.name
+						», "«op.fullyQualifiedName».«r.name»");
 				«ENDFOR»
 
 				«IF op.relevantresources.filter[t | t.end == PatternConvertStatus.ERASE].size > 0»
 				// query erased forehand
 				«FOR r : op.relevantresources.filter[t | t.end == PatternConvertStatus.ERASE]»
-					db.addResourceEntry(«r.end.compileResourceTraceStatus», resources.«r.name»);
+					db.addResourceEntry(«r.end.compileResourceTraceStatus», resources.«r.name
+						», "«op.fullyQualifiedName».«r.name»");
 				«ENDFOR»
 
 				«ENDIF»
@@ -694,7 +698,8 @@ class RDOPatternCompiler
 				// database operations
 				«FOR r : op.relevantresources.filter[t |
 						t.end != PatternConvertStatus.NOCHANGE && t.end != PatternConvertStatus.NONEXIST && t.end != PatternConvertStatus.ERASE]»
-					db.addResourceEntry(«r.end.compileResourceTraceStatus», instanceResources.«r.name»);
+					db.addResourceEntry(«r.end.compileResourceTraceStatus», instanceResources.«r.name
+						», "«op.fullyQualifiedName».«r.name»");
 				«ENDFOR»
 			}
 		}
