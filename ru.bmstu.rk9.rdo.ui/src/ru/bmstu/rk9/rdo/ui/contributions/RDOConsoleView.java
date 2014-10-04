@@ -28,7 +28,8 @@ public class RDOConsoleView extends ViewPart
 	private static String text = "";
 
 	@Override
-	public void createPartControl(Composite parent) {
+	public void createPartControl(Composite parent)
+	{
 		ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.NONE);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
@@ -121,7 +122,6 @@ public class RDOConsoleView extends ViewPart
 	}
 
 	@Override
-	public void setFocus()
-	{}
+	public void setFocus() {}
 
 }
