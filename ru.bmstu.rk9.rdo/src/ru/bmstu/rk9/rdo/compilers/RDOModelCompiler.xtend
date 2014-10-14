@@ -4,11 +4,20 @@ import org.eclipse.emf.ecore.resource.ResourceSet
 
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.Util.*
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeKind
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResultWatchParameter
+import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
+import ru.bmstu.rk9.rdo.rdo.ResultWatchQuant
+import ru.bmstu.rk9.rdo.rdo.ResultWatchState
+import ru.bmstu.rk9.rdo.rdo.ResultGetValue
+
+import ru.bmstu.rk9.rdo.generator.LocalContext
 
 
 class RDOModelCompiler
@@ -132,14 +141,31 @@ class RDOModelCompiler
 							)
 					)
 					'''
-		
-		
+
+		var results = ""
+		for(r : rs.resources)
+			for(rslt : r.allContents.filter(typeof(ResultDeclaration)).toIterable)		
+				results = results +
+					'''
+					.put
+					(
+						new JSONObject()
+							.put("name", "«rslt.fullyQualifiedName»")
+							«rslt.compileResultTypePart»
+					)
+					'''
+
 		ret = ret +
 			'''
 			.put
 			(
 				"resource_types", new JSONArray()
 					«resTypes»
+			)
+			.put
+			(
+				"results", new JSONArray()
+					«results»
 			)'''
 
 		return ret
@@ -161,5 +187,40 @@ class RDOModelCompiler
 			}
 
 		return ret
+	}
+
+	def private static compileResultTypePart(ResultDeclaration result)
+	{
+		val type = result.type
+		switch(type)
+		{
+			ResultWatchParameter:
+				'''
+				.put("type", "watch_par")
+				.put("value_type", "«type.parameter.compileExpression.type.backToRDOType»")
+				'''
+			ResultWatchState:
+				'''
+				.put("type", "watch_state")
+				.put("value_type", "boolean")
+				'''
+			ResultWatchQuant:
+				'''
+				.put("type", "watch_quant")
+				.put("value_type", "integer")
+				'''
+			ResultWatchValue:
+				'''
+				.put("type", "watch_value")
+				.put("value_type", "«type.expression.compileExpressionContext(
+					(new LocalContext).populateWithResourceRename(
+						type.resource, "whatever")).type.backToRDOType»")
+				'''
+			ResultGetValue:
+				'''
+				.put("type", "get_value")
+				.put("value_type", "«type.expression.compileExpression.type.backToRDOType»")
+				'''
+		}
 	}
 }

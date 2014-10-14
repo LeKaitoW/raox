@@ -42,6 +42,13 @@ public class Database
 			}
 		}
 
+		JSONArray results = modelStructure.getJSONArray("results");
+		for(int i = 0; i < results.length(); i++)
+		{
+			JSONObject result = results.getJSONObject(i);
+			resultIndex.put(result.getString("name"), new Index(i));
+		}
+
 		addSystemEntry(SystemEntryType.TRACE_START);
 	}
 
@@ -277,14 +284,7 @@ public class Database
  /                              RESULT ENTRIES                               /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	private int currentResultNumber = 0;
-
 	HashMap<String, Index> resultIndex = new HashMap<String, Index>();
-
-	public void registerResult(Result result)
-	{
-		resultIndex.put(result.getName(), new Index(currentResultNumber++));
-	}
 
 	public void addResultEntry(Result result)
 	{
