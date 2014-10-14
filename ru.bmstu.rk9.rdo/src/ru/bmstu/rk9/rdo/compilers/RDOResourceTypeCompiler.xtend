@@ -316,17 +316,23 @@ class RDOResourceTypeCompiler
 				ctype = "enum"
 				offset = offset + basicSizes.ENUM
 				isenum = true
-				enums =
-					'''
-					.put
-					(
-						"enums", new JSONArray()
-					'''
-				for(e : (p.resolveAllSuchAs as RDOEnum).enums)
-					enums = enums + "\t\t.put(\"" + e.name + "\")\n"
+				if(type.substring(0, type.length - 5) == p.fullyQualifiedName)
+				{
+					enums =
+						'''
+						.put
+						(
+							"enums", new JSONArray()
+						'''
+					for(e : (p.resolveAllSuchAs as RDOEnum).enums)
+						enums = enums + "\t\t.put(\"" + e.name + "\")\n"
+					enums = enums +
+						'''
+						)
+						'''
+				}
 				enums = enums +
 					'''
-					)
 					.put("enum_origin", "«type.substring(0, type.length - 5)»")
 					'''
 			}
@@ -337,17 +343,23 @@ class RDOResourceTypeCompiler
 				if(ctype.endsWith("_enum"))
 				{
 					isenum = true
-					enums =
-						'''
-						.put
-						(
-							"enums", new JSONArray()
-						'''
-					for(e : (p.resolveAllArrays as RDOEnum).enums)
-						enums = enums + "\t\t.put(\"" + e.name + "\")\n"
+					if(ctype.substring(0, ctype.length - 5) == p.fullyQualifiedName)
+					{
+						enums =
+							'''
+							.put
+							(
+								"enums", new JSONArray()
+							'''
+						for(e : (p.resolveAllArrays as RDOEnum).enums)
+							enums = enums + "\t\t.put(\"" + e.name + "\")\n"
+						enums = enums +
+							'''
+							)
+							'''
+					}
 					enums = enums +
 						'''
-						)
 						.put("enum_origin", "«ctype.substring(0, ctype.length - 5)»")
 						'''
 					ctype = "enum"
