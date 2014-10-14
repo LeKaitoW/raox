@@ -120,10 +120,6 @@ class RDOPatternCompiler
 					// add resources
 					«FOR r : evn.relevantresources.filter[t | t.rule.literal == "Create"]»
 						staticResources.«r.name».register();
-						«IF evn.algorithms.get(evn.relevantresources.indexOf(r)).traceevent»
-							rdo_model.«r.eResource.URI.projectName
-								»State.getTraceInfo().setTraceState(staticResources.«r.name», true);
-						«ENDIF»
 					«ENDFOR»
 				«ENDIF»
 
@@ -373,10 +369,6 @@ class RDOPatternCompiler
 						resources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 						resources.«r.name».register();
-						«IF rule.algorithms.get(rule.relevantresources.indexOf(r)).tracerule»
-							rdo_model.«r.eResource.URI.projectName
-								»State.getTraceInfo().setTraceState(resources.«r.name», true);
-						«ENDIF»
 					«ENDFOR»
 
 				«ENDIF»
@@ -632,10 +624,6 @@ class RDOPatternCompiler
 						resources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 						resources.«r.name».register();
-						«IF op.algorithms.get(op.relevantresources.indexOf(r)).tracebegin»
-							rdo_model.«r.eResource.URI.projectName
-								»State.getTraceInfo().setTraceState(resources.«r.name», true);
-						«ENDIF»
 					«ENDFOR»
 
 				«ENDIF»
@@ -685,10 +673,6 @@ class RDOPatternCompiler
 						instanceResources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 						instanceResources.«r.name».register();
-						«IF op.algorithms.get(op.relevantresources.indexOf(r)).traceend»
-							rdo_model.«r.eResource.URI.projectName
-								»State.getTraceInfo().setTraceState(instanceResources.«r.name», true);
-						«ENDIF»
 						
 					«ENDFOR»
 
