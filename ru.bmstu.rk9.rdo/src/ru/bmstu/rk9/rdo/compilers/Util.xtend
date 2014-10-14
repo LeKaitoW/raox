@@ -26,5 +26,19 @@ class Util
 
 		return "0"
 	}
-	
+
+	def public static String backToRDOType(String type)
+	{
+		if(type.startsWith("java.util.ArrayList"))
+			"array<" + type.substring(20, type.length - 21).backToRDOType + ">"
+
+		switch(type)
+		{
+			case "String": "string"
+			case "Integer": "integer"
+			case "Boolean": "boolean"
+			case "Double": "real"
+			default: type
+		}
+	}
 }
