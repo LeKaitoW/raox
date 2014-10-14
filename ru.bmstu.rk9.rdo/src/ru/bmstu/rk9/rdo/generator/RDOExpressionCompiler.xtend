@@ -680,6 +680,32 @@ class RDOExpressionCompiler
 		}
 	}
 
+	def static RDOType resolveAllArrays(EObject type)
+	{
+		switch type
+		{
+			ResourceTypeParameter: type.type.resolveAllArrays
+
+			RDORTPParameterBasic : type.type
+			RDORTPParameterString: type.type
+			RDORTPParameterSuchAs: type.type.type.resolveAllSuchAs.resolveAllArrays
+			RDORTPParameterEnum  : type.type
+			RDORTPParameterArray : type.type.resolveAllArrays
+
+			ConstantDeclaration: type.type.resolveAllSuchAs.resolveAllArrays
+
+			RDOInteger: type
+			RDOReal   : type
+			RDOBoolean: type
+			RDOString : type
+			RDOEnum   : type
+			RDOSuchAs : type.type.resolveAllSuchAs.resolveAllArrays
+			RDOArray  : type.arraytype.resolveAllArrays
+
+			default: null
+		}
+	}
+
 	def static RDOType resolveAllSuchAs(EObject type)
 	{
 		switch type
@@ -704,7 +730,6 @@ class RDOExpressionCompiler
 
 			default: null
 		}
-
 	}
 
 	def static String compileAllDefault(int count)
