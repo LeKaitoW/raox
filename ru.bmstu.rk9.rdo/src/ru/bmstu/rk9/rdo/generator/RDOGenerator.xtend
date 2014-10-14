@@ -9,7 +9,7 @@ import org.eclipse.xtext.generator.IFileSystemAccess
 
 import ru.bmstu.rk9.rdo.IMultipleResourceGenerator
 
-import ru.bmstu.rk9.rdo.compilers.RDOModelStateCompiler
+import ru.bmstu.rk9.rdo.compilers.RDOModelCompiler
 import static extension ru.bmstu.rk9.rdo.compilers.RDOConstantCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOSequenceCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOFunctionCompiler.*
@@ -110,10 +110,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 							else "") + e.name + ".java", e.compileResult(filename))
 			}
 
-		fsa.generateFile("rdo_model/" + RDONaming.getProjectName(resources.resources.get(0).URI) +"State.java",
-			RDOModelStateCompiler.compileModelState(resources, RDONaming.getProjectName(resources.resources.get(0).URI)))
-		fsa.generateFile("rdo_model/StandaloneModel.java", compileStandalone(resources, smr))
-		fsa.generateFile("rdo_model/EmbeddedModel.java", compileEmbedded(resources, smr))
+		fsa.generateFile("rdo_model/" + RDONaming.getProjectName(resources.resources.get(0).URI) +"Model.java",
+			RDOModelCompiler.compileModel(resources, RDONaming.getProjectName(resources.resources.get(0).URI)))
+		fsa.generateFile("rdo_model/Standalone.java", compileStandalone(resources, smr))
+		fsa.generateFile("rdo_model/Embedded.java", compileEmbedded(resources, smr))
 	}
 
 	public static HashMap<String, GlobalContext> variableIndex = new HashMap<String, GlobalContext>
@@ -144,25 +144,26 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 	def compileStandalone(ResourceSet rs, SimulationRun smr)
 	{
+		val project = RDONaming.getProjectName(rs.resources.get(0).URI)
 		'''
 		package rdo_model;
 
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class StandaloneModel
+		public class Standalone
 		{
 			public static void main(String[] args)
 			{
 				long startTime = System.currentTimeMillis();
 
-				Simulator.initSimulation();
+				Simulator.initSimulation(«project»Model.modelStructure);
 
 				System.out.println(" === RDO-Simulator ===\n");
 				System.out.println("   Project «RDONaming.getProjectName(rs.resources.get(0).URI)»");
 				System.out.println("      Source files are «rs.resources.map[r | r.contents.head.nameGeneric].toString»\n");
 
-				«RDONaming.getProjectName(rs.resources.get(0).URI)»State.init();
+				«project»Model.init();
 
 				«IF smr != null»«FOR c :smr.commands»
 					«c.compileStatement»
@@ -204,6 +205,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 	def compileEmbedded(ResourceSet rs, SimulationRun smr)
 	{
+		val project = RDONaming.getProjectName(rs.resources.get(0).URI)
 		'''
 		package rdo_model;
 
@@ -212,13 +214,13 @@ class RDOGenerator implements IMultipleResourceGenerator
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class EmbeddedModel
+		public class Embedded
 		{
 			public static int runSimulation(List<Result> results)
 			{
-				Simulator.initSimulation();
+				Simulator.initSimulation(«project»Model.modelStructure);
 
-				«RDONaming.getProjectName(rs.resources.get(0).URI)»State.init();
+				«project»Model.init();
 
 				«IF smr != null»«FOR c :smr.commands»
 					«c.compileStatement»

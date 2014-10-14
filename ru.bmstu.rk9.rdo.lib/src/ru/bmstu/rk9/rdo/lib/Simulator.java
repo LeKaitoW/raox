@@ -2,18 +2,20 @@ package ru.bmstu.rk9.rdo.lib;
 
 import java.util.LinkedList;
 
+import ru.bmstu.rk9.rdo.lib.json.JSONObject;
+
 public class Simulator
 {
 	private static Simulator INSTANCE = null;
 
-	public static synchronized void initSimulation()
+	public static synchronized void initSimulation(JSONObject modelStructure)
 	{
 		if (isRunning)
 			return;
 
 		INSTANCE = new Simulator();
 
-		INSTANCE.database = new Database();
+		INSTANCE.database = new Database(modelStructure);
 
 		INSTANCE.notificationManager = new NotificationManager(new String[] {"StateChange"});
 

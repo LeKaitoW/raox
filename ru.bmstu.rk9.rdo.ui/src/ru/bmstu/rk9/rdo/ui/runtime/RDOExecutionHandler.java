@@ -168,7 +168,7 @@ public class RDOExecutionHandler extends AbstractHandler
 
 					ClassLoader cl = new URLClassLoader(urls, Simulator.class.getClassLoader());
 
-					Class<?> cls = cl.loadClass("rdo_model.EmbeddedModel");
+					Class<?> cls = cl.loadClass("rdo_model.Embedded");
 
 					Method simulation = null;
 					find_simulation:

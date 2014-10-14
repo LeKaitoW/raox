@@ -29,7 +29,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOBoolean
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.RDOString
 import ru.bmstu.rk9.rdo.rdo.RDOArray
-
+import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
 
 class RDOResourceTypeCompiler
 {
@@ -47,6 +47,8 @@ class RDOResourceTypeCompiler
 		import java.util.LinkedList;
 		import java.util.ArrayList;
 		import java.util.HashMap;
+
+		import ru.bmstu.rk9.rdo.lib.json.*;
 
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
@@ -231,17 +233,8 @@ class RDOResourceTypeCompiler
 				return true;
 			}
 
-			public final static ResourceStructure structure;
-			static
-			{
-				ArrayList<ResourceStructure.Parameter> parameters =
-					new ArrayList<ResourceStructure.Parameter>();
-				HashMap<String, ResourceStructure.ChunkParameter> chunks =
-					new HashMap<String, ResourceStructure.ChunkParameter>();
-				HashMap<String, Enum<?>[]> enums =
-					new HashMap<String, Enum<?>[]>();
-				«rtp.parameters.compileParameterStructure»
-			}
+			public final static JSONObject structure = new JSONObject()
+				«rtp.compileStructure»;
 
 			@Override
 			public ByteBuffer serialize()
@@ -284,119 +277,123 @@ class RDOResourceTypeCompiler
 		static val ENUM = 2
 	}
 
-	def private static String compileParameterStructure(Iterable<ResourceTypeParameter> parameters)
+	def private static String compileStructure(ResourceType rtp)
 	{
-		var ret =
-			'''
-
-				ResourceStructure.ChunkParameter chunk;
-
-			'''
+		val parameters = rtp.parameters
 		var offset = 0
 		var chunkindex = 1;
 		
+		var cparams = ""
 		for(p : parameters)
 		{
 			val type = p.compileType
+			var ctype = ""
+			
+			val coffset = ".put(\"offset\", " + offset + ")"
+			val cchunk = ".put(\"index\", " + chunkindex + ")"
+			var depth = 0
+			var ischunk = false
+			var isenum = false
+			var enums = ""
 			
 			if(type == "Integer")
 			{
-				ret = ret + '''
-
-					parameters.add(new ResourceStructure.Parameter
-					(
-						"«p.name»",
-						ResourceStructure.DataType.INTEGER,
-						«offset»
-					));
-					'''
+				ctype = "integer"
 				offset = offset + basicSizes.INT
 			}
 			if(type == "Double")
 			{
-				ret = ret + '''
-
-					parameters.add(new ResourceStructure.Parameter
-					(
-						"«p.name»",
-						ResourceStructure.DataType.REAL,
-						«offset»
-					));
-					'''
+				ctype = "real"
 				offset = offset + basicSizes.DOUBLE
 			}
 			if(type == "Boolean")
 			{
-				ret = ret + '''
-
-					parameters.add(new ResourceStructure.Parameter
-					(
-						"«p.name»",
-						ResourceStructure.DataType.BOOL,
-						«offset»
-					));
-					'''
+				ctype = "boolean"
 				offset = offset + basicSizes.BOOL
 			}
 			if(type.endsWith("_enum"))
 			{
-				ret = ret + '''
-
-					parameters.add(new ResourceStructure.Parameter
-					(
-						"«p.name»",
-						ResourceStructure.DataType.ENUM,
-						«offset»
-					));
-
-					enums.put("«p.name»", «p.compileType».values());
-					'''
+				ctype = "enum"
 				offset = offset + basicSizes.ENUM
+				isenum = true
+				enums =
+					'''
+					.put
+					(
+						"enums", new JSONArray()
+					'''
+				for(e : (p.resolveAllSuchAs as RDOEnum).enums)
+					enums = enums + "\t\t.put(\"" + e.name + "\")\n"
+				enums = enums +
+					'''
+					)
+					.put("enum_origin", "«type.substring(0, type.length - 5)»")
+					'''
 			}
 			if(type.startsWith("java.util.ArrayList"))
 			{
-				ret = ret + '''
-
-					chunk = new ResourceStructure.ChunkParameter
-					(
-						"«p.name»",
-						«p.arrayType»,
-						«chunkindex»,
-						«p.arrayDepth»
-					);
-					parameters.add(chunk);
-					chunks.put("«p.name»", chunk);
-					'''
+				ischunk = true
+				ctype = p.arrayType
+				if(ctype.endsWith("_enum"))
+				{
+					isenum = true
+					enums =
+						'''
+						.put
+						(
+							"enums", new JSONArray()
+						'''
+					for(e : (p.resolveAllArrays as RDOEnum).enums)
+						enums = enums + "\t\t.put(\"" + e.name + "\")\n"
+					enums = enums +
+						'''
+						)
+						.put("enum_origin", "«ctype.substring(0, ctype.length - 5)»")
+						'''
+					ctype = "enum"
+				}
+				depth = p.arrayDepth
 				chunkindex = chunkindex + 1
+				ctype = "array\")\n.put(\"array_type\", \"" + ctype 
 			}
 			if(type == "String")
 			{
-				ret = ret + '''
-
-					chunk = new ResourceStructure.ChunkParameter
-					(
-						"«p.name»",
-						ResourceStructure.DataType.STRING,
-						«chunkindex»,
-						0
-					);
-					parameters.add(chunk);
-					chunks.put("«p.name»", chunk);
-					'''
+				ischunk = true
+				ctype = "string"
 				chunkindex = chunkindex + 1
 			}
+
+			cparams = cparams + '''
+				.put
+				(
+					new JSONObject()
+						.put("name", "«p.name»")
+						.put("type", "«ctype»")
+						«IF isenum»
+							«enums»
+						«ENDIF»
+						«IF ischunk»
+							«cchunk»
+							«IF depth > 0».put("depth", «depth»)«ENDIF»
+						«ELSE»
+							«coffset»
+						«ENDIF»
+				)
+				'''
 		}
-
-		ret = ret +
-			'''
-
-				structure = new ResourceStructure(parameters, «offset», chunks, enums);
-			'''
 
 		chunkstart = offset
 		chunknumber = chunkindex - 1
 
-		return ret
+		return
+			'''
+			.put
+			(
+				"parameters", new JSONArray()
+					«cparams»
+			)
+			.put("last_offset", «offset»)'''
+		
 	}
 
 	def private static String compileBufferCalculation(Iterable<ResourceTypeParameter> parameters)
@@ -630,13 +627,19 @@ class RDOResourceTypeCompiler
 			else
 				type = (type as RDOArray).arraytype
 
+		type.getTypename
+	}
+
+	def static String getTypename(EObject type)
+	{
 		switch(type)
 		{
-			RDOInteger: return "ResourceStructure.DataType.INTEGER"
-			RDOReal   : return "ResourceStructure.DataType.REAL"
-			RDOBoolean: return "ResourceStructure.DataType.BOOL"
-			RDOEnum   : return "ResourceStructure.DataType.ENUM"
-			RDOString : return "ResourceStructure.DataType.STRING"
+			RDOInteger: return "integer"
+			RDOReal   : return "real"
+			RDOBoolean: return "boolean"
+			RDOEnum   : return type.compileType
+			RDOString : return "string"
+			RDOSuchAs : return type.resolveAllSuchAs.getTypename
 			default: return null
 		}
 	}

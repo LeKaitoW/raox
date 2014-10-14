@@ -1,16 +1,55 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.nio.ByteBuffer;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import ru.bmstu.rk9.rdo.lib.json.*;
+
 public class Database
 {
-	Database()
+	Database(JSONObject modelStructure)
 	{
+		this.modelStructure = modelStructure;
+
+		JSONArray resourceTypes = modelStructure.getJSONArray("resource_types");
+		for(int i = 0; i < resourceTypes.length(); i++)
+		{
+			JSONObject resourceType = resourceTypes.getJSONObject(i);
+			HashMap<String, Index> resources;
+
+			String name = resourceType.getString("name");
+			if(resourceType.getBoolean("temporary"))
+			{
+				TemporaryResourceTypeIndex index =
+					new TemporaryResourceTypeIndex(i, resourceType.getJSONObject("structure"));
+				resources = index.resources;
+				temporaryResourceIndex.put(name, index);
+			}
+			else
+			{
+				PermanentResourceTypeIndex index
+					= new PermanentResourceTypeIndex(i, resourceType.getJSONObject("structure"));
+				resources = index.resources;
+				permanentResourceIndex.put(name, index);
+			}
+
+			JSONArray modelResources = resourceType.getJSONArray("resources");
+			for(int j = 0; j < modelResources.length(); j++)
+			{
+				resources.put(modelResources.getString(j), new Index(j));
+			}
+		}
+
 		addSystemEntry(SystemEntryType.TRACE_START);
+	}
+
+	JSONObject modelStructure;
+
+	public JSONObject getModelStructure()
+	{
+		return modelStructure;
 	}
 
 	private HashSet<String> sensitivityList = new HashSet<String>();
@@ -46,7 +85,7 @@ public class Database
 	{
 		final int number;
 
-		ArrayList<Entry> entries = new ArrayList<Entry>();
+		ArrayList<Integer> entries = new ArrayList<Integer>();
 
 		private Index(int number)
 		{
@@ -92,22 +131,18 @@ public class Database
  /                           RESOURCE STATE ENTRIES                          /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	private int currentResourceTypeNumber = 0;
-
 	class PermanentResourceTypeIndex
 	{
 		final int number;
 
-		protected int currentResourceNumber = 1;
-
-		private PermanentResourceTypeIndex(int number, ResourceStructure structure)
+		private PermanentResourceTypeIndex(int number, JSONObject structure)
 		{
 			resources = new HashMap<String, Index>();
 			this.structure = structure;
 			this.number = number;
 		}
 
-		final ResourceStructure structure;
+		final JSONObject structure;
 		final HashMap<String, Index> resources;
 	}
 	
@@ -116,10 +151,9 @@ public class Database
 
 	class TemporaryResourceTypeIndex extends PermanentResourceTypeIndex
 	{
-		ArrayList<Index> all   = new ArrayList<Index>();
-		ArrayList<Index> alive = new ArrayList<Index>();
+		ArrayList<Index> temporary = new ArrayList<Index>();
 
-		private TemporaryResourceTypeIndex(int number, ResourceStructure structure)
+		private TemporaryResourceTypeIndex(int number, JSONObject structure)
 		{
 			super(number, structure);
 		}
@@ -127,44 +161,6 @@ public class Database
 
 	HashMap<String, TemporaryResourceTypeIndex> temporaryResourceIndex =
 		new HashMap<String, TemporaryResourceTypeIndex>();	
-
-	public void registerResourceType(String name, ResourceStructure structure, boolean temporary)
-	{
-		if(temporary)
-			temporaryResourceIndex.put
-			(
-				name,
-				new TemporaryResourceTypeIndex(currentResourceTypeNumber++, structure)
-			);
-		else
-			permanentResourceIndex.put
-			(
-				name,
-				new PermanentResourceTypeIndex(currentResourceTypeNumber++, structure)
-			);
-	}
-
-	public void registerResource(PermanentResource resource)
-	{
-		PermanentResourceTypeIndex resourceTypeIndex = 
-			permanentResourceIndex.get(resource.getTypeName());
-		resourceTypeIndex.resources.put
-		(
-			resource.getName(),
-			new Index(resourceTypeIndex.currentResourceNumber++)
-		);
-	}
-
-	public void registerResource(TemporaryResource resource)
-	{
-		TemporaryResourceTypeIndex resourceTypeIndex = 
-			temporaryResourceIndex.get(resource.getTypeName());
-		resourceTypeIndex.resources.put
-		(
-			resource.getName(),
-			new Index(resourceTypeIndex.currentResourceNumber++)
-		);
-	}
 
 	public static enum ResourceEntryType
 	{
@@ -195,7 +191,7 @@ public class Database
 		Entry entry = new Entry(header, data);
 		
 		allEntries.add(entry);
-		resourceIndex.entries.add(entry);
+		resourceIndex.entries.add(allEntries.size() - 1);
 	}
 
 	public void addResourceEntry(ResourceEntryType status, TemporaryResource resource, String sender)
@@ -226,27 +222,25 @@ public class Database
 
 					resourceIndex = new Index
 					(
-						resource.getNumber() + resourceTypeIndex.currentResourceNumber
+						resource.getNumber() + resourceTypeIndex.resources.size()
 					);
-					resourceTypeIndex.all.add(resourceIndex);
+
+					while(resourceTypeIndex.temporary.size() < resource.getNumber() + 1)
+						resourceTypeIndex.temporary.add(null);
 	
-					while(resourceTypeIndex.alive.size() < resource.getNumber() + 1)
-						resourceTypeIndex.alive.add(null);
-	
-					resourceTypeIndex.alive.set(resource.getNumber(), resourceIndex);
+					resourceTypeIndex.temporary.set(resource.getNumber(), resourceIndex);
 				break;
 	
 				case ERASED:
 					if(!sensitivityList.remove(temporaryName))
 						return;
-					resourceIndex = resourceTypeIndex.alive.get(resource.getNumber()); 
-					resourceTypeIndex.alive.set(resource.getNumber(), null);
+					resourceIndex = resourceTypeIndex.temporary.get(resource.getNumber()); 
 				break;
 	
 				case ALTERED:
 					if(!sensitivityList.contains(temporaryName))
 						return;
-					resourceIndex = resourceTypeIndex.alive.get(resource.getNumber());
+					resourceIndex = resourceTypeIndex.temporary.get(resource.getNumber());
 				break;
 			}
 		}
@@ -264,9 +258,9 @@ public class Database
 		Entry entry = new Entry(header, data);
 
 		allEntries.add(entry);
-		resourceIndex.entries.add(entry);
+		resourceIndex.entries.add(allEntries.size() - 1);
 	}
-
+	
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                              PATTERN ENTRIES                              /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
@@ -311,6 +305,6 @@ public class Database
 		Entry entry = new Entry(header, data);
 
 		allEntries.add(entry);
-		index.entries.add(entry);
+		index.entries.add(allEntries.size() - 1);
 	}
 }

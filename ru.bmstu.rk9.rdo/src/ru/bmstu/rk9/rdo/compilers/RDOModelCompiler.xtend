@@ -9,20 +9,21 @@ import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeKind
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
-import ru.bmstu.rk9.rdo.rdo.ResourceTrace
 
 
-class RDOModelStateCompiler
+class RDOModelCompiler
 {
-	def public static compileModelState(ResourceSet rs, String project)
+	def public static compileModel(ResourceSet rs, String project)
 	{
 		'''
 		package rdo_model;
 
+		import ru.bmstu.rk9.rdo.lib.json.*;
+
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «project»State implements ModelState<«project»State>
+		public class «project»Model implements ModelState<«project»Model>
 		{
 			«FOR r : rs.resources»
 				«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
@@ -32,36 +33,26 @@ class RDOModelStateCompiler
 				«ENDFOR»
 			«ENDFOR»
 
-			private static «project»State current;
-
-			private static TraceInfo traceInfo;
-
-			public static TraceInfo getTraceInfo()
-			{
-				return traceInfo;
-			}
+			private static «project»Model current;
 
 			public static void init()
 			{
-				(new «project»State()).deploy();
-
+				(new «project»Model()).deploy();
 				«FOR r : rs.resources»
+
 					«FOR rtp : r.allContents.filter(typeof(ResourceDeclaration)).toIterable»
 						(new «rtp.reference.fullyQualifiedName»(«if (rtp.parameters != null)
 							rtp.parameters.compileExpression.value else ""»)).register("«rtp.fullyQualifiedName»");
 					«ENDFOR»
-
 				«ENDFOR»
-				«rs.makeDatabasePart»
-				«rs.makeTracerPart»
 			}
 
-			public static «project»State getCurrent()
+			public static «project»Model getCurrent()
 			{
 				return current;
 			}
 
-			private «project»State()
+			private «project»Model()
 			{
 				«FOR r : rs.resources»
 					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
@@ -72,7 +63,7 @@ class RDOModelStateCompiler
 				«ENDFOR»
 			}
 
-			private «project»State(«project»State other)
+			private «project»Model(«project»Model other)
 			{
 				«FOR r : rs.resources»
 					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
@@ -94,13 +85,13 @@ class RDOModelStateCompiler
 			}
 
 			@Override
-			public «project»State copy()
+			public «project»Model copy()
 			{
-				return new «project»State(this);
+				return new «project»Model(this);
 			}
 
 			@Override
-			public boolean checkEqual(«project»State other)
+			public boolean checkEqual(«project»Model other)
 			{
 				«FOR r : rs.resources»
 					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
@@ -112,51 +103,62 @@ class RDOModelStateCompiler
 
 				return true;
 			}
+
+			final static JSONObject modelStructure = new JSONObject()
+				«rs.compileModelStructure»;
 		}
 		'''
 	}
 
-	def private static String makeDatabasePart(ResourceSet rs)
+	def private static compileModelStructure(ResourceSet rs)
 	{
 		var ret = ""
-		var ret2 = ""
 
+		var resTypes = ""
 		for(r : rs.resources)
 			for(rtp : r.allContents.filter(typeof(ResourceType)).toIterable)
-				ret = ret + '''db.registerResourceType("«rtp.fullyQualifiedName»", «rtp.fullyQualifiedName».structure, «
-						IF rtp.type == ResourceTypeKind.TEMPORARY»true«ELSE»false«ENDIF»);
+				resTypes = resTypes +
 					'''
-
-		for(r : rs.resources)
-			for(rss : r.allContents.filter(typeof(ResourceDeclaration)).toIterable)
-				ret2 = ret2 + '''db.registerResource(«rss.reference.fullyQualifiedName».getResource("«
-							rss.fullyQualifiedName»"));
+					.put
+					(
+						new JSONObject()
+							.put("name", "«rtp.fullyQualifiedName»")
+							.put("temporary", «rtp.type == ResourceTypeKind.TEMPORARY»)
+							.put("structure", «rtp.fullyQualifiedName».structure)
+							.put
+							(
+								"resources", new JSONArray()
+									«rtp.compileResourcesInStructure(rs)»
+							)
+					)
 					'''
+		
+		
+		ret = ret +
+			'''
+			.put
+			(
+				"resource_types", new JSONArray()
+					«resTypes»
+			)'''
 
-		if(ret2.length != 0)
-			ret = ret + "\n" + ret2
-
-		if(ret.length > 0)
-			ret = "Database db = Simulator.getDatabase();\n\n" + ret
-
-		return ret + "\n"
+		return ret
 	}
 
-	def private static String makeTracerPart(ResourceSet rs)
+	def private static compileResourcesInStructure(ResourceType rtp, ResourceSet rs)
 	{
-		var ret = ""
+		var ret = "" 
 
 		for(r : rs.resources)
-			for(trc : r.allContents.filter(typeof(ResourceTrace)).toIterable)
-				ret = ret + '''
-					traceInfo.setTraceState(«trc.trace.reference.fullyQualifiedName».getResource("«trc.trace.fullyQualifiedName
-						»"), true);
+			for(rss : r.allContents
+				.filter(typeof(ResourceDeclaration))
+				.filter[s | s.reference == rtp].toIterable)
+			{
+				ret = ret +
 					'''
-
-		if(ret.length > 0)
-			ret = "\n" + ret
-
-		ret = "traceInfo = new TraceInfo();\n" + ret
+					.put("«rss.fullyQualifiedName»")
+					'''
+			}
 
 		return ret
 	}
