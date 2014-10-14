@@ -9,17 +9,13 @@ import java.util.HashMap;
 
 public class TemporaryResourceManager<T extends TemporaryResource & ResourceComparison<T>> extends PermanentResourceManager<T>
 {
-	private ArrayList<T> temporary;
+	private HashMap<Integer, T> temporary;
 
-	private LinkedList<Integer> vacantList;
 	private Integer currentLast;
 
 	public int getNextNumber()
 	{
-		if (vacantList.size() > 0)
-			return vacantList.poll();
-		else
-			return currentLast++;
+		return currentLast;
 	}
 
 	@Override
@@ -28,45 +24,40 @@ public class TemporaryResourceManager<T extends TemporaryResource & ResourceComp
 		if (res.getName() != null)
 			super.addResource(res);
 
-		if (res.getNumber() != null)
-			if (res.getNumber() == temporary.size())
-				temporary.add(res);
-			else
-				temporary.set(res.getNumber(), res);
+		Integer number = res.getNumber();
+		if (number != null && number == currentLast)
+			temporary.put(currentLast++, res);
 	}
 
 	public void eraseResource(T res)
 	{
-		vacantList.add(res.getNumber());
-		temporary.set(res.getNumber(), null);
+		temporary.remove(res.getNumber());
 	}
 
 	@Override
 	public Collection<T> getAll()
 	{
 		Collection<T> all = new LinkedList<T>(resources.values());
-		all.addAll(temporary);
+		all.addAll(temporary.values());
 		return all;
 	}
 
 	public Collection<T> getTemporary()
 	{
-		return temporary;
+		return temporary.values();
 	}
 
 	public TemporaryResourceManager()
 	{
 		this.resources = new HashMap<String, T>();
-		this.temporary = new ArrayList<T>();
-		this.vacantList = new LinkedList<Integer>();
+		this.temporary = new HashMap<Integer, T>();
 		this.currentLast = 0;
 	}
 
 	private TemporaryResourceManager(TemporaryResourceManager<T> source)
 	{
 		this.resources = new HashMap<String, T>(source.resources);
-		this.temporary = new ArrayList<T>(source.temporary);
-		this.vacantList = source.vacantList;
+		this.temporary = new HashMap<Integer, T>(source.temporary);
 		this.currentLast = source.currentLast;
 	}
 
