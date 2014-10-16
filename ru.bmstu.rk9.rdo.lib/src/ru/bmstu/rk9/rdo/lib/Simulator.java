@@ -17,7 +17,15 @@ public class Simulator
 
 		INSTANCE.database = new Database(modelStructure);
 
-		INSTANCE.notificationManager = new NotificationManager(new String[] {"StateChange"});
+		INSTANCE.notificationManager =
+			new NotificationManager
+			(
+				new String[]
+				{
+					"StateChange",
+					"TimeChange"
+				}
+			);
 
 		DecisionPointSearch.allowSearch = true;
 	}
@@ -76,9 +84,9 @@ public class Simulator
 		return INSTANCE.notificationManager;
 	}
 
-	private static void notifyStateChange()
+	private static void notifyChange(String category)
 	{
-		INSTANCE.notificationManager.notifySubscribers("StateChange");
+		INSTANCE.notificationManager.notifySubscribers(category);
 	}
 
 	private boolean checkTerminate()
@@ -107,7 +115,7 @@ public class Simulator
 	{
 		while (dptManager.checkDPT() && !executionAborted)
 		{
-			notifyStateChange();
+			notifyChange("StateChange");
 
 			if (checkTerminate())
 				return  1;
@@ -122,7 +130,7 @@ public class Simulator
 	{
 		isRunning = true;
 
-		notifyStateChange();
+		notifyChange("StateChange");
 
 		int dptCheck = INSTANCE.checkDPT();
 		if (dptCheck != 0)
@@ -134,9 +142,11 @@ public class Simulator
 
 			INSTANCE.time = current.getTime();
 
+			notifyChange("TimeChange");
+
 			current.run();
 
-			notifyStateChange();
+			notifyChange("StateChange");
 
 			if (INSTANCE.checkTerminate())
 				return stop(1);
