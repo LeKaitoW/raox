@@ -130,6 +130,7 @@ public class Simulator
 	{
 		isRunning = true;
 
+		notifyChange("TimeChange");
 		notifyChange("StateChange");
 
 		int dptCheck = INSTANCE.checkDPT();
