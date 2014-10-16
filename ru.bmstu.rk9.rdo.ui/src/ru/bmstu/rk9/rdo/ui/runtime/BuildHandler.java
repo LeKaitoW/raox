@@ -13,7 +13,7 @@ import ru.bmstu.rk9.rdo.IMultipleResourceGenerator;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-public class RDOBuildHandler extends AbstractHandler
+public class BuildHandler extends AbstractHandler
 {
 	@Inject
 	private IMultipleResourceGenerator generator;

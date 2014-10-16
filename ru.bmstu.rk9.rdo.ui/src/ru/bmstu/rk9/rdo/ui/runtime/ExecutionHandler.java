@@ -45,7 +45,7 @@ import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
 
 
-public class RDOExecutionHandler extends AbstractHandler
+public class ExecutionHandler extends AbstractHandler
 {
 	@Inject
 	private IMultipleResourceGenerator generator;
