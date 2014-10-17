@@ -19,6 +19,8 @@ public class Simulator
 
 		INSTANCE.notificationManager = new NotificationManager(new String[] {"StateChange"});
 
+		INSTANCE.tracer = new Tracer();
+
 		DecisionPointSearch.allowSearch = true;
 	}
 
@@ -27,6 +29,13 @@ public class Simulator
 	public static Database getDatabase()
 	{
 		return INSTANCE.database;
+	}
+
+	private Tracer tracer;
+
+	public static Tracer getTracer()
+	{
+		return INSTANCE.tracer;
 	}
 
 	private double time = 0;
