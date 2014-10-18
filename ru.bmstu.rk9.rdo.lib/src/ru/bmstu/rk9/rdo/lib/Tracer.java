@@ -145,6 +145,17 @@ public class Tracer implements Subscriber
 		int typeNum = resourceHeader.getInt();
 		int resNum = resourceHeader.getInt();
 
+		String headerLine =
+			"R" + status + " " +
+			String.valueOf(time) + " " +
+			String.valueOf(typeNum) + " " +
+			String.valueOf(resNum);
+
+		if (status == "E")
+		{
+			return headerLine;
+		}
+
 		JSONObject structure =
 			Simulator
 			.getDatabase()
@@ -154,10 +165,7 @@ public class Tracer implements Subscriber
 			.getJSONObject("structure");
 
 		return
-			"R" + status + " " +
-			String.valueOf(time) + " " +
-			String.valueOf(typeNum) + " " +
-			String.valueOf(resNum) + " " +
+			headerLine + " " +
 			parseResourceParameters(entry.data, structure);
 	}
 
