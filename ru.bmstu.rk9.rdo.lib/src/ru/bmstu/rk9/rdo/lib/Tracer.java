@@ -11,6 +11,9 @@ public class Tracer implements Subscriber
 {
 	private TraceInfo traceInfo;
 
+	//TODO implement method to concatenate strings with delimiter
+	private final String delimiter = " ";
+
 	public Tracer()
 	{
 		this.traceInfo = new TraceInfo();
@@ -104,7 +107,7 @@ public class Tracer implements Subscriber
 				//TODO implement exception?
 				break;
 			}
-			paramsTraceLine += " ";
+			paramsTraceLine += delimiter;
 		}
 
 		return paramsTraceLine;
@@ -146,9 +149,9 @@ public class Tracer implements Subscriber
 		int resNum = resourceHeader.getInt();
 
 		String headerLine =
-			"R" + status + " " +
-			String.valueOf(time) + " " +
-			String.valueOf(typeNum) + " " +
+			"R" + status + delimiter +
+			String.valueOf(time) + delimiter +
+			String.valueOf(typeNum) + delimiter +
 			String.valueOf(resNum);
 
 		if (status == "E")
@@ -165,7 +168,7 @@ public class Tracer implements Subscriber
 			.getJSONObject("structure");
 
 		return
-			headerLine + " " +
+			headerLine + delimiter +
 			parseResourceParameters(entry.data, structure);
 	}
 
