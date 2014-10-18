@@ -269,7 +269,7 @@ public class Tracer implements Subscriber
 		for (Database.Entry entry : entries)
 		{
 			String entryText = parseSerializedData(entry);
-			traceText.add(entryText + "\n");
+			traceText.add(entryText + (entryText == "" ? "" : "\n"));
 		}
 	}
 
