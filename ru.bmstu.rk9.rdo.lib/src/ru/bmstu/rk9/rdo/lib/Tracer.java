@@ -60,7 +60,7 @@ public class Tracer implements Subscriber
 
 	private String parseResourceParameters(ByteBuffer resourceData, JSONObject structure)
 	{
-		String paramsTraceLine = "";
+		StringJoin stringBuilder = new StringJoin(delimiter);
 		//TODO is that what should be checked?
 		if (resourceData.limit() == 0)
 		{
@@ -80,16 +80,16 @@ public class Tracer implements Subscriber
 			switch(currentParameter.getString("type"))
 			{
 			case "integer":
-				paramsTraceLine += String.valueOf(resourceData.getInt());
+				stringBuilder.add(String.valueOf(resourceData.getInt()));
 				break;
 			case "real":
-				paramsTraceLine += String.valueOf(resourceData.getDouble());
+				stringBuilder.add(String.valueOf(resourceData.getDouble()));
 				break;
 			case "boolean":
-				paramsTraceLine += String.valueOf(new Byte(resourceData.get()));
+				stringBuilder.add(String.valueOf(new Byte(resourceData.get())));
 				break;
 			case "enum":
-				paramsTraceLine += String.valueOf(resourceData.getShort());
+				stringBuilder.add(String.valueOf(resourceData.getShort()));
 				break;
 			case "string":
 				int index = currentParameter.getInt("index");
@@ -102,16 +102,14 @@ public class Tracer implements Subscriber
 					rawString[i] = resourceData.get(stringPosition + 4 + i);
 				}
 				//TODO UTF_8? Cyrillic strings don't work, is that expected?
-				paramsTraceLine += "\"" + new String(rawString, StandardCharsets.UTF_8) + "\"";
+				stringBuilder.add("\"" + new String(rawString, StandardCharsets.UTF_8) + "\"");
 				break;
 			default:
 				//TODO implement exception?
 				break;
 			}
-			paramsTraceLine += delimiter;
 		}
-
-		return paramsTraceLine;
+		return stringBuilder.getString();
 	}
 
 	private String parseResourceEntry(Database.Entry entry)
@@ -150,10 +148,12 @@ public class Tracer implements Subscriber
 		int resNum = resourceHeader.getInt();
 
 		String headerLine =
-			"R" + status + delimiter +
-			String.valueOf(time) + delimiter +
-			String.valueOf(typeNum) + delimiter +
-			String.valueOf(resNum);
+			new StringJoin(delimiter)
+			.add("R" + status)
+			.add(String.valueOf(time))
+			.add(String.valueOf(typeNum))
+			.add(String.valueOf(resNum))
+			.getString();
 
 		if (status == "E")
 		{
@@ -169,8 +169,10 @@ public class Tracer implements Subscriber
 			.getJSONObject("structure");
 
 		return
-			headerLine + delimiter +
-			parseResourceParameters(entry.data, structure);
+			new StringJoin(delimiter)
+			.add(headerLine)
+			.add(parseResourceParameters(entry.data, structure))
+			.getString();
 	}
 
 	private String parseResultParameter(ByteBuffer resultData, String valueType)
@@ -229,18 +231,20 @@ public class Tracer implements Subscriber
 		int resultNum = resultHeader.getInt();
 
 		String valueType =
-				Simulator
-				.getDatabase()
-				.getModelStructure()
-				.getJSONArray("results")
-				.getJSONObject(resultNum)
-				.getString("value_type");
+			Simulator
+			.getDatabase()
+			.getModelStructure()
+			.getJSONArray("results")
+			.getJSONObject(resultNum)
+			.getString("value_type");
 
 		return
-			"V" + delimiter +
-			String.valueOf(time) + delimiter +
-			String.valueOf(resultNum) + delimiter +
-			parseResultParameter(entry.data, valueType);
+			new StringJoin(delimiter)
+			.add("V")
+			.add(String.valueOf(time))
+			.add(String.valueOf(resultNum))
+			.add(parseResultParameter(entry.data, valueType))
+			.getString();
 	}
 
 	private String parseSerializedData(Database.Entry entry)
@@ -271,4 +275,40 @@ public class Tracer implements Subscriber
 
 	@Override
 	public void fireChange() {}
+}
+
+class StringJoin
+{
+	private String delimiter;
+
+	private String current = null;
+
+	public String getString()
+	{
+		return current;
+	}
+
+	StringJoin(String delimiter)
+	{
+		this.delimiter = delimiter;
+	}
+
+	private StringJoin(String delimiter, String current)
+	{
+		this.delimiter = delimiter;
+		this.current = current;
+	}
+
+	StringJoin add(String toAppend)
+	{
+		if (current == null)
+		{
+			current = new String(toAppend);
+		}
+		else
+		{
+			current += delimiter + toAppend;
+		}
+		return new StringJoin(this.delimiter, current);
+	}
 }
