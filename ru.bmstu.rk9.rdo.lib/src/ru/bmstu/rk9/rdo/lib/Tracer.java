@@ -8,75 +8,34 @@ import java.util.ArrayList;
 import ru.bmstu.rk9.rdo.lib.json.JSONArray;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
-public class Tracer implements Subscriber
+public final class Tracer implements Subscriber
 {
-	private TraceInfo traceInfo;
+	static private final String delimiter = " ";
 
-	//TODO implement method to concatenate strings with delimiter
-	private final String delimiter = " ";
-
-	public Tracer()
-	{
-		this.traceInfo = new TraceInfo();
-	}
-
-	public TraceInfo getTraceInfo()
-	{
-		return this.traceInfo;
-	}
-
-	public void setTraceInfo(TraceInfo traceInfo)
-	{
-		this.traceInfo = traceInfo;
-	}
-
+	//TODO choose the proper container for traceText
+	//TODO besides string it should contain type identifier for future
+	//coloring in UI
 	private ArrayList<String> traceText = new ArrayList<String>();
 
-	public ArrayList<String> getTraceText()
+	public final ArrayList<String> getTraceText()
 	{
+		//TODO make unmodifiable
 		return traceText;
 	}
 
-	//TODO do we even need this as a separate method?
-	private Database.EntryType getEntryType(Database.Entry entry)
+	private final String parseResourceParameters(final ByteBuffer resourceData, final JSONObject structure)
 	{
-		// TODO maybe change 8 to something more intelligible
-		switch (entry.header.get(8))
-		{
-			case 0:
-				return Database.EntryType.SYSTEM;
-			case 1:
-				return Database.EntryType.RESOURCE;
-			case 2:
-				return Database.EntryType.PATTERN;
-			case 3:
-				return Database.EntryType.DECISION;
-			case 4:
-				return Database.EntryType.RESULT;
-			default:
-				return null;
-		}
-	}
-
-	private String parseResourceParameters(ByteBuffer resourceData, JSONObject structure)
-	{
-		StringJoin stringBuilder = new StringJoin(delimiter);
-		//TODO is that what should be checked?
-		if (resourceData.limit() == 0)
-		{
-			//TODO implement exception?
-			return "";
-		}
+		final StringJoin stringBuilder = new StringJoin(delimiter);
 
 		resourceData.duplicate();
 		resourceData.rewind();
 
-		JSONArray parameters = structure.getJSONArray("parameters");
+		final JSONArray parameters = structure.getJSONArray("parameters");
 
 		for (int paramNum = 0; paramNum < parameters.length(); paramNum++)
 		{
-			JSONObject currentParameter = parameters.getJSONObject(paramNum);
-			//TODO what about arrays?
+			final JSONObject currentParameter = parameters.getJSONObject(paramNum);
+			//TODO trace arrays when they are implemented
 			switch(currentParameter.getString("type"))
 			{
 			case "integer":
@@ -92,16 +51,17 @@ public class Tracer implements Subscriber
 				stringBuilder.add(String.valueOf(resourceData.getShort()));
 				break;
 			case "string":
-				int index = currentParameter.getInt("index");
-				int stringPosition = resourceData.getInt(structure.getInt("last_offset") + (index - 1) * 4);
-				int length = resourceData.getInt(stringPosition);
+				final int index = currentParameter.getInt("index");
+				final int stringPosition =
+					resourceData.getInt(structure.getInt("last_offset") + (index - 1) * Integer.SIZE / Byte.SIZE);
+				final int length = resourceData.getInt(stringPosition);
 
 				byte rawString[] = new byte[length];
 				for (int i = 0; i < length; i++)
 				{
 					rawString[i] = resourceData.get(stringPosition + 4 + i);
 				}
-				//TODO UTF_8? Cyrillic strings don't work, is that expected?
+				//TODO Will work in all cases after string serialization fixed
 				stringBuilder.add("\"" + new String(rawString, StandardCharsets.UTF_8) + "\"");
 				break;
 			default:
@@ -112,22 +72,15 @@ public class Tracer implements Subscriber
 		return stringBuilder.getString();
 	}
 
-	private String parseResourceEntry(Database.Entry entry)
+	private final String parseResourceEntry(final Database.Entry entry)
 	{
-		ByteBuffer resourceHeader = entry.header;
-		//TODO is that what should be checked?
-		if (resourceHeader.limit() == 0)
-		{
-			//TODO implement exception?
-			return "";
-		}
+		final ByteBuffer resourceHeader = entry.header;
 
 		resourceHeader.duplicate();
 		resourceHeader.rewind();
 
-		double time = resourceHeader.getDouble();
-		//TODO empty get looks pretty ugly
-		resourceHeader.get();
+		final double time = resourceHeader.getDouble();
+		skipByte(resourceHeader);
 		String status = "";
 		switch(resourceHeader.get())
 		{
@@ -144,10 +97,10 @@ public class Tracer implements Subscriber
 			//TODO implement exception?
 			break;
 		}
-		int typeNum = resourceHeader.getInt();
-		int resNum = resourceHeader.getInt();
+		final int typeNum = resourceHeader.getInt();
+		final int resNum = resourceHeader.getInt();
 
-		String headerLine =
+		final String headerLine =
 			new StringJoin(delimiter)
 			.add("R" + status)
 			.add(String.valueOf(time))
@@ -155,12 +108,13 @@ public class Tracer implements Subscriber
 			.add(String.valueOf(resNum))
 			.getString();
 
+		//TODO fix when resource parameters are also serialized on erase
 		if (status == "E")
 		{
 			return headerLine;
 		}
 
-		JSONObject structure =
+		final JSONObject structure =
 			Simulator
 			.getDatabase()
 			.getModelStructure()
@@ -175,14 +129,8 @@ public class Tracer implements Subscriber
 			.getString();
 	}
 
-	private String parseResultParameter(ByteBuffer resultData, String valueType)
+	private final String parseResultParameter(final ByteBuffer resultData, final String valueType)
 	{
-		if (resultData.limit() == 0)
-		{
-			//TODO implement exception?
-			return "";
-		}
-
 		resultData.duplicate();
 		resultData.rewind();
 
@@ -197,8 +145,7 @@ public class Tracer implements Subscriber
 		case "enum":
 			return String.valueOf(resultData.getShort());
 		case "string":
-			//TODO which way is better, this or the one in resources?
-			ByteArrayOutputStream rawString = new ByteArrayOutputStream();
+			final ByteArrayOutputStream rawString = new ByteArrayOutputStream();
 			while (resultData.hasRemaining())
 			{
 				rawString.write(resultData.get());
@@ -212,25 +159,18 @@ public class Tracer implements Subscriber
 		return "";
 	}
 
-	private String parseResultEntry(Database.Entry entry)
+	private final String parseResultEntry(final Database.Entry entry)
 	{
-		ByteBuffer resultHeader = entry.header;
-		//TODO is that what should be checked?
-		if (resultHeader.limit() == 0)
-		{
-			//TODO implement exception?
-			return "";
-		}
+		final ByteBuffer resultHeader = entry.header;
 
 		resultHeader.duplicate();
 		resultHeader.rewind();
 
-		double time = resultHeader.getDouble();
-		//TODO empty get looks pretty ugly
-		resultHeader.get();
-		int resultNum = resultHeader.getInt();
+		final double time = resultHeader.getDouble();
+		skipByte(resultHeader);
+		final int resultNum = resultHeader.getInt();
 
-		String valueType =
+		final String valueType =
 			Simulator
 			.getDatabase()
 			.getModelStructure()
@@ -247,43 +187,49 @@ public class Tracer implements Subscriber
 			.getString();
 	}
 
-	private String parseSerializedData(Database.Entry entry)
+	private final String parseSerializedData(final Database.Entry entry)
 	{
-		Database.EntryType type = getEntryType(entry);
+		final Database.EntryType type = Database.EntryType.values()[entry.header.get(8)];
 		switch(type)
 		{
-			//TODO implement the rest of EntryTypes
-			case RESOURCE:
-				return parseResourceEntry(entry);
-			case RESULT:
-				return parseResultEntry(entry);
-			default:
-				return "";
+		//TODO implement the rest of EntryTypes
+		case RESOURCE:
+			return parseResourceEntry(entry);
+		case RESULT:
+			return parseResultEntry(entry);
+		default:
+			return "";
 		}
 	}
 
-	public void saveTraceData()
+	public final void saveTraceData()
 	{
-		ArrayList<Database.Entry> entries = Simulator.getDatabase().allEntries;
+		final ArrayList<Database.Entry> entries = Simulator.getDatabase().allEntries;
 
 		for (Database.Entry entry : entries)
 		{
-			String entryText = parseSerializedData(entry);
+			final String entryText = parseSerializedData(entry);
 			traceText.add(entryText + (entryText == "" ? "" : "\n"));
 		}
+	}
+
+	private final void skipByte(final ByteBuffer buffer)
+	{
+		buffer.get();
 	}
 
 	@Override
 	public void fireChange() {}
 }
 
+//TODO use standard class when switched to Java8
 class StringJoin
 {
-	private String delimiter;
+	private final String delimiter;
 
 	private String current = null;
 
-	public String getString()
+	public final String getString()
 	{
 		return current;
 	}
@@ -293,13 +239,7 @@ class StringJoin
 		this.delimiter = delimiter;
 	}
 
-	private StringJoin(String delimiter, String current)
-	{
-		this.delimiter = delimiter;
-		this.current = current;
-	}
-
-	StringJoin add(String toAppend)
+	public final StringJoin add(final String toAppend)
 	{
 		if (current == null)
 		{
@@ -309,6 +249,6 @@ class StringJoin
 		{
 			current += delimiter + toAppend;
 		}
-		return new StringJoin(this.delimiter, current);
+		return this;
 	}
 }
