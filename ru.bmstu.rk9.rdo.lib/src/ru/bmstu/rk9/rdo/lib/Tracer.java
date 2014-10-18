@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rdo.lib;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -172,6 +173,76 @@ public class Tracer implements Subscriber
 			parseResourceParameters(entry.data, structure);
 	}
 
+	private String parseResultParameter(ByteBuffer resultData, String valueType)
+	{
+		if (resultData.limit() == 0)
+		{
+			//TODO implement exception?
+			return "";
+		}
+
+		resultData.duplicate();
+		resultData.rewind();
+
+		switch(valueType)
+		{
+		case "integer":
+			return String.valueOf(resultData.getInt());
+		case "real":
+			return String.valueOf(resultData.getDouble());
+		case "boolean":
+			return String.valueOf(new Byte(resultData.get()));
+		case "enum":
+			return String.valueOf(resultData.getShort());
+		case "string":
+			//TODO which way is better, this or the one in resources?
+			ByteArrayOutputStream rawString = new ByteArrayOutputStream();
+			while (resultData.hasRemaining())
+			{
+				rawString.write(resultData.get());
+			}
+			return "\"" + rawString.toString() + "\"";
+		default:
+			//TODO implement exception?
+			break;
+		}
+
+		return "";
+	}
+
+	private String parseResultEntry(Database.Entry entry)
+	{
+		ByteBuffer resultHeader = entry.header;
+		//TODO is that what should be checked?
+		if (resultHeader.limit() == 0)
+		{
+			//TODO implement exception?
+			return "";
+		}
+
+		resultHeader.duplicate();
+		resultHeader.rewind();
+
+		double time = resultHeader.getDouble();
+		//TODO empty get looks pretty ugly
+		resultHeader.get();
+		int resultNum = resultHeader.getInt();
+
+		String valueType =
+				Simulator
+				.getDatabase()
+				.getModelStructure()
+				.getJSONArray("results")
+				.getJSONObject(resultNum)
+				.getString("value_type");
+
+		return
+			"V" + delimiter +
+			String.valueOf(time) + delimiter +
+			String.valueOf(resultNum) + delimiter +
+			parseResultParameter(entry.data, valueType);
+	}
+
 	private String parseSerializedData(Database.Entry entry)
 	{
 		Database.EntryType type = getEntryType(entry);
@@ -180,6 +251,8 @@ public class Tracer implements Subscriber
 			//TODO implement the rest of EntryTypes
 			case RESOURCE:
 				return parseResourceEntry(entry);
+			case RESULT:
+				return parseResultEntry(entry);
 			default:
 				return "";
 		}
