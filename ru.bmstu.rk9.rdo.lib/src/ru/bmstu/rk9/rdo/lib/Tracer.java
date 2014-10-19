@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import ru.bmstu.rk9.rdo.lib.json.JSONArray;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
@@ -11,6 +12,43 @@ import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 public final class Tracer implements Subscriber
 {
 	static private final String delimiter = " ";
+
+	private HashMap<Integer, JSONObject> resourceTypeStructure = new HashMap<Integer, JSONObject>();
+	private HashMap<Integer, String> resultValueTypes = new HashMap<Integer, String>();
+
+	Tracer()
+	{
+		fillResourceTypeStructure();
+		fillResultValueTypes();
+	}
+
+	private final void fillResourceTypeStructure()
+	{
+		final JSONArray resourceTypes =
+			Simulator
+			.getDatabase()
+			.getModelStructure()
+			.getJSONArray("resource_types");
+
+		for (int typeNum = 0; typeNum < resourceTypes.length(); typeNum++)
+		{
+			resourceTypeStructure.put(typeNum, resourceTypes.getJSONObject(typeNum).getJSONObject("structure"));
+		}
+	}
+
+	private final void fillResultValueTypes()
+	{
+		final JSONArray results =
+			Simulator
+			.getDatabase()
+			.getModelStructure()
+			.getJSONArray("results");
+
+		for (int resultNum = 0; resultNum < results.length(); resultNum++)
+		{
+			resultValueTypes.put(resultNum, results.getJSONObject(resultNum).getString("value_type"));
+		}
+	}
 
 	//TODO choose the proper container for traceText
 	//TODO besides string it should contain type identifier for future
@@ -114,13 +152,7 @@ public final class Tracer implements Subscriber
 			return headerLine;
 		}
 
-		final JSONObject structure =
-			Simulator
-			.getDatabase()
-			.getModelStructure()
-			.getJSONArray("resource_types")
-			.getJSONObject(typeNum)
-			.getJSONObject("structure");
+		final JSONObject structure = resourceTypeStructure.get(typeNum);
 
 		return
 			new StringJoin(delimiter)
@@ -170,13 +202,7 @@ public final class Tracer implements Subscriber
 		skipByte(resultHeader);
 		final int resultNum = resultHeader.getInt();
 
-		final String valueType =
-			Simulator
-			.getDatabase()
-			.getModelStructure()
-			.getJSONArray("results")
-			.getJSONObject(resultNum)
-			.getString("value_type");
+		final String valueType = resultValueTypes.get(resultNum);
 
 		return
 			new StringJoin(delimiter)
