@@ -1,10 +1,7 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.util.Collection;
-
-import java.util.ArrayList;
 import java.util.LinkedList;
-
 import java.util.HashMap;
 
 public class TemporaryResourceManager<T extends TemporaryResource & ResourceComparison<T>> extends PermanentResourceManager<T>
@@ -25,7 +22,7 @@ public class TemporaryResourceManager<T extends TemporaryResource & ResourceComp
 			super.addResource(res);
 
 		Integer number = res.getNumber();
-		if (number != null && number == currentLast)
+		if (number != null && number.equals(currentLast))
 			temporary.put(currentLast++, res);
 	}
 
