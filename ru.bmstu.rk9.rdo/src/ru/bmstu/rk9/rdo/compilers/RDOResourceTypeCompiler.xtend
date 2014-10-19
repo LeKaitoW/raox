@@ -446,14 +446,14 @@ class RDOResourceTypeCompiler
 				IF typename == "String"
 					»«basicSizes.INT» * «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF».size();
 				«(depth - 1).TABS»for(String inner : «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF»)
-				«(depth - 1).TABS»	size += «basicSizes.INT» + inner.length();«
+				«(depth - 1).TABS»	size += «basicSizes.INT» + inner.getBytes().length;«
 				ENDIF»
 				'''
 			}
 			else
 			{
 				ret = ret + '''
-				«IF typename == "String"»size += «basicSizes.INT» + «p.name».length();
+				«IF typename == "String"»size += «basicSizes.INT» + «p.name».getBytes().length;
 				«ENDIF»'''
 			}
 
@@ -579,7 +579,7 @@ class RDOResourceTypeCompiler
 					«depth.TABS»for(String inner : «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF»)
 					«depth.TABS»{
 					«depth.TABS»	entry.putInt(stack.peekLast() + (counter++) * «basicSizes.INT», entry.position());
-					«depth.TABS»	int size«depth» = inner.length();
+					«depth.TABS»	int size«depth» = inner.getBytes().length;
 					«depth.TABS»	entry.putInt(size«depth»);
 					«depth.TABS»	entry.put(inner.getBytes());
 					«depth.TABS»}
@@ -590,7 +590,7 @@ class RDOResourceTypeCompiler
 			else
 			{
 				ret = ret + '''
-					«IF typename == "String"»	entry.putInt(«p.name».length());
+					«IF typename == "String"»	entry.putInt(«p.name».getBytes().length);
 						entry.put(«p.name».getBytes());
 					«ENDIF»'''
 			}
