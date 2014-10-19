@@ -3,8 +3,16 @@ package ru.bmstu.rk9.rdo.lib;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-class DPTManager
+class DPTManager implements Subscriber
 {
+	public DPTManager()
+	{
+		Simulator
+			.getNotifier()
+			.getSubscription("ExecutionAborted")
+			.addSubscriber(this);
+	}
+
 	private LinkedList<DecisionPoint> dptList = new LinkedList<DecisionPoint>();
 
 	void addDecisionPoint(DecisionPoint dpt)
@@ -12,7 +20,13 @@ class DPTManager
 		dptList.add(dpt);
 	}
 
-	volatile boolean dptAllowed = true;
+	volatile private boolean dptAllowed = true;
+
+	@Override
+	public void fireChange()
+	{
+		this.dptAllowed = false;
+	}
 
 	boolean checkDPT()
 	{

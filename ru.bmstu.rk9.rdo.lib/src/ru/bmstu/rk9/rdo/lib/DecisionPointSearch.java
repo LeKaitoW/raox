@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 
-public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
+public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint implements Subscriber
 {
 	private DecisionPoint.Condition terminate;
 
@@ -31,6 +31,11 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 		this.evaluateBy = evaluateBy;
 		this.retriever = retriever;
 		this.compareTops = compareTops;
+
+		Simulator
+			.getNotifier()
+			.getSubscription("SimulationAborted")
+			.addSubscriber(this);
 	}
 
 	public static interface EvaluateBy
@@ -93,7 +98,13 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 	private PriorityQueue<GraphNode> nodesOpen = new PriorityQueue<GraphNode>(1, nodeComparator);
 	private LinkedList<GraphNode> nodesClosed = new LinkedList<GraphNode>();
 
-	static volatile boolean allowSearch = true;
+	private volatile boolean allowSearch = true;
+
+	@Override
+	public void fireChange()
+	{
+		this.allowSearch = false;
+	}
 
 	@Override
 	public boolean check()

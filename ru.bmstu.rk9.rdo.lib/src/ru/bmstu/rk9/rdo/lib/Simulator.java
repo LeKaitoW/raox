@@ -15,19 +15,20 @@ public class Simulator
 
 		INSTANCE = new Simulator();
 
+		INSTANCE.notificationManager =
+				new NotificationManager
+				(
+					new String[]
+					{
+						"StateChange",
+						"TimeChange",
+						"ExecutionAborted"
+					}
+				);
+
 		INSTANCE.database = new Database(modelStructure);
 
-		INSTANCE.notificationManager =
-			new NotificationManager
-			(
-				new String[]
-				{
-					"StateChange",
-					"TimeChange"
-				}
-			);
-
-		DecisionPointSearch.allowSearch = true;
+		INSTANCE.dptManager = new DPTManager();
 	}
 
 	private Database database;
@@ -58,7 +59,7 @@ public class Simulator
 		INSTANCE.terminateList.add(c);
 	}
 
-	private DPTManager dptManager = new DPTManager();
+	private DPTManager dptManager;
 
 	public static void addDecisionPoint(DecisionPoint dpt)
 	{
@@ -107,8 +108,7 @@ public class Simulator
 			return;
 
 		INSTANCE.executionAborted = true;
-		INSTANCE.dptManager.dptAllowed = false;
-		DecisionPointSearch.allowSearch = false;
+		notifyChange("ExecutionAborted");
 	}
 
 	private int checkDPT()
