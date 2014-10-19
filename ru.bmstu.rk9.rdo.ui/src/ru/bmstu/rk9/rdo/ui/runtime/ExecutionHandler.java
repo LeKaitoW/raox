@@ -171,13 +171,16 @@ public class ExecutionHandler extends AbstractHandler
 					Class<?> cls = cl.loadClass("rdo_model.Embedded");
 
 					Method simulation = null;
-					find_simulation:
-					for (Method method : cls.getMethods())
-						if (method.getName() == "runSimulation")
-						{
+					Method initialization = null;
+					for(Method method : cls.getMethods())
+					{
+						if(method.getName() == "runSimulation")
 							simulation = method;
-							break find_simulation;
-						}
+						if(method.getName() == "initSimulation")
+							initialization = method;
+					}
+
+					initialization.invoke(null, null);
 
 					RDOConsoleView.addLine("Started model " + project.getName());
 					long startTime = System.currentTimeMillis();
