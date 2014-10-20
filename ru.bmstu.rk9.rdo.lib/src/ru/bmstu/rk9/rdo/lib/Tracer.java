@@ -11,10 +11,36 @@ import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
 public final class Tracer implements Subscriber
 {
+	//TODO Shouldn't it be moved to Database?
+	public static enum ValueType
+	{
+		INTEGER("integer"), REAL("real"), BOOLEAN("boolean"), ENUM("enum"), STRING("string");
+
+		private final String type;
+
+		ValueType(String type)
+		{
+			this.type = type;
+		}
+
+		public static final ValueType get(final String type)
+		{
+			for (ValueType t : values())
+			{
+				if (t.type.equals(type))
+					return t;
+			}
+			//TODO implement exception
+			return null;
+		}
+	}
+
 	static private final String delimiter = " ";
 
-	private HashMap<Integer, JSONObject> resourceTypeStructure = new HashMap<Integer, JSONObject>();
-	private HashMap<Integer, String> resultValueTypes = new HashMap<Integer, String>();
+	private HashMap<Integer, ResourceTypeInfo> resourceTypesInfo =
+		new HashMap<Integer, ResourceTypeInfo>();
+	private HashMap<Integer, ValueType> resultValueTypes =
+		new HashMap<Integer, ValueType>();
 
 	Tracer()
 	{
@@ -24,15 +50,22 @@ public final class Tracer implements Subscriber
 
 	private final void fillResourceTypeStructure()
 	{
-		final JSONArray resourceTypes =
+		final JSONArray jsonResourceTypes =
 			Simulator
 			.getDatabase()
 			.getModelStructure()
 			.getJSONArray("resource_types");
 
-		for (int typeNum = 0; typeNum < resourceTypes.length(); typeNum++)
+		for (int typeNum = 0; typeNum < jsonResourceTypes.length(); typeNum++)
 		{
-			resourceTypeStructure.put(typeNum, resourceTypes.getJSONObject(typeNum).getJSONObject("structure"));
+			resourceTypesInfo.put(
+				typeNum,
+				new ResourceTypeInfo(
+					jsonResourceTypes
+					.getJSONObject(typeNum)
+					.getJSONObject("structure")
+				)
+			);
 		}
 	}
 
@@ -46,7 +79,10 @@ public final class Tracer implements Subscriber
 
 		for (int resultNum = 0; resultNum < results.length(); resultNum++)
 		{
-			resultValueTypes.put(resultNum, results.getJSONObject(resultNum).getString("value_type"));
+			resultValueTypes.put(
+				resultNum,
+				ValueType.get(results.getJSONObject(resultNum).getString("value_type"))
+			);
 		}
 	}
 
@@ -61,45 +97,47 @@ public final class Tracer implements Subscriber
 		return traceText;
 	}
 
-	private final String parseResourceParameters(final ByteBuffer resourceData, final JSONObject structure)
+	private final String parseResourceParameters(
+		final ByteBuffer resourceData,
+		final ResourceTypeInfo typeInfo
+	)
 	{
 		final StringJoin stringBuilder = new StringJoin(delimiter);
 
 		resourceData.duplicate();
 		resourceData.rewind();
 
-		final JSONArray parameters = structure.getJSONArray("parameters");
-
-		for (int paramNum = 0; paramNum < parameters.length(); paramNum++)
+		for (int paramNum = 0; paramNum < typeInfo.numberOfParameters; paramNum++)
 		{
-			final JSONObject currentParameter = parameters.getJSONObject(paramNum);
 			//TODO trace arrays when they are implemented
-			switch(currentParameter.getString("type"))
+			switch(typeInfo.paramTypes.get(paramNum))
 			{
-			case "integer":
+			case INTEGER:
 				stringBuilder.add(String.valueOf(resourceData.getInt()));
 				break;
-			case "real":
+			case REAL:
 				stringBuilder.add(String.valueOf(resourceData.getDouble()));
 				break;
-			case "boolean":
+			case BOOLEAN:
 				stringBuilder.add(String.valueOf(new Byte(resourceData.get())));
 				break;
-			case "enum":
+			case ENUM:
 				stringBuilder.add(String.valueOf(resourceData.getShort()));
 				break;
-			case "string":
-				final int index = currentParameter.getInt("index");
+			case STRING:
+				//TODO macro-like variable sizeofInt should be
+				//moved somewhere on upper level or discarded
+				final int sizeofInt = Integer.SIZE / Byte.SIZE;
+				final int index = typeInfo.indexList.get(paramNum);
 				final int stringPosition =
-					resourceData.getInt(structure.getInt("last_offset") + (index - 1) * Integer.SIZE / Byte.SIZE);
+					resourceData.getInt(typeInfo.finalOffset + (index - 1) * sizeofInt);
 				final int length = resourceData.getInt(stringPosition);
 
 				byte rawString[] = new byte[length];
 				for (int i = 0; i < length; i++)
 				{
-					rawString[i] = resourceData.get(stringPosition + 4 + i);
+					rawString[i] = resourceData.get(stringPosition + sizeofInt + i);
 				}
-				//TODO Will work in all cases after string serialization fixed
 				stringBuilder.add("\"" + new String(rawString, StandardCharsets.UTF_8) + "\"");
 				break;
 			default:
@@ -152,31 +190,34 @@ public final class Tracer implements Subscriber
 			return headerLine;
 		}
 
-		final JSONObject structure = resourceTypeStructure.get(typeNum);
+		final ResourceTypeInfo parameters = resourceTypesInfo.get(typeNum);
 
 		return
 			new StringJoin(delimiter)
 			.add(headerLine)
-			.add(parseResourceParameters(entry.data, structure))
+			.add(parseResourceParameters(entry.data, parameters))
 			.getString();
 	}
 
-	private final String parseResultParameter(final ByteBuffer resultData, final String valueType)
+	private final String parseResultParameter(
+		final ByteBuffer resultData,
+		final ValueType valueType
+	)
 	{
 		resultData.duplicate();
 		resultData.rewind();
 
 		switch(valueType)
 		{
-		case "integer":
+		case INTEGER:
 			return String.valueOf(resultData.getInt());
-		case "real":
+		case REAL:
 			return String.valueOf(resultData.getDouble());
-		case "boolean":
+		case BOOLEAN:
 			return String.valueOf(new Byte(resultData.get()));
-		case "enum":
+		case ENUM:
 			return String.valueOf(resultData.getShort());
-		case "string":
+		case STRING:
 			final ByteArrayOutputStream rawString = new ByteArrayOutputStream();
 			while (resultData.hasRemaining())
 			{
@@ -202,7 +243,7 @@ public final class Tracer implements Subscriber
 		skipByte(resultHeader);
 		final int resultNum = resultHeader.getInt();
 
-		final String valueType = resultValueTypes.get(resultNum);
+		final ValueType valueType = resultValueTypes.get(resultNum);
 
 		return
 			new StringJoin(delimiter)
@@ -246,6 +287,32 @@ public final class Tracer implements Subscriber
 
 	@Override
 	public void fireChange() {}
+}
+
+class ResourceTypeInfo
+{
+	ResourceTypeInfo(final JSONObject structure)
+	{
+		JSONArray parameters = structure.getJSONArray("parameters");
+		numberOfParameters = parameters.length();
+		for (int paramNum = 0; paramNum < numberOfParameters; paramNum++)
+		{
+			final JSONObject currentParameter = parameters.getJSONObject(paramNum);
+			Tracer.ValueType type = Tracer.ValueType.get(currentParameter.getString("type"));
+			paramTypes.put(paramNum, type);
+			if (type == Tracer.ValueType.STRING)
+			{
+				indexList.put(paramNum, currentParameter.getInt("index"));
+			}
+		}
+		finalOffset = structure.getInt("last_offset");
+	}
+
+	public HashMap<Integer, Tracer.ValueType> paramTypes =
+		new HashMap<Integer, Tracer.ValueType>();
+	public HashMap<Integer, Integer> indexList = new HashMap<Integer, Integer>();
+	public final int finalOffset;
+	public final int numberOfParameters;
 }
 
 //TODO use standard class when switched to Java8
