@@ -190,12 +190,12 @@ public final class Tracer implements Subscriber
 			return headerLine;
 		}
 
-		final ResourceTypeInfo parameters = resourceTypesInfo.get(typeNum);
+		final ResourceTypeInfo typeInfo = resourceTypesInfo.get(typeNum);
 
 		return
 			new StringJoin(delimiter)
 			.add(headerLine)
-			.add(parseResourceParameters(entry.data, parameters))
+			.add(parseResourceParameters(entry.data, typeInfo))
 			.getString();
 	}
 
