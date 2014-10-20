@@ -39,6 +39,8 @@ class RDODecisionPointCompiler
 			'''
 			package «filename»;
 
+			import ru.bmstu.rk9.rdo.lib.json.*;
+
 			import ru.bmstu.rk9.rdo.lib.*;
 			@SuppressWarnings("all")
 
@@ -81,7 +83,7 @@ class RDODecisionPointCompiler
 							new DecisionPoint«IF dpt instanceof DecisionPointPrior»Prior«
 								ENDIF».Activity«IF dpt instanceof DecisionPointPrior»
 							(
-								«ELSE»(«ENDIF»"«filename».«activities.get(i).name»"«IF dpt instanceof DecisionPointPrior»,
+								«ELSE»(«ENDIF»"«activities.get(i).name»"«IF dpt instanceof DecisionPointPrior»,
 								«IF priorities.get(i) != null»new DecisionPoint.Priority()
 								{
 									@Override
@@ -102,8 +104,13 @@ class RDODecisionPointCompiler
 								@Override
 								public void executeActivity()
 								{
-									«activities.get(i).pattern.fullyQualifiedName
-										».executeRule(«activities.get(i).name»);
+									Simulator.getDatabase().addDecisionEntry
+									(
+										dpt, this, Database.PatternType.«
+											IF activities.get(i).pattern instanceof Rule»RULE«ELSE»OPERATION_BEGIN«ENDIF»,
+										«activities.get(i).pattern.fullyQualifiedName
+											».executeRule(«activities.get(i).name»)
+									);
 								}
 							}
 						);
@@ -120,6 +127,23 @@ class RDODecisionPointCompiler
 				{
 					return dpt;
 				}
+
+				public static final JSONObject structure = new JSONObject()
+					.put("name", "«dpt.fullyQualifiedName»")
+					.put("type", "«IF dpt instanceof DecisionPointSome»some«ELSE»prior«ENDIF»")
+					.put("parrent", «IF dpt.parent != null»"«dpt.parent.fullyQualifiedName»"«ELSE»(String)null«ENDIF»)
+					.put
+					(
+						"activities", new JSONArray()
+							«FOR a : activities»
+							.put
+							(
+								new JSONObject()
+									.put("name", "«a.name»")
+									.put("pattern", "«a.pattern.fullyQualifiedName»")
+							)
+							«ENDFOR»
+					);
 			}
 			'''
 	}
@@ -227,6 +251,24 @@ class RDODecisionPointCompiler
 				{
 					return dpt;
 				}
+
+				public static final JSONObject structure = new JSONObject()
+					.put("name", "«dpt.fullyQualifiedName»")
+					.put("type", "search")
+					.put("parrent", «IF dpt.parent != null»"«dpt.parent.fullyQualifiedName»"«ELSE»null«ENDIF»)
+					.put("compare_tops", "«IF dpt.comparetops»YES«ELSE»NO«ENDIF»")
+					.put
+					(
+						"activities", new JSONArray()
+							«FOR a : activities»
+							.put
+							(
+								new JSONObject()
+									.put("name", "«a.name»")
+									.put("pattern", "«a.pattern.fullyQualifiedName»")
+							)
+							«ENDFOR»
+					);
 			}
 		'''
 	}
