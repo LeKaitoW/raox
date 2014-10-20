@@ -18,9 +18,6 @@ class Util
 		if(type == "Boolean")
 			return "1"
 
-		if(type == "String")
-			return name + ".getBytes().length"
-
 		if(type.endsWith("_enum"))
 			return "2"
 

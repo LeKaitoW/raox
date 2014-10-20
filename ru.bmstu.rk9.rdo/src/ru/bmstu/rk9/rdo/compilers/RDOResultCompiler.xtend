@@ -124,7 +124,10 @@ class RDOResultCompiler
 				{
 					«cexpr.type» value = «cexpr.generated»;
 
-					ByteBuffer data = ByteBuffer.allocate(«cexpr.type.getTypeSize("value")»);
+					«IF cexpr.type == "String"»byte[] bytes_of_value = value.getBytes();
+					int size = bytes_of_value.length;
+					«ELSE»int size = «cexpr.type.getTypeSize("value")»;
+					«ENDIF»ByteBuffer data = ByteBuffer.allocate(size);
 					«cexpr.type.compileBufferData»
 
 					return data;
@@ -169,7 +172,10 @@ class RDOResultCompiler
 
 					«cexpr.type» value = «cexpr.value»;
 
-					ByteBuffer data = ByteBuffer.allocate(«cexpr.type.getTypeSize("value")»);
+					«IF cexpr.type == "String"»byte[] bytes_of_value = value.getBytes();
+					int size = bytes_of_value.length;
+					«ELSE»int size = «cexpr.type.getTypeSize("value")»;
+					«ENDIF»ByteBuffer data = ByteBuffer.allocate(size);
 					«cexpr.type.compileBufferData»
 
 					return data;
@@ -279,7 +285,7 @@ class RDOResultCompiler
 			return "data.put(value == true ? (byte)1 : (byte)0);\n"
 
 		if(type == "String")
-			return "data.put(value.getBytes());\n"
+			return "data.put(bytes_of_value);\n"
 
 		if(type.endsWith("_enum"))
 			return "data.putShort((short)value.ordinal());\n"
