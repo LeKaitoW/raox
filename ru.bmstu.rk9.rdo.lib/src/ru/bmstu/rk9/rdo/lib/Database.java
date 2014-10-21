@@ -19,18 +19,18 @@ public class Database
 	{
 		public static class RDO
 		{
-			public static final int INTEGER = Integer.SIZE;
-			public static final int REAL = Double.SIZE;
-			public static final int ENUM = Short.SIZE;
-			public static final int BOOLEAN = Byte.SIZE;
+			public static final int INTEGER = Integer.SIZE / Byte.SIZE;
+			public static final int REAL    = Double.SIZE  / Byte.SIZE;
+			public static final int ENUM    = Short.SIZE   / Byte.SIZE;
+			public static final int BOOLEAN = Byte.SIZE    / Byte.SIZE;
 		}
 
 		public static class Internal
 		{
-			public static final int TIME_SIZE = Double.SIZE;
+			public static final int TIME_SIZE = Double.SIZE / Byte.SIZE;
 			public static final int TIME_OFFSET = 0;
 
-			public static final int ENTRY_TYPE_SIZE = Byte.SIZE;
+			public static final int ENTRY_TYPE_SIZE = Byte.SIZE / Byte.SIZE;
 			public static final int ENTRY_TYPE_OFFSET = TIME_SIZE;
 		}
 	}
