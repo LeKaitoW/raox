@@ -431,7 +431,7 @@
   <extension
         point="org.eclipse.ui.handlers">
      <handler
-           class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:ru.bmstu.rk9.rdo.ui.runtime.RDOBuildHandler"
+           class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:ru.bmstu.rk9.rdo.ui.runtime.BuildHandler"
            commandId="ru.bmstu.rk9.rdo.ui.runtime.build">
         <enabledWhen>
            <reference
@@ -440,7 +440,7 @@
         </enabledWhen>
      </handler>
      <handler
-           class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:ru.bmstu.rk9.rdo.ui.runtime.RDOExecutionHandler"
+           class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:ru.bmstu.rk9.rdo.ui.runtime.ExecutionHandler"
            commandId="ru.bmstu.rk9.rdo.ui.runtime.execute">
         <enabledWhen>
            <and>
@@ -457,7 +457,7 @@
         </enabledWhen>
      </handler>
      <handler
-           class="ru.bmstu.rk9.rdo.ui.runtime.RDOStoppingHandler"
+           class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:ru.bmstu.rk9.rdo.ui.runtime.StoppingHandler"
            commandId="ru.bmstu.rk9.rdo.ui.runtime.stop">
         <enabledWhen>
            <with
