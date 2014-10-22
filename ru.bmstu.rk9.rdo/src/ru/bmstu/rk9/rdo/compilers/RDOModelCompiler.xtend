@@ -9,6 +9,9 @@ import static extension ru.bmstu.rk9.rdo.compilers.Util.*
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeKind
 
+import ru.bmstu.rk9.rdo.rdo.Pattern
+import ru.bmstu.rk9.rdo.rdo.DecisionPoint
+
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 import ru.bmstu.rk9.rdo.rdo.ResultWatchParameter
@@ -142,6 +145,22 @@ class RDOModelCompiler
 					)
 					'''
 
+		var patterns = ""
+		for(r : rs.resources)
+			for(p : r.allContents.filter(typeof(Pattern)).toIterable)
+				patterns = patterns +
+					'''
+					.put(«p.fullyQualifiedName».structure)
+					'''
+
+		var decisionPoints = ""
+		for(r : rs.resources)
+			for(dpt : r.allContents.filter(typeof(DecisionPoint)).toIterable)
+				decisionPoints = decisionPoints +
+					'''
+					.put(«dpt.fullyQualifiedName».structure)
+					'''
+
 		var results = ""
 		for(r : rs.resources)
 			for(rslt : r.allContents.filter(typeof(ResultDeclaration)).toIterable)		
@@ -161,6 +180,16 @@ class RDOModelCompiler
 			(
 				"resource_types", new JSONArray()
 					«resTypes»
+			)
+			.put
+			(
+				"patterns", new JSONArray()
+					«patterns»
+			)
+			.put
+			(
+				"decision_points", new JSONArray()
+					«decisionPoints»
 			)
 			.put
 			(

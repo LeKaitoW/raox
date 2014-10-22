@@ -19,7 +19,7 @@ public class ModelExecutionSourceProvider extends AbstractSourceProvider
 	public HashMap<String, String> getCurrentState()
 	{
 		HashMap<String, String> currentState = new HashMap<String, String>(1);
-		currentState.put(ModelExecutionKey, RDOExecutionHandler.getRunningState() ? running : stopped);
+		currentState.put(ModelExecutionKey, ExecutionHandler.getRunningState() ? running : stopped);
 		return currentState;
 	}
 
@@ -32,7 +32,7 @@ public class ModelExecutionSourceProvider extends AbstractSourceProvider
 	public void updateRunningState()
 	{
 		fireSourceChanged(ISources.WORKBENCH, ModelExecutionKey,
-			RDOExecutionHandler.getRunningState() ? running : stopped);
+			ExecutionHandler.getRunningState() ? running : stopped);
 	}
 }
 

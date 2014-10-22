@@ -1,6 +1,8 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.nio.ByteBuffer;
+
+import java.util.PriorityQueue;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,6 +11,39 @@ import ru.bmstu.rk9.rdo.lib.json.*;
 
 public class Database
 {
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                                 TYPE INFO                                 /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+
+	public static class TypeSize
+	{
+		public static final int INTEGER = Integer.SIZE / Byte.SIZE;
+		public static final int DOUBLE = Double.SIZE / Byte.SIZE;
+		public static final int SHORT = Short.SIZE / Byte.SIZE;
+		public static final int BYTE = 1;
+
+		public static class RDO
+		{
+			public static final int INTEGER = TypeSize.INTEGER;
+			public static final int REAL    = TypeSize.DOUBLE;
+			public static final int ENUM    = TypeSize.SHORT;
+			public static final int BOOLEAN = TypeSize.BYTE;
+		}
+
+		public static class Internal
+		{
+			public static final int TIME_SIZE = TypeSize.DOUBLE;
+			public static final int TIME_OFFSET = 0;
+
+			public static final int ENTRY_TYPE_SIZE = TypeSize.BYTE;
+			public static final int ENTRY_TYPE_OFFSET = TIME_SIZE;
+		}
+	}
+
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                                  GENERAL                                  /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+
 	Database(JSONObject modelStructure)
 	{
 		this.modelStructure = modelStructure;
@@ -47,6 +82,40 @@ public class Database
 		{
 			JSONObject result = results.getJSONObject(i);
 			resultIndex.put(result.getString("name"), new Index(i));
+		}
+
+		JSONArray patterns = modelStructure.getJSONArray("patterns");
+		HashMap<String, JSONObject> patternsByName = new HashMap<String, JSONObject>();
+		for(int i = 0, count = 0; i < patterns.length(); i++)
+		{
+			JSONObject patternStructure = patterns.getJSONObject(i);
+			String name = patternStructure.getString("name");
+			String type = patternStructure.getString("type");
+			if(type == "event")
+				eventIndex.put(name, new PatternIndex(count++, patternStructure));
+			else
+				patternsByName.put(name, patternStructure);
+		}
+
+		JSONArray decisionPoints = modelStructure.getJSONArray("decision_points");
+		for(int i = 0; i < decisionPoints.length(); i++)
+		{
+			JSONObject decisionPoint = decisionPoints.getJSONObject(i);
+			DecisionPointIndex dptIndex = new DecisionPointIndex(i);
+			decisionPointIndex.put(decisionPoint.getString("name"), dptIndex);
+
+			JSONArray activities = decisionPoint.getJSONArray("activities");
+			for(int j = 0; j < activities.length(); j++)
+			{
+				JSONObject activity = activities.getJSONObject(j);
+				String name = activity.getString("name");
+				dptIndex.activities.put
+				(
+					name,
+					new PatternIndex(j,	patternsByName.get(
+						activity.getString("pattern")))
+				);
+			}
 		}
 
 		addSystemEntry(SystemEntryType.TRACE_START);
@@ -88,7 +157,7 @@ public class Database
 		}
 	}
 
-	class Index
+	public static class Index
 	{
 		final int number;
 
@@ -102,7 +171,7 @@ public class Database
 
 	public static enum EntryType
 	{
-		SYSTEM(10), RESOURCE(18), PATTERN(0), DECISION(0), RESULT(13);
+		SYSTEM(10), RESOURCE(18), PATTERN(10), SEARCH(0), RESULT(13);
 
 		public final int HEADER_SIZE;
 
@@ -272,7 +341,191 @@ public class Database
  /                              PATTERN ENTRIES                              /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
+	public static enum PatternType
+	{
+		EVENT, RULE, OPERATION_BEGIN, OPERATION_END
+	}
 
+	public static class DecisionPointIndex
+	{
+		final int number;
+
+		private DecisionPointIndex(int number)
+		{
+			this.number = number;
+		}
+
+		HashMap<String, PatternIndex> activities = new HashMap<String, PatternIndex>();
+	}
+
+	HashMap<String, DecisionPointIndex> decisionPointIndex =
+		new HashMap<String, DecisionPointIndex>();
+
+	private static class PatternPoolEntry
+	{
+		final DecisionPoint dpt;
+		final DecisionPoint.Activity activity;
+		final int number;
+
+		PatternPoolEntry
+		(
+			DecisionPoint dpt,
+			DecisionPoint.Activity activity,
+			int number
+		)
+		{
+			this.dpt = dpt;
+			this.activity = activity;
+			this.number = number;
+		}
+	}
+
+	private HashMap<Pattern, PatternPoolEntry> patternPool
+		= new HashMap<Pattern, PatternPoolEntry>();
+
+	private PriorityQueue<Integer> vacantPoolNumbers
+		= new PriorityQueue<Integer>();
+
+	public void addDecisionEntry
+	(
+		DecisionPoint dpt,
+		DecisionPoint.Activity activity,
+		PatternType type,
+		Pattern pattern
+	)
+	{
+		String dptName = dpt.getName();
+
+		if(!sensitivityList.contains(dptName) && !sensitivityList.contains(pattern.getName()))
+			return;
+
+		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
+		header
+			.putDouble(Simulator.getTime())
+			.put((byte)EntryType.PATTERN.ordinal())
+			.put((byte)type.ordinal());
+
+		DecisionPointIndex dptIndex = decisionPointIndex.get(dptName);
+		PatternIndex index = dptIndex.activities.get(activity.getName());
+
+		JSONArray relevantResources = pattern.getRelevantInfo();
+
+		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER * (relevantResources.length() +
+			(type == PatternType.OPERATION_BEGIN ? 4 : 3)));
+		data
+			.putInt(dptIndex.number)
+			.putInt(index.number);
+
+		if(type == PatternType.OPERATION_BEGIN)
+		{
+			int number;
+			if(vacantPoolNumbers.isEmpty())
+				number = patternPool.size();
+			else
+				number = vacantPoolNumbers.poll();
+
+			patternPool.put(pattern, new PatternPoolEntry(dpt, activity, number));
+			data.putInt(number);
+		}
+
+		fillRelevantResources(data, index.structure, relevantResources);
+
+		Entry entry = new Entry(header, data);
+
+		allEntries.add(entry);
+		index.entries.add(allEntries.size() - 1);
+	}
+
+	public static class PatternIndex extends Index
+	{
+		JSONObject structure;
+
+		private PatternIndex(int number, JSONObject structure)
+		{
+			super(number);
+			this.structure = structure;
+		}
+	}
+
+	HashMap<String, PatternIndex> eventIndex = new HashMap<String, PatternIndex>();
+
+	public void addEventEntry(PatternType type, Pattern pattern)
+	{
+		String name = pattern.getName();
+
+		PatternIndex index;
+
+		PatternPoolEntry poolEntry = null;
+		DecisionPointIndex dptIndex = null;
+
+		if(type == PatternType.OPERATION_END)
+		{
+			poolEntry = patternPool.remove(pattern);
+			if(poolEntry == null)
+				return;
+			dptIndex = decisionPointIndex.get(poolEntry.dpt.getName());
+			index = dptIndex.activities.get(poolEntry.activity.getName());
+			vacantPoolNumbers.add(poolEntry.number);
+		}
+		else
+		{
+			if(!sensitivityList.contains(name))
+				return;
+			index = eventIndex.get(pattern.getName());
+		}
+
+		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
+		header
+			.putDouble(Simulator.getTime())
+			.put((byte)EntryType.PATTERN.ordinal())
+			.put((byte)type.ordinal());
+
+		JSONArray relevantResources = pattern.getRelevantInfo();
+
+		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER * (relevantResources.length() +
+			(type == PatternType.OPERATION_END ? 4 : 2)));
+
+		if(type == PatternType.OPERATION_END)
+			data
+				.putInt(dptIndex.number)
+				.putInt(index.number)
+				.putInt(poolEntry.number);
+		else
+			data.putInt(index.number);
+
+		fillRelevantResources(data, index.structure, relevantResources);
+
+		Entry entry = new Entry(header, data);
+
+		allEntries.add(entry);
+		index.entries.add(allEntries.size() - 1);
+	}
+
+	private void fillRelevantResources
+	(
+		ByteBuffer data,
+		JSONObject structure,
+		JSONArray relevantResources
+	)
+	{
+		data.putInt(relevantResources.length());
+		JSONArray resourceTypes = structure.getJSONArray("relevant_resources");
+		for(int i = 0; i < relevantResources.length(); i++)
+		{
+			String typeName = resourceTypes.getJSONObject(i).getString("type");
+			Object value = relevantResources.get(i);
+			if(value instanceof Integer)
+				data.putInt(temporaryResourceIndex.get(typeName)
+					.resources.size() + (Integer)value);
+			else
+				if(permanentResourceIndex.containsKey(typeName))
+					data.putInt(permanentResourceIndex.get(typeName)
+							.resources.get((String)value).number);
+				else
+					data.putInt(temporaryResourceIndex.get(typeName)
+							.resources.get((String)value).number);
+		}
+	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                          DECISION POINT ENTRIES                           /

@@ -6,7 +6,7 @@ import org.eclipse.core.commands.ExecutionException;
 
 import ru.bmstu.rk9.rdo.lib.Simulator;
 
-public class RDOStoppingHandler extends AbstractHandler
+public class StoppingHandler extends AbstractHandler
 {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException

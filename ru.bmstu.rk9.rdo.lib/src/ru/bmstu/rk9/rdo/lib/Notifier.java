@@ -13,9 +13,10 @@ public interface Notifier
 			subscribers = new LinkedList<Subscriber>();
 		}
 
-		public void addSubscriber(Subscriber object)
+		public Subscription addSubscriber(Subscriber object)
 		{
 			subscribers.add(object);
+			return this;
 		}
 
 		public boolean removeSubscriber(Subscriber object)

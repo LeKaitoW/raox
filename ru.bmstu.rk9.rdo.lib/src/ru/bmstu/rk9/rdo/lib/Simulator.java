@@ -15,13 +15,22 @@ public class Simulator
 
 		INSTANCE = new Simulator();
 
-		INSTANCE.database = new Database(modelStructure);
+		INSTANCE.notificationManager =
+				new NotificationManager
+				(
+					new String[]
+					{
+						"StateChange",
+						"TimeChange",
+						"ExecutionAborted"
+					}
+				);
 
-		INSTANCE.notificationManager = new NotificationManager(new String[] {"StateChange"});
+		INSTANCE.database = new Database(modelStructure);
 
 		INSTANCE.tracer = new Tracer();
 
-		DecisionPointSearch.allowSearch = true;
+		INSTANCE.dptManager = new DPTManager();
 	}
 
 	private Database database;
@@ -59,7 +68,7 @@ public class Simulator
 		INSTANCE.terminateList.add(c);
 	}
 
-	private DPTManager dptManager = new DPTManager();
+	private DPTManager dptManager;
 
 	public static void addDecisionPoint(DecisionPoint dpt)
 	{
@@ -85,9 +94,9 @@ public class Simulator
 		return INSTANCE.notificationManager;
 	}
 
-	private static void notifyStateChange()
+	private static void notifyChange(String category)
 	{
-		INSTANCE.notificationManager.notifySubscribers("StateChange");
+		INSTANCE.notificationManager.notifySubscribers(category);
 	}
 
 	private boolean checkTerminate()
@@ -108,15 +117,14 @@ public class Simulator
 			return;
 
 		INSTANCE.executionAborted = true;
-		INSTANCE.dptManager.dptAllowed = false;
-		DecisionPointSearch.allowSearch = false;
+		notifyChange("ExecutionAborted");
 	}
 
 	private int checkDPT()
 	{
 		while (dptManager.checkDPT() && !executionAborted)
 		{
-			notifyStateChange();
+			notifyChange("StateChange");
 
 			if (checkTerminate())
 				return  1;
@@ -131,7 +139,8 @@ public class Simulator
 	{
 		isRunning = true;
 
-		notifyStateChange();
+		notifyChange("TimeChange");
+		notifyChange("StateChange");
 
 		int dptCheck = INSTANCE.checkDPT();
 		if (dptCheck != 0)
@@ -143,9 +152,11 @@ public class Simulator
 
 			INSTANCE.time = current.getTime();
 
+			notifyChange("TimeChange");
+
 			current.run();
 
-			notifyStateChange();
+			notifyChange("StateChange");
 
 			if (INSTANCE.checkTerminate())
 				return stop(1);

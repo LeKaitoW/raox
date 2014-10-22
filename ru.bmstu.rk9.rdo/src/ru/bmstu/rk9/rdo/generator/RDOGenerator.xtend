@@ -216,7 +216,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 		public class Embedded
 		{
-			public static int runSimulation(List<Result> results)
+			public static void initSimulation()
 			{
 				Simulator.initSimulation(«project»Model.modelStructure);
 
@@ -237,7 +237,10 @@ class RDOGenerator implements IMultipleResourceGenerator
 					«c.fullyQualifiedName».init();
 				«ENDFOR»
 				«ENDFOR»
+			}
 
+			public static int runSimulation(List<Result> results)
+			{
 				int result = Simulator.run();
 
 				results.addAll(Simulator.getResults());
