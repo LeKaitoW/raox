@@ -17,20 +17,25 @@ public class Database
 
 	public static class TypeSize
 	{
+		public static final int INTEGER = Integer.SIZE / Byte.SIZE;
+		public static final int DOUBLE = Double.SIZE / Byte.SIZE;
+		public static final int SHORT = Short.SIZE / Byte.SIZE;
+		public static final int BYTE = 1;
+
 		public static class RDO
 		{
-			public static final int INTEGER = Integer.SIZE / Byte.SIZE;
-			public static final int REAL    = Double.SIZE  / Byte.SIZE;
-			public static final int ENUM    = Short.SIZE   / Byte.SIZE;
-			public static final int BOOLEAN = Byte.SIZE    / Byte.SIZE;
+			public static final int INTEGER = TypeSize.INTEGER;
+			public static final int REAL    = TypeSize.DOUBLE;
+			public static final int ENUM    = TypeSize.SHORT;
+			public static final int BOOLEAN = TypeSize.BYTE;
 		}
 
 		public static class Internal
 		{
-			public static final int TIME_SIZE = Double.SIZE / Byte.SIZE;
+			public static final int TIME_SIZE = TypeSize.DOUBLE;
 			public static final int TIME_OFFSET = 0;
 
-			public static final int ENTRY_TYPE_SIZE = Byte.SIZE / Byte.SIZE;
+			public static final int ENTRY_TYPE_SIZE = TypeSize.BYTE;
 			public static final int ENTRY_TYPE_OFFSET = TIME_SIZE;
 		}
 	}
@@ -405,7 +410,7 @@ public class Database
 
 		JSONArray relevantResources = pattern.getRelevantInfo();
 
-		ByteBuffer data = ByteBuffer.allocate(Integer.SIZE * (relevantResources.length() +
+		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER * (relevantResources.length() +
 			(type == PatternType.OPERATION_BEGIN ? 4 : 3)));
 		data
 			.putInt(dptIndex.number)
@@ -477,7 +482,7 @@ public class Database
 
 		JSONArray relevantResources = pattern.getRelevantInfo();
 
-		ByteBuffer data = ByteBuffer.allocate(Integer.SIZE * (relevantResources.length() +
+		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER * (relevantResources.length() +
 			(type == PatternType.OPERATION_END ? 4 : 2)));
 
 		if(type == PatternType.OPERATION_END)
