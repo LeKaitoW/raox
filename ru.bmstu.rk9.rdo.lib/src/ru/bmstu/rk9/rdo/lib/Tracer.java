@@ -97,53 +97,38 @@ public final class Tracer implements Subscriber
 		return traceText;
 	}
 
-	private final String parseResourceParameters(
-		final ByteBuffer resourceData,
-		final ResourceTypeInfo typeInfo
-	)
+	public final void saveTraceData()
 	{
-		final StringJoin stringBuilder = new StringJoin(delimiter);
+		final ArrayList<Database.Entry> entries = Simulator.getDatabase().allEntries;
 
-		prepareBufferForReading(resourceData);
-
-		for (int paramNum = 0; paramNum < typeInfo.numberOfParameters; paramNum++)
+		for (Database.Entry entry : entries)
 		{
-			//TODO trace arrays when they are implemented
-			switch(typeInfo.paramTypes.get(paramNum))
-			{
-			case INTEGER:
-				stringBuilder.add(String.valueOf(resourceData.getInt()));
-				break;
-			case REAL:
-				stringBuilder.add(String.valueOf(resourceData.getDouble()));
-				break;
-			case BOOLEAN:
-				stringBuilder.add(String.valueOf(new Byte(resourceData.get())));
-				break;
-			case ENUM:
-				stringBuilder.add(String.valueOf(resourceData.getShort()));
-				break;
-			case STRING:
-				//TODO macro-like variable sizeofInt should be
-				//moved somewhere on upper level or discarded
-				final int index = typeInfo.indexList.get(paramNum);
-				final int stringPosition =
-					resourceData.getInt(typeInfo.finalOffset + (index - 1) * TypeSize.RDO.INTEGER);
-				final int length = resourceData.getInt(stringPosition);
-
-				byte rawString[] = new byte[length];
-				for (int i = 0; i < length; i++)
-				{
-					rawString[i] = resourceData.get(stringPosition + TypeSize.RDO.INTEGER + i);
-				}
-				stringBuilder.add("\"" + new String(rawString, StandardCharsets.UTF_8) + "\"");
-				break;
-			default:
-				return null;
-			}
+			final String entryText = parseSerializedData(entry);
+			traceText.add(entryText + (entryText == "" ? "" : "\n"));
 		}
-		return stringBuilder.getString();
 	}
+
+	private final String parseSerializedData(final Database.Entry entry)
+	{
+		final Database.EntryType type =
+			Database.EntryType.values()[entry.header.get(TypeSize.Internal.ENTRY_TYPE_OFFSET)];
+		switch(type)
+		{
+		//TODO implement the rest of EntryTypes
+		case RESOURCE:
+			return parseResourceEntry(entry);
+		case RESULT:
+			return parseResultEntry(entry);
+		case PATTERN:
+			return parsePatternEntry(entry);
+		default:
+			return "";
+		}
+	}
+
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                          PARSING RESOURCE ENTRIES                         /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	private final String parseResourceEntry(final Database.Entry entry)
 	{
@@ -194,55 +179,97 @@ public final class Tracer implements Subscriber
 			.getString();
 	}
 
-	private final String parseResultParameter(
-		final ByteBuffer resultData,
-		final ValueType valueType
+	private final String parseResourceParameters(
+		final ByteBuffer resourceData,
+		final ResourceTypeInfo typeInfo
 	)
 	{
-		prepareBufferForReading(resultData);
+		final StringJoin stringBuilder = new StringJoin(delimiter);
 
-		switch(valueType)
+		prepareBufferForReading(resourceData);
+
+		for (int paramNum = 0; paramNum < typeInfo.numberOfParameters; paramNum++)
 		{
-		case INTEGER:
-			return String.valueOf(resultData.getInt());
-		case REAL:
-			return String.valueOf(resultData.getDouble());
-		case BOOLEAN:
-			return String.valueOf(new Byte(resultData.get()));
-		case ENUM:
-			return String.valueOf(resultData.getShort());
-		case STRING:
-			final ByteArrayOutputStream rawString = new ByteArrayOutputStream();
-			while (resultData.hasRemaining())
+			//TODO trace arrays when they are implemented
+			switch(typeInfo.paramTypes.get(paramNum))
 			{
-				rawString.write(resultData.get());
-			}
-			return "\"" + rawString.toString() + "\"";
-		default:
-			break;
-		}
+			case INTEGER:
+				stringBuilder.add(String.valueOf(resourceData.getInt()));
+				break;
+			case REAL:
+				stringBuilder.add(String.valueOf(resourceData.getDouble()));
+				break;
+			case BOOLEAN:
+				stringBuilder.add(String.valueOf(new Byte(resourceData.get())));
+				break;
+			case ENUM:
+				stringBuilder.add(String.valueOf(resourceData.getShort()));
+				break;
+			case STRING:
+				//TODO macro-like variable sizeofInt should be
+				//moved somewhere on upper level or discarded
+				final int index = typeInfo.indexList.get(paramNum);
+				final int stringPosition =
+					resourceData.getInt(typeInfo.finalOffset + (index - 1) * TypeSize.RDO.INTEGER);
+				final int length = resourceData.getInt(stringPosition);
 
-		return null;
+				byte rawString[] = new byte[length];
+				for (int i = 0; i < length; i++)
+				{
+					rawString[i] = resourceData.get(stringPosition + TypeSize.RDO.INTEGER + i);
+				}
+				stringBuilder.add("\"" + new String(rawString, StandardCharsets.UTF_8) + "\"");
+				break;
+			default:
+				return null;
+			}
+		}
+		return stringBuilder.getString();
 	}
 
-	private final String parseResultEntry(final Database.Entry entry)
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                          PARSING PATTERN ENTRIES                          /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+
+	private final String parsePatternEntry(final Database.Entry entry)
 	{
-		final ByteBuffer resultHeader = entry.header;
+		final ByteBuffer patternHeader = entry.header;
 
-		prepareBufferForReading(resultHeader);
+		prepareBufferForReading(patternHeader);
 
-		final double time = resultHeader.getDouble();
-		skipEntryType(resultHeader);
-		final int resultNum = resultHeader.getInt();
+		final double time = patternHeader.getDouble();
+		skipEntryType(patternHeader);
+		final String type;
+		final Database.PatternType typeEnum;
 
-		final ValueType valueType = resultValueTypes.get(resultNum);
+		//TODO trace system events when implemented
+		switch(patternHeader.get())
+		{
+		case 0:
+			type = "I";
+			typeEnum = Database.PatternType.EVENT;
+			break;
+		case 1:
+			type = "R";
+			typeEnum = Database.PatternType.RULE;
+			break;
+		case 2:
+			type = "B";
+			typeEnum = Database.PatternType.OPERATION_BEGIN;
+			break;
+		case 3:
+			type = "F";
+			typeEnum =  Database.PatternType.OPERATION_END;
+			break;
+		default:
+			return null;
+		}
 
 		return
 			new StringJoin(delimiter)
-			.add("V")
+			.add("E" + type)
 			.add(String.valueOf(time))
-			.add(String.valueOf(resultNum))
-			.add(parseResultParameter(entry.data, valueType))
+			.add(parsePatternData(entry.data, typeEnum))
 			.getString();
 	}
 
@@ -297,76 +324,65 @@ public final class Tracer implements Subscriber
 		return stringBuilder.getString();
 	}
 
-	private final String parsePatternEntry(final Database.Entry entry)
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                           PARSING RESULT ENTRIES                          /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+
+	private final String parseResultEntry(final Database.Entry entry)
 	{
-		final ByteBuffer patternHeader = entry.header;
+		final ByteBuffer resultHeader = entry.header;
 
-		prepareBufferForReading(patternHeader);
+		prepareBufferForReading(resultHeader);
 
-		final double time = patternHeader.getDouble();
-		skipEntryType(patternHeader);
-		final String type;
-		final Database.PatternType typeEnum;
+		final double time = resultHeader.getDouble();
+		skipEntryType(resultHeader);
+		final int resultNum = resultHeader.getInt();
 
-		//TODO trace system events when implemented
-		switch(patternHeader.get())
-		{
-		case 0:
-			type = "I";
-			typeEnum = Database.PatternType.EVENT;
-			break;
-		case 1:
-			type = "R";
-			typeEnum = Database.PatternType.RULE;
-			break;
-		case 2:
-			type = "B";
-			typeEnum = Database.PatternType.OPERATION_BEGIN;
-			break;
-		case 3:
-			type = "F";
-			typeEnum =  Database.PatternType.OPERATION_END;
-			break;
-		default:
-			return null;
-		}
+		final ValueType valueType = resultValueTypes.get(resultNum);
 
 		return
 			new StringJoin(delimiter)
-			.add("E" + type)
+			.add("V")
 			.add(String.valueOf(time))
-			.add(parsePatternData(entry.data, typeEnum))
+			.add(String.valueOf(resultNum))
+			.add(parseResultParameter(entry.data, valueType))
 			.getString();
 	}
 
-	private final String parseSerializedData(final Database.Entry entry)
+	private final String parseResultParameter(
+		final ByteBuffer resultData,
+		final ValueType valueType
+	)
 	{
-		final Database.EntryType type =
-			Database.EntryType.values()[entry.header.get(TypeSize.Internal.ENTRY_TYPE_OFFSET)];
-		switch(type)
+		prepareBufferForReading(resultData);
+
+		switch(valueType)
 		{
-		//TODO implement the rest of EntryTypes
-		case RESOURCE:
-			return parseResourceEntry(entry);
-		case RESULT:
-			return parseResultEntry(entry);
-		case PATTERN:
-			return parsePatternEntry(entry);
+		case INTEGER:
+			return String.valueOf(resultData.getInt());
+		case REAL:
+			return String.valueOf(resultData.getDouble());
+		case BOOLEAN:
+			return String.valueOf(new Byte(resultData.get()));
+		case ENUM:
+			return String.valueOf(resultData.getShort());
+		case STRING:
+			final ByteArrayOutputStream rawString = new ByteArrayOutputStream();
+			while (resultData.hasRemaining())
+			{
+				rawString.write(resultData.get());
+			}
+			return "\"" + rawString.toString() + "\"";
 		default:
-			return "";
+			break;
 		}
+
+		return null;
 	}
 
-	public final void saveTraceData()
-	{
-		final ArrayList<Database.Entry> entries = Simulator.getDatabase().allEntries;
-
-		for (Database.Entry entry : entries)
-		{
-			final String entryText = parseSerializedData(entry);
-			traceText.add(entryText + (entryText == "" ? "" : "\n"));
-		}
-	}
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                               HELPER METHODS                              /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	private final void skipEntryType(final ByteBuffer buffer)
 	{
