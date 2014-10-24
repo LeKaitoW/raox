@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 import ru.bmstu.rk9.rdo.lib.json.JSONArray;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
@@ -30,7 +31,6 @@ public final class Tracer implements Subscriber
 				if (t.type.equals(type))
 					return t;
 			}
-			//TODO implement exception
 			return null;
 		}
 	}
@@ -104,8 +104,7 @@ public final class Tracer implements Subscriber
 	{
 		final StringJoin stringBuilder = new StringJoin(delimiter);
 
-		resourceData.duplicate();
-		resourceData.rewind();
+		prepareBufferForReading(resourceData);
 
 		for (int paramNum = 0; paramNum < typeInfo.numberOfParameters; paramNum++)
 		{
@@ -127,22 +126,20 @@ public final class Tracer implements Subscriber
 			case STRING:
 				//TODO macro-like variable sizeofInt should be
 				//moved somewhere on upper level or discarded
-				final int sizeofInt = Integer.SIZE / Byte.SIZE;
 				final int index = typeInfo.indexList.get(paramNum);
 				final int stringPosition =
-					resourceData.getInt(typeInfo.finalOffset + (index - 1) * sizeofInt);
+					resourceData.getInt(typeInfo.finalOffset + (index - 1) * TypeSize.RDO.INTEGER);
 				final int length = resourceData.getInt(stringPosition);
 
 				byte rawString[] = new byte[length];
 				for (int i = 0; i < length; i++)
 				{
-					rawString[i] = resourceData.get(stringPosition + sizeofInt + i);
+					rawString[i] = resourceData.get(stringPosition + TypeSize.RDO.INTEGER + i);
 				}
 				stringBuilder.add("\"" + new String(rawString, StandardCharsets.UTF_8) + "\"");
 				break;
 			default:
-				//TODO implement exception?
-				break;
+				return null;
 			}
 		}
 		return stringBuilder.getString();
@@ -152,12 +149,11 @@ public final class Tracer implements Subscriber
 	{
 		final ByteBuffer resourceHeader = entry.header;
 
-		resourceHeader.duplicate();
-		resourceHeader.rewind();
+		prepareBufferForReading(resourceHeader);
 
 		final double time = resourceHeader.getDouble();
-		skipByte(resourceHeader);
-		String status = "";
+		skipEntryType(resourceHeader);
+		final String status;
 		switch(resourceHeader.get())
 		{
 		case 0:
@@ -170,8 +166,7 @@ public final class Tracer implements Subscriber
 			status = "K";
 			break;
 		default:
-			//TODO implement exception?
-			break;
+			return null;
 		}
 		final int typeNum = resourceHeader.getInt();
 		final int resNum = resourceHeader.getInt();
@@ -204,8 +199,7 @@ public final class Tracer implements Subscriber
 		final ValueType valueType
 	)
 	{
-		resultData.duplicate();
-		resultData.rewind();
+		prepareBufferForReading(resultData);
 
 		switch(valueType)
 		{
@@ -225,22 +219,20 @@ public final class Tracer implements Subscriber
 			}
 			return "\"" + rawString.toString() + "\"";
 		default:
-			//TODO implement exception?
 			break;
 		}
 
-		return "";
+		return null;
 	}
 
 	private final String parseResultEntry(final Database.Entry entry)
 	{
 		final ByteBuffer resultHeader = entry.header;
 
-		resultHeader.duplicate();
-		resultHeader.rewind();
+		prepareBufferForReading(resultHeader);
 
 		final double time = resultHeader.getDouble();
-		skipByte(resultHeader);
+		skipEntryType(resultHeader);
 		final int resultNum = resultHeader.getInt();
 
 		final ValueType valueType = resultValueTypes.get(resultNum);
@@ -254,9 +246,103 @@ public final class Tracer implements Subscriber
 			.getString();
 	}
 
+	private final String parsePatternData(
+		final ByteBuffer patternData,
+		final Database.PatternType patternType
+	)
+	{
+		final StringJoin stringBuilder = new StringJoin(delimiter);
+
+		prepareBufferForReading(patternData);
+
+		int dptNumber;
+		int patternNumber;
+		int actionNumber;
+
+		switch(patternType)
+		{
+		case EVENT:
+			patternNumber = patternData.getInt();
+			stringBuilder
+				.add(String.valueOf(patternNumber));
+			break;
+		case RULE:
+			dptNumber = patternData.getInt();
+			patternNumber = patternData.getInt();
+			stringBuilder
+				.add(String.valueOf(dptNumber))
+				.add(String.valueOf(patternNumber));
+			break;
+		case OPERATION_BEGIN:
+		case OPERATION_END:
+			dptNumber = patternData.getInt();
+			patternNumber = patternData.getInt();
+			actionNumber = patternData.getInt();
+			stringBuilder
+				.add(String.valueOf(actionNumber))
+				.add(String.valueOf(dptNumber))
+				.add(String.valueOf(patternNumber));
+			break;
+		default:
+			return null;
+		}
+
+		int numberOfRelevantResources = patternData.getInt();
+		stringBuilder.add(String.valueOf(numberOfRelevantResources));
+		for(int i = 0; i < numberOfRelevantResources; i++)
+		{
+			stringBuilder.add(String.valueOf(patternData.getInt()));
+		}
+
+		return stringBuilder.getString();
+	}
+
+	private final String parsePatternEntry(final Database.Entry entry)
+	{
+		final ByteBuffer patternHeader = entry.header;
+
+		prepareBufferForReading(patternHeader);
+
+		final double time = patternHeader.getDouble();
+		skipEntryType(patternHeader);
+		final String type;
+		final Database.PatternType typeEnum;
+
+		//TODO trace system events when implemented
+		switch(patternHeader.get())
+		{
+		case 0:
+			type = "I";
+			typeEnum = Database.PatternType.EVENT;
+			break;
+		case 1:
+			type = "R";
+			typeEnum = Database.PatternType.RULE;
+			break;
+		case 2:
+			type = "B";
+			typeEnum = Database.PatternType.OPERATION_BEGIN;
+			break;
+		case 3:
+			type = "F";
+			typeEnum =  Database.PatternType.OPERATION_END;
+			break;
+		default:
+			return null;
+		}
+
+		return
+			new StringJoin(delimiter)
+			.add("E" + type)
+			.add(String.valueOf(time))
+			.add(parsePatternData(entry.data, typeEnum))
+			.getString();
+	}
+
 	private final String parseSerializedData(final Database.Entry entry)
 	{
-		final Database.EntryType type = Database.EntryType.values()[entry.header.get(8)];
+		final Database.EntryType type =
+			Database.EntryType.values()[entry.header.get(TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 		switch(type)
 		{
 		//TODO implement the rest of EntryTypes
@@ -264,6 +350,8 @@ public final class Tracer implements Subscriber
 			return parseResourceEntry(entry);
 		case RESULT:
 			return parseResultEntry(entry);
+		case PATTERN:
+			return parsePatternEntry(entry);
 		default:
 			return "";
 		}
@@ -280,9 +368,15 @@ public final class Tracer implements Subscriber
 		}
 	}
 
-	private final void skipByte(final ByteBuffer buffer)
+	private final void skipEntryType(final ByteBuffer buffer)
 	{
 		buffer.get();
+	}
+
+	private final void prepareBufferForReading(final ByteBuffer buffer)
+	{
+		buffer.duplicate();
+		buffer.rewind();
 	}
 
 	@Override
