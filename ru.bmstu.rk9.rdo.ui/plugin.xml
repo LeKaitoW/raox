@@ -409,23 +409,37 @@
      </command>
      <command
            categoryId="ru.bmstu.rk9.rdo.ui.runtime"
-           id="ru.bmstu.rk9.rdo.ui.runtime.noAnimation"
-           name="No Animation">
+           id="ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode"
+           name="Set Execution Mode">
+        <commandParameter
+              id="org.eclipse.ui.commands.radioStateParameter"
+              name="RDOExecutionMode"
+              optional="false">
+        </commandParameter>
+        <state
+              id="org.eclipse.ui.commands.radioState">
+           <class
+                 class="org.eclipse.ui.handlers.RadioState">
+              <parameter
+                    name="default"
+                    value="NA">
+              </parameter>
+              <parameter
+                    name="persisted"
+                    value="true">
+              </parameter>
+           </class>
+        </state>
      </command>
      <command
            categoryId="ru.bmstu.rk9.rdo.ui.runtime"
-           id="ru.bmstu.rk9.rdo.ui.runtime.fastForward"
-           name="Fast Forward">
-     </command>
-     <command
-           categoryId="ru.bmstu.rk9.rdo.ui.runtime"
-           id="ru.bmstu.rk9.rdo.ui.runtime.normalSpeed"
-           name="Normal Speed">
-     </command>
-     <command
-           categoryId="ru.bmstu.rk9.rdo.ui.runtime"
-           id="ru.bmstu.rk9.rdo.ui.runtime.pause"
-           name="Pause">
+           id="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScale"
+           name="Set Simulation Scale">
+        <commandParameter
+              id="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScaleParameter"
+              name="Modifier"
+              optional="false">
+        </commandParameter>
      </command>
   </extension>
   <extension
@@ -467,6 +481,14 @@
               </equals>
            </with>
         </enabledWhen>
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:ru.bmstu.rk9.rdo.ui.runtime.SetExecutionModeHandler"
+           commandId="ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode">
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rdo.ui.runtime.SetSimulationScaleHandler"
+           commandId="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScale">
      </handler>
   </extension>
   <extension
@@ -511,39 +533,104 @@
                  style="push">
            </command>
            <separator
-                 name="ru.bmstu.rk9.rdo.ui.runtime.menu.separator1">
+                 name="ru.bmstu.rk9.rdo.ui.runtime.menu.separator1"
+                 visible="true">
            </separator>
            <command
-                 commandId="ru.bmstu.rk9.rdo.ui.runtime.noAnimation"
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode"
                  icon="icons/rdo_noanimation.gif"
                  id="ru.bmstu.rk9.rdo.ui.runtime.menu.noAnimation"
                  label="No Animation"
                  mnemonic="A"
-                 style="pulldown">
+                 style="radio">
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="NA">
+              </parameter>
            </command>
            <command
-                 commandId="ru.bmstu.rk9.rdo.ui.runtime.fastForward"
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode"
                  icon="icons/rdo_fastforward.gif"
                  id="ru.bmstu.rk9.rdo.ui.runtime.menu.fastForward"
                  label="Fast Forward"
                  mnemonic="F"
-                 style="pulldown">
+                 style="radio">
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="FF">
+              </parameter>
            </command>
            <command
-                 commandId="ru.bmstu.rk9.rdo.ui.runtime.normalSpeed"
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode"
                  icon="icons/rdo_normalspeed.gif"
                  id="ru.bmstu.rk9.rdo.ui.runtime.menu.normalSpeed"
                  label="Normal Speed"
                  mnemonic="N"
-                 style="pulldown">
+                 style="radio">
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="NS">
+              </parameter>
            </command>
            <command
-                 commandId="ru.bmstu.rk9.rdo.ui.runtime.pause"
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode"
                  icon="icons/rdo_pause.gif"
                  id="ru.bmstu.rk9.rdo.ui.runtime.menu.pause"
                  label="Pause"
                  mnemonic="P"
-                 style="pulldown">
+                 style="radio">
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="P">
+              </parameter>
+           </command>
+           <separator
+                 name="ru.bmstu.rk9.rdo.ui.runtime.menu.separator2"
+                 visible="true">
+           </separator>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_inc.png"
+                 label="Increase Simulation Scale"
+                 mnemonic="I"
+                 style="push">
+              <parameter
+                    name="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScaleParameter"
+                    value="+">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_inc_four.png"
+                 label="Multiply Simulation Scale by 4"
+                 mnemonic="M"
+                 style="push">
+              <parameter
+                    name="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScaleParameter"
+                    value="*">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_dec_four.png"
+                 label="Divide Simulation Scale by 4"
+                 mnemonic="D"
+                 style="push">
+              <parameter
+                    name="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScaleParameter"
+                    value="/">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_dec.png"
+                 label="Decrease Simulation Scale"
+                 mnemonic="E"
+                 style="push">
+              <parameter
+                    name="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScaleParameter"
+                    value="-">
+              </parameter>
            </command>
         </menu>
      </menuContribution>
@@ -596,10 +683,12 @@
               </visibleWhen>
            </control>
            <command
-                 commandId="ru.bmstu.rk9.rdo.ui.runtime.noAnimation"
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode"
                  icon="icons/rdo_noanimation.gif"
                  id="ru.bmstu.rk9.rdo.ui.RDOToolbar.noAnimation"
-                 style="push">
+                 label="No Animation"
+                 style="radio"
+                 tooltip="No Animation">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -609,12 +698,18 @@
                     </equals>
                  </with>
               </visibleWhen>
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="NA">
+              </parameter>
            </command>
            <command
-                 commandId="ru.bmstu.rk9.rdo.ui.runtime.fastForward"
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode"
                  icon="icons/rdo_fastforward.gif"
                  id="ru.bmstu.rk9.rdo.ui.RDOToolbar.fastForward"
-                 style="push">
+                 label="Fast Forward"
+                 style="radio"
+                 tooltip="Fast Forward">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -624,12 +719,18 @@
                     </equals>
                  </with>
               </visibleWhen>
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="FF">
+              </parameter>
            </command>
            <command
-                 commandId="ru.bmstu.rk9.rdo.ui.runtime.normalSpeed"
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode"
                  icon="icons/rdo_normalspeed.gif"
                  id="ru.bmstu.rk9.rdo.ui.RDOToolbar.normalSpeed"
-                 style="push">
+                 label="Normal Speed"
+                 style="radio"
+                 tooltip="Normal Speed">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -639,12 +740,18 @@
                     </equals>
                  </with>
               </visibleWhen>
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="NS">
+              </parameter>
            </command>
            <command
-                 commandId="ru.bmstu.rk9.rdo.ui.runtime.pause"
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode"
                  icon="icons/rdo_pause.gif"
                  id="ru.bmstu.rk9.rdo.ui.RDOToolbar.pause"
-                 style="push">
+                 label="Pause"
+                 style="radio"
+                 tooltip="Pause">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -654,6 +761,10 @@
                     </equals>
                  </with>
               </visibleWhen>
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="P">
+              </parameter>
            </command>
            <control
                  class="ru.bmstu.rk9.rdo.ui.contributions.RDOToolbarSeparator">
@@ -668,7 +779,7 @@
               </visibleWhen>
            </control>
            <control
-                 class="ru.bmstu.rk9.rdo.ui.contributions.RDOToolbarContribution">
+                 class="ru.bmstu.rk9.rdo.ui.contributions.RDOSpeedSelectionToolbar">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -679,6 +790,102 @@
                  </with>
               </visibleWhen>
            </control>
+           <control
+                 class="ru.bmstu.rk9.rdo.ui.contributions.RDOToolbarSeparator">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </control>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_inc.png"
+                 label="Increase Simulation Scale"
+                 mnemonic="I"
+                 style="push"
+                 tooltip="Increase Simulation Scale">
+              <parameter
+                    name="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScaleParameter"
+                    value="+">
+              </parameter>
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_inc_four.png"
+                 label="Multiply Simulation Scale by 4"
+                 mnemonic="M"
+                 style="push"
+                 tooltip="Multiply Simulation Scale by 4">
+              <parameter
+                    name="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScaleParameter"
+                    value="*">
+              </parameter>
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_dec_four.png"
+                 label="Divide Simulation Scale by 4"
+                 mnemonic="D"
+                 style="push"
+                 tooltip="Divide Simulation Scale by 4">
+              <parameter
+                    name="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScaleParameter"
+                    value="/">
+              </parameter>
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_dec.png"
+                 label="Decrease Simulation Scale"
+                 mnemonic="E"
+                 style="push"
+                 tooltip="Decrease Simulation Scale">
+              <parameter
+                    name="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScaleParameter"
+                    value="-">
+              </parameter>
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rdo.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
         </toolbar>
      </menuContribution>
   </extension>
@@ -720,6 +927,14 @@
            icon="icons/rdo_old.gif"
            id="ru.bmstu.rk9.rdo.ui.RDOConsoleView"
            name="RDO Console"
+           restorable="true">
+     </view>
+     <view
+           category="ru.bmstu.rk9.rdo.ui.views"
+           class="ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView"
+           icon="icons/status.png"
+           id="ru.bmstu.rk9.rdo.ui.RDOStatusView"
+           name="RDO Status"
            restorable="true">
      </view>
   </extension>

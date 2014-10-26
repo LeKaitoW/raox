@@ -1,8 +1,13 @@
 package ru.bmstu.rk9.rdo.ui.runtime;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import java.util.LinkedList;
 
 import java.lang.reflect.Method;
+
+import java.io.IOException;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -39,10 +44,12 @@ import ru.bmstu.rk9.rdo.IMultipleResourceGenerator;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import ru.bmstu.rk9.rdo.lib.Notifier;
 import ru.bmstu.rk9.rdo.lib.Result;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 
 import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
 
 
 public class ExecutionHandler extends AbstractHandler
@@ -158,6 +165,10 @@ public class ExecutionHandler extends AbstractHandler
 				}
 
 				RDOConsoleView.clearConsoleText();
+				SimulationSynchronizer.start();
+
+				URLClassLoader cl = null;
+				Timer uiRealTime = new Timer();
 
 				try
 				{
@@ -166,7 +177,7 @@ public class ExecutionHandler extends AbstractHandler
 
 					URL[] urls = new URL[]{ model };
 
-					ClassLoader cl = new URLClassLoader(urls, Simulator.class.getClassLoader());
+					cl = new URLClassLoader(urls, Simulator.class.getClassLoader());
 
 					Class<?> cls = cl.loadClass("rdo_model.Embedded");
 
@@ -180,10 +191,49 @@ public class ExecutionHandler extends AbstractHandler
 							initialization = method;
 					}
 
-					initialization.invoke(null, null);
+					initialization.invoke(null, new Object[]{});
+
+					Notifier notifier = Simulator.getNotifier();
+
+					notifier
+						.getSubscription("TimeChange")
+							.addSubscriber(SimulationSynchronizer.getInstance().uiTimeUpdater)
+							.addSubscriber(SimulationSynchronizer.getInstance().simulationScaleManager);
+
+					notifier
+						.getSubscription("StateChange")
+							.addSubscriber(SimulationSynchronizer.getInstance().simulationSpeedManager);
+
+					notifier
+						.getSubscription("ExecutionAborted")
+							.addSubscriber(SimulationSynchronizer.getInstance().simulationStateListener);
 
 					RDOConsoleView.addLine("Started model " + project.getName());
 					long startTime = System.currentTimeMillis();
+
+					uiRealTime.scheduleAtFixedRate
+					(
+						new TimerTask()
+						{
+							@Override
+							public void run()
+							{
+								display.asyncExec
+								(
+									new Runnable()
+									{	
+										@Override
+										public void run()
+										{
+											RDOStatusView.setRealTime(System.currentTimeMillis() - startTime);	
+										}
+									}
+								);
+							}
+						},
+						0,
+						100
+					);
 
 					LinkedList<Result> results = new LinkedList<Result>();
 					int result = -1; 
@@ -192,6 +242,7 @@ public class ExecutionHandler extends AbstractHandler
 						result = (int)simulation.invoke(null, (Object)results);
 					}
 
+					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.updater);
 					setRunningState(display, sourceProvider, false);
 
 					switch (result)
@@ -219,7 +270,35 @@ public class ExecutionHandler extends AbstractHandler
 					setRunningState(display, sourceProvider, false);
 					RDOConsoleView.addLine("Execution error");
 					e.printStackTrace();
+					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.updater);
+					SimulationSynchronizer.finish();
+
+					uiRealTime.cancel();
+
+					if(cl != null)
+						try
+						{
+							cl.close();
+						}
+						catch (IOException e1)
+						{
+							e1.printStackTrace();
+						}
+
 					return new Status(Status.CANCEL, "ru.bmstu.rk9.rdo.ui", "Execution failed");
+				}
+
+				SimulationSynchronizer.finish();
+
+				uiRealTime.cancel();
+
+				try
+				{
+					cl.close();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
 				}
 
 				return Status.OK_STATUS;
