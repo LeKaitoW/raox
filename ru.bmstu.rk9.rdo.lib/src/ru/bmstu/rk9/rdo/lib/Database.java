@@ -36,7 +36,7 @@ public class Database
 			public static final int TIME_OFFSET = 0;
 
 			public static final int ENTRY_TYPE_SIZE = TypeSize.BYTE;
-			public static final int ENTRY_TYPE_OFFSET = TIME_SIZE;
+			public static final int ENTRY_TYPE_OFFSET = TIME_OFFSET + TIME_SIZE;
 		}
 	}
 
