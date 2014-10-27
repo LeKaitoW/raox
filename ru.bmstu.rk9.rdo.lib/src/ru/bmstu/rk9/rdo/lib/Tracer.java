@@ -15,7 +15,11 @@ public final class Tracer implements Subscriber
 	//TODO Shouldn't it be moved to Database?
 	public static enum ValueType
 	{
-		INTEGER("integer"), REAL("real"), BOOLEAN("boolean"), ENUM("enum"), STRING("string");
+		INTEGER("integer"),
+		REAL("real"),
+		BOOLEAN("boolean"),
+		ENUM("enum"),
+		STRING("string");
 
 		private final String type;
 
@@ -81,20 +85,21 @@ public final class Tracer implements Subscriber
 		{
 			resultValueTypes.put(
 				resultNum,
-				ValueType.get(results.getJSONObject(resultNum).getString("value_type"))
+				ValueType.get(
+					results.getJSONObject(resultNum).getString("value_type"))
 			);
 		}
 	}
 
-	//TODO choose the proper container for traceText
+	//TODO choose the proper container for traceList
 	//TODO besides string it should contain type identifier for future
 	//coloring in UI
-	private ArrayList<String> traceText = new ArrayList<String>();
+	private ArrayList<String> traceList = new ArrayList<String>();
 
-	public final ArrayList<String> getTraceText()
+	public final ArrayList<String> getTraceList()
 	{
 		//TODO make unmodifiable
-		return traceText;
+		return traceList;
 	}
 
 	public final void saveTraceData()
@@ -104,7 +109,8 @@ public final class Tracer implements Subscriber
 		for (Database.Entry entry : entries)
 		{
 			final String entryText = parseSerializedData(entry);
-			traceText.add(entryText + (entryText == "" ? "" : "\n"));
+			if (entryText != null)
+				traceList.add(entryText);
 		}
 	}
 
@@ -122,7 +128,7 @@ public final class Tracer implements Subscriber
 		case PATTERN:
 			return parsePatternEntry(entry);
 		default:
-			return "";
+			return null;
 		}
 	}
 

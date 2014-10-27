@@ -722,6 +722,14 @@
            name="RDO Console"
            restorable="true">
      </view>
+     <view
+           category="ru.bmstu.rk9.rdo.ui.views"
+           class="ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView"
+           icon="icons/tag.gif"
+           id="ru.bmstu.rk9.rdo.ui.RDOTraceView"
+           name="RDO Trace"
+           restorable="true">
+     </view>
   </extension>
 
 </plugin>

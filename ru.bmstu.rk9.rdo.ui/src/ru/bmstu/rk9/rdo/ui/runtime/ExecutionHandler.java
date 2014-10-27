@@ -43,6 +43,7 @@ import ru.bmstu.rk9.rdo.lib.Result;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 
 import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
 
 
 public class ExecutionHandler extends AbstractHandler
@@ -221,6 +222,8 @@ public class ExecutionHandler extends AbstractHandler
 					e.printStackTrace();
 					return new Status(Status.CANCEL, "ru.bmstu.rk9.rdo.ui", "Execution failed");
 				}
+
+				RDOTraceView.fireReady();
 
 				return Status.OK_STATUS;
 			}
