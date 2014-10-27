@@ -12,6 +12,12 @@ import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
 public final class Tracer implements Subscriber
 {
+	Tracer()
+	{
+		fillResourceTypeStructure();
+		fillResultValueTypes();
+	}
+
 	//TODO Shouldn't it be moved to Database?
 	public static enum ValueType
 	{
@@ -39,18 +45,62 @@ public final class Tracer implements Subscriber
 		}
 	}
 
+	public static enum TraceType
+	{
+		//TODO add DPT
+		//TODO it duplicates Database enums in a way, what to do?
+		RESOURCE_CREATE("RC"),
+		RESOURCE_KEEP("RK"),
+		RESOURCE_ERASE("RE"),
+		SYSTEM("ES"),
+		OPERATION_BEGIN("EB"),
+		OPERATION_END("EF"),
+		EVENT("EI"),
+		RULE("ER"),
+		RESULT("V");
+
+		private String traceCode;
+		private TraceType(String traceCode)
+		{
+			this.traceCode = traceCode;
+		}
+
+		@Override
+		public String toString()
+		{
+			return traceCode;
+		}
+	}
+
+	//TODO proper place of nested class inside a Tracer class?s
+	public final static class TraceOutput
+	{
+		TraceOutput(TraceType type, String content)
+		{
+			this.type = type;
+			this.content = content;
+		}
+
+		private TraceType type;
+		private String content;
+
+		public final TraceType type()
+		{
+			return type;
+		}
+
+		public final String content()
+		{
+			return content;
+		}
+	}
+
 	static private final String delimiter = " ";
 
 	private HashMap<Integer, ResourceTypeInfo> resourceTypesInfo =
 		new HashMap<Integer, ResourceTypeInfo>();
 	private HashMap<Integer, ValueType> resultValueTypes =
 		new HashMap<Integer, ValueType>();
-
-	Tracer()
-	{
-		fillResourceTypeStructure();
-		fillResultValueTypes();
-	}
 
 	private final void fillResourceTypeStructure()
 	{
@@ -94,9 +144,9 @@ public final class Tracer implements Subscriber
 	//TODO choose the proper container for traceList
 	//TODO besides string it should contain type identifier for future
 	//coloring in UI
-	private ArrayList<String> traceList = new ArrayList<String>();
+	private ArrayList<TraceOutput> traceList = new ArrayList<TraceOutput>();
 
-	public final ArrayList<String> getTraceList()
+	public final ArrayList<TraceOutput> getTraceList()
 	{
 		//TODO make unmodifiable
 		return traceList;
@@ -108,16 +158,17 @@ public final class Tracer implements Subscriber
 
 		for (Database.Entry entry : entries)
 		{
-			final String entryText = parseSerializedData(entry);
-			if (entryText != null)
-				traceList.add(entryText);
+			final TraceOutput traceOutput = parseSerializedData(entry);
+			if (traceOutput != null)
+				traceList.add(traceOutput);
 		}
 	}
 
-	private final String parseSerializedData(final Database.Entry entry)
+	private final TraceOutput parseSerializedData(final Database.Entry entry)
 	{
 		final Database.EntryType type =
-			Database.EntryType.values()[entry.header.get(TypeSize.Internal.ENTRY_TYPE_OFFSET)];
+			Database.EntryType.values()[entry.header.get(
+				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 		switch(type)
 		{
 		//TODO implement the rest of EntryTypes
@@ -136,7 +187,7 @@ public final class Tracer implements Subscriber
  /                          PARSING RESOURCE ENTRIES                         /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	private final String parseResourceEntry(final Database.Entry entry)
+	private final TraceOutput parseResourceEntry(final Database.Entry entry)
 	{
 		final ByteBuffer resourceHeader = entry.header;
 
@@ -144,17 +195,17 @@ public final class Tracer implements Subscriber
 
 		final double time = resourceHeader.getDouble();
 		skipEntryType(resourceHeader);
-		final String status;
+		final TraceType traceType;
 		switch(resourceHeader.get())
 		{
 		case 0:
-			status = "C";
+			traceType = TraceType.RESOURCE_CREATE;
 			break;
 		case 1:
-			status = "E";
+			traceType = TraceType.RESOURCE_ERASE;
 			break;
 		case 2:
-			status = "K";
+			traceType = TraceType.RESOURCE_KEEP;
 			break;
 		default:
 			return null;
@@ -164,25 +215,28 @@ public final class Tracer implements Subscriber
 
 		final String headerLine =
 			new StringJoin(delimiter)
-			.add("R" + status)
+			.add(traceType.toString())
 			.add(String.valueOf(time))
 			.add(String.valueOf(typeNum))
 			.add(String.valueOf(resNum))
 			.getString();
 
 		//TODO fix when resource parameters are also serialized on erase
-		if (status == "E")
+		if (traceType == TraceType.RESOURCE_ERASE)
 		{
-			return headerLine;
+			return new TraceOutput(traceType, headerLine);
 		}
 
 		final ResourceTypeInfo typeInfo = resourceTypesInfo.get(typeNum);
 
 		return
-			new StringJoin(delimiter)
-			.add(headerLine)
-			.add(parseResourceParameters(entry.data, typeInfo))
-			.getString();
+			new TraceOutput(
+				traceType,
+				new StringJoin(delimiter)
+					.add(headerLine)
+					.add(parseResourceParameters(entry.data, typeInfo))
+					.getString()
+			);
 	}
 
 	private final String parseResourceParameters(
@@ -237,7 +291,7 @@ public final class Tracer implements Subscriber
  /                          PARSING PATTERN ENTRIES                          /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	private final String parsePatternEntry(final Database.Entry entry)
+	private final TraceOutput parsePatternEntry(final Database.Entry entry)
 	{
 		final ByteBuffer patternHeader = entry.header;
 
@@ -245,43 +299,41 @@ public final class Tracer implements Subscriber
 
 		final double time = patternHeader.getDouble();
 		skipEntryType(patternHeader);
-		final String type;
-		final Database.PatternType typeEnum;
+		final TraceType traceType;
 
 		//TODO trace system events when implemented
 		switch(patternHeader.get())
 		{
 		case 0:
-			type = "I";
-			typeEnum = Database.PatternType.EVENT;
+			traceType = TraceType.EVENT;
 			break;
 		case 1:
-			type = "R";
-			typeEnum = Database.PatternType.RULE;
+			traceType = TraceType.RULE;
 			break;
 		case 2:
-			type = "B";
-			typeEnum = Database.PatternType.OPERATION_BEGIN;
+			traceType = TraceType.OPERATION_BEGIN;
 			break;
 		case 3:
-			type = "F";
-			typeEnum =  Database.PatternType.OPERATION_END;
+			traceType = TraceType.OPERATION_END;
 			break;
 		default:
 			return null;
 		}
 
 		return
-			new StringJoin(delimiter)
-			.add("E" + type)
-			.add(String.valueOf(time))
-			.add(parsePatternData(entry.data, typeEnum))
-			.getString();
+			new TraceOutput(
+				traceType,
+				new StringJoin(delimiter)
+					.add(traceType.toString())
+					.add(String.valueOf(time))
+					.add(parsePatternData(entry.data, traceType))
+					.getString()
+			);
 	}
 
 	private final String parsePatternData(
 		final ByteBuffer patternData,
-		final Database.PatternType patternType
+		final TraceType patternType
 	)
 	{
 		final StringJoin stringBuilder = new StringJoin(delimiter);
@@ -334,7 +386,7 @@ public final class Tracer implements Subscriber
  /                           PARSING RESULT ENTRIES                          /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	private final String parseResultEntry(final Database.Entry entry)
+	private final TraceOutput parseResultEntry(final Database.Entry entry)
 	{
 		final ByteBuffer resultHeader = entry.header;
 
@@ -347,12 +399,15 @@ public final class Tracer implements Subscriber
 		final ValueType valueType = resultValueTypes.get(resultNum);
 
 		return
+			new TraceOutput(
+			TraceType.RULE,
 			new StringJoin(delimiter)
-			.add("V")
-			.add(String.valueOf(time))
-			.add(String.valueOf(resultNum))
-			.add(parseResultParameter(entry.data, valueType))
-			.getString();
+				.add(TraceType.RULE.toString())
+				.add(String.valueOf(time))
+				.add(String.valueOf(resultNum))
+				.add(parseResultParameter(entry.data, valueType))
+				.getString()
+			);
 	}
 
 	private final String parseResultParameter(
@@ -405,6 +460,7 @@ public final class Tracer implements Subscriber
 	public void fireChange() {}
 }
 
+//TODO make private and move inside of Tracer?
 class ResourceTypeInfo
 {
 	ResourceTypeInfo(final JSONObject structure)

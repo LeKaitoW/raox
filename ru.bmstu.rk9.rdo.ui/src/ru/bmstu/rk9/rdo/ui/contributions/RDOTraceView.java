@@ -1,19 +1,26 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.resource.FontRegistry;
+import org.eclipse.jface.viewers.IColorProvider;
+import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILazyContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import ru.bmstu.rk9.rdo.lib.Simulator;
+import ru.bmstu.rk9.rdo.lib.Tracer;
 
 public class RDOTraceView extends ViewPart
 {
@@ -22,13 +29,67 @@ public class RDOTraceView extends ViewPart
 	static private TableViewer viewer;
 	private static Display display;
 
+	public static EnumMap<Tracer.TraceType, Color> colorByType =
+		new EnumMap<Tracer.TraceType, Color>(Tracer.TraceType.class);
+
 	@Override
 	public void createPartControl(Composite parent) {
 		createViewer(parent);
 	}
 
+	private void initializeColorMap()
+	{
+		//TODO choose proper colors
+		//customs colors need to be created and disposed of
+		colorByType.put(
+			Tracer.TraceType.RESOURCE_CREATE,
+			Display.getCurrent().getSystemColor(SWT.COLOR_CYAN)
+		);
+
+		colorByType.put(
+			Tracer.TraceType.RESOURCE_KEEP,
+			Display.getCurrent().getSystemColor(SWT.COLOR_GREEN)
+		);
+
+		colorByType.put(
+			Tracer.TraceType.RESOURCE_ERASE,
+			Display.getCurrent().getSystemColor(SWT.COLOR_DARK_CYAN)
+		);
+
+		colorByType.put(
+			Tracer.TraceType.SYSTEM,
+			Display.getCurrent().getSystemColor(SWT.COLOR_RED)
+		);
+
+		colorByType.put(
+			Tracer.TraceType.OPERATION_BEGIN,
+			Display.getCurrent().getSystemColor(SWT.COLOR_BLUE)
+		);
+
+		colorByType.put(
+			Tracer.TraceType.OPERATION_END,
+			Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE)
+		);
+
+		colorByType.put(
+			Tracer.TraceType.EVENT,
+			Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW)
+		);
+
+		colorByType.put(
+			Tracer.TraceType.RULE,
+			Display.getCurrent().getSystemColor(SWT.COLOR_GRAY)
+		);
+
+		colorByType.put(
+			Tracer.TraceType.RESULT,
+			Display.getCurrent().getSystemColor(SWT.COLOR_WHITE)
+		);
+	}
+
 	private void createViewer(Composite parent)
 	{
+		initializeColorMap();
 		display = getSite().getShell().getDisplay();
 		viewer = new TableViewer(
 			parent,
@@ -43,6 +104,7 @@ public class RDOTraceView extends ViewPart
 			.getFontRegistry();
 
 		viewer.setContentProvider(new RDOTraceViewContentProvider(viewer));
+		viewer.setLabelProvider(new RDOTraceViewLabelProvider());
 		viewer.setUseHashlookup(true);
 		viewer.getTable().setFont(
 			fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
@@ -50,7 +112,8 @@ public class RDOTraceView extends ViewPart
 
 	public static void fireReady()
 	{
-		final ArrayList<String> traceList = Simulator.getTracer().getTraceList();
+		final ArrayList<Tracer.TraceOutput> traceList =
+			Simulator.getTracer().getTraceList();
 		display.asyncExec(
 			new Runnable()
 			{
@@ -95,4 +158,47 @@ class RDOTraceViewContentProvider implements ILazyContentProvider
 	}
 }
 
+//TODO maybe ITableLableProvider is more suitable
+// but since there is only one column, currently there is no difference
+class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
+{
+	@Override
+	public void addListener(ILabelProviderListener listener) {}
 
+	@Override
+	public void dispose() {}
+
+	@Override
+	public boolean isLabelProperty(Object element, String property)
+	{
+		return false;
+	}
+
+	@Override
+	public void removeListener(ILabelProviderListener listener) {}
+
+	@Override
+	public Image getImage(Object element)
+	{
+		return null;
+	}
+
+	@Override
+	public String getText(Object element)
+	{
+		return ((Tracer.TraceOutput) element).content();
+	}
+
+	@Override
+	public Color getForeground(Object element)
+	{
+		return null;
+	}
+
+	@Override
+	public Color getBackground(Object element)
+	{
+		Tracer.TraceType type = ((Tracer.TraceOutput) element).type();
+		return RDOTraceView.colorByType.get(type);
+	}
+}
