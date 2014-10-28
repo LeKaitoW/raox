@@ -3,6 +3,25 @@
 This project is an implementation of RDO modelling language in Eclipse, using xtext.
 * [About RDO modelling language (rus)](http://rdo.rk9.bmstu.ru/help/help/rdo_lang_rus/html/rdo_intro.htm)
 
+## Preparing
+ * Install [Ubuntu Desktop](http://www.ubuntu.com/download/desktop/)
+ * Download [Eclipse IDE for Java Developers](https://www.eclipse.org/downloads/)
+```bash
+cd Загрузки
+gunzip eclipse-java-luna-SR1-linux-gtk-x86_64.tar.gz
+tar -xf eclipse-java-luna-SR1-linux-gtk-x86_64.tar
+cd eclipse
+sudo apt-get install openjdk-8-jdk
+./eclipse
+```
+
+ * Help `>` Eclipse Marketplace... `>` xtext `>` Install
+ * Download sources
+```bash
+ssh-add ~/.ssh/github.openssh.private.key
+git clone git@github.com:aurusov/rdo-xtext.git
+```
+
 ## Installing  
 ### Setting up the workspace for Eclipse
 * File `>` Import existing projects into workspace (with repo as root directory)
