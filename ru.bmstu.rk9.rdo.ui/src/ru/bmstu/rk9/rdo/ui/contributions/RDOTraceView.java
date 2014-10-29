@@ -20,60 +20,63 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import ru.bmstu.rk9.rdo.lib.Simulator;
+import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.Tracer;
 
 public class RDOTraceView extends ViewPart
 {
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOTraceView";
 
-	static private TableViewer viewer;
-	private static Display display;
+	static TableViewer viewer;
 
-	public static EnumMap<Tracer.TraceType, Color> colorByType =
+	public static RDOTraceUpdater updater;
+
+	public static final EnumMap<Tracer.TraceType, Color> colorByType =
 		new EnumMap<Tracer.TraceType, Color>(Tracer.TraceType.class);
 
 	@Override
-	public void createPartControl(Composite parent) {
+	public void createPartControl(Composite parent)
+	{
 		createViewer(parent);
 	}
 
-	private void initializeColorMap()
+	private final void initializeColorMap()
 	{
 		//TODO choose proper colors
 		//customs colors need to be created and disposed of
 		colorByType.put(
 			Tracer.TraceType.RESOURCE_CREATE,
-			Display.getCurrent().getSystemColor(SWT.COLOR_CYAN)
+			PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_CYAN)
 		);
 
 		colorByType.put(
 			Tracer.TraceType.RESOURCE_KEEP,
-			Display.getCurrent().getSystemColor(SWT.COLOR_GREEN)
+			PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_GREEN)
 		);
 
 		colorByType.put(
 			Tracer.TraceType.RESOURCE_ERASE,
-			Display.getCurrent().getSystemColor(SWT.COLOR_DARK_CYAN)
+			PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_DARK_CYAN)
 		);
 
 		colorByType.put(
 			Tracer.TraceType.SYSTEM,
-			Display.getCurrent().getSystemColor(SWT.COLOR_RED)
+			PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_RED)
 		);
 
 		colorByType.put(
 			Tracer.TraceType.OPERATION_BEGIN,
-			Display.getCurrent().getSystemColor(SWT.COLOR_BLUE)
+			PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_BLUE)
 		);
 
 		colorByType.put(
 			Tracer.TraceType.OPERATION_END,
-			Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE)
+			PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_DARK_BLUE)
 		);
 
 		colorByType.put(
 			Tracer.TraceType.EVENT,
-			Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW)
+			PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_YELLOW)
 		);
 
 		colorByType.put(
@@ -87,14 +90,14 @@ public class RDOTraceView extends ViewPart
 		);
 	}
 
-	private void createViewer(Composite parent)
+	private final void createViewer(Composite parent)
 	{
 		initializeColorMap();
-		display = getSite().getShell().getDisplay();
 		viewer = new TableViewer(
 			parent,
 			SWT.H_SCROLL | SWT.V_SCROLL | SWT.VIRTUAL
 		);
+		updater = new RDOTraceUpdater();
 
 		FontRegistry fontRegistry =
 			PlatformUI
@@ -103,43 +106,41 @@ public class RDOTraceView extends ViewPart
 			.getCurrentTheme()
 			.getFontRegistry();
 
-		viewer.setContentProvider(new RDOTraceViewContentProvider(viewer));
+		viewer.setContentProvider(new RDOTraceViewContentProvider());
 		viewer.setLabelProvider(new RDOTraceViewLabelProvider());
 		viewer.setUseHashlookup(true);
 		viewer.getTable().setFont(
 			fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
 	}
 
-	public static void fireReady()
-	{
-		final ArrayList<Tracer.TraceOutput> traceList =
-			Simulator.getTracer().getTraceList();
-		display.asyncExec(
-			new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					viewer.setInput(traceList);
-					viewer.setItemCount(traceList.size());
-				}
-			}
-		);
-	}
-
 	@Override
 	public void setFocus() {}
+
+	public class RDOTraceUpdater implements Subscriber
+	{
+		@Override
+		public void fireChange()
+		{
+			final ArrayList<Tracer.TraceOutput> traceList =
+				Simulator.getTracer().getTraceList();
+			PlatformUI.getWorkbench().getDisplay().asyncExec(
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						RDOTraceView.viewer.setInput(traceList);
+						RDOTraceView.viewer.setItemCount(traceList.size());
+					}
+				}
+			);
+		}
+	}
 }
 
 class RDOTraceViewContentProvider implements ILazyContentProvider
 {
-	private TableViewer viewer;
 	private ArrayList<String> traceList;
-
-	public RDOTraceViewContentProvider(TableViewer viewer)
-	{
-		this.viewer = viewer;
-	}
 
 	@Override
 	public void dispose() {}
@@ -154,7 +155,7 @@ class RDOTraceViewContentProvider implements ILazyContentProvider
 	@Override
 	public void updateElement(int index)
 	{
-		viewer.replace(traceList.get(index), index);
+		RDOTraceView.viewer.replace(traceList.get(index), index);
 	}
 }
 

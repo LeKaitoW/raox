@@ -183,6 +183,11 @@ public class ExecutionHandler extends AbstractHandler
 
 					initialization.invoke(null, null);
 
+					Simulator
+						.getNotifier()
+							.getSubscription("ExecutionComplete")
+								.addSubscriber(RDOTraceView.updater);
+
 					RDOConsoleView.addLine("Started model " + project.getName());
 					long startTime = System.currentTimeMillis();
 
@@ -223,7 +228,6 @@ public class ExecutionHandler extends AbstractHandler
 					return new Status(Status.CANCEL, "ru.bmstu.rk9.rdo.ui", "Execution failed");
 				}
 
-				RDOTraceView.fireReady();
 
 				return Status.OK_STATUS;
 			}

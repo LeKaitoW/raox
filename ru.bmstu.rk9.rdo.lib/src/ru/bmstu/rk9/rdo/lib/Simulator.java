@@ -22,7 +22,8 @@ public class Simulator
 					{
 						"StateChange",
 						"TimeChange",
-						"ExecutionAborted"
+						"ExecutionAborted",
+						"ExecutionComplete"
 					}
 				);
 
@@ -165,11 +166,14 @@ public class Simulator
 			if (dptCheck != 0)
 				return stop(dptCheck);
 		}
+
 		return stop(0);
 	}
 
 	private static int stop(int code)
 	{
+		getTracer().saveTraceData();
+		notifyChange("ExecutionComplete");
 		isRunning = false;
 		return code;
 	}
