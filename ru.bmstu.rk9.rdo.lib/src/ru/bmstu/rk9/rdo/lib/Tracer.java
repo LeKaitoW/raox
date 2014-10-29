@@ -72,7 +72,6 @@ public final class Tracer implements Subscriber
 		}
 	}
 
-	//TODO proper place of nested class inside a Tracer class?s
 	public final static class TraceOutput
 	{
 		TraceOutput(TraceType type, String content)
@@ -142,8 +141,6 @@ public final class Tracer implements Subscriber
 	}
 
 	//TODO choose the proper container for traceList
-	//TODO besides string it should contain type identifier for future
-	//coloring in UI
 	private ArrayList<TraceOutput> traceList = new ArrayList<TraceOutput>();
 
 	public final ArrayList<TraceOutput> getTraceList()
@@ -266,8 +263,6 @@ public final class Tracer implements Subscriber
 				stringBuilder.add(String.valueOf(resourceData.getShort()));
 				break;
 			case STRING:
-				//TODO macro-like variable sizeofInt should be
-				//moved somewhere on upper level or discarded
 				final int index = typeInfo.indexList.get(paramNum);
 				final int stringPosition =
 					resourceData.getInt(typeInfo.finalOffset + (index - 1) * TypeSize.RDO.INTEGER);
