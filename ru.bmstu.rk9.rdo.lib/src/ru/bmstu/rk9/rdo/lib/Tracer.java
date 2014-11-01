@@ -395,9 +395,9 @@ public final class Tracer implements Subscriber
 
 		return
 			new TraceOutput(
-			TraceType.RULE,
+			TraceType.RESULT,
 			new StringJoin(delimiter)
-				.add(TraceType.RULE.toString())
+				.add(TraceType.RESULT.toString())
 				.add(String.valueOf(time))
 				.add(String.valueOf(resultNum))
 				.add(parseResultParameter(entry.data, valueType))
