@@ -41,7 +41,6 @@ public class RDOTraceView extends ViewPart
 			parent,
 			SWT.H_SCROLL | SWT.V_SCROLL | SWT.VIRTUAL
 		);
-		updater = new RDOTraceUpdater();
 
 		FontRegistry fontRegistry =
 			PlatformUI
@@ -57,26 +56,27 @@ public class RDOTraceView extends ViewPart
 			fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
 	}
 
-	public static RDOTraceUpdater updater;
+	public static RDOTraceUpdater updater = new RDOTraceUpdater();
 
-	public class RDOTraceUpdater implements Subscriber
+	public static class RDOTraceUpdater implements Subscriber
 	{
 		@Override
 		public void fireChange()
 		{
 			final ArrayList<Tracer.TraceOutput> traceList =
 				Simulator.getTracer().getTraceList();
-			PlatformUI.getWorkbench().getDisplay().asyncExec(
-				new Runnable()
-				{
-					@Override
-					public void run()
+			if (RDOTraceView.viewer != null)
+				PlatformUI.getWorkbench().getDisplay().asyncExec(
+					new Runnable()
 					{
-						RDOTraceView.viewer.setInput(traceList);
-						RDOTraceView.viewer.setItemCount(traceList.size());
+						@Override
+						public void run()
+						{
+							RDOTraceView.viewer.setInput(traceList);
+							RDOTraceView.viewer.setItemCount(traceList.size());
+						}
 					}
-				}
-			);
+				);
 		}
 	}
 
