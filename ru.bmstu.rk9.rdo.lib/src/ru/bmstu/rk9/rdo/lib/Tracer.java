@@ -5,45 +5,13 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
-import ru.bmstu.rk9.rdo.lib.json.JSONArray;
-import ru.bmstu.rk9.rdo.lib.json.JSONObject;
-
 public final class Tracer implements Subscriber
 {
-	//TODO Shouldn't it be moved to Database?
-	public static enum ValueType
-	{
-		INTEGER("integer"),
-		REAL("real"),
-		BOOLEAN("boolean"),
-		ENUM("enum"),
-		STRING("string");
-
-		private final String type;
-
-		ValueType(String type)
-		{
-			this.type = type;
-		}
-
-		public static final ValueType get(final String type)
-		{
-			for (ValueType t : values())
-			{
-				if (t.type.equals(type))
-					return t;
-			}
-			return null;
-		}
-	}
-
 	public static enum TraceType
 	{
 		//TODO add DPT
-		//TODO it duplicates Database enums in a way, what to do?
 		RESOURCE_CREATE("RC"),
 		RESOURCE_KEEP("RK"),
 		RESOURCE_ERASE("RE"),
@@ -92,16 +60,16 @@ public final class Tracer implements Subscriber
 	Tracer()
 	{
 		resourceNames = new HashMap<Integer, HashMap<Integer, String>>();
-		fillResourceNames(resourceNames);
+		ModelStructureHelper.fillResourceNames(resourceNames);
 
 		resourceTypesInfo = new HashMap<Integer, ResourceTypeInfo>();
-		fillResourceTypesInfo(resourceTypesInfo);
+		ModelStructureHelper.fillResourceTypesInfo(resourceTypesInfo);
 		resultsInfo = new HashMap<Integer, ResultInfo>();
-		fillResultsInfo(resultsInfo);
+		ModelStructureHelper.fillResultsInfo(resultsInfo);
 		patternsInfo = new HashMap<Integer, PatternInfo>();
-		fillPatternsInfo(patternsInfo);
+		ModelStructureHelper.fillPatternsInfo(patternsInfo);
 		decisionPointsInfo = new HashMap<Integer, DecisionPointInfo>();
-		fillDecisionPointsInfo(decisionPointsInfo);
+		ModelStructureHelper.fillDecisionPointsInfo(decisionPointsInfo);
 	}
 
 	static private final String delimiter = " ";
@@ -412,7 +380,7 @@ public final class Tracer implements Subscriber
 
 	private final String parseResultParameter(
 		final ByteBuffer resultData,
-		final ValueType valueType
+		final ModelStructureHelper.ValueType valueType
 	)
 	{
 		prepareBufferForReading(resultData);
@@ -445,114 +413,6 @@ public final class Tracer implements Subscriber
  /                               HELPER METHODS                              /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	final static void fillResourceNames(
-		final HashMap<Integer, HashMap<Integer, String>> resourceNames
-	)
-	{
-		for (Map.Entry<String, Database.PermanentResourceTypeIndex> type :
-				Simulator.getDatabase().permanentResourceIndex.entrySet())
-		{
-			int typeNum = type.getValue().number;
-			resourceNames.put(
-				typeNum,
-				new HashMap<Integer, String>()
-			);
-			HashMap<Integer, String> resources = resourceNames.get(typeNum);
-			for (Map.Entry<String, Database.Index> res :
-					type.getValue().resources.entrySet())
-				resources.put(
-					res.getValue().number,
-					getRelativeName(res.getKey())
-				);
-		}
-
-		for (Map.Entry<String, Database.TemporaryResourceTypeIndex> type :
-				Simulator.getDatabase().temporaryResourceIndex.entrySet())
-		{
-			int typeNum = type.getValue().number;
-			resourceNames.put(
-				typeNum,
-				new HashMap<Integer, String>()
-			);
-			HashMap<Integer, String> resources = resourceNames.get(typeNum);
-			for (Map.Entry<String, Database.Index> res :
-					type.getValue().resources.entrySet())
-				resources.put(
-					res.getValue().number,
-					getRelativeName(res.getKey())
-				);
-		}
-	}
-
-	//TODO 4 similar methods should be merged into one
-	final static void fillResourceTypesInfo(
-		final HashMap<Integer, ResourceTypeInfo> resourceTypesInfo
-	)
-	{
-		final JSONArray resourceTypes =
-			Simulator
-			.getDatabase()
-			.getModelStructure()
-			.getJSONArray("resource_types");
-
-		for (int num = 0; num < resourceTypes.length(); num++)
-			resourceTypesInfo.put(
-				num,
-				new ResourceTypeInfo(resourceTypes.getJSONObject(num))
-			);
-	}
-
-	final static void fillPatternsInfo(
-		final HashMap<Integer, PatternInfo> patternsInfo
-	)
-	{
-		final JSONArray patterns =
-			Simulator
-			.getDatabase()
-			.getModelStructure()
-			.getJSONArray("patterns");
-
-		for (int num = 0; num < patterns.length(); num++)
-			patternsInfo.put(
-				num,
-				new PatternInfo(patterns.getJSONObject(num))
-			);
-	}
-
-	final static void fillDecisionPointsInfo(
-		final HashMap<Integer, DecisionPointInfo> decisionPointsInfo
-	)
-	{
-		final JSONArray decisionPoints =
-			Simulator
-			.getDatabase()
-			.getModelStructure()
-			.getJSONArray("decision_points");
-
-		for (int num = 0; num < decisionPoints.length(); num++)
-			decisionPointsInfo.put(
-				num,
-				new DecisionPointInfo(decisionPoints.getJSONObject(num))
-			);
-	}
-
-	final static void fillResultsInfo(
-			final HashMap<Integer, ResultInfo> resultsInfo
-		)
-	{
-		final JSONArray results =
-			Simulator
-			.getDatabase()
-			.getModelStructure()
-			.getJSONArray("results");
-
-		for (int num = 0; num < results.length(); num++)
-			resultsInfo.put(
-				num,
-				new ResultInfo(results.getJSONObject(num))
-			);
-	}
-
 	final static void skipPart(final ByteBuffer buffer, final int size)
 	{
 		for (int i = 0; i < size; i++)
@@ -565,203 +425,8 @@ public final class Tracer implements Subscriber
 		buffer.rewind();
 	}
 
-	final static String getRelativeName(final String fullName)
-	{
-		return fullName.substring(fullName.lastIndexOf(".") + 1);
-	}
-
 	@Override
 	public void fireChange() {}
-}
-
-class ValueInfo
-{
-	ValueInfo(final JSONObject param)
-	{
-		type = Tracer.ValueType.get(param.getString("type"));
-		if (type == Tracer.ValueType.ENUM)
-		{
-			enumNames = new HashMap<Integer, String>();
-			JSONObject originParam = null;
-			if (param.has("enums"))
-			{
-				originParam = param;
-			}
-			else
-			{
-				String enumOrigin = param.getString("enum_origin");
-				String typeName =
-					enumOrigin.substring(0, enumOrigin.lastIndexOf("."));
-				String paramName =
-					enumOrigin.substring(enumOrigin.lastIndexOf(".") + 1);
-
-				//TODO simpler solution than parsing resourceTypes?
-				// maybe storing enumOrigin type number?
-				JSONArray resourceTypes =
-					Simulator.getDatabase().getModelStructure()
-					.getJSONArray("resource_types");
-				JSONObject originType = null;
-				for (int num = 0; num < resourceTypes.length(); num++)
-				{
-					JSONObject curType = resourceTypes.getJSONObject(num);
-					if (typeName.equals(curType.getString("name")))
-					{
-						originType = curType;
-						break;
-					}
-				}
-
-				//TODO simpler solution than parsing all parameters?
-				// maybe storing parameter number?
-				JSONArray originParams =
-					originType.getJSONObject("structure").getJSONArray("parameters");
-				for (int num = 0; num < originParams.length(); num++)
-				{
-					JSONObject curParam = originParams.getJSONObject(num);
-					if (paramName.equals(curParam.getString("name")))
-					{
-						originParam = curParam;
-						break;
-					}
-				}
-			}
-
-			JSONArray enums = originParam.getJSONArray("enums");
-			for (int num = 0; num < enums.length(); num++)
-				enumNames.put(num, enums.getString(num));
-		}
-		else
-			enumNames = null;
-	}
-	public final Tracer.ValueType type;
-	public final HashMap<Integer, String> enumNames;
-}
-
-class ResourceTypeInfo
-{
-	ResourceTypeInfo(final JSONObject resourceType)
-	{
-		name = Tracer.getRelativeName(resourceType.getString("name"));
-		temporary = resourceType.getBoolean("temporary");
-
-		JSONObject structure = resourceType.getJSONObject("structure");
-		JSONArray parameters = structure.getJSONArray("parameters");
-		numberOfParameters = parameters.length();
-
-		paramTypes = new HashMap<Integer, ValueInfo>();
-		indexList = new HashMap<Integer, Integer>();
-		for (int num = 0; num < numberOfParameters; num++)
-		{
-			final JSONObject currentParameter = parameters.getJSONObject(num);
-			Tracer.ValueType type = Tracer.ValueType.get(currentParameter.getString("type"));
-			paramTypes.put(
-				num,
-				new ValueInfo(currentParameter)
-			);
-			if (type == Tracer.ValueType.STRING)
-			{
-				indexList.put(num, currentParameter.getInt("index"));
-			}
-		}
-		finalOffset = structure.getInt("last_offset");
-	}
-
-	public final String name;
-	public final boolean temporary;
-	public final int numberOfParameters;
-	public final HashMap<Integer, ValueInfo> paramTypes;
-	public final HashMap<Integer, Integer> indexList;
-	public final int finalOffset;
-}
-
-class PatternInfo
-{
-	PatternInfo(final JSONObject pattern)
-	{
-		name = Tracer.getRelativeName(pattern.getString("name"));
-		relResTypes = new HashMap<Integer, Integer>();
-		JSONArray relevantResources =
-			pattern.getJSONArray("relevant_resources");
-		for (int num = 0; num < relevantResources.length(); num++)
-		{
-			String typeName =
-				relevantResources.getJSONObject(num).getString("type");
-
-			//TODO instead of searching this should be serialized
-			JSONArray resTypes = Simulator.getDatabase().getModelStructure()
-				.getJSONArray("resource_types");
-			Integer typeNum = null;
-			for (int i = 0; i < resTypes.length(); i++)
-				if (typeName.equals(
-						resTypes.getJSONObject(i).getString("name")))
-				{
-					typeNum = i;
-					break;
-				}
-			relResTypes.put(
-				num,
-				typeNum
-			);
-		}
-	}
-
-	public final String name;
-	public final HashMap<Integer, Integer> relResTypes;
-}
-
-class DecisionPointInfo
-{
-	DecisionPointInfo(final JSONObject dpt)
-	{
-		name = Tracer.getRelativeName(dpt.getString("name"));
-		activitiesInfo = new HashMap<Integer, ActivityInfo>();
-		JSONArray activities = dpt.getJSONArray("activities");
-		for (int num = 0; num < activities.length(); num++)
-		{
-			activitiesInfo.put(
-				num,
-				new ActivityInfo(activities.getJSONObject(num))
-			);
-		}
-	}
-
-	public final String name;
-	public final HashMap<Integer, ActivityInfo> activitiesInfo;
-}
-
-class ActivityInfo
-{
-	ActivityInfo(final JSONObject activity)
-	{
-		name = Tracer.getRelativeName(activity.getString("name"));
-		final String patternName = activity.getString("pattern");
-		//TODO instead of searching this should be serialized
-		JSONArray patterns = Simulator.getDatabase().getModelStructure()
-				.getJSONArray("patterns");
-		for (int num = 0; num < patterns.length(); num++)
-			if (patternName.equals(
-					patterns.getJSONObject(num).getString("name")))
-			{
-				patternNumber = num;
-				break;
-			}
-	}
-
-	public final String name;
-	//TODO change to final int when fixed TODO above
-	public Integer patternNumber = null;
-}
-
-class ResultInfo
-{
-	ResultInfo(final JSONObject result)
-	{
-		name = Tracer.getRelativeName(result.getString("name"));
-		valueType = Tracer.ValueType.get(result.getString("value_type"));
-	}
-
-	public final String name;
-	public final Tracer.ValueType valueType;
 }
 
 //TODO use standard class when switched to Java8
