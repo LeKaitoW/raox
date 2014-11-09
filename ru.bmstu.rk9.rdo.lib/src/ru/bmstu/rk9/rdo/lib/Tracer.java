@@ -59,28 +59,26 @@ public final class Tracer implements Subscriber
 
 	Tracer()
 	{
-		resourceNames = new HashMap<Integer, HashMap<Integer, String>>();
 		ModelStructureHelper.fillResourceNames(resourceNames);
-
-		resourceTypesInfo = new HashMap<Integer, ResourceTypeInfo>();
 		ModelStructureHelper.fillResourceTypesInfo(resourceTypesInfo);
-		resultsInfo = new HashMap<Integer, ResultInfo>();
 		ModelStructureHelper.fillResultsInfo(resultsInfo);
-		patternsInfo = new HashMap<Integer, PatternInfo>();
 		ModelStructureHelper.fillPatternsInfo(patternsInfo);
-		decisionPointsInfo = new HashMap<Integer, DecisionPointInfo>();
 		ModelStructureHelper.fillDecisionPointsInfo(decisionPointsInfo);
 	}
 
 	static private final String delimiter = " ";
 	static private final String numberDelimiter = ":";
 
-	//TODO change all HashMaps with continuous keys to ArrayLists?
-	private final HashMap<Integer, HashMap<Integer, String>> resourceNames;
-	private final HashMap<Integer, ResourceTypeInfo> resourceTypesInfo;
-	private final HashMap<Integer, ResultInfo> resultsInfo;
-	private final HashMap<Integer, PatternInfo> patternsInfo;
-	private final HashMap<Integer, DecisionPointInfo> decisionPointsInfo;
+	private final HashMap<Integer, HashMap<Integer, String>> resourceNames =
+		new HashMap<Integer, HashMap<Integer, String>>();
+	private final ArrayList<ResourceTypeInfo> resourceTypesInfo =
+		new ArrayList<ResourceTypeInfo>();
+	private final ArrayList<ResultInfo> resultsInfo =
+		new ArrayList<ResultInfo>();
+	private final ArrayList<PatternInfo> patternsInfo =
+		new ArrayList<PatternInfo>();
+	private final ArrayList<DecisionPointInfo> decisionPointsInfo =
+		new ArrayList<DecisionPointInfo>();
 
 	//TODO choose the proper container for traceList
 	private ArrayList<TraceOutput> traceList = new ArrayList<TraceOutput>();

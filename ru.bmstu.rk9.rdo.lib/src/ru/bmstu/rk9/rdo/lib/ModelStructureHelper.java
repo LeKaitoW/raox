@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rdo.lib;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,7 +75,7 @@ class ModelStructureHelper
 
 	//TODO 4 similar methods should be merged into one
 	final static void fillResourceTypesInfo(
-		final HashMap<Integer, ResourceTypeInfo> resourceTypesInfo)
+		final ArrayList<ResourceTypeInfo> resourceTypesInfo)
 	{
 		final JSONArray resourceTypes =
 			Simulator
@@ -83,14 +84,13 @@ class ModelStructureHelper
 			.getJSONArray("resource_types");
 
 		for (int num = 0; num < resourceTypes.length(); num++)
-			resourceTypesInfo.put(
-				num,
+			resourceTypesInfo.add(
 				new ResourceTypeInfo(resourceTypes.getJSONObject(num))
 			);
 	}
 
 	final static void fillPatternsInfo(
-		final HashMap<Integer, PatternInfo> patternsInfo)
+		final ArrayList<PatternInfo> patternsInfo)
 	{
 		final JSONArray patterns =
 			Simulator
@@ -99,14 +99,13 @@ class ModelStructureHelper
 			.getJSONArray("patterns");
 
 		for (int num = 0; num < patterns.length(); num++)
-			patternsInfo.put(
-				num,
+			patternsInfo.add(
 				new PatternInfo(patterns.getJSONObject(num))
 			);
 	}
 
 	final static void fillDecisionPointsInfo(
-		final HashMap<Integer, DecisionPointInfo> decisionPointsInfo)
+		final ArrayList<DecisionPointInfo> decisionPointsInfo)
 	{
 		final JSONArray decisionPoints =
 			Simulator
@@ -115,14 +114,13 @@ class ModelStructureHelper
 			.getJSONArray("decision_points");
 
 		for (int num = 0; num < decisionPoints.length(); num++)
-			decisionPointsInfo.put(
-				num,
+			decisionPointsInfo.add(
 				new DecisionPointInfo(decisionPoints.getJSONObject(num))
 			);
 	}
 
 	final static void fillResultsInfo(
-		final HashMap<Integer, ResultInfo> resultsInfo)
+		final ArrayList<ResultInfo> resultsInfo)
 	{
 		final JSONArray results =
 			Simulator
@@ -131,8 +129,7 @@ class ModelStructureHelper
 			.getJSONArray("results");
 
 		for (int num = 0; num < results.length(); num++)
-			resultsInfo.put(
-				num,
+			resultsInfo.add(
 				new ResultInfo(results.getJSONObject(num))
 			);
 	}
