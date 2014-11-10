@@ -25,10 +25,20 @@ git clone git@github.com:aurusov/rdo-xtext.git
 
 ## Installing  
 ### Setting up the workspace for Eclipse
-* File `>` Import existing projects into workspace (with repo as root directory)
+* `File` `>` `Import` `>` `General` `>` `Existing Projects into Workspace`
 * Wait for the workspace to build and get tons of errors
-* ru.bmstu.rk9.rdo/src/ru.bmstu.rk9.rdo/RDO.xtext `>` Run As `>` Generate Xtext Artifacts
-* Run `>` Run Configurations... `>` Eclipse Application > New  
-    e.g. `runtime-EclipseXtext` with location `${workspace_loc}/../runtime-EclipseXtext`
+* ru.bmstu.rk9.rdo/src/ru.bmstu.rk9.rdo/RDO.xtext `>` `Run As` `>` `Generate Xtext Artifacts`
+``` 
+1    [main] INFO  lipse.emf.mwe.utils.StandaloneSetup  - Registering platform uri '/home/drobus/git/rdo-xtext'
+1028 [main] INFO  lipse.emf.mwe.utils.StandaloneSetup  - Adding generated EPackage 'org.eclipse.xtext.common.types.TypesPackage'
+1035 [main] INFO  ipse.emf.mwe.utils.DirectoryCleaner  - Cleaning /home/drobus/git/rdo-xtext/ru.bmstu.rk9.rdo/../ru.bmstu.rk9.rdo/src-gen
+1036 [main] INFO  ipse.emf.mwe.utils.DirectoryCleaner  - Cleaning /home/drobus/git/rdo-xtext/ru.bmstu.rk9.rdo/../ru.bmstu.rk9.rdo.ui/src-gen
+1036 [main] INFO  ipse.emf.mwe.utils.DirectoryCleaner  - Cleaning /home/drobus/git/rdo-xtext/ru.bmstu.rk9.rdo/../ru.bmstu.rk9.rdo.tests/src-gen
+5500 [main] INFO  clipse.emf.mwe.utils.GenModelHelper  - Registered GenModel 'http://www.bmstu.ru/rk9/rdo/RDO' from 'platform:/resource/ru.bmstu.rk9.rdo/model/generated/RDO.genmodel'
+22337 [main] INFO  text.generator.junit.Junit4Fragment  - generating Junit4 Test support classes
+22345 [main] INFO  text.generator.junit.Junit4Fragment  - generating Compare Framework infrastructure
+22408 [main] INFO  .emf.mwe2.runtime.workflow.Workflow  - Done.
+```
+* `Run` `>` `Run Configurations...` `>` `Eclipse Application` > `New` `>` `Name = runtime-EclipseXtext` `>` `Location = ${workspace_loc}/../runtime-EclipseXtext` `>` `Run`
  * Eclipse Platform may freeze during its launch. This happens due to the unsufficient [permgen](http://wiki.eclipse.org/FAQ_How_do_I_increase_the_permgen_size_available_to_Eclipse%3F) size available to Eclipse. To prevent that, add `-XX:MaxPermSize=256M` to VM arguments in Run Configuration
 * And that's it.
