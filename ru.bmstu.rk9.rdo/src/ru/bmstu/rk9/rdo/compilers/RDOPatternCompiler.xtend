@@ -767,15 +767,6 @@ class RDOPatternCompiler
 					db.addResourceEntry(«r.begin.compileResourceTraceStatus», instanceResources.«r.name
 						», "«op.fullyQualifiedName».«r.name»");
 				«ENDFOR»
-
-				«IF op.relevantresources.filter[t | t.end == PatternConvertStatus.ERASE].size > 0»
-				// query erased forehand
-				«FOR r : op.relevantresources.filter[t | t.end == PatternConvertStatus.ERASE]»
-					db.addResourceEntry(«r.end.compileResourceTraceStatus», instanceResources.«r.name
-						», "«op.fullyQualifiedName».«r.name»");
-				«ENDFOR»
-
-				«ENDIF»
 			}
 
 			private double time;
@@ -806,7 +797,7 @@ class RDOPatternCompiler
 				db.addEventEntry(Database.PatternType.OPERATION_END, this);
 
 				«FOR r : op.relevantresources.filter[t |
-						t.end != PatternConvertStatus.NOCHANGE && t.end != PatternConvertStatus.NONEXIST && t.end != PatternConvertStatus.ERASE]»
+						t.end != PatternConvertStatus.NOCHANGE && t.end != PatternConvertStatus.NONEXIST]»
 					db.addResourceEntry(«r.end.compileResourceTraceStatus», instanceResources.«r.name
 						», "«op.fullyQualifiedName».«r.name»");
 				«ENDFOR»
