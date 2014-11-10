@@ -15,7 +15,7 @@ sudo apt-get install openjdk-8-jdk
 ./eclipse
 ```
 
- * Help `>` Eclipse Marketplace... `>` xtext `>` Install
+ * `Help` `>` `Eclipse Marketplace...` `>` `xtext` `>` `Install`
  * Download sources
 ```bash
 ssh-add ~/.ssh/github.openssh.private.key
