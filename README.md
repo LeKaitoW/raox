@@ -16,6 +16,7 @@ sudo apt-get install openjdk-8-jdk
 ```
 
  * `Help` `>` `Eclipse Marketplace...` `>` `xtext` `>` `Install`
+ * `Help` `>` `Install New Software...` `>` `Add` `>` `Name = emf` `>` `Location = http://download.eclipse.org/modeling/emf/updates/releases/` `>` `emf sdk` `>` `Next` ...
  * Download sources
 ```bash
 ssh-add ~/.ssh/github.openssh.private.key
