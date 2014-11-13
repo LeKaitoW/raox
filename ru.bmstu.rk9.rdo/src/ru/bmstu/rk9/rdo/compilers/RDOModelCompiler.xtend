@@ -50,11 +50,16 @@ class RDOModelCompiler
 			public static void init()
 			{
 				(new «project»Model()).deploy();
+
+				Database db = Simulator.getDatabase();
 				«FOR r : rs.resources»
 
 					«FOR rtp : r.allContents.filter(typeof(ResourceDeclaration)).toIterable»
-						(new «rtp.reference.fullyQualifiedName»(«if (rtp.parameters != null)
-							rtp.parameters.compileExpression.value else ""»)).register("«rtp.fullyQualifiedName»");
+						«rtp.reference.fullyQualifiedName» «rtp.name» = new «rtp.reference.fullyQualifiedName»(«if (rtp.parameters != null)
+							rtp.parameters.compileExpression.value else ""»);
+						«rtp.name».register("«rtp.fullyQualifiedName»");
+						db.addResourceEntry(Database.ResourceEntryType.CREATED, «rtp.name», "«rtp.fullyQualifiedName»");
+
 					«ENDFOR»
 				«ENDFOR»
 			}
