@@ -113,7 +113,7 @@ class RDODecisionPointCompiler
 											IF activities.get(i).pattern instanceof Rule»RULE«ELSE»OPERATION_BEGIN«ENDIF»,
 										rule
 									);
-									rule.addResourcesToDatabase();
+									rule.addResourceEntriesToDatabase();
 								}
 							}
 						);
@@ -231,7 +231,7 @@ class RDODecisionPointCompiler
 								public void executeActivity()
 								{
 									«a.pattern.fullyQualifiedName» rule = «a.pattern.fullyQualifiedName».executeRule(«a.name»);
-									rule.addResourcesToDatabase();
+									rule.addResourceEntriesToDatabase();
 								}
 
 								@Override

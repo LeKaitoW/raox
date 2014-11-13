@@ -434,7 +434,7 @@ class RDOPatternCompiler
 				return new «rule.name»(resources);
 			}
 
-			public void addResourcesToDatabase()
+			public void addResourceEntriesToDatabase()
 			{
 				Database db = Simulator.getDatabase();
 
@@ -758,7 +758,7 @@ class RDOPatternCompiler
 				return instance;
 			}
 
-			public void addResourcesToDatabase()
+			public void addResourceEntriesToDatabase()
 			{
 				Database db = Simulator.getDatabase();
 
