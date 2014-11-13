@@ -3,97 +3,43 @@ package ru.bmstu.rk9.rdo.lib;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeSet;
 
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
-import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
-import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
 
-public class LegacyTracer
+public class LegacyTracer extends Tracer
 {
 	LegacyTracer()
 	{
+		super();
+
 		legacyResourceIndexes =
 			new HashMap<Integer, HashMap<Integer, Integer>>();
 		takenIds = new TreeSet<Integer>();
 		initializeTypes();
-
-		ModelStructureHelper.fillResourceTypesInfo(resourceTypesInfo);
-		ModelStructureHelper.fillResultsInfo(resultsInfo);
-		ModelStructureHelper.fillPatternsInfo(patternsInfo);
-		ModelStructureHelper.fillDecisionPointsInfo(decisionPointsInfo);
 	}
 
 	private final HashMap<Integer, HashMap<Integer, Integer>> legacyResourceIndexes;
 	private final TreeSet<Integer> takenIds;
 
-	private final ArrayList<ResourceTypeInfo> resourceTypesInfo =
-		new ArrayList<ResourceTypeInfo>();
-	private final ArrayList<ResultInfo> resultsInfo =
-		new ArrayList<ResultInfo>();
-	private final ArrayList<DecisionPointInfo> decisionPointsInfo =
-		new ArrayList<DecisionPointInfo>();
-	private final ArrayList<PatternInfo> patternsInfo =
-		new ArrayList<PatternInfo>();
-
 	static private final String delimiter = " ";
-
-	private ArrayList<TraceOutput> traceList = new ArrayList<TraceOutput>();
-
-	public final ArrayList<TraceOutput> getTraceList()
-	{
-		//TODO make unmodifiable
-		return traceList;
-	}
-
-	public final void saveTraceData()
-	{
-		final ArrayList<Database.Entry> entries =
-			Simulator.getDatabase().allEntries;
-
-		for (Database.Entry entry : entries)
-		{
-			final TraceOutput traceOutput = parseSerializedData(entry);
-			if (traceOutput != null)
-				traceList.add(traceOutput);
-		}
-	}
-
-	private final TraceOutput parseSerializedData(final Database.Entry entry)
-	{
-		final Database.EntryType type =
-			Database.EntryType.values()[entry.header.get(
-				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
-		switch(type)
-		{
-		//TODO implement the rest of EntryTypes
-		case RESOURCE:
-			return parseResourceEntry(entry);
-		case RESULT:
-			return parseResultEntry(entry);
-		case PATTERN:
-			return parsePatternEntry(entry);
-		default:
-			return null;
-		}
-	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                          PARSING RESOURCE ENTRIES                         /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	private final TraceOutput parseResourceEntry(final Database.Entry entry)
+	@Override
+	protected final TraceOutput parseResourceEntry(final Database.Entry entry)
 	{
 		final ByteBuffer resourceHeader = entry.header;
 
-		Tracer.prepareBufferForReading(resourceHeader);
+		prepareBufferForReading(resourceHeader);
 
 		final double time = resourceHeader.getDouble();
-		Tracer.skipPart(resourceHeader, TypeSize.BYTE);
+		skipPart(resourceHeader, TypeSize.BYTE);
 		final TraceType traceType;
 		byte entryType = resourceHeader.get();
 		final int typeNum = resourceHeader.getInt();
@@ -150,14 +96,15 @@ public class LegacyTracer
 			);
 	}
 
-	private final String parseResourceParameters(
+	@Override
+	protected final String parseResourceParameters(
 		final ByteBuffer resourceData,
 		final ResourceTypeInfo typeInfo
 	)
 	{
 		final StringJoin stringBuilder = new StringJoin(delimiter);
 
-		Tracer.prepareBufferForReading(resourceData);
+		prepareBufferForReading(resourceData);
 
 		for (int paramNum = 0; paramNum < typeInfo.numberOfParameters; paramNum++)
 		{
@@ -201,14 +148,15 @@ public class LegacyTracer
  /                          PARSING PATTERN ENTRIES                          /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	private final TraceOutput parsePatternEntry(final Database.Entry entry)
+	@Override
+	protected final TraceOutput parsePatternEntry(final Database.Entry entry)
 	{
 		final ByteBuffer patternHeader = entry.header;
 
-		Tracer.prepareBufferForReading(patternHeader);
+		prepareBufferForReading(patternHeader);
 
 		final double time = patternHeader.getDouble();
-		Tracer.skipPart(patternHeader, TypeSize.BYTE);
+		skipPart(patternHeader, TypeSize.BYTE);
 		final TraceType traceType;
 
 		//TODO trace system events when implemented
@@ -241,14 +189,15 @@ public class LegacyTracer
 			);
 	}
 
-	private final String parsePatternData(
+	@Override
+	protected final String parsePatternData(
 		final ByteBuffer patternData,
 		final TraceType patternType
 	)
 	{
 		final StringJoin stringBuilder = new StringJoin(delimiter);
 
-		Tracer.prepareBufferForReading(patternData);
+		prepareBufferForReading(patternData);
 		int patternNumber;
 
 		switch(patternType)
@@ -318,14 +267,15 @@ public class LegacyTracer
  /                           PARSING RESULT ENTRIES                          /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	private final TraceOutput parseResultEntry(final Database.Entry entry)
+	@Override
+	protected final TraceOutput parseResultEntry(final Database.Entry entry)
 	{
 		final ByteBuffer resultHeader = entry.header;
 
-		Tracer.prepareBufferForReading(resultHeader);
+		prepareBufferForReading(resultHeader);
 
 		final double time = resultHeader.getDouble();
-		Tracer.skipPart(resultHeader, TypeSize.BYTE);
+		skipPart(resultHeader, TypeSize.BYTE);
 		final int resultNum = resultHeader.getInt();
 
 		final ModelStructureHelper.ValueType valueType = resultsInfo.get(resultNum).valueType;
@@ -342,12 +292,13 @@ public class LegacyTracer
 			);
 	}
 
-	private final String parseResultParameter(
+	@Override
+	protected final String parseResultParameter(
 		final ByteBuffer resultData,
 		final ModelStructureHelper.ValueType valueType
 	)
 	{
-		Tracer.prepareBufferForReading(resultData);
+		prepareBufferForReading(resultData);
 
 		switch(valueType)
 		{

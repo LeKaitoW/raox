@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
-public final class Tracer implements Subscriber
+public class Tracer implements Subscriber
 {
 	public static enum TraceType
 	{
@@ -69,15 +69,15 @@ public final class Tracer implements Subscriber
 	static private final String delimiter = " ";
 	static private final String numberDelimiter = ":";
 
-	private final HashMap<Integer, HashMap<Integer, String>> resourceNames =
+	protected final HashMap<Integer, HashMap<Integer, String>> resourceNames =
 		new HashMap<Integer, HashMap<Integer, String>>();
-	private final ArrayList<ResourceTypeInfo> resourceTypesInfo =
+	protected final ArrayList<ResourceTypeInfo> resourceTypesInfo =
 		new ArrayList<ResourceTypeInfo>();
-	private final ArrayList<ResultInfo> resultsInfo =
+	protected final ArrayList<ResultInfo> resultsInfo =
 		new ArrayList<ResultInfo>();
-	private final ArrayList<PatternInfo> patternsInfo =
+	protected final ArrayList<PatternInfo> patternsInfo =
 		new ArrayList<PatternInfo>();
-	private final ArrayList<DecisionPointInfo> decisionPointsInfo =
+	protected final ArrayList<DecisionPointInfo> decisionPointsInfo =
 		new ArrayList<DecisionPointInfo>();
 
 	//TODO choose the proper container for traceList
@@ -124,7 +124,7 @@ public final class Tracer implements Subscriber
  /                          PARSING RESOURCE ENTRIES                         /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	private final TraceOutput parseResourceEntry(final Database.Entry entry)
+	protected TraceOutput parseResourceEntry(final Database.Entry entry)
 	{
 		final ByteBuffer resourceHeader = entry.header;
 
@@ -182,7 +182,7 @@ public final class Tracer implements Subscriber
 			);
 	}
 
-	private final String parseResourceParameters(
+	protected String parseResourceParameters(
 		final ByteBuffer resourceData,
 		final ResourceTypeInfo typeInfo
 	)
@@ -239,7 +239,7 @@ public final class Tracer implements Subscriber
  /                          PARSING PATTERN ENTRIES                          /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	private final TraceOutput parsePatternEntry(final Database.Entry entry)
+	protected TraceOutput parsePatternEntry(final Database.Entry entry)
 	{
 		final ByteBuffer patternHeader = entry.header;
 
@@ -279,7 +279,7 @@ public final class Tracer implements Subscriber
 			);
 	}
 
-	private final String parsePatternData(
+	protected String parsePatternData(
 		final ByteBuffer patternData,
 		final TraceType patternType
 	)
@@ -353,7 +353,7 @@ public final class Tracer implements Subscriber
  /                           PARSING RESULT ENTRIES                          /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	private final TraceOutput parseResultEntry(final Database.Entry entry)
+	protected TraceOutput parseResultEntry(final Database.Entry entry)
 	{
 		final ByteBuffer resultHeader = entry.header;
 
@@ -376,7 +376,7 @@ public final class Tracer implements Subscriber
 			);
 	}
 
-	private final String parseResultParameter(
+	protected String parseResultParameter(
 		final ByteBuffer resultData,
 		final ModelStructureHelper.ValueType valueType
 	)
