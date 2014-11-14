@@ -13,7 +13,6 @@ import static extension ru.bmstu.rk9.rdo.compilers.RDOResourceTypeCompiler.*
 import ru.bmstu.rk9.rdo.generator.LocalContext
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeKind
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
@@ -149,13 +148,14 @@ class RDOPatternCompiler
 			}
 
 			@Override
-			public JSONArray getRelevantInfo()
+			public int[] getRelevantInfo()
 			{
-				return new JSONArray()
-				«FOR r : evn.relevantresources»«IF r.type instanceof ResourceDeclaration»
-					«"\t"».put("«(r.type as ResourceDeclaration).fullyQualifiedName»")
-				«ELSE»«IF r.rule.literal == "Create"»
-						«"\t"».put(staticResources.«r.name».getNumber())«ENDIF»«ENDIF»«ENDFOR»;
+				return new int[]
+				{
+					«FOR i : 0 ..< evn.relevantresources.size»
+						staticResources.«evn.relevantresources.get(i).name».getNumber()«
+							IF i < evn.relevantresources.size - 1»,«ENDIF»«ENDFOR»
+				};
 			}
 
 			public static final JSONObject structure = new JSONObject()
@@ -442,31 +442,14 @@ class RDOPatternCompiler
 			}
 
 			@Override
-			public JSONArray getRelevantInfo()
+			public int[] getRelevantInfo()
 			{
-				JSONArray relevantInfo = new JSONArray();
-
-				String tempName;
-
-				«FOR r : rule.relevantresources»
-					«IF r.type instanceof ResourceDeclaration»
-						relevantInfo.put("«(r.type as ResourceDeclaration).fullyQualifiedName»");
-					«ELSE»
-						«IF (r.type as ResourceType).type == ResourceTypeKind.PERMANENT»
-							relevantInfo.put(instanceResources.«r.name».getName());
-						«ELSE»
-
-							tempName = instanceResources.«r.name».getName();
-							if(tempName != null)
-								relevantInfo.put(tempName);
-							else
-								relevantInfo.put(instanceResources.«r.name».getNumber());
-
-						«ENDIF»
-					«ENDIF»
-				«ENDFOR»
-
-				return relevantInfo;
+				return new int[]
+				{
+					«FOR i : 0 ..< rule.relevantresources.size»
+						instanceResources.«rule.relevantresources.get(i).name».getNumber()«
+							IF i < rule.relevantresources.size - 1»,«ENDIF»«ENDFOR»
+				};
 			}
 
 			public static final JSONObject structure = new JSONObject()
@@ -804,31 +787,14 @@ class RDOPatternCompiler
 			}
 
 			@Override
-			public JSONArray getRelevantInfo()
+			public int[] getRelevantInfo()
 			{
-				JSONArray relevantInfo = new JSONArray();
-
-				String tempName;
-
-				«FOR r : op.relevantresources»
-					«IF r.type instanceof ResourceDeclaration»
-						relevantInfo.put("«(r.type as ResourceDeclaration).fullyQualifiedName»");
-					«ELSE»
-						«IF (r.type as ResourceType).type == ResourceTypeKind.PERMANENT»
-							relevantInfo.put(instanceResources.«r.name».getName());
-						«ELSE»
-
-							tempName = instanceResources.«r.name».getName();
-							if(tempName != null)
-								relevantInfo.put(tempName);
-							else
-								relevantInfo.put(instanceResources.«r.name».getNumber());
-
-						«ENDIF»
-					«ENDIF»
-				«ENDFOR»
-
-				return relevantInfo;
+				return new int[]
+				{
+					«FOR i : 0 ..< op.relevantresources.size»
+						instanceResources.«op.relevantresources.get(i).name».getNumber()«
+							IF i < op.relevantresources.size - 1»,«ENDIF»«ENDFOR»
+				};
 			}
 
 			public static final JSONObject structure = new JSONObject()

@@ -39,8 +39,7 @@ class RDOModelCompiler
 		{
 			«FOR r : rs.resources»
 				«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
-					«IF rtp.type.literal == 'temporary'»Temporary«ELSE»Permanent«ENDIF
-						»ResourceManager<«rtp.fullyQualifiedName»> «r.allContents.head.nameGeneric
+					ResourceManager<«rtp.fullyQualifiedName»> «r.allContents.head.nameGeneric
 							»_«rtp.name»_manager;
 				«ENDFOR»
 			«ENDFOR»
@@ -68,9 +67,8 @@ class RDOModelCompiler
 			{
 				«FOR r : rs.resources»
 					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
-						this.«r.allContents.head.nameGeneric»_«rtp.name»_manager = new «
-							IF rtp.type.literal == 'temporary'»Temporary«ELSE»Permanent«ENDIF
-								»ResourceManager<«rtp.fullyQualifiedName»>();
+						this.«r.allContents.head.nameGeneric»_«rtp.name
+							»_manager = new ResourceManager<«rtp.fullyQualifiedName»>();
 					«ENDFOR»
 				«ENDFOR»
 			}
