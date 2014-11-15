@@ -131,7 +131,7 @@ class RDODecisionPointCompiler
 				public static final JSONObject structure = new JSONObject()
 					.put("name", "«dpt.fullyQualifiedName»")
 					.put("type", "«IF dpt instanceof DecisionPointSome»some«ELSE»prior«ENDIF»")
-					.put("parrent", «IF dpt.parent != null»"«dpt.parent.fullyQualifiedName»"«ELSE»(String)null«ENDIF»)
+					.put("parent", «IF dpt.parent != null»"«dpt.parent.fullyQualifiedName»"«ELSE»(String)null«ENDIF»)
 					.put
 					(
 						"activities", new JSONArray()
@@ -157,6 +157,8 @@ class RDODecisionPointCompiler
 		'''
 			package «filename»;
 
+			import ru.bmstu.rk9.rdo.lib.json.*;
+
 			import ru.bmstu.rk9.rdo.lib.*;
 			@SuppressWarnings("all")
 
@@ -170,8 +172,8 @@ class RDODecisionPointCompiler
 				«ENDIF»
 				«ENDFOR»
 
-				private static DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»State> dpt =
-					new DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»State>
+				private static DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»Model> dpt =
+					new DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»Model>
 					(
 						"«dpt.fullyQualifiedName»",
 						«IF dpt.condition != null
@@ -200,12 +202,12 @@ class RDODecisionPointCompiler
 							}
 						},
 						«IF dpt.comparetops»true«ELSE»false«ENDIF»,
-						new DecisionPointSearch.DatabaseRetriever<rdo_model.«dpt.eResource.URI.projectName»State>()
+						new DecisionPointSearch.DatabaseRetriever<rdo_model.«dpt.eResource.URI.projectName»Model>()
 						{
 							@Override
-							public rdo_model.«dpt.eResource.URI.projectName»State get()
+							public rdo_model.«dpt.eResource.URI.projectName»Model get()
 							{
-								return rdo_model.«dpt.eResource.URI.projectName»State.getCurrent();
+								return rdo_model.«dpt.eResource.URI.projectName»Model.getCurrent();
 							}
 						}
 					);
@@ -255,7 +257,7 @@ class RDODecisionPointCompiler
 				public static final JSONObject structure = new JSONObject()
 					.put("name", "«dpt.fullyQualifiedName»")
 					.put("type", "search")
-					.put("parrent", «IF dpt.parent != null»"«dpt.parent.fullyQualifiedName»"«ELSE»null«ENDIF»)
+					.put("parent", «IF dpt.parent != null»"«dpt.parent.fullyQualifiedName»"«ELSE»(String)null«ENDIF»)
 					.put("compare_tops", "«IF dpt.comparetops»YES«ELSE»NO«ENDIF»")
 					.put
 					(
