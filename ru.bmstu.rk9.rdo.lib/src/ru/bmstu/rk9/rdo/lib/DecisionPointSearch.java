@@ -34,7 +34,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 		Simulator
 			.getNotifier()
-			.getSubscription("SimulationAborted")
+			.getSubscription("ExecutionAborted")
 			.addSubscriber(this);
 	}
 
@@ -109,7 +109,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 	@Override
 	public boolean check()
 	{
-		if (terminate.check() && !allowSearch)
+		if (terminate.check() || !allowSearch)
 			return false;
 
 		nodesOpen.clear();
