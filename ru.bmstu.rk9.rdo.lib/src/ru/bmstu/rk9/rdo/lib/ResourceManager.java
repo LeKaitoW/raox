@@ -27,22 +27,29 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 		String name = res.getName();
 		Integer number = res.getNumber();
 
-		if(number == resourceNumber)
-			resourceNumber++;
-		else
-			return;
-
 		if (name != null)
 		{
 			if (permanent.get(name) != null)
 				listResources.set(number, res);
 			else
+			{
+				if(number == resourceNumber)
+					resourceNumber++;
+				else
+					return;
+
 				listResources.add(res);
+			}
 
 			permanent.put(name, res);
 		}
 		else
 		{
+			if(number == resourceNumber)
+				resourceNumber++;
+			else
+				return;
+
 			temporary.put(number, res);
 			listResources.add(res);
 		}
