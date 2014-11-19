@@ -45,7 +45,7 @@ public class RDOStatusView extends ViewPart
 
 	private static Label realTime;
 
-	private static DecimalFormat scaleFormatter = new DecimalFormat("#.###");
+	private static DecimalFormat scaleFormatter = new DecimalFormat("0.###");
 
 	public static void setSimulationScale(double scale)
 	{
@@ -56,7 +56,7 @@ public class RDOStatusView extends ViewPart
 		simulationScale.setSize(simulationScale.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
-	private static DecimalFormat timeFormatter = new DecimalFormat("#.0#####");
+	private static DecimalFormat timeFormatter = new DecimalFormat("0.0#####");
 
 	public static void setSimulationTime(double time)
 	{
