@@ -154,7 +154,8 @@ class RDOPatternCompiler
 				{
 					«FOR i : 0 ..< evn.relevantresources.size»
 						staticResources.«evn.relevantresources.get(i).name».getNumber()«
-							IF i < evn.relevantresources.size - 1»,«ENDIF»«ENDFOR»
+							IF i < evn.relevantresources.size - 1»,«ENDIF»
+					«ENDFOR»
 				};
 			}
 
@@ -452,7 +453,8 @@ class RDOPatternCompiler
 				{
 					«FOR i : 0 ..< rule.relevantresources.size»
 						instanceResources.«rule.relevantresources.get(i).name».getNumber()«
-							IF i < rule.relevantresources.size - 1»,«ENDIF»«ENDFOR»
+							IF i < rule.relevantresources.size - 1»,«ENDIF»
+					«ENDFOR»
 				};
 			}
 
@@ -793,7 +795,8 @@ class RDOPatternCompiler
 				{
 					«FOR i : 0 ..< op.relevantresources.size»
 						instanceResources.«op.relevantresources.get(i).name».getNumber()«
-							IF i < op.relevantresources.size - 1»,«ENDIF»«ENDFOR»
+							IF i < op.relevantresources.size - 1»,«ENDIF»
+					«ENDFOR»
 				};
 			}
 
