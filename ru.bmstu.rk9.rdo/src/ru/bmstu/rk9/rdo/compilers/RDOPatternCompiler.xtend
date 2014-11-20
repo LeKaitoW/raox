@@ -132,13 +132,13 @@ class RDOPatternCompiler
 				«ENDIF»
 
 				// database operations
+				db.addEventEntry(Database.PatternType.EVENT, this);
+
 				«FOR r : evn.relevantresources.filter[t |
 						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
 					db.addResourceEntry(«r.rule.compileResourceTraceStatus», staticResources.«r.name
 						», "«evn.fullyQualifiedName».«r.name»");
 				«ENDFOR»
-
-				db.addEventEntry(Database.PatternType.EVENT, this);
 			}
 
 			public «evn.name»(double time«IF evn.parameters.size > 0», «ENDIF»«evn.parameters.compilePatternParameters»)
@@ -431,14 +431,18 @@ class RDOPatternCompiler
 				«ENDIF»
 				rule.run(resources, parameters);
 
-				// database operations
+				return new «rule.name»(resources);
+			}
+
+			public void addResourceEntriesToDatabase()
+			{
+				Database db = Simulator.getDatabase();
+
 				«FOR r : rule.relevantresources.filter[t |
 						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
-					db.addResourceEntry(«r.rule.compileResourceTraceStatus», resources.«r.name
+					db.addResourceEntry(«r.rule.compileResourceTraceStatus», instanceResources.«r.name
 						», "«rule.fullyQualifiedName».«r.name»");
 				«ENDFOR»
-
-				return new «rule.name»(resources);
 			}
 
 			@Override
@@ -729,27 +733,23 @@ class RDOPatternCompiler
 				«ENDIF»
 				begin.run(resources, parameters);
 
-				// database operations
-				«FOR r : op.relevantresources.filter[t |
-						t.begin != PatternConvertStatus.NOCHANGE && t.begin != PatternConvertStatus.NONEXIST]»
-					db.addResourceEntry(«r.begin.compileResourceTraceStatus», resources.«r.name
-						», "«op.fullyQualifiedName».«r.name»");
-				«ENDFOR»
-
-				«IF op.relevantresources.filter[t | t.end == PatternConvertStatus.ERASE].size > 0»
-				// query erased forehand
-				«FOR r : op.relevantresources.filter[t | t.end == PatternConvertStatus.ERASE]»
-					db.addResourceEntry(«r.end.compileResourceTraceStatus», resources.«r.name
-						», "«op.fullyQualifiedName».«r.name»");
-				«ENDFOR»
-
-				«ENDIF»
 				«op.name» instance = new «op.name»(Simulator.getTime() + «
 					op.time.compileExpressionContext((new LocalContext).populateFromOperation(op)).value», resources, parameters);
 
 				Simulator.pushEvent(instance);
 
 				return instance;
+			}
+
+			public void addResourceEntriesToDatabase()
+			{
+				Database db = Simulator.getDatabase();
+
+				«FOR r : op.relevantresources.filter[t |
+						t.begin != PatternConvertStatus.NOCHANGE && t.begin != PatternConvertStatus.NONEXIST]»
+					db.addResourceEntry(«r.begin.compileResourceTraceStatus», instanceResources.«r.name
+						», "«op.fullyQualifiedName».«r.name»");
+				«ENDFOR»
 			}
 
 			private double time;
@@ -777,13 +777,13 @@ class RDOPatternCompiler
 				end.run(instanceResources, parameters);
 
 				// database operations
+				db.addEventEntry(Database.PatternType.OPERATION_END, this);
+
 				«FOR r : op.relevantresources.filter[t |
-						t.end != PatternConvertStatus.NOCHANGE && t.end != PatternConvertStatus.NONEXIST && t.end != PatternConvertStatus.ERASE]»
+						t.end != PatternConvertStatus.NOCHANGE && t.end != PatternConvertStatus.NONEXIST]»
 					db.addResourceEntry(«r.end.compileResourceTraceStatus», instanceResources.«r.name
 						», "«op.fullyQualifiedName».«r.name»");
 				«ENDFOR»
-
-				db.addEventEntry(Database.PatternType.OPERATION_END, this);
 			}
 
 			@Override
