@@ -2,7 +2,6 @@ package ru.bmstu.rk9.rdo.lib;
 
 import java.nio.ByteBuffer;
 
-import java.util.PriorityQueue;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -333,8 +332,7 @@ public class Database
 	private HashMap<Pattern, PatternPoolEntry> patternPool
 		= new HashMap<Pattern, PatternPoolEntry>();
 
-	private PriorityQueue<Integer> vacantPoolNumbers
-		= new PriorityQueue<Integer>();
+	private int currentPatternPoolNumber = 0;
 
 	public void addDecisionEntry
 	(
@@ -368,11 +366,7 @@ public class Database
 
 		if(type == PatternType.OPERATION_BEGIN)
 		{
-			int number;
-			if(vacantPoolNumbers.isEmpty())
-				number = patternPool.size();
-			else
-				number = vacantPoolNumbers.poll();
+			int number = currentPatternPoolNumber++;
 
 			patternPool.put(pattern, new PatternPoolEntry(dpt, activity, number));
 			data.putInt(number);
@@ -415,7 +409,6 @@ public class Database
 				return;
 			dptIndex = decisionPointIndex.get(poolEntry.dpt.getName());
 			index = dptIndex.activities.get(poolEntry.activity.getName());
-			vacantPoolNumbers.add(poolEntry.number);
 		}
 		else
 		{
