@@ -71,7 +71,7 @@ public class LegacyTracer extends Tracer
 		}
 
 		final String headerLine =
-			new StringJoin(delimiter)
+			new StringBuilder(delimiter)
 			.add(traceType.toString())
 			.add(checkIntegerValuedReal((time)))
 			.add(String.valueOf(typeNum + 1))
@@ -89,7 +89,7 @@ public class LegacyTracer extends Tracer
 		return
 			new TraceOutput(
 				traceType,
-				new StringJoin(delimiter)
+				new StringBuilder(delimiter)
 					.add(headerLine)
 					.add(parseResourceParameters(entry.data, typeInfo))
 					.getString()
@@ -102,7 +102,7 @@ public class LegacyTracer extends Tracer
 		final ResourceTypeInfo typeInfo
 	)
 	{
-		final StringJoin stringBuilder = new StringJoin(delimiter);
+		final StringBuilder stringBuilder = new StringBuilder(delimiter);
 
 		prepareBufferForReading(resourceData);
 
@@ -181,7 +181,7 @@ public class LegacyTracer extends Tracer
 		return
 			new TraceOutput(
 				traceType,
-				new StringJoin(delimiter)
+				new StringBuilder(delimiter)
 					.add(traceType.toString())
 					.add(checkIntegerValuedReal(time))
 					.add(parsePatternData(entry.data, traceType))
@@ -195,7 +195,7 @@ public class LegacyTracer extends Tracer
 		final TraceType patternType
 	)
 	{
-		final StringJoin stringBuilder = new StringJoin(delimiter);
+		final StringBuilder stringBuilder = new StringBuilder(delimiter);
 
 		prepareBufferForReading(patternData);
 		int patternNumber;
@@ -283,7 +283,7 @@ public class LegacyTracer extends Tracer
 		return
 			new TraceOutput(
 			TraceType.RESULT,
-			new StringJoin(delimiter)
+			new StringBuilder(delimiter)
 				.add(TraceType.RESULT.toString())
 				.add(checkIntegerValuedReal(time))
 				.add(String.valueOf(resultNum + 1))
