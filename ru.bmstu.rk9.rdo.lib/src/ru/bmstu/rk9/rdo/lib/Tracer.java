@@ -67,7 +67,6 @@ public class Tracer implements Subscriber
 	}
 
 	static private final String delimiter = " ";
-	static private final String numberDelimiter = ":";
 
 	protected final HashMap<Integer, HashMap<Integer, String>> resourceNames =
 		new HashMap<Integer, HashMap<Integer, String>>();
@@ -157,10 +156,10 @@ public class Tracer implements Subscriber
 		final String resourceName =
 			name != null ?
 				name :
-				typeInfo.name + numberDelimiter + resNum;
+				typeInfo.name + encloseIndex(resNum);
 
 		final String headerLine =
-			new StringJoin(delimiter)
+			new StringBuilder(delimiter)
 			.add(traceType.toString())
 			.add(String.valueOf(time))
 			.add(resourceName)
@@ -175,7 +174,7 @@ public class Tracer implements Subscriber
 		return
 			new TraceOutput(
 				traceType,
-				new StringJoin(delimiter)
+				new StringBuilder(delimiter)
 					.add(headerLine)
 					.add(parseResourceParameters(entry.data, typeInfo))
 					.getString()
@@ -187,7 +186,8 @@ public class Tracer implements Subscriber
 		final ResourceTypeInfo typeInfo
 	)
 	{
-		final StringJoin stringBuilder = new StringJoin(delimiter);
+		final StringBuilder stringBuilder =
+			new StringBuilder(", ", "= {", "}");
 
 		prepareBufferForReading(resourceData);
 
@@ -271,7 +271,7 @@ public class Tracer implements Subscriber
 		return
 			new TraceOutput(
 				traceType,
-				new StringJoin(delimiter)
+				new StringBuilder(delimiter)
 					.add(traceType.toString())
 					.add(String.valueOf(time))
 					.add(parsePatternData(entry.data, traceType))
@@ -284,7 +284,7 @@ public class Tracer implements Subscriber
 		final TraceType patternType
 	)
 	{
-		final StringJoin stringBuilder = new StringJoin(delimiter);
+		final StringBuilder stringBuilder = new StringBuilder(delimiter);
 
 		prepareBufferForReading(patternData);
 
@@ -321,12 +321,15 @@ public class Tracer implements Subscriber
 				.activitiesInfo.get(activityNumber);
 			patternNumber = activity.patternNumber;
 			stringBuilder
-				.add(activity.name + numberDelimiter + actionNumber);
+				.add(activity.name + encloseIndex(actionNumber));
 			break;
 		}
 		default:
 			return null;
 		}
+
+		final StringBuilder resResStringBuilder =
+				new StringBuilder(", ", "(", ")");
 
 		int numberOfRelevantResources = patternData.getInt();
 		for(int num = 0; num < numberOfRelevantResources; num++)
@@ -341,12 +344,12 @@ public class Tracer implements Subscriber
 			final String resourceName =
 				name != null ?
 					name :
-					typeName + numberDelimiter + resNum;
+					typeName + encloseIndex(resNum);
 
-			stringBuilder.add(resourceName);
+			resResStringBuilder.add(resourceName);
 		}
 
-		return stringBuilder.getString();
+		return stringBuilder.getString() + resResStringBuilder.getString();
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
@@ -367,10 +370,11 @@ public class Tracer implements Subscriber
 		return
 			new TraceOutput(
 			TraceType.RESULT,
-			new StringJoin(delimiter)
+			new StringBuilder(delimiter)
 				.add(TraceType.RESULT.toString())
 				.add(String.valueOf(time))
 				.add(resultInfo.name)
+				.add("=")
 				.add(parseResultParameter(entry.data, resultInfo.valueType))
 				.getString()
 			);
@@ -417,6 +421,11 @@ public class Tracer implements Subscriber
 			buffer.get();
 	}
 
+	final static String encloseIndex(final int index)
+	{
+		return "[" + String.valueOf(index) + "]";
+	}
+
 	final static void prepareBufferForReading(final ByteBuffer buffer)
 	{
 		buffer.duplicate();
@@ -427,33 +436,40 @@ public class Tracer implements Subscriber
 	public void fireChange() {}
 }
 
-//TODO use standard class when switched to Java8
-class StringJoin
+class StringBuilder
 {
 	private final String delimiter;
+	private final String prefix;
+	private final String postfix;
 
 	private String current = null;
 
 	public final String getString()
 	{
-		return current;
+		return prefix + current + postfix;
 	}
 
-	StringJoin(String delimiter)
+	//TODO StringBuilder constructors from some custom enum?
+	StringBuilder(String delimeter)
 	{
-		this.delimiter = delimiter;
+		this.delimiter = delimeter;
+		this.prefix = "";
+		this.postfix = "";
 	}
 
-	public final StringJoin add(final String toAppend)
+	StringBuilder(String delimeter, String prefix, String postfix)
+	{
+		this.delimiter = delimeter;
+		this.prefix = prefix;
+		this.postfix = postfix;
+	}
+
+	public final StringBuilder add(final String toAppend)
 	{
 		if (current == null)
-		{
 			current = new String(toAppend);
-		}
 		else
-		{
 			current += delimiter + toAppend;
-		}
 		return this;
 	}
 }
