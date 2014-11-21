@@ -19,6 +19,4 @@ public interface Pattern
 
 	public String getName();
 	public int[] getRelevantInfo(); 
-
-	public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom);
 }

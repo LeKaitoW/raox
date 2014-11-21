@@ -40,7 +40,7 @@ class RDOPatternCompiler
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «evn.name» implements Event, Pattern
+		public class «evn.name» implements Event
 		{
 			private static final String name =  "«evn.fullyQualifiedName»";
 
@@ -205,7 +205,7 @@ class RDOPatternCompiler
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «rule.name» implements Pattern
+		public class «rule.name» implements Rule
 		{
 			private static final String name = "«filename».«rule.name»";
 
@@ -500,7 +500,7 @@ class RDOPatternCompiler
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «op.name» implements Event, Pattern
+		public class «op.name» implements Rule, Event
 		{
 			private static final String name = "«filename».«op.name»";
 

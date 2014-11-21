@@ -102,7 +102,7 @@ class RDODecisionPointCompiler
 								}
 
 								@Override
-								public Pattern executeActivity()
+								public Rule executeActivity()
 								{
 									«activities.get(i).pattern.fullyQualifiedName» executed =
 										«activities.get(i).pattern.fullyQualifiedName
@@ -235,7 +235,7 @@ class RDODecisionPointCompiler
 								}
 
 								@Override
-								public Pattern executeActivity()
+								public Rule executeActivity()
 								{
 									«a.pattern.fullyQualifiedName» executed = «a.pattern.fullyQualifiedName».executeRule(«a.name»);
 									return executed;

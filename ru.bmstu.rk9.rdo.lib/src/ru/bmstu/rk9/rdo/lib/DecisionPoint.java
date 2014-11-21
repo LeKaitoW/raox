@@ -86,7 +86,7 @@ public class DecisionPoint
 		}
 
 		public abstract boolean checkActivity();
-		public abstract Pattern executeActivity();
+		public abstract Rule executeActivity();
 	}
 
 	private List<Activity> activities = new LinkedList<Activity>();

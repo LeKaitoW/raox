@@ -75,14 +75,14 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 	public class ActivityInfo
 	{
-		private ActivityInfo(int number, Pattern pattern)
+		private ActivityInfo(int number, Rule rule)
 		{
 			this.number = number;
-			this.pattern = pattern;
+			this.rule = rule;
 		}
 
 		public final int number;
-		public final Pattern pattern;
+		public final Rule rule;
 	}
 
 	private class GraphNode
@@ -235,7 +235,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 				newChild.state = parent.state.copy();
 				newChild.state.deploy();
 
-				Pattern executed = a.executeActivity();
+				Rule executed = a.executeActivity();
 				newChild.activityInfo = new ActivityInfo(i, executed);
 
 				if(a.applyMoment == Activity.ApplyMoment.after)
@@ -282,7 +282,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 				}
 				parent.state.deploy();
 
-				int[] relevantResources = newChild.activityInfo.pattern.getRelevantInfo();
+				int[] relevantResources = newChild.activityInfo.rule.getRelevantInfo();
 
 				ByteBuffer data = ByteBuffer.allocate
 				(
@@ -380,8 +380,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		{
 			node = it.next();
 
-			Pattern pattern = node.activityInfo.pattern;
-			int[] relevantResources = pattern.getRelevantInfo();
+			Rule rule = node.activityInfo.rule;
+			int[] relevantResources = rule.getRelevantInfo();
 
 			ByteBuffer data = ByteBuffer.allocate(
 				Database.TypeSize.INTEGER * (2 + relevantResources.length));
@@ -395,7 +395,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 			database.addSearchEntry(this, Database.SearchEntryType.DECISION, data);
 
-			pattern.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SOLUTION);
+			rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SOLUTION);
 		}
 	}
 }
