@@ -27,14 +27,17 @@ public class Simulator
 					}
 				);
 
-		INSTANCE.tracer = new Tracer();
-
 		INSTANCE.dptManager = new DPTManager();
 	}
 
 	public static synchronized void initDatabase(JSONObject modelStructure)
 	{
 		INSTANCE.database = new Database(modelStructure);
+	}
+
+	public static void initTracer()
+	{
+		INSTANCE.tracer = new Tracer();
 	}
 
 	private Database database;

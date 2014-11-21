@@ -38,38 +38,28 @@ class ModelStructureHelper
 	final static void fillResourceNames(
 		final HashMap<Integer, HashMap<Integer, String>> resourceNames)
 	{
-		for (Map.Entry<String, Database.PermanentResourceTypeIndex> type :
-				Simulator.getDatabase().permanentResourceIndex.entrySet())
-		{
-			int typeNum = type.getValue().number;
-			resourceNames.put(
-				typeNum,
-				new HashMap<Integer, String>()
-			);
-			HashMap<Integer, String> resources = resourceNames.get(typeNum);
-			for (Map.Entry<String, Database.Index> res :
-					type.getValue().resources.entrySet())
-				resources.put(
-					res.getValue().number,
-					getRelativeName(res.getKey())
-				);
-		}
+		final JSONArray resourceTypes =
+			Simulator
+			.getDatabase()
+			.getModelStructure()
+			.getJSONArray("resource_types");
 
-		for (Map.Entry<String, Database.TemporaryResourceTypeIndex> type :
-				Simulator.getDatabase().temporaryResourceIndex.entrySet())
+		for (int typeNum = 0; typeNum < resourceTypes.length(); typeNum++)
 		{
-			int typeNum = type.getValue().number;
+			JSONObject type = resourceTypes.getJSONObject(typeNum);
+			HashMap<Integer, String> resources =
+				new HashMap<Integer, String>();
+
+			JSONArray jResources = type.getJSONArray("resources");
+			for (int resNum = 0; resNum < jResources.length(); resNum++)
+			{
+				resources.put(resNum, jResources.getString(resNum));
+			}
+
 			resourceNames.put(
 				typeNum,
-				new HashMap<Integer, String>()
+				resources
 			);
-			HashMap<Integer, String> resources = resourceNames.get(typeNum);
-			for (Map.Entry<String, Database.Index> res :
-					type.getValue().resources.entrySet())
-				resources.put(
-					res.getValue().number,
-					getRelativeName(res.getKey())
-				);
 		}
 	}
 

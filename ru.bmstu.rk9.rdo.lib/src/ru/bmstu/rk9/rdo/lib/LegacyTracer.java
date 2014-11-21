@@ -330,18 +330,8 @@ public class LegacyTracer extends Tracer
 
 	final private void initializeTypes()
 	{
-		for (Map.Entry<String, Database.PermanentResourceTypeIndex> type :
-			Simulator.getDatabase().permanentResourceIndex.entrySet())
-		{
-			int typeNum = type.getValue().number;
-			legacyResourceIndexes.put(
-				typeNum,
-				new HashMap<Integer, Integer>()
-			);
-		}
-
-		for (Map.Entry<String, Database.TemporaryResourceTypeIndex> type :
-				Simulator.getDatabase().temporaryResourceIndex.entrySet())
+		for (Map.Entry<String, Database.ResourceTypeIndex> type :
+			Simulator.getDatabase().resourceIndex.entrySet())
 		{
 			int typeNum = type.getValue().number;
 			legacyResourceIndexes.put(

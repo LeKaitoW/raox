@@ -194,6 +194,8 @@ public class ExecutionHandler extends AbstractHandler
 
 					initialization.invoke(null, new Object[]{});
 
+					//TODO find better place to do it
+					Simulator.initTracer();
 					Notifier notifier = Simulator.getNotifier();
 
 					notifier
