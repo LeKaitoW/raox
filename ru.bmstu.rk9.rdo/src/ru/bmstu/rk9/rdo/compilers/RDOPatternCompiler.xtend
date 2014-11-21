@@ -762,7 +762,7 @@ class RDOPatternCompiler
 						executedFrom.resourceSpecialStatus == null
 							? executedFrom.resourceSpecialStatus
 							: «r.begin.compileResourceTraceStatus»,
-						«r.begin.compileResourceTraceStatus», instanceResources.«r.name»,
+						instanceResources.«r.name»,
 						"«op.fullyQualifiedName».«r.name»"
 					);
 				«ENDFOR»
