@@ -444,8 +444,8 @@ class RDOPatternCompiler
 						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
 					db.addResourceEntry
 					(
-						executedFrom == Pattern.ExecutedFrom.SEARCH
-							? Database.ResourceEntryType.SEARCH
+						executedFrom.resourceSpecialStatus == null
+							? executedFrom.resourceSpecialStatus
 							: «r.rule.compileResourceTraceStatus»,
 						instanceResources.«r.name»,
 						"«rule.fullyQualifiedName».«r.name»"
@@ -757,8 +757,14 @@ class RDOPatternCompiler
 
 				«FOR r : op.relevantresources.filter[t |
 						t.begin != PatternConvertStatus.NOCHANGE && t.begin != PatternConvertStatus.NONEXIST]»
-					db.addResourceEntry(«r.begin.compileResourceTraceStatus», instanceResources.«r.name
-						», "«op.fullyQualifiedName».«r.name»");
+					db.addResourceEntry
+					(
+						executedFrom.resourceSpecialStatus == null
+							? executedFrom.resourceSpecialStatus
+							: «r.begin.compileResourceTraceStatus»,
+						«r.begin.compileResourceTraceStatus», instanceResources.«r.name»,
+						"«op.fullyQualifiedName».«r.name»"
+					);
 				«ENDFOR»
 			}
 

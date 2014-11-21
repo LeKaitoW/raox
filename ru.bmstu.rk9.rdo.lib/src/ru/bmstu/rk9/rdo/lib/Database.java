@@ -221,7 +221,7 @@ public class Database
 
 	public static enum ResourceEntryType
 	{
-		CREATED, ERASED, ALTERED, SEARCH
+		CREATED, ERASED, ALTERED, SEARCH, SOLUTION
 	}
 
 	public void addResourceEntry(ResourceEntryType status, Resource resource, String sender)
@@ -231,7 +231,7 @@ public class Database
 		ResourceTypeIndex resourceTypeIndex =
 			resourceIndex.get(typeName);
 
-		Index resourceIndex = null;
+		Index resourceIndex;
 
 		String name = resource.getName();
 		if(name != null)
@@ -262,11 +262,14 @@ public class Database
 
 				resourceTypeIndex.resources.set(resource.getNumber(), resourceIndex);
 			break;
-
 			case ERASED:
 			case ALTERED:
-			case SEARCH:
+			case SOLUTION:
 				resourceIndex = resourceTypeIndex.resources.get(resource.getNumber());
+			break;
+			case SEARCH:
+			default:
+				resourceIndex = null;
 			break;
 		}
 
@@ -283,7 +286,9 @@ public class Database
 		Entry entry = new Entry(header, data);
 
 		allEntries.add(entry);
-		resourceIndex.entries.add(allEntries.size() - 1);
+
+		if(resourceIndex != null)
+			resourceIndex.entries.add(allEntries.size() - 1);
 	}
 	
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/

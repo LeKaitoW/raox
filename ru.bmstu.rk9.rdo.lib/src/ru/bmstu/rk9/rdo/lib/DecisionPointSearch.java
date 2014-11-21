@@ -75,14 +75,14 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 	public class ActivityInfo
 	{
-		private ActivityInfo(int number, int[] relevantResources)
+		private ActivityInfo(int number, Pattern pattern)
 		{
 			this.number = number;
-			this.relevantResources = relevantResources;
+			this.pattern = pattern;
 		}
 
 		public final int number;
-		public final int[] relevantResources;
+		public final Pattern pattern;
 	}
 
 	private class GraphNode
@@ -93,17 +93,17 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 			this.parent = parent;
 		}
 
-		public final int number;
-		public final GraphNode parent;
+		final int number;
+		final GraphNode parent;
 
-		private ActivityInfo activityInfo;
+		ActivityInfo activityInfo;
 
-		public LinkedList<GraphNode> children;
+		LinkedList<GraphNode> children;
 
-		public double g;
-		public double h;
+		double g;
+		double h;
 
-		public T state;
+		T state;
 	}
 
 	private Comparator<GraphNode> nodeComparator = new Comparator<GraphNode>()
@@ -236,7 +236,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 				newChild.state.deploy();
 
 				Pattern executed = a.executeActivity();
-				newChild.activityInfo = new ActivityInfo(i, executed.getRelevantInfo());
+				newChild.activityInfo = new ActivityInfo(i, executed);
 
 				if(a.applyMoment == Activity.ApplyMoment.after)
 					value = a.calculateValue();
@@ -282,10 +282,12 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 				}
 				parent.state.deploy();
 
+				int[] relevantResources = newChild.activityInfo.pattern.getRelevantInfo();
+
 				ByteBuffer data = ByteBuffer.allocate
 				(
 					Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 3 +
-					Database.TypeSize.INTEGER * (3 + newChild.activityInfo.relevantResources.length)
+					Database.TypeSize.INTEGER * (3 + relevantResources.length)
 				);
 
 				data
@@ -297,7 +299,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 					.putInt(i)
 					.putDouble(value);
 
-				for(int relres : newChild.activityInfo.relevantResources)
+				for(int relres : relevantResources)
 					data.putInt(relres);
 
 				Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.SPAWN, data);
@@ -378,17 +380,22 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		{
 			node = it.next();
 
+			Pattern pattern = node.activityInfo.pattern;
+			int[] relevantResources = pattern.getRelevantInfo();
+
 			ByteBuffer data = ByteBuffer.allocate(
-				Database.TypeSize.INTEGER * (2 + node.activityInfo.relevantResources.length));
+				Database.TypeSize.INTEGER * (2 + relevantResources.length));
 
 			data
 				.putInt(node.number)
 				.putInt(node.activityInfo.number);
 
-			for(int relres : node.activityInfo.relevantResources)
+			for(int relres : relevantResources)
 				data.putInt(relres);
 
 			database.addSearchEntry(this, Database.SearchEntryType.DECISION, data);
+
+			pattern.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SOLUTION);
 		}
 	}
 }
