@@ -102,18 +102,23 @@ class RDODecisionPointCompiler
 								}
 
 								@Override
-								public void executeActivity()
+								public Pattern executeActivity()
 								{
-									«activities.get(i).pattern.fullyQualifiedName» rule =
+									«activities.get(i).pattern.fullyQualifiedName» executed =
 										«activities.get(i).pattern.fullyQualifiedName
 											».executeRule(«activities.get(i).name»);
+
 									Simulator.getDatabase().addDecisionEntry
 									(
 										dpt, this, Database.PatternType.«
 											IF activities.get(i).pattern instanceof Rule»RULE«ELSE»OPERATION_BEGIN«ENDIF»,
-										rule
+										executed
 									);
-									rule.addResourceEntriesToDatabase();
+
+									executed.addResourceEntriesToDatabase(Pattern.ExecutedFrom.«
+										IF dpt instanceof DecisionPointPrior»PRIOR«ELSE»SOME«ENDIF»);
+
+									return executed;
 								}
 							}
 						);
@@ -230,10 +235,10 @@ class RDODecisionPointCompiler
 								}
 
 								@Override
-								public void executeActivity()
+								public Pattern executeActivity()
 								{
-									«a.pattern.fullyQualifiedName» rule = «a.pattern.fullyQualifiedName».executeRule(«a.name»);
-									rule.addResourceEntriesToDatabase();
+									«a.pattern.fullyQualifiedName» executed = «a.pattern.fullyQualifiedName».executeRule(«a.name»);
+									return executed;
 								}
 
 								@Override

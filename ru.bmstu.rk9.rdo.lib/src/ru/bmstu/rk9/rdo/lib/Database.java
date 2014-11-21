@@ -20,6 +20,7 @@ public class Database
 		public static final int INTEGER = Integer.SIZE / Byte.SIZE;
 		public static final int DOUBLE = Double.SIZE / Byte.SIZE;
 		public static final int SHORT = Short.SIZE / Byte.SIZE;
+		public static final int LONG = Long.SIZE / Byte.SIZE;
 		public static final int BYTE = 1;
 
 		public static class RDO
@@ -83,20 +84,31 @@ public class Database
 		for(int i = 0; i < decisionPoints.length(); i++)
 		{
 			JSONObject decisionPoint = decisionPoints.getJSONObject(i);
-			DecisionPointIndex dptIndex = new DecisionPointIndex(i);
-			decisionPointIndex.put(decisionPoint.getString("name"), dptIndex);
-
-			JSONArray activities = decisionPoint.getJSONArray("activities");
-			for(int j = 0; j < activities.length(); j++)
+			String type = decisionPoint.getString("type");
+			switch(type)
 			{
-				JSONObject activity = activities.getJSONObject(j);
-				String name = activity.getString("name");
-				dptIndex.activities.put
-				(
-					name,
-					new PatternIndex(j,	patternsByName.get(
-						activity.getString("pattern")))
-				);
+				case "some":
+				case "prior":
+					DecisionPointIndex dptIndex = new DecisionPointIndex(i);
+					decisionPointIndex.put(decisionPoint.getString("name"), dptIndex);
+
+					JSONArray activities = decisionPoint.getJSONArray("activities");
+					for(int j = 0; j < activities.length(); j++)
+					{
+						JSONObject activity = activities.getJSONObject(j);
+						String name = activity.getString("name");
+						dptIndex.activities.put
+						(
+							name,
+							new PatternIndex(j,	patternsByName.get(
+								activity.getString("pattern")))
+						);
+					}
+				break;
+				case "search":
+					SearchIndex index = new SearchIndex(i);
+					this.searchIndex.put(decisionPoint.getString("name"), index);
+				break;
 			}
 		}
 
@@ -153,7 +165,7 @@ public class Database
 
 	public static enum EntryType
 	{
-		SYSTEM(10), RESOURCE(18), PATTERN(10), SEARCH(0), RESULT(13);
+		SYSTEM(10), RESOURCE(18), PATTERN(10), SEARCH(2), RESULT(13);
 
 		public final int HEADER_SIZE;
 
@@ -210,7 +222,7 @@ public class Database
 
 	public static enum ResourceEntryType
 	{
-		CREATED, ERASED, ALTERED
+		CREATED, ERASED, ALTERED, SEARCH
 	}
 
 	public void addResourceEntry(ResourceEntryType status, Resource resource, String sender)
@@ -254,6 +266,7 @@ public class Database
 
 			case ERASED:
 			case ALTERED:
+			case SEARCH:
 				resourceIndex = resourceTypeIndex.resources.get(resource.getNumber());
 			break;
 		}
@@ -450,10 +463,95 @@ public class Database
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
- /                          DECISION POINT ENTRIES                           /
+ /                              SEARCH ENTRIES                               /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
+	public static class SearchInfo
+	{
+		private int begin = -1;
+		private int end = -1;
+		private int decision = -1;
 
+		public int beginEntry()
+		{
+			return begin;
+		}
+
+		public int endEntry()
+		{
+			return end;
+		}
+
+		public int decisionStart()
+		{
+			return decision;
+		}
+
+		public int size()
+		{
+			return end - begin;
+		}
+	}
+
+	public static class SearchIndex
+	{		
+		final int number;
+
+		private SearchIndex(int number)
+		{
+			this.number = number;
+		}
+
+		ArrayList<SearchInfo> searches = new ArrayList<SearchInfo>();
+	}
+
+	HashMap<String, SearchIndex> searchIndex =
+		new HashMap<String, SearchIndex>();
+
+	public static enum SearchEntryType
+	{
+		BEGIN, END, OPEN, SPAWN, DECISION;
+	}
+
+	void addSearchEntry(DecisionPointSearch<?> dpt, SearchEntryType type, ByteBuffer data)
+	{
+		SearchIndex index = searchIndex.get(dpt.getName());
+		SearchInfo info = null;
+
+		ByteBuffer header = ByteBuffer.allocate(EntryType.SEARCH.HEADER_SIZE);
+		header
+			.put((byte)EntryType.SEARCH.ordinal())
+			.put((byte)type.ordinal());
+
+		switch(type)
+		{
+			case BEGIN:
+				data = ByteBuffer.allocate(TypeSize.DOUBLE + TypeSize.INTEGER * 2);
+				data
+					.putDouble(Simulator.getTime())
+					.putInt(index.number)
+					.putInt(index.searches.size());
+
+				info = new SearchInfo();
+				info.begin = allEntries.size();
+
+				index.searches.add(info);
+			break;
+			case DECISION:
+				info = index.searches.get(index.searches.size() - 1);
+				if(info.decision != -1)
+					info.decision = allEntries.size();
+			break;
+			case END:
+				info = index.searches.get(index.searches.size() - 1);
+				info.end = allEntries.size();
+			default: break;
+		}
+
+		Entry entry = new Entry(header, data);
+
+		allEntries.add(entry);
+	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                              RESULT ENTRIES                               /

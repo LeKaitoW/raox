@@ -435,14 +435,21 @@ class RDOPatternCompiler
 				return new «rule.name»(resources);
 			}
 
-			public void addResourceEntriesToDatabase()
+			@Override
+			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom)
 			{
 				Database db = Simulator.getDatabase();
 
 				«FOR r : rule.relevantresources.filter[t |
 						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
-					db.addResourceEntry(«r.rule.compileResourceTraceStatus», instanceResources.«r.name
-						», "«rule.fullyQualifiedName».«r.name»");
+					db.addResourceEntry
+					(
+						executedFrom == Pattern.ExecutedFrom.SEARCH
+							? Database.ResourceEntryType.SEARCH
+							: «r.rule.compileResourceTraceStatus»,
+						instanceResources.«r.name»,
+						"«rule.fullyQualifiedName».«r.name»"
+					);
 				«ENDFOR»
 			}
 
@@ -743,7 +750,8 @@ class RDOPatternCompiler
 				return instance;
 			}
 
-			public void addResourceEntriesToDatabase()
+			@Override
+			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom)
 			{
 				Database db = Simulator.getDatabase();
 

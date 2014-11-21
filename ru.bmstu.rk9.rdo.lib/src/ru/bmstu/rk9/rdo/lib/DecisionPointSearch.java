@@ -1,10 +1,13 @@
 package ru.bmstu.rk9.rdo.lib;
 
-import java.util.Comparator;
+import java.nio.ByteBuffer;
+
+import java.util.Iterator;
 
 import java.util.List;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.Comparator;
 
 public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint implements Subscriber
 {
@@ -70,9 +73,30 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		public T get();
 	}
 
+	public class ActivityInfo
+	{
+		private ActivityInfo(int number, int[] relevantResources)
+		{
+			this.number = number;
+			this.relevantResources = relevantResources;
+		}
+
+		public final int number;
+		public final int[] relevantResources;
+	}
+
 	private class GraphNode
 	{
-		public GraphNode parent = null;
+		private GraphNode(int number, GraphNode parent)
+		{
+			this.number = number;
+			this.parent = parent;
+		}
+
+		public final int number;
+		public final GraphNode parent;
+
+		private ActivityInfo activityInfo;
 
 		public LinkedList<GraphNode> children;
 
@@ -106,62 +130,115 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		this.allowSearch = false;
 	}
 
+	private GraphNode head;
+	private GraphNode current; 
+
+	private long memory;
+	private long time;
+
+	private int totalOpened;
+	private int totalSpawned;
+	private int totalAdded;
+
 	@Override
 	public boolean check()
 	{
-		if (terminate.check() || !allowSearch)
-			return false;
+		Database database = Simulator.getDatabase();
+
+		time = System.currentTimeMillis();
+		memory = Runtime.getRuntime().freeMemory();
+
+		totalOpened = 0;
+		totalSpawned = 0;
+		totalAdded = 0;
+
+		Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.BEGIN, null);
+
+		if(!allowSearch)
+			return stop(StopCode.ABORTED);
+
+		if (condition != null && !condition.check() || terminate.check())
+			return stop(StopCode.CONDITION);
 
 		nodesOpen.clear();
 		nodesClosed.clear();
 
-		if (condition != null && !condition.check())
-			return false;
-
-		GraphNode head = new GraphNode();
+		head = new GraphNode(totalAdded++, null);
 		head.state = retriever.get();
-		nodesOpen.add(head);
+		head.children = spawnChildren(head);
 
-		while (nodesOpen.size() > 0)
+		nodesOpen.addAll(head.children);
+
+		while(nodesOpen.size() > 0)
 		{
-			if (!allowSearch)
-				return false;
+			if(!allowSearch)
+				return stop(StopCode.ABORTED);
 
-			GraphNode current = nodesOpen.poll();
+			current = nodesOpen.poll();
 			nodesClosed.add(current);
 			current.state.deploy();
 
+			totalOpened++;
+
+			ByteBuffer data = ByteBuffer.allocate
+			(
+				Database.TypeSize.INTEGER * 2 +
+				Database.TypeSize.DOUBLE * 2
+			);
+
+			data
+				.putInt(current.number)
+				.putInt(current.parent.number)
+				.putDouble(current.g)
+				.putDouble(current.h);
+
+			database.addSearchEntry(this, Database.SearchEntryType.OPEN, data);
+
 			if (terminate.check())
-				return true;
+				return stop(StopCode.SUCCESS);
 
 			current.children = spawnChildren(current);
 			nodesOpen.addAll(current.children);
 		}
 		head.state.deploy();
-		return false;
+		return stop(StopCode.FAIL);
+	}
+
+	public static enum SpawnStatus
+	{
+		NEW, WORSE, BETTER
 	}
 
 	private LinkedList<GraphNode> spawnChildren(GraphNode parent)
 	{
 		LinkedList<GraphNode> children = new LinkedList<GraphNode>();
 
-		for (Activity a : activities)
+		for(int i = 0; i < activities.size(); i++)
 		{
+			if(!allowSearch)
+				return children;
+
+			Activity a = activities.get(i);
 			double value = 0;
 
-			if (a.checkActivity())
+			if(a.checkActivity())
 			{
-				GraphNode newChild = new GraphNode();
-				newChild.parent = parent;
+				GraphNode newChild = new GraphNode(totalAdded, parent);
 
-				if (a.applyMoment == Activity.ApplyMoment.before)
+				totalSpawned++;
+
+				SpawnStatus spawnStatus = SpawnStatus.NEW;
+
+				if(a.applyMoment == Activity.ApplyMoment.before)
 					value = a.calculateValue();
 
 				newChild.state = parent.state.copy();
 				newChild.state.deploy();
-				a.executeActivity();
 
-				if (a.applyMoment == Activity.ApplyMoment.after)
+				Pattern executed = a.executeActivity();
+				newChild.activityInfo = new ActivityInfo(i, executed.getRelevantInfo());
+
+				if(a.applyMoment == Activity.ApplyMoment.after)
 					value = a.calculateValue();
 
 				newChild.g = parent.g + value;
@@ -177,26 +254,141 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 								if (newChild.g < open.g)
 								{
 									nodesOpen.remove(open);
+									spawnStatus = SpawnStatus.BETTER;
 									break compare_tops;
 								}
 								else
+								{
+									spawnStatus = SpawnStatus.WORSE;
 									break add_child;
+								}
 
 						for (GraphNode closed : nodesClosed)
 							if (newChild.state.checkEqual(closed.state))
 								if (newChild.g < closed.g)
 								{
 									nodesClosed.remove(closed);
+									spawnStatus = SpawnStatus.BETTER;
 									break compare_tops;
 								}
 								else
+								{
+									spawnStatus = SpawnStatus.WORSE;
 									break add_child;
+								}
 					}
 					children.add(newChild);
+					totalAdded++;
 				}
 				parent.state.deploy();
+
+				int[] relevantInfo = executed.getRelevantInfo();
+
+				ByteBuffer data = ByteBuffer.allocate
+				(
+					Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 3 +
+					Database.TypeSize.INTEGER * (3 + relevantInfo.length)
+				);
+
+				data
+					.put((byte)spawnStatus.ordinal())
+					.putInt(newChild.number)
+					.putInt(parent.number)
+					.putDouble(newChild.g)
+					.putDouble(newChild.h)
+					.putInt(i)
+					.putDouble(value);
+
+				for(int relres : relevantInfo)
+					data.putInt(relres);
+
+				Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.SPAWN, data);
 			}
 		}
 		return children;
+	}
+
+	private static enum StopCode
+	{
+		ABORTED, CONDITION, SUCCESS, FAIL
+	}
+
+	private boolean stop(StopCode code)
+	{
+		boolean decisionCode = false;
+
+		ByteBuffer data = ByteBuffer.allocate
+		(
+			Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 2 + 
+			Database.TypeSize.INTEGER * 4 + Database.TypeSize.LONG * 2
+		);
+
+		double finalCost;
+
+		switch(code)
+		{
+			case ABORTED:
+				if(head != null)
+					head.state.deploy();
+				if(current != null)
+					finalCost = current.g;
+				else
+					finalCost = 0;
+			break;
+			case CONDITION:
+				finalCost = 0;
+			break;
+			case SUCCESS:
+				databaseAddDecision();
+			default:
+				finalCost = current.g;
+			break;
+		}
+
+		data
+			.put((byte)code.ordinal())
+			.putDouble(Simulator.getTime())
+			.putLong(System.currentTimeMillis() - time)
+			.putLong(memory - Runtime.getRuntime().freeMemory())
+			.putDouble(finalCost)
+			.putInt(totalOpened)
+			.putInt(nodesOpen.size() + nodesClosed.size())
+			.putInt(totalAdded)
+			.putInt(totalSpawned);
+
+		Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.END, data);
+
+		return decisionCode;
+	}
+
+	private void databaseAddDecision()
+	{
+		Database database = Simulator.getDatabase();
+
+		LinkedList<GraphNode> decision = new LinkedList<GraphNode>();
+
+		GraphNode node = current;
+		while(node != head)
+		{
+			decision.add(node);
+			node = node.parent;
+		}
+
+		for(Iterator<GraphNode> it = decision.descendingIterator(); it.hasNext();)
+		{
+			node = it.next();
+
+			ByteBuffer data = ByteBuffer.allocate(
+				Database.TypeSize.INTEGER * (2 + node.activityInfo.relevantResources.length));
+
+			data
+				.putInt(node.number)
+				.putInt(node.activityInfo.number);
+
+			for(int relres : node.activityInfo.relevantResources)
+				data.putInt(relres);
+
+			database.addSearchEntry(this, Database.SearchEntryType.DECISION, data);
+		}
 	}
 }
