@@ -53,12 +53,11 @@ class RDOResourceTypeCompiler
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «rtp.name» implements «rtp.type.literal.withFirstUpper»Resource, ResourceComparison<«rtp.name»>
+		public class «rtp.name» implements Resource, ResourceComparison<«rtp.name»>
 		{
-			private static «rtp.type.literal.withFirstUpper
-				»ResourceManager<«rtp.name»> managerCurrent;
+			private static ResourceManager<«rtp.name»> managerCurrent;
 
-			private String name;
+			private String name = null;
 
 			@Override
 			public String getName()
@@ -72,7 +71,6 @@ class RDOResourceTypeCompiler
 				return "«rtp.fullyQualifiedName»";
 			}
 
-			«IF rtp.type.literal == "temporary"»
 			private Integer number = null;
 
 			@Override
@@ -81,14 +79,14 @@ class RDOResourceTypeCompiler
 				return number;
 			}
 
-			«ENDIF»
 			public void register(String name)
 			{
 				this.name = name;
+				this.number = managerCurrent.getNextNumber();
 				managerCurrent.addResource(this);
+				lastCreated = this;
 			}
 
-			«IF rtp.type.literal == "temporary"»
 			public void register()
 			{
 				this.number = managerCurrent.getNextNumber();
@@ -103,7 +101,6 @@ class RDOResourceTypeCompiler
 				return lastCreated;
 			}
 
-			«ENDIF»
 			public static «rtp.name» getResource(String name)
 			{
 				return managerCurrent.getResource(name);
@@ -114,7 +111,6 @@ class RDOResourceTypeCompiler
 				return managerCurrent.getAll();
 			}
 
-			«IF rtp.type.literal == "temporary"»
 			public static Collection<«rtp.name»> getTemporary()
 			{
 				return managerCurrent.getTemporary();
@@ -133,16 +129,13 @@ class RDOResourceTypeCompiler
 			{
 				return lastDeleted;
 			}
-			«ENDIF»
 
 			private static NotificationManager notificationManager =
 				new NotificationManager
 				(
 					new String[] 
 					{
-						«IF rtp.type.literal == "temporary"»
 						"RESOURCE.DELETED"
-						«ENDIF»
 					}
 				);
 
@@ -151,9 +144,9 @@ class RDOResourceTypeCompiler
 				return notificationManager;
 			}
 
-			private «rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»> managerOwner = managerCurrent;
+			private ResourceManager<«rtp.name»> managerOwner = managerCurrent;
 
-			public static void setCurrentManager(«rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»> manager)
+			public static void setCurrentManager(ResourceManager<«rtp.name»> manager)
 			{
 				managerCurrent = manager;
 			}
@@ -197,21 +190,11 @@ class RDOResourceTypeCompiler
 			private «rtp.name» copyForNewOwner()
 			{
 				«rtp.name» copy = new «rtp.name»(«rtp.parameters.compileResourceTypeParametersCopyCall»);
-				if (name != null)
-				{
-					copy.name = name;
-					managerCurrent.addResource(copy);
-					return copy;
-				}
-				«IF rtp.type.literal == "temporary"»
-				if (number != null)
-				{
-					copy.number = number;
-					managerCurrent.addResource(copy);
-					return copy;
-				}
-				«ENDIF»
-				return null;
+
+				copy.name = name;
+				copy.number = number;
+				managerCurrent.addResource(copy);
+				return copy;
 			}
 
 			public «rtp.name»(«rtp.parameters.compileResourceTypeParameters»)

@@ -102,18 +102,23 @@ class RDODecisionPointCompiler
 								}
 
 								@Override
-								public void executeActivity()
+								public Rule executeActivity()
 								{
-									«activities.get(i).pattern.fullyQualifiedName» rule =
+									«activities.get(i).pattern.fullyQualifiedName» executed =
 										«activities.get(i).pattern.fullyQualifiedName
 											».executeRule(«activities.get(i).name»);
+
 									Simulator.getDatabase().addDecisionEntry
 									(
 										dpt, this, Database.PatternType.«
 											IF activities.get(i).pattern instanceof Rule»RULE«ELSE»OPERATION_BEGIN«ENDIF»,
-										rule
+										executed
 									);
-									rule.addResourceEntriesToDatabase();
+
+									executed.addResourceEntriesToDatabase(Pattern.ExecutedFrom.«
+										IF dpt instanceof DecisionPointPrior»PRIOR«ELSE»SOME«ENDIF»);
+
+									return executed;
 								}
 							}
 						);
@@ -134,7 +139,7 @@ class RDODecisionPointCompiler
 				public static final JSONObject structure = new JSONObject()
 					.put("name", "«dpt.fullyQualifiedName»")
 					.put("type", "«IF dpt instanceof DecisionPointSome»some«ELSE»prior«ENDIF»")
-					.put("parrent", «IF dpt.parent != null»"«dpt.parent.fullyQualifiedName»"«ELSE»(String)null«ENDIF»)
+					.put("parent", «IF dpt.parent != null»"«dpt.parent.fullyQualifiedName»"«ELSE»(String)null«ENDIF»)
 					.put
 					(
 						"activities", new JSONArray()
@@ -160,6 +165,8 @@ class RDODecisionPointCompiler
 		'''
 			package «filename»;
 
+			import ru.bmstu.rk9.rdo.lib.json.*;
+
 			import ru.bmstu.rk9.rdo.lib.*;
 			@SuppressWarnings("all")
 
@@ -173,8 +180,8 @@ class RDODecisionPointCompiler
 				«ENDIF»
 				«ENDFOR»
 
-				private static DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»State> dpt =
-					new DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»State>
+				private static DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»Model> dpt =
+					new DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»Model>
 					(
 						"«dpt.fullyQualifiedName»",
 						«IF dpt.condition != null
@@ -203,12 +210,12 @@ class RDODecisionPointCompiler
 							}
 						},
 						«IF dpt.comparetops»true«ELSE»false«ENDIF»,
-						new DecisionPointSearch.DatabaseRetriever<rdo_model.«dpt.eResource.URI.projectName»State>()
+						new DecisionPointSearch.DatabaseRetriever<rdo_model.«dpt.eResource.URI.projectName»Model>()
 						{
 							@Override
-							public rdo_model.«dpt.eResource.URI.projectName»State get()
+							public rdo_model.«dpt.eResource.URI.projectName»Model get()
 							{
-								return rdo_model.«dpt.eResource.URI.projectName»State.getCurrent();
+								return rdo_model.«dpt.eResource.URI.projectName»Model.getCurrent();
 							}
 						}
 					);
@@ -228,10 +235,10 @@ class RDODecisionPointCompiler
 								}
 
 								@Override
-								public void executeActivity()
+								public Rule executeActivity()
 								{
-									«a.pattern.fullyQualifiedName» rule = «a.pattern.fullyQualifiedName».executeRule(«a.name»);
-									rule.addResourceEntriesToDatabase();
+									«a.pattern.fullyQualifiedName» executed = «a.pattern.fullyQualifiedName».executeRule(«a.name»);
+									return executed;
 								}
 
 								@Override
@@ -259,7 +266,7 @@ class RDODecisionPointCompiler
 				public static final JSONObject structure = new JSONObject()
 					.put("name", "«dpt.fullyQualifiedName»")
 					.put("type", "search")
-					.put("parrent", «IF dpt.parent != null»"«dpt.parent.fullyQualifiedName»"«ELSE»null«ENDIF»)
+					.put("parent", «IF dpt.parent != null»"«dpt.parent.fullyQualifiedName»"«ELSE»(String)null«ENDIF»)
 					.put("compare_tops", "«IF dpt.comparetops»YES«ELSE»NO«ENDIF»")
 					.put
 					(

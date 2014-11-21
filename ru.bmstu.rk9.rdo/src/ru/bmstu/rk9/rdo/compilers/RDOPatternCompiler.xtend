@@ -13,7 +13,6 @@ import static extension ru.bmstu.rk9.rdo.compilers.RDOResourceTypeCompiler.*
 import ru.bmstu.rk9.rdo.generator.LocalContext
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeKind
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
@@ -41,7 +40,7 @@ class RDOPatternCompiler
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «evn.name» implements Event, Pattern
+		public class «evn.name» implements Event
 		{
 			private static final String name =  "«evn.fullyQualifiedName»";
 
@@ -149,13 +148,15 @@ class RDOPatternCompiler
 			}
 
 			@Override
-			public JSONArray getRelevantInfo()
+			public int[] getRelevantInfo()
 			{
-				return new JSONArray()
-				«FOR r : evn.relevantresources»«IF r.type instanceof ResourceDeclaration»
-					«"\t"».put("«(r.type as ResourceDeclaration).fullyQualifiedName»")
-				«ELSE»«IF r.rule.literal == "Create"»
-						«"\t"».put(staticResources.«r.name».getNumber())«ENDIF»«ENDIF»«ENDFOR»;
+				return new int[]
+				{
+					«FOR i : 0 ..< evn.relevantresources.size»
+						staticResources.«evn.relevantresources.get(i).name».getNumber()«
+							IF i < evn.relevantresources.size - 1»,«ENDIF»
+					«ENDFOR»
+				};
 			}
 
 			public static final JSONObject structure = new JSONObject()
@@ -204,7 +205,7 @@ class RDOPatternCompiler
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «rule.name» implements Pattern
+		public class «rule.name» implements Rule
 		{
 			private static final String name = "«filename».«rule.name»";
 
@@ -434,43 +435,34 @@ class RDOPatternCompiler
 				return new «rule.name»(resources);
 			}
 
-			public void addResourceEntriesToDatabase()
+			@Override
+			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom)
 			{
 				Database db = Simulator.getDatabase();
 
 				«FOR r : rule.relevantresources.filter[t |
 						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
-					db.addResourceEntry(«r.rule.compileResourceTraceStatus», instanceResources.«r.name
-						», "«rule.fullyQualifiedName».«r.name»");
+					db.addResourceEntry
+					(
+						executedFrom.resourceSpecialStatus != null
+							? executedFrom.resourceSpecialStatus
+							: «r.rule.compileResourceTraceStatus»,
+						instanceResources.«r.name»,
+						"«rule.fullyQualifiedName».«r.name»"
+					);
 				«ENDFOR»
 			}
 
 			@Override
-			public JSONArray getRelevantInfo()
+			public int[] getRelevantInfo()
 			{
-				JSONArray relevantInfo = new JSONArray();
-
-				String tempName;
-
-				«FOR r : rule.relevantresources»
-					«IF r.type instanceof ResourceDeclaration»
-						relevantInfo.put("«(r.type as ResourceDeclaration).fullyQualifiedName»");
-					«ELSE»
-						«IF (r.type as ResourceType).type == ResourceTypeKind.PERMANENT»
-							relevantInfo.put(instanceResources.«r.name».getName());
-						«ELSE»
-
-							tempName = instanceResources.«r.name».getName();
-							if(tempName != null)
-								relevantInfo.put(tempName);
-							else
-								relevantInfo.put(instanceResources.«r.name».getNumber());
-
-						«ENDIF»
-					«ENDIF»
-				«ENDFOR»
-
-				return relevantInfo;
+				return new int[]
+				{
+					«FOR i : 0 ..< rule.relevantresources.size»
+						instanceResources.«rule.relevantresources.get(i).name».getNumber()«
+							IF i < rule.relevantresources.size - 1»,«ENDIF»
+					«ENDFOR»
+				};
 			}
 
 			public static final JSONObject structure = new JSONObject()
@@ -508,7 +500,7 @@ class RDOPatternCompiler
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «op.name» implements Event, Pattern
+		public class «op.name» implements Rule, Event
 		{
 			private static final String name = "«filename».«op.name»";
 
@@ -758,14 +750,21 @@ class RDOPatternCompiler
 				return instance;
 			}
 
-			public void addResourceEntriesToDatabase()
+			@Override
+			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom)
 			{
 				Database db = Simulator.getDatabase();
 
 				«FOR r : op.relevantresources.filter[t |
 						t.begin != PatternConvertStatus.NOCHANGE && t.begin != PatternConvertStatus.NONEXIST]»
-					db.addResourceEntry(«r.begin.compileResourceTraceStatus», instanceResources.«r.name
-						», "«op.fullyQualifiedName».«r.name»");
+					db.addResourceEntry
+					(
+						executedFrom.resourceSpecialStatus != null
+							? executedFrom.resourceSpecialStatus
+							: «r.begin.compileResourceTraceStatus»,
+						instanceResources.«r.name»,
+						"«op.fullyQualifiedName».«r.name»"
+					);
 				«ENDFOR»
 			}
 
@@ -804,31 +803,15 @@ class RDOPatternCompiler
 			}
 
 			@Override
-			public JSONArray getRelevantInfo()
+			public int[] getRelevantInfo()
 			{
-				JSONArray relevantInfo = new JSONArray();
-
-				String tempName;
-
-				«FOR r : op.relevantresources»
-					«IF r.type instanceof ResourceDeclaration»
-						relevantInfo.put("«(r.type as ResourceDeclaration).fullyQualifiedName»");
-					«ELSE»
-						«IF (r.type as ResourceType).type == ResourceTypeKind.PERMANENT»
-							relevantInfo.put(instanceResources.«r.name».getName());
-						«ELSE»
-
-							tempName = instanceResources.«r.name».getName();
-							if(tempName != null)
-								relevantInfo.put(tempName);
-							else
-								relevantInfo.put(instanceResources.«r.name».getNumber());
-
-						«ENDIF»
-					«ENDIF»
-				«ENDFOR»
-
-				return relevantInfo;
+				return new int[]
+				{
+					«FOR i : 0 ..< op.relevantresources.size»
+						instanceResources.«op.relevantresources.get(i).name».getNumber()«
+							IF i < op.relevantresources.size - 1»,«ENDIF»
+					«ENDFOR»
+				};
 			}
 
 			public static final JSONObject structure = new JSONObject()

@@ -8,7 +8,7 @@ public class Simulator
 {
 	private static Simulator INSTANCE = null;
 
-	public static synchronized void initSimulation(JSONObject modelStructure)
+	public static synchronized void initSimulation()
 	{
 		if (isRunning)
 			return;
@@ -27,11 +27,14 @@ public class Simulator
 					}
 				);
 
-		INSTANCE.database = new Database(modelStructure);
-
 		INSTANCE.tracer = new Tracer();
 
 		INSTANCE.dptManager = new DPTManager();
+	}
+
+	public static synchronized void initDatabase(JSONObject modelStructure)
+	{
+		INSTANCE.database = new Database(modelStructure);
 	}
 
 	private Database database;
@@ -166,7 +169,6 @@ public class Simulator
 			if (dptCheck != 0)
 				return stop(dptCheck);
 		}
-
 		return stop(0);
 	}
 
