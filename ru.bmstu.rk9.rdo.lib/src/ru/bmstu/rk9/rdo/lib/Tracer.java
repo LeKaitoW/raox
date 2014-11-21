@@ -165,12 +165,6 @@ public class Tracer implements Subscriber
 			.add(resourceName)
 			.getString();
 
-		//TODO fix when resource parameters are also serialized on erase
-		if (traceType == TraceType.RESOURCE_ERASE)
-		{
-			return new TraceOutput(traceType, headerLine);
-		}
-
 		return
 			new TraceOutput(
 				traceType,

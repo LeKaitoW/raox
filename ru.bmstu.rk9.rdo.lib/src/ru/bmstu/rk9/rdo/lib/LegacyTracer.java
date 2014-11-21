@@ -78,12 +78,6 @@ public class LegacyTracer extends Tracer
 			.add(String.valueOf(legacyId))
 			.getString();
 
-		//TODO fix when resource parameters are also serialized on erase
-		if (traceType == TraceType.RESOURCE_ERASE)
-		{
-			return new TraceOutput(traceType, headerLine);
-		}
-
 		final ResourceTypeInfo typeInfo = resourceTypesInfo.get(typeNum);
 
 		return
