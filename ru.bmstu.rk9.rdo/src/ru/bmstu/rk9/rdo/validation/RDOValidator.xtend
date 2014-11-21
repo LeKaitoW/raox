@@ -712,12 +712,12 @@ class RDOValidator extends AbstractRDOValidator
 				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" is missing a convert end",
 					RdoPackage.eINSTANCE.operationConvert_Relres)
 
-		if (begin == "Erase" || begin == "NonExist" || begin == "NoChange")
+		if (begin == "NonExist" || begin == "NoChange")
 			if (c.havebegin)
 				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" shouldn't have a convert begin",
 					RdoPackage.eINSTANCE.operationConvert_Havebegin)
 
-		if (end == "Erase" || end == "NonExist" || end == "NoChange")
+		if (end == "NonExist" || end == "NoChange")
 			if (c.haveend)
 				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" shouldn't have a convert end",
 					RdoPackage.eINSTANCE.operationConvert_Haveend)
@@ -733,7 +733,7 @@ class RDOValidator extends AbstractRDOValidator
 				error("Resource " + c.relres.name + " with convert status "+rule+" is missing a convert rule",
 					RdoPackage.eINSTANCE.ruleConvert_Relres)
 
-		if (rule == "Erase" || rule == "NoChange")
+		if (rule == "NoChange")
 			if (c.haverule)
 				error("Resource " + c.relres.name + " with convert status "+rule+" shouldn't have a convert rule",
 					RdoPackage.eINSTANCE.ruleConvert_Haverule)
