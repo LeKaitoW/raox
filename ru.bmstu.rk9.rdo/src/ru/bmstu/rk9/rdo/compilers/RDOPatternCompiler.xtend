@@ -444,7 +444,7 @@ class RDOPatternCompiler
 						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
 					db.addResourceEntry
 					(
-						executedFrom.resourceSpecialStatus == null
+						executedFrom.resourceSpecialStatus != null
 							? executedFrom.resourceSpecialStatus
 							: «r.rule.compileResourceTraceStatus»,
 						instanceResources.«r.name»,
@@ -759,7 +759,7 @@ class RDOPatternCompiler
 						t.begin != PatternConvertStatus.NOCHANGE && t.begin != PatternConvertStatus.NONEXIST]»
 					db.addResourceEntry
 					(
-						executedFrom.resourceSpecialStatus == null
+						executedFrom.resourceSpecialStatus != null
 							? executedFrom.resourceSpecialStatus
 							: «r.begin.compileResourceTraceStatus»,
 						instanceResources.«r.name»,
