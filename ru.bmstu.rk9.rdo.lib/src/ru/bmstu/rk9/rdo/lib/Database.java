@@ -332,8 +332,6 @@ public class Database
 	private HashMap<Pattern, PatternPoolEntry> patternPool
 		= new HashMap<Pattern, PatternPoolEntry>();
 
-	private int currentPatternPoolNumber = 0;
-
 	public void addDecisionEntry
 	(
 		DecisionPoint dpt,
@@ -366,7 +364,7 @@ public class Database
 
 		if(type == PatternType.OPERATION_BEGIN)
 		{
-			int number = currentPatternPoolNumber++;
+			int number = index.timesExecuted++;
 
 			patternPool.put(pattern, new PatternPoolEntry(dpt, activity, number));
 			data.putInt(number);
@@ -389,6 +387,8 @@ public class Database
 			super(number);
 			this.structure = structure;
 		}
+
+		private int timesExecuted = 0;
 	}
 
 	HashMap<String, PatternIndex> eventIndex = new HashMap<String, PatternIndex>();
