@@ -282,12 +282,10 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 				}
 				parent.state.deploy();
 
-				int[] relevantInfo = executed.getRelevantInfo();
-
 				ByteBuffer data = ByteBuffer.allocate
 				(
 					Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 3 +
-					Database.TypeSize.INTEGER * (3 + relevantInfo.length)
+					Database.TypeSize.INTEGER * (3 + newChild.activityInfo.relevantResources.length)
 				);
 
 				data
@@ -299,10 +297,12 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 					.putInt(i)
 					.putDouble(value);
 
-				for(int relres : relevantInfo)
+				for(int relres : newChild.activityInfo.relevantResources)
 					data.putInt(relres);
 
 				Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.SPAWN, data);
+
+				executed.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SEARCH);
 			}
 		}
 		return children;
