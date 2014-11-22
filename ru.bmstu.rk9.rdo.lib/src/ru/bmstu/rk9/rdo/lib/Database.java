@@ -252,6 +252,8 @@ public class Database
 					return;
 		}
 
+		boolean shouldSerializeToIndex = true;
+
 		switch (status)
 		{
 			case CREATED:
@@ -262,12 +264,13 @@ public class Database
 
 				resourceTypeIndex.resources.set(resource.getNumber(), resourceIndex);
 			break;
+			case SEARCH:
+				shouldSerializeToIndex = false;
 			case ERASED:
 			case ALTERED:
 			case SOLUTION:
 				resourceIndex = resourceTypeIndex.resources.get(resource.getNumber());
 			break;
-			case SEARCH:
 			default:
 				resourceIndex = null;
 			break;
@@ -287,7 +290,7 @@ public class Database
 
 		allEntries.add(entry);
 
-		if(resourceIndex != null)
+		if(shouldSerializeToIndex)
 			resourceIndex.entries.add(allEntries.size() - 1);
 	}
 	
