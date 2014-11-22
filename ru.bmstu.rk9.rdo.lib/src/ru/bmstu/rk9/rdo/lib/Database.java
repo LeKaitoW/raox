@@ -99,7 +99,7 @@ public class Database
 						dptIndex.activities.put
 						(
 							name,
-							new PatternIndex(j,	patternsByName.get(
+							new PatternIndex(j, patternsByName.get(
 								activity.getString("pattern")))
 						);
 					}
@@ -189,9 +189,10 @@ public class Database
 	{
 		ByteBuffer header = ByteBuffer.allocate(EntryType.SYSTEM.HEADER_SIZE);
 
-		header.putDouble(Simulator.getTime());
-		header.put((byte)EntryType.SYSTEM.ordinal());
-		header.put((byte)type.ordinal());
+		header
+			.put((byte)EntryType.SYSTEM.ordinal())
+			.putDouble(Simulator.getTime())
+			.put((byte)type.ordinal());
 
 		allEntries.add(new Entry(header, null));
 	}
@@ -565,13 +566,22 @@ public class Database
 
 		Index index = resultIndex.get(name);
 
+		ByteBuffer data = result.serialize();
+		if (index.entries.size() > 0)
+		{
+			ByteBuffer lastResultValue =
+				allEntries.get(index.entries.get(index.entries.size() -1)).data;
+			ByteBuffer currentResultValue = data.duplicate();
+			currentResultValue.rewind();
+			if (currentResultValue.compareTo(lastResultValue) == 0)
+				return;
+		}
+
 		ByteBuffer header = ByteBuffer.allocate(EntryType.RESULT.HEADER_SIZE);
 		header
 			.putDouble(Simulator.getTime())
 			.put((byte)EntryType.RESULT.ordinal())
 			.putInt(index.number);
-
-		ByteBuffer data = result.serialize();
 
 		Entry entry = new Entry(header, data);
 
