@@ -6,9 +6,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.TreeSet;
 
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
+import ru.bmstu.rk9.rdo.lib.json.JSONArray;
+import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
 public class LegacyTracer extends Tracer
 {
@@ -16,14 +19,24 @@ public class LegacyTracer extends Tracer
 	{
 		super();
 
-		legacyResourceIndexes =
+		legacyResourceIds =
 			new HashMap<Integer, HashMap<Integer, Integer>>();
-		takenIds = new TreeSet<Integer>();
+		takenResourceIds =
+			new TreeSet<Integer>();
+		vacantActionNumbers =
+			new PriorityQueue<Integer>();
+		legacyActionNumbers =
+			new HashMap<Integer, HashMap<Integer, HashMap<Integer, Integer>>>();
+
 		initializeTypes();
+		initializeActivities();
 	}
 
-	private final HashMap<Integer, HashMap<Integer, Integer>> legacyResourceIndexes;
-	private final TreeSet<Integer> takenIds;
+	private final HashMap<Integer, HashMap<Integer, Integer>> legacyResourceIds;
+	private final TreeSet<Integer> takenResourceIds;
+	private final PriorityQueue<Integer> vacantActionNumbers;
+	private final HashMap<Integer, HashMap<
+		Integer, HashMap<Integer, Integer>>> legacyActionNumbers;
 
 	static private final String delimiter = " ";
 
@@ -52,19 +65,19 @@ public class LegacyTracer extends Tracer
 			//TODO resources created before model start should have
 			//RK converter status instead of RC
 			traceType = TraceType.RESOURCE_CREATE;
-			if (legacyResourceIndexes.get(typeNum).get(resNum) == null)
-				legacyId = getNewId(typeNum, resNum);
+			if (legacyResourceIds.get(typeNum).get(resNum) == null)
+				legacyId = getNewResourceId(typeNum, resNum);
 			else
-				legacyId = legacyResourceIndexes.get(typeNum).get(resNum);
+				legacyId = legacyResourceIds.get(typeNum).get(resNum);
 			break;
 		case 1:
 			traceType = TraceType.RESOURCE_ERASE;
-			legacyId = legacyResourceIndexes.get(typeNum).get(resNum);
-			freeId(typeNum, resNum);
+			legacyId = legacyResourceIds.get(typeNum).get(resNum);
+			freeResourceId(typeNum, resNum);
 			break;
 		case 2:
 			traceType = TraceType.RESOURCE_KEEP;
-			legacyId = legacyResourceIndexes.get(typeNum).get(resNum);
+			legacyId = legacyResourceIds.get(typeNum).get(resNum);
 			break;
 		default:
 			return null;
@@ -217,15 +230,49 @@ public class LegacyTracer extends Tracer
 			break;
 		}
 		case OPERATION_BEGIN:
+		{
+			int dptNumber = patternData.getInt();
+			int activityNumber = patternData.getInt();
+			int actionNumber = patternData.getInt();
+
+			HashMap<Integer, Integer> activityActions =
+				legacyActionNumbers
+				.get(dptNumber)
+				.get(activityNumber);
+
+			int legacyNumber;
+			if (vacantActionNumbers.isEmpty())
+				legacyNumber = activityActions.size();
+			else
+				legacyNumber = vacantActionNumbers.poll();
+
+			activityActions.put(actionNumber, legacyNumber);
+
+			patternNumber = decisionPointsInfo.get(dptNumber)
+					.activitiesInfo.get(activityNumber).patternNumber;
+			stringBuilder
+				.add(String.valueOf(legacyNumber + 1))
+				.add(String.valueOf(activityNumber + 1))
+				.add(String.valueOf(patternNumber + 1));
+			break;
+		}
 		case OPERATION_END:
 		{
 			int dptNumber = patternData.getInt();
 			int activityNumber = patternData.getInt();
 			int actionNumber = patternData.getInt();
+
+			HashMap<Integer, Integer> activityActions =
+					legacyActionNumbers
+					.get(dptNumber)
+					.get(activityNumber);
+			int legacyNumber = activityActions.remove(actionNumber);
+			vacantActionNumbers.add(legacyNumber);
+
 			patternNumber = decisionPointsInfo.get(dptNumber)
 					.activitiesInfo.get(activityNumber).patternNumber;
 			stringBuilder
-				.add(String.valueOf(actionNumber + 1))
+				.add(String.valueOf(legacyNumber + 1))
 				.add(String.valueOf(activityNumber + 1))
 				.add(String.valueOf(patternNumber + 1));
 		}
@@ -242,14 +289,15 @@ public class LegacyTracer extends Tracer
 			final int typeNum =
 				patternsInfo.get(patternNumber).relResTypes.get(num);
 			final int resNum = patternData.getInt();
-			if (legacyResourceIndexes.get(typeNum).get(resNum) == null)
+			if (legacyResourceIds.get(typeNum).get(resNum) == null)
 			{
-				stringBuilder.add(String.valueOf(getNewId(typeNum, resNum)));
+				stringBuilder.add(
+					String.valueOf(getNewResourceId(typeNum, resNum)));
 			}
 			else
 			{
 				final int legacyId =
-					legacyResourceIndexes.get(typeNum).get(resNum);
+					legacyResourceIds.get(typeNum).get(resNum);
 				stringBuilder.add(String.valueOf(legacyId));
 			}
 		}
@@ -272,7 +320,8 @@ public class LegacyTracer extends Tracer
 		skipPart(resultHeader, TypeSize.BYTE);
 		final int resultNum = resultHeader.getInt();
 
-		final ModelStructureHelper.ValueType valueType = resultsInfo.get(resultNum).valueType;
+		final ModelStructureHelper.ValueType valueType =
+			resultsInfo.get(resultNum).valueType;
 
 		return
 			new TraceOutput(
@@ -322,31 +371,66 @@ public class LegacyTracer extends Tracer
  /                               HELPER METHODS                              /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	final private void initializeTypes()
+	private final void initializeTypes()
 	{
+		//TODO get it from JSON?
 		for (Map.Entry<String, Database.ResourceTypeIndex> type :
 			Simulator.getDatabase().resourceIndex.entrySet())
 		{
 			int typeNum = type.getValue().number;
-			legacyResourceIndexes.put(
+			legacyResourceIds.put(
 				typeNum,
 				new HashMap<Integer, Integer>()
 			);
 		}
 	}
 
-	private final void freeId(int typeNum, int resNum)
+	private final void initializeActivities()
 	{
-		int legacyId = legacyResourceIndexes.get(typeNum).get(resNum);
-		legacyResourceIndexes.get(typeNum).remove(resNum);
-		takenIds.remove(legacyId);
+		JSONArray decisionPoints =
+			Simulator
+			.getDatabase()
+			.getModelStructure()
+			.getJSONArray("decision_points");
+
+		for(int dptNum = 0; dptNum < decisionPoints.length(); dptNum++)
+		{
+			JSONObject decisionPoint = decisionPoints.getJSONObject(dptNum);
+			String type = decisionPoint.getString("type");
+			switch(type)
+			{
+				case "some":
+				case "prior":
+					HashMap<Integer, HashMap<Integer, Integer>> activities =
+						new HashMap<Integer, HashMap<Integer, Integer>>();
+					JSONArray jActivities =
+						decisionPoint.getJSONArray("activities");
+					for(int actNum = 0; actNum < jActivities.length(); actNum++)
+					{
+						HashMap<Integer, Integer> activity =
+							new HashMap<Integer, Integer>();
+						activities.put(actNum, activity);
+					}
+					legacyActionNumbers.put(dptNum, activities);
+					break;
+				default:
+					break;
+			}
+		}
 	}
 
-	private final int getNewId(int typeNum, int resNum)
+	private final void freeResourceId(int typeNum, int resNum)
+	{
+		int legacyId = legacyResourceIds.get(typeNum).get(resNum);
+		legacyResourceIds.get(typeNum).remove(resNum);
+		takenResourceIds.remove(legacyId);
+	}
+
+	private final int getNewResourceId(int typeNum, int resNum)
 	{
 		int current;
 		int legacyId = 1;
-		Iterator<Integer> it = takenIds.iterator();
+		Iterator<Integer> it = takenResourceIds.iterator();
 		while (it.hasNext())
 		{
 			current = it.next();
@@ -354,8 +438,8 @@ public class LegacyTracer extends Tracer
 				break;
 			legacyId++;
 		}
-		legacyResourceIndexes.get(typeNum).put(resNum, legacyId);
-		takenIds.add(legacyId);
+		legacyResourceIds.get(typeNum).put(resNum, legacyId);
+		takenResourceIds.add(legacyId);
 		return legacyId;
 	}
 
