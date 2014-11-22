@@ -146,6 +146,8 @@ public class Simulator
 	{
 		isRunning = true;
 
+		INSTANCE.database.addSystemEntry(Database.SystemEntryType.SIM_START);
+
 		notifyChange("TimeChange");
 		notifyChange("StateChange");
 

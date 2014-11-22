@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.TreeSet;
 
+import ru.bmstu.rk9.rdo.lib.Database.SystemEntryType;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 import ru.bmstu.rk9.rdo.lib.json.JSONArray;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
@@ -40,6 +41,38 @@ public class LegacyTracer extends Tracer
 
 	static private final String delimiter = " ";
 
+	static private boolean simulationStarted = false;
+
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                          PARSING SYSTEM ENTRIES                           /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+
+	@Override
+	protected TraceOutput parseSystemEntry(final Database.Entry entry)
+	{
+		final ByteBuffer systemHeader = entry.header;
+
+		prepareBufferForReading(systemHeader);
+
+		final TraceType traceType = TraceType.SYSTEM;
+		final double time = systemHeader.getDouble();
+		skipPart(systemHeader, TypeSize.BYTE);
+		final Database.SystemEntryType type =
+			Database.SystemEntryType.values()[systemHeader.get()];
+
+		if (type == SystemEntryType.SIM_START)
+			simulationStarted = true;
+
+		final String headerLine =
+			new StringBuilder(delimiter)
+			.add(traceType.toString())
+			.add(String.valueOf(time))
+			.add(String.valueOf(type.ordinal()))
+			.getString();
+
+		return new TraceOutput(traceType, headerLine);
+	}
+
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                          PARSING RESOURCE ENTRIES                         /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
@@ -62,13 +95,14 @@ public class LegacyTracer extends Tracer
 		switch(entryType)
 		{
 		case 0:
-			//TODO resources created before model start should have
-			//RK converter status instead of RC
-			traceType = TraceType.RESOURCE_CREATE;
+			traceType = simulationStarted ?
+				TraceType.RESOURCE_CREATE : TraceType.RESOURCE_KEEP;
+
 			if (legacyResourceIds.get(typeNum).get(resNum) == null)
 				legacyId = getNewResourceId(typeNum, resNum);
 			else
 				legacyId = legacyResourceIds.get(typeNum).get(resNum);
+
 			break;
 		case 1:
 			traceType = TraceType.RESOURCE_ERASE;

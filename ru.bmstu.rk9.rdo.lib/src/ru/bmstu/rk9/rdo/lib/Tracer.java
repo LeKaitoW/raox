@@ -108,15 +108,45 @@ public class Tracer implements Subscriber
 		switch(type)
 		{
 		//TODO implement the rest of EntryTypes
+		case SYSTEM:
+			return parseSystemEntry(entry);
 		case RESOURCE:
 			return parseResourceEntry(entry);
-		case RESULT:
-			return parseResultEntry(entry);
 		case PATTERN:
 			return parsePatternEntry(entry);
+		case SEARCH:
+			return null;
+		case RESULT:
+			return parseResultEntry(entry);
 		default:
 			return null;
 		}
+	}
+
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                          PARSING SYSTEM ENTRIES                           /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+
+	protected TraceOutput parseSystemEntry(final Database.Entry entry)
+	{
+		final ByteBuffer systemHeader = entry.header;
+
+		prepareBufferForReading(systemHeader);
+
+		final TraceType traceType = TraceType.SYSTEM;
+		final double time = systemHeader.getDouble();
+		skipPart(systemHeader, TypeSize.BYTE);
+		final Database.SystemEntryType type =
+			Database.SystemEntryType.values()[systemHeader.get()];
+
+		final String headerLine =
+			new StringBuilder(delimiter)
+			.add(traceType.toString())
+			.add(String.valueOf(time))
+			.add(String.valueOf(type.ordinal()))
+			.getString();
+
+		return new TraceOutput(traceType, headerLine);
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
