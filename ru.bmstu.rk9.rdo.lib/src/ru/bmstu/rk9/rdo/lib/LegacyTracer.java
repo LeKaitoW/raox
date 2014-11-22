@@ -50,15 +50,14 @@ public class LegacyTracer extends Tracer
 	@Override
 	protected TraceOutput parseSystemEntry(final Database.Entry entry)
 	{
-		final ByteBuffer systemHeader = entry.header;
-
-		prepareBufferForReading(systemHeader);
+		final ByteBuffer header = prepareBufferForReading(entry.header);
 
 		final TraceType traceType = TraceType.SYSTEM;
-		final double time = systemHeader.getDouble();
-		skipPart(systemHeader, TypeSize.BYTE);
+
+		skipPart(header, TypeSize.BYTE);
+		final double time = header.getDouble();
 		final Database.SystemEntryType type =
-			Database.SystemEntryType.values()[systemHeader.get()];
+			Database.SystemEntryType.values()[header.get()];
 
 		if (type == SystemEntryType.SIM_START)
 			simulationStarted = true;
@@ -80,16 +79,15 @@ public class LegacyTracer extends Tracer
 	@Override
 	protected final TraceOutput parseResourceEntry(final Database.Entry entry)
 	{
-		final ByteBuffer resourceHeader = entry.header;
+		final ByteBuffer header = prepareBufferForReading(entry.header);
+		final ByteBuffer data = prepareBufferForReading(entry.data);
 
-		prepareBufferForReading(resourceHeader);
-
-		final double time = resourceHeader.getDouble();
-		skipPart(resourceHeader, TypeSize.BYTE);
+		skipPart(header, TypeSize.BYTE);
+		final double time = header.getDouble();
 		final TraceType traceType;
-		byte entryType = resourceHeader.get();
-		final int typeNum = resourceHeader.getInt();
-		final int resNum = resourceHeader.getInt();
+		byte entryType = header.get();
+		final int typeNum = header.getInt();
+		final int resNum = header.getInt();
 
 		int legacyId;
 		switch(entryType)
@@ -132,20 +130,18 @@ public class LegacyTracer extends Tracer
 				traceType,
 				new StringBuilder(delimiter)
 					.add(headerLine)
-					.add(parseResourceParameters(entry.data, typeInfo))
+					.add(parseResourceParameters(data, typeInfo))
 					.getString()
 			);
 	}
 
 	@Override
 	protected final String parseResourceParameters(
-		final ByteBuffer resourceData,
+		final ByteBuffer data,
 		final ResourceTypeInfo typeInfo
 	)
 	{
 		final StringBuilder stringBuilder = new StringBuilder(delimiter);
-
-		prepareBufferForReading(resourceData);
 
 		for (int paramNum = 0; paramNum < typeInfo.numberOfParameters; paramNum++)
 		{
@@ -153,27 +149,27 @@ public class LegacyTracer extends Tracer
 			switch(typeInfo.paramTypes.get(paramNum).type)
 			{
 			case INTEGER:
-				stringBuilder.add(String.valueOf(resourceData.getInt()));
+				stringBuilder.add(String.valueOf(data.getInt()));
 				break;
 			case REAL:
-				stringBuilder.add(checkIntegerValuedReal(resourceData.getDouble()));
+				stringBuilder.add(checkIntegerValuedReal(data.getDouble()));
 				break;
 			case BOOLEAN:
-				stringBuilder.add(legacyBooleanString(resourceData.get() != 0));
+				stringBuilder.add(legacyBooleanString(data.get() != 0));
 				break;
 			case ENUM:
-				stringBuilder.add(String.valueOf(resourceData.getShort()));
+				stringBuilder.add(String.valueOf(data.getShort()));
 				break;
 			case STRING:
 				final int index = typeInfo.indexList.get(paramNum);
-				final int stringPosition = resourceData.getInt(
+				final int stringPosition = data.getInt(
 					typeInfo.finalOffset + (index - 1) * TypeSize.RDO.INTEGER);
-				final int length = resourceData.getInt(stringPosition);
+				final int length = data.getInt(stringPosition);
 
 				byte rawString[] = new byte[length];
 				for (int i = 0; i < length; i++)
 				{
-					rawString[i] = resourceData.get(
+					rawString[i] = data.get(
 						stringPosition + TypeSize.RDO.INTEGER + i);
 				}
 				stringBuilder.add(new String(rawString, StandardCharsets.UTF_8));
@@ -192,16 +188,15 @@ public class LegacyTracer extends Tracer
 	@Override
 	protected final TraceOutput parsePatternEntry(final Database.Entry entry)
 	{
-		final ByteBuffer patternHeader = entry.header;
+		final ByteBuffer header = prepareBufferForReading(entry.header);
+		final ByteBuffer data = prepareBufferForReading(entry.data);
 
-		prepareBufferForReading(patternHeader);
-
-		final double time = patternHeader.getDouble();
-		skipPart(patternHeader, TypeSize.BYTE);
+		skipPart(header, TypeSize.BYTE);
+		final double time = header.getDouble();
 		final TraceType traceType;
 
 		//TODO trace system events when implemented
-		switch(patternHeader.get())
+		switch(header.get())
 		{
 		case 0:
 			traceType = TraceType.EVENT;
@@ -225,27 +220,26 @@ public class LegacyTracer extends Tracer
 				new StringBuilder(delimiter)
 					.add(traceType.toString())
 					.add(checkIntegerValuedReal(time))
-					.add(parsePatternData(entry.data, traceType))
+					.add(parsePatternData(data, traceType))
 					.getString()
 			);
 	}
 
 	@Override
 	protected final String parsePatternData(
-		final ByteBuffer patternData,
+		final ByteBuffer data,
 		final TraceType patternType
 	)
 	{
 		final StringBuilder stringBuilder = new StringBuilder(delimiter);
 
-		prepareBufferForReading(patternData);
 		int patternNumber;
 
 		switch(patternType)
 		{
 		case EVENT:
 		{
-			patternNumber = patternData.getInt();
+			patternNumber = data.getInt();
 			stringBuilder
 				.add(String.valueOf(patternNumber + 1))
 				.add(String.valueOf(patternNumber + 1));
@@ -253,8 +247,8 @@ public class LegacyTracer extends Tracer
 		}
 		case RULE:
 		{
-			int dptNumber = patternData.getInt();
-			int activityNumber = patternData.getInt();
+			int dptNumber = data.getInt();
+			int activityNumber = data.getInt();
 			patternNumber = decisionPointsInfo.get(dptNumber)
 				.activitiesInfo.get(activityNumber).patternNumber;
 			stringBuilder
@@ -265,9 +259,9 @@ public class LegacyTracer extends Tracer
 		}
 		case OPERATION_BEGIN:
 		{
-			int dptNumber = patternData.getInt();
-			int activityNumber = patternData.getInt();
-			int actionNumber = patternData.getInt();
+			int dptNumber = data.getInt();
+			int activityNumber = data.getInt();
+			int actionNumber = data.getInt();
 
 			HashMap<Integer, Integer> activityActions =
 				legacyActionNumbers
@@ -292,9 +286,9 @@ public class LegacyTracer extends Tracer
 		}
 		case OPERATION_END:
 		{
-			int dptNumber = patternData.getInt();
-			int activityNumber = patternData.getInt();
-			int actionNumber = patternData.getInt();
+			int dptNumber = data.getInt();
+			int activityNumber = data.getInt();
+			int actionNumber = data.getInt();
 
 			HashMap<Integer, Integer> activityActions =
 					legacyActionNumbers
@@ -315,14 +309,14 @@ public class LegacyTracer extends Tracer
 			return null;
 		}
 
-		int numberOfRelevantResources = patternData.getInt();
+		int numberOfRelevantResources = data.getInt();
 		stringBuilder.add(String.valueOf(numberOfRelevantResources));
 		stringBuilder.add("");
 		for(int num = 0; num < numberOfRelevantResources; num++)
 		{
 			final int typeNum =
 				patternsInfo.get(patternNumber).relResTypes.get(num);
-			final int resNum = patternData.getInt();
+			final int resNum = data.getInt();
 			if (legacyResourceIds.get(typeNum).get(resNum) == null)
 			{
 				stringBuilder.add(
@@ -346,13 +340,12 @@ public class LegacyTracer extends Tracer
 	@Override
 	protected final TraceOutput parseResultEntry(final Database.Entry entry)
 	{
-		final ByteBuffer resultHeader = entry.header;
+		final ByteBuffer header = prepareBufferForReading(entry.header);
+		final ByteBuffer data = prepareBufferForReading(entry.data);
 
-		prepareBufferForReading(resultHeader);
-
-		final double time = resultHeader.getDouble();
-		skipPart(resultHeader, TypeSize.BYTE);
-		final int resultNum = resultHeader.getInt();
+		skipPart(header, TypeSize.BYTE);
+		final double time = header.getDouble();
+		final int resultNum = header.getInt();
 
 		final ModelStructureHelper.ValueType valueType =
 			resultsInfo.get(resultNum).valueType;
@@ -364,7 +357,7 @@ public class LegacyTracer extends Tracer
 				.add(TraceType.RESULT.toString())
 				.add(checkIntegerValuedReal(time))
 				.add(String.valueOf(resultNum + 1))
-				.add(parseResultParameter(entry.data, valueType))
+				.add(parseResultParameter(data, valueType))
 				.getString()
 			);
 	}
@@ -375,8 +368,6 @@ public class LegacyTracer extends Tracer
 		final ModelStructureHelper.ValueType valueType
 	)
 	{
-		prepareBufferForReading(resultData);
-
 		switch(valueType)
 		{
 		case INTEGER:
