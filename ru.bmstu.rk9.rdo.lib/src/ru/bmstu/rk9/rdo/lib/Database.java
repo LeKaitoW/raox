@@ -32,11 +32,11 @@ public class Database
 
 		public static class Internal
 		{
-			public static final int TIME_SIZE = TypeSize.DOUBLE;
-			public static final int TIME_OFFSET = 0;
-
 			public static final int ENTRY_TYPE_SIZE = TypeSize.BYTE;
-			public static final int ENTRY_TYPE_OFFSET = TIME_OFFSET + TIME_SIZE;
+			public static final int ENTRY_TYPE_OFFSET = 0;
+
+			public static final int TIME_SIZE = TypeSize.DOUBLE;
+			public static final int TIME_OFFSET = ENTRY_TYPE_SIZE + ENTRY_TYPE_OFFSET;
 		}
 	}
 
@@ -253,6 +253,8 @@ public class Database
 					return;
 		}
 
+		boolean shouldSerializeToIndex = true;
+
 		switch (status)
 		{
 			case CREATED:
@@ -263,12 +265,13 @@ public class Database
 
 				resourceTypeIndex.resources.set(resource.getNumber(), resourceIndex);
 			break;
+			case SEARCH:
+				shouldSerializeToIndex = false;
 			case ERASED:
 			case ALTERED:
 			case SOLUTION:
 				resourceIndex = resourceTypeIndex.resources.get(resource.getNumber());
 			break;
-			case SEARCH:
 			default:
 				resourceIndex = null;
 			break;
@@ -276,8 +279,8 @@ public class Database
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.RESOURCE.HEADER_SIZE);
 		header
-			.putDouble(Simulator.getTime())
 			.put((byte)EntryType.RESOURCE.ordinal())
+			.putDouble(Simulator.getTime())
 			.put((byte)status.ordinal())
 			.putInt(resourceTypeIndex.number)
 			.putInt(resourceIndex.number);
@@ -288,7 +291,7 @@ public class Database
 
 		allEntries.add(entry);
 
-		if(resourceIndex != null)
+		if(shouldSerializeToIndex)
 			resourceIndex.entries.add(allEntries.size() - 1);
 	}
 	
@@ -353,8 +356,8 @@ public class Database
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
 		header
-			.putDouble(Simulator.getTime())
 			.put((byte)EntryType.PATTERN.ordinal())
+			.putDouble(Simulator.getTime())
 			.put((byte)type.ordinal());
 
 		DecisionPointIndex dptIndex = decisionPointIndex.get(dptName);
@@ -425,8 +428,8 @@ public class Database
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
 		header
-			.putDouble(Simulator.getTime())
 			.put((byte)EntryType.PATTERN.ordinal())
+			.putDouble(Simulator.getTime())
 			.put((byte)type.ordinal());
 
 		int[] relevantResources = pattern.getRelevantInfo();
@@ -579,8 +582,8 @@ public class Database
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.RESULT.HEADER_SIZE);
 		header
-			.putDouble(Simulator.getTime())
 			.put((byte)EntryType.RESULT.ordinal())
+			.putDouble(Simulator.getTime())
 			.putInt(index.number);
 
 		Entry entry = new Entry(header, data);
