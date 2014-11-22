@@ -32,11 +32,11 @@ public class Database
 
 		public static class Internal
 		{
-			public static final int TIME_SIZE = TypeSize.DOUBLE;
-			public static final int TIME_OFFSET = 0;
-
 			public static final int ENTRY_TYPE_SIZE = TypeSize.BYTE;
-			public static final int ENTRY_TYPE_OFFSET = TIME_OFFSET + TIME_SIZE;
+			public static final int ENTRY_TYPE_OFFSET = 0;
+
+			public static final int TIME_SIZE = TypeSize.DOUBLE;
+			public static final int TIME_OFFSET = ENTRY_TYPE_SIZE + ENTRY_TYPE_OFFSET;
 		}
 	}
 
@@ -189,9 +189,10 @@ public class Database
 	{
 		ByteBuffer header = ByteBuffer.allocate(EntryType.SYSTEM.HEADER_SIZE);
 
-		header.putDouble(Simulator.getTime());
-		header.put((byte)EntryType.SYSTEM.ordinal());
-		header.put((byte)type.ordinal());
+		header
+			.put((byte)EntryType.SYSTEM.ordinal())
+			.putDouble(Simulator.getTime())
+			.put((byte)type.ordinal());
 
 		allEntries.add(new Entry(header, null));
 	}
@@ -278,8 +279,8 @@ public class Database
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.RESOURCE.HEADER_SIZE);
 		header
-			.putDouble(Simulator.getTime())
 			.put((byte)EntryType.RESOURCE.ordinal())
+			.putDouble(Simulator.getTime())
 			.put((byte)status.ordinal())
 			.putInt(resourceTypeIndex.number)
 			.putInt(resourceIndex.number);
@@ -355,8 +356,8 @@ public class Database
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
 		header
-			.putDouble(Simulator.getTime())
 			.put((byte)EntryType.PATTERN.ordinal())
+			.putDouble(Simulator.getTime())
 			.put((byte)type.ordinal());
 
 		DecisionPointIndex dptIndex = decisionPointIndex.get(dptName);
@@ -427,8 +428,8 @@ public class Database
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
 		header
-			.putDouble(Simulator.getTime())
 			.put((byte)EntryType.PATTERN.ordinal())
+			.putDouble(Simulator.getTime())
 			.put((byte)type.ordinal());
 
 		int[] relevantResources = pattern.getRelevantInfo();
@@ -570,8 +571,8 @@ public class Database
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.RESULT.HEADER_SIZE);
 		header
-			.putDouble(Simulator.getTime())
 			.put((byte)EntryType.RESULT.ordinal())
+			.putDouble(Simulator.getTime())
 			.putInt(index.number);
 
 		ByteBuffer data = result.serialize();
