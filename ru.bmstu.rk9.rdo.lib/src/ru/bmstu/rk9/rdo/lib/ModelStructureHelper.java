@@ -52,9 +52,10 @@ class ModelStructureHelper
 
 			JSONArray jResources = type.getJSONArray("resources");
 			for (int resNum = 0; resNum < jResources.length(); resNum++)
-			{
-				resources.put(resNum, jResources.getString(resNum));
-			}
+				resources.put(
+					resNum,
+					getRelativeName(jResources.getString(resNum))
+				);
 
 			resourceNames.put(
 				typeNum,
