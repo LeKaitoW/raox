@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.TreeSet;
 
+import ru.bmstu.rk9.rdo.lib.Database.SearchEntryType;
 import ru.bmstu.rk9.rdo.lib.Database.SystemEntryType;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 import ru.bmstu.rk9.rdo.lib.json.JSONArray;
@@ -41,7 +42,10 @@ public class LegacyTracer extends Tracer
 
 	static private final String delimiter = " ";
 
-	static private boolean simulationStarted = false;
+	private boolean simulationStarted = false;
+	//TODO probably not the best solution
+	//TODO Integer and null instead of int and -1?
+	private int currentDptNumber = -1;
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                          PARSING SYSTEM ENTRIES                           /
@@ -65,8 +69,8 @@ public class LegacyTracer extends Tracer
 		final String headerLine =
 			new StringBuilder(delimiter)
 			.add(traceType.toString())
-			.add(String.valueOf(time))
-			.add(String.valueOf(type.ordinal()))
+			.add(checkIntegerValuedReal((time)))
+			.add(String.valueOf(type.ordinal() + 1))
 			.getString();
 
 		return new TraceOutput(traceType, headerLine);
@@ -85,14 +89,15 @@ public class LegacyTracer extends Tracer
 		skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
 		final TraceType traceType;
-		byte entryType = header.get();
+		final Database.ResourceEntryType entryType =
+			Database.ResourceEntryType.values()[header.get()];
 		final int typeNum = header.getInt();
 		final int resNum = header.getInt();
 
 		int legacyId;
 		switch(entryType)
 		{
-		case 0:
+		case CREATED:
 			traceType = simulationStarted ?
 				TraceType.RESOURCE_CREATE : TraceType.RESOURCE_KEEP;
 
@@ -102,13 +107,19 @@ public class LegacyTracer extends Tracer
 				legacyId = legacyResourceIds.get(typeNum).get(resNum);
 
 			break;
-		case 1:
+		case ERASED:
 			traceType = TraceType.RESOURCE_ERASE;
 			legacyId = legacyResourceIds.get(typeNum).get(resNum);
 			freeResourceId(typeNum, resNum);
 			break;
-		case 2:
+		case ALTERED:
 			traceType = TraceType.RESOURCE_KEEP;
+			legacyId = legacyResourceIds.get(typeNum).get(resNum);
+			break;
+		//TODO how to know if resource was created or erased?
+		case SEARCH:
+		case SOLUTION:
+			traceType = TraceType.SEARCH_RESOURCE_KEEP;
 			legacyId = legacyResourceIds.get(typeNum).get(resNum);
 			break;
 		default:
@@ -195,7 +206,6 @@ public class LegacyTracer extends Tracer
 		final double time = header.getDouble();
 		final TraceType traceType;
 
-		//TODO trace system events when implemented
 		switch(header.get())
 		{
 		case 0:
@@ -331,6 +341,178 @@ public class LegacyTracer extends Tracer
 		}
 
 		return stringBuilder.getString();
+	}
+
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                              SEARCH ENTRIES                               /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+
+	//TODO in old RDO traceStart and Simulation are simultaneous
+	//when we deal with DecisionPointSearch, so no initial resource
+	//values are not printed.
+	//How to check that?
+
+	@Override
+	protected TraceOutput parseSearchEntry(final Database.Entry entry)
+	{
+		final ByteBuffer header = prepareBufferForReading(entry.header);
+		final ByteBuffer data = prepareBufferForReading(entry.data);
+
+		final StringBuilder stringBuilder =
+			new StringBuilder(delimiter);
+
+		final TraceType traceType;
+		skipPart(header, TypeSize.BYTE);
+		final SearchEntryType entryType =
+			SearchEntryType.values()[header.get()];
+
+		switch(entryType)
+		{
+		case BEGIN:
+		{
+			traceType = TraceType.SEARCH_BEGIN;
+			final double time = data.getDouble();
+			final int number = data.getInt();
+			currentDptNumber = number;
+			skipPart(data, TypeSize.INTEGER);
+			stringBuilder
+				.add(traceType.toString())
+				.add(checkIntegerValuedReal(time))
+				.add(String.valueOf(number + 1));
+			break;
+		}
+		case END:
+		{
+			currentDptNumber = -1;
+			//TODO switch over enum when it is made public
+			final byte endStatus = data.get();
+			switch(endStatus)
+			{
+			case 0:
+				traceType = TraceType.SEARCH_END_ABORTED;
+				break;
+			case 1:
+				traceType = TraceType.SEARCH_END_CONDITION;
+				break;
+			case 2:
+				traceType = TraceType.SEARCH_END_SUCCESS;
+				break;
+			case 3:
+				traceType = TraceType.SEARCH_END_FAIL;
+				break;
+			default:
+				//TODO throw exception
+				return null;
+			}
+
+			final double time = data.getDouble();
+			final long timeMillis = data.getLong();
+			final long mem = data.getLong();
+			final double finalCost = data.getDouble();
+			final int totalOpened = data.getInt();
+			final int totalNodes = data.getInt();
+			final int totalAdded = data.getInt();
+			final int totalSpawned = data.getInt();
+			stringBuilder
+				.add(traceType.toString())
+				.add(checkIntegerValuedReal(time))
+				.add(String.valueOf(timeMillis))
+				.add(String.valueOf(mem))
+				.add(checkIntegerValuedReal(finalCost))
+				.add(String.valueOf(totalOpened))
+				.add(String.valueOf(totalNodes))
+				.add(String.valueOf(totalAdded))
+				.add(String.valueOf(totalSpawned));
+			break;
+		}
+		case OPEN:
+		{
+			traceType = TraceType.SEARCH_OPEN;
+			final int currentNumber = data.getInt();
+			final int parentNumber = data.getInt();
+			final double g = data.getDouble();
+			final double h = data.getDouble();
+			stringBuilder
+				.add(traceType.toString())
+				.add(String.valueOf(currentNumber + 1))
+				.add(String.valueOf(parentNumber + 1))
+				.add(checkIntegerValuedReal(g))
+				.add(checkIntegerValuedReal(g + h));
+			break;
+		}
+		case SPAWN:
+		{
+			final DecisionPointSearch.SpawnStatus spawnStatus =
+					DecisionPointSearch.SpawnStatus.values()[data.get()];
+			switch(spawnStatus)
+			{
+			case NEW:
+				traceType = TraceType.SEARCH_SPAWN_NEW;
+				break;
+			case WORSE:
+				traceType = TraceType.SEARCH_SPAWN_WORSE;
+				break;
+			case BETTER:
+				traceType = TraceType.SEARCH_SPAWN_BETTER;
+				break;
+			default:
+				//TODO throw exception
+				return null;
+			}
+			final int childNumber = data.getInt();
+			final int parentNumber = data.getInt();
+			final double g = data.getDouble();
+			final double h = data.getDouble();
+			final int ruleNumber = data.getInt();
+			final int patternNumber = decisionPointsInfo.get(currentDptNumber)
+				.activitiesInfo.get(ruleNumber).patternNumber;
+			final double ruleCost = data.getDouble();
+			final int numberOfRelevantResources =
+				patternsInfo.get(patternNumber).relResTypes.size();
+
+			stringBuilder
+				.add(traceType.toString())
+				.add(String.valueOf(childNumber + 1))
+				.add(String.valueOf(parentNumber + 1))
+				.add(checkIntegerValuedReal(g))
+				.add(checkIntegerValuedReal(g + h))
+				.add(String.valueOf(ruleNumber + 1))
+				.add(String.valueOf(patternNumber + 1))
+				.add(checkIntegerValuedReal(ruleCost))
+				.add(String.valueOf(numberOfRelevantResources))
+				.add("");
+
+			for (int num = 0; num < numberOfRelevantResources; num++)
+			{
+				final int typeNum =
+					patternsInfo.get(patternNumber).relResTypes.get(num);
+				final int resNum = data.getInt();
+				final int legacyNum =
+					legacyResourceIds.get(typeNum).get(resNum);
+				stringBuilder.add(String.valueOf(legacyNum));
+			}
+			break;
+		}
+		case DECISION:
+		{
+			traceType = TraceType.SEARCH_DECISION;
+			final int number = data.getInt();
+			final int activityNumber = data.getInt();
+			stringBuilder
+				.add(traceType.toString())
+				.add(String.valueOf(number))
+				.add(String.valueOf(activityNumber));
+			break;
+		}
+		default:
+			return null;
+		}
+
+		return
+			new TraceOutput(
+				traceType,
+				stringBuilder.getString()
+			);
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/

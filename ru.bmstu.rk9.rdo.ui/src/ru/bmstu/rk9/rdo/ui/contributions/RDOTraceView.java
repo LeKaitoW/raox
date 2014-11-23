@@ -22,6 +22,7 @@ import org.eclipse.ui.part.ViewPart;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.Tracer;
+import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
 
 public class RDOTraceView extends ViewPart
 {
@@ -143,7 +144,7 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 	{
 		Display display = PlatformUI.getWorkbench().getDisplay();
 		colorByType.put(
-			Tracer.TraceType.RESOURCE_CREATE,
+			TraceType.RESOURCE_CREATE,
 			new TraceColor(
 				new Color(display, 0x23, 0x74, 0x42),
 				new Color(display, 0x96, 0xFF, 0x96)
@@ -151,7 +152,7 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 		);
 
 		colorByType.put(
-			Tracer.TraceType.RESOURCE_KEEP,
+			TraceType.RESOURCE_KEEP,
 			new TraceColor(
 				new Color(display, 0x00, 0x86, 0x00),
 				new Color(display, 0xD0, 0xFF, 0xD0)
@@ -159,7 +160,7 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 		);
 
 		colorByType.put(
-			Tracer.TraceType.RESOURCE_ERASE,
+			TraceType.RESOURCE_ERASE,
 			new TraceColor(
 				new Color(display, 0x43, 0x5A, 0x43),
 				new Color(display, 0xB4, 0xE0, 0xB4)
@@ -167,7 +168,7 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 		);
 
 		colorByType.put(
-			Tracer.TraceType.SYSTEM,
+			TraceType.SYSTEM,
 			new TraceColor(
 				new Color(display, 0x8B, 0x00, 0x00),
 				new Color(display, 0xFF, 0xC0, 0xCB)
@@ -175,7 +176,7 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 		);
 
 		colorByType.put(
-			Tracer.TraceType.OPERATION_BEGIN,
+			TraceType.OPERATION_BEGIN,
 			new TraceColor(
 				new Color(display, 0x34, 0x4B, 0xA2),
 				new Color(display, 0xAA, 0xE3, 0xFB)
@@ -183,7 +184,7 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 		);
 
 		colorByType.put(
-			Tracer.TraceType.OPERATION_END,
+			TraceType.OPERATION_END,
 			new TraceColor(
 				new Color(display, 0x16, 0x02, 0x50),
 				new Color(display, 0x81, 0xB0, 0xD5)
@@ -191,7 +192,7 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 		);
 
 		colorByType.put(
-			Tracer.TraceType.EVENT,
+			TraceType.EVENT,
 			new TraceColor(
 				new Color(display, 0x4F, 0x29, 0x62),
 				new Color(display, 0xD0, 0xD0, 0xFF)
@@ -199,7 +200,7 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 		);
 
 		colorByType.put(
-			Tracer.TraceType.RULE,
+			TraceType.RULE,
 			new TraceColor(
 				new Color(display, 0x17, 0x32, 0x47),
 				new Color(display, 0xB6, 0xCB, 0xDB)
@@ -207,10 +208,102 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 		);
 
 		colorByType.put(
-			Tracer.TraceType.RESULT,
+			TraceType.RESULT,
 			new TraceColor(
 				new Color(display, 0x00, 0x00, 0x00),
 				new Color(display, 0xF1, 0xFB, 0xE2)
+			)
+		);
+
+		colorByType.put(
+			TraceType.SEARCH_BEGIN,
+			new TraceColor(
+				new Color(display, 0x5A, 0x4F, 0x37),
+				new Color(display, 0xF8, 0xD6, 0x8D)
+			)
+		);
+
+		colorByType.put(
+			TraceType.SEARCH_OPEN,
+			new TraceColor(
+				new Color(display, 0x4B, 0x54, 0x0E),
+				new Color(display, 0xE6, 0xF1, 0x98)
+			)
+		);
+
+		colorByType.put(
+			TraceType.SEARCH_SPAWN_NEW,
+			new TraceColor(
+				new Color(display, 0x00, 0x54, 0x72),
+				new Color(display, 0xE8, 0xE8, 0xD7)
+			)
+		);
+
+		colorByType.put(
+			TraceType.SEARCH_SPAWN_WORSE,
+			new TraceColor(
+				new Color(display, 0x69, 0x55, 0x49),
+				colorByType.get(TraceType.SEARCH_SPAWN_NEW).backgroundColor()
+			)
+		);
+
+		colorByType.put(
+			TraceType.SEARCH_SPAWN_BETTER,
+			new TraceColor(
+				new Color(display, 0x8B, 0x00, 0x00),
+				colorByType.get(TraceType.SEARCH_SPAWN_NEW).backgroundColor()
+			)
+		);
+
+		colorByType.put(
+			TraceType.SEARCH_RESOURCE_CREATE,
+			colorByType.get(TraceType.RESOURCE_CREATE)
+		);
+
+		colorByType.put(
+			TraceType.SEARCH_RESOURCE_KEEP,
+			colorByType.get(TraceType.RESOURCE_KEEP)
+		);
+
+		colorByType.put(
+			TraceType.SEARCH_RESOURCE_ERASE,
+			colorByType.get(TraceType.RESOURCE_ERASE)
+		);
+
+		colorByType.put(
+			TraceType.SEARCH_DECISION,
+			new TraceColor(
+				new Color(display, 0x54, 0x1E, 0x09),
+				new Color(display, 0xF7, 0xCF, 0xB5)
+			)
+		);
+
+		colorByType.put(
+			TraceType.SEARCH_END_ABORTED,
+			new TraceColor(
+				new Color(display, 0xF0, 0x4B, 0x30),
+				new Color(display, 0xE3, 0xF0, 0xF6)
+			)
+		);
+
+		colorByType.put(
+			TraceType.SEARCH_END_CONDITION,
+			new TraceColor(
+				new Color(display, 0x54, 0x1E, 0x09),
+				new Color(display, 0xF0, 0xDE, 0xDB)
+			)
+		);
+
+		colorByType.put(
+			TraceType.SEARCH_END_SUCCESS,
+			colorByType.get(TraceType.SEARCH_END_CONDITION)
+		);
+
+		colorByType.put(
+			TraceType.SEARCH_END_FAIL,
+			new TraceColor(
+				new Color(display, 0xF0, 0x4B, 0x30),
+				colorByType.get(TraceType.SEARCH_END_SUCCESS).backgroundColor()
 			)
 		);
 	}

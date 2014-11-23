@@ -11,7 +11,6 @@ public class Tracer implements Subscriber
 {
 	public static enum TraceType
 	{
-		//TODO add DPT
 		RESOURCE_CREATE("RC"),
 		RESOURCE_KEEP("RK"),
 		RESOURCE_ERASE("RE"),
@@ -20,7 +19,20 @@ public class Tracer implements Subscriber
 		OPERATION_END("EF"),
 		EVENT("EI"),
 		RULE("ER"),
-		RESULT("V ");
+		RESULT("V "),
+		SEARCH_BEGIN("SB"),
+		SEARCH_OPEN("SO"),
+		SEARCH_SPAWN_NEW("STN"),
+		SEARCH_SPAWN_WORSE("STD"),
+		SEARCH_SPAWN_BETTER("STR"),
+		SEARCH_RESOURCE_CREATE("SRC"),
+		SEARCH_RESOURCE_KEEP("SRK"),
+		SEARCH_RESOURCE_ERASE("SRE"),
+		SEARCH_DECISION("SD"),
+		SEARCH_END_ABORTED("SEA"),
+		SEARCH_END_CONDITION("SEC"),
+		SEARCH_END_SUCCESS("SES"),
+		SEARCH_END_FAIL("SEN");
 
 		private String traceCode;
 		private TraceType(String traceCode)
@@ -115,7 +127,7 @@ public class Tracer implements Subscriber
 		case PATTERN:
 			return parsePatternEntry(entry);
 		case SEARCH:
-			return null;
+			return parseSearchEntry(entry);
 		case RESULT:
 			return parseResultEntry(entry);
 		default:
@@ -188,10 +200,10 @@ public class Tracer implements Subscriber
 
 		final String headerLine =
 			new StringBuilder(delimiter)
-			.add(traceType.toString())
-			.add(String.valueOf(time))
-			.add(resourceName)
-			.getString();
+				.add(traceType.toString())
+				.add(String.valueOf(time))
+				.add(resourceName)
+				.getString();
 
 		return
 			new TraceOutput(
@@ -367,6 +379,15 @@ public class Tracer implements Subscriber
 		}
 
 		return stringBuilder.getString() + resResStringBuilder.getString();
+	}
+
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                              SEARCH ENTRIES                               /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+
+	protected TraceOutput parseSearchEntry(final Database.Entry entry)
+	{
+		return null;
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
