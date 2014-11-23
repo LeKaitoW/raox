@@ -573,9 +573,12 @@ public class Database
 		if (index.entries.size() > 0)
 		{
 			ByteBuffer lastResultValue =
-				allEntries.get(index.entries.get(index.entries.size() -1)).data;
+				allEntries.get(
+					index.entries.get(index.entries.size() -1)
+				).data.duplicate();
 			ByteBuffer currentResultValue = data.duplicate();
 			currentResultValue.rewind();
+			lastResultValue.rewind();
 			if (currentResultValue.compareTo(lastResultValue) == 0)
 				return;
 		}
