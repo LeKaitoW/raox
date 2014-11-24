@@ -363,21 +363,18 @@ public class Database
 		DecisionPointIndex dptIndex = decisionPointIndex.get(dptName);
 		PatternIndex index = dptIndex.activities.get(activity.getName());
 
+		int number = index.timesExecuted++;
+		if(type == PatternType.OPERATION_BEGIN)
+			patternPool.put(pattern, new PatternPoolEntry(dpt, activity, number));
+
 		int[] relevantResources = pattern.getRelevantInfo();
 
-		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER * (relevantResources.length +
-			(type == PatternType.OPERATION_BEGIN ? 4 : 3)));
+		ByteBuffer data = ByteBuffer.allocate(
+			TypeSize.INTEGER * (relevantResources.length + 4));
 		data
 			.putInt(dptIndex.number)
-			.putInt(index.number);
-
-		if(type == PatternType.OPERATION_BEGIN)
-		{
-			int number = index.timesExecuted++;
-
-			patternPool.put(pattern, new PatternPoolEntry(dpt, activity, number));
-			data.putInt(number);
-		}
+			.putInt(index.number)
+			.putInt(number);
 
 		fillRelevantResources(data, relevantResources);
 
@@ -435,7 +432,7 @@ public class Database
 		int[] relevantResources = pattern.getRelevantInfo();
 
 		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER * (relevantResources.length +
-			(type == PatternType.OPERATION_END ? 4 : 2)));
+			(type == PatternType.OPERATION_END ? 4 : 3)));
 
 		if(type == PatternType.OPERATION_END)
 			data
@@ -443,7 +440,9 @@ public class Database
 				.putInt(index.number)
 				.putInt(poolEntry.number);
 		else
-			data.putInt(index.number);
+			data
+				.putInt(index.number)
+				.putInt(index.timesExecuted++);
 
 		fillRelevantResources(data, relevantResources);
 

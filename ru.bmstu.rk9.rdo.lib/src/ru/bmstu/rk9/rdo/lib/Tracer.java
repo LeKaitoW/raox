@@ -172,15 +172,18 @@ public class Tracer implements Subscriber
 		skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
 		final TraceType traceType;
-		switch(header.get())
+
+		final Database.ResourceEntryType entryType =
+			Database.ResourceEntryType.values()[header.get()];
+		switch(entryType)
 		{
-		case 0:
+		case CREATED:
 			traceType = TraceType.RESOURCE_CREATE;
 			break;
-		case 1:
+		case ERASED:
 			traceType = TraceType.RESOURCE_ERASE;
 			break;
-		case 2:
+		case ALTERED:
 			traceType = TraceType.RESOURCE_KEEP;
 			break;
 		default:
@@ -280,19 +283,20 @@ public class Tracer implements Subscriber
 		final double time = header.getDouble();
 		final TraceType traceType;
 
-		//TODO trace system events when implemented
-		switch(header.get())
+		final Database.PatternType entryType =
+			Database.PatternType.values()[header.get()];
+		switch(entryType)
 		{
-		case 0:
+		case EVENT:
 			traceType = TraceType.EVENT;
 			break;
-		case 1:
+		case RULE:
 			traceType = TraceType.RULE;
 			break;
-		case 2:
+		case OPERATION_BEGIN:
 			traceType = TraceType.OPERATION_BEGIN;
 			break;
-		case 3:
+		case OPERATION_END:
 			traceType = TraceType.OPERATION_END;
 			break;
 		default:
@@ -324,22 +328,14 @@ public class Tracer implements Subscriber
 		case EVENT:
 		{
 			int eventNumber = data.getInt();
+			int actionNumber = data.getInt();
 			patternNumber = eventNumber;
 			stringBuilder
-				.add(patternsInfo.get(eventNumber).name);
+				.add(patternsInfo.get(eventNumber).name
+					+ encloseIndex(actionNumber));
 			break;
 		}
 		case RULE:
-		{
-			int dptNumber = data.getInt();
-			int activityNumber = data.getInt();
-			ActivityInfo activity = decisionPointsInfo.get(dptNumber)
-				.activitiesInfo.get(activityNumber);
-			patternNumber = activity.patternNumber;
-			stringBuilder
-				.add(activity.name);
-			break;
-		}
 		case OPERATION_BEGIN:
 		case OPERATION_END:
 		{

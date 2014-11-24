@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.TreeSet;
 
-import ru.bmstu.rk9.rdo.lib.Database.SearchEntryType;
-import ru.bmstu.rk9.rdo.lib.Database.SystemEntryType;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 import ru.bmstu.rk9.rdo.lib.json.JSONArray;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
@@ -63,7 +61,7 @@ public class LegacyTracer extends Tracer
 		final Database.SystemEntryType type =
 			Database.SystemEntryType.values()[header.get()];
 
-		if (type == SystemEntryType.SIM_START)
+		if (type == Database.SystemEntryType.SIM_START)
 			simulationStarted = true;
 
 		final String headerLine =
@@ -206,18 +204,20 @@ public class LegacyTracer extends Tracer
 		final double time = header.getDouble();
 		final TraceType traceType;
 
-		switch(header.get())
+		final Database.PatternType entryType =
+			Database.PatternType.values()[header.get()];
+		switch(entryType)
 		{
-		case 0:
+		case EVENT:
 			traceType = TraceType.EVENT;
 			break;
-		case 1:
+		case RULE:
 			traceType = TraceType.RULE;
 			break;
-		case 2:
+		case OPERATION_BEGIN:
 			traceType = TraceType.OPERATION_BEGIN;
 			break;
-		case 3:
+		case OPERATION_END:
 			traceType = TraceType.OPERATION_END;
 			break;
 		default:
@@ -250,6 +250,7 @@ public class LegacyTracer extends Tracer
 		case EVENT:
 		{
 			patternNumber = data.getInt();
+			skipPart(data, TypeSize.INTEGER);
 			stringBuilder
 				.add(String.valueOf(patternNumber + 1))
 				.add(String.valueOf(patternNumber + 1));
@@ -259,6 +260,7 @@ public class LegacyTracer extends Tracer
 		{
 			int dptNumber = data.getInt();
 			int activityNumber = data.getInt();
+			skipPart(data, TypeSize.INTEGER);
 			patternNumber = decisionPointsInfo.get(dptNumber)
 				.activitiesInfo.get(activityNumber).patternNumber;
 			stringBuilder
@@ -363,8 +365,8 @@ public class LegacyTracer extends Tracer
 
 		final TraceType traceType;
 		skipPart(header, TypeSize.BYTE);
-		final SearchEntryType entryType =
-			SearchEntryType.values()[header.get()];
+		final Database.SearchEntryType entryType =
+				Database.SearchEntryType.values()[header.get()];
 
 		switch(entryType)
 		{
