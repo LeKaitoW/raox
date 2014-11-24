@@ -153,8 +153,8 @@ public class Tracer implements Subscriber
 		final String headerLine =
 			new StringBuilder(delimiter)
 			.add(traceType.toString())
-			.add(String.valueOf(time))
-			.add(String.valueOf(type.ordinal()))
+			.add(time)
+			.add(type.ordinal())
 			.getString();
 
 		return new TraceOutput(traceType, headerLine);
@@ -204,7 +204,7 @@ public class Tracer implements Subscriber
 		final String headerLine =
 			new StringBuilder(delimiter)
 				.add(traceType.toString())
-				.add(String.valueOf(time))
+				.add(time)
 				.add(resourceName)
 				.getString();
 
@@ -233,13 +233,13 @@ public class Tracer implements Subscriber
 			switch(valueInfo.type)
 			{
 			case INTEGER:
-				stringBuilder.add(String.valueOf(data.getInt()));
+				stringBuilder.add(data.getInt());
 				break;
 			case REAL:
-				stringBuilder.add(String.valueOf(data.getDouble()));
+				stringBuilder.add(data.getDouble());
 				break;
 			case BOOLEAN:
-				stringBuilder.add(String.valueOf(data.get() != 0));
+				stringBuilder.add(data.get() != 0);
 				break;
 			case ENUM:
 				stringBuilder.add(
@@ -308,7 +308,7 @@ public class Tracer implements Subscriber
 				traceType,
 				new StringBuilder(delimiter)
 					.add(traceType.toString())
-					.add(String.valueOf(time))
+					.add(time)
 					.add(parsePatternData(data, traceType))
 					.getString()
 			);
@@ -405,7 +405,7 @@ public class Tracer implements Subscriber
 			TraceType.RESULT,
 			new StringBuilder(delimiter)
 				.add(TraceType.RESULT.toString())
-				.add(String.valueOf(time))
+				.add(time)
 				.add(resultInfo.name)
 				.add("=")
 				.add(parseResultParameter(data, resultInfo.valueType))
@@ -501,5 +501,20 @@ class StringBuilder
 		else
 			current += delimiter + toAppend;
 		return this;
+	}
+
+	public final StringBuilder add(final int toAppend)
+	{
+		return add(String.valueOf(toAppend));
+	}
+
+	public final StringBuilder add(final double toAppend)
+	{
+		return add(String.valueOf(toAppend));
+	}
+
+	public final StringBuilder add(final boolean toAppend)
+	{
+		return add(String.valueOf(toAppend));
 	}
 }

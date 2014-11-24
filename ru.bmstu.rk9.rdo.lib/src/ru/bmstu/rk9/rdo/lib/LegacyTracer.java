@@ -68,7 +68,7 @@ public class LegacyTracer extends Tracer
 			new StringBuilder(delimiter)
 			.add(traceType.toString())
 			.add(checkIntegerValuedReal((time)))
-			.add(String.valueOf(type.ordinal() + 1))
+			.add(type.ordinal() + 1)
 			.getString();
 
 		return new TraceOutput(traceType, headerLine);
@@ -128,8 +128,8 @@ public class LegacyTracer extends Tracer
 			new StringBuilder(delimiter)
 			.add(traceType.toString())
 			.add(checkIntegerValuedReal((time)))
-			.add(String.valueOf(typeNum + 1))
-			.add(String.valueOf(legacyId))
+			.add(typeNum + 1)
+			.add(legacyId)
 			.getString();
 
 		final ResourceTypeInfo typeInfo = resourceTypesInfo.get(typeNum);
@@ -158,7 +158,7 @@ public class LegacyTracer extends Tracer
 			switch(typeInfo.paramTypes.get(paramNum).type)
 			{
 			case INTEGER:
-				stringBuilder.add(String.valueOf(data.getInt()));
+				stringBuilder.add(data.getInt());
 				break;
 			case REAL:
 				stringBuilder.add(checkIntegerValuedReal(data.getDouble()));
@@ -167,7 +167,7 @@ public class LegacyTracer extends Tracer
 				stringBuilder.add(legacyBooleanString(data.get() != 0));
 				break;
 			case ENUM:
-				stringBuilder.add(String.valueOf(data.getShort()));
+				stringBuilder.add(data.getShort());
 				break;
 			case STRING:
 				final int index = typeInfo.indexList.get(paramNum);
@@ -252,8 +252,8 @@ public class LegacyTracer extends Tracer
 			patternNumber = data.getInt();
 			skipPart(data, TypeSize.INTEGER);
 			stringBuilder
-				.add(String.valueOf(patternNumber + 1))
-				.add(String.valueOf(patternNumber + 1));
+				.add(patternNumber + 1)
+				.add(patternNumber + 1);
 			break;
 		}
 		case RULE:
@@ -264,9 +264,9 @@ public class LegacyTracer extends Tracer
 			patternNumber = decisionPointsInfo.get(dptNumber)
 				.activitiesInfo.get(activityNumber).patternNumber;
 			stringBuilder
-				.add(String.valueOf(1))
-				.add(String.valueOf(activityNumber + 1))
-				.add(String.valueOf(patternNumber + 1));
+				.add(1)
+				.add(activityNumber + 1)
+				.add(patternNumber + 1);
 			break;
 		}
 		case OPERATION_BEGIN:
@@ -291,9 +291,9 @@ public class LegacyTracer extends Tracer
 			patternNumber = decisionPointsInfo.get(dptNumber)
 					.activitiesInfo.get(activityNumber).patternNumber;
 			stringBuilder
-				.add(String.valueOf(legacyNumber + 1))
-				.add(String.valueOf(activityNumber + 1))
-				.add(String.valueOf(patternNumber + 1));
+				.add(legacyNumber + 1)
+				.add(activityNumber + 1)
+				.add(patternNumber + 1);
 			break;
 		}
 		case OPERATION_END:
@@ -312,9 +312,9 @@ public class LegacyTracer extends Tracer
 			patternNumber = decisionPointsInfo.get(dptNumber)
 					.activitiesInfo.get(activityNumber).patternNumber;
 			stringBuilder
-				.add(String.valueOf(legacyNumber + 1))
-				.add(String.valueOf(activityNumber + 1))
-				.add(String.valueOf(patternNumber + 1));
+				.add(legacyNumber + 1)
+				.add(activityNumber + 1)
+				.add(patternNumber + 1);
 		}
 			break;
 		default:
@@ -322,7 +322,7 @@ public class LegacyTracer extends Tracer
 		}
 
 		int numberOfRelevantResources = data.getInt();
-		stringBuilder.add(String.valueOf(numberOfRelevantResources));
+		stringBuilder.add(numberOfRelevantResources);
 		stringBuilder.add("");
 		for(int num = 0; num < numberOfRelevantResources; num++)
 		{
@@ -331,14 +331,13 @@ public class LegacyTracer extends Tracer
 			final int resNum = data.getInt();
 			if (legacyResourceIds.get(typeNum).get(resNum) == null)
 			{
-				stringBuilder.add(
-					String.valueOf(getNewResourceId(typeNum, resNum)));
+				stringBuilder.add(getNewResourceId(typeNum, resNum));
 			}
 			else
 			{
 				final int legacyId =
 					legacyResourceIds.get(typeNum).get(resNum);
-				stringBuilder.add(String.valueOf(legacyId));
+				stringBuilder.add(legacyId);
 			}
 		}
 
@@ -380,7 +379,7 @@ public class LegacyTracer extends Tracer
 			stringBuilder
 				.add(traceType.toString())
 				.add(checkIntegerValuedReal(time))
-				.add(String.valueOf(number + 1));
+				.add(number + 1);
 			break;
 		}
 		case END:
@@ -418,13 +417,13 @@ public class LegacyTracer extends Tracer
 			stringBuilder
 				.add(traceType.toString())
 				.add(checkIntegerValuedReal(time))
-				.add(String.valueOf(timeMillis))
-				.add(String.valueOf(mem))
+				.add(timeMillis)
+				.add(mem)
 				.add(checkIntegerValuedReal(finalCost))
-				.add(String.valueOf(totalOpened))
-				.add(String.valueOf(totalNodes))
-				.add(String.valueOf(totalAdded))
-				.add(String.valueOf(totalSpawned));
+				.add(totalOpened)
+				.add(totalNodes)
+				.add(totalAdded)
+				.add(totalSpawned);
 			break;
 		}
 		case OPEN:
@@ -436,8 +435,8 @@ public class LegacyTracer extends Tracer
 			final double h = data.getDouble();
 			stringBuilder
 				.add(traceType.toString())
-				.add(String.valueOf(currentNumber + 1))
-				.add(String.valueOf(parentNumber + 1))
+				.add(currentNumber + 1)
+				.add(parentNumber + 1)
 				.add(checkIntegerValuedReal(g))
 				.add(checkIntegerValuedReal(g + h));
 			break;
@@ -474,14 +473,14 @@ public class LegacyTracer extends Tracer
 
 			stringBuilder
 				.add(traceType.toString())
-				.add(String.valueOf(childNumber + 1))
-				.add(String.valueOf(parentNumber + 1))
+				.add(childNumber + 1)
+				.add(parentNumber + 1)
 				.add(checkIntegerValuedReal(g))
 				.add(checkIntegerValuedReal(g + h))
-				.add(String.valueOf(ruleNumber + 1))
-				.add(String.valueOf(patternNumber + 1))
+				.add(ruleNumber + 1)
+				.add(patternNumber + 1)
 				.add(checkIntegerValuedReal(ruleCost))
-				.add(String.valueOf(numberOfRelevantResources))
+				.add(numberOfRelevantResources)
 				.add("");
 
 			for (int num = 0; num < numberOfRelevantResources; num++)
@@ -491,7 +490,7 @@ public class LegacyTracer extends Tracer
 				final int resNum = data.getInt();
 				final int legacyNum =
 					legacyResourceIds.get(typeNum).get(resNum);
-				stringBuilder.add(String.valueOf(legacyNum));
+				stringBuilder.add(legacyNum);
 			}
 			break;
 		}
@@ -502,8 +501,8 @@ public class LegacyTracer extends Tracer
 			final int activityNumber = data.getInt();
 			stringBuilder
 				.add(traceType.toString())
-				.add(String.valueOf(number))
-				.add(String.valueOf(activityNumber));
+				.add(number)
+				.add(activityNumber);
 			break;
 		}
 		default:
@@ -540,7 +539,7 @@ public class LegacyTracer extends Tracer
 			new StringBuilder(delimiter)
 				.add(TraceType.RESULT.toString())
 				.add(checkIntegerValuedReal(time))
-				.add(String.valueOf(resultNum + 1))
+				.add(resultNum + 1)
 				.add(parseResultParameter(data, valueType))
 				.getString()
 			);
