@@ -310,7 +310,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		return children;
 	}
 
-	private static enum StopCode
+	public static enum StopCode
 	{
 		ABORTED, CONDITION, SUCCESS, FAIL
 	}

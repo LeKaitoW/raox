@@ -41,9 +41,6 @@ public class LegacyTracer extends Tracer
 	static private final String delimiter = " ";
 
 	private boolean simulationStarted = false;
-	//TODO probably not the best solution
-	//TODO Integer and null instead of int and -1?
-	private int currentDptNumber = -1;
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                          PARSING SYSTEM ENTRIES                           /
@@ -65,7 +62,7 @@ public class LegacyTracer extends Tracer
 			simulationStarted = true;
 
 		final String headerLine =
-			new StringBuilder(delimiter)
+			new RDOLibStringJoiner(delimiter)
 			.add(traceType.toString())
 			.add(checkIntegerValuedReal((time)))
 			.add(type.ordinal() + 1)
@@ -125,7 +122,7 @@ public class LegacyTracer extends Tracer
 		}
 
 		final String headerLine =
-			new StringBuilder(delimiter)
+			new RDOLibStringJoiner(delimiter)
 			.add(traceType.toString())
 			.add(checkIntegerValuedReal((time)))
 			.add(typeNum + 1)
@@ -137,7 +134,7 @@ public class LegacyTracer extends Tracer
 		return
 			new TraceOutput(
 				traceType,
-				new StringBuilder(delimiter)
+				new RDOLibStringJoiner(delimiter)
 					.add(headerLine)
 					.add(parseResourceParameters(data, typeInfo))
 					.getString()
@@ -150,7 +147,8 @@ public class LegacyTracer extends Tracer
 		final ResourceTypeInfo typeInfo
 	)
 	{
-		final StringBuilder stringBuilder = new StringBuilder(delimiter);
+		final RDOLibStringJoiner stringJoiner =
+			new RDOLibStringJoiner(delimiter);
 
 		for (int paramNum = 0; paramNum < typeInfo.numberOfParameters; paramNum++)
 		{
@@ -158,16 +156,16 @@ public class LegacyTracer extends Tracer
 			switch(typeInfo.paramTypes.get(paramNum).type)
 			{
 			case INTEGER:
-				stringBuilder.add(data.getInt());
+				stringJoiner.add(data.getInt());
 				break;
 			case REAL:
-				stringBuilder.add(checkIntegerValuedReal(data.getDouble()));
+				stringJoiner.add(checkIntegerValuedReal(data.getDouble()));
 				break;
 			case BOOLEAN:
-				stringBuilder.add(legacyBooleanString(data.get() != 0));
+				stringJoiner.add(legacyBooleanString(data.get() != 0));
 				break;
 			case ENUM:
-				stringBuilder.add(data.getShort());
+				stringJoiner.add(data.getShort());
 				break;
 			case STRING:
 				final int index = typeInfo.indexList.get(paramNum);
@@ -181,13 +179,13 @@ public class LegacyTracer extends Tracer
 					rawString[i] = data.get(
 						stringPosition + TypeSize.RDO.INTEGER + i);
 				}
-				stringBuilder.add(new String(rawString, StandardCharsets.UTF_8));
+				stringJoiner.add(new String(rawString, StandardCharsets.UTF_8));
 				break;
 			default:
 				return null;
 			}
 		}
-		return stringBuilder.getString();
+		return stringJoiner.getString();
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
@@ -227,7 +225,7 @@ public class LegacyTracer extends Tracer
 		return
 			new TraceOutput(
 				traceType,
-				new StringBuilder(delimiter)
+				new RDOLibStringJoiner(delimiter)
 					.add(traceType.toString())
 					.add(checkIntegerValuedReal(time))
 					.add(parsePatternData(data, traceType))
@@ -241,7 +239,8 @@ public class LegacyTracer extends Tracer
 		final TraceType patternType
 	)
 	{
-		final StringBuilder stringBuilder = new StringBuilder(delimiter);
+		final RDOLibStringJoiner stringJoiner =
+			new RDOLibStringJoiner(delimiter);
 
 		int patternNumber;
 
@@ -251,7 +250,7 @@ public class LegacyTracer extends Tracer
 		{
 			patternNumber = data.getInt();
 			skipPart(data, TypeSize.INTEGER);
-			stringBuilder
+			stringJoiner
 				.add(patternNumber + 1)
 				.add(patternNumber + 1);
 			break;
@@ -263,7 +262,7 @@ public class LegacyTracer extends Tracer
 			skipPart(data, TypeSize.INTEGER);
 			patternNumber = decisionPointsInfo.get(dptNumber)
 				.activitiesInfo.get(activityNumber).patternNumber;
-			stringBuilder
+			stringJoiner
 				.add(1)
 				.add(activityNumber + 1)
 				.add(patternNumber + 1);
@@ -290,7 +289,7 @@ public class LegacyTracer extends Tracer
 
 			patternNumber = decisionPointsInfo.get(dptNumber)
 					.activitiesInfo.get(activityNumber).patternNumber;
-			stringBuilder
+			stringJoiner
 				.add(legacyNumber + 1)
 				.add(activityNumber + 1)
 				.add(patternNumber + 1);
@@ -311,7 +310,7 @@ public class LegacyTracer extends Tracer
 
 			patternNumber = decisionPointsInfo.get(dptNumber)
 					.activitiesInfo.get(activityNumber).patternNumber;
-			stringBuilder
+			stringJoiner
 				.add(legacyNumber + 1)
 				.add(activityNumber + 1)
 				.add(patternNumber + 1);
@@ -322,8 +321,7 @@ public class LegacyTracer extends Tracer
 		}
 
 		int numberOfRelevantResources = data.getInt();
-		stringBuilder.add(numberOfRelevantResources);
-		stringBuilder.add("");
+		stringJoiner.add(numberOfRelevantResources).add("");
 		for(int num = 0; num < numberOfRelevantResources; num++)
 		{
 			final int typeNum =
@@ -331,17 +329,17 @@ public class LegacyTracer extends Tracer
 			final int resNum = data.getInt();
 			if (legacyResourceIds.get(typeNum).get(resNum) == null)
 			{
-				stringBuilder.add(getNewResourceId(typeNum, resNum));
+				stringJoiner.add(getNewResourceId(typeNum, resNum));
 			}
 			else
 			{
 				final int legacyId =
 					legacyResourceIds.get(typeNum).get(resNum);
-				stringBuilder.add(legacyId);
+				stringJoiner.add(legacyId);
 			}
 		}
 
-		return stringBuilder.getString();
+		return stringJoiner.getString();
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
@@ -359,8 +357,8 @@ public class LegacyTracer extends Tracer
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
 
-		final StringBuilder stringBuilder =
-			new StringBuilder(delimiter);
+		final RDOLibStringJoiner stringJoiner =
+			new RDOLibStringJoiner(delimiter);
 
 		final TraceType traceType;
 		skipPart(header, TypeSize.BYTE);
@@ -376,8 +374,8 @@ public class LegacyTracer extends Tracer
 			final int number = data.getInt();
 			currentDptNumber = number;
 			skipPart(data, TypeSize.INTEGER);
-			stringBuilder
-				.add(traceType.toString())
+			stringJoiner
+				.add("SB")
 				.add(checkIntegerValuedReal(time))
 				.add(number + 1);
 			break;
@@ -386,19 +384,20 @@ public class LegacyTracer extends Tracer
 		{
 			currentDptNumber = -1;
 			//TODO switch over enum when it is made public
-			final byte endStatus = data.get();
+			final DecisionPointSearch.StopCode endStatus =
+				DecisionPointSearch.StopCode.values()[data.get()];
 			switch(endStatus)
 			{
-			case 0:
+			case ABORTED:
 				traceType = TraceType.SEARCH_END_ABORTED;
 				break;
-			case 1:
+			case CONDITION:
 				traceType = TraceType.SEARCH_END_CONDITION;
 				break;
-			case 2:
+			case SUCCESS:
 				traceType = TraceType.SEARCH_END_SUCCESS;
 				break;
-			case 3:
+			case FAIL:
 				traceType = TraceType.SEARCH_END_FAIL;
 				break;
 			default:
@@ -414,7 +413,7 @@ public class LegacyTracer extends Tracer
 			final int totalNodes = data.getInt();
 			final int totalAdded = data.getInt();
 			final int totalSpawned = data.getInt();
-			stringBuilder
+			stringJoiner
 				.add(traceType.toString())
 				.add(checkIntegerValuedReal(time))
 				.add(timeMillis)
@@ -433,8 +432,8 @@ public class LegacyTracer extends Tracer
 			final int parentNumber = data.getInt();
 			final double g = data.getDouble();
 			final double h = data.getDouble();
-			stringBuilder
-				.add(traceType.toString())
+			stringJoiner
+				.add("SO")
 				.add(currentNumber + 1)
 				.add(parentNumber + 1)
 				.add(checkIntegerValuedReal(g))
@@ -471,7 +470,7 @@ public class LegacyTracer extends Tracer
 			final int numberOfRelevantResources =
 				patternsInfo.get(patternNumber).relResTypes.size();
 
-			stringBuilder
+			stringJoiner
 				.add(traceType.toString())
 				.add(childNumber + 1)
 				.add(parentNumber + 1)
@@ -490,7 +489,7 @@ public class LegacyTracer extends Tracer
 				final int resNum = data.getInt();
 				final int legacyNum =
 					legacyResourceIds.get(typeNum).get(resNum);
-				stringBuilder.add(legacyNum);
+				stringJoiner.add(legacyNum);
 			}
 			break;
 		}
@@ -499,8 +498,8 @@ public class LegacyTracer extends Tracer
 			traceType = TraceType.SEARCH_DECISION;
 			final int number = data.getInt();
 			final int activityNumber = data.getInt();
-			stringBuilder
-				.add(traceType.toString())
+			stringJoiner
+				.add("SD")
 				.add(number)
 				.add(activityNumber);
 			break;
@@ -512,7 +511,7 @@ public class LegacyTracer extends Tracer
 		return
 			new TraceOutput(
 				traceType,
-				stringBuilder.getString()
+				stringJoiner.getString()
 			);
 	}
 
@@ -536,7 +535,7 @@ public class LegacyTracer extends Tracer
 		return
 			new TraceOutput(
 			TraceType.RESULT,
-			new StringBuilder(delimiter)
+			new RDOLibStringJoiner(delimiter)
 				.add(TraceType.RESULT.toString())
 				.add(checkIntegerValuedReal(time))
 				.add(resultNum + 1)

@@ -179,7 +179,7 @@ public class Simulator
 
 	private static int stop(int code)
 	{
-		getTracer().saveTraceData();
+		INSTANCE.tracer.saveTraceData();
 		notifyChange("ExecutionComplete");
 		isRunning = false;
 		return code;

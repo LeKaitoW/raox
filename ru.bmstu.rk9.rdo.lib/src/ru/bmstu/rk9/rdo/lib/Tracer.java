@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
+import ru.bmstu.rk9.rdo.lib.RDOLibStringJoiner.StringFormat;
 public class Tracer implements Subscriber
 {
 	public static enum TraceType
@@ -20,15 +21,15 @@ public class Tracer implements Subscriber
 		EVENT("EI"),
 		RULE("ER"),
 		RESULT("V "),
-		SEARCH_BEGIN("SB"),
-		SEARCH_OPEN("SO"),
+		SEARCH_BEGIN("SB "),
+		SEARCH_OPEN("SO "),
 		SEARCH_SPAWN_NEW("STN"),
 		SEARCH_SPAWN_WORSE("STD"),
 		SEARCH_SPAWN_BETTER("STR"),
 		SEARCH_RESOURCE_CREATE("SRC"),
 		SEARCH_RESOURCE_KEEP("SRK"),
 		SEARCH_RESOURCE_ERASE("SRE"),
-		SEARCH_DECISION("SD"),
+		SEARCH_DECISION("SD "),
 		SEARCH_END_ABORTED("SEA"),
 		SEARCH_END_CONDITION("SEC"),
 		SEARCH_END_SUCCESS("SES"),
@@ -151,7 +152,7 @@ public class Tracer implements Subscriber
 			Database.SystemEntryType.values()[header.get()];
 
 		final String headerLine =
-			new StringBuilder(delimiter)
+			new RDOLibStringJoiner(delimiter)
 			.add(traceType.toString())
 			.add(time)
 			.add(type.ordinal())
@@ -201,18 +202,13 @@ public class Tracer implements Subscriber
 				name :
 				typeInfo.name + encloseIndex(resNum);
 
-		final String headerLine =
-			new StringBuilder(delimiter)
-				.add(traceType.toString())
-				.add(time)
-				.add(resourceName)
-				.getString();
-
 		return
 			new TraceOutput(
 				traceType,
-				new StringBuilder(delimiter)
-					.add(headerLine)
+				new RDOLibStringJoiner(delimiter)
+					.add(traceType.toString())
+					.add(time)
+					.add(resourceName)
 					.add(parseResourceParameters(data, typeInfo))
 					.getString()
 			);
@@ -223,8 +219,8 @@ public class Tracer implements Subscriber
 		final ResourceTypeInfo typeInfo
 	)
 	{
-		final StringBuilder stringBuilder =
-			new StringBuilder(", ", "= {", "}");
+		final RDOLibStringJoiner stringJoiner =
+			new RDOLibStringJoiner(RDOLibStringJoiner.StringFormat.STRUCTURE);
 
 		for (int paramNum = 0; paramNum < typeInfo.numberOfParameters; paramNum++)
 		{
@@ -233,16 +229,16 @@ public class Tracer implements Subscriber
 			switch(valueInfo.type)
 			{
 			case INTEGER:
-				stringBuilder.add(data.getInt());
+				stringJoiner.add(data.getInt());
 				break;
 			case REAL:
-				stringBuilder.add(data.getDouble());
+				stringJoiner.add(data.getDouble());
 				break;
 			case BOOLEAN:
-				stringBuilder.add(data.get() != 0);
+				stringJoiner.add(data.get() != 0);
 				break;
 			case ENUM:
-				stringBuilder.add(
+				stringJoiner.add(
 					valueInfo.enumNames.get((int) data.getShort())
 				);
 				break;
@@ -257,7 +253,7 @@ public class Tracer implements Subscriber
 				for (int i = 0; i < length; i++)
 					rawString[i] = data.get(stringPosition +
 						TypeSize.RDO.INTEGER + i);
-				stringBuilder.add(
+				stringJoiner.add(
 					"\"" +
 					new String(rawString,StandardCharsets.UTF_8) +
 					"\""
@@ -267,7 +263,7 @@ public class Tracer implements Subscriber
 				return null;
 			}
 		}
-		return stringBuilder.getString();
+		return stringJoiner.getString();
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
@@ -306,7 +302,7 @@ public class Tracer implements Subscriber
 		return
 			new TraceOutput(
 				traceType,
-				new StringBuilder(delimiter)
+				new RDOLibStringJoiner(delimiter)
 					.add(traceType.toString())
 					.add(time)
 					.add(parsePatternData(data, traceType))
@@ -319,7 +315,8 @@ public class Tracer implements Subscriber
 		final TraceType patternType
 	)
 	{
-		final StringBuilder stringBuilder = new StringBuilder(delimiter);
+		final RDOLibStringJoiner stringJoiner =
+			new RDOLibStringJoiner(delimiter);
 
 		int patternNumber;
 
@@ -330,7 +327,7 @@ public class Tracer implements Subscriber
 			int eventNumber = data.getInt();
 			int actionNumber = data.getInt();
 			patternNumber = eventNumber;
-			stringBuilder
+			stringJoiner
 				.add(patternsInfo.get(eventNumber).name
 					+ encloseIndex(actionNumber));
 			break;
@@ -345,7 +342,7 @@ public class Tracer implements Subscriber
 			ActivityInfo activity = decisionPointsInfo.get(dptNumber)
 				.activitiesInfo.get(activityNumber);
 			patternNumber = activity.patternNumber;
-			stringBuilder
+			stringJoiner
 				.add(activity.name + encloseIndex(actionNumber));
 			break;
 		}
@@ -353,8 +350,8 @@ public class Tracer implements Subscriber
 			return null;
 		}
 
-		final StringBuilder resResStringBuilder =
-				new StringBuilder(", ", "(", ")");
+		final RDOLibStringJoiner relResStringJoiner =
+			new RDOLibStringJoiner(RDOLibStringJoiner.StringFormat.FUNCTION);
 
 		int numberOfRelevantResources = data.getInt();
 		for(int num = 0; num < numberOfRelevantResources; num++)
@@ -371,19 +368,199 @@ public class Tracer implements Subscriber
 					name :
 					typeName + encloseIndex(resNum);
 
-			resResStringBuilder.add(resourceName);
+			relResStringJoiner.add(resourceName);
 		}
 
-		return stringBuilder.getString() + resResStringBuilder.getString();
+		return stringJoiner.getString() + relResStringJoiner.getString();
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                              SEARCH ENTRIES                               /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+	//TODO probably not the best solution
+	//TODO Integer and null instead of int and -1?
+	protected int currentDptNumber = -1;
 
 	protected TraceOutput parseSearchEntry(final Database.Entry entry)
 	{
-		return null;
+		final ByteBuffer header = prepareBufferForReading(entry.header);
+		final ByteBuffer data = prepareBufferForReading(entry.data);
+
+		final RDOLibStringJoiner stringJoiner =
+			new RDOLibStringJoiner(delimiter);
+
+		final TraceType traceType;
+		skipPart(header, TypeSize.BYTE);
+		final Database.SearchEntryType entryType =
+				Database.SearchEntryType.values()[header.get()];
+
+		switch(entryType)
+		{
+		case BEGIN:
+		{
+			traceType = TraceType.SEARCH_BEGIN;
+			final double time = data.getDouble();
+			final int number = data.getInt();
+			currentDptNumber = number;
+			skipPart(data, TypeSize.INTEGER);
+			stringJoiner
+				.add(traceType.toString())
+				.add(time)
+				.add(decisionPointsInfo.get(number).name);
+			break;
+		}
+		case END:
+		{
+			currentDptNumber = -1;
+			//TODO switch over enum when it is made public
+			final DecisionPointSearch.StopCode endStatus =
+				DecisionPointSearch.StopCode.values()[data.get()];
+			switch(endStatus)
+			{
+			case ABORTED:
+				traceType = TraceType.SEARCH_END_ABORTED;
+				break;
+			case CONDITION:
+				traceType = TraceType.SEARCH_END_CONDITION;
+				break;
+			case SUCCESS:
+				traceType = TraceType.SEARCH_END_SUCCESS;
+				break;
+			case FAIL:
+				traceType = TraceType.SEARCH_END_FAIL;
+				break;
+			default:
+				//TODO throw exception
+				return null;
+			}
+
+			final double time = data.getDouble();
+			skipPart(data, TypeSize.LONG * 2);
+			final double finalCost = data.getDouble();
+			final int totalOpened = data.getInt();
+			final int totalNodes = data.getInt();
+			final int totalAdded = data.getInt();
+			final int totalSpawned = data.getInt();
+			stringJoiner
+				.add(traceType.toString())
+				.add(time)
+				.add(
+					new RDOLibStringJoiner(StringFormat.ENUMERATION)
+					.add("solution cost = " + finalCost)
+					.add("nodes opened = " + totalOpened)
+					.add("nodes total = " + totalNodes)
+					.add("nodes added = " + totalAdded)
+					.add("nodes spawned = " + totalSpawned).getString());
+			break;
+		}
+		case OPEN:
+		{
+			traceType = TraceType.SEARCH_OPEN;
+			final int currentNumber = data.getInt();
+			final int parentNumber = data.getInt();
+			final double g = data.getDouble();
+			final double h = data.getDouble();
+			stringJoiner
+				.add(traceType.toString())
+				.add(
+					encloseIndex(parentNumber)
+					+ "->"
+					+ encloseIndex(currentNumber))
+				.add(
+					new RDOLibStringJoiner(StringFormat.ARRAY)
+					.add("f = " + (g + h))
+					.add("g = " + g)
+					.add("h = " + h).getString());
+			break;
+		}
+		case SPAWN:
+		{
+			final DecisionPointSearch.SpawnStatus spawnStatus =
+					DecisionPointSearch.SpawnStatus.values()[data.get()];
+			switch(spawnStatus)
+			{
+			case NEW:
+				traceType = TraceType.SEARCH_SPAWN_NEW;
+				break;
+			case WORSE:
+				traceType = TraceType.SEARCH_SPAWN_WORSE;
+				break;
+			case BETTER:
+				traceType = TraceType.SEARCH_SPAWN_BETTER;
+				break;
+			default:
+				//TODO throw exception
+				return null;
+			}
+			final int childNumber = data.getInt();
+			final int parentNumber = data.getInt();
+			final double g = data.getDouble();
+			final double h = data.getDouble();
+			final int ruleNumber = data.getInt();
+			ActivityInfo activity = decisionPointsInfo.get(currentDptNumber)
+				.activitiesInfo.get(ruleNumber);
+			final int patternNumber = activity.patternNumber;
+			final double ruleCost = data.getDouble();
+			final int numberOfRelevantResources =
+				patternsInfo.get(patternNumber).relResTypes.size();
+
+			RDOLibStringJoiner relResStringJoiner =
+				new RDOLibStringJoiner(StringFormat.FUNCTION);
+
+			for(int num = 0; num < numberOfRelevantResources; num++)
+			{
+				final int resNum = data.getInt();
+				final int typeNum =
+					patternsInfo.get(patternNumber).relResTypes.get(num);
+				final String typeName =
+					resourceTypesInfo.get(typeNum).name;
+
+				final String name = resourceNames.get(typeNum).get(resNum);
+				final String resourceName =
+					name != null ?
+						name :
+						typeName + encloseIndex(resNum);
+
+				relResStringJoiner.add(resourceName);
+			}
+
+			stringJoiner
+				.add(traceType.toString())
+				.add(
+					encloseIndex(parentNumber)
+					+ "->"
+					+ encloseIndex(childNumber))
+				.add(activity.name + relResStringJoiner.getString())
+				.add(
+					new RDOLibStringJoiner(StringFormat.ARRAY)
+					.add("f = " + (g + h))
+					.add("g = " + g)
+					.add("h = " + h)
+					.add("cost = " + ruleCost).getString());
+			break;
+		}
+		case DECISION:
+		{
+			traceType = TraceType.SEARCH_DECISION;
+			final int number = data.getInt();
+			final int activityNumber = data.getInt();
+			ActivityInfo activity = decisionPointsInfo.get(currentDptNumber)
+				.activitiesInfo.get(activityNumber);
+			stringJoiner
+				.add(traceType.toString())
+				.add(encloseIndex(number))
+				.add(activity.name);
+			break;
+		}
+		default:
+			return null;
+		}
+
+		return
+			new TraceOutput(
+				traceType,
+				stringJoiner.getString()
+			);
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
@@ -403,7 +580,7 @@ public class Tracer implements Subscriber
 		return
 			new TraceOutput(
 			TraceType.RESULT,
-			new StringBuilder(delimiter)
+			new RDOLibStringJoiner(delimiter)
 				.add(TraceType.RESULT.toString())
 				.add(time)
 				.add(resultInfo.name)
@@ -466,35 +643,68 @@ public class Tracer implements Subscriber
 	public void fireChange() {}
 }
 
-class StringBuilder
+class RDOLibStringJoiner
 {
 	private final String delimiter;
 	private final String prefix;
-	private final String postfix;
+	private final String suffix;
 
 	private String current = null;
 
+	public enum StringFormat
+	{
+		FUNCTION, STRUCTURE, ARRAY, ENUMERATION
+	}
+
 	public final String getString()
 	{
-		return prefix + current + postfix;
+		return prefix + current + suffix;
 	}
 
-	//TODO StringBuilder constructors from some custom enum?
-	StringBuilder(String delimeter)
+	RDOLibStringJoiner(StringFormat format)
 	{
-		this.delimiter = delimeter;
-		this.prefix = "";
-		this.postfix = "";
+		switch(format)
+		{
+		case FUNCTION:
+			this.delimiter = ", ";
+			this.prefix = "(";
+			this.suffix = ")";
+			break;
+		case STRUCTURE:
+			this.delimiter = ", ";
+			this.prefix = "{";
+			this.suffix = "}";
+			break;
+		case ARRAY:
+			this.delimiter = ", ";
+			this.prefix = "[";
+			this.suffix = "]";
+			break;
+		case ENUMERATION:
+			this.delimiter = ", ";
+			this.prefix = "";
+			this.suffix = "";
+			break;
+		default:
+			this.delimiter = null;
+			this.prefix = null;
+			this.suffix = null;
+		}
 	}
 
-	StringBuilder(String delimeter, String prefix, String postfix)
+	RDOLibStringJoiner(String delimiter)
 	{
-		this.delimiter = delimeter;
+		this(delimiter, "", "");
+	}
+
+	RDOLibStringJoiner(String delimiter, String prefix, String postfix)
+	{
+		this.delimiter = delimiter;
 		this.prefix = prefix;
-		this.postfix = postfix;
+		this.suffix = postfix;
 	}
 
-	public final StringBuilder add(final String toAppend)
+	public final RDOLibStringJoiner add(final String toAppend)
 	{
 		if (current == null)
 			current = new String(toAppend);
@@ -503,17 +713,17 @@ class StringBuilder
 		return this;
 	}
 
-	public final StringBuilder add(final int toAppend)
+	public final RDOLibStringJoiner add(final int toAppend)
 	{
 		return add(String.valueOf(toAppend));
 	}
 
-	public final StringBuilder add(final double toAppend)
+	public final RDOLibStringJoiner add(final double toAppend)
 	{
 		return add(String.valueOf(toAppend));
 	}
 
-	public final StringBuilder add(final boolean toAppend)
+	public final RDOLibStringJoiner add(final boolean toAppend)
 	{
 		return add(String.valueOf(toAppend));
 	}
