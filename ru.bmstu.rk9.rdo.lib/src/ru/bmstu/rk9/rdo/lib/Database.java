@@ -68,13 +68,13 @@ public class Database
 
 		JSONArray patterns = modelStructure.getJSONArray("patterns");
 		HashMap<String, JSONObject> patternsByName = new HashMap<String, JSONObject>();
-		for(int i = 0, count = 0; i < patterns.length(); i++)
+		for(int i = 0; i < patterns.length(); i++)
 		{
 			JSONObject patternStructure = patterns.getJSONObject(i);
 			String name = patternStructure.getString("name");
 			String type = patternStructure.getString("type");
 			if(type == "event")
-				eventIndex.put(name, new PatternIndex(count++, patternStructure));
+				eventIndex.put(name, new PatternIndex(i, patternStructure));
 			else
 				patternsByName.put(name, patternStructure);
 		}
