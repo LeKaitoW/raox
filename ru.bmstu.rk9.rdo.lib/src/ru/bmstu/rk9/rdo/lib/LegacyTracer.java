@@ -41,6 +41,7 @@ public class LegacyTracer extends Tracer
 	static private final String delimiter = " ";
 
 	private boolean simulationStarted = false;
+	private boolean dptSearchJustStarted = false;
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                          PARSING SYSTEM ENTRIES                           /
@@ -354,6 +355,12 @@ public class LegacyTracer extends Tracer
 	@Override
 	protected TraceOutput parseSearchEntry(final Database.Entry entry)
 	{
+		if (dptSearchJustStarted)
+		{
+			addLegacySearchEntries();
+			dptSearchJustStarted = false;
+		}
+
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
 
@@ -369,6 +376,7 @@ public class LegacyTracer extends Tracer
 		{
 		case BEGIN:
 		{
+			dptSearchJustStarted = true;
 			traceType = TraceType.SEARCH_BEGIN;
 			final double time = data.getDouble();
 			final int number = data.getInt();
@@ -512,6 +520,39 @@ public class LegacyTracer extends Tracer
 			new TraceOutput(
 				traceType,
 				stringJoiner.getString()
+			);
+	}
+
+	private final void addLegacySearchEntries()
+	{
+		traceList.add(
+			new TraceOutput(
+				TraceType.SEARCH_SPAWN_NEW,
+				new RDOLibStringJoiner(delimiter)
+					.add("STN")
+					.add(1)
+					.add(0)
+					.add(0)
+					.add(0)
+					.add(-1)
+					.add(-1)
+					.add(0)
+					.add(0)
+					.getString()
+				)
+		);
+
+		traceList.add(
+				new TraceOutput(
+					TraceType.SEARCH_OPEN,
+					new RDOLibStringJoiner(delimiter)
+						.add("SO")
+						.add(1)
+						.add(0)
+						.add(0)
+						.add(0)
+						.getString()
+					)
 			);
 	}
 

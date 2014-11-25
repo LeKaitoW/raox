@@ -93,7 +93,7 @@ public class Tracer implements Subscriber
 		new ArrayList<DecisionPointInfo>();
 
 	//TODO choose the proper container for traceList
-	private ArrayList<TraceOutput> traceList = new ArrayList<TraceOutput>();
+	protected ArrayList<TraceOutput> traceList = new ArrayList<TraceOutput>();
 
 	public final ArrayList<TraceOutput> getTraceList()
 	{
