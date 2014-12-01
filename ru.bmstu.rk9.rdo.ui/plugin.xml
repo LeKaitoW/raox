@@ -490,6 +490,10 @@
            class="ru.bmstu.rk9.rdo.ui.runtime.SetSimulationScaleHandler"
            commandId="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScale">
      </handler>
+     <handler
+           class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:ru.bmstu.rk9.rdo.ui.runtime.RDOGraphBuilderHandler"
+           commandId="ru.bmstu.rk9.rdo.ui.runtime.buildGraph">
+     </handler>
   </extension>
   <extension
         point="org.eclipse.ui.menus">
@@ -631,6 +635,12 @@
                     name="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScaleParameter"
                     value="-">
               </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rdo.ui.runtime.buildGraph"
+                 label="Build Graph"
+                 mnemonic="B"
+                 style="push">
            </command>
         </menu>
      </menuContribution>
