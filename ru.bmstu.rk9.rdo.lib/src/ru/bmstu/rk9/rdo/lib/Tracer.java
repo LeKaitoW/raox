@@ -35,7 +35,7 @@ public class Tracer implements Subscriber
 		SEARCH_END_SUCCESS("SES"),
 		SEARCH_END_FAIL("SEN");
 
-		private String traceCode;
+		private final String traceCode;
 		private TraceType(String traceCode)
 		{
 			this.traceCode = traceCode;
@@ -209,6 +209,7 @@ public class Tracer implements Subscriber
 					.add(traceType.toString())
 					.add(time)
 					.add(resourceName)
+					.add("=")
 					.add(parseResourceParameters(data, typeInfo))
 					.getString()
 			);
@@ -714,6 +715,11 @@ class RDOLibStringJoiner
 	}
 
 	public final RDOLibStringJoiner add(final int toAppend)
+	{
+		return add(String.valueOf(toAppend));
+	}
+
+	public final RDOLibStringJoiner add(final short toAppend)
 	{
 		return add(String.valueOf(toAppend));
 	}
