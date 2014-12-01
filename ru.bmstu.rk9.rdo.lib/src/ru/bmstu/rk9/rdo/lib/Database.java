@@ -176,6 +176,30 @@ public class Database
 
 	ArrayList<Entry> allEntries = new ArrayList<Entry>();
 
+	private final void addEntry(Entry entry)
+	{
+		allEntries.add(entry);
+		notifyChange("EntryAdded");
+	}
+
+	private NotificationManager notificationManager =
+		new NotificationManager(
+			new String[]
+			{
+				"EntryAdded"
+			}
+		);
+
+	public final Notifier getNotifier()
+	{
+		return notificationManager;
+	}
+
+	private final void notifyChange(String category)
+	{
+		notificationManager.notifySubscribers(category);
+	}
+
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                              SYSTEM ENTRIES                               /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
@@ -194,7 +218,7 @@ public class Database
 			.putDouble(Simulator.getTime())
 			.put((byte)type.ordinal());
 
-		allEntries.add(new Entry(header, null));
+		addEntry(new Entry(header, null));
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
@@ -289,7 +313,7 @@ public class Database
 
 		Entry entry = new Entry(header, data);
 
-		allEntries.add(entry);
+		addEntry(entry);
 
 		if(shouldSerializeToIndex)
 			resourceIndex.entries.add(allEntries.size() - 1);
@@ -380,7 +404,7 @@ public class Database
 
 		Entry entry = new Entry(header, data);
 
-		allEntries.add(entry);
+		addEntry(entry);
 		index.entries.add(allEntries.size() - 1);
 	}
 
@@ -448,7 +472,7 @@ public class Database
 
 		Entry entry = new Entry(header, data);
 
-		allEntries.add(entry);
+		addEntry(entry);
 		index.entries.add(allEntries.size() - 1);
 	}
 
@@ -551,7 +575,7 @@ public class Database
 
 		Entry entry = new Entry(header, data);
 
-		allEntries.add(entry);
+		addEntry(entry);
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
@@ -590,7 +614,7 @@ public class Database
 
 		Entry entry = new Entry(header, data);
 
-		allEntries.add(entry);
+		addEntry(entry);
 		index.entries.add(allEntries.size() - 1);
 	}
 }

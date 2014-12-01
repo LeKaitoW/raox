@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.TreeSet;
 
@@ -19,24 +18,19 @@ public class LegacyTracer extends Tracer
 	{
 		super();
 
-		legacyResourceIds =
-			new HashMap<Integer, HashMap<Integer, Integer>>();
-		takenResourceIds =
-			new TreeSet<Integer>();
-		vacantActionNumbers =
-			new PriorityQueue<Integer>();
-		legacyActionNumbers =
-			new HashMap<Integer, HashMap<Integer, HashMap<Integer, Integer>>>();
-
 		initializeTypes();
 		initializeActivities();
 	}
 
-	private final HashMap<Integer, HashMap<Integer, Integer>> legacyResourceIds;
-	private final TreeSet<Integer> takenResourceIds;
-	private final PriorityQueue<Integer> vacantActionNumbers;
+	private final HashMap<Integer, HashMap<Integer, Integer>> legacyResourceIds =
+		new HashMap<Integer, HashMap<Integer, Integer>>();
+	private final TreeSet<Integer> takenResourceIds =
+		new TreeSet<Integer>();
+	private final PriorityQueue<Integer> vacantActionNumbers =
+		new PriorityQueue<Integer>();
 	private final HashMap<Integer, HashMap<
-		Integer, HashMap<Integer, Integer>>> legacyActionNumbers;
+		Integer, HashMap<Integer, Integer>>> legacyActionNumbers=
+			new HashMap<Integer, HashMap<Integer, HashMap<Integer, Integer>>>();
 
 	static private final String delimiter = " ";
 
@@ -621,13 +615,18 @@ public class LegacyTracer extends Tracer
 
 	private final void initializeTypes()
 	{
-		//TODO get it from JSON?
-		for (Map.Entry<String, Database.ResourceTypeIndex> type :
-			Simulator.getDatabase().resourceIndex.entrySet())
+		final JSONArray resourceTypes =
+				Simulator
+				.getDatabase()
+				.getModelStructure()
+				.getJSONArray("resource_types");
+
+		System.out.println("length = " + resourceTypes.length());
+
+		for (int num = 0; num < resourceTypes.length(); num++)
 		{
-			int typeNum = type.getValue().number;
 			legacyResourceIds.put(
-				typeNum,
+				num,
 				new HashMap<Integer, Integer>()
 			);
 		}

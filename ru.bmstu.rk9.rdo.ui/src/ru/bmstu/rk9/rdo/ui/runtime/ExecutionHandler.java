@@ -194,26 +194,37 @@ public class ExecutionHandler extends AbstractHandler
 
 					initialization.invoke(null, new Object[]{});
 
-					//TODO find better place to do it
-					Simulator.initTracer();
-					Notifier notifier = Simulator.getNotifier();
+					Notifier simulatorNotifier =
+						Simulator.getNotifier();
 
-					notifier
+					Notifier databaseNotifier =
+						Simulator.getDatabase().getNotifier();
+
+					simulatorNotifier
 						.getSubscription("TimeChange")
 							.addSubscriber(SimulationSynchronizer.getInstance().uiTimeUpdater)
 							.addSubscriber(SimulationSynchronizer.getInstance().simulationScaleManager);
 
-					notifier
+					simulatorNotifier
 						.getSubscription("StateChange")
 							.addSubscriber(SimulationSynchronizer.getInstance().simulationSpeedManager);
 
-					notifier
+					simulatorNotifier
 						.getSubscription("ExecutionAborted")
 							.addSubscriber(SimulationSynchronizer.getInstance().simulationStateListener);
 
-					notifier
+					RDOTraceView.commonUpdater.fireChange();
+
+					databaseNotifier
+						.getSubscription("EntryAdded")
+							.addSubscriber(Simulator.getTracer());
+
+					Simulator.getTracer()
+						.setRealTimeSubscriber(RDOTraceView.realTimeUpdater);
+
+					simulatorNotifier
 						.getSubscription("ExecutionComplete")
-								.addSubscriber(RDOTraceView.updater);
+							.addSubscriber(RDOTraceView.commonUpdater);
 
 					RDOConsoleView.addLine("Started model " + project.getName());
 					final long startTime = System.currentTimeMillis();

@@ -57,29 +57,65 @@ public class RDOTraceView extends ViewPart
 			fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
 	}
 
-	public static RDOTraceUpdater updater = new RDOTraceUpdater();
-
-	public static class RDOTraceUpdater implements Subscriber
-	{
-		@Override
-		public void fireChange()
+	public static Subscriber realTimeUpdater =
+		new Subscriber()
 		{
-			final ArrayList<Tracer.TraceOutput> traceList =
-				Simulator.getTracer().getTraceList();
-			if (RDOTraceView.viewer != null)
-				PlatformUI.getWorkbench().getDisplay().asyncExec(
-					new Runnable()
-					{
-						@Override
-						public void run()
+			@Override
+			public void fireChange()
+			{
+				if (readyForInput())
+				{
+					final ArrayList<Tracer.TraceOutput> traceList =
+						Simulator.getTracer().getTraceList();
+					final int size = traceList.size();
+					PlatformUI.getWorkbench().getDisplay().asyncExec(
+						new Runnable()
 						{
-							RDOTraceView.viewer.setInput(traceList);
-							RDOTraceView.viewer.setItemCount(traceList.size());
+							@Override
+							public void run()
+							{
+								RDOTraceView.viewer.setItemCount(size);
+							}
 						}
+					);
+				}
+			}
+		};
+
+		public static Subscriber commonUpdater =
+			new Subscriber()
+			{
+				@Override
+				public void fireChange()
+				{
+					if (readyForInput())
+					{
+						final ArrayList<Tracer.TraceOutput> traceList =
+							Simulator.getTracer().getTraceList();
+						final int size = traceList.size();
+						PlatformUI.getWorkbench().getDisplay().asyncExec(
+							new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									RDOTraceView.viewer.setInput(traceList);
+									RDOTraceView.viewer.setItemCount(size);
+									viewer.refresh();
+								}
+							}
+						);
 					}
-				);
+				}
+			};
+
+		public final static boolean readyForInput()
+		{
+			return
+				viewer != null
+				&& viewer.getContentProvider() != null
+				&& viewer.getLabelProvider() != null;
 		}
-	}
 
 	@Override
 	public void setFocus() {}
@@ -102,7 +138,9 @@ class RDOTraceViewContentProvider implements ILazyContentProvider
 	@Override
 	public void updateElement(int index)
 	{
-		RDOTraceView.viewer.replace(traceList.get(index), index);
+		//TODO completely avoid that situation
+		if (index < traceList.size())
+			RDOTraceView.viewer.replace(traceList.get(index), index);
 	}
 }
 

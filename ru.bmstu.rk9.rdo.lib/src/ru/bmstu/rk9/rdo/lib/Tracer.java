@@ -79,6 +79,26 @@ public class Tracer implements Subscriber
 		ModelStructureHelper.fillDecisionPointsInfo(decisionPointsInfo);
 	}
 
+	private Subscriber realTimeSubscriber = null;
+
+	public final void setRealTimeSubscriber(Subscriber subscriber)
+	{
+		this.realTimeSubscriber = subscriber;
+	}
+
+	private final void notifyRealTimeSubscriber()
+	{
+		if (realTimeSubscriber != null)
+			realTimeSubscriber.fireChange();
+	}
+
+	@Override
+	public void fireChange()
+	{
+		parseNewEntries();
+		notifyRealTimeSubscriber();
+	}
+
 	static private final String delimiter = " ";
 
 	protected final HashMap<Integer, HashMap<Integer, String>> resourceNames =
@@ -93,23 +113,29 @@ public class Tracer implements Subscriber
 		new ArrayList<DecisionPointInfo>();
 
 	//TODO choose the proper container for traceList
-	protected ArrayList<TraceOutput> traceList = new ArrayList<TraceOutput>();
+	protected ArrayList<TraceOutput> traceList =
+		new ArrayList<TraceOutput>();
 
-	public final ArrayList<TraceOutput> getTraceList()
+	public final synchronized ArrayList<TraceOutput> getTraceList()
 	{
 		//TODO make unmodifiable
 		return traceList;
 	}
 
-	public final void saveTraceData()
-	{
-		final ArrayList<Database.Entry> entries = Simulator.getDatabase().allEntries;
+	private int nextEntryNumber = 0;
 
-		for (Database.Entry entry : entries)
+	public final void parseNewEntries()
+	{
+		final ArrayList<Database.Entry> entries =
+			Simulator.getDatabase().allEntries;
+
+		while (nextEntryNumber < entries.size())
 		{
-			final TraceOutput traceOutput = parseSerializedData(entry);
+			final TraceOutput traceOutput =
+				parseSerializedData(entries.get(nextEntryNumber));
 			if (traceOutput != null)
 				traceList.add(traceOutput);
+			nextEntryNumber++;
 		}
 	}
 
@@ -639,9 +665,6 @@ public class Tracer implements Subscriber
 	{
 		return (ByteBuffer) buffer.duplicate().rewind();
 	}
-
-	@Override
-	public void fireChange() {}
 }
 
 class RDOLibStringJoiner

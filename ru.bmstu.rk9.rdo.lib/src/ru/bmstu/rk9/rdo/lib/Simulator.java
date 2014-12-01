@@ -35,7 +35,7 @@ public class Simulator
 		INSTANCE.database = new Database(modelStructure);
 	}
 
-	public static void initTracer()
+	public static synchronized void initTracer()
 	{
 		INSTANCE.tracer = new Tracer();
 	}
@@ -124,6 +124,7 @@ public class Simulator
 			return;
 
 		INSTANCE.executionAborted = true;
+		INSTANCE.database.addSystemEntry(Database.SystemEntryType.SIM_ABORT);
 		notifyChange("ExecutionAborted");
 	}
 
@@ -179,7 +180,7 @@ public class Simulator
 
 	private static int stop(int code)
 	{
-		INSTANCE.tracer.saveTraceData();
+		INSTANCE.database.addSystemEntry(Database.SystemEntryType.SIM_FINISH);
 		notifyChange("ExecutionComplete");
 		isRunning = false;
 		return code;
