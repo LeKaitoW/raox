@@ -1,7 +1,6 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.nio.ByteBuffer;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -260,11 +259,13 @@ public class Database
 
 		String name = resource.getName();
 		if(name != null)
+		{
 			if(!sensitivityList.contains(name))
 				return;
+		}
 		else
 		{
-			name = typeName + "_" + String.valueOf(resource.getNumber());
+			name = typeName + "[" + String.valueOf(resource.getNumber()) + "]";
 			if(!sensitivityList.contains(name))
 				if(status == ResourceEntryType.CREATED)
 				{
@@ -426,6 +427,8 @@ public class Database
 	public void addEventEntry(PatternType type, Pattern pattern)
 	{
 		String name = pattern.getName();
+		if(!sensitivityList.contains(name))
+			return;
 
 		PatternIndex index;
 
@@ -540,7 +543,11 @@ public class Database
 
 	void addSearchEntry(DecisionPointSearch<?> dpt, SearchEntryType type, ByteBuffer data)
 	{
-		SearchIndex index = searchIndex.get(dpt.getName());
+		String name = dpt.getName();
+		if(!sensitivityList.contains(name))
+			return;
+
+		SearchIndex index = searchIndex.get(name);
 		SearchInfo info = null;
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.SEARCH.HEADER_SIZE);
