@@ -73,6 +73,11 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 		return permanent.get(name);
 	}
 
+	public T getResource(int number)
+	{
+		return (number < listResources.size()) ? listResources.get(number) : null;
+	}
+
 	public Collection<T> getAll()
 	{
 		return Collections.unmodifiableCollection(listResources);

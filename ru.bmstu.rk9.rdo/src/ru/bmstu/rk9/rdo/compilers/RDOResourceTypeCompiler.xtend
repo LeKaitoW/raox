@@ -106,6 +106,11 @@ class RDOResourceTypeCompiler
 				return managerCurrent.getResource(name);
 			}
 
+			public static «rtp.name» getResource(int number)
+			{
+				return managerCurrent.getResource(number);
+			}
+
 			public static java.util.Collection<«rtp.name»> getAll()
 			{
 				return managerCurrent.getAll();
