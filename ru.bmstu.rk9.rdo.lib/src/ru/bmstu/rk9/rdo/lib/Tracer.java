@@ -36,6 +36,7 @@ public class Tracer implements Subscriber
 		SEARCH_END_FAIL("SEN");
 
 		private final String traceCode;
+
 		private TraceType(String traceCode)
 		{
 			this.traceCode = traceCode;
@@ -79,6 +80,13 @@ public class Tracer implements Subscriber
 		ModelStructureHelper.fillDecisionPointsInfo(decisionPointsInfo);
 	}
 
+	private boolean paused = true;
+
+	public final synchronized void setPaused(boolean paused)
+	{
+		this.paused = paused;
+	}
+
 	private Subscriber realTimeSubscriber = null;
 
 	public final void setRealTimeSubscriber(Subscriber subscriber)
@@ -95,6 +103,9 @@ public class Tracer implements Subscriber
 	@Override
 	public void fireChange()
 	{
+		if (paused)
+			return;
+
 		parseNewEntries();
 		notifyRealTimeSubscriber();
 	}
@@ -124,7 +135,7 @@ public class Tracer implements Subscriber
 
 	private int nextEntryNumber = 0;
 
-	public final void parseNewEntries()
+	private final void parseNewEntries()
 	{
 		final ArrayList<Database.Entry> entries =
 			Simulator.getDatabase().allEntries;

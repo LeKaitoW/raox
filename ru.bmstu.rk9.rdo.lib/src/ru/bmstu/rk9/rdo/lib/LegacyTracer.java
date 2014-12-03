@@ -621,8 +621,6 @@ public class LegacyTracer extends Tracer
 				.getModelStructure()
 				.getJSONArray("resource_types");
 
-		System.out.println("length = " + resourceTypes.length());
-
 		for (int num = 0; num < resourceTypes.length(); num++)
 		{
 			legacyResourceIds.put(

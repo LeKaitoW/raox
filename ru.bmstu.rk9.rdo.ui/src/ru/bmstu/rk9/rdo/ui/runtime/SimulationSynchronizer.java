@@ -2,15 +2,13 @@ package ru.bmstu.rk9.rdo.ui.runtime;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.State;
-
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PlatformUI;
-
 import org.eclipse.ui.commands.ICommandService;
 
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
-
+import ru.bmstu.rk9.rdo.lib.Tracer;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSpeedSelectionToolbar;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
 
@@ -137,6 +135,7 @@ public class SimulationSynchronizer
 		@Override
 		public void fireChange()
 		{
+			notifyTracer(executionMode);
 			switch(executionMode)
 			{
 				case PAUSE:
@@ -165,6 +164,21 @@ public class SimulationSynchronizer
 
 				default:
 					// Do nothing
+			}
+		}
+
+		private final void notifyTracer(ExecutionMode mode)
+		{
+			switch(mode)
+			{
+			case PAUSE:
+			case NO_ANIMATION:
+				Simulator.getTracer().setPaused(true);
+				break;
+			case FAST_FORWARD:
+			case NORMAL_SPEED:
+				Simulator.getTracer().setPaused(false);
+				break;
 			}
 		}
 	}
