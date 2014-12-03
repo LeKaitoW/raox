@@ -33,22 +33,25 @@ public class RDOStatusView extends ViewPart
 {
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOStatusView"; //$NON-NLS-1$
 
-	private static ScrolledComposite scrolledComposite;
+	private static ScrolledComposite scrolledComposite = null;
 	private static FillLayout scrolledCompositeLayout;
 
 	private static GridData leftGridData;
 	private static GridData leftGridDataForLabels;
 
-	private static Label simulationScale;
+	private static Label simulationScale = null;
 
-	private static Label simulationTime;
+	private static Label simulationTime = null;
 
-	private static Label realTime;
+	private static Label realTime = null;
 
 	private static DecimalFormat scaleFormatter = new DecimalFormat("0.###");
 
 	public static void setSimulationScale(double scale)
 	{
+		if (!isInitialized())
+			return;
+
 		simulationScale.setText(scaleFormatter.format(scale));
 
 		calculateMinWidth();
@@ -60,6 +63,9 @@ public class RDOStatusView extends ViewPart
 
 	public static void setSimulationTime(double time)
 	{
+		if (!isInitialized())
+			return;
+
 		simulationTime.setText(timeFormatter.format(time));
 
 		calculateMinWidth();
@@ -71,6 +77,9 @@ public class RDOStatusView extends ViewPart
 
 	public static void setRealTime(long time)
 	{
+		if (!isInitialized())
+			return;
+
 		realTime.setText(realTimeFormatter.format(time/1000d) + "s");
 
 		calculateMinWidth();
@@ -182,6 +191,16 @@ public class RDOStatusView extends ViewPart
 
 		return scaleSize + timeSize + realTimeSize +
 			scrolledCompositeLayout.spacing * 2 + scrolledCompositeLayout.marginHeight * 2;
+	}
+
+	private static boolean isInitialized()
+	{
+		return
+			scrolledComposite != null
+			&& !scrolledComposite.isDisposed()
+			&& simulationScale != null
+			&& simulationTime != null
+			&& realTime != null;
 	}
 
 	@Override
