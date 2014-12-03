@@ -9,18 +9,16 @@ import org.eclipse.core.commands.ExecutionException;
 import ru.bmstu.rk9.rdo.ui.graph.TreeGrapher;
 
 public class RDOGraphBuilderHandler extends AbstractHandler {
-		
+
 	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException
-	{
-		System.out.println("qqqqq");
+	public Object execute(ExecutionEvent event) throws ExecutionException {
 		
 		TreeGrapher frame = new TreeGrapher();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setSize(800, 800);
 		frame.setVisible(true);
-		
+
 		return null;
-    }
+	}
 
 }
