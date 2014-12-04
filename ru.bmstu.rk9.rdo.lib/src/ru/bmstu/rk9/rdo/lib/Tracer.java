@@ -100,6 +100,20 @@ public class Tracer implements Subscriber
 			realTimeSubscriber.fireChange();
 	}
 
+	private Subscriber commonSubscriber = null;
+
+	public final void setCommonSubscriber(Subscriber subscriber)
+	{
+		this.commonSubscriber = subscriber;
+	}
+
+	public final void notifyCommonSubscriber()
+	{
+		parseNewEntries();
+		if (commonSubscriber != null)
+			commonSubscriber.fireChange();
+	}
+
 	@Override
 	public void fireChange()
 	{

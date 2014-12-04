@@ -2,41 +2,28 @@ package ru.bmstu.rk9.rdo.ui.runtime;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
 import java.util.LinkedList;
-
 import java.lang.reflect.Method;
-
 import java.io.IOException;
-
 import java.net.URL;
 import java.net.URLClassLoader;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
-
 import org.eclipse.swt.widgets.Display;
-
 import org.eclipse.ui.PlatformUI;
-
 import org.eclipse.ui.handlers.HandlerUtil;
-
 import org.eclipse.ui.services.ISourceProviderService;
-
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
-
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import ru.bmstu.rk9.rdo.IMultipleResourceGenerator;
@@ -222,9 +209,8 @@ public class ExecutionHandler extends AbstractHandler
 					Simulator.getTracer()
 						.setRealTimeSubscriber(RDOTraceView.realTimeUpdater);
 
-					simulatorNotifier
-						.getSubscription("ExecutionComplete")
-							.addSubscriber(RDOTraceView.commonUpdater);
+					Simulator.getTracer()
+						.setCommonSubscriber(RDOTraceView.commonUpdater);
 
 					RDOConsoleView.addLine("Started model " + project.getName());
 					final long startTime = System.currentTimeMillis();

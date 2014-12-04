@@ -180,8 +180,8 @@ public class Simulator
 
 	private static int stop(int code)
 	{
-		INSTANCE.tracer.setPaused(false);
 		INSTANCE.database.addSystemEntry(Database.SystemEntryType.SIM_FINISH);
+		INSTANCE.tracer.notifyCommonSubscriber();
 		notifyChange("ExecutionComplete");
 		isRunning = false;
 		return code;

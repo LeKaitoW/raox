@@ -9,6 +9,8 @@ import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILazyContentProvider;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
@@ -55,6 +57,23 @@ public class RDOTraceView extends ViewPart
 		viewer.setUseHashlookup(true);
 		viewer.getTable().setFont(
 			fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
+
+		//TODO add listener to resume following output when "End" key pressed
+		viewer.addSelectionChangedListener(
+			new ISelectionChangedListener() {
+				@Override
+				public void selectionChanged(SelectionChangedEvent event)
+				{
+					shouldFollowOutput = false;
+				}
+			});
+	}
+
+	private static boolean shouldFollowOutput = true;
+
+	private static boolean shouldFollowOutput()
+	{
+		return shouldFollowOutput;
 	}
 
 	public static Subscriber realTimeUpdater =
@@ -75,6 +94,9 @@ public class RDOTraceView extends ViewPart
 							public void run()
 							{
 								RDOTraceView.viewer.setItemCount(size);
+								if (RDOTraceView.shouldFollowOutput())
+									RDOTraceView.viewer.getTable()
+										.setTopIndex(size - 1);
 							}
 						}
 					);
@@ -82,40 +104,40 @@ public class RDOTraceView extends ViewPart
 			}
 		};
 
-		public static Subscriber commonUpdater =
-			new Subscriber()
-			{
-				@Override
-				public void fireChange()
-				{
-					if (readyForInput())
-					{
-						final ArrayList<Tracer.TraceOutput> traceList =
-							Simulator.getTracer().getTraceList();
-						final int size = traceList.size();
-						PlatformUI.getWorkbench().getDisplay().asyncExec(
-							new Runnable()
-							{
-								@Override
-								public void run()
-								{
-									RDOTraceView.viewer.setInput(traceList);
-									RDOTraceView.viewer.setItemCount(size);
-									viewer.refresh();
-								}
-							}
-						);
-					}
-				}
-			};
-
-		public final static boolean readyForInput()
+	public static Subscriber commonUpdater =
+		new Subscriber()
 		{
-			return
-				viewer != null
-				&& viewer.getContentProvider() != null
-				&& viewer.getLabelProvider() != null;
-		}
+			@Override
+			public void fireChange()
+			{
+				if (readyForInput())
+				{
+					final ArrayList<Tracer.TraceOutput> traceList =
+						Simulator.getTracer().getTraceList();
+					final int size = traceList.size();
+					PlatformUI.getWorkbench().getDisplay().asyncExec(
+						new Runnable()
+						{
+							@Override
+							public void run()
+							{
+								RDOTraceView.viewer.setInput(traceList);
+								RDOTraceView.viewer.setItemCount(size);
+								viewer.refresh();
+							}
+						}
+					);
+				}
+			}
+		};
+
+	public final static boolean readyForInput()
+	{
+		return
+			viewer != null
+			&& viewer.getContentProvider() != null
+			&& viewer.getLabelProvider() != null;
+	}
 
 	@Override
 	public void setFocus() {}
