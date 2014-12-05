@@ -58,13 +58,16 @@ public class RDOTraceView extends ViewPart
 		viewer.getTable().setFont(
 			fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
 
-		//TODO add listener to resume following output when "End" key pressed
 		viewer.addSelectionChangedListener(
 			new ISelectionChangedListener() {
 				@Override
 				public void selectionChanged(SelectionChangedEvent event)
 				{
-					shouldFollowOutput = false;
+					if (viewer.getTable().getSelectionIndex() !=
+							viewer.getTable().getItemCount() - 1)
+						shouldFollowOutput = false;
+					else
+						shouldFollowOutput = true;
 				}
 			});
 	}
