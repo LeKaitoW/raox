@@ -1,9 +1,17 @@
 package ru.bmstu.rk9.rdo.ui.graph;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
 
+import ru.bmstu.rk9.rdo.lib.Database;
+import ru.bmstu.rk9.rdo.lib.DecisionPointSearch;
+import ru.bmstu.rk9.rdo.lib.Simulator;
+import ru.bmstu.rk9.rdo.lib.Database.Entry;
+import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
@@ -11,50 +19,17 @@ import com.mxgraph.view.mxGraph;
 
 public class TreeGrapher extends JFrame {
 
-	public static int numchildren = 3; // number of children
-	public static int kgen = 1; // number of generations
-	public static int nodenum = 0;
-
-	public static int frameSize_x = 800;
-	public static int frameSize_y = 800;
-
-	public static int cellSize_x = 50;
-	public static int cellSize_y = 50;
-
 	private static final long serialVersionUID = 1L;
 
-	public double RelativeX(double x) {
-		return x /= frameSize_x;
-	}
-
-	public double RelativeY(double y) {
-		return y /= frameSize_y;
-	}
-
-	public mxCell MakeRootNode(mxGraph g) {
-		Node node = new Node();
-
-		node.num = nodenum;
-		nodenum++;
-		node.ancestor = null;
-		node.label = "Root";
-
-		mxCell root = (mxCell) g.insertVertex(g.getDefaultParent(), null, node,
-				RelativeX((frameSize_x - cellSize_x) / 2), 400, 50, 50, "shadow=true");
-
-		node.cell = root;
-
-		return root;
-	}
-
 	public class Node {
+
 		Node ancestor;
 
 		mxCell cell;
 
 		ArrayList<Node> children = new ArrayList<Node>();
 
-		public int num;
+		public int nodeNumber;
 
 		public String label = "qqq";
 
@@ -66,10 +41,8 @@ public class TreeGrapher extends JFrame {
 		}
 
 		public void addChild(mxCell parent, Node child) {
-			Node x = new Node();
-			x = (Node) parent.getValue();
-			x.children.add(child);
-			parent.setValue(x);
+			((Node) parent.getValue()).children.add(child);
+			parent.setValue((Node) parent.getValue());
 		}
 
 		public String getColor() {
@@ -82,35 +55,111 @@ public class TreeGrapher extends JFrame {
 			this.cell.setStyle(color);
 		}
 
-	};
+	}
 
-	public void MakeChildren(mxGraph graph, mxCell parent, int kg) {
-		for (int i = 0; i < numchildren; i++) {
-			Node node = new Node();
-			node.ancestor = (Node) parent.getValue();
-			node.num = nodenum;
-			nodenum++;
-			node.label = Integer.toString(node.num);
-			mxCell child = (mxCell) graph.insertVertex(graph.getDefaultParent(), Integer.toString(node.num), node, 30,
-					30, 50, 50);
-			node.cell = child;
-			((Node) parent.getValue()).addChild(parent, (Node) child.getValue());
-			graph.insertEdge(graph.getDefaultParent(), null, null, parent, child);
-			if (kg > 0)
-				MakeChildren(graph, child, kg - 1);
+	private final void fillTreeNodes() {
+		final ArrayList<Database.Entry> entries = Simulator.getDatabase().getAllEntries();
+
+		for (Database.Entry entry : entries) {
+			parseSerializedData(entry);
 		}
 	}
 
-	public void colorNodes(Node node) {
-		if (node.ancestor == null)
-			node.setColor("fillColor=green");
-		int size = node.children.size();
-		for (int i = 0; i < size; i++) {
-			if (i == 0 && node.cell.getStyle() == "fillColor=green") {
-				node.children.get(i).setColor("fillColor=green");
-			}
-			colorNodes(node.children.get(i));
+	private void parseSerializedData(Database.Entry entry) {
+		final Database.EntryType type = Database.EntryType.values()[entry.getHeader().get(
+				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
+		switch (type) {
+		case SYSTEM:
+			break;
+		case RESOURCE:
+			break;
+		case PATTERN:
+			break;
+		case SEARCH:
+			parseSearchEntry(entry);
+			break;
+		case RESULT:
+			break;
 		}
+	}
+
+	final static ByteBuffer prepareBufferForReading(final ByteBuffer buffer) {
+		return (ByteBuffer) buffer.duplicate().rewind();
+	}
+
+	final static void skipPart(final ByteBuffer buffer, final int size) {
+		for (int i = 0; i < size; i++)
+			buffer.get();
+	}
+	
+	Map<Integer, Node> treeMap = new HashMap<Integer, Node>();
+	
+	ArrayList<Integer> solution = new ArrayList<Integer>();
+	
+	private void parseSearchEntry(Entry entry) {
+
+		final ByteBuffer header = prepareBufferForReading(entry.getHeader());
+		final ByteBuffer data = prepareBufferForReading(entry.getData());
+
+		Node treeNode = new Node();
+		skipPart(header, TypeSize.BYTE);
+		final Database.SearchEntryType entryType = Database.SearchEntryType.values()[header.get()];
+		switch (entryType) {
+		case BEGIN: {
+			treeNode.ancestor = null;
+			treeNode.nodeNumber = 0;
+			treeMap.put(treeNode.nodeNumber, null);
+			treeNode.label = Integer.toString(treeNode.nodeNumber);
+			treeMap.put(treeNode.nodeNumber, treeNode);
+		}
+		case END:
+			break;
+		case OPEN:
+			break;
+		case SPAWN: {
+			final DecisionPointSearch.SpawnStatus spawnStatus =
+					DecisionPointSearch.SpawnStatus.values()[data.get()];
+			switch(spawnStatus) {
+			case NEW: {
+				final int nodeNumber = data.getInt();
+				final int parentNumber = data.getInt();
+				treeNode.ancestor = treeMap.get(parentNumber);
+				treeMap.get(parentNumber).children.add(treeNode);
+				treeNode.nodeNumber = nodeNumber;
+				treeNode.label = Integer.toString(treeNode.nodeNumber);
+				treeMap.put(nodeNumber, treeNode);
+			}
+			case WORSE: {
+				break;
+			}
+			case BETTER: {
+				final int nodeNumber = data.getInt();
+				final int parentNumber = data.getInt();
+				treeNode.ancestor = treeMap.get(parentNumber);
+				treeMap.get(parentNumber).children.add(treeNode);
+				treeNode.nodeNumber = nodeNumber;
+				treeNode.label = Integer.toString(treeNode.nodeNumber);
+				treeMap.put(nodeNumber, treeNode);
+			}
+			}
+		}
+		case DECISION: {
+			final int number = data.getInt();
+			solution.add(number);
+			break;			
+		}
+		}
+	}
+	
+	private void buildTree(mxGraph graph, Map<Integer, Node> map, Node parent) {
+			mxCell child = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, parent, 400, 100, 30, 30);
+			parent.cell = child;
+			if(parent.ancestor != null)
+			graph.insertEdge(graph.getDefaultParent(), null, null, parent.ancestor.cell, child);
+			if(parent.children.size() != 0)
+			for(int i = 0; i < parent.children.size(); i++)
+				buildTree(graph, map, map.get(parent.children.get(i).nodeNumber));
+		
 	}
 
 	public TreeGrapher() {
@@ -119,10 +168,8 @@ public class TreeGrapher extends JFrame {
 
 		graph.getModel().beginUpdate();
 		try {
-			mxCell root = MakeRootNode(graph);
-			MakeChildren(graph, root, kgen);
-			Node rootnode = (Node) root.getValue();
-			colorNodes(rootnode);
+			fillTreeNodes();				
+			buildTree(graph, treeMap, treeMap.get(0));
 		} finally {
 			graph.getModel().endUpdate();
 		}

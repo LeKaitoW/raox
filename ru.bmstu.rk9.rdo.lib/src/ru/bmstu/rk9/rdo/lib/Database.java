@@ -142,6 +142,14 @@ public class Database
 	{
 		ByteBuffer header;
 		ByteBuffer data;
+		
+		public ByteBuffer getHeader() {
+			return header;
+		}
+		
+		public ByteBuffer getData() {
+			return data;
+		}
 
 		Entry(ByteBuffer header, ByteBuffer data)
 		{
@@ -175,6 +183,7 @@ public class Database
 	}
 
 	ArrayList<Entry> allEntries = new ArrayList<Entry>();
+	
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                              SYSTEM ENTRIES                               /
@@ -236,18 +245,20 @@ public class Database
 
 		String name = resource.getName();
 		if(name != null)
-			if(!sensitivityList.contains(name))
-				return;
+		{
+			//if(!sensitivityList.contains(name))
+			//	return;
+		}
 		else
 		{
 			name = typeName + "_" + String.valueOf(resource.getNumber());
 			if(!sensitivityList.contains(name))
 				if(status == ResourceEntryType.CREATED)
 				{
-					if(sensitivityList.contains(sender))
+					//if(sensitivityList.contains(sender))
 						sensitivityList.add(name);
-					else
-						return;
+					//else
+					//	return;
 				}
 				else
 					return;
@@ -351,8 +362,8 @@ public class Database
 	{
 		String dptName = dpt.getName();
 
-		if(!sensitivityList.contains(dptName) && !sensitivityList.contains(pattern.getName()))
-			return;
+		//if(!sensitivityList.contains(dptName) && !sensitivityList.contains(pattern.getName()))
+		//	return;
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
 		header
@@ -418,8 +429,8 @@ public class Database
 		}
 		else
 		{
-			if(!sensitivityList.contains(name))
-				return;
+			//if(!sensitivityList.contains(name))
+			//	return;
 			index = eventIndex.get(pattern.getName());
 		}
 
@@ -563,8 +574,8 @@ public class Database
 	public void addResultEntry(Result result)
 	{
 		String name = result.getName();
-		if(!sensitivityList.contains(name))
-			return;
+		//if(!sensitivityList.contains(name))
+		//	return;
 
 		Index index = resultIndex.get(name);
 
@@ -592,5 +603,10 @@ public class Database
 
 		allEntries.add(entry);
 		index.entries.add(allEntries.size() - 1);
+	}
+	
+	public ArrayList<Entry> getAllEntries()
+	{
+		return allEntries;
 	}
 }
