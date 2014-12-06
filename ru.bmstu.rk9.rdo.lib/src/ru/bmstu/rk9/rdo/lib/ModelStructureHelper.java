@@ -187,8 +187,8 @@ class ValueInfo
 			enumNames = null;
 	}
 
-	public final ModelStructureHelper.ValueType type;
-	public final HashMap<Integer, String> enumNames;
+	final ModelStructureHelper.ValueType type;
+	final HashMap<Integer, String> enumNames;
 }
 
 class ResourceTypeInfo
@@ -223,12 +223,12 @@ class ResourceTypeInfo
 		finalOffset = structure.getInt("last_offset");
 	}
 
-	public final String name;
-	public final boolean temporary;
-	public final int numberOfParameters;
-	public final HashMap<Integer, ValueInfo> paramTypes;
-	public final HashMap<Integer, Integer> indexList;
-	public final int finalOffset;
+	final String name;
+	final boolean temporary;
+	final int numberOfParameters;
+	final HashMap<Integer, ValueInfo> paramTypes;
+	final HashMap<Integer, Integer> indexList;
+	final int finalOffset;
 }
 
 class PatternInfo
@@ -262,8 +262,8 @@ class PatternInfo
 		}
 	}
 
-	public final String name;
-	public final HashMap<Integer, Integer> relResTypes;
+	final String name;
+	final HashMap<Integer, Integer> relResTypes;
 }
 
 class DecisionPointInfo
@@ -281,8 +281,8 @@ class DecisionPointInfo
 			);
 	}
 
-	public final String name;
-	public final HashMap<Integer, ActivityInfo> activitiesInfo;
+	final String name;
+	final HashMap<Integer, ActivityInfo> activitiesInfo;
 }
 
 class ActivityInfo
@@ -304,8 +304,8 @@ class ActivityInfo
 			}
 	}
 
-	public final String name;
-	public int patternNumber = -1;
+	final String name;
+	int patternNumber = -1;
 }
 
 class ResultInfo
@@ -317,6 +317,6 @@ class ResultInfo
 			(result.getString("value_type"));
 	}
 
-	public final String name;
-	public final ModelStructureHelper.ValueType valueType;
+	final String name;
+	final ModelStructureHelper.ValueType valueType;
 }
