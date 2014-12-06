@@ -91,11 +91,11 @@ public class TreeGrapher extends JFrame {
 		for (int i = 0; i < size; i++)
 			buffer.get();
 	}
-	
+
 	Map<Integer, Node> treeMap = new HashMap<Integer, Node>();
-	
+
 	ArrayList<Integer> solution = new ArrayList<Integer>();
-	
+
 	private void parseSearchEntry(Entry entry) {
 
 		final ByteBuffer header = prepareBufferForReading(entry.getHeader());
@@ -111,15 +111,15 @@ public class TreeGrapher extends JFrame {
 			treeMap.put(treeNode.nodeNumber, null);
 			treeNode.label = Integer.toString(treeNode.nodeNumber);
 			treeMap.put(treeNode.nodeNumber, treeNode);
+			break;
 		}
 		case END:
 			break;
 		case OPEN:
 			break;
 		case SPAWN: {
-			final DecisionPointSearch.SpawnStatus spawnStatus =
-					DecisionPointSearch.SpawnStatus.values()[data.get()];
-			switch(spawnStatus) {
+			final DecisionPointSearch.SpawnStatus spawnStatus = DecisionPointSearch.SpawnStatus.values()[data.get()];
+			switch (spawnStatus) {
 			case NEW: {
 				final int nodeNumber = data.getInt();
 				final int parentNumber = data.getInt();
@@ -128,6 +128,7 @@ public class TreeGrapher extends JFrame {
 				treeNode.nodeNumber = nodeNumber;
 				treeNode.label = Integer.toString(treeNode.nodeNumber);
 				treeMap.put(nodeNumber, treeNode);
+				break;
 			}
 			case WORSE: {
 				break;
@@ -140,26 +141,38 @@ public class TreeGrapher extends JFrame {
 				treeNode.nodeNumber = nodeNumber;
 				treeNode.label = Integer.toString(treeNode.nodeNumber);
 				treeMap.put(nodeNumber, treeNode);
+				break;
 			}
 			}
+			break;
 		}
 		case DECISION: {
 			final int number = data.getInt();
 			solution.add(number);
-			break;			
+			break;
 		}
 		}
 	}
-	
+
 	private void buildTree(mxGraph graph, Map<Integer, Node> map, Node parent) {
-			mxCell child = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, parent, 400, 100, 30, 30);
-			parent.cell = child;
-			if(parent.ancestor != null)
+		mxCell child = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, parent, 400, 100, 30, 30);
+		parent.cell = child;
+		if (parent.ancestor != null)
 			graph.insertEdge(graph.getDefaultParent(), null, null, parent.ancestor.cell, child);
-			if(parent.children.size() != 0)
-			for(int i = 0; i < parent.children.size(); i++)
+		if (parent.children.size() != 0)
+			for (int i = 0; i < parent.children.size(); i++)
 				buildTree(graph, map, map.get(parent.children.get(i).nodeNumber));
-		
+
+	}
+
+	public void colorNodes(Map<Integer, Node> map) {
+		int last = solution.get(solution.size() - 1);
+		map.get(last).cell.setStyle("fillColor=green");
+		int flag = map.get(last).nodeNumber;
+		do {
+			map.get(flag).ancestor.cell.setStyle("fillColor=green");
+			flag = map.get(flag).ancestor.nodeNumber;
+		} while (map.get(flag).ancestor != null);
 	}
 
 	public TreeGrapher() {
@@ -168,8 +181,9 @@ public class TreeGrapher extends JFrame {
 
 		graph.getModel().beginUpdate();
 		try {
-			fillTreeNodes();				
+			fillTreeNodes();
 			buildTree(graph, treeMap, treeMap.get(0));
+			colorNodes(treeMap);
 		} finally {
 			graph.getModel().endUpdate();
 		}
