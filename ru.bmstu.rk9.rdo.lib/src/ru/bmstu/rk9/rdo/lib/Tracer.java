@@ -57,8 +57,8 @@ public class Tracer implements Subscriber
 			this.content = content;
 		}
 
-		private TraceType type;
-		private String content;
+		private final TraceType type;
+		private final String content;
 
 		public final TraceType type()
 		{
@@ -509,20 +509,10 @@ public class Tracer implements Subscriber
 		{
 			traceType = TraceType.SEARCH_OPEN;
 			final int currentNumber = data.getInt();
-			final int parentNumber = data.getInt();
-			final double g = data.getDouble();
-			final double h = data.getDouble();
+			skipPart(data, TypeSize.INTEGER + 2 * TypeSize.DOUBLE);
 			stringJoiner
 				.add(traceType.toString())
-				.add(
-					encloseIndex(parentNumber)
-					+ "->"
-					+ encloseIndex(currentNumber))
-				.add(
-					new RDOLibStringJoiner(StringFormat.ARRAY)
-					.add("f = " + (g + h))
-					.add("g = " + g)
-					.add("h = " + h).getString());
+				.add(encloseIndex(currentNumber));
 			break;
 		}
 		case SPAWN:
@@ -583,12 +573,9 @@ public class Tracer implements Subscriber
 					+ "->"
 					+ encloseIndex(childNumber))
 				.add(activity.name + relResStringJoiner.getString())
-				.add(
-					new RDOLibStringJoiner(StringFormat.ARRAY)
-					.add("f = " + (g + h))
-					.add("g = " + g)
-					.add("h = " + h)
-					.add("cost = " + ruleCost).getString());
+				.add("=")
+				.add(ruleCost + ",")
+				.add("[" + (g + h) + " = " + g + " + " + h + "]");
 			break;
 		}
 		case DECISION:
@@ -700,12 +687,12 @@ class RDOLibStringJoiner
 
 	private String current = null;
 
-	public enum StringFormat
+	enum StringFormat
 	{
 		FUNCTION, STRUCTURE, ARRAY, ENUMERATION
 	}
 
-	public final String getString()
+	final String getString()
 	{
 		return prefix + current + suffix;
 	}
@@ -753,7 +740,7 @@ class RDOLibStringJoiner
 		this.suffix = postfix;
 	}
 
-	public final RDOLibStringJoiner add(final String toAppend)
+	final RDOLibStringJoiner add(final String toAppend)
 	{
 		if (current == null)
 			current = new String(toAppend);
@@ -762,22 +749,22 @@ class RDOLibStringJoiner
 		return this;
 	}
 
-	public final RDOLibStringJoiner add(final int toAppend)
+	final RDOLibStringJoiner add(final int toAppend)
 	{
 		return add(String.valueOf(toAppend));
 	}
 
-	public final RDOLibStringJoiner add(final short toAppend)
+	final RDOLibStringJoiner add(final short toAppend)
 	{
 		return add(String.valueOf(toAppend));
 	}
 
-	public final RDOLibStringJoiner add(final double toAppend)
+	final RDOLibStringJoiner add(final double toAppend)
 	{
 		return add(String.valueOf(toAppend));
 	}
 
-	public final RDOLibStringJoiner add(final boolean toAppend)
+	final RDOLibStringJoiner add(final boolean toAppend)
 	{
 		return add(String.valueOf(toAppend));
 	}
