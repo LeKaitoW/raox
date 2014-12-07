@@ -161,7 +161,6 @@ public class LegacyTracer extends Tracer
 			traceType = TraceType.RESOURCE_KEEP;
 			legacyId = legacyResourceIds.get(typeNum).get(resNum);
 			break;
-		//TODO how to know if resource was created or erased?
 		case SEARCH:
 		case SOLUTION:
 			traceType = TraceType.SEARCH_RESOURCE_KEEP;

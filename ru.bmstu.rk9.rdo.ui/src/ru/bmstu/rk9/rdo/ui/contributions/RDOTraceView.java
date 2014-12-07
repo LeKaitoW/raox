@@ -319,18 +319,8 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 		);
 
 		colorByType.put(
-			TraceType.SEARCH_RESOURCE_CREATE,
-			colorByType.get(TraceType.RESOURCE_CREATE)
-		);
-
-		colorByType.put(
 			TraceType.SEARCH_RESOURCE_KEEP,
 			colorByType.get(TraceType.RESOURCE_KEEP)
-		);
-
-		colorByType.put(
-			TraceType.SEARCH_RESOURCE_ERASE,
-			colorByType.get(TraceType.RESOURCE_ERASE)
 		);
 
 		colorByType.put(

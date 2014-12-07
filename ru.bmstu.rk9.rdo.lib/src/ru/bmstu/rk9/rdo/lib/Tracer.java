@@ -26,9 +26,7 @@ public class Tracer implements Subscriber
 		SEARCH_SPAWN_NEW("STN"),
 		SEARCH_SPAWN_WORSE("STD"),
 		SEARCH_SPAWN_BETTER("STR"),
-		SEARCH_RESOURCE_CREATE("SRC"),
 		SEARCH_RESOURCE_KEEP("SRK"),
-		SEARCH_RESOURCE_ERASE("SRE"),
 		SEARCH_DECISION("SD "),
 		SEARCH_END_ABORTED("SEA"),
 		SEARCH_END_CONDITION("SEC"),
@@ -241,7 +239,6 @@ public class Tracer implements Subscriber
 		case ALTERED:
 			traceType = TraceType.RESOURCE_KEEP;
 			break;
-		//TODO how to know if resource was created or erased?
 		case SEARCH:
 		case SOLUTION:
 			traceType = TraceType.SEARCH_RESOURCE_KEEP;
@@ -472,7 +469,6 @@ public class Tracer implements Subscriber
 		case END:
 		{
 			currentDptNumber = -1;
-			//TODO switch over enum when it is made public
 			final DecisionPointSearch.StopCode endStatus =
 				DecisionPointSearch.StopCode.values()[data.get()];
 			switch(endStatus)
