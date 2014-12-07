@@ -34,8 +34,50 @@ public class LegacyTracer extends Tracer
 
 	static private final String delimiter = " ";
 
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                                   GENERAL                                 /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+
 	private boolean simulationStarted = false;
 	private boolean dptSearchJustStarted = false;
+	private boolean dptSearchJustFinished = false;
+	private double dptSearchTime = 0;
+
+	@Override
+	protected final TraceOutput parseSerializedData(final Database.Entry entry)
+	{
+		if (dptSearchJustStarted)
+		{
+			addLegacySearchEntriesOnStart();
+			dptSearchJustStarted = false;
+		}
+
+		if (dptSearchJustFinished)
+		{
+			addLegacySearchEntriesOnFinish(dptSearchTime);
+			dptSearchJustFinished = false;
+		}
+
+		final Database.EntryType type =
+			Database.EntryType.values()[entry.header.get(
+				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
+
+		switch(type)
+		{
+		case SYSTEM:
+			return parseSystemEntry(entry);
+		case RESOURCE:
+			return parseResourceEntry(entry);
+		case PATTERN:
+			return parsePatternEntry(entry);
+		case SEARCH:
+			return parseSearchEntry(entry);
+		case RESULT:
+			return parseResultEntry(entry);
+		default:
+			return null;
+		}
+	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                          PARSING SYSTEM ENTRIES                           /
@@ -53,14 +95,27 @@ public class LegacyTracer extends Tracer
 		final Database.SystemEntryType type =
 			Database.SystemEntryType.values()[header.get()];
 
-		if (type == Database.SystemEntryType.SIM_START)
+		int legacyCode;
+
+		switch (type)
+		{
+		case TRACE_START:
+			legacyCode = 1;
+			break;
+		case SIM_START:
+			legacyCode = 3;
 			simulationStarted = true;
+			break;
+		default:
+			legacyCode = 2;
+			break;
+		}
 
 		final String headerLine =
 			new RDOLibStringJoiner(delimiter)
 			.add(traceType.toString())
 			.add(checkIntegerValuedReal((time)))
-			.add(type.ordinal() + 1)
+			.add(legacyCode)
 			.getString();
 
 		return new TraceOutput(traceType, headerLine);
@@ -349,12 +404,6 @@ public class LegacyTracer extends Tracer
 	@Override
 	protected TraceOutput parseSearchEntry(final Database.Entry entry)
 	{
-		if (dptSearchJustStarted)
-		{
-			addLegacySearchEntries();
-			dptSearchJustStarted = false;
-		}
-
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
 
@@ -373,6 +422,7 @@ public class LegacyTracer extends Tracer
 			dptSearchJustStarted = true;
 			traceType = TraceType.SEARCH_BEGIN;
 			final double time = data.getDouble();
+			dptSearchTime = time;
 			final int number = data.getInt();
 			currentDptNumber = number;
 			skipPart(data, TypeSize.INTEGER);
@@ -384,8 +434,8 @@ public class LegacyTracer extends Tracer
 		}
 		case END:
 		{
+			dptSearchJustFinished = true;
 			currentDptNumber = -1;
-			//TODO switch over enum when it is made public
 			final DecisionPointSearch.StopCode endStatus =
 				DecisionPointSearch.StopCode.values()[data.get()];
 			switch(endStatus)
@@ -517,7 +567,7 @@ public class LegacyTracer extends Tracer
 			);
 	}
 
-	private final void addLegacySearchEntries()
+	private final void addLegacySearchEntriesOnStart()
 	{
 		traceList.add(
 			new TraceOutput(
@@ -533,20 +583,34 @@ public class LegacyTracer extends Tracer
 					.add(0)
 					.add(0)
 					.getString()
-				)
+			)
 		);
 
 		traceList.add(
+			new TraceOutput(
+				TraceType.SEARCH_OPEN,
+				new RDOLibStringJoiner(delimiter)
+					.add("SO")
+					.add(1)
+					.add(0)
+					.add(0)
+					.add(0)
+					.getString()
+			)
+		);
+	}
+
+	private final void addLegacySearchEntriesOnFinish(double time)
+	{
+		traceList.add(
 				new TraceOutput(
-					TraceType.SEARCH_OPEN,
+					TraceType.SYSTEM,
 					new RDOLibStringJoiner(delimiter)
-						.add("SO")
-						.add(1)
-						.add(0)
-						.add(0)
-						.add(0)
+						.add(TraceType.SYSTEM.toString())
+						.add(checkIntegerValuedReal(time))
+						.add(4)
 						.getString()
-					)
+				)
 			);
 	}
 

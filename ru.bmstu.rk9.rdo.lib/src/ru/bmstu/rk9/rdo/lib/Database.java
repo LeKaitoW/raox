@@ -205,7 +205,24 @@ public class Database
 
 	static enum SystemEntryType
 	{
-		TRACE_START, TRACE_END, SIM_START, SIM_FINISH, SIM_ABORT 
+		TRACE_START ("Tracing started"),
+		SIM_START ("Simulation started"),
+		NORMAL_TERMINATION ("Simulation finished: terminate condition"),
+		NO_MORE_EVENTS ("Simulation finished: no more events"),
+		ABORT ("Simulation finished: user interrupt"),
+		RUN_TIME_ERROR ("Simulation finished: runtime error");
+
+		SystemEntryType(String description)
+		{
+			this.description = description;
+		}
+
+		private final String description;
+
+		final String getDescription()
+		{
+			return description;
+		}
 	}
 
 	void addSystemEntry(SystemEntryType type)

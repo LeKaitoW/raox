@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rdo.lib;
 
 import java.util.LinkedList;
 
+import ru.bmstu.rk9.rdo.lib.Database.SystemEntryType;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
 public class Simulator
@@ -124,7 +125,6 @@ public class Simulator
 			return;
 
 		INSTANCE.executionAborted = true;
-		INSTANCE.database.addSystemEntry(Database.SystemEntryType.SIM_ABORT);
 		notifyChange("ExecutionAborted");
 	}
 
@@ -180,7 +180,23 @@ public class Simulator
 
 	private static int stop(int code)
 	{
-		INSTANCE.database.addSystemEntry(Database.SystemEntryType.SIM_FINISH);
+		Database.SystemEntryType simFinishType;
+		switch (code)
+		{
+		case -1:
+			simFinishType = SystemEntryType.ABORT;
+			break;
+		case 0:
+			simFinishType = SystemEntryType.NO_MORE_EVENTS;
+			break;
+		case 1:
+			simFinishType = SystemEntryType.NORMAL_TERMINATION;
+			break;
+		default:
+			simFinishType = SystemEntryType.RUN_TIME_ERROR;
+			break;
+		}
+		INSTANCE.database.addSystemEntry(simFinishType);
 		INSTANCE.tracer.notifyCommonSubscriber();
 		notifyChange("ExecutionComplete");
 		isRunning = false;

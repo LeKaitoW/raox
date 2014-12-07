@@ -137,6 +137,10 @@ public class Tracer implements Subscriber
 	protected final ArrayList<DecisionPointInfo> decisionPointsInfo =
 		new ArrayList<DecisionPointInfo>();
 
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                                   GENERAL                                 /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+
 	//TODO choose the proper container for traceList
 	protected ArrayList<TraceOutput> traceList =
 		new ArrayList<TraceOutput>();
@@ -164,14 +168,13 @@ public class Tracer implements Subscriber
 		}
 	}
 
-	private final TraceOutput parseSerializedData(final Database.Entry entry)
+	protected TraceOutput parseSerializedData(final Database.Entry entry)
 	{
 		final Database.EntryType type =
 			Database.EntryType.values()[entry.header.get(
 				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 		switch(type)
 		{
-		//TODO implement the rest of EntryTypes
 		case SYSTEM:
 			return parseSystemEntry(entry);
 		case RESOURCE:
@@ -206,7 +209,7 @@ public class Tracer implements Subscriber
 			new RDOLibStringJoiner(delimiter)
 			.add(traceType.toString())
 			.add(time)
-			.add(type.ordinal())
+			.add(type.getDescription())
 			.getString();
 
 		return new TraceOutput(traceType, headerLine);
