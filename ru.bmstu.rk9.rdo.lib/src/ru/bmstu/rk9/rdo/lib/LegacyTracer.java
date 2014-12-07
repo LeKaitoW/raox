@@ -427,7 +427,7 @@ public class LegacyTracer extends Tracer
 			currentDptNumber = number;
 			skipPart(data, TypeSize.INTEGER);
 			stringJoiner
-				.add("SB")
+				.add(traceType.toString())
 				.add(checkIntegerValuedReal(time))
 				.add(number + 1);
 			break;

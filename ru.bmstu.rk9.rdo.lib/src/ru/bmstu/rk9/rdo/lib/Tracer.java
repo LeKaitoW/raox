@@ -21,7 +21,7 @@ public class Tracer implements Subscriber
 		EVENT("EI"),
 		RULE("ER"),
 		RESULT("V "),
-		SEARCH_BEGIN("SB "),
+		SEARCH_BEGIN("SB"),
 		SEARCH_OPEN("SO "),
 		SEARCH_SPAWN_NEW("STN"),
 		SEARCH_SPAWN_WORSE("STD"),
@@ -240,6 +240,11 @@ public class Tracer implements Subscriber
 			break;
 		case ALTERED:
 			traceType = TraceType.RESOURCE_KEEP;
+			break;
+		//TODO how to know if resource was created or erased?
+		case SEARCH:
+		case SOLUTION:
+			traceType = TraceType.SEARCH_RESOURCE_KEEP;
 			break;
 		default:
 			return null;
