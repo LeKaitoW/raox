@@ -34,8 +34,8 @@ import com.google.inject.Provider;
 import ru.bmstu.rk9.rdo.lib.Notifier;
 import ru.bmstu.rk9.rdo.lib.Result;
 import ru.bmstu.rk9.rdo.lib.Simulator;
-
 import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceConfigView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
 
@@ -178,6 +178,8 @@ public class ExecutionHandler extends AbstractHandler
 						if(method.getName() == "initSimulation")
 							initialization = method;
 					}
+
+					RDOTraceConfigView.initNames();
 
 					initialization.invoke(null, new Object[]{});
 

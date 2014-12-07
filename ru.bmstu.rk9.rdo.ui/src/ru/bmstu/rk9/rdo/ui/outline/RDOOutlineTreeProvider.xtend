@@ -36,7 +36,8 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.SimulationRun
-
+import ru.bmstu.rk9.rdo.rdo.RDOModel
+import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceConfigView
 
 public class VirtualOutlineNode extends AbstractOutlineNode
 {
@@ -48,6 +49,19 @@ public class VirtualOutlineNode extends AbstractOutlineNode
 
 class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.DefaultOutlineTreeProvider
 {
+	/**
+	 * Uncomment the following method to be able to work with
+	 * RDOTraceConfig. Be wary that it breaks Outline.
+	 */
+	/*
+	def _createChildren(IOutlineNode parentNode, RDOModel model)
+	{
+		RDOTraceConfigView.updateInput(
+			model.eResource.getResourceSet().getResources().get(0)
+		)
+	}
+	*/
+
 	// Resource Types
 	def _isLeaf(ResourceTypeParameter rtp) { true }
 

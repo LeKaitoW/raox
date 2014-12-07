@@ -931,6 +931,14 @@
      </view>
      <view
            category="ru.bmstu.rk9.rdo.ui.views"
+           class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:ru.bmstu.rk9.rdo.ui.contributions.RDOTraceConfigView"
+           icon="icons/tag.gif"
+           id="ru.bmstu.rk9.rdo.ui.RDOTraceConfigView"
+           name="RDO Trace Config"
+           restorable="true">
+     </view>
+     <view
+           category="ru.bmstu.rk9.rdo.ui.views"
            class="ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView"
            icon="icons/tag.gif"
            id="ru.bmstu.rk9.rdo.ui.RDOTraceView"
