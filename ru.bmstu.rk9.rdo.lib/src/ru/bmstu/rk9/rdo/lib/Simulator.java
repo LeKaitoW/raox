@@ -31,6 +31,11 @@ public class Simulator
 		INSTANCE.dptManager = new DPTManager();
 	}
 
+	public static boolean isInitialized()
+	{
+		return INSTANCE != null;
+	}
+
 	public static synchronized void initDatabase(JSONObject modelStructure)
 	{
 		INSTANCE.database = new Database(modelStructure);
