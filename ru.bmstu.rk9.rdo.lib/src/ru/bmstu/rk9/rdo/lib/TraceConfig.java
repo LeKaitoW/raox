@@ -74,8 +74,13 @@ public class TraceConfig
 		public final void traceVisibleChildren(boolean traceState)
 		{
 			for (TraceNode ch : getChildren())
+			{
 				if (ch.isVisible)
+				{
+					ch.traceVisibleChildren(traceState);
 					ch.traceState = traceState;
+				}
+			}
 		}
 
 		public final ArrayList<TraceNode> getChildren()
