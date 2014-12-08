@@ -637,6 +637,7 @@ public class LegacyTracer extends Tracer
 				.add(TraceType.RESULT.toString())
 				.add(checkIntegerValuedReal(time))
 				.add(resultNum + 1)
+				.add("")
 				.add(parseResultParameter(data, valueType))
 				.getString()
 			);
