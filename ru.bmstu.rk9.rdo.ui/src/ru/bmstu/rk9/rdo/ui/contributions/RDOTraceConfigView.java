@@ -29,9 +29,12 @@ import ru.bmstu.rk9.rdo.generator.RDONaming;
 import ru.bmstu.rk9.rdo.lib.TraceConfig;
 import ru.bmstu.rk9.rdo.lib.TraceConfig.TraceNode;
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint;
+import ru.bmstu.rk9.rdo.rdo.EventRelevantResource;
+import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource;
 import ru.bmstu.rk9.rdo.rdo.Pattern;
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration;
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration;
+import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource;
 
 public class RDOTraceConfigView extends ViewPart
 {
@@ -161,6 +164,7 @@ class TraceConfigurator
 		Class<T> categoryClass
 	)
 	{
+		//TODO add types to dpt
 		category.hideChildren();
 		final ArrayList<T> categoryList =
 			new ArrayList<T>();
@@ -171,7 +175,20 @@ class TraceConfigurator
 		//TODO why don't name include model name here already?
 		//the way it is now it differs from the names we get from database
 		for (T c : categoryList)
-			category.addChild(RDONaming.getNameGeneric(c));
+		{
+			TraceNode child = category.addChild(RDONaming.getNameGeneric(c));
+			if (categoryClass == Pattern.class)
+			{
+				for (EObject relRes : c.eContents())
+				{
+					if (relRes instanceof RuleRelevantResource ||
+						relRes instanceof EventRelevantResource ||
+						relRes instanceof OperationRelevantResource)
+					child.addChild(
+						child.getName() + "." + RDONaming.getNameGeneric(relRes));
+				}
+			}
+		}
 	}
 
 	public final void initCategories(TraceNode node)
