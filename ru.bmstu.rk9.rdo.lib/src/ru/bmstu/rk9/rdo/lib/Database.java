@@ -564,8 +564,6 @@ public class Database
 	void addSearchEntry(DecisionPointSearch<?> dpt, SearchEntryType type, ByteBuffer data)
 	{
 		String name = dpt.getName();
-		if(!sensitivityList.contains(name))
-			return;
 
 		SearchIndex index = searchIndex.get(name);
 		SearchInfo info = null;

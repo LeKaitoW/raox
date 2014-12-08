@@ -147,7 +147,7 @@ public class TraceConfig
 	}
 
 	//TODO this is ugly and should be revised
-	private static ArrayList<String> names = new ArrayList<String>();
+	private static ArrayList<String> names = null;
 
 	public static final ArrayList<String> getNames()
 	{
@@ -156,6 +156,7 @@ public class TraceConfig
 
 	public final void initNames()
 	{
+		names =  new ArrayList<String>();
 		//TODO seems like that's not what OOP was invented for
 		for (TraceNode category : root.getChildren())
 			fillNames(category, names);

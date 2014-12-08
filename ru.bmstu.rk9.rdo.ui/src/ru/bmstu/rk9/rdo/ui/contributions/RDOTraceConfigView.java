@@ -26,6 +26,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 
 import ru.bmstu.rk9.rdo.generator.RDONaming;
+import ru.bmstu.rk9.rdo.lib.DecisionPointSearch.SerializationLevel;
+import ru.bmstu.rk9.rdo.lib.ModelStructureHelper;
 import ru.bmstu.rk9.rdo.lib.TraceConfig;
 import ru.bmstu.rk9.rdo.lib.TraceConfig.TraceNode;
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint;
@@ -164,7 +166,6 @@ class TraceConfigurator
 		Class<T> categoryClass
 	)
 	{
-		//TODO add types to dpt
 		category.hideChildren();
 		final ArrayList<T> categoryList =
 			new ArrayList<T>();
@@ -187,6 +188,11 @@ class TraceConfigurator
 					child.addChild(
 						child.getName() + "." + RDONaming.getNameGeneric(relRes));
 				}
+			}
+			else if (categoryClass == DecisionPoint.class)
+			{
+				for (SerializationLevel type : SerializationLevel.values())
+					child.addChild(child.getName() + "." + type.toString());
 			}
 		}
 	}
@@ -276,6 +282,7 @@ class RDOTraceConfigLabelProvider implements ILabelProvider
 	public String getText(Object element)
 	{
 		TraceNode traceNode = (TraceNode) element;
-		return traceNode.getName();
+		return ModelStructureHelper.getRelativeName(traceNode.getName());
 	}
+
 }

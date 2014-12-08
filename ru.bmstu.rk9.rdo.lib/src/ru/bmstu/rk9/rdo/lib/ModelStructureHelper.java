@@ -6,7 +6,7 @@ import java.util.HashMap;
 import ru.bmstu.rk9.rdo.lib.json.JSONArray;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
-class ModelStructureHelper
+public class ModelStructureHelper
 {
 	public static enum ValueType
 	{
@@ -124,7 +124,7 @@ class ModelStructureHelper
 			);
 	}
 
-	final static String getRelativeName(final String fullName)
+	public final static String getRelativeName(final String fullName)
 	{
 		return fullName.substring(fullName.lastIndexOf(".") + 1);
 	}

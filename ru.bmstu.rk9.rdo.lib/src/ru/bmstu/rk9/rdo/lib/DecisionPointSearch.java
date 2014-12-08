@@ -1,9 +1,7 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.nio.ByteBuffer;
-
 import java.util.Iterator;
-
 import java.util.List;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
@@ -152,7 +150,11 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		totalSpawned = 0;
 		totalAdded = 0;
 
-		Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.BEGIN, null);
+		if (enoughSensitivity(SerializationLevel.START_STOP))
+		{
+			Simulator.getDatabase().addSearchEntry(
+				this, Database.SearchEntryType.BEGIN, null);
+		}
 
 		if(!allowSearch)
 			return stop(StopCode.ABORTED);
@@ -192,7 +194,11 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 				.putDouble(current.g)
 				.putDouble(current.h);
 
-			database.addSearchEntry(this, Database.SearchEntryType.OPEN, data);
+			if (enoughSensitivity(SerializationLevel.TOPS))
+			{
+				database.addSearchEntry(
+					this, Database.SearchEntryType.OPEN, data);
+			}
 
 			if (terminate.check())
 				return stop(StopCode.SUCCESS);
@@ -284,27 +290,35 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 				int[] relevantResources = newChild.activityInfo.rule.getRelevantInfo();
 
-				ByteBuffer data = ByteBuffer.allocate
-				(
-					Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 3 +
-					Database.TypeSize.INTEGER * (3 + relevantResources.length)
-				);
+				if (enoughSensitivity(SerializationLevel.TOPS))
+				{
+					ByteBuffer data = ByteBuffer.allocate
+					(
+						Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 3 +
+						Database.TypeSize.INTEGER * (3 + relevantResources.length)
+					);
 
-				data
-					.put((byte)spawnStatus.ordinal())
-					.putInt(newChild.number)
-					.putInt(parent.number)
-					.putDouble(newChild.g)
-					.putDouble(newChild.h)
-					.putInt(i)
-					.putDouble(value);
+					data
+						.put((byte)spawnStatus.ordinal())
+						.putInt(newChild.number)
+						.putInt(parent.number)
+						.putDouble(newChild.g)
+						.putDouble(newChild.h)
+						.putInt(i)
+						.putDouble(value);
 
-				for(int relres : relevantResources)
-					data.putInt(relres);
+					for(int relres : relevantResources)
+						data.putInt(relres);
 
-				Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.SPAWN, data);
+					Simulator.getDatabase().addSearchEntry(
+						this, Database.SearchEntryType.SPAWN, data);
+				}
 
-				executed.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SEARCH);
+				if (enoughSensitivity(SerializationLevel.ALL))
+				{
+					executed.addResourceEntriesToDatabase(
+						Pattern.ExecutedFrom.SEARCH);
+				}
 			}
 		}
 		return children;
@@ -347,18 +361,22 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 			break;
 		}
 
-		data
-			.put((byte)code.ordinal())
-			.putDouble(Simulator.getTime())
-			.putLong(System.currentTimeMillis() - time)
-			.putLong(memory - Runtime.getRuntime().freeMemory())
-			.putDouble(finalCost)
-			.putInt(totalOpened)
-			.putInt(nodesOpen.size() + nodesClosed.size())
-			.putInt(totalAdded)
-			.putInt(totalSpawned);
+		if (enoughSensitivity(SerializationLevel.START_STOP))
+		{
+			data
+				.put((byte)code.ordinal())
+				.putDouble(Simulator.getTime())
+				.putLong(System.currentTimeMillis() - time)
+				.putLong(memory - Runtime.getRuntime().freeMemory())
+				.putDouble(finalCost)
+				.putInt(totalOpened)
+				.putInt(nodesOpen.size() + nodesClosed.size())
+				.putInt(totalAdded)
+				.putInt(totalSpawned);
 
-		Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.END, data);
+			Simulator.getDatabase().addSearchEntry(
+				this, Database.SearchEntryType.END, data);
+		}
 
 		return decisionCode;
 	}
@@ -376,26 +394,82 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 			node = node.parent;
 		}
 
-		for(Iterator<GraphNode> it = decision.descendingIterator(); it.hasNext();)
+		if (enoughSensitivity(SerializationLevel.DECISION))
 		{
-			node = it.next();
+			for(Iterator<GraphNode> it = decision.descendingIterator(); it.hasNext();)
+			{
+				node = it.next();
 
-			Rule rule = node.activityInfo.rule;
-			int[] relevantResources = rule.getRelevantInfo();
+				Rule rule = node.activityInfo.rule;
+				int[] relevantResources = rule.getRelevantInfo();
 
-			ByteBuffer data = ByteBuffer.allocate(
-				Database.TypeSize.INTEGER * (2 + relevantResources.length));
+				ByteBuffer data = ByteBuffer.allocate(
+					Database.TypeSize.INTEGER * (2 + relevantResources.length));
 
-			data
-				.putInt(node.number)
-				.putInt(node.activityInfo.number);
+				data
+					.putInt(node.number)
+					.putInt(node.activityInfo.number);
 
-			for(int relres : relevantResources)
-				data.putInt(relres);
+				for(int relres : relevantResources)
+					data.putInt(relres);
 
-			database.addSearchEntry(this, Database.SearchEntryType.DECISION, data);
+				database.addSearchEntry(
+					this, Database.SearchEntryType.DECISION, data);
 
-			rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SOLUTION);
+				if (enoughSensitivity(SerializationLevel.ALL))
+				{
+					rule.addResourceEntriesToDatabase(
+						Pattern.ExecutedFrom.SOLUTION);
+				}
+			}
 		}
+	}
+
+	public enum SerializationLevel implements Comparable<SerializationLevel>
+	{
+		ALL("all", 4),
+		TOPS("tops", 2),
+		DECISION("decision", 1),
+		START_STOP("start/stop", 0);
+
+		private SerializationLevel(String name, int comparisonValue)
+		{
+			this.name = name;
+			this.comparisonValue = comparisonValue;
+		}
+
+		private final String name;
+		private final int comparisonValue;
+
+		@Override
+		public String toString()
+		{
+			return name;
+		}
+	}
+
+	private class SerializationTypeComparator implements Comparator<SerializationLevel>
+	{
+		@Override
+		public int compare(SerializationLevel o1, SerializationLevel o2)
+		{
+			return o1.comparisonValue - o2.comparisonValue;
+		}
+	}
+
+	private final boolean enoughSensitivity(SerializationLevel checkedType)
+	{
+		SerializationTypeComparator comparator =
+			new SerializationTypeComparator();
+
+		for (SerializationLevel type : SerializationLevel.values())
+		{
+			if (Simulator.getDatabase().sensitiveTo(
+					getName() + "." + type.toString()))
+				if (comparator.compare(type, checkedType) >= 0)
+					return true;
+		}
+
+		return false;
 	}
 }
