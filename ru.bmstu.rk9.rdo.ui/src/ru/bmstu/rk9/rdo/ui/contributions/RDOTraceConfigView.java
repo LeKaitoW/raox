@@ -31,6 +31,7 @@ import ru.bmstu.rk9.rdo.lib.ModelStructureHelper;
 import ru.bmstu.rk9.rdo.lib.TraceConfig;
 import ru.bmstu.rk9.rdo.lib.TraceConfig.TraceNode;
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint;
+import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch;
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource;
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource;
 import ru.bmstu.rk9.rdo.rdo.Pattern;
@@ -189,7 +190,7 @@ class TraceConfigurator
 						child.getName() + "." + RDONaming.getNameGeneric(relRes));
 				}
 			}
-			else if (categoryClass == DecisionPoint.class)
+			else if (c instanceof DecisionPointSearch)
 			{
 				for (SerializationLevel type : SerializationLevel.values())
 					child.addChild(child.getName() + "." + type.toString());
