@@ -21,19 +21,19 @@ public class Tracer implements Subscriber
 		EVENT("EI"),
 		RULE("ER"),
 		RESULT("V "),
-		SEARCH_BEGIN("SB "),				/*~~*/
-		SEARCH_OPEN("SO "),					/*~~*/
-		SEARCH_SPAWN_NEW("STN"),			/*~~*/
-		SEARCH_SPAWN_WORSE("STD"),			/*~~*/	
-		SEARCH_SPAWN_BETTER("STR"),			/*~~*/
+		SEARCH_BEGIN("SB "),
+		SEARCH_OPEN("SO "),
+		SEARCH_SPAWN_NEW("STN"),
+		SEARCH_SPAWN_WORSE("STD"),
+		SEARCH_SPAWN_BETTER("STR"),
 		SEARCH_RESOURCE_CREATE("SRC"),
 		SEARCH_RESOURCE_KEEP("SRK"),
 		SEARCH_RESOURCE_ERASE("SRE"),
 		SEARCH_DECISION("SD "),
-		SEARCH_END_ABORTED("SEA"),			/*~~*/
-		SEARCH_END_CONDITION("SEC"),		/*~~*/
-		SEARCH_END_SUCCESS("SES"),			/*~ solution was found ~*/
-		SEARCH_END_FAIL("SEN");				/*~ no solution ~*/
+		SEARCH_END_ABORTED("SEA"),
+		SEARCH_END_CONDITION("SEC"),
+		SEARCH_END_SUCCESS("SES"),
+		SEARCH_END_FAIL("SEN");
 
 		private String traceCode;
 		private TraceType(String traceCode)
