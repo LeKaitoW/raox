@@ -49,19 +49,6 @@ public class VirtualOutlineNode extends AbstractOutlineNode
 
 class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.DefaultOutlineTreeProvider
 {
-	/**
-	 * Uncomment the following method to be able to work with
-	 * RDOTraceConfig. Be wary that it breaks Outline.
-	 */
-	/*
-	def _createChildren(IOutlineNode parentNode, RDOModel model)
-	{
-		RDOTraceConfigView.updateInput(
-			model.eResource.getResourceSet().getResources().get(0)
-		)
-	}
-	*/
-
 	// Resource Types
 	def _isLeaf(ResourceTypeParameter rtp) { true }
 

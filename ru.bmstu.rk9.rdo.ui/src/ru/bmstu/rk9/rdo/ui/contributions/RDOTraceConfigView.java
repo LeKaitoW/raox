@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import org.eclipse.emf.common.util.TreeIterator;
@@ -18,8 +19,16 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IPartService;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.xtext.resource.XtextResource;
+import org.eclipse.xtext.ui.editor.XtextEditor;
+import org.eclipse.xtext.ui.editor.model.IXtextDocument;
+import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 
 import com.google.common.collect.Iterables;
@@ -64,9 +73,6 @@ public class RDOTraceConfigView extends ViewPart
 		traceTreeViewer.setCheckStateProvider(
 			new RDOTraceConfigCheckStateProvider());
 
-		traceConfigurator.initCategories(traceConfig.getRoot());
-		traceTreeViewer.setInput(traceConfig);
-
 		traceTreeViewer.addCheckStateListener(
 			new ICheckStateListener()
 			{
@@ -84,6 +90,66 @@ public class RDOTraceConfigView extends ViewPart
 				}
 			}
 		);
+
+		IPartService service =
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getPartService();
+
+		service.addPartListener(
+			new IPartListener2()
+			{
+				@Override
+				public void partVisible(IWorkbenchPartReference partRef) {}
+
+				@Override
+				public void partOpened(IWorkbenchPartReference partRef) {}
+
+				@Override
+				public void partInputChanged(IWorkbenchPartReference partRef) {}
+
+				@Override
+				public void partHidden(IWorkbenchPartReference partRef) {}
+
+				@Override
+				public void partDeactivated(IWorkbenchPartReference partRef) {}
+
+				@Override
+				public void partClosed(IWorkbenchPartReference partRef) {}
+
+				@Override
+				public void partBroughtToTop(IWorkbenchPartReference partRef) {}
+
+				@Override
+				public void partActivated(IWorkbenchPartReference partRef)
+				{
+					if (partRef.getId().equals("ru.bmstu.rk9.rdo.RDO"))
+					{
+						IEditorPart editor = partRef.getPage().getActiveEditor();
+						IXtextDocument document = ((XtextEditor) editor).getDocument();
+
+						if (documents.contains(document))
+							return;
+
+						documents.add(document);
+
+						document.addModelListener(
+							new IXtextModelListener() {
+								@Override
+								public void modelChanged(XtextResource resource)
+								{
+									updateInput(resource.getContents().get(0).eResource());
+								}
+							}
+						);
+					}
+				}
+
+				private final HashSet<IXtextDocument> documents =
+					new HashSet<IXtextDocument>();
+			}
+		);
+
+		traceConfigurator.initCategories(traceConfig.getRoot());
+		traceTreeViewer.setInput(traceConfig);
 	}
 
 	public static void updateInput(Resource model)
