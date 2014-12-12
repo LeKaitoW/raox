@@ -155,24 +155,26 @@ public class TreeGrapher extends JFrame {
 	}
 
 	private void buildTree(mxGraph graph, Map<Integer, Node> map, Node parent) {
-		mxCell child = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, parent, 400, 100, 30, 30);
+		mxCell child = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, parent, 385, 100, 30, 30,
+				"fontColor=000000;strokeColor=000000");
 		parent.cell = child;
 		if (parent.parent != null)
-			graph.insertEdge(graph.getDefaultParent(), null, null, parent.parent.cell, child);
+			graph.insertEdge(graph.getDefaultParent(), null, null, parent.parent.cell, child, "strokeColor=000000");
 		if (parent.children.size() != 0)
 			for (int i = 0; i < parent.children.size(); i++)
 				buildTree(graph, map, map.get(parent.children.get(i).nodeNumber));
 
 	}
 
+	final String solutionColor = "fillColor=32CD32;fontColor=000000;strokeColor=000000";
+
 	public void colorNodes(Map<Integer, Node> map) {
-		String color = "fillColor=green";
 		if (!solution.isEmpty()) {
 			int lastNodeNumber = solution.get(solution.size() - 1);
-			map.get(lastNodeNumber).cell.setStyle(color);
+			map.get(lastNodeNumber).cell.setStyle(solutionColor);
 			int flag = map.get(lastNodeNumber).nodeNumber;
 			do {
-				map.get(flag).parent.cell.setStyle(color);
+				map.get(flag).parent.cell.setStyle(solutionColor);
 				flag = map.get(flag).parent.nodeNumber;
 			} while (map.get(flag).parent != null);
 		}
@@ -191,8 +193,9 @@ public class TreeGrapher extends JFrame {
 			graph.getModel().endUpdate();
 		}
 
-		final mxGraphComponent graphComponent = new mxGraphComponent(graph);
+		mxGraphComponent graphComponent = new mxGraphComponent(graph);
 		graphComponent.setConnectable(false);
+		graphComponent.zoomAndCenter();
 		getContentPane().add(graphComponent);
 
 		mxCompactTreeLayout layout = new mxCompactTreeLayout(graph, false);
