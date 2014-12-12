@@ -8,7 +8,6 @@ import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
 import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
-import static extension ru.bmstu.rk9.rdo.compilers.Util.*
 
 import ru.bmstu.rk9.rdo.generator.LocalContext
 

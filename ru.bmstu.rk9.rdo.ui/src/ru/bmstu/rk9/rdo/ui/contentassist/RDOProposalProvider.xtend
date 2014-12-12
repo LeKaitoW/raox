@@ -12,8 +12,6 @@ import org.eclipse.emf.ecore.EObject
 
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 
-import ru.bmstu.rk9.rdo.rdo.Resources
-
 import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
 
 
@@ -27,17 +25,6 @@ class RDOProposalProvider extends AbstractRDOProposalProvider
 
 	 // USAGE
 	// acceptor.accept(createCompletionProposal(text to insert, description text, image, context))
-
-	override completeResourceTrace_Trace(
-		EObject element,
-		Assignment assignment,
-		ContentAssistContext context,
-		ICompletionProposalAcceptor acceptor)
-	{
-		lookupCrossReference(assignment.terminal as CrossReference, context, acceptor, [r |
-			!(context.previousModel.eContainer as Resources).trace.map[t | t.trace].contains(r.EObjectOrProxy as EObject) &&
-		     (context.previousModel.eContainer as Resources).resources.contains(r.EObjectOrProxy as EObject) ])
-	}
 
 	override completeRDOSuchAs_Type(
 		EObject element,

@@ -37,7 +37,6 @@ import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
-import ru.bmstu.rk9.rdo.rdo.ResourceTrace
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
 
@@ -49,7 +48,6 @@ import ru.bmstu.rk9.rdo.rdo.FunctionTable
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
-import ru.bmstu.rk9.rdo.rdo.PatternConvertStatus
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
 import ru.bmstu.rk9.rdo.rdo.OperationConvert
@@ -431,20 +429,6 @@ class RDOValidator extends AbstractRDOValidator
 	}
 
 	@Check
-	def checkMultipleTraces(ResourceTrace trc)
-	{
-		var found = 0
-		for (e : trc.eContainer.eContainer.eAllContents.filter(typeof(ResourceTrace)).toIterable)
-			if (trc.trace == e.trace)
-				found = found + 1
-		if (found > 1)
-			for (e : trc.eContainer.eContainer.eAllContents.filter(typeof(ResourceTrace)).toIterable)
-				if (trc.trace == e.trace)
-					error("Multiple trace statements for '" + trc.trace.name + "'.",
-						e, RdoPackage.eINSTANCE.resourceTrace_Trace)
-	}
-
-	@Check
 	def checkConvertStatus(OperationRelevantResource relres)
 	{
 		val type  = relres.type
@@ -775,39 +759,6 @@ class RDOValidator extends AbstractRDOValidator
 							e.eContainer, RdoPackage.eINSTANCE.ruleConvert_Choicemethod)
 				}
 			}
-	}
-
-	@Check
-	def checkEventRelResTrace(Event evn)
-	{
-		for(ec : evn.algorithms)
-			if(ec.traceevent && ec.relres.rule != PatternConvertStatus.CREATE)
-				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", ec,
-					RdoPackage.eINSTANCE.eventConvert_Traceevent)
-	}
-
-	@Check
-	def checkRuleRelResTrace(Rule rule)
-	{
-		for(rc : rule.algorithms)
-			if(rc.tracerule && rc.relres.rule != PatternConvertStatus.CREATE)
-				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", rc,
-					RdoPackage.eINSTANCE.ruleConvert_Tracerule)
-	}
-
-	@Check
-	def checkOperationRelResTrace(Operation op)
-	{
-		for(oc : op.algorithms)
-		{
-			if(oc.tracebegin && oc.relres.begin != PatternConvertStatus.CREATE)
-				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", oc,
-					RdoPackage.eINSTANCE.operationConvert_Tracebegin)
-
-			if(oc.traceend && oc.relres.end != PatternConvertStatus.CREATE)
-				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", oc,
-					RdoPackage.eINSTANCE.operationConvert_Traceend)
-		}
 	}
 
 	@Check
