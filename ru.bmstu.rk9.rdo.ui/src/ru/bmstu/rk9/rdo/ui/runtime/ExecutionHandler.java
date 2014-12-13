@@ -209,7 +209,7 @@ public class ExecutionHandler extends AbstractHandler
 							.addSubscriber(SimulationSynchronizer.getInstance().simulationStateListener);
 
 					RDOConsoleView.addLine("Started model " + project.getName());
-					long startTime = System.currentTimeMillis();
+					final long startTime = System.currentTimeMillis();
 
 					uiRealTime.scheduleAtFixedRate
 					(
