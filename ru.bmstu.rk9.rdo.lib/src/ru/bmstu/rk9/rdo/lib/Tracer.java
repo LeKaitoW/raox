@@ -82,7 +82,11 @@ public class Tracer implements Subscriber
 
 	public final synchronized void setPaused(boolean paused)
 	{
+		if (this.paused == paused)
+			return;
+
 		this.paused = paused;
+		fireChange();
 	}
 
 	private Subscriber realTimeSubscriber = null;
@@ -589,10 +593,33 @@ public class Tracer implements Subscriber
 			final int activityNumber = data.getInt();
 			ActivityInfo activity = decisionPointsInfo.get(currentDptNumber)
 				.activitiesInfo.get(activityNumber);
+			final int patternNumber = activity.patternNumber;
+			final int numberOfRelevantResources =
+				patternsInfo.get(patternNumber).relResTypes.size();
+
+			RDOLibStringJoiner relResStringJoiner =
+				new RDOLibStringJoiner(StringFormat.FUNCTION);
+			for(int num = 0; num < numberOfRelevantResources; num++)
+			{
+				final int resNum = data.getInt();
+				final int typeNum =
+					patternsInfo.get(patternNumber).relResTypes.get(num);
+				final String typeName =
+					resourceTypesInfo.get(typeNum).name;
+
+				final String name = resourceNames.get(typeNum).get(resNum);
+				final String resourceName =
+					name != null ?
+						name :
+						typeName + encloseIndex(resNum);
+
+				relResStringJoiner.add(resourceName);
+			}
+
 			stringJoiner
 				.add(traceType.toString())
 				.add(encloseIndex(number))
-				.add(activity.name);
+				.add(activity.name + relResStringJoiner.getString());
 			break;
 		}
 		default:
@@ -693,7 +720,21 @@ class RDOLibStringJoiner
 
 	enum StringFormat
 	{
-		FUNCTION, STRUCTURE, ARRAY, ENUMERATION
+		FUNCTION(", ", "(", ")"),
+		STRUCTURE(", ", "{", "}"),
+		ARRAY(", ", "[", "]"),
+		ENUMERATION(", ", "", "");
+
+		StringFormat(String delimiter, String prefix, String suffix)
+		{
+			this.delimiter = delimiter;
+			this.prefix = prefix;
+			this.suffix = suffix;
+		}
+
+		private final String delimiter;
+		private final String prefix;
+		private final String suffix;
 	}
 
 	final String getString()
@@ -703,33 +744,9 @@ class RDOLibStringJoiner
 
 	RDOLibStringJoiner(StringFormat format)
 	{
-		switch(format)
-		{
-		case FUNCTION:
-			this.delimiter = ", ";
-			this.prefix = "(";
-			this.suffix = ")";
-			break;
-		case STRUCTURE:
-			this.delimiter = ", ";
-			this.prefix = "{";
-			this.suffix = "}";
-			break;
-		case ARRAY:
-			this.delimiter = ", ";
-			this.prefix = "[";
-			this.suffix = "]";
-			break;
-		case ENUMERATION:
-			this.delimiter = ", ";
-			this.prefix = "";
-			this.suffix = "";
-			break;
-		default:
-			this.delimiter = null;
-			this.prefix = null;
-			this.suffix = null;
-		}
+		this.delimiter = format.delimiter;
+		this.prefix = format.prefix;
+		this.suffix = format.suffix;
 	}
 
 	RDOLibStringJoiner(String delimiter)
