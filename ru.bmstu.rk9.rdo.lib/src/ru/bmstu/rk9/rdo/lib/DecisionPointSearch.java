@@ -278,31 +278,33 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 								}
 					}
 					children.add(newChild);
+
+					int[] relevantResources = newChild.activityInfo.rule.getRelevantInfo();
+
+					ByteBuffer data = ByteBuffer.allocate
+					(
+						Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 3 +
+						Database.TypeSize.INTEGER * (3 + relevantResources.length)
+					);
+
+					data
+						.put((byte)spawnStatus.ordinal())
+						.putInt(newChild.number)
+						.putInt(parent.number)
+						.putDouble(newChild.g)
+						.putDouble(newChild.h)
+						.putInt(i)
+						.putDouble(value);
+
+					for(int relres : relevantResources)
+						data.putInt(relres);
+
+					Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.SPAWN, data);
+
 					totalAdded++;
 				}
+
 				parent.state.deploy();
-
-				int[] relevantResources = newChild.activityInfo.rule.getRelevantInfo();
-
-				ByteBuffer data = ByteBuffer.allocate
-				(
-					Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 3 +
-					Database.TypeSize.INTEGER * (3 + relevantResources.length)
-				);
-
-				data
-					.put((byte)spawnStatus.ordinal())
-					.putInt(newChild.number)
-					.putInt(parent.number)
-					.putDouble(newChild.g)
-					.putDouble(newChild.h)
-					.putInt(i)
-					.putDouble(value);
-
-				for(int relres : relevantResources)
-					data.putInt(relres);
-
-				Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.SPAWN, data);
 
 				executed.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SEARCH);
 			}
