@@ -29,6 +29,7 @@ import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.ui.editor.XtextEditor;
 import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
+import org.eclipse.xtext.util.concurrent.IUnitOfWork;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 
 import com.google.common.collect.Iterables;
@@ -44,6 +45,7 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch;
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource;
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource;
 import ru.bmstu.rk9.rdo.rdo.Pattern;
+import ru.bmstu.rk9.rdo.rdo.RDOModel;
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration;
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration;
 import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource;
@@ -124,19 +126,33 @@ public class RDOTraceConfigView extends ViewPart
 					if (partRef.getId().equals("ru.bmstu.rk9.rdo.RDO"))
 					{
 						IEditorPart editor = partRef.getPage().getActiveEditor();
-						IXtextDocument document = ((XtextEditor) editor).getDocument();
+						IXtextDocument document =
+							((XtextEditor) editor).getDocument();
 
 						if (documents.contains(document))
 							return;
 
 						documents.add(document);
 
+						RDOModel model =
+							(RDOModel) document.readOnly(
+							new IUnitOfWork<XtextResource, XtextResource>()
+							{
+								public XtextResource exec(XtextResource state)
+								{
+									return state;
+								}
+							}
+						).getContents().get(0);
+
+						updateInput(model.eResource());
+
 						document.addModelListener(
 							new IXtextModelListener() {
 								@Override
 								public void modelChanged(XtextResource resource)
 								{
-									updateInput(resource.getContents().get(0).eResource());
+									updateInput(resource);
 								}
 							}
 						);
@@ -167,7 +183,7 @@ public class RDOTraceConfigView extends ViewPart
 						RDOTraceConfigView.traceTreeViewer.refresh();
 					}
 				}
-			);
+		);
 	}
 
 	public static void onModelSave()
