@@ -71,6 +71,9 @@ public class RDOTraceView extends ViewPart
 				}
 			}
 		);
+
+		if (Simulator.isInitialized())
+			commonUpdater.fireChange();
 	}
 
 	private static boolean shouldFollowOutput = true;
