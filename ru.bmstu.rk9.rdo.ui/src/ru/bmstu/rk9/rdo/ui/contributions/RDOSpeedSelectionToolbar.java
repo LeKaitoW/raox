@@ -53,7 +53,11 @@ public class RDOSpeedSelectionToolbar extends WorkbenchWindowControlContribution
 
 			this.setMinimum(0);
 			this.setMaximum(MAX);
-			
+
+			// this is a Windows' progress bar animation issue workaround
+			// fancy yellowish color on windows and no effect on Linux and OSX
+			this.setState(SWT.PAUSED);
+
 			FontData[] fD = this.getFont().getFontData();
 			fD[0].setHeight(8);
 			this.setFont(new Font(this.getDisplay(),fD[0]));
