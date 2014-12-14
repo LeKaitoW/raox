@@ -72,7 +72,7 @@ public class Database
 			JSONObject patternStructure = patterns.getJSONObject(i);
 			String name = patternStructure.getString("name");
 			String type = patternStructure.getString("type");
-			if(type == "event")
+			if(type.equals("event"))
 				eventIndex.put(name, new PatternIndex(i, patternStructure));
 			else
 				patternsByName.put(name, patternStructure);
