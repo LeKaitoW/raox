@@ -125,11 +125,6 @@ public class SimulationSynchronizer
 	{
 		private volatile long speedDelayMillis = 0;
 
-		// this variable is needed in order to prevent SimulationScaleManager from trying
-		// to compensate delays caused by SimulationSpeedManager. SimulationScaleManager
-		// will subtract this variable from realTimeDelta and won't try to "catch up"
-		private long accumulatedDelay;
-
 		@Override
 		public void fireChange()
 		{
@@ -140,8 +135,7 @@ public class SimulationSynchronizer
 
 					while(executionMode == ExecutionMode.PAUSE && !simulationAborted)
 						delay(50);
-	
-					simulationScaleManager.lastRealTime = System.currentTimeMillis();
+
 					break;
 
 				case FAST_FORWARD:
@@ -157,7 +151,6 @@ public class SimulationSynchronizer
 						timeToWait = startTime + speedDelayMillis - System.currentTimeMillis();
 					}
 
-					accumulatedDelay += System.currentTimeMillis() - startTime;
 					break;
 
 				default:
@@ -186,18 +179,14 @@ public class SimulationSynchronizer
 		if(INSTANCE == null)
 			return;
 
-		INSTANCE.simulationScaleManager.timeScale = 60600d / value;
+		INSTANCE.simulationScaleManager.timeScale = 60060d / value;
 	}
 
 	public class SimulationScaleManager implements Subscriber
 	{
 		private volatile double timeScale = 0.3;
 
-		private double lastSimulationTime;
-
-		private long lastRealTime;
-
-		private long totalTimeLag = 0;
+		private long startRealTime = System.currentTimeMillis();
 
 		@Override
 		public void fireChange()
@@ -219,41 +208,28 @@ public class SimulationSynchronizer
 
 					case NORMAL_SPEED:
 
-						double simulationDelta = currentSimulationTime - lastSimulationTime;
-						long realTimeDelta = currentRealTime - (lastRealTime + simulationSpeedManager.accumulatedDelay);
-						long waitTime = (long)(simulationDelta * timeScale) - realTimeDelta;
+						long realTimeDelta = currentRealTime - startRealTime;
+						long waitTime = (long)(currentSimulationTime * timeScale) - realTimeDelta;
 
 						if(waitTime > 0)
 						{
-							long maxCatchUp = waitTime / 2;
-							long timeToCatchUp = totalTimeLag > maxCatchUp ? maxCatchUp : totalTimeLag;
-							totalTimeLag -= timeToCatchUp;
-							
-							long leftToSleep = waitTime - timeToCatchUp;
-							while(executionMode == ExecutionMode.NORMAL_SPEED && leftToSleep > 0 && !simulationAborted)
+							while(executionMode == ExecutionMode.NORMAL_SPEED && waitTime > 0 && !simulationAborted)
 							{
-								delay(leftToSleep > 50 ? 50 : leftToSleep);
-								leftToSleep = (long)(simulationDelta * timeScale) + (lastRealTime +
-									simulationSpeedManager.accumulatedDelay) - System.currentTimeMillis() - timeToCatchUp;
+								delay(waitTime > 50 ? 50 : waitTime);
+								waitTime = (long)(currentSimulationTime * timeScale) + startRealTime -
+									System.currentTimeMillis() - waitTime;
 							}
-							uiTimeUpdater.actualTimeScale = 0;
+							uiTimeUpdater.actualTimeScale = timeScale;
 						}
 						else
-						{
-							totalTimeLag -= waitTime;
-							uiTimeUpdater.actualTimeScale = ((double)realTimeDelta)/simulationDelta;
-						}
+							uiTimeUpdater.actualTimeScale = ((double)realTimeDelta)/currentSimulationTime;
+
 						break;
 
 					default:
 						// Do nothing
 				}
 			}
-
-			simulationSpeedManager.accumulatedDelay = 0;
-
-			lastSimulationTime = currentSimulationTime;
-			lastRealTime = System.currentTimeMillis();
 		}
 	}
 
