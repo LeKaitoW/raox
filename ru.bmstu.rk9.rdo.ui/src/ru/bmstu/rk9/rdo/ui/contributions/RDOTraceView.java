@@ -79,7 +79,7 @@ public class RDOTraceView extends ViewPart
 		return shouldFollowOutput;
 	}
 
-	public static Subscriber realTimeUpdater =
+	public static final Subscriber realTimeUpdater =
 		new Subscriber()
 		{
 			@Override
@@ -107,7 +107,7 @@ public class RDOTraceView extends ViewPart
 			}
 		};
 
-	public static Subscriber commonUpdater =
+	public static final Subscriber commonUpdater =
 		new Subscriber()
 		{
 			@Override
