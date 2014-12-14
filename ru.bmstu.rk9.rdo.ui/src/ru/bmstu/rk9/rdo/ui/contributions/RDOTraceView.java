@@ -69,7 +69,8 @@ public class RDOTraceView extends ViewPart
 					else
 						shouldFollowOutput = true;
 				}
-			});
+			}
+		);
 	}
 
 	private static boolean shouldFollowOutput = true;
@@ -85,25 +86,24 @@ public class RDOTraceView extends ViewPart
 			@Override
 			public void fireChange()
 			{
-				if (readyForInput())
-				{
-					final ArrayList<Tracer.TraceOutput> traceList =
-						Simulator.getTracer().getTraceList();
-					final int size = traceList.size();
-					PlatformUI.getWorkbench().getDisplay().asyncExec(
-						new Runnable()
+				final ArrayList<Tracer.TraceOutput> traceList =
+					Simulator.getTracer().getTraceList();
+				final int size = traceList.size();
+				PlatformUI.getWorkbench().getDisplay().asyncExec(
+					new Runnable()
+					{
+						@Override
+						public void run()
 						{
-							@Override
-							public void run()
-							{
-								RDOTraceView.viewer.setItemCount(size);
-								if (RDOTraceView.shouldFollowOutput())
-									RDOTraceView.viewer.getTable()
-										.setTopIndex(size - 1);
-							}
+							if (!readyForInput())
+								return;
+							RDOTraceView.viewer.setItemCount(size);
+							if (RDOTraceView.shouldFollowOutput())
+								RDOTraceView.viewer.getTable()
+									.setTopIndex(size - 1);
 						}
-					);
-				}
+					}
+				);
 			}
 		};
 
@@ -113,24 +113,23 @@ public class RDOTraceView extends ViewPart
 			@Override
 			public void fireChange()
 			{
-				if (readyForInput())
-				{
-					final ArrayList<Tracer.TraceOutput> traceList =
-						Simulator.getTracer().getTraceList();
-					final int size = traceList.size();
-					PlatformUI.getWorkbench().getDisplay().asyncExec(
-						new Runnable()
+				final ArrayList<Tracer.TraceOutput> traceList =
+					Simulator.getTracer().getTraceList();
+				final int size = traceList.size();
+				PlatformUI.getWorkbench().getDisplay().asyncExec(
+					new Runnable()
+					{
+						@Override
+						public void run()
 						{
-							@Override
-							public void run()
-							{
-								RDOTraceView.viewer.setInput(traceList);
-								RDOTraceView.viewer.setItemCount(size);
-								viewer.refresh();
-							}
+							if (!readyForInput())
+								return;
+							RDOTraceView.viewer.setInput(traceList);
+							RDOTraceView.viewer.setItemCount(size);
+							viewer.refresh();
 						}
-					);
-				}
+					}
+				);
 			}
 		};
 
@@ -138,6 +137,7 @@ public class RDOTraceView extends ViewPart
 	{
 		return
 			viewer != null
+			&& !viewer.getTable().isDisposed()
 			&& viewer.getContentProvider() != null
 			&& viewer.getLabelProvider() != null;
 	}
@@ -157,14 +157,14 @@ class RDOTraceViewContentProvider implements ILazyContentProvider
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput)
 	{
-		this.traceList = (ArrayList<String>) newInput;
+		traceList = (ArrayList<String>) newInput;
 	}
 
 	@Override
 	public void updateElement(int index)
 	{
 		//TODO completely avoid that situation
-		if (index < traceList.size())
+		if (traceList != null && index < traceList.size())
 			RDOTraceView.viewer.replace(traceList.get(index), index);
 	}
 }
