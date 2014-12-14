@@ -13,7 +13,7 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 	private ArrayList<T> listResources;
 
 	private HashMap<String, T> permanent;
-	private HashMap<Integer, T> temporary;	
+	private HashMap<Integer, T> temporary;
 
 	private Integer resourceNumber;
 
@@ -33,7 +33,7 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 				listResources.set(number, res);
 			else
 			{
-				if(number == resourceNumber)
+				if(number.equals(resourceNumber))
 					resourceNumber++;
 				else
 					return;
@@ -45,7 +45,7 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 		}
 		else
 		{
-			if(number == resourceNumber)
+			if(number.equals(resourceNumber))
 				resourceNumber++;
 			else
 				return;
