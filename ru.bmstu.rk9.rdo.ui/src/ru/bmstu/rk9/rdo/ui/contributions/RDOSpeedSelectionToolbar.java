@@ -82,9 +82,9 @@ public class RDOSpeedSelectionToolbar extends WorkbenchWindowControlContribution
 						e.gc.fillRoundRectangle
 						(
 							(widgetSize.x - textSize.x) / 2 - 2,
-							(widgetSize.y - textSize.y) / 2 - 1,
+							(widgetSize.y - textSize.y) / 2,
 							textSize.x + 4,
-							textSize.y + 2,
+							textSize.y + 1,
 							3,
 							3
 						);
@@ -102,8 +102,8 @@ public class RDOSpeedSelectionToolbar extends WorkbenchWindowControlContribution
 				}
 			);
 
-		    addMouseListener
-		    (
+			addMouseListener
+			(
 				new MouseListener()
 				{
 					@Override
@@ -121,10 +121,10 @@ public class RDOSpeedSelectionToolbar extends WorkbenchWindowControlContribution
 				}
 			);
 
-		    addMouseMoveListener
-		    (
-		    	new MouseMoveListener()
-			    {
+			addMouseMoveListener
+			(
+				new MouseMoveListener()
+				{
 					@Override
 					public void mouseMove(MouseEvent e)
 					{
@@ -134,14 +134,14 @@ public class RDOSpeedSelectionToolbar extends WorkbenchWindowControlContribution
 				}
 			);
 
-		    addMouseWheelListener
-		    (
-		   		new MouseWheelListener()
-		   		{
+			addMouseWheelListener
+			(
+				new MouseWheelListener()
+				{
 					@Override
 					public void mouseScrolled(MouseEvent e)
 					{
-						RDOSpeedSelector.this.modifySpeed((e.count > 0) ? 5 : -5);		
+						RDOSpeedSelector.this.modifySpeed((e.count > 0) ? 5 : -5);
 					}
 				}
 			);
