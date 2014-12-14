@@ -12,7 +12,6 @@ import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 
 import ru.bmstu.rk9.rdo.rdo.Resources
-import ru.bmstu.rk9.rdo.rdo.ResourceTrace
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
@@ -75,19 +74,12 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	// Resources
 	def  text(Resources rss) {"RSS : " +
-		(if (rss.resources.size > 0) {rss.resources.size.toString + " objects"} else "") +
-		(if (rss.resources.size * rss.trace.size > 0) ", " else "") +
-		(if (rss.trace.size > 0) {rss.trace.size.toString + " traced"} else "") +
-		(if (rss.resources.size + rss.trace.size == 0) "empty" else "") }
+		(if (rss.resources.size > 0) {rss.resources.size.toString + " objects"} else "") }
 	def image(Resources rss) { "puzzle.gif" }
 
 		// Resource declaration
 		def  text(ResourceDeclaration rss) { "rss : " + rss.name }
 		def image(ResourceDeclaration rss) { "plus.gif" }
-
-		// Trace
-		def  text(ResourceTrace rsstrc) { "trc : " + rsstrc.trace.name.toString }
-		def image(ResourceTrace rsstrc) { "tag.gif" }
 
 	// Constants
 	def  text(Constants c) { "CON : " + c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size.toString +
@@ -115,7 +107,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def image(PatternParameter p) { "parameter.gif" }
 
 	// Event
-	def  text(Event evn) { "EVN : " + evn.name + " : event" + if (evn.trace) " , traced" else "" }
+	def  text(Event evn) { "EVN : " + evn.name + " : event"}
 	def image(Event evn) { "event.gif" }
 
 	def  text(EventConvert c) { c.relres.name }
@@ -125,7 +117,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def  text(EventRelevantResource r) { r.name + r.type.relResName }
 
 	// Operation
-	def  text(Operation pat) { "PAT : " + pat.name + " : " + pat.type.literal + if (pat.trace) " , traced" else "" }
+	def  text(Operation pat) { "PAT : " + pat.name + " : " + pat.type.literal}
 	def image(Operation pat) { "script_block.gif" }
 
 	def  text(OperationConvert c) { c.relres.name }
@@ -135,7 +127,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def  text(OperationRelevantResource r) { r.name + r.type.relResName }
 
 	// Rule
-	def  text(Rule pat) { "PAT : " + pat.name + " : rule" + if (pat.trace) " , traced" else "" }
+	def  text(Rule pat) { "PAT : " + pat.name + " : rule"}
 	def image(Rule pat) { "script_block.gif" }
 
 	def  text(RuleConvert c) { c.relres.name }

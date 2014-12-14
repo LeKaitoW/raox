@@ -159,6 +159,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				Simulator.initSimulation();
 				Simulator.initDatabase(«project»Model.modelStructure);
+				Simulator.initTracer();
 
 				System.out.println(" === RDO-Simulator ===\n");
 				System.out.println("   Project «RDONaming.getProjectName(rs.resources.get(0).URI)»");
@@ -221,6 +222,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				Simulator.initSimulation();
 				Simulator.initDatabase(«project»Model.modelStructure);
+				Simulator.initTracer();
 
 				«project»Model.init();
 

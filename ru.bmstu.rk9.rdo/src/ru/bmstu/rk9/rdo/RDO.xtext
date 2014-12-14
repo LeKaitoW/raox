@@ -80,7 +80,7 @@ enum ResourceTypeKind
 // ==========================================================
 Resources:
 	object = '$Resources'
-		(resources += ResourceDeclaration | trace += ResourceTrace)+
+		(resources += ResourceDeclaration)+
 	'$End'
 ;
 
@@ -97,10 +97,6 @@ ResourceParameterExpression
 	: {RDODefaultParameter} '*'
 	| ExpressionOr
 ;
-
-ResourceTrace:
-	trace = [ResourceDeclaration|ID] '.' 'trace' '(' ')' ';'
-;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -114,7 +110,7 @@ Pattern
 ;
 
 Operation:
-	'$Pattern' name = ID ':' type = OperationType trace ?= 'trace'?
+	'$Pattern' name = ID ':' type = OperationType
 	('$Parameters'
 		parameters += PatternParameter+ )?
 	 '$Relevant_resources'
@@ -139,14 +135,14 @@ OperationRelevantResource:
 OperationConvert:
 	relres = [OperationRelevantResource|FQN] ':'
 	(havechoice ?= 'Choice' choicefrom = PatternChoiceFrom (choicemethod = PatternChoiceMethod)? )?
-	(havebegin ?= 'Convert_begin' tracebegin ?= 'trace'?
+	(havebegin ?= 'Convert_begin'
 		beginstatements = StatementList )?
-	(haveend ?= 'Convert_end' traceend ?= 'trace'?
+	(haveend ?= 'Convert_end'
 		endstatements = StatementList )?
 ;
 
 Rule:
-	'$Pattern' name = ID ':' 'rule' trace ?= 'trace'?
+	'$Pattern' name = ID ':' 'rule'
 	('$Parameters'
 		parameters += PatternParameter+ )?
 	 '$Relevant_resources'
@@ -165,12 +161,12 @@ RuleRelevantResource:
 RuleConvert:
 	relres = [RuleRelevantResource|ID] ':'
 	(havechoice ?= 'Choice' choicefrom = PatternChoiceFrom (choicemethod = PatternChoiceMethod)? )?
-	(haverule ?= 'Convert_rule' tracerule ?= 'trace'?
+	(haverule ?= 'Convert_rule'
 		statements = StatementList )?
 ;
 
 Event:
-	'$Pattern' name = ID ':' 'event' trace ?= 'trace'?
+	'$Pattern' name = ID ':' 'event'
 	('$Parameters'
 		parameters += PatternParameter+ )?
 	 '$Relevant_resources'
@@ -187,7 +183,7 @@ EventRelevantResource:
 
 EventConvert:
 	relres = [EventRelevantResource|ID] ':'
-	'Convert_event' traceevent ?= 'trace'?
+	'Convert_event'
 		statements = StatementList
 ;
 
@@ -230,7 +226,7 @@ DecisionPoint
 ;
 
 DecisionPointSome:
-	 '$Decision_point' name = ID ':' 'some' trace ?= 'trace'?
+	 '$Decision_point' name = ID ':' 'some'
 	('$Parent' parent = [DecisionPoint|FQN])?
 	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
 	 '$Activities'
@@ -239,7 +235,7 @@ DecisionPointSome:
 ;
 
 DecisionPointPrior:
-	 '$Decision_point' name = ID ':' 'prior' trace ?= 'trace'?
+	 '$Decision_point' name = ID ':' 'prior'
 	('$Parent' parent = [DecisionPoint|FQN])?
 	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
 	 '$Priority' priority = ExpressionOr
@@ -250,7 +246,6 @@ DecisionPointPrior:
 
 DecisionPointSearch:
 	 '$Decision_point' name = ID ':' 'search'
-	( trace ?= 'trace' | traceall ?= 'trace_all')?
 	('$Parent' parent = [DecisionPoint|FQN])?
 	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
 	 '$Term_condition' termination = ExpressionOr
@@ -397,7 +392,7 @@ Results:
 ;
 
 ResultDeclaration:
-	name = ID ':' trace ?= 'trace'? type = ResultType
+	name = ID ':' type = ResultType
 ;
 
 ResultType
