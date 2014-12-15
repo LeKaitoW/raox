@@ -207,11 +207,8 @@ public class TreeGrapher extends JFrame {
 		layout.execute(graph.getDefaultParent());
 
 		graph.setCellsEditable(false);
-		graph.setCellsSelectable(false);
-		graph.setCellsMovable(false);
-		graph.setCellsLocked(false);
-		graph.setSplitEnabled(false);
-		graph.setCellsDisconnectable(true);
+		graph.setCellsResizable(false);
+		graph.setAllowDanglingEdges(false);
 
 	}
 }
