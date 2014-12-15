@@ -1,20 +1,24 @@
 package ru.bmstu.rk9.rdo.ui.graph;
 
+import java.awt.Font;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JFrame;
-
 import ru.bmstu.rk9.rdo.lib.Database;
 import ru.bmstu.rk9.rdo.lib.DecisionPointSearch;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Database.Entry;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
+
 import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxConstants;
+import com.mxgraph.util.mxRectangle;
+import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxGraph;
 
 public class TreeGrapher extends JFrame {
@@ -96,6 +100,34 @@ public class TreeGrapher extends JFrame {
 
 	ArrayList<Integer> solution = new ArrayList<Integer>();
 
+	private class GraphInfo {
+		double solutionCost;
+		int numOpened;
+		int numNodes;
+	}
+
+	GraphInfo graphInfo = new GraphInfo();
+
+	public void insertInfo(mxGraph graph, GraphInfo info) {
+
+		final String label = "Graph Info\n";
+		String solutionCost = "Solution cost: " + Double.toString(info.solutionCost) + "\n";
+		String numOpened = "Nodes were opened: " + Integer.toString(info.numOpened) + "\n";
+		String numNodes = "Total number of nodes in graph: " + Integer.toString(info.numNodes) + "\n";
+
+		int fontSize = mxConstants.DEFAULT_FONTSIZE;
+
+		int style = Font.PLAIN;
+		Font font = new Font("Arial", style, fontSize);
+		mxRectangle bounds = mxUtils.getSizeForString(numNodes, font, 1.0);
+
+		double width = bounds.getWidth() + 20;
+		double height = 5 * bounds.getHeight() + 20;
+
+		String text = label + "\n" + solutionCost + numOpened + numNodes;
+		graph.insertVertex(graph.getDefaultParent(), null, text, 10, 10, width, height);
+	}
+
 	private void parseSearchEntry(Entry entry) {
 
 		final ByteBuffer header = prepareBufferForReading(entry.getHeader());
@@ -113,7 +145,32 @@ public class TreeGrapher extends JFrame {
 			treeMap.put(treeNode.nodeNumber, treeNode);
 			break;
 		}
-		case END:
+		case END: {
+			final DecisionPointSearch.StopCode endStatus = DecisionPointSearch.StopCode.values()[data.get()];
+			switch (endStatus) {
+			case SUCCESS: {
+				skipPart(data, TypeSize.DOUBLE + TypeSize.LONG * 2);
+				final double finalCost = data.getDouble();
+				final int totalOpened = data.getInt();
+				final int totalNodes = data.getInt();
+				graphInfo.solutionCost = finalCost;
+				graphInfo.numOpened = totalOpened;
+				graphInfo.numNodes = totalNodes;
+				break;
+			}
+			case FAIL: {
+				skipPart(data, TypeSize.DOUBLE + TypeSize.LONG * 2 + TypeSize.DOUBLE);
+				final int totalOpened = data.getInt();
+				final int totalNodes = data.getInt();
+				graphInfo.solutionCost = 0;
+				graphInfo.numOpened = totalOpened;
+				graphInfo.numNodes = totalNodes;
+				break;
+			}
+			default:
+				break;
+			}
+		}
 			break;
 		case OPEN:
 			break;
@@ -189,6 +246,7 @@ public class TreeGrapher extends JFrame {
 			fillTreeNodes();
 			buildTree(graph, treeMap, treeMap.get(0));
 			colorNodes(treeMap);
+			insertInfo(graph, graphInfo);
 		} finally {
 			graph.getModel().endUpdate();
 		}
