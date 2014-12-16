@@ -115,51 +115,38 @@ public class ExecutionHandler extends AbstractHandler
 		{
 			protected IStatus run(IProgressMonitor monitor) 
 			{
-				String name = this.getName();
-				this.setName(name + " (waiting for execution to complete)");
-
-				IJobManager jobMan = Job.getJobManager();
-				try
-				{
-					for (Job j : jobMan.find("rdo_model_run"))
-						if (j != this)
-							j.join();
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-
-				this.setName(name);
-
-				this.setName(name + " (waiting for build to complete)");
-
-				try
-				{
-					build.join();
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-
-				this.setName(name);
-
-				if (build.getResult() != Status.OK_STATUS)
-				{
-					setRunningState(display, sourceProvider, false);
-					RDOConsoleView.addLine("Build failed");
-					return new Status(Status.CANCEL, "ru.bmstu.rk9.rdo.ui", "Execution cancelled");
-				}
-
-				RDOConsoleView.clearConsoleText();
-				SimulationSynchronizer.start();
-
 				URLClassLoader cl = null;
 				Timer uiRealTime = new Timer();
 
 				try
 				{
+					String name = this.getName();
+					this.setName(name + " (waiting for execution to complete)");
+
+					IJobManager jobMan = Job.getJobManager();
+	
+					for (Job j : jobMan.find("rdo_model_run"))
+						if (j != this)
+							j.join();
+
+					this.setName(name);
+
+					this.setName(name + " (waiting for build to complete)");
+
+					build.join();
+
+					this.setName(name);
+
+					if (build.getResult() != Status.OK_STATUS)
+					{
+						setRunningState(display, sourceProvider, false);
+						RDOConsoleView.addLine("Build failed");
+						return new Status(Status.CANCEL, "ru.bmstu.rk9.rdo.ui", "Execution cancelled");
+					}
+
+					RDOConsoleView.clearConsoleText();
+					SimulationSynchronizer.start();
+
 					URL model = new URL("file:///" + ResourcesPlugin.getWorkspace().
 							getRoot().getLocation().toString() + "/" + project.getName() + "/bin/");
 
@@ -270,12 +257,20 @@ public class ExecutionHandler extends AbstractHandler
 
 					RDOConsoleView.addLine("Time elapsed: " +
 						String.valueOf(System.currentTimeMillis() - startTime) + "ms");
+
+					SimulationSynchronizer.finish();
+
+					uiRealTime.cancel();
+
+					cl.close();
+
+					return Status.OK_STATUS;
 				}
 				catch (Exception e)
 				{
+					e.printStackTrace();
 					setRunningState(display, sourceProvider, false);
 					RDOConsoleView.addLine("Execution error");
-					e.printStackTrace();
 					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.updater);
 					SimulationSynchronizer.finish();
 
@@ -293,21 +288,6 @@ public class ExecutionHandler extends AbstractHandler
 
 					return new Status(Status.CANCEL, "ru.bmstu.rk9.rdo.ui", "Execution failed");
 				}
-
-				SimulationSynchronizer.finish();
-
-				uiRealTime.cancel();
-
-				try
-				{
-					cl.close();
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-
-				return Status.OK_STATUS;
 			}
 
 			@Override
