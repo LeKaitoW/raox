@@ -180,13 +180,17 @@ public class SimulationSynchronizer
 			return;
 
 		INSTANCE.simulationScaleManager.timeScale = 60060d / value;
+		INSTANCE.simulationScaleManager.startRealTime = System.currentTimeMillis();
+		INSTANCE.simulationScaleManager.startSimulationTime =
+			Simulator.isRunning() ? Simulator.getTime() : 0;
 	}
 
 	public class SimulationScaleManager implements Subscriber
 	{
 		private volatile double timeScale = 0.3;
 
-		private long startRealTime = System.currentTimeMillis();
+		private long startRealTime;
+		private double startSimulationTime;
 
 		@Override
 		public void fireChange()
@@ -208,21 +212,21 @@ public class SimulationSynchronizer
 
 					case NORMAL_SPEED:
 
-						long realTimeDelta = currentRealTime - startRealTime;
-						long waitTime = (long)(currentSimulationTime * timeScale) - realTimeDelta;
+						long waitTime = (long)((currentSimulationTime - startSimulationTime) * timeScale) -
+							(currentRealTime - startRealTime);
 
 						if(waitTime > 0)
 						{
 							while(executionMode == ExecutionMode.NORMAL_SPEED && waitTime > 0 && !simulationAborted)
 							{
 								delay(waitTime > 50 ? 50 : waitTime);
-								waitTime = (long)(currentSimulationTime * timeScale) + startRealTime -
-									System.currentTimeMillis() - waitTime;
+								waitTime = (long)((currentSimulationTime - startSimulationTime) * timeScale) -
+									(System.currentTimeMillis() - startRealTime);
 							}
 							uiTimeUpdater.actualTimeScale = timeScale;
 						}
 						else
-							uiTimeUpdater.actualTimeScale = ((double)realTimeDelta)/currentSimulationTime;
+							uiTimeUpdater.actualTimeScale = ((double)(currentRealTime - startRealTime))/currentSimulationTime;
 
 						break;
 
