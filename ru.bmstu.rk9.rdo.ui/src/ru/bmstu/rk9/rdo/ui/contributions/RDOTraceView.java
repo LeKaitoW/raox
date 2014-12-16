@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
+import java.util.TimerTask;
+
 import java.util.ArrayList;
 import java.util.EnumMap;
 
@@ -24,6 +26,7 @@ import org.eclipse.ui.part.ViewPart;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.Tracer;
+import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
 
 public class RDOTraceView extends ViewPart
@@ -70,9 +73,19 @@ public class RDOTraceView extends ViewPart
 						shouldFollowOutput = true;
 				}
 			});
+
+		if(Simulator.isInitialized())
+		{
+			ArrayList<TraceOutput> traceList = Simulator.getTracer().getTraceList();
+			RDOTraceView.viewer.setInput(traceList);
+			RDOTraceView.viewer.setItemCount(traceList.size());
+			viewer.refresh();
+		}
 	}
 
 	private static boolean shouldFollowOutput = true;
+
+	private static boolean haveNewRealTimeData = false;
 
 	private static boolean shouldFollowOutput()
 	{
@@ -85,27 +98,41 @@ public class RDOTraceView extends ViewPart
 			@Override
 			public void fireChange()
 			{
-				if (readyForInput())
+				haveNewRealTimeData = true;
+			}
+		};
+
+	public static TimerTask getRealTimeUpdaterTask()
+	{
+		return new TimerTask()
+		{
+			private final Display display = PlatformUI.getWorkbench().getDisplay();
+			private final Runnable updater = new Runnable()
+			{
+				@Override
+				public void run()
 				{
 					final ArrayList<Tracer.TraceOutput> traceList =
 						Simulator.getTracer().getTraceList();
 					final int size = traceList.size();
-					PlatformUI.getWorkbench().getDisplay().asyncExec(
-						new Runnable()
-						{
-							@Override
-							public void run()
-							{
-								RDOTraceView.viewer.setItemCount(size);
-								if (RDOTraceView.shouldFollowOutput())
-									RDOTraceView.viewer.getTable()
-										.setTopIndex(size - 1);
-							}
-						}
-					);
+
+					RDOTraceView.viewer.setItemCount(size);
+					if (RDOTraceView.shouldFollowOutput())
+						RDOTraceView.viewer.getTable().setTopIndex(size - 1);
+				}
+			};
+	
+			@Override
+			public void run()
+			{
+				if (haveNewRealTimeData && readyForInput())
+				{
+					haveNewRealTimeData = false;
+					display.asyncExec(updater);
 				}
 			}
 		};
+	}
 
 	public static final Subscriber commonUpdater =
 		new Subscriber()
@@ -126,6 +153,10 @@ public class RDOTraceView extends ViewPart
 							{
 								RDOTraceView.viewer.setInput(traceList);
 								RDOTraceView.viewer.setItemCount(size);
+
+								if (RDOTraceView.shouldFollowOutput())
+									RDOTraceView.viewer.getTable().setTopIndex(size - 1);
+
 								viewer.refresh();
 							}
 						}

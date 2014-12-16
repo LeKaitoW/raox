@@ -117,6 +117,7 @@ public class ExecutionHandler extends AbstractHandler
 			{
 				URLClassLoader cl = null;
 				Timer uiRealTime = new Timer();
+				Timer traceRealTimeUpdater = new Timer();
 
 				try
 				{
@@ -228,6 +229,13 @@ public class ExecutionHandler extends AbstractHandler
 						100
 					);
 
+					traceRealTimeUpdater.scheduleAtFixedRate
+					(
+						RDOTraceView.getRealTimeUpdaterTask(),
+						0,
+						100
+					);
+
 					LinkedList<Result> results = new LinkedList<Result>();
 					int result = -1; 
 					if (simulation != null)
@@ -261,6 +269,7 @@ public class ExecutionHandler extends AbstractHandler
 					SimulationSynchronizer.finish();
 
 					uiRealTime.cancel();
+					traceRealTimeUpdater.cancel();
 
 					cl.close();
 
@@ -275,6 +284,7 @@ public class ExecutionHandler extends AbstractHandler
 					SimulationSynchronizer.finish();
 
 					uiRealTime.cancel();
+					traceRealTimeUpdater.cancel();
 
 					if(cl != null)
 						try
