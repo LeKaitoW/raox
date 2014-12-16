@@ -36,6 +36,11 @@ public class Simulator
 		return INSTANCE != null;
 	}
 
+	public static boolean isRunning()
+	{
+		return isRunning;
+	}
+
 	public static synchronized void initDatabase(JSONObject modelStructure)
 	{
 		INSTANCE.database = new Database(modelStructure);
