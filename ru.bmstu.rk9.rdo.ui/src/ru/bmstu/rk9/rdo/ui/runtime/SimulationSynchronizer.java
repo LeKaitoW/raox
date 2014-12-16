@@ -83,6 +83,7 @@ public class SimulationSynchronizer
 			public void run()
 			{
 				RDOStatusView.setSimulationTime(Simulator.getTime());
+				RDOStatusView.setActualSimulationScale(60060d / actualTimeScale);
 			}
 		};
 
