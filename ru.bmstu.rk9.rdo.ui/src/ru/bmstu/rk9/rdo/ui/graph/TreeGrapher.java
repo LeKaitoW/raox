@@ -21,9 +21,9 @@ import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxGraph;
 
-public class TreeGrapher extends JFrame {
+public class TreeGrapher {
 
-	private static final long serialVersionUID = 1L;
+	public HashMap<Integer, HashMap<Integer, Node>> mapList = new HashMap<Integer, HashMap<Integer, Node>>();
 
 	public class Node {
 
@@ -87,26 +87,24 @@ public class TreeGrapher extends JFrame {
 		}
 	}
 
-	final static ByteBuffer prepareBufferForReading(final ByteBuffer buffer) {
+	final ByteBuffer prepareBufferForReading(final ByteBuffer buffer) {
 		return (ByteBuffer) buffer.duplicate().rewind();
 	}
 
-	final static void skipPart(final ByteBuffer buffer, final int size) {
+	final void skipPart(final ByteBuffer buffer, final int size) {
 		for (int i = 0; i < size; i++)
 			buffer.get();
 	}
 
-	Map<Integer, Node> treeMap = new HashMap<Integer, Node>();
+	public HashMap<Integer, ArrayList<Integer>> solutionMap = new HashMap<Integer, ArrayList<Integer>>();
 
-	ArrayList<Integer> solution = new ArrayList<Integer>();
-
-	private class GraphInfo {
+	public class GraphInfo {
 		double solutionCost;
 		int numOpened;
 		int numNodes;
 	}
 
-	GraphInfo graphInfo = new GraphInfo();
+	public HashMap<Integer, GraphInfo> infoMap = new HashMap<Integer, GraphInfo>();
 
 	public void insertInfo(mxGraph graph, GraphInfo info) {
 
@@ -128,6 +126,8 @@ public class TreeGrapher extends JFrame {
 		graph.insertVertex(graph.getDefaultParent(), null, text, 10, 10, width, height);
 	}
 
+	private int currentDptNumber = -1;
+
 	private void parseSearchEntry(Entry entry) {
 
 		final ByteBuffer header = prepareBufferForReading(entry.getHeader());
@@ -138,38 +138,45 @@ public class TreeGrapher extends JFrame {
 		final Database.SearchEntryType entryType = Database.SearchEntryType.values()[header.get()];
 		switch (entryType) {
 		case BEGIN: {
+			skipPart(data, TypeSize.DOUBLE);
+			final int dptNumber = data.getInt();
+			currentDptNumber = dptNumber;
+			solutionMap.put(currentDptNumber, new ArrayList<Integer>());
+			mapList.put(currentDptNumber, new HashMap<Integer, Node>());
 			treeNode.parent = null;
 			treeNode.nodeNumber = 0;
-			treeMap.put(treeNode.nodeNumber, null);
+			mapList.get(currentDptNumber).put(treeNode.nodeNumber, null);
 			treeNode.label = Integer.toString(treeNode.nodeNumber);
-			treeMap.put(treeNode.nodeNumber, treeNode);
+			mapList.get(currentDptNumber).put(treeNode.nodeNumber, treeNode);
 			break;
 		}
 		case END: {
 			final DecisionPointSearch.StopCode endStatus = DecisionPointSearch.StopCode.values()[data.get()];
+			infoMap.put(currentDptNumber, new GraphInfo());
 			switch (endStatus) {
 			case SUCCESS: {
 				skipPart(data, TypeSize.DOUBLE + TypeSize.LONG * 2);
 				final double finalCost = data.getDouble();
 				final int totalOpened = data.getInt();
 				final int totalNodes = data.getInt();
-				graphInfo.solutionCost = finalCost;
-				graphInfo.numOpened = totalOpened;
-				graphInfo.numNodes = totalNodes;
+				infoMap.get(currentDptNumber).solutionCost = finalCost;
+				infoMap.get(currentDptNumber).numOpened = totalOpened;
+				infoMap.get(currentDptNumber).numNodes = totalNodes;
 				break;
 			}
 			case FAIL: {
 				skipPart(data, TypeSize.DOUBLE + TypeSize.LONG * 2 + TypeSize.DOUBLE);
 				final int totalOpened = data.getInt();
 				final int totalNodes = data.getInt();
-				graphInfo.solutionCost = 0;
-				graphInfo.numOpened = totalOpened;
-				graphInfo.numNodes = totalNodes;
+				infoMap.get(currentDptNumber).solutionCost = 0;
+				infoMap.get(currentDptNumber).numOpened = totalOpened;
+				infoMap.get(currentDptNumber).numNodes = totalNodes;
 				break;
 			}
 			default:
 				break;
 			}
+			currentDptNumber = -1;
 		}
 			break;
 		case OPEN:
@@ -180,11 +187,11 @@ public class TreeGrapher extends JFrame {
 			case NEW: {
 				final int nodeNumber = data.getInt();
 				final int parentNumber = data.getInt();
-				treeNode.parent = treeMap.get(parentNumber);
-				treeMap.get(parentNumber).children.add(treeNode);
+				treeNode.parent = mapList.get(currentDptNumber).get(parentNumber);
+				mapList.get(currentDptNumber).get(parentNumber).children.add(treeNode);
 				treeNode.nodeNumber = nodeNumber;
 				treeNode.label = Integer.toString(treeNode.nodeNumber);
-				treeMap.put(nodeNumber, treeNode);
+				mapList.get(currentDptNumber).put(nodeNumber, treeNode);
 				break;
 			}
 			case WORSE: {
@@ -193,11 +200,11 @@ public class TreeGrapher extends JFrame {
 			case BETTER: {
 				final int nodeNumber = data.getInt();
 				final int parentNumber = data.getInt();
-				treeNode.parent = treeMap.get(parentNumber);
-				treeMap.get(parentNumber).children.add(treeNode);
+				treeNode.parent = mapList.get(currentDptNumber).get(parentNumber);
+				mapList.get(currentDptNumber).get(parentNumber).children.add(treeNode);
 				treeNode.nodeNumber = nodeNumber;
 				treeNode.label = Integer.toString(treeNode.nodeNumber);
-				treeMap.put(nodeNumber, treeNode);
+				mapList.get(currentDptNumber).put(nodeNumber, treeNode);
 				break;
 			}
 			}
@@ -205,13 +212,13 @@ public class TreeGrapher extends JFrame {
 		}
 		case DECISION: {
 			final int number = data.getInt();
-			solution.add(number);
+			solutionMap.get(currentDptNumber).add(number);
 			break;
 		}
 		}
 	}
 
-	private void buildTree(mxGraph graph, Map<Integer, Node> map, Node parent) {
+	private void buildTree(mxGraph graph, HashMap<Integer, Node> map, Node parent) {
 		mxCell child = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, parent, 385, 100, 30, 30,
 				"fontColor=000000;strokeColor=000000");
 		parent.cell = child;
@@ -225,7 +232,7 @@ public class TreeGrapher extends JFrame {
 
 	final String solutionColor = "fillColor=32CD32;fontColor=000000;strokeColor=000000";
 
-	public void colorNodes(Map<Integer, Node> map) {
+	public void colorNodes(Map<Integer, Node> map, ArrayList<Integer> solution) {
 		if (!solution.isEmpty()) {
 			int lastNodeNumber = solution.get(solution.size() - 1);
 			map.get(lastNodeNumber).cell.setStyle(solutionColor);
@@ -238,35 +245,43 @@ public class TreeGrapher extends JFrame {
 	}
 
 	public TreeGrapher() {
+		fillTreeNodes();
+	}
 
-		final mxGraph graph = new mxGraph();
+	public class Graph extends JFrame {
 
-		graph.getModel().beginUpdate();
-		try {
-			fillTreeNodes();
-			buildTree(graph, treeMap, treeMap.get(0));
-			colorNodes(treeMap);
-			insertInfo(graph, graphInfo);
-		} finally {
-			graph.getModel().endUpdate();
+		private static final long serialVersionUID = 1L;
+
+		public Graph(HashMap<Integer, Node> treeMap, GraphInfo info, ArrayList<Integer> solution) {
+
+			final mxGraph graph = new mxGraph();
+
+			graph.getModel().beginUpdate();
+			try {
+				buildTree(graph, treeMap, treeMap.get(0));
+				colorNodes(treeMap, solution);
+				insertInfo(graph, info);
+			} finally {
+				graph.getModel().endUpdate();
+			}
+
+			mxGraphComponent graphComponent = new mxGraphComponent(graph);
+			graphComponent.setConnectable(false);
+			graphComponent.zoomAndCenter();
+			getContentPane().add(graphComponent);
+
+			mxCompactTreeLayout layout = new mxCompactTreeLayout(graph, false);
+
+			layout.setLevelDistance(30);
+			layout.setNodeDistance(5);
+			layout.setEdgeRouting(false);
+
+			layout.execute(graph.getDefaultParent());
+
+			graph.setCellsEditable(false);
+			graph.setCellsResizable(false);
+			graph.setAllowDanglingEdges(false);
+
 		}
-
-		mxGraphComponent graphComponent = new mxGraphComponent(graph);
-		graphComponent.setConnectable(false);
-		graphComponent.zoomAndCenter();
-		getContentPane().add(graphComponent);
-
-		mxCompactTreeLayout layout = new mxCompactTreeLayout(graph, false);
-
-		layout.setLevelDistance(30);
-		layout.setNodeDistance(5);
-		layout.setEdgeRouting(false);
-
-		layout.execute(graph.getDefaultParent());
-
-		graph.setCellsEditable(false);
-		graph.setCellsResizable(false);
-		graph.setAllowDanglingEdges(false);
-
 	}
 }
