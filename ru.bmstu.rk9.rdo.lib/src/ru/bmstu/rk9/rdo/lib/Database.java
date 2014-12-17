@@ -507,7 +507,7 @@ public class Database
 
 	public static class SearchIndex
 	{		
-		final int number;
+		public final int number;
 
 		private SearchIndex(int number)
 		{
@@ -517,7 +517,7 @@ public class Database
 		ArrayList<SearchInfo> searches = new ArrayList<SearchInfo>();
 	}
 
-	HashMap<String, SearchIndex> searchIndex =
+	public static HashMap<String, SearchIndex> searchIndex =
 		new HashMap<String, SearchIndex>();
 
 	public static enum SearchEntryType

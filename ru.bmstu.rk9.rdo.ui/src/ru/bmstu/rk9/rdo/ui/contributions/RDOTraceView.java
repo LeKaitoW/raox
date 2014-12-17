@@ -3,9 +3,13 @@ package ru.bmstu.rk9.rdo.ui.contributions;
 import java.util.ArrayList;
 import java.util.EnumMap;
 
+import javax.swing.JFrame;
+
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.resource.FontRegistry;
+import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IColorProvider;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILazyContentProvider;
@@ -19,10 +23,14 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import ru.bmstu.rk9.rdo.lib.Database;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.Tracer;
+import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
+import ru.bmstu.rk9.rdo.ui.graph.TreeGrapher;
+import ru.bmstu.rk9.rdo.ui.graph.TreeGrapher.Graph;
 
 public class RDOTraceView extends ViewPart
 {
@@ -55,6 +63,37 @@ public class RDOTraceView extends ViewPart
 		viewer.setUseHashlookup(true);
 		viewer.getTable().setFont(
 			fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
+		
+		
+		viewer.addDoubleClickListener(new IDoubleClickListener() {
+
+			@Override
+			public void doubleClick(DoubleClickEvent e) {
+				
+				TraceOutput traceOutput = (TraceOutput) viewer.getTable().getSelection()[0].getData();
+
+				if (traceOutput.type() == TraceType.SEARCH_BEGIN) {
+					String content = traceOutput.content();
+					int dptNum = -1;
+					for (String dptNameKey : Database.searchIndex.keySet()) {
+						int dotIndex = dptNameKey.indexOf('.');
+						String dptName = dptNameKey.substring(dotIndex + 1);
+						if (content.contains(dptName))
+							dptNum = Database.searchIndex.get(dptNameKey).number;
+					}
+					TreeGrapher tree = new TreeGrapher();
+					if (dptNum != -1) {
+						Graph frame = tree.new Graph(tree.mapList.get(dptNum), tree.infoMap.get(dptNum),
+								tree.solutionMap.get(dptNum));
+						frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+						frame.setSize(800, 600);
+						frame.setLocationRelativeTo(null);
+						frame.setVisible(true);
+						System.out.println(content);
+					}
+				}
+			}
+		});
 	}
 
 	public static RDOTraceUpdater updater = new RDOTraceUpdater();
