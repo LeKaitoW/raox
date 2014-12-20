@@ -23,8 +23,8 @@ import org.eclipse.ui.part.ViewPart;
 
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
-import ru.bmstu.rk9.rdo.lib.Tracer;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
+import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 
 public class RDOTraceView extends ViewPart
 {
@@ -78,18 +78,13 @@ public class RDOTraceView extends ViewPart
 
 	private static boolean shouldFollowOutput = true;
 
-	private static boolean shouldFollowOutput()
-	{
-		return shouldFollowOutput;
-	}
-
 	public static Subscriber realTimeUpdater =
 		new Subscriber()
 		{
 			@Override
 			public void fireChange()
 			{
-				final ArrayList<Tracer.TraceOutput> traceList =
+				final ArrayList<TraceOutput> traceList =
 					Simulator.getTracer().getTraceList();
 				final int size = traceList.size();
 				PlatformUI.getWorkbench().getDisplay().asyncExec(
@@ -101,7 +96,7 @@ public class RDOTraceView extends ViewPart
 							if (!readyForInput())
 								return;
 							RDOTraceView.viewer.setItemCount(size);
-							if (RDOTraceView.shouldFollowOutput())
+							if (RDOTraceView.shouldFollowOutput)
 								RDOTraceView.viewer.getTable()
 									.setTopIndex(size - 1);
 						}
@@ -116,7 +111,7 @@ public class RDOTraceView extends ViewPart
 			@Override
 			public void fireChange()
 			{
-				final ArrayList<Tracer.TraceOutput> traceList =
+				final ArrayList<TraceOutput> traceList =
 					Simulator.getTracer().getTraceList();
 				final int size = traceList.size();
 				PlatformUI.getWorkbench().getDisplay().asyncExec(
@@ -151,7 +146,7 @@ public class RDOTraceView extends ViewPart
 
 class RDOTraceViewContentProvider implements ILazyContentProvider
 {
-	private ArrayList<String> traceList;
+	private ArrayList<TraceOutput> traceList;
 
 	@Override
 	public void dispose() {}
@@ -160,7 +155,7 @@ class RDOTraceViewContentProvider implements ILazyContentProvider
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput)
 	{
-		traceList = (ArrayList<String>) newInput;
+		traceList = (ArrayList<TraceOutput>) newInput;
 	}
 
 	@Override
@@ -172,12 +167,10 @@ class RDOTraceViewContentProvider implements ILazyContentProvider
 	}
 }
 
-//TODO maybe ITableLableProvider is more suitable
-// but since there is only one column, currently there is no difference
 class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 {
-	private final EnumMap<Tracer.TraceType, TraceColor> colorByType =
-		new EnumMap<Tracer.TraceType, TraceColor>(Tracer.TraceType.class);
+	private final EnumMap<TraceType, TraceColor> colorByType =
+		new EnumMap<TraceType, TraceColor>(TraceType.class);
 
 	RDOTraceViewLabelProvider()
 	{
@@ -395,20 +388,20 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 	@Override
 	public String getText(Object element)
 	{
-		return ((Tracer.TraceOutput) element).content();
+		return ((TraceOutput) element).content();
 	}
 
 	@Override
 	public Color getForeground(Object element)
 	{
-		Tracer.TraceType type = ((Tracer.TraceOutput) element).type();
+		TraceType type = ((TraceOutput) element).type();
 		return colorByType.get(type).foregroundColor();
 	}
 
 	@Override
 	public Color getBackground(Object element)
 	{
-		Tracer.TraceType type = ((Tracer.TraceOutput) element).type();
+		TraceType type = ((TraceOutput) element).type();
 		return colorByType.get(type).backgroundColor();
 	}
 }
