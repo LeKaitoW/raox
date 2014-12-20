@@ -247,6 +247,7 @@ public class TreeGrapher {
 			layout.execute(graph.getDefaultParent());
 
 			graph.setCellsEditable(false);
+			graph.setCellsDisconnectable(false);
 			graph.setCellsResizable(false);
 			graph.setAllowDanglingEdges(false);
 
