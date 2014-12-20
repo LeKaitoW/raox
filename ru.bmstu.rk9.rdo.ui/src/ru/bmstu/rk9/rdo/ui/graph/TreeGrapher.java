@@ -10,7 +10,6 @@ import javax.swing.JFrame;
 import ru.bmstu.rk9.rdo.lib.Database;
 import ru.bmstu.rk9.rdo.lib.DecisionPointSearch;
 import ru.bmstu.rk9.rdo.lib.Simulator;
-import ru.bmstu.rk9.rdo.lib.Database.Entry;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 
 import com.mxgraph.layout.mxCompactTreeLayout;
@@ -37,28 +36,10 @@ public class TreeGrapher {
 
 		public String label = "qqq";
 
-		public String style;
-
 		@Override
 		public String toString() {
 			return label;
 		}
-
-		public void addChild(mxCell parent, Node child) {
-			((Node) parent.getValue()).children.add(child);
-			parent.setValue((Node) parent.getValue());
-		}
-
-		public String getColor() {
-
-			return this.cell.getStyle();
-		}
-
-		public void setColor(String color) {
-
-			this.cell.setStyle(color);
-		}
-
 	}
 
 	private final void fillTreeNodes() {
