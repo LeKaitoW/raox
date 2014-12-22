@@ -2,6 +2,8 @@ package ru.bmstu.rk9.rdo.ui.animation;
 
 import java.util.HashMap;
 
+import org.eclipse.swt.SWT;
+
 import org.eclipse.swt.graphics.GC;
 
 import org.eclipse.swt.widgets.Display;
@@ -39,16 +41,24 @@ public class AnimationContextSWT implements AnimationContext
 
 	void drawFrame(GC gc, AnimationFrame frame)
 	{
-		paintContext = gc;
+		Image image = drawFrameBuffer(frame);
 
-		drawBackground(frame.getBackgroundData());
+		gc.drawImage(image, 0, 0);
 
-		frame.draw(this);
-
-		paintContext = null;
+		image.dispose();
 	}
 
 	void storeFrame(AnimationFrame frame)
+	{
+		Image lastStored = storedFrames.get(frame);
+
+		if(lastStored != null)
+			lastStored.dispose();
+
+		storedFrames.put(frame, drawFrameBuffer(frame));
+	}
+
+	private Image drawFrameBuffer(AnimationFrame frame)
 	{
 		int[] backgroundData = frame.getBackgroundData();
 
@@ -58,12 +68,15 @@ public class AnimationContextSWT implements AnimationContext
 		Image image = new Image(display, backgroundRectangle);
 
 		paintContext = new GC(image);
+		paintContext.setAntialias(SWT.ON);
 
 		drawBackground(backgroundData);
 
 		frame.draw(this);
 
-		storedFrames.put(frame, image);
+		paintContext.dispose();
+
+		return image;
 	}
 
 	void restoreFrame(GC gc, AnimationFrame frame)
