@@ -226,7 +226,7 @@ public class RDOAnimationView extends ViewPart
 
 	private static int lastListWidth = InstanceScope.INSTANCE
 		.getNode("ru.bmstu.rk9.rdo.ui")
-			.getInt("AnimationViewFrameListSize", SWT.DEFAULT);
+			.getInt("AnimationViewFrameListSize", 120);
 
 	private static Listener sashListener = new Listener()
 	{
