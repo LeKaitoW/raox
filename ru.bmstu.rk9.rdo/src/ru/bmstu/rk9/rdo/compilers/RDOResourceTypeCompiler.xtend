@@ -164,7 +164,7 @@ class RDOResourceTypeCompiler
 
 			«ENDFOR»
 			«FOR parameter : rtp.parameters»
-				private «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
+				private volatile «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
 
 				public «parameter.type.compileType» get_«parameter.name»()
 				{

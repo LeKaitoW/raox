@@ -5,15 +5,18 @@ import java.util.Collections;
 
 import java.util.Iterator;
 
-import java.util.HashMap;
-import java.util.TreeMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import java.util.SortedMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class ResourceManager<T extends Resource & ResourceComparison<T>>
 {
-	private TreeMap<Integer, T> listResources;
+	private SortedMap<Integer, T> listResources;
 
-	private HashMap<String, T> permanent;
-	private HashMap<Integer, T> temporary;
+	private Map<String, T> permanent;
+	private Map<Integer, T> temporary;
 
 	private Integer resourceNumber;
 
@@ -75,17 +78,17 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 
 	public ResourceManager()
 	{
-		this.permanent = new HashMap<String, T>();
-		this.temporary = new HashMap<Integer, T>();
-		this.listResources = new TreeMap<Integer, T>();
+		this.permanent = new ConcurrentHashMap<String, T>();
+		this.temporary = new ConcurrentHashMap<Integer, T>();
+		this.listResources = new ConcurrentSkipListMap<Integer, T>();
 		this.resourceNumber = 0;
 	}
 
 	private ResourceManager(ResourceManager<T> source)
 	{
-		this.permanent = new HashMap<String, T>(source.permanent);
-		this.temporary = new HashMap<Integer, T>(source.temporary);
-		this.listResources = new TreeMap<Integer, T>(source.listResources);
+		this.permanent = new ConcurrentHashMap<String, T>(source.permanent);
+		this.temporary = new ConcurrentHashMap<Integer, T>(source.temporary);
+		this.listResources = new ConcurrentSkipListMap<Integer, T>(source.listResources);
 		this.resourceNumber = source.resourceNumber;
 	}
 
