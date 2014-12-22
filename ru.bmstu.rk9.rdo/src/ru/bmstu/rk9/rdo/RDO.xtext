@@ -19,7 +19,7 @@ RDOEntity
 	| Function       // FUN-FUN
 	| Pattern        // PAT & EVN
 	| DecisionPoint  // DPT
-//	| Frame          // FRM
+	| Frame          // FRM
 	| Results        // PMD
 	| SimulationRun  // SMR
 ;
@@ -422,6 +422,141 @@ ResultWatchValue:
 
 ResultGetValue:
 	'get_value' expression = ExpressionOr
+;
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+// ==========================================================
+//                      Animation frame
+// ==========================================================
+Frame:
+	'$Frame' name = ID
+	(backpicture = FrameBackPicture)?
+		frame = FrameStatementList
+	'$End'	
+;
+
+FrameBackPicture:
+	'$Back_picture' colour = FrameColour
+	(picture = ProjectFilePath | size = FrameBackPictureSize)
+;
+
+FrameBackPictureSize:
+	width = INT height = INT
+;
+
+FrameColour:
+	'<' r = INT g = INT b = INT (alpha = INT)?'>'
+;
+
+ProjectFilePath:
+	segments += ID (('/'|'\\') segments += ID)*
+;
+
+FrameStatementList returns StatementList:
+	(statements += FrameStatement)+
+;
+
+FrameStatement returns Statement
+	: empty ?= ';'
+	| ExpressionStatement ';'
+	| FrameNestedStatement
+	| LocalVariableDeclaration ';'
+	| FrameIfStatement
+	| FrameForStatement
+	| BreakStatement ';'
+	| ReturnStatement ';'
+	| FrameObject ';'
+;
+
+FrameNestedStatement returns NestedStatement:
+	invoke = '{' statements = FrameStatementList?  '}'
+;
+
+FrameIfStatement returns IfStatement:
+	'if' '(' condition = Expression ')'
+		then = FrameStatement
+	( => 'else'
+		else = FrameStatement
+	)?
+;
+
+FrameForStatement returns ForStatement:
+	'for' '(' 
+	( declaration = LocalVariableDeclaration | init = Expression )? ';'
+	  condition = Expression? ';'
+	  update = Expression? ')'
+	body = FrameStatement
+;
+
+FrameObject
+	: FrameObjectText
+	| FrameObjectRectangle
+	| FrameObjectLine
+	| FrameObjectCircle
+	| FrameObjectEllipse
+	| FrameObjectTriangle
+;
+
+FrameObjectText:
+	'text' '('
+		x = ExpressionOr ',' y = ExpressionOr ','
+		width = ExpressionOr ',' height = ExpressionOr ','
+		backcolour = FrameColour ','
+		textcolour = FrameColour ','
+		(alignment = FrameAlignment)? text = ExpressionOr
+	')'
+;
+
+enum FrameAlignment
+	: LEFT   = '<'
+	| CENTER = '='
+	| RIGHT  = '>'
+;
+
+FrameObjectRectangle:
+	'rect' '('
+		x = ExpressionOr ',' y = ExpressionOr ','
+		width = ExpressionOr ',' height = ExpressionOr ','
+		backcolour = FrameColour ','
+		bordercolour = FrameColour		
+	')'
+;
+
+FrameObjectLine:
+	'line' '('
+		x1 = ExpressionOr ',' y1 = ExpressionOr ','
+		x2 = ExpressionOr ',' y2 = ExpressionOr ','
+		colour = FrameColour ','		
+	')'
+;
+
+FrameObjectCircle:
+	'circle' '('
+		x = ExpressionOr ',' y = ExpressionOr ','
+		radius = ExpressionOr ','
+		backcolour = FrameColour ','
+		bordercolour = FrameColour		
+	')'
+;
+
+FrameObjectEllipse:
+	'ellipse' '('
+		x = ExpressionOr ',' y = ExpressionOr ','
+		width = ExpressionOr ',' height = ExpressionOr ','
+		backcolour = FrameColour ','
+		bordercolour = FrameColour		
+	')'
+;
+
+FrameObjectTriangle:
+	'triang' '('
+		x1 = ExpressionOr ',' y1 = ExpressionOr ','
+		x2 = ExpressionOr ',' y2 = ExpressionOr ','
+		x3 = ExpressionOr ',' y3 = ExpressionOr ','
+		backcolour = FrameColour ','
+		bordercolour = FrameColour		
+	')'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

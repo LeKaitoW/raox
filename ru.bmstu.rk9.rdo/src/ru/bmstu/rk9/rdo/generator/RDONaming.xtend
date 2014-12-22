@@ -38,6 +38,8 @@ import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 
+import ru.bmstu.rk9.rdo.rdo.Frame
+
 import ru.bmstu.rk9.rdo.rdo.Results
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 
@@ -128,6 +130,9 @@ class RDONaming
 			DecisionPoint:
 				return object.name
 
+			Frame:
+				return object.name
+
 			Results:
 				return (if(object.name == null) "*null*" else object.name)
 
@@ -178,6 +183,9 @@ class RDONaming
 				return object.eContainer.nameGeneric + "." + object.name
 
 			DecisionPoint:
+				return object.eContainer.nameGeneric + "." + object.name
+
+			Frame:
 				return object.eContainer.nameGeneric + "." + object.name
 
 			Results:
