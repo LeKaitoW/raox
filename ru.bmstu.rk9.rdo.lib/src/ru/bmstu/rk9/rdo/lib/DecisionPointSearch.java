@@ -131,7 +131,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 	}
 
 	private GraphNode head;
-	private GraphNode current; 
+	private GraphNode current;
 
 	private long memory;
 	private long time;
@@ -339,7 +339,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 		ByteBuffer data = ByteBuffer.allocate
 		(
-			Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 2 + 
+			Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 2 +
 			Database.TypeSize.INTEGER * 4 + Database.TypeSize.LONG * 2
 		);
 

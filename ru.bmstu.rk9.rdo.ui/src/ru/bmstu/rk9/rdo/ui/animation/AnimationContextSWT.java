@@ -42,7 +42,7 @@ public class AnimationContextSWT implements AnimationContext
 		paintContext = gc;
 
 		drawBackground(frame.getBackgroundData());
-		
+
 		frame.draw(this);
 
 		paintContext = null;
@@ -62,7 +62,7 @@ public class AnimationContextSWT implements AnimationContext
 		drawBackground(backgroundData);
 
 		frame.draw(this);
-		
+
 		storedFrames.put(frame, image);
 	}
 
@@ -106,7 +106,7 @@ public class AnimationContextSWT implements AnimationContext
 		paintContext.setAlpha(backgroundColour[3]);
 		paintContext.setBackground(createColour(backgroundColour, 0));
 		paintContext.fillRectangle(x, y, width, height);
-	
+
 		paintContext.setAlpha(borderColour[3]);
 		paintContext.setBackground(createColour(borderColour, 0));
 		paintContext.drawRectangle(x, y, width, height);

@@ -50,7 +50,7 @@ public class ExecutionHandler extends AbstractHandler
 {
 	@Inject
 	private IMultipleResourceGenerator generator;
- 
+
 	@Inject
 	private Provider<EclipseResourceFileSystemAccess2> fileAccessProvider;
 
@@ -119,7 +119,7 @@ public class ExecutionHandler extends AbstractHandler
 
 		final Job run = new Job(project.getName() + " execution")
 		{
-			protected IStatus run(IProgressMonitor monitor) 
+			protected IStatus run(IProgressMonitor monitor)
 			{
 				URLClassLoader cl = null;
 				Timer uiRealTime = new Timer();
@@ -132,7 +132,7 @@ public class ExecutionHandler extends AbstractHandler
 					this.setName(name + " (waiting for execution to complete)");
 
 					IJobManager jobMan = Job.getJobManager();
-	
+
 					for (Job j : jobMan.find("rdo_model_run"))
 						if (j != this)
 							j.join();
@@ -238,11 +238,11 @@ public class ExecutionHandler extends AbstractHandler
 								display.asyncExec
 								(
 									new Runnable()
-									{	
+									{
 										@Override
 										public void run()
 										{
-											RDOStatusView.setRealTime(System.currentTimeMillis() - startTime);	
+											RDOStatusView.setRealTime(System.currentTimeMillis() - startTime);
 										}
 									}
 								);
@@ -267,7 +267,7 @@ public class ExecutionHandler extends AbstractHandler
 					);
 
 					LinkedList<Result> results = new LinkedList<Result>();
-					int result = -1; 
+					int result = -1;
 					if (simulation != null)
 						result = (int)simulation.invoke(null, (Object)results);
 

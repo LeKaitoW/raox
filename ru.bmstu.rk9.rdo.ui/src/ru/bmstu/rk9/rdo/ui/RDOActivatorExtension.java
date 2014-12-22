@@ -78,7 +78,7 @@ public class RDOActivatorExtension extends RDOActivator
 		);
 
 		workbench.addWorkbenchListener(new IWorkbenchListener()
-		{	
+		{
 			@Override
 			public boolean preShutdown(IWorkbench workbench, boolean forced)
 			{
@@ -101,7 +101,7 @@ public class RDOActivatorExtension extends RDOActivator
 							@Override
 							public void run()
 							{
-								result[0] = closeDialog.open(); 
+								result[0] = closeDialog.open();
 							}
 						}
 					);

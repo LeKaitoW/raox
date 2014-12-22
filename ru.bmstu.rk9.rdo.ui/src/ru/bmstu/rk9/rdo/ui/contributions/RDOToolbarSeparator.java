@@ -31,7 +31,7 @@ public class RDOToolbarSeparator extends WorkbenchWindowControlContribution
 
 	    separator = new Label(container, SWT.SEPARATOR);
 	    separator.setLayoutData(gd);
-	    
+
 		return container;
 	}
 }

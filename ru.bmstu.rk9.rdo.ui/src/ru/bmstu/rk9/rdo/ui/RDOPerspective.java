@@ -23,7 +23,7 @@ public class RDOPerspective implements IPerspectiveFactory
 	public void createInitialLayout(IPageLayout factory)
 	{
 		this.factory = factory;
-		
+
 		addAssociatedViews();
 	}
 
@@ -46,7 +46,7 @@ public class RDOPerspective implements IPerspectiveFactory
 			bottomLeft.addView(IPageLayout.ID_OUTLINE);
 			bottomLeft.addView(RDOTraceConfigView.ID);
 
-			
+
 		IFolderLayout bottom =
 				factory.createFolder(
 					"bottom", //NON-NLS-1

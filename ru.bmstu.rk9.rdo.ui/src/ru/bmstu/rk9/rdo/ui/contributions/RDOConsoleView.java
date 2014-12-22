@@ -60,7 +60,7 @@ public class RDOConsoleView extends ViewPart
 		}
 		scrolledComposite.setContent(styledText);
 		scrolledComposite.setMinSize(styledText.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-    
+
 		registerTextFontUpdateListener();
 		updateTextFont();
 	}

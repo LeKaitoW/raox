@@ -83,7 +83,7 @@ public class RDOAnimationView extends ViewPart
 		frameView.redraw();
 	}
 
-	private static AnimationContextSWT animationContext; 
+	private static AnimationContextSWT animationContext;
 
 	private static ArrayList<AnimationFrame> frames;
 	private static AnimationFrame currentFrame;
@@ -101,10 +101,10 @@ public class RDOAnimationView extends ViewPart
 
 			for(AnimationFrame frame : frames)
 				frameList.add(frame.getName());
-	
+
 			frameList.setEnabled(true);
 			frameList.setSelection(selectedFrameIndex);
-	
+
 			setCurrentFrame(frames.get(selectedFrameIndex));
 		}
 		else
@@ -185,7 +185,7 @@ public class RDOAnimationView extends ViewPart
 					}
 				}
 			};
-	
+
 			@Override
 			public void run()
 			{
@@ -299,7 +299,7 @@ public class RDOAnimationView extends ViewPart
 
 		Composite scrolledCompositeInner = new Composite(scrolledComposite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(scrolledCompositeInner);
-		
+
 		Composite frameViewComposite = new Composite(scrolledCompositeInner, SWT.NONE);
 
 		frameSize = GridDataFactory

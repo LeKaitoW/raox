@@ -26,7 +26,7 @@ import ru.bmstu.rk9.rdo.ui.runtime.SimulationSynchronizer;
 
 public class RDOSpeedSelectionToolbar extends WorkbenchWindowControlContribution
 {
-	private static volatile int speedValue; 
+	private static volatile int speedValue;
 
 	public static int getSpeed()
 	{

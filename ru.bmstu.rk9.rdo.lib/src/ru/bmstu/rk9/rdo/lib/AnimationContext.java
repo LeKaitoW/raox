@@ -24,7 +24,7 @@ public interface AnimationContext
 		int[] backgroundColour,
 		int[] borderColour
 	);
-	
+
 	public void drawLine
 	(
 		int x1, int y1,

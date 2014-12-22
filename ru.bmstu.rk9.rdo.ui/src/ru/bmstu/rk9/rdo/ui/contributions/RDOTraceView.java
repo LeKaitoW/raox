@@ -121,7 +121,7 @@ public class RDOTraceView extends ViewPart
 						RDOTraceView.viewer.getTable().setTopIndex(size - 1);
 				}
 			};
-	
+
 			@Override
 			public void run()
 			{

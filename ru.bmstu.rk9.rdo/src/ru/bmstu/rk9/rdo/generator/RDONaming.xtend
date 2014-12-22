@@ -83,7 +83,7 @@ class RDONaming
 		switch object
 		{
 			RDOModel:
-				return object.eResource.resourceName 
+				return object.eResource.resourceName
 
 			ResourceType:
 				return object.name
@@ -271,7 +271,7 @@ class RDONaming
 		if (container instanceof FunctionParameter)
 		{
 			doubleclass = false
-		}		
+		}
 
 		if (isFQN)
 			return container.fullyQualifiedName + (if(doubleclass) ("." + container.nameGeneric) else "")

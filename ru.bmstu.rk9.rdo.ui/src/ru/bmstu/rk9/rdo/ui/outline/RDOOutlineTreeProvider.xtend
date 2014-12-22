@@ -140,7 +140,7 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 
 	// Results
 	def _isLeaf(ResultDeclaration r) { true }
-	
+
 	// Simulation run
 	def _isLeaf(SimulationRun smr) { true }
 }

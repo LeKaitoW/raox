@@ -33,7 +33,7 @@ public class SimulationSynchronizer
 		State state = command.getState("org.eclipse.ui.commands.radioState");
 
 		setState((String)state.getValue());
-		
+
 		setSimulationScale(SetSimulationScaleHandler.getSimulationScale());
 		setSimulationSpeed(RDOSpeedSelectionToolbar.getSpeed());
 	}

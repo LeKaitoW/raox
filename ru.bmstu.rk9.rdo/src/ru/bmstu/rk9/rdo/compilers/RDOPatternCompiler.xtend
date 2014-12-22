@@ -795,7 +795,7 @@ class RDOPatternCompiler
 						instanceResources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 						instanceResources.«r.name».register();
-						
+
 					«ENDFOR»
 
 				«ENDIF»

@@ -259,7 +259,7 @@ public class Database
 
 		final ArrayList<Index> resources;
 	}
-	
+
 	HashMap<String, ResourceTypeIndex> resourceIndex =
 		new HashMap<String, ResourceTypeIndex>();
 
@@ -339,7 +339,7 @@ public class Database
 		if(shouldSerializeToIndex)
 			resourceIndex.entries.add(allEntries.size() - 1);
 	}
-	
+
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                              PATTERN ENTRIES                              /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
@@ -542,7 +542,7 @@ public class Database
 	}
 
 	public static class SearchIndex
-	{		
+	{
 		final int number;
 
 		private SearchIndex(int number)

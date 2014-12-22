@@ -49,7 +49,7 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 			permanent.remove(name);
 		else
 			temporary.remove(number);
-		
+
 		listResources.remove(number);
 	}
 

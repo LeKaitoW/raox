@@ -778,7 +778,7 @@ class RDOValidator extends AbstractRDOValidator
 			val actual = p.type.resolveAllSuchAs
 			if(!(actual instanceof RDOEnum || (actual instanceof RDOInteger && (actual as RDOInteger).range != null)))
 				error("Invalid parameter type. Table function allows enumerative and ranged integer parameters only",
-					p, RdoPackage.eINSTANCE.functionParameter_Type)			
+					p, RdoPackage.eINSTANCE.functionParameter_Type)
 		}
 	}
 
