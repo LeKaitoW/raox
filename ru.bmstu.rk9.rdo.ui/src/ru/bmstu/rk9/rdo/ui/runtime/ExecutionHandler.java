@@ -176,7 +176,7 @@ public class ExecutionHandler extends AbstractHandler
 
 					RDOTraceConfigView.initNames();
 
-					ArrayList<AnimationFrame> frames = new ArrayList<AnimationFrame>();
+					final ArrayList<AnimationFrame> frames = new ArrayList<AnimationFrame>();
 
 					if(initialization != null)
 						initialization.invoke(null, (Object)frames);
