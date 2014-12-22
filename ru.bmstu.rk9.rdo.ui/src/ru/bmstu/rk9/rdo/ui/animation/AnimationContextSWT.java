@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.graphics.Image;
 
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
 
 import org.eclipse.swt.graphics.Rectangle;
 
@@ -198,12 +197,9 @@ public class AnimationContextSWT implements AnimationContext
 		return new Color
 		(
 			display,
-			new RGB
-			(
-				components[offset],
-				components[offset + 1],
-				components[offset + 2]
-			)
+			components[offset],
+			components[offset + 1],
+			components[offset + 2]
 		);
 	}
 }
