@@ -972,6 +972,14 @@
            name="RDO Status"
            restorable="true">
      </view>
+     <view
+           category="ru.bmstu.rk9.rdo.ui.views"
+           class="ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView"
+           icon="icons/run.gif"
+           id="ru.bmstu.rk9.rdo.ui.RDOAnimationView"
+           name="RDO Animation"
+           restorable="true">
+     </view>
   </extension>
 
 </plugin>

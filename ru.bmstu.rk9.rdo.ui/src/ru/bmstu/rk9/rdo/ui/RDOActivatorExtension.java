@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rdo.ui;
 
+import org.osgi.framework.BundleContext;
+
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IExecutionListener;
@@ -7,6 +9,8 @@ import org.eclipse.core.commands.NotHandledException;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+
+import org.eclipse.swt.SWT;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 
@@ -20,12 +24,13 @@ import org.eclipse.ui.commands.ICommandService;
 
 import org.eclipse.ui.services.ISourceProviderService;
 
-import org.osgi.framework.BundleContext;
+import ru.bmstu.rk9.rdo.ui.internal.RDOActivator;
 
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSpeedSelectionToolbar;
+
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceConfigView;
 
-import ru.bmstu.rk9.rdo.ui.internal.RDOActivator;
+import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
 
 import ru.bmstu.rk9.rdo.ui.runtime.ModelExecutionSourceProvider;
 import ru.bmstu.rk9.rdo.ui.runtime.SetSimulationScaleHandler;
@@ -118,6 +123,10 @@ public class RDOActivatorExtension extends RDOActivator
 
 		prefs.putInt("SimulationSpeed", RDOSpeedSelectionToolbar.getSpeed());
 		prefs.putDouble("SimulationScale", SetSimulationScaleHandler.getSimulationScale());
+
+		int animationFrameListSize = RDOAnimationView.getFrameListSize();
+		if(animationFrameListSize != SWT.DEFAULT)
+			prefs.putInt("AnimationViewFrameListSize", animationFrameListSize);
 
 		super.stop(context);
 	}
