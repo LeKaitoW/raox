@@ -16,6 +16,7 @@ import static extension ru.bmstu.rk9.rdo.compilers.RDOFunctionCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOResourceTypeCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOPatternCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDODecisionPointCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.RDOFrameCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOResultCompiler.*
 
 import static extension ru.bmstu.rk9.rdo.RDOQualifiedNameProvider.*
@@ -43,6 +44,8 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 import ru.bmstu.rk9.rdo.rdo.DecisionPointPrior
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
+
+import ru.bmstu.rk9.rdo.rdo.Frame
 
 import ru.bmstu.rk9.rdo.rdo.Results
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
@@ -103,6 +106,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				for (e : resource.allContents.toIterable.filter(typeof(DecisionPointSearch)))
 					fsa.generateFile(filename + "/" + e.name + ".java",	e.compileDecisionPointSearch(filename))
+
+				for (e : resource.allContents.toIterable.filter(typeof(Frame)))
+					fsa.generateFile(filename + "/" + e.name + ".java",	e.compileFrame(filename))
 
 				for (e : resource.allContents.toIterable.filter(typeof(ResultDeclaration)))
 					fsa.generateFile(filename + "/" + (
@@ -218,7 +224,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 		public class Embedded
 		{
-			public static void initSimulation()
+			public static void initSimulation(List<AnimationFrame> frames)
 			{
 				Simulator.initSimulation();
 				Simulator.initDatabase(«project»Model.modelStructure);
@@ -239,6 +245,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«FOR r : rs.resources»
 				«FOR c : r.allContents.filter(typeof(ResultDeclaration)).toIterable»
 					«c.fullyQualifiedName».init();
+				«ENDFOR»
+				«ENDFOR»
+
+				«FOR r : rs.resources»
+				«FOR c : r.allContents.filter(typeof(Frame)).toIterable»
+					frames.add(«c.fullyQualifiedName».INSTANCE);
 				«ENDFOR»
 				«ENDFOR»
 			}
