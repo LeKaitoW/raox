@@ -181,17 +181,7 @@ public class ExecutionHandler extends AbstractHandler
 					if(initialization != null)
 						initialization.invoke(null, (Object)frames);
 
-					display.syncExec
-					(
-						new Runnable()
-						{
-							@Override
-							public void run()
-							{
-								RDOAnimationView.initialize(frames);
-							}
-						}
-					);
+					display.syncExec(() -> RDOAnimationView.initialize(frames));
 
 					Notifier simulatorNotifier =
 						Simulator.getNotifier();
@@ -235,17 +225,8 @@ public class ExecutionHandler extends AbstractHandler
 							@Override
 							public void run()
 							{
-								display.asyncExec
-								(
-									new Runnable()
-									{
-										@Override
-										public void run()
-										{
-											RDOStatusView.setRealTime(System.currentTimeMillis() - startTime);
-										}
-									}
-								);
+								display.asyncExec(() ->
+									RDOStatusView.setRealTime(System.currentTimeMillis() - startTime));
 							}
 						},
 						0,
