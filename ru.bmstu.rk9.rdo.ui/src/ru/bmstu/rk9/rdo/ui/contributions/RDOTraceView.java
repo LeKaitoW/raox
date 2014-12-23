@@ -125,7 +125,7 @@ public class RDOTraceView extends ViewPart
 			@Override
 			public void run()
 			{
-				if (haveNewRealTimeData && readyForInput())
+				if (haveNewRealTimeData && readyForInput() && !display.isDisposed())
 				{
 					haveNewRealTimeData = false;
 					display.asyncExec(updater);
