@@ -200,12 +200,6 @@ class RDOGenerator implements IMultipleResourceGenerator
 					System.out.println("\n   Stopped (no more events)");
 
 				System.out.println("\n   Finished model in " + String.valueOf((System.currentTimeMillis() - startTime)/1000.0) + "s");
-
-				System.out.println("\nResults:");
-				System.out.println("-------------------------------------------------------------------------------");
-				for(Result r : Simulator.getResults())
-					System.out.println(r.get());
-				System.out.println("-------------------------------------------------------------------------------");
 			}
 		}
 		'''
