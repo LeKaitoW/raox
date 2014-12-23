@@ -254,7 +254,7 @@ public class ExecutionHandler extends AbstractHandler
 
 					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.updater);
 
-					RDOAnimationView.deinitialize();
+					display.syncExec(() -> RDOAnimationView.deinitialize());
 
 					setRunningState(display, sourceProvider, false);
 
@@ -295,7 +295,7 @@ public class ExecutionHandler extends AbstractHandler
 					RDOConsoleView.addLine("Execution error");
 					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.updater);
 
-					RDOAnimationView.deinitialize();
+					display.syncExec(() -> RDOAnimationView.deinitialize());
 
 					SimulationSynchronizer.finish();
 

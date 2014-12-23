@@ -135,6 +135,8 @@ public class RDOAnimationView extends ViewPart
 			animationContext.storeFrame(frame);
 
 		isRunning = false;
+
+		frameView.redraw();
 	}
 
 	private static boolean haveNewData = false;
@@ -189,7 +191,7 @@ public class RDOAnimationView extends ViewPart
 			@Override
 			public void run()
 			{
-				if (haveNewData)
+				if (haveNewData && !display.isDisposed())
 					display.asyncExec(updater);
 			}
 		};
