@@ -244,7 +244,7 @@ public class ExecutionHandler extends AbstractHandler
 					(
 						RDOAnimationView.getRedrawTimerTask(),
 						0,
-						40
+						20
 					);
 
 					LinkedList<Result> results = new LinkedList<Result>();
