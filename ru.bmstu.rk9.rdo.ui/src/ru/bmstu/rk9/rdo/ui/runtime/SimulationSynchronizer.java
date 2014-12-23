@@ -2,12 +2,19 @@ package ru.bmstu.rk9.rdo.ui.runtime;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.State;
+
+import org.eclipse.swt.widgets.Display;
+
 import org.eclipse.ui.PlatformUI;
+
 import org.eclipse.ui.commands.ICommandService;
 
 import ru.bmstu.rk9.rdo.lib.Simulator;
+
 import ru.bmstu.rk9.rdo.lib.Subscriber;
+
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSpeedSelectionToolbar;
+
 import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
 
 public class SimulationSynchronizer
@@ -77,14 +84,12 @@ public class SimulationSynchronizer
 		private long lastUpdateTime = System.currentTimeMillis();
 		private double actualTimeScale = 0;
 
-		Runnable updater = new Runnable()
+		private Display display = PlatformUI.getWorkbench().getDisplay();
+
+		Runnable updater = () ->
 		{
-			@Override
-			public void run()
-			{
-				RDOStatusView.setSimulationTime(Simulator.getTime());
-				RDOStatusView.setActualSimulationScale(60060d / actualTimeScale);
-			}
+			RDOStatusView.setSimulationTime(Simulator.getTime());
+			RDOStatusView.setActualSimulationScale(60060d / actualTimeScale);
 		};
 
 		@Override
@@ -94,7 +99,8 @@ public class SimulationSynchronizer
 			if(currentTime - lastUpdateTime > 50)
 			{
 				lastUpdateTime = currentTime;
-				PlatformUI.getWorkbench().getDisplay().asyncExec(updater);
+				if(!display.isDisposed())
+					display.asyncExec(updater);
 			}
 		}
 	}
