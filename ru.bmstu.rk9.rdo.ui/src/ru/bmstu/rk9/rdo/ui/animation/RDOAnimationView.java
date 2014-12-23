@@ -141,15 +141,7 @@ public class RDOAnimationView extends ViewPart
 
 	private static boolean haveNewData = false;
 
-	private static volatile boolean noAnimation;
-	static
-	{
-		ICommandService service = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
-		Command command = service.getCommand("ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode");
-		State state = command.getState("org.eclipse.ui.commands.radioState");
-
-		noAnimation = state.getValue().equals("NA") ? true : false;
-	}
+	private static volatile boolean noAnimation = false;
 
 	public static void disableAnimation(boolean state)
 	{
@@ -253,6 +245,16 @@ public class RDOAnimationView extends ViewPart
 	@Override
 	public void createPartControl(Composite parent)
 	{
+		ICommandService service = (ICommandService)PlatformUI
+			.getWorkbench()
+			.getService(ICommandService.class);
+
+		Command command = service
+			.getCommand("ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode");
+		State state = command.getState("org.eclipse.ui.commands.radioState");
+
+		noAnimation = state.getValue().equals("NA");
+
 		RDOAnimationView.parent = parent;
 
 		GridLayoutFactory
