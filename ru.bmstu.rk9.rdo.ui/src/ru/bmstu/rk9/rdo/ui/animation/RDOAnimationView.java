@@ -136,7 +136,8 @@ public class RDOAnimationView extends ViewPart
 
 		isRunning = false;
 
-		frameView.redraw();
+		if(isInitialized())
+			frameView.redraw();
 	}
 
 	private static boolean haveNewData = false;
