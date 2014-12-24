@@ -131,8 +131,9 @@ public class RDOAnimationView extends ViewPart
 
 	public static void deinitialize()
 	{
-		for(AnimationFrame frame : frames)
-			animationContext.storeFrame(frame);
+		if(frames != null)
+			for(AnimationFrame frame : frames)
+				animationContext.storeFrame(frame);
 
 		isRunning = false;
 
