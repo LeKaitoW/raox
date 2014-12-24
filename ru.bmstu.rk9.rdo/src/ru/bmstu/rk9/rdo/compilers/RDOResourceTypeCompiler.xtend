@@ -124,7 +124,7 @@ class RDOResourceTypeCompiler
 			{
 				managerCurrent.eraseResource(res);
 				lastDeleted = res;
-				notificationManager.notifySubscribers("RESOURCE.DELETED");
+				notificationManager.notifySubscribers("ResourceDeleted");
 			}
 
 			private static «rtp.name» lastDeleted;
@@ -139,7 +139,7 @@ class RDOResourceTypeCompiler
 				(
 					new String[]
 					{
-						"RESOURCE.DELETED"
+						"ResourceDeleted"
 					}
 				);
 
@@ -213,7 +213,7 @@ class RDOResourceTypeCompiler
 			public boolean checkEqual(«rtp.name» other)
 			{
 				«FOR parameter : rtp.parameters»
-					if (this.«parameter.name» != other.«parameter.name»)
+					if (!this.«parameter.name».equals(other.«parameter.name»))
 						return false;
 				«ENDFOR»
 
