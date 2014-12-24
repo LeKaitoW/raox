@@ -32,24 +32,30 @@ class RDOResultCompiler
 
 		import java.nio.ByteBuffer;
 
+		import ru.bmstu.rk9.rdo.lib.json.*;
+
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
 		public class «name» implements Result, Subscriber
 		{
+			private static «name» INSTANCE = new «name»();
+
 			@Override
 			public String getName()
 			{
 				return "«result.fullyQualifiedName»";
 			}
 
-			@Override
-			public Result.Type getType()
-			{
-				return «result.type.compileTypeEnum»;
-			}
+			private JSONObject data = new JSONObject()
+				.put("name", this.getName())
+				.put("type", "«result.type.compileTypeEnum»");
 
-			private static «name» INSTANCE = new «name»();
+			@Override
+			public JSONObject getData()
+			{
+				return data;
+			}
 
 			«result.type.compileResultBody»
 		}
@@ -60,11 +66,11 @@ class RDOResultCompiler
 	{
 		switch(type)
 		{
-			ResultGetValue:       "Result.Type.GET_VALUE"
-			ResultWatchParameter: "Result.Type.WATCH_PAR"
-			ResultWatchQuant:     "Result.Type.WATCH_QUANT"
-			ResultWatchState:     "Result.Type.WATCH_STATE"
-			ResultWatchValue:     "Result.Type.WATCH_VALUE"
+			ResultGetValue:       "get_value"
+			ResultWatchParameter: "watch_par"
+			ResultWatchQuant:     "watch_quant"
+			ResultWatchState:     "watch_state"
+			ResultWatchValue:     "watch_value"
 		}
 	}
 
@@ -73,28 +79,39 @@ class RDOResultCompiler
 		switch type
 		{
 			ResultGetValue:
+			{
+				val expr = type.expression.compileExpression
 				'''
 				public static void init()
 				{
 					Simulator.addResult(INSTANCE);
+
+					INSTANCE.data.put("value_type", "«expr.type.backToRDOType»");
 				}
 
 				@Override
 				public void fireChange() {}
 
 				@Override
-				public String get()
-				{
-					return "«(type.eContainer as ResultDeclaration).name»\t\t|\tType: get_value\t\t|\tValue: " +
-						String.valueOf(«type.expression.compileExpression.value»);
-				}
-
-				@Override
 				public ByteBuffer serialize()
 				{
 					return null;
 				}
+
+				@Override
+				public void calculate()
+				{
+					data.put
+					(
+						"value",
+						String.valueOf
+						(
+							«expr.value»
+						)
+					);
+				}
 				'''
+			}
 			ResultWatchParameter:
 			{
 				val cexpr = type.parameter.lookupGlobal
@@ -103,32 +120,68 @@ class RDOResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 					Simulator.getNotifier().getSubscription("StateChange").addSubscriber(INSTANCE);
+
+					INSTANCE.data.put("value_type", "«cexpr.type.backToRDOType»");
 				}
+
+				private Statistics.WeightedStoreless storelessStats
+					= new Statistics.WeightedStoreless();
+
+				private «cexpr.type.toSimpleType» value;
+
+				private «cexpr.type.toSimpleType» minValue = «cexpr.type».MAX_VALUE;
+				private «cexpr.type.toSimpleType» maxValue = «cexpr.type».MIN_VALUE;
+
+				private int watchCounter;
 
 				@Override
 				public void fireChange()
 				{
-					Simulator.getDatabase().addResultEntry(this);
-				}
+					int newValue = «cexpr.generated»;
 
-				@Override
-				public String get()
-				{
-					return "";
+					if(newValue != value || watchCounter == 0)
+						value = newValue;
+					else
+						return;
+
+					if(value < minValue)
+						minValue = value;
+
+					if(value > maxValue)
+						maxValue = value;
+
+					watchCounter++;
+
+					Simulator.getDatabase().addResultEntry(this);
+
+					storelessStats.next(Simulator.getTime(), value);
 				}
 
 				@Override
 				public ByteBuffer serialize()
 				{
-					«cexpr.type» value = «cexpr.generated»;
-
-					«IF cexpr.type == "String"»byte[] bytes_of_value = value.getBytes();
-					int size = bytes_of_value.length;
-					«ELSE»int size = «cexpr.type.getTypeSize("value")»;
-					«ENDIF»ByteBuffer data = ByteBuffer.allocate(size);
+					ByteBuffer data = ByteBuffer.allocate(«cexpr.type.getTypeConstantSize»);
 					«cexpr.type.compileBufferData»
 
 					return data;
+				}
+
+				@Override
+				public void calculate()
+				{
+					double mean = storelessStats.getMean();
+					double deviation = storelessStats.getStandartDeviation();
+
+					data
+						.put("mean", Double.isFinite(mean) ? mean : "N/A")
+						.put("deviation", Double.isFinite(deviation) ? deviation : "N/A")
+						.put("last", value)
+						.put("min", minValue)
+						.put("max", maxValue)
+						.put("counter", watchCounter);
+
+					if(storelessStats.initFromDatabase(this))
+						data.put("median", storelessStats.getMedian());
 				}
 				'''
 			}
@@ -142,7 +195,7 @@ class RDOResultCompiler
 					Simulator.addResult(INSTANCE);
 					«type.resource.fullyQualifiedName»
 						.getNotifier()
-							.getSubscription("RESOURCE.DELETED")
+							.getSubscription("ResourceDeleted")
 								.addSubscriber(INSTANCE);
 				}
 
@@ -157,25 +210,22 @@ class RDOResultCompiler
 				}
 
 				@Override
-				public String get()
-				{
-					return "";
-				}
-
-				@Override
 				public ByteBuffer serialize()
 				{
 					«type.resource.fullyQualifiedName» deleted = «type.resource.fullyQualifiedName».getLastDeleted();
 
 					«cexpr.type» value = «cexpr.value»;
 
-					«IF cexpr.type == "String"»byte[] bytes_of_value = value.getBytes();
-					int size = bytes_of_value.length;
-					«ELSE»int size = «cexpr.type.getTypeSize("value")»;
-					«ENDIF»ByteBuffer data = ByteBuffer.allocate(size);
+					ByteBuffer data = ByteBuffer.allocate(«cexpr.type.getTypeConstantSize»);
 					«cexpr.type.compileBufferData»
 
 					return data;
+				}
+
+				@Override
+				public void calculate()
+				{
+					
 				}
 				'''
 			}
@@ -196,12 +246,6 @@ class RDOResultCompiler
 				}
 
 				@Override
-				public String get()
-				{
-					return "";
-				}
-
-				@Override
 				public ByteBuffer serialize()
 				{
 					Boolean value = «cexpr.value»;
@@ -210,6 +254,12 @@ class RDOResultCompiler
 					«"Boolean".compileBufferData»
 
 					return data;
+				}
+
+				@Override
+				public void calculate()
+				{
+					
 				}
 				'''
 
@@ -228,12 +278,6 @@ class RDOResultCompiler
 				public void fireChange()
 				{
 					Simulator.getDatabase().addResultEntry(this);
-				}
-
-				@Override
-				public String get()
-				{
-					return "";
 				}
 
 				«IF type.logic != null»
@@ -262,6 +306,12 @@ class RDOResultCompiler
 					data.putInt(count);
 
 					return data;
+				}
+
+				@Override
+				public void calculate()
+				{
+					
 				}
 				'''
 			}

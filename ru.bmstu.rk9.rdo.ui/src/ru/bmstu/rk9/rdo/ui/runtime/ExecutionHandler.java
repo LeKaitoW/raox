@@ -33,6 +33,8 @@ import ru.bmstu.rk9.rdo.IMultipleResourceGenerator;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+import ru.bmstu.rk9.rdo.lib.json.JSONObject;
+
 import ru.bmstu.rk9.rdo.lib.AnimationFrame;
 import ru.bmstu.rk9.rdo.lib.Notifier;
 import ru.bmstu.rk9.rdo.lib.Result;
@@ -272,8 +274,12 @@ public class ExecutionHandler extends AbstractHandler
 
 					if (results.size() > 0)
 						RDOConsoleView.addLine("Results:");
-					for (Result r : results)
-						RDOConsoleView.addLine(r.get());
+
+					for(Result r : results)
+					{
+						r.calculate();
+						RDOConsoleView.addLine(r.getData().toString(2));
+					}
 
 					RDOConsoleView.addLine("Time elapsed: " +
 						String.valueOf(System.currentTimeMillis() - startTime) + "ms");
