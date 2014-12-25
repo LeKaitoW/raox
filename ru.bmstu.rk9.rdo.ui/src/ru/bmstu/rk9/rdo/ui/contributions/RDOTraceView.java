@@ -30,7 +30,7 @@ import ru.bmstu.rk9.rdo.lib.Tracer;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
 import ru.bmstu.rk9.rdo.ui.graph.TreeGrapher;
-import ru.bmstu.rk9.rdo.ui.graph.TreeGrapher.Graph;
+import ru.bmstu.rk9.rdo.ui.graph.Graph;
 
 public class RDOTraceView extends ViewPart
 {
@@ -83,13 +83,12 @@ public class RDOTraceView extends ViewPart
 					}
 					TreeGrapher tree = new TreeGrapher();
 					if (dptNum != -1) {
-						Graph frame = tree.new Graph(tree.mapList.get(dptNum), tree.infoMap.get(dptNum),
+						Graph frame = new Graph(tree.mapList.get(dptNum), tree.infoMap.get(dptNum),
 								tree.solutionMap.get(dptNum));
 						frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 						frame.setSize(800, 600);
 						frame.setLocationRelativeTo(null);
 						frame.setVisible(true);
-						System.out.println(content);
 					}
 				}
 			}

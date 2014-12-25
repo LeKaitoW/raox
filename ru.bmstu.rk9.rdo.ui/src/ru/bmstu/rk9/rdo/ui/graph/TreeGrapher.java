@@ -1,25 +1,16 @@
 package ru.bmstu.rk9.rdo.ui.graph;
 
-import java.awt.Font;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-
-import javax.swing.JFrame;
 import ru.bmstu.rk9.rdo.lib.Database;
 import ru.bmstu.rk9.rdo.lib.DecisionPointSearch;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 
-import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.model.mxCell;
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxConstants;
-import com.mxgraph.util.mxRectangle;
-import com.mxgraph.util.mxUtils;
-import com.mxgraph.view.mxGraph;
 
+//TODO rename class
 public class TreeGrapher {
 
 	public HashMap<Integer, HashMap<Integer, Node>> mapList = new HashMap<Integer, HashMap<Integer, Node>>();
@@ -32,9 +23,9 @@ public class TreeGrapher {
 
 		ArrayList<Node> children = new ArrayList<Node>();
 
-		public int nodeNumber;
+		public int index;
 
-		public String label = "qqq";
+		public String label;
 
 		@Override
 		public String toString() {
@@ -65,10 +56,10 @@ public class TreeGrapher {
 					solutionMap.put(currentDptNumber, new ArrayList<Integer>());
 					mapList.put(currentDptNumber, new HashMap<Integer, Node>());
 					treeNode.parent = null;
-					treeNode.nodeNumber = 0;
-					mapList.get(currentDptNumber).put(treeNode.nodeNumber, null);
-					treeNode.label = Integer.toString(treeNode.nodeNumber);
-					mapList.get(currentDptNumber).put(treeNode.nodeNumber, treeNode);
+					treeNode.index = 0;
+					mapList.get(currentDptNumber).put(treeNode.index, null);
+					treeNode.label = Integer.toString(treeNode.index);
+					mapList.get(currentDptNumber).put(treeNode.index, treeNode);
 					break;
 				}
 				case END: {
@@ -110,8 +101,8 @@ public class TreeGrapher {
 						final int parentNumber = data.getInt();
 						treeNode.parent = mapList.get(currentDptNumber).get(parentNumber);
 						mapList.get(currentDptNumber).get(parentNumber).children.add(treeNode);
-						treeNode.nodeNumber = nodeNumber;
-						treeNode.label = Integer.toString(treeNode.nodeNumber);
+						treeNode.index = nodeNumber;
+						treeNode.label = Integer.toString(treeNode.index);
 						mapList.get(currentDptNumber).put(nodeNumber, treeNode);
 						break;
 					}
@@ -123,8 +114,8 @@ public class TreeGrapher {
 						final int parentNumber = data.getInt();
 						treeNode.parent = mapList.get(currentDptNumber).get(parentNumber);
 						mapList.get(currentDptNumber).get(parentNumber).children.add(treeNode);
-						treeNode.nodeNumber = nodeNumber;
-						treeNode.label = Integer.toString(treeNode.nodeNumber);
+						treeNode.index = nodeNumber;
+						treeNode.label = Integer.toString(treeNode.index);
 						mapList.get(currentDptNumber).put(nodeNumber, treeNode);
 						break;
 					}
@@ -163,94 +154,9 @@ public class TreeGrapher {
 
 	public HashMap<Integer, GraphInfo> infoMap = new HashMap<Integer, GraphInfo>();
 
-	public void insertInfo(mxGraph graph, GraphInfo info) {
-
-		final String label = "Graph Info\n";
-		String solutionCost = "Solution cost: " + Double.toString(info.solutionCost) + "\n";
-		String numOpened = "Nodes were opened: " + Integer.toString(info.numOpened) + "\n";
-		String numNodes = "Total number of nodes in graph: " + Integer.toString(info.numNodes) + "\n";
-
-		int fontSize = mxConstants.DEFAULT_FONTSIZE;
-
-		int style = Font.PLAIN;
-		Font font = new Font("Arial", style, fontSize);
-		mxRectangle bounds = mxUtils.getSizeForString(numNodes, font, 1.0);
-
-		double width = bounds.getWidth() + 20;
-		double height = 5 * bounds.getHeight() + 20;
-
-		String text = label + "\n" + solutionCost + numOpened + numNodes;
-		graph.insertVertex(graph.getDefaultParent(), null, text, 10, 10, width, height);
-	}
-
 	private int currentDptNumber = -1;
-
-	private void buildTree(mxGraph graph, HashMap<Integer, Node> map, Node parent) {
-		mxCell child = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, parent, 385, 100, 30, 30,
-				"fontColor=000000;strokeColor=000000");
-		parent.cell = child;
-		if (parent.parent != null)
-			graph.insertEdge(graph.getDefaultParent(), null, null, parent.parent.cell, child, strokeColor);
-		if (parent.children.size() != 0)
-			for (int i = 0; i < parent.children.size(); i++)
-				buildTree(graph, map, map.get(parent.children.get(i).nodeNumber));
-	}
-
-	final String solutionColor = "fillColor=32CD32;";
-	final String strokeColor = "strokeColor=000000;";
-	final String fontColor = "fontColor=000000;";
-
-	public void colorNodes(Map<Integer, Node> map, ArrayList<Integer> solution) {
-		if (!solution.isEmpty()) {
-			int lastNodeNumber = solution.get(solution.size() - 1);
-			map.get(lastNodeNumber).cell.setStyle(solutionColor + strokeColor + fontColor);
-			int flag = map.get(lastNodeNumber).nodeNumber;
-			do {
-				map.get(flag).parent.cell.setStyle(solutionColor + strokeColor + fontColor);
-				flag = map.get(flag).parent.nodeNumber;
-			} while (map.get(flag).parent != null);
-		}
-	}
 
 	public TreeGrapher() {
 		fillTreeNodes();
-	}
-
-	public class Graph extends JFrame {
-
-		private static final long serialVersionUID = 1L;
-
-		public Graph(HashMap<Integer, Node> treeMap, GraphInfo info, ArrayList<Integer> solution) {
-
-			final mxGraph graph = new mxGraph();
-
-			graph.getModel().beginUpdate();
-			try {
-				buildTree(graph, treeMap, treeMap.get(0));
-				colorNodes(treeMap, solution);
-				insertInfo(graph, info);
-			} finally {
-				graph.getModel().endUpdate();
-			}
-
-			mxGraphComponent graphComponent = new mxGraphComponent(graph);
-			graphComponent.setConnectable(false);
-			graphComponent.zoomAndCenter();
-			getContentPane().add(graphComponent);
-
-			mxCompactTreeLayout layout = new mxCompactTreeLayout(graph, false);
-
-			layout.setLevelDistance(30);
-			layout.setNodeDistance(5);
-			layout.setEdgeRouting(false);
-
-			layout.execute(graph.getDefaultParent());
-
-			graph.setCellsEditable(false);
-			graph.setCellsDisconnectable(false);
-			graph.setCellsResizable(false);
-			graph.setAllowDanglingEdges(false);
-
-		}
 	}
 }
