@@ -6,7 +6,6 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ST;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -30,36 +29,29 @@ public class RDOConsoleView extends ViewPart
 	@Override
 	public void createPartControl(Composite parent)
 	{
-		ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.NONE);
-		scrolledComposite.setExpandHorizontal(true);
-		scrolledComposite.setExpandVertical(true);
-		{
-			styledText = new StyledText(scrolledComposite, SWT.H_SCROLL | SWT.V_SCROLL);
-			styledText.setAlwaysShowScrollBars(false);
-			redrawText();
-			styledText.setEditable(false);
-			styledText.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true));
-			styledText.setLeftMargin(2);
-			styledText.setTopMargin (5);
+		styledText = new StyledText(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		styledText.setAlwaysShowScrollBars(false);
+		redrawText();
+		styledText.setEditable(false);
+		styledText.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true));
+		styledText.setLeftMargin(2);
+		styledText.setTopMargin (5);
 
-			Menu popupMenu = new Menu(styledText);
-			MenuItem copy = new MenuItem(popupMenu, SWT.CASCADE);
-			copy.setText("Copy\tCtrl+C");
-			copy.setAccelerator(SWT.CTRL + 'C');
-			copy.addSelectionListener
-			(
-				new SelectionAdapter()
+		Menu popupMenu = new Menu(styledText);
+		MenuItem copy = new MenuItem(popupMenu, SWT.CASCADE);
+		copy.setText("Copy\tCtrl+C");
+		copy.setAccelerator(SWT.CTRL + 'C');
+		copy.addSelectionListener
+		(
+			new SelectionAdapter()
+			{
+				public void widgetSelected(SelectionEvent event)
 				{
-					public void widgetSelected(SelectionEvent event)
-					{
-						styledText.invokeAction(ST.COPY);
-					}
+					styledText.invokeAction(ST.COPY);
 				}
-			);
-			styledText.setMenu(popupMenu);
-		}
-		scrolledComposite.setContent(styledText);
-		scrolledComposite.setMinSize(styledText.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+			}
+		);
+		styledText.setMenu(popupMenu);
 
 		registerTextFontUpdateListener();
 		updateTextFont();
