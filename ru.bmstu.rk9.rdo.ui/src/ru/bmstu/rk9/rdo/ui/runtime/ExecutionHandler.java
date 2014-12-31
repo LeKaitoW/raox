@@ -33,8 +33,6 @@ import ru.bmstu.rk9.rdo.IMultipleResourceGenerator;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-import ru.bmstu.rk9.rdo.lib.json.JSONObject;
-
 import ru.bmstu.rk9.rdo.lib.AnimationFrame;
 import ru.bmstu.rk9.rdo.lib.Database;
 import ru.bmstu.rk9.rdo.lib.Notifier;
@@ -45,6 +43,7 @@ import ru.bmstu.rk9.rdo.lib.TraceConfig;
 import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
 
 import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceConfigView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
@@ -278,14 +277,10 @@ public class ExecutionHandler extends AbstractHandler
 							RDOConsoleView.addLine("No more events");
 					}
 
-					if (results.size() > 0)
-						RDOConsoleView.addLine("Results:");
-
 					for(Result r : results)
-					{
 						r.calculate();
-						RDOConsoleView.addLine(r.getData().toString(2));
-					}
+
+					display.asyncExec(() -> RDOResultsView.setResults(results));
 
 					RDOConsoleView.addLine("Time elapsed: " +
 						String.valueOf(System.currentTimeMillis() - startTime) + "ms");

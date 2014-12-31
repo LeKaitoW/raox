@@ -980,6 +980,14 @@
            name="RDO Animation"
            restorable="true">
      </view>
+     <view
+           category="ru.bmstu.rk9.rdo.ui.views"
+           class="ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView"
+           icon="icons/clipboard-list.png"
+           id="ru.bmstu.rk9.rdo.ui.RDOResultsView"
+           name="RDO Results"
+           restorable="true">
+     </view>
   </extension>
 
 </plugin>

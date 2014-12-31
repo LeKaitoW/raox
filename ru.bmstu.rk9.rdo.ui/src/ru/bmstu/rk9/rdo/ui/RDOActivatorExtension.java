@@ -26,6 +26,7 @@ import org.eclipse.ui.services.ISourceProviderService;
 
 import ru.bmstu.rk9.rdo.ui.internal.RDOActivator;
 
+import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSpeedSelectionToolbar;
 
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceConfigView;
@@ -127,6 +128,8 @@ public class RDOActivatorExtension extends RDOActivator
 		int animationFrameListSize = RDOAnimationView.getFrameListSize();
 		if(animationFrameListSize != SWT.DEFAULT)
 			prefs.putInt("AnimationViewFrameListSize", animationFrameListSize);
+
+		RDOResultsView.savePreferences();
 
 		super.stop(context);
 	}
