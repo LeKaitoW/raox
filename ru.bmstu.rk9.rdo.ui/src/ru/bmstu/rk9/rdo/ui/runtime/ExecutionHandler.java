@@ -36,9 +36,11 @@ import com.google.inject.Provider;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
 import ru.bmstu.rk9.rdo.lib.AnimationFrame;
+import ru.bmstu.rk9.rdo.lib.Database;
 import ru.bmstu.rk9.rdo.lib.Notifier;
 import ru.bmstu.rk9.rdo.lib.Result;
 import ru.bmstu.rk9.rdo.lib.Simulator;
+import ru.bmstu.rk9.rdo.lib.TraceConfig;
 
 import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
 
@@ -182,6 +184,10 @@ public class ExecutionHandler extends AbstractHandler
 
 					if(initialization != null)
 						initialization.invoke(null, (Object)frames);
+
+					Database database = Simulator.getDatabase();
+					for (String traceName : TraceConfig.getNames())
+						database.addSensitivity(traceName);
 
 					display.syncExec(() -> RDOAnimationView.initialize(frames));
 
