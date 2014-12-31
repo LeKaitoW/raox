@@ -747,9 +747,9 @@ class RDOPatternCompiler
 				«op.name» instance = new «op.name»(Simulator.getTime() + «
 					op.time.compileExpressionContext((new LocalContext).populateFromOperation(op)).value», resources.copyUpdate(), parameters);
 
-				«IF op.relevantresources.filter[t | t.begin.literal == "Erase" || t.end.literal == "Erase"].size > 0»
+				«IF op.relevantresources.filter[t | t.begin.literal == "Erase"].size > 0»
 					// erase resources
-					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Erase" || t.end.literal == "Erase"]»
+					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Erase"]»
 						«(r.type as ResourceType).fullyQualifiedName».eraseResource(resources.«r.name»);
 					«ENDFOR»
 
@@ -800,6 +800,14 @@ class RDOPatternCompiler
 
 				«ENDIF»
 				end.run(instanceResources, parameters);
+
+				«IF op.relevantresources.filter[t | t.end.literal == "Erase"].size > 0»
+					// erase resources
+					«FOR r : op.relevantresources.filter[t | t.end.literal == "Erase"]»
+						«(r.type as ResourceType).fullyQualifiedName».eraseResource(instanceResources.«r.name»);
+					«ENDFOR»
+
+				«ENDIF»
 
 				// database operations
 				db.addEventEntry(Database.PatternType.OPERATION_END, this);
