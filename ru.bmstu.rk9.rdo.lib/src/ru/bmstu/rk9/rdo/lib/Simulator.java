@@ -65,7 +65,7 @@ public class Simulator
 		return INSTANCE.tracer;
 	}
 
-	private double time = 0;
+	private volatile double time = 0;
 
 	public static double getTime()
 	{
