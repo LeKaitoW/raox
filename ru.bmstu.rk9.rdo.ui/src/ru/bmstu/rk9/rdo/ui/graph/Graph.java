@@ -7,8 +7,8 @@ import java.util.Map;
 
 import javax.swing.JFrame;
 
-import ru.bmstu.rk9.rdo.ui.graph.TreeGrapher.GraphInfo;
-import ru.bmstu.rk9.rdo.ui.graph.TreeGrapher.Node;
+import ru.bmstu.rk9.rdo.lib.TreeGrapher.GraphInfo;
+import ru.bmstu.rk9.rdo.lib.TreeGrapher.Node;
 
 import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.model.mxCell;
@@ -20,34 +20,34 @@ import com.mxgraph.view.mxGraph;
 
 public class Graph extends JFrame {
 
-	private static final long serialVersionUID = 1L;
-	
-	private void buildTree(mxGraph graph, HashMap<Integer, Node> map, Node node) {
-		node.cell = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, node, 385, 100, 30, 30,
-				"fontColor=000000;strokeColor=000000");
-		if (node.parent != null)
-			graph.insertEdge(graph.getDefaultParent(), null, null, node.parent.cell, node.cell, strokeColor);
-		if (node.children.size() != 0)
-			for (int i = 0; i < node.children.size(); i++)
-				buildTree(graph, map, map.get(node.children.get(i).index));
+	Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
+
+	private void buildTree(mxGraph graph, HashMap<Integer, Node> nodeMap, Node parentNode) {
+		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, parentNode, 385, 100, 30, 30,
+				fontColor + strokeColor);
+		vertexMap.put(parentNode, vertex);
+		if (parentNode.parent != null)
+			graph.insertEdge(graph.getDefaultParent(), null, null, vertexMap.get(parentNode.parent),
+					vertexMap.get(parentNode), strokeColor);
+		if (parentNode.children.size() != 0)
+			for (int i = 0; i < parentNode.children.size(); i++)
+				buildTree(graph, nodeMap, nodeMap.get(parentNode.children.get(i).index));
 	}
-	
+
 	final String solutionColor = "fillColor=32CD32;";
 	final String strokeColor = "strokeColor=000000;";
 	final String fontColor = "fontColor=000000;";
-	
-	public void colorNodes(Map<Integer, Node> map, ArrayList<Integer> solution) {
+
+	public void colorNodes(Map<Node, mxCell> vertexMap, HashMap<Integer, Node> treeMap, ArrayList<Node> solution) {
 		if (!solution.isEmpty()) {
-			int lastNodeNumber = solution.get(solution.size() - 1);
-			map.get(lastNodeNumber).cell.setStyle(solutionColor + strokeColor + fontColor);
-			int flag = map.get(lastNodeNumber).index;
-			do {
-				map.get(flag).parent.cell.setStyle(solutionColor + strokeColor + fontColor);
-				flag = map.get(flag).parent.index;
-			} while (map.get(flag).parent != null);
+			Node rootNode = treeMap.get(0);
+			vertexMap.get(rootNode).setStyle(solutionColor + fontColor + strokeColor);
+			for (int i = 0; i < solution.size(); i++) {
+				vertexMap.get(solution.get(i)).setStyle(solutionColor + fontColor + strokeColor);
+			}
 		}
 	}
-	
+
 	public void insertInfo(mxGraph graph, GraphInfo info) {
 
 		final String solutionCost = "Solution cost: " + Double.toString(info.solutionCost) + "\n";
@@ -61,23 +61,23 @@ public class Graph extends JFrame {
 		Font font = new Font("Arial", style, fontSize);
 		double scale = 1.0;
 		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
-		
-		final double delta = 20; 
+
+		final double delta = 20;
 
 		double width = bounds.getWidth() + delta;
 		double height = bounds.getHeight() + delta;
 
-		graph.insertVertex(graph.getDefaultParent(), null, text, delta/2, delta/2, width, height);
+		graph.insertVertex(graph.getDefaultParent(), null, text, delta / 2, delta / 2, width, height);
 	}
-	
-	public Graph(HashMap<Integer, Node> treeMap, GraphInfo info, ArrayList<Integer> solution) {
+
+	public Graph(HashMap<Integer, Node> treeMap, GraphInfo info, ArrayList<Node> solution) {
 
 		final mxGraph graph = new mxGraph();
 
 		graph.getModel().beginUpdate();
 		try {
 			buildTree(graph, treeMap, treeMap.get(0));
-			colorNodes(treeMap, solution);
+			colorNodes(vertexMap, treeMap, solution);
 			insertInfo(graph, info);
 		} finally {
 			graph.getModel().endUpdate();

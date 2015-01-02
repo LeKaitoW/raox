@@ -29,7 +29,7 @@ import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.Tracer;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
-import ru.bmstu.rk9.rdo.ui.graph.TreeGrapher;
+import ru.bmstu.rk9.rdo.lib.TreeGrapher;
 import ru.bmstu.rk9.rdo.ui.graph.Graph;
 
 public class RDOTraceView extends ViewPart
