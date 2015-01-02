@@ -43,6 +43,34 @@ public class RDOTraceView extends ViewPart
 	{
 		createViewer(parent);
 	}
+	
+	private TraceOutput upToSearchBegin(ArrayList<TraceOutput> traceList, TraceOutput traceOutput) {
+		int index = traceList.indexOf(traceOutput);
+		for (index--; (traceOutput.type() != TraceType.SEARCH_BEGIN) && (index != 0); index--) {
+			traceOutput = traceList.get(index);
+		}
+		return traceOutput;
+	}
+	
+	private void createWindow(TraceOutput traceOutput) {
+		String content = traceOutput.content();
+		int dptNum = -1;
+		for (String dptNameKey : Database.searchIndex.keySet()) {
+			int dotIndex = dptNameKey.indexOf('.');
+			String dptName = dptNameKey.substring(dotIndex + 1);
+			if (content.contains(dptName))
+				dptNum = Database.searchIndex.get(dptNameKey).number;
+		}
+		TreeGrapher tree = new TreeGrapher();
+		if (dptNum != -1) {
+			Graph frame = new Graph(tree.mapList.get(dptNum), tree.infoMap.get(dptNum), tree.solutionMap
+					.get(dptNum));
+			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			frame.setSize(800, 600);
+			frame.setLocationRelativeTo(null);
+			frame.setVisible(true);
+		}
+	}
 
 	private final void createViewer(Composite parent)
 	{
@@ -71,25 +99,45 @@ public class RDOTraceView extends ViewPart
 			public void doubleClick(DoubleClickEvent e) {
 				
 				TraceOutput traceOutput = (TraceOutput) viewer.getTable().getSelection()[0].getData();
+				final ArrayList<TraceOutput> traceList = Simulator.getTracer().getTraceList();
 
-				if (traceOutput.type() == TraceType.SEARCH_BEGIN) {
-					String content = traceOutput.content();
-					int dptNum = -1;
-					for (String dptNameKey : Database.searchIndex.keySet()) {
-						int dotIndex = dptNameKey.indexOf('.');
-						String dptName = dptNameKey.substring(dotIndex + 1);
-						if (content.contains(dptName))
-							dptNum = Database.searchIndex.get(dptNameKey).number;
-					}
-					TreeGrapher tree = new TreeGrapher();
-					if (dptNum != -1) {
-						Graph frame = new Graph(tree.mapList.get(dptNum), tree.infoMap.get(dptNum),
-								tree.solutionMap.get(dptNum));
-						frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-						frame.setSize(800, 600);
-						frame.setLocationRelativeTo(null);
-						frame.setVisible(true);
-					}
+				switch (traceOutput.type()) {
+				case SEARCH_BEGIN: {
+					createWindow(traceOutput);
+				}
+					break;
+				case SEARCH_OPEN: {
+					traceOutput = upToSearchBegin(traceList, traceOutput);
+					createWindow(traceOutput);
+				}
+					break;
+				case SEARCH_SPAWN_NEW: {
+					traceOutput = upToSearchBegin(traceList, traceOutput);
+					createWindow(traceOutput);
+				}
+					break;
+				case SEARCH_SPAWN_WORSE: {
+					traceOutput = upToSearchBegin(traceList, traceOutput);
+					createWindow(traceOutput);
+				}
+					break;
+				case SEARCH_SPAWN_BETTER: {
+					traceOutput = upToSearchBegin(traceList, traceOutput);
+					createWindow(traceOutput);
+				}
+					break;
+				case SEARCH_DECISION: {
+					traceOutput = upToSearchBegin(traceList, traceOutput);
+					createWindow(traceOutput);
+				}
+					break;
+				case SEARCH_END_SUCCESS: {
+					traceOutput = upToSearchBegin(traceList, traceOutput);
+					createWindow(traceOutput);
+				}
+					break;
+				default:
+					break;
 				}
 			}
 		});
