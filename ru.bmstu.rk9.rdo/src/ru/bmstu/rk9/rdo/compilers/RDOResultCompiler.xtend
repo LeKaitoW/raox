@@ -8,6 +8,9 @@ import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 
 import ru.bmstu.rk9.rdo.generator.LocalContext
 
+import ru.bmstu.rk9.rdo.rdo.ResourceType
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
+
 import ru.bmstu.rk9.rdo.rdo.Results
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 
@@ -88,7 +91,7 @@ class RDOResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 
-					INSTANCE.data.put("valueType", "«expr.type.backToRDOType»");
+					«type.compileValueType(expr)»
 				}
 
 				@Override
@@ -133,7 +136,7 @@ class RDOResultCompiler
 					notifier.getSubscription("ExecutionComplete")
 						.addSubscriber(INSTANCE.finalizer);
 
-					INSTANCE.data.put("valueType", "«expr.type.backToRDOType»");
+					«type.compileValueType(expr)»
 				}
 
 				'''
@@ -158,7 +161,7 @@ class RDOResultCompiler
 					«type.resource.fullyQualifiedName».getNotifier().getSubscription(«""
 						»"ResourceDeleted").addSubscriber(INSTANCE);
 
-					INSTANCE.data.put("valueType", "«expr.type.backToRDOType»");
+					«type.compileValueType(expr)»
 				}
 
 				private Statistics.Storeless storelessStats
@@ -466,5 +469,31 @@ class RDOResultCompiler
 
 		return ""
 
+	}
+
+	def private static compileValueType(ResultType result, RDOExpression expr)
+	{
+		if(expr.type.endsWith("_enum"))
+			'''
+			INSTANCE.data
+				.put("valueType", "enum")
+				.put("enum_origin", "«expr.type.substring(0, expr.type.length - 5)»")
+				.put
+				(
+					"enums", new JSONArray()
+						«FOR e : ((result.modelRoot.eAllContents.findFirst
+							[r | r instanceof ResourceType && (r as ResourceType).fullyQualifiedName
+								== expr.type.substring(0, expr.type.lastIndexOf('.'))] as ResourceType)
+									.parameters.findFirst[p | p.name == expr.type.substring(
+										expr.type.lastIndexOf('.') + 1, expr.type.length - 5)]
+											.type as RDORTPParameterEnum).type.enums»
+							.put("«e.name»")
+						«ENDFOR»
+				);
+			'''
+		else
+		'''
+		INSTANCE.data.put("valueType", "«expr.type.backToRDOType»");
+		'''
 	}
 }
