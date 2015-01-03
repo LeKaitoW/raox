@@ -124,6 +124,45 @@ public class ModelStructureHelper
 			);
 	}
 
+	final static JSONObject getEnumOrigin(String enumOrigin)
+	{
+		JSONObject originParam = null;
+
+		String typeName =
+			enumOrigin.substring(0, enumOrigin.lastIndexOf("."));
+		String paramName =
+			enumOrigin.substring(enumOrigin.lastIndexOf(".") + 1);
+
+		JSONArray resourceTypes =
+			Simulator.getDatabase().getModelStructure()
+			.getJSONArray("resource_types");
+		JSONObject originType = null;
+		for (int num = 0; num < resourceTypes.length(); num++)
+		{
+			JSONObject curType = resourceTypes.getJSONObject(num);
+			if (typeName.equals(curType.getString("name")))
+			{
+				originType = curType;
+				break;
+			}
+		}
+
+		JSONArray originParams =
+			originType.getJSONObject(
+				"structure").getJSONArray("parameters");
+		for (int num = 0; num < originParams.length(); num++)
+		{
+			JSONObject curParam = originParams.getJSONObject(num);
+			if (paramName.equals(curParam.getString("name")))
+			{
+				originParam = curParam;
+				break;
+			}
+		}
+
+		return originParam;
+	}
+
 	public final static String getRelativeName(final String fullName)
 	{
 		return fullName.substring(fullName.lastIndexOf(".") + 1);
@@ -145,38 +184,8 @@ class ValueInfo
 			}
 			else
 			{
-				String enumOrigin = param.getString("enum_origin");
-				String typeName =
-					enumOrigin.substring(0, enumOrigin.lastIndexOf("."));
-				String paramName =
-					enumOrigin.substring(enumOrigin.lastIndexOf(".") + 1);
-
-				JSONArray resourceTypes =
-					Simulator.getDatabase().getModelStructure()
-					.getJSONArray("resource_types");
-				JSONObject originType = null;
-				for (int num = 0; num < resourceTypes.length(); num++)
-				{
-					JSONObject curType = resourceTypes.getJSONObject(num);
-					if (typeName.equals(curType.getString("name")))
-					{
-						originType = curType;
-						break;
-					}
-				}
-
-				JSONArray originParams =
-					originType.getJSONObject(
-						"structure").getJSONArray("parameters");
-				for (int num = 0; num < originParams.length(); num++)
-				{
-					JSONObject curParam = originParams.getJSONObject(num);
-					if (paramName.equals(curParam.getString("name")))
-					{
-						originParam = curParam;
-						break;
-					}
-				}
+				String enumOriginName = param.getString("enum_origin");
+				originParam = ModelStructureHelper.getEnumOrigin(enumOriginName);
 			}
 
 			JSONArray enums = originParam.getJSONArray("enums");
@@ -313,10 +322,29 @@ class ResultInfo
 	ResultInfo(final JSONObject result)
 	{
 		name = ModelStructureHelper.getRelativeName(result.getString("name"));
-		valueType = ModelStructureHelper.ValueType.get
-			(result.getString("value_type"));
+		String valueTypeRaw = result.getString("value_type");
+		if (valueTypeRaw.contains("_enum"))
+		{
+			valueType = ModelStructureHelper.ValueType.ENUM;
+			enumNames = new HashMap<Integer, String>();
+			String enumOriginName =
+				valueTypeRaw.substring(0, valueTypeRaw.lastIndexOf("_"));
+			JSONObject originParam =
+				ModelStructureHelper.getEnumOrigin(enumOriginName);
+
+			JSONArray enums = originParam.getJSONArray("enums");
+			for (int num = 0; num < enums.length(); num++)
+				enumNames.put(num, enums.getString(num));
+		}
+		else
+		{
+			valueType = ModelStructureHelper.ValueType.get
+				(result.getString("value_type"));
+			enumNames = null;
+		}
 	}
 
 	final String name;
 	final ModelStructureHelper.ValueType valueType;
+	final HashMap<Integer, String> enumNames;
 }

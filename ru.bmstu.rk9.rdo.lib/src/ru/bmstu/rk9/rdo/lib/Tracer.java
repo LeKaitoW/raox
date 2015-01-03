@@ -655,17 +655,17 @@ public class Tracer implements Subscriber
 				.add(time)
 				.add(resultInfo.name)
 				.add("=")
-				.add(parseResultParameter(data, resultInfo.valueType))
+				.add(parseResultParameter(data, resultInfo))
 				.getString()
 			);
 	}
 
 	protected String parseResultParameter(
 		final ByteBuffer data,
-		final ModelStructureHelper.ValueType valueType
+		final ResultInfo resultInfo
 	)
 	{
-		switch(valueType)
+		switch(resultInfo.valueType)
 		{
 		case INTEGER:
 			return String.valueOf(data.getInt());
@@ -674,7 +674,9 @@ public class Tracer implements Subscriber
 		case BOOLEAN:
 			return String.valueOf(data.get() != 0);
 		case ENUM:
-			return String.valueOf(data.getShort());
+			return String.valueOf(
+				resultInfo.enumNames.get((int) data.getShort())
+			);
 		case STRING:
 			final ByteArrayOutputStream rawString = new ByteArrayOutputStream();
 			while (data.hasRemaining())

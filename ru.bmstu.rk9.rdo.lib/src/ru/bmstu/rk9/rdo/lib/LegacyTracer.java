@@ -627,8 +627,7 @@ public class LegacyTracer extends Tracer
 		final double time = header.getDouble();
 		final int resultNum = header.getInt();
 
-		final ModelStructureHelper.ValueType valueType =
-			resultsInfo.get(resultNum).valueType;
+		final ResultInfo resultInfo = resultsInfo.get(resultNum);
 
 		return
 			new TraceOutput(
@@ -638,32 +637,32 @@ public class LegacyTracer extends Tracer
 				.add(checkIntegerValuedReal(time))
 				.add(resultNum + 1)
 				.add("")
-				.add(parseResultParameter(data, valueType))
+				.add(parseResultParameter(data, resultInfo))
 				.getString()
 			);
 	}
 
 	@Override
 	protected final String parseResultParameter(
-		final ByteBuffer resultData,
-		final ModelStructureHelper.ValueType valueType
+		final ByteBuffer data,
+		final ResultInfo resultInfo
 	)
 	{
-		switch(valueType)
+		switch(resultInfo.valueType)
 		{
 		case INTEGER:
-			return String.valueOf(resultData.getInt());
+			return String.valueOf(data.getInt());
 		case REAL:
-			return checkIntegerValuedReal(resultData.getDouble());
+			return checkIntegerValuedReal(data.getDouble());
 		case BOOLEAN:
-			return legacyBooleanString(resultData.get() != 0);
+			return legacyBooleanString(data.get() != 0);
 		case ENUM:
-			return String.valueOf(resultData.getShort());
+			return String.valueOf(data.getShort());
 		case STRING:
 			final ByteArrayOutputStream rawString = new ByteArrayOutputStream();
-			while (resultData.hasRemaining())
+			while (data.hasRemaining())
 			{
-				rawString.write(resultData.get());
+				rawString.write(data.get());
 			}
 			return rawString.toString();
 		default:
