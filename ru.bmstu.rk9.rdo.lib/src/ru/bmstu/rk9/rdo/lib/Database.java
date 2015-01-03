@@ -56,6 +56,10 @@ public class Database
 			ResourceTypeIndex index =
 				new ResourceTypeIndex(i, resourceType.getJSONObject("structure"));
 			resourceIndex.put(name, index);
+
+			JSONArray resources = resourceType.getJSONArray("resources");
+			for(int j = 0; j < resources.length(); j++)
+				index.resources.add(new Index(j));
 		}
 
 		JSONArray results = modelStructure.getJSONArray("results");
