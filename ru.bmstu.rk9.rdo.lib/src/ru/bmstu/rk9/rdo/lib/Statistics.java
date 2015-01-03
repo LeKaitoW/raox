@@ -48,7 +48,7 @@ public class Statistics
 			if(resultIndex != null && resultIndex.entries.size() > 0)
 			{
 				Function<Integer, Double> getValue =
-					result.getData().getString("value_type").equals("real")
+					result.getData().getString("valueType").equals("real")
 						? i -> database.allEntries.get(i).data.getDouble(0)
 						: i -> (double)database.allEntries.get(i).data.getInt(0);
 
@@ -153,7 +153,7 @@ public class Statistics
 			if(resultIndex != null && resultIndex.entries.size() > 0)
 			{
 				Function<Integer, Double> getValue =
-					result.getData().getString("value_type").equals("real")
+					result.getData().getString("valueType").equals("real")
 						? i -> database.allEntries.get(i).data.getDouble(0)
 						: i -> (double)database.allEntries.get(i).data.getInt(0);
 
@@ -187,8 +187,8 @@ public class Statistics
 					tempSum -= weight;
 				}
 
-				double value = getValue.apply(number);
-				double previous = getValue.apply(previousN);
+				double value = getValue.apply(resultIndex.entries.get(number));
+				double previous = getValue.apply(resultIndex.entries.get(previousN));
 
 				median = 2d * (value - previous) / (weight + previousW) *
 					((previousW / 2 + weight) - (weightSum / 2 - tempSum)) + previous;
