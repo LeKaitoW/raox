@@ -56,6 +56,10 @@ public class Database
 			ResourceTypeIndex index =
 				new ResourceTypeIndex(i, resourceType.getJSONObject("structure"));
 			resourceIndex.put(name, index);
+
+			JSONArray resources = resourceType.getJSONArray("resources");
+			for(int j = 0; j < resources.length(); j++)
+				index.resources.add(new Index(j));
 		}
 
 		JSONArray results = modelStructure.getJSONArray("results");
@@ -72,7 +76,7 @@ public class Database
 			JSONObject patternStructure = patterns.getJSONObject(i);
 			String name = patternStructure.getString("name");
 			String type = patternStructure.getString("type");
-			if(type == "event")
+			if(type.equals("event"))
 				eventIndex.put(name, new PatternIndex(i, patternStructure));
 			else
 				patternsByName.put(name, patternStructure);
@@ -111,9 +115,6 @@ public class Database
 		}
 
 		addSystemEntry(SystemEntryType.TRACE_START);
-
-		for (String traceName : TraceConfig.getNames())
-			addSensitivity(traceName);
 	}
 
 	JSONObject modelStructure;
@@ -259,7 +260,7 @@ public class Database
 
 		final ArrayList<Index> resources;
 	}
-	
+
 	HashMap<String, ResourceTypeIndex> resourceIndex =
 		new HashMap<String, ResourceTypeIndex>();
 
@@ -339,7 +340,7 @@ public class Database
 		if(shouldSerializeToIndex)
 			resourceIndex.entries.add(allEntries.size() - 1);
 	}
-	
+
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                              PATTERN ENTRIES                              /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
@@ -542,7 +543,7 @@ public class Database
 	}
 
 	public static class SearchIndex
-	{		
+	{
 		final int number;
 
 		private SearchIndex(int number)

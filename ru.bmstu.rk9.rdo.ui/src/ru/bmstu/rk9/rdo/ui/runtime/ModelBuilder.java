@@ -61,7 +61,7 @@ public class ModelBuilder
 		return URI.createPlatformResourceURI(res.getProject().getName()
 			+ "/" + res.getProjectRelativePath(), true);
 	}
-	
+
 	public static ArrayList<IResource> getAllRDOFilesInProject(IProject project)
 	{
 		ArrayList<IResource> allRDOFiles = new ArrayList<IResource>();
@@ -69,7 +69,7 @@ public class ModelBuilder
 		recursiveFindRDOFiles(allRDOFiles,path,ResourcesPlugin.getWorkspace().getRoot());
 		return allRDOFiles;
 	}
-	
+
 	private static void recursiveFindRDOFiles(ArrayList<IResource> allRDOFiles,IPath path, IWorkspaceRoot workspaceRoot)
 	{
 		IContainer container = workspaceRoot.getContainerForLocation(path);
@@ -93,7 +93,7 @@ public class ModelBuilder
 			e.printStackTrace();
 		}
 	}
-	
+
 	static IProject getProject(IEditorPart activeEditor)
 	{
 		IFile file = (IFile) activeEditor.getEditorInput().getAdapter(IFile.class);
@@ -232,11 +232,11 @@ public class ModelBuilder
 		 				outputConfigurations.put(oc.getName(), oc);
 
 		 			fsa.setOutputConfigurations(outputConfigurations);
-		 			
+
 		 			final ResourceSet resourceSet = resourceSetProvider.get(project);
-		 			
+
 		 			boolean projectHasErrors = false;
-		 			
+
 		 			for (IResource res : projectFiles)
 		 			{
 		 				Resource loadedResource = resourceSet.getResource(getURI(res), true);
@@ -246,7 +246,7 @@ public class ModelBuilder
 
 		 			if (calculateCompilationErrorMarkers(project).length > 0)
 		 				projectHasErrors = true;
-		 			
+
 		 			if (projectHasErrors)
 		 			{
 		 				try
@@ -280,6 +280,6 @@ public class ModelBuilder
 		};
 
 		job.setPriority(Job.BUILD);
-		return job;		
+		return job;
 	}
 }

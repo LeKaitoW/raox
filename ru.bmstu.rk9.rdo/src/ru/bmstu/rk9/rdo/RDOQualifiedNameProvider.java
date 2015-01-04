@@ -6,10 +6,10 @@ import org.eclipse.xtext.naming.QualifiedName;
 import ru.bmstu.rk9.rdo.rdo.RDOModel;
 
 public class RDOQualifiedNameProvider extends DefaultDeclarativeQualifiedNameProvider{
-	
+
 	public static String filenameFromURI(RDOModel e)
 	{
-		if (e == null) return ""; 
+		if (e == null) return "";
 
 		String name = e.eResource().getURI().lastSegment();
 		if (name.endsWith(".rdo"))
@@ -18,7 +18,7 @@ public class RDOQualifiedNameProvider extends DefaultDeclarativeQualifiedNamePro
 
 		return name;
 	}
-	
+
 	QualifiedName qualifiedName(RDOModel e)
 	{
 		return QualifiedName.create(filenameFromURI(e));

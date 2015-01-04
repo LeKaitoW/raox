@@ -36,6 +36,11 @@ public class Simulator
 		return INSTANCE != null;
 	}
 
+	public static boolean isRunning()
+	{
+		return isRunning;
+	}
+
 	public static synchronized void initDatabase(JSONObject modelStructure)
 	{
 		INSTANCE.database = new Database(modelStructure);
@@ -60,7 +65,7 @@ public class Simulator
 		return INSTANCE.tracer;
 	}
 
-	private double time = 0;
+	private volatile double time = 0;
 
 	public static double getTime()
 	{

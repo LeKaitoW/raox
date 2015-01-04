@@ -105,6 +105,11 @@ class RDOResourceTypeCompiler
 				return managerCurrent.getResource(name);
 			}
 
+			public static «rtp.name» getResource(int number)
+			{
+				return managerCurrent.getResource(number);
+			}
+
 			public static java.util.Collection<«rtp.name»> getAll()
 			{
 				return managerCurrent.getAll();
@@ -119,7 +124,7 @@ class RDOResourceTypeCompiler
 			{
 				managerCurrent.eraseResource(res);
 				lastDeleted = res;
-				notificationManager.notifySubscribers("RESOURCE.DELETED");
+				notificationManager.notifySubscribers("ResourceDeleted");
 			}
 
 			private static «rtp.name» lastDeleted;
@@ -132,9 +137,9 @@ class RDOResourceTypeCompiler
 			private static NotificationManager notificationManager =
 				new NotificationManager
 				(
-					new String[] 
+					new String[]
 					{
-						"RESOURCE.DELETED"
+						"ResourceDeleted"
 					}
 				);
 
@@ -159,7 +164,7 @@ class RDOResourceTypeCompiler
 
 			«ENDFOR»
 			«FOR parameter : rtp.parameters»
-				private «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
+				private volatile «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
 
 				public «parameter.type.compileType» get_«parameter.name»()
 				{
@@ -208,7 +213,7 @@ class RDOResourceTypeCompiler
 			public boolean checkEqual(«rtp.name» other)
 			{
 				«FOR parameter : rtp.parameters»
-					if (this.«parameter.name» != other.«parameter.name»)
+					if (!this.«parameter.name».equals(other.«parameter.name»))
 						return false;
 				«ENDFOR»
 
@@ -264,20 +269,20 @@ class RDOResourceTypeCompiler
 		val parameters = rtp.parameters
 		var offset = 0
 		var chunkindex = 1;
-		
+
 		var cparams = ""
 		for(p : parameters)
 		{
 			val type = p.compileType
 			var ctype = ""
-			
+
 			val coffset = ".put(\"offset\", " + offset + ")"
 			val cchunk = ".put(\"index\", " + chunkindex + ")"
 			var depth = 0
 			var ischunk = false
 			var isenum = false
 			var enums = ""
-			
+
 			if(type == "Integer")
 			{
 				ctype = "integer"
@@ -348,7 +353,7 @@ class RDOResourceTypeCompiler
 				}
 				depth = p.arrayDepth
 				chunkindex = chunkindex + 1
-				ctype = "array\")\n.put(\"array_type\", \"" + ctype 
+				ctype = "array\")\n.put(\"array_type\", \"" + ctype
 			}
 			if(type == "String")
 			{
@@ -387,7 +392,7 @@ class RDOResourceTypeCompiler
 					«cparams»
 			)
 			.put("last_offset", «offset»)'''
-		
+
 	}
 
 	def private static String compileBufferCalculation(Iterable<ResourceTypeParameter> parameters)
@@ -581,7 +586,7 @@ class RDOResourceTypeCompiler
 
 			for(i : 0 ..< depth - 1)
 			{
-				ret = ret + (depth - i - 1).TABS + "}\n" + 
+				ret = ret + (depth - i - 1).TABS + "}\n" +
 					if(i < depth - 2) (depth - i - 1).TABS + "stack.removeLast();\n" else ""
 			}
 

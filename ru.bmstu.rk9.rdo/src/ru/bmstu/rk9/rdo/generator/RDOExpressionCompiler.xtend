@@ -583,7 +583,7 @@ class RDOExpressionCompiler
 		if(info.functions.get(next.call) != null && !iter.hasNext)
 		{
 			gcall = gcall + "." + next.call + ".evaluate("
-			
+
 			val fun = info.functions.get(next.call).origin
 			val params = switch fun.type
 			{
@@ -592,9 +592,9 @@ class RDOExpressionCompiler
 				FunctionTable:
 					(fun.type as FunctionTable).parameters
 				FunctionList:
-					(fun.type as FunctionList).parameters		
+					(fun.type as FunctionList).parameters
 			}
-			
+
 			if(next.args != null && params != null && params.parameters.size == next.args.values.size)
 			{
 				var flag = false
@@ -607,10 +607,10 @@ class RDOExpressionCompiler
 								populateWithEnums(params.parameters.get(i).type.resolveAllSuchAs as RDOEnum)).value
 						else
 							a.compileExpression.value
-					i = i + 1 
+					i = i + 1
 					flag = true
 				}
-				
+
 			}
 			return new LocalContext.ContextEntry(gcall + ")", info.functions.get(next.call).type)
 		}

@@ -1,7 +1,9 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.nio.ByteBuffer;
+
 import java.util.Iterator;
+
 import java.util.List;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
@@ -129,7 +131,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 	}
 
 	private GraphNode head;
-	private GraphNode current; 
+	private GraphNode current;
 
 	private long memory;
 	private long time;
@@ -284,41 +286,43 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 								}
 					}
 					children.add(newChild);
+
+					int[] relevantResources = newChild.activityInfo.rule.getRelevantInfo();
+
+					if (enoughSensitivity(SerializationLevel.TOPS))
+					{
+						ByteBuffer data = ByteBuffer.allocate
+						(
+							Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 3 +
+							Database.TypeSize.INTEGER * (3 + relevantResources.length)
+						);
+
+						data
+							.put((byte)spawnStatus.ordinal())
+							.putInt(newChild.number)
+							.putInt(parent.number)
+							.putDouble(newChild.g)
+							.putDouble(newChild.h)
+							.putInt(i)
+							.putDouble(value);
+
+						for(int relres : relevantResources)
+							data.putInt(relres);
+
+						Simulator.getDatabase().addSearchEntry(
+							this, Database.SearchEntryType.SPAWN, data);
+					}
+
+					if (enoughSensitivity(SerializationLevel.ALL))
+					{
+						executed.addResourceEntriesToDatabase(
+							Pattern.ExecutedFrom.SEARCH);
+					}
+
 					totalAdded++;
 				}
 				parent.state.deploy();
 
-				int[] relevantResources = newChild.activityInfo.rule.getRelevantInfo();
-
-				if (enoughSensitivity(SerializationLevel.TOPS))
-				{
-					ByteBuffer data = ByteBuffer.allocate
-					(
-						Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 3 +
-						Database.TypeSize.INTEGER * (3 + relevantResources.length)
-					);
-
-					data
-						.put((byte)spawnStatus.ordinal())
-						.putInt(newChild.number)
-						.putInt(parent.number)
-						.putDouble(newChild.g)
-						.putDouble(newChild.h)
-						.putInt(i)
-						.putDouble(value);
-
-					for(int relres : relevantResources)
-						data.putInt(relres);
-
-					Simulator.getDatabase().addSearchEntry(
-						this, Database.SearchEntryType.SPAWN, data);
-				}
-
-				if (enoughSensitivity(SerializationLevel.ALL))
-				{
-					executed.addResourceEntriesToDatabase(
-						Pattern.ExecutedFrom.SEARCH);
-				}
 			}
 		}
 		return children;
@@ -335,7 +339,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 		ByteBuffer data = ByteBuffer.allocate
 		(
-			Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 2 + 
+			Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 2 +
 			Database.TypeSize.INTEGER * 4 + Database.TypeSize.LONG * 2
 		);
 

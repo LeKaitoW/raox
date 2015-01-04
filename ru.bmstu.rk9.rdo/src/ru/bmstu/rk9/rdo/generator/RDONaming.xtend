@@ -38,6 +38,8 @@ import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 
+import ru.bmstu.rk9.rdo.rdo.Frame
+
 import ru.bmstu.rk9.rdo.rdo.Results
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 
@@ -81,7 +83,7 @@ class RDONaming
 		switch object
 		{
 			RDOModel:
-				return object.eResource.resourceName 
+				return object.eResource.resourceName
 
 			ResourceType:
 				return object.name
@@ -126,6 +128,9 @@ class RDONaming
 				return object.name
 
 			DecisionPoint:
+				return object.name
+
+			Frame:
 				return object.name
 
 			Results:
@@ -178,6 +183,9 @@ class RDONaming
 				return object.eContainer.nameGeneric + "." + object.name
 
 			DecisionPoint:
+				return object.eContainer.nameGeneric + "." + object.name
+
+			Frame:
 				return object.eContainer.nameGeneric + "." + object.name
 
 			Results:
@@ -263,7 +271,7 @@ class RDONaming
 		if (container instanceof FunctionParameter)
 		{
 			doubleclass = false
-		}		
+		}
 
 		if (isFQN)
 			return container.fullyQualifiedName + (if(doubleclass) ("." + container.nameGeneric) else "")

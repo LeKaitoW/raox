@@ -27,10 +27,10 @@ public class RDOPerspectiveAdapter extends PerspectiveAdapter {
 			RDOPerspective = true;
         }
 
-		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow(); 
-		ISourceProviderService service = (ISourceProviderService) window.getService(ISourceProviderService.class); 
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		ISourceProviderService service = (ISourceProviderService) window.getService(ISourceProviderService.class);
 		RDOPerspectiveSourceProvider sourceProvider = (RDOPerspectiveSourceProvider) service.getSourceProvider(
-				RDOPerspectiveSourceProvider.RDOPerspectiveKey); 
+				RDOPerspectiveSourceProvider.RDOPerspectiveKey);
 
 		if (RDOPerspective)
 			sourceProvider.perspectiveChanged(true);
