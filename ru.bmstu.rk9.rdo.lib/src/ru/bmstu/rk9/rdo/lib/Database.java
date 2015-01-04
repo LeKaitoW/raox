@@ -115,6 +115,9 @@ public class Database
 		}
 
 		addSystemEntry(SystemEntryType.TRACE_START);
+
+		for (String traceName : TraceConfig.getNames())
+			addSensitivity(traceName);
 	}
 
 	JSONObject modelStructure;
