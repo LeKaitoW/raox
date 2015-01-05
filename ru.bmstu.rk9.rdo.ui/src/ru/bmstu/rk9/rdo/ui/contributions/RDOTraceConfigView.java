@@ -81,14 +81,13 @@ public class RDOTraceConfigView extends ViewPart
 				@Override
 				public void checkStateChanged(CheckStateChangedEvent event)
 				{
+					boolean traceState = event.getChecked();
 					TraceNode node = (TraceNode) event.getElement();
-					node.setTraceState(event.getChecked());
-					if (event.getChecked())
-					{
-						traceTreeViewer.setSubtreeChecked(
-							event.getElement(), true);
-						node.traceVisibleChildren(true);
-					}
+
+					node.setTraceState(traceState);
+					traceTreeViewer.setSubtreeChecked(
+						event.getElement(), traceState);
+					node.traceVisibleChildren(traceState);
 				}
 			}
 		);
