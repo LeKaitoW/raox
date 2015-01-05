@@ -1,11 +1,21 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.TimerTask;
 import java.util.ArrayList;
 import java.util.EnumMap;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.ui.PreferenceConstants;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.resource.FontRegistry;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
@@ -41,14 +51,10 @@ public class RDOTraceView extends ViewPart
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOTraceView";
 
 	static TableViewer viewer;
+	private static IToolBarManager toolbarMgr;
 
 	@Override
 	public void createPartControl(Composite parent)
-	{
-		createViewer(parent);
-	}
-
-	private final void createViewer(Composite parent)
 	{
 		viewer = new TableViewer(
 			parent,
@@ -111,7 +117,8 @@ public class RDOTraceView extends ViewPart
 			fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
 
 		viewer.addSelectionChangedListener(
-			new ISelectionChangedListener() {
+			new ISelectionChangedListener()
+			{
 				@Override
 				public void selectionChanged(SelectionChangedEvent event)
 				{
@@ -121,7 +128,71 @@ public class RDOTraceView extends ViewPart
 					else
 						shouldFollowOutput = true;
 				}
-			});
+			}
+		);
+
+		toolbarMgr = getViewSite().getActionBars().getToolBarManager();
+		toolbarMgr.add(
+			new Action()
+			{
+				ImageDescriptor image;
+
+				{
+					image = ImageDescriptor.createFromURL(
+						FileLocator.find(
+							Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+							new org.eclipse.core.runtime.Path("icons/clipboard-list.png"),
+							null
+						)
+					);
+					setImageDescriptor(image);
+					setText("Export trace output");
+				}
+
+				//TODO export to location chosen by user
+				private final void exportTrace()
+				{
+					if (!Simulator.isInitialized())
+						return;
+
+					ArrayList<TraceOutput> output =
+						Simulator.getTracer().getTraceList();
+
+					//TODO doesn't seem a reliable way to get current project
+					IProject proj =
+						ResourcesPlugin.getWorkspace().getRoot().getProjects()[0];
+
+					//TODO make name similar to model name
+					java.nio.file.Path filePath = java.nio.file.Paths.get(
+						proj.getLocation().toPortableString(),
+						"traceOutput.trc"
+					);
+
+					PrintWriter writer = null;
+					try
+					{
+						writer = new PrintWriter(filePath.toString(), "UTF-8");
+					}
+					catch (FileNotFoundException | UnsupportedEncodingException e)
+					{
+						e.printStackTrace();
+						return;
+					}
+
+					for (TraceOutput item : output)
+					{
+						writer.println(item.content());
+					}
+					writer.close();
+				}
+
+				@Override
+				public void run()
+				{
+					exportTrace();
+				}
+			}
+		);
 
 		if(Simulator.isInitialized())
 		{

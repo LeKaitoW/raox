@@ -441,11 +441,6 @@
               optional="false">
         </commandParameter>
      </command>
-     <command
-           categoryId="ru.bmstu.rk9.rdo.ui.runtime"
-           id="ru.bmstu.rk9.rdo.ui.exportTrace"
-           name="Export Trace">
-     </command>
   </extension>
   <extension
         point="org.eclipse.ui.handlers">
@@ -494,10 +489,6 @@
      <handler
            class="ru.bmstu.rk9.rdo.ui.runtime.SetSimulationScaleHandler"
            commandId="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScale">
-     </handler>
-     <handler
-           class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:ru.bmstu.rk9.rdo.ui.runtime.ExportTraceHandler"
-           commandId="ru.bmstu.rk9.rdo.ui.exportTrace">
      </handler>
   </extension>
   <extension
@@ -645,12 +636,6 @@
                  name="ru.bmstu.rk9.rdo.ui.runtime.menu.separator3"
                  visible="true">
            </separator>
-           <command
-                 commandId="ru.bmstu.rk9.rdo.ui.exportTrace"
-                 id="ru.bmstu.rk9.rdo.ui.runtime.menu.exportTrace"
-                 label="Export Trace"
-                 style="push">
-           </command>
         </menu>
      </menuContribution>
      <menuContribution
