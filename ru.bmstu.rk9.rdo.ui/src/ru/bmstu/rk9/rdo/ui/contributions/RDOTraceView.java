@@ -1,7 +1,6 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
 import java.util.TimerTask;
-
 import java.util.ArrayList;
 import java.util.EnumMap;
 
@@ -16,10 +15,19 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
@@ -54,6 +62,48 @@ public class RDOTraceView extends ViewPart
 			.getCurrentTheme()
 			.getFontRegistry();
 
+		Menu popupMenu = new Menu(viewer.getTable());
+		MenuItem copy = new MenuItem(popupMenu, SWT.CASCADE);
+		copy.setText("Copy\tCtrl+C");
+		copy.addSelectionListener(
+			new SelectionAdapter()
+			{
+				public void widgetSelected(SelectionEvent event)
+				{
+					copyTraceLine();
+				}
+			}
+		);
+		viewer.getTable().setMenu(popupMenu);
+
+		viewer.getTable().addKeyListener(
+			new KeyListener()
+			{
+				@Override
+				public void keyReleased(KeyEvent e)
+				{
+					if (e.keyCode == 'c')
+						stillHolding = false;
+				}
+
+				@Override
+				public void keyPressed(KeyEvent e)
+				{
+					if (((e.stateMask & SWT.CTRL) == SWT.CTRL) &&
+							(e.keyCode == 'c'))
+					{
+						if (stillHolding)
+							return;
+
+						stillHolding = true;
+						copyTraceLine();
+					}
+				}
+
+				private boolean stillHolding = false;
+			}
+		);
+
 		viewer.setContentProvider(new RDOTraceViewContentProvider());
 		viewer.setLabelProvider(new RDOTraceViewLabelProvider());
 		viewer.setUseHashlookup(true);
@@ -80,6 +130,19 @@ public class RDOTraceView extends ViewPart
 			RDOTraceView.viewer.setItemCount(traceList.size());
 			viewer.refresh();
 		}
+	}
+
+	private static void copyTraceLine()
+	{
+		String text = viewer.getTable().getSelection()[0].getText(0);
+		TextTransfer textTransfer = TextTransfer.getInstance();
+		Clipboard clipboard = new Clipboard(
+			PlatformUI.getWorkbench().getDisplay());
+		clipboard.setContents(
+			new Object[] {text},
+			new Transfer[] {textTransfer}
+		);
+		clipboard.dispose();
 	}
 
 	private static boolean shouldFollowOutput = true;
