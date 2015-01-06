@@ -14,6 +14,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IColorProvider;
@@ -34,10 +36,17 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
@@ -45,13 +54,17 @@ import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView.SearchHelper.SearchResult;
 
 public class RDOTraceView extends ViewPart
 {
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOTraceView";
 
 	static TableViewer viewer;
-	private static IToolBarManager toolbarMgr;
+
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                                VIEW SETUP                                 /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	@Override
 	public void createPartControl(Composite parent)
@@ -80,17 +93,24 @@ public class RDOTraceView extends ViewPart
 				}
 			}
 		);
+		MenuItem find = new MenuItem(popupMenu, SWT.CASCADE);
+		find.setText("Find\tCtrl+F");
+		find.addSelectionListener(
+			new SelectionAdapter()
+			{
+				public void widgetSelected(SelectionEvent event)
+				{
+					showFindDialog();
+				}
+			}
+		);
 		viewer.getTable().setMenu(popupMenu);
 
 		viewer.getTable().addKeyListener(
 			new KeyListener()
 			{
 				@Override
-				public void keyReleased(KeyEvent e)
-				{
-					if (e.keyCode == 'c')
-						stillHolding = false;
-				}
+				public void keyReleased(KeyEvent e) {}
 
 				@Override
 				public void keyPressed(KeyEvent e)
@@ -98,15 +118,15 @@ public class RDOTraceView extends ViewPart
 					if (((e.stateMask & SWT.CTRL) == SWT.CTRL) &&
 							(e.keyCode == 'c'))
 					{
-						if (stillHolding)
-							return;
-
-						stillHolding = true;
 						copyTraceLine();
 					}
-				}
 
-				private boolean stillHolding = false;
+					if (((e.stateMask & SWT.CTRL) == SWT.CTRL) &&
+							(e.keyCode == 'f'))
+					{
+						showFindDialog();
+					}
+				}
 			}
 		);
 
@@ -131,7 +151,48 @@ public class RDOTraceView extends ViewPart
 			}
 		);
 
-		toolbarMgr = getViewSite().getActionBars().getToolBarManager();
+		configureToolbar();
+
+		if(Simulator.isInitialized())
+		{
+			ArrayList<TraceOutput> traceList =
+				Simulator.getTracer().getTraceList();
+			RDOTraceView.viewer.setInput(traceList);
+			RDOTraceView.viewer.setItemCount(traceList.size());
+			viewer.refresh();
+		}
+	}
+
+	private final void configureToolbar()
+	{
+		IToolBarManager toolbarMgr =
+			getViewSite().getActionBars().getToolBarManager();
+
+		toolbarMgr.add(
+			new Action()
+			{
+				ImageDescriptor image;
+
+				{
+					image = ImageDescriptor.createFromURL(
+						FileLocator.find(
+							Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+							new org.eclipse.core.runtime.Path("icons/search.gif"),
+							null
+						)
+					);
+					setImageDescriptor(image);
+					setText("Find");
+				}
+
+				@Override
+				public void run()
+				{
+					showFindDialog();
+				}
+			}
+		);
+
 		toolbarMgr.add(
 			new Action()
 			{
@@ -193,17 +254,13 @@ public class RDOTraceView extends ViewPart
 				}
 			}
 		);
-
-		if(Simulator.isInitialized())
-		{
-			ArrayList<TraceOutput> traceList = Simulator.getTracer().getTraceList();
-			RDOTraceView.viewer.setInput(traceList);
-			RDOTraceView.viewer.setItemCount(traceList.size());
-			viewer.refresh();
-		}
 	}
 
-	private static void copyTraceLine()
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                             SEARCH AND COPY                               /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+
+	private final static void copyTraceLine()
 	{
 		String text = viewer.getTable().getSelection()[0].getText(0);
 		TextTransfer textTransfer = TextTransfer.getInstance();
@@ -215,6 +272,58 @@ public class RDOTraceView extends ViewPart
 		);
 		clipboard.dispose();
 	}
+
+	static class SearchHelper
+	{
+		public enum SearchResult {FOUND, NOT_FOUND};
+
+		final SearchResult findLine(String line)
+		{
+			@SuppressWarnings("unchecked")
+			ArrayList<TraceOutput> traceOutput =
+				(ArrayList<TraceOutput>) viewer.getInput();
+			if (traceOutput == null)
+				return SearchResult.NOT_FOUND;
+
+			boolean lineFound = false;
+			while (currentIndex < viewer.getTable().getItemCount()
+					&& !lineFound)
+			{
+				if (traceOutput.get(currentIndex).content().contains(line))
+				{
+					viewer.getTable().setSelection(currentIndex);
+					viewer.getTable().showSelection();
+					lineFound = true;
+				}
+				currentIndex++;
+			}
+
+			if (!lineFound)
+			{
+				currentIndex = 0;
+				return SearchResult.NOT_FOUND;
+			}
+
+			return SearchResult.FOUND;
+		}
+
+		private int currentIndex = 0;
+	}
+
+	private static SearchHelper searchHelper;
+
+	private final static void showFindDialog()
+	{
+		searchHelper = new SearchHelper();
+		SearchDialog dialog = new SearchDialog(
+			viewer.getTable().getShell(), searchHelper);
+		dialog.setBlockOnOpen(false);
+		dialog.open();
+	}
+
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                             REAL TIME OUTPUT                              /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	private static boolean shouldFollowOutput = true;
 
@@ -239,7 +348,8 @@ public class RDOTraceView extends ViewPart
 	{
 		return new TimerTask()
 		{
-			private final Display display = PlatformUI.getWorkbench().getDisplay();
+			private final Display display =
+				PlatformUI.getWorkbench().getDisplay();
 			private final Runnable updater = new Runnable()
 			{
 				@Override
@@ -307,6 +417,10 @@ public class RDOTraceView extends ViewPart
 	@Override
 	public void setFocus() {}
 }
+
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                              HELPER CLASSES                               /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 class RDOTraceViewContentProvider implements ILazyContentProvider
 {
@@ -567,5 +681,106 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 	{
 		TraceType type = ((TraceOutput) element).type();
 		return colorByType.get(type).backgroundColor();
+	}
+}
+
+class SearchDialog extends Dialog
+{
+	private Text searchText;
+	private Button searchButton;
+	private Label statusLabel;
+
+	private RDOTraceView.SearchHelper searchHelper;
+
+	private final void saveInputString()
+	{
+		searchString = searchText.getText();
+	}
+
+	private String searchString;
+
+	final String getSearchString()
+	{
+		return searchString;
+	}
+
+	public SearchDialog(Shell parentShell, RDOTraceView.SearchHelper searchHelper)
+	{
+		super(parentShell);
+		setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE);
+		this.searchHelper = searchHelper;
+	}
+
+	@Override
+	public void create()
+	{
+		super.create();
+		//TODO probably that's not the best way to do that
+		getButton(IDialogConstants.OK_ID).setText("Close");
+		getButton(IDialogConstants.CANCEL_ID).dispose();
+	}
+
+	@Override
+	protected void configureShell(Shell newShell)
+	{
+		super.configureShell(newShell);
+		newShell.setText("Find");
+	}
+
+	@Override
+	protected Control createDialogArea(Composite parent)
+	{
+		Composite area = (Composite) super.createDialogArea(parent);
+		Composite container = new Composite(area, SWT.NONE);
+		container.setLayoutData(new GridData(GridData.FILL_BOTH));
+		GridLayout layout = new GridLayout(2, false);
+		container.setLayout(layout);
+
+		createDialogContents(container);
+
+		return area;
+	}
+
+	private final void createDialogContents(Composite container)
+	{
+		GridData data = new GridData();
+		data.grabExcessHorizontalSpace = true;
+		data.horizontalAlignment = GridData.FILL;
+
+		searchText = new Text(container, SWT.BORDER);
+		searchText.setLayoutData(data);
+
+		//TODO make in default on Enter click
+		searchButton = new Button(container, SWT.BORDER);
+		searchButton.setLayoutData(data);
+		searchButton.setText("Find");
+
+		statusLabel = new Label(container, SWT.NONE);
+		statusLabel.setText("Wrapped search");
+
+		searchButton.addSelectionListener(
+			new SelectionAdapter()
+			{
+				@Override
+				public void widgetSelected(SelectionEvent e)
+				{
+					saveInputString();
+					if (searchString != null)
+					{
+						if (searchHelper.findLine(searchString) ==
+								SearchResult.NOT_FOUND)
+							statusLabel.setText("String not found");
+						else
+							statusLabel.setText("Wrapped search");
+					}
+				}
+			}
+		);
+	}
+
+	@Override
+	protected boolean isResizable()
+	{
+		return true;
 	}
 }
