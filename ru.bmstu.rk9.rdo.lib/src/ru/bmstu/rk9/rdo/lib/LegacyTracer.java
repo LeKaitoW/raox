@@ -1,8 +1,13 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.PriorityQueue;
@@ -33,6 +38,35 @@ public class LegacyTracer extends Tracer
 			new HashMap<Integer, HashMap<Integer, HashMap<Integer, Integer>>>();
 
 	static private final String delimiter = " ";
+
+	private RealFormatter realFormatter = new RealFormatter();
+
+	private class RealFormatter
+	{
+		public String format(double number)
+		{
+			String output;
+			if (number < 1000000)
+			{
+				BigDecimal raw = BigDecimal.valueOf(number);
+				BigDecimal result =
+					raw
+						.round(new MathContext(6, RoundingMode.HALF_UP))
+						.stripTrailingZeros();
+				output = result.toPlainString();
+			}
+			else
+			{
+				DecimalFormatSymbols symbols =
+					DecimalFormatSymbols.getInstance();
+				symbols.setExponentSeparator("e+");
+				DecimalFormat formatter = new DecimalFormat("0.#####E00");
+				formatter.setDecimalFormatSymbols(symbols);
+				output =  formatter.format(number);
+			}
+			return output;
+		}
+	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                                   GENERAL                                 /
@@ -114,7 +148,7 @@ public class LegacyTracer extends Tracer
 		final String headerLine =
 			new RDOLibStringJoiner(delimiter)
 			.add(traceType.toString())
-			.add(checkIntegerValuedReal((time)))
+			.add(realFormatter.format((time)))
 			.add(legacyCode)
 			.getString();
 
@@ -173,7 +207,7 @@ public class LegacyTracer extends Tracer
 		final String headerLine =
 			new RDOLibStringJoiner(delimiter)
 			.add(traceType.toString())
-			.add(checkIntegerValuedReal((time)))
+			.add(realFormatter.format((time)))
 			.add(typeNum + 1)
 			.add(legacyId)
 			.getString();
@@ -208,7 +242,7 @@ public class LegacyTracer extends Tracer
 				stringJoiner.add(data.getInt());
 				break;
 			case REAL:
-				stringJoiner.add(checkIntegerValuedReal(data.getDouble()));
+				stringJoiner.add(realFormatter.format(data.getDouble()));
 				break;
 			case BOOLEAN:
 				stringJoiner.add(legacyBooleanString(data.get() != 0));
@@ -276,7 +310,7 @@ public class LegacyTracer extends Tracer
 				traceType,
 				new RDOLibStringJoiner(delimiter)
 					.add(traceType.toString())
-					.add(checkIntegerValuedReal(time))
+					.add(realFormatter.format(time))
 					.add(parsePatternData(data, traceType))
 					.getString()
 			);
@@ -418,6 +452,7 @@ public class LegacyTracer extends Tracer
 		{
 		case BEGIN:
 		{
+			System.out.println("begin");
 			dptSearchJustStarted = true;
 			traceType = TraceType.SEARCH_BEGIN;
 			final double time = data.getDouble();
@@ -427,12 +462,13 @@ public class LegacyTracer extends Tracer
 			skipPart(data, TypeSize.INTEGER);
 			stringJoiner
 				.add(traceType.toString())
-				.add(checkIntegerValuedReal(time))
+				.add(realFormatter.format(time))
 				.add(number + 1);
 			break;
 		}
 		case END:
 		{
+			System.out.println("end");
 			dptSearchJustFinished = true;
 			currentDptNumber = -1;
 			final DecisionPointSearch.StopCode endStatus =
@@ -466,10 +502,10 @@ public class LegacyTracer extends Tracer
 			final int totalSpawned = data.getInt();
 			stringJoiner
 				.add(traceType.toString())
-				.add(checkIntegerValuedReal(time))
+				.add(realFormatter.format(time))
 				.add(timeMillis)
 				.add(mem)
-				.add(checkIntegerValuedReal(finalCost))
+				.add(realFormatter.format(finalCost))
 				.add(totalOpened)
 				.add(totalNodes)
 				.add(totalAdded)
@@ -478,6 +514,7 @@ public class LegacyTracer extends Tracer
 		}
 		case OPEN:
 		{
+			System.out.println("open");
 			traceType = TraceType.SEARCH_OPEN;
 			final int currentNumber = data.getInt();
 			final int parentNumber = data.getInt();
@@ -487,12 +524,13 @@ public class LegacyTracer extends Tracer
 				.add("SO")
 				.add(currentNumber + 1)
 				.add(parentNumber + 1)
-				.add(checkIntegerValuedReal(g))
-				.add(checkIntegerValuedReal(g + h));
+				.add(realFormatter.format(g))
+				.add(realFormatter.format(g + h));
 			break;
 		}
 		case SPAWN:
 		{
+			System.out.println("spawn");
 			final DecisionPointSearch.SpawnStatus spawnStatus =
 					DecisionPointSearch.SpawnStatus.values()[data.get()];
 			switch(spawnStatus)
@@ -525,11 +563,11 @@ public class LegacyTracer extends Tracer
 				.add(traceType.toString())
 				.add(childNumber + 1)
 				.add(parentNumber + 1)
-				.add(checkIntegerValuedReal(g))
-				.add(checkIntegerValuedReal(g + h))
+				.add(realFormatter.format(g))
+				.add(realFormatter.format(g + h))
 				.add(ruleNumber + 1)
 				.add(patternNumber + 1)
-				.add(checkIntegerValuedReal(ruleCost))
+				.add(realFormatter.format(ruleCost))
 				.add(numberOfRelevantResources)
 				.add("");
 
@@ -546,6 +584,7 @@ public class LegacyTracer extends Tracer
 		}
 		case DECISION:
 		{
+			System.out.println("decision");
 			traceType = TraceType.SEARCH_DECISION;
 			final int number = data.getInt();
 			final int activityNumber = data.getInt();
@@ -606,7 +645,7 @@ public class LegacyTracer extends Tracer
 					TraceType.SYSTEM,
 					new RDOLibStringJoiner(delimiter)
 						.add(TraceType.SYSTEM.toString())
-						.add(checkIntegerValuedReal(time))
+						.add(realFormatter.format(time))
 						.add(4)
 						.getString()
 				)
@@ -634,7 +673,7 @@ public class LegacyTracer extends Tracer
 			TraceType.RESULT,
 			new RDOLibStringJoiner(delimiter)
 				.add(TraceType.RESULT.toString())
-				.add(checkIntegerValuedReal(time))
+				.add(realFormatter.format(time))
 				.add(resultNum + 1)
 				.add("")
 				.add(parseResultParameter(data, resultInfo))
@@ -653,7 +692,7 @@ public class LegacyTracer extends Tracer
 		case INTEGER:
 			return String.valueOf(data.getInt());
 		case REAL:
-			return checkIntegerValuedReal(data.getDouble());
+			return realFormatter.format(data.getDouble());
 		case BOOLEAN:
 			return legacyBooleanString(data.get() != 0);
 		case ENUM:
@@ -754,11 +793,5 @@ public class LegacyTracer extends Tracer
 	private final String legacyBooleanString(boolean value)
 	{
 		return value ? "TRUE" : "FALSE";
-	}
-
-	private final String checkIntegerValuedReal(double value)
-	{
-		return (int) value == value ?
-			String.valueOf((int) value) : String.valueOf(value);
 	}
 }
