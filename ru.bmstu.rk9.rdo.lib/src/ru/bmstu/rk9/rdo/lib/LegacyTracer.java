@@ -62,7 +62,7 @@ public class LegacyTracer extends Tracer
 				symbols.setExponentSeparator("e+");
 				DecimalFormat formatter = new DecimalFormat("0.#####E00");
 				formatter.setDecimalFormatSymbols(symbols);
-				output =  formatter.format(number);
+				output = formatter.format(number);
 			}
 			return output;
 		}
