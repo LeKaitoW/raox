@@ -204,15 +204,14 @@ class TraceConfigurator
 {
 	public enum TraceCategory
 	{
-		RESOURCES("Resources", ResourceDeclaration.class),
-		PATTERNS("Patterns", Pattern.class),
-		DECISION_POINTS("Decision points", DecisionPoint.class),
-		RESULTS("Results", ResultDeclaration.class);
+		RESOURCES("Resources"),
+		PATTERNS("Patterns"),
+		DECISION_POINTS("Decision points"),
+		RESULTS("Results");
 
-		TraceCategory(String name, Class<?> cateforyClass)
+		TraceCategory(String name)
 		{
 			this.name = name;
-			this.categoryClass = cateforyClass;
 		}
 
 		private final String name;
@@ -221,25 +220,33 @@ class TraceConfigurator
 		{
 			return name;
 		}
-
-		//TODO doesn't seem like a good way to work with Class type
-		public final Class getCategoryClass()
-		{
-			return categoryClass;
-		}
-
-		private final Class<?> categoryClass;
 	}
 
 	public final void fillCategories(Resource model, TraceNode node)
 	{
-		//TODO see comment to category.getCategoryClass()
-		for (TraceCategory category : TraceCategory.values())
-			fillCategory(
-				node.getChildren().get(category.ordinal()),
-				model.getAllContents(),
-				category.getCategoryClass()
-			);
+		fillCategory(
+			node.getChildren().get(TraceCategory.RESOURCES.ordinal()),
+			model.getAllContents(),
+			ResourceDeclaration.class
+		);
+
+		fillCategory(
+			node.getChildren().get(TraceCategory.PATTERNS.ordinal()),
+			model.getAllContents(),
+			Pattern.class
+		);
+
+		fillCategory(
+			node.getChildren().get(TraceCategory.DECISION_POINTS.ordinal()),
+			model.getAllContents(),
+			DecisionPoint.class
+		);
+
+		fillCategory(
+			node.getChildren().get(TraceCategory.RESULTS.ordinal()),
+			model.getAllContents(),
+			ResultDeclaration.class
+		);
 	}
 
 	private final <T extends EObject> void fillCategory(
@@ -260,7 +267,7 @@ class TraceConfigurator
 		for (T c : categoryList)
 		{
 			TraceNode child = category.addChild(RDONaming.getNameGeneric(c));
-			if (categoryClass == Pattern.class)
+			if (c instanceof Pattern)
 			{
 				for (EObject relRes : c.eContents())
 				{
