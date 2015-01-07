@@ -43,10 +43,10 @@ public class RDOTraceView extends ViewPart
 	{
 		createViewer(parent);
 	}
-	
+
 	private TraceOutput upToSearchBegin(ArrayList<TraceOutput> traceList, TraceOutput traceOutput) {
-		int index = traceList.indexOf(traceOutput);
-		for (index--; (traceOutput.type() != TraceType.SEARCH_BEGIN) && (index != 0); index--) {
+		for (int index = traceList.indexOf(traceOutput) - 1; (traceOutput.type() != TraceType.SEARCH_BEGIN)
+				&& (index != 0); index--) {
 			traceOutput = traceList.get(index);
 		}
 		return traceOutput;
@@ -106,35 +106,14 @@ public class RDOTraceView extends ViewPart
 					createWindow(traceOutput);
 				}
 					break;
-				case SEARCH_OPEN: {
+				case SEARCH_OPEN:
+				case SEARCH_SPAWN_NEW:
+				case SEARCH_SPAWN_WORSE:
+				case SEARCH_SPAWN_BETTER:
+				case SEARCH_DECISION:
+				case SEARCH_END_SUCCESS:
 					traceOutput = upToSearchBegin(traceList, traceOutput);
 					createWindow(traceOutput);
-				}
-					break;
-				case SEARCH_SPAWN_NEW: {
-					traceOutput = upToSearchBegin(traceList, traceOutput);
-					createWindow(traceOutput);
-				}
-					break;
-				case SEARCH_SPAWN_WORSE: {
-					traceOutput = upToSearchBegin(traceList, traceOutput);
-					createWindow(traceOutput);
-				}
-					break;
-				case SEARCH_SPAWN_BETTER: {
-					traceOutput = upToSearchBegin(traceList, traceOutput);
-					createWindow(traceOutput);
-				}
-					break;
-				case SEARCH_DECISION: {
-					traceOutput = upToSearchBegin(traceList, traceOutput);
-					createWindow(traceOutput);
-				}
-					break;
-				case SEARCH_END_SUCCESS: {
-					traceOutput = upToSearchBegin(traceList, traceOutput);
-					createWindow(traceOutput);
-				}
 					break;
 				default:
 					break;
