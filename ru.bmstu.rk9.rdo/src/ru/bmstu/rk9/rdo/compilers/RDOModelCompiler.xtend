@@ -166,7 +166,7 @@ class RDOModelCompiler
 
 		var results = ""
 		for(r : rs.resources)
-			for(rslt : r.allContents.filter(typeof(ResultDeclaration)).toIterable)		
+			for(rslt : r.allContents.filter(typeof(ResultDeclaration)).toIterable)
 				results = results +
 					'''
 					.put
@@ -205,7 +205,7 @@ class RDOModelCompiler
 
 	def private static compileResourcesInStructure(ResourceType rtp, ResourceSet rs)
 	{
-		var ret = "" 
+		var ret = ""
 
 		for(r : rs.resources)
 			for(rss : r.allContents

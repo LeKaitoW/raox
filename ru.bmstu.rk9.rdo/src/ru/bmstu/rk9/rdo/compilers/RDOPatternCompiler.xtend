@@ -228,12 +228,16 @@ class RDOPatternCompiler
 					public «r.type.fullyQualifiedName» «r.name»;
 				«ENDFOR»
 
-				public RelevantResources copy()
+				public RelevantResources copyUpdate()
 				{
 					RelevantResources clone = new RelevantResources();
 
 					«FOR r : rule.relevantresources.filter[res | res.rule.literal != "Create"]»
-						clone.«r.name» = this.«r.name»;
+						clone.«r.name» = «(
+							if(r.type instanceof ResourceDeclaration)
+								(r.type as ResourceDeclaration).reference
+							else r.type).fullyQualifiedName
+							».getResource(this.«r.name».getNumber());
 					«ENDFOR»
 
 					return clone;
@@ -411,9 +415,8 @@ class RDOPatternCompiler
 
 			public static «rule.name» executeRule(Parameters parameters)
 			{
-				RelevantResources resources = staticResources.copy();
+				RelevantResources resources = staticResources;
 
-				Database db = Simulator.getDatabase();
 				«IF rule.relevantresources.filter[t | t.rule.literal == "Create"].size > 0»
 					// create resources
 					«FOR r : rule.relevantresources.filter[t |t.rule.literal == "Create"]»
@@ -423,6 +426,10 @@ class RDOPatternCompiler
 					«ENDFOR»
 
 				«ENDIF»
+				rule.run(resources, parameters);
+
+				«rule.name» executed = new «rule.name»(resources.copyUpdate());
+
 				«IF rule.relevantresources.filter[t | t.rule.literal == "Erase"].size > 0»
 					// erase resources
 					«FOR r : rule.relevantresources.filter[t |t.rule.literal == "Erase"]»
@@ -430,9 +437,7 @@ class RDOPatternCompiler
 					«ENDFOR»
 
 				«ENDIF»
-				rule.run(resources, parameters);
-
-				return new «rule.name»(resources);
+				return executed;
 			}
 
 			@Override
@@ -523,12 +528,16 @@ class RDOPatternCompiler
 					public «r.type.fullyQualifiedName» «r.name»;
 				«ENDFOR»
 
-				public RelevantResources copy()
+				public RelevantResources copyUpdate()
 				{
 					RelevantResources clone = new RelevantResources();
 
 					«FOR r : op.relevantresources.filter[res | res.begin.literal != "Create" && res.end.literal != "Create"]»
-						clone.«r.name» = this.«r.name»;
+						clone.«r.name» = «(
+							if(r.type instanceof ResourceDeclaration)
+								(r.type as ResourceDeclaration).reference
+							else r.type).fullyQualifiedName
+							».getResource(this.«r.name».getNumber());
 					«ENDFOR»
 
 					return clone;
@@ -721,9 +730,8 @@ class RDOPatternCompiler
 
 			public static «op.name» executeRule(Parameters parameters)
 			{
-				RelevantResources resources = staticResources.copy();
+				RelevantResources resources = staticResources;
 
-				Database db = Simulator.getDatabase();
 				«IF op.relevantresources.filter[t | t.begin.literal == "Create"].size > 0»
 					// create resources
 					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Create"]»
@@ -733,18 +741,19 @@ class RDOPatternCompiler
 					«ENDFOR»
 
 				«ENDIF»
-				«IF op.relevantresources.filter[t | t.begin.literal == "Erase" || t.end.literal == "Erase"].size > 0»
+
+				begin.run(resources, parameters);
+
+				«op.name» instance = new «op.name»(Simulator.getTime() + «
+					op.time.compileExpressionContext((new LocalContext).populateFromOperation(op)).value», resources.copyUpdate(), parameters);
+
+				«IF op.relevantresources.filter[t | t.begin.literal == "Erase"].size > 0»
 					// erase resources
-					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Erase" || t.end.literal == "Erase"]»
+					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Erase"]»
 						«(r.type as ResourceType).fullyQualifiedName».eraseResource(resources.«r.name»);
 					«ENDFOR»
 
 				«ENDIF»
-				begin.run(resources, parameters);
-
-				«op.name» instance = new «op.name»(Simulator.getTime() + «
-					op.time.compileExpressionContext((new LocalContext).populateFromOperation(op)).value», resources, parameters);
-
 				Simulator.pushEvent(instance);
 
 				return instance;
@@ -786,11 +795,19 @@ class RDOPatternCompiler
 						instanceResources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
 						instanceResources.«r.name».register();
-						
+
 					«ENDFOR»
 
 				«ENDIF»
 				end.run(instanceResources, parameters);
+
+				«IF op.relevantresources.filter[t | t.end.literal == "Erase"].size > 0»
+					// erase resources
+					«FOR r : op.relevantresources.filter[t | t.end.literal == "Erase"]»
+						«(r.type as ResourceType).fullyQualifiedName».eraseResource(instanceResources.«r.name»);
+					«ENDFOR»
+
+				«ENDIF»
 
 				// database operations
 				db.addEventEntry(Database.PatternType.OPERATION_END, this);

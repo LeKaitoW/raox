@@ -1,7 +1,7 @@
 package ru.bmstu.rk9.rdo.ui;
- 
+
 import java.util.HashMap;
- 
+
 import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
 
@@ -12,7 +12,7 @@ public class RDOPerspectiveSourceProvider extends AbstractSourceProvider
 	private final static String otherPerspective = "hideActions";
 
 	private boolean isRDOPerspective = true;
- 
+
 	@Override
 	public void dispose()
 	{}

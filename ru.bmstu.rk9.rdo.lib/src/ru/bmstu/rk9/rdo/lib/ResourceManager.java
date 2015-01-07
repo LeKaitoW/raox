@@ -1,19 +1,22 @@
 package ru.bmstu.rk9.rdo.lib;
 
-
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.HashMap;
 
+import java.util.Iterator;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import java.util.SortedMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class ResourceManager<T extends Resource & ResourceComparison<T>>
 {
-	private ArrayList<T> listResources;
+	private SortedMap<Integer, T> listResources;
 
-	private HashMap<String, T> permanent;
-	private HashMap<Integer, T> temporary;	
+	private Map<String, T> permanent;
+	private Map<Integer, T> temporary;
 
 	private Integer resourceNumber;
 
@@ -27,32 +30,17 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 		String name = res.getName();
 		Integer number = res.getNumber();
 
-		if (name != null)
-		{
-			if (permanent.get(name) != null)
-				listResources.set(number, res);
-			else
-			{
-				if(number == resourceNumber)
-					resourceNumber++;
-				else
-					return;
-
-				listResources.add(res);
-			}
-
-			permanent.put(name, res);
-		}
+		if(number.equals(resourceNumber))
+			resourceNumber++;
 		else
-		{
-			if(number == resourceNumber)
-				resourceNumber++;
-			else
-				return;
+			return;
 
+		listResources.put(number, res);
+
+		if(name != null)
+			permanent.put(name, res);
+		else
 			temporary.put(number, res);
-			listResources.add(res);
-		}
 	}
 
 	public void eraseResource(T res)
@@ -64,8 +52,8 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 			permanent.remove(name);
 		else
 			temporary.remove(number);
-		
-		listResources.set(number, null);
+
+		listResources.remove(number);
 	}
 
 	public T getResource(String name)
@@ -73,9 +61,14 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 		return permanent.get(name);
 	}
 
+	public T getResource(int number)
+	{
+		return listResources.get(number);
+	}
+
 	public Collection<T> getAll()
 	{
-		return Collections.unmodifiableCollection(listResources);
+		return Collections.unmodifiableCollection(listResources.values());
 	}
 
 	public Collection<T> getTemporary()
@@ -85,17 +78,17 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 
 	public ResourceManager()
 	{
-		this.permanent = new HashMap<String, T>();
-		this.temporary = new HashMap<Integer, T>();
-		this.listResources = new ArrayList<T>();
+		this.permanent = new ConcurrentHashMap<String, T>();
+		this.temporary = new ConcurrentHashMap<Integer, T>();
+		this.listResources = new ConcurrentSkipListMap<Integer, T>();
 		this.resourceNumber = 0;
 	}
 
 	private ResourceManager(ResourceManager<T> source)
 	{
-		this.permanent = new HashMap<String, T>(source.permanent);
-		this.temporary = new HashMap<Integer, T>(source.temporary);
-		this.listResources = new ArrayList<T>(source.listResources);
+		this.permanent = new ConcurrentHashMap<String, T>(source.permanent);
+		this.temporary = new ConcurrentHashMap<Integer, T>(source.temporary);
+		this.listResources = new ConcurrentSkipListMap<Integer, T>(source.listResources);
 		this.resourceNumber = source.resourceNumber;
 	}
 
@@ -109,8 +102,8 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 		if (this.listResources.size() != other.listResources.size())
 			return false;
 
-		Iterator<T> itThis = this.listResources.iterator();
-		Iterator<T> itOther = other.listResources.iterator();
+		Iterator<T> itThis = this.listResources.values().iterator();
+		Iterator<T> itOther = other.listResources.values().iterator();
 
 		for (int i = 0; i < this.listResources.size(); i++)
 		{

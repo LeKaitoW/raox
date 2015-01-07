@@ -37,7 +37,6 @@ import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
-import ru.bmstu.rk9.rdo.rdo.ResourceTrace
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
 
@@ -49,7 +48,6 @@ import ru.bmstu.rk9.rdo.rdo.FunctionTable
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
-import ru.bmstu.rk9.rdo.rdo.PatternConvertStatus
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
 import ru.bmstu.rk9.rdo.rdo.OperationConvert
@@ -61,6 +59,8 @@ import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 import ru.bmstu.rk9.rdo.rdo.EventConvert
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
+
+import ru.bmstu.rk9.rdo.rdo.Frame
 
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 
@@ -269,6 +269,7 @@ class RDOValidator extends AbstractRDOValidator
 			e instanceof Function            ||
 			e instanceof Pattern             ||
 			e instanceof DecisionPoint       ||
+			e instanceof Frame               ||
 			e instanceof ResultDeclaration
 		].toList
 
@@ -347,6 +348,9 @@ class RDOValidator extends AbstractRDOValidator
 
 			DecisionPoint:
 				RdoPackage.eINSTANCE.decisionPoint_Name
+
+			Frame:
+				RdoPackage.eINSTANCE.frame_Name
 
 			ResultDeclaration:
 				RdoPackage.eINSTANCE.resultDeclaration_Name
@@ -428,20 +432,6 @@ class RDOValidator extends AbstractRDOValidator
 		if (resolveCyclicSuchAs(ref.type, history))
 			error("Cyclic such_as found in '" + first.nameGeneric + "': " + history.text +". Resulting type is unknown.",
 				first, RdoPackage.eINSTANCE.META_SuchAs_Name)
-	}
-
-	@Check
-	def checkMultipleTraces(ResourceTrace trc)
-	{
-		var found = 0
-		for (e : trc.eContainer.eContainer.eAllContents.filter(typeof(ResourceTrace)).toIterable)
-			if (trc.trace == e.trace)
-				found = found + 1
-		if (found > 1)
-			for (e : trc.eContainer.eContainer.eAllContents.filter(typeof(ResourceTrace)).toIterable)
-				if (trc.trace == e.trace)
-					error("Multiple trace statements for '" + trc.trace.name + "'.",
-						e, RdoPackage.eINSTANCE.resourceTrace_Trace)
 	}
 
 	@Check
@@ -778,39 +768,6 @@ class RDOValidator extends AbstractRDOValidator
 	}
 
 	@Check
-	def checkEventRelResTrace(Event evn)
-	{
-		for(ec : evn.algorithms)
-			if(ec.traceevent && ec.relres.rule != PatternConvertStatus.CREATE)
-				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", ec,
-					RdoPackage.eINSTANCE.eventConvert_Traceevent)
-	}
-
-	@Check
-	def checkRuleRelResTrace(Rule rule)
-	{
-		for(rc : rule.algorithms)
-			if(rc.tracerule && rc.relres.rule != PatternConvertStatus.CREATE)
-				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", rc,
-					RdoPackage.eINSTANCE.ruleConvert_Tracerule)
-	}
-
-	@Check
-	def checkOperationRelResTrace(Operation op)
-	{
-		for(oc : op.algorithms)
-		{
-			if(oc.tracebegin && oc.relres.begin != PatternConvertStatus.CREATE)
-				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", oc,
-					RdoPackage.eINSTANCE.operationConvert_Tracebegin)
-
-			if(oc.traceend && oc.relres.end != PatternConvertStatus.CREATE)
-				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", oc,
-					RdoPackage.eINSTANCE.operationConvert_Traceend)
-		}
-	}
-
-	@Check
 	def checkTableParameters(FunctionTable fun)
 	{
 		if(fun.parameters == null)
@@ -821,7 +778,7 @@ class RDOValidator extends AbstractRDOValidator
 			val actual = p.type.resolveAllSuchAs
 			if(!(actual instanceof RDOEnum || (actual instanceof RDOInteger && (actual as RDOInteger).range != null)))
 				error("Invalid parameter type. Table function allows enumerative and ranged integer parameters only",
-					p, RdoPackage.eINSTANCE.functionParameter_Type)			
+					p, RdoPackage.eINSTANCE.functionParameter_Type)
 		}
 	}
 

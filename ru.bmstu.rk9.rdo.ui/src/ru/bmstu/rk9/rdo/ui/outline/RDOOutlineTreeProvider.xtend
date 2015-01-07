@@ -7,7 +7,6 @@ import org.eclipse.xtext.ui.editor.outline.IOutlineNode
 
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 
-import ru.bmstu.rk9.rdo.rdo.ResourceTrace
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
@@ -37,7 +36,6 @@ import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.SimulationRun
 
-
 public class VirtualOutlineNode extends AbstractOutlineNode
 {
 	protected new(IOutlineNode parent, Image image, Object text, boolean isLeaf)
@@ -53,7 +51,6 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 
 	// Resources
 	def _isLeaf(ResourceDeclaration rss) { true }
-	def _isLeaf(ResourceTrace rsstrc)    { true }
 
 	// Sequence
 	def _isLeaf(Sequence seq) { true }
@@ -143,7 +140,7 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 
 	// Results
 	def _isLeaf(ResultDeclaration r) { true }
-	
+
 	// Simulation run
 	def _isLeaf(SimulationRun smr) { true }
 }

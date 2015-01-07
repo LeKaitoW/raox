@@ -26,7 +26,7 @@ import ru.bmstu.rk9.rdo.ui.runtime.SimulationSynchronizer;
 
 public class RDOSpeedSelectionToolbar extends WorkbenchWindowControlContribution
 {
-	private static volatile int speedValue; 
+	private static volatile int speedValue;
 
 	public static int getSpeed()
 	{
@@ -53,7 +53,11 @@ public class RDOSpeedSelectionToolbar extends WorkbenchWindowControlContribution
 
 			this.setMinimum(0);
 			this.setMaximum(MAX);
-			
+
+			// this is a Windows' progress bar animation issue workaround
+			// fancy yellowish color on windows and no effect on Linux and OSX
+			this.setState(SWT.PAUSED);
+
 			FontData[] fD = this.getFont().getFontData();
 			fD[0].setHeight(8);
 			this.setFont(new Font(this.getDisplay(),fD[0]));
@@ -78,9 +82,9 @@ public class RDOSpeedSelectionToolbar extends WorkbenchWindowControlContribution
 						e.gc.fillRoundRectangle
 						(
 							(widgetSize.x - textSize.x) / 2 - 2,
-							(widgetSize.y - textSize.y) / 2 - 1,
+							(widgetSize.y - textSize.y) / 2,
 							textSize.x + 4,
-							textSize.y + 2,
+							textSize.y + 1,
 							3,
 							3
 						);
@@ -98,8 +102,8 @@ public class RDOSpeedSelectionToolbar extends WorkbenchWindowControlContribution
 				}
 			);
 
-		    addMouseListener
-		    (
+			addMouseListener
+			(
 				new MouseListener()
 				{
 					@Override
@@ -117,10 +121,10 @@ public class RDOSpeedSelectionToolbar extends WorkbenchWindowControlContribution
 				}
 			);
 
-		    addMouseMoveListener
-		    (
-		    	new MouseMoveListener()
-			    {
+			addMouseMoveListener
+			(
+				new MouseMoveListener()
+				{
 					@Override
 					public void mouseMove(MouseEvent e)
 					{
@@ -130,14 +134,14 @@ public class RDOSpeedSelectionToolbar extends WorkbenchWindowControlContribution
 				}
 			);
 
-		    addMouseWheelListener
-		    (
-		   		new MouseWheelListener()
-		   		{
+			addMouseWheelListener
+			(
+				new MouseWheelListener()
+				{
 					@Override
 					public void mouseScrolled(MouseEvent e)
 					{
-						RDOSpeedSelector.this.modifySpeed((e.count > 0) ? 5 : -5);		
+						RDOSpeedSelector.this.modifySpeed((e.count > 0) ? 5 : -5);
 					}
 				}
 			);

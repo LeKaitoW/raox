@@ -1,11 +1,15 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.TreeSet;
 
@@ -19,29 +23,95 @@ public class LegacyTracer extends Tracer
 	{
 		super();
 
-		legacyResourceIds =
-			new HashMap<Integer, HashMap<Integer, Integer>>();
-		takenResourceIds =
-			new TreeSet<Integer>();
-		vacantActionNumbers =
-			new PriorityQueue<Integer>();
-		legacyActionNumbers =
-			new HashMap<Integer, HashMap<Integer, HashMap<Integer, Integer>>>();
-
 		initializeTypes();
 		initializeActivities();
 	}
 
-	private final HashMap<Integer, HashMap<Integer, Integer>> legacyResourceIds;
-	private final TreeSet<Integer> takenResourceIds;
-	private final PriorityQueue<Integer> vacantActionNumbers;
+	private final HashMap<Integer, HashMap<Integer, Integer>> legacyResourceIds =
+		new HashMap<Integer, HashMap<Integer, Integer>>();
+	private final TreeSet<Integer> takenResourceIds =
+		new TreeSet<Integer>();
+	private final PriorityQueue<Integer> vacantActionNumbers =
+		new PriorityQueue<Integer>();
 	private final HashMap<Integer, HashMap<
-		Integer, HashMap<Integer, Integer>>> legacyActionNumbers;
+		Integer, HashMap<Integer, Integer>>> legacyActionNumbers=
+			new HashMap<Integer, HashMap<Integer, HashMap<Integer, Integer>>>();
 
 	static private final String delimiter = " ";
 
+	private RealFormatter realFormatter = new RealFormatter();
+
+	private class RealFormatter
+	{
+		public String format(double number)
+		{
+			String output;
+			if (number < 1000000)
+			{
+				BigDecimal raw = BigDecimal.valueOf(number);
+				BigDecimal result =
+					raw
+						.round(new MathContext(6, RoundingMode.HALF_UP))
+						.stripTrailingZeros();
+				output = result.toPlainString();
+			}
+			else
+			{
+				DecimalFormatSymbols symbols =
+					DecimalFormatSymbols.getInstance();
+				symbols.setExponentSeparator("e+");
+				DecimalFormat formatter = new DecimalFormat("0.#####E00");
+				formatter.setDecimalFormatSymbols(symbols);
+				output = formatter.format(number);
+			}
+			return output;
+		}
+	}
+
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                                   GENERAL                                 /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+
 	private boolean simulationStarted = false;
 	private boolean dptSearchJustStarted = false;
+	private boolean dptSearchJustFinished = false;
+	private double dptSearchTime = 0;
+
+	@Override
+	protected final TraceOutput parseSerializedData(final Database.Entry entry)
+	{
+		if (dptSearchJustStarted)
+		{
+			addLegacySearchEntriesOnStart();
+			dptSearchJustStarted = false;
+		}
+
+		if (dptSearchJustFinished)
+		{
+			addLegacySearchEntriesOnFinish(dptSearchTime);
+			dptSearchJustFinished = false;
+		}
+
+		final Database.EntryType type =
+			Database.EntryType.values()[entry.header.get(
+				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
+
+		switch(type)
+		{
+		case SYSTEM:
+			return parseSystemEntry(entry);
+		case RESOURCE:
+			return parseResourceEntry(entry);
+		case PATTERN:
+			return parsePatternEntry(entry);
+		case SEARCH:
+			return parseSearchEntry(entry);
+		case RESULT:
+			return parseResultEntry(entry);
+		default:
+			return null;
+		}
+	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                          PARSING SYSTEM ENTRIES                           /
@@ -59,14 +129,27 @@ public class LegacyTracer extends Tracer
 		final Database.SystemEntryType type =
 			Database.SystemEntryType.values()[header.get()];
 
-		if (type == Database.SystemEntryType.SIM_START)
+		int legacyCode;
+
+		switch (type)
+		{
+		case TRACE_START:
+			legacyCode = 1;
+			break;
+		case SIM_START:
+			legacyCode = 3;
 			simulationStarted = true;
+			break;
+		default:
+			legacyCode = 2;
+			break;
+		}
 
 		final String headerLine =
 			new RDOLibStringJoiner(delimiter)
 			.add(traceType.toString())
-			.add(checkIntegerValuedReal((time)))
-			.add(type.ordinal() + 1)
+			.add(realFormatter.format((time)))
+			.add(legacyCode)
 			.getString();
 
 		return new TraceOutput(traceType, headerLine);
@@ -112,7 +195,6 @@ public class LegacyTracer extends Tracer
 			traceType = TraceType.RESOURCE_KEEP;
 			legacyId = legacyResourceIds.get(typeNum).get(resNum);
 			break;
-		//TODO how to know if resource was created or erased?
 		case SEARCH:
 		case SOLUTION:
 			traceType = TraceType.SEARCH_RESOURCE_KEEP;
@@ -125,7 +207,7 @@ public class LegacyTracer extends Tracer
 		final String headerLine =
 			new RDOLibStringJoiner(delimiter)
 			.add(traceType.toString())
-			.add(checkIntegerValuedReal((time)))
+			.add(realFormatter.format((time)))
 			.add(typeNum + 1)
 			.add(legacyId)
 			.getString();
@@ -160,7 +242,7 @@ public class LegacyTracer extends Tracer
 				stringJoiner.add(data.getInt());
 				break;
 			case REAL:
-				stringJoiner.add(checkIntegerValuedReal(data.getDouble()));
+				stringJoiner.add(realFormatter.format(data.getDouble()));
 				break;
 			case BOOLEAN:
 				stringJoiner.add(legacyBooleanString(data.get() != 0));
@@ -228,7 +310,7 @@ public class LegacyTracer extends Tracer
 				traceType,
 				new RDOLibStringJoiner(delimiter)
 					.add(traceType.toString())
-					.add(checkIntegerValuedReal(time))
+					.add(realFormatter.format(time))
 					.add(parsePatternData(data, traceType))
 					.getString()
 			);
@@ -355,12 +437,6 @@ public class LegacyTracer extends Tracer
 	@Override
 	protected TraceOutput parseSearchEntry(final Database.Entry entry)
 	{
-		if (dptSearchJustStarted)
-		{
-			addLegacySearchEntries();
-			dptSearchJustStarted = false;
-		}
-
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
 
@@ -376,22 +452,25 @@ public class LegacyTracer extends Tracer
 		{
 		case BEGIN:
 		{
+			System.out.println("begin");
 			dptSearchJustStarted = true;
 			traceType = TraceType.SEARCH_BEGIN;
 			final double time = data.getDouble();
+			dptSearchTime = time;
 			final int number = data.getInt();
 			currentDptNumber = number;
 			skipPart(data, TypeSize.INTEGER);
 			stringJoiner
-				.add("SB")
-				.add(checkIntegerValuedReal(time))
+				.add(traceType.toString())
+				.add(realFormatter.format(time))
 				.add(number + 1);
 			break;
 		}
 		case END:
 		{
+			System.out.println("end");
+			dptSearchJustFinished = true;
 			currentDptNumber = -1;
-			//TODO switch over enum when it is made public
 			final DecisionPointSearch.StopCode endStatus =
 				DecisionPointSearch.StopCode.values()[data.get()];
 			switch(endStatus)
@@ -423,10 +502,10 @@ public class LegacyTracer extends Tracer
 			final int totalSpawned = data.getInt();
 			stringJoiner
 				.add(traceType.toString())
-				.add(checkIntegerValuedReal(time))
+				.add(realFormatter.format(time))
 				.add(timeMillis)
 				.add(mem)
-				.add(checkIntegerValuedReal(finalCost))
+				.add(realFormatter.format(finalCost))
 				.add(totalOpened)
 				.add(totalNodes)
 				.add(totalAdded)
@@ -435,6 +514,7 @@ public class LegacyTracer extends Tracer
 		}
 		case OPEN:
 		{
+			System.out.println("open");
 			traceType = TraceType.SEARCH_OPEN;
 			final int currentNumber = data.getInt();
 			final int parentNumber = data.getInt();
@@ -444,12 +524,13 @@ public class LegacyTracer extends Tracer
 				.add("SO")
 				.add(currentNumber + 1)
 				.add(parentNumber + 1)
-				.add(checkIntegerValuedReal(g))
-				.add(checkIntegerValuedReal(g + h));
+				.add(realFormatter.format(g))
+				.add(realFormatter.format(g + h));
 			break;
 		}
 		case SPAWN:
 		{
+			System.out.println("spawn");
 			final DecisionPointSearch.SpawnStatus spawnStatus =
 					DecisionPointSearch.SpawnStatus.values()[data.get()];
 			switch(spawnStatus)
@@ -482,11 +563,11 @@ public class LegacyTracer extends Tracer
 				.add(traceType.toString())
 				.add(childNumber + 1)
 				.add(parentNumber + 1)
-				.add(checkIntegerValuedReal(g))
-				.add(checkIntegerValuedReal(g + h))
+				.add(realFormatter.format(g))
+				.add(realFormatter.format(g + h))
 				.add(ruleNumber + 1)
 				.add(patternNumber + 1)
-				.add(checkIntegerValuedReal(ruleCost))
+				.add(realFormatter.format(ruleCost))
 				.add(numberOfRelevantResources)
 				.add("");
 
@@ -503,6 +584,7 @@ public class LegacyTracer extends Tracer
 		}
 		case DECISION:
 		{
+			System.out.println("decision");
 			traceType = TraceType.SEARCH_DECISION;
 			final int number = data.getInt();
 			final int activityNumber = data.getInt();
@@ -523,7 +605,7 @@ public class LegacyTracer extends Tracer
 			);
 	}
 
-	private final void addLegacySearchEntries()
+	private final void addLegacySearchEntriesOnStart()
 	{
 		traceList.add(
 			new TraceOutput(
@@ -539,20 +621,34 @@ public class LegacyTracer extends Tracer
 					.add(0)
 					.add(0)
 					.getString()
-				)
+			)
 		);
 
 		traceList.add(
+			new TraceOutput(
+				TraceType.SEARCH_OPEN,
+				new RDOLibStringJoiner(delimiter)
+					.add("SO")
+					.add(1)
+					.add(0)
+					.add(0)
+					.add(0)
+					.getString()
+			)
+		);
+	}
+
+	private final void addLegacySearchEntriesOnFinish(double time)
+	{
+		traceList.add(
 				new TraceOutput(
-					TraceType.SEARCH_OPEN,
+					TraceType.SYSTEM,
 					new RDOLibStringJoiner(delimiter)
-						.add("SO")
-						.add(1)
-						.add(0)
-						.add(0)
-						.add(0)
+						.add(TraceType.SYSTEM.toString())
+						.add(realFormatter.format(time))
+						.add(4)
 						.getString()
-					)
+				)
 			);
 	}
 
@@ -570,42 +666,42 @@ public class LegacyTracer extends Tracer
 		final double time = header.getDouble();
 		final int resultNum = header.getInt();
 
-		final ModelStructureHelper.ValueType valueType =
-			resultsInfo.get(resultNum).valueType;
+		final ResultInfo resultInfo = resultsInfo.get(resultNum);
 
 		return
 			new TraceOutput(
 			TraceType.RESULT,
 			new RDOLibStringJoiner(delimiter)
 				.add(TraceType.RESULT.toString())
-				.add(checkIntegerValuedReal(time))
+				.add(realFormatter.format(time))
 				.add(resultNum + 1)
-				.add(parseResultParameter(data, valueType))
+				.add("")
+				.add(parseResultParameter(data, resultInfo))
 				.getString()
 			);
 	}
 
 	@Override
 	protected final String parseResultParameter(
-		final ByteBuffer resultData,
-		final ModelStructureHelper.ValueType valueType
+		final ByteBuffer data,
+		final ResultInfo resultInfo
 	)
 	{
-		switch(valueType)
+		switch(resultInfo.valueType)
 		{
 		case INTEGER:
-			return String.valueOf(resultData.getInt());
+			return String.valueOf(data.getInt());
 		case REAL:
-			return checkIntegerValuedReal(resultData.getDouble());
+			return realFormatter.format(data.getDouble());
 		case BOOLEAN:
-			return legacyBooleanString(resultData.get() != 0);
+			return legacyBooleanString(data.get() != 0);
 		case ENUM:
-			return String.valueOf(resultData.getShort());
+			return String.valueOf(data.getShort());
 		case STRING:
 			final ByteArrayOutputStream rawString = new ByteArrayOutputStream();
-			while (resultData.hasRemaining())
+			while (data.hasRemaining())
 			{
-				rawString.write(resultData.get());
+				rawString.write(data.get());
 			}
 			return rawString.toString();
 		default:
@@ -621,13 +717,16 @@ public class LegacyTracer extends Tracer
 
 	private final void initializeTypes()
 	{
-		//TODO get it from JSON?
-		for (Map.Entry<String, Database.ResourceTypeIndex> type :
-			Simulator.getDatabase().resourceIndex.entrySet())
+		final JSONArray resourceTypes =
+				Simulator
+				.getDatabase()
+				.getModelStructure()
+				.getJSONArray("resource_types");
+
+		for (int num = 0; num < resourceTypes.length(); num++)
 		{
-			int typeNum = type.getValue().number;
 			legacyResourceIds.put(
-				typeNum,
+				num,
 				new HashMap<Integer, Integer>()
 			);
 		}
@@ -694,11 +793,5 @@ public class LegacyTracer extends Tracer
 	private final String legacyBooleanString(boolean value)
 	{
 		return value ? "TRUE" : "FALSE";
-	}
-
-	private final String checkIntegerValuedReal(double value)
-	{
-		return (int) value == value ?
-			String.valueOf((int) value) : String.valueOf(value);
 	}
 }
