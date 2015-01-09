@@ -94,7 +94,8 @@ public class TreeGrapher {
 					final DecisionPointSearch.SpawnStatus spawnStatus = DecisionPointSearch.SpawnStatus.values()[data
 							.get()];
 					switch (spawnStatus) {
-					case NEW: {
+					case NEW:
+					case BETTER:
 						final int nodeNumber = data.getInt();
 						final int parentNumber = data.getInt();
 						treeNode.parent = mapList.get(currentDptNumber).get(parentNumber);
@@ -103,20 +104,8 @@ public class TreeGrapher {
 						treeNode.label = Integer.toString(treeNode.index);
 						mapList.get(currentDptNumber).put(nodeNumber, treeNode);
 						break;
-					}
-					case WORSE: {
+					case WORSE:
 						break;
-					}
-					case BETTER: {
-						final int nodeNumber = data.getInt();
-						final int parentNumber = data.getInt();
-						treeNode.parent = mapList.get(currentDptNumber).get(parentNumber);
-						mapList.get(currentDptNumber).get(parentNumber).children.add(treeNode);
-						treeNode.index = nodeNumber;
-						treeNode.label = Integer.toString(treeNode.index);
-						mapList.get(currentDptNumber).put(nodeNumber, treeNode);
-						break;
-					}
 					}
 					break;
 				}
