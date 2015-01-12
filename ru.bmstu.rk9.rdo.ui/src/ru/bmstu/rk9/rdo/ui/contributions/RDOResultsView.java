@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rdo.ui.contributions;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -115,12 +116,28 @@ public class RDOResultsView  extends ViewPart
 	private static boolean viewAsText =
 		prefs.getBoolean("ResultsViewAsText", false);
 
+	private static HashMap<String, TreeItem> models;
+
 	private static void parseResult(JSONObject data)
 	{
-		TreeItem result = new TreeItem(tree, SWT.NONE);
+		String fullName = data.getString("name");
+		int modelDot = fullName.indexOf('.');
+
+		String model = fullName.substring(0, modelDot);
+		String name = fullName.substring(modelDot + 1);
+
+		TreeItem modelItem = models.get(model);
+		if(modelItem == null)
+		{
+			modelItem = new TreeItem(tree, SWT.NONE);
+			modelItem.setText(model);
+			models.put(model, modelItem);
+		}
+
+		TreeItem result = new TreeItem(modelItem, SWT.NONE);
 		result.setText(new String[]
 		{
-			data.getString("name"),
+			name,
 			data.getString("type")
 		});
 
@@ -165,6 +182,8 @@ public class RDOResultsView  extends ViewPart
 		if(!isInitialized())
 			return;
 
+		models = new HashMap<String, TreeItem>();
+
 		for(TreeItem item : tree.getItems())
 			item.dispose();
 
@@ -172,6 +191,9 @@ public class RDOResultsView  extends ViewPart
 
 		for(Result r : results)
 			parseResult(r.getData());
+
+		for(TreeItem model : tree.getItems())
+			model.setExpanded(true);
 	}
 
 	private static ScrolledComposite composite;
@@ -241,7 +263,11 @@ public class RDOResultsView  extends ViewPart
 			public void widgetSelected(SelectionEvent e)
 			{
 				for(TreeItem item : tree.getItems())
+				{
 					item.setExpanded(true);
+					for(TreeItem child : item.getItems())
+						child.setExpanded(true);
+				}
 			}
 		});
 		MenuItem collapse = new MenuItem(treeMenu, SWT.CASCADE);
@@ -252,7 +278,23 @@ public class RDOResultsView  extends ViewPart
 			public void widgetSelected(SelectionEvent e)
 			{
 				for(TreeItem item : tree.getItems())
+					for(TreeItem child : item.getItems())
+						child.setExpanded(false);
+			}
+		});
+		MenuItem collapseModels = new MenuItem(treeMenu, SWT.CASCADE);
+		collapseModels.setText("Collapse Including Models");
+		collapseModels.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				for(TreeItem item : tree.getItems())
+				{
+					for(TreeItem child : item.getItems())
+						child.setExpanded(false);
 					item.setExpanded(false);
+				}
 			}
 		});
 		tree.setMenu(treeMenu);
@@ -266,7 +308,6 @@ public class RDOResultsView  extends ViewPart
 		Menu popupMenu = new Menu(text);
 		MenuItem copy = new MenuItem(popupMenu, SWT.CASCADE);
 		copy.setText("Copy\tCtrl+C");
-		copy.setAccelerator(SWT.CTRL + 'C');
 		copy.addSelectionListener(new SelectionAdapter()
 		{
 			public void widgetSelected(SelectionEvent event)
@@ -368,7 +409,8 @@ public class RDOResultsView  extends ViewPart
 
 	private static boolean isInitialized()
 	{
-		return tree != null && text != null;
+		return tree != null && text != null &&
+			!tree.isDisposed() && !text.isDisposed();
 	}
 
 	@Override
