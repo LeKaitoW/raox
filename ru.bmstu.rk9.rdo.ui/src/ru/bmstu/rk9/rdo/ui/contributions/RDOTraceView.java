@@ -383,6 +383,9 @@ public class RDOTraceView extends ViewPart
 			@Override
 			public void fireChange()
 			{
+				if(!readyForInput())
+					return;
+
 				final ArrayList<TraceOutput> traceList =
 					Simulator.getTracer().getTraceList();
 				final int size = traceList.size();
