@@ -85,7 +85,7 @@ public class RDOConsoleView extends ViewPart
 
 	public static void redrawText()
 	{
-		if (styledText != null)
+		if(styledText != null)
 			styledText.getDisplay().asyncExec
 			(
 				new Runnable ()
@@ -106,7 +106,7 @@ public class RDOConsoleView extends ViewPart
 			@Override
 			public void propertyChange(PropertyChangeEvent event)
 			{
-				if (event.getProperty().equals(PreferenceConstants.EDITOR_TEXT_FONT))
+				if(event.getProperty().equals(PreferenceConstants.EDITOR_TEXT_FONT))
 					updateTextFont();
 			}
 		};

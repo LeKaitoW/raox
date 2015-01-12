@@ -29,7 +29,7 @@ class RDOResultCompiler
 	def public static compileResult(ResultDeclaration result, String filename)
 	{
 		val name =
-			(if ((result.eContainer as Results).name != null)
+			(if((result.eContainer as Results).name != null)
 				(result.eContainer as Results).name + "_" else "")
 			+ result.name
 		'''

@@ -2,7 +2,9 @@ package ru.bmstu.rk9.rdo.ui.contributions;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -115,12 +117,28 @@ public class RDOResultsView  extends ViewPart
 	private static boolean viewAsText =
 		prefs.getBoolean("ResultsViewAsText", false);
 
+	private static HashMap<String, TreeItem> models;
+
 	private static void parseResult(JSONObject data)
 	{
-		TreeItem result = new TreeItem(tree, SWT.NONE);
+		String fullName = data.getString("name");
+		int modelDot = fullName.indexOf('.');
+
+		String model = fullName.substring(0, modelDot);
+		String name = fullName.substring(modelDot + 1);
+
+		TreeItem modelItem = models.get(model);
+		if(modelItem == null)
+		{
+			modelItem = new TreeItem(tree, SWT.NONE);
+			modelItem.setText(model);
+			models.put(model, modelItem);
+		}
+
+		TreeItem result = new TreeItem(modelItem, SWT.NONE);
 		result.setText(new String[]
 		{
-			data.getString("name"),
+			name,
 			data.getString("type")
 		});
 
@@ -134,6 +152,8 @@ public class RDOResultsView  extends ViewPart
 			data.getString("name") + ": " + data.getString("type")};
 
 		styleRange.length = resultText[0].length() - origin.length();
+
+		LinkedList<StyleRange> numberStyles = new LinkedList<StyleRange>();
 
 		data.keySet().stream()
 			.filter(e -> sortList.containsKey(e))
@@ -149,6 +169,15 @@ public class RDOResultsView  extends ViewPart
 				TreeItem child = new TreeItem(result, SWT.NONE);
 				child.setText(text);
 
+				StyleRange numberStyle = new StyleRange();
+				numberStyle.start = resultText[0].length() + text[0].length() + 4;
+				numberStyle.length = text[1].length();
+				numberStyle.fontStyle = SWT.ITALIC;
+				numberStyle.foreground = child.getDisplay()
+					.getSystemColor(SWT.COLOR_DARK_BLUE);
+
+				numberStyles.add(numberStyle);
+
 				resultText[0] += "\n\t" + text[0] + ": " + text[1];
 			});
 
@@ -156,6 +185,9 @@ public class RDOResultsView  extends ViewPart
 		text.setText(resultText[0]);
 		text.setStyleRanges(styles);
 		text.setStyleRange(styleRange);
+
+		for(StyleRange style : numberStyles)
+			text.setStyleRange(style);
 	}
 
 	public static void setResults(List<Result> results)
@@ -165,6 +197,8 @@ public class RDOResultsView  extends ViewPart
 		if(!isInitialized())
 			return;
 
+		models = new HashMap<String, TreeItem>();
+
 		for(TreeItem item : tree.getItems())
 			item.dispose();
 
@@ -172,6 +206,9 @@ public class RDOResultsView  extends ViewPart
 
 		for(Result r : results)
 			parseResult(r.getData());
+
+		for(TreeItem model : tree.getItems())
+			model.setExpanded(true);
 	}
 
 	private static ScrolledComposite composite;
@@ -241,7 +278,11 @@ public class RDOResultsView  extends ViewPart
 			public void widgetSelected(SelectionEvent e)
 			{
 				for(TreeItem item : tree.getItems())
+				{
 					item.setExpanded(true);
+					for(TreeItem child : item.getItems())
+						child.setExpanded(true);
+				}
 			}
 		});
 		MenuItem collapse = new MenuItem(treeMenu, SWT.CASCADE);
@@ -252,7 +293,23 @@ public class RDOResultsView  extends ViewPart
 			public void widgetSelected(SelectionEvent e)
 			{
 				for(TreeItem item : tree.getItems())
+					for(TreeItem child : item.getItems())
+						child.setExpanded(false);
+			}
+		});
+		MenuItem collapseModels = new MenuItem(treeMenu, SWT.CASCADE);
+		collapseModels.setText("Collapse Including Models");
+		collapseModels.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				for(TreeItem item : tree.getItems())
+				{
+					for(TreeItem child : item.getItems())
+						child.setExpanded(false);
 					item.setExpanded(false);
+				}
 			}
 		});
 		tree.setMenu(treeMenu);
@@ -266,7 +323,6 @@ public class RDOResultsView  extends ViewPart
 		Menu popupMenu = new Menu(text);
 		MenuItem copy = new MenuItem(popupMenu, SWT.CASCADE);
 		copy.setText("Copy\tCtrl+C");
-		copy.setAccelerator(SWT.CTRL + 'C');
 		copy.addSelectionListener(new SelectionAdapter()
 		{
 			public void widgetSelected(SelectionEvent event)
@@ -350,7 +406,7 @@ public class RDOResultsView  extends ViewPart
 			@Override
 			public void propertyChange(PropertyChangeEvent event)
 			{
-				if (event.getProperty().equals(PreferenceConstants.EDITOR_TEXT_FONT))
+				if(event.getProperty().equals(PreferenceConstants.EDITOR_TEXT_FONT))
 					updateTextFont();
 			}
 		};
@@ -368,7 +424,8 @@ public class RDOResultsView  extends ViewPart
 
 	private static boolean isInitialized()
 	{
-		return tree != null && text != null;
+		return tree != null && text != null &&
+			!tree.isDisposed() && !text.isDisposed();
 	}
 
 	@Override

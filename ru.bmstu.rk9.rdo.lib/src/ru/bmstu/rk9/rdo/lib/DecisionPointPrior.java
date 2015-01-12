@@ -27,16 +27,16 @@ public class DecisionPointPrior extends DecisionPoint
 		@Override
 		public int compare(Activity x, Activity y)
 		{
-			if (x.priority == null)
+			if(x.priority == null)
 				return 1;
 
-			if (y.priority == null)
+			if(y.priority == null)
 				return -1;
 
-			if (x.priority.get() > y.priority.get())
+			if(x.priority.get() > y.priority.get())
 				return -1;
 
-			if (x.priority.get() <= y.priority.get())
+			if(x.priority.get() <= y.priority.get())
 				return 1;
 
 			return 0;
@@ -57,21 +57,21 @@ public class DecisionPointPrior extends DecisionPoint
 
 		all.add(this);
 
-		for (DecisionPoint d : all)
-			if (d.priority != null)
+		for(DecisionPoint d : all)
+			if(d.priority != null)
 				d.priority.calculate();
 
 		Collections.sort(all, prioritizer);
 
-		for (DecisionPoint d : all)
-			if (d == this)
+		for(DecisionPoint d : all)
+			if(d == this)
 			{
-				if (checkCurrent())
+				if(checkCurrent())
 					return true;
 			}
 			else
 			{
-				if (d.check())
+				if(d.check())
 					return true;
 			}
 				return false;
@@ -79,11 +79,11 @@ public class DecisionPointPrior extends DecisionPoint
 
 	private boolean checkCurrent()
 	{
-		if (condition != null && !condition.check())
+		if(condition != null && !condition.check())
 			return false;
 
-		for (Activity a : activities)
-			if (a.priority != null)
+		for(Activity a : activities)
+			if(a.priority != null)
 				a.priority.calculate();
 
 		Collections.sort(activities, comparator);
@@ -93,8 +93,8 @@ public class DecisionPointPrior extends DecisionPoint
 
 	private boolean checkActivities()
 	{
-		for (Activity a : activities)
-			if (a.checkActivity())
+		for(Activity a : activities)
+			if(a.checkActivity())
 			{
 				a.executeActivity();
 				return true;

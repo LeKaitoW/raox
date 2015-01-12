@@ -46,7 +46,8 @@ public class LegacyTracer extends Tracer
 		public String format(double number)
 		{
 			String output;
-			if (number < 1000000)
+
+			if(number < 1000000)
 			{
 				BigDecimal raw = BigDecimal.valueOf(number);
 				BigDecimal result =
@@ -80,13 +81,14 @@ public class LegacyTracer extends Tracer
 	@Override
 	protected final TraceOutput parseSerializedData(final Database.Entry entry)
 	{
-		if (dptSearchJustStarted)
+
+		if(dptSearchJustStarted)
 		{
 			addLegacySearchEntriesOnStart();
 			dptSearchJustStarted = false;
 		}
 
-		if (dptSearchJustFinished)
+		if(dptSearchJustFinished)
 		{
 			addLegacySearchEntriesOnFinish(dptSearchTime);
 			dptSearchJustFinished = false;
@@ -180,7 +182,7 @@ public class LegacyTracer extends Tracer
 			traceType = simulationStarted ?
 				TraceType.RESOURCE_CREATE : TraceType.RESOURCE_KEEP;
 
-			if (legacyResourceIds.get(typeNum).get(resNum) == null)
+			if(legacyResourceIds.get(typeNum).get(resNum) == null)
 				legacyId = getNewResourceId(typeNum, resNum);
 			else
 				legacyId = legacyResourceIds.get(typeNum).get(resNum);
@@ -233,7 +235,7 @@ public class LegacyTracer extends Tracer
 		final RDOLibStringJoiner stringJoiner =
 			new RDOLibStringJoiner(delimiter);
 
-		for (int paramNum = 0; paramNum < typeInfo.numberOfParameters; paramNum++)
+		for(int paramNum = 0; paramNum < typeInfo.numberOfParameters; paramNum++)
 		{
 			//TODO trace arrays when they are implemented
 			switch(typeInfo.paramTypes.get(paramNum).type)
@@ -257,7 +259,7 @@ public class LegacyTracer extends Tracer
 				final int length = data.getInt(stringPosition);
 
 				byte rawString[] = new byte[length];
-				for (int i = 0; i < length; i++)
+				for(int i = 0; i < length; i++)
 				{
 					rawString[i] = data.get(
 						stringPosition + TypeSize.RDO.INTEGER + i);
@@ -363,7 +365,7 @@ public class LegacyTracer extends Tracer
 				.get(activityNumber);
 
 			int legacyNumber;
-			if (vacantActionNumbers.isEmpty())
+			if(vacantActionNumbers.isEmpty())
 				legacyNumber = activityActions.size();
 			else
 				legacyNumber = vacantActionNumbers.poll();
@@ -410,7 +412,7 @@ public class LegacyTracer extends Tracer
 			final int typeNum =
 				patternsInfo.get(patternNumber).relResTypes.get(num);
 			final int resNum = data.getInt();
-			if (legacyResourceIds.get(typeNum).get(resNum) == null)
+			if(legacyResourceIds.get(typeNum).get(resNum) == null)
 			{
 				stringJoiner.add(getNewResourceId(typeNum, resNum));
 			}
@@ -571,7 +573,7 @@ public class LegacyTracer extends Tracer
 				.add(numberOfRelevantResources)
 				.add("");
 
-			for (int num = 0; num < numberOfRelevantResources; num++)
+			for(int num = 0; num < numberOfRelevantResources; num++)
 			{
 				final int typeNum =
 					patternsInfo.get(patternNumber).relResTypes.get(num);
@@ -624,6 +626,22 @@ public class LegacyTracer extends Tracer
 			)
 		);
 
+		traceList.add(
+			new TraceOutput(
+				TraceType.SEARCH_OPEN,
+				new RDOLibStringJoiner(delimiter)
+					.add("SO")
+					.add(1)
+					.add(0)
+					.add(0)
+					.add(0)
+					.getString()
+			)
+		);
+	}
+
+	private final void addLegacySearchEntriesOnFinish(double time)
+	{
 		traceList.add(
 			new TraceOutput(
 				TraceType.SEARCH_OPEN,
@@ -699,7 +717,8 @@ public class LegacyTracer extends Tracer
 			return String.valueOf(data.getShort());
 		case STRING:
 			final ByteArrayOutputStream rawString = new ByteArrayOutputStream();
-			while (data.hasRemaining())
+
+			while(data.hasRemaining())
 			{
 				rawString.write(data.get());
 			}
@@ -723,7 +742,7 @@ public class LegacyTracer extends Tracer
 				.getModelStructure()
 				.getJSONArray("resource_types");
 
-		for (int num = 0; num < resourceTypes.length(); num++)
+		for(int num = 0; num < resourceTypes.length(); num++)
 		{
 			legacyResourceIds.put(
 				num,
@@ -778,10 +797,10 @@ public class LegacyTracer extends Tracer
 		int current;
 		int legacyId = 1;
 		Iterator<Integer> it = takenResourceIds.iterator();
-		while (it.hasNext())
+		while(it.hasNext())
 		{
 			current = it.next();
-			if (current != legacyId)
+			if(current != legacyId)
 				break;
 			legacyId++;
 		}

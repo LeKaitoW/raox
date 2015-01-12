@@ -32,8 +32,8 @@ class DPTManager implements Subscriber
 	{
 		Iterator<DecisionPoint> dptIterator = dptList.iterator();
 
-		while (dptIterator.hasNext() && dptAllowed)
-			if (dptIterator.next().check())
+		while(dptIterator.hasNext() && dptAllowed)
+			if(dptIterator.next().check())
 				return true;
 
 		return false;

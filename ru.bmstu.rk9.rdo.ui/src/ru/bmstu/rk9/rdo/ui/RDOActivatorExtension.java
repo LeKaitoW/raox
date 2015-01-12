@@ -63,7 +63,7 @@ public class RDOActivatorExtension extends RDOActivator
 				@Override
 				public void preExecute(String commandId, ExecutionEvent event)
 				{
-					if (commandId.equals("org.eclipse.ui.file.save"))
+					if(commandId.equals("org.eclipse.ui.file.save"))
 						RDOTraceConfigView.onModelSave();
 				}
 

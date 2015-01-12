@@ -32,7 +32,8 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 
 		if(number.equals(resourceNumber))
 			resourceNumber++;
-		else
+
+		else if(number > resourceNumber)
 			return;
 
 		listResources.put(number, res);
@@ -48,7 +49,7 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 		String name = res.getName();
 		Integer number = res.getNumber();
 
-		if (name != null)
+		if(name != null)
 			permanent.remove(name);
 		else
 			temporary.remove(number);
@@ -99,18 +100,18 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 
 	public boolean checkEqual(ResourceManager<T> other)
 	{
-		if (this.listResources.size() != other.listResources.size())
+		if(this.listResources.size() != other.listResources.size())
 			return false;
 
 		Iterator<T> itThis = this.listResources.values().iterator();
 		Iterator<T> itOther = other.listResources.values().iterator();
 
-		for (int i = 0; i < this.listResources.size(); i++)
+		for(int i = 0; i < this.listResources.size(); i++)
 		{
 			T resThis = itThis.next();
 			T resOther = itOther.next();
 
-			if (resThis != resOther && !resThis.checkEqual(resOther))
+			if(resThis != resOther && !resThis.checkEqual(resOther))
 				return false;
 		}
 		return true;

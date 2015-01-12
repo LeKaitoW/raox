@@ -52,7 +52,7 @@ public class RDOStatusView extends ViewPart
 
 	public static void setSimulationScale(double scale)
 	{
-		if (!isInitialized())
+		if(!isInitialized())
 			return;
 
 		simulationScale.setText(scaleFormatter.format(scale));
@@ -64,7 +64,7 @@ public class RDOStatusView extends ViewPart
 
 	public static void setActualSimulationScale(double scale)
 	{
-		if (!isInitialized())
+		if(!isInitialized())
 			return;
 
 		actualSimulationScale.setText(actualScaleFormatter.format(scale));
@@ -78,7 +78,7 @@ public class RDOStatusView extends ViewPart
 
 	public static void setSimulationTime(double time)
 	{
-		if (!isInitialized())
+		if(!isInitialized())
 			return;
 
 		simulationTime.setText(timeFormatter.format(time));
@@ -92,7 +92,7 @@ public class RDOStatusView extends ViewPart
 
 	public static void setRealTime(long time)
 	{
-		if (!isInitialized())
+		if(!isInitialized())
 			return;
 
 		realTime.setText(realTimeFormatter.format(time/1000d) + "s");

@@ -21,14 +21,14 @@ public class HistogramSequence
 
 	private void calculateSum()
 	{
-		for (int i = 0; i < weights.length; i++)
+		for(int i = 0; i < weights.length; i++)
 			sum += weights[i] * (values[i + 1] - values[i]);
 	}
 
 	private void calculateRange()
 	{
 		double crange = 0;
-		for (int i = 0; i < weights.length; i++)
+		for(int i = 0; i < weights.length; i++)
 		{
 			crange += (weights[i] * (values[i + 1] - values[i])) / sum;
 			range[i] = crange;
@@ -39,8 +39,8 @@ public class HistogramSequence
 	{
 		double x = values[0];
 
-		for (int i = 0; i < range.length; i++)
-			if (range[i] <= rand)
+		for(int i = 0; i < range.length; i++)
+			if(range[i] <= rand)
 				x = values[i + 1];
 			else
 			{

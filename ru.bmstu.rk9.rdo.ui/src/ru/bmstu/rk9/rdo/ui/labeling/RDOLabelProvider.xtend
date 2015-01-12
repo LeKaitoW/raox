@@ -67,14 +67,14 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	// Resource types
 	def  text(ResourceType rtp) { "RTP : " + rtp.name }
-	def image(ResourceType rtp) { if (rtp.type.literal == "permanent") "puzzle_plus.gif" else "puzzle_plus_gray.gif" }
+	def image(ResourceType rtp) { if(rtp.type.literal == "permanent") "puzzle_plus.gif" else "puzzle_plus_gray.gif" }
 
 	def  text(ResourceTypeParameter p) { p.name + p.type.typeGenericLabel }
 	def image(ResourceTypeParameter p) { "parameter.gif" }
 
 	// Resources
 	def  text(Resources rss) {"RSS : " +
-		(if (rss.resources.size > 0) {rss.resources.size.toString + " objects"} else "") }
+		(if(!rss.resources.empty) {rss.resources.size.toString + " objects"} else "") }
 	def image(Resources rss) { "puzzle.gif" }
 
 		// Resource declaration
@@ -83,7 +83,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	// Constants
 	def  text(Constants c) { "CON : " + c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size.toString +
-		" constant" + if (c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size % 10 != 1) "s" else ""}
+		" constant" + if(c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size % 10 != 1) "s" else ""}
 	def image(Constants c) { "floppy.gif" }
 
 	def image(ConstantDeclaration c) { "constant2.gif" }
@@ -91,9 +91,9 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	// Sequence
 	def  text(Sequence seq) { "SEQ : " + seq.name + " : " + (
-		if (seq.type instanceof EnumerativeSequence) "enumerative" else "" +
-		if (seq.type instanceof RegularSequence) (seq.type as RegularSequence).type.literal else "" +
-		if (seq.type instanceof HistogramSequence) "histogram" else "" ) + seq.returntype.typeGenericLabel }
+		if(seq.type instanceof EnumerativeSequence) "enumerative" else "" +
+		if(seq.type instanceof RegularSequence) (seq.type as RegularSequence).type.literal else "" +
+		if(seq.type instanceof HistogramSequence) "histogram" else "" ) + seq.returntype.typeGenericLabel }
 	def image(Sequence seq) { "chart.gif" }
 
 	// Function
@@ -164,7 +164,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	// Results
 	def  text(Results r) {
-		"Results : " + (if (r.name != null) {r.name + " "} else "") + "(" +
+		"Results : " + (if(r.name != null) {r.name + " "} else "") + "(" +
 			r.eAllContents.toList.filter(typeof(ResultDeclaration)).size.toString + ")" }
 	def image(Results r) { "clipboard.gif" }
 

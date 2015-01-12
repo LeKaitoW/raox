@@ -27,7 +27,8 @@ public class TraceConfig
 		public final TraceNode addChild(String name, boolean traceState)
 		{
 			final int number = findName(name);
-			if (number != -1)
+
+			if(number != -1)
 			{
 				TraceNode child = children.get(number);
 				child.isVisible = true;
@@ -41,11 +42,12 @@ public class TraceConfig
 
 		private final int findName(String name)
 		{
-			for (int i = 0; i < children.size(); i++)
+
+			for(int i = 0; i < children.size(); i++)
 			{
 				TraceNode ch = children.get(i);
-				if (!ch.isVisible)
-					if (ch.name.equals(name))
+				if(!ch.isVisible)
+					if(ch.name.equals(name))
 						return i;
 			}
 			return -1;
@@ -73,9 +75,9 @@ public class TraceConfig
 
 		public final void traceVisibleChildren(boolean traceState)
 		{
-			for (TraceNode ch : getChildren())
+			for(TraceNode ch : getChildren())
 			{
-				if (ch.isVisible)
+				if(ch.isVisible)
 				{
 					ch.traceVisibleChildren(traceState);
 					ch.traceState = traceState;
@@ -86,8 +88,9 @@ public class TraceConfig
 		public final ArrayList<TraceNode> getChildren()
 		{
 			ArrayList<TraceNode> visibleChildren = new ArrayList<TraceNode>();
-			for (TraceNode ch : children)
-				if (ch.isVisible)
+
+			for(TraceNode ch : children)
+				if(ch.isVisible)
 					visibleChildren.add(ch);
 			return visibleChildren;
 		}
@@ -95,10 +98,11 @@ public class TraceConfig
 		public final void removeHiddenChildren()
 		{
 			Iterator<TraceNode> it = children.iterator();
-			while (it.hasNext())
+
+			while(it.hasNext())
 			{
 				TraceNode child = it.next();
-				if (!child.isVisible)
+				if(!child.isVisible)
 				{
 					child.children.clear();
 					it.remove();
@@ -112,7 +116,7 @@ public class TraceConfig
 
 		public final void hideChildren()
 		{
-			for (TraceNode child : children)
+			for(TraceNode child : children)
 			{
 				child.hideChildren();
 				child.isVisible = false;
@@ -158,15 +162,16 @@ public class TraceConfig
 	{
 		names =  new ArrayList<String>();
 		//TODO seems like that's not what OOP was invented for
-		for (TraceNode category : root.getChildren())
+
+		for(TraceNode category : root.getChildren())
 			fillNames(category, names);
 	}
 
 	private final void fillNames(TraceNode node, ArrayList<String> names)
 	{
-		for (TraceNode child : node.getChildren())
+		for(TraceNode child : node.getChildren())
 		{
-			if (child.isTraced())
+			if(child.isTraced())
 				names.add(getFullName(child.getName()));
 			fillNames(child, names);
 		}

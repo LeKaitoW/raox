@@ -221,8 +221,8 @@ class RDOExpressionCompiler
 						return new RDOExpression(ret.value.replace(".get_", ".set_").cutLastChars(2) +
 							"_after(" + ret.value + (if(expr.post == "--") " - 1" else " + 1") + ")", ret.type)
 
-				return new RDOExpression((if (expr.pre != null) expr.pre else "") +
-					 ret.value + (if (expr.post != null) expr.post else ""), ret.type)
+				return new RDOExpression((if(expr.pre != null) expr.pre else "") +
+					 ret.value + (if(expr.post != null) expr.post else ""), ret.type)
 			}
 
 			VariableMethodCallExpression:
@@ -241,7 +241,7 @@ class RDOExpressionCompiler
 				var mcall = ""
 				var flag = false
 
-				for (c : expr.calls)
+				for(c : expr.calls)
 				{
 					mcall = mcall + (if(flag) "." else "") + c.compileExpression.value
 					flag = true
@@ -254,16 +254,16 @@ class RDOExpressionCompiler
 			{
 				var call = expr.call
 
-				if (expr.functionfirst)
-					call = call + "(" + (if (expr.args != null) expr.args.compileExpression.value else "") + ")"
+				if(expr.functionfirst)
+					call = call + "(" + (if(expr.args != null) expr.args.compileExpression.value else "") + ")"
 
-				if (expr.arrayfirst)
+				if(expr.arrayfirst)
 					call = call + "[" + expr.iterator.compileExpression.value + "]"
 
-				if (expr.functionlast)
-					call = call + "(" + (if (expr.args != null) expr.args.compileExpression.value else "") + ")"
+				if(expr.functionlast)
+					call = call + "(" + (if(expr.args != null) expr.args.compileExpression.value else "") + ")"
 
-				if (expr.arraylast)
+				if(expr.arraylast)
 					call = call + "[" + expr.iterator.compileExpression.value + "]"
 
 				return new RDOExpression(call, "unknown")
@@ -407,7 +407,7 @@ class RDOExpressionCompiler
 				var String list = ""
 				var flag = false
 
-				for (e : expr.values)
+				for(e : expr.values)
 				{
 					list = list + ( if(flag) ", " else "" ) + e.compileExpression.value
 					flag = true
@@ -430,9 +430,9 @@ class RDOExpressionCompiler
 				var String list = ""
 				var flag = false
 
-				for (e : expr.expressions)
+				for(e : expr.expressions)
 				{
-					if (e instanceof RDODefaultParameter)
+					if(e instanceof RDODefaultParameter)
 						list = list + ( if(flag) ", " else "" ) + "null"
 					else
 					{
@@ -463,7 +463,7 @@ class RDOExpressionCompiler
 				var String list = ""
 				var flag = false
 
-				for (e : expr.parameters)
+				for(e : expr.parameters)
 				{
 					val exp = e.compileExpression
 					if(parameters != null && exp.type == "unknown" && exp.value.checkSingleID &&
@@ -483,7 +483,7 @@ class RDOExpressionCompiler
 				var String list = ""
 				var flag = false
 
-				for (e : expr.parameters)
+				for(e : expr.parameters)
 				{
 					val exp = e.compileExpression
 					if(parameters != null && exp.type == "unknown" && exp.value.checkSingleID &&
@@ -504,7 +504,7 @@ class RDOExpressionCompiler
 	def static boolean checkSingleID(String s)
 	{
 		val sum = s.indexOf(".") + s.indexOf("(") + s.indexOf(")") + s.indexOf(" ")
-		if (sum == -4)
+		if(sum == -4)
 			return true
 		else
 			return false
@@ -525,7 +525,7 @@ class RDOExpressionCompiler
 		{
 			lcall = lcall + (if(flag) "." else "") + iter.next.call
 			flag = true
-			if (localContext.findEntry(lcall) != null && !iter.hasNext)
+			if(localContext.findEntry(lcall) != null && !iter.hasNext)
 				return localContext.findEntry(lcall)
 		}
 
@@ -737,7 +737,7 @@ class RDOExpressionCompiler
 				var String list = ""
 				var flag = false
 
-				for (i : 0 ..< count)
+				for(i : 0 ..< count)
 				{
 					list = list + ( if(flag) ", " else "" ) + "null"
 					flag = true

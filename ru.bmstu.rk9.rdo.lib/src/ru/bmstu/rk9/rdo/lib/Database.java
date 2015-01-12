@@ -116,7 +116,7 @@ public class Database
 
 		addSystemEntry(SystemEntryType.TRACE_START);
 
-		for (String traceName : TraceConfig.getNames())
+		for(String traceName : TraceConfig.getNames())
 			addSensitivity(traceName);
 	}
 
@@ -190,6 +190,30 @@ public class Database
 
 	ArrayList<Entry> allEntries = new ArrayList<Entry>();
 	
+
+	private final void addEntry(Entry entry)
+	{
+		allEntries.add(entry);
+		notifyChange("EntryAdded");
+	}
+
+	private NotificationManager notificationManager =
+		new NotificationManager(
+			new String[]
+			{
+				"EntryAdded"
+			}
+		);
+
+	public final Notifier getNotifier()
+	{
+		return notificationManager;
+	}
+
+	private final void notifyChange(String category)
+	{
+		notificationManager.notifySubscribers(category);
+	}
 
 	private final void addEntry(Entry entry)
 	{
@@ -631,7 +655,7 @@ public class Database
 		Index index = resultIndex.get(name);
 
 		ByteBuffer data = result.serialize();
-		if (index.entries.size() > 0)
+		if(!index.entries.isEmpty())
 		{
 			ByteBuffer lastResultValue =
 				allEntries.get(
@@ -640,7 +664,7 @@ public class Database
 			ByteBuffer currentResultValue = data.duplicate();
 			currentResultValue.rewind();
 			lastResultValue.rewind();
-			if (currentResultValue.compareTo(lastResultValue) == 0)
+			if(currentResultValue.compareTo(lastResultValue) == 0)
 				return;
 		}
 

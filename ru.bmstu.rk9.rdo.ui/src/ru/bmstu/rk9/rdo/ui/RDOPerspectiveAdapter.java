@@ -21,7 +21,7 @@ public class RDOPerspectiveAdapter extends PerspectiveAdapter {
 	{
 		super.perspectiveActivated(page, perspectiveDescriptor);
 		boolean RDOPerspective = false;
-		if (perspectiveDescriptor
+		if(perspectiveDescriptor
 				.getId().equals("ru.bmstu.rk9.rdo.ui.perspective"))
 		{
 			RDOPerspective = true;
@@ -32,7 +32,7 @@ public class RDOPerspectiveAdapter extends PerspectiveAdapter {
 		RDOPerspectiveSourceProvider sourceProvider = (RDOPerspectiveSourceProvider) service.getSourceProvider(
 				RDOPerspectiveSourceProvider.RDOPerspectiveKey);
 
-		if (RDOPerspective)
+		if(RDOPerspective)
 			sourceProvider.perspectiveChanged(true);
 		else
 			sourceProvider.perspectiveChanged(false);

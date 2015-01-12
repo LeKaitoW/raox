@@ -45,7 +45,7 @@ public class Statistics
 			Database database = Simulator.getDatabase();
 			Database.Index resultIndex = database.resultIndex.get(result.getName());
 
-			if(resultIndex != null && resultIndex.entries.size() > 0)
+			if(resultIndex != null && !resultIndex.entries.isEmpty())
 			{
 				Function<Integer, Double> getValue =
 					result.getData().getString("valueType").equals("real")
@@ -150,7 +150,7 @@ public class Statistics
 			Database database = Simulator.getDatabase();
 			Database.Index resultIndex = database.resultIndex.get(result.getName());
 
-			if(resultIndex != null && resultIndex.entries.size() > 0)
+			if(resultIndex != null && !resultIndex.entries.isEmpty())
 			{
 				Function<Integer, Double> getValue =
 					result.getData().getString("valueType").equals("real")

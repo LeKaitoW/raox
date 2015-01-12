@@ -11,7 +11,7 @@ public class Simulator
 
 	public static synchronized void initSimulation()
 	{
-		if (isRunning)
+		if(isRunning)
 			return;
 
 		INSTANCE = new Simulator();
@@ -119,8 +119,8 @@ public class Simulator
 
 	private boolean checkTerminate()
 	{
-		for (TerminateCondition c : terminateList)
-			if (c.check())
+		for(TerminateCondition c : terminateList)
+			if(c.check())
 				return true;
 		return false;
 	}
@@ -131,7 +131,7 @@ public class Simulator
 
 	public static synchronized void stopExecution()
 	{
-		if (INSTANCE == null)
+		if(INSTANCE == null)
 			return;
 
 		INSTANCE.executionAborted = true;
@@ -140,15 +140,15 @@ public class Simulator
 
 	private int checkDPT()
 	{
-		while (dptManager.checkDPT() && !executionAborted)
+		while(dptManager.checkDPT() && !executionAborted)
 		{
 			notifyChange("StateChange");
 
-			if (checkTerminate())
+			if(checkTerminate())
 				return  1;
 		}
 
-		if (executionAborted)
+		if(executionAborted)
 			return -1;
 		return 0;
 	}
@@ -163,10 +163,10 @@ public class Simulator
 		notifyChange("StateChange");
 
 		int dptCheck = INSTANCE.checkDPT();
-		if (dptCheck != 0)
+		if(dptCheck != 0)
 			return stop(dptCheck);
 
-		while (INSTANCE.eventScheduler.haveEvents())
+		while(INSTANCE.eventScheduler.haveEvents())
 		{
 			Event current = INSTANCE.eventScheduler.popEvent();
 
@@ -178,11 +178,11 @@ public class Simulator
 
 			notifyChange("StateChange");
 
-			if (INSTANCE.checkTerminate())
+			if(INSTANCE.checkTerminate())
 				return stop(1);
 
 			dptCheck = INSTANCE.checkDPT();
-			if (dptCheck != 0)
+			if(dptCheck != 0)
 				return stop(dptCheck);
 		}
 		return stop(0);

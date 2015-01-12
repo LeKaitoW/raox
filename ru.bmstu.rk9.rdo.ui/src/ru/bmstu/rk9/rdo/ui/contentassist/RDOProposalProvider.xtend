@@ -19,7 +19,7 @@ class RDOProposalProvider extends AbstractRDOProposalProvider
 {
 	override completeKeyword(Keyword keyword, ContentAssistContext context, ICompletionProposalAcceptor acceptor)
 	{
-		if (RDOKeywordProposalValidator.check(keyword.value, context.previousModel))
+		if(RDOKeywordProposalValidator.check(keyword.value, context.previousModel))
 			super.completeKeyword(keyword, context, acceptor)
 	}
 

@@ -36,7 +36,7 @@ public class GlobalContext
 		{
 			origin = rtp;
 			parameters = new HashMap<String, String>();
-			for (ResourceTypeParameter p : rtp.getParameters())
+			for(ResourceTypeParameter p : rtp.getParameters())
 				parameters.put(p.getName(), RDOExpressionCompiler.compileType(p));
 		}
 	}
@@ -125,7 +125,7 @@ public class GlobalContext
 				parameters = ((FunctionList)fun.getType()).getParameters();
 
 			if(parameters != null)
-				for (FunctionParameter p : parameters.getParameters())
+				for(FunctionParameter p : parameters.getParameters())
 					this.parameters.addLast(RDOExpressionCompiler.compileType(p.getType()));
 		}
 	}
