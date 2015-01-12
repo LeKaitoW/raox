@@ -32,7 +32,7 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>>
 
 		if(number.equals(resourceNumber))
 			resourceNumber++;
-		else
+		else if(number > resourceNumber)
 			return;
 
 		listResources.put(number, res);
