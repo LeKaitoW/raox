@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rdo.ui.contributions;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -152,6 +153,8 @@ public class RDOResultsView  extends ViewPart
 
 		styleRange.length = resultText[0].length() - origin.length();
 
+		LinkedList<StyleRange> numberStyles = new LinkedList<StyleRange>();
+
 		data.keySet().stream()
 			.filter(e -> sortList.containsKey(e))
 			.sorted(comparator)
@@ -166,6 +169,15 @@ public class RDOResultsView  extends ViewPart
 				TreeItem child = new TreeItem(result, SWT.NONE);
 				child.setText(text);
 
+				StyleRange numberStyle = new StyleRange();
+				numberStyle.start = resultText[0].length() + text[0].length() + 4;
+				numberStyle.length = text[1].length();
+				numberStyle.fontStyle = SWT.ITALIC;
+				numberStyle.foreground = child.getDisplay()
+					.getSystemColor(SWT.COLOR_DARK_BLUE);
+
+				numberStyles.add(numberStyle);
+
 				resultText[0] += "\n\t" + text[0] + ": " + text[1];
 			});
 
@@ -173,6 +185,9 @@ public class RDOResultsView  extends ViewPart
 		text.setText(resultText[0]);
 		text.setStyleRanges(styles);
 		text.setStyleRange(styleRange);
+
+		for(StyleRange style : numberStyles)
+			text.setStyleRange(style);
 	}
 
 	public static void setResults(List<Result> results)
