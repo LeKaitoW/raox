@@ -60,7 +60,7 @@ class RDOStatementCompiler
 					'''
 
 			OperationConvert:
-				if (parameter == 0)
+				if(parameter == 0)
 						'''
 						// «st.relres.name» convert begin
 						{
@@ -132,10 +132,10 @@ class RDOStatementCompiler
 				var flag = false
 				var list = ""
 
-				for (d : st.declarations)
+				for(d : st.declarations)
 				{
-					list = list + (if (flag) ", " else "") + d.name +
-						(if (d.value != null) " = " + d.value.compileExpression.value else "")
+					list = list + (if(flag) ", " else "") + d.name +
+						(if(d.value != null) " = " + d.value.compileExpression.value else "")
 					flag = true
 				}
 
@@ -167,19 +167,19 @@ class RDOStatementCompiler
 
 				val ret =
 					'''
-					for («
-						if (st.declaration != null)
+					for(«
+						if(st.declaration != null)
 							st.declaration.compileStatement.cutLastChars(1) + ""
 						else
-							if (st.init != null)
+							if(st.init != null)
 								st.init.compileExpression.value + ";"
 							else ";"
 						» «
-						if (st.condition != null)
+						if(st.condition != null)
 							st.condition.compileExpression.value
 						else ""
 						»; «
-						if (st.update != null)
+						if(st.update != null)
 							st.update.compileExpression.value
 						else ""
 					»)«IF st.body.empty»;«ELSE»
@@ -208,8 +208,8 @@ class RDOStatementCompiler
 			PlanningStatement:
 				"Simulator.pushEvent(new " +
 					st.event.getFullyQualifiedName + "(" + RDOExpressionCompiler.compileExpression(st.value).value +
-						(if (st.parameters != null) (", " + st.parameters.compileExpression.value) else
-							(if(st.event.parameters != null && st.event.parameters.size > 0)
+						(if(st.parameters != null) (", " + st.parameters.compileExpression.value) else
+							(if(st.event.parameters != null && !st.event.parameters.empty)
 								(", " + compileAllDefault(st.event.parameters.size)) else "")) + "));"
 
 			LegacySetStatement:

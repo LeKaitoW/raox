@@ -350,7 +350,7 @@ public class RDOResultsView  extends ViewPart
 			@Override
 			public void propertyChange(PropertyChangeEvent event)
 			{
-				if (event.getProperty().equals(PreferenceConstants.EDITOR_TEXT_FONT))
+				if(event.getProperty().equals(PreferenceConstants.EDITOR_TEXT_FONT))
 					updateTextFont();
 			}
 		};

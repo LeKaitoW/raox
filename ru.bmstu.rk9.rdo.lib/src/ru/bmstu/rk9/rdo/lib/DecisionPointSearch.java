@@ -111,9 +111,9 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		@Override
 		public int compare(GraphNode x, GraphNode y)
 		{
-			if (x.g + x.h < y.g + y.h)
+			if(x.g + x.h < y.g + y.h)
 				return -1;
-			if (x.g + x.h > y.g + y.h)
+			if(x.g + x.h > y.g + y.h)
 				return 1;
 			return 0;
 		}
@@ -152,7 +152,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		totalSpawned = 0;
 		totalAdded = 0;
 
-		if (enoughSensitivity(SerializationLevel.START_STOP))
+		if(enoughSensitivity(SerializationLevel.START_STOP))
 		{
 			Simulator.getDatabase().addSearchEntry(
 				this, Database.SearchEntryType.BEGIN, null);
@@ -161,7 +161,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		if(!allowSearch)
 			return stop(StopCode.ABORTED);
 
-		if (condition != null && !condition.check() || terminate.check())
+		if(condition != null && !condition.check() || terminate.check())
 			return stop(StopCode.CONDITION);
 
 		nodesOpen.clear();
@@ -173,7 +173,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 		nodesOpen.addAll(head.children);
 
-		while(nodesOpen.size() > 0)
+		while(!nodesOpen.isEmpty())
 		{
 			if(!allowSearch)
 				return stop(StopCode.ABORTED);
@@ -196,13 +196,13 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 				.putDouble(current.g)
 				.putDouble(current.h);
 
-			if (enoughSensitivity(SerializationLevel.TOPS))
+			if(enoughSensitivity(SerializationLevel.TOPS))
 			{
 				database.addSearchEntry(
 					this, Database.SearchEntryType.OPEN, data);
 			}
 
-			if (terminate.check())
+			if(terminate.check())
 				return stop(StopCode.SUCCESS);
 
 			current.children = spawnChildren(current);
@@ -255,11 +255,11 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 				add_child:
 				{
 					compare_tops:
-					if (compareTops)
+					if(compareTops)
 					{
-						for (GraphNode open : nodesOpen)
-							if (newChild.state.checkEqual(open.state))
-								if (newChild.g < open.g)
+						for(GraphNode open : nodesOpen)
+							if(newChild.state.checkEqual(open.state))
+								if(newChild.g < open.g)
 								{
 									nodesOpen.remove(open);
 									spawnStatus = SpawnStatus.BETTER;
@@ -271,9 +271,9 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 									break add_child;
 								}
 
-						for (GraphNode closed : nodesClosed)
-							if (newChild.state.checkEqual(closed.state))
-								if (newChild.g < closed.g)
+						for(GraphNode closed : nodesClosed)
+							if(newChild.state.checkEqual(closed.state))
+								if(newChild.g < closed.g)
 								{
 									nodesClosed.remove(closed);
 									spawnStatus = SpawnStatus.BETTER;
@@ -289,7 +289,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 					int[] relevantResources = newChild.activityInfo.rule.getRelevantInfo();
 
-					if (enoughSensitivity(SerializationLevel.TOPS))
+					if(enoughSensitivity(SerializationLevel.TOPS))
 					{
 						ByteBuffer data = ByteBuffer.allocate
 						(
@@ -313,7 +313,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 							this, Database.SearchEntryType.SPAWN, data);
 					}
 
-					if (enoughSensitivity(SerializationLevel.ALL))
+					if(enoughSensitivity(SerializationLevel.ALL))
 					{
 						executed.addResourceEntriesToDatabase(
 							Pattern.ExecutedFrom.SEARCH);
@@ -365,7 +365,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 			break;
 		}
 
-		if (enoughSensitivity(SerializationLevel.START_STOP))
+		if(enoughSensitivity(SerializationLevel.START_STOP))
 		{
 			data
 				.put((byte)code.ordinal())
@@ -398,7 +398,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 			node = node.parent;
 		}
 
-		if (enoughSensitivity(SerializationLevel.DECISION))
+		if(enoughSensitivity(SerializationLevel.DECISION))
 		{
 			for(Iterator<GraphNode> it = decision.descendingIterator(); it.hasNext();)
 			{
@@ -420,7 +420,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 				database.addSearchEntry(
 					this, Database.SearchEntryType.DECISION, data);
 
-				if (enoughSensitivity(SerializationLevel.ALL))
+				if(enoughSensitivity(SerializationLevel.ALL))
 				{
 					rule.addResourceEntriesToDatabase(
 						Pattern.ExecutedFrom.SOLUTION);
@@ -466,11 +466,11 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		SerializationTypeComparator comparator =
 			new SerializationTypeComparator();
 
-		for (SerializationLevel type : SerializationLevel.values())
+		for(SerializationLevel type : SerializationLevel.values())
 		{
-			if (Simulator.getDatabase().sensitiveTo(
+			if(Simulator.getDatabase().sensitiveTo(
 					getName() + "." + type.toString()))
-				if (comparator.compare(type, checkedType) >= 0)
+				if(comparator.compare(type, checkedType) >= 0)
 					return true;
 		}
 

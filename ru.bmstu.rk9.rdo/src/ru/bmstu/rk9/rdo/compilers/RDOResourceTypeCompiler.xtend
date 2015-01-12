@@ -173,7 +173,7 @@ class RDOResourceTypeCompiler
 
 				public «parameter.type.compileType» set_«parameter.name»(«parameter.type.compileType» «parameter.name»)
 				{
-					if (managerOwner == managerCurrent)
+					if(managerOwner == managerCurrent)
 						this.«parameter.name» = «parameter.name»;
 					else
 						this.copyForNewOwner().«parameter.name» = «parameter.name»;
@@ -204,7 +204,7 @@ class RDOResourceTypeCompiler
 			public «rtp.name»(«rtp.parameters.compileResourceTypeParameters»)
 			{
 				«FOR parameter : rtp.parameters»
-					if («parameter.name» != null)
+					if(«parameter.name» != null)
 						this.«parameter.name» = «parameter.name»;
 				«ENDFOR»
 			}
@@ -213,7 +213,7 @@ class RDOResourceTypeCompiler
 			public boolean checkEqual(«rtp.name» other)
 			{
 				«FOR parameter : rtp.parameters»
-					if (!this.«parameter.name».equals(other.«parameter.name»))
+					if(!this.«parameter.name».equals(other.«parameter.name»))
 						return false;
 				«ENDFOR»
 
@@ -663,7 +663,7 @@ class RDOResourceTypeCompiler
 					return if(parameter.^default != null) " = " + parameter.^default.compileExpression.value else ""
 
 			RDORTPParameterString:
-				return if (parameter.^default != null) ' = "' + parameter.^default + '"' else ""
+				return if(parameter.^default != null) ' = "' + parameter.^default + '"' else ""
 
 			default:
 				return ""

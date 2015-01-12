@@ -54,7 +54,7 @@ class RDOModelCompiler
 				«FOR r : rs.resources»
 
 					«FOR rtp : r.allContents.filter(typeof(ResourceDeclaration)).toIterable»
-						«rtp.reference.fullyQualifiedName» «rtp.name» = new «rtp.reference.fullyQualifiedName»(«if (rtp.parameters != null)
+						«rtp.reference.fullyQualifiedName» «rtp.name» = new «rtp.reference.fullyQualifiedName»(«if(rtp.parameters != null)
 							rtp.parameters.compileExpression.value else ""»);
 						«rtp.name».register("«rtp.fullyQualifiedName»");
 						db.addResourceEntry(Database.ResourceEntryType.CREATED, «rtp.name», "«rtp.fullyQualifiedName»");
@@ -110,7 +110,7 @@ class RDOModelCompiler
 			{
 				«FOR r : rs.resources»
 					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
-						if (!this.«r.allContents.head.nameGeneric»_«rtp.name»_manager.checkEqual(other.«
+						if(!this.«r.allContents.head.nameGeneric»_«rtp.name»_manager.checkEqual(other.«
 							r.allContents.head.nameGeneric»_«rtp.name»_manager))
 							return false;
 					«ENDFOR»

@@ -134,8 +134,8 @@ public class ExecutionHandler extends AbstractHandler
 
 					IJobManager jobMan = Job.getJobManager();
 
-					for (Job j : jobMan.find("rdo_model_run"))
-						if (j != this)
+					for(Job j : jobMan.find("rdo_model_run"))
+						if(j != this)
 							j.join();
 
 					this.setName(name);
@@ -146,7 +146,7 @@ public class ExecutionHandler extends AbstractHandler
 
 					this.setName(name);
 
-					if (build.getResult() != Status.OK_STATUS)
+					if(build.getResult() != Status.OK_STATUS)
 					{
 						setRunningState(display, sourceProvider, false);
 						RDOConsoleView.addLine("Build failed");
@@ -250,7 +250,7 @@ public class ExecutionHandler extends AbstractHandler
 
 					LinkedList<Result> results = new LinkedList<Result>();
 					int result = -1;
-					if (simulation != null)
+					if(simulation != null)
 						result = (int)simulation.invoke(null, (Object)results);
 
 					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.updater);

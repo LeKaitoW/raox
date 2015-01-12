@@ -116,7 +116,7 @@ public class Database
 
 		addSystemEntry(SystemEntryType.TRACE_START);
 
-		for (String traceName : TraceConfig.getNames())
+		for(String traceName : TraceConfig.getNames())
 			addSensitivity(traceName);
 	}
 
@@ -622,7 +622,7 @@ public class Database
 		Index index = resultIndex.get(name);
 
 		ByteBuffer data = result.serialize();
-		if (index.entries.size() > 0)
+		if(!index.entries.isEmpty())
 		{
 			ByteBuffer lastResultValue =
 				allEntries.get(
@@ -631,7 +631,7 @@ public class Database
 			ByteBuffer currentResultValue = data.duplicate();
 			currentResultValue.rewind();
 			lastResultValue.rewind();
-			if (currentResultValue.compareTo(lastResultValue) == 0)
+			if(currentResultValue.compareTo(lastResultValue) == 0)
 				return;
 		}
 

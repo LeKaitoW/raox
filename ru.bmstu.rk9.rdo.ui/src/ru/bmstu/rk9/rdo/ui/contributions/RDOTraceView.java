@@ -115,13 +115,13 @@ public class RDOTraceView extends ViewPart
 				@Override
 				public void keyPressed(KeyEvent e)
 				{
-					if (((e.stateMask & SWT.CTRL) == SWT.CTRL) &&
+					if(((e.stateMask & SWT.CTRL) == SWT.CTRL) &&
 							(e.keyCode == 'c'))
 					{
 						copyTraceLine();
 					}
 
-					if (((e.stateMask & SWT.CTRL) == SWT.CTRL) &&
+					if(((e.stateMask & SWT.CTRL) == SWT.CTRL) &&
 							(e.keyCode == 'f'))
 					{
 						showFindDialog();
@@ -142,7 +142,7 @@ public class RDOTraceView extends ViewPart
 				@Override
 				public void selectionChanged(SelectionChangedEvent event)
 				{
-					if (viewer.getTable().getSelectionIndex() !=
+					if(viewer.getTable().getSelectionIndex() !=
 							viewer.getTable().getItemCount() - 1)
 						shouldFollowOutput = false;
 					else
@@ -213,7 +213,7 @@ public class RDOTraceView extends ViewPart
 				//TODO export to location chosen by user
 				private final void exportTrace()
 				{
-					if (!Simulator.isInitialized())
+					if(!Simulator.isInitialized())
 						return;
 
 					ArrayList<TraceOutput> output =
@@ -240,7 +240,7 @@ public class RDOTraceView extends ViewPart
 						return;
 					}
 
-					for (TraceOutput item : output)
+					for(TraceOutput item : output)
 					{
 						writer.println(item.content());
 					}
@@ -282,14 +282,14 @@ public class RDOTraceView extends ViewPart
 			@SuppressWarnings("unchecked")
 			ArrayList<TraceOutput> traceOutput =
 				(ArrayList<TraceOutput>) viewer.getInput();
-			if (traceOutput == null)
+			if(traceOutput == null)
 				return SearchResult.NOT_FOUND;
 
 			boolean lineFound = false;
-			while (currentIndex < viewer.getTable().getItemCount()
+			while(currentIndex < viewer.getTable().getItemCount()
 					&& !lineFound)
 			{
-				if (traceOutput.get(currentIndex).content().contains(line))
+				if(traceOutput.get(currentIndex).content().contains(line))
 				{
 					viewer.getTable().setSelection(currentIndex);
 					viewer.getTable().showSelection();
@@ -298,7 +298,7 @@ public class RDOTraceView extends ViewPart
 				currentIndex++;
 			}
 
-			if (!lineFound)
+			if(!lineFound)
 			{
 				currentIndex = 0;
 				return SearchResult.NOT_FOUND;
@@ -360,7 +360,7 @@ public class RDOTraceView extends ViewPart
 					final int size = traceList.size();
 
 					RDOTraceView.viewer.setItemCount(size);
-					if (RDOTraceView.shouldFollowOutput())
+					if(RDOTraceView.shouldFollowOutput())
 						RDOTraceView.viewer.getTable().setTopIndex(size - 1);
 				}
 			};
@@ -368,7 +368,7 @@ public class RDOTraceView extends ViewPart
 			@Override
 			public void run()
 			{
-				if (haveNewRealTimeData && readyForInput() && !display.isDisposed())
+				if(haveNewRealTimeData && readyForInput() && !display.isDisposed())
 				{
 					haveNewRealTimeData = false;
 					display.asyncExec(updater);
@@ -395,7 +395,7 @@ public class RDOTraceView extends ViewPart
 							RDOTraceView.viewer.setInput(traceList);
 							RDOTraceView.viewer.setItemCount(size);
 
-							if (RDOTraceView.shouldFollowOutput())
+							if(RDOTraceView.shouldFollowOutput())
 								RDOTraceView.viewer.getTable().setTopIndex(size - 1);
 
 							viewer.refresh();
@@ -440,7 +440,7 @@ class RDOTraceViewContentProvider implements ILazyContentProvider
 	public void updateElement(int index)
 	{
 		//TODO completely avoid that situation
-		if (traceList != null && index < traceList.size())
+		if(traceList != null && index < traceList.size())
 			RDOTraceView.viewer.replace(traceList.get(index), index);
 	}
 }
@@ -641,7 +641,7 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 	@Override
 	public void dispose()
 	{
-		for (final TraceColor color : colorByType.values())
+		for(final TraceColor color : colorByType.values())
 		{
 			color.foregroundColor().dispose();
 			color.backgroundColor().dispose();
@@ -765,9 +765,9 @@ class SearchDialog extends Dialog
 				public void widgetSelected(SelectionEvent e)
 				{
 					saveInputString();
-					if (searchString != null)
+					if(searchString != null)
 					{
-						if (searchHelper.findLine(searchString) ==
+						if(searchHelper.findLine(searchString) ==
 								SearchResult.NOT_FOUND)
 							statusLabel.setText("String not found");
 						else

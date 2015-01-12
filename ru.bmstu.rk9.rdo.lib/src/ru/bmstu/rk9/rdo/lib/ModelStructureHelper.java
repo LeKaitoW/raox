@@ -25,9 +25,9 @@ public class ModelStructureHelper
 
 		public static final ValueType get(final String type)
 		{
-			for (ValueType t : values())
+			for(ValueType t : values())
 			{
-				if (t.type.equals(type))
+				if(t.type.equals(type))
 					return t;
 			}
 			return null;
@@ -43,14 +43,14 @@ public class ModelStructureHelper
 			.getModelStructure()
 			.getJSONArray("resource_types");
 
-		for (int typeNum = 0; typeNum < resourceTypes.length(); typeNum++)
+		for(int typeNum = 0; typeNum < resourceTypes.length(); typeNum++)
 		{
 			JSONObject type = resourceTypes.getJSONObject(typeNum);
 			HashMap<Integer, String> resources =
 				new HashMap<Integer, String>();
 
 			JSONArray jResources = type.getJSONArray("resources");
-			for (int resNum = 0; resNum < jResources.length(); resNum++)
+			for(int resNum = 0; resNum < jResources.length(); resNum++)
 				resources.put(
 					resNum,
 					getRelativeName(jResources.getString(resNum))
@@ -73,7 +73,7 @@ public class ModelStructureHelper
 			.getModelStructure()
 			.getJSONArray("resource_types");
 
-		for (int num = 0; num < resourceTypes.length(); num++)
+		for(int num = 0; num < resourceTypes.length(); num++)
 			resourceTypesInfo.add(
 				new ResourceTypeInfo(resourceTypes.getJSONObject(num))
 			);
@@ -88,7 +88,7 @@ public class ModelStructureHelper
 			.getModelStructure()
 			.getJSONArray("patterns");
 
-		for (int num = 0; num < patterns.length(); num++)
+		for(int num = 0; num < patterns.length(); num++)
 			patternsInfo.add(
 				new PatternInfo(patterns.getJSONObject(num))
 			);
@@ -103,7 +103,7 @@ public class ModelStructureHelper
 			.getModelStructure()
 			.getJSONArray("decision_points");
 
-		for (int num = 0; num < decisionPoints.length(); num++)
+		for(int num = 0; num < decisionPoints.length(); num++)
 			decisionPointsInfo.add(
 				new DecisionPointInfo(decisionPoints.getJSONObject(num))
 			);
@@ -118,7 +118,7 @@ public class ModelStructureHelper
 			.getModelStructure()
 			.getJSONArray("results");
 
-		for (int num = 0; num < results.length(); num++)
+		for(int num = 0; num < results.length(); num++)
 			resultsInfo.add(
 				new ResultInfo(results.getJSONObject(num))
 			);
@@ -137,10 +137,10 @@ public class ModelStructureHelper
 			Simulator.getDatabase().getModelStructure()
 			.getJSONArray("resource_types");
 		JSONObject originType = null;
-		for (int num = 0; num < resourceTypes.length(); num++)
+		for(int num = 0; num < resourceTypes.length(); num++)
 		{
 			JSONObject curType = resourceTypes.getJSONObject(num);
-			if (typeName.equals(curType.getString("name")))
+			if(typeName.equals(curType.getString("name")))
 			{
 				originType = curType;
 				break;
@@ -150,10 +150,10 @@ public class ModelStructureHelper
 		JSONArray originParams =
 			originType.getJSONObject(
 				"structure").getJSONArray("parameters");
-		for (int num = 0; num < originParams.length(); num++)
+		for(int num = 0; num < originParams.length(); num++)
 		{
 			JSONObject curParam = originParams.getJSONObject(num);
-			if (paramName.equals(curParam.getString("name")))
+			if(paramName.equals(curParam.getString("name")))
 			{
 				originParam = curParam;
 				break;
@@ -174,11 +174,11 @@ class ValueInfo
 	ValueInfo(final JSONObject param)
 	{
 		type = ModelStructureHelper.ValueType.get(param.getString("type"));
-		if (type == ModelStructureHelper.ValueType.ENUM)
+		if(type == ModelStructureHelper.ValueType.ENUM)
 		{
 			enumNames = new HashMap<Integer, String>();
 			JSONObject originParam = null;
-			if (param.has("enums"))
+			if(param.has("enums"))
 			{
 				originParam = param;
 			}
@@ -189,7 +189,7 @@ class ValueInfo
 			}
 
 			JSONArray enums = originParam.getJSONArray("enums");
-			for (int num = 0; num < enums.length(); num++)
+			for(int num = 0; num < enums.length(); num++)
 				enumNames.put(num, enums.getString(num));
 		}
 		else
@@ -214,7 +214,7 @@ class ResourceTypeInfo
 
 		paramTypes = new HashMap<Integer, ValueInfo>();
 		indexList = new HashMap<Integer, Integer>();
-		for (int num = 0; num < numberOfParameters; num++)
+		for(int num = 0; num < numberOfParameters; num++)
 		{
 			final JSONObject currentParameter = parameters.getJSONObject(num);
 			ModelStructureHelper.ValueType type =
@@ -224,7 +224,7 @@ class ResourceTypeInfo
 				num,
 				new ValueInfo(currentParameter)
 			);
-			if (type == ModelStructureHelper.ValueType.STRING)
+			if(type == ModelStructureHelper.ValueType.STRING)
 			{
 				indexList.put(num, currentParameter.getInt("index"));
 			}
@@ -248,7 +248,7 @@ class PatternInfo
 		relResTypes = new HashMap<Integer, Integer>();
 		JSONArray relevantResources =
 			pattern.getJSONArray("relevant_resources");
-		for (int num = 0; num < relevantResources.length(); num++)
+		for(int num = 0; num < relevantResources.length(); num++)
 		{
 			String typeName =
 				relevantResources.getJSONObject(num).getString("type");
@@ -257,8 +257,8 @@ class PatternInfo
 				.getJSONArray("resource_types");
 			int typeNum = -1;
 			//TODO throw exception if not found
-			for (int i = 0; i < resTypes.length(); i++)
-				if (typeName.equals(
+			for(int i = 0; i < resTypes.length(); i++)
+				if(typeName.equals(
 						resTypes.getJSONObject(i).getString("name")))
 				{
 					typeNum = i;
@@ -283,7 +283,7 @@ class DecisionPointInfo
 
 		activitiesInfo = new HashMap<Integer, ActivityInfo>();
 		JSONArray activities = dpt.getJSONArray("activities");
-		for (int num = 0; num < activities.length(); num++)
+		for(int num = 0; num < activities.length(); num++)
 			activitiesInfo.put(
 				num,
 				new ActivityInfo(activities.getJSONObject(num))
@@ -304,8 +304,8 @@ class ActivityInfo
 		JSONArray patterns = Simulator.getDatabase().getModelStructure()
 				.getJSONArray("patterns");
 		//TODO throw exception if not found
-		for (int num = 0; num < patterns.length(); num++)
-			if (patternName.equals(
+		for(int num = 0; num < patterns.length(); num++)
+			if(patternName.equals(
 					patterns.getJSONObject(num).getString("name")))
 			{
 				patternNumber = num;
@@ -323,7 +323,7 @@ class ResultInfo
 	{
 		name = ModelStructureHelper.getRelativeName(result.getString("name"));
 		String valueTypeRaw = result.getString("value_type");
-		if (valueTypeRaw.contains("_enum"))
+		if(valueTypeRaw.contains("_enum"))
 		{
 			valueType = ModelStructureHelper.ValueType.ENUM;
 			enumNames = new HashMap<Integer, String>();
@@ -333,7 +333,7 @@ class ResultInfo
 				ModelStructureHelper.getEnumOrigin(enumOriginName);
 
 			JSONArray enums = originParam.getJSONArray("enums");
-			for (int num = 0; num < enums.length(); num++)
+			for(int num = 0; num < enums.length(); num++)
 				enumNames.put(num, enums.getString(num));
 		}
 		else

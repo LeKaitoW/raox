@@ -34,7 +34,7 @@ public class RDOPerspectiveSourceProvider extends AbstractSourceProvider
 
 	public void perspectiveChanged(boolean _isRDOPerspective)
 	{
-    	if (this.isRDOPerspective == _isRDOPerspective)
+    	if(this.isRDOPerspective == _isRDOPerspective)
     		return;
 
     	this.isRDOPerspective = _isRDOPerspective;

@@ -82,7 +82,7 @@ public class Tracer implements Subscriber
 
 	public final synchronized void setPaused(boolean paused)
 	{
-		if (this.paused == paused)
+		if(this.paused == paused)
 			return;
 
 		this.paused = paused;
@@ -98,7 +98,7 @@ public class Tracer implements Subscriber
 
 	private final void notifyRealTimeSubscriber()
 	{
-		if (realTimeSubscriber != null)
+		if(realTimeSubscriber != null)
 			realTimeSubscriber.fireChange();
 	}
 
@@ -112,14 +112,14 @@ public class Tracer implements Subscriber
 	public final void notifyCommonSubscriber()
 	{
 		parseNewEntries();
-		if (commonSubscriber != null)
+		if(commonSubscriber != null)
 			commonSubscriber.fireChange();
 	}
 
 	@Override
 	public void fireChange()
 	{
-		if (paused)
+		if(paused)
 			return;
 
 		parseNewEntries();
@@ -160,11 +160,11 @@ public class Tracer implements Subscriber
 		final ArrayList<Database.Entry> entries =
 			Simulator.getDatabase().allEntries;
 
-		while (nextEntryNumber < entries.size())
+		while(nextEntryNumber < entries.size())
 		{
 			final TraceOutput traceOutput =
 				parseSerializedData(entries.get(nextEntryNumber));
-			if (traceOutput != null)
+			if(traceOutput != null)
 				traceList.add(traceOutput);
 			nextEntryNumber++;
 		}
@@ -283,7 +283,7 @@ public class Tracer implements Subscriber
 		final RDOLibStringJoiner stringJoiner =
 			new RDOLibStringJoiner(RDOLibStringJoiner.StringFormat.STRUCTURE);
 
-		for (int paramNum = 0; paramNum < typeInfo.numberOfParameters; paramNum++)
+		for(int paramNum = 0; paramNum < typeInfo.numberOfParameters; paramNum++)
 		{
 			ValueInfo valueInfo = typeInfo.paramTypes.get(paramNum);
 			//TODO trace arrays when they are implemented
@@ -311,7 +311,7 @@ public class Tracer implements Subscriber
 				final int length = data.getInt(stringPosition);
 
 				byte rawString[] = new byte[length];
-				for (int i = 0; i < length; i++)
+				for(int i = 0; i < length; i++)
 					rawString[i] = data.get(stringPosition +
 						TypeSize.RDO.INTEGER + i);
 				stringJoiner.add(
@@ -679,7 +679,7 @@ public class Tracer implements Subscriber
 			);
 		case STRING:
 			final ByteArrayOutputStream rawString = new ByteArrayOutputStream();
-			while (data.hasRemaining())
+			while(data.hasRemaining())
 			{
 				rawString.write(data.get());
 			}
@@ -697,7 +697,7 @@ public class Tracer implements Subscriber
 
 	final static void skipPart(final ByteBuffer buffer, final int size)
 	{
-		for (int i = 0; i < size; i++)
+		for(int i = 0; i < size; i++)
 			buffer.get();
 	}
 
@@ -765,7 +765,7 @@ class RDOLibStringJoiner
 
 	final RDOLibStringJoiner add(final String toAppend)
 	{
-		if (current == null)
+		if(current == null)
 			current = new String(toAppend);
 		else
 			current += delimiter + toAppend;

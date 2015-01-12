@@ -122,13 +122,13 @@ public class RDOTraceConfigView extends ViewPart
 				@Override
 				public void partActivated(IWorkbenchPartReference partRef)
 				{
-					if (partRef.getId().equals("ru.bmstu.rk9.rdo.RDO"))
+					if(partRef.getId().equals("ru.bmstu.rk9.rdo.RDO"))
 					{
 						IEditorPart editor = partRef.getPage().getActiveEditor();
 						IXtextDocument document =
 							((XtextEditor) editor).getDocument();
 
-						if (documents.contains(document))
+						if(documents.contains(document))
 							return;
 
 						documents.add(document);
@@ -171,7 +171,7 @@ public class RDOTraceConfigView extends ViewPart
 	{
 		traceConfig.setModelName(RDONaming.getResourceName(model));
 		traceConfigurator.fillCategories(model, traceConfig.getRoot());
-		if (RDOTraceConfigView.traceTreeViewer == null)
+		if(RDOTraceConfigView.traceTreeViewer == null)
 			return;
 		PlatformUI.getWorkbench().getDisplay().asyncExec(
 			new Runnable()
@@ -264,23 +264,23 @@ class TraceConfigurator
 
 		//TODO why don't name include model name here already?
 		//the way it is now it differs from the names we get from database
-		for (T c : categoryList)
+		for(T c : categoryList)
 		{
 			TraceNode child = category.addChild(RDONaming.getNameGeneric(c));
-			if (c instanceof Pattern)
+			if(c instanceof Pattern)
 			{
-				for (EObject relRes : c.eContents())
+				for(EObject relRes : c.eContents())
 				{
-					if (relRes instanceof RuleRelevantResource ||
+					if(relRes instanceof RuleRelevantResource ||
 						relRes instanceof EventRelevantResource ||
 						relRes instanceof OperationRelevantResource)
 					child.addChild(
 						child.getName() + "." + RDONaming.getNameGeneric(relRes));
 				}
 			}
-			else if (c instanceof DecisionPointSearch)
+			else if(c instanceof DecisionPointSearch)
 			{
-				for (SerializationLevel type : SerializationLevel.values())
+				for(SerializationLevel type : SerializationLevel.values())
 					child.addChild(child.getName() + "." + type.toString());
 			}
 		}
@@ -288,7 +288,7 @@ class TraceConfigurator
 
 	public final void initCategories(TraceNode node)
 	{
-		for (TraceCategory category : TraceCategory.values())
+		for(TraceCategory category : TraceCategory.values())
 			node.addChild(category.getName());
 	}
 }
@@ -318,7 +318,7 @@ class RDOTraceConfigContentProvider implements ITreeContentProvider
 	public Object[] getElements(Object inputElement)
 	{
 		TraceConfig traceConfig = (TraceConfig) inputElement;
-		if (!traceConfig.getRoot().hasChildren())
+		if(!traceConfig.getRoot().hasChildren())
 			return null;
 		return traceConfig.getRoot().getChildren().toArray();
 	}
@@ -326,7 +326,7 @@ class RDOTraceConfigContentProvider implements ITreeContentProvider
 	public Object[] getChildren(Object parentElement)
 	{
 		TraceNode traceNode = (TraceNode) parentElement;
-		if (!traceNode.hasChildren())
+		if(!traceNode.hasChildren())
 			return null;
 		return traceNode.getChildren().toArray();
 	}

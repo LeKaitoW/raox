@@ -94,7 +94,7 @@ public class RDOAnimationView extends ViewPart
 	{
 		frameList.removeAll();
 
-		if(frames.size() > 0)
+		if(!frames.isEmpty())
 		{
 			if(selectedFrameIndex >= frames.size())
 				selectedFrameIndex = 0;
@@ -185,7 +185,7 @@ public class RDOAnimationView extends ViewPart
 			@Override
 			public void run()
 			{
-				if (haveNewData && !display.isDisposed())
+				if(haveNewData && !display.isDisposed())
 					display.asyncExec(updater);
 			}
 		};
