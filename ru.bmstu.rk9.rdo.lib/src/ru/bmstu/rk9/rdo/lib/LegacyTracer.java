@@ -74,6 +74,7 @@ public class LegacyTracer extends Tracer
 
 	private boolean simulationStarted = false;
 	private boolean dptSearchJustStarted = false;
+	private boolean dptSearchDecisionFound = false;
 	private boolean dptSearchJustFinished = false;
 	private double dptSearchTime = 0;
 
@@ -196,10 +197,10 @@ public class LegacyTracer extends Tracer
 			legacyId = legacyResourceIds.get(typeNum).get(resNum);
 			break;
 		case SEARCH:
-		case SOLUTION:
 			traceType = TraceType.SEARCH_RESOURCE_KEEP;
 			legacyId = legacyResourceIds.get(typeNum).get(resNum);
 			break;
+		case SOLUTION:
 		default:
 			return null;
 		}
@@ -452,6 +453,7 @@ public class LegacyTracer extends Tracer
 		{
 		case BEGIN:
 		{
+			dptSearchDecisionFound = false;
 			dptSearchJustStarted = true;
 			traceType = TraceType.SEARCH_BEGIN;
 			final double time = data.getDouble();
@@ -583,10 +585,31 @@ public class LegacyTracer extends Tracer
 			traceType = TraceType.SEARCH_DECISION;
 			final int number = data.getInt();
 			final int activityNumber = data.getInt();
+			final int patternNumber = decisionPointsInfo.get(currentDptNumber)
+				.activitiesInfo.get(activityNumber).patternNumber;
+			final int numberOfRelevantResources =
+				patternsInfo.get(patternNumber).relResTypes.size();
+			if (!dptSearchDecisionFound)
+			{
+				addLegacySearchEntryDecision();
+				dptSearchDecisionFound = true;
+			}
 			stringJoiner
-				.add("SD")
-				.add(number)
-				.add(activityNumber);
+				.add(number + 1)
+				.add(activityNumber + 1)
+				.add(patternNumber + 1)
+				.add(numberOfRelevantResources)
+				.add("");
+
+			for(int num = 0; num < numberOfRelevantResources; num++)
+			{
+				final int typeNum =
+					patternsInfo.get(patternNumber).relResTypes.get(num);
+				final int resNum = data.getInt();
+				final int legacyNum =
+					legacyResourceIds.get(typeNum).get(resNum);
+				stringJoiner.add(legacyNum);
+			}
 			break;
 		}
 		default:
@@ -598,6 +621,18 @@ public class LegacyTracer extends Tracer
 				traceType,
 				stringJoiner.getString()
 			);
+	}
+
+	private final void addLegacySearchEntryDecision()
+	{
+		traceList.add(
+			new TraceOutput(
+				TraceType.SEARCH_DECISION,
+				new RDOLibStringJoiner(delimiter)
+					.add("SD")
+					.getString()
+			)
+		);
 	}
 
 	private final void addLegacySearchEntriesOnStart()
