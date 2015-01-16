@@ -452,7 +452,6 @@ public class LegacyTracer extends Tracer
 		{
 		case BEGIN:
 		{
-			System.out.println("begin");
 			dptSearchJustStarted = true;
 			traceType = TraceType.SEARCH_BEGIN;
 			final double time = data.getDouble();
@@ -468,7 +467,6 @@ public class LegacyTracer extends Tracer
 		}
 		case END:
 		{
-			System.out.println("end");
 			dptSearchJustFinished = true;
 			currentDptNumber = -1;
 			final DecisionPointSearch.StopCode endStatus =
@@ -514,7 +512,6 @@ public class LegacyTracer extends Tracer
 		}
 		case OPEN:
 		{
-			System.out.println("open");
 			traceType = TraceType.SEARCH_OPEN;
 			final int currentNumber = data.getInt();
 			final int parentNumber = data.getInt();
@@ -530,7 +527,6 @@ public class LegacyTracer extends Tracer
 		}
 		case SPAWN:
 		{
-			System.out.println("spawn");
 			final DecisionPointSearch.SpawnStatus spawnStatus =
 					DecisionPointSearch.SpawnStatus.values()[data.get()];
 			switch(spawnStatus)
@@ -584,7 +580,6 @@ public class LegacyTracer extends Tracer
 		}
 		case DECISION:
 		{
-			System.out.println("decision");
 			traceType = TraceType.SEARCH_DECISION;
 			final int number = data.getInt();
 			final int activityNumber = data.getInt();
