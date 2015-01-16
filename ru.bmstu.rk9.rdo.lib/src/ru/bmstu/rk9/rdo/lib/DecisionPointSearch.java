@@ -452,25 +452,23 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		}
 	}
 
-	private class SerializationTypeComparator implements Comparator<SerializationLevel>
+	private final Comparator<SerializationLevel>
+		serializationLevelComparator = new Comparator<SerializationLevel>()
 	{
 		@Override
 		public int compare(SerializationLevel o1, SerializationLevel o2)
 		{
 			return o1.comparisonValue - o2.comparisonValue;
 		}
-	}
+	};
 
 	private final boolean enoughSensitivity(SerializationLevel checkedType)
 	{
-		SerializationTypeComparator comparator =
-			new SerializationTypeComparator();
-
 		for(SerializationLevel type : SerializationLevel.values())
 		{
 			if(Simulator.getDatabase().sensitiveTo(
 					getName() + "." + type.toString()))
-				if(comparator.compare(type, checkedType) >= 0)
+				if(serializationLevelComparator.compare(type, checkedType) >= 0)
 					return true;
 		}
 
