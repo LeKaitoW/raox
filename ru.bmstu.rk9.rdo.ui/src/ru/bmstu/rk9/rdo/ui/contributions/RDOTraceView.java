@@ -90,12 +90,15 @@ public class RDOTraceView extends ViewPart
 	
 	private void createWindow(TraceOutput traceOutput) {
 		String content = traceOutput.content();
+		String frameName = "";
 		int dptNum = -1;
 		for (String dptNameKey : Database.searchIndex.keySet()) {
 			int dotIndex = dptNameKey.indexOf('.');
 			String dptName = dptNameKey.substring(dotIndex + 1);
-			if (content.contains(dptName))
+			if (content.contains(dptName)) {
+				frameName = dptName;
 				dptNum = Database.searchIndex.get(dptNameKey).number;
+			}
 		}
 		TreeGrapher tree = new TreeGrapher();
 		if (dptNum != -1) {
@@ -103,6 +106,7 @@ public class RDOTraceView extends ViewPart
 					.get(dptNum));
 			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			frame.setSize(800, 600);
+			frame.setTitle(frameName);
 			frame.setLocationRelativeTo(null);
 			frame.setVisible(true);
 		}
