@@ -7,9 +7,11 @@ import java.util.TimerTask;
 import java.util.ArrayList;
 import java.util.EnumMap;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.action.Action;
@@ -163,6 +165,20 @@ public class RDOTraceView extends ViewPart
 		}
 	}
 
+	private static IProject currentProject = null;
+
+	public final static void setCurrentProject(IProject project)
+	{
+		currentProject = project;
+	}
+
+	private static IFile currentModel = null;
+
+	public final static void setCurrentModel(IFile model)
+	{
+		currentModel = model;
+	}
+
 	private final void configureToolbar()
 	{
 		IToolBarManager toolbarMgr =
@@ -219,15 +235,15 @@ public class RDOTraceView extends ViewPart
 					ArrayList<TraceOutput> output =
 						Simulator.getTracer().getTraceList();
 
-					//TODO doesn't seem a reliable way to get current project
-					IProject proj =
-						ResourcesPlugin.getWorkspace().getRoot().getProjects()[0];
-
-					//TODO make name similar to model name
-					java.nio.file.Path filePath = java.nio.file.Paths.get(
-						proj.getLocation().toPortableString(),
-						"traceOutput.trc"
-					);
+					IPath workspacePath = ResourcesPlugin.getWorkspace()
+						.getRoot().getLocation();
+					IPath filePath = workspacePath.append(
+							currentProject.getFullPath().append(
+								currentModel.getName().substring(
+									0, currentModel.getName().lastIndexOf('.')
+								) + ".trc"
+							)
+						);
 
 					PrintWriter writer = null;
 					try
