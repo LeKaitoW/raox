@@ -38,6 +38,8 @@ import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 
+import ru.bmstu.rk9.rdo.rdo.Frame
+
 import ru.bmstu.rk9.rdo.rdo.Results
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 
@@ -61,7 +63,7 @@ class RDONaming
 	def static getResourceName(Resource res)
 	{
 		var name = res.getURI().lastSegment()
-		if (name.endsWith(".rdo"))
+		if(name.endsWith(".rdo"))
 			name = name.substring(0, name.length() - 4)
 		name.replace(".", "_")
 		return name
@@ -81,7 +83,7 @@ class RDONaming
 		switch object
 		{
 			RDOModel:
-				return object.eResource.resourceName 
+				return object.eResource.resourceName
 
 			ResourceType:
 				return object.name
@@ -126,6 +128,9 @@ class RDONaming
 				return object.name
 
 			DecisionPoint:
+				return object.name
+
+			Frame:
 				return object.name
 
 			Results:
@@ -180,12 +185,15 @@ class RDONaming
 			DecisionPoint:
 				return object.eContainer.nameGeneric + "." + object.name
 
+			Frame:
+				return object.eContainer.nameGeneric + "." + object.name
+
 			Results:
 				return object.eContainer.nameGeneric + "." + object.nameGeneric
 
 			ResultDeclaration:
 				return object.eContainer.eContainer.nameGeneric + "." +
-					(if (object.eContainer.nameGeneric != "*null*")
+					(if(object.eContainer.nameGeneric != "*null*")
 						(object.eContainer.nameGeneric + "_") else "") + object.name
 
 			default:
@@ -195,7 +203,7 @@ class RDONaming
 
 	def static relResFullyQualifiedName(META_RelResType relres)
 	{
-		if (relres instanceof ResourceDeclaration)
+		if(relres instanceof ResourceDeclaration)
 			return (relres as ResourceDeclaration).reference.fullyQualifiedName
 		else
 			return relres.fullyQualifiedName
@@ -206,8 +214,8 @@ class RDONaming
 		var oname = object.fullyQualifiedName
 		var cname = context.fullyQualifiedName
 
-		while (oname.startsWith(cname.substring(0,
-			if (cname.indexOf(".") > 0)	cname.indexOf(".") else (cname.length - 1))))
+		while(oname.startsWith(cname.substring(0,
+			if(cname.indexOf(".") > 0)	cname.indexOf(".") else (cname.length - 1))))
 		{
 			oname = oname.substring(oname.indexOf(".") + 1)
 			cname = cname.substring(cname.indexOf(".") + 1)
@@ -248,24 +256,24 @@ class RDONaming
 	{
 		var container = enm.eContainer
 
-		while (container instanceof RDOArray)
+		while(container instanceof RDOArray)
 		{
 			container = container.eContainer
 		}
 
 		var doubleclass = true
-		if (container instanceof RDORTPParameterType)
+		if(container instanceof RDORTPParameterType)
 		{
 			doubleclass = false
 			container = container.eContainer
 		}
 
-		if (container instanceof FunctionParameter)
+		if(container instanceof FunctionParameter)
 		{
 			doubleclass = false
-		}		
+		}
 
-		if (isFQN)
+		if(isFQN)
 			return container.fullyQualifiedName + (if(doubleclass) ("." + container.nameGeneric) else "")
 		else
 			return container.nameGeneric

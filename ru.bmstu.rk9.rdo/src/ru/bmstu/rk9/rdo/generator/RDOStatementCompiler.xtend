@@ -26,6 +26,14 @@ import ru.bmstu.rk9.rdo.rdo.ReturnStatement
 import ru.bmstu.rk9.rdo.rdo.PlanningStatement
 import ru.bmstu.rk9.rdo.rdo.LegacySetStatement
 
+import ru.bmstu.rk9.rdo.rdo.FrameObject
+import ru.bmstu.rk9.rdo.rdo.FrameObjectText
+import ru.bmstu.rk9.rdo.rdo.FrameObjectRectangle
+import ru.bmstu.rk9.rdo.rdo.FrameObjectLine
+import ru.bmstu.rk9.rdo.rdo.FrameObjectCircle
+import ru.bmstu.rk9.rdo.rdo.FrameObjectEllipse
+import ru.bmstu.rk9.rdo.rdo.FrameObjectTriangle
+import ru.bmstu.rk9.rdo.rdo.FrameColour
 
 class RDOStatementCompiler
 {
@@ -52,7 +60,7 @@ class RDOStatementCompiler
 					'''
 
 			OperationConvert:
-				if (parameter == 0)
+				if(parameter == 0)
 						'''
 						// «st.relres.name» convert begin
 						{
@@ -124,10 +132,10 @@ class RDOStatementCompiler
 				var flag = false
 				var list = ""
 
-				for (d : st.declarations)
+				for(d : st.declarations)
 				{
-					list = list + (if (flag) ", " else "") + d.name +
-						(if (d.value != null) " = " + d.value.compileExpression.value else "")
+					list = list + (if(flag) ", " else "") + d.name +
+						(if(d.value != null) " = " + d.value.compileExpression.value else "")
 					flag = true
 				}
 
@@ -159,19 +167,19 @@ class RDOStatementCompiler
 
 				val ret =
 					'''
-					for («
-						if (st.declaration != null)
+					for(«
+						if(st.declaration != null)
 							st.declaration.compileStatement.cutLastChars(1) + ""
 						else
-							if (st.init != null)
+							if(st.init != null)
 								st.init.compileExpression.value + ";"
 							else ";"
 						» «
-						if (st.condition != null)
+						if(st.condition != null)
 							st.condition.compileExpression.value
 						else ""
 						»; «
-						if (st.update != null)
+						if(st.update != null)
 							st.update.compileExpression.value
 						else ""
 					»)«IF st.body.empty»;«ELSE»
@@ -200,8 +208,8 @@ class RDOStatementCompiler
 			PlanningStatement:
 				"Simulator.pushEvent(new " +
 					st.event.getFullyQualifiedName + "(" + RDOExpressionCompiler.compileExpression(st.value).value +
-						(if (st.parameters != null) (", " + st.parameters.compileExpression.value) else
-							(if(st.event.parameters != null && st.event.parameters.size > 0)
+						(if(st.parameters != null) (", " + st.parameters.compileExpression.value) else
+							(if(st.event.parameters != null && !st.event.parameters.empty)
 								(", " + compileAllDefault(st.event.parameters.size)) else "")) + "));"
 
 			LegacySetStatement:
@@ -223,7 +231,81 @@ class RDOStatementCompiler
 					}
 				);
 				'''
+
+			FrameObject:
+				switch st
+				{
+					FrameObjectText:
+						'''
+						context.drawText
+						(
+							«st.x.compileExpression.value», «st.y.compileExpression.value»,
+							«st.width.compileExpression.value», «st.height.compileExpression.value»,
+							«st.backcolour.compileFrameColour»,
+							«st.textcolour.compileFrameColour»,
+							AnimationContext.Alignment.«IF st.alignment != null
+								»«st.alignment.getName»«ELSE»LEFT«ENDIF»,
+							«st.text.compileExpression.value»
+						);
+						'''
+					FrameObjectRectangle:
+						'''
+						context.drawRectangle
+						(
+							«st.x.compileExpression.value», «st.y.compileExpression.value»,
+							«st.width.compileExpression.value», «st.height.compileExpression.value»,
+							«st.backcolour.compileFrameColour»,
+							«st.bordercolour.compileFrameColour»
+						);
+						'''
+					FrameObjectLine:
+						'''
+						context.drawLine
+						(
+							«st.x1.compileExpression.value», «st.y1.compileExpression.value»,
+							«st.x2.compileExpression.value», «st.x2.compileExpression.value»,
+							«st.colour.compileFrameColour»
+						);
+						'''
+					FrameObjectCircle:
+						'''
+						context.drawCircle
+						(
+							«st.x.compileExpression.value», «st.y.compileExpression.value»,
+							«st.radius.compileExpression.value»,
+							«st.backcolour.compileFrameColour»,
+							«st.bordercolour.compileFrameColour»
+						);
+						'''
+					FrameObjectEllipse:
+						'''
+						context.drawEllipse
+						(
+							«st.x.compileExpression.value», «st.y.compileExpression.value»,
+							«st.width.compileExpression.value», «st.height.compileExpression.value»,
+							«st.backcolour.compileFrameColour»,
+							«st.bordercolour.compileFrameColour»
+						);
+						'''
+					FrameObjectTriangle:
+						'''
+						context.drawRectangle
+						(
+							«st.x1.compileExpression.value», «st.y1.compileExpression.value»,
+							«st.x2.compileExpression.value», «st.y2.compileExpression.value»,
+							«st.x3.compileExpression.value», «st.y3.compileExpression.value»,
+							«st.backcolour.compileFrameColour»,
+							«st.bordercolour.compileFrameColour»
+						);
+						'''
+				}
 		}
+	}
+
+	def static String compileFrameColour(FrameColour colour)
+	{
+		'''new int[] {«colour.r», «colour.g
+			», «colour.b», «255 - colour.alpha»}'''
 	}
 
 	def static String cutLastChars(String s, int c)

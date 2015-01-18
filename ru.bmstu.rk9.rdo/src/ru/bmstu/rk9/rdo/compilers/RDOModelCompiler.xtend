@@ -39,8 +39,7 @@ class RDOModelCompiler
 		{
 			«FOR r : rs.resources»
 				«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
-					«IF rtp.type.literal == 'temporary'»Temporary«ELSE»Permanent«ENDIF
-						»ResourceManager<«rtp.fullyQualifiedName»> «r.allContents.head.nameGeneric
+					ResourceManager<«rtp.fullyQualifiedName»> «r.allContents.head.nameGeneric
 							»_«rtp.name»_manager;
 				«ENDFOR»
 			«ENDFOR»
@@ -50,11 +49,16 @@ class RDOModelCompiler
 			public static void init()
 			{
 				(new «project»Model()).deploy();
+
+				Database db = Simulator.getDatabase();
 				«FOR r : rs.resources»
 
 					«FOR rtp : r.allContents.filter(typeof(ResourceDeclaration)).toIterable»
-						(new «rtp.reference.fullyQualifiedName»(«if (rtp.parameters != null)
-							rtp.parameters.compileExpression.value else ""»)).register("«rtp.fullyQualifiedName»");
+						«rtp.reference.fullyQualifiedName» «rtp.name» = new «rtp.reference.fullyQualifiedName»(«if(rtp.parameters != null)
+							rtp.parameters.compileExpression.value else ""»);
+						«rtp.name».register("«rtp.fullyQualifiedName»");
+						db.addResourceEntry(Database.ResourceEntryType.CREATED, «rtp.name», "«rtp.fullyQualifiedName»");
+
 					«ENDFOR»
 				«ENDFOR»
 			}
@@ -68,9 +72,8 @@ class RDOModelCompiler
 			{
 				«FOR r : rs.resources»
 					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
-						this.«r.allContents.head.nameGeneric»_«rtp.name»_manager = new «
-							IF rtp.type.literal == 'temporary'»Temporary«ELSE»Permanent«ENDIF
-								»ResourceManager<«rtp.fullyQualifiedName»>();
+						this.«r.allContents.head.nameGeneric»_«rtp.name
+							»_manager = new ResourceManager<«rtp.fullyQualifiedName»>();
 					«ENDFOR»
 				«ENDFOR»
 			}
@@ -107,7 +110,7 @@ class RDOModelCompiler
 			{
 				«FOR r : rs.resources»
 					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
-						if (!this.«r.allContents.head.nameGeneric»_«rtp.name»_manager.checkEqual(other.«
+						if(!this.«r.allContents.head.nameGeneric»_«rtp.name»_manager.checkEqual(other.«
 							r.allContents.head.nameGeneric»_«rtp.name»_manager))
 							return false;
 					«ENDFOR»
@@ -163,7 +166,7 @@ class RDOModelCompiler
 
 		var results = ""
 		for(r : rs.resources)
-			for(rslt : r.allContents.filter(typeof(ResultDeclaration)).toIterable)		
+			for(rslt : r.allContents.filter(typeof(ResultDeclaration)).toIterable)
 				results = results +
 					'''
 					.put
@@ -202,7 +205,7 @@ class RDOModelCompiler
 
 	def private static compileResourcesInStructure(ResourceType rtp, ResourceSet rs)
 	{
-		var ret = "" 
+		var ret = ""
 
 		for(r : rs.resources)
 			for(rss : r.allContents

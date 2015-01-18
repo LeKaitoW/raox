@@ -33,22 +33,28 @@ public class RDOStatusView extends ViewPart
 {
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOStatusView"; //$NON-NLS-1$
 
-	private static ScrolledComposite scrolledComposite;
+	private static ScrolledComposite scrolledComposite = null;
 	private static FillLayout scrolledCompositeLayout;
 
 	private static GridData leftGridData;
 	private static GridData leftGridDataForLabels;
 
-	private static Label simulationScale;
+	private static Label simulationScale = null;
 
-	private static Label simulationTime;
+	private static Label actualSimulationScale = null;
 
-	private static Label realTime;
+	private static Label simulationTime = null;
 
-	private static DecimalFormat scaleFormatter = new DecimalFormat("#.###");
+	private static Label realTime = null;
+
+	private static DecimalFormat scaleFormatter = new DecimalFormat("0.######");
+	private static DecimalFormat actualScaleFormatter = new DecimalFormat("0.0");
 
 	public static void setSimulationScale(double scale)
 	{
+		if(!isInitialized())
+			return;
+
 		simulationScale.setText(scaleFormatter.format(scale));
 
 		calculateMinWidth();
@@ -56,10 +62,25 @@ public class RDOStatusView extends ViewPart
 		simulationScale.setSize(simulationScale.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
-	private static DecimalFormat timeFormatter = new DecimalFormat("#.0#####");
+	public static void setActualSimulationScale(double scale)
+	{
+		if(!isInitialized())
+			return;
+
+		actualSimulationScale.setText(actualScaleFormatter.format(scale));
+
+		calculateMinWidth();
+
+		actualSimulationScale.setSize(actualSimulationScale.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+	}
+
+	private static DecimalFormat timeFormatter = new DecimalFormat("0.0#####");
 
 	public static void setSimulationTime(double time)
 	{
+		if(!isInitialized())
+			return;
+
 		simulationTime.setText(timeFormatter.format(time));
 
 		calculateMinWidth();
@@ -71,6 +92,9 @@ public class RDOStatusView extends ViewPart
 
 	public static void setRealTime(long time)
 	{
+		if(!isInitialized())
+			return;
+
 		realTime.setText(realTimeFormatter.format(time/1000d) + "s");
 
 		calculateMinWidth();
@@ -111,6 +135,15 @@ public class RDOStatusView extends ViewPart
 				simulationScale = new Label(scaleComposite, SWT.LEFT);
 					simulationScale.setLayoutData(leftGridData);
 
+			Composite actualScaleComposite = new Composite(composite, SWT.NONE);
+				actualScaleComposite.setLayout(gridLayout);
+				Label actualScaleLabel = new Label(actualScaleComposite, SWT.LEFT);
+					actualScaleLabel.setText("Actual scale:");
+					actualScaleLabel.setLayoutData(leftGridDataForLabels);
+				actualSimulationScale = new Label(actualScaleComposite, SWT.LEFT);
+					actualSimulationScale.setLayoutData(leftGridData);
+					actualSimulationScale.setText("-");
+
 			Composite timeComposite = new Composite(composite, SWT.NONE);
 				timeComposite.setLayout(gridLayout);
 				Label timeLabel = new Label(timeComposite, SWT.LEFT);
@@ -132,7 +165,8 @@ public class RDOStatusView extends ViewPart
 		for(Control c : new Control[]
 		{
 			scrolledComposite, composite,
-			scaleComposite,	scaleLabel, simulationScale,
+			scaleComposite, scaleLabel, simulationScale,
+			actualScaleComposite, actualScaleLabel, actualSimulationScale,
 			timeComposite, timeLabel, simulationTime,
 			realTimeComposite, realTimeLabel, realTime
 		})
@@ -146,8 +180,12 @@ public class RDOStatusView extends ViewPart
 			scaleLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT).x,
 			Math.max
 			(
-				timeLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT).x,
-				realTimeLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT).x
+				actualScaleLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT).x,
+				Math.max
+				(
+					timeLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT).x,
+					realTimeLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT).x
+				)
 			)
 		);
 
@@ -161,10 +199,12 @@ public class RDOStatusView extends ViewPart
 	private static void calculateMinWidth()
 	{
 		int scaleSize = simulationScale.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+		int actualScaleSize = actualSimulationScale.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
 		int timeSize = simulationTime.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
 		int realTimeSize = realTime.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
 
-		leftGridData.widthHint = Math.max(scaleSize, Math.max(timeSize, realTimeSize));
+		leftGridData.widthHint = Math.max(scaleSize, Math.max(actualScaleSize,
+			Math.max(timeSize, realTimeSize)));
 
 		scrolledComposite.setMinSize
 		(
@@ -177,11 +217,23 @@ public class RDOStatusView extends ViewPart
 	private static int calculateOverallHeight()
 	{
 		int scaleSize = simulationScale.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+		int actualScaleSize = actualSimulationScale.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
 		int timeSize = simulationTime.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
 		int realTimeSize = realTime.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
 
-		return scaleSize + timeSize + realTimeSize +
+		return scaleSize + actualScaleSize + timeSize + realTimeSize +
 			scrolledCompositeLayout.spacing * 2 + scrolledCompositeLayout.marginHeight * 2;
+	}
+
+	private static boolean isInitialized()
+	{
+		return
+			scrolledComposite != null
+			&& !scrolledComposite.isDisposed()
+			&& simulationScale != null
+			&& actualSimulationScale != null
+			&& simulationTime != null
+			&& realTime != null;
 	}
 
 	@Override

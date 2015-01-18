@@ -34,7 +34,7 @@ public class SimpleChoiceFrom<P, T, PT>
 	public SimpleChoiceFrom(Checker<P, T, PT> checker, ChoiceMethod<P, T, PT> comparator)
 	{
 		this.checker = checker;
-		if (comparator != null)
+		if(comparator != null)
 		{
 			this.comparator = comparator;
 			matchingList = new PriorityQueue<T>(1, comparator);
@@ -48,14 +48,14 @@ public class SimpleChoiceFrom<P, T, PT>
 	public Collection<T> findAll(P resources, Collection<T> reslist, PT parameters)
 	{
 		matchingList.clear();
-		if (comparator != null)
+		if(comparator != null)
 			comparator.setPattern(resources, parameters);
 
 		T res;
-		for (Iterator<T> iterator = reslist.iterator(); iterator.hasNext();)
+		for(Iterator<T> iterator = reslist.iterator(); iterator.hasNext();)
 		{
 			res = iterator.next();
-			if (checker.check(resources, res, parameters))
+			if(checker.check(resources, res, parameters))
 				matchingList.add(res);
 		}
 
@@ -65,23 +65,20 @@ public class SimpleChoiceFrom<P, T, PT>
 	public T find(P resources, Collection<T> reslist, PT parameters)
 	{
 		matchingList.clear();
-		if (comparator != null)
+		if(comparator != null)
 			comparator.setPattern(resources, parameters);
 
 		T res;
-		for (Iterator<T> iterator = reslist.iterator(); iterator.hasNext();)
+		for(Iterator<T> iterator = reslist.iterator(); iterator.hasNext();)
 		{
 			res = iterator.next();
-			if (res != null && checker.check(resources, res, parameters))
-				if (matchingList instanceof LinkedList)
+			if(res != null && checker.check(resources, res, parameters))
+				if(matchingList instanceof LinkedList)
 					return res;
 				else
 					matchingList.add(res);
 		}
 
-		if (matchingList.size() == 0)
-			return null;
-		else
-			return matchingList.poll();
+		return matchingList.poll();
 	}
 }

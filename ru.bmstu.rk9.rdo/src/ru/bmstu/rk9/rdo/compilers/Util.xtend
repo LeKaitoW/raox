@@ -7,7 +7,7 @@ class Util
 		return Character.toUpperCase(s.charAt(0)) + s.substring(1)
 	}
 
-	def public static String getTypeSize(String type, String name)
+	def public static String getTypeConstantSize(String type)
 	{
 		if(type == "Integer")
 			return "4"
@@ -17,9 +17,6 @@ class Util
 
 		if(type == "Boolean")
 			return "1"
-
-		if(type == "String")
-			return name + ".length()"
 
 		if(type.endsWith("_enum"))
 			return "2"
@@ -38,6 +35,20 @@ class Util
 			case "Integer": "integer"
 			case "Boolean": "boolean"
 			case "Double": "real"
+			default: type
+		}
+	}
+
+	def public static String toSimpleType(String type)
+	{
+		switch(type)
+		{
+			case "Integer": "int"
+			case "Short"  : "short"
+			case "Long"   : "long"
+			case "Byte"   : "byte"
+			case "Boolean": "boolean"
+			case "Double" : "double"
 			default: type
 		}
 	}

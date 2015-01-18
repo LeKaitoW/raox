@@ -29,16 +29,16 @@ public class DecisionPoint
 		@Override
 		public int compare(DecisionPoint x, DecisionPoint y)
 		{
-			if (x.priority == null)
+			if(x.priority == null)
 				return 1;
 
-			if (y.priority == null)
+			if(y.priority == null)
 				return -1;
 
-			if (x.priority.get() > y.priority.get())
+			if(x.priority.get() > y.priority.get())
 				return -1;
 
-			if (x.priority.get() <= y.priority.get())
+			if(x.priority.get() <= y.priority.get())
 				return 1;
 
 			return 0;
@@ -86,7 +86,7 @@ public class DecisionPoint
 		}
 
 		public abstract boolean checkActivity();
-		public abstract void executeActivity();
+		public abstract Rule executeActivity();
 	}
 
 	private List<Activity> activities = new LinkedList<Activity>();
@@ -98,12 +98,12 @@ public class DecisionPoint
 
 	public boolean check()
 	{
-		if (!children.isEmpty())
-			for (DecisionPoint c : children)
-				if (c.check())
+		if(!children.isEmpty())
+			for(DecisionPoint c : children)
+				if(c.check())
 					return true;
 
-		if (condition != null && !condition.check())
+		if(condition != null && !condition.check())
 			return false;
 
 		return checkActivities();
@@ -111,8 +111,8 @@ public class DecisionPoint
 
 	private boolean checkActivities()
 	{
-		for (Activity a : activities)
-			if (a.checkActivity())
+		for(Activity a : activities)
+			if(a.checkActivity())
 			{
 				a.executeActivity();
 				return true;

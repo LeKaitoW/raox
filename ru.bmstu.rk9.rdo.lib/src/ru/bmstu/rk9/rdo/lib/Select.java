@@ -11,32 +11,32 @@ public class Select
 
 	public static <T> boolean Exist(Collection<T> resources, Checker<T> checker)
 	{
-		for (T res : resources)
-			if (checker.check(res))
+		for(T res : resources)
+			if(checker.check(res))
 				return true;
 		return false;
 	}
 
 	public static <T> boolean Not_Exist(Collection<T> resources, Checker<T> checker)
 	{
-		for (T res : resources)
-			if (checker.check(res))
+		for(T res : resources)
+			if(checker.check(res))
 				return false;
 		return true;
 	}
 
 	public static <T> boolean For_All(Collection<T> resources, Checker<T> checker)
 	{
-		for (T res : resources)
-			if (!checker.check(res))
+		for(T res : resources)
+			if(!checker.check(res))
 				return false;
 		return true;
 	}
 
 	public static <T> boolean Not_For_All(Collection<T> resources, Checker<T> checker)
 	{
-		for (T res : resources)
-			if (!checker.check(res))
+		for(T res : resources)
+			if(!checker.check(res))
 				return true;
 		return false;
 	}
@@ -49,8 +49,8 @@ public class Select
 	public static <T> int Size(Collection<T> resources, Checker<T> checker)
 	{
 		int count = 0;
-		for (T res : resources)
-			if (checker.check(res))
+		for(T res : resources)
+			if(checker.check(res))
 				count++;
 		return count;
 	}

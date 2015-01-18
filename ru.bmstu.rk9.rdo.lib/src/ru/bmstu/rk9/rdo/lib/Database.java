@@ -1,8 +1,6 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.nio.ByteBuffer;
-
-import java.util.PriorityQueue;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,6 +18,7 @@ public class Database
 		public static final int INTEGER = Integer.SIZE / Byte.SIZE;
 		public static final int DOUBLE = Double.SIZE / Byte.SIZE;
 		public static final int SHORT = Short.SIZE / Byte.SIZE;
+		public static final int LONG = Long.SIZE / Byte.SIZE;
 		public static final int BYTE = 1;
 
 		public static class RDO
@@ -32,11 +31,11 @@ public class Database
 
 		public static class Internal
 		{
-			public static final int TIME_SIZE = TypeSize.DOUBLE;
-			public static final int TIME_OFFSET = 0;
-
 			public static final int ENTRY_TYPE_SIZE = TypeSize.BYTE;
-			public static final int ENTRY_TYPE_OFFSET = TIME_OFFSET + TIME_SIZE;
+			public static final int ENTRY_TYPE_OFFSET = 0;
+
+			public static final int TIME_SIZE = TypeSize.DOUBLE;
+			public static final int TIME_OFFSET = ENTRY_TYPE_SIZE + ENTRY_TYPE_OFFSET;
 		}
 	}
 
@@ -52,29 +51,15 @@ public class Database
 		for(int i = 0; i < resourceTypes.length(); i++)
 		{
 			JSONObject resourceType = resourceTypes.getJSONObject(i);
-			HashMap<String, Index> resources;
 
 			String name = resourceType.getString("name");
-			if(resourceType.getBoolean("temporary"))
-			{
-				TemporaryResourceTypeIndex index =
-					new TemporaryResourceTypeIndex(i, resourceType.getJSONObject("structure"));
-				resources = index.resources;
-				temporaryResourceIndex.put(name, index);
-			}
-			else
-			{
-				PermanentResourceTypeIndex index
-					= new PermanentResourceTypeIndex(i, resourceType.getJSONObject("structure"));
-				resources = index.resources;
-				permanentResourceIndex.put(name, index);
-			}
+			ResourceTypeIndex index =
+				new ResourceTypeIndex(i, resourceType.getJSONObject("structure"));
+			resourceIndex.put(name, index);
 
-			JSONArray modelResources = resourceType.getJSONArray("resources");
-			for(int j = 0; j < modelResources.length(); j++)
-			{
-				resources.put(modelResources.getString(j), new Index(j));
-			}
+			JSONArray resources = resourceType.getJSONArray("resources");
+			for(int j = 0; j < resources.length(); j++)
+				index.resources.add(new Index(j));
 		}
 
 		JSONArray results = modelStructure.getJSONArray("results");
@@ -86,13 +71,13 @@ public class Database
 
 		JSONArray patterns = modelStructure.getJSONArray("patterns");
 		HashMap<String, JSONObject> patternsByName = new HashMap<String, JSONObject>();
-		for(int i = 0, count = 0; i < patterns.length(); i++)
+		for(int i = 0; i < patterns.length(); i++)
 		{
 			JSONObject patternStructure = patterns.getJSONObject(i);
 			String name = patternStructure.getString("name");
 			String type = patternStructure.getString("type");
-			if(type == "event")
-				eventIndex.put(name, new PatternIndex(count++, patternStructure));
+			if(type.equals("event"))
+				eventIndex.put(name, new PatternIndex(i, patternStructure));
 			else
 				patternsByName.put(name, patternStructure);
 		}
@@ -101,24 +86,38 @@ public class Database
 		for(int i = 0; i < decisionPoints.length(); i++)
 		{
 			JSONObject decisionPoint = decisionPoints.getJSONObject(i);
-			DecisionPointIndex dptIndex = new DecisionPointIndex(i);
-			decisionPointIndex.put(decisionPoint.getString("name"), dptIndex);
-
-			JSONArray activities = decisionPoint.getJSONArray("activities");
-			for(int j = 0; j < activities.length(); j++)
+			String type = decisionPoint.getString("type");
+			switch(type)
 			{
-				JSONObject activity = activities.getJSONObject(j);
-				String name = activity.getString("name");
-				dptIndex.activities.put
-				(
-					name,
-					new PatternIndex(j,	patternsByName.get(
-						activity.getString("pattern")))
-				);
+				case "some":
+				case "prior":
+					DecisionPointIndex dptIndex = new DecisionPointIndex(i);
+					decisionPointIndex.put(decisionPoint.getString("name"), dptIndex);
+
+					JSONArray activities = decisionPoint.getJSONArray("activities");
+					for(int j = 0; j < activities.length(); j++)
+					{
+						JSONObject activity = activities.getJSONObject(j);
+						String name = activity.getString("name");
+						dptIndex.activities.put
+						(
+							name,
+							new PatternIndex(j, patternsByName.get(
+								activity.getString("pattern")))
+						);
+					}
+				break;
+				case "search":
+					SearchIndex index = new SearchIndex(i);
+					this.searchIndex.put(decisionPoint.getString("name"), index);
+				break;
 			}
 		}
 
 		addSystemEntry(SystemEntryType.TRACE_START);
+
+		for(String traceName : TraceConfig.getNames())
+			addSensitivity(traceName);
 	}
 
 	JSONObject modelStructure;
@@ -171,7 +170,7 @@ public class Database
 
 	public static enum EntryType
 	{
-		SYSTEM(10), RESOURCE(18), PATTERN(10), SEARCH(0), RESULT(13);
+		SYSTEM(10), RESOURCE(18), PATTERN(10), SEARCH(2), RESULT(13);
 
 		public final int HEADER_SIZE;
 
@@ -183,81 +182,154 @@ public class Database
 
 	ArrayList<Entry> allEntries = new ArrayList<Entry>();
 
+	private final void addEntry(Entry entry)
+	{
+		allEntries.add(entry);
+		notifyChange("EntryAdded");
+	}
+
+	private NotificationManager notificationManager =
+		new NotificationManager(
+			new String[]
+			{
+				"EntryAdded"
+			}
+		);
+
+	public final Notifier getNotifier()
+	{
+		return notificationManager;
+	}
+
+	private final void notifyChange(String category)
+	{
+		notificationManager.notifySubscribers(category);
+	}
+
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                              SYSTEM ENTRIES                               /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	static enum SystemEntryType
 	{
-		TRACE_START, TRACE_END, SIM_START, SIM_FINISH, SIM_ABORT 
+		TRACE_START ("Tracing started"),
+		SIM_START ("Simulation started"),
+		NORMAL_TERMINATION ("Simulation finished: terminate condition"),
+		NO_MORE_EVENTS ("Simulation finished: no more events"),
+		ABORT ("Simulation finished: user interrupt"),
+		RUN_TIME_ERROR ("Simulation finished: runtime error");
+
+		SystemEntryType(String description)
+		{
+			this.description = description;
+		}
+
+		private final String description;
+
+		final String getDescription()
+		{
+			return description;
+		}
 	}
 
 	void addSystemEntry(SystemEntryType type)
 	{
 		ByteBuffer header = ByteBuffer.allocate(EntryType.SYSTEM.HEADER_SIZE);
 
-		header.putDouble(Simulator.getTime());
-		header.put((byte)EntryType.SYSTEM.ordinal());
-		header.put((byte)type.ordinal());
+		header
+			.put((byte)EntryType.SYSTEM.ordinal())
+			.putDouble(Simulator.getTime())
+			.put((byte)type.ordinal());
 
-		allEntries.add(new Entry(header, null));
+		addEntry(new Entry(header, null));
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                           RESOURCE STATE ENTRIES                          /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	class PermanentResourceTypeIndex
+	class ResourceTypeIndex
 	{
 		final int number;
 
-		private PermanentResourceTypeIndex(int number, JSONObject structure)
+		private ResourceTypeIndex(int number, JSONObject structure)
 		{
-			resources = new HashMap<String, Index>();
+			resources = new ArrayList<Index>();
 			this.structure = structure;
 			this.number = number;
 		}
 
 		final JSONObject structure;
-		final HashMap<String, Index> resources;
-	}
-	
-	HashMap<String, PermanentResourceTypeIndex> permanentResourceIndex =
-		new HashMap<String, PermanentResourceTypeIndex>();
 
-	class TemporaryResourceTypeIndex extends PermanentResourceTypeIndex
-	{
-		ArrayList<Index> temporary = new ArrayList<Index>();
-
-		private TemporaryResourceTypeIndex(int number, JSONObject structure)
-		{
-			super(number, structure);
-		}
+		final ArrayList<Index> resources;
 	}
 
-	HashMap<String, TemporaryResourceTypeIndex> temporaryResourceIndex =
-		new HashMap<String, TemporaryResourceTypeIndex>();	
+	HashMap<String, ResourceTypeIndex> resourceIndex =
+		new HashMap<String, ResourceTypeIndex>();
 
 	public static enum ResourceEntryType
 	{
-		CREATED, ERASED, ALTERED
+		CREATED, ERASED, ALTERED, SEARCH, SOLUTION
 	}
 
-	public void addResourceEntry(ResourceEntryType status, PermanentResource resource, String sender)
+	public void addResourceEntry(ResourceEntryType status, Resource resource, String sender)
 	{
-		String name = resource.getName();
-		if(!sensitivityList.contains(name))
-			return;
+		String typeName = resource.getTypeName();
 
-		PermanentResourceTypeIndex resourceTypeIndex =
-			permanentResourceIndex.get(resource.getTypeName());
-		Index resourceIndex =
-			resourceTypeIndex.resources.get(resource.getName());
+		ResourceTypeIndex resourceTypeIndex =
+			resourceIndex.get(typeName);
+
+		Index resourceIndex;
+
+		String name = resource.getName();
+		if(name != null)
+		{
+			if(!sensitivityList.contains(name))
+				return;
+		}
+		else
+		{
+			name = typeName + "[" + String.valueOf(resource.getNumber()) + "]";
+			if(!sensitivityList.contains(name))
+				if(status == ResourceEntryType.CREATED)
+				{
+					if(sensitivityList.contains(sender))
+						sensitivityList.add(name);
+					else
+						return;
+				}
+				else
+					return;
+		}
+
+		boolean shouldSerializeToIndex = true;
+
+		switch (status)
+		{
+			case CREATED:
+				resourceIndex = new Index(resource.getNumber());
+
+				while(resourceTypeIndex.resources.size() < resource.getNumber() + 1)
+					resourceTypeIndex.resources.add(null);
+
+				resourceTypeIndex.resources.set(resource.getNumber(), resourceIndex);
+			break;
+			case SEARCH:
+				shouldSerializeToIndex = false;
+			case ERASED:
+			case ALTERED:
+			case SOLUTION:
+				resourceIndex = resourceTypeIndex.resources.get(resource.getNumber());
+			break;
+			default:
+				resourceIndex = null;
+			break;
+		}
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.RESOURCE.HEADER_SIZE);
 		header
-			.putDouble(Simulator.getTime())
 			.put((byte)EntryType.RESOURCE.ordinal())
+			.putDouble(Simulator.getTime())
 			.put((byte)status.ordinal())
 			.putInt(resourceTypeIndex.number)
 			.putInt(resourceIndex.number);
@@ -265,78 +337,13 @@ public class Database
 		ByteBuffer data = resource.serialize();
 
 		Entry entry = new Entry(header, data);
-		
-		allEntries.add(entry);
-		resourceIndex.entries.add(allEntries.size() - 1);
+
+		addEntry(entry);
+
+		if(shouldSerializeToIndex)
+			resourceIndex.entries.add(allEntries.size() - 1);
 	}
 
-	public void addResourceEntry(ResourceEntryType status, TemporaryResource resource, String sender)
-	{
-		TemporaryResourceTypeIndex resourceTypeIndex =
-			temporaryResourceIndex.get(resource.getTypeName());
-		Index resourceIndex = null;
-
-		String permanentName = resource.getName();
-		if(permanentName != null)
-		{
-			if(!sensitivityList.contains(permanentName))
-				return;
-			resourceIndex = resourceTypeIndex.resources.get(resource.getName());
-		}
-		else
-		{
-			String typeName = resource.getTypeName();
-			String temporaryName = typeName + "_" + String.valueOf(resource.getNumber());
-			
-			switch (status)
-			{
-				case CREATED:
-					if(sensitivityList.contains(sender))
-						sensitivityList.add(temporaryName);
-					else
-						return;
-
-					resourceIndex = new Index
-					(
-						resource.getNumber() + resourceTypeIndex.resources.size()
-					);
-
-					while(resourceTypeIndex.temporary.size() < resource.getNumber() + 1)
-						resourceTypeIndex.temporary.add(null);
-	
-					resourceTypeIndex.temporary.set(resource.getNumber(), resourceIndex);
-				break;
-	
-				case ERASED:
-					if(!sensitivityList.remove(temporaryName))
-						return;
-					resourceIndex = resourceTypeIndex.temporary.get(resource.getNumber()); 
-				break;
-	
-				case ALTERED:
-					if(!sensitivityList.contains(temporaryName))
-						return;
-					resourceIndex = resourceTypeIndex.temporary.get(resource.getNumber());
-				break;
-			}
-		}
-
-		ByteBuffer header = ByteBuffer.allocate(EntryType.RESOURCE.HEADER_SIZE);
-		header
-			.putDouble(Simulator.getTime())
-			.put((byte)EntryType.RESOURCE.ordinal())
-			.put((byte)status.ordinal())
-			.putInt(resourceTypeIndex.number)
-			.putInt(resourceIndex.number);
-
-		ByteBuffer data = (status == ResourceEntryType.ERASED)? null : resource.serialize();
-
-		Entry entry = new Entry(header, data);
-
-		allEntries.add(entry);
-		resourceIndex.entries.add(allEntries.size() - 1);
-	}
-	
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                              PATTERN ENTRIES                              /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
@@ -383,9 +390,6 @@ public class Database
 	private HashMap<Pattern, PatternPoolEntry> patternPool
 		= new HashMap<Pattern, PatternPoolEntry>();
 
-	private PriorityQueue<Integer> vacantPoolNumbers
-		= new PriorityQueue<Integer>();
-
 	public void addDecisionEntry
 	(
 		DecisionPoint dpt,
@@ -401,38 +405,31 @@ public class Database
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
 		header
-			.putDouble(Simulator.getTime())
 			.put((byte)EntryType.PATTERN.ordinal())
+			.putDouble(Simulator.getTime())
 			.put((byte)type.ordinal());
 
 		DecisionPointIndex dptIndex = decisionPointIndex.get(dptName);
 		PatternIndex index = dptIndex.activities.get(activity.getName());
 
-		JSONArray relevantResources = pattern.getRelevantInfo();
+		int number = index.timesExecuted++;
+		if(type == PatternType.OPERATION_BEGIN)
+			patternPool.put(pattern, new PatternPoolEntry(dpt, activity, number));
 
-		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER * (relevantResources.length() +
-			(type == PatternType.OPERATION_BEGIN ? 4 : 3)));
+		int[] relevantResources = pattern.getRelevantInfo();
+
+		ByteBuffer data = ByteBuffer.allocate(
+			TypeSize.INTEGER * (relevantResources.length + 4));
 		data
 			.putInt(dptIndex.number)
-			.putInt(index.number);
+			.putInt(index.number)
+			.putInt(number);
 
-		if(type == PatternType.OPERATION_BEGIN)
-		{
-			int number;
-			if(vacantPoolNumbers.isEmpty())
-				number = patternPool.size();
-			else
-				number = vacantPoolNumbers.poll();
-
-			patternPool.put(pattern, new PatternPoolEntry(dpt, activity, number));
-			data.putInt(number);
-		}
-
-		fillRelevantResources(data, index.structure, relevantResources);
+		fillRelevantResources(data, relevantResources);
 
 		Entry entry = new Entry(header, data);
 
-		allEntries.add(entry);
+		addEntry(entry);
 		index.entries.add(allEntries.size() - 1);
 	}
 
@@ -445,6 +442,8 @@ public class Database
 			super(number);
 			this.structure = structure;
 		}
+
+		private int timesExecuted = 0;
 	}
 
 	HashMap<String, PatternIndex> eventIndex = new HashMap<String, PatternIndex>();
@@ -452,6 +451,8 @@ public class Database
 	public void addEventEntry(PatternType type, Pattern pattern)
 	{
 		String name = pattern.getName();
+		if(!sensitivityList.contains(name))
+			return;
 
 		PatternIndex index;
 
@@ -465,7 +466,6 @@ public class Database
 				return;
 			dptIndex = decisionPointIndex.get(poolEntry.dpt.getName());
 			index = dptIndex.activities.get(poolEntry.activity.getName());
-			vacantPoolNumbers.add(poolEntry.number);
 		}
 		else
 		{
@@ -476,14 +476,14 @@ public class Database
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
 		header
-			.putDouble(Simulator.getTime())
 			.put((byte)EntryType.PATTERN.ordinal())
+			.putDouble(Simulator.getTime())
 			.put((byte)type.ordinal());
 
-		JSONArray relevantResources = pattern.getRelevantInfo();
+		int[] relevantResources = pattern.getRelevantInfo();
 
-		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER * (relevantResources.length() +
-			(type == PatternType.OPERATION_END ? 4 : 2)));
+		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER * (relevantResources.length +
+			(type == PatternType.OPERATION_END ? 4 : 3)));
 
 		if(type == PatternType.OPERATION_END)
 			data
@@ -491,47 +491,121 @@ public class Database
 				.putInt(index.number)
 				.putInt(poolEntry.number);
 		else
-			data.putInt(index.number);
+			data
+				.putInt(index.number)
+				.putInt(index.timesExecuted++);
 
-		fillRelevantResources(data, index.structure, relevantResources);
+		fillRelevantResources(data, relevantResources);
 
 		Entry entry = new Entry(header, data);
 
-		allEntries.add(entry);
+		addEntry(entry);
 		index.entries.add(allEntries.size() - 1);
 	}
 
 	private void fillRelevantResources
 	(
 		ByteBuffer data,
-		JSONObject structure,
-		JSONArray relevantResources
+		int[] relevantResources
 	)
 	{
-		data.putInt(relevantResources.length());
-		JSONArray resourceTypes = structure.getJSONArray("relevant_resources");
-		for(int i = 0; i < relevantResources.length(); i++)
-		{
-			String typeName = resourceTypes.getJSONObject(i).getString("type");
-			Object value = relevantResources.get(i);
-			if(value instanceof Integer)
-				data.putInt(temporaryResourceIndex.get(typeName)
-					.resources.size() + (Integer)value);
-			else
-				if(permanentResourceIndex.containsKey(typeName))
-					data.putInt(permanentResourceIndex.get(typeName)
-							.resources.get((String)value).number);
-				else
-					data.putInt(temporaryResourceIndex.get(typeName)
-							.resources.get((String)value).number);
-		}
+		data.putInt(relevantResources.length);
+		for(int number : relevantResources)
+			data.putInt(number);
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
- /                          DECISION POINT ENTRIES                           /
+ /                              SEARCH ENTRIES                               /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
+	public static class SearchInfo
+	{
+		private int begin = -1;
+		private int end = -1;
+		private int decision = -1;
 
+		public int beginEntry()
+		{
+			return begin;
+		}
+
+		public int endEntry()
+		{
+			return end;
+		}
+
+		public int decisionStart()
+		{
+			return decision;
+		}
+
+		public int size()
+		{
+			return end - begin;
+		}
+	}
+
+	public static class SearchIndex
+	{
+		final int number;
+
+		private SearchIndex(int number)
+		{
+			this.number = number;
+		}
+
+		ArrayList<SearchInfo> searches = new ArrayList<SearchInfo>();
+	}
+
+	HashMap<String, SearchIndex> searchIndex =
+		new HashMap<String, SearchIndex>();
+
+	public static enum SearchEntryType
+	{
+		BEGIN, END, OPEN, SPAWN, DECISION;
+	}
+
+	void addSearchEntry(DecisionPointSearch<?> dpt, SearchEntryType type, ByteBuffer data)
+	{
+		String name = dpt.getName();
+
+		SearchIndex index = searchIndex.get(name);
+		SearchInfo info = null;
+
+		ByteBuffer header = ByteBuffer.allocate(EntryType.SEARCH.HEADER_SIZE);
+		header
+			.put((byte)EntryType.SEARCH.ordinal())
+			.put((byte)type.ordinal());
+
+		switch(type)
+		{
+			case BEGIN:
+				data = ByteBuffer.allocate(TypeSize.DOUBLE + TypeSize.INTEGER * 2);
+				data
+					.putDouble(Simulator.getTime())
+					.putInt(index.number)
+					.putInt(index.searches.size());
+
+				info = new SearchInfo();
+				info.begin = allEntries.size();
+
+				index.searches.add(info);
+			break;
+			case DECISION:
+				info = index.searches.get(index.searches.size() - 1);
+				if(info.decision != -1)
+					info.decision = allEntries.size();
+			break;
+			case END:
+				info = index.searches.get(index.searches.size() - 1);
+				info.end = allEntries.size();
+			default: break;
+		}
+
+		Entry entry = new Entry(header, data);
+
+		addEntry(entry);
+	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                              RESULT ENTRIES                               /
@@ -547,17 +621,29 @@ public class Database
 
 		Index index = resultIndex.get(name);
 
+		ByteBuffer data = result.serialize();
+		if(!index.entries.isEmpty())
+		{
+			ByteBuffer lastResultValue =
+				allEntries.get(
+					index.entries.get(index.entries.size() -1)
+				).data.duplicate();
+			ByteBuffer currentResultValue = data.duplicate();
+			currentResultValue.rewind();
+			lastResultValue.rewind();
+			if(currentResultValue.compareTo(lastResultValue) == 0)
+				return;
+		}
+
 		ByteBuffer header = ByteBuffer.allocate(EntryType.RESULT.HEADER_SIZE);
 		header
-			.putDouble(Simulator.getTime())
 			.put((byte)EntryType.RESULT.ordinal())
+			.putDouble(Simulator.getTime())
 			.putInt(index.number);
-
-		ByteBuffer data = result.serialize();
 
 		Entry entry = new Entry(header, data);
 
-		allEntries.add(entry);
+		addEntry(entry);
 		index.entries.add(allEntries.size() - 1);
 	}
 }

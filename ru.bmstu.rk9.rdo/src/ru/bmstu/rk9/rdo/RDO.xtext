@@ -19,7 +19,7 @@ RDOEntity
 	| Function       // FUN-FUN
 	| Pattern        // PAT & EVN
 	| DecisionPoint  // DPT
-//	| Frame          // FRM
+	| Frame          // FRM
 	| Results        // PMD
 	| SimulationRun  // SMR
 ;
@@ -80,7 +80,7 @@ enum ResourceTypeKind
 // ==========================================================
 Resources:
 	object = '$Resources'
-		(resources += ResourceDeclaration | trace += ResourceTrace)+
+		(resources += ResourceDeclaration)+
 	'$End'
 ;
 
@@ -97,10 +97,6 @@ ResourceParameterExpression
 	: {RDODefaultParameter} '*'
 	| ExpressionOr
 ;
-
-ResourceTrace:
-	trace = [ResourceDeclaration|ID] '.' 'trace' '(' ')' ';'
-;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -114,7 +110,7 @@ Pattern
 ;
 
 Operation:
-	'$Pattern' name = ID ':' type = OperationType trace ?= 'trace'?
+	'$Pattern' name = ID ':' type = OperationType
 	('$Parameters'
 		parameters += PatternParameter+ )?
 	 '$Relevant_resources'
@@ -139,14 +135,14 @@ OperationRelevantResource:
 OperationConvert:
 	relres = [OperationRelevantResource|FQN] ':'
 	(havechoice ?= 'Choice' choicefrom = PatternChoiceFrom (choicemethod = PatternChoiceMethod)? )?
-	(havebegin ?= 'Convert_begin' tracebegin ?= 'trace'?
+	(havebegin ?= 'Convert_begin'
 		beginstatements = StatementList )?
-	(haveend ?= 'Convert_end' traceend ?= 'trace'?
+	(haveend ?= 'Convert_end'
 		endstatements = StatementList )?
 ;
 
 Rule:
-	'$Pattern' name = ID ':' 'rule' trace ?= 'trace'?
+	'$Pattern' name = ID ':' 'rule'
 	('$Parameters'
 		parameters += PatternParameter+ )?
 	 '$Relevant_resources'
@@ -165,12 +161,12 @@ RuleRelevantResource:
 RuleConvert:
 	relres = [RuleRelevantResource|ID] ':'
 	(havechoice ?= 'Choice' choicefrom = PatternChoiceFrom (choicemethod = PatternChoiceMethod)? )?
-	(haverule ?= 'Convert_rule' tracerule ?= 'trace'?
+	(haverule ?= 'Convert_rule'
 		statements = StatementList )?
 ;
 
 Event:
-	'$Pattern' name = ID ':' 'event' trace ?= 'trace'?
+	'$Pattern' name = ID ':' 'event'
 	('$Parameters'
 		parameters += PatternParameter+ )?
 	 '$Relevant_resources'
@@ -187,7 +183,7 @@ EventRelevantResource:
 
 EventConvert:
 	relres = [EventRelevantResource|ID] ':'
-	'Convert_event' traceevent ?= 'trace'?
+	'Convert_event'
 		statements = StatementList
 ;
 
@@ -230,7 +226,7 @@ DecisionPoint
 ;
 
 DecisionPointSome:
-	 '$Decision_point' name = ID ':' 'some' trace ?= 'trace'?
+	 '$Decision_point' name = ID ':' 'some'
 	('$Parent' parent = [DecisionPoint|FQN])?
 	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
 	 '$Activities'
@@ -239,7 +235,7 @@ DecisionPointSome:
 ;
 
 DecisionPointPrior:
-	 '$Decision_point' name = ID ':' 'prior' trace ?= 'trace'?
+	 '$Decision_point' name = ID ':' 'prior'
 	('$Parent' parent = [DecisionPoint|FQN])?
 	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
 	 '$Priority' priority = ExpressionOr
@@ -250,7 +246,6 @@ DecisionPointPrior:
 
 DecisionPointSearch:
 	 '$Decision_point' name = ID ':' 'search'
-	( trace ?= 'trace' | traceall ?= 'trace_all')?
 	('$Parent' parent = [DecisionPoint|FQN])?
 	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
 	 '$Term_condition' termination = ExpressionOr
@@ -397,7 +392,7 @@ Results:
 ;
 
 ResultDeclaration:
-	name = ID ':' trace ?= 'trace'? type = ResultType
+	name = ID ':' type = ResultType
 ;
 
 ResultType
@@ -427,6 +422,141 @@ ResultWatchValue:
 
 ResultGetValue:
 	'get_value' expression = ExpressionOr
+;
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+// ==========================================================
+//                      Animation frame
+// ==========================================================
+Frame:
+	'$Frame' name = ID
+	(backpicture = FrameBackPicture)?
+		frame = FrameStatementList
+	'$End'	
+;
+
+FrameBackPicture:
+	'$Back_picture' colour = FrameColour
+	(picture = ProjectFilePath | size = FrameBackPictureSize)
+;
+
+FrameBackPictureSize:
+	width = INT height = INT
+;
+
+FrameColour:
+	'<' r = INT g = INT b = INT (alpha = INT)?'>'
+;
+
+ProjectFilePath:
+	segments += ID (('/'|'\\') segments += ID)*
+;
+
+FrameStatementList returns StatementList:
+	(statements += FrameStatement)+
+;
+
+FrameStatement returns Statement
+	: empty ?= ';'
+	| ExpressionStatement ';'
+	| FrameNestedStatement
+	| LocalVariableDeclaration ';'
+	| FrameIfStatement
+	| FrameForStatement
+	| BreakStatement ';'
+	| ReturnStatement ';'
+	| FrameObject ';'
+;
+
+FrameNestedStatement returns NestedStatement:
+	invoke = '{' statements = FrameStatementList?  '}'
+;
+
+FrameIfStatement returns IfStatement:
+	'if' '(' condition = Expression ')'
+		then = FrameStatement
+	( => 'else'
+		else = FrameStatement
+	)?
+;
+
+FrameForStatement returns ForStatement:
+	'for' '(' 
+	( declaration = LocalVariableDeclaration | init = Expression )? ';'
+	  condition = Expression? ';'
+	  update = Expression? ')'
+	body = FrameStatement
+;
+
+FrameObject
+	: FrameObjectText
+	| FrameObjectRectangle
+	| FrameObjectLine
+	| FrameObjectCircle
+	| FrameObjectEllipse
+	| FrameObjectTriangle
+;
+
+FrameObjectText:
+	'text' '('
+		x = ExpressionOr ',' y = ExpressionOr ','
+		width = ExpressionOr ',' height = ExpressionOr ','
+		backcolour = FrameColour ','
+		textcolour = FrameColour ','
+		(alignment = FrameAlignment)? text = ExpressionOr
+	')'
+;
+
+enum FrameAlignment
+	: LEFT   = '<'
+	| CENTER = '='
+	| RIGHT  = '>'
+;
+
+FrameObjectRectangle:
+	'rect' '('
+		x = ExpressionOr ',' y = ExpressionOr ','
+		width = ExpressionOr ',' height = ExpressionOr ','
+		backcolour = FrameColour ','
+		bordercolour = FrameColour		
+	')'
+;
+
+FrameObjectLine:
+	'line' '('
+		x1 = ExpressionOr ',' y1 = ExpressionOr ','
+		x2 = ExpressionOr ',' y2 = ExpressionOr ','
+		colour = FrameColour ','		
+	')'
+;
+
+FrameObjectCircle:
+	'circle' '('
+		x = ExpressionOr ',' y = ExpressionOr ','
+		radius = ExpressionOr ','
+		backcolour = FrameColour ','
+		bordercolour = FrameColour		
+	')'
+;
+
+FrameObjectEllipse:
+	'ellipse' '('
+		x = ExpressionOr ',' y = ExpressionOr ','
+		width = ExpressionOr ',' height = ExpressionOr ','
+		backcolour = FrameColour ','
+		bordercolour = FrameColour		
+	')'
+;
+
+FrameObjectTriangle:
+	'triang' '('
+		x1 = ExpressionOr ',' y1 = ExpressionOr ','
+		x2 = ExpressionOr ',' y2 = ExpressionOr ','
+		x3 = ExpressionOr ',' y3 = ExpressionOr ','
+		backcolour = FrameColour ','
+		bordercolour = FrameColour		
+	')'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -8,7 +8,6 @@ import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
 import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
-import static extension ru.bmstu.rk9.rdo.compilers.Util.*
 
 import ru.bmstu.rk9.rdo.generator.LocalContext
 
@@ -53,12 +52,11 @@ class RDOResourceTypeCompiler
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «rtp.name» implements «rtp.type.literal.withFirstUpper»Resource, ResourceComparison<«rtp.name»>
+		public class «rtp.name» implements Resource, ResourceComparison<«rtp.name»>
 		{
-			private static «rtp.type.literal.withFirstUpper
-				»ResourceManager<«rtp.name»> managerCurrent;
+			private static ResourceManager<«rtp.name»> managerCurrent;
 
-			private String name;
+			private String name = null;
 
 			@Override
 			public String getName()
@@ -72,7 +70,6 @@ class RDOResourceTypeCompiler
 				return "«rtp.fullyQualifiedName»";
 			}
 
-			«IF rtp.type.literal == "temporary"»
 			private Integer number = null;
 
 			@Override
@@ -81,14 +78,14 @@ class RDOResourceTypeCompiler
 				return number;
 			}
 
-			«ENDIF»
 			public void register(String name)
 			{
 				this.name = name;
+				this.number = managerCurrent.getNextNumber();
 				managerCurrent.addResource(this);
+				lastCreated = this;
 			}
 
-			«IF rtp.type.literal == "temporary"»
 			public void register()
 			{
 				this.number = managerCurrent.getNextNumber();
@@ -103,10 +100,14 @@ class RDOResourceTypeCompiler
 				return lastCreated;
 			}
 
-			«ENDIF»
 			public static «rtp.name» getResource(String name)
 			{
 				return managerCurrent.getResource(name);
+			}
+
+			public static «rtp.name» getResource(int number)
+			{
+				return managerCurrent.getResource(number);
 			}
 
 			public static java.util.Collection<«rtp.name»> getAll()
@@ -114,7 +115,6 @@ class RDOResourceTypeCompiler
 				return managerCurrent.getAll();
 			}
 
-			«IF rtp.type.literal == "temporary"»
 			public static Collection<«rtp.name»> getTemporary()
 			{
 				return managerCurrent.getTemporary();
@@ -124,7 +124,7 @@ class RDOResourceTypeCompiler
 			{
 				managerCurrent.eraseResource(res);
 				lastDeleted = res;
-				notificationManager.notifySubscribers("RESOURCE.DELETED");
+				notificationManager.notifySubscribers("ResourceDeleted");
 			}
 
 			private static «rtp.name» lastDeleted;
@@ -133,16 +133,13 @@ class RDOResourceTypeCompiler
 			{
 				return lastDeleted;
 			}
-			«ENDIF»
 
 			private static NotificationManager notificationManager =
 				new NotificationManager
 				(
-					new String[] 
+					new String[]
 					{
-						«IF rtp.type.literal == "temporary"»
-						"RESOURCE.DELETED"
-						«ENDIF»
+						"ResourceDeleted"
 					}
 				);
 
@@ -151,9 +148,9 @@ class RDOResourceTypeCompiler
 				return notificationManager;
 			}
 
-			private «rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»> managerOwner = managerCurrent;
+			private ResourceManager<«rtp.name»> managerOwner = managerCurrent;
 
-			public static void setCurrentManager(«rtp.type.literal.withFirstUpper»ResourceManager<«rtp.name»> manager)
+			public static void setCurrentManager(ResourceManager<«rtp.name»> manager)
 			{
 				managerCurrent = manager;
 			}
@@ -167,7 +164,7 @@ class RDOResourceTypeCompiler
 
 			«ENDFOR»
 			«FOR parameter : rtp.parameters»
-				private «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
+				private volatile «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
 
 				public «parameter.type.compileType» get_«parameter.name»()
 				{
@@ -176,7 +173,7 @@ class RDOResourceTypeCompiler
 
 				public «parameter.type.compileType» set_«parameter.name»(«parameter.type.compileType» «parameter.name»)
 				{
-					if (managerOwner == managerCurrent)
+					if(managerOwner == managerCurrent)
 						this.«parameter.name» = «parameter.name»;
 					else
 						this.copyForNewOwner().«parameter.name» = «parameter.name»;
@@ -197,27 +194,17 @@ class RDOResourceTypeCompiler
 			private «rtp.name» copyForNewOwner()
 			{
 				«rtp.name» copy = new «rtp.name»(«rtp.parameters.compileResourceTypeParametersCopyCall»);
-				if (name != null)
-				{
-					copy.name = name;
-					managerCurrent.addResource(copy);
-					return copy;
-				}
-				«IF rtp.type.literal == "temporary"»
-				if (number != null)
-				{
-					copy.number = number;
-					managerCurrent.addResource(copy);
-					return copy;
-				}
-				«ENDIF»
-				return null;
+
+				copy.name = name;
+				copy.number = number;
+				managerCurrent.addResource(copy);
+				return copy;
 			}
 
 			public «rtp.name»(«rtp.parameters.compileResourceTypeParameters»)
 			{
 				«FOR parameter : rtp.parameters»
-					if («parameter.name» != null)
+					if(«parameter.name» != null)
 						this.«parameter.name» = «parameter.name»;
 				«ENDFOR»
 			}
@@ -226,7 +213,7 @@ class RDOResourceTypeCompiler
 			public boolean checkEqual(«rtp.name» other)
 			{
 				«FOR parameter : rtp.parameters»
-					if (this.«parameter.name» != other.«parameter.name»)
+					if(!this.«parameter.name».equals(other.«parameter.name»))
 						return false;
 				«ENDFOR»
 
@@ -282,20 +269,20 @@ class RDOResourceTypeCompiler
 		val parameters = rtp.parameters
 		var offset = 0
 		var chunkindex = 1;
-		
+
 		var cparams = ""
 		for(p : parameters)
 		{
 			val type = p.compileType
 			var ctype = ""
-			
+
 			val coffset = ".put(\"offset\", " + offset + ")"
 			val cchunk = ".put(\"index\", " + chunkindex + ")"
 			var depth = 0
 			var ischunk = false
 			var isenum = false
 			var enums = ""
-			
+
 			if(type == "Integer")
 			{
 				ctype = "integer"
@@ -366,7 +353,7 @@ class RDOResourceTypeCompiler
 				}
 				depth = p.arrayDepth
 				chunkindex = chunkindex + 1
-				ctype = "array\")\n.put(\"array_type\", \"" + ctype 
+				ctype = "array\")\n.put(\"array_type\", \"" + ctype
 			}
 			if(type == "String")
 			{
@@ -405,7 +392,7 @@ class RDOResourceTypeCompiler
 					«cparams»
 			)
 			.put("last_offset", «offset»)'''
-		
+
 	}
 
 	def private static String compileBufferCalculation(Iterable<ResourceTypeParameter> parameters)
@@ -446,14 +433,15 @@ class RDOResourceTypeCompiler
 				IF typename == "String"
 					»«basicSizes.INT» * «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF».size();
 				«(depth - 1).TABS»for(String inner : «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF»)
-				«(depth - 1).TABS»	size += «basicSizes.INT» + inner.length();«
+				«(depth - 1).TABS»	size += «basicSizes.INT» + inner.getBytes().length;«
 				ENDIF»
 				'''
 			}
 			else
 			{
 				ret = ret + '''
-				«IF typename == "String"»size += «basicSizes.INT» + «p.name».length();
+				«IF typename == "String"»byte[] bytes_of_«p.name» = «p.name».getBytes();
+				size += «basicSizes.INT» + bytes_of_«p.name».length;
 				«ENDIF»'''
 			}
 
@@ -579,9 +567,10 @@ class RDOResourceTypeCompiler
 					«depth.TABS»for(String inner : «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF»)
 					«depth.TABS»{
 					«depth.TABS»	entry.putInt(stack.peekLast() + (counter++) * «basicSizes.INT», entry.position());
-					«depth.TABS»	int size«depth» = inner.length();
+					«depth.TABS»	byte[] bytes_of_inner = inner.getBytes();
+					«depth.TABS»	int size«depth» = bytes_of_inner.length;
 					«depth.TABS»	entry.putInt(size«depth»);
-					«depth.TABS»	entry.put(inner.getBytes());
+					«depth.TABS»	entry.put(bytes_of_inner);
 					«depth.TABS»}
 					«depth.TABS»stack.removeLast();«
 					ENDIF»
@@ -590,14 +579,14 @@ class RDOResourceTypeCompiler
 			else
 			{
 				ret = ret + '''
-					«IF typename == "String"»	entry.putInt(«p.name».length());
-						entry.put(«p.name».getBytes());
+					«IF typename == "String"»	entry.putInt(bytes_of_«p.name».length);
+						entry.put(bytes_of_«p.name»);
 					«ENDIF»'''
 			}
 
 			for(i : 0 ..< depth - 1)
 			{
-				ret = ret + (depth - i - 1).TABS + "}\n" + 
+				ret = ret + (depth - i - 1).TABS + "}\n" +
 					if(i < depth - 2) (depth - i - 1).TABS + "stack.removeLast();\n" else ""
 			}
 
@@ -674,7 +663,7 @@ class RDOResourceTypeCompiler
 					return if(parameter.^default != null) " = " + parameter.^default.compileExpression.value else ""
 
 			RDORTPParameterString:
-				return if (parameter.^default != null) ' = "' + parameter.^default + '"' else ""
+				return if(parameter.^default != null) ' = "' + parameter.^default + '"' else ""
 
 			default:
 				return ""

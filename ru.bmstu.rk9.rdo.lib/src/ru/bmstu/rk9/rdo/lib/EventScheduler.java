@@ -10,9 +10,9 @@ class EventScheduler
 		@Override
 		public int compare(Event x, Event y)
 		{
-			if (x.getTime() < y.getTime())
+			if(x.getTime() < y.getTime())
 				return -1;
-			if (x.getTime() > y.getTime())
+			if(x.getTime() > y.getTime())
 				return 1;
 			return 0;
 		}
@@ -22,7 +22,7 @@ class EventScheduler
 
 	void pushEvent(Event event)
 	{
-		if (event.getTime() >= Simulator.getTime())
+		if(event.getTime() >= Simulator.getTime())
 			eventList.add(event);
 	}
 
@@ -33,6 +33,6 @@ class EventScheduler
 
 	boolean haveEvents()
 	{
-		return eventList.size() > 0;
+		return !eventList.isEmpty();
 	}
 }
