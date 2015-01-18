@@ -8,6 +8,7 @@ import ru.bmstu.rk9.rdo.lib.Database;
 import ru.bmstu.rk9.rdo.lib.DecisionPointSearch;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
+import ru.bmstu.rk9.rdo.lib.RDOLibStringJoiner.StringFormat;
 
 //TODO rename class
 public class TreeGrapher {
@@ -19,6 +20,16 @@ public class TreeGrapher {
 		public ArrayList<Node> children = new ArrayList<Node>();
 
 		public int index;
+		
+		public double g;
+		
+		public double h;
+		
+		public int ruleNumber;
+		
+		public String ruleName;
+		
+		public double ruleCost;
 
 		public String label;
 
@@ -94,29 +105,54 @@ public class TreeGrapher {
 					final DecisionPointSearch.SpawnStatus spawnStatus = DecisionPointSearch.SpawnStatus.values()[data
 							.get()];
 					switch (spawnStatus) {
-					case NEW: {
+					case NEW:
+					case BETTER:
 						final int nodeNumber = data.getInt();
 						final int parentNumber = data.getInt();
+						final double g = data.getDouble();
+						final double h = data.getDouble();
+						final int ruleNum = data.getInt();
+						ActivityInfo activity = Simulator.getTracer().decisionPointsInfo.get(currentDptNumber)
+								.activitiesInfo.get(ruleNum);
+						final int patternNumber = activity.patternNumber;
+						final double ruleCost = data.getDouble();
 						treeNode.parent = mapList.get(currentDptNumber).get(parentNumber);
 						mapList.get(currentDptNumber).get(parentNumber).children.add(treeNode);
+						
+						final int numberOfRelevantResources =
+								Simulator.getTracer().patternsInfo.get(patternNumber).relResTypes.size();
+						
+						RDOLibStringJoiner relResStringJoiner =
+								new RDOLibStringJoiner(StringFormat.FUNCTION);
+
+							for(int num = 0; num < numberOfRelevantResources; num++)
+							{
+								final int resNum = data.getInt();
+								final int typeNum =
+										Simulator.getTracer().patternsInfo.get(patternNumber).relResTypes.get(num);
+								final String typeName =
+										Simulator.getTracer().resourceTypesInfo.get(typeNum).name;
+
+								final String name = Simulator.getTracer().resourceNames.get(typeNum).get(resNum);
+								final String resourceName =
+									name != null ?
+										name :
+										typeName + Tracer.encloseIndex(resNum);
+
+								relResStringJoiner.add(resourceName);
+							}
+						
+						treeNode.g = g;
+						treeNode.h = h;
+						treeNode.ruleNumber = ruleNum;
+						treeNode.ruleName = activity.name + relResStringJoiner.getString();
+						treeNode.ruleCost = ruleCost;
 						treeNode.index = nodeNumber;
 						treeNode.label = Integer.toString(treeNode.index);
 						mapList.get(currentDptNumber).put(nodeNumber, treeNode);
 						break;
-					}
-					case WORSE: {
+					case WORSE:
 						break;
-					}
-					case BETTER: {
-						final int nodeNumber = data.getInt();
-						final int parentNumber = data.getInt();
-						treeNode.parent = mapList.get(currentDptNumber).get(parentNumber);
-						mapList.get(currentDptNumber).get(parentNumber).children.add(treeNode);
-						treeNode.index = nodeNumber;
-						treeNode.label = Integer.toString(treeNode.index);
-						mapList.get(currentDptNumber).put(nodeNumber, treeNode);
-						break;
-					}
 					}
 					break;
 				}
