@@ -643,22 +643,6 @@ public class LegacyTracer extends Tracer
 	private final void addLegacySearchEntriesOnFinish(double time)
 	{
 		traceList.add(
-			new TraceOutput(
-				TraceType.SEARCH_OPEN,
-				new RDOLibStringJoiner(delimiter)
-					.add("SO")
-					.add(1)
-					.add(0)
-					.add(0)
-					.add(0)
-					.getString()
-			)
-		);
-	}
-
-	private final void addLegacySearchEntriesOnFinish(double time)
-	{
-		traceList.add(
 				new TraceOutput(
 					TraceType.SYSTEM,
 					new RDOLibStringJoiner(delimiter)

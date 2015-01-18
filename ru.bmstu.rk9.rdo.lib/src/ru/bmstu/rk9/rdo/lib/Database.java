@@ -214,31 +214,7 @@ public class Database
 	{
 		notificationManager.notifySubscribers(category);
 	}
-
-	private final void addEntry(Entry entry)
-	{
-		allEntries.add(entry);
-		notifyChange("EntryAdded");
-	}
-
-	private NotificationManager notificationManager =
-		new NotificationManager(
-			new String[]
-			{
-				"EntryAdded"
-			}
-		);
-
-	public final Notifier getNotifier()
-	{
-		return notificationManager;
-	}
-
-	private final void notifyChange(String category)
-	{
-		notificationManager.notifySubscribers(category);
-	}
-
+	
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                              SYSTEM ENTRIES                               /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
@@ -580,7 +556,7 @@ public class Database
 
 	public static class SearchIndex
 	{
-		final int number;
+		public final int number;
 
 		private SearchIndex(int number)
 		{
