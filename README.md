@@ -7,7 +7,7 @@ This project is an implementation of RDO modelling language in Eclipse, using xt
  * Install [Ubuntu Desktop](http://www.ubuntu.com/download/desktop/)
  * Download [Eclipse IDE for Java Developers](https://www.eclipse.org/downloads/)
 ```bash
-cd Загрузки
+cd Downloads
 gunzip eclipse-java-luna-SR1-linux-gtk-x86_64.tar.gz
 tar -xf eclipse-java-luna-SR1-linux-gtk-x86_64.tar
 cd eclipse
@@ -20,7 +20,7 @@ sudo apt-get install openjdk-8-jdk
  * Download sources
 ```bash
 ssh-add ~/.ssh/github.openssh.private.key
-git clone git@github.com:aurusov/rdo-xtext.git
+git clone git@github.com:k-alexandrovsky/rdo-xtext.git
 ```
 
 ## Installing  
@@ -39,6 +39,6 @@ git clone git@github.com:aurusov/rdo-xtext.git
 22345 [main] INFO  text.generator.junit.Junit4Fragment  - generating Compare Framework infrastructure
 22408 [main] INFO  .emf.mwe2.runtime.workflow.Workflow  - Done.
 ```
-* `Run` `>` `Run Configurations...` `>` `Eclipse Application` > `New` `>` `Name = runtime-EclipseXtext` `>` `Location = ${workspace_loc}/../runtime-EclipseXtext` `>` `Run`
+* `Run` `>` `Run Configurations...` `>` `Eclipse Application` `>` `New` `>` `Name = runtime-EclipseXtext` `>` `Location = ${workspace_loc}/../runtime-EclipseXtext` `>` `Run`
  * Eclipse Platform may freeze during its launch. This happens due to the unsufficient [permgen](http://wiki.eclipse.org/FAQ_How_do_I_increase_the_permgen_size_available_to_Eclipse%3F) size available to Eclipse. To prevent that, add `-XX:MaxPermSize=256M` to VM arguments in Run Configuration
 * And that's it.
