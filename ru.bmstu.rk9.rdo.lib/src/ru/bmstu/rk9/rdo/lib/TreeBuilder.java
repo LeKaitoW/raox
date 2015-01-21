@@ -11,7 +11,7 @@ import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 import ru.bmstu.rk9.rdo.lib.RDOLibStringJoiner.StringFormat;
 
 //TODO rename class
-public class TreeGrapher {
+public class TreeBuilder {
 
 	public class Node {
 
@@ -184,7 +184,7 @@ public class TreeGrapher {
 
 	private int currentDptNumber = -1;
 
-	public TreeGrapher() {
+	public TreeBuilder() {
 		fillTreeNodes();
 	}
 }

@@ -60,8 +60,8 @@ import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.Tracer;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
-import ru.bmstu.rk9.rdo.lib.TreeGrapher;
-import ru.bmstu.rk9.rdo.ui.graph.Graph;
+import ru.bmstu.rk9.rdo.lib.TreeBuilder;
+import ru.bmstu.rk9.rdo.ui.graph.GraphFrame;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView.SearchHelper.SearchResult;
 
 public class RDOTraceView extends ViewPart
@@ -100,15 +100,15 @@ public class RDOTraceView extends ViewPart
 				dptNum = Database.searchIndex.get(dptNameKey).number;
 			}
 		}
-		TreeGrapher tree = new TreeGrapher();
+		TreeBuilder treeBuilder = new TreeBuilder();
 		if (dptNum != -1) {
-			Graph frame = new Graph(tree.mapList.get(dptNum), tree.infoMap.get(dptNum), tree.solutionMap
+			GraphFrame graphFrame = new GraphFrame(treeBuilder.mapList.get(dptNum), treeBuilder.infoMap.get(dptNum), treeBuilder.solutionMap
 					.get(dptNum));
-			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-			frame.setSize(800, 600);
-			frame.setTitle(frameName);
-			frame.setLocationRelativeTo(null);
-			frame.setVisible(true);
+			graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			graphFrame.setSize(800, 600);
+			graphFrame.setTitle(frameName);
+			graphFrame.setLocationRelativeTo(null);
+			graphFrame.setVisible(true);
 		}
 	}
 

@@ -7,8 +7,8 @@ import java.util.Map;
 
 import javax.swing.JFrame;
 
-import ru.bmstu.rk9.rdo.lib.TreeGrapher.GraphInfo;
-import ru.bmstu.rk9.rdo.lib.TreeGrapher.Node;
+import ru.bmstu.rk9.rdo.lib.TreeBuilder.GraphInfo;
+import ru.bmstu.rk9.rdo.lib.TreeBuilder.Node;
 
 import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.model.mxCell;
@@ -23,7 +23,7 @@ import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphSelectionModel;
 
-public class Graph extends JFrame {
+public class GraphFrame extends JFrame {
 
 	Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
 
@@ -103,7 +103,7 @@ public class Graph extends JFrame {
 		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null, text, 800 - width - (delta / 2), delta / 2, width, height);
 	}
 
-	public Graph(HashMap<Integer, Node> treeMap, GraphInfo info, ArrayList<Node> solution) {
+	public GraphFrame(HashMap<Integer, Node> treeMap, GraphInfo info, ArrayList<Node> solution) {
 
 		final mxGraph graph = new mxGraph();
 		
