@@ -26,7 +26,7 @@ git clone git@github.com:k-alexandrovsky/rdo-xtext.git
 
 ## Installing  
 ### Setting up the workspace for Eclipse
-* `File` `>` `Import` `>` `General` `>` `Existing Projects into Workspace`
+* `File` `>` `Import` `>` `General` `>` `Existing Projects into Workspace``>` `Select root directory` `>` `/home/drobus/git/rdo-xtext`
 * Wait for the workspace to build and get tons of errors
 * ru.bmstu.rk9.rdo/src/ru.bmstu.rk9.rdo/RDO.xtext `>` `Run As` `>` `Generate Xtext Artifacts`
 ``` 
@@ -43,3 +43,9 @@ git clone git@github.com:k-alexandrovsky/rdo-xtext.git
 * `Run` `>` `Run Configurations...` `>` `Eclipse Application` `>` `New` `>` `Name = runtime-EclipseXtext` `>` `Location = ${workspace_loc}/../runtime-EclipseXtext` `>` `Run`
  * Eclipse Platform may freeze during its launch. This happens due to the unsufficient [permgen](http://wiki.eclipse.org/FAQ_How_do_I_increase_the_permgen_size_available_to_Eclipse%3F) size available to Eclipse. To prevent that, add `-XX:MaxPermSize=256M` to VM arguments in Run Configuration
 * And that's it.
+
+## Running  
+* `Window` `>` `Open Perspective` `>` `Other...` `>` `RDO`
+* `File` `>` `New` `>` `Project...` `>` `Java Project` `>` `Next>` `>` `Project layout` `>` `Configure default` `>` `Source folder name = src-gen` `>` `OK` `>` `Finish`
+* Right-click on new project `>` `New` `>` `FIle` `>` `File name:` `>` filename.rdo (must be valid java identificator) `>` `Finish`
+ * `Do you want to add the Xtext nature to the project?` `>` `Yes`
