@@ -46,6 +46,7 @@ git clone git@github.com:k-alexandrovsky/rdo-xtext.git
 
 ## Running  
 * `Window` `>` `Open Perspective` `>` `Other...` `>` `RDO`
-* `File` `>` `New` `>` `Project...` `>` `Java Project` `>` `Next>` `>` `Project layout` `>` `Configure default` `>` `Source folder name = src-gen` `>` `OK` `>` `Finish`
-* Right-click on new project `>` `New` `>` `FIle` `>` `File name:` `>` filename.rdo (must be valid java identificator) `>` `Finish`
+* `File` `>` `New` `>` `Project...` `>` `Java Project` `>` `Next>` `>` `Project name:` `>` set project name `>` `Project layout` `>` `Configure default` `>` `Source folder name = src-gen` `>` `OK` `>` `Finish`
+ * `Do you want to open this perspective now?` `>` `No`
+* Right-click on created project `>` `New` `>` `File` `>` `File name:` `>` filename.rdo (must be valid java identificator) `>` `Finish`
  * `Do you want to add the Xtext nature to the project?` `>` `Yes`
