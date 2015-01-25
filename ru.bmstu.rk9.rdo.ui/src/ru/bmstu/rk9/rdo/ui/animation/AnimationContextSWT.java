@@ -34,8 +34,13 @@ public class AnimationContextSWT implements AnimationContext
 	void drawBackground(int[] backgroundData)
 	{
 		paintContext.setAlpha(255);
-		paintContext.setBackground(createColour(backgroundData, 2));
+
+		Color backgroundColor = createColor(backgroundData, 2);
+
+		paintContext.setBackground(backgroundColor);
 		paintContext.fillRectangle(0, 0, backgroundData[0], backgroundData[1]);
+
+		backgroundColor.dispose();
 	}
 
 	void drawFrame(GC gc, AnimationFrame frame)
@@ -98,12 +103,21 @@ public class AnimationContextSWT implements AnimationContext
 	)
 	{
 		paintContext.setAlpha(backgroundColour[3]);
-		paintContext.setBackground(createColour(backgroundColour, 0));
+
+		Color backgroundColor = createColor(backgroundColour, 0);
+
+		paintContext.setBackground(backgroundColor);
 		paintContext.fillRectangle(x, y, width, height);
 
 		paintContext.setAlpha(textColor[3]);
-		paintContext.setForeground(createColour(textColor, 0));
+
+		Color foregroundColor = createColor(textColor, 0);
+
+		paintContext.setForeground(foregroundColor);
 		paintContext.drawText(text, x, y, true);
+
+		backgroundColor.dispose();
+		foregroundColor.dispose();
 	}
 
 	@Override
@@ -116,12 +130,21 @@ public class AnimationContextSWT implements AnimationContext
 	)
 	{
 		paintContext.setAlpha(backgroundColour[3]);
-		paintContext.setBackground(createColour(backgroundColour, 0));
+		
+		Color backgroundColor = createColor(backgroundColour, 0);
+
+		paintContext.setBackground(backgroundColor);
 		paintContext.fillRectangle(x, y, width, height);
 
 		paintContext.setAlpha(borderColour[3]);
-		paintContext.setBackground(createColour(borderColour, 0));
+
+		Color borderColor = createColor(borderColour, 0);
+
+		paintContext.setBackground(borderColor);
 		paintContext.drawRectangle(x, y, width, height);
+
+		backgroundColor.dispose();
+		borderColor.dispose();
 	}
 
 	@Override
@@ -133,8 +156,13 @@ public class AnimationContextSWT implements AnimationContext
 	)
 	{
 		paintContext.setAlpha(lineColour[3]);
-		paintContext.setBackground(createColour(lineColour, 0));
+
+		Color lineColor = createColor(lineColour, 0);
+
+		paintContext.setBackground(lineColor);
 		paintContext.drawLine(x1, y1, x2, y2);
+
+		lineColor.dispose();
 	}
 
 	@Override
@@ -147,12 +175,21 @@ public class AnimationContextSWT implements AnimationContext
 	)
 	{
 		paintContext.setAlpha(backgroundColour[3]);
-		paintContext.setBackground(createColour(backgroundColour, 0));
+
+		Color backgroundColor = createColor(backgroundColour, 0);
+
+		paintContext.setBackground(backgroundColor);
 		paintContext.fillOval(x - radius / 2, y - radius / 2, radius, radius);
 
 		paintContext.setAlpha(borderColour[3]);
-		paintContext.setBackground(createColour(borderColour, 0));
+
+		Color borderColor = createColor(borderColour, 0);
+
+		paintContext.setBackground(borderColor);
 		paintContext.drawOval(x - radius / 2, y - radius / 2, radius, radius);
+
+		backgroundColor.dispose();
+		borderColor.dispose();
 	}
 
 	@Override
@@ -165,12 +202,21 @@ public class AnimationContextSWT implements AnimationContext
 	)
 	{
 		paintContext.setAlpha(backgroundColour[3]);
-		paintContext.setBackground(createColour(backgroundColour, 0));
+
+		Color backgroundColor = createColor(backgroundColour, 0);
+
+		paintContext.setBackground(backgroundColor);
 		paintContext.fillOval(x, y, width, height);
 
 		paintContext.setAlpha(borderColour[3]);
-		paintContext.setBackground(createColour(borderColour, 0));
+
+		Color borderColor = createColor(borderColour, 0);
+
+		paintContext.setBackground(borderColor);
 		paintContext.drawOval(x, y, width, height);
+
+		backgroundColor.dispose();
+		borderColor.dispose();
 }
 
 	@Override
@@ -184,15 +230,24 @@ public class AnimationContextSWT implements AnimationContext
 	)
 	{
 		paintContext.setAlpha(backgroundColour[3]);
-		paintContext.setBackground(createColour(backgroundColour, 0));
+
+		Color backgroundColor = createColor(backgroundColour, 0);
+
+		paintContext.setBackground(backgroundColor);
 		paintContext.fillPolygon(new int[] {x1, y1, x2, y2, x3, y3});
 
 		paintContext.setAlpha(borderColour[3]);
-		paintContext.setBackground(createColour(borderColour, 0));
+
+		Color borderColor = createColor(borderColour, 0);
+
+		paintContext.setBackground(borderColor);
 		paintContext.drawPolygon(new int[] {x1, y1, x2, y2, x3, y3});
+
+		backgroundColor.dispose();
+		borderColor.dispose();
 	}
 
-	Color createColour(int[] components, int offset)
+	Color createColor(int[] components, int offset)
 	{
 		return new Color
 		(
