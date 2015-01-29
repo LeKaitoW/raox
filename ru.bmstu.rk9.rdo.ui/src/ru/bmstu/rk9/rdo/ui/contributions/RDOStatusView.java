@@ -6,6 +6,9 @@ import org.eclipse.jdt.ui.PreferenceConstants;
 
 import org.eclipse.jface.resource.FontRegistry;
 
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
+
 import org.eclipse.swt.SWT;
 
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -39,12 +42,16 @@ public class RDOStatusView extends ViewPart
 	private static GridData leftGridData;
 	private static GridData leftGridDataForLabels;
 
+	private static Label scaleLabel = null;
 	private static Label simulationScale = null;
 
+	private static Label actualScaleLabel = null;
 	private static Label actualSimulationScale = null;
 
+	private static Label timeLabel = null;
 	private static Label simulationTime = null;
 
+	private static Label realTimeLabel = null;
 	private static Label realTime = null;
 
 	private static DecimalFormat scaleFormatter = new DecimalFormat("0.######");
@@ -102,12 +109,17 @@ public class RDOStatusView extends ViewPart
 		realTime.setSize(realTime.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
+	private static Control[] controls;
+
+	private static IThemeManager themeManager;
+	private static IPropertyChangeListener fontListener;
+
 	@Override
 	public void createPartControl(Composite parent)
 	{
 		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 
-		IThemeManager themeManager = PlatformUI.getWorkbench().getThemeManager();
+		themeManager = PlatformUI.getWorkbench().getThemeManager();
 		ITheme currentTheme = themeManager.getCurrentTheme();
 		FontRegistry fontRegistry = currentTheme.getFontRegistry();
 		Font editorFont = fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT);
@@ -129,7 +141,7 @@ public class RDOStatusView extends ViewPart
 
 			Composite scaleComposite = new Composite(composite, SWT.NONE);
 				scaleComposite.setLayout(gridLayout);
-				Label scaleLabel = new Label(scaleComposite, SWT.LEFT);
+				scaleLabel = new Label(scaleComposite, SWT.LEFT);
 					scaleLabel.setText("Simulation scale:");
 					scaleLabel.setLayoutData(leftGridDataForLabels);
 				simulationScale = new Label(scaleComposite, SWT.LEFT);
@@ -137,7 +149,7 @@ public class RDOStatusView extends ViewPart
 
 			Composite actualScaleComposite = new Composite(composite, SWT.NONE);
 				actualScaleComposite.setLayout(gridLayout);
-				Label actualScaleLabel = new Label(actualScaleComposite, SWT.LEFT);
+				actualScaleLabel = new Label(actualScaleComposite, SWT.LEFT);
 					actualScaleLabel.setText("Actual scale:");
 					actualScaleLabel.setLayoutData(leftGridDataForLabels);
 				actualSimulationScale = new Label(actualScaleComposite, SWT.LEFT);
@@ -146,7 +158,7 @@ public class RDOStatusView extends ViewPart
 
 			Composite timeComposite = new Composite(composite, SWT.NONE);
 				timeComposite.setLayout(gridLayout);
-				Label timeLabel = new Label(timeComposite, SWT.LEFT);
+				timeLabel = new Label(timeComposite, SWT.LEFT);
 					timeLabel.setText("Simulation time:");
 					timeLabel.setLayoutData(leftGridDataForLabels);
 				simulationTime = new Label(timeComposite, SWT.LEFT);
@@ -155,26 +167,59 @@ public class RDOStatusView extends ViewPart
 
 			Composite realTimeComposite = new Composite(composite, SWT.LEFT);
 				realTimeComposite.setLayout(gridLayout);
-				Label realTimeLabel = new Label(realTimeComposite, SWT.LEFT);
+				realTimeLabel = new Label(realTimeComposite, SWT.LEFT);
 					realTimeLabel.setText("Time elapsed:");
 					realTimeLabel.setLayoutData(leftGridDataForLabels);
 				realTime = new Label(realTimeComposite, SWT.LEFT);
 					realTime.setLayoutData(leftGridData);
 					realTime.setText("-");
 
-		for(Control c : new Control[]
+		controls = new Control[]
 		{
 			scrolledComposite, composite,
 			scaleComposite, scaleLabel, simulationScale,
 			actualScaleComposite, actualScaleLabel, actualSimulationScale,
 			timeComposite, timeLabel, simulationTime,
 			realTimeComposite, realTimeLabel, realTime
-		})
+		};
+
+		for(Control c : controls)
 		{
 			c.setFont(editorFont);
 			c.setBackground(parent.getBackground());
 		}
 
+		fontListener = new IPropertyChangeListener()
+		{
+			@Override
+			public void propertyChange(PropertyChangeEvent event)
+			{
+				if(event.getProperty().equals(PreferenceConstants.EDITOR_TEXT_FONT))
+				{
+					Font editorFont =
+						fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT);
+
+					for(Control c : controls)
+						c.setFont(editorFont);
+
+					calculateLeftLabelWidth();
+					scrolledComposite.layout(true, true);
+				}
+			}
+		};
+		themeManager.addPropertyChangeListener(fontListener);
+
+		calculateLeftLabelWidth();
+
+		scrolledComposite.setContent(composite);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+
+		setSimulationScale(SetSimulationScaleHandler.getSimulationScale());
+	}
+
+	private static void calculateLeftLabelWidth()
+	{
 		leftGridDataForLabels.widthHint = 5 + Math.max
 		(
 			scaleLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT).x,
@@ -188,12 +233,13 @@ public class RDOStatusView extends ViewPart
 				)
 			)
 		);
+	}
 
-		scrolledComposite.setContent(composite);
-		scrolledComposite.setExpandHorizontal(true);
-		scrolledComposite.setExpandVertical(true);
-
-		setSimulationScale(SetSimulationScaleHandler.getSimulationScale());
+	@Override
+	public void dispose()
+	{
+		themeManager.removePropertyChangeListener(fontListener);
+		super.dispose();
 	}
 
 	private static void calculateMinWidth()

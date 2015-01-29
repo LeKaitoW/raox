@@ -98,10 +98,13 @@ public class RDOConsoleView extends ViewPart
 			);
 	}
 
+	private static IThemeManager themeManager;
+	private static IPropertyChangeListener fontListener;
+
 	private void registerTextFontUpdateListener()
 	{
-		IThemeManager themeManager = PlatformUI.getWorkbench().getThemeManager();
-		IPropertyChangeListener listener = new IPropertyChangeListener()
+		themeManager = PlatformUI.getWorkbench().getThemeManager();
+		fontListener = new IPropertyChangeListener()
 		{
 			@Override
 			public void propertyChange(PropertyChangeEvent event)
@@ -110,7 +113,14 @@ public class RDOConsoleView extends ViewPart
 					updateTextFont();
 			}
 		};
-		themeManager.addPropertyChangeListener(listener);
+		themeManager.addPropertyChangeListener(fontListener);
+	}
+
+	@Override
+	public void dispose()
+	{
+		themeManager.removePropertyChangeListener(fontListener);
+		super.dispose();
 	}
 
 	@Override
