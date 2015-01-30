@@ -339,7 +339,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 		ByteBuffer data = ByteBuffer.allocate
 		(
-			Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 2 +
+			Database.TypeSize.BYTE + Database.TypeSize.DOUBLE +
 			Database.TypeSize.INTEGER * 4 + Database.TypeSize.LONG * 2
 		);
 
@@ -369,7 +369,6 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		{
 			data
 				.put((byte)code.ordinal())
-				.putDouble(Simulator.getTime())
 				.putLong(System.currentTimeMillis() - time)
 				.putLong(memory - Runtime.getRuntime().freeMemory())
 				.putDouble(finalCost)
