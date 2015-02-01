@@ -146,13 +146,13 @@ public class Database
 
 	public static class Entry
 	{
-		ByteBuffer header;
-		ByteBuffer data;
+		final ByteBuffer header;
+		final ByteBuffer data;
 
-		Entry(ByteBuffer header, ByteBuffer data)
+		Entry(final ByteBuffer header, final ByteBuffer data)
 		{
-			this.header = header;
-			this.data = data;
+			this.header = header != null ? header.asReadOnlyBuffer() : null;
+			this.data = data != null ? data.asReadOnlyBuffer() : null;
 		}
 	}
 
