@@ -150,29 +150,23 @@ public class TraceConfig
 		root.children.remove(modelNode);
 	}
 
-	//TODO this is ugly and should be revised
-	private static ArrayList<String> names = null;
+	private static ArrayList<String> names = new ArrayList<String>();
 
-	public static final ArrayList<String> getNames()
-	{
+	public static final ArrayList<String> getNames() {
 		return names;
 	}
 
-	public final void initNames()
-	{
-		names =  new ArrayList<String>();
-		//TODO seems like that's not what OOP was invented for
-		for(TraceNode category : root.getVisibleChildren())
-			fillNames(category, names);
+	public final void initNames() {
+		names.clear();
+		for (TraceNode category : root.getVisibleChildren())
+			fillNames(category);
 	}
 
-	private final void fillNames(TraceNode node, ArrayList<String> names)
-	{
-		for(TraceNode child : node.getVisibleChildren())
-		{
-			if(child.isTraced())
+	private final void fillNames(TraceNode node) {
+		for (TraceNode child : node.getVisibleChildren()) {
+			if (child.isTraced())
 				names.add(child.getName());
-			fillNames(child, names);
+			fillNames(child);
 		}
 	}
 }
