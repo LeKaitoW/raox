@@ -292,6 +292,20 @@ public class RDOTraceView extends ViewPart
 	static class SearchHelper
 	{
 		public enum SearchResult {FOUND, NOT_FOUND};
+		public enum DialogState {OPENED, CLOSED};
+
+		final void openDialog() {
+			if (dialogState == DialogState.CLOSED) {
+				currentDialog = new SearchDialog(
+						viewer.getTable().getShell(), searchHelper);
+				currentDialog.setBlockOnOpen(false);
+				currentDialog.open();
+				dialogState = DialogState.OPENED;
+			}
+			else {
+				currentDialog.getShell().setFocus();
+			}
+		}
 
 		final SearchResult findLine(String line)
 		{
@@ -323,18 +337,22 @@ public class RDOTraceView extends ViewPart
 			return SearchResult.FOUND;
 		}
 
+		final void dialogClosed()
+		{
+			dialogState = DialogState.CLOSED;
+			currentIndex = 0;
+		}
+
 		private int currentIndex = 0;
+		private SearchDialog currentDialog;
+		private DialogState dialogState = DialogState.CLOSED;
 	}
 
-	private static SearchHelper searchHelper;
+	private static SearchHelper searchHelper = new SearchHelper();
 
 	private final static void showFindDialog()
 	{
-		searchHelper = new SearchHelper();
-		SearchDialog dialog = new SearchDialog(
-			viewer.getTable().getShell(), searchHelper);
-		dialog.setBlockOnOpen(false);
-		dialog.open();
+		searchHelper.openDialog();
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
@@ -738,6 +756,14 @@ class SearchDialog extends Dialog
 		getButton(IDialogConstants.OK_ID).setText("Close");
 		getButton(IDialogConstants.CANCEL_ID).dispose();
 	}
+
+	@Override
+	public boolean close()
+	{
+		boolean returnValue = super.close();
+		searchHelper.dialogClosed();
+		return returnValue;
+	};
 
 	@Override
 	protected void configureShell(Shell newShell)
