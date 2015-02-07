@@ -139,6 +139,13 @@ public class TraceConfig
 		return root;
 	}
 
+	public final TraceNode findModel(String modelName) {
+		for (TraceNode c : root.getChildren())
+			if (c.getName().equals(modelName))
+				return c;
+		return null;
+	}
+
 	//TODO this is ugly and should be revised
 	private static ArrayList<String> names = null;
 

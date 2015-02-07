@@ -144,7 +144,9 @@ public class RDOTraceConfigView extends ViewPart
 							}
 						).getContents().get(0);
 
-						updateInput(model.eResource());
+						addModel(model.eResource());
+						if (traceTreeViewer.getInput() == null)
+							traceTreeViewer.setInput(traceConfig);
 
 						document.addModelListener(
 							new IXtextModelListener() {
@@ -162,26 +164,25 @@ public class RDOTraceConfigView extends ViewPart
 					new HashSet<IXtextDocument>();
 			}
 		);
-
-		traceConfigurator.initCategories(traceConfig.getRoot());
-		traceTreeViewer.setInput(traceConfig);
 	}
 
-	public static void updateInput(Resource model)
-	{
-		traceConfigurator.fillCategories(model, traceConfig.getRoot());
-		if(RDOTraceConfigView.traceTreeViewer == null)
+	public static void addModel(Resource model) {
+		traceConfigurator.initModel(traceConfig.getRoot(), model);
+		updateInput(model);
+	}
+
+	public static void updateInput(Resource model) {
+		TraceNode modelNode = traceConfig.findModel(RDONaming
+				.getResourceName(model));
+		traceConfigurator.fillCategories(model, modelNode);
+		if (RDOTraceConfigView.traceTreeViewer == null)
 			return;
-		PlatformUI.getWorkbench().getDisplay().asyncExec(
-			new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						RDOTraceConfigView.traceTreeViewer.refresh();
-					}
-				}
-		);
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				RDOTraceConfigView.traceTreeViewer.refresh();
+			}
+		});
 	}
 
 	public static void onModelSave()
@@ -221,39 +222,40 @@ class TraceConfigurator
 		}
 	}
 
-	public final void fillCategories(Resource model, TraceNode node)
+	public final void fillCategories(Resource model, TraceNode modelNode)
 	{
 		fillCategory(
-			node.getChildren().get(TraceCategory.RESOURCES.ordinal()),
-			model.getAllContents(),
+			modelNode.getChildren().get(TraceCategory.RESOURCES.ordinal()),
+			model,
 			ResourceDeclaration.class
 		);
 
 		fillCategory(
-			node.getChildren().get(TraceCategory.PATTERNS.ordinal()),
-			model.getAllContents(),
+			modelNode.getChildren().get(TraceCategory.PATTERNS.ordinal()),
+			model,
 			Pattern.class
 		);
 
 		fillCategory(
-			node.getChildren().get(TraceCategory.DECISION_POINTS.ordinal()),
-			model.getAllContents(),
+			modelNode.getChildren().get(TraceCategory.DECISION_POINTS.ordinal()),
+			model,
 			DecisionPoint.class
 		);
 
 		fillCategory(
-			node.getChildren().get(TraceCategory.RESULTS.ordinal()),
-			model.getAllContents(),
+			modelNode.getChildren().get(TraceCategory.RESULTS.ordinal()),
+			model,
 			ResultDeclaration.class
 		);
 	}
 
 	private final <T extends EObject> void fillCategory(
 		TraceNode category,
-		TreeIterator<EObject> allContents,
+		Resource model,
 		Class<T> categoryClass
 	)
 	{
+		TreeIterator<EObject> allContents = model.getAllContents();
 		category.hideChildren();
 		final ArrayList<T> categoryList =
 			new ArrayList<T>();
@@ -283,10 +285,10 @@ class TraceConfigurator
 		}
 	}
 
-	public final void initCategories(TraceNode node)
-	{
-		for(TraceCategory category : TraceCategory.values())
-			node.addChild(category.getName());
+	public final void initModel(TraceNode root, Resource model) {
+		TraceNode modelNode = root.addChild(RDONaming.getResourceName(model));
+		for (TraceCategory category : TraceCategory.values())
+			modelNode.addChild(category.getName());
 	}
 }
 
