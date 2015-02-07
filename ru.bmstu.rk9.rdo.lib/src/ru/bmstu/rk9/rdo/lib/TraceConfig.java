@@ -73,7 +73,7 @@ public class TraceConfig
 
 		public final void traceVisibleChildren(boolean traceState)
 		{
-			for(TraceNode ch : getChildren())
+			for(TraceNode ch : getVisibleChildren())
 			{
 				if(ch.isVisible)
 				{
@@ -83,7 +83,7 @@ public class TraceConfig
 			}
 		}
 
-		public final ArrayList<TraceNode> getChildren()
+		public final ArrayList<TraceNode> getVisibleChildren()
 		{
 			ArrayList<TraceNode> visibleChildren = new ArrayList<TraceNode>();
 			for(TraceNode ch : children)
@@ -140,10 +140,14 @@ public class TraceConfig
 	}
 
 	public final TraceNode findModel(String modelName) {
-		for (TraceNode c : root.getChildren())
+		for (TraceNode c : root.getVisibleChildren())
 			if (c.getName().equals(modelName))
 				return c;
 		return null;
+	}
+
+	public final void removeModel(TraceNode modelNode) {
+		root.children.remove(modelNode);
 	}
 
 	//TODO this is ugly and should be revised
@@ -158,13 +162,13 @@ public class TraceConfig
 	{
 		names =  new ArrayList<String>();
 		//TODO seems like that's not what OOP was invented for
-		for(TraceNode category : root.getChildren())
+		for(TraceNode category : root.getVisibleChildren())
 			fillNames(category, names);
 	}
 
 	private final void fillNames(TraceNode node, ArrayList<String> names)
 	{
-		for(TraceNode child : node.getChildren())
+		for(TraceNode child : node.getVisibleChildren())
 		{
 			if(child.isTraced())
 				names.add(child.getName());

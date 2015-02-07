@@ -144,6 +144,11 @@ public class RDOTraceConfigView extends ViewPart
 							}
 						).getContents().get(0);
 
+						TraceNode existingModel = traceConfig.findModel(
+								RDONaming.getResourceName(model.eResource()));
+						if (existingModel != null)
+							traceConfig.removeModel(existingModel);
+
 						addModel(model.eResource());
 						if (traceTreeViewer.getInput() == null)
 							traceTreeViewer.setInput(traceConfig);
@@ -225,25 +230,25 @@ class TraceConfigurator
 	public final void fillCategories(Resource model, TraceNode modelNode)
 	{
 		fillCategory(
-			modelNode.getChildren().get(TraceCategory.RESOURCES.ordinal()),
+			modelNode.getVisibleChildren().get(TraceCategory.RESOURCES.ordinal()),
 			model,
 			ResourceDeclaration.class
 		);
 
 		fillCategory(
-			modelNode.getChildren().get(TraceCategory.PATTERNS.ordinal()),
+			modelNode.getVisibleChildren().get(TraceCategory.PATTERNS.ordinal()),
 			model,
 			Pattern.class
 		);
 
 		fillCategory(
-			modelNode.getChildren().get(TraceCategory.DECISION_POINTS.ordinal()),
+			modelNode.getVisibleChildren().get(TraceCategory.DECISION_POINTS.ordinal()),
 			model,
 			DecisionPoint.class
 		);
 
 		fillCategory(
-			modelNode.getChildren().get(TraceCategory.RESULTS.ordinal()),
+			modelNode.getVisibleChildren().get(TraceCategory.RESULTS.ordinal()),
 			model,
 			ResultDeclaration.class
 		);
@@ -319,7 +324,7 @@ class RDOTraceConfigContentProvider implements ITreeContentProvider
 		TraceConfig traceConfig = (TraceConfig) inputElement;
 		if(!traceConfig.getRoot().hasChildren())
 			return null;
-		return traceConfig.getRoot().getChildren().toArray();
+		return traceConfig.getRoot().getVisibleChildren().toArray();
 	}
 
 	public Object[] getChildren(Object parentElement)
@@ -327,7 +332,7 @@ class RDOTraceConfigContentProvider implements ITreeContentProvider
 		TraceNode traceNode = (TraceNode) parentElement;
 		if(!traceNode.hasChildren())
 			return null;
-		return traceNode.getChildren().toArray();
+		return traceNode.getVisibleChildren().toArray();
 	}
 
 	public Object getParent(Object element)
