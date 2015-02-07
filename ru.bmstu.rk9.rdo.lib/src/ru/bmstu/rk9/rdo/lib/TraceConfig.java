@@ -139,13 +139,6 @@ public class TraceConfig
 		return root;
 	}
 
-	private String modelName = null;
-
-	public final void setModelName(String modelName)
-	{
-		this.modelName = modelName;
-	}
-
 	//TODO this is ugly and should be revised
 	private static ArrayList<String> names = null;
 
@@ -167,13 +160,8 @@ public class TraceConfig
 		for(TraceNode child : node.getChildren())
 		{
 			if(child.isTraced())
-				names.add(getFullName(child.getName()));
+				names.add(child.getName());
 			fillNames(child, names);
 		}
-	}
-
-	private final String getFullName(String name)
-	{
-		return modelName + "." + name;
 	}
 }

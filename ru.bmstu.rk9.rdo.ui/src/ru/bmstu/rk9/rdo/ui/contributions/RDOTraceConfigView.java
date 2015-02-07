@@ -169,7 +169,6 @@ public class RDOTraceConfigView extends ViewPart
 
 	public static void updateInput(Resource model)
 	{
-		traceConfig.setModelName(RDONaming.getResourceName(model));
 		traceConfigurator.fillCategories(model, traceConfig.getRoot());
 		if(RDOTraceConfigView.traceTreeViewer == null)
 			return;
@@ -262,11 +261,9 @@ class TraceConfigurator
 		Iterable<T> iterable = IteratorExtensions.<T>toIterable(filter);
 		Iterables.addAll(categoryList, iterable);
 
-		//TODO why don't name include model name here already?
-		//the way it is now it differs from the names we get from database
 		for(T c : categoryList)
 		{
-			TraceNode child = category.addChild(RDONaming.getNameGeneric(c));
+			TraceNode child = category.addChild(RDONaming.getFullyQualifiedName(c));
 			if(c instanceof Pattern)
 			{
 				for(EObject relRes : c.eContents())
