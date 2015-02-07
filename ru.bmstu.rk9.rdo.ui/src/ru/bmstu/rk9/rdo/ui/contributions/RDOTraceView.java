@@ -6,6 +6,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.TimerTask;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -36,6 +38,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -289,38 +292,61 @@ public class RDOTraceView extends ViewPart
 		clipboard.dispose();
 	}
 
-	static class SearchHelper
-	{
-		public enum SearchResult {FOUND, NOT_FOUND};
-		public enum DialogState {OPENED, CLOSED};
+	static class SearchHelper {
+		public enum SearchResult {
+			FOUND, NOT_FOUND
+		};
+
+		public enum DialogState {
+			OPENED, CLOSED
+		};
 
 		final void openDialog() {
 			if (dialogState == DialogState.CLOSED) {
-				currentDialog = new SearchDialog(
-						viewer.getTable().getShell(), searchHelper);
+				currentDialog = new SearchDialog(viewer.getTable().getShell(),
+						searchHelper);
 				currentDialog.setBlockOnOpen(false);
 				currentDialog.open();
 				dialogState = DialogState.OPENED;
-			}
-			else {
+			} else {
 				currentDialog.getShell().setFocus();
 			}
 		}
 
-		final SearchResult findLine(String line)
-		{
+		final SearchResult findLine(String line) {
 			@SuppressWarnings("unchecked")
-			ArrayList<TraceOutput> traceOutput =
-				(ArrayList<TraceOutput>) viewer.getInput();
-			if(traceOutput == null)
+			ArrayList<TraceOutput> traceOutput = (ArrayList<TraceOutput>) viewer
+					.getInput();
+			if (traceOutput == null)
 				return SearchResult.NOT_FOUND;
 
 			boolean lineFound = false;
-			while(currentIndex < viewer.getTable().getItemCount()
-					&& !lineFound)
-			{
-				if(traceOutput.get(currentIndex).content().contains(line))
-				{
+			Pattern pattern = null;
+			if (caseSensitive) {
+				line = line.toLowerCase();
+			}
+			if (regexp) {
+				try {
+					pattern = Pattern.compile(line);
+				} catch (PatternSyntaxException e) {
+					return SearchResult.NOT_FOUND;
+				}
+			}
+			while (currentIndex < viewer.getTable().getItemCount()
+					&& !lineFound) {
+				String traceLine = traceOutput.get(currentIndex).content();
+				if (caseSensitive) {
+					traceLine = traceLine.toLowerCase();
+				}
+
+				boolean condition;
+				if (regexp) {
+					condition = pattern.matcher(traceLine).find();
+				} else {
+					condition = traceLine.contains(line);
+				}
+
+				if (condition) {
 					viewer.getTable().setSelection(currentIndex);
 					viewer.getTable().showSelection();
 					lineFound = true;
@@ -328,8 +354,7 @@ public class RDOTraceView extends ViewPart
 				currentIndex++;
 			}
 
-			if(!lineFound)
-			{
+			if (!lineFound) {
 				currentIndex = 0;
 				return SearchResult.NOT_FOUND;
 			}
@@ -337,12 +362,29 @@ public class RDOTraceView extends ViewPart
 			return SearchResult.FOUND;
 		}
 
-		final void dialogClosed()
-		{
+		final void dialogClosed() {
 			dialogState = DialogState.CLOSED;
 			currentIndex = 0;
 		}
 
+		final void setCaseSensitive(boolean cs) {
+			caseSensitive = cs;
+		}
+
+		final boolean getCaseSensitive() {
+			return caseSensitive;
+		}
+
+		final void setRegexp(boolean r) {
+			regexp = r;
+		}
+
+		final boolean getRegexp() {
+			return regexp;
+		}
+
+		private boolean caseSensitive = false;
+		private boolean regexp = false;
 		private int currentIndex = 0;
 		private SearchDialog currentDialog;
 		private DialogState dialogState = DialogState.CLOSED;
@@ -350,8 +392,7 @@ public class RDOTraceView extends ViewPart
 
 	private static SearchHelper searchHelper = new SearchHelper();
 
-	private final static void showFindDialog()
-	{
+	private final static void showFindDialog() {
 		searchHelper.openDialog();
 	}
 
@@ -721,111 +762,133 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 	}
 }
 
-class SearchDialog extends Dialog
-{
+class SearchDialog extends Dialog {
 	private Text searchText;
 	private Button searchButton;
 	private Label statusLabel;
 
 	private RDOTraceView.SearchHelper searchHelper;
 
-	private final void saveInputString()
-	{
+	private final void saveInputString() {
 		searchString = searchText.getText();
 	}
 
 	private String searchString;
 
-	final String getSearchString()
-	{
+	final String getSearchString() {
 		return searchString;
 	}
 
-	public SearchDialog(Shell parentShell, RDOTraceView.SearchHelper searchHelper)
-	{
+	public SearchDialog(Shell parentShell,
+			RDOTraceView.SearchHelper searchHelper) {
 		super(parentShell);
 		setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE);
 		this.searchHelper = searchHelper;
 	}
 
 	@Override
-	public void create()
-	{
+	public void create() {
 		super.create();
-		//TODO probably that's not the best way to do that
+		// TODO probably that's not the best way to do that
 		getButton(IDialogConstants.OK_ID).setText("Close");
 		getButton(IDialogConstants.CANCEL_ID).dispose();
 	}
 
 	@Override
-	public boolean close()
-	{
+	public boolean close() {
 		boolean returnValue = super.close();
 		searchHelper.dialogClosed();
 		return returnValue;
 	};
 
 	@Override
-	protected void configureShell(Shell newShell)
-	{
+	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
 		newShell.setText("Find");
 	}
 
 	@Override
-	protected Control createDialogArea(Composite parent)
-	{
+	protected Control createDialogArea(Composite parent) {
 		Composite area = (Composite) super.createDialogArea(parent);
-		Composite container = new Composite(area, SWT.NONE);
-		container.setLayoutData(new GridData(GridData.FILL_BOTH));
-		GridLayout layout = new GridLayout(2, false);
-		container.setLayout(layout);
+		area.setLayoutData(new GridData(
+				SWT.FILL, SWT.FILL, true, true));
 
-		createDialogContents(container);
+		createDialogContents(area);
+		createOptionButtons(area);
 
 		return area;
 	}
 
-	private final void createDialogContents(Composite container)
-	{
-		GridData data = new GridData();
-		data.grabExcessHorizontalSpace = true;
-		data.horizontalAlignment = GridData.FILL;
+	private final void createDialogContents(Composite parent) {
+		Composite area = new Composite(parent, SWT.FILL);
+		area.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		area.setLayout(new GridLayout(2, false));
 
-		searchText = new Text(container, SWT.BORDER);
-		searchText.setLayoutData(data);
+		searchText = new Text(area, SWT.NONE);
+		searchText.setLayoutData(
+				new GridData(SWT.FILL, SWT.FILL, true, false));
 
-		//TODO make in default on Enter click
-		searchButton = new Button(container, SWT.BORDER);
-		searchButton.setLayoutData(data);
+		// TODO make it default on Enter click
+		searchButton = new Button(area, SWT.PUSH);
 		searchButton.setText("Find");
 
-		statusLabel = new Label(container, SWT.NONE);
+		statusLabel = new Label(area, SWT.NONE);
 		statusLabel.setText("Wrapped search");
+		statusLabel.setLayoutData(
+				new GridData(SWT.FILL, SWT.FILL, true, false));
 
-		searchButton.addSelectionListener(
-			new SelectionAdapter()
-			{
-				@Override
-				public void widgetSelected(SelectionEvent e)
-				{
-					saveInputString();
-					if(searchString != null)
-					{
-						if(searchHelper.findLine(searchString) ==
-								SearchResult.NOT_FOUND)
-							statusLabel.setText("String not found");
-						else
-							statusLabel.setText("Wrapped search");
-					}
+		searchButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				saveInputString();
+				if (searchString != null) {
+					if (searchHelper.findLine(searchString) == SearchResult.NOT_FOUND)
+						statusLabel.setText("String not found");
+					else
+						statusLabel.setText("Wrapped search");
 				}
 			}
-		);
+		});
+	}
+
+	private final void createOptionButtons(Composite parent) {
+		Composite area = new Composite(parent, SWT.FILL);
+		area.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		area.setLayout(new GridLayout(2, false));
+
+		Button caseSensitiveButton = new Button(area, SWT.CHECK);
+		caseSensitiveButton.setSelection(searchHelper.getCaseSensitive());
+		caseSensitiveButton.addSelectionListener(new SelectionListener() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						Button button = (Button) e.widget;
+						searchHelper.setCaseSensitive(button.getSelection());
+					}
+
+					@Override
+					public void widgetDefaultSelected(SelectionEvent e) {
+					}
+				});
+		new Label(area, SWT.NONE).setText("Case sensitive");
+
+		Button regexpButton = new Button(area, SWT.CHECK);
+		regexpButton.setSelection(searchHelper.getRegexp());
+		regexpButton.addSelectionListener(new SelectionListener() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						Button button = (Button) e.widget;
+						searchHelper.setRegexp(button.getSelection());
+					}
+
+					@Override
+					public void widgetDefaultSelected(SelectionEvent e) {
+					}
+				});
+		new Label(area, SWT.NONE).setText("Regular expressions");
 	}
 
 	@Override
-	protected boolean isResizable()
-	{
+	protected boolean isResizable() {
 		return true;
 	}
 }
