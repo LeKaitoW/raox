@@ -432,7 +432,7 @@ public class RDOTraceView extends ViewPart
 }
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
- /                              HELPER CLASSES                               /
+ /                                 PROVIDERS                                 /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 class RDOTraceViewContentProvider implements ILazyContentProvider
@@ -696,6 +696,10 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
 		return colorByType.get(type).backgroundColor();
 	}
 }
+
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                            HELPER CLASSES                                 /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 class SearchDialog extends Dialog {
 	private Text searchText;

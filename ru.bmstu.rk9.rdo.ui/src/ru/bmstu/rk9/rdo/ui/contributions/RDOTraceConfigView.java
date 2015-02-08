@@ -61,6 +61,10 @@ public class RDOTraceConfigView extends ViewPart
 	private static TraceConfigurator traceConfigurator =
 		new TraceConfigurator();
 
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                                VIEW SETUP                                 /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+
 	@Override
 	public void createPartControl(Composite parent)
 	{
@@ -207,6 +211,10 @@ public class RDOTraceConfigView extends ViewPart
 	{}
 }
 
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                             HELPER CLASSES                                /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+
 class TraceConfigurator
 {
 	public enum TraceCategory
@@ -298,6 +306,10 @@ class TraceConfigurator
 			modelNode.addChild(category.getName());
 	}
 }
+
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                                PROVIDERS                                  /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 class RDOTraceConfigCheckStateProvider implements ICheckStateProvider
 {
