@@ -225,20 +225,15 @@ public class ExecutionHandler extends AbstractHandler
 					RDOConsoleView.addLine("Started model " + project.getName());
 					final long startTime = System.currentTimeMillis();
 
-					uiRealTime.scheduleAtFixedRate
-					(
-						new TimerTask()
-						{
-							@Override
-							public void run()
-							{
-								display.asyncExec(() ->
-									RDOStatusView.setRealTime(System.currentTimeMillis() - startTime));
-							}
-						},
-						0,
-						100
-					);
+					uiRealTime.scheduleAtFixedRate(new TimerTask() {
+						@Override
+						public void run() {
+							if (!display.isDisposed())
+								display.asyncExec(() -> RDOStatusView
+										.setRealTime(System.currentTimeMillis()
+												- startTime));
+						}
+					}, 0, 100);
 
 					traceRealTimeUpdater.scheduleAtFixedRate
 					(
