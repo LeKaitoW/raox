@@ -174,11 +174,14 @@ public class ExecutionHandler extends AbstractHandler
 					}
 
 					RDOTraceConfigView.initNames();
-					RDOTraceView.setCurrentProject(project);
+
 					IFile modelFile = (IFile) HandlerUtil
 						.getActiveEditor(event).getEditorInput()
 						.getAdapter(IFile.class);
-					RDOTraceView.setCurrentModel(modelFile);
+
+					ExportTraceHandler.reset();
+					ExportTraceHandler.setCurrentProject(project);
+					ExportTraceHandler.setCurrentModel(modelFile);
 
 					final ArrayList<AnimationFrame> frames = new ArrayList<AnimationFrame>();
 

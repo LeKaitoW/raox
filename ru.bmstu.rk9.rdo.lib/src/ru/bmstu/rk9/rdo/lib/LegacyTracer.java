@@ -19,7 +19,7 @@ import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
 public class LegacyTracer extends Tracer
 {
-	LegacyTracer()
+	public LegacyTracer()
 	{
 		super();
 

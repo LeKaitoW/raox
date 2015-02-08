@@ -1,19 +1,12 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.TimerTask;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.action.Action;
@@ -60,6 +53,7 @@ import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView.SearchHelper.SearchResult;
+import ru.bmstu.rk9.rdo.ui.runtime.ExportTraceHandler;
 
 public class RDOTraceView extends ViewPart
 {
@@ -168,20 +162,6 @@ public class RDOTraceView extends ViewPart
 		}
 	}
 
-	private static IProject currentProject = null;
-
-	public final static void setCurrentProject(IProject project)
-	{
-		currentProject = project;
-	}
-
-	private static IFile currentModel = null;
-
-	public final static void setCurrentModel(IFile model)
-	{
-		currentModel = model;
-	}
-
 	private final void configureToolbar()
 	{
 		IToolBarManager toolbarMgr =
@@ -212,67 +192,22 @@ public class RDOTraceView extends ViewPart
 			}
 		);
 
-		toolbarMgr.add(
-			new Action()
+		toolbarMgr.add(new Action() {
+			ImageDescriptor image;
 			{
-				ImageDescriptor image;
-
-				{
-					image = ImageDescriptor.createFromURL(
-						FileLocator.find(
-							Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
-							new org.eclipse.core.runtime.Path("icons/clipboard-list.png"),
-							null
-						)
-					);
-					setImageDescriptor(image);
-					setText("Export trace output");
-				}
-
-				//TODO export to location chosen by user
-				private final void exportTrace()
-				{
-					if(!Simulator.isInitialized())
-						return;
-
-					ArrayList<TraceOutput> output =
-						Simulator.getTracer().getTraceList();
-
-					IPath workspacePath = ResourcesPlugin.getWorkspace()
-						.getRoot().getLocation();
-					IPath filePath = workspacePath.append(
-							currentProject.getFullPath().append(
-								currentModel.getName().substring(
-									0, currentModel.getName().lastIndexOf('.')
-								) + ".trc"
-							)
-						);
-
-					PrintWriter writer = null;
-					try
-					{
-						writer = new PrintWriter(filePath.toString(), "UTF-8");
-					}
-					catch (FileNotFoundException | UnsupportedEncodingException e)
-					{
-						e.printStackTrace();
-						return;
-					}
-
-					for(TraceOutput item : output)
-					{
-						writer.println(item.content());
-					}
-					writer.close();
-				}
-
-				@Override
-				public void run()
-				{
-					exportTrace();
-				}
+				image = ImageDescriptor.createFromURL(FileLocator.find(Platform
+						.getBundle("ru.bmstu.rk9.rdo.ui"),
+						new org.eclipse.core.runtime.Path(
+								"icons/clipboard-list.png"), null));
+				setImageDescriptor(image);
+				setText("Export trace output");
 			}
-		);
+
+			@Override
+			public void run() {
+				ExportTraceHandler.exportTraceRegular();
+			}
+		});
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/

@@ -155,7 +155,7 @@ public class Tracer implements Subscriber
 
 	private int nextEntryNumber = 0;
 
-	private final void parseNewEntries()
+	public final void parseNewEntries()
 	{
 		final ArrayList<Database.Entry> entries =
 			Simulator.getDatabase().allEntries;
