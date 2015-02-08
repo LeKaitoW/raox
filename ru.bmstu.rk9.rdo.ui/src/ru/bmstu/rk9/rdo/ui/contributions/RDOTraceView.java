@@ -48,6 +48,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import ru.bmstu.rk9.rdo.lib.Database.Entry;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
@@ -152,12 +153,11 @@ public class RDOTraceView extends ViewPart
 
 		configureToolbar();
 
-		if(Simulator.isInitialized())
-		{
-			ArrayList<TraceOutput> traceList =
-				Simulator.getTracer().getTraceList();
-			RDOTraceView.viewer.setInput(traceList);
-			RDOTraceView.viewer.setItemCount(traceList.size());
+		if (Simulator.isInitialized()) {
+			final ArrayList<Entry> allEntries = Simulator.getDatabase()
+					.getAllEntries();
+			RDOTraceView.viewer.setInput(allEntries);
+			RDOTraceView.viewer.setItemCount(allEntries.size());
 			viewer.refresh();
 		}
 	}
@@ -250,9 +250,9 @@ public class RDOTraceView extends ViewPart
 
 		final SearchResult findLine(String line) {
 			@SuppressWarnings("unchecked")
-			ArrayList<TraceOutput> traceOutput = (ArrayList<TraceOutput>) viewer
+			final ArrayList<Entry> allEntries = (ArrayList<Entry>) viewer
 					.getInput();
-			if (traceOutput == null)
+			if (allEntries == null)
 				return SearchResult.NOT_FOUND;
 
 			boolean lineFound = false;
@@ -269,7 +269,9 @@ public class RDOTraceView extends ViewPart
 			}
 			while (currentIndex < viewer.getTable().getItemCount()
 					&& !lineFound) {
-				String traceLine = traceOutput.get(currentIndex).content();
+				String traceLine = Simulator.getTracer()
+						.parseSerializedData(allEntries.get(currentIndex))
+						.content();
 				if (caseSensitive) {
 					traceLine = traceLine.toLowerCase();
 				}
@@ -360,17 +362,15 @@ public class RDOTraceView extends ViewPart
 		{
 			private final Display display =
 				PlatformUI.getWorkbench().getDisplay();
-			private final Runnable updater = new Runnable()
-			{
+			private final Runnable updater = new Runnable() {
 				@Override
-				public void run()
-				{
-					final ArrayList<TraceOutput> traceList =
-						Simulator.getTracer().getTraceList();
-					final int size = traceList.size();
+				public void run() {
+					final ArrayList<Entry> allEntries = Simulator.getDatabase()
+							.getAllEntries();
+					final int size = allEntries.size();
 
 					RDOTraceView.viewer.setItemCount(size);
-					if(RDOTraceView.shouldFollowOutput())
+					if (RDOTraceView.shouldFollowOutput())
 						RDOTraceView.viewer.getTable().setTopIndex(size - 1);
 				}
 			};
@@ -387,36 +387,29 @@ public class RDOTraceView extends ViewPart
 		};
 	}
 
-	public static final Subscriber commonUpdater =
-		new Subscriber()
-		{
-			@Override
-			public void fireChange()
-			{
-				if(!readyForInput())
-					return;
+	public static final Subscriber commonUpdater = new Subscriber() {
+		@Override
+		public void fireChange() {
+			if (!readyForInput())
+				return;
 
-				final ArrayList<TraceOutput> traceList =
-					Simulator.getTracer().getTraceList();
-				final int size = traceList.size();
-				PlatformUI.getWorkbench().getDisplay().asyncExec(
-					new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							RDOTraceView.viewer.setInput(traceList);
-							RDOTraceView.viewer.setItemCount(size);
+			final ArrayList<Entry> allEntries = Simulator.getDatabase()
+					.getAllEntries();
+			final int size = allEntries.size();
+			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					RDOTraceView.viewer.setInput(allEntries);
+					RDOTraceView.viewer.setItemCount(size);
 
-							if(RDOTraceView.shouldFollowOutput())
-								RDOTraceView.viewer.getTable().setTopIndex(size - 1);
+					if (RDOTraceView.shouldFollowOutput())
+						RDOTraceView.viewer.getTable().setTopIndex(size - 1);
 
-							viewer.refresh();
-						}
-					}
-				);
-			}
-		};
+					viewer.refresh();
+				}
+			});
+		}
+	};
 
 	public final static boolean readyForInput()
 	{
@@ -435,26 +428,28 @@ public class RDOTraceView extends ViewPart
  /                                 PROVIDERS                                 /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-class RDOTraceViewContentProvider implements ILazyContentProvider
-{
-	private ArrayList<TraceOutput> traceList;
+class RDOTraceViewContentProvider implements ILazyContentProvider {
+	private ArrayList<Entry> allEntries;
 
 	@Override
-	public void dispose() {}
+	public void dispose() {
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void inputChanged(Viewer viewer, Object oldInput, Object newInput)
-	{
-		traceList = (ArrayList<TraceOutput>) newInput;
+	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		allEntries = (ArrayList<Entry>) newInput;
 	}
 
 	@Override
-	public void updateElement(int index)
-	{
-		//TODO completely avoid that situation
-		if(traceList != null && index < traceList.size())
-			RDOTraceView.viewer.replace(traceList.get(index), index);
+	public void updateElement(int index) {
+		// TODO completely avoid that situation
+		if (allEntries != null && index < allEntries.size()) {
+			TraceOutput output = Simulator.getTracer().parseSerializedData(
+					allEntries.get(index));
+			RDOTraceView.viewer.replace(output, index);
+		}
+
 	}
 }
 

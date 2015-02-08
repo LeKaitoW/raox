@@ -184,7 +184,11 @@ public class Database
 		}
 	}
 
-	ArrayList<Entry> allEntries = new ArrayList<Entry>();
+	private ArrayList<Entry> allEntries = new ArrayList<Entry>();
+
+	public final ArrayList<Entry> getAllEntries() {
+		return allEntries;
+	}
 
 	private final void addEntry(Entry entry)
 	{

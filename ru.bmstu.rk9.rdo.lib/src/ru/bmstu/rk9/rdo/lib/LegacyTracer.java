@@ -8,11 +8,14 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.TreeSet;
 
+import ru.bmstu.rk9.rdo.lib.Database.Entry;
+import ru.bmstu.rk9.rdo.lib.Database.EntryType;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 import ru.bmstu.rk9.rdo.lib.json.JSONArray;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
@@ -72,14 +75,36 @@ public class LegacyTracer extends Tracer
  /                                   GENERAL                                 /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
+	private ArrayList<TraceOutput> traceList =
+			new ArrayList<TraceOutput>();
+
+	public final ArrayList<TraceOutput> getTraceList()
+	{
+		//TODO make unmodifiable
+		return traceList;
+	}
+
+	public final void parseAllEntries()
+	{
+		final ArrayList<Entry> entries =
+			Simulator.getDatabase().getAllEntries();
+
+		for (Entry entry : entries)
+		{
+			final TraceOutput traceOutput =
+				parseDatabaseEntry(entry);
+			if(traceOutput != null)
+				traceList.add(traceOutput);
+		}
+	}
+
 	private boolean simulationStarted = false;
 	private boolean dptSearchJustStarted = false;
 	private boolean dptSearchDecisionFound = false;
 	private boolean dptSearchJustFinished = false;
 	private double dptSearchTime = 0;
 
-	@Override
-	protected final TraceOutput parseSerializedData(final Database.Entry entry)
+	private final TraceOutput parseDatabaseEntry(final Entry entry)
 	{
 		if(dptSearchJustStarted)
 		{
@@ -93,8 +118,8 @@ public class LegacyTracer extends Tracer
 			dptSearchJustFinished = false;
 		}
 
-		final Database.EntryType type =
-			Database.EntryType.values()[entry.header.get(
+		final EntryType type =
+			EntryType.values()[entry.header.get(
 				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 
 		switch(type)
@@ -119,7 +144,7 @@ public class LegacyTracer extends Tracer
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	@Override
-	protected TraceOutput parseSystemEntry(final Database.Entry entry)
+	protected TraceOutput parseSystemEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 
@@ -161,7 +186,7 @@ public class LegacyTracer extends Tracer
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	@Override
-	protected final TraceOutput parseResourceEntry(final Database.Entry entry)
+	protected final TraceOutput parseResourceEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
@@ -277,7 +302,7 @@ public class LegacyTracer extends Tracer
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	@Override
-	protected final TraceOutput parsePatternEntry(final Database.Entry entry)
+	protected final TraceOutput parsePatternEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
@@ -431,7 +456,7 @@ public class LegacyTracer extends Tracer
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	@Override
-	protected TraceOutput parseSearchEntry(final Database.Entry entry)
+	protected TraceOutput parseSearchEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 
@@ -681,7 +706,7 @@ public class LegacyTracer extends Tracer
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	@Override
-	protected final TraceOutput parseResultEntry(final Database.Entry entry)
+	protected final TraceOutput parseResultEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);

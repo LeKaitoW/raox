@@ -13,8 +13,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 
+import ru.bmstu.rk9.rdo.lib.Database.Entry;
 import ru.bmstu.rk9.rdo.lib.LegacyTracer;
 import ru.bmstu.rk9.rdo.lib.Simulator;
+import ru.bmstu.rk9.rdo.lib.Tracer;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 
 //TODO export to location chosen by user
@@ -43,9 +45,15 @@ public class ExportTraceHandler extends AbstractHandler {
 		if (!Simulator.isInitialized() || !ready())
 			return;
 
-		ArrayList<TraceOutput> output = Simulator.getTracer().getTraceList();
+		Tracer tracer = Simulator.getTracer();
 
-		exportToFile(output, ".trc");
+		PrintWriter writer = initializeWriter(".trc");
+		for (Entry entry : Simulator.getDatabase().getAllEntries()) {
+			TraceOutput output = tracer.parseSerializedData(entry);
+			if (output != null)
+				writer.println(output.content());
+		}
+		writer.close();
 	}
 
 	private static LegacyTracer legacyTracer = null;
@@ -56,15 +64,18 @@ public class ExportTraceHandler extends AbstractHandler {
 
 		if (legacyTracer == null) {
 			legacyTracer = new LegacyTracer();
-			legacyTracer.parseNewEntries();
+			legacyTracer.parseAllEntries();
 		}
 
 		ArrayList<TraceOutput> output = legacyTracer.getTraceList();
-		exportToFile(output, ".trc.legacy");
+		PrintWriter writer = initializeWriter(".trc.legacy");
+		for (TraceOutput item : output) {
+			writer.println(item.content());
+		}
+		writer.close();
 	}
 
-	private final static void exportToFile(ArrayList<TraceOutput> output,
-			String suffix) {
+	private final static PrintWriter initializeWriter(String suffix) {
 		IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot()
 				.getLocation();
 		IPath filePath = workspacePath.append(currentProject.getFullPath()
@@ -77,13 +88,10 @@ public class ExportTraceHandler extends AbstractHandler {
 			writer = new PrintWriter(filePath.toString(), "UTF-8");
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
-			return;
+			return null;
 		}
 
-		for (TraceOutput item : output) {
-			writer.println(item.content());
-		}
-		writer.close();
+		return writer;
 	}
 
 	private final static boolean ready() {

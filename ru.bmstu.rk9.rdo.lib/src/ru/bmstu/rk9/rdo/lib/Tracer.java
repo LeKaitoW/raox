@@ -6,6 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ru.bmstu.rk9.rdo.lib.Database.Entry;
+import ru.bmstu.rk9.rdo.lib.Database.EntryType;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 import ru.bmstu.rk9.rdo.lib.RDOLibStringJoiner.StringFormat;
 public class Tracer implements Subscriber
@@ -111,7 +113,6 @@ public class Tracer implements Subscriber
 
 	public final void notifyCommonSubscriber()
 	{
-		parseNewEntries();
 		if(commonSubscriber != null)
 			commonSubscriber.fireChange();
 	}
@@ -122,7 +123,6 @@ public class Tracer implements Subscriber
 		if(paused)
 			return;
 
-		parseNewEntries();
 		notifyRealTimeSubscriber();
 	}
 
@@ -143,37 +143,10 @@ public class Tracer implements Subscriber
  /                                   GENERAL                                 /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	//TODO choose the proper container for traceList
-	protected ArrayList<TraceOutput> traceList =
-		new ArrayList<TraceOutput>();
-
-	public final synchronized ArrayList<TraceOutput> getTraceList()
+	public final TraceOutput parseSerializedData(final Entry entry)
 	{
-		//TODO make unmodifiable
-		return traceList;
-	}
-
-	private int nextEntryNumber = 0;
-
-	public final void parseNewEntries()
-	{
-		final ArrayList<Database.Entry> entries =
-			Simulator.getDatabase().allEntries;
-
-		while(nextEntryNumber < entries.size())
-		{
-			final TraceOutput traceOutput =
-				parseSerializedData(entries.get(nextEntryNumber));
-			if(traceOutput != null)
-				traceList.add(traceOutput);
-			nextEntryNumber++;
-		}
-	}
-
-	protected TraceOutput parseSerializedData(final Database.Entry entry)
-	{
-		final Database.EntryType type =
-			Database.EntryType.values()[entry.header.get(
+		final EntryType type =
+			EntryType.values()[entry.header.get(
 				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 		switch(type)
 		{
@@ -196,7 +169,7 @@ public class Tracer implements Subscriber
  /                          PARSING SYSTEM ENTRIES                           /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	protected TraceOutput parseSystemEntry(final Database.Entry entry)
+	protected TraceOutput parseSystemEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 
@@ -221,7 +194,7 @@ public class Tracer implements Subscriber
  /                          PARSING RESOURCE ENTRIES                         /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	protected TraceOutput parseResourceEntry(final Database.Entry entry)
+	protected TraceOutput parseResourceEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
@@ -331,7 +304,7 @@ public class Tracer implements Subscriber
  /                          PARSING PATTERN ENTRIES                          /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	protected TraceOutput parsePatternEntry(final Database.Entry entry)
+	protected TraceOutput parsePatternEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
@@ -439,7 +412,7 @@ public class Tracer implements Subscriber
  /                              SEARCH ENTRIES                               /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	protected TraceOutput parseSearchEntry(final Database.Entry entry)
+	protected TraceOutput parseSearchEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 
@@ -633,7 +606,7 @@ public class Tracer implements Subscriber
  /                           PARSING RESULT ENTRIES                          /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	protected TraceOutput parseResultEntry(final Database.Entry entry)
+	protected TraceOutput parseResultEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
