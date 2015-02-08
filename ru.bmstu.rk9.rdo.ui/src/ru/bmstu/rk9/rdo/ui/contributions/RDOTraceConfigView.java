@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -131,18 +132,19 @@ public class RDOTraceConfigView extends ViewPart
 						if(documents.contains(document))
 							return;
 
+						EList<EObject> contents = document.readOnly(
+								new IUnitOfWork<XtextResource, XtextResource>() {
+									public XtextResource exec(XtextResource state) {
+										return state;
+									}
+								}).getContents();
+
+						if (contents.isEmpty())
+							return;
+
 						documents.add(document);
 
-						RDOModel model =
-							(RDOModel) document.readOnly(
-							new IUnitOfWork<XtextResource, XtextResource>()
-							{
-								public XtextResource exec(XtextResource state)
-								{
-									return state;
-								}
-							}
-						).getContents().get(0);
+						RDOModel model = (RDOModel) contents.get(0);
 
 						TraceNode existingModel = traceConfig.findModel(
 								RDONaming.getResourceName(model.eResource()));
