@@ -1,7 +1,6 @@
 package ru.bmstu.rk9.rdo.ui.runtime;
 
 import java.util.ArrayList;
-
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.LinkedList;
@@ -13,6 +12,7 @@ import java.net.URLClassLoader;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -37,9 +37,7 @@ import ru.bmstu.rk9.rdo.lib.AnimationFrame;
 import ru.bmstu.rk9.rdo.lib.Notifier;
 import ru.bmstu.rk9.rdo.lib.Result;
 import ru.bmstu.rk9.rdo.lib.Simulator;
-
 import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
-
 import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceConfigView;
@@ -177,6 +175,14 @@ public class ExecutionHandler extends AbstractHandler
 
 					RDOTraceConfigView.initNames();
 
+					IFile modelFile = (IFile) HandlerUtil
+						.getActiveEditor(event).getEditorInput()
+						.getAdapter(IFile.class);
+
+					ExportTraceHandler.reset();
+					ExportTraceHandler.setCurrentProject(project);
+					ExportTraceHandler.setCurrentModel(modelFile);
+
 					final ArrayList<AnimationFrame> frames = new ArrayList<AnimationFrame>();
 
 					if(initialization != null)
@@ -219,20 +225,15 @@ public class ExecutionHandler extends AbstractHandler
 					RDOConsoleView.addLine("Started model " + project.getName());
 					final long startTime = System.currentTimeMillis();
 
-					uiRealTime.scheduleAtFixedRate
-					(
-						new TimerTask()
-						{
-							@Override
-							public void run()
-							{
-								display.asyncExec(() ->
-									RDOStatusView.setRealTime(System.currentTimeMillis() - startTime));
-							}
-						},
-						0,
-						100
-					);
+					uiRealTime.scheduleAtFixedRate(new TimerTask() {
+						@Override
+						public void run() {
+							if (!display.isDisposed())
+								display.asyncExec(() -> RDOStatusView
+										.setRealTime(System.currentTimeMillis()
+												- startTime));
+						}
+					}, 0, 100);
 
 					traceRealTimeUpdater.scheduleAtFixedRate
 					(

@@ -49,8 +49,8 @@ public class Statistics
 			{
 				Function<Integer, Double> getValue =
 					result.getData().getString("valueType").equals("real")
-						? i -> database.allEntries.get(i).data.getDouble(0)
-						: i -> (double)database.allEntries.get(i).data.getInt(0);
+						? i -> database.getAllEntries().get(i).data.getDouble(0)
+						: i -> (double)database.getAllEntries().get(i).data.getInt(0);
 
 				PriorityQueue<Integer> queue = new PriorityQueue<Integer>
 				(
@@ -154,8 +154,8 @@ public class Statistics
 			{
 				Function<Integer, Double> getValue =
 					result.getData().getString("valueType").equals("real")
-						? i -> database.allEntries.get(i).data.getDouble(0)
-						: i -> (double)database.allEntries.get(i).data.getInt(0);
+						? i -> database.getAllEntries().get(i).data.getDouble(0)
+						: i -> (double)database.getAllEntries().get(i).data.getInt(0);
 
 				PriorityQueue<Integer> queue = new PriorityQueue<Integer>
 				(
@@ -179,9 +179,9 @@ public class Statistics
 
 					previousW = weight;
 					weight =
-						database.allEntries.get(resultIndex.entries.get(number + 1))
+						database.getAllEntries().get(resultIndex.entries.get(number + 1))
 							.header.getDouble(Database.TypeSize.Internal.TIME_OFFSET) -
-						database.allEntries.get(resultIndex.entries.get(number))
+						database.getAllEntries().get(resultIndex.entries.get(number))
 							.header.getDouble(Database.TypeSize.Internal.TIME_OFFSET);
 
 					tempSum -= weight;

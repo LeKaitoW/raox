@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -59,6 +60,10 @@ public class RDOTraceConfigView extends ViewPart
 	private static TraceConfig traceConfig = new TraceConfig();
 	private static TraceConfigurator traceConfigurator =
 		new TraceConfigurator();
+
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                                VIEW SETUP                                 /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	@Override
 	public void createPartControl(Composite parent)
@@ -131,20 +136,28 @@ public class RDOTraceConfigView extends ViewPart
 						if(documents.contains(document))
 							return;
 
+						EList<EObject> contents = document.readOnly(
+								new IUnitOfWork<XtextResource, XtextResource>() {
+									public XtextResource exec(XtextResource state) {
+										return state;
+									}
+								}).getContents();
+
+						if (contents.isEmpty())
+							return;
+
 						documents.add(document);
 
-						RDOModel model =
-							(RDOModel) document.readOnly(
-							new IUnitOfWork<XtextResource, XtextResource>()
-							{
-								public XtextResource exec(XtextResource state)
-								{
-									return state;
-								}
-							}
-						).getContents().get(0);
+						RDOModel model = (RDOModel) contents.get(0);
 
-						updateInput(model.eResource());
+						TraceNode existingModel = traceConfig.findModel(
+								RDONaming.getResourceName(model.eResource()));
+						if (existingModel != null)
+							traceConfig.removeModel(existingModel);
+
+						addModel(model.eResource());
+						if (traceTreeViewer.getInput() == null)
+							traceTreeViewer.setInput(traceConfig);
 
 						document.addModelListener(
 							new IXtextModelListener() {
@@ -162,27 +175,25 @@ public class RDOTraceConfigView extends ViewPart
 					new HashSet<IXtextDocument>();
 			}
 		);
-
-		traceConfigurator.initCategories(traceConfig.getRoot());
-		traceTreeViewer.setInput(traceConfig);
 	}
 
-	public static void updateInput(Resource model)
-	{
-		traceConfig.setModelName(RDONaming.getResourceName(model));
-		traceConfigurator.fillCategories(model, traceConfig.getRoot());
-		if(RDOTraceConfigView.traceTreeViewer == null)
+	public static void addModel(Resource model) {
+		traceConfigurator.initModel(traceConfig.getRoot(), model);
+		updateInput(model);
+	}
+
+	public static void updateInput(Resource model) {
+		TraceNode modelNode = traceConfig.findModel(RDONaming
+				.getResourceName(model));
+		traceConfigurator.fillCategories(model, modelNode);
+		if (RDOTraceConfigView.traceTreeViewer == null)
 			return;
-		PlatformUI.getWorkbench().getDisplay().asyncExec(
-			new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						RDOTraceConfigView.traceTreeViewer.refresh();
-					}
-				}
-		);
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				RDOTraceConfigView.traceTreeViewer.refresh();
+			}
+		});
 	}
 
 	public static void onModelSave()
@@ -199,6 +210,10 @@ public class RDOTraceConfigView extends ViewPart
 	public void setFocus()
 	{}
 }
+
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                             HELPER CLASSES                                /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 class TraceConfigurator
 {
@@ -222,39 +237,40 @@ class TraceConfigurator
 		}
 	}
 
-	public final void fillCategories(Resource model, TraceNode node)
+	public final void fillCategories(Resource model, TraceNode modelNode)
 	{
 		fillCategory(
-			node.getChildren().get(TraceCategory.RESOURCES.ordinal()),
-			model.getAllContents(),
+			modelNode.getVisibleChildren().get(TraceCategory.RESOURCES.ordinal()),
+			model,
 			ResourceDeclaration.class
 		);
 
 		fillCategory(
-			node.getChildren().get(TraceCategory.PATTERNS.ordinal()),
-			model.getAllContents(),
+			modelNode.getVisibleChildren().get(TraceCategory.PATTERNS.ordinal()),
+			model,
 			Pattern.class
 		);
 
 		fillCategory(
-			node.getChildren().get(TraceCategory.DECISION_POINTS.ordinal()),
-			model.getAllContents(),
+			modelNode.getVisibleChildren().get(TraceCategory.DECISION_POINTS.ordinal()),
+			model,
 			DecisionPoint.class
 		);
 
 		fillCategory(
-			node.getChildren().get(TraceCategory.RESULTS.ordinal()),
-			model.getAllContents(),
+			modelNode.getVisibleChildren().get(TraceCategory.RESULTS.ordinal()),
+			model,
 			ResultDeclaration.class
 		);
 	}
 
 	private final <T extends EObject> void fillCategory(
 		TraceNode category,
-		TreeIterator<EObject> allContents,
+		Resource model,
 		Class<T> categoryClass
 	)
 	{
+		TreeIterator<EObject> allContents = model.getAllContents();
 		category.hideChildren();
 		final ArrayList<T> categoryList =
 			new ArrayList<T>();
@@ -262,11 +278,9 @@ class TraceConfigurator
 		Iterable<T> iterable = IteratorExtensions.<T>toIterable(filter);
 		Iterables.addAll(categoryList, iterable);
 
-		//TODO why don't name include model name here already?
-		//the way it is now it differs from the names we get from database
 		for(T c : categoryList)
 		{
-			TraceNode child = category.addChild(RDONaming.getNameGeneric(c));
+			TraceNode child = category.addChild(RDONaming.getFullyQualifiedName(c));
 			if(c instanceof Pattern)
 			{
 				for(EObject relRes : c.eContents())
@@ -286,12 +300,16 @@ class TraceConfigurator
 		}
 	}
 
-	public final void initCategories(TraceNode node)
-	{
-		for(TraceCategory category : TraceCategory.values())
-			node.addChild(category.getName());
+	public final void initModel(TraceNode root, Resource model) {
+		TraceNode modelNode = root.addChild(RDONaming.getResourceName(model));
+		for (TraceCategory category : TraceCategory.values())
+			modelNode.addChild(category.getName());
 	}
 }
+
+  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
+ /                                PROVIDERS                                  /
+/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 class RDOTraceConfigCheckStateProvider implements ICheckStateProvider
 {
@@ -320,7 +338,7 @@ class RDOTraceConfigContentProvider implements ITreeContentProvider
 		TraceConfig traceConfig = (TraceConfig) inputElement;
 		if(!traceConfig.getRoot().hasChildren())
 			return null;
-		return traceConfig.getRoot().getChildren().toArray();
+		return traceConfig.getRoot().getVisibleChildren().toArray();
 	}
 
 	public Object[] getChildren(Object parentElement)
@@ -328,7 +346,7 @@ class RDOTraceConfigContentProvider implements ITreeContentProvider
 		TraceNode traceNode = (TraceNode) parentElement;
 		if(!traceNode.hasChildren())
 			return null;
-		return traceNode.getChildren().toArray();
+		return traceNode.getVisibleChildren().toArray();
 	}
 
 	public Object getParent(Object element)

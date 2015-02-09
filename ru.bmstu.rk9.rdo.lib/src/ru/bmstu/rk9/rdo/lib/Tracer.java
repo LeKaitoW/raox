@@ -6,6 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ru.bmstu.rk9.rdo.lib.Database.Entry;
+import ru.bmstu.rk9.rdo.lib.Database.EntryType;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 import ru.bmstu.rk9.rdo.lib.RDOLibStringJoiner.StringFormat;
 public class Tracer implements Subscriber
@@ -111,7 +113,6 @@ public class Tracer implements Subscriber
 
 	public final void notifyCommonSubscriber()
 	{
-		parseNewEntries();
 		if(commonSubscriber != null)
 			commonSubscriber.fireChange();
 	}
@@ -122,7 +123,6 @@ public class Tracer implements Subscriber
 		if(paused)
 			return;
 
-		parseNewEntries();
 		notifyRealTimeSubscriber();
 	}
 
@@ -143,37 +143,10 @@ public class Tracer implements Subscriber
  /                                   GENERAL                                 /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	//TODO choose the proper container for traceList
-	protected ArrayList<TraceOutput> traceList =
-		new ArrayList<TraceOutput>();
-
-	public final synchronized ArrayList<TraceOutput> getTraceList()
+	public final TraceOutput parseSerializedData(final Entry entry)
 	{
-		//TODO make unmodifiable
-		return traceList;
-	}
-
-	private int nextEntryNumber = 0;
-
-	private final void parseNewEntries()
-	{
-		final ArrayList<Database.Entry> entries =
-			Simulator.getDatabase().allEntries;
-
-		while(nextEntryNumber < entries.size())
-		{
-			final TraceOutput traceOutput =
-				parseSerializedData(entries.get(nextEntryNumber));
-			if(traceOutput != null)
-				traceList.add(traceOutput);
-			nextEntryNumber++;
-		}
-	}
-
-	protected TraceOutput parseSerializedData(final Database.Entry entry)
-	{
-		final Database.EntryType type =
-			Database.EntryType.values()[entry.header.get(
+		final EntryType type =
+			EntryType.values()[entry.header.get(
 				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 		switch(type)
 		{
@@ -196,7 +169,7 @@ public class Tracer implements Subscriber
  /                          PARSING SYSTEM ENTRIES                           /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	protected TraceOutput parseSystemEntry(final Database.Entry entry)
+	protected TraceOutput parseSystemEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 
@@ -221,7 +194,7 @@ public class Tracer implements Subscriber
  /                          PARSING RESOURCE ENTRIES                         /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	protected TraceOutput parseResourceEntry(final Database.Entry entry)
+	protected TraceOutput parseResourceEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
@@ -331,7 +304,7 @@ public class Tracer implements Subscriber
  /                          PARSING PATTERN ENTRIES                          /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	protected TraceOutput parsePatternEntry(final Database.Entry entry)
+	protected TraceOutput parsePatternEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
@@ -438,14 +411,10 @@ public class Tracer implements Subscriber
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                              SEARCH ENTRIES                               /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
-	//TODO probably not the best solution
-	//TODO Integer and null instead of int and -1?
-	protected int currentDptNumber = -1;
 
-	protected TraceOutput parseSearchEntry(final Database.Entry entry)
+	protected TraceOutput parseSearchEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
-		final ByteBuffer data = prepareBufferForReading(entry.data);
 
 		final RDOLibStringJoiner stringJoiner =
 			new RDOLibStringJoiner(delimiter);
@@ -454,25 +423,23 @@ public class Tracer implements Subscriber
 		skipPart(header, TypeSize.BYTE);
 		final Database.SearchEntryType entryType =
 				Database.SearchEntryType.values()[header.get()];
+		final double time = header.getDouble();
+		final int dptNumber = header.getInt();
 
 		switch(entryType)
 		{
 		case BEGIN:
 		{
 			traceType = TraceType.SEARCH_BEGIN;
-			final double time = data.getDouble();
-			final int number = data.getInt();
-			currentDptNumber = number;
-			skipPart(data, TypeSize.INTEGER);
 			stringJoiner
 				.add(traceType.toString())
 				.add(time)
-				.add(decisionPointsInfo.get(number).name);
+				.add(decisionPointsInfo.get(dptNumber).name);
 			break;
 		}
 		case END:
 		{
-			currentDptNumber = -1;
+			final ByteBuffer data = prepareBufferForReading(entry.data);
 			final DecisionPointSearch.StopCode endStatus =
 				DecisionPointSearch.StopCode.values()[data.get()];
 			switch(endStatus)
@@ -494,7 +461,6 @@ public class Tracer implements Subscriber
 				return null;
 			}
 
-			final double time = data.getDouble();
 			skipPart(data, TypeSize.LONG * 2);
 			final double finalCost = data.getDouble();
 			final int totalOpened = data.getInt();
@@ -515,6 +481,7 @@ public class Tracer implements Subscriber
 		}
 		case OPEN:
 		{
+			final ByteBuffer data = prepareBufferForReading(entry.data);
 			traceType = TraceType.SEARCH_OPEN;
 			final int currentNumber = data.getInt();
 			skipPart(data, TypeSize.INTEGER + 2 * TypeSize.DOUBLE);
@@ -525,6 +492,7 @@ public class Tracer implements Subscriber
 		}
 		case SPAWN:
 		{
+			final ByteBuffer data = prepareBufferForReading(entry.data);
 			final DecisionPointSearch.SpawnStatus spawnStatus =
 					DecisionPointSearch.SpawnStatus.values()[data.get()];
 			switch(spawnStatus)
@@ -547,7 +515,7 @@ public class Tracer implements Subscriber
 			final double g = data.getDouble();
 			final double h = data.getDouble();
 			final int ruleNumber = data.getInt();
-			ActivityInfo activity = decisionPointsInfo.get(currentDptNumber)
+			ActivityInfo activity = decisionPointsInfo.get(dptNumber)
 				.activitiesInfo.get(ruleNumber);
 			final int patternNumber = activity.patternNumber;
 			final double ruleCost = data.getDouble();
@@ -588,10 +556,11 @@ public class Tracer implements Subscriber
 		}
 		case DECISION:
 		{
+			final ByteBuffer data = prepareBufferForReading(entry.data);
 			traceType = TraceType.SEARCH_DECISION;
-			final int number = data.getInt();
+			final int nodeNumber = data.getInt();
 			final int activityNumber = data.getInt();
-			ActivityInfo activity = decisionPointsInfo.get(currentDptNumber)
+			ActivityInfo activity = decisionPointsInfo.get(dptNumber)
 				.activitiesInfo.get(activityNumber);
 			final int patternNumber = activity.patternNumber;
 			final int numberOfRelevantResources =
@@ -618,7 +587,7 @@ public class Tracer implements Subscriber
 
 			stringJoiner
 				.add(traceType.toString())
-				.add(encloseIndex(number))
+				.add(encloseIndex(nodeNumber))
 				.add(activity.name + relResStringJoiner.getString());
 			break;
 		}
@@ -637,7 +606,7 @@ public class Tracer implements Subscriber
  /                           PARSING RESULT ENTRIES                          /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	protected TraceOutput parseResultEntry(final Database.Entry entry)
+	protected TraceOutput parseResultEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);

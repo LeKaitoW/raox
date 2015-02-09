@@ -73,7 +73,7 @@ public class TraceConfig
 
 		public final void traceVisibleChildren(boolean traceState)
 		{
-			for(TraceNode ch : getChildren())
+			for(TraceNode ch : getVisibleChildren())
 			{
 				if(ch.isVisible)
 				{
@@ -83,7 +83,7 @@ public class TraceConfig
 			}
 		}
 
-		public final ArrayList<TraceNode> getChildren()
+		public final ArrayList<TraceNode> getVisibleChildren()
 		{
 			ArrayList<TraceNode> visibleChildren = new ArrayList<TraceNode>();
 			for(TraceNode ch : children)
@@ -139,41 +139,34 @@ public class TraceConfig
 		return root;
 	}
 
-	private String modelName = null;
-
-	public final void setModelName(String modelName)
-	{
-		this.modelName = modelName;
+	public final TraceNode findModel(String modelName) {
+		for (TraceNode c : root.getVisibleChildren())
+			if (c.getName().equals(modelName))
+				return c;
+		return null;
 	}
 
-	//TODO this is ugly and should be revised
-	private static ArrayList<String> names = null;
+	public final void removeModel(TraceNode modelNode) {
+		root.children.remove(modelNode);
+	}
 
-	public static final ArrayList<String> getNames()
-	{
+	private static ArrayList<String> names = new ArrayList<String>();
+
+	public static final ArrayList<String> getNames() {
 		return names;
 	}
 
-	public final void initNames()
-	{
-		names =  new ArrayList<String>();
-		//TODO seems like that's not what OOP was invented for
-		for(TraceNode category : root.getChildren())
-			fillNames(category, names);
+	public final void initNames() {
+		names.clear();
+		for (TraceNode category : root.getVisibleChildren())
+			fillNames(category);
 	}
 
-	private final void fillNames(TraceNode node, ArrayList<String> names)
-	{
-		for(TraceNode child : node.getChildren())
-		{
-			if(child.isTraced())
-				names.add(getFullName(child.getName()));
-			fillNames(child, names);
+	private final void fillNames(TraceNode node) {
+		for (TraceNode child : node.getVisibleChildren()) {
+			if (child.isTraced())
+				names.add(child.getName());
+			fillNames(child);
 		}
-	}
-
-	private final String getFullName(String name)
-	{
-		return modelName + "." + name;
 	}
 }

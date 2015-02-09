@@ -340,7 +340,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 		ByteBuffer data = ByteBuffer.allocate
 		(
-			Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 2 +
+			Database.TypeSize.BYTE + Database.TypeSize.DOUBLE +
 			Database.TypeSize.INTEGER * 4 + Database.TypeSize.LONG * 2
 		);
 
@@ -361,6 +361,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 			break;
 			case SUCCESS:
 				databaseAddDecision();
+				decisionCode = true;
 			default:
 				finalCost = current.g;
 			break;
@@ -370,7 +371,6 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		{
 			data
 				.put((byte)code.ordinal())
-				.putDouble(Simulator.getTime())
 				.putLong(System.currentTimeMillis() - time)
 				.putLong(memory - Runtime.getRuntime().freeMemory())
 				.putDouble(finalCost)
@@ -453,25 +453,23 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		}
 	}
 
-	private class SerializationTypeComparator implements Comparator<SerializationLevel>
+	private final Comparator<SerializationLevel>
+		serializationLevelComparator = new Comparator<SerializationLevel>()
 	{
 		@Override
 		public int compare(SerializationLevel o1, SerializationLevel o2)
 		{
 			return o1.comparisonValue - o2.comparisonValue;
 		}
-	}
+	};
 
 	private final boolean enoughSensitivity(SerializationLevel checkedType)
 	{
-		SerializationTypeComparator comparator =
-			new SerializationTypeComparator();
-
 		for(SerializationLevel type : SerializationLevel.values())
 		{
 			if(Simulator.getDatabase().sensitiveTo(
 					getName() + "." + type.toString()))
-				if(comparator.compare(type, checkedType) >= 0)
+				if(serializationLevelComparator.compare(type, checkedType) >= 0)
 					return true;
 		}
 

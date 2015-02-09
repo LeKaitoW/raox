@@ -8,18 +8,21 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.TreeSet;
 
+import ru.bmstu.rk9.rdo.lib.Database.Entry;
+import ru.bmstu.rk9.rdo.lib.Database.EntryType;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 import ru.bmstu.rk9.rdo.lib.json.JSONArray;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
 public class LegacyTracer extends Tracer
 {
-	LegacyTracer()
+	public LegacyTracer()
 	{
 		super();
 
@@ -72,13 +75,36 @@ public class LegacyTracer extends Tracer
  /                                   GENERAL                                 /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
+	private ArrayList<TraceOutput> traceList =
+			new ArrayList<TraceOutput>();
+
+	public final ArrayList<TraceOutput> getTraceList()
+	{
+		//TODO make unmodifiable
+		return traceList;
+	}
+
+	public final void parseAllEntries()
+	{
+		final ArrayList<Entry> entries =
+			Simulator.getDatabase().getAllEntries();
+
+		for (Entry entry : entries)
+		{
+			final TraceOutput traceOutput =
+				parseDatabaseEntry(entry);
+			if(traceOutput != null)
+				traceList.add(traceOutput);
+		}
+	}
+
 	private boolean simulationStarted = false;
 	private boolean dptSearchJustStarted = false;
+	private boolean dptSearchDecisionFound = false;
 	private boolean dptSearchJustFinished = false;
 	private double dptSearchTime = 0;
 
-	@Override
-	protected final TraceOutput parseSerializedData(final Database.Entry entry)
+	private final TraceOutput parseDatabaseEntry(final Entry entry)
 	{
 		if(dptSearchJustStarted)
 		{
@@ -92,8 +118,8 @@ public class LegacyTracer extends Tracer
 			dptSearchJustFinished = false;
 		}
 
-		final Database.EntryType type =
-			Database.EntryType.values()[entry.header.get(
+		final EntryType type =
+			EntryType.values()[entry.header.get(
 				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 
 		switch(type)
@@ -118,7 +144,7 @@ public class LegacyTracer extends Tracer
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	@Override
-	protected TraceOutput parseSystemEntry(final Database.Entry entry)
+	protected TraceOutput parseSystemEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 
@@ -160,7 +186,7 @@ public class LegacyTracer extends Tracer
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	@Override
-	protected final TraceOutput parseResourceEntry(final Database.Entry entry)
+	protected final TraceOutput parseResourceEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
@@ -196,10 +222,10 @@ public class LegacyTracer extends Tracer
 			legacyId = legacyResourceIds.get(typeNum).get(resNum);
 			break;
 		case SEARCH:
-		case SOLUTION:
 			traceType = TraceType.SEARCH_RESOURCE_KEEP;
 			legacyId = legacyResourceIds.get(typeNum).get(resNum);
 			break;
+		case SOLUTION:
 		default:
 			return null;
 		}
@@ -276,7 +302,7 @@ public class LegacyTracer extends Tracer
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	@Override
-	protected final TraceOutput parsePatternEntry(final Database.Entry entry)
+	protected final TraceOutput parsePatternEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
@@ -429,16 +455,10 @@ public class LegacyTracer extends Tracer
  /                              SEARCH ENTRIES                               /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	//TODO in old RDO traceStart and Simulation are simultaneous
-	//when we deal with DecisionPointSearch, so no initial resource
-	//values are not printed.
-	//How to check that?
-
 	@Override
-	protected TraceOutput parseSearchEntry(final Database.Entry entry)
+	protected TraceOutput parseSearchEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
-		final ByteBuffer data = prepareBufferForReading(entry.data);
 
 		final RDOLibStringJoiner stringJoiner =
 			new RDOLibStringJoiner(delimiter);
@@ -447,30 +467,27 @@ public class LegacyTracer extends Tracer
 		skipPart(header, TypeSize.BYTE);
 		final Database.SearchEntryType entryType =
 				Database.SearchEntryType.values()[header.get()];
+		final double time = header.getDouble();
+		final int dptNumber = header.getInt();
 
 		switch(entryType)
 		{
 		case BEGIN:
 		{
-			System.out.println("begin");
+			dptSearchDecisionFound = false;
 			dptSearchJustStarted = true;
 			traceType = TraceType.SEARCH_BEGIN;
-			final double time = data.getDouble();
 			dptSearchTime = time;
-			final int number = data.getInt();
-			currentDptNumber = number;
-			skipPart(data, TypeSize.INTEGER);
 			stringJoiner
 				.add(traceType.toString())
 				.add(realFormatter.format(time))
-				.add(number + 1);
+				.add(dptNumber + 1);
 			break;
 		}
 		case END:
 		{
-			System.out.println("end");
+			final ByteBuffer data = prepareBufferForReading(entry.data);
 			dptSearchJustFinished = true;
-			currentDptNumber = -1;
 			final DecisionPointSearch.StopCode endStatus =
 				DecisionPointSearch.StopCode.values()[data.get()];
 			switch(endStatus)
@@ -492,7 +509,6 @@ public class LegacyTracer extends Tracer
 				return null;
 			}
 
-			final double time = data.getDouble();
 			final long timeMillis = data.getLong();
 			final long mem = data.getLong();
 			final double finalCost = data.getDouble();
@@ -514,7 +530,7 @@ public class LegacyTracer extends Tracer
 		}
 		case OPEN:
 		{
-			System.out.println("open");
+			final ByteBuffer data = prepareBufferForReading(entry.data);
 			traceType = TraceType.SEARCH_OPEN;
 			final int currentNumber = data.getInt();
 			final int parentNumber = data.getInt();
@@ -530,7 +546,7 @@ public class LegacyTracer extends Tracer
 		}
 		case SPAWN:
 		{
-			System.out.println("spawn");
+			final ByteBuffer data = prepareBufferForReading(entry.data);
 			final DecisionPointSearch.SpawnStatus spawnStatus =
 					DecisionPointSearch.SpawnStatus.values()[data.get()];
 			switch(spawnStatus)
@@ -553,7 +569,7 @@ public class LegacyTracer extends Tracer
 			final double g = data.getDouble();
 			final double h = data.getDouble();
 			final int ruleNumber = data.getInt();
-			final int patternNumber = decisionPointsInfo.get(currentDptNumber)
+			final int patternNumber = decisionPointsInfo.get(dptNumber)
 				.activitiesInfo.get(ruleNumber).patternNumber;
 			final double ruleCost = data.getDouble();
 			final int numberOfRelevantResources =
@@ -584,14 +600,35 @@ public class LegacyTracer extends Tracer
 		}
 		case DECISION:
 		{
-			System.out.println("decision");
+			final ByteBuffer data = prepareBufferForReading(entry.data);
 			traceType = TraceType.SEARCH_DECISION;
 			final int number = data.getInt();
 			final int activityNumber = data.getInt();
+			final int patternNumber = decisionPointsInfo.get(dptNumber)
+				.activitiesInfo.get(activityNumber).patternNumber;
+			final int numberOfRelevantResources =
+				patternsInfo.get(patternNumber).relResTypes.size();
+			if (!dptSearchDecisionFound)
+			{
+				addLegacySearchEntryDecision();
+				dptSearchDecisionFound = true;
+			}
 			stringJoiner
-				.add("SD")
-				.add(number)
-				.add(activityNumber);
+				.add(number + 1)
+				.add(activityNumber + 1)
+				.add(patternNumber + 1)
+				.add(numberOfRelevantResources)
+				.add("");
+
+			for(int num = 0; num < numberOfRelevantResources; num++)
+			{
+				final int typeNum =
+					patternsInfo.get(patternNumber).relResTypes.get(num);
+				final int resNum = data.getInt();
+				final int legacyNum =
+					legacyResourceIds.get(typeNum).get(resNum);
+				stringJoiner.add(legacyNum);
+			}
 			break;
 		}
 		default:
@@ -603,6 +640,18 @@ public class LegacyTracer extends Tracer
 				traceType,
 				stringJoiner.getString()
 			);
+	}
+
+	private final void addLegacySearchEntryDecision()
+	{
+		traceList.add(
+			new TraceOutput(
+				TraceType.SEARCH_DECISION,
+				new RDOLibStringJoiner(delimiter)
+					.add("SD")
+					.getString()
+			)
+		);
 	}
 
 	private final void addLegacySearchEntriesOnStart()
@@ -657,7 +706,7 @@ public class LegacyTracer extends Tracer
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	@Override
-	protected final TraceOutput parseResultEntry(final Database.Entry entry)
+	protected final TraceOutput parseResultEntry(final Entry entry)
 	{
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);

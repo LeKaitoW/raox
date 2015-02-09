@@ -146,13 +146,13 @@ public class Database
 
 	public static class Entry
 	{
-		ByteBuffer header;
-		ByteBuffer data;
+		final ByteBuffer header;
+		final ByteBuffer data;
 
-		Entry(ByteBuffer header, ByteBuffer data)
+		Entry(final ByteBuffer header, final ByteBuffer data)
 		{
-			this.header = header;
-			this.data = data;
+			this.header = header != null ? header.asReadOnlyBuffer() : null;
+			this.data = data != null ? data.asReadOnlyBuffer() : null;
 		}
 	}
 
@@ -170,7 +170,11 @@ public class Database
 
 	public static enum EntryType
 	{
-		SYSTEM(10), RESOURCE(18), PATTERN(10), SEARCH(2), RESULT(13);
+		SYSTEM(TypeSize.BYTE * 2 + TypeSize.DOUBLE),
+		RESOURCE(TypeSize.BYTE * 2 + TypeSize.INTEGER * 2 + TypeSize.DOUBLE),
+		PATTERN(TypeSize.BYTE * 2 + TypeSize.DOUBLE),
+		SEARCH(TypeSize.BYTE * 2 + TypeSize.INTEGER * 2 + TypeSize.DOUBLE),
+		RESULT(TypeSize.BYTE + TypeSize.INTEGER + TypeSize.DOUBLE);
 
 		public final int HEADER_SIZE;
 
@@ -180,7 +184,11 @@ public class Database
 		}
 	}
 
-	ArrayList<Entry> allEntries = new ArrayList<Entry>();
+	private ArrayList<Entry> allEntries = new ArrayList<Entry>();
+
+	public final ArrayList<Entry> getAllEntries() {
+		return allEntries;
+	}
 
 	private final void addEntry(Entry entry)
 	{
@@ -575,17 +583,14 @@ public class Database
 		ByteBuffer header = ByteBuffer.allocate(EntryType.SEARCH.HEADER_SIZE);
 		header
 			.put((byte)EntryType.SEARCH.ordinal())
-			.put((byte)type.ordinal());
+			.put((byte)type.ordinal())
+			.putDouble(Simulator.getTime())
+			.putInt(index.number)
+			.putInt(index.searches.size());
 
 		switch(type)
 		{
 			case BEGIN:
-				data = ByteBuffer.allocate(TypeSize.DOUBLE + TypeSize.INTEGER * 2);
-				data
-					.putDouble(Simulator.getTime())
-					.putInt(index.number)
-					.putInt(index.searches.size());
-
 				info = new SearchInfo();
 				info.begin = allEntries.size();
 
