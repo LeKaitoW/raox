@@ -57,7 +57,6 @@ import org.eclipse.ui.part.ViewPart;
 import ru.bmstu.rk9.rdo.lib.Database;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
-import ru.bmstu.rk9.rdo.lib.Tracer;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
 import ru.bmstu.rk9.rdo.lib.TreeBuilder;
@@ -90,18 +89,26 @@ public class RDOTraceView extends ViewPart
 	
 	private void createWindow(TraceOutput traceOutput) {
 		String content = traceOutput.content();
+		int flagIndex = content.length() - 1;	
+		
+		do {
+			flagIndex--;
+		} while (content.charAt(flagIndex) != ' ');
+		
 		String frameName = "";
 		int dptNum = -1;
+		
 		for (String dptNameKey : Database.searchIndex.keySet()) {
 			int dotIndex = dptNameKey.indexOf('.');
 			String dptName = dptNameKey.substring(dotIndex + 1);
-			if (content.contains(dptName)) {
+			if (content.substring(flagIndex + 1).compareTo(dptName) == 0) {
 				frameName = dptName;
 				dptNum = Database.searchIndex.get(dptNameKey).number;
+				break;
 			}
 		}
-		TreeBuilder treeBuilder = new TreeBuilder();
 		if (dptNum != -1) {
+			TreeBuilder treeBuilder = new TreeBuilder();
 			GraphFrame graphFrame = new GraphFrame(treeBuilder.mapList.get(dptNum), treeBuilder.infoMap.get(dptNum), treeBuilder.solutionMap
 					.get(dptNum));
 			graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

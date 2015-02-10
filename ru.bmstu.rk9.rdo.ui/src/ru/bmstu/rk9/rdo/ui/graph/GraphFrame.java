@@ -12,7 +12,6 @@ import ru.bmstu.rk9.rdo.lib.TreeBuilder.Node;
 
 import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxGeometry;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxEvent;
@@ -27,7 +26,7 @@ public class GraphFrame extends JFrame {
 
 	Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
 
-	private void buildTree(mxGraph graph, HashMap<Integer, Node> nodeMap, Node parentNode) {
+	private void drawGraph(mxGraph graph, HashMap<Integer, Node> nodeMap, Node parentNode) {
 		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, parentNode, 385, 100, 30, 30,
 				fontColor + strokeColor);
 		vertexMap.put(parentNode, vertex);
@@ -36,16 +35,16 @@ public class GraphFrame extends JFrame {
 					vertexMap.get(parentNode), strokeColor);
 		if (parentNode.children.size() != 0)
 			for (int i = 0; i < parentNode.children.size(); i++)
-				buildTree(graph, nodeMap, nodeMap.get(parentNode.children.get(i).index));
+				drawGraph(graph, nodeMap, nodeMap.get(parentNode.children.get(i).index));
 	}
 
 	final String solutionColor = "fillColor=32CD32;";
 	final String strokeColor = "strokeColor=000000;";
 	final String fontColor = "fontColor=000000;";
 
-	public void colorNodes(Map<Node, mxCell> vertexMap, HashMap<Integer, Node> treeMap, ArrayList<Node> solution) {
+	public void colorNodes(Map<Node, mxCell> vertexMap, HashMap<Integer, Node> nodeMap, ArrayList<Node> solution) {
 		if (!solution.isEmpty()) {
-			Node rootNode = treeMap.get(0);
+			Node rootNode = nodeMap.get(0);
 			vertexMap.get(rootNode).setStyle(solutionColor + fontColor + strokeColor);
 			for (int i = 0; i < solution.size(); i++) {
 				vertexMap.get(solution.get(i)).setStyle(solutionColor + fontColor + strokeColor);
@@ -111,7 +110,7 @@ public class GraphFrame extends JFrame {
 		
 		graph.getModel().beginUpdate();
 		try {
-			buildTree(graph, treeMap, treeMap.get(0));
+			drawGraph(graph, treeMap, treeMap.get(0));
 			colorNodes(vertexMap, treeMap, solution);
 			graphInfoCell = insertInfo(graph, info);
 		} finally {

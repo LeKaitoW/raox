@@ -10,7 +10,6 @@ import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 import ru.bmstu.rk9.rdo.lib.RDOLibStringJoiner.StringFormat;
 
-//TODO rename class
 public class TreeBuilder {
 
 	public class Node {
@@ -41,7 +40,7 @@ public class TreeBuilder {
 
 	public HashMap<Integer, HashMap<Integer, Node>> mapList = new HashMap<Integer, HashMap<Integer, Node>>();
 
-	private final void fillTreeNodes() {
+	private final void buildTree() {
 		final ArrayList<Database.Entry> entries = Simulator.getDatabase().getAllEntries();
 
 		for (Database.Entry entry : entries) {
@@ -185,6 +184,6 @@ public class TreeBuilder {
 	private int currentDptNumber = -1;
 
 	public TreeBuilder() {
-		fillTreeNodes();
+		buildTree();
 	}
 }
