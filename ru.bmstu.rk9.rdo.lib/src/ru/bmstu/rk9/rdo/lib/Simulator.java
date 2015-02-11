@@ -64,6 +64,17 @@ public class Simulator
 	{
 		return INSTANCE.tracer;
 	}
+	
+	private TreeBuilder treeBuilder;
+	
+	public static TreeBuilder getTreeBuilder() {
+		return INSTANCE.treeBuilder;
+	}
+	
+	public static synchronized void initTreeBuilder()
+	{
+		INSTANCE.treeBuilder = new TreeBuilder();
+	}
 
 	private volatile double time = 0;
 

@@ -209,6 +209,10 @@ public class ExecutionHandler extends AbstractHandler
 					databaseNotifier
 						.getSubscription("EntryAdded")
 							.addSubscriber(Simulator.getTracer());
+					
+					databaseNotifier
+						.getSubscription("EntryAdded")
+							.addSubscriber(Simulator.getTreeBuilder());
 
 					Simulator.getTracer()
 						.setRealTimeSubscriber(RDOTraceView.realTimeUpdater);
