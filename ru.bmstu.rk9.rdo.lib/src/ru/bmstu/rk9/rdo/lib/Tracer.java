@@ -3,8 +3,6 @@ package ru.bmstu.rk9.rdo.lib;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import ru.bmstu.rk9.rdo.lib.Database.Entry;
 import ru.bmstu.rk9.rdo.lib.Database.EntryType;
@@ -71,15 +69,6 @@ public class Tracer implements Subscriber
 		}
 	}
 
-	Tracer()
-	{
-		ModelStructureHelper.fillResourceNames(resourceNames);
-		ModelStructureHelper.fillResourceTypesInfo(resourceTypesInfo);
-		ModelStructureHelper.fillResultsInfo(resultsInfo);
-		ModelStructureHelper.fillPatternsInfo(patternsInfo);
-		ModelStructureHelper.fillDecisionPointsInfo(decisionPointsInfo);
-	}
-
 	private boolean paused = true;
 
 	public final synchronized void setPaused(boolean paused)
@@ -127,17 +116,6 @@ public class Tracer implements Subscriber
 	}
 
 	static private final String delimiter = " ";
-
-	protected final HashMap<Integer, HashMap<Integer, String>> resourceNames =
-		new HashMap<Integer, HashMap<Integer, String>>();
-	protected final ArrayList<ResourceTypeInfo> resourceTypesInfo =
-		new ArrayList<ResourceTypeInfo>();
-	protected final ArrayList<ResultInfo> resultsInfo =
-		new ArrayList<ResultInfo>();
-	protected final ArrayList<PatternInfo> patternsInfo =
-		new ArrayList<PatternInfo>();
-	protected final ArrayList<DecisionPointInfo> decisionPointsInfo =
-		new ArrayList<DecisionPointInfo>();
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                                   GENERAL                                 /
@@ -225,10 +203,11 @@ public class Tracer implements Subscriber
 		}
 
 		final int typeNum = header.getInt();
-		final ResourceTypeInfo typeInfo =
-			resourceTypesInfo.get(typeNum);
+		final ResourceTypeCache typeInfo = Simulator.getModelStructureCache()
+				.resourceTypesInfo.get(typeNum);
 		final int resNum = header.getInt();
-		final String name = resourceNames.get(typeNum).get(resNum);
+		final String name = Simulator.getModelStructureCache()
+				.resourceNames.get(typeNum).get(resNum);
 
 		final String resourceName =
 			name != null ?
@@ -250,7 +229,7 @@ public class Tracer implements Subscriber
 
 	protected String parseResourceParameters(
 		final ByteBuffer data,
-		final ResourceTypeInfo typeInfo
+		final ResourceTypeCache typeInfo
 	)
 	{
 		final RDOLibStringJoiner stringJoiner =
@@ -258,9 +237,9 @@ public class Tracer implements Subscriber
 
 		for(int paramNum = 0; paramNum < typeInfo.numberOfParameters; paramNum++)
 		{
-			ValueInfo valueInfo = typeInfo.paramTypes.get(paramNum);
+			ValueCache valueCache = typeInfo.paramTypes.get(paramNum);
 			//TODO trace arrays when they are implemented
-			switch(valueInfo.type)
+			switch(valueCache.type)
 			{
 			case INTEGER:
 				stringJoiner.add(data.getInt());
@@ -273,7 +252,7 @@ public class Tracer implements Subscriber
 				break;
 			case ENUM:
 				stringJoiner.add(
-					valueInfo.enumNames.get((int) data.getShort())
+					valueCache.enumNames.get((int) data.getShort())
 				);
 				break;
 			case STRING:
@@ -361,9 +340,8 @@ public class Tracer implements Subscriber
 			int eventNumber = data.getInt();
 			int actionNumber = data.getInt();
 			patternNumber = eventNumber;
-			stringJoiner
-				.add(patternsInfo.get(eventNumber).name
-					+ encloseIndex(actionNumber));
+			stringJoiner.add(Simulator.getModelStructureCache().patternsInfo
+					.get(eventNumber).name + encloseIndex(actionNumber));
 			break;
 		}
 		case RULE:
@@ -373,8 +351,9 @@ public class Tracer implements Subscriber
 			int dptNumber = data.getInt();
 			int activityNumber = data.getInt();
 			int actionNumber = data.getInt();
-			ActivityInfo activity = decisionPointsInfo.get(dptNumber)
-				.activitiesInfo.get(activityNumber);
+			ActivityCache activity = Simulator.getModelStructureCache()
+					.decisionPointsInfo.get(dptNumber)
+					.activitiesInfo.get(activityNumber);
 			patternNumber = activity.patternNumber;
 			stringJoiner
 				.add(activity.name + encloseIndex(actionNumber));
@@ -391,12 +370,13 @@ public class Tracer implements Subscriber
 		for(int num = 0; num < numberOfRelevantResources; num++)
 		{
 			final int resNum = data.getInt();
-			final int typeNum =
-				patternsInfo.get(patternNumber).relResTypes.get(num);
-			final String typeName =
-				resourceTypesInfo.get(typeNum).name;
+			final int typeNum = Simulator.getModelStructureCache()
+					.patternsInfo.get(patternNumber).relResTypes.get(num);
+			final String typeName = Simulator.getModelStructureCache()
+					.resourceTypesInfo.get(typeNum).name;
 
-			final String name = resourceNames.get(typeNum).get(resNum);
+			final String name = Simulator.getModelStructureCache()
+					.resourceNames.get(typeNum).get(resNum);
 			final String resourceName =
 				name != null ?
 					name :
@@ -434,7 +414,8 @@ public class Tracer implements Subscriber
 			stringJoiner
 				.add(traceType.toString())
 				.add(time)
-				.add(decisionPointsInfo.get(dptNumber).name);
+				.add(Simulator.getModelStructureCache()
+						.decisionPointsInfo.get(dptNumber).name);
 			break;
 		}
 		case END:
@@ -515,12 +496,14 @@ public class Tracer implements Subscriber
 			final double g = data.getDouble();
 			final double h = data.getDouble();
 			final int ruleNumber = data.getInt();
-			ActivityInfo activity = decisionPointsInfo.get(dptNumber)
-				.activitiesInfo.get(ruleNumber);
+			ActivityCache activity = Simulator.getModelStructureCache()
+					.decisionPointsInfo.get(dptNumber)
+					.activitiesInfo.get(ruleNumber);
 			final int patternNumber = activity.patternNumber;
 			final double ruleCost = data.getDouble();
-			final int numberOfRelevantResources =
-				patternsInfo.get(patternNumber).relResTypes.size();
+			final int numberOfRelevantResources = Simulator
+					.getModelStructureCache().patternsInfo.get(patternNumber)
+					.relResTypes.size();
 
 			RDOLibStringJoiner relResStringJoiner =
 				new RDOLibStringJoiner(StringFormat.FUNCTION);
@@ -528,12 +511,12 @@ public class Tracer implements Subscriber
 			for(int num = 0; num < numberOfRelevantResources; num++)
 			{
 				final int resNum = data.getInt();
-				final int typeNum =
-					patternsInfo.get(patternNumber).relResTypes.get(num);
-				final String typeName =
-					resourceTypesInfo.get(typeNum).name;
+				final int typeNum = Simulator.getModelStructureCache()
+						.patternsInfo.get(patternNumber).relResTypes.get(num);
+				final String typeName = Simulator.getModelStructureCache()
+						.resourceTypesInfo.get(typeNum).name;
 
-				final String name = resourceNames.get(typeNum).get(resNum);
+				final String name = Simulator.getModelStructureCache().resourceNames.get(typeNum).get(resNum);
 				final String resourceName =
 					name != null ?
 						name :
@@ -560,23 +543,26 @@ public class Tracer implements Subscriber
 			traceType = TraceType.SEARCH_DECISION;
 			final int nodeNumber = data.getInt();
 			final int activityNumber = data.getInt();
-			ActivityInfo activity = decisionPointsInfo.get(dptNumber)
-				.activitiesInfo.get(activityNumber);
+			ActivityCache activity = Simulator.getModelStructureCache()
+					.decisionPointsInfo.get(dptNumber)
+					.activitiesInfo.get(activityNumber);
 			final int patternNumber = activity.patternNumber;
 			final int numberOfRelevantResources =
-				patternsInfo.get(patternNumber).relResTypes.size();
+				Simulator.getModelStructureCache().patternsInfo.get(
+						patternNumber).relResTypes.size();
 
 			RDOLibStringJoiner relResStringJoiner =
 				new RDOLibStringJoiner(StringFormat.FUNCTION);
 			for(int num = 0; num < numberOfRelevantResources; num++)
 			{
 				final int resNum = data.getInt();
-				final int typeNum =
-					patternsInfo.get(patternNumber).relResTypes.get(num);
-				final String typeName =
-					resourceTypesInfo.get(typeNum).name;
+				final int typeNum = Simulator.getModelStructureCache()
+						.patternsInfo.get(patternNumber).relResTypes.get(num);
+				final String typeName = Simulator.getModelStructureCache()
+						.resourceTypesInfo.get(typeNum).name;
 
-				final String name = resourceNames.get(typeNum).get(resNum);
+				final String name = Simulator.getModelStructureCache()
+						.resourceNames.get(typeNum).get(resNum);
 				final String resourceName =
 					name != null ?
 						name :
@@ -614,7 +600,8 @@ public class Tracer implements Subscriber
 		skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
 		final int resultNum = header.getInt();
-		final ResultInfo resultInfo = resultsInfo.get(resultNum);
+		final ResultCache resultCache =
+				Simulator.getModelStructureCache().resultsInfo.get(resultNum);
 
 		return
 			new TraceOutput(
@@ -622,19 +609,19 @@ public class Tracer implements Subscriber
 			new RDOLibStringJoiner(delimiter)
 				.add(TraceType.RESULT.toString())
 				.add(time)
-				.add(resultInfo.name)
+				.add(resultCache.name)
 				.add("=")
-				.add(parseResultParameter(data, resultInfo))
+				.add(parseResultParameter(data, resultCache))
 				.getString()
 			);
 	}
 
 	protected String parseResultParameter(
 		final ByteBuffer data,
-		final ResultInfo resultInfo
+		final ResultCache resultCache
 	)
 	{
-		switch(resultInfo.valueType)
+		switch(resultCache.valueType)
 		{
 		case INTEGER:
 			return String.valueOf(data.getInt());
@@ -644,7 +631,7 @@ public class Tracer implements Subscriber
 			return String.valueOf(data.get() != 0);
 		case ENUM:
 			return String.valueOf(
-				resultInfo.enumNames.get((int) data.getShort())
+				resultCache.enumNames.get((int) data.getShort())
 			);
 		case STRING:
 			final ByteArrayOutputStream rawString = new ByteArrayOutputStream();

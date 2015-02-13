@@ -38,7 +38,7 @@ import com.google.common.collect.Iterators;
 
 import ru.bmstu.rk9.rdo.generator.RDONaming;
 import ru.bmstu.rk9.rdo.lib.DecisionPointSearch.SerializationLevel;
-import ru.bmstu.rk9.rdo.lib.ModelStructureHelper;
+import ru.bmstu.rk9.rdo.lib.ModelStructureCache;
 import ru.bmstu.rk9.rdo.lib.TraceConfig;
 import ru.bmstu.rk9.rdo.lib.TraceConfig.TraceNode;
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint;
@@ -389,7 +389,7 @@ class RDOTraceConfigLabelProvider implements ILabelProvider
 	public String getText(Object element)
 	{
 		TraceNode traceNode = (TraceNode) element;
-		return ModelStructureHelper.getRelativeName(traceNode.getName());
+		return ModelStructureCache.getRelativeName(traceNode.getName());
 	}
 
 }
