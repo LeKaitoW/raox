@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
+import java.util.List;
 import java.util.TimerTask;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -154,7 +155,7 @@ public class RDOTraceView extends ViewPart
 		configureToolbar();
 
 		if (Simulator.isInitialized()) {
-			final ArrayList<Entry> allEntries = Simulator.getDatabase()
+			final List<Entry> allEntries = Simulator.getDatabase()
 					.getAllEntries();
 			RDOTraceView.viewer.setInput(allEntries);
 			RDOTraceView.viewer.setItemCount(allEntries.size());
@@ -365,7 +366,7 @@ public class RDOTraceView extends ViewPart
 			private final Runnable updater = new Runnable() {
 				@Override
 				public void run() {
-					final ArrayList<Entry> allEntries = Simulator.getDatabase()
+					final List<Entry> allEntries = Simulator.getDatabase()
 							.getAllEntries();
 					final int size = allEntries.size();
 
@@ -393,7 +394,7 @@ public class RDOTraceView extends ViewPart
 			if (!readyForInput())
 				return;
 
-			final ArrayList<Entry> allEntries = Simulator.getDatabase()
+			final List<Entry> allEntries = Simulator.getDatabase()
 					.getAllEntries();
 			final int size = allEntries.size();
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
@@ -429,7 +430,7 @@ public class RDOTraceView extends ViewPart
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 class RDOTraceViewContentProvider implements ILazyContentProvider {
-	private ArrayList<Entry> allEntries;
+	private List<Entry> allEntries;
 
 	@Override
 	public void dispose() {
@@ -438,7 +439,7 @@ class RDOTraceViewContentProvider implements ILazyContentProvider {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		allEntries = (ArrayList<Entry>) newInput;
+		allEntries = (List<Entry>) newInput;
 	}
 
 	@Override

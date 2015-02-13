@@ -1,7 +1,9 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 public class TraceConfig
 {
@@ -83,13 +85,13 @@ public class TraceConfig
 			}
 		}
 
-		public final ArrayList<TraceNode> getVisibleChildren()
+		public final List<TraceNode> getVisibleChildren()
 		{
-			ArrayList<TraceNode> visibleChildren = new ArrayList<TraceNode>();
+			List<TraceNode> visibleChildren = new ArrayList<TraceNode>();
 			for(TraceNode ch : children)
 				if(ch.isVisible)
 					visibleChildren.add(ch);
-			return visibleChildren;
+			return Collections.unmodifiableList(visibleChildren);
 		}
 
 		public final void removeHiddenChildren()
@@ -128,7 +130,7 @@ public class TraceConfig
 		private final String name;
 		private boolean isVisible = true;
 		private boolean traceState = false;
-		private final ArrayList<TraceNode> children =
+		private final List<TraceNode> children =
 			new ArrayList<TraceNode>();
 	}
 
@@ -150,10 +152,10 @@ public class TraceConfig
 		root.children.remove(modelNode);
 	}
 
-	private static ArrayList<String> names = new ArrayList<String>();
+	private static List<String> names = new ArrayList<String>();
 
-	public static final ArrayList<String> getNames() {
-		return names;
+	public static final List<String> getNames() {
+		return Collections.unmodifiableList(names);
 	}
 
 	public final void initNames() {

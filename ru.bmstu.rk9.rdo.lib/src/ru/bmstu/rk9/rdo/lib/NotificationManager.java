@@ -1,10 +1,11 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class NotificationManager implements Notifier
 {
-	protected HashMap<String, Notifier.Subscription> subscribtions;
+	protected Map<String, Notifier.Subscription> subscribtions;
 
 	public NotificationManager(String[] categories)
 	{

@@ -9,8 +9,11 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.TreeSet;
 
@@ -32,13 +35,13 @@ public class LegacyTracer
 		initializeActivities();
 	}
 
-	private final HashMap<Integer, HashMap<Integer, Integer>> legacyResourceIds =
+	private final Map<Integer, HashMap<Integer, Integer>> legacyResourceIds =
 		new HashMap<Integer, HashMap<Integer, Integer>>();
 	private final TreeSet<Integer> takenResourceIds =
 		new TreeSet<Integer>();
 	private final PriorityQueue<Integer> vacantActionNumbers =
 		new PriorityQueue<Integer>();
-	private final HashMap<Integer, HashMap<
+	private final Map<Integer, HashMap<
 		Integer, HashMap<Integer, Integer>>> legacyActionNumbers=
 			new HashMap<Integer, HashMap<Integer, HashMap<Integer, Integer>>>();
 
@@ -77,17 +80,16 @@ public class LegacyTracer
  /                                   GENERAL                                 /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	private ArrayList<TraceOutput> traceList = new ArrayList<TraceOutput>();
+	private List<TraceOutput> traceList = new ArrayList<TraceOutput>();
 
-	public final ArrayList<TraceOutput> getTraceList()
+	public final List<TraceOutput> getTraceList()
 	{
-		//TODO make unmodifiable
-		return traceList;
+		return Collections.unmodifiableList(traceList);
 	}
 
 	public final void parseAllEntries()
 	{
-		final ArrayList<Entry> entries =
+		final List<Entry> entries =
 			Simulator.getDatabase().getAllEntries();
 
 		for (Entry entry : entries)
@@ -381,7 +383,7 @@ public class LegacyTracer
 			int activityNumber = data.getInt();
 			int actionNumber = data.getInt();
 
-			HashMap<Integer, Integer> activityActions =
+			Map<Integer, Integer> activityActions =
 				legacyActionNumbers
 				.get(dptNumber)
 				.get(activityNumber);
@@ -409,7 +411,7 @@ public class LegacyTracer
 			int activityNumber = data.getInt();
 			int actionNumber = data.getInt();
 
-			HashMap<Integer, Integer> activityActions =
+			Map<Integer, Integer> activityActions =
 					legacyActionNumbers
 					.get(dptNumber)
 					.get(activityNumber);

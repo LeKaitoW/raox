@@ -2,8 +2,11 @@ package ru.bmstu.rk9.rdo.lib;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 import ru.bmstu.rk9.rdo.lib.json.*;
 
@@ -70,7 +73,7 @@ public class Database
 		}
 
 		JSONArray patterns = modelStructure.getJSONArray("patterns");
-		HashMap<String, JSONObject> patternsByName = new HashMap<String, JSONObject>();
+		Map<String, JSONObject> patternsByName = new HashMap<String, JSONObject>();
 		for(int i = 0; i < patterns.length(); i++)
 		{
 			JSONObject patternStructure = patterns.getJSONObject(i);
@@ -160,7 +163,7 @@ public class Database
 	{
 		final int number;
 
-		ArrayList<Integer> entries = new ArrayList<Integer>();
+		List<Integer> entries = new ArrayList<Integer>();
 
 		private Index(int number)
 		{
@@ -184,10 +187,10 @@ public class Database
 		}
 	}
 
-	private ArrayList<Entry> allEntries = new ArrayList<Entry>();
+	private List<Entry> allEntries = new ArrayList<Entry>();
 
-	public final ArrayList<Entry> getAllEntries() {
-		return allEntries;
+	public final List<Entry> getAllEntries() {
+		return Collections.unmodifiableList(allEntries);
 	}
 
 	private final void addEntry(Entry entry)
@@ -269,10 +272,10 @@ public class Database
 
 		final JSONObject structure;
 
-		final ArrayList<Index> resources;
+		final List<Index> resources;
 	}
 
-	HashMap<String, ResourceTypeIndex> resourceIndex =
+	Map<String, ResourceTypeIndex> resourceIndex =
 		new HashMap<String, ResourceTypeIndex>();
 
 	public static enum ResourceEntryType
@@ -370,10 +373,10 @@ public class Database
 			this.number = number;
 		}
 
-		HashMap<String, PatternIndex> activities = new HashMap<String, PatternIndex>();
+		Map<String, PatternIndex> activities = new HashMap<String, PatternIndex>();
 	}
 
-	HashMap<String, DecisionPointIndex> decisionPointIndex =
+	Map<String, DecisionPointIndex> decisionPointIndex =
 		new HashMap<String, DecisionPointIndex>();
 
 	private static class PatternPoolEntry
@@ -395,7 +398,7 @@ public class Database
 		}
 	}
 
-	private HashMap<Pattern, PatternPoolEntry> patternPool
+	private Map<Pattern, PatternPoolEntry> patternPool
 		= new HashMap<Pattern, PatternPoolEntry>();
 
 	public void addDecisionEntry
@@ -454,7 +457,7 @@ public class Database
 		private int timesExecuted = 0;
 	}
 
-	HashMap<String, PatternIndex> eventIndex = new HashMap<String, PatternIndex>();
+	Map<String, PatternIndex> eventIndex = new HashMap<String, PatternIndex>();
 
 	public void addEventEntry(PatternType type, Pattern pattern)
 	{
@@ -562,10 +565,10 @@ public class Database
 			this.number = number;
 		}
 
-		ArrayList<SearchInfo> searches = new ArrayList<SearchInfo>();
+		List<SearchInfo> searches = new ArrayList<SearchInfo>();
 	}
 
-	HashMap<String, SearchIndex> searchIndex =
+	Map<String, SearchIndex> searchIndex =
 		new HashMap<String, SearchIndex>();
 
 	public static enum SearchEntryType
@@ -616,7 +619,7 @@ public class Database
  /                              RESULT ENTRIES                               /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	HashMap<String, Index> resultIndex = new HashMap<String, Index>();
+	Map<String, Index> resultIndex = new HashMap<String, Index>();
 
 	public void addResultEntry(Result result)
 	{
