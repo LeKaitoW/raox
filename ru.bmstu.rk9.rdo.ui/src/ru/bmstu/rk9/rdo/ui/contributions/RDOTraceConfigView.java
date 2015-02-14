@@ -1,8 +1,10 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
@@ -38,7 +40,6 @@ import com.google.common.collect.Iterators;
 
 import ru.bmstu.rk9.rdo.generator.RDONaming;
 import ru.bmstu.rk9.rdo.lib.DecisionPointSearch.SerializationLevel;
-import ru.bmstu.rk9.rdo.lib.ModelStructureCache;
 import ru.bmstu.rk9.rdo.lib.TraceConfig;
 import ru.bmstu.rk9.rdo.lib.TraceConfig.TraceNode;
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint;
@@ -100,91 +101,107 @@ public class RDOTraceConfigView extends ViewPart
 		IPartService service =
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getPartService();
 
-		service.addPartListener(
-			new IPartListener2()
-			{
-				@Override
-				public void partVisible(IWorkbenchPartReference partRef) {}
-
-				@Override
-				public void partOpened(IWorkbenchPartReference partRef) {}
-
-				@Override
-				public void partInputChanged(IWorkbenchPartReference partRef) {}
-
-				@Override
-				public void partHidden(IWorkbenchPartReference partRef) {}
-
-				@Override
-				public void partDeactivated(IWorkbenchPartReference partRef) {}
-
-				@Override
-				public void partClosed(IWorkbenchPartReference partRef) {}
-
-				@Override
-				public void partBroughtToTop(IWorkbenchPartReference partRef) {}
-
-				@Override
-				public void partActivated(IWorkbenchPartReference partRef)
-				{
-					if(partRef.getId().equals("ru.bmstu.rk9.rdo.RDO"))
-					{
-						IEditorPart editor = partRef.getPage().getActiveEditor();
-						IXtextDocument document =
-							((XtextEditor) editor).getDocument();
-
-						if(documents.contains(document))
-							return;
-
-						EList<EObject> contents = document.readOnly(
-								new IUnitOfWork<XtextResource, XtextResource>() {
-									public XtextResource exec(XtextResource state) {
-										return state;
-									}
-								}).getContents();
-
-						if (contents.isEmpty())
-							return;
-
-						documents.add(document);
-
-						RDOModel model = (RDOModel) contents.get(0);
-
-						TraceNode existingModel = traceConfig.findModel(
-								RDONaming.getResourceName(model.eResource()));
-						if (existingModel != null)
-							traceConfig.removeModel(existingModel);
-
-						addModel(model.eResource());
-						if (traceTreeViewer.getInput() == null)
-							traceTreeViewer.setInput(traceConfig);
-
-						document.addModelListener(
-							new IXtextModelListener() {
-								@Override
-								public void modelChanged(XtextResource resource)
-								{
-									updateInput(resource);
-								}
-							}
-						);
-					}
-				}
-
-				private final HashSet<IXtextDocument> documents =
-					new HashSet<IXtextDocument>();
+		service.addPartListener(new IPartListener2() {
+			@Override
+			public void partVisible(IWorkbenchPartReference partRef) {
 			}
-		);
+
+			@Override
+			public void partOpened(IWorkbenchPartReference partRef) {
+			}
+
+			@Override
+			public void partInputChanged(IWorkbenchPartReference partRef) {
+			}
+
+			@Override
+			public void partHidden(IWorkbenchPartReference partRef) {
+			}
+
+			@Override
+			public void partDeactivated(IWorkbenchPartReference partRef) {
+			}
+
+			@Override
+			public void partClosed(IWorkbenchPartReference partRef) {
+				String partId = partRef.getId();
+				if (partId.substring(partId.lastIndexOf('.') + 1).equals("RDO")) {
+					TraceNode modelNode = modelNodes.get(partRef);
+					traceConfig.removeModel(modelNode);
+					modelNodes.remove(partRef);
+					List<TraceNode> modelsWithSameName = traceConfig
+							.findModelsWithSameName(modelNode.getName());
+					if (modelsWithSameName.size() == 1)
+						modelsWithSameName.get(0).mustShowFullName(false);
+					//TODO exception raised on refresh if there are no children
+					//but without refresh tree is not cleared
+					if (!traceTreeViewer.getControl().isDisposed()
+							&& traceConfig.getRoot().hasChildren())
+						traceTreeViewer.refresh();
+				}
+			}
+
+			@Override
+			public void partBroughtToTop(IWorkbenchPartReference partRef) {
+			}
+
+			@Override
+			public void partActivated(IWorkbenchPartReference partRef) {
+				if (partRef.getId().equals("ru.bmstu.rk9.rdo.RDO")) {
+					if (modelNodes.containsKey(partRef))
+						return;
+
+					IEditorPart editor = partRef.getPage().getActiveEditor();
+					IXtextDocument document = ((XtextEditor) editor)
+							.getDocument();
+
+					EList<EObject> contents = document.readOnly(
+							new IUnitOfWork<XtextResource, XtextResource>() {
+								public XtextResource exec(XtextResource state) {
+									return state;
+								}
+							}).getContents();
+
+					if (contents.isEmpty())
+						return;
+
+					RDOModel model = (RDOModel) contents.get(0);
+					TraceNode newModel = addModel(model.eResource());
+					modelNodes.put(partRef, newModel);
+
+					List<TraceNode> modelsWithSameName = traceConfig
+							.findModelsWithSameName(newModel.getName());
+					if (modelsWithSameName.size() > 1)
+						for (TraceNode node : modelsWithSameName)
+							node.mustShowFullName(true);
+
+					if (traceTreeViewer.getInput() == null)
+						traceTreeViewer.setInput(traceConfig);
+
+					document.addModelListener(new IXtextModelListener() {
+						@Override
+						public void modelChanged(XtextResource resource) {
+							updateInput(resource);
+						}
+					});
+				}
+			}
+
+			private final Map<IWorkbenchPartReference, TraceNode> modelNodes =
+					new HashMap<IWorkbenchPartReference, TraceNode>();
+		});
 	}
 
-	public static void addModel(Resource model) {
-		traceConfigurator.initModel(traceConfig.getRoot(), model);
+	public static TraceNode addModel(Resource model) {
+		TraceNode modelNode = traceConfigurator
+				.initModel(traceConfig.getRoot(), model);
 		updateInput(model);
+		return modelNode;
 	}
 
 	public static void updateInput(Resource model) {
-		TraceNode modelNode = traceConfig.findModel(RDONaming
-				.getResourceName(model));
+		TraceNode modelNode = traceConfig.findModel(
+				model.getURI().toPlatformString(false));
 		traceConfigurator.fillCategories(model, modelNode);
 		if (RDOTraceConfigView.traceTreeViewer == null)
 			return;
@@ -272,8 +289,7 @@ class TraceConfigurator
 	{
 		TreeIterator<EObject> allContents = model.getAllContents();
 		category.hideChildren();
-		final ArrayList<T> categoryList =
-			new ArrayList<T>();
+		final ArrayList<T> categoryList = new ArrayList<T>();
 		Iterator<T> filter = Iterators.<T>filter(allContents, categoryClass);
 		Iterable<T> iterable = IteratorExtensions.<T>toIterable(filter);
 		Iterables.addAll(categoryList, iterable);
@@ -300,10 +316,12 @@ class TraceConfigurator
 		}
 	}
 
-	public final void initModel(TraceNode root, Resource model) {
-		TraceNode modelNode = root.addChild(RDONaming.getResourceName(model));
+	public final TraceNode initModel(TraceNode root, Resource model) {
+		TraceNode modelNode = root.addChild(
+				model.getURI().toPlatformString(false), false, true);
 		for (TraceCategory category : TraceCategory.values())
 			modelNode.addChild(category.getName());
+		return modelNode;
 	}
 }
 
@@ -386,10 +404,8 @@ class RDOTraceConfigLabelProvider implements ILabelProvider
 	}
 
 	@Override
-	public String getText(Object element)
-	{
+	public String getText(Object element) {
 		TraceNode traceNode = (TraceNode) element;
-		return ModelStructureCache.getRelativeName(traceNode.getName());
+		return traceNode.getRelativeName();
 	}
-
 }

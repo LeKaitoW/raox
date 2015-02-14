@@ -9,34 +9,40 @@ public class TraceConfig
 {
 	public class TraceNode
 	{
-		public TraceNode(String name, TraceNode parent)
-		{
-			this(name, parent, false);
+		public TraceNode(String name, TraceNode parent) {
+			this(name, parent, false, false);
 		}
 
-		public TraceNode(String name, TraceNode parent, boolean traceState)
-		{
+		public TraceNode(String name, TraceNode parent, boolean traceState) {
+			this(name, parent, traceState, false);
+		}
+
+		public TraceNode(String name, TraceNode parent, boolean traceState,
+				boolean isModel) {
 			this.name = name;
 			this.parent = parent;
 			this.traceState = traceState;
+			this.isModel = isModel;
 		}
 
-		public final TraceNode addChild(String name)
-		{
-			return addChild(name, false);
+		public final TraceNode addChild(String name) {
+			return addChild(name, false, false);
 		}
 
-		public final TraceNode addChild(String name, boolean traceState)
-		{
+		public final TraceNode addChild(String name, boolean traceState) {
+			return addChild(name, traceState, false);
+		}
+
+		public final TraceNode addChild(String name, boolean traceState,
+				boolean isModel) {
 			final int number = findName(name);
-			if(number != -1)
-			{
+			if (number != -1) {
 				TraceNode child = children.get(number);
 				child.isVisible = true;
 				return child;
 			}
 
-			TraceNode child = new TraceNode(name, this, traceState);
+			TraceNode child = new TraceNode(name, this, traceState, isModel);
 			children.add(child);
 			return child;
 		}
@@ -58,8 +64,13 @@ public class TraceConfig
 			return !children.isEmpty();
 		}
 
-		public final String getName()
-		{
+		public final String getName() {
+			return name;
+		}
+
+		public final String getRelativeName() {
+			if (isModel && !showFullName)
+				return TraceConfig.getRelativeModelName(name);
 			return name;
 		}
 
@@ -126,12 +137,22 @@ public class TraceConfig
 			return parent;
 		}
 
+		public final void mustShowFullName(boolean showFullName) {
+			this.showFullName = showFullName;
+		}
+
+		public final boolean usesFullName() {
+			return showFullName;
+		}
+
 		private final TraceNode parent;
 		private final String name;
 		private boolean isVisible = true;
 		private boolean traceState = false;
 		private final List<TraceNode> children =
 			new ArrayList<TraceNode>();
+		private boolean showFullName = false;
+		private boolean isModel = false;
 	}
 
 	private final TraceNode root = new TraceNode("root", null);
@@ -139,6 +160,15 @@ public class TraceConfig
 	public final TraceNode getRoot()
 	{
 		return root;
+	}
+
+	public final List<TraceNode> findModelsWithSameName(String modelName) {
+		List<TraceNode> models = new ArrayList<TraceNode>();
+		for (TraceNode c : root.getVisibleChildren())
+			if (getRelativeModelName(c.getName())
+					.equals(getRelativeModelName(modelName)))
+				models.add(c);
+		return models;
 	}
 
 	public final TraceNode findModel(String modelName) {
@@ -164,11 +194,15 @@ public class TraceConfig
 			fillNames(category);
 	}
 
-	private final void fillNames(TraceNode node) {
+	private final void fillNames(final TraceNode node) {
 		for (TraceNode child : node.getVisibleChildren()) {
 			if (child.isTraced())
 				names.add(child.getName());
 			fillNames(child);
 		}
+	}
+
+	private static final String getRelativeModelName(final String name) {
+		return name.substring(name.lastIndexOf('/') + 1);
 	}
 }
