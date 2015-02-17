@@ -75,7 +75,7 @@ public class Simulator
 	{
 		INSTANCE.treeBuilder = new TreeBuilder();
 	}
-
+		
 	private volatile double time = 0;
 
 	public static double getTime()

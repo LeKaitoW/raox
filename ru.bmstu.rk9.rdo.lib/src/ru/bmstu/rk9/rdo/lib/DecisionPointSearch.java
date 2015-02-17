@@ -140,6 +140,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 	private int totalSpawned;
 	private int totalAdded;
 
+	public static int delay = 100;
+
 	@Override
 	public boolean check()
 	{
@@ -175,6 +177,15 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 		while(!nodesOpen.isEmpty())
 		{
+			// TODO REMOVE THIS
+			try
+			{
+				Thread.sleep(delay);
+			}
+			catch(Exception e)
+			{
+				
+			}
 			if(!allowSearch)
 				return stop(StopCode.ABORTED);
 

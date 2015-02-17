@@ -655,9 +655,4 @@ public class Database
 		addEntry(entry);
 		index.entries.add(allEntries.size() - 1);
 	}
-	
-	public ArrayList<Entry> getAllEntries()
-	{
-		return allEntries;
-	}
 }

@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -60,6 +62,7 @@ import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
 import ru.bmstu.rk9.rdo.lib.TreeBuilder;
+import ru.bmstu.rk9.rdo.lib.GraphControl;
 import ru.bmstu.rk9.rdo.ui.graph.GraphFrame;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView.SearchHelper.SearchResult;
 
@@ -117,6 +120,50 @@ public class RDOTraceView extends ViewPart
 			graphFrame.setTitle(frameName);
 			graphFrame.setLocationRelativeTo(null);
 			graphFrame.setVisible(true);
+			graphFrame.addWindowListener(new WindowListener() {
+				
+				@Override
+				public void windowOpened(WindowEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void windowIconified(WindowEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void windowDeiconified(WindowEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void windowDeactivated(WindowEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void windowClosing(WindowEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void windowClosed(WindowEvent e) {
+					// TODO Auto-generated method stub
+					System.out.println("window closed");
+				}
+				
+				@Override
+				public void windowActivated(WindowEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+			});
 		}
 	}
 

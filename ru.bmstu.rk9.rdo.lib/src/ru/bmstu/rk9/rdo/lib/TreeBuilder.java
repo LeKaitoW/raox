@@ -11,10 +11,26 @@ import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 import ru.bmstu.rk9.rdo.lib.RDOLibStringJoiner.StringFormat;
 
 public class TreeBuilder implements Subscriber {
-
+	
 	@Override
 	public void fireChange() {
-
+		final Database.Entry entry = Simulator.getDatabase().allEntries.get(entryNumber++);
+		parseEntry(entry);
+/*		System.out.println("TreeBuilder.fireChange " + entryNumber);
+		if (currentDptNumber != 1 && mapList.size() != 0)
+			System.out.println("TreeBuilder.fireChange " + mapList.get(currentDptNumber).size());*/
+		notifyGUIPart();
+	}
+	
+	private Subscriber GUISubscriber = null;
+	
+	public final void notifyGUIPart()
+	{
+		GUISubscriber.fireChange();
+	}
+	
+	public final void setGUISubscriber(Subscriber subscriber) {
+		this.GUISubscriber = subscriber;
 	}
 
 	public class Node {
@@ -44,12 +60,16 @@ public class TreeBuilder implements Subscriber {
 	}
 
 	public HashMap<Integer, HashMap<Integer, Node>> mapList = new HashMap<Integer, HashMap<Integer, Node>>();
+	
+	public HashMap<Integer, Node> lastAddedNode = new HashMap<Integer, Node>();
 
 	public final void buildTree() {
-		final ArrayList<Database.Entry> entries = Simulator.getDatabase().getAllEntries();
+		final ArrayList<Database.Entry> entries = Simulator.getDatabase().allEntries;
 
-		for (Database.Entry entry : entries) {
-			parseEntry(entry);
+		int size = entries.size();
+		while (entryNumber < size) {
+			parseEntry(entries.get(entryNumber++));
+			System.out.println(entryNumber);
 		}
 	}
 
@@ -62,11 +82,11 @@ public class TreeBuilder implements Subscriber {
 			final ByteBuffer header = Tracer.prepareBufferForReading(entry.getHeader());
 			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
 
-			Node treeNode = new Node();
 			Tracer.skipPart(header, TypeSize.BYTE);
 			final Database.SearchEntryType entryType = Database.SearchEntryType.values()[header.get()];
 			switch (entryType) {
 			case BEGIN: {
+				Node treeNode = new Node();
 				Tracer.skipPart(data, TypeSize.DOUBLE);
 				final int dptNumber = data.getInt();
 				currentDptNumber = dptNumber;
@@ -77,6 +97,7 @@ public class TreeBuilder implements Subscriber {
 				mapList.get(currentDptNumber).put(treeNode.index, null);
 				treeNode.label = Integer.toString(treeNode.index);
 				mapList.get(currentDptNumber).put(treeNode.index, treeNode);
+				lastAddedNode.put(currentDptNumber, treeNode);
 				break;
 			}
 			case END: {
@@ -115,6 +136,7 @@ public class TreeBuilder implements Subscriber {
 				switch (spawnStatus) {
 				case NEW:
 				case BETTER:
+					Node treeNode = new Node();
 					final int nodeNumber = data.getInt();
 					final int parentNumber = data.getInt();
 					final double g = data.getDouble();
@@ -182,5 +204,15 @@ public class TreeBuilder implements Subscriber {
 
 	public HashMap<Integer, GraphInfo> infoMap = new HashMap<Integer, GraphInfo>();
 
-	private int currentDptNumber = -1;
+	private static int currentDptNumber = -1;
+	
+	public static int getCurrentDptNumber() {
+		return currentDptNumber;
+	}
+	
+	private int entryNumber = 0;
+	
+	public int getEntryNumber() {
+		return entryNumber;
+	}
 }
