@@ -16,9 +16,6 @@ public class TreeBuilder implements Subscriber {
 	public void fireChange() {
 		final Database.Entry entry = Simulator.getDatabase().allEntries.get(entryNumber++);
 		parseEntry(entry);
-/*		System.out.println("TreeBuilder.fireChange " + entryNumber);
-		if (currentDptNumber != 1 && mapList.size() != 0)
-			System.out.println("TreeBuilder.fireChange " + mapList.get(currentDptNumber).size());*/
 		notifyGUIPart();
 	}
 	
@@ -173,6 +170,7 @@ public class TreeBuilder implements Subscriber {
 					treeNode.index = nodeNumber;
 					treeNode.label = Integer.toString(treeNode.index);
 					mapList.get(currentDptNumber).put(nodeNumber, treeNode);
+					lastAddedNode.put(currentDptNumber, treeNode);
 					break;
 				case WORSE:
 					break;

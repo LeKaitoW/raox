@@ -149,67 +149,12 @@ public class GraphFrame extends JFrame {
 		graph.getModel().beginUpdate();
 		try {
 			drawGraph(graph, treeMap, treeMap.get(0));
+			//TODO temporarily commented
 			//colorNodes(vertexMap, treeMap, solution);
 			//graphInfoCell = insertInfo(graph, info);
 		} finally {
 			graph.getModel().endUpdate();
 		}
-		
-		this.setGraphControlSubscriber(GraphControl.timerTaskUpdater);
-
-		GraphControl.newTimerTask = new TimerTask() {
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				if (haveNewRealTimeData) {
-					haveNewRealTimeData = false;
-					graph.getModel().beginUpdate();
-					try {
-						System.out.println("GraphFrame drawgraph");
-						drawGraph(graph, treeMap, treeMap.get(0));
-					} finally {
-						graph.getModel().endUpdate();
-					}
-				}
-			}
-
-		};
-		notifyGraphControl();
-		
-/*		Thread GraphOutputThread = new Thread(new Runnable() {
-			public void run() {
-				//TODO bad hack
-				System.out.println("GraphOutputThread start");
-				while(true)
-				{
-					if (haveNewRealTimeData) {
-						haveNewRealTimeData = false;
-						//drawNewVertex(graph);
-						System.out.println("GraphOutputThread 1");
-						graph.getModel().beginUpdate();
-						System.out.println("GraphOutputThread 2");
-						try {
-							System.out.println("GraphFrame " + treeMap.size());
-							drawGraph(graph, treeMap, treeMap.get(0));
-							System.out.println("GraphOutputThread 3");
-						} finally {
-							graph.getModel().endUpdate();
-							System.out.println("GraphOutputThread 4");
-						}
-					}
-					try {
-						System.out.println("GraphOutputThread wait");
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						System.out.println("GraphOutputThread 6");
-					}
-				}
-			}
-		});
-		
-		GraphOutputThread.start();*/
 
 		mxGraphComponent graphComponent = new mxGraphComponent(graph);
 		graphComponent.setConnectable(false);
@@ -223,12 +168,34 @@ public class GraphFrame extends JFrame {
 		layout.setEdgeRouting(false);
 
 		layout.execute(graph.getDefaultParent());
+		
+		this.setGraphControlSubscriber(GraphControl.timerTaskUpdater);
+
+		GraphControl.newTimerTask = new TimerTask() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				if (haveNewRealTimeData) {
+					haveNewRealTimeData = false;
+					graph.getModel().beginUpdate();
+					try {
+						drawNewVertex(graph);
+					} finally {
+						graph.getModel().endUpdate();
+					}
+					layout.execute(graph.getDefaultParent());
+				}
+			}
+
+		};
+		notifyGraphControl();
 
 		graph.setCellsEditable(false);
 		graph.setCellsDisconnectable(false);
 		graph.setCellsResizable(false);
 		graph.setAllowDanglingEdges(false);
 		
+		//TODO temporarily commented
 		//double height = graphInfoCell.getGeometry().getHeight();
 		
 		graph.getSelectionModel().addListener(mxEvent.CHANGE, new mxIEventListener() {
@@ -240,6 +207,7 @@ public class GraphFrame extends JFrame {
 				// TODO Auto-generated method stub
 				mxGraphSelectionModel selectionModel = (mxGraphSelectionModel) sender;
 				mxCell cell = (mxCell) selectionModel.getCell();
+				//TODO temporarily commented
 				if (cell != null && cell.isVertex() && cell != cellInfo /*&& cell != graphInfoCell*/) {
 					graph.getModel().beginUpdate();
 					try {
