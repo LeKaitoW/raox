@@ -9,12 +9,12 @@ This project is an implementation of RDO modelling language in Eclipse, using xt
  * Download [Eclipse IDE for Java Developers](https://www.eclipse.org/downloads/)
 ```bash
 cd ~/Downloads
-gunzip -с eclipse-java-luna-SR1-linux-gtk-x86_64.tar.gz  | tar xvf -
+gunzip -c eclipse-java-luna-SR1-linux-gtk-x86_64.tar.gz  | tar xvf -
 cd eclipse
 sudo apt-get install openjdk-8-jdk # for debian-based distributions
 ./eclipse
 ```
- * Download EMF runtime from (http://www.eclipse.org/modeling/emf/downloads/?). Latest working version is [2.10.0](http://www.eclipse.org/downloads/download.php?file=/modeling/emf/emf/downloads/drops/2.10.0/R201405190339/emf-runtime-2.10.0.zip). *Note that `2.10.1` fails to build the project*
+ * Download EMF runtime from (http://www.eclipse.org/modeling/emf/downloads/?). Latest working version is [2.10.0](http://www.eclipse.org/downloads/download.php?file=/modeling/emf/emf/downloads/drops/2.10.0/R201405190339/emf-xsd-Update-2.10.0.zip). *Note that `2.10.1` fails to build the project*
  * `Help` `>` `Install New Software...` `>` `Work with:` : `jar:file:/home/USERNAME/Downloads/emf-xsd-Update-2.10.0.zip!/` > Hit `Enter` > Select everything from the first item to `EMF Examples` **and** also `EMF SDK` > Install
  * `Help` `>` `Eclipse Marketplace...` `>` `Xtext` `>` `Install`
  * Git clone `rdo-xtext` repository
