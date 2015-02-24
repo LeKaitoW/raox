@@ -10,8 +10,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.State;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -22,6 +24,7 @@ import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.services.ISourceProviderService;
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
@@ -187,6 +190,14 @@ public class ExecutionHandler extends AbstractHandler
 
 					if(initialization != null)
 						initialization.invoke(null, (Object)frames);
+
+					ICommandService service = (ICommandService) PlatformUI.getWorkbench()
+							.getService(ICommandService.class);
+					Command command = service
+							.getCommand("ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode");
+					State state = command.getState("org.eclipse.ui.commands.radioState");
+
+					SimulationModeDispatcher.setMode((String) state.getValue());
 
 					display.syncExec(() -> RDOAnimationView.initialize(frames));
 

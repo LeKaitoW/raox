@@ -1,13 +1,8 @@
 package ru.bmstu.rk9.rdo.ui.runtime;
 
-import org.eclipse.core.commands.Command;
-import org.eclipse.core.commands.State;
-
 import org.eclipse.swt.widgets.Display;
 
 import org.eclipse.ui.PlatformUI;
-
-import org.eclipse.ui.commands.ICommandService;
 
 import ru.bmstu.rk9.rdo.lib.Simulator;
 
@@ -30,14 +25,6 @@ public class SimulationSynchronizer {
 
 	private SimulationSynchronizer() {
 		INSTANCE = this;
-
-		ICommandService service = (ICommandService) PlatformUI.getWorkbench()
-				.getService(ICommandService.class);
-		Command command = service
-				.getCommand("ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode");
-		State state = command.getState("org.eclipse.ui.commands.radioState");
-
-		setState((String) state.getValue());
 
 		setSimulationScale(SetSimulationScaleHandler.getSimulationScale());
 		setSimulationSpeed(RDOSpeedSelectionToolbar.getSpeed());
