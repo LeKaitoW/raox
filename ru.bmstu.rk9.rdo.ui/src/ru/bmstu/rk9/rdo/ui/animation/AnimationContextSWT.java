@@ -17,22 +17,18 @@ import org.eclipse.swt.graphics.Rectangle;
 import ru.bmstu.rk9.rdo.lib.AnimationFrame;
 import ru.bmstu.rk9.rdo.lib.AnimationContext;
 
-public class AnimationContextSWT implements AnimationContext
-{
+public class AnimationContextSWT implements AnimationContext {
 	private Display display;
 
-	AnimationContextSWT(Display display)
-	{
+	AnimationContextSWT(Display display) {
 		this.display = display;
 	}
 
 	private GC paintContext;
 
-	private HashMap<AnimationFrame, Image> storedFrames
-		= new HashMap<AnimationFrame, Image>();
+	private HashMap<AnimationFrame, Image> storedFrames = new HashMap<AnimationFrame, Image>();
 
-	void drawBackground(int[] backgroundData)
-	{
+	void drawBackground(int[] backgroundData) {
 		paintContext.setAlpha(255);
 
 		Color backgroundColor = createColor(backgroundData, 2);
@@ -43,31 +39,27 @@ public class AnimationContextSWT implements AnimationContext
 		backgroundColor.dispose();
 	}
 
-	void drawFrame(GC gc, AnimationFrame frame)
-	{
-		Image image = drawFrameBuffer(frame);
+	void drawFrame(GC gc, AnimationFrame frame) {
+		Image image = storedFrames.get(frame);
 
-		gc.drawImage(image, 0, 0);
-
-		image.dispose();
+		if (image != null)
+			gc.drawImage(image, 0, 0);
 	}
 
-	void storeFrame(AnimationFrame frame)
-	{
+	void prepareFrame(AnimationFrame frame) {
 		Image lastStored = storedFrames.get(frame);
 
-		if(lastStored != null)
+		if (lastStored != null)
 			lastStored.dispose();
 
 		storedFrames.put(frame, drawFrameBuffer(frame));
 	}
 
-	private Image drawFrameBuffer(AnimationFrame frame)
-	{
+	private Image drawFrameBuffer(AnimationFrame frame) {
 		int[] backgroundData = frame.getBackgroundData();
 
-		Rectangle backgroundRectangle =
-			new Rectangle(0, 0, backgroundData[0], backgroundData[1]);
+		Rectangle backgroundRectangle = new Rectangle(0, 0, backgroundData[0],
+				backgroundData[1]);
 
 		Image image = new Image(display, backgroundRectangle);
 
@@ -83,25 +75,10 @@ public class AnimationContextSWT implements AnimationContext
 		return image;
 	}
 
-	void restoreFrame(GC gc, AnimationFrame frame)
-	{
-		Image image = storedFrames.get(frame);
-
-		if(image != null)
-			gc.drawImage(image, 0, 0);
-	}
-
 	@Override
-	public void drawText
-	(
-		int x, int y,
-		int width, int height,
-		int[] backgroundColour,
-		int[] textColor,
-		Alignment alignment,
-		String text
-	)
-	{
+	public void drawText(int x, int y, int width, int height,
+			int[] backgroundColour, int[] textColor, Alignment alignment,
+			String text) {
 		paintContext.setAlpha(backgroundColour[3]);
 
 		Color backgroundColor = createColor(backgroundColour, 0);
@@ -121,16 +98,10 @@ public class AnimationContextSWT implements AnimationContext
 	}
 
 	@Override
-	public void drawRectangle
-	(
-		int x, int y,
-		int width, int height,
-		int[] backgroundColour,
-		int[] borderColour
-	)
-	{
+	public void drawRectangle(int x, int y, int width, int height,
+			int[] backgroundColour, int[] borderColour) {
 		paintContext.setAlpha(backgroundColour[3]);
-		
+
 		Color backgroundColor = createColor(backgroundColour, 0);
 
 		paintContext.setBackground(backgroundColor);
@@ -148,13 +119,7 @@ public class AnimationContextSWT implements AnimationContext
 	}
 
 	@Override
-	public void drawLine
-	(
-		int x1, int y1,
-		int x2, int y2,
-		int[] lineColour
-	)
-	{
+	public void drawLine(int x1, int y1, int x2, int y2, int[] lineColour) {
 		paintContext.setAlpha(lineColour[3]);
 
 		Color lineColor = createColor(lineColour, 0);
@@ -166,14 +131,8 @@ public class AnimationContextSWT implements AnimationContext
 	}
 
 	@Override
-	public void drawCircle
-	(
-		int x, int y,
-		int radius,
-		int[] backgroundColour,
-		int[] borderColour
-	)
-	{
+	public void drawCircle(int x, int y, int radius, int[] backgroundColour,
+			int[] borderColour) {
 		paintContext.setAlpha(backgroundColour[3]);
 
 		Color backgroundColor = createColor(backgroundColour, 0);
@@ -193,14 +152,8 @@ public class AnimationContextSWT implements AnimationContext
 	}
 
 	@Override
-	public void drawEllipse
-	(
-		int x, int y,
-		int width, int height,
-		int[] backgroundColour,
-		int[] borderColour
-	)
-	{
+	public void drawEllipse(int x, int y, int width, int height,
+			int[] backgroundColour, int[] borderColour) {
 		paintContext.setAlpha(backgroundColour[3]);
 
 		Color backgroundColor = createColor(backgroundColour, 0);
@@ -217,44 +170,31 @@ public class AnimationContextSWT implements AnimationContext
 
 		backgroundColor.dispose();
 		borderColor.dispose();
-}
+	}
 
 	@Override
-	public void drawTriangle
-	(
-		int x1, int y1,
-		int x2, int y2,
-		int x3, int y3,
-		int[] backgroundColour,
-		int[] borderColour
-	)
-	{
+	public void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3,
+			int[] backgroundColour, int[] borderColour) {
 		paintContext.setAlpha(backgroundColour[3]);
 
 		Color backgroundColor = createColor(backgroundColour, 0);
 
 		paintContext.setBackground(backgroundColor);
-		paintContext.fillPolygon(new int[] {x1, y1, x2, y2, x3, y3});
+		paintContext.fillPolygon(new int[] { x1, y1, x2, y2, x3, y3 });
 
 		paintContext.setAlpha(borderColour[3]);
 
 		Color borderColor = createColor(borderColour, 0);
 
 		paintContext.setBackground(borderColor);
-		paintContext.drawPolygon(new int[] {x1, y1, x2, y2, x3, y3});
+		paintContext.drawPolygon(new int[] { x1, y1, x2, y2, x3, y3 });
 
 		backgroundColor.dispose();
 		borderColor.dispose();
 	}
 
-	Color createColor(int[] components, int offset)
-	{
-		return new Color
-		(
-			display,
-			components[offset],
-			components[offset + 1],
-			components[offset + 2]
-		);
+	Color createColor(int[] components, int offset) {
+		return new Color(display, components[offset], components[offset + 1],
+				components[offset + 2]);
 	}
 }
