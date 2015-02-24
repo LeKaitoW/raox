@@ -199,11 +199,11 @@ public class ExecutionHandler extends AbstractHandler
 					simulatorNotifier
 						.getSubscription("TimeChange")
 							.addSubscriber(SimulationSynchronizer.getInstance().uiTimeUpdater)
-							.addSubscriber(SimulationSynchronizer.getInstance().simulationScaleManager);
+							.addSubscriber(SimulationSynchronizer.getInstance().simulationManager.scaleManager);
 
 					simulatorNotifier
 						.getSubscription("StateChange")
-							.addSubscriber(SimulationSynchronizer.getInstance().simulationSpeedManager)
+							.addSubscriber(SimulationSynchronizer.getInstance().simulationManager.speedManager)
 							.addSubscriber(RDOAnimationView.updater);
 
 					simulatorNotifier

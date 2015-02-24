@@ -6,23 +6,17 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.handlers.RadioState;
 
-import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
-
-public class SetExecutionModeHandler extends AbstractHandler
-{
+public class SetExecutionModeHandler extends AbstractHandler {
 	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException
-	{
-		if(HandlerUtil.matchesRadioState(event))
+	public Object execute(ExecutionEvent event) throws ExecutionException {
+		if (HandlerUtil.matchesRadioState(event))
 			return null;
 
 		String currentState = event.getParameter(RadioState.PARAMETER_ID);
 
-		SimulationSynchronizer.setState(currentState);
-
-		RDOAnimationView.disableAnimation(currentState.equals("NA") ? true : false);
-
 		HandlerUtil.updateRadioState(event.getCommand(), currentState);
+
+		SimulationModeDispatcher.setMode(currentState);
 
 		return null;
 	}
