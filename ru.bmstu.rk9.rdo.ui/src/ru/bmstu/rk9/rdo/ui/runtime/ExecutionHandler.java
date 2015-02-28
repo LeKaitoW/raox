@@ -124,6 +124,7 @@ public class ExecutionHandler extends AbstractHandler
 				Timer uiRealTime = new Timer();
 				Timer traceRealTimeUpdater = new Timer();
 				Timer animationUpdater = new Timer();
+				RDOTraceConfigView.setEnabled(false);
 
 				try
 				{
@@ -316,6 +317,9 @@ public class ExecutionHandler extends AbstractHandler
 						}
 
 					return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui", "Execution failed");
+				}
+				finally {
+					RDOTraceConfigView.setEnabled(true);
 				}
 			}
 

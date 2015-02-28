@@ -192,6 +192,15 @@ public class RDOTraceConfigView extends ViewPart
 		});
 	}
 
+	public static void setEnabled(boolean state) {
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				traceTreeViewer.getTree().setEnabled(state);
+			}
+		});
+	}
+
 	public static TraceNode addModel(Resource model) {
 		TraceNode modelNode = traceConfigurator
 				.initModel(traceConfig.getRoot(), model);
