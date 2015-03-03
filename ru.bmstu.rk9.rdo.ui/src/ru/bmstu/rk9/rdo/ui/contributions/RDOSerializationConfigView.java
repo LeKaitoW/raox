@@ -128,10 +128,7 @@ public class RDOSerializationConfigView extends ViewPart {
 							.findModelsWithSameName(modelNode.getName());
 					if (modelsWithSameName.size() == 1)
 						modelsWithSameName.get(0).mustShowFullName(false);
-					// TODO exception raised on refresh if there are no children
-					// but without refresh tree is not cleared
-					if (!serializationTreeViewer.getControl().isDisposed()
-							&& serializationConfig.getRoot().hasChildren())
+					if (!serializationTreeViewer.getControl().isDisposed())
 						serializationTreeViewer.refresh();
 				}
 			}
@@ -335,14 +332,14 @@ class RDOSerializationConfigContentProvider implements ITreeContentProvider {
 	public Object[] getElements(Object inputElement) {
 		SerializationConfig serializationConfig = (SerializationConfig) inputElement;
 		if (!serializationConfig.getRoot().hasChildren())
-			return null;
+			return new Object[]{};
 		return serializationConfig.getRoot().getVisibleChildren().toArray();
 	}
 
 	public Object[] getChildren(Object parentElement) {
 		SerializationNode serializationNode = (SerializationNode) parentElement;
 		if (!serializationNode.hasChildren())
-			return null;
+			return new Object[]{};
 		return serializationNode.getVisibleChildren().toArray();
 	}
 
