@@ -7,33 +7,46 @@ import java.util.List;
 
 public class SerializationConfig {
 	public class SerializationNode {
-		public SerializationNode(String name, SerializationNode parent) {
+		public SerializationNode(final String name,
+				final SerializationNode parent) {
 			this(name, parent, false, false);
 		}
 
-		public SerializationNode(String name, SerializationNode parent,
-				boolean serializationState) {
+		public SerializationNode(final String name,
+				final SerializationNode parent, boolean serializationState) {
 			this(name, parent, serializationState, false);
 		}
 
-		public SerializationNode(String name, SerializationNode parent,
-				boolean serializationState, boolean isModel) {
+		public SerializationNode(final String name,
+				final SerializationNode parent, boolean serializationState,
+				boolean isModel) {
 			this.name = name;
 			this.parent = parent;
-			this.serializationState = serializationState;
+			this.isSerialized = serializationState;
 			this.isModel = isModel;
 		}
 
-		public final SerializationNode addChild(String name) {
+		public final SerializationNode copy() {
+			SerializationNode node = new SerializationNode(this.name,
+					this.parent, this.isSerialized, this.isModel);
+			node.showFullName = this.showFullName;
+			node.isVisible = this.isVisible;
+			for (SerializationNode child : this.children) {
+				node.children.add(child.copy());
+			}
+			return node;
+		}
+
+		public final SerializationNode addChild(final String name) {
 			return addChild(name, false, false);
 		}
 
-		public final SerializationNode addChild(String name,
+		public final SerializationNode addChild(final String name,
 				boolean serializationState) {
 			return addChild(name, serializationState, false);
 		}
 
-		public final SerializationNode addChild(String name,
+		public final SerializationNode addChild(final String name,
 				boolean serializationState, boolean isModel) {
 			final int number = findName(name);
 			if (number != -1) {
@@ -48,7 +61,7 @@ public class SerializationConfig {
 			return child;
 		}
 
-		private final int findName(String name) {
+		private final int findName(final String name) {
 			for (int i = 0; i < children.size(); i++) {
 				SerializationNode ch = children.get(i);
 				if (!ch.isVisible)
@@ -74,19 +87,25 @@ public class SerializationConfig {
 			return name;
 		}
 
+		public final String getModelName() {
+			if (isModel)
+				return SerializationConfig.getRelativeModelName(name);
+			return SerializationConfig.getNameOfElementModel(name);
+		}
+
 		public final boolean isSerialized() {
-			return serializationState;
+			return isSerialized;
 		}
 
 		public final void setSerializationState(boolean serializationState) {
-			this.serializationState = serializationState;
+			this.isSerialized = serializationState;
 		}
 
 		public final void setSerializeVisibleChildren(boolean serializationState) {
 			for (SerializationNode ch : getVisibleChildren()) {
 				if (ch.isVisible) {
 					ch.setSerializeVisibleChildren(serializationState);
-					ch.serializationState = serializationState;
+					ch.isSerialized = serializationState;
 				}
 			}
 		}
@@ -108,6 +127,20 @@ public class SerializationConfig {
 					it.remove();
 				} else {
 					child.removeHiddenChildren();
+				}
+			}
+		}
+
+		public final void toFinalModelTree(String modelName) {
+			Iterator<SerializationNode> it = children.iterator();
+			while (it.hasNext()) {
+				SerializationNode child = it.next();
+				if (!child.getModelName().equals(modelName)
+						|| (!child.isSerialized && !child.isModel)) {
+					child.children.clear();
+					it.remove();
+				} else {
+					child.toFinalModelTree(modelName);
 				}
 			}
 		}
@@ -134,7 +167,7 @@ public class SerializationConfig {
 		private final SerializationNode parent;
 		private final String name;
 		private boolean isVisible = true;
-		private boolean serializationState = false;
+		private boolean isSerialized = false;
 		private final List<SerializationNode> children = new ArrayList<SerializationNode>();
 		private boolean showFullName = false;
 		private boolean isModel = false;
@@ -187,10 +220,14 @@ public class SerializationConfig {
 	}
 
 	private static final String getRelativeModelName(final String name) {
-		return name.substring(name.lastIndexOf('/') + 1);
+		return name.substring(name.lastIndexOf('/') + 1, name.lastIndexOf('.'));
 	}
 
 	private static final String getRelativeElementName(final String name) {
 		return name.substring(name.indexOf('.') + 1);
+	}
+
+	private static final String getNameOfElementModel(final String name) {
+		return name.substring(0, name.indexOf('.'));
 	}
 }

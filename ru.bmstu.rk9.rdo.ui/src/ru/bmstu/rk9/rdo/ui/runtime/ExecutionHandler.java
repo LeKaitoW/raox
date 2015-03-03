@@ -41,6 +41,7 @@ import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializedObjectsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
 
@@ -174,8 +175,6 @@ public class ExecutionHandler extends AbstractHandler
 							initialization = method;
 					}
 
-					RDOSerializationConfigView.initNames();
-
 					IFile modelFile = (IFile) HandlerUtil
 						.getActiveEditor(event).getEditorInput()
 						.getAdapter(IFile.class);
@@ -183,6 +182,12 @@ public class ExecutionHandler extends AbstractHandler
 					ExportTraceHandler.reset();
 					ExportTraceHandler.setCurrentProject(project);
 					ExportTraceHandler.setCurrentModel(modelFile);
+
+					RDOSerializationConfigView.initNames();
+					String modelName = modelFile.getName();
+					RDOSerializedObjectsView.setTree(
+							RDOSerializationConfigView.getConfig().getRoot(),
+							modelName.substring(0, modelName.lastIndexOf('.')));
 
 					final ArrayList<AnimationFrame> frames = new ArrayList<AnimationFrame>();
 

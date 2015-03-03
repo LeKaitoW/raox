@@ -221,6 +221,10 @@ public class RDOSerializationConfigView extends ViewPart {
 		serializationConfig.initNames();
 	}
 
+	public static final SerializationConfig getConfig() {
+		return serializationConfig;
+	}
+
 	@Override
 	public void setFocus() {
 	}
@@ -300,7 +304,7 @@ class SerializationConfigurator {
 		SerializationNode modelNode = root.addChild(model.getURI()
 				.toPlatformString(false), false, true);
 		for (SerializationCategory category : SerializationCategory.values())
-			modelNode.addChild(category.getName());
+			modelNode.addChild(modelNode.getRelativeName() + "." + category.getName());
 		return modelNode;
 	}
 }
