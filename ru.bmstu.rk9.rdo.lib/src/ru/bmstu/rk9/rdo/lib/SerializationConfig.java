@@ -67,7 +67,9 @@ public class SerializationConfig {
 		}
 
 		public final String getRelativeName() {
-			if (isModel && !showFullName)
+			if (!isModel)
+				return SerializationConfig.getRelativeElementName(name);
+			else if (!showFullName)
 				return SerializationConfig.getRelativeModelName(name);
 			return name;
 		}
@@ -186,5 +188,9 @@ public class SerializationConfig {
 
 	private static final String getRelativeModelName(final String name) {
 		return name.substring(name.lastIndexOf('/') + 1);
+	}
+
+	private static final String getRelativeElementName(final String name) {
+		return name.substring(name.indexOf('.') + 1);
 	}
 }
