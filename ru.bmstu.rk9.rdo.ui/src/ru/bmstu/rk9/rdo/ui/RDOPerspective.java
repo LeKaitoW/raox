@@ -7,7 +7,7 @@ import org.eclipse.ui.console.IConsoleConstants;
 
 import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceConfigView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
 
@@ -45,7 +45,7 @@ public class RDOPerspective implements IPerspectiveFactory
 					0.5f,
 					"topLeft"); //NON-NLS-1
 			bottomLeft.addView(IPageLayout.ID_OUTLINE);
-			bottomLeft.addView(RDOTraceConfigView.ID);
+			bottomLeft.addView(RDOSerializationConfigView.ID);
 
 
 		IFolderLayout bottom =

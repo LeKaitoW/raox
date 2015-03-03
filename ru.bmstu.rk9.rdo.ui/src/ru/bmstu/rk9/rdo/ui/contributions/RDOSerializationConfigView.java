@@ -40,8 +40,8 @@ import com.google.common.collect.Iterators;
 
 import ru.bmstu.rk9.rdo.generator.RDONaming;
 import ru.bmstu.rk9.rdo.lib.DecisionPointSearch.SerializationLevel;
-import ru.bmstu.rk9.rdo.lib.TraceConfig;
-import ru.bmstu.rk9.rdo.lib.TraceConfig.TraceNode;
+import ru.bmstu.rk9.rdo.lib.SerializationConfig;
+import ru.bmstu.rk9.rdo.lib.SerializationConfig.SerializationNode;
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint;
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch;
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource;
@@ -52,54 +52,49 @@ import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration;
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration;
 import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource;
 
-public class RDOTraceConfigView extends ViewPart
-{
-	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOTraceConfigView";
+public class RDOSerializationConfigView extends ViewPart {
+	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOSerializeConfigView";
 
-	private static CheckboxTreeViewer traceTreeViewer;
+	private static CheckboxTreeViewer serializationTreeViewer;
 
-	private static TraceConfig traceConfig = new TraceConfig();
-	private static TraceConfigurator traceConfigurator =
-		new TraceConfigurator();
+	private static SerializationConfig serializationConfig = new SerializationConfig();
+	private static SerializationConfigurator serializationConfigurator = new SerializationConfigurator();
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                                VIEW SETUP                                 /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	@Override
-	public void createPartControl(Composite parent)
-	{
-		traceTreeViewer = new CheckboxTreeViewer(parent);
-		Tree traceTree = traceTreeViewer.getTree();
-		traceTree.setLayoutData(new GridLayout());
-		traceTree.setLinesVisible(true);
+	public void createPartControl(Composite parent) {
+		serializationTreeViewer = new CheckboxTreeViewer(parent);
+		Tree serializationTree = serializationTreeViewer.getTree();
+		serializationTree.setLayoutData(new GridLayout());
+		serializationTree.setLinesVisible(true);
 
-		traceTreeViewer.setContentProvider(
-			new RDOTraceConfigContentProvider());
-		traceTreeViewer.setLabelProvider(
-			new RDOTraceConfigLabelProvider());
-		traceTreeViewer.setCheckStateProvider(
-			new RDOTraceConfigCheckStateProvider());
+		serializationTreeViewer
+				.setContentProvider(new RDOSerializationConfigContentProvider());
+		serializationTreeViewer
+				.setLabelProvider(new RDOSerializationConfigLabelProvider());
+		serializationTreeViewer
+				.setCheckStateProvider(new RDOSerializationConfigCheckStateProvider());
 
-		traceTreeViewer.addCheckStateListener(
-			new ICheckStateListener()
-			{
-				@Override
-				public void checkStateChanged(CheckStateChangedEvent event)
-				{
-					boolean traceState = event.getChecked();
-					TraceNode node = (TraceNode) event.getElement();
+		serializationTreeViewer
+				.addCheckStateListener(new ICheckStateListener() {
+					@Override
+					public void checkStateChanged(CheckStateChangedEvent event) {
+						boolean serializationState = event.getChecked();
+						SerializationNode node = (SerializationNode) event
+								.getElement();
 
-					node.setTraceState(traceState);
-					traceTreeViewer.setSubtreeChecked(
-						event.getElement(), traceState);
-					node.traceVisibleChildren(traceState);
-				}
-			}
-		);
+						node.setSerializationState(serializationState);
+						serializationTreeViewer.setSubtreeChecked(
+								event.getElement(), serializationState);
+						node.setSerializeVisibleChildren(serializationState);
+					}
+				});
 
-		IPartService service =
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getPartService();
+		IPartService service = PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow().getPartService();
 
 		service.addPartListener(new IPartListener2() {
 			@Override
@@ -126,18 +121,18 @@ public class RDOTraceConfigView extends ViewPart
 			public void partClosed(IWorkbenchPartReference partRef) {
 				String partId = partRef.getId();
 				if (partId.substring(partId.lastIndexOf('.') + 1).equals("RDO")) {
-					TraceNode modelNode = modelNodes.get(partRef);
-					traceConfig.removeModel(modelNode);
+					SerializationNode modelNode = modelNodes.get(partRef);
+					serializationConfig.removeModel(modelNode);
 					modelNodes.remove(partRef);
-					List<TraceNode> modelsWithSameName = traceConfig
+					List<SerializationNode> modelsWithSameName = serializationConfig
 							.findModelsWithSameName(modelNode.getName());
 					if (modelsWithSameName.size() == 1)
 						modelsWithSameName.get(0).mustShowFullName(false);
-					//TODO exception raised on refresh if there are no children
-					//but without refresh tree is not cleared
-					if (!traceTreeViewer.getControl().isDisposed()
-							&& traceConfig.getRoot().hasChildren())
-						traceTreeViewer.refresh();
+					// TODO exception raised on refresh if there are no children
+					// but without refresh tree is not cleared
+					if (!serializationTreeViewer.getControl().isDisposed()
+							&& serializationConfig.getRoot().hasChildren())
+						serializationTreeViewer.refresh();
 				}
 			}
 
@@ -166,17 +161,17 @@ public class RDOTraceConfigView extends ViewPart
 						return;
 
 					RDOModel model = (RDOModel) contents.get(0);
-					TraceNode newModel = addModel(model.eResource());
+					SerializationNode newModel = addModel(model.eResource());
 					modelNodes.put(partRef, newModel);
 
-					List<TraceNode> modelsWithSameName = traceConfig
+					List<SerializationNode> modelsWithSameName = serializationConfig
 							.findModelsWithSameName(newModel.getName());
 					if (modelsWithSameName.size() > 1)
-						for (TraceNode node : modelsWithSameName)
+						for (SerializationNode node : modelsWithSameName)
 							node.mustShowFullName(true);
 
-					if (traceTreeViewer.getInput() == null)
-						traceTreeViewer.setInput(traceConfig);
+					if (serializationTreeViewer.getInput() == null)
+						serializationTreeViewer.setInput(serializationConfig);
 
 					document.addModelListener(new IXtextModelListener() {
 						@Override
@@ -187,8 +182,7 @@ public class RDOTraceConfigView extends ViewPart
 				}
 			}
 
-			private final Map<IWorkbenchPartReference, TraceNode> modelNodes =
-					new HashMap<IWorkbenchPartReference, TraceNode>();
+			private final Map<IWorkbenchPartReference, SerializationNode> modelNodes = new HashMap<IWorkbenchPartReference, SerializationNode>();
 		});
 	}
 
@@ -196,139 +190,119 @@ public class RDOTraceConfigView extends ViewPart
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				traceTreeViewer.getTree().setEnabled(state);
+				serializationTreeViewer.getTree().setEnabled(state);
 			}
 		});
 	}
 
-	public static TraceNode addModel(Resource model) {
-		TraceNode modelNode = traceConfigurator
-				.initModel(traceConfig.getRoot(), model);
+	public static SerializationNode addModel(Resource model) {
+		SerializationNode modelNode = serializationConfigurator.initModel(
+				serializationConfig.getRoot(), model);
 		updateInput(model);
 		return modelNode;
 	}
 
 	public static void updateInput(Resource model) {
-		TraceNode modelNode = traceConfig.findModel(
-				model.getURI().toPlatformString(false));
-		traceConfigurator.fillCategories(model, modelNode);
-		if (RDOTraceConfigView.traceTreeViewer == null)
+		SerializationNode modelNode = serializationConfig.findModel(model
+				.getURI().toPlatformString(false));
+		serializationConfigurator.fillCategories(model, modelNode);
+		if (RDOSerializationConfigView.serializationTreeViewer == null)
 			return;
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				RDOTraceConfigView.traceTreeViewer.refresh();
+				RDOSerializationConfigView.serializationTreeViewer.refresh();
 			}
 		});
 	}
 
-	public static void onModelSave()
-	{
-		traceConfig.getRoot().removeHiddenChildren();
+	public static void onModelSave() {
+		serializationConfig.getRoot().removeHiddenChildren();
 	}
 
-	public static final void initNames()
-	{
-		traceConfig.initNames();
+	public static final void initNames() {
+		serializationConfig.initNames();
 	}
 
 	@Override
-	public void setFocus()
-	{}
+	public void setFocus() {
+	}
 }
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                             HELPER CLASSES                                /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-class TraceConfigurator
-{
-	public enum TraceCategory
-	{
-		RESOURCES("Resources"),
-		PATTERNS("Patterns"),
-		DECISION_POINTS("Decision points"),
-		RESULTS("Results");
+class SerializationConfigurator {
+	public enum SerializationCategory {
+		RESOURCES("Resources"), PATTERNS("Patterns"), DECISION_POINTS(
+				"Decision points"), RESULTS("Results");
 
-		TraceCategory(String name)
-		{
+		SerializationCategory(String name) {
 			this.name = name;
 		}
 
 		private final String name;
 
-		public final String getName()
-		{
+		public final String getName() {
 			return name;
 		}
 	}
 
-	public final void fillCategories(Resource model, TraceNode modelNode)
-	{
+	public final void fillCategories(Resource model, SerializationNode modelNode) {
 		fillCategory(
-			modelNode.getVisibleChildren().get(TraceCategory.RESOURCES.ordinal()),
-			model,
-			ResourceDeclaration.class
-		);
+				modelNode.getVisibleChildren().get(
+						SerializationCategory.RESOURCES.ordinal()), model,
+				ResourceDeclaration.class);
 
 		fillCategory(
-			modelNode.getVisibleChildren().get(TraceCategory.PATTERNS.ordinal()),
-			model,
-			Pattern.class
-		);
+				modelNode.getVisibleChildren().get(
+						SerializationCategory.PATTERNS.ordinal()), model,
+				Pattern.class);
 
 		fillCategory(
-			modelNode.getVisibleChildren().get(TraceCategory.DECISION_POINTS.ordinal()),
-			model,
-			DecisionPoint.class
-		);
+				modelNode.getVisibleChildren().get(
+						SerializationCategory.DECISION_POINTS.ordinal()),
+				model, DecisionPoint.class);
 
 		fillCategory(
-			modelNode.getVisibleChildren().get(TraceCategory.RESULTS.ordinal()),
-			model,
-			ResultDeclaration.class
-		);
+				modelNode.getVisibleChildren().get(
+						SerializationCategory.RESULTS.ordinal()), model,
+				ResultDeclaration.class);
 	}
 
 	private final <T extends EObject> void fillCategory(
-		TraceNode category,
-		Resource model,
-		Class<T> categoryClass
-	)
-	{
+			SerializationNode category, Resource model, Class<T> categoryClass) {
 		TreeIterator<EObject> allContents = model.getAllContents();
 		category.hideChildren();
 		final ArrayList<T> categoryList = new ArrayList<T>();
-		Iterator<T> filter = Iterators.<T>filter(allContents, categoryClass);
-		Iterable<T> iterable = IteratorExtensions.<T>toIterable(filter);
+		Iterator<T> filter = Iterators.<T> filter(allContents, categoryClass);
+		Iterable<T> iterable = IteratorExtensions.<T> toIterable(filter);
 		Iterables.addAll(categoryList, iterable);
 
-		for(T c : categoryList)
-		{
-			TraceNode child = category.addChild(RDONaming.getFullyQualifiedName(c));
-			if(c instanceof Pattern)
-			{
-				for(EObject relRes : c.eContents())
-				{
-					if(relRes instanceof RuleRelevantResource ||
-						relRes instanceof EventRelevantResource ||
-						relRes instanceof OperationRelevantResource)
-					child.addChild(
-						child.getName() + "." + RDONaming.getNameGeneric(relRes));
+		for (T c : categoryList) {
+			SerializationNode child = category.addChild(RDONaming
+					.getFullyQualifiedName(c));
+			if (c instanceof Pattern) {
+				for (EObject relRes : c.eContents()) {
+					if (relRes instanceof RuleRelevantResource
+							|| relRes instanceof EventRelevantResource
+							|| relRes instanceof OperationRelevantResource)
+						child.addChild(child.getName() + "."
+								+ RDONaming.getNameGeneric(relRes));
 				}
-			}
-			else if(c instanceof DecisionPointSearch)
-			{
-				for(SerializationLevel type : SerializationLevel.values())
+			} else if (c instanceof DecisionPointSearch) {
+				for (SerializationLevel type : SerializationLevel.values())
 					child.addChild(child.getName() + "." + type.toString());
 			}
 		}
 	}
 
-	public final TraceNode initModel(TraceNode root, Resource model) {
-		TraceNode modelNode = root.addChild(
-				model.getURI().toPlatformString(false), false, true);
-		for (TraceCategory category : TraceCategory.values())
+	public final SerializationNode initModel(SerializationNode root,
+			Resource model) {
+		SerializationNode modelNode = root.addChild(model.getURI()
+				.toPlatformString(false), false, true);
+		for (SerializationCategory category : SerializationCategory.values())
 			modelNode.addChild(category.getName());
 		return modelNode;
 	}
@@ -338,83 +312,77 @@ class TraceConfigurator
  /                                PROVIDERS                                  /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-class RDOTraceConfigCheckStateProvider implements ICheckStateProvider
-{
+class RDOSerializationConfigCheckStateProvider implements ICheckStateProvider {
 	@Override
-	public boolean isChecked(Object element)
-	{
-		TraceNode node = (TraceNode) element;
-		return node.isTraced();
+	public boolean isChecked(Object element) {
+		SerializationNode node = (SerializationNode) element;
+		return node.isSerialized();
 	}
 
 	@Override
-	public boolean isGrayed(Object element)
-	{
+	public boolean isGrayed(Object element) {
 		return false;
 	}
 }
 
-class RDOTraceConfigContentProvider implements ITreeContentProvider
-{
-	public void dispose() {}
+class RDOSerializationConfigContentProvider implements ITreeContentProvider {
+	public void dispose() {
+	}
 
-	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {}
+	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+	}
 
-	public Object[] getElements(Object inputElement)
-	{
-		TraceConfig traceConfig = (TraceConfig) inputElement;
-		if(!traceConfig.getRoot().hasChildren())
+	public Object[] getElements(Object inputElement) {
+		SerializationConfig serializationConfig = (SerializationConfig) inputElement;
+		if (!serializationConfig.getRoot().hasChildren())
 			return null;
-		return traceConfig.getRoot().getVisibleChildren().toArray();
+		return serializationConfig.getRoot().getVisibleChildren().toArray();
 	}
 
-	public Object[] getChildren(Object parentElement)
-	{
-		TraceNode traceNode = (TraceNode) parentElement;
-		if(!traceNode.hasChildren())
+	public Object[] getChildren(Object parentElement) {
+		SerializationNode serializationNode = (SerializationNode) parentElement;
+		if (!serializationNode.hasChildren())
 			return null;
-		return traceNode.getVisibleChildren().toArray();
+		return serializationNode.getVisibleChildren().toArray();
 	}
 
-	public Object getParent(Object element)
-	{
-		TraceNode traceNode = (TraceNode) element;
-		return traceNode.getParent();
+	public Object getParent(Object element) {
+		SerializationNode serializationNode = (SerializationNode) element;
+		return serializationNode.getParent();
 	}
 
-	public boolean hasChildren(Object element)
-	{
-		TraceNode traceNode = (TraceNode) element;
-		return traceNode.hasChildren();
+	public boolean hasChildren(Object element) {
+		SerializationNode serializationNode = (SerializationNode) element;
+		return serializationNode.hasChildren();
 	}
 }
 
-class RDOTraceConfigLabelProvider implements ILabelProvider
-{
+class RDOSerializationConfigLabelProvider implements ILabelProvider {
 	@Override
-	public void addListener(ILabelProviderListener listener) {}
+	public void addListener(ILabelProviderListener listener) {
+	}
 
 	@Override
-	public void dispose() {}
+	public void dispose() {
+	}
 
 	@Override
-	public boolean isLabelProperty(Object element, String property)
-	{
+	public boolean isLabelProperty(Object element, String property) {
 		return false;
 	}
 
 	@Override
-	public void removeListener(ILabelProviderListener listener) {}
+	public void removeListener(ILabelProviderListener listener) {
+	}
 
 	@Override
-	public Image getImage(Object element)
-	{
+	public Image getImage(Object element) {
 		return null;
 	}
 
 	@Override
 	public String getText(Object element) {
-		TraceNode traceNode = (TraceNode) element;
-		return traceNode.getRelativeName();
+		SerializationNode serializationNode = (SerializationNode) element;
+		return serializationNode.getRelativeName();
 	}
 }

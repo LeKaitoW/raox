@@ -40,7 +40,7 @@ import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceConfigView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
 
@@ -124,7 +124,7 @@ public class ExecutionHandler extends AbstractHandler
 				Timer uiRealTime = new Timer();
 				Timer traceRealTimeUpdater = new Timer();
 				Timer animationUpdater = new Timer();
-				RDOTraceConfigView.setEnabled(false);
+				RDOSerializationConfigView.setEnabled(false);
 
 				try
 				{
@@ -174,7 +174,7 @@ public class ExecutionHandler extends AbstractHandler
 							initialization = method;
 					}
 
-					RDOTraceConfigView.initNames();
+					RDOSerializationConfigView.initNames();
 
 					IFile modelFile = (IFile) HandlerUtil
 						.getActiveEditor(event).getEditorInput()
@@ -319,7 +319,7 @@ public class ExecutionHandler extends AbstractHandler
 					return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui", "Execution failed");
 				}
 				finally {
-					RDOTraceConfigView.setEnabled(true);
+					RDOSerializationConfigView.setEnabled(true);
 				}
 			}
 
