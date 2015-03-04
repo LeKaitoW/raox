@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class SerializationConfig {
-	public class SerializationNode {
+	public static class SerializationNode {
 		public SerializationNode(final String name,
 				final SerializationNode parent) {
 			this(name, parent, false, false);
@@ -26,15 +26,16 @@ public class SerializationConfig {
 			this.isModel = isModel;
 		}
 
-		public final SerializationNode copy() {
-			SerializationNode node = new SerializationNode(this.name,
-					this.parent, this.isSerialized, this.isModel);
-			node.showFullName = this.showFullName;
-			node.isVisible = this.isVisible;
-			for (SerializationNode child : this.children) {
-				node.children.add(child.copy());
+		public SerializationNode(SerializationNode another) {
+			this.name = another.name;
+			this.parent = another.parent;
+			this.isSerialized = another.isSerialized;
+			this.isModel = another.isModel;
+			this.showFullName = another.showFullName;
+			this.isVisible = another.isVisible;
+			for (SerializationNode child : another.children) {
+				this.children.add(new SerializationNode(child));
 			}
-			return node;
 		}
 
 		public final SerializationNode addChild(final String name) {

@@ -35,7 +35,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				SerializationNode newRoot = root.copy();
+				SerializationNode newRoot = new SerializationNode(root);
 				newRoot.toFinalModelTree(modelName);
 				serializedObjectsTreeViewer.setInput(newRoot);
 			}
