@@ -31,7 +31,8 @@ public class RDOSerializedObjectsView extends ViewPart {
 				new RDOSerializedObjectsLabelProvider());
 	}
 
-	public static void setTree(SerializationNode root, String modelName) {
+	public static void setTree(final SerializationNode root,
+			final String modelName) {
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {

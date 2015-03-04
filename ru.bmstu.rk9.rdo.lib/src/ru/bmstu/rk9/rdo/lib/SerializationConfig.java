@@ -26,7 +26,7 @@ public class SerializationConfig {
 			this.isModel = isModel;
 		}
 
-		public SerializationNode(SerializationNode another) {
+		public SerializationNode(final SerializationNode another) {
 			this.name = another.name;
 			this.parent = another.parent;
 			this.isSerialized = another.isSerialized;
@@ -132,7 +132,7 @@ public class SerializationConfig {
 			}
 		}
 
-		public final void toFinalModelTree(String modelName) {
+		public final void toFinalModelTree(final String modelName) {
 			Iterator<SerializationNode> it = children.iterator();
 			while (it.hasNext()) {
 				SerializationNode child = it.next();
@@ -180,7 +180,8 @@ public class SerializationConfig {
 		return root;
 	}
 
-	public final List<SerializationNode> findModelsWithSameName(String modelName) {
+	public final List<SerializationNode> findModelsWithSameName(
+			final String modelName) {
 		List<SerializationNode> models = new ArrayList<SerializationNode>();
 		for (SerializationNode c : root.getVisibleChildren())
 			if (getRelativeModelName(c.getName()).equals(
@@ -189,14 +190,16 @@ public class SerializationConfig {
 		return models;
 	}
 
-	public final SerializationNode findModel(String modelName) {
+	public final SerializationNode findModel(
+			final String modelName) {
 		for (SerializationNode c : root.getVisibleChildren())
 			if (c.getName().equals(modelName))
 				return c;
 		return null;
 	}
 
-	public final void removeModel(SerializationNode modelNode) {
+	public final void removeModel(
+			final SerializationNode modelNode) {
 		root.children.remove(modelNode);
 	}
 
