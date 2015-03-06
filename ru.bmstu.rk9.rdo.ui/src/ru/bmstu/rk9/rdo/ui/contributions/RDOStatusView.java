@@ -1,9 +1,9 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.PriorityQueue;
 
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -107,9 +107,9 @@ public class RDOStatusView extends ViewPart {
 	}
 
 	private void reorderElements() {
-		PriorityQueue<String> list = new PriorityQueue<String>(
-				(a, b) -> order.get(a).compareTo(order.get(b)));
+		ArrayList<String> list = new ArrayList<String>();
 		list.addAll(controls.keySet());
+		list.sort((a, b) -> order.get(a).compareTo(order.get(b)));
 
 		Iterator<String> it = list.iterator();
 		String element;
