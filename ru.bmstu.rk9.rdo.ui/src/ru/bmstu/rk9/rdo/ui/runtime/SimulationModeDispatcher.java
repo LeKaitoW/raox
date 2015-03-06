@@ -11,15 +11,17 @@ public class SimulationModeDispatcher {
 		RDOAnimationView.disableAnimation(currentState.equals("NA") ? true
 				: false);
 
-		switch (currentState) {
-		case "P":
-		case "NA":
-			Simulator.getTracer().setPaused(true);
-			break;
-		case "FF":
-		case "NS":
-			Simulator.getTracer().setPaused(false);
-			break;
+		if (Simulator.isInitialized()) {
+			switch (currentState) {
+			case "P":
+			case "NA":
+				Simulator.getTracer().setPaused(true);
+				break;
+			case "FF":
+			case "NS":
+				Simulator.getTracer().setPaused(false);
+				break;
+			}
 		}
 	}
 }
