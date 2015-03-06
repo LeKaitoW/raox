@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rdo.ui.runtime;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -88,6 +89,8 @@ public class ExecutionHandler extends AbstractHandler
 			}
 		);
 	}
+
+	private static DecimalFormat realTimeFormatter = new DecimalFormat("0.0");
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
@@ -241,8 +244,8 @@ public class ExecutionHandler extends AbstractHandler
 						public void run() {
 							if (!display.isDisposed())
 								display.asyncExec(() -> RDOStatusView
-										.setRealTime(System.currentTimeMillis()
-												- startTime));
+									.setValue("Time elapsed".intern(), 5, realTimeFormatter.format(
+										(System.currentTimeMillis() - startTime)/1000d)+ "s"));
 						}
 					}, 0, 100);
 

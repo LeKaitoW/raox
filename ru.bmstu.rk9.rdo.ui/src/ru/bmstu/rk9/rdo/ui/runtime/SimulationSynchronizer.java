@@ -1,15 +1,13 @@
 package ru.bmstu.rk9.rdo.ui.runtime;
 
-import org.eclipse.swt.widgets.Display;
+import java.text.DecimalFormat;
 
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rdo.lib.Simulator;
-
 import ru.bmstu.rk9.rdo.lib.Subscriber;
-
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSpeedSelectionToolbar;
-
 import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
 
 public class SimulationSynchronizer {
@@ -66,9 +64,14 @@ public class SimulationSynchronizer {
 
 		private Display display = PlatformUI.getWorkbench().getDisplay();
 
+		private DecimalFormat scaleFormatter = new DecimalFormat("0.######");
+		private DecimalFormat timeFormatter = new DecimalFormat("0.0#####");
+
 		Runnable updater = () -> {
-			RDOStatusView.setSimulationTime(Simulator.getTime());
-			RDOStatusView.setActualSimulationScale(60060d / actualTimeScale);
+			RDOStatusView.setValue("Simulation time".intern(), 20,
+					timeFormatter.format(Simulator.getTime()));
+			RDOStatusView.setValue("Actual scale".intern(), 10,
+					scaleFormatter.format(60060d / actualTimeScale));
 		};
 
 		@Override
