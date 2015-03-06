@@ -155,6 +155,7 @@ public class SimulationSynchronizer {
 						break;
 
 					default:
+						uiTimeUpdater.actualTimeScale = 0;
 						updateTimes();
 					}
 				}
