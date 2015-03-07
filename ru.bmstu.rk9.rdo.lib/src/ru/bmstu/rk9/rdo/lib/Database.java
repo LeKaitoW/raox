@@ -42,6 +42,21 @@ public class Database
 		}
 	}
 
+	public enum SerializationCategory {
+		RESOURCES("Resources"), PATTERNS("Patterns"), DECISION_POINTS(
+				"Decision points"), RESULTS("Results");
+
+		SerializationCategory(String name) {
+			this.name = name;
+		}
+
+		private final String name;
+
+		public final String getName() {
+			return name;
+		}
+	}
+
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                                  GENERAL                                  /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
@@ -49,6 +64,11 @@ public class Database
 	Database(JSONObject modelStructure)
 	{
 		this.modelStructure = modelStructure;
+		CollectedDataNode modelIndex =
+				indexTreeRoot.addChild(modelStructure.getString("name"));
+		for (SerializationCategory value: SerializationCategory.values()) {
+			modelIndex.addChild(value.getName());
+		}
 
 		JSONArray resourceTypes = modelStructure.getJSONArray("resource_types");
 		for(int i = 0; i < resourceTypes.length(); i++)
@@ -56,13 +76,17 @@ public class Database
 			JSONObject resourceType = resourceTypes.getJSONObject(i);
 
 			String name = resourceType.getString("name");
+			CollectedDataNode typeNode = modelIndex.getChildren()
+					.get(SerializationCategory.RESOURCES.name).addChild(name);
 			ResourceTypeIndex index =
 				new ResourceTypeIndex(i, resourceType.getJSONObject("structure"));
 			resourceIndex.put(name, index);
 
 			JSONArray resources = resourceType.getJSONArray("resources");
-			for(int j = 0; j < resources.length(); j++)
+			for(int j = 0; j < resources.length(); j++) {
 				index.resources.add(new Index(j));
+				typeNode.addChild(resources.getString(j));
+			}
 		}
 
 		JSONArray results = modelStructure.getJSONArray("results");
@@ -70,6 +94,8 @@ public class Database
 		{
 			JSONObject result = results.getJSONObject(i);
 			resultIndex.put(result.getString("name"), new Index(i));
+			modelIndex.getChildren().get(SerializationCategory.RESULTS.name)
+					.addChild(result.getString("name"));
 		}
 
 		JSONArray patterns = modelStructure.getJSONArray("patterns");
@@ -83,6 +109,8 @@ public class Database
 				eventIndex.put(name, new PatternIndex(i, patternStructure));
 			else
 				patternsByName.put(name, patternStructure);
+			modelIndex.getChildren().get(SerializationCategory.PATTERNS.name)
+					.addChild(name);
 		}
 
 		JSONArray decisionPoints = modelStructure.getJSONArray("decision_points");
@@ -90,6 +118,9 @@ public class Database
 		{
 			JSONObject decisionPoint = decisionPoints.getJSONObject(i);
 			String type = decisionPoint.getString("type");
+			modelIndex.getChildren()
+					.get(SerializationCategory.DECISION_POINTS.name)
+					.addChild(decisionPoint.getString("name"));
 			switch(type)
 			{
 				case "some":
@@ -215,6 +246,13 @@ public class Database
 	private final void notifyChange(String category)
 	{
 		notificationManager.notifySubscribers(category);
+	}
+
+	private final CollectedDataNode indexTreeRoot =
+			new CollectedDataNode("root", null);
+
+	public final CollectedDataNode getIndexTree() {
+		return indexTreeRoot;
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/

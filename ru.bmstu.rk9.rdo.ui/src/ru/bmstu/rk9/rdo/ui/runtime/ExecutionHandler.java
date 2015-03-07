@@ -184,10 +184,6 @@ public class ExecutionHandler extends AbstractHandler
 					ExportTraceHandler.setCurrentModel(modelFile);
 
 					RDOSerializationConfigView.initNames();
-					String modelName = modelFile.getName();
-					RDOSerializedObjectsView.setTree(
-							RDOSerializationConfigView.getConfig().getRoot(),
-							modelName.substring(0, modelName.lastIndexOf('.')));
 
 					final ArrayList<AnimationFrame> frames = new ArrayList<AnimationFrame>();
 
@@ -286,6 +282,7 @@ public class ExecutionHandler extends AbstractHandler
 					RDOConsoleView.addLine("Time elapsed: " +
 						String.valueOf(System.currentTimeMillis() - startTime) + "ms");
 
+					RDOSerializedObjectsView.initializeTree();
 					SimulationSynchronizer.finish();
 
 					uiRealTime.cancel();

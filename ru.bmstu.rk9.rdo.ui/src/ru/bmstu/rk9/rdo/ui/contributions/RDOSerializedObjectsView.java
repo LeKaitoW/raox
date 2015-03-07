@@ -12,7 +12,8 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import ru.bmstu.rk9.rdo.lib.SerializationConfig.SerializationNode;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode;
+import ru.bmstu.rk9.rdo.lib.Simulator;
 
 public class RDOSerializedObjectsView extends ViewPart {
 
@@ -31,16 +32,11 @@ public class RDOSerializedObjectsView extends ViewPart {
 				new RDOSerializedObjectsLabelProvider());
 	}
 
-	public static void setTree(final SerializationNode root,
-			final String modelName) {
-		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				SerializationNode newRoot = new SerializationNode(root);
-				newRoot.toFinalModelTree(modelName);
-				serializedObjectsTreeViewer.setInput(newRoot);
-			}
-		});
+	public static void initializeTree() {
+		CollectedDataNode root = Simulator.getDatabase().getIndexTree();
+
+		PlatformUI.getWorkbench().getDisplay()
+				.asyncExec(() -> serializedObjectsTreeViewer.setInput(root));
 	}
 
 	@Override
@@ -60,30 +56,30 @@ class RDOSerializedObjectsContentProvider implements ITreeContentProvider {
 
 	@Override
 	public Object[] getElements(Object inputElement) {
-		SerializationNode root = (SerializationNode) inputElement;
+		CollectedDataNode root = (CollectedDataNode) inputElement;
 		if (!root.hasChildren())
 			return new Object[]{};
-		return root.getVisibleChildren().toArray();
+		return root.getChildren().values().toArray();
 	}
 
 	@Override
 	public Object[] getChildren(Object parentElement) {
-		SerializationNode parent = (SerializationNode) parentElement;
+		CollectedDataNode parent = (CollectedDataNode) parentElement;
 		if (!parent.hasChildren())
 			return new Object[]{};
-		return parent.getVisibleChildren().toArray();
+		return parent.getChildren().values().toArray();
 	}
 
 	@Override
 	public Object getParent(Object element) {
-		SerializationNode serializationNode = (SerializationNode) element;
-		return serializationNode.getParent();
+		CollectedDataNode node = (CollectedDataNode) element;
+		return node.getParent();
 	}
 
 	@Override
 	public boolean hasChildren(Object element) {
-		SerializationNode serializationNode = (SerializationNode) element;
-		return serializationNode.hasChildren();
+		CollectedDataNode node = (CollectedDataNode) element;
+		return node.hasChildren();
 	}
 }
 
@@ -113,7 +109,7 @@ class RDOSerializedObjectsLabelProvider implements ILabelProvider {
 
 	@Override
 	public String getText(Object element) {
-		SerializationNode serializationNode = (SerializationNode) element;
-		return serializationNode.getRelativeName();
+		CollectedDataNode node = (CollectedDataNode) element;
+		return node.getName();
 	}
 }

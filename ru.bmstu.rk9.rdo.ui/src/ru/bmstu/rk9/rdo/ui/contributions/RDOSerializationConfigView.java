@@ -39,6 +39,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 
 import ru.bmstu.rk9.rdo.generator.RDONaming;
+import ru.bmstu.rk9.rdo.lib.Database.SerializationCategory;
 import ru.bmstu.rk9.rdo.lib.DecisionPointSearch.SerializationLevel;
 import ru.bmstu.rk9.rdo.lib.SerializationConfig;
 import ru.bmstu.rk9.rdo.lib.SerializationConfig.SerializationNode;
@@ -235,21 +236,6 @@ public class RDOSerializationConfigView extends ViewPart {
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 class SerializationConfigurator {
-	public enum SerializationCategory {
-		RESOURCES("Resources"), PATTERNS("Patterns"), DECISION_POINTS(
-				"Decision points"), RESULTS("Results");
-
-		SerializationCategory(String name) {
-			this.name = name;
-		}
-
-		private final String name;
-
-		public final String getName() {
-			return name;
-		}
-	}
-
 	public final void fillCategories(Resource model, SerializationNode modelNode) {
 		fillCategory(
 				modelNode.getVisibleChildren().get(
