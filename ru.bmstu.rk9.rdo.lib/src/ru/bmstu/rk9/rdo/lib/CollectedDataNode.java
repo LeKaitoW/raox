@@ -1,9 +1,9 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
@@ -140,5 +140,5 @@ public class CollectedDataNode {
 	private final String name;
 	private final CollectedDataNode parent;
 	private final Map<String, CollectedDataNode> children =
-			new HashMap<String, CollectedDataNode>();
+			new TreeMap<String, CollectedDataNode>();
 }
