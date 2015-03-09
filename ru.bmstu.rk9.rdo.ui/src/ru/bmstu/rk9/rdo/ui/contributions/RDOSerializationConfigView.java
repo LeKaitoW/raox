@@ -126,7 +126,7 @@ public class RDOSerializationConfigView extends ViewPart {
 					serializationConfig.removeModel(modelNode);
 					modelNodes.remove(partRef);
 					List<SerializationNode> modelsWithSameName = serializationConfig
-							.findModelsWithSameName(modelNode.getName());
+							.findModelsWithSameName(modelNode.getFullName());
 					if (modelsWithSameName.size() == 1)
 						modelsWithSameName.get(0).mustShowFullName(false);
 					if (!serializationTreeViewer.getControl().isDisposed())
@@ -163,7 +163,7 @@ public class RDOSerializationConfigView extends ViewPart {
 					modelNodes.put(partRef, newModel);
 
 					List<SerializationNode> modelsWithSameName = serializationConfig
-							.findModelsWithSameName(newModel.getName());
+							.findModelsWithSameName(newModel.getFullName());
 					if (modelsWithSameName.size() > 1)
 						for (SerializationNode node : modelsWithSameName)
 							node.mustShowFullName(true);
@@ -275,12 +275,12 @@ class SerializationConfigurator {
 					if (relRes instanceof RuleRelevantResource
 							|| relRes instanceof EventRelevantResource
 							|| relRes instanceof OperationRelevantResource)
-						child.addChild(child.getName() + "."
+						child.addChild(child.getFullName() + "."
 								+ RDONaming.getNameGeneric(relRes));
 				}
 			} else if (c instanceof DecisionPointSearch) {
 				for (SerializationLevel type : SerializationLevel.values())
-					child.addChild(child.getName() + "." + type.toString());
+					child.addChild(child.getFullName() + "." + type.toString());
 			}
 		}
 	}
@@ -290,7 +290,7 @@ class SerializationConfigurator {
 		SerializationNode modelNode = root.addChild(model.getURI()
 				.toPlatformString(false), false, true);
 		for (SerializationCategory category : SerializationCategory.values())
-			modelNode.addChild(modelNode.getRelativeName() + "." + category.getName());
+			modelNode.addChild(modelNode.getName() + "." + category.getName());
 		return modelNode;
 	}
 }
@@ -370,6 +370,6 @@ class RDOSerializationConfigLabelProvider implements ILabelProvider {
 	@Override
 	public String getText(Object element) {
 		SerializationNode serializationNode = (SerializationNode) element;
-		return serializationNode.getRelativeName();
+		return serializationNode.getName();
 	}
 }

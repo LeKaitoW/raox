@@ -76,11 +76,11 @@ public class SerializationConfig {
 			return !children.isEmpty();
 		}
 
-		public final String getName() {
+		public final String getFullName() {
 			return name;
 		}
 
-		public final String getRelativeName() {
+		public final String getName() {
 			if (!isModel)
 				return SerializationConfig.getRelativeElementName(name);
 			else if (!showFullName)
@@ -184,7 +184,7 @@ public class SerializationConfig {
 			final String modelName) {
 		List<SerializationNode> models = new ArrayList<SerializationNode>();
 		for (SerializationNode c : root.getVisibleChildren())
-			if (getRelativeModelName(c.getName()).equals(
+			if (getRelativeModelName(c.getFullName()).equals(
 					getRelativeModelName(modelName)))
 				models.add(c);
 		return models;
@@ -193,7 +193,7 @@ public class SerializationConfig {
 	public final SerializationNode findModel(
 			final String modelName) {
 		for (SerializationNode c : root.getVisibleChildren())
-			if (c.getName().equals(modelName))
+			if (c.getFullName().equals(modelName))
 				return c;
 		return null;
 	}
@@ -218,7 +218,7 @@ public class SerializationConfig {
 	private final void fillNames(final SerializationNode node) {
 		for (SerializationNode child : node.getVisibleChildren()) {
 			if (child.isSerialized())
-				names.add(child.getName());
+				names.add(child.getFullName());
 			fillNames(child);
 		}
 	}
