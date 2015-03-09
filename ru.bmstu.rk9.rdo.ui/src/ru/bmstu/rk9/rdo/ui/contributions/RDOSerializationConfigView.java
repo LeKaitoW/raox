@@ -43,8 +43,9 @@ import ru.bmstu.rk9.rdo.lib.Database.SerializationCategory;
 import ru.bmstu.rk9.rdo.lib.DecisionPointSearch.SerializationLevel;
 import ru.bmstu.rk9.rdo.lib.SerializationConfig;
 import ru.bmstu.rk9.rdo.lib.SerializationConfig.SerializationNode;
-import ru.bmstu.rk9.rdo.rdo.DecisionPoint;
+import ru.bmstu.rk9.rdo.rdo.DecisionPointPrior;
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch;
+import ru.bmstu.rk9.rdo.rdo.DecisionPointSome;
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource;
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource;
 import ru.bmstu.rk9.rdo.rdo.Pattern;
@@ -237,6 +238,9 @@ public class RDOSerializationConfigView extends ViewPart {
 
 class SerializationConfigurator {
 	public final void fillCategories(Resource model, SerializationNode modelNode) {
+		for (SerializationNode category : modelNode.getVisibleChildren())
+			category.hideChildren();
+
 		fillCategory(
 				modelNode.getVisibleChildren().get(
 						SerializationCategory.RESOURCES.ordinal()), model,
@@ -250,18 +254,27 @@ class SerializationConfigurator {
 		fillCategory(
 				modelNode.getVisibleChildren().get(
 						SerializationCategory.DECISION_POINTS.ordinal()),
-				model, DecisionPoint.class);
+				model, DecisionPointSome.class);
+
+		fillCategory(
+				modelNode.getVisibleChildren().get(
+						SerializationCategory.DECISION_POINTS.ordinal()),
+				model, DecisionPointPrior.class);
 
 		fillCategory(
 				modelNode.getVisibleChildren().get(
 						SerializationCategory.RESULTS.ordinal()), model,
 				ResultDeclaration.class);
+
+		fillCategory(
+				modelNode.getVisibleChildren().get(
+						SerializationCategory.SEARCH.ordinal()),
+				model, DecisionPointSearch.class);
 	}
 
 	private final <T extends EObject> void fillCategory(
 			SerializationNode category, Resource model, Class<T> categoryClass) {
 		TreeIterator<EObject> allContents = model.getAllContents();
-		category.hideChildren();
 		final ArrayList<T> categoryList = new ArrayList<T>();
 		Iterator<T> filter = Iterators.<T> filter(allContents, categoryClass);
 		Iterable<T> iterable = IteratorExtensions.<T> toIterable(filter);
