@@ -128,8 +128,12 @@ public class CollectedDataNode {
 		return children;
 	}
 
-	public final String getName() {
+	public final String getFullName() {
 		return name;
+	}
+
+	public final String getName() {
+		return SerializationConfig.getRelativeElementName(name);
 	}
 
 	private AbstractIndex index = null;

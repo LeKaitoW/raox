@@ -227,7 +227,7 @@ public class SerializationConfig {
 		return name.substring(name.lastIndexOf('/') + 1, name.lastIndexOf('.'));
 	}
 
-	private static final String getRelativeElementName(final String name) {
+	static final String getRelativeElementName(final String name) {
 		return name.substring(name.lastIndexOf('.') + 1);
 	}
 
