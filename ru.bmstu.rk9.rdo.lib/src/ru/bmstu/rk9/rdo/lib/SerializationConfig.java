@@ -228,7 +228,7 @@ public class SerializationConfig {
 	}
 
 	private static final String getRelativeElementName(final String name) {
-		return name.substring(name.indexOf('.') + 1);
+		return name.substring(name.lastIndexOf('.') + 1);
 	}
 
 	private static final String getNameOfElementModel(final String name) {
