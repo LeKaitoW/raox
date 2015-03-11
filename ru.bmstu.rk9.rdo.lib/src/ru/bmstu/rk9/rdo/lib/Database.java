@@ -70,11 +70,7 @@ public class Database
 	Database(JSONObject modelStructure)
 	{
 		this.modelStructure = modelStructure;
-		CollectedDataNode modelIndex =
-				indexTreeRoot.addChild(modelStructure.getString("name"));
-		for (SerializationCategory value: SerializationCategory.values()) {
-			modelIndex.addChild(value.getName());
-		}
+		indexHelper.initializeModel(modelStructure.getString("name"));
 
 		JSONArray resourceTypes = modelStructure.getJSONArray("resource_types");
 		for(int i = 0; i < resourceTypes.length(); i++)
@@ -82,10 +78,10 @@ public class Database
 			JSONObject resourceType = resourceTypes.getJSONObject(i);
 
 			String name = resourceType.getString("name");
-			CollectedDataNode typeNode = modelIndex.getChildren()
-					.get(SerializationCategory.RESOURCES.name).addChild(name);
+			CollectedDataNode typeNode = indexHelper.addResourceType(name);
 			ResourceTypeIndex resourceTypeIndex =
-					new ResourceTypeIndex(i, resourceType.getJSONObject("structure"));
+					new ResourceTypeIndex(i,
+							resourceType.getJSONObject("structure"));
 			typeNode.setIndex(resourceTypeIndex);
 
 			JSONArray resources = resourceType.getJSONArray("resources");
@@ -97,8 +93,8 @@ public class Database
 		for(int i = 0; i < results.length(); i++)
 		{
 			JSONObject result = results.getJSONObject(i);
-			modelIndex.getChildren().get(SerializationCategory.RESULTS.name)
-					.addChild(result.getString("name")).setIndex(new Index(i));
+			indexHelper.addResult(result.getString("name"))
+					.setIndex(new Index(i));
 		}
 
 		JSONArray patterns = modelStructure.getJSONArray("patterns");
@@ -108,9 +104,7 @@ public class Database
 			JSONObject patternStructure = patterns.getJSONObject(i);
 			String name = patternStructure.getString("name");
 			String type = patternStructure.getString("type");
-			CollectedDataNode patternNode = modelIndex.getChildren()
-					.get(SerializationCategory.PATTERNS.name)
-					.addChild(name);
+			CollectedDataNode patternNode = indexHelper.addPattern(name);
 			if(type.equals("event"))
 				patternNode.setIndex(new PatternIndex(i, patternStructure));
 			else
@@ -126,9 +120,8 @@ public class Database
 			{
 				case "some":
 				case "prior":
-					CollectedDataNode dptNode = modelIndex.getChildren()
-							.get(SerializationCategory.DECISION_POINTS.name)
-							.addChild(decisionPoint.getString("name"));
+					CollectedDataNode dptNode =
+						indexHelper.addDecisionPoint(decisionPoint.getString("name"));
 					dptNode.setIndex(new Index(i));
 
 					JSONArray activities = decisionPoint.getJSONArray("activities");
@@ -142,9 +135,7 @@ public class Database
 					}
 				break;
 				case "search":
-					modelIndex.getChildren()
-							.get(SerializationCategory.SEARCH.name)
-							.addChild(decisionPoint.getString("name"))
+					indexHelper.addSearch(decisionPoint.getString("name"))
 							.setIndex(new SearchIndex(i));
 				break;
 			}
@@ -208,12 +199,6 @@ public class Database
 		}
 	}
 
-	final CollectedDataNode getIndexNode(SerializationCategory type) {
-		return indexTreeRoot.getChildren()
-				.get(modelStructure.getString("name")).getChildren()
-				.get(type.name);
-	}
-
 	private List<Entry> allEntries = new ArrayList<Entry>();
 
 	public final List<Entry> getAllEntries() {
@@ -244,11 +229,10 @@ public class Database
 		notificationManager.notifySubscribers(category);
 	}
 
-	private final CollectedDataNode indexTreeRoot =
-			new CollectedDataNode("root", null);
+	private final DbIndexHelper indexHelper = new DbIndexHelper();
 
-	public final CollectedDataNode getIndexTree() {
-		return indexTreeRoot;
+	public final DbIndexHelper getIndexHelper() {
+		return indexHelper;
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
@@ -302,8 +286,8 @@ public class Database
 	{
 		String typeName = resource.getTypeName();
 
-		CollectedDataNode resourceTypeNode = getIndexNode(SerializationCategory.RESOURCES)
-				.getChildren().get(typeName);
+		CollectedDataNode resourceTypeNode =
+				indexHelper.getResourceType(typeName);
 
 		ResourceTypeIndex resourceTypeIndex =
 				(ResourceTypeIndex) resourceTypeNode.getIndex();
@@ -420,8 +404,7 @@ public class Database
 			.putDouble(Simulator.getTime())
 			.put((byte)type.ordinal());
 
-		CollectedDataNode dptNode = getIndexNode(SerializationCategory.DECISION_POINTS)
-				.getChildren().get(dptName);
+		CollectedDataNode dptNode = indexHelper.getDecisionPoint(dptName);
 		Index dptIndex = (Index) dptNode.getIndex();
 		PatternIndex index = (PatternIndex) dptNode.getChildren().get(
 				activity.getName()).getIndex();
@@ -463,8 +446,8 @@ public class Database
 			poolEntry = patternPool.remove(pattern);
 			if(poolEntry == null)
 				return;
-			CollectedDataNode dptNode = getIndexNode(SerializationCategory.DECISION_POINTS)
-					.getChildren().get(poolEntry.dpt.getName());
+			CollectedDataNode dptNode =
+					indexHelper.getDecisionPoint(poolEntry.dpt.getName());
 			dptIndex = (Index) dptNode.getIndex();
 			index = (PatternIndex) dptNode.getChildren().get(poolEntry.activity.getName()).getIndex();
 		}
@@ -472,8 +455,7 @@ public class Database
 		{
 			if(!sensitivityList.contains(name))
 				return;
-			index = (PatternIndex) getIndexNode(SerializationCategory.PATTERNS)
-					.getChildren().get(name).getIndex();
+			index = (PatternIndex) indexHelper.getPattern(name).getIndex();
 		}
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
@@ -529,8 +511,7 @@ public class Database
 	{
 		String name = dpt.getName();
 
-		SearchIndex index = (SearchIndex) getIndexNode(SerializationCategory.SEARCH)
-				.getChildren().get(name).getIndex();
+		SearchIndex index = (SearchIndex) indexHelper.getSearch(name).getIndex();
 		SearchInfo info = null;
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.SEARCH.HEADER_SIZE);
@@ -575,8 +556,7 @@ public class Database
 		if(!sensitivityList.contains(name))
 			return;
 
-		AbstractIndex index = getIndexNode(SerializationCategory.RESULTS)
-				.getChildren().get(name).getIndex();
+		AbstractIndex index = indexHelper.getResult(name).getIndex();
 
 		ByteBuffer data = result.serialize();
 		if(!index.isEmpty())

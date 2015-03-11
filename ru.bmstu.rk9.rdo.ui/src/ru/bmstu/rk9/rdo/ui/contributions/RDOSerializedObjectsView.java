@@ -33,7 +33,8 @@ public class RDOSerializedObjectsView extends ViewPart {
 	}
 
 	public static void initializeTree() {
-		CollectedDataNode root = Simulator.getDatabase().getIndexTree();
+		CollectedDataNode root = Simulator.getDatabase()
+				.getIndexHelper().getTree();
 
 		PlatformUI.getWorkbench().getDisplay()
 				.asyncExec(() -> serializedObjectsTreeViewer.setInput(root));
