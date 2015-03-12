@@ -36,10 +36,29 @@ public class GraphControl {
 				if (haveNewTimerTask) {
 					haveNewTimerTask = false;
 					timerList.add(new Timer());
-					timerList.get(timerNum++).scheduleAtFixedRate(newTimerTask, 0, 10);
+					timerList.get(timerNum++).scheduleAtFixedRate(newTimerTask, 0, 1);
 					System.out.println("GraphControl. Timer " + (timerNum - 1) + "started");
 				}
 			}
 		};
+	}
+	private static Integer lastAddedVertexIndex;
+	
+	public static Integer getLastAddedVertexIndex() {
+		return lastAddedVertexIndex;
+	}
+
+	public static void setLastAddedVertexIndex(Integer lastAddedVertex) {
+		GraphControl.lastAddedVertexIndex = lastAddedVertex;
+	}
+	
+	private static Integer dptNumOfLastAddedVertex;
+	
+	public static Integer getDptNumOfLastAddedVertex() {
+		return dptNumOfLastAddedVertex;
+	}
+
+	public static void setDptNumOfLastAddedVertex(Integer dptNumOflastAddedVertex) {
+		GraphControl.dptNumOfLastAddedVertex = dptNumOflastAddedVertex;
 	}
 }

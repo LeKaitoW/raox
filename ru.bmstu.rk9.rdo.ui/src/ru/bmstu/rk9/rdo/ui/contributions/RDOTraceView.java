@@ -113,7 +113,7 @@ public class RDOTraceView extends ViewPart
 		if (dptNum != -1) {
 			TreeBuilder treeBuilder = Simulator.getTreeBuilder();
 			treeBuilder.buildTree();
-			GraphFrame graphFrame = new GraphFrame(treeBuilder.mapList.get(dptNum), treeBuilder.infoMap.get(dptNum), treeBuilder.solutionMap
+			GraphFrame graphFrame = new GraphFrame(treeBuilder.listMap.get(dptNum), treeBuilder.infoMap.get(dptNum), treeBuilder.solutionMap
 					.get(dptNum));
 			graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			graphFrame.setSize(800, 600);

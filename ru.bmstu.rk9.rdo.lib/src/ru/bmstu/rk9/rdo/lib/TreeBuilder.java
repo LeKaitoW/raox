@@ -56,17 +56,15 @@ public class TreeBuilder implements Subscriber {
 		}
 	}
 
-	public HashMap<Integer, HashMap<Integer, Node>> mapList = new HashMap<Integer, HashMap<Integer, Node>>();
+	public HashMap<Integer, ArrayList<Node>> listMap = new HashMap<Integer, ArrayList<Node>>();
 	
-	public HashMap<Integer, Node> lastAddedNode = new HashMap<Integer, Node>();
-
 	public final void buildTree() {
 		final ArrayList<Database.Entry> entries = Simulator.getDatabase().allEntries;
 
 		int size = entries.size();
 		while (entryNumber < size) {
 			parseEntry(entries.get(entryNumber++));
-			System.out.println(entryNumber);
+			//System.out.println(entryNumber);
 		}
 	}
 
@@ -88,13 +86,15 @@ public class TreeBuilder implements Subscriber {
 				final int dptNumber = data.getInt();
 				currentDptNumber = dptNumber;
 				solutionMap.put(currentDptNumber, new ArrayList<Node>());
-				mapList.put(currentDptNumber, new HashMap<Integer, Node>());
+				listMap.put(currentDptNumber, new ArrayList<Node>());
 				treeNode.parent = null;
 				treeNode.index = 0;
-				mapList.get(currentDptNumber).put(treeNode.index, null);
 				treeNode.label = Integer.toString(treeNode.index);
-				mapList.get(currentDptNumber).put(treeNode.index, treeNode);
-				lastAddedNode.put(currentDptNumber, treeNode);
+				listMap.get(currentDptNumber).add(treeNode);
+				GraphControl.setDptNumOfLastAddedVertex(currentDptNumber);
+//				lastAddedNode.put(currentDptNumber, treeNode);
+				System.out.println("treeB last node index = " + treeNode.index);
+				System.out.println("treeB last node parent index = null(root)");
 				break;
 			}
 			case END: {
@@ -143,8 +143,8 @@ public class TreeBuilder implements Subscriber {
 							.get(ruleNum);
 					final int patternNumber = activity.patternNumber;
 					final double ruleCost = data.getDouble();
-					treeNode.parent = mapList.get(currentDptNumber).get(parentNumber);
-					mapList.get(currentDptNumber).get(parentNumber).children.add(treeNode);
+					treeNode.parent = listMap.get(currentDptNumber).get(parentNumber);
+					listMap.get(currentDptNumber).get(parentNumber).children.add(treeNode);
 
 					final int numberOfRelevantResources = Simulator.getTracer().patternsInfo.get(patternNumber).relResTypes
 							.size();
@@ -169,8 +169,10 @@ public class TreeBuilder implements Subscriber {
 					treeNode.ruleCost = ruleCost;
 					treeNode.index = nodeNumber;
 					treeNode.label = Integer.toString(treeNode.index);
-					mapList.get(currentDptNumber).put(nodeNumber, treeNode);
-					lastAddedNode.put(currentDptNumber, treeNode);
+					listMap.get(currentDptNumber).add(treeNode);
+//					lastAddedNode.put(currentDptNumber, treeNode);
+					System.out.println("treeB last node index = " + treeNode.index);
+					System.out.println("treeB last node parent index = " + treeNode.parent.index);
 					break;
 				case WORSE:
 					break;
@@ -180,8 +182,8 @@ public class TreeBuilder implements Subscriber {
 			case DECISION: {
 				final int number = data.getInt();
 				ArrayList<Node> currentSolutionList = solutionMap.get(currentDptNumber);
-				HashMap<Integer, Node> currentNodeMap = mapList.get(currentDptNumber);
-				Node solutionNode = currentNodeMap.get(number);
+				ArrayList<Node> currentNodeList = listMap.get(currentDptNumber);
+				Node solutionNode = currentNodeList.get(number);
 				currentSolutionList.add(solutionNode);
 				break;
 			}
@@ -202,9 +204,9 @@ public class TreeBuilder implements Subscriber {
 
 	public HashMap<Integer, GraphInfo> infoMap = new HashMap<Integer, GraphInfo>();
 
-	private static int currentDptNumber = -1;
+	private int currentDptNumber = -1;
 	
-	public static int getCurrentDptNumber() {
+	public int getCurrentDptNumber() {
 		return currentDptNumber;
 	}
 	

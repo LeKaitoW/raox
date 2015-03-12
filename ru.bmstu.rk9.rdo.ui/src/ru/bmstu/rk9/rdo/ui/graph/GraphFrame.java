@@ -27,19 +27,19 @@ import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphSelectionModel;
 
 public class GraphFrame extends JFrame {
-	
-/*-----------------------REAL TIME OUTPUT-----------------------*/
-	
+
+	/*-----------------------REAL TIME OUTPUT-----------------------*/
+
 	private Subscriber graphControlSubscriber = null;
-	
+
 	public void setGraphControlSubscriber(Subscriber subscriber) {
 		this.graphControlSubscriber = subscriber;
 	}
-	
+
 	public void notifyGraphControl() {
 		graphControlSubscriber.fireChange();
 	}
-	
+
 	private static volatile boolean haveNewRealTimeData = false;
 
 	public static final Subscriber realTimeUpdater = new Subscriber() {
@@ -49,20 +49,22 @@ public class GraphFrame extends JFrame {
 		}
 	};
 
-/*--------------------------------------------------------------*/
+	/*--------------------------------------------------------------*/
 
 	Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
 
-	private void drawGraph(mxGraph graph, HashMap<Integer, Node> nodeMap, Node parentNode) {
+	private void drawGraph(mxGraph graph, ArrayList<Node> nodeList, Node parentNode) {
 		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, parentNode, 385, 100, 30, 30,
 				fontColor + strokeColor);
+
 		vertexMap.put(parentNode, vertex);
+		GraphControl.setLastAddedVertexIndex(parentNode.index);
 		if (parentNode.parent != null)
 			graph.insertEdge(graph.getDefaultParent(), null, null, vertexMap.get(parentNode.parent),
 					vertexMap.get(parentNode), strokeColor);
 		if (parentNode.children.size() != 0)
 			for (int i = 0; i < parentNode.children.size(); i++)
-				drawGraph(graph, nodeMap, nodeMap.get(parentNode.children.get(i).index));
+				drawGraph(graph, nodeList, nodeList.get(parentNode.children.get(i).index));
 	}
 
 	final String solutionColor = "fillColor=32CD32;";
@@ -78,16 +80,25 @@ public class GraphFrame extends JFrame {
 			}
 		}
 	}
-	
-	private void drawNewVertex(mxGraph graph) {
+
+	private void drawNewVertex(mxGraph graph, ArrayList<Node> nodeList) {
 		int dptNum = Simulator.getTreeBuilder().getCurrentDptNumber();
-		Node node = Simulator.getTreeBuilder().lastAddedNode.get(dptNum);
-		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, node, 385, 100, 30, 30,
-				fontColor + strokeColor);
-		vertexMap.put(node, vertex);
-		if (node.parent != null)
-			graph.insertEdge(graph.getDefaultParent(), null, null, vertexMap.get(node.parent),
-					vertexMap.get(node), strokeColor);
+		Integer index = GraphControl.getLastAddedVertexIndex();
+		System.out.println(index);
+		for (int i = ++index; i < nodeList.size(); i++) {
+			Node node = nodeList.get(index);
+			if (!vertexMap.containsKey(node)) {
+				System.out.println("drawNV node index = " + node.index);
+				System.out.println("drawNV node parent index = " + node.parent.index);
+				mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, node, 385, 100, 30, 30,
+						fontColor + strokeColor);
+				vertexMap.put(node, vertex);
+				GraphControl.setLastAddedVertexIndex(node.index);
+				if (node.parent != null)
+					graph.insertEdge(graph.getDefaultParent(), null, null, vertexMap.get(node.parent),
+							vertexMap.get(node), strokeColor);
+			}
+		}
 	}
 
 	public mxCell insertInfo(mxGraph graph, GraphInfo info) {
@@ -111,7 +122,7 @@ public class GraphFrame extends JFrame {
 
 		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null, text, delta / 2, delta / 2, width, height);
 	}
-	
+
 	public mxCell showCellInfo(mxGraph graph, mxCell cell) {
 		Node cellNode = (Node) cell.getValue();
 		final String nodeIndex = "Номер вершины: " + Integer.toString(cellNode.index) + "\n";
@@ -136,22 +147,23 @@ public class GraphFrame extends JFrame {
 
 		double width = bounds.getWidth() + delta;
 		double height = bounds.getHeight() + delta;
-		
-		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null, text, 800 - width - (delta / 2), delta / 2, width, height);
+
+		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null, text, 800 - width - (delta / 2), delta / 2,
+				width, height);
 	}
-	
-	public GraphFrame(HashMap<Integer, Node> treeMap, GraphInfo info, ArrayList<Node> solution) {
+
+	public GraphFrame(ArrayList<Node> nodeList, GraphInfo info, ArrayList<Node> solution) {
 
 		final mxGraph graph = new mxGraph();
-		
+
 		mxCell graphInfoCell;
-		
+
 		graph.getModel().beginUpdate();
 		try {
-			drawGraph(graph, treeMap, treeMap.get(0));
-			//TODO temporarily commented
-			//colorNodes(vertexMap, treeMap, solution);
-			//graphInfoCell = insertInfo(graph, info);
+			drawGraph(graph, nodeList, nodeList.get(0));
+			// TODO temporarily commented
+			// colorNodes(vertexMap, treeMap, solution);
+			// graphInfoCell = insertInfo(graph, info);
 		} finally {
 			graph.getModel().endUpdate();
 		}
@@ -168,7 +180,7 @@ public class GraphFrame extends JFrame {
 		layout.setEdgeRouting(false);
 
 		layout.execute(graph.getDefaultParent());
-		
+
 		this.setGraphControlSubscriber(GraphControl.timerTaskUpdater);
 
 		GraphControl.newTimerTask = new TimerTask() {
@@ -179,11 +191,11 @@ public class GraphFrame extends JFrame {
 					haveNewRealTimeData = false;
 					graph.getModel().beginUpdate();
 					try {
-						drawNewVertex(graph);
+						drawNewVertex(graph, nodeList);
+						layout.execute(graph.getDefaultParent());
 					} finally {
 						graph.getModel().endUpdate();
 					}
-					layout.execute(graph.getDefaultParent());
 				}
 			}
 
@@ -194,28 +206,32 @@ public class GraphFrame extends JFrame {
 		graph.setCellsDisconnectable(false);
 		graph.setCellsResizable(false);
 		graph.setAllowDanglingEdges(false);
-		
-		//TODO temporarily commented
-		//double height = graphInfoCell.getGeometry().getHeight();
-		
+
+		// TODO temporarily commented
+		// double height = graphInfoCell.getGeometry().getHeight();
+
 		graph.getSelectionModel().addListener(mxEvent.CHANGE, new mxIEventListener() {
-			
+
 			private mxCell cellInfo;
-			
+
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {
 				// TODO Auto-generated method stub
 				mxGraphSelectionModel selectionModel = (mxGraphSelectionModel) sender;
 				mxCell cell = (mxCell) selectionModel.getCell();
-				//TODO temporarily commented
-				if (cell != null && cell.isVertex() && cell != cellInfo /*&& cell != graphInfoCell*/) {
+				// TODO temporarily commented
+				if (cell != null && cell.isVertex() && cell != cellInfo /*
+																		 * &&
+																		 * cell
+																		 * !=
+																		 * graphInfoCell
+																		 */) {
 					graph.getModel().beginUpdate();
 					try {
 						if (cellInfo != null)
 							cellInfo.removeFromParent();
 						cellInfo = showCellInfo(graph, cell);
-					}
-					finally {
+					} finally {
 						graph.getModel().endUpdate();
 					}
 				}
