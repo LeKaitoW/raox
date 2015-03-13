@@ -74,14 +74,12 @@ RDORTPParameterArray:
 //                           Resources
 // ==========================================================
 Resources:
-	object = '$Resources'
-		(resources += ResourceDeclaration)+
-	'$End'
+	resource = ResourceDeclaration
 ;
 
 ResourceDeclaration:
-	name = ID '=' reference = [ResourceType|FQN]
-	'(' ( parameters = ResourceExpressionList )? ')' ';'
+	'resource' name = ID '=' reference = [ResourceType|FQN]
+	'(' ( parameters = ResourceExpressionList )? ')'
 ;
 
 ResourceExpressionList:

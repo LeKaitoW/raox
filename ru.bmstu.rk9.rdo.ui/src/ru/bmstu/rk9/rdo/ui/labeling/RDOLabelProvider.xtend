@@ -73,8 +73,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def image(ResourceTypeParameter p) { "parameter.gif" }
 
 	// Resources
-	def  text(Resources rss) {"RSS : " +
-		(if(!rss.resources.empty) {rss.resources.size.toString + " objects"} else "") }
+	def  text(Resources rss) {"RSS : objects"}
 	def image(Resources rss) { "puzzle.gif" }
 
 		// Resource declaration
