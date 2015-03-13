@@ -30,10 +30,9 @@ RDOEntity
 //                        Resource Types
 // ==========================================================
 ResourceType:
-	'$Resource_type' name = ID
-	'$Parameters'
+	'type' name = ID '{'
 		(parameters += ResourceTypeParameter)+
-	'$End'
+	'}'
 ;
 
 ResourceTypeParameter:
