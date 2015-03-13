@@ -30,7 +30,7 @@ RDOEntity
 //                        Resource Types
 // ==========================================================
 ResourceType:
-	'$Resource_type' name = ID ':' type = ResourceTypeKind
+	'$Resource_type' name = ID
 	'$Parameters'
 		(parameters += ResourceTypeParameter)+
 	'$End'
@@ -68,10 +68,6 @@ RDORTPParameterArray:
 	type = RDOArray ('=' default = ArrayValues)?
 ;
 
-enum ResourceTypeKind
-	: PERMANENT = 'permanent'
-	| TEMPORARY = 'temporary'
-;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 

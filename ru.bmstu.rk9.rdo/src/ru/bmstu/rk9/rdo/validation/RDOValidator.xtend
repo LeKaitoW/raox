@@ -445,34 +445,21 @@ class RDOValidator extends AbstractRDOValidator
 		{
 			ResourceType:
 			{
-				if(type.type.literal == "permanent")
-				{
-					if(begin == "Create" || begin == "Erase" || begin == "NonExist")
-						error("Invalid convert status: "+begin+" - resource type " + type.getNameGeneric + " is permanent",
-							RdoPackage.eINSTANCE.operationRelevantResource_Begin)
+				if(begin == "NonExist" && end != "Create")
+					error("Invalid convert status: "+end+" - for NonExist convert begin status a resource should be created",
+						RdoPackage.eINSTANCE.operationRelevantResource_End)
 
-					if(end == "Create" || end == "Erase" || end == "NonExist")
-						error("Invalid convert status: "+end+" - resource type " + type.getNameGeneric + " is permanent",
-							RdoPackage.eINSTANCE.operationRelevantResource_End)
-				}
-				else
-				{
-					if(begin == "NonExist" && end != "Create")
-						error("Invalid convert status: "+end+" - for NonExist convert begin status a resource should be created",
-							RdoPackage.eINSTANCE.operationRelevantResource_End)
+				if(end == "Create" && begin != "NonExist")
+					error("Invalid convert status: "+begin+" - there is no resource initially for Create convert end status",
+						RdoPackage.eINSTANCE.operationRelevantResource_Begin)
 
-					if(end == "Create" && begin != "NonExist")
-						error("Invalid convert status: "+begin+" - there is no resource initially for Create convert end status",
-							RdoPackage.eINSTANCE.operationRelevantResource_Begin)
+				if(begin == "Erase" && end != "NonExist")
+					error("Invalid convert status: "+end+" - convert end status for erased resource should be NonExist",
+						RdoPackage.eINSTANCE.operationRelevantResource_End)
 
-					if(begin == "Erase" && end != "NonExist")
-						error("Invalid convert status: "+end+" - convert end status for erased resource should be NonExist",
-							RdoPackage.eINSTANCE.operationRelevantResource_End)
-
-					if(end == "NonExist" && begin != "Erase")
-						error("Invalid convert status: "+begin+" - relevant resource isn't being erased",
-							RdoPackage.eINSTANCE.operationRelevantResource_Begin)
-				}
+				if(end == "NonExist" && begin != "Erase")
+					error("Invalid convert status: "+begin+" - relevant resource isn't being erased",
+						RdoPackage.eINSTANCE.operationRelevantResource_Begin)
 			}
 
 			ResourceDeclaration:
@@ -502,13 +489,6 @@ class RDOValidator extends AbstractRDOValidator
 
 		switch type
 		{
-			ResourceType:
-			{
-				if(type.type.literal == "permanent")
-					if(rule == "Create" || rule == "Erase")
-							error("Invalid convert status: "+rule+" - resource type " + type.getNameGeneric + " is permanent",
-								RdoPackage.eINSTANCE.ruleRelevantResource_Rule)
-			}
 			ResourceDeclaration:
 			{
 				if(rule == "Create" || rule == "Erase")
@@ -538,10 +518,6 @@ class RDOValidator extends AbstractRDOValidator
 				if(rule == 'Keep')
 					error("Invalid convert status: "+rule+" couldn't be used for resource type in event",
 						RdoPackage.eINSTANCE.eventRelevantResource_Rule)
-				else
-					if(type.type.literal == "permanent")
-						error("Invalid resource type: '"+type.name+"' is not temporary",
-							RdoPackage.eINSTANCE.eventRelevantResource_Rule)
 			}
 			ResourceDeclaration:
 				if(rule == 'Create')

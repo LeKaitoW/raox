@@ -7,7 +7,6 @@ import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.Util.*
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeKind
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
@@ -142,7 +141,7 @@ class RDOModelCompiler
 					(
 						new JSONObject()
 							.put("name", "«rtp.fullyQualifiedName»")
-							.put("temporary", «rtp.type == ResourceTypeKind.TEMPORARY»)
+							.put("temporary", true)
 							.put("structure", «rtp.fullyQualifiedName».structure)
 							.put
 							(

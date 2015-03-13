@@ -67,7 +67,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	// Resource types
 	def  text(ResourceType rtp) { "RTP : " + rtp.name }
-	def image(ResourceType rtp) { if(rtp.type.literal == "permanent") "puzzle_plus.gif" else "puzzle_plus_gray.gif" }
+	def image(ResourceType rtp) { "puzzle_plus.gif" }
 
 	def  text(ResourceTypeParameter p) { p.name + p.type.typeGenericLabel }
 	def image(ResourceTypeParameter p) { "parameter.gif" }
