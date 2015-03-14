@@ -5,34 +5,30 @@ import java.util.HashMap;
 import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
 
-public class ModelExecutionSourceProvider extends AbstractSourceProvider
-{
+public class ModelExecutionSourceProvider extends AbstractSourceProvider {
 	public final static String ModelExecutionKey = "ru.bmstu.rk9.rdo.ui.handlers.simulationRunning";
 	public final static String running = "RUNNING";
 	public final static String stopped = "STOPPED";
 
 	@Override
-	public void dispose()
-	{}
+	public void dispose() {
+	}
 
 	@Override
-	public HashMap<String, String> getCurrentState()
-	{
+	public HashMap<String, String> getCurrentState() {
 		HashMap<String, String> currentState = new HashMap<String, String>(1);
-		currentState.put(ModelExecutionKey, ExecutionHandler.getRunningState() ? running : stopped);
+		currentState.put(ModelExecutionKey,
+				ExecutionHandler.getRunningState() ? running : stopped);
 		return currentState;
 	}
 
 	@Override
-	public String[] getProvidedSourceNames()
-	{
-    	return new String[] { ModelExecutionKey };
+	public String[] getProvidedSourceNames() {
+		return new String[] { ModelExecutionKey };
 	}
 
-	public void updateRunningState()
-	{
+	public void updateRunningState() {
 		fireSourceChanged(ISources.WORKBENCH, ModelExecutionKey,
-			ExecutionHandler.getRunningState() ? running : stopped);
+				ExecutionHandler.getRunningState() ? running : stopped);
 	}
 }
-

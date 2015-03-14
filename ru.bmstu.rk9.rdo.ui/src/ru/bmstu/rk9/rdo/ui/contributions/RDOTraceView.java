@@ -57,8 +57,7 @@ import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView.SearchHelper.SearchResult;
 import ru.bmstu.rk9.rdo.ui.runtime.ExportTraceHandler;
 
-public class RDOTraceView extends ViewPart
-{
+public class RDOTraceView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOTraceView";
 
 	static TableViewer viewer;
@@ -68,89 +67,65 @@ public class RDOTraceView extends ViewPart
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	@Override
-	public void createPartControl(Composite parent)
-	{
-		viewer = new TableViewer(
-			parent,
-			SWT.H_SCROLL | SWT.V_SCROLL | SWT.VIRTUAL
-		);
+	public void createPartControl(Composite parent) {
+		viewer = new TableViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL
+				| SWT.VIRTUAL);
 
-		FontRegistry fontRegistry =
-			PlatformUI
-			.getWorkbench()
-			.getThemeManager()
-			.getCurrentTheme()
-			.getFontRegistry();
+		FontRegistry fontRegistry = PlatformUI.getWorkbench().getThemeManager()
+				.getCurrentTheme().getFontRegistry();
 
 		Menu popupMenu = new Menu(viewer.getTable());
 		MenuItem copy = new MenuItem(popupMenu, SWT.CASCADE);
 		copy.setText("Copy\tCtrl+C");
-		copy.addSelectionListener(
-			new SelectionAdapter()
-			{
-				public void widgetSelected(SelectionEvent event)
-				{
-					copyTraceLine();
-				}
+		copy.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				copyTraceLine();
 			}
-		);
+		});
 		MenuItem find = new MenuItem(popupMenu, SWT.CASCADE);
 		find.setText("Find\tCtrl+F");
-		find.addSelectionListener(
-			new SelectionAdapter()
-			{
-				public void widgetSelected(SelectionEvent event)
-				{
+		find.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				showFindDialog();
+			}
+		});
+		viewer.getTable().setMenu(popupMenu);
+
+		viewer.getTable().addKeyListener(new KeyListener() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
+						&& (e.keyCode == 'c')) {
+					copyTraceLine();
+				}
+
+				if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
+						&& (e.keyCode == 'f')) {
 					showFindDialog();
 				}
 			}
-		);
-		viewer.getTable().setMenu(popupMenu);
-
-		viewer.getTable().addKeyListener(
-			new KeyListener()
-			{
-				@Override
-				public void keyReleased(KeyEvent e) {}
-
-				@Override
-				public void keyPressed(KeyEvent e)
-				{
-					if(((e.stateMask & SWT.CTRL) == SWT.CTRL) &&
-							(e.keyCode == 'c'))
-					{
-						copyTraceLine();
-					}
-
-					if(((e.stateMask & SWT.CTRL) == SWT.CTRL) &&
-							(e.keyCode == 'f'))
-					{
-						showFindDialog();
-					}
-				}
-			}
-		);
+		});
 
 		viewer.setContentProvider(new RDOTraceViewContentProvider());
 		viewer.setLabelProvider(new RDOTraceViewLabelProvider());
 		viewer.setUseHashlookup(true);
 		viewer.getTable().setFont(
-			fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
+				fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
 
-		viewer.addSelectionChangedListener(
-			new ISelectionChangedListener()
-			{
-				@Override
-				public void selectionChanged(SelectionChangedEvent event)
-				{
-					if(viewer.getTable().getSelectionIndex() !=
-							viewer.getTable().getItemCount() - 1)
-						shouldFollowOutput = false;
-					else
-						shouldFollowOutput = true;
-				}
+		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				if (viewer.getTable().getSelectionIndex() != viewer.getTable()
+						.getItemCount() - 1)
+					shouldFollowOutput = false;
+				else
+					shouldFollowOutput = true;
 			}
-		);
+		});
 
 		configureToolbar();
 
@@ -163,35 +138,27 @@ public class RDOTraceView extends ViewPart
 		}
 	}
 
-	private final void configureToolbar()
-	{
-		IToolBarManager toolbarMgr =
-			getViewSite().getActionBars().getToolBarManager();
+	private final void configureToolbar() {
+		IToolBarManager toolbarMgr = getViewSite().getActionBars()
+				.getToolBarManager();
 
-		toolbarMgr.add(
-			new Action()
+		toolbarMgr.add(new Action() {
+			ImageDescriptor image;
+
 			{
-				ImageDescriptor image;
-
-				{
-					image = ImageDescriptor.createFromURL(
-						FileLocator.find(
-							Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
-							new org.eclipse.core.runtime.Path("icons/search.gif"),
-							null
-						)
-					);
-					setImageDescriptor(image);
-					setText("Find");
-				}
-
-				@Override
-				public void run()
-				{
-					showFindDialog();
-				}
+				image = ImageDescriptor.createFromURL(FileLocator.find(
+						Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+						new org.eclipse.core.runtime.Path("icons/search.gif"),
+						null));
+				setImageDescriptor(image);
+				setText("Find");
 			}
-		);
+
+			@Override
+			public void run() {
+				showFindDialog();
+			}
+		});
 
 		toolbarMgr.add(new Action() {
 			ImageDescriptor image;
@@ -215,16 +182,13 @@ public class RDOTraceView extends ViewPart
  /                             SEARCH AND COPY                               /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	private final static void copyTraceLine()
-	{
+	private final static void copyTraceLine() {
 		String text = viewer.getTable().getSelection()[0].getText(0);
 		TextTransfer textTransfer = TextTransfer.getInstance();
-		Clipboard clipboard = new Clipboard(
-			PlatformUI.getWorkbench().getDisplay());
-		clipboard.setContents(
-			new Object[] {text},
-			new Transfer[] {textTransfer}
-		);
+		Clipboard clipboard = new Clipboard(PlatformUI.getWorkbench()
+				.getDisplay());
+		clipboard.setContents(new Object[] { text },
+				new Transfer[] { textTransfer });
 		clipboard.dispose();
 	}
 
@@ -342,27 +306,21 @@ public class RDOTraceView extends ViewPart
 
 	private static boolean haveNewRealTimeData = false;
 
-	private static boolean shouldFollowOutput()
-	{
+	private static boolean shouldFollowOutput() {
 		return shouldFollowOutput;
 	}
 
-	public static final Subscriber realTimeUpdater =
-		new Subscriber()
-		{
-			@Override
-			public void fireChange()
-			{
-				haveNewRealTimeData = true;
-			}
-		};
+	public static final Subscriber realTimeUpdater = new Subscriber() {
+		@Override
+		public void fireChange() {
+			haveNewRealTimeData = true;
+		}
+	};
 
-	public static TimerTask getRealTimeUpdaterTask()
-	{
-		return new TimerTask()
-		{
-			private final Display display =
-				PlatformUI.getWorkbench().getDisplay();
+	public static TimerTask getRealTimeUpdaterTask() {
+		return new TimerTask() {
+			private final Display display = PlatformUI.getWorkbench()
+					.getDisplay();
 			private final Runnable updater = new Runnable() {
 				@Override
 				public void run() {
@@ -377,10 +335,9 @@ public class RDOTraceView extends ViewPart
 			};
 
 			@Override
-			public void run()
-			{
-				if(haveNewRealTimeData && readyForInput() && !display.isDisposed())
-				{
+			public void run() {
+				if (haveNewRealTimeData && readyForInput()
+						&& !display.isDisposed()) {
 					haveNewRealTimeData = false;
 					display.asyncExec(updater);
 				}
@@ -412,17 +369,15 @@ public class RDOTraceView extends ViewPart
 		}
 	};
 
-	public final static boolean readyForInput()
-	{
-		return
-			viewer != null
-			&& !viewer.getTable().isDisposed()
-			&& viewer.getContentProvider() != null
-			&& viewer.getLabelProvider() != null;
+	public final static boolean readyForInput() {
+		return viewer != null && !viewer.getTable().isDisposed()
+				&& viewer.getContentProvider() != null
+				&& viewer.getLabelProvider() != null;
 	}
 
 	@Override
-	public void setFocus() {}
+	public void setFocus() {
+	}
 }
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
@@ -454,240 +409,151 @@ class RDOTraceViewContentProvider implements ILazyContentProvider {
 	}
 }
 
-class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider
-{
-	private final EnumMap<TraceType, TraceColor> colorByType =
-		new EnumMap<TraceType, TraceColor>(TraceType.class);
+class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider {
+	private final EnumMap<TraceType, TraceColor> colorByType = new EnumMap<TraceType, TraceColor>(
+			TraceType.class);
 
-	RDOTraceViewLabelProvider()
-	{
+	RDOTraceViewLabelProvider() {
 		initializeColorMap();
 	}
 
-	private class TraceColor
-	{
+	private class TraceColor {
 		private final Color foregroundColor;
 		private final Color backgroundColor;
 
-		public TraceColor(Color fg, Color bg)
-		{
+		public TraceColor(Color fg, Color bg) {
 			foregroundColor = fg;
 			backgroundColor = bg;
 		}
 
-		public final Color foregroundColor()
-		{
+		public final Color foregroundColor() {
 			return foregroundColor;
 		}
 
-		public final Color backgroundColor()
-		{
+		public final Color backgroundColor() {
 			return backgroundColor;
 		}
 	}
 
-	private final void initializeColorMap()
-	{
+	private final void initializeColorMap() {
 		Display display = PlatformUI.getWorkbench().getDisplay();
-		colorByType.put(
-			TraceType.RESOURCE_CREATE,
-			new TraceColor(
-				new Color(display, 0x23, 0x74, 0x42),
-				new Color(display, 0x96, 0xFF, 0x96)
-			)
-		);
+		colorByType.put(TraceType.RESOURCE_CREATE, new TraceColor(new Color(
+				display, 0x23, 0x74, 0x42),
+				new Color(display, 0x96, 0xFF, 0x96)));
 
-		colorByType.put(
-			TraceType.RESOURCE_KEEP,
-			new TraceColor(
-				new Color(display, 0x00, 0x86, 0x00),
-				new Color(display, 0xD0, 0xFF, 0xD0)
-			)
-		);
+		colorByType.put(TraceType.RESOURCE_KEEP, new TraceColor(new Color(
+				display, 0x00, 0x86, 0x00),
+				new Color(display, 0xD0, 0xFF, 0xD0)));
 
-		colorByType.put(
-			TraceType.RESOURCE_ERASE,
-			new TraceColor(
-				new Color(display, 0x43, 0x5A, 0x43),
-				new Color(display, 0xB4, 0xE0, 0xB4)
-			)
-		);
+		colorByType.put(TraceType.RESOURCE_ERASE, new TraceColor(new Color(
+				display, 0x43, 0x5A, 0x43),
+				new Color(display, 0xB4, 0xE0, 0xB4)));
 
-		colorByType.put(
-			TraceType.SYSTEM,
-			new TraceColor(
-				new Color(display, 0x8B, 0x00, 0x00),
-				new Color(display, 0xFF, 0xC0, 0xCB)
-			)
-		);
+		colorByType.put(TraceType.SYSTEM, new TraceColor(new Color(display,
+				0x8B, 0x00, 0x00), new Color(display, 0xFF, 0xC0, 0xCB)));
 
-		colorByType.put(
-			TraceType.OPERATION_BEGIN,
-			new TraceColor(
-				new Color(display, 0x34, 0x4B, 0xA2),
-				new Color(display, 0xAA, 0xE3, 0xFB)
-			)
-		);
+		colorByType.put(TraceType.OPERATION_BEGIN, new TraceColor(new Color(
+				display, 0x34, 0x4B, 0xA2),
+				new Color(display, 0xAA, 0xE3, 0xFB)));
 
-		colorByType.put(
-			TraceType.OPERATION_END,
-			new TraceColor(
-				new Color(display, 0x16, 0x02, 0x50),
-				new Color(display, 0x81, 0xB0, 0xD5)
-			)
-		);
+		colorByType.put(TraceType.OPERATION_END, new TraceColor(new Color(
+				display, 0x16, 0x02, 0x50),
+				new Color(display, 0x81, 0xB0, 0xD5)));
 
-		colorByType.put(
-			TraceType.EVENT,
-			new TraceColor(
-				new Color(display, 0x4F, 0x29, 0x62),
-				new Color(display, 0xD0, 0xD0, 0xFF)
-			)
-		);
+		colorByType.put(TraceType.EVENT, new TraceColor(new Color(display,
+				0x4F, 0x29, 0x62), new Color(display, 0xD0, 0xD0, 0xFF)));
 
-		colorByType.put(
-			TraceType.RULE,
-			new TraceColor(
-				new Color(display, 0x17, 0x32, 0x47),
-				new Color(display, 0xB6, 0xCB, 0xDB)
-			)
-		);
+		colorByType.put(TraceType.RULE, new TraceColor(new Color(display, 0x17,
+				0x32, 0x47), new Color(display, 0xB6, 0xCB, 0xDB)));
 
-		colorByType.put(
-			TraceType.RESULT,
-			new TraceColor(
-				new Color(display, 0x00, 0x00, 0x00),
-				new Color(display, 0xF1, 0xFB, 0xE2)
-			)
-		);
+		colorByType.put(TraceType.RESULT, new TraceColor(new Color(display,
+				0x00, 0x00, 0x00), new Color(display, 0xF1, 0xFB, 0xE2)));
 
-		colorByType.put(
-			TraceType.SEARCH_BEGIN,
-			new TraceColor(
-				new Color(display, 0x5A, 0x4F, 0x37),
-				new Color(display, 0xF8, 0xD6, 0x8D)
-			)
-		);
+		colorByType.put(TraceType.SEARCH_BEGIN, new TraceColor(new Color(
+				display, 0x5A, 0x4F, 0x37),
+				new Color(display, 0xF8, 0xD6, 0x8D)));
 
-		colorByType.put(
-			TraceType.SEARCH_OPEN,
-			new TraceColor(
-				new Color(display, 0x4B, 0x54, 0x0E),
-				new Color(display, 0xE6, 0xF1, 0x98)
-			)
-		);
+		colorByType.put(TraceType.SEARCH_OPEN, new TraceColor(new Color(
+				display, 0x4B, 0x54, 0x0E),
+				new Color(display, 0xE6, 0xF1, 0x98)));
 
-		colorByType.put(
-			TraceType.SEARCH_SPAWN_NEW,
-			new TraceColor(
-				new Color(display, 0x00, 0x54, 0x72),
-				new Color(display, 0xE8, 0xE8, 0xD7)
-			)
-		);
+		colorByType.put(TraceType.SEARCH_SPAWN_NEW, new TraceColor(new Color(
+				display, 0x00, 0x54, 0x72),
+				new Color(display, 0xE8, 0xE8, 0xD7)));
 
-		colorByType.put(
-			TraceType.SEARCH_SPAWN_WORSE,
-			new TraceColor(
-				new Color(display, 0x69, 0x55, 0x49),
-				colorByType.get(TraceType.SEARCH_SPAWN_NEW).backgroundColor()
-			)
-		);
+		colorByType.put(TraceType.SEARCH_SPAWN_WORSE,
+				new TraceColor(new Color(display, 0x69, 0x55, 0x49),
+						colorByType.get(TraceType.SEARCH_SPAWN_NEW)
+								.backgroundColor()));
 
-		colorByType.put(
-			TraceType.SEARCH_SPAWN_BETTER,
-			new TraceColor(
-				new Color(display, 0x8B, 0x00, 0x00),
-				colorByType.get(TraceType.SEARCH_SPAWN_NEW).backgroundColor()
-			)
-		);
+		colorByType.put(TraceType.SEARCH_SPAWN_BETTER,
+				new TraceColor(new Color(display, 0x8B, 0x00, 0x00),
+						colorByType.get(TraceType.SEARCH_SPAWN_NEW)
+								.backgroundColor()));
 
-		colorByType.put(
-			TraceType.SEARCH_RESOURCE_KEEP,
-			colorByType.get(TraceType.RESOURCE_KEEP)
-		);
+		colorByType.put(TraceType.SEARCH_RESOURCE_KEEP,
+				colorByType.get(TraceType.RESOURCE_KEEP));
 
-		colorByType.put(
-			TraceType.SEARCH_DECISION,
-			new TraceColor(
-				new Color(display, 0x54, 0x1E, 0x09),
-				new Color(display, 0xF7, 0xCF, 0xB5)
-			)
-		);
+		colorByType.put(TraceType.SEARCH_DECISION, new TraceColor(new Color(
+				display, 0x54, 0x1E, 0x09),
+				new Color(display, 0xF7, 0xCF, 0xB5)));
 
-		colorByType.put(
-			TraceType.SEARCH_END_ABORTED,
-			new TraceColor(
-				new Color(display, 0xF0, 0x4B, 0x30),
-				new Color(display, 0xE3, 0xF0, 0xF6)
-			)
-		);
+		colorByType.put(TraceType.SEARCH_END_ABORTED, new TraceColor(new Color(
+				display, 0xF0, 0x4B, 0x30),
+				new Color(display, 0xE3, 0xF0, 0xF6)));
 
-		colorByType.put(
-			TraceType.SEARCH_END_CONDITION,
-			new TraceColor(
-				new Color(display, 0x54, 0x1E, 0x09),
-				new Color(display, 0xF0, 0xDE, 0xDB)
-			)
-		);
+		colorByType.put(TraceType.SEARCH_END_CONDITION, new TraceColor(
+				new Color(display, 0x54, 0x1E, 0x09), new Color(display, 0xF0,
+						0xDE, 0xDB)));
 
-		colorByType.put(
-			TraceType.SEARCH_END_SUCCESS,
-			colorByType.get(TraceType.SEARCH_END_CONDITION)
-		);
+		colorByType.put(TraceType.SEARCH_END_SUCCESS,
+				colorByType.get(TraceType.SEARCH_END_CONDITION));
 
-		colorByType.put(
-			TraceType.SEARCH_END_FAIL,
-			new TraceColor(
-				new Color(display, 0xF0, 0x4B, 0x30),
-				colorByType.get(TraceType.SEARCH_END_SUCCESS).backgroundColor()
-			)
-		);
+		colorByType.put(TraceType.SEARCH_END_FAIL,
+				new TraceColor(new Color(display, 0xF0, 0x4B, 0x30),
+						colorByType.get(TraceType.SEARCH_END_SUCCESS)
+								.backgroundColor()));
 	}
 
 	@Override
-	public void addListener(ILabelProviderListener listener) {}
+	public void addListener(ILabelProviderListener listener) {
+	}
 
 	@Override
-	public void dispose()
-	{
-		for(final TraceColor color : colorByType.values())
-		{
+	public void dispose() {
+		for (final TraceColor color : colorByType.values()) {
 			color.foregroundColor().dispose();
 			color.backgroundColor().dispose();
 		}
 	}
 
 	@Override
-	public boolean isLabelProperty(Object element, String property)
-	{
+	public boolean isLabelProperty(Object element, String property) {
 		return false;
 	}
 
 	@Override
-	public void removeListener(ILabelProviderListener listener) {}
+	public void removeListener(ILabelProviderListener listener) {
+	}
 
 	@Override
-	public Image getImage(Object element)
-	{
+	public Image getImage(Object element) {
 		return null;
 	}
 
 	@Override
-	public String getText(Object element)
-	{
+	public String getText(Object element) {
 		return ((TraceOutput) element).content();
 	}
 
 	@Override
-	public Color getForeground(Object element)
-	{
+	public Color getForeground(Object element) {
 		TraceType type = ((TraceOutput) element).type();
 		return colorByType.get(type).foregroundColor();
 	}
 
 	@Override
-	public Color getBackground(Object element)
-	{
+	public Color getBackground(Object element) {
 		TraceType type = ((TraceOutput) element).type();
 		return colorByType.get(type).backgroundColor();
 	}
@@ -745,8 +611,7 @@ class SearchDialog extends Dialog {
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite area = (Composite) super.createDialogArea(parent);
-		area.setLayoutData(new GridData(
-				SWT.FILL, SWT.FILL, true, true));
+		area.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		createDialogContents(area);
 		createOptionButtons(area);
@@ -760,8 +625,7 @@ class SearchDialog extends Dialog {
 		area.setLayout(new GridLayout(2, false));
 
 		searchText = new Text(area, SWT.NONE);
-		searchText.setLayoutData(
-				new GridData(SWT.FILL, SWT.FILL, true, false));
+		searchText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
 		// TODO make it default on Enter click
 		searchButton = new Button(area, SWT.PUSH);
@@ -769,8 +633,8 @@ class SearchDialog extends Dialog {
 
 		statusLabel = new Label(area, SWT.NONE);
 		statusLabel.setText("Wrapped search");
-		statusLabel.setLayoutData(
-				new GridData(SWT.FILL, SWT.FILL, true, false));
+		statusLabel
+				.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
 		searchButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -794,31 +658,31 @@ class SearchDialog extends Dialog {
 		Button caseSensitiveButton = new Button(area, SWT.CHECK);
 		caseSensitiveButton.setSelection(searchHelper.getCaseSensitive());
 		caseSensitiveButton.addSelectionListener(new SelectionListener() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						Button button = (Button) e.widget;
-						searchHelper.setCaseSensitive(button.getSelection());
-					}
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button button = (Button) e.widget;
+				searchHelper.setCaseSensitive(button.getSelection());
+			}
 
-					@Override
-					public void widgetDefaultSelected(SelectionEvent e) {
-					}
-				});
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 		new Label(area, SWT.NONE).setText("Case sensitive");
 
 		Button regexpButton = new Button(area, SWT.CHECK);
 		regexpButton.setSelection(searchHelper.getRegexp());
 		regexpButton.addSelectionListener(new SelectionListener() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						Button button = (Button) e.widget;
-						searchHelper.setRegexp(button.getSelection());
-					}
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button button = (Button) e.widget;
+				searchHelper.setRegexp(button.getSelection());
+			}
 
-					@Override
-					public void widgetDefaultSelected(SelectionEvent e) {
-					}
-				});
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 		new Label(area, SWT.NONE).setText("Regular expressions");
 	}
 

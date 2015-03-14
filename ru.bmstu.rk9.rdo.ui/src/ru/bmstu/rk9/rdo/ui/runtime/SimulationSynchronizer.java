@@ -208,8 +208,7 @@ public class SimulationSynchronizer {
 			updateTimes();
 		}
 
-		private void updateTimes()
-		{
+		private void updateTimes() {
 			startRealTime = System.currentTimeMillis();
 			startSimulationTime = Simulator.getTime();
 		}

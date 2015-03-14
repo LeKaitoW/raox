@@ -26,18 +26,18 @@ public class RDOSerializedObjectsView extends ViewPart {
 		serializedObjectsTree.setLayoutData(new GridLayout());
 		serializedObjectsTree.setLinesVisible(true);
 
-		serializedObjectsTreeViewer.setContentProvider(
-				new RDOSerializedObjectsContentProvider());
-		serializedObjectsTreeViewer.setLabelProvider(
-				new RDOSerializedObjectsLabelProvider());
+		serializedObjectsTreeViewer
+				.setContentProvider(new RDOSerializedObjectsContentProvider());
+		serializedObjectsTreeViewer
+				.setLabelProvider(new RDOSerializedObjectsLabelProvider());
 	}
 
 	public static void initializeTree() {
 		if (!readyForInput())
 			return;
 
-		CollectedDataNode root = Simulator.getDatabase()
-				.getIndexHelper().getTree();
+		CollectedDataNode root = Simulator.getDatabase().getIndexHelper()
+				.getTree();
 
 		PlatformUI.getWorkbench().getDisplay()
 				.asyncExec(() -> serializedObjectsTreeViewer.setInput(root));
@@ -47,13 +47,11 @@ public class RDOSerializedObjectsView extends ViewPart {
 	public void setFocus() {
 	}
 
-	public final static boolean readyForInput()
-	{
-		return
-			serializedObjectsTreeViewer != null
-			&& !serializedObjectsTreeViewer.getTree().isDisposed()
-			&& serializedObjectsTreeViewer.getContentProvider() != null
-			&& serializedObjectsTreeViewer.getLabelProvider() != null;
+	public final static boolean readyForInput() {
+		return serializedObjectsTreeViewer != null
+				&& !serializedObjectsTreeViewer.getTree().isDisposed()
+				&& serializedObjectsTreeViewer.getContentProvider() != null
+				&& serializedObjectsTreeViewer.getLabelProvider() != null;
 	}
 }
 
@@ -71,7 +69,7 @@ class RDOSerializedObjectsContentProvider implements ITreeContentProvider {
 	public Object[] getElements(Object inputElement) {
 		CollectedDataNode root = (CollectedDataNode) inputElement;
 		if (!root.hasChildren())
-			return new Object[]{};
+			return new Object[] {};
 		return root.getChildren().values().toArray();
 	}
 
@@ -79,7 +77,7 @@ class RDOSerializedObjectsContentProvider implements ITreeContentProvider {
 	public Object[] getChildren(Object parentElement) {
 		CollectedDataNode parent = (CollectedDataNode) parentElement;
 		if (!parent.hasChildren())
-			return new Object[]{};
+			return new Object[] {};
 		return parent.getChildren().values().toArray();
 	}
 

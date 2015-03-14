@@ -49,9 +49,7 @@ import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializedObjectsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
 
-
-public class ExecutionHandler extends AbstractHandler
-{
+public class ExecutionHandler extends AbstractHandler {
 	@Inject
 	private IMultipleResourceGenerator generator;
 
@@ -66,82 +64,61 @@ public class ExecutionHandler extends AbstractHandler
 
 	private static boolean isRunning = false;
 
-	public static boolean getRunningState()
-	{
+	public static boolean getRunningState() {
 		return isRunning;
 	}
 
-	private static void setRunningState
-	(
-		Display display,
-		final ModelExecutionSourceProvider sourceProvider,
-		boolean newstate
-	)
-	{
+	private static void setRunningState(Display display,
+			final ModelExecutionSourceProvider sourceProvider, boolean newstate) {
 		isRunning = newstate;
-		display.syncExec
-		(
-			new Runnable ()
-			{
-				public void run ()
-				{
-					sourceProvider.updateRunningState();
-				}
+		display.syncExec(new Runnable() {
+			public void run() {
+				sourceProvider.updateRunningState();
 			}
-		);
+		});
 	}
 
 	private static DecimalFormat realTimeFormatter = new DecimalFormat("0.0");
 
 	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException
-	{
+	public Object execute(ExecutionEvent event) throws ExecutionException {
 		final Display display = PlatformUI.getWorkbench().getDisplay();
 		ISourceProviderService sourceProviderService = (ISourceProviderService) HandlerUtil
-			.getActiveWorkbenchWindow(event).getService(ISourceProviderService.class);
-		final ModelExecutionSourceProvider sourceProvider =
-			(ModelExecutionSourceProvider) sourceProviderService.getSourceProvider(
-				ModelExecutionSourceProvider.ModelExecutionKey);
+				.getActiveWorkbenchWindow(event).getService(
+						ISourceProviderService.class);
+		final ModelExecutionSourceProvider sourceProvider = (ModelExecutionSourceProvider) sourceProviderService
+				.getSourceProvider(ModelExecutionSourceProvider.ModelExecutionKey);
 
 		setRunningState(display, sourceProvider, true);
 
-		final Job build = ModelBuilder.build
-		(
-			event,
-			fileAccessProvider.get(),
-			resourceSetProvider,
-			outputConfigurationProvider,
-			generator
-		);
+		final Job build = ModelBuilder.build(event, fileAccessProvider.get(),
+				resourceSetProvider, outputConfigurationProvider, generator);
 		build.schedule();
 
-		final IProject project = ModelBuilder.getProject(HandlerUtil.getActiveEditor(event));
+		final IProject project = ModelBuilder.getProject(HandlerUtil
+				.getActiveEditor(event));
 
-		if(project == null)
-		{
+		if (project == null) {
 			setRunningState(display, sourceProvider, false);
 			return null;
 		}
 
-		final Job run = new Job(project.getName() + " execution")
-		{
-			protected IStatus run(IProgressMonitor monitor)
-			{
+		final Job run = new Job(project.getName() + " execution") {
+			protected IStatus run(IProgressMonitor monitor) {
 				URLClassLoader cl = null;
 				Timer uiRealTime = new Timer();
 				Timer traceRealTimeUpdater = new Timer();
 				Timer animationUpdater = new Timer();
 				RDOSerializationConfigView.setEnabled(false);
 
-				try
-				{
+				try {
 					String name = this.getName();
 					this.setName(name + " (waiting for execution to complete)");
 
 					IJobManager jobMan = Job.getJobManager();
 
-					for(Job j : jobMan.find("rdo_model_run"))
-						if(j != this)
+					for (Job j : jobMan.find("rdo_model_run"))
+						if (j != this)
 							j.join();
 
 					this.setName(name);
@@ -152,38 +129,40 @@ public class ExecutionHandler extends AbstractHandler
 
 					this.setName(name);
 
-					if(build.getResult() != Status.OK_STATUS)
-					{
+					if (build.getResult() != Status.OK_STATUS) {
 						setRunningState(display, sourceProvider, false);
 						RDOConsoleView.addLine("Build failed");
-						return new Status(Status.CANCEL, "ru.bmstu.rk9.rdo.ui", "Execution cancelled");
+						return new Status(Status.CANCEL, "ru.bmstu.rk9.rdo.ui",
+								"Execution cancelled");
 					}
 
 					RDOConsoleView.clearConsoleText();
 					SimulationSynchronizer.start();
 
-					URL model = new URL("file:///" + ResourcesPlugin.getWorkspace().
-							getRoot().getLocation().toString() + "/" + project.getName() + "/bin/");
+					URL model = new URL("file:///"
+							+ ResourcesPlugin.getWorkspace().getRoot()
+									.getLocation().toString() + "/"
+							+ project.getName() + "/bin/");
 
-					URL[] urls = new URL[]{ model };
+					URL[] urls = new URL[] { model };
 
-					cl = new URLClassLoader(urls, Simulator.class.getClassLoader());
+					cl = new URLClassLoader(urls,
+							Simulator.class.getClassLoader());
 
 					Class<?> cls = cl.loadClass("rdo_model.Embedded");
 
 					Method simulation = null;
 					Method initialization = null;
-					for(Method method : cls.getMethods())
-					{
-						if(method.getName() == "runSimulation")
+					for (Method method : cls.getMethods()) {
+						if (method.getName() == "runSimulation")
 							simulation = method;
-						if(method.getName() == "initSimulation")
+						if (method.getName() == "initSimulation")
 							initialization = method;
 					}
 
 					IFile modelFile = (IFile) HandlerUtil
-						.getActiveEditor(event).getEditorInput()
-						.getAdapter(IFile.class);
+							.getActiveEditor(event).getEditorInput()
+							.getAdapter(IFile.class);
 
 					ExportTraceHandler.reset();
 					ExportTraceHandler.setCurrentProject(project);
@@ -193,82 +172,82 @@ public class ExecutionHandler extends AbstractHandler
 
 					final ArrayList<AnimationFrame> frames = new ArrayList<AnimationFrame>();
 
-					if(initialization != null)
-						initialization.invoke(null, (Object)frames);
+					if (initialization != null)
+						initialization.invoke(null, (Object) frames);
 
-					ICommandService service = (ICommandService) PlatformUI.getWorkbench()
-							.getService(ICommandService.class);
+					ICommandService service = (ICommandService) PlatformUI
+							.getWorkbench().getService(ICommandService.class);
 					Command command = service
 							.getCommand("ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode");
-					State state = command.getState("org.eclipse.ui.commands.radioState");
+					State state = command
+							.getState("org.eclipse.ui.commands.radioState");
 
 					SimulationModeDispatcher.setMode((String) state.getValue());
 
 					display.syncExec(() -> RDOAnimationView.initialize(frames));
 
-					Notifier simulatorNotifier =
-						Simulator.getNotifier();
+					Notifier simulatorNotifier = Simulator.getNotifier();
 
-					Notifier databaseNotifier =
-						Simulator.getDatabase().getNotifier();
-
-					simulatorNotifier
-						.getSubscription("TimeChange")
-							.addSubscriber(SimulationSynchronizer.getInstance().uiTimeUpdater)
-							.addSubscriber(SimulationSynchronizer.getInstance().simulationManager.scaleManager);
+					Notifier databaseNotifier = Simulator.getDatabase()
+							.getNotifier();
 
 					simulatorNotifier
-						.getSubscription("StateChange")
-							.addSubscriber(SimulationSynchronizer.getInstance().simulationManager.speedManager)
+							.getSubscription("TimeChange")
+							.addSubscriber(
+									SimulationSynchronizer.getInstance().uiTimeUpdater)
+							.addSubscriber(
+									SimulationSynchronizer.getInstance().simulationManager.scaleManager);
+
+					simulatorNotifier
+							.getSubscription("StateChange")
+							.addSubscriber(
+									SimulationSynchronizer.getInstance().simulationManager.speedManager)
 							.addSubscriber(RDOAnimationView.updater);
 
 					simulatorNotifier
-						.getSubscription("ExecutionAborted")
-							.addSubscriber(SimulationSynchronizer.getInstance().simulationStateListener);
+							.getSubscription("ExecutionAborted")
+							.addSubscriber(
+									SimulationSynchronizer.getInstance().simulationStateListener);
 
 					RDOTraceView.commonUpdater.fireChange();
 
-					databaseNotifier
-						.getSubscription("EntryAdded")
+					databaseNotifier.getSubscription("EntryAdded")
 							.addSubscriber(Simulator.getTracer());
 
-					Simulator.getTracer()
-						.setRealTimeSubscriber(RDOTraceView.realTimeUpdater);
+					Simulator.getTracer().setRealTimeSubscriber(
+							RDOTraceView.realTimeUpdater);
 
-					Simulator.getTracer()
-						.setCommonSubscriber(RDOTraceView.commonUpdater);
+					Simulator.getTracer().setCommonSubscriber(
+							RDOTraceView.commonUpdater);
 
-					RDOConsoleView.addLine("Started model " + project.getName());
+					RDOConsoleView
+							.addLine("Started model " + project.getName());
 					final long startTime = System.currentTimeMillis();
 
 					uiRealTime.scheduleAtFixedRate(new TimerTask() {
 						@Override
 						public void run() {
 							if (!display.isDisposed())
-								display.asyncExec(() -> RDOStatusView
-									.setValue("Time elapsed".intern(), 5, realTimeFormatter.format(
-										(System.currentTimeMillis() - startTime)/1000d)+ "s"));
+								display.asyncExec(() -> RDOStatusView.setValue(
+										"Time elapsed".intern(),
+										5,
+										realTimeFormatter.format((System
+												.currentTimeMillis() - startTime) / 1000d)
+												+ "s"));
 						}
 					}, 0, 100);
 
-					traceRealTimeUpdater.scheduleAtFixedRate
-					(
-						RDOTraceView.getRealTimeUpdaterTask(),
-						0,
-						100
-					);
+					traceRealTimeUpdater.scheduleAtFixedRate(
+							RDOTraceView.getRealTimeUpdaterTask(), 0, 100);
 
-					animationUpdater.scheduleAtFixedRate
-					(
-						RDOAnimationView.getRedrawTimerTask(),
-						0,
-						20
-					);
+					animationUpdater.scheduleAtFixedRate(
+							RDOAnimationView.getRedrawTimerTask(), 0, 20);
 
 					LinkedList<Result> results = new LinkedList<Result>();
 					int result = -1;
-					if(simulation != null)
-						result = (int)simulation.invoke(null, (Object)results);
+					if (simulation != null)
+						result = (int) simulation
+								.invoke(null, (Object) results);
 
 					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.updater);
 
@@ -276,25 +255,26 @@ public class ExecutionHandler extends AbstractHandler
 
 					setRunningState(display, sourceProvider, false);
 
-					switch (result)
-					{
-						case 1:
-							RDOConsoleView.addLine("Stopped by terminate condition");
-							break;
-						case -1:
-							RDOConsoleView.addLine("Model terminated by user");
-							break;
-						default:
-							RDOConsoleView.addLine("No more events");
+					switch (result) {
+					case 1:
+						RDOConsoleView
+								.addLine("Stopped by terminate condition");
+						break;
+					case -1:
+						RDOConsoleView.addLine("Model terminated by user");
+						break;
+					default:
+						RDOConsoleView.addLine("No more events");
 					}
 
-					for(Result r : results)
+					for (Result r : results)
 						r.calculate();
 
 					display.asyncExec(() -> RDOResultsView.setResults(results));
 
-					RDOConsoleView.addLine("Time elapsed: " +
-						String.valueOf(System.currentTimeMillis() - startTime) + "ms");
+					RDOConsoleView.addLine("Time elapsed: "
+							+ String.valueOf(System.currentTimeMillis()
+									- startTime) + "ms");
 
 					RDOSerializedObjectsView.initializeTree();
 					SimulationSynchronizer.finish();
@@ -306,9 +286,7 @@ public class ExecutionHandler extends AbstractHandler
 					cl.close();
 
 					return Status.OK_STATUS;
-				}
-				catch (Exception e)
-				{
+				} catch (Exception e) {
 					e.printStackTrace();
 					setRunningState(display, sourceProvider, false);
 					RDOConsoleView.addLine("Execution error");
@@ -322,26 +300,22 @@ public class ExecutionHandler extends AbstractHandler
 					traceRealTimeUpdater.cancel();
 					animationUpdater.cancel();
 
-					if(cl != null)
-						try
-						{
+					if (cl != null)
+						try {
 							cl.close();
-						}
-						catch (IOException e1)
-						{
+						} catch (IOException e1) {
 							e1.printStackTrace();
 						}
 
-					return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui", "Execution failed");
-				}
-				finally {
+					return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui",
+							"Execution failed");
+				} finally {
 					RDOSerializationConfigView.setEnabled(true);
 				}
 			}
 
 			@Override
-			public boolean belongsTo(Object family)
-			{
+			public boolean belongsTo(Object family) {
 				return ("rdo_model_run").equals(family);
 			}
 		};
