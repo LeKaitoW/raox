@@ -5,6 +5,7 @@ import java.awt.event.WindowListener;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Timer;
 import java.util.TimerTask;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -110,16 +111,22 @@ public class RDOTraceView extends ViewPart
 				break;
 			}
 		}
-		if (dptNum != -1) {
+		if (dptNum != -1 && !GraphControl.openedGraphList.contains(frameName)) {
 			TreeBuilder treeBuilder = Simulator.getTreeBuilder();
 			treeBuilder.buildTree();
 			GraphFrame graphFrame = new GraphFrame(treeBuilder.listMap.get(dptNum), treeBuilder.infoMap.get(dptNum), treeBuilder.solutionMap
 					.get(dptNum));
+			GraphControl.openedGraphList.add(frameName);
 			graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			graphFrame.setSize(800, 600);
 			graphFrame.setTitle(frameName);
 			graphFrame.setLocationRelativeTo(null);
 			graphFrame.setVisible(true);
+			
+			TimerTask graphUpdateTask = graphFrame.getGraphFrameTimerTask();
+			Timer graphUpdateTimer = new Timer();
+			graphUpdateTimer.scheduleAtFixedRate(graphUpdateTask, 0, 10);
+			
 			graphFrame.addWindowListener(new WindowListener() {
 				
 				@Override
@@ -155,6 +162,8 @@ public class RDOTraceView extends ViewPart
 				@Override
 				public void windowClosed(WindowEvent e) {
 					// TODO Auto-generated method stub
+					graphUpdateTimer.cancel();
+					GraphControl.openedGraphList.remove(graphFrame.getTitle());
 					System.out.println("window closed");
 				}
 				

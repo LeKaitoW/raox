@@ -124,7 +124,6 @@ public class ExecutionHandler extends AbstractHandler
 				Timer uiRealTime = new Timer();
 				Timer traceRealTimeUpdater = new Timer();
 				Timer animationUpdater = new Timer();
-				Timer graphRealTimeUpdater = new Timer();
 
 				try
 				{
@@ -246,13 +245,6 @@ public class ExecutionHandler extends AbstractHandler
 						0,
 						100
 					);
-					
-					graphRealTimeUpdater.scheduleAtFixedRate
-					(
-						GraphControl.getGraphRealTimeUpdaterTask(),
-						0,
-						100
-					);
 
 					animationUpdater.scheduleAtFixedRate
 					(
@@ -296,10 +288,6 @@ public class ExecutionHandler extends AbstractHandler
 
 					uiRealTime.cancel();
 					traceRealTimeUpdater.cancel();
-					graphRealTimeUpdater.cancel();
-					if (!GraphControl.timerList.isEmpty())
-						for (int i = 0; i < GraphControl.timerList.size(); i++)
-							GraphControl.timerList.get(i).cancel();
 					animationUpdater.cancel();
 
 					cl.close();
@@ -319,7 +307,6 @@ public class ExecutionHandler extends AbstractHandler
 
 					uiRealTime.cancel();
 					traceRealTimeUpdater.cancel();
-					graphRealTimeUpdater.cancel();
 					animationUpdater.cancel();
 
 					if(cl != null)

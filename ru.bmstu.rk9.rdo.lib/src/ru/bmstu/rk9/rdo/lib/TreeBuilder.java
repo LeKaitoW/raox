@@ -64,7 +64,6 @@ public class TreeBuilder implements Subscriber {
 		int size = entries.size();
 		while (entryNumber < size) {
 			parseEntry(entries.get(entryNumber++));
-			//System.out.println(entryNumber);
 		}
 	}
 
@@ -92,7 +91,7 @@ public class TreeBuilder implements Subscriber {
 				treeNode.label = Integer.toString(treeNode.index);
 				listMap.get(currentDptNumber).add(treeNode);
 				GraphControl.setDptNumOfLastAddedVertex(currentDptNumber);
-//				lastAddedNode.put(currentDptNumber, treeNode);
+				GraphControl.setLastAddedVertexIndex(0);
 				System.out.println("treeB last node index = " + treeNode.index);
 				System.out.println("treeB last node parent index = null(root)");
 				break;

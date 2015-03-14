@@ -30,16 +30,6 @@ public class GraphFrame extends JFrame {
 
 	/*-----------------------REAL TIME OUTPUT-----------------------*/
 
-	private Subscriber graphControlSubscriber = null;
-
-	public void setGraphControlSubscriber(Subscriber subscriber) {
-		this.graphControlSubscriber = subscriber;
-	}
-
-	public void notifyGraphControl() {
-		graphControlSubscriber.fireChange();
-	}
-
 	private static volatile boolean haveNewRealTimeData = false;
 
 	public static final Subscriber realTimeUpdater = new Subscriber() {
@@ -56,7 +46,6 @@ public class GraphFrame extends JFrame {
 	private void drawGraph(mxGraph graph, ArrayList<Node> nodeList, Node parentNode) {
 		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, parentNode, 385, 100, 30, 30,
 				fontColor + strokeColor);
-
 		vertexMap.put(parentNode, vertex);
 		GraphControl.setLastAddedVertexIndex(parentNode.index);
 		if (parentNode.parent != null)
@@ -151,6 +140,12 @@ public class GraphFrame extends JFrame {
 		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null, text, 800 - width - (delta / 2), delta / 2,
 				width, height);
 	}
+	
+	private TimerTask graphFrameTimerTask;
+	
+	public TimerTask getGraphFrameTimerTask() {
+		return graphFrameTimerTask;
+	}
 
 	public GraphFrame(ArrayList<Node> nodeList, GraphInfo info, ArrayList<Node> solution) {
 
@@ -181,9 +176,7 @@ public class GraphFrame extends JFrame {
 
 		layout.execute(graph.getDefaultParent());
 
-		this.setGraphControlSubscriber(GraphControl.timerTaskUpdater);
-
-		GraphControl.newTimerTask = new TimerTask() {
+		graphFrameTimerTask = new TimerTask() {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
@@ -198,9 +191,7 @@ public class GraphFrame extends JFrame {
 					}
 				}
 			}
-
 		};
-		notifyGraphControl();
 
 		graph.setCellsEditable(false);
 		graph.setCellsDisconnectable(false);
