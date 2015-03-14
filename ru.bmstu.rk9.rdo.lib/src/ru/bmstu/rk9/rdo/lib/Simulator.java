@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rdo.lib;
 
 import java.util.LinkedList;
 
+import ru.bmstu.rk9.rdo.lib.Database.SystemEntryType;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
 public class Simulator
@@ -10,7 +11,7 @@ public class Simulator
 
 	public static synchronized void initSimulation()
 	{
-		if (isRunning)
+		if(isRunning)
 			return;
 
 		INSTANCE = new Simulator();
@@ -30,12 +31,22 @@ public class Simulator
 		INSTANCE.dptManager = new DPTManager();
 	}
 
+	public static boolean isInitialized()
+	{
+		return INSTANCE != null;
+	}
+
+	public static boolean isRunning()
+	{
+		return isRunning;
+	}
+
 	public static synchronized void initDatabase(JSONObject modelStructure)
 	{
 		INSTANCE.database = new Database(modelStructure);
 	}
 
-	public static void initTracer()
+	public static synchronized void initTracer()
 	{
 		INSTANCE.tracer = new Tracer();
 	}
@@ -53,8 +64,19 @@ public class Simulator
 	{
 		return INSTANCE.tracer;
 	}
-
-	private double time = 0;
+	
+	private TreeBuilder treeBuilder;
+	
+	public static TreeBuilder getTreeBuilder() {
+		return INSTANCE.treeBuilder;
+	}
+	
+	public static synchronized void initTreeBuilder()
+	{
+		INSTANCE.treeBuilder = new TreeBuilder();
+	}
+		
+	private volatile double time = 0;
 
 	public static double getTime()
 	{
@@ -108,8 +130,8 @@ public class Simulator
 
 	private boolean checkTerminate()
 	{
-		for (TerminateCondition c : terminateList)
-			if (c.check())
+		for(TerminateCondition c : terminateList)
+			if(c.check())
 				return true;
 		return false;
 	}
@@ -120,7 +142,7 @@ public class Simulator
 
 	public static synchronized void stopExecution()
 	{
-		if (INSTANCE == null)
+		if(INSTANCE == null)
 			return;
 
 		INSTANCE.executionAborted = true;
@@ -129,15 +151,15 @@ public class Simulator
 
 	private int checkDPT()
 	{
-		while (dptManager.checkDPT() && !executionAborted)
+		while(dptManager.checkDPT() && !executionAborted)
 		{
 			notifyChange("StateChange");
 
-			if (checkTerminate())
+			if(checkTerminate())
 				return  1;
 		}
 
-		if (executionAborted)
+		if(executionAborted)
 			return -1;
 		return 0;
 	}
@@ -152,10 +174,10 @@ public class Simulator
 		notifyChange("StateChange");
 
 		int dptCheck = INSTANCE.checkDPT();
-		if (dptCheck != 0)
+		if(dptCheck != 0)
 			return stop(dptCheck);
 
-		while (INSTANCE.eventScheduler.haveEvents())
+		while(INSTANCE.eventScheduler.haveEvents())
 		{
 			Event current = INSTANCE.eventScheduler.popEvent();
 
@@ -167,11 +189,11 @@ public class Simulator
 
 			notifyChange("StateChange");
 
-			if (INSTANCE.checkTerminate())
+			if(INSTANCE.checkTerminate())
 				return stop(1);
 
 			dptCheck = INSTANCE.checkDPT();
-			if (dptCheck != 0)
+			if(dptCheck != 0)
 				return stop(dptCheck);
 		}
 		return stop(0);
@@ -179,7 +201,24 @@ public class Simulator
 
 	private static int stop(int code)
 	{
-		INSTANCE.tracer.saveTraceData();
+		Database.SystemEntryType simFinishType;
+		switch (code)
+		{
+		case -1:
+			simFinishType = SystemEntryType.ABORT;
+			break;
+		case 0:
+			simFinishType = SystemEntryType.NO_MORE_EVENTS;
+			break;
+		case 1:
+			simFinishType = SystemEntryType.NORMAL_TERMINATION;
+			break;
+		default:
+			simFinishType = SystemEntryType.RUN_TIME_ERROR;
+			break;
+		}
+		INSTANCE.database.addSystemEntry(simFinishType);
+		INSTANCE.tracer.notifyCommonSubscriber();
 		notifyChange("ExecutionComplete");
 		isRunning = false;
 		return code;

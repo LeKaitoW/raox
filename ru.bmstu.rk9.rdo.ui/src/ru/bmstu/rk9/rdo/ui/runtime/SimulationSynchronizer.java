@@ -2,15 +2,13 @@ package ru.bmstu.rk9.rdo.ui.runtime;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.State;
-
-import org.eclipse.ui.IEditorSite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
-
 import org.eclipse.ui.commands.ICommandService;
 
+import ru.bmstu.rk9.rdo.lib.DecisionPointSearch;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
-
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSpeedSelectionToolbar;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
 
@@ -37,7 +35,7 @@ public class SimulationSynchronizer
 		State state = command.getState("org.eclipse.ui.commands.radioState");
 
 		setState((String)state.getValue());
-		
+
 		setSimulationScale(SetSimulationScaleHandler.getSimulationScale());
 		setSimulationSpeed(RDOSpeedSelectionToolbar.getSpeed());
 	}
@@ -81,13 +79,12 @@ public class SimulationSynchronizer
 		private long lastUpdateTime = System.currentTimeMillis();
 		private double actualTimeScale = 0;
 
-		Runnable updater = new Runnable()
+		private Display display = PlatformUI.getWorkbench().getDisplay();
+
+		Runnable updater = () ->
 		{
-			@Override
-			public void run()
-			{
-				RDOStatusView.setSimulationTime(Simulator.getTime());
-			}
+			RDOStatusView.setSimulationTime(Simulator.getTime());
+			RDOStatusView.setActualSimulationScale(60060d / actualTimeScale);
 		};
 
 		@Override
@@ -97,7 +94,8 @@ public class SimulationSynchronizer
 			if(currentTime - lastUpdateTime > 50)
 			{
 				lastUpdateTime = currentTime;
-				PlatformUI.getWorkbench().getDisplay().asyncExec(updater);
+				if(!display.isDisposed())
+					display.asyncExec(updater);
 			}
 		}
 	}
@@ -123,28 +121,24 @@ public class SimulationSynchronizer
 
 		INSTANCE.simulationSpeedManager.speedDelayMillis =
 			(long)(-Math.log10(value/100d)*1000d);
+		DecisionPointSearch.delay = (int)INSTANCE.simulationSpeedManager.speedDelayMillis;
 	}
 
 	public class SimulationSpeedManager implements Subscriber
 	{
 		private volatile long speedDelayMillis = 0;
 
-		// this variable is needed in order to prevent SimulationScaleManager from trying
-		// to compensate delays caused by SimulationSpeedManager. SimulationScaleManager
-		// will subtract this variable from realTimeDelta and won't try to "catch up"
-		private long accumulatedDelay;
-
 		@Override
 		public void fireChange()
 		{
+			notifyTracer(executionMode);
 			switch(executionMode)
 			{
 				case PAUSE:
 
 					while(executionMode == ExecutionMode.PAUSE && !simulationAborted)
 						delay(50);
-	
-					simulationScaleManager.lastRealTime = System.currentTimeMillis();
+
 					break;
 
 				case FAST_FORWARD:
@@ -160,11 +154,25 @@ public class SimulationSynchronizer
 						timeToWait = startTime + speedDelayMillis - System.currentTimeMillis();
 					}
 
-					accumulatedDelay += System.currentTimeMillis() - startTime;
 					break;
 
 				default:
 					// Do nothing
+			}
+		}
+
+		private final void notifyTracer(ExecutionMode mode)
+		{
+			switch(mode)
+			{
+			case PAUSE:
+			case NO_ANIMATION:
+				Simulator.getTracer().setPaused(true);
+				break;
+			case FAST_FORWARD:
+			case NORMAL_SPEED:
+				Simulator.getTracer().setPaused(false);
+				break;
 			}
 		}
 	}
@@ -174,18 +182,18 @@ public class SimulationSynchronizer
 		if(INSTANCE == null)
 			return;
 
-		INSTANCE.simulationScaleManager.timeScale = 60600d / value;
+		INSTANCE.simulationScaleManager.timeScale = 60060d / value;
+		INSTANCE.simulationScaleManager.startRealTime = System.currentTimeMillis();
+		INSTANCE.simulationScaleManager.startSimulationTime =
+			Simulator.isRunning() ? Simulator.getTime() : 0;
 	}
 
 	public class SimulationScaleManager implements Subscriber
 	{
 		private volatile double timeScale = 0.3;
 
-		private double lastSimulationTime;
-
-		private long lastRealTime;
-
-		private long totalTimeLag = 0;
+		private long startRealTime;
+		private double startSimulationTime;
 
 		@Override
 		public void fireChange()
@@ -207,41 +215,28 @@ public class SimulationSynchronizer
 
 					case NORMAL_SPEED:
 
-						double simulationDelta = currentSimulationTime - lastSimulationTime;
-						long realTimeDelta = currentRealTime - (lastRealTime + simulationSpeedManager.accumulatedDelay);
-						long waitTime = (long)(simulationDelta * timeScale) - realTimeDelta;
+						long waitTime = (long)((currentSimulationTime - startSimulationTime) * timeScale) -
+							(currentRealTime - startRealTime);
 
 						if(waitTime > 0)
 						{
-							long maxCatchUp = waitTime / 2;
-							long timeToCatchUp = totalTimeLag > maxCatchUp ? maxCatchUp : totalTimeLag;
-							totalTimeLag -= timeToCatchUp;
-							
-							long leftToSleep = waitTime - timeToCatchUp;
-							while(executionMode == ExecutionMode.NORMAL_SPEED && leftToSleep > 0 && !simulationAborted)
+							while(executionMode == ExecutionMode.NORMAL_SPEED && waitTime > 0 && !simulationAborted)
 							{
-								delay(leftToSleep > 50 ? 50 : leftToSleep);
-								leftToSleep = (long)(simulationDelta * timeScale) + (lastRealTime +
-									simulationSpeedManager.accumulatedDelay) - System.currentTimeMillis() - timeToCatchUp;
+								delay(waitTime > 50 ? 50 : waitTime);
+								waitTime = (long)((currentSimulationTime - startSimulationTime) * timeScale) -
+									(System.currentTimeMillis() - startRealTime);
 							}
-							uiTimeUpdater.actualTimeScale = 0;
+							uiTimeUpdater.actualTimeScale = timeScale;
 						}
 						else
-						{
-							totalTimeLag -= waitTime;
-							uiTimeUpdater.actualTimeScale = ((double)realTimeDelta)/simulationDelta;
-						}
+							uiTimeUpdater.actualTimeScale = ((double)(currentRealTime - startRealTime))/currentSimulationTime;
+
 						break;
 
 					default:
 						// Do nothing
 				}
 			}
-
-			simulationSpeedManager.accumulatedDelay = 0;
-
-			lastSimulationTime = currentSimulationTime;
-			lastRealTime = System.currentTimeMillis();
 		}
 	}
 

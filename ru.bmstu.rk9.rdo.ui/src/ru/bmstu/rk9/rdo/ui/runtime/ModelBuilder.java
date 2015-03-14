@@ -61,7 +61,7 @@ public class ModelBuilder
 		return URI.createPlatformResourceURI(res.getProject().getName()
 			+ "/" + res.getProjectRelativePath(), true);
 	}
-	
+
 	public static ArrayList<IResource> getAllRDOFilesInProject(IProject project)
 	{
 		ArrayList<IResource> allRDOFiles = new ArrayList<IResource>();
@@ -69,7 +69,7 @@ public class ModelBuilder
 		recursiveFindRDOFiles(allRDOFiles,path,ResourcesPlugin.getWorkspace().getRoot());
 		return allRDOFiles;
 	}
-	
+
 	private static void recursiveFindRDOFiles(ArrayList<IResource> allRDOFiles,IPath path, IWorkspaceRoot workspaceRoot)
 	{
 		IContainer container = workspaceRoot.getContainerForLocation(path);
@@ -77,11 +77,11 @@ public class ModelBuilder
 		{
 			IResource[] iResources;
 			iResources = container.members();
-			for (IResource iR : iResources)
+			for(IResource iR : iResources)
 			{
-				if ("rdo".equalsIgnoreCase(iR.getFileExtension()))
+				if("rdo".equalsIgnoreCase(iR.getFileExtension()))
 					allRDOFiles.add(iR);
-				if (iR.getType() == IResource.FOLDER)
+				if(iR.getType() == IResource.FOLDER)
 				{
 					IPath tempPath = iR.getLocation();
 					recursiveFindRDOFiles(allRDOFiles, tempPath, workspaceRoot);
@@ -93,11 +93,11 @@ public class ModelBuilder
 			e.printStackTrace();
 		}
 	}
-	
+
 	static IProject getProject(IEditorPart activeEditor)
 	{
 		IFile file = (IFile) activeEditor.getEditorInput().getAdapter(IFile.class);
-		if (file != null)
+		if(file != null)
 			return file.getProject();
 		else
 			return null;
@@ -111,11 +111,11 @@ public class ModelBuilder
 		try
 		{
 			markers = project.findMarkers(null, true, IResource.DEPTH_INFINITE);
-			for (IMarker marker: markers)
-		    {
-		        Integer severityType;
+			for(IMarker marker: markers)
+			{
+				Integer severityType;
 				severityType = (Integer) marker.getAttribute(IMarker.SEVERITY);
-				if (severityType != null && severityType.intValue() == IMarker.SEVERITY_ERROR &&
+				if(severityType != null && severityType.intValue() == IMarker.SEVERITY_ERROR &&
 						marker.getType().startsWith("ru.bmstu.rk9.rdo"))
 					result.add(marker);
 			}
@@ -125,7 +125,7 @@ public class ModelBuilder
 			e.printStackTrace();
 		}
 
-	    return result.toArray(new IMarker[result.size()]);
+		return result.toArray(new IMarker[result.size()]);
 	}
 
 	private static void checkProjectClassPath(IProject project, IProgressMonitor monitor)
@@ -135,21 +135,21 @@ public class ModelBuilder
 		try
 		{
 			libPath = FileLocator.getBundleFile(lib);
-			if (libPath != null)
+			if(libPath != null)
 			{
 				IJavaProject jProject = JavaCore.create(project);
 
 				IClasspathEntry[] projectClassPathArray = jProject.getRawClasspath();
 
 				IPath libPathBinary;
-				if (libPath.isDirectory())
+				if(libPath.isDirectory())
 					libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
 				else
 					libPathBinary = new Path(libPath.getAbsolutePath());
 
-				if (projectClassPathArray.length > 2)
+				if(projectClassPathArray.length > 2)
 				{
-					if (!projectClassPathArray[2].getPath().equals(libPathBinary))
+					if(!projectClassPathArray[2].getPath().equals(libPathBinary))
 					{
 						projectClassPathArray[2] = JavaCore.newLibraryEntry(libPathBinary, null, null);
 						jProject.setRawClasspath(projectClassPathArray, monitor);
@@ -191,14 +191,14 @@ public class ModelBuilder
 				IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
 				final IProject project = getProject(activeEditor);
 
-				if (project != null)
+				if(project != null)
 				{
 					checkProjectClassPath(project, monitor);
 
 					IJobManager jobMan = Job.getJobManager();
 					try
 					{
-						for (Job j : jobMan.find(project.getName()))
+						for(Job j : jobMan.find(project.getName()))
 							j.join();
 					}
 					catch (Exception e)
@@ -208,7 +208,7 @@ public class ModelBuilder
 
 					final ArrayList<IResource> projectFiles = ModelBuilder.getAllRDOFilesInProject(project);
 					IFolder srcGenFolder = project.getFolder("src-gen");
-					if (!srcGenFolder.exists())
+					if(!srcGenFolder.exists())
 					{
 						try
 						{
@@ -225,40 +225,40 @@ public class ModelBuilder
 					fsa.setMonitor(monitor);
 					fsa.setProject(project);
 
-		 			HashMap<String, OutputConfiguration> outputConfigurations =
-		 				new HashMap<String,OutputConfiguration>();
+					HashMap<String, OutputConfiguration> outputConfigurations =
+						new HashMap<String,OutputConfiguration>();
 
-		 			for(OutputConfiguration oc : ocp.getOutputConfigurations(project))
-		 				outputConfigurations.put(oc.getName(), oc);
+					for(OutputConfiguration oc : ocp.getOutputConfigurations(project))
+						outputConfigurations.put(oc.getName(), oc);
 
-		 			fsa.setOutputConfigurations(outputConfigurations);
-		 			
-		 			final ResourceSet resourceSet = resourceSetProvider.get(project);
-		 			
-		 			boolean projectHasErrors = false;
-		 			
-		 			for (IResource res : projectFiles)
-		 			{
-		 				Resource loadedResource = resourceSet.getResource(getURI(res), true);
-						if (loadedResource.getErrors().size() > 0)
+					fsa.setOutputConfigurations(outputConfigurations);
+
+					final ResourceSet resourceSet = resourceSetProvider.get(project);
+
+					boolean projectHasErrors = false;
+
+					for(IResource res : projectFiles)
+					{
+						Resource loadedResource = resourceSet.getResource(getURI(res), true);
+						if(!loadedResource.getErrors().isEmpty())
 							projectHasErrors = true;
-		 			}
+					}
 
-		 			if (calculateCompilationErrorMarkers(project).length > 0)
-		 				projectHasErrors = true;
-		 			
-		 			if (projectHasErrors)
-		 			{
-		 				try
-		 				{
+					if(calculateCompilationErrorMarkers(project).length > 0)
+						projectHasErrors = true;
+
+					if(projectHasErrors)
+					{
+						try
+						{
 							srcGenFolder.delete(true, new NullProgressMonitor());
 						}
-		 				catch (CoreException e)
-		 				{
+						catch (CoreException e)
+						{
 							e.printStackTrace();
 						}
-		 				return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui", "Model has errors");
-		 			}
+						return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui", "Model has errors");
+					}
 
 					generator.doGenerate(resourceSet, fsa);
 
@@ -280,6 +280,6 @@ public class ModelBuilder
 		};
 
 		job.setPriority(Job.BUILD);
-		return job;		
+		return job;
 	}
 }

@@ -632,6 +632,10 @@
                     value="-">
               </parameter>
            </command>
+           <separator
+                 name="ru.bmstu.rk9.rdo.ui.runtime.menu.separator3"
+                 visible="true">
+           </separator>
         </menu>
      </menuContribution>
      <menuContribution
@@ -931,6 +935,14 @@
      </view>
      <view
            category="ru.bmstu.rk9.rdo.ui.views"
+           class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:ru.bmstu.rk9.rdo.ui.contributions.RDOTraceConfigView"
+           icon="icons/tag.gif"
+           id="ru.bmstu.rk9.rdo.ui.RDOTraceConfigView"
+           name="RDO Trace Config"
+           restorable="true">
+     </view>
+     <view
+           category="ru.bmstu.rk9.rdo.ui.views"
            class="ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView"
            icon="icons/tag.gif"
            id="ru.bmstu.rk9.rdo.ui.RDOTraceView"
@@ -943,6 +955,22 @@
            icon="icons/status.png"
            id="ru.bmstu.rk9.rdo.ui.RDOStatusView"
            name="RDO Status"
+           restorable="true">
+     </view>
+     <view
+           category="ru.bmstu.rk9.rdo.ui.views"
+           class="ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView"
+           icon="icons/run.gif"
+           id="ru.bmstu.rk9.rdo.ui.RDOAnimationView"
+           name="RDO Animation"
+           restorable="true">
+     </view>
+     <view
+           category="ru.bmstu.rk9.rdo.ui.views"
+           class="ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView"
+           icon="icons/clipboard-list.png"
+           id="ru.bmstu.rk9.rdo.ui.RDOResultsView"
+           name="RDO Results"
            restorable="true">
      </view>
   </extension>

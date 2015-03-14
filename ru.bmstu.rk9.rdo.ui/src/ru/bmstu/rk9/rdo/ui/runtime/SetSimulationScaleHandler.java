@@ -22,7 +22,7 @@ public class SetSimulationScaleHandler extends AbstractHandler
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
-	{		
+	{
 		switch(event.getParameter("ru.bmstu.rk9.rdo.ui.runtime.setSimulationScaleParameter"))
 		{
 			case "+":

@@ -55,7 +55,7 @@ class RDOFunctionCompiler
 					public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
 						»«type.parameters.parameters.compileFunctionTypeParameters»«ENDIF»)
 					{
-						if (true)
+						if(true)
 						{
 							«type.algorithm.compileStatementContext(context)»
 						}
@@ -95,10 +95,10 @@ class RDOFunctionCompiler
 				var context = (new LocalContext).populateFromFunction(type)
 
 				var paramscontext =
-					if (type.parameters != null)
+					if(type.parameters != null)
 						type.parameters.parameters.map
 							[ p |
-								if (p.type.compileType.endsWith("_enum"))
+								if(p.type.compileType.endsWith("_enum"))
 									(new LocalContext).populateWithEnums(p.type.resolveAllSuchAs as RDOEnum)
 								else
 									null
@@ -211,7 +211,7 @@ class RDOFunctionCompiler
 
 	def public static compileFunctionTypeParameters(List<FunctionParameter> parameters)
 	{
-		'''«IF parameters.size > 0»«parameters.get(0).type.compileType» «
+		'''«IF !parameters.empty»«parameters.get(0).type.compileType» «
 			parameters.get(0).name»«
 			FOR parameter : parameters.subList(1, parameters.size)», «
 				parameter.type.compileType» «

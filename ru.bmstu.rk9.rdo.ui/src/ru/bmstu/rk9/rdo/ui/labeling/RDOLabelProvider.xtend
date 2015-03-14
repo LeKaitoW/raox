@@ -12,7 +12,6 @@ import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 
 import ru.bmstu.rk9.rdo.rdo.Resources
-import ru.bmstu.rk9.rdo.rdo.ResourceTrace
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
@@ -68,30 +67,23 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	// Resource types
 	def  text(ResourceType rtp) { "RTP : " + rtp.name }
-	def image(ResourceType rtp) { if (rtp.type.literal == "permanent") "puzzle_plus.gif" else "puzzle_plus_gray.gif" }
+	def image(ResourceType rtp) { if(rtp.type.literal == "permanent") "puzzle_plus.gif" else "puzzle_plus_gray.gif" }
 
 	def  text(ResourceTypeParameter p) { p.name + p.type.typeGenericLabel }
 	def image(ResourceTypeParameter p) { "parameter.gif" }
 
 	// Resources
 	def  text(Resources rss) {"RSS : " +
-		(if (rss.resources.size > 0) {rss.resources.size.toString + " objects"} else "") +
-		(if (rss.resources.size * rss.trace.size > 0) ", " else "") +
-		(if (rss.trace.size > 0) {rss.trace.size.toString + " traced"} else "") +
-		(if (rss.resources.size + rss.trace.size == 0) "empty" else "") }
+		(if(!rss.resources.empty) {rss.resources.size.toString + " objects"} else "") }
 	def image(Resources rss) { "puzzle.gif" }
 
 		// Resource declaration
 		def  text(ResourceDeclaration rss) { "rss : " + rss.name }
 		def image(ResourceDeclaration rss) { "plus.gif" }
 
-		// Trace
-		def  text(ResourceTrace rsstrc) { "trc : " + rsstrc.trace.name.toString }
-		def image(ResourceTrace rsstrc) { "tag.gif" }
-
 	// Constants
 	def  text(Constants c) { "CON : " + c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size.toString +
-		" constant" + if (c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size % 10 != 1) "s" else ""}
+		" constant" + if(c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size % 10 != 1) "s" else ""}
 	def image(Constants c) { "floppy.gif" }
 
 	def image(ConstantDeclaration c) { "constant2.gif" }
@@ -99,9 +91,9 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	// Sequence
 	def  text(Sequence seq) { "SEQ : " + seq.name + " : " + (
-		if (seq.type instanceof EnumerativeSequence) "enumerative" else "" +
-		if (seq.type instanceof RegularSequence) (seq.type as RegularSequence).type.literal else "" +
-		if (seq.type instanceof HistogramSequence) "histogram" else "" ) + seq.returntype.typeGenericLabel }
+		if(seq.type instanceof EnumerativeSequence) "enumerative" else "" +
+		if(seq.type instanceof RegularSequence) (seq.type as RegularSequence).type.literal else "" +
+		if(seq.type instanceof HistogramSequence) "histogram" else "" ) + seq.returntype.typeGenericLabel }
 	def image(Sequence seq) { "chart.gif" }
 
 	// Function
@@ -115,7 +107,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def image(PatternParameter p) { "parameter.gif" }
 
 	// Event
-	def  text(Event evn) { "EVN : " + evn.name + " : event" + if (evn.trace) " , traced" else "" }
+	def  text(Event evn) { "EVN : " + evn.name + " : event"}
 	def image(Event evn) { "event.gif" }
 
 	def  text(EventConvert c) { c.relres.name }
@@ -125,7 +117,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def  text(EventRelevantResource r) { r.name + r.type.relResName }
 
 	// Operation
-	def  text(Operation pat) { "PAT : " + pat.name + " : " + pat.type.literal + if (pat.trace) " , traced" else "" }
+	def  text(Operation pat) { "PAT : " + pat.name + " : " + pat.type.literal}
 	def image(Operation pat) { "script_block.gif" }
 
 	def  text(OperationConvert c) { c.relres.name }
@@ -135,7 +127,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def  text(OperationRelevantResource r) { r.name + r.type.relResName }
 
 	// Rule
-	def  text(Rule pat) { "PAT : " + pat.name + " : rule" + if (pat.trace) " , traced" else "" }
+	def  text(Rule pat) { "PAT : " + pat.name + " : rule"}
 	def image(Rule pat) { "script_block.gif" }
 
 	def  text(RuleConvert c) { c.relres.name }
@@ -172,7 +164,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	// Results
 	def  text(Results r) {
-		"Results : " + (if (r.name != null) {r.name + " "} else "") + "(" +
+		"Results : " + (if(r.name != null) {r.name + " "} else "") + "(" +
 			r.eAllContents.toList.filter(typeof(ResultDeclaration)).size.toString + ")" }
 	def image(Results r) { "clipboard.gif" }
 

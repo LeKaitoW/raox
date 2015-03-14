@@ -15,7 +15,7 @@ public class RDORangedDouble
 
 	public void set(double value) throws Exception
 	{
-		if (value > hi || value < lo)
+		if(value > hi || value < lo)
 			throw new Exception("Out of bounds");
 
 		this.value = value;

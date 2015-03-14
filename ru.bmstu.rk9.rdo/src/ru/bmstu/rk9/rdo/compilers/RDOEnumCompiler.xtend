@@ -10,9 +10,9 @@ class RDOEnumCompiler
 		var flag = false
 		var body = ""
 
-		for (i : e.enums)
+		for(i : e.enums)
 		{
-			if (flag)
+			if(flag)
 				body = body + ", "
 			body = body + i.name
 			flag = true

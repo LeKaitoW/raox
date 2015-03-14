@@ -1,7 +1,6 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.nio.ByteBuffer;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,6 +56,10 @@ public class Database
 			ResourceTypeIndex index =
 				new ResourceTypeIndex(i, resourceType.getJSONObject("structure"));
 			resourceIndex.put(name, index);
+
+			JSONArray resources = resourceType.getJSONArray("resources");
+			for(int j = 0; j < resources.length(); j++)
+				index.resources.add(new Index(j));
 		}
 
 		JSONArray results = modelStructure.getJSONArray("results");
@@ -73,7 +76,7 @@ public class Database
 			JSONObject patternStructure = patterns.getJSONObject(i);
 			String name = patternStructure.getString("name");
 			String type = patternStructure.getString("type");
-			if(type == "event")
+			if(type.equals("event"))
 				eventIndex.put(name, new PatternIndex(i, patternStructure));
 			else
 				patternsByName.put(name, patternStructure);
@@ -112,6 +115,9 @@ public class Database
 		}
 
 		addSystemEntry(SystemEntryType.TRACE_START);
+
+		for(String traceName : TraceConfig.getNames())
+			addSensitivity(traceName);
 	}
 
 	JSONObject modelStructure;
@@ -185,13 +191,54 @@ public class Database
 	ArrayList<Entry> allEntries = new ArrayList<Entry>();
 	
 
+	private final void addEntry(Entry entry)
+	{
+		allEntries.add(entry);
+		notifyChange("EntryAdded");
+	}
+
+	private NotificationManager notificationManager =
+		new NotificationManager(
+			new String[]
+			{
+				"EntryAdded"
+			}
+		);
+
+	public final Notifier getNotifier()
+	{
+		return notificationManager;
+	}
+
+	private final void notifyChange(String category)
+	{
+		notificationManager.notifySubscribers(category);
+	}
+	
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                              SYSTEM ENTRIES                               /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
 	static enum SystemEntryType
 	{
-		TRACE_START, TRACE_END, SIM_START, SIM_FINISH, SIM_ABORT 
+		TRACE_START ("Tracing started"),
+		SIM_START ("Simulation started"),
+		NORMAL_TERMINATION ("Simulation finished: terminate condition"),
+		NO_MORE_EVENTS ("Simulation finished: no more events"),
+		ABORT ("Simulation finished: user interrupt"),
+		RUN_TIME_ERROR ("Simulation finished: runtime error");
+
+		SystemEntryType(String description)
+		{
+			this.description = description;
+		}
+
+		private final String description;
+
+		final String getDescription()
+		{
+			return description;
+		}
 	}
 
 	void addSystemEntry(SystemEntryType type)
@@ -203,7 +250,7 @@ public class Database
 			.putDouble(Simulator.getTime())
 			.put((byte)type.ordinal());
 
-		allEntries.add(new Entry(header, null));
+		addEntry(new Entry(header, null));
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
@@ -225,7 +272,7 @@ public class Database
 
 		final ArrayList<Index> resources;
 	}
-	
+
 	HashMap<String, ResourceTypeIndex> resourceIndex =
 		new HashMap<String, ResourceTypeIndex>();
 
@@ -246,12 +293,12 @@ public class Database
 		String name = resource.getName();
 		if(name != null)
 		{
-			//if(!sensitivityList.contains(name))
-			//	return;
+			if(!sensitivityList.contains(name))
+				return;
 		}
 		else
 		{
-			name = typeName + "_" + String.valueOf(resource.getNumber());
+			name = typeName + "[" + String.valueOf(resource.getNumber()) + "]";
 			if(!sensitivityList.contains(name))
 				if(status == ResourceEntryType.CREATED)
 				{
@@ -300,12 +347,12 @@ public class Database
 
 		Entry entry = new Entry(header, data);
 
-		allEntries.add(entry);
+		addEntry(entry);
 
 		if(shouldSerializeToIndex)
 			resourceIndex.entries.add(allEntries.size() - 1);
 	}
-	
+
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                              PATTERN ENTRIES                              /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
@@ -391,7 +438,7 @@ public class Database
 
 		Entry entry = new Entry(header, data);
 
-		allEntries.add(entry);
+		addEntry(entry);
 		index.entries.add(allEntries.size() - 1);
 	}
 
@@ -413,6 +460,8 @@ public class Database
 	public void addEventEntry(PatternType type, Pattern pattern)
 	{
 		String name = pattern.getName();
+		if(!sensitivityList.contains(name))
+			return;
 
 		PatternIndex index;
 
@@ -459,7 +508,7 @@ public class Database
 
 		Entry entry = new Entry(header, data);
 
-		allEntries.add(entry);
+		addEntry(entry);
 		index.entries.add(allEntries.size() - 1);
 	}
 
@@ -506,7 +555,7 @@ public class Database
 	}
 
 	public static class SearchIndex
-	{		
+	{
 		public final int number;
 
 		private SearchIndex(int number)
@@ -527,7 +576,9 @@ public class Database
 
 	void addSearchEntry(DecisionPointSearch<?> dpt, SearchEntryType type, ByteBuffer data)
 	{
-		SearchIndex index = searchIndex.get(dpt.getName());
+		String name = dpt.getName();
+
+		SearchIndex index = searchIndex.get(name);
 		SearchInfo info = null;
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.SEARCH.HEADER_SIZE);
@@ -562,7 +613,7 @@ public class Database
 
 		Entry entry = new Entry(header, data);
 
-		allEntries.add(entry);
+		addEntry(entry);
 	}
 
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
@@ -580,7 +631,7 @@ public class Database
 		Index index = resultIndex.get(name);
 
 		ByteBuffer data = result.serialize();
-		if (index.entries.size() > 0)
+		if(!index.entries.isEmpty())
 		{
 			ByteBuffer lastResultValue =
 				allEntries.get(
@@ -589,7 +640,7 @@ public class Database
 			ByteBuffer currentResultValue = data.duplicate();
 			currentResultValue.rewind();
 			lastResultValue.rewind();
-			if (currentResultValue.compareTo(lastResultValue) == 0)
+			if(currentResultValue.compareTo(lastResultValue) == 0)
 				return;
 		}
 
@@ -601,12 +652,7 @@ public class Database
 
 		Entry entry = new Entry(header, data);
 
-		allEntries.add(entry);
+		addEntry(entry);
 		index.entries.add(allEntries.size() - 1);
-	}
-	
-	public ArrayList<Entry> getAllEntries()
-	{
-		return allEntries;
 	}
 }

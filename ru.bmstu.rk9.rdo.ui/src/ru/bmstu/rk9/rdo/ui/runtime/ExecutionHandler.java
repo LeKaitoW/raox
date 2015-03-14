@@ -1,63 +1,55 @@
 package ru.bmstu.rk9.rdo.ui.runtime;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
-import java.util.LinkedList;
-
-import java.lang.reflect.Method;
-
 import java.io.IOException;
-
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
-
 import org.eclipse.swt.widgets.Display;
-
 import org.eclipse.ui.PlatformUI;
-
 import org.eclipse.ui.handlers.HandlerUtil;
-
 import org.eclipse.ui.services.ISourceProviderService;
-
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
-
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import ru.bmstu.rk9.rdo.IMultipleResourceGenerator;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-
+import ru.bmstu.rk9.rdo.lib.AnimationFrame;
 import ru.bmstu.rk9.rdo.lib.Notifier;
 import ru.bmstu.rk9.rdo.lib.Result;
 import ru.bmstu.rk9.rdo.lib.Simulator;
-
+import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceConfigView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
+import ru.bmstu.rk9.rdo.lib.GraphControl;
+import ru.bmstu.rk9.rdo.ui.graph.GraphFrame;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 
 public class ExecutionHandler extends AbstractHandler
 {
 	@Inject
 	private IMultipleResourceGenerator generator;
- 
+
 	@Inject
 	private Provider<EclipseResourceFileSystemAccess2> fileAccessProvider;
 
@@ -126,53 +118,43 @@ public class ExecutionHandler extends AbstractHandler
 
 		final Job run = new Job(project.getName() + " execution")
 		{
-			protected IStatus run(IProgressMonitor monitor) 
+			protected IStatus run(IProgressMonitor monitor)
 			{
-				String name = this.getName();
-				this.setName(name + " (waiting for execution to complete)");
-
-				IJobManager jobMan = Job.getJobManager();
-				try
-				{
-					for (Job j : jobMan.find("rdo_model_run"))
-						if (j != this)
-							j.join();
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-
-				this.setName(name);
-
-				this.setName(name + " (waiting for build to complete)");
-
-				try
-				{
-					build.join();
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-
-				this.setName(name);
-
-				if (build.getResult() != Status.OK_STATUS)
-				{
-					setRunningState(display, sourceProvider, false);
-					RDOConsoleView.addLine("Build failed");
-					return new Status(Status.CANCEL, "ru.bmstu.rk9.rdo.ui", "Execution cancelled");
-				}
-
-				RDOConsoleView.clearConsoleText();
-				SimulationSynchronizer.start();
-
 				URLClassLoader cl = null;
 				Timer uiRealTime = new Timer();
+				Timer traceRealTimeUpdater = new Timer();
+				Timer animationUpdater = new Timer();
+				Timer graphRealTimeUpdater = new Timer();
 
 				try
 				{
+					String name = this.getName();
+					this.setName(name + " (waiting for execution to complete)");
+
+					IJobManager jobMan = Job.getJobManager();
+
+					for(Job j : jobMan.find("rdo_model_run"))
+						if(j != this)
+							j.join();
+
+					this.setName(name);
+
+					this.setName(name + " (waiting for build to complete)");
+
+					build.join();
+
+					this.setName(name);
+
+					if(build.getResult() != Status.OK_STATUS)
+					{
+						setRunningState(display, sourceProvider, false);
+						RDOConsoleView.addLine("Build failed");
+						return new Status(Status.CANCEL, "ru.bmstu.rk9.rdo.ui", "Execution cancelled");
+					}
+
+					RDOConsoleView.clearConsoleText();
+					SimulationSynchronizer.start();
+
 					URL model = new URL("file:///" + ResourcesPlugin.getWorkspace().
 							getRoot().getLocation().toString() + "/" + project.getName() + "/bin/");
 
@@ -192,28 +174,53 @@ public class ExecutionHandler extends AbstractHandler
 							initialization = method;
 					}
 
-					initialization.invoke(null, new Object[]{});
+					RDOTraceConfigView.initNames();
 
-					//TODO find better place to do it
-					Simulator.initTracer();
-					Notifier notifier = Simulator.getNotifier();
+					final ArrayList<AnimationFrame> frames = new ArrayList<AnimationFrame>();
 
-					notifier
+					if(initialization != null)
+						initialization.invoke(null, (Object)frames);
+
+					display.syncExec(() -> RDOAnimationView.initialize(frames));
+
+					Notifier simulatorNotifier =
+						Simulator.getNotifier();
+
+					Notifier databaseNotifier =
+						Simulator.getDatabase().getNotifier();
+
+					simulatorNotifier
 						.getSubscription("TimeChange")
 							.addSubscriber(SimulationSynchronizer.getInstance().uiTimeUpdater)
 							.addSubscriber(SimulationSynchronizer.getInstance().simulationScaleManager);
 
-					notifier
+					simulatorNotifier
 						.getSubscription("StateChange")
-							.addSubscriber(SimulationSynchronizer.getInstance().simulationSpeedManager);
+							.addSubscriber(SimulationSynchronizer.getInstance().simulationSpeedManager)
+							.addSubscriber(RDOAnimationView.updater);
 
-					notifier
+					simulatorNotifier
 						.getSubscription("ExecutionAborted")
 							.addSubscriber(SimulationSynchronizer.getInstance().simulationStateListener);
 
-					notifier
-						.getSubscription("ExecutionComplete")
-								.addSubscriber(RDOTraceView.updater);
+					RDOTraceView.commonUpdater.fireChange();
+
+					databaseNotifier
+						.getSubscription("EntryAdded")
+							.addSubscriber(Simulator.getTracer());
+					
+					databaseNotifier
+						.getSubscription("EntryAdded")
+							.addSubscriber(Simulator.getTreeBuilder());
+
+					Simulator.getTracer()
+						.setRealTimeSubscriber(RDOTraceView.realTimeUpdater);
+
+					Simulator.getTracer()
+						.setCommonSubscriber(RDOTraceView.commonUpdater);
+					
+					Simulator.getTreeBuilder()
+						.setGUISubscriber(GraphFrame.realTimeUpdater);
 
 					RDOConsoleView.addLine("Started model " + project.getName());
 					final long startTime = System.currentTimeMillis();
@@ -225,31 +232,44 @@ public class ExecutionHandler extends AbstractHandler
 							@Override
 							public void run()
 							{
-								display.asyncExec
-								(
-									new Runnable()
-									{	
-										@Override
-										public void run()
-										{
-											RDOStatusView.setRealTime(System.currentTimeMillis() - startTime);	
-										}
-									}
-								);
+								display.asyncExec(() ->
+									RDOStatusView.setRealTime(System.currentTimeMillis() - startTime));
 							}
 						},
 						0,
 						100
 					);
 
+					traceRealTimeUpdater.scheduleAtFixedRate
+					(
+						RDOTraceView.getRealTimeUpdaterTask(),
+						0,
+						100
+					);
+					
+					graphRealTimeUpdater.scheduleAtFixedRate
+					(
+						GraphControl.getGraphRealTimeUpdaterTask(),
+						0,
+						100
+					);
+
+					animationUpdater.scheduleAtFixedRate
+					(
+						RDOAnimationView.getRedrawTimerTask(),
+						0,
+						20
+					);
+
 					LinkedList<Result> results = new LinkedList<Result>();
-					int result = -1; 
-					if (simulation != null)
-					{
+					int result = -1;
+					if(simulation != null)
 						result = (int)simulation.invoke(null, (Object)results);
-					}
 
 					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.updater);
+
+					display.syncExec(() -> RDOAnimationView.deinitialize());
+
 					setRunningState(display, sourceProvider, false);
 
 					switch (result)
@@ -264,23 +284,43 @@ public class ExecutionHandler extends AbstractHandler
 							RDOConsoleView.addLine("No more events");
 					}
 
-					if (results.size() > 0)
-						RDOConsoleView.addLine("Results:");
-					for (Result r : results)
-						RDOConsoleView.addLine(r.get());
+					for(Result r : results)
+						r.calculate();
+
+					display.asyncExec(() -> RDOResultsView.setResults(results));
 
 					RDOConsoleView.addLine("Time elapsed: " +
 						String.valueOf(System.currentTimeMillis() - startTime) + "ms");
-				}
-				catch (Exception e)
-				{
-					setRunningState(display, sourceProvider, false);
-					RDOConsoleView.addLine("Execution error");
-					e.printStackTrace();
-					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.updater);
+
 					SimulationSynchronizer.finish();
 
 					uiRealTime.cancel();
+					traceRealTimeUpdater.cancel();
+					graphRealTimeUpdater.cancel();
+					if (!GraphControl.timerList.isEmpty())
+						for (int i = 0; i < GraphControl.timerList.size(); i++)
+							GraphControl.timerList.get(i).cancel();
+					animationUpdater.cancel();
+
+					cl.close();
+
+					return Status.OK_STATUS;
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					setRunningState(display, sourceProvider, false);
+					RDOConsoleView.addLine("Execution error");
+					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.updater);
+
+					display.syncExec(() -> RDOAnimationView.deinitialize());
+
+					SimulationSynchronizer.finish();
+
+					uiRealTime.cancel();
+					traceRealTimeUpdater.cancel();
+					graphRealTimeUpdater.cancel();
+					animationUpdater.cancel();
 
 					if(cl != null)
 						try
@@ -292,23 +332,8 @@ public class ExecutionHandler extends AbstractHandler
 							e1.printStackTrace();
 						}
 
-					return new Status(Status.CANCEL, "ru.bmstu.rk9.rdo.ui", "Execution failed");
+					return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui", "Execution failed");
 				}
-
-				SimulationSynchronizer.finish();
-
-				uiRealTime.cancel();
-
-				try
-				{
-					cl.close();
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-
-				return Status.OK_STATUS;
 			}
 
 			@Override

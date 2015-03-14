@@ -8,6 +8,9 @@ import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 
 import ru.bmstu.rk9.rdo.generator.LocalContext
 
+import ru.bmstu.rk9.rdo.rdo.ResourceType
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
+
 import ru.bmstu.rk9.rdo.rdo.Results
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 
@@ -19,12 +22,14 @@ import ru.bmstu.rk9.rdo.rdo.ResultWatchQuant
 import ru.bmstu.rk9.rdo.rdo.ResultWatchState
 import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
 
+import ru.bmstu.rk9.rdo.generator.RDOExpression
+
 class RDOResultCompiler
 {
 	def public static compileResult(ResultDeclaration result, String filename)
 	{
 		val name =
-			(if ((result.eContainer as Results).name != null)
+			(if((result.eContainer as Results).name != null)
 				(result.eContainer as Results).name + "_" else "")
 			+ result.name
 		'''
@@ -32,24 +37,30 @@ class RDOResultCompiler
 
 		import java.nio.ByteBuffer;
 
+		import ru.bmstu.rk9.rdo.lib.json.*;
+
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
 		public class «name» implements Result, Subscriber
 		{
+			private static «name» INSTANCE = new «name»();
+
 			@Override
 			public String getName()
 			{
 				return "«result.fullyQualifiedName»";
 			}
 
-			@Override
-			public Result.Type getType()
-			{
-				return «result.type.compileTypeEnum»;
-			}
+			private JSONObject data = new JSONObject()
+				.put("name", this.getName())
+				.put("type", "«result.type.compileTypeEnum»");
 
-			private static «name» INSTANCE = new «name»();
+			@Override
+			public JSONObject getData()
+			{
+				return data;
+			}
 
 			«result.type.compileResultBody»
 		}
@@ -60,11 +71,11 @@ class RDOResultCompiler
 	{
 		switch(type)
 		{
-			ResultGetValue:       "Result.Type.GET_VALUE"
-			ResultWatchParameter: "Result.Type.WATCH_PAR"
-			ResultWatchQuant:     "Result.Type.WATCH_QUANT"
-			ResultWatchState:     "Result.Type.WATCH_STATE"
-			ResultWatchValue:     "Result.Type.WATCH_VALUE"
+			ResultGetValue:       "get_value"
+			ResultWatchParameter: "watch_par"
+			ResultWatchQuant:     "watch_quant"
+			ResultWatchState:     "watch_state"
+			ResultWatchValue:     "watch_value"
 		}
 	}
 
@@ -73,112 +84,141 @@ class RDOResultCompiler
 		switch type
 		{
 			ResultGetValue:
+			{
+				val expr = type.expression.compileExpression
 				'''
 				public static void init()
 				{
 					Simulator.addResult(INSTANCE);
-					Simulator.getDatabase().addSensitivity("«type.eContainer.fullyQualifiedName»");
+
+					«type.compileValueType(expr)»
 				}
 
 				@Override
 				public void fireChange() {}
 
 				@Override
-				public String get()
-				{
-					return "«(type.eContainer as ResultDeclaration).name»\t\t|\tType: get_value\t\t|\tValue: " +
-						String.valueOf(«type.expression.compileExpression.value»);
-				}
-
-				@Override
 				public ByteBuffer serialize()
 				{
 					return null;
 				}
-				'''
-			ResultWatchParameter:
-			{
-				val cexpr = type.parameter.lookupGlobal
-				'''
-				public static void init()
-				{
-					Simulator.addResult(INSTANCE);
-					Simulator.getDatabase().addSensitivity("«type.eContainer.fullyQualifiedName»");
-					Simulator.getNotifier().getSubscription("StateChange").addSubscriber(INSTANCE);
-				}
 
 				@Override
-				public void fireChange()
+				public void calculate()
 				{
-					Simulator.getDatabase().addResultEntry(this);
-				}
-
-				@Override
-				public String get()
-				{
-					return "";
-				}
-
-				@Override
-				public ByteBuffer serialize()
-				{
-					«cexpr.type» value = «cexpr.generated»;
-
-					«IF cexpr.type == "String"»byte[] bytes_of_value = value.getBytes();
-					int size = bytes_of_value.length;
-					«ELSE»int size = «cexpr.type.getTypeSize("value")»;
-					«ENDIF»ByteBuffer data = ByteBuffer.allocate(size);
-					«cexpr.type.compileBufferData»
-
-					return data;
+					data.put
+					(
+						"value",
+						String.valueOf
+						(
+							«expr.value»
+						)
+					);
 				}
 				'''
 			}
-			ResultWatchValue:
+			ResultWatchParameter:
 			{
-				val context = (new LocalContext).populateWithResourceRename(type.resource, "deleted")
-				val cexpr = type.expression.compileExpressionContext(context)
+				val cexpr = type.parameter.lookupGlobal
+				val expr = new RDOExpression(cexpr.generated, cexpr.type);
+
 				'''
 				public static void init()
 				{
 					Simulator.addResult(INSTANCE);
-					Simulator.getDatabase().addSensitivity("«type.eContainer.fullyQualifiedName»");
-					«type.resource.fullyQualifiedName»
-						.getNotifier()
-							.getSubscription("RESOURCE.DELETED")
-								.addSubscriber(INSTANCE);
+
+					Notifier notifier = Simulator.getNotifier();
+
+					notifier.getSubscription("StateChange")
+						.addSubscriber(INSTANCE);
+					notifier.getSubscription("ExecutionAborted")
+						.addSubscriber(INSTANCE.finalizer);
+					notifier.getSubscription("ExecutionComplete")
+						.addSubscriber(INSTANCE.finalizer);
+
+					«type.compileValueType(expr)»
 				}
+
+				'''
+				+
+				expr.compileNumericalStat
+			}
+			ResultWatchValue:
+			{
+				val context = (new LocalContext).populateWithResourceRename(type.resource, "this.deleted")
+				val expr = type.expression.compileExpressionContext(context)
+				expr.value = expr.value.replaceFirst("this.deleted", "(this.deleted = " +
+					type.resource.fullyQualifiedName + ".getLastDeleted())") 
+				'''
+				«type.resource.fullyQualifiedName» deleted = null;
+
+				'''
+				+
+				'''
+				public static void init()
+				{
+					Simulator.addResult(INSTANCE);
+					«type.resource.fullyQualifiedName».getNotifier().getSubscription(«""
+						»"ResourceDeleted").addSubscriber(INSTANCE);
+
+					«type.compileValueType(expr)»
+				}
+
+				private Statistics.Storeless storelessStats
+					= new Statistics.Storeless();
+
+				private «expr.type.toSimpleType» value;
+
+				private «expr.type.toSimpleType» minValue = «expr.type».MAX_VALUE;
+				private «expr.type.toSimpleType» maxValue = «expr.type».MIN_VALUE;
+
+				private int watchCounter;
 
 				@Override
 				public void fireChange()
 				{
-					«IF type.logic != null»«
-						type.resource.fullyQualifiedName» deleted = «type.resource.fullyQualifiedName».getLastDeleted();
+					value = «expr.value»;
 
-					if(«type.logic.compileExpressionContext(context).value»)
-						«ENDIF»Simulator.getDatabase().addResultEntry(this);
-				}
+					if(value < minValue)
+						minValue = value;
 
-				@Override
-				public String get()
-				{
-					return "";
+					if(value > maxValue)
+						maxValue = value;
+
+					watchCounter++;
+
+					Simulator.getDatabase().addResultEntry(this);
+
+					storelessStats.next(value);
 				}
 
 				@Override
 				public ByteBuffer serialize()
 				{
-					«type.resource.fullyQualifiedName» deleted = «type.resource.fullyQualifiedName».getLastDeleted();
-
-					«cexpr.type» value = «cexpr.value»;
-
-					«IF cexpr.type == "String"»byte[] bytes_of_value = value.getBytes();
-					int size = bytes_of_value.length;
-					«ELSE»int size = «cexpr.type.getTypeSize("value")»;
-					«ENDIF»ByteBuffer data = ByteBuffer.allocate(size);
-					«cexpr.type.compileBufferData»
+					ByteBuffer data = ByteBuffer.allocate(«expr.type.getTypeConstantSize»);
+					«expr.type.compileBufferData»
 
 					return data;
+				}
+
+				@Override
+				public void calculate()
+				{
+					double mean = storelessStats.getMean();
+					double deviation = storelessStats.getStandartDeviation();
+					double varcoef = storelessStats.getCoefficientOfVariation();
+
+					data
+						.put("mean", Double.isFinite(mean) ? mean : "N/A")
+						.put("deviation", Double.isFinite(deviation) ? deviation : "N/A")
+						.put("varcoef", Double.isFinite(varcoef) ? varcoef : "N/A")
+						.put("last", value)
+						.put("min", minValue)
+						.put("max", maxValue)
+						.put("counter", watchCounter);
+
+					if(storelessStats.initFromDatabase(this))
+						data.put("median", storelessStats.getMedian());
 				}
 				'''
 			}
@@ -189,88 +229,225 @@ class RDOResultCompiler
 				public static void init()
 				{
 					Simulator.addResult(INSTANCE);
-					Simulator.getDatabase().addSensitivity("«type.eContainer.fullyQualifiedName»");
-					Simulator.getNotifier().getSubscription("StateChange").addSubscriber(INSTANCE);
+
+					Notifier notifier = Simulator.getNotifier();
+
+					notifier.getSubscription("StateChange")
+						.addSubscriber(INSTANCE);
+					notifier.getSubscription("ExecutionAborted")
+						.addSubscriber(INSTANCE.finalizer);
+					notifier.getSubscription("ExecutionComplete")
+						.addSubscriber(INSTANCE.finalizer);
+
+					INSTANCE.data.put("valueType", "bool");
 				}
+
+				private Statistics.LogicStoreless storelessStats
+					= new Statistics.LogicStoreless();
+
+				private Subscriber finalizer = new Subscriber()
+				{
+					@Override
+					public void fireChange()
+					{
+						storelessStats.addState
+						(
+							value,
+							Simulator.getTime() - lastTime
+						);
+					}
+				};
+
+				private double lastTime = 0;
+
+				private int watchCounter;
+
+				boolean value = false;
 
 				@Override
 				public void fireChange()
 				{
-					Simulator.getDatabase().addResultEntry(this);
-				}
+					boolean newValue = «cexpr.value»;
 
-				@Override
-				public String get()
-				{
-					return "";
+					double timeNow;
+
+					valueCheck:
+					if(newValue != value || watchCounter == 0)
+					{
+						timeNow = Simulator.getTime();
+
+						if(watchCounter == 0)
+							break valueCheck;
+
+						double delta = timeNow - lastTime;
+
+						storelessStats.addState(value, delta);
+					}
+					else
+						return;
+
+					lastTime = timeNow;
+					value = newValue;
+
+					watchCounter++;
+
+					Simulator.getDatabase().addResultEntry(this);
 				}
 
 				@Override
 				public ByteBuffer serialize()
 				{
-					Boolean value = «cexpr.value»;
-
 					ByteBuffer data = ByteBuffer.allocate(1);
 					«"Boolean".compileBufferData»
 
 					return data;
 				}
-				'''
 
+				@Override
+				public void calculate()
+				{
+					data
+						.put("last", value)
+						.put("counter", watchCounter)
+						.put("minTrue", storelessStats.getMinTrue())
+						.put("maxTrue", storelessStats.getMaxTrue())
+						.put("minFalse", storelessStats.getMinFalse())
+						.put("maxFalse", storelessStats.getMaxFalse())
+						.put("percent", storelessStats.getPercent());
+				}
+				'''
 			}
 			ResultWatchQuant:
 			{
 				val context = (new LocalContext).populateWithResourceRename(type.resource, "current")
+				val expr = new RDOExpression
+				(
+					'''«IF type.logic == null»«
+							type.resource.fullyQualifiedName».getTemporary().size()«
+						ELSE
+							»Select.Size(«type.resource.fullyQualifiedName».getTemporary(), logic)«
+						ENDIF»''',
+					"Integer"
+				);
+
+				(if(type.logic != null)
+					'''
+					private static Select.Checker logic =
+						new Select.Checker<«type.resource.fullyQualifiedName»>()
+						{
+							@Override
+							public boolean check(«type.resource.fullyQualifiedName» current)
+							{
+								return «type.logic.compileExpressionContext(context).value»;
+							}
+						};
+
+					'''
+				else
+					"")
+				+
 				'''
 				public static void init()
 				{
 					Simulator.addResult(INSTANCE);
-					Simulator.getDatabase().addSensitivity("«type.eContainer.fullyQualifiedName»");
-					Simulator.getNotifier().getSubscription("StateChange").addSubscriber(INSTANCE);
+
+					Notifier notifier = Simulator.getNotifier();
+
+					notifier.getSubscription("StateChange")
+						.addSubscriber(INSTANCE);
+					notifier.getSubscription("ExecutionAborted")
+						.addSubscriber(INSTANCE.finalizer);
+					notifier.getSubscription("ExecutionComplete")
+						.addSubscriber(INSTANCE.finalizer);
+
+					INSTANCE.data.put("valueType", "«expr.type.backToRDOType»");
 				}
 
-				@Override
-				public void fireChange()
-				{
-					Simulator.getDatabase().addResultEntry(this);
-				}
-
-				@Override
-				public String get()
-				{
-					return "";
-				}
-
-				«IF type.logic != null»
-				private static Select.Checker logic =
-					new Select.Checker<«type.resource.fullyQualifiedName»>()
-					{
-						@Override
-						public boolean check(«type.resource.fullyQualifiedName» current)
-						{
-							return «type.logic.compileExpressionContext(context).value»;
-						}
-					};
-
-				«ENDIF»
-				@Override
-				public ByteBuffer serialize()
-				{
-					int count = «
-						IF type.logic == null»«
-							type.resource.fullyQualifiedName».getTemporary().size()«
-						ELSE
-							»Select.Size(«type.resource.fullyQualifiedName».getTemporary(), logic)«
-						ENDIF»;
-
-					ByteBuffer data = ByteBuffer.allocate(4);
-					data.putInt(count);
-
-					return data;
-				}
 				'''
+				+
+				expr.compileNumericalStat
 			}
 		}
+	}
+
+	def private static compileNumericalStat(RDOExpression expr)
+	{
+		'''
+		private Statistics.WeightedStoreless storelessStats
+			= new Statistics.WeightedStoreless();
+
+		private Subscriber finalizer = new Subscriber()
+		{
+			@Override
+			public void fireChange()
+			{
+				storelessStats.next
+				(
+					Simulator.getTime(),
+					Double.NaN
+				);
+			}
+		};
+
+		private «expr.type.toSimpleType» value;
+
+		private «expr.type.toSimpleType» minValue = «expr.type».MAX_VALUE;
+		private «expr.type.toSimpleType» maxValue = «expr.type».MIN_VALUE;
+
+		private int watchCounter;
+
+		@Override
+		public void fireChange()
+		{
+			«expr.type.toSimpleType» newValue = «expr.value»;
+
+			if(newValue != value || watchCounter == 0)
+				value = newValue;
+			else
+				return;
+
+			if(value < minValue)
+				minValue = value;
+
+			if(value > maxValue)
+				maxValue = value;
+
+			watchCounter++;
+
+			Simulator.getDatabase().addResultEntry(this);
+
+			storelessStats.next(Simulator.getTime(), value);
+		}
+
+		@Override
+		public ByteBuffer serialize()
+		{
+			ByteBuffer data = ByteBuffer.allocate(«expr.type.getTypeConstantSize»);
+			«expr.type.compileBufferData»
+
+			return data;
+		}
+
+		@Override
+		public void calculate()
+		{
+			double mean = storelessStats.getMean();
+			double deviation = storelessStats.getStandartDeviation();
+			double varcoef = storelessStats.getCoefficientOfVariation();
+
+			data
+				.put("mean", Double.isFinite(mean) ? mean : "N/A")
+				.put("deviation", Double.isFinite(deviation) ? deviation : "N/A")
+				.put("varcoef", Double.isFinite(varcoef) ? varcoef : "N/A")
+				.put("last", value)
+				.put("min", minValue)
+				.put("max", maxValue)
+				.put("counter", watchCounter);
+
+			if(storelessStats.initFromDatabase(this))
+				data.put("median", storelessStats.getMedian());
+		}
+		'''
 	}
 
 	def private static compileBufferData(String type)
@@ -292,5 +469,31 @@ class RDOResultCompiler
 
 		return ""
 
+	}
+
+	def private static compileValueType(ResultType result, RDOExpression expr)
+	{
+		if(expr.type.endsWith("_enum"))
+			'''
+			INSTANCE.data
+				.put("valueType", "enum")
+				.put("enum_origin", "«expr.type.substring(0, expr.type.length - 5)»")
+				.put
+				(
+					"enums", new JSONArray()
+						«FOR e : ((result.modelRoot.eAllContents.findFirst
+							[r | r instanceof ResourceType && (r as ResourceType).fullyQualifiedName
+								== expr.type.substring(0, expr.type.lastIndexOf('.'))] as ResourceType)
+									.parameters.findFirst[p | p.name == expr.type.substring(
+										expr.type.lastIndexOf('.') + 1, expr.type.length - 5)]
+											.type as RDORTPParameterEnum).type.enums»
+							.put("«e.name»")
+						«ENDFOR»
+				);
+			'''
+		else
+		'''
+		INSTANCE.data.put("valueType", "«expr.type.backToRDOType»");
+		'''
 	}
 }

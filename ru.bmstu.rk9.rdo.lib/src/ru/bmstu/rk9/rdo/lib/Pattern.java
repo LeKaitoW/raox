@@ -18,5 +18,5 @@ public interface Pattern
 	}
 
 	public String getName();
-	public int[] getRelevantInfo(); 
+	public int[] getRelevantInfo();
 }

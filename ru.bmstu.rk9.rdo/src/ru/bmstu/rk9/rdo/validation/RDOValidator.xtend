@@ -37,7 +37,6 @@ import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
-import ru.bmstu.rk9.rdo.rdo.ResourceTrace
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
 
@@ -49,7 +48,6 @@ import ru.bmstu.rk9.rdo.rdo.FunctionTable
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
-import ru.bmstu.rk9.rdo.rdo.PatternConvertStatus
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
 import ru.bmstu.rk9.rdo.rdo.OperationConvert
@@ -61,6 +59,8 @@ import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 import ru.bmstu.rk9.rdo.rdo.EventConvert
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
+
+import ru.bmstu.rk9.rdo.rdo.Frame
 
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 
@@ -98,7 +98,7 @@ class SuchAsHistory
 
 		var extmodel = ""
 		var extname = RDOQualifiedNameProvider.filenameFromURI((object.eContainer.eContainer as RDOModel))
-		if (RDOQualifiedNameProvider.filenameFromURI((history.head.eContainer.eContainer as RDOModel)) != extname)
+		if(RDOQualifiedNameProvider.filenameFromURI((history.head.eContainer.eContainer as RDOModel)) != extname)
 			extmodel = extmodel + extname + "."
 
 		switch object
@@ -142,8 +142,8 @@ class RDOValidator extends AbstractRDOValidator
 			return
 		else
 		{
-			for (IContainer c : containerManager.getVisibleContainers(resDesc, index))
-				for (IResourceDescription rd : c.getResourceDescriptions())
+			for(IContainer c : containerManager.getVisibleContainers(resDesc, index))
+				for(IResourceDescription rd : c.getResourceDescriptions())
 				{
 					resourceIndex.add(model.eResource.resourceSet.getResource(rd.URI, true))
 					if(!variableIndex.containsKey(resourceIndex.last.resourceName))
@@ -163,7 +163,7 @@ class RDOValidator extends AbstractRDOValidator
 	def exportResourceDeclarations(ResourceDeclaration rss)
 	{
 		val model = rss.modelRoot
-		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
+		if(variableIndex == null || variableIndex.get(model.nameGeneric) == null)
 			return
 
 		val resindex = variableIndex.get(model.nameGeneric).resources
@@ -179,7 +179,7 @@ class RDOValidator extends AbstractRDOValidator
 	def exportSequences(Sequence seq)
 	{
 		val model = seq.modelRoot
-		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
+		if(variableIndex == null || variableIndex.get(model.nameGeneric) == null)
 			return
 
 		val seqindex = variableIndex.get(model.nameGeneric).sequences
@@ -195,7 +195,7 @@ class RDOValidator extends AbstractRDOValidator
 	def exportConstants(ConstantDeclaration con)
 	{
 		val model = con.modelRoot
-		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
+		if(variableIndex == null || variableIndex.get(model.nameGeneric) == null)
 			return
 
 		val conindex = variableIndex.get(model.nameGeneric).constants
@@ -211,7 +211,7 @@ class RDOValidator extends AbstractRDOValidator
 	def exportFunctions(Function fun)
 	{
 		val model = fun.modelRoot
-		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
+		if(variableIndex == null || variableIndex.get(model.nameGeneric) == null)
 			return
 
 		val funindex = variableIndex.get(model.nameGeneric).functions
@@ -248,9 +248,9 @@ class RDOValidator extends AbstractRDOValidator
 			smrs.addAll(r.allContents.toIterable.filter(typeof(SimulationRun)))
 
 
-		if (smrs.size > 1)
-			for (e : smrs)
-				if (e.eResource == smr.eResource)
+		if(smrs.size > 1)
+			for(e : smrs)
+				if(e.eResource == smr.eResource)
 					error("Error - project can have no more than one Simulation run block", e,
 						e.getNameStructuralFeature)
 	}
@@ -269,26 +269,27 @@ class RDOValidator extends AbstractRDOValidator
 			e instanceof Function            ||
 			e instanceof Pattern             ||
 			e instanceof DecisionPoint       ||
+			e instanceof Frame               ||
 			e instanceof ResultDeclaration
 		].toList
 
-		for (e : checklist)
+		for(e : checklist)
 		{
 			val name = e.fullyQualifiedName
-			if (entities.contains(name))
+			if(entities.contains(name))
 			{
-				if (!duplicates.contains(name))
+				if(!duplicates.contains(name))
 					duplicates.add(name)
 			}
 			else
 				entities.add(name)
 		}
 
-		if (duplicates.size > 0)
-			for (e : checklist)
+		if(!duplicates.empty)
+			for(e : checklist)
 			{
 				val name = e.fullyQualifiedName
-				if (duplicates.contains(name))
+				if(duplicates.contains(name))
 					error("Error - multiple declarations of object '" + name + "'.", e,
 						e.getNameStructuralFeature)
 			}
@@ -306,13 +307,13 @@ class RDOValidator extends AbstractRDOValidator
 			e instanceof EventRelevantResource
 		].toList
 
-		for (e : paramlist)
-			if (relreslist.map[r | r.nameGeneric].contains(e.nameGeneric))
+		for(e : paramlist)
+			if(relreslist.map[r | r.nameGeneric].contains(e.nameGeneric))
 				error("Error - parameter name shouldn't match relevant resource name '" + e.nameGeneric + "'.", e,
 					e.getNameStructuralFeature)
 
-		for (e : relreslist)
-			if (paramlist.map[r | r.nameGeneric].contains(e.nameGeneric))
+		for(e : relreslist)
+			if(paramlist.map[r | r.nameGeneric].contains(e.nameGeneric))
 				error("Error - relevant resource name shouldn't match parameter name '" + e.nameGeneric + "'.", e,
 					e.getNameStructuralFeature)
 	}
@@ -348,6 +349,9 @@ class RDOValidator extends AbstractRDOValidator
 			DecisionPoint:
 				RdoPackage.eINSTANCE.decisionPoint_Name
 
+			Frame:
+				RdoPackage.eINSTANCE.frame_Name
+
 			ResultDeclaration:
 				RdoPackage.eINSTANCE.resultDeclaration_Name
 
@@ -367,7 +371,7 @@ class RDOValidator extends AbstractRDOValidator
 
 	def boolean resolveCyclicSuchAs(EObject object, SuchAsHistory history)
 	{
-		if (object.eContainer == null)	// check unresolved reference in order
+		if(object.eContainer == null)	// check unresolved reference in order
 		    return false              	// to avoid exception in second switch
 
 		switch object
@@ -378,7 +382,7 @@ class RDOValidator extends AbstractRDOValidator
 				{
 					RDORTPParameterSuchAs:
 					{
-						if (history.add(object))
+						if(history.add(object))
 							return resolveCyclicSuchAs((object.type as RDORTPParameterSuchAs).type.type, history)
 						else
 							return true
@@ -392,7 +396,7 @@ class RDOValidator extends AbstractRDOValidator
 				{
 					RDOSuchAs:
 					{
-						if (history.add(object))
+						if(history.add(object))
 							return resolveCyclicSuchAs((object.type as RDOSuchAs).type, history)
 						else
 							return true
@@ -425,23 +429,9 @@ class RDOValidator extends AbstractRDOValidator
 			default: return
 		}
 		var SuchAsHistory history = new SuchAsHistory(first)
-		if (resolveCyclicSuchAs(ref.type, history))
+		if(resolveCyclicSuchAs(ref.type, history))
 			error("Cyclic such_as found in '" + first.nameGeneric + "': " + history.text +". Resulting type is unknown.",
 				first, RdoPackage.eINSTANCE.META_SuchAs_Name)
-	}
-
-	@Check
-	def checkMultipleTraces(ResourceTrace trc)
-	{
-		var found = 0
-		for (e : trc.eContainer.eContainer.eAllContents.filter(typeof(ResourceTrace)).toIterable)
-			if (trc.trace == e.trace)
-				found = found + 1
-		if (found > 1)
-			for (e : trc.eContainer.eContainer.eAllContents.filter(typeof(ResourceTrace)).toIterable)
-				if (trc.trace == e.trace)
-					error("Multiple trace statements for '" + trc.trace.name + "'.",
-						e, RdoPackage.eINSTANCE.resourceTrace_Trace)
 	}
 
 	@Check
@@ -455,31 +445,31 @@ class RDOValidator extends AbstractRDOValidator
 		{
 			ResourceType:
 			{
-				if (type.type.literal == "permanent")
+				if(type.type.literal == "permanent")
 				{
-					if (begin == "Create" || begin == "Erase" || begin == "NonExist")
+					if(begin == "Create" || begin == "Erase" || begin == "NonExist")
 						error("Invalid convert status: "+begin+" - resource type " + type.getNameGeneric + " is permanent",
 							RdoPackage.eINSTANCE.operationRelevantResource_Begin)
 
-					if (end == "Create" || end == "Erase" || end == "NonExist")
+					if(end == "Create" || end == "Erase" || end == "NonExist")
 						error("Invalid convert status: "+end+" - resource type " + type.getNameGeneric + " is permanent",
 							RdoPackage.eINSTANCE.operationRelevantResource_End)
 				}
 				else
 				{
-					if (begin == "NonExist" && end != "Create")
+					if(begin == "NonExist" && end != "Create")
 						error("Invalid convert status: "+end+" - for NonExist convert begin status a resource should be created",
 							RdoPackage.eINSTANCE.operationRelevantResource_End)
 
-					if (end == "Create" && begin != "NonExist")
+					if(end == "Create" && begin != "NonExist")
 						error("Invalid convert status: "+begin+" - there is no resource initially for Create convert end status",
 							RdoPackage.eINSTANCE.operationRelevantResource_Begin)
 
-					if (begin == "Erase" && end != "NonExist")
+					if(begin == "Erase" && end != "NonExist")
 						error("Invalid convert status: "+end+" - convert end status for erased resource should be NonExist",
 							RdoPackage.eINSTANCE.operationRelevantResource_End)
 
-					if (end == "NonExist" && begin != "Erase")
+					if(end == "NonExist" && begin != "Erase")
 						error("Invalid convert status: "+begin+" - relevant resource isn't being erased",
 							RdoPackage.eINSTANCE.operationRelevantResource_Begin)
 				}
@@ -487,11 +477,11 @@ class RDOValidator extends AbstractRDOValidator
 
 			ResourceDeclaration:
 			{
-				if (begin == "Create" || begin == "Erase" || begin == "NonExist")
+				if(begin == "Create" || begin == "Erase" || begin == "NonExist")
 					error("Invalid convert status: "+begin+" - only Keep and NoChange statuses could be used for resource",
 						RdoPackage.eINSTANCE.operationRelevantResource_Begin)
 
-				if (end == "Create" || end == "Erase" || end == "NonExist")
+				if(end == "Create" || end == "Erase" || end == "NonExist")
 					error("Invalid convert status: "+end+" - only Keep and NoChange statuses could be used for resource",
 						RdoPackage.eINSTANCE.operationRelevantResource_End)
 			}
@@ -504,7 +494,7 @@ class RDOValidator extends AbstractRDOValidator
 		val type = relres.type
 		val rule = relres.rule.literal
 
-		if (rule == "NonExist") {
+		if(rule == "NonExist") {
 			error("Invalid convert status: "+rule+" couldn't be used in condition-action rule",
 				RdoPackage.eINSTANCE.ruleRelevantResource_Rule)
 			return
@@ -514,14 +504,14 @@ class RDOValidator extends AbstractRDOValidator
 		{
 			ResourceType:
 			{
-				if (type.type.literal == "permanent")
-					if (rule == "Create" || rule == "Erase")
+				if(type.type.literal == "permanent")
+					if(rule == "Create" || rule == "Erase")
 							error("Invalid convert status: "+rule+" - resource type " + type.getNameGeneric + " is permanent",
 								RdoPackage.eINSTANCE.ruleRelevantResource_Rule)
 			}
 			ResourceDeclaration:
 			{
-				if (rule == "Create" || rule == "Erase")
+				if(rule == "Create" || rule == "Erase")
 					error("Invalid convert status: "+rule+" - only Keep and NoChange statuses could be used for resource",
 						RdoPackage.eINSTANCE.ruleRelevantResource_Rule)
 			}
@@ -534,7 +524,7 @@ class RDOValidator extends AbstractRDOValidator
 		val type = relres.type
 		val rule = relres.rule.literal
 
-		if (rule == "NonExist" || rule == "Erase" || rule == "NoChange")
+		if(rule == "NonExist" || rule == "Erase" || rule == "NoChange")
 		{
 			error("Invalid convert status: "+rule+" couldn't be used in event",
 				RdoPackage.eINSTANCE.eventRelevantResource_Rule)
@@ -545,16 +535,16 @@ class RDOValidator extends AbstractRDOValidator
 		{
 			ResourceType:
 			{
-				if (rule == 'Keep')
+				if(rule == 'Keep')
 					error("Invalid convert status: "+rule+" couldn't be used for resource type in event",
 						RdoPackage.eINSTANCE.eventRelevantResource_Rule)
 				else
-					if (type.type.literal == "permanent")
+					if(type.type.literal == "permanent")
 						error("Invalid resource type: '"+type.name+"' is not temporary",
 							RdoPackage.eINSTANCE.eventRelevantResource_Rule)
 			}
 			ResourceDeclaration:
-				if (rule == 'Create')
+				if(rule == 'Create')
 					error("Invalid convert status: "+rule+" couldn't be used for resource in event",
 						RdoPackage.eINSTANCE.eventRelevantResource_Rule)
 		}
@@ -573,34 +563,34 @@ class RDOValidator extends AbstractRDOValidator
 				val relreslist  = o.eAllContents.toList.filter(typeof(OperationRelevantResource))
 				val convertlist = o.eAllContents.toList.filter(typeof(OperationConvert))
 
-				for (r : relreslist)
+				for(r : relreslist)
 				{
 					i = i + 1
 					count = 0
 					found = false
-					for (c : convertlist)
-						if (c.relres.name == r.name)
+					for(c : convertlist)
+						if(c.relres.name == r.name)
 						{
 							count = count + 1
 							found = true
 						}
 
-					if (count > 1)
-						for (c : convertlist)
-							if (c.relres == r)
+					if(count > 1)
+						for(c : convertlist)
+							if(c.relres == r)
 								error("Multiple converts for relevant resource " + r.name,
 									c, RdoPackage.eINSTANCE.operationConvert_Relres)
-					if (!found)
+					if(!found)
 						error("No convert found for relevant resource " + r.name,
 							r, RdoPackage.eINSTANCE.operationRelevantResource_Name)
 
 					j = 0
-					if (found && (count == 1))
-						for (c : convertlist)
+					if(found && (count == 1))
+						for(c : convertlist)
 						{
 							j = j + 1
-							if ((i == j) && (c.relres != r))
-								if (c.relres.name != null)
+							if((i == j) && (c.relres != r))
+								if(c.relres.name != null)
 									error("Wrong relevant resource converts order: found " +
 										c.relres.name +	" instead of " + r.name, c,
 											RdoPackage.eINSTANCE.operationConvert_Relres)
@@ -615,34 +605,34 @@ class RDOValidator extends AbstractRDOValidator
 				val relreslist  = o.eAllContents.toList.filter(typeof(RuleRelevantResource))
 				val convertlist = o.eAllContents.toList.filter(typeof(RuleConvert))
 
-				for (r : relreslist)
+				for(r : relreslist)
 				{
 					i = i + 1
 					count = 0
 					found = false
-					for (c : convertlist)
-						if (c.relres.name == r.name)
+					for(c : convertlist)
+						if(c.relres.name == r.name)
 						{
 							count = count + 1
 							found = true
 						}
 
-					if (count > 1)
-						for (c : convertlist)
-							if (c.relres == r)
+					if(count > 1)
+						for(c : convertlist)
+							if(c.relres == r)
 								error("Multiple converts for relevant resource " + r.name,
 									c, RdoPackage.eINSTANCE.ruleConvert_Relres)
-					if (!found)
+					if(!found)
 						error("No convert found for relevant resource " + r.name,
 							r, RdoPackage.eINSTANCE.ruleRelevantResource_Name)
 
 					j = 0
-					if (found && (count == 1))
-						for (c : convertlist)
+					if(found && (count == 1))
+						for(c : convertlist)
 						{
 							j = j + 1
-							if ((i == j) && (c.relres != r))
-								if (c.relres.name != null)
+							if((i == j) && (c.relres != r))
+								if(c.relres.name != null)
 									error("Wrong relevant resource converts order: found " +
 										c.relres.name +	" instead of " + r.name, c,
 											RdoPackage.eINSTANCE.ruleConvert_Relres)
@@ -657,34 +647,34 @@ class RDOValidator extends AbstractRDOValidator
 				var relreslist  = o.eAllContents.toList.filter(typeof(EventRelevantResource))
 				val convertlist = o.eAllContents.toList.filter(typeof(EventConvert))
 
-				for (r : relreslist)
+				for(r : relreslist)
 				{
 					i = i + 1
 					count = 0
 					found = false
-					for (c : convertlist)
-						if (c.relres.name == r.name)
+					for(c : convertlist)
+						if(c.relres.name == r.name)
 						{
 							count = count + 1
 							found = true
 						}
 
-					if (count > 1)
-						for (c : convertlist)
-							if (c.relres == r)
+					if(count > 1)
+						for(c : convertlist)
+							if(c.relres == r)
 								error("Multiple converts for relevant resource " + r.name,
 									c, RdoPackage.eINSTANCE.eventConvert_Relres)
-					if (!found)
+					if(!found)
 						error("No convert found for relevant resource " + r.name,
 							r, RdoPackage.eINSTANCE.eventRelevantResource_Name)
 
 					j = 0
-					if (found && (count == 1))
-						for (c : convertlist)
+					if(found && (count == 1))
+						for(c : convertlist)
 						{
 							j = j + 1
-							if ((i == j) && (c.relres != r))
-								if (c.relres.name != null)
+							if((i == j) && (c.relres != r))
+								if(c.relres.name != null)
 									error("Wrong relevant resource converts order: found " +
 										c.relres.name +	" instead of " + r.name, c,
 											RdoPackage.eINSTANCE.eventConvert_Relres)
@@ -702,23 +692,23 @@ class RDOValidator extends AbstractRDOValidator
 		val begin = c.relres.begin.literal
 		val end   = c.relres.end.literal
 
-		if (begin == "Keep" || begin == "Create")
-			if (!c.havebegin)
+		if(begin == "Keep" || begin == "Create")
+			if(!c.havebegin)
 				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" is missing a convert begin",
 					RdoPackage.eINSTANCE.operationConvert_Relres)
 
-		if (end == "Keep" || end == "Create")
-			if (!c.haveend)
+		if(end == "Keep" || end == "Create")
+			if(!c.haveend)
 				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" is missing a convert end",
 					RdoPackage.eINSTANCE.operationConvert_Relres)
 
-		if (begin == "NonExist" || begin == "NoChange")
-			if (c.havebegin)
+		if(begin == "NonExist" || begin == "NoChange")
+			if(c.havebegin)
 				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" shouldn't have a convert begin",
 					RdoPackage.eINSTANCE.operationConvert_Havebegin)
 
-		if (end == "NonExist" || end == "NoChange")
-			if (c.haveend)
+		if(end == "NonExist" || end == "NoChange")
+			if(c.haveend)
 				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" shouldn't have a convert end",
 					RdoPackage.eINSTANCE.operationConvert_Haveend)
 	}
@@ -728,17 +718,17 @@ class RDOValidator extends AbstractRDOValidator
 	{
 		val rule = c.relres.rule.literal
 
-		if (rule == "Keep" || rule == "Create")
-			if (!c.haverule)
+		if(rule == "Keep" || rule == "Create")
+			if(!c.haverule)
 				error("Resource " + c.relres.name + " with convert status "+rule+" is missing a convert rule",
 					RdoPackage.eINSTANCE.ruleConvert_Relres)
 
-		if (rule == "NoChange")
-			if (c.haverule)
+		if(rule == "NoChange")
+			if(c.haverule)
 				error("Resource " + c.relres.name + " with convert status "+rule+" shouldn't have a convert rule",
 					RdoPackage.eINSTANCE.ruleConvert_Haverule)
 
-		if (rule == "Create" && c.havechoice)
+		if(rule == "Create" && c.havechoice)
 			error("Relevant resource " + c.relres.name + " with convert status "+rule+" shouldn't have a choice from",
 				RdoPackage.eINSTANCE.ruleConvert_Havechoice)
 	}
@@ -749,7 +739,7 @@ class RDOValidator extends AbstractRDOValidator
 		var havechoicemethods = false
 		var iscombinatorial = false
 
-		for (e : pat.eAllContents.toList.filter(typeof(PatternChoiceMethod)))
+		for(e : pat.eAllContents.toList.filter(typeof(PatternChoiceMethod)))
 		{
 			switch e.eContainer
 			{
@@ -761,8 +751,8 @@ class RDOValidator extends AbstractRDOValidator
 			}
 		}
 
-		if (havechoicemethods && iscombinatorial)
-			for (e : pat.eAllContents.toList.filter(typeof(PatternChoiceMethod)))
+		if(havechoicemethods && iscombinatorial)
+			for(e : pat.eAllContents.toList.filter(typeof(PatternChoiceMethod)))
 			{
 				switch e.eContainer
 				{
@@ -778,39 +768,6 @@ class RDOValidator extends AbstractRDOValidator
 	}
 
 	@Check
-	def checkEventRelResTrace(Event evn)
-	{
-		for(ec : evn.algorithms)
-			if(ec.traceevent && ec.relres.rule != PatternConvertStatus.CREATE)
-				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", ec,
-					RdoPackage.eINSTANCE.eventConvert_Traceevent)
-	}
-
-	@Check
-	def checkRuleRelResTrace(Rule rule)
-	{
-		for(rc : rule.algorithms)
-			if(rc.tracerule && rc.relres.rule != PatternConvertStatus.CREATE)
-				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", rc,
-					RdoPackage.eINSTANCE.ruleConvert_Tracerule)
-	}
-
-	@Check
-	def checkOperationRelResTrace(Operation op)
-	{
-		for(oc : op.algorithms)
-		{
-			if(oc.tracebegin && oc.relres.begin != PatternConvertStatus.CREATE)
-				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", oc,
-					RdoPackage.eINSTANCE.operationConvert_Tracebegin)
-
-			if(oc.traceend && oc.relres.end != PatternConvertStatus.CREATE)
-				error("Trace statements in converts are only allowed for newly created resources ('Create' converter status)", oc,
-					RdoPackage.eINSTANCE.operationConvert_Traceend)
-		}
-	}
-
-	@Check
 	def checkTableParameters(FunctionTable fun)
 	{
 		if(fun.parameters == null)
@@ -821,7 +778,7 @@ class RDOValidator extends AbstractRDOValidator
 			val actual = p.type.resolveAllSuchAs
 			if(!(actual instanceof RDOEnum || (actual instanceof RDOInteger && (actual as RDOInteger).range != null)))
 				error("Invalid parameter type. Table function allows enumerative and ranged integer parameters only",
-					p, RdoPackage.eINSTANCE.functionParameter_Type)			
+					p, RdoPackage.eINSTANCE.functionParameter_Type)
 		}
 	}
 

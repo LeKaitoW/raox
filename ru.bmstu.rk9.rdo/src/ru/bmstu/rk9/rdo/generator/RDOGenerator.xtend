@@ -16,6 +16,7 @@ import static extension ru.bmstu.rk9.rdo.compilers.RDOFunctionCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOResourceTypeCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOPatternCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDODecisionPointCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.RDOFrameCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOResultCompiler.*
 
 import static extension ru.bmstu.rk9.rdo.RDOQualifiedNameProvider.*
@@ -44,6 +45,8 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPointPrior
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
 
+import ru.bmstu.rk9.rdo.rdo.Frame
+
 import ru.bmstu.rk9.rdo.rdo.Results
 import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
 
@@ -60,53 +63,56 @@ class RDOGenerator implements IMultipleResourceGenerator
 		exportVariableInfo(resources)
 
 		val declarationList = new java.util.ArrayList<ResourceDeclaration>();
-		for (resource : resources.resources)
+		for(resource : resources.resources)
 			declarationList.addAll(resource.allContents.filter(typeof(ResourceDeclaration)).toIterable)
 
 		val simulationList = new java.util.ArrayList<SimulationRun>();
-		for (resource : resources.resources)
+		for(resource : resources.resources)
 			simulationList.addAll(resource.allContents.filter(typeof(SimulationRun)).toIterable)
 
-		var smr = if (simulationList.size > 0) simulationList.get(0) else null;
+		var smr = if(simulationList.size > 0) simulationList.get(0) else null;
 
-		for (resource : resources.resources)
-			if (resource.contents.head != null)
+		for(resource : resources.resources)
+			if(resource.contents.head != null)
 			{
 				val filename = (resource.contents.head as RDOModel).filenameFromURI
 
-				for (e : resource.allContents.toIterable.filter(typeof(ResourceType)))
+				for(e : resource.allContents.toIterable.filter(typeof(ResourceType)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileResourceType(filename,
 						declarationList.filter[r | r.reference.fullyQualifiedName == e.fullyQualifiedName]))
 
-				for (e : resource.allContents.toIterable.filter(typeof(ConstantDeclaration)))
+				for(e : resource.allContents.toIterable.filter(typeof(ConstantDeclaration)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileConstant(filename))
 
-				for (e : resource.allContents.toIterable.filter(typeof(Sequence)))
+				for(e : resource.allContents.toIterable.filter(typeof(Sequence)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileSequence(filename))
 
-				for (e : resource.allContents.toIterable.filter(typeof(Function)))
+				for(e : resource.allContents.toIterable.filter(typeof(Function)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileFunction(filename))
 
-				for (e : resource.allContents.toIterable.filter(typeof(Operation)))
+				for(e : resource.allContents.toIterable.filter(typeof(Operation)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileOperation(filename))
 
-				for (e : resource.allContents.toIterable.filter(typeof(Rule)))
+				for(e : resource.allContents.toIterable.filter(typeof(Rule)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileRule(filename))
 
-				for (e : resource.allContents.toIterable.filter(typeof(Event)))
+				for(e : resource.allContents.toIterable.filter(typeof(Event)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileEvent(filename))
 
-				for (e : resource.allContents.toIterable.filter[d |
+				for(e : resource.allContents.toIterable.filter[d |
 						d instanceof DecisionPointSome || d instanceof DecisionPointPrior])
 					fsa.generateFile(filename + "/" + (e as DecisionPoint).name + ".java",
 						(e as DecisionPoint).compileDecisionPoint(filename))
 
-				for (e : resource.allContents.toIterable.filter(typeof(DecisionPointSearch)))
+				for(e : resource.allContents.toIterable.filter(typeof(DecisionPointSearch)))
 					fsa.generateFile(filename + "/" + e.name + ".java",	e.compileDecisionPointSearch(filename))
 
-				for (e : resource.allContents.toIterable.filter(typeof(ResultDeclaration)))
+				for(e : resource.allContents.toIterable.filter(typeof(Frame)))
+					fsa.generateFile(filename + "/" + e.name + ".java",	e.compileFrame(filename))
+
+				for(e : resource.allContents.toIterable.filter(typeof(ResultDeclaration)))
 					fsa.generateFile(filename + "/" + (
-						if ((e.eContainer as Results).name != null)	(e.eContainer as Results).name + "_"
+						if((e.eContainer as Results).name != null)	(e.eContainer as Results).name + "_"
 							else "") + e.name + ".java", e.compileResult(filename))
 			}
 
@@ -159,6 +165,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				Simulator.initSimulation();
 				Simulator.initDatabase(«project»Model.modelStructure);
+				Simulator.initTracer();
+				Simulator.initTreeBuilder();
 
 				System.out.println(" === RDO-Simulator ===\n");
 				System.out.println("   Project «RDONaming.getProjectName(rs.resources.get(0).URI)»");
@@ -186,19 +194,19 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				int result = Simulator.run();
 
-				if (result == 1)
+				if(result == 1)
 					System.out.println("\n   Stopped by terminate condition");
 
-				if (result == 0)
+				if(result == 0)
 					System.out.println("\n   Stopped (no more events)");
 
-				System.out.println("\n   Finished model in " + String.valueOf((System.currentTimeMillis() - startTime)/1000.0) + "s");
-
-				System.out.println("\nResults:");
-				System.out.println("-------------------------------------------------------------------------------");
 				for(Result r : Simulator.getResults())
-					System.out.println(r.get());
-				System.out.println("-------------------------------------------------------------------------------");
+				{
+					r.calculate();
+					System.out.println(r.getData().toString(2));
+				}
+
+				System.out.println("\n   Finished model in " + String.valueOf((System.currentTimeMillis() - startTime)/1000.0) + "s");
 			}
 		}
 		'''
@@ -217,10 +225,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 		public class Embedded
 		{
-			public static void initSimulation()
+			public static void initSimulation(List<AnimationFrame> frames)
 			{
 				Simulator.initSimulation();
 				Simulator.initDatabase(«project»Model.modelStructure);
+				Simulator.initTracer();
+				Simulator.initTreeBuilder();
 
 				«project»Model.init();
 
@@ -237,6 +247,12 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«FOR r : rs.resources»
 				«FOR c : r.allContents.filter(typeof(ResultDeclaration)).toIterable»
 					«c.fullyQualifiedName».init();
+				«ENDFOR»
+				«ENDFOR»
+
+				«FOR r : rs.resources»
+				«FOR c : r.allContents.filter(typeof(Frame)).toIterable»
+					frames.add(«c.fullyQualifiedName».INSTANCE);
 				«ENDFOR»
 				«ENDFOR»
 			}

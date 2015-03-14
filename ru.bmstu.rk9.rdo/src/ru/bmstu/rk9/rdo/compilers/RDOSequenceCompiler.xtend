@@ -58,7 +58,7 @@ class RDOSequenceCompiler
 
 				public «seq.returntype.compileTypePrimitive» getNext()
 				{
-					if (current == values.length)
+					if(current == values.length)
 						current = 0;
 
 					return values[current++];
@@ -103,22 +103,22 @@ class RDOSequenceCompiler
 		var ret = ""
 		var flag = false
 		val histEnum =
-			if ((seq.eContainer as Sequence).returntype.compileType.endsWith("_enum"))
+			if((seq.eContainer as Sequence).returntype.compileType.endsWith("_enum"))
 				true
 			else
 				false
 
-		if (histEnum)
-			for (i : 0 ..< seq.values.size/2 + 1)
+		if(histEnum)
+			for(i : 0 ..< seq.values.size/2 + 1)
 			{
-				ret = ret + (if (flag) ", " else "") + i.toString
+				ret = ret + (if(flag) ", " else "") + i.toString
 				flag = true
 			}
 		else
 		{
-			for (i : 0 ..< seq.values.size/3)
+			for(i : 0 ..< seq.values.size/3)
 			{
-				ret = ret + (if (flag) ", " else "") + seq.values.get(3*i).compileExpression.value
+				ret = ret + (if(flag) ", " else "") + seq.values.get(3*i).compileExpression.value
 				flag = true
 			}
 			ret = ret + ", " + seq.values.get(seq.values.size - 2).compileExpression.value
@@ -132,14 +132,14 @@ class RDOSequenceCompiler
 		var ret = ""
 		var flag = false
 		val weightPos =
-			if ((seq.eContainer as Sequence).returntype.compileType.endsWith("_enum"))
+			if((seq.eContainer as Sequence).returntype.compileType.endsWith("_enum"))
 				2
 			else
 				3
 
-		for (i : 0 ..< seq.values.size/weightPos)
+		for(i : 0 ..< seq.values.size/weightPos)
 		{
-			ret = ret + (if (flag) ", " else "") + seq.values.get(weightPos*(i + 1) - 1).compileExpression.value
+			ret = ret + (if(flag) ", " else "") + seq.values.get(weightPos*(i + 1) - 1).compileExpression.value
 			flag = true
 		}
 
@@ -153,9 +153,9 @@ class RDOSequenceCompiler
 
 		val context = (new LocalContext).populateWithEnums((seq.eContainer as Sequence).returntype.resolveAllSuchAs as RDOEnum)
 
-		for (i : 0 ..< seq.values.size/2)
+		for(i : 0 ..< seq.values.size/2)
 		{
-			ret = ret + (if (flag) ", " else "") + seq.values.get(i*2).compileExpressionContext(context).value
+			ret = ret + (if(flag) ", " else "") + seq.values.get(i*2).compileExpressionContext(context).value
 			flag = true
 		}
 
@@ -202,7 +202,7 @@ class RDOSequenceCompiler
 					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» mean, «rtype.compileTypePrimitive» deviation)
 					{
 						double ran = 0;
-						for (int i = 0; i < 12; ++i)
+						for(int i = 0; i < 12; ++i)
 						{
 							ran += prng.nextDouble();
 						}
@@ -217,7 +217,7 @@ class RDOSequenceCompiler
 						double next = prng.nextDouble();
 						double edge = (double)(c - a) / (double)(b - a);
 
-					if (next < edge)
+					if(next < edge)
 							return («rtype.compileTypePrimitive»)(a + «IF !legacy»org.apache.commons.math3.util.Fast«ENDIF»Math.sqrt((b - a) * (c - a) * next));
 						else
 							return («rtype.compileTypePrimitive»)(b - «IF !legacy»org.apache.commons.math3.util.Fast«ENDIF»Math.sqrt((1 - next) * (b - a) * (b - c)));
