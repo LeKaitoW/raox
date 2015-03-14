@@ -29,7 +29,7 @@ import ru.bmstu.rk9.rdo.ui.internal.RDOActivator;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSpeedSelectionToolbar;
 
-import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceConfigView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView;
 
 import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
 
@@ -64,7 +64,7 @@ public class RDOActivatorExtension extends RDOActivator
 				public void preExecute(String commandId, ExecutionEvent event)
 				{
 					if(commandId.equals("org.eclipse.ui.file.save"))
-						RDOTraceConfigView.onModelSave();
+						RDOSerializationConfigView.onModelSave();
 				}
 
 				@Override

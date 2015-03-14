@@ -3,7 +3,7 @@ package ru.bmstu.rk9.rdo.ui.runtime;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -67,7 +67,7 @@ public class ExportTraceHandler extends AbstractHandler {
 			legacyTracer.parseAllEntries();
 		}
 
-		ArrayList<TraceOutput> output = legacyTracer.getTraceList();
+		List<TraceOutput> output = legacyTracer.getTraceList();
 		PrintWriter writer = initializeWriter(".trc.legacy");
 		for (TraceOutput item : output) {
 			writer.println(item.content());

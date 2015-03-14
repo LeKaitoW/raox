@@ -9,18 +9,23 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.TreeSet;
 
 import ru.bmstu.rk9.rdo.lib.Database.Entry;
 import ru.bmstu.rk9.rdo.lib.Database.EntryType;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
+import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
+import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
 import ru.bmstu.rk9.rdo.lib.json.JSONArray;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
-public class LegacyTracer extends Tracer
+public class LegacyTracer
 {
 	public LegacyTracer()
 	{
@@ -30,13 +35,13 @@ public class LegacyTracer extends Tracer
 		initializeActivities();
 	}
 
-	private final HashMap<Integer, HashMap<Integer, Integer>> legacyResourceIds =
+	private final Map<Integer, HashMap<Integer, Integer>> legacyResourceIds =
 		new HashMap<Integer, HashMap<Integer, Integer>>();
 	private final TreeSet<Integer> takenResourceIds =
 		new TreeSet<Integer>();
 	private final PriorityQueue<Integer> vacantActionNumbers =
 		new PriorityQueue<Integer>();
-	private final HashMap<Integer, HashMap<
+	private final Map<Integer, HashMap<
 		Integer, HashMap<Integer, Integer>>> legacyActionNumbers=
 			new HashMap<Integer, HashMap<Integer, HashMap<Integer, Integer>>>();
 
@@ -75,18 +80,16 @@ public class LegacyTracer extends Tracer
  /                                   GENERAL                                 /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	private ArrayList<TraceOutput> traceList =
-			new ArrayList<TraceOutput>();
+	private List<TraceOutput> traceList = new ArrayList<TraceOutput>();
 
-	public final ArrayList<TraceOutput> getTraceList()
+	public final List<TraceOutput> getTraceList()
 	{
-		//TODO make unmodifiable
-		return traceList;
+		return Collections.unmodifiableList(traceList);
 	}
 
 	public final void parseAllEntries()
 	{
-		final ArrayList<Entry> entries =
+		final List<Entry> entries =
 			Simulator.getDatabase().getAllEntries();
 
 		for (Entry entry : entries)
@@ -143,14 +146,13 @@ public class LegacyTracer extends Tracer
  /                          PARSING SYSTEM ENTRIES                           /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	@Override
 	protected TraceOutput parseSystemEntry(final Entry entry)
 	{
-		final ByteBuffer header = prepareBufferForReading(entry.header);
+		final ByteBuffer header = Tracer.prepareBufferForReading(entry.header);
 
 		final TraceType traceType = TraceType.SYSTEM;
 
-		skipPart(header, TypeSize.BYTE);
+		Tracer.skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
 		final Database.SystemEntryType type =
 			Database.SystemEntryType.values()[header.get()];
@@ -185,13 +187,12 @@ public class LegacyTracer extends Tracer
  /                          PARSING RESOURCE ENTRIES                         /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	@Override
 	protected final TraceOutput parseResourceEntry(final Entry entry)
 	{
-		final ByteBuffer header = prepareBufferForReading(entry.header);
-		final ByteBuffer data = prepareBufferForReading(entry.data);
+		final ByteBuffer header = Tracer.prepareBufferForReading(entry.header);
+		final ByteBuffer data = Tracer.prepareBufferForReading(entry.data);
 
-		skipPart(header, TypeSize.BYTE);
+		Tracer.skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
 		final TraceType traceType;
 		final Database.ResourceEntryType entryType =
@@ -238,7 +239,8 @@ public class LegacyTracer extends Tracer
 			.add(legacyId)
 			.getString();
 
-		final ResourceTypeInfo typeInfo = resourceTypesInfo.get(typeNum);
+		final ResourceTypeCache typeInfo = Simulator.getModelStructureCache()
+				.resourceTypesInfo.get(typeNum);
 
 		return
 			new TraceOutput(
@@ -250,10 +252,9 @@ public class LegacyTracer extends Tracer
 			);
 	}
 
-	@Override
 	protected final String parseResourceParameters(
 		final ByteBuffer data,
-		final ResourceTypeInfo typeInfo
+		final ResourceTypeCache typeInfo
 	)
 	{
 		final RDOLibStringJoiner stringJoiner =
@@ -301,13 +302,12 @@ public class LegacyTracer extends Tracer
  /                          PARSING PATTERN ENTRIES                          /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	@Override
 	protected final TraceOutput parsePatternEntry(final Entry entry)
 	{
-		final ByteBuffer header = prepareBufferForReading(entry.header);
-		final ByteBuffer data = prepareBufferForReading(entry.data);
+		final ByteBuffer header = Tracer.prepareBufferForReading(entry.header);
+		final ByteBuffer data = Tracer.prepareBufferForReading(entry.data);
 
-		skipPart(header, TypeSize.BYTE);
+		Tracer.skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
 		final TraceType traceType;
 
@@ -342,7 +342,6 @@ public class LegacyTracer extends Tracer
 			);
 	}
 
-	@Override
 	protected final String parsePatternData(
 		final ByteBuffer data,
 		final TraceType patternType
@@ -358,7 +357,7 @@ public class LegacyTracer extends Tracer
 		case EVENT:
 		{
 			patternNumber = data.getInt();
-			skipPart(data, TypeSize.INTEGER);
+			Tracer.skipPart(data, TypeSize.INTEGER);
 			stringJoiner
 				.add(patternNumber + 1)
 				.add(patternNumber + 1);
@@ -368,9 +367,10 @@ public class LegacyTracer extends Tracer
 		{
 			int dptNumber = data.getInt();
 			int activityNumber = data.getInt();
-			skipPart(data, TypeSize.INTEGER);
-			patternNumber = decisionPointsInfo.get(dptNumber)
-				.activitiesInfo.get(activityNumber).patternNumber;
+			Tracer.skipPart(data, TypeSize.INTEGER);
+			patternNumber = Simulator.getModelStructureCache()
+					.decisionPointsInfo.get(dptNumber)
+					.activitiesInfo.get(activityNumber).patternNumber;
 			stringJoiner
 				.add(1)
 				.add(activityNumber + 1)
@@ -383,7 +383,7 @@ public class LegacyTracer extends Tracer
 			int activityNumber = data.getInt();
 			int actionNumber = data.getInt();
 
-			HashMap<Integer, Integer> activityActions =
+			Map<Integer, Integer> activityActions =
 				legacyActionNumbers
 				.get(dptNumber)
 				.get(activityNumber);
@@ -396,7 +396,8 @@ public class LegacyTracer extends Tracer
 
 			activityActions.put(actionNumber, legacyNumber);
 
-			patternNumber = decisionPointsInfo.get(dptNumber)
+			patternNumber = Simulator.getModelStructureCache()
+					.decisionPointsInfo.get(dptNumber)
 					.activitiesInfo.get(activityNumber).patternNumber;
 			stringJoiner
 				.add(legacyNumber + 1)
@@ -410,14 +411,15 @@ public class LegacyTracer extends Tracer
 			int activityNumber = data.getInt();
 			int actionNumber = data.getInt();
 
-			HashMap<Integer, Integer> activityActions =
+			Map<Integer, Integer> activityActions =
 					legacyActionNumbers
 					.get(dptNumber)
 					.get(activityNumber);
 			int legacyNumber = activityActions.remove(actionNumber);
 			vacantActionNumbers.add(legacyNumber);
 
-			patternNumber = decisionPointsInfo.get(dptNumber)
+			patternNumber = Simulator.getModelStructureCache()
+					.decisionPointsInfo.get(dptNumber)
 					.activitiesInfo.get(activityNumber).patternNumber;
 			stringJoiner
 				.add(legacyNumber + 1)
@@ -433,8 +435,8 @@ public class LegacyTracer extends Tracer
 		stringJoiner.add(numberOfRelevantResources).add("");
 		for(int num = 0; num < numberOfRelevantResources; num++)
 		{
-			final int typeNum =
-				patternsInfo.get(patternNumber).relResTypes.get(num);
+			final int typeNum = Simulator.getModelStructureCache()
+					.patternsInfo.get(patternNumber).relResTypes.get(num);
 			final int resNum = data.getInt();
 			if(legacyResourceIds.get(typeNum).get(resNum) == null)
 			{
@@ -455,16 +457,15 @@ public class LegacyTracer extends Tracer
  /                              SEARCH ENTRIES                               /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	@Override
 	protected TraceOutput parseSearchEntry(final Entry entry)
 	{
-		final ByteBuffer header = prepareBufferForReading(entry.header);
+		final ByteBuffer header = Tracer.prepareBufferForReading(entry.header);
 
 		final RDOLibStringJoiner stringJoiner =
 			new RDOLibStringJoiner(delimiter);
 
 		final TraceType traceType;
-		skipPart(header, TypeSize.BYTE);
+		Tracer.skipPart(header, TypeSize.BYTE);
 		final Database.SearchEntryType entryType =
 				Database.SearchEntryType.values()[header.get()];
 		final double time = header.getDouble();
@@ -486,7 +487,7 @@ public class LegacyTracer extends Tracer
 		}
 		case END:
 		{
-			final ByteBuffer data = prepareBufferForReading(entry.data);
+			final ByteBuffer data = Tracer.prepareBufferForReading(entry.data);
 			dptSearchJustFinished = true;
 			final DecisionPointSearch.StopCode endStatus =
 				DecisionPointSearch.StopCode.values()[data.get()];
@@ -530,7 +531,7 @@ public class LegacyTracer extends Tracer
 		}
 		case OPEN:
 		{
-			final ByteBuffer data = prepareBufferForReading(entry.data);
+			final ByteBuffer data = Tracer.prepareBufferForReading(entry.data);
 			traceType = TraceType.SEARCH_OPEN;
 			final int currentNumber = data.getInt();
 			final int parentNumber = data.getInt();
@@ -546,7 +547,7 @@ public class LegacyTracer extends Tracer
 		}
 		case SPAWN:
 		{
-			final ByteBuffer data = prepareBufferForReading(entry.data);
+			final ByteBuffer data = Tracer.prepareBufferForReading(entry.data);
 			final DecisionPointSearch.SpawnStatus spawnStatus =
 					DecisionPointSearch.SpawnStatus.values()[data.get()];
 			switch(spawnStatus)
@@ -569,11 +570,13 @@ public class LegacyTracer extends Tracer
 			final double g = data.getDouble();
 			final double h = data.getDouble();
 			final int ruleNumber = data.getInt();
-			final int patternNumber = decisionPointsInfo.get(dptNumber)
-				.activitiesInfo.get(ruleNumber).patternNumber;
+			final int patternNumber = Simulator.getModelStructureCache()
+					.decisionPointsInfo.get(dptNumber)
+					.activitiesInfo.get(ruleNumber).patternNumber;
 			final double ruleCost = data.getDouble();
 			final int numberOfRelevantResources =
-				patternsInfo.get(patternNumber).relResTypes.size();
+				Simulator.getModelStructureCache()
+				.patternsInfo.get(patternNumber).relResTypes.size();
 
 			stringJoiner
 				.add(traceType.toString())
@@ -589,8 +592,8 @@ public class LegacyTracer extends Tracer
 
 			for(int num = 0; num < numberOfRelevantResources; num++)
 			{
-				final int typeNum =
-					patternsInfo.get(patternNumber).relResTypes.get(num);
+				final int typeNum = Simulator.getModelStructureCache()
+						.patternsInfo.get(patternNumber).relResTypes.get(num);
 				final int resNum = data.getInt();
 				final int legacyNum =
 					legacyResourceIds.get(typeNum).get(resNum);
@@ -600,14 +603,16 @@ public class LegacyTracer extends Tracer
 		}
 		case DECISION:
 		{
-			final ByteBuffer data = prepareBufferForReading(entry.data);
+			final ByteBuffer data = Tracer.prepareBufferForReading(entry.data);
 			traceType = TraceType.SEARCH_DECISION;
 			final int number = data.getInt();
 			final int activityNumber = data.getInt();
-			final int patternNumber = decisionPointsInfo.get(dptNumber)
+			final int patternNumber = Simulator.getModelStructureCache()
+					.decisionPointsInfo.get(dptNumber)
 				.activitiesInfo.get(activityNumber).patternNumber;
 			final int numberOfRelevantResources =
-				patternsInfo.get(patternNumber).relResTypes.size();
+					Simulator.getModelStructureCache()
+					.patternsInfo.get(patternNumber).relResTypes.size();
 			if (!dptSearchDecisionFound)
 			{
 				addLegacySearchEntryDecision();
@@ -622,8 +627,8 @@ public class LegacyTracer extends Tracer
 
 			for(int num = 0; num < numberOfRelevantResources; num++)
 			{
-				final int typeNum =
-					patternsInfo.get(patternNumber).relResTypes.get(num);
+				final int typeNum = Simulator.getModelStructureCache()
+						.patternsInfo.get(patternNumber).relResTypes.get(num);
 				final int resNum = data.getInt();
 				final int legacyNum =
 					legacyResourceIds.get(typeNum).get(resNum);
@@ -705,17 +710,17 @@ public class LegacyTracer extends Tracer
  /                           PARSING RESULT ENTRIES                          /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	@Override
 	protected final TraceOutput parseResultEntry(final Entry entry)
 	{
-		final ByteBuffer header = prepareBufferForReading(entry.header);
-		final ByteBuffer data = prepareBufferForReading(entry.data);
+		final ByteBuffer header = Tracer.prepareBufferForReading(entry.header);
+		final ByteBuffer data = Tracer.prepareBufferForReading(entry.data);
 
-		skipPart(header, TypeSize.BYTE);
+		Tracer.skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
 		final int resultNum = header.getInt();
 
-		final ResultInfo resultInfo = resultsInfo.get(resultNum);
+		final ResultCache resultCache = Simulator.getModelStructureCache()
+				.resultsInfo.get(resultNum);
 
 		return
 			new TraceOutput(
@@ -725,18 +730,17 @@ public class LegacyTracer extends Tracer
 				.add(realFormatter.format(time))
 				.add(resultNum + 1)
 				.add("")
-				.add(parseResultParameter(data, resultInfo))
+				.add(parseResultParameter(data, resultCache))
 				.getString()
 			);
 	}
 
-	@Override
 	protected final String parseResultParameter(
 		final ByteBuffer data,
-		final ResultInfo resultInfo
+		final ResultCache resultCache
 	)
 	{
-		switch(resultInfo.valueType)
+		switch(resultCache.valueType)
 		{
 		case INTEGER:
 			return String.valueOf(data.getInt());

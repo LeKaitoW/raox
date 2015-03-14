@@ -128,6 +128,10 @@ class RDOModelCompiler
 	def private static compileModelStructure(ResourceSet rs)
 	{
 		var ret = ""
+		ret = ret +
+				'''
+				.put("name", "«rs.resources.head.allContents.head.nameGeneric»")
+				'''
 
 		var resTypes = ""
 		for(r : rs.resources)

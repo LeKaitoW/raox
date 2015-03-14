@@ -44,7 +44,8 @@ import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceConfigView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializedObjectsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
 
@@ -130,6 +131,7 @@ public class ExecutionHandler extends AbstractHandler
 				Timer uiRealTime = new Timer();
 				Timer traceRealTimeUpdater = new Timer();
 				Timer animationUpdater = new Timer();
+				RDOSerializationConfigView.setEnabled(false);
 
 				try
 				{
@@ -179,8 +181,6 @@ public class ExecutionHandler extends AbstractHandler
 							initialization = method;
 					}
 
-					RDOTraceConfigView.initNames();
-
 					IFile modelFile = (IFile) HandlerUtil
 						.getActiveEditor(event).getEditorInput()
 						.getAdapter(IFile.class);
@@ -188,6 +188,8 @@ public class ExecutionHandler extends AbstractHandler
 					ExportTraceHandler.reset();
 					ExportTraceHandler.setCurrentProject(project);
 					ExportTraceHandler.setCurrentModel(modelFile);
+
+					RDOSerializationConfigView.initNames();
 
 					final ArrayList<AnimationFrame> frames = new ArrayList<AnimationFrame>();
 
@@ -294,6 +296,7 @@ public class ExecutionHandler extends AbstractHandler
 					RDOConsoleView.addLine("Time elapsed: " +
 						String.valueOf(System.currentTimeMillis() - startTime) + "ms");
 
+					RDOSerializedObjectsView.initializeTree();
 					SimulationSynchronizer.finish();
 
 					uiRealTime.cancel();
@@ -330,6 +333,9 @@ public class ExecutionHandler extends AbstractHandler
 						}
 
 					return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui", "Execution failed");
+				}
+				finally {
+					RDOSerializationConfigView.setEnabled(true);
 				}
 			}
 

@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rdo.lib;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DecisionPointPrior extends DecisionPoint
 {
@@ -43,7 +44,7 @@ public class DecisionPointPrior extends DecisionPoint
 		}
 	};
 
-	private ArrayList<Activity> activities = new ArrayList<Activity>();
+	private List<Activity> activities = new ArrayList<Activity>();
 
 	public void addActivity(Activity a)
 	{
@@ -53,7 +54,7 @@ public class DecisionPointPrior extends DecisionPoint
 	@Override
 	public boolean check()
 	{
-		ArrayList<DecisionPoint> all = new ArrayList<DecisionPoint>(children);
+		List<DecisionPoint> all = new ArrayList<DecisionPoint>(children);
 
 		all.add(this);
 
