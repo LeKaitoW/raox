@@ -33,8 +33,8 @@ public class DbIndexHelper {
 	}
 
 	public final CollectedDataNode getResourceType(String name) {
-		return getCategory(SerializationCategory.RESOURCES).getChildren()
-				.get(name);
+		return getCategory(SerializationCategory.RESOURCES).getChildren().get(
+				name);
 	}
 
 	public final CollectedDataNode addResult(String name) {
@@ -42,8 +42,8 @@ public class DbIndexHelper {
 	}
 
 	public final CollectedDataNode getResult(String name) {
-		return getCategory(SerializationCategory.RESULTS).getChildren()
-				.get(name);
+		return getCategory(SerializationCategory.RESULTS).getChildren().get(
+				name);
 	}
 
 	public final CollectedDataNode addPattern(String name) {
@@ -51,8 +51,8 @@ public class DbIndexHelper {
 	}
 
 	public final CollectedDataNode getPattern(String name) {
-		return getCategory(SerializationCategory.PATTERNS).getChildren()
-				.get(name);
+		return getCategory(SerializationCategory.PATTERNS).getChildren().get(
+				name);
 	}
 
 	public final CollectedDataNode addDecisionPoint(String name) {
@@ -61,8 +61,8 @@ public class DbIndexHelper {
 	}
 
 	public final CollectedDataNode getDecisionPoint(String name) {
-		return getCategory(SerializationCategory.DECISION_POINTS)
-				.getChildren().get(name);
+		return getCategory(SerializationCategory.DECISION_POINTS).getChildren()
+				.get(name);
 	}
 
 	public final CollectedDataNode addSearch(String name) {

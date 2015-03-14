@@ -36,16 +36,11 @@ public class ModelStructureCache {
 		}
 	}
 
-	final Map<Integer, HashMap<Integer, String>> resourceNames =
-			new HashMap<Integer, HashMap<Integer, String>>();
-	final List<ResourceTypeCache> resourceTypesInfo =
-			new ArrayList<ResourceTypeCache>();
-	final List<ResultCache> resultsInfo =
-			new ArrayList<ResultCache>();
-	final List<PatternCache> patternsInfo =
-			new ArrayList<PatternCache>();
-	final List<DecisionPointCache> decisionPointsInfo =
-			new ArrayList<DecisionPointCache>();
+	final Map<Integer, HashMap<Integer, String>> resourceNames = new HashMap<Integer, HashMap<Integer, String>>();
+	final List<ResourceTypeCache> resourceTypesInfo = new ArrayList<ResourceTypeCache>();
+	final List<ResultCache> resultsInfo = new ArrayList<ResultCache>();
+	final List<PatternCache> patternsInfo = new ArrayList<PatternCache>();
+	final List<DecisionPointCache> decisionPointsInfo = new ArrayList<DecisionPointCache>();
 
 	final void initResourceCache() {
 		final JSONArray resourceTypes = Simulator.getDatabase()

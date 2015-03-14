@@ -10,8 +10,11 @@ import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 public class CollectedDataNode {
 	public static interface AbstractIndex {
 		public List<Integer> getEntries();
+
 		public void addEntry(Integer entry);
+
 		public int getNumber();
+
 		public boolean isEmpty();
 	}
 
