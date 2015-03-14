@@ -33,6 +33,9 @@ public class RDOSerializedObjectsView extends ViewPart {
 	}
 
 	public static void initializeTree() {
+		if (!readyForInput())
+			return;
+
 		CollectedDataNode root = Simulator.getDatabase()
 				.getIndexHelper().getTree();
 
@@ -42,6 +45,15 @@ public class RDOSerializedObjectsView extends ViewPart {
 
 	@Override
 	public void setFocus() {
+	}
+
+	public final static boolean readyForInput()
+	{
+		return
+			serializedObjectsTreeViewer != null
+			&& !serializedObjectsTreeViewer.getTree().isDisposed()
+			&& serializedObjectsTreeViewer.getContentProvider() != null
+			&& serializedObjectsTreeViewer.getLabelProvider() != null;
 	}
 }
 

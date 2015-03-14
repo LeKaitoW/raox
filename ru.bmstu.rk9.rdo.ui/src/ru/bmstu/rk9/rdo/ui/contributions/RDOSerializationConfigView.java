@@ -73,6 +73,8 @@ public class RDOSerializationConfigView extends ViewPart {
 		serializationTree.setLayoutData(new GridLayout());
 		serializationTree.setLinesVisible(true);
 
+		serializationConfig.clear();
+
 		serializationTreeViewer
 				.setContentProvider(new RDOSerializationConfigContentProvider());
 		serializationTreeViewer
@@ -183,9 +185,13 @@ public class RDOSerializationConfigView extends ViewPart {
 
 			private final Map<IWorkbenchPartReference, SerializationNode> modelNodes = new HashMap<IWorkbenchPartReference, SerializationNode>();
 		});
+
+		setEnabled(true);
 	}
 
 	public static void setEnabled(boolean state) {
+		if (!readyForInput())
+			return;
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -202,11 +208,11 @@ public class RDOSerializationConfigView extends ViewPart {
 	}
 
 	public static void updateInput(Resource model) {
+		if (!readyForInput())
+			return;
 		SerializationNode modelNode = serializationConfig.findModel(model
 				.getURI().toPlatformString(false));
 		serializationConfigurator.fillCategories(model, modelNode);
-		if (RDOSerializationConfigView.serializationTreeViewer == null)
-			return;
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -229,6 +235,15 @@ public class RDOSerializationConfigView extends ViewPart {
 
 	@Override
 	public void setFocus() {
+	}
+
+	public final static boolean readyForInput()
+	{
+		return
+			serializationTreeViewer != null
+			&& !serializationTreeViewer.getTree().isDisposed()
+			&& serializationTreeViewer.getContentProvider() != null
+			&& serializationTreeViewer.getLabelProvider() != null;
 	}
 }
 

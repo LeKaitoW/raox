@@ -180,6 +180,10 @@ public class SerializationConfig {
 		return root;
 	}
 
+	public final void clear() {
+		root.children.clear();
+	}
+
 	public final List<SerializationNode> findModelsWithSameName(
 			final String modelName) {
 		List<SerializationNode> models = new ArrayList<SerializationNode>();
