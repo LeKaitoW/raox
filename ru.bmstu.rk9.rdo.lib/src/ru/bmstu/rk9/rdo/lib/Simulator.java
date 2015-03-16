@@ -51,6 +51,11 @@ public class Simulator
 		INSTANCE.tracer = new Tracer();
 	}
 
+	public static synchronized void initModelStructureCache()
+	{
+		INSTANCE.modelStructureCache = new ModelStructureCache();
+	}
+
 	private Database database;
 
 	public static Database getDatabase()
@@ -75,7 +80,14 @@ public class Simulator
 	{
 		INSTANCE.treeBuilder = new TreeBuilder();
 	}
-		
+
+	private ModelStructureCache modelStructureCache;
+
+	public static ModelStructureCache getModelStructureCache()
+	{
+		return INSTANCE.modelStructureCache;
+	}
+
 	private volatile double time = 0;
 
 	public static double getTime()

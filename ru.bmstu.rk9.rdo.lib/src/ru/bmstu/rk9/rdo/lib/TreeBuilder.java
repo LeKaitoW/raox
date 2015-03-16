@@ -3,8 +3,11 @@ package ru.bmstu.rk9.rdo.lib;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import ru.bmstu.rk9.rdo.lib.Database;
+import ru.bmstu.rk9.rdo.lib.Database.Entry;
+import ru.bmstu.rk9.rdo.lib.Database.EntryType;
 import ru.bmstu.rk9.rdo.lib.DecisionPointSearch;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
@@ -14,7 +17,7 @@ public class TreeBuilder implements Subscriber {
 	
 	@Override
 	public void fireChange() {
-		final Database.Entry entry = Simulator.getDatabase().allEntries.get(entryNumber++);
+		final Database.Entry entry = Simulator.getDatabase().getAllEntries().get(entryNumber++);
 		parseEntry(entry);
 		notifyGUIPart();
 	}
@@ -59,7 +62,7 @@ public class TreeBuilder implements Subscriber {
 	public HashMap<Integer, ArrayList<Node>> listMap = new HashMap<Integer, ArrayList<Node>>();
 	
 	public final void buildTree() {
-		final ArrayList<Database.Entry> entries = Simulator.getDatabase().allEntries;
+		final List<Database.Entry> entries = Simulator.getDatabase().getAllEntries();
 
 		int size = entries.size();
 		while (entryNumber < size) {
@@ -67,68 +70,68 @@ public class TreeBuilder implements Subscriber {
 		}
 	}
 
-	private void parseEntry(Database.Entry entry) {
-		final Database.EntryType type = Database.EntryType.values()[entry.getHeader().get(
+	private void parseEntry(Entry entry) {
+		final EntryType type = EntryType.values()[entry.header.get(
 				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 		switch (type) {
 		case SEARCH:
 
-			final ByteBuffer header = Tracer.prepareBufferForReading(entry.getHeader());
-			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
+			final ByteBuffer header = Tracer.prepareBufferForReading(entry.header);
 
 			Tracer.skipPart(header, TypeSize.BYTE);
 			final Database.SearchEntryType entryType = Database.SearchEntryType.values()[header.get()];
+			Tracer.skipPart(header, TypeSize.DOUBLE);
+			final int dptNumber = header.getInt();
+			
 			switch (entryType) {
 			case BEGIN: {
 				Node treeNode = new Node();
-				Tracer.skipPart(data, TypeSize.DOUBLE);
-				final int dptNumber = data.getInt();
-				currentDptNumber = dptNumber;
-				solutionMap.put(currentDptNumber, new ArrayList<Node>());
-				listMap.put(currentDptNumber, new ArrayList<Node>());
+				solutionMap.put(dptNumber, new ArrayList<Node>());
+				listMap.put(dptNumber, new ArrayList<Node>());
 				treeNode.parent = null;
 				treeNode.index = 0;
 				treeNode.label = Integer.toString(treeNode.index);
-				listMap.get(currentDptNumber).add(treeNode);
-				GraphControl.setDptNumOfLastAddedVertex(currentDptNumber);
-				GraphControl.setLastAddedVertexIndex(0);
+				listMap.get(dptNumber).add(treeNode);
 				System.out.println("treeB last node index = " + treeNode.index);
 				System.out.println("treeB last node parent index = null(root)");
 				break;
 			}
 			case END: {
+				final ByteBuffer data = Tracer.prepareBufferForReading(entry.data);
 				final DecisionPointSearch.StopCode endStatus = DecisionPointSearch.StopCode.values()[data.get()];
-				infoMap.put(currentDptNumber, new GraphInfo());
+				infoMap.put(dptNumber, new GraphInfo());
+				Tracer.skipPart(data, TypeSize.LONG * 2);
+				//TODO delete switch?
 				switch (endStatus) {
 				case SUCCESS: {
-					Tracer.skipPart(data, TypeSize.DOUBLE + TypeSize.LONG * 2);
 					final double finalCost = data.getDouble();
 					final int totalOpened = data.getInt();
 					final int totalNodes = data.getInt();
-					infoMap.get(currentDptNumber).solutionCost = finalCost;
-					infoMap.get(currentDptNumber).numOpened = totalOpened;
-					infoMap.get(currentDptNumber).numNodes = totalNodes;
+					infoMap.get(dptNumber).solutionCost = finalCost;
+					infoMap.get(dptNumber).numOpened = totalOpened;
+					infoMap.get(dptNumber).numNodes = totalNodes;
 					break;
 				}
 				case FAIL: {
-					Tracer.skipPart(data, TypeSize.DOUBLE + TypeSize.LONG * 2 + TypeSize.DOUBLE);
+					final double finalCost = data.getDouble();
 					final int totalOpened = data.getInt();
 					final int totalNodes = data.getInt();
-					infoMap.get(currentDptNumber).solutionCost = 0;
-					infoMap.get(currentDptNumber).numOpened = totalOpened;
-					infoMap.get(currentDptNumber).numNodes = totalNodes;
+					infoMap.get(dptNumber).solutionCost = finalCost;
+					infoMap.get(dptNumber).numOpened = totalOpened;
+					infoMap.get(dptNumber).numNodes = totalNodes;
 					break;
 				}
 				default:
 					break;
 				}
-				currentDptNumber = -1;
 			}
 				break;
 			case OPEN:
 				break;
 			case SPAWN: {
+				final ByteBuffer data = Tracer.prepareBufferForReading(entry.data);
 				final DecisionPointSearch.SpawnStatus spawnStatus = DecisionPointSearch.SpawnStatus.values()[data.get()];
+				//TODO delete spawn
 				switch (spawnStatus) {
 				case NEW:
 				case BETTER:
@@ -138,24 +141,24 @@ public class TreeBuilder implements Subscriber {
 					final double g = data.getDouble();
 					final double h = data.getDouble();
 					final int ruleNum = data.getInt();
-					ActivityInfo activity = Simulator.getTracer().decisionPointsInfo.get(currentDptNumber).activitiesInfo
+					ActivityCache activity = Simulator.getModelStructureCache().decisionPointsInfo.get(dptNumber).activitiesInfo
 							.get(ruleNum);
 					final int patternNumber = activity.patternNumber;
 					final double ruleCost = data.getDouble();
-					treeNode.parent = listMap.get(currentDptNumber).get(parentNumber);
-					listMap.get(currentDptNumber).get(parentNumber).children.add(treeNode);
+					treeNode.parent = listMap.get(dptNumber).get(parentNumber);
+					listMap.get(dptNumber).get(parentNumber).children.add(treeNode);
 
-					final int numberOfRelevantResources = Simulator.getTracer().patternsInfo.get(patternNumber).relResTypes
+					final int numberOfRelevantResources = Simulator.getModelStructureCache().patternsInfo.get(patternNumber).relResTypes
 							.size();
 
 					RDOLibStringJoiner relResStringJoiner = new RDOLibStringJoiner(StringFormat.FUNCTION);
 
 					for (int num = 0; num < numberOfRelevantResources; num++) {
 						final int resNum = data.getInt();
-						final int typeNum = Simulator.getTracer().patternsInfo.get(patternNumber).relResTypes.get(num);
-						final String typeName = Simulator.getTracer().resourceTypesInfo.get(typeNum).name;
+						final int typeNum = Simulator.getModelStructureCache().patternsInfo.get(patternNumber).relResTypes.get(num);
+						final String typeName = Simulator.getModelStructureCache().resourceTypesInfo.get(typeNum).name;
 
-						final String name = Simulator.getTracer().resourceNames.get(typeNum).get(resNum);
+						final String name = Simulator.getModelStructureCache().resourceNames.get(typeNum).get(resNum);
 						final String resourceName = name != null ? name : typeName + Tracer.encloseIndex(resNum);
 
 						relResStringJoiner.add(resourceName);
@@ -168,8 +171,7 @@ public class TreeBuilder implements Subscriber {
 					treeNode.ruleCost = ruleCost;
 					treeNode.index = nodeNumber;
 					treeNode.label = Integer.toString(treeNode.index);
-					listMap.get(currentDptNumber).add(treeNode);
-//					lastAddedNode.put(currentDptNumber, treeNode);
+					listMap.get(dptNumber).add(treeNode);
 					System.out.println("treeB last node index = " + treeNode.index);
 					System.out.println("treeB last node parent index = " + treeNode.parent.index);
 					break;
@@ -179,9 +181,10 @@ public class TreeBuilder implements Subscriber {
 				break;
 			}
 			case DECISION: {
+				final ByteBuffer data = Tracer.prepareBufferForReading(entry.data);
 				final int number = data.getInt();
-				ArrayList<Node> currentSolutionList = solutionMap.get(currentDptNumber);
-				ArrayList<Node> currentNodeList = listMap.get(currentDptNumber);
+				ArrayList<Node> currentSolutionList = solutionMap.get(dptNumber);
+				ArrayList<Node> currentNodeList = listMap.get(dptNumber);
 				Node solutionNode = currentNodeList.get(number);
 				currentSolutionList.add(solutionNode);
 				break;
@@ -203,11 +206,6 @@ public class TreeBuilder implements Subscriber {
 
 	public HashMap<Integer, GraphInfo> infoMap = new HashMap<Integer, GraphInfo>();
 
-	private int currentDptNumber = -1;
-	
-	public int getCurrentDptNumber() {
-		return currentDptNumber;
-	}
 	
 	private int entryNumber = 0;
 	

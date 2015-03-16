@@ -53,6 +53,8 @@ import org.eclipse.swt.widgets.TreeItem;
 
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.ui.IActionBars;
+
 import org.eclipse.ui.part.ViewPart;
 
 import org.eclipse.ui.themes.ITheme;
@@ -227,7 +229,152 @@ public class RDOResultsView  extends ViewPart
 		prefs.putInt("ResultsValueColumnWidth", valueWidth);
 	}
 
+	private static IActionBars actionBars;
 	private static IToolBarManager toolbarMgr;
+
+	private static abstract class SwitchAction extends Action
+	{
+		public abstract void updateLook();
+	}
+
+	private static final String TREE_TEXT_SWITCH_ID =
+			"RDOResultsView.actions.treeTextSwitch";
+	private static SwitchAction actionTreeTextSwitch = new SwitchAction()
+	{
+		ImageDescriptor text, tree;
+		{
+			Bundle ui = Platform.getBundle("ru.bmstu.rk9.rdo.ui");
+			setId(TREE_TEXT_SWITCH_ID);
+
+			text = ImageDescriptor.createFromURL(FileLocator.find(
+				ui, new Path("icons/script-text.png"), null));
+			tree = ImageDescriptor.createFromURL(FileLocator.find(
+				ui, new Path("icons/tree.png"), null));
+		}
+
+		public void updateLook()
+		{
+			if(viewAsText)
+			{
+				setText("View as tree");
+				setImageDescriptor(tree);
+				composite.setContent(RDOResultsView.text);
+
+				setTreeActions(false);
+			}
+			else
+			{
+				setText("View as text");
+				setImageDescriptor(text);
+				composite.setContent(RDOResultsView.tree);
+
+				setTreeActions(true);
+			}
+		}
+
+		@Override
+		public void run()
+		{
+			viewAsText = !viewAsText;
+			updateLook();
+		}
+	};
+
+	private static final String EXPAND_ALL_ID =
+		"RDOResultsView.actions.expandAll";
+	private static Action actionExpandAll = new Action()
+	{
+		{
+			setId(EXPAND_ALL_ID);
+
+			setText("Expand All");
+			setImageDescriptor(ImageDescriptor.createFromURL(FileLocator.find
+			(
+				Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+				new Path("icons/zones-stack.png"), null))
+			);
+		}
+
+		public void run()
+		{
+			for(TreeItem item : tree.getItems())
+			{
+				item.setExpanded(true);
+				for(TreeItem child : item.getItems())
+					child.setExpanded(true);
+			}
+		};
+	};
+
+	private static final String COLLAPSE_ALL_ID =
+		"RDOResultsView.actions.collapseAll";
+	private static Action actionCollapseAll = new Action()
+	{
+		{
+			setId(COLLAPSE_ALL_ID);
+
+			setText("Collapse All");
+			setImageDescriptor(ImageDescriptor.createFromURL(FileLocator.find
+			(
+				Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+				new Path("icons/zones.png"), null))
+			);
+		}
+
+		public void run()
+		{
+			for(TreeItem item : tree.getItems())
+			{
+				item.setExpanded(true);
+				for(TreeItem child : item.getItems())
+					child.setExpanded(false);
+			}
+		};
+	};
+
+	private static final String COLLAPSE_MODELS_ID =
+		"RDOResultsView.actions.collapseModels";
+	private static Action actionCollapseModels = new Action()
+	{
+		{
+			setId(COLLAPSE_MODELS_ID);
+
+			setText("Collapse Including Models");
+			setImageDescriptor(ImageDescriptor.createFromURL(FileLocator.find
+			(
+				Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+				new Path("icons/zone-medium.png"), null))
+			);
+		}
+
+		public void run()
+		{
+			for(TreeItem item : tree.getItems())
+			{
+				for(TreeItem child : item.getItems())
+					child.setExpanded(false);
+				item.setExpanded(false);
+			}
+		};
+	};
+
+	private static void setTreeActions(boolean state)
+	{
+		if(state)
+		{
+			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionExpandAll);
+			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionCollapseAll);
+			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionCollapseModels);
+		}
+		else
+		{
+			toolbarMgr.remove(EXPAND_ALL_ID);
+			toolbarMgr.remove(COLLAPSE_ALL_ID);
+			toolbarMgr.remove(COLLAPSE_MODELS_ID);
+		}
+
+		actionBars.updateActionBars();
+	}
 
 	@Override
 	public void createPartControl(Composite parent)
@@ -277,12 +424,7 @@ public class RDOResultsView  extends ViewPart
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				for(TreeItem item : tree.getItems())
-				{
-					item.setExpanded(true);
-					for(TreeItem child : item.getItems())
-						child.setExpanded(true);
-				}
+				actionExpandAll.run();
 			}
 		});
 		MenuItem collapse = new MenuItem(treeMenu, SWT.CASCADE);
@@ -292,9 +434,7 @@ public class RDOResultsView  extends ViewPart
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				for(TreeItem item : tree.getItems())
-					for(TreeItem child : item.getItems())
-						child.setExpanded(false);
+				actionCollapseAll.run();
 			}
 		});
 		MenuItem collapseModels = new MenuItem(treeMenu, SWT.CASCADE);
@@ -304,12 +444,7 @@ public class RDOResultsView  extends ViewPart
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				for(TreeItem item : tree.getItems())
-				{
-					for(TreeItem child : item.getItems())
-						child.setExpanded(false);
-					item.setExpanded(false);
-				}
+				actionCollapseModels.run();
 			}
 		});
 		tree.setMenu(treeMenu);
@@ -347,44 +482,10 @@ public class RDOResultsView  extends ViewPart
 		registerTextFontUpdateListener();
 		updateTextFont();
 
-		toolbarMgr = getViewSite().getActionBars().getToolBarManager();
-		toolbarMgr.add(new Action()
-		{
-			ImageDescriptor text, tree;
-			{
-				Bundle ui = Platform.getBundle("ru.bmstu.rk9.rdo.ui");
-
-				text = ImageDescriptor.createFromURL(FileLocator.find(
-					ui, new Path("icons/script-text.png"), null));
-				tree = ImageDescriptor.createFromURL(FileLocator.find(
-					ui, new Path("icons/tree.png"), null));
-
-				updateLook();
-			}
-
-			private void updateLook()
-			{
-				if(viewAsText)
-				{
-					setText("View as tree");
-					setImageDescriptor(tree);
-					composite.setContent(RDOResultsView.text);
-				}
-				else
-				{
-					setText("View as text");
-					setImageDescriptor(text);
-					composite.setContent(RDOResultsView.tree);
-				}
-			}
-
-			@Override
-			public void run()
-			{
-				viewAsText = !viewAsText;
-				updateLook();
-			}
-		});
+		actionBars = getViewSite().getActionBars();
+		toolbarMgr = actionBars.getToolBarManager();
+		toolbarMgr.add(actionTreeTextSwitch);
+		actionTreeTextSwitch.updateLook();
 
 		if(results != null)
 			setResults(results);

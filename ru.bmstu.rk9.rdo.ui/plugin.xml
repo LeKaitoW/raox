@@ -441,6 +441,16 @@
               optional="false">
         </commandParameter>
      </command>
+     <command
+           categoryId="ru.bmstu.rk9.rdo.ui.runtime"
+           id="ru.bmstu.rk9.rdo.ui.runtime.exportTrace"
+           name="Export Trace">
+        <commandParameter
+              id="ru.bmstu.rk9.rdo.ui.runtime.exportTraceType"
+              name="Type"
+              optional="false">
+        </commandParameter>
+     </command>
   </extension>
   <extension
         point="org.eclipse.ui.handlers">
@@ -489,6 +499,10 @@
      <handler
            class="ru.bmstu.rk9.rdo.ui.runtime.SetSimulationScaleHandler"
            commandId="ru.bmstu.rk9.rdo.ui.runtime.setSimulationScale">
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rdo.ui.runtime.ExportTraceHandler"
+           commandId="ru.bmstu.rk9.rdo.ui.runtime.exportTrace">
      </handler>
   </extension>
   <extension
@@ -636,6 +650,30 @@
                  name="ru.bmstu.rk9.rdo.ui.runtime.menu.separator3"
                  visible="true">
            </separator>
+           <menu
+                 id="ru.bmstu.rk9.rdo.ui.runtime.exportTraceOutputMenu"
+                 label="Export Trace Output">
+              <command
+                    commandId="ru.bmstu.rk9.rdo.ui.runtime.exportTrace"
+                    id="ru.bmstu.rk9.rdo.ui.runtime.menu.exportTraceRegular"
+                    label="Regular"
+                    style="push">
+                 <parameter
+                       name="ru.bmstu.rk9.rdo.ui.runtime.exportTraceType"
+                       value="Regular">
+                 </parameter>
+              </command>
+              <command
+                    commandId="ru.bmstu.rk9.rdo.ui.runtime.exportTrace"
+                    id="ru.bmstu.rk9.rdo.ui.runtime.menu.exportTraceLegacy"
+                    label="Legacy"
+                    style="push">
+                 <parameter
+                       name="ru.bmstu.rk9.rdo.ui.runtime.exportTraceType"
+                       value="Legacy">
+                 </parameter>
+              </command>
+           </menu>
         </menu>
      </menuContribution>
      <menuContribution
@@ -935,10 +973,10 @@
      </view>
      <view
            category="ru.bmstu.rk9.rdo.ui.views"
-           class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:ru.bmstu.rk9.rdo.ui.contributions.RDOTraceConfigView"
+           class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView"
            icon="icons/tag.gif"
-           id="ru.bmstu.rk9.rdo.ui.RDOTraceConfigView"
-           name="RDO Trace Config"
+           id="ru.bmstu.rk9.rdo.ui.RDOSerializationConfigView"
+           name="Monitoring Configuration"
            restorable="true">
      </view>
      <view
@@ -971,6 +1009,14 @@
            icon="icons/clipboard-list.png"
            id="ru.bmstu.rk9.rdo.ui.RDOResultsView"
            name="RDO Results"
+           restorable="true">
+     </view>
+     <view
+           category="ru.bmstu.rk9.rdo.ui.views"
+           class="ru.bmstu.rk9.rdo.ui.contributions.RDOSerializedObjectsView"
+           icon="icons/zones-stack.png"
+           id="ru.bmstu.rk9.rdo.ui.RDOSerializedObjectsView"
+           name="Collected Objects"
            restorable="true">
      </view>
   </extension>

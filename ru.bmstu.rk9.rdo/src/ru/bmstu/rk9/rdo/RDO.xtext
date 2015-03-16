@@ -8,7 +8,7 @@ generate rdo "http://www.bmstu.ru/rk9/rdo/RDO"
 //                          Root tokens
 // ==========================================================
 RDOModel:
-	objects += RDOEntity*
+	{RDOModel} objects += RDOEntity*
 ;
 
 RDOEntity

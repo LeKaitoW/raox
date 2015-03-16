@@ -28,6 +28,8 @@ import com.mxgraph.view.mxGraphSelectionModel;
 
 public class GraphFrame extends JFrame {
 
+	private static final long serialVersionUID = 1668866556340389760L;
+
 	/*-----------------------REAL TIME OUTPUT-----------------------*/
 
 	private static volatile boolean haveNewRealTimeData = false;
@@ -71,7 +73,6 @@ public class GraphFrame extends JFrame {
 	}
 
 	private void drawNewVertex(mxGraph graph, ArrayList<Node> nodeList) {
-		int dptNum = Simulator.getTreeBuilder().getCurrentDptNumber();
 		Integer index = GraphControl.getLastAddedVertexIndex();
 		System.out.println(index);
 		for (int i = ++index; i < nodeList.size(); i++) {

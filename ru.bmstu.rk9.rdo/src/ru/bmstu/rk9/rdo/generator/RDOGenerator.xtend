@@ -165,6 +165,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				Simulator.initSimulation();
 				Simulator.initDatabase(«project»Model.modelStructure);
+				Simulator.initModelStructureCache();
 				Simulator.initTracer();
 				Simulator.initTreeBuilder();
 
@@ -229,6 +230,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 			{
 				Simulator.initSimulation();
 				Simulator.initDatabase(«project»Model.modelStructure);
+				Simulator.initModelStructureCache();
 				Simulator.initTracer();
 				Simulator.initTreeBuilder();
 

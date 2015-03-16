@@ -1,241 +1,224 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
-import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.jdt.ui.PreferenceConstants;
-
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.layout.RowLayoutFactory;
 import org.eclipse.jface.resource.FontRegistry;
-
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
-
 import org.eclipse.swt.custom.ScrolledComposite;
-
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
-
 import org.eclipse.ui.part.ViewPart;
-
 import org.eclipse.ui.themes.ITheme;
 import org.eclipse.ui.themes.IThemeManager;
 
-import ru.bmstu.rk9.rdo.ui.runtime.SetSimulationScaleHandler;
-
-public class RDOStatusView extends ViewPart
-{
+public class RDOStatusView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOStatusView"; //$NON-NLS-1$
 
-	private static ScrolledComposite scrolledComposite = null;
-	private static FillLayout scrolledCompositeLayout;
+	private static RDOStatusView INSTANCE;
 
-	private static GridData leftGridData;
-	private static GridData leftGridDataForLabels;
+	private ScrolledComposite scrolledComposite;
+	private RowLayout scrolledCompositeLayout;
 
-	private static Label simulationScale = null;
+	private Composite composite; 
 
-	private static Label actualSimulationScale = null;
+	public static class Element extends Composite {
+		private Label label;
+		private Text text;
 
-	private static Label simulationTime = null;
+		private Element(Composite parent, String name) {
+			super(parent, SWT.NONE);
 
-	private static Label realTime = null;
+			setBackground(parent.getBackground());
 
-	private static DecimalFormat scaleFormatter = new DecimalFormat("0.######");
-	private static DecimalFormat actualScaleFormatter = new DecimalFormat("0.0");
+			GridLayoutFactory.fillDefaults().numColumns(2).applyTo(this);
 
-	public static void setSimulationScale(double scale)
-	{
-		if(!isInitialized())
-			return;
+			label = new Label(this, SWT.NONE);
+			label.setText(name + ":");
 
-		simulationScale.setText(scaleFormatter.format(scale));
+			GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER)
+					.applyTo(label);
 
-		calculateMinWidth();
+			text = new Text(this, SWT.SINGLE | SWT.READ_ONLY | SWT.FLAT);
 
-		simulationScale.setSize(simulationScale.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+			GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER)
+					.grab(true, false).applyTo(text);
+		}
 	}
 
-	public static void setActualSimulationScale(double scale)
-	{
-		if(!isInitialized())
-			return;
-
-		actualSimulationScale.setText(actualScaleFormatter.format(scale));
-
-		calculateMinWidth();
-
-		actualSimulationScale.setSize(actualSimulationScale.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-	}
-
-	private static DecimalFormat timeFormatter = new DecimalFormat("0.0#####");
-
-	public static void setSimulationTime(double time)
-	{
-		if(!isInitialized())
-			return;
-
-		simulationTime.setText(timeFormatter.format(time));
-
-		calculateMinWidth();
-
-		simulationTime.setSize(simulationTime.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-	}
-
-	private static DecimalFormat realTimeFormatter = new DecimalFormat("0.0");
-
-	public static void setRealTime(long time)
-	{
-		if(!isInitialized())
-			return;
-
-		realTime.setText(realTimeFormatter.format(time/1000d) + "s");
-
-		calculateMinWidth();
-
-		realTime.setSize(realTime.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-	}
-
-	@Override
-	public void createPartControl(Composite parent)
-	{
-		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
-
-		IThemeManager themeManager = PlatformUI.getWorkbench().getThemeManager();
-		ITheme currentTheme = themeManager.getCurrentTheme();
-		FontRegistry fontRegistry = currentTheme.getFontRegistry();
-		Font editorFont = fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT);
-
-		Composite composite = new Composite(scrolledComposite, SWT.NONE);
-			scrolledCompositeLayout = new FillLayout(SWT.VERTICAL);
-				scrolledCompositeLayout.marginHeight = 5;
-				scrolledCompositeLayout.marginWidth = 5;
-				scrolledCompositeLayout.spacing = 2;
-			composite.setLayout(scrolledCompositeLayout);
-
-			GridLayout gridLayout = new GridLayout(2, false);
-			gridLayout.marginHeight = 0;
-			gridLayout.marginWidth = 0;
-			gridLayout.horizontalSpacing = 0;
-
-			leftGridDataForLabels = new GridData(SWT.LEFT, SWT.CENTER, false, true);
-			leftGridData = new GridData(SWT.LEFT, SWT.CENTER, true, true);
-
-			Composite scaleComposite = new Composite(composite, SWT.NONE);
-				scaleComposite.setLayout(gridLayout);
-				Label scaleLabel = new Label(scaleComposite, SWT.LEFT);
-					scaleLabel.setText("Simulation scale:");
-					scaleLabel.setLayoutData(leftGridDataForLabels);
-				simulationScale = new Label(scaleComposite, SWT.LEFT);
-					simulationScale.setLayoutData(leftGridData);
-
-			Composite actualScaleComposite = new Composite(composite, SWT.NONE);
-				actualScaleComposite.setLayout(gridLayout);
-				Label actualScaleLabel = new Label(actualScaleComposite, SWT.LEFT);
-					actualScaleLabel.setText("Actual scale:");
-					actualScaleLabel.setLayoutData(leftGridDataForLabels);
-				actualSimulationScale = new Label(actualScaleComposite, SWT.LEFT);
-					actualSimulationScale.setLayoutData(leftGridData);
-					actualSimulationScale.setText("-");
-
-			Composite timeComposite = new Composite(composite, SWT.NONE);
-				timeComposite.setLayout(gridLayout);
-				Label timeLabel = new Label(timeComposite, SWT.LEFT);
-					timeLabel.setText("Simulation time:");
-					timeLabel.setLayoutData(leftGridDataForLabels);
-				simulationTime = new Label(timeComposite, SWT.LEFT);
-					simulationTime.setLayoutData(leftGridData);
-					simulationTime.setText("-");
-
-			Composite realTimeComposite = new Composite(composite, SWT.LEFT);
-				realTimeComposite.setLayout(gridLayout);
-				Label realTimeLabel = new Label(realTimeComposite, SWT.LEFT);
-					realTimeLabel.setText("Time elapsed:");
-					realTimeLabel.setLayoutData(leftGridDataForLabels);
-				realTime = new Label(realTimeComposite, SWT.LEFT);
-					realTime.setLayoutData(leftGridData);
-					realTime.setText("-");
-
-		for(Control c : new Control[]
-		{
-			scrolledComposite, composite,
-			scaleComposite, scaleLabel, simulationScale,
-			actualScaleComposite, actualScaleLabel, actualSimulationScale,
-			timeComposite, timeLabel, simulationTime,
-			realTimeComposite, realTimeLabel, realTime
-		})
-		{
-			c.setFont(editorFont);
-			c.setBackground(parent.getBackground());
+	public static void setValue(String name, int priority, String value) {
+		if (value == null) {
+			values.remove(name);
+			order.remove(name);
+		} else {
+			values.put(name, value);
+			order.put(name, priority);
 		}
 
-		leftGridDataForLabels.widthHint = 5 + Math.max
-		(
-			scaleLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT).x,
-			Math.max
-			(
-				actualScaleLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT).x,
-				Math.max
-				(
-					timeLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT).x,
-					realTimeLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT).x
-				)
-			)
-		);
+		if (isInitialized())
+			INSTANCE.updateElement(name);
+	}
+
+	private void updateElement(String name) {
+		Element control = controls.get(name);
+
+		if (control == null) {
+			control = createElement(name);
+			reorderElements();
+		}
+
+		String text = values.get(name);
+
+		if (text == null)
+			controls.remove(name).dispose();
+		else
+			control.text.setText(text);
+
+		updateScrolledCompositeSize();
+	}
+
+	private Element createElement(String name) {
+		Element control = new Element(composite, name);
+		control.label.setFont(editorFont);
+		control.text.setFont(editorFont);
+		
+		Color background = composite.getBackground();
+		control.setBackground(background);
+		control.label.setBackground(background);
+		control.text.setBackground(background);
+
+		controls.put(name, control);
+
+		return control;
+	}
+
+	private void reorderElements() {
+		ArrayList<String> list = new ArrayList<String>();
+		list.addAll(controls.keySet());
+		list.sort((a, b) -> order.get(a).compareTo(order.get(b)));
+
+		Iterator<String> it = list.iterator();
+		String element;
+
+		if (it.hasNext())
+			element = it.next();
+		else
+			return;
+			
+		while (it.hasNext()) {
+			String next = it.next();
+			controls.get(next).moveAbove(controls.get(element));
+			element = next;
+		}
+
+		scrolledComposite.layout(true, true);
+	}
+
+	private static Map<String, String> values = new HashMap<String, String>();
+	private static Map<String, Integer> order = new HashMap<String, Integer>();
+	private Map<String, Element> controls = new HashMap<String, Element>();
+
+	private IThemeManager themeManager;
+	private IPropertyChangeListener fontListener;
+	private Font editorFont;
+
+	@Override
+	public void createPartControl(Composite parent) {
+		scrolledComposite = new ScrolledComposite(parent,
+				SWT.H_SCROLL | SWT.V_SCROLL);
+
+		themeManager = PlatformUI.getWorkbench().getThemeManager();
+		ITheme currentTheme = themeManager.getCurrentTheme();
+		FontRegistry fontRegistry = currentTheme.getFontRegistry();
+		editorFont = fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT);
+
+		composite = new Composite(scrolledComposite, SWT.NONE);
+		scrolledCompositeLayout = RowLayoutFactory.fillDefaults()
+				.type(SWT.VERTICAL).wrap(false).margins(5, 5).spacing(2).create();
+		composite.setLayout(scrolledCompositeLayout);
+
+		fontListener = new IPropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				if (event.getProperty().equals(
+						PreferenceConstants.EDITOR_TEXT_FONT)) {
+					Font editorFont = fontRegistry
+							.get(PreferenceConstants.EDITOR_TEXT_FONT);
+
+					for (Element e : controls.values()) {
+						e.label.setFont(editorFont);
+						e.text.setFont(editorFont);
+					}
+				}
+			}
+		};
+		themeManager.addPropertyChangeListener(fontListener);
 
 		scrolledComposite.setContent(composite);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 
-		setSimulationScale(SetSimulationScaleHandler.getSimulationScale());
+		INSTANCE = this;
+
+		// late initialization
+		parent.getDisplay().asyncExec(() -> {
+			scrolledComposite.setBackground(parent.getBackground());
+			composite.setBackground(parent.getBackground());
+
+			for (String name : values.keySet()) {
+				Element element = createElement(name);
+				element.text.setText(values.get(name));
+			}
+			reorderElements();
+			updateScrolledCompositeSize();
+		});
 	}
 
-	private static void calculateMinWidth()
-	{
-		int scaleSize = simulationScale.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
-		int actualScaleSize = actualSimulationScale.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
-		int timeSize = simulationTime.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
-		int realTimeSize = realTime.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+	private void updateScrolledCompositeSize() {
+		int h = 0, v = 0;
+		for (Element e : controls.values()) {
+			Point sizeL = e.label.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+			Point sizeT = e.text.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 
-		leftGridData.widthHint = Math.max(scaleSize, Math.max(actualScaleSize,
-			Math.max(timeSize, realTimeSize)));
+			int x = sizeL.x + sizeT.x;
+			h = x > h ? x : h;
 
-		scrolledComposite.setMinSize
-		(
-			leftGridData.widthHint + leftGridDataForLabels.widthHint +
-				scrolledCompositeLayout.marginWidth * 2,
-			calculateOverallHeight()
-		);
-	}
+			v += scrolledCompositeLayout.spacing +
+					sizeL.y > sizeT.y ? sizeL.y : sizeT.y;
+		}
+		h += scrolledCompositeLayout.marginWidth * 2;
+		v += scrolledCompositeLayout.marginHeight * 2;
 
-	private static int calculateOverallHeight()
-	{
-		int scaleSize = simulationScale.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
-		int actualScaleSize = actualSimulationScale.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
-		int timeSize = simulationTime.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
-		int realTimeSize = realTime.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
-
-		return scaleSize + actualScaleSize + timeSize + realTimeSize +
-			scrolledCompositeLayout.spacing * 2 + scrolledCompositeLayout.marginHeight * 2;
-	}
-
-	private static boolean isInitialized()
-	{
-		return
-			scrolledComposite != null
-			&& !scrolledComposite.isDisposed()
-			&& simulationScale != null
-			&& actualSimulationScale != null
-			&& simulationTime != null
-			&& realTime != null;
+		scrolledComposite.setMinSize(h, v);		
+		scrolledComposite.layout(true, true);
 	}
 
 	@Override
-	public void setFocus() {}
+	public void dispose() {
+		themeManager.removePropertyChangeListener(fontListener);
+		super.dispose();
+	}
+
+	private static boolean isInitialized() {
+		return INSTANCE != null
+			&& !INSTANCE.composite.isDisposed();
+	}
+
+	@Override
+	public void setFocus() {
+	}
 }

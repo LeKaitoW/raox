@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rdo.ui.runtime;
 
+import java.text.DecimalFormat;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -15,9 +17,17 @@ public class SetSimulationScaleHandler extends AbstractHandler
 		return simulationScale;
 	}
 
+	private static DecimalFormat scaleFormatter = new DecimalFormat("0.######");
+
 	public static void setSimulationScale(double scale)
 	{
 		simulationScale = scale;
+		updateStatusView();
+	}
+
+	private static void updateStatusView() {
+		RDOStatusView.setValue("Simulation scale".intern(), 15,
+				scaleFormatter.format(simulationScale));
 	}
 
 	@Override
@@ -44,7 +54,7 @@ public class SetSimulationScaleHandler extends AbstractHandler
 
 		SimulationSynchronizer.setSimulationScale(simulationScale);
 
-		RDOStatusView.setSimulationScale(simulationScale);
+		updateStatusView();
 
 		return null;
 	}

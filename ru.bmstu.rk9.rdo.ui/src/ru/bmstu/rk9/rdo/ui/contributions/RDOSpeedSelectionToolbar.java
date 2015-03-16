@@ -81,12 +81,12 @@ public class RDOSpeedSelectionToolbar extends WorkbenchWindowControlContribution
 
 						e.gc.fillRoundRectangle
 						(
-							(widgetSize.x - textSize.x) / 2 - 2,
+							(widgetSize.x - textSize.x) / 2 - 4,
 							(widgetSize.y - textSize.y) / 2,
-							textSize.x + 4,
-							textSize.y + 1,
-							3,
-							3
+							textSize.x + 8,
+							textSize.y,
+							4,
+							4
 						);
 
 						e.gc.setAlpha(alpha);
@@ -189,7 +189,7 @@ public class RDOSpeedSelectionToolbar extends WorkbenchWindowControlContribution
 
 		GridData gd = new GridData(SWT.CENTER, SWT.CENTER, false, true);
 		gd.widthHint = 100;
-		gd.heightHint = 20;
+		gd.heightHint = 24;
 
 		speed = new RDOSpeedSelector(container, SWT.SMOOTH);
 		speed.setLayoutData(gd);

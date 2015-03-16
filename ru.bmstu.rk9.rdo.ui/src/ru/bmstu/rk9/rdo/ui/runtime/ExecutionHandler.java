@@ -4,14 +4,18 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.State;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,6 +25,7 @@ import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.services.ISourceProviderService;
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
@@ -35,10 +40,10 @@ import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializedObjectsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceConfigView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
-import ru.bmstu.rk9.rdo.lib.GraphControl;
 import ru.bmstu.rk9.rdo.ui.graph.GraphFrame;
 
 import com.google.inject.Inject;
@@ -86,6 +91,8 @@ public class ExecutionHandler extends AbstractHandler
 		);
 	}
 
+	private static DecimalFormat realTimeFormatter = new DecimalFormat("0.0");
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException
 	{
@@ -124,6 +131,7 @@ public class ExecutionHandler extends AbstractHandler
 				Timer uiRealTime = new Timer();
 				Timer traceRealTimeUpdater = new Timer();
 				Timer animationUpdater = new Timer();
+				RDOSerializationConfigView.setEnabled(false);
 
 				try
 				{
@@ -173,12 +181,28 @@ public class ExecutionHandler extends AbstractHandler
 							initialization = method;
 					}
 
-					RDOTraceConfigView.initNames();
+					IFile modelFile = (IFile) HandlerUtil
+						.getActiveEditor(event).getEditorInput()
+						.getAdapter(IFile.class);
+
+					ExportTraceHandler.reset();
+					ExportTraceHandler.setCurrentProject(project);
+					ExportTraceHandler.setCurrentModel(modelFile);
+
+					RDOSerializationConfigView.initNames();
 
 					final ArrayList<AnimationFrame> frames = new ArrayList<AnimationFrame>();
 
 					if(initialization != null)
 						initialization.invoke(null, (Object)frames);
+
+					ICommandService service = (ICommandService) PlatformUI.getWorkbench()
+							.getService(ICommandService.class);
+					Command command = service
+							.getCommand("ru.bmstu.rk9.rdo.ui.runtime.setExecutionMode");
+					State state = command.getState("org.eclipse.ui.commands.radioState");
+
+					SimulationModeDispatcher.setMode((String) state.getValue());
 
 					display.syncExec(() -> RDOAnimationView.initialize(frames));
 
@@ -191,11 +215,11 @@ public class ExecutionHandler extends AbstractHandler
 					simulatorNotifier
 						.getSubscription("TimeChange")
 							.addSubscriber(SimulationSynchronizer.getInstance().uiTimeUpdater)
-							.addSubscriber(SimulationSynchronizer.getInstance().simulationScaleManager);
+							.addSubscriber(SimulationSynchronizer.getInstance().simulationManager.scaleManager);
 
 					simulatorNotifier
 						.getSubscription("StateChange")
-							.addSubscriber(SimulationSynchronizer.getInstance().simulationSpeedManager)
+							.addSubscriber(SimulationSynchronizer.getInstance().simulationManager.speedManager)
 							.addSubscriber(RDOAnimationView.updater);
 
 					simulatorNotifier
@@ -224,20 +248,15 @@ public class ExecutionHandler extends AbstractHandler
 					RDOConsoleView.addLine("Started model " + project.getName());
 					final long startTime = System.currentTimeMillis();
 
-					uiRealTime.scheduleAtFixedRate
-					(
-						new TimerTask()
-						{
-							@Override
-							public void run()
-							{
-								display.asyncExec(() ->
-									RDOStatusView.setRealTime(System.currentTimeMillis() - startTime));
-							}
-						},
-						0,
-						100
-					);
+					uiRealTime.scheduleAtFixedRate(new TimerTask() {
+						@Override
+						public void run() {
+							if (!display.isDisposed())
+								display.asyncExec(() -> RDOStatusView
+									.setValue("Time elapsed".intern(), 5, realTimeFormatter.format(
+										(System.currentTimeMillis() - startTime)/1000d)+ "s"));
+						}
+					}, 0, 100);
 
 					traceRealTimeUpdater.scheduleAtFixedRate
 					(
@@ -284,6 +303,7 @@ public class ExecutionHandler extends AbstractHandler
 					RDOConsoleView.addLine("Time elapsed: " +
 						String.valueOf(System.currentTimeMillis() - startTime) + "ms");
 
+					RDOSerializedObjectsView.initializeTree();
 					SimulationSynchronizer.finish();
 
 					uiRealTime.cancel();
@@ -320,6 +340,9 @@ public class ExecutionHandler extends AbstractHandler
 						}
 
 					return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui", "Execution failed");
+				}
+				finally {
+					RDOSerializationConfigView.setEnabled(true);
 				}
 			}
 

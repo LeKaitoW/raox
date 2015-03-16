@@ -3,7 +3,8 @@
 #################
 
 *.pydevproject
-.metadata
+.metadata/
+.recommenders/
 bin/
 tmp/
 *.tmp

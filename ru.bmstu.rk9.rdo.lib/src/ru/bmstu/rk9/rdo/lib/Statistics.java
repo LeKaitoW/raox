@@ -1,10 +1,10 @@
 package ru.bmstu.rk9.rdo.lib;
 
 import java.util.Iterator;
-
 import java.util.PriorityQueue;
-
 import java.util.function.Function;
+
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
 
 public class Statistics
 {
@@ -43,22 +43,23 @@ public class Statistics
 		public boolean initFromDatabase(Result result)
 		{
 			Database database = Simulator.getDatabase();
-			Database.Index resultIndex = database.resultIndex.get(result.getName());
+			AbstractIndex resultIndex = database
+					.getIndexHelper().getResult(result.getName()).getIndex();
 
-			if(resultIndex != null && !resultIndex.entries.isEmpty())
+			if(resultIndex != null && !resultIndex.getEntries().isEmpty())
 			{
 				Function<Integer, Double> getValue =
 					result.getData().getString("valueType").equals("real")
-						? i -> database.allEntries.get(i).data.getDouble(0)
-						: i -> (double)database.allEntries.get(i).data.getInt(0);
+						? i -> database.getAllEntries().get(i).data.getDouble(0)
+						: i -> (double)database.getAllEntries().get(i).data.getInt(0);
 
 				PriorityQueue<Integer> queue = new PriorityQueue<Integer>
 				(
-					resultIndex.entries.size(),
+					resultIndex.getEntries().size(),
 					(a, b) -> getValue.apply(a).compareTo(getValue.apply(b))
 				);
 
-				queue.addAll(resultIndex.entries);
+				queue.addAll(resultIndex.getEntries());
 
 				int size = queue.size(), value = -1;
 
@@ -148,23 +149,24 @@ public class Statistics
 		public boolean initFromDatabase(Result result)
 		{
 			Database database = Simulator.getDatabase();
-			Database.Index resultIndex = database.resultIndex.get(result.getName());
+			AbstractIndex resultIndex = database.getIndexHelper()
+					.getResult(result.getName()).getIndex();
 
-			if(resultIndex != null && !resultIndex.entries.isEmpty())
+			if(resultIndex != null && !resultIndex.getEntries().isEmpty())
 			{
 				Function<Integer, Double> getValue =
 					result.getData().getString("valueType").equals("real")
-						? i -> database.allEntries.get(i).data.getDouble(0)
-						: i -> (double)database.allEntries.get(i).data.getInt(0);
+						? i -> database.getAllEntries().get(i).data.getDouble(0)
+						: i -> (double)database.getAllEntries().get(i).data.getInt(0);
 
 				PriorityQueue<Integer> queue = new PriorityQueue<Integer>
 				(
-					resultIndex.entries.size(),
-					(a, b) -> getValue.apply(resultIndex.entries.get(a))
-						.compareTo(getValue.apply(resultIndex.entries.get(b)))
+					resultIndex.getEntries().size(),
+					(a, b) -> getValue.apply(resultIndex.getEntries().get(a))
+						.compareTo(getValue.apply(resultIndex.getEntries().get(b)))
 				);
 
-				for(int i = 0; i < resultIndex.entries.size(); i++)
+				for(int i = 0; i < resultIndex.getEntries().size(); i++)
 					queue.add(i);
 
 				double tempSum = weightSum; 
@@ -179,16 +181,16 @@ public class Statistics
 
 					previousW = weight;
 					weight =
-						database.allEntries.get(resultIndex.entries.get(number + 1))
+						database.getAllEntries().get(resultIndex.getEntries().get(number + 1))
 							.header.getDouble(Database.TypeSize.Internal.TIME_OFFSET) -
-						database.allEntries.get(resultIndex.entries.get(number))
+						database.getAllEntries().get(resultIndex.getEntries().get(number))
 							.header.getDouble(Database.TypeSize.Internal.TIME_OFFSET);
 
 					tempSum -= weight;
 				}
 
-				double value = getValue.apply(resultIndex.entries.get(number));
-				double previous = getValue.apply(resultIndex.entries.get(previousN));
+				double value = getValue.apply(resultIndex.getEntries().get(number));
+				double previous = getValue.apply(resultIndex.getEntries().get(previousN));
 
 				median = 2d * (value - previous) / (weight + previousW) *
 					((previousW / 2 + weight) - (weightSum / 2 - tempSum)) + previous;

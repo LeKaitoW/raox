@@ -64,7 +64,7 @@ public class DecisionPoint
 		return name;
 	}
 
-	protected ArrayList<DecisionPoint> children = new ArrayList<DecisionPoint>();
+	protected List<DecisionPoint> children = new ArrayList<DecisionPoint>();
 
 	public void addChild(DecisionPoint child)
 	{
