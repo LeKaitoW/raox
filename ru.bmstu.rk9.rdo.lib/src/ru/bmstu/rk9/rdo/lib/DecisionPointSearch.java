@@ -372,7 +372,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 			break;
 			case SUCCESS:
 				databaseAddDecision();
-				decisionCode = true;
+				//TODO delete this
+				//decisionCode = true;
 			default:
 				finalCost = current.g;
 			break;

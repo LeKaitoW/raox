@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
+import ru.bmstu.rk9.rdo.lib.DecisionPointSearch;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSpeedSelectionToolbar;
@@ -103,6 +104,7 @@ public class SimulationSynchronizer {
 
 		INSTANCE.simulationManager.speedDelayMillis = (long) (-Math
 				.log10(value / 100d) * 1000d);
+		DecisionPointSearch.delay = (int)INSTANCE.simulationManager.speedDelayMillis;
 	}
 
 	public static void setSimulationScale(double value) {
