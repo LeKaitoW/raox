@@ -8,7 +8,7 @@ import java.util.TimerTask;
 
 import javax.swing.JFrame;
 
-import ru.bmstu.rk9.rdo.lib.GraphControl;
+import ru.bmstu.rk9.rdo.ui.graph.GraphControl;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.TreeBuilder.GraphInfo;
@@ -49,7 +49,6 @@ public class GraphFrame extends JFrame {
 		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, parentNode, 385, 100, 30, 30,
 				fontColor + strokeColor);
 		vertexMap.put(parentNode, vertex);
-		GraphControl.setLastAddedVertexIndex(parentNode.index);
 		if (parentNode.parent != null)
 			graph.insertEdge(graph.getDefaultParent(), null, null, vertexMap.get(parentNode.parent),
 					vertexMap.get(parentNode), strokeColor);
@@ -72,24 +71,22 @@ public class GraphFrame extends JFrame {
 		}
 	}
 
-	private void drawNewVertex(mxGraph graph, ArrayList<Node> nodeList) {
-		Integer index = GraphControl.getLastAddedVertexIndex();
-		System.out.println(index);
-		for (int i = ++index; i < nodeList.size(); i++) {
-			Node node = nodeList.get(index);
-			if (!vertexMap.containsKey(node)) {
-				System.out.println("drawNV node index = " + node.index);
-				System.out.println("drawNV node parent index = " + node.parent.index);
-				mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, node, 385, 100, 30, 30,
-						fontColor + strokeColor);
-				vertexMap.put(node, vertex);
-				GraphControl.setLastAddedVertexIndex(node.index);
-				if (node.parent != null)
-					graph.insertEdge(graph.getDefaultParent(), null, null, vertexMap.get(node.parent),
-							vertexMap.get(node), strokeColor);
-			}
-		}
-	}
+//	private void drawNewVertex(mxGraph graph, ArrayList<Node> nodeList) {
+//		System.out.println(index);
+//		for (int i = ++index; i < nodeList.size(); i++) {
+//			Node node = nodeList.get(index);
+//			if (!vertexMap.containsKey(node)) {
+//				System.out.println("drawNV node index = " + node.index);
+//				System.out.println("drawNV node parent index = " + node.parent.index);
+//				mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, node, 385, 100, 30, 30,
+//						fontColor + strokeColor);
+//				vertexMap.put(node, vertex);
+//				if (node.parent != null)
+//					graph.insertEdge(graph.getDefaultParent(), null, null, vertexMap.get(node.parent),
+//							vertexMap.get(node), strokeColor);
+//			}
+//		}
+//	}
 
 	public mxCell insertInfo(mxGraph graph, GraphInfo info) {
 
@@ -185,7 +182,7 @@ public class GraphFrame extends JFrame {
 					haveNewRealTimeData = false;
 					graph.getModel().beginUpdate();
 					try {
-						drawNewVertex(graph, nodeList);
+						//drawNewVertex(graph, nodeList);
 						layout.execute(graph.getDefaultParent());
 					} finally {
 						graph.getModel().endUpdate();

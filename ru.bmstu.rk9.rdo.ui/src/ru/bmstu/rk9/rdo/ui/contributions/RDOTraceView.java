@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
+import java.awt.Frame;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.ArrayList;
@@ -57,7 +58,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import ru.bmstu.rk9.rdo.lib.Database.Entry;
-import ru.bmstu.rk9.rdo.lib.GraphControl;
+import ru.bmstu.rk9.rdo.ui.graph.GraphControl;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
@@ -82,17 +83,18 @@ public class RDOTraceView extends ViewPart
 	{
 		createViewer(parent);
 	}
-
-	//TODO delete method
-	private TraceOutput upToSearchBegin(ArrayList<TraceOutput> traceList, TraceOutput traceOutput) {
-		for (int index = traceList.indexOf(traceOutput) - 1; (traceOutput.type() != TraceType.SEARCH_BEGIN)
-				&& (index != 0); index--) {
-			traceOutput = traceList.get(index);
+	
+	private class FrameInfo {
+		int dptNumber;
+		String frameName;
+		
+		FrameInfo(int dptNum, String frameName) {
+			this.dptNumber = dptNum;
+			this.frameName = frameName;
 		}
-		return traceOutput;
 	}
 	
-	private void createWindow(TraceOutput traceOutput) {
+	private FrameInfo determineDPTInfo (TraceOutput traceOutput) {
 		String content = traceOutput.content();
 		int flagIndex = content.length() - 1;	
 		
@@ -101,29 +103,28 @@ public class RDOTraceView extends ViewPart
 		} while (content.charAt(flagIndex) != ' ');
 		
 		String frameName = "";
-		int dptNum = -1;
 		
 		String dptName = content.substring(flagIndex + 1);
 		
-		dptNum = Simulator.getDatabase().getIndexHelper().getSearch(dptName).getIndex().getNumber();
-		
 		frameName = dptName;
 		
-//		for (String dptNameKey : Database.searchIndex.keySet()) {
-//			int dotIndex = dptNameKey.indexOf('.');
-//			String dptName = dptNameKey.substring(dotIndex + 1);
-//			if (content.substring(flagIndex + 1).compareTo(dptName) == 0) {
-//				frameName = dptName;
-//				dptNum = Database.searchIndex.get(dptNameKey).number;
-//				break;
-//			}
-//		}
-		if (dptNum != -1 && !GraphControl.openedGraphList.contains(frameName)) {
+		dptName = "model_1_file." + dptName;
+		
+		final int dptNum = Simulator.getDatabase().getIndexHelper().getSearch(dptName).getIndex().getNumber();
+		
+		return new FrameInfo(dptNum, frameName);
+	}
+	
+	private void createWindow(FrameInfo frameInfo) {
+		int dptNum = frameInfo.dptNumber;
+		String frameName = frameInfo.frameName;
+		
+		if (!GraphControl.openedGraphList.containsValue(dptNum)) {
 			TreeBuilder treeBuilder = Simulator.getTreeBuilder();
 			treeBuilder.buildTree();
 			GraphFrame graphFrame = new GraphFrame(treeBuilder.listMap.get(dptNum), treeBuilder.infoMap.get(dptNum), treeBuilder.solutionMap
 					.get(dptNum));
-			GraphControl.openedGraphList.add(frameName);
+			GraphControl.openedGraphList.put(dptNum, graphFrame);
 			graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			graphFrame.setSize(800, 600);
 			graphFrame.setTitle(frameName);
@@ -170,7 +171,7 @@ public class RDOTraceView extends ViewPart
 				public void windowClosed(WindowEvent e) {
 					// TODO Auto-generated method stub
 					graphUpdateTimer.cancel();
-					GraphControl.openedGraphList.remove(graphFrame.getTitle());
+					GraphControl.openedGraphList.remove(dptNum);
 					System.out.println("window closed");
 				}
 				
@@ -260,17 +261,12 @@ public class RDOTraceView extends ViewPart
 				TraceOutput traceOutput = (TraceOutput) viewer.getTable().getSelection()[0].getData();
 
 				switch (traceOutput.type()) {
-				case SEARCH_BEGIN: {
-					createWindow(traceOutput);
-				}
-					break;
-				case SEARCH_OPEN:
-				case SEARCH_SPAWN_NEW:
-				case SEARCH_SPAWN_WORSE:
-				case SEARCH_SPAWN_BETTER:
-				case SEARCH_DECISION:
-				case SEARCH_END_SUCCESS:
-					createWindow(traceOutput);
+				case SEARCH_BEGIN:
+					FrameInfo frameInfo = determineDPTInfo(traceOutput);
+					if (!GraphControl.openedGraphList.containsKey(frameInfo.dptNumber))
+						createWindow(frameInfo);
+					else
+						GraphControl.openedGraphList.get(frameInfo.dptNumber).setState(Frame.NORMAL);
 					break;
 				default:
 					break;
