@@ -20,7 +20,7 @@ RDOEntity
 	| Pattern        // PAT & EVN
 	| DecisionPoint  // DPT
 	| Frame          // FRM
-	| Results        // PMD
+	| Result        // PMD
 	| SimulationRun  // SMR
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -372,14 +372,8 @@ FunctionListValue:
 // ==========================================================
 //                           Results
 // ==========================================================
-Results:
-	'$Results' name = ID?
-		(results += ResultDeclaration)+
-	'$End'
-;
-
-ResultDeclaration:
-	name = ID ':' type = ResultType
+Result:
+	'result' name = ID '=' type = ResultType
 ;
 
 ResultType
@@ -391,24 +385,26 @@ ResultType
 ;
 
 ResultWatchParameter:
-	'watch_par' parameter = VariableMethodCallExpression
+	'watch_par' '(' parameter = VariableMethodCallExpression ')'
 ;
 
 ResultWatchState:
-	'watch_state' logic = ExpressionOr
+	'watch_state' '(' logic = ExpressionOr ')'
 ;
 
 ResultWatchQuant:
-	'watch_quant' resource = [ResourceType|FQN] ('NoCheck' | logic = ExpressionOr)
+	'watch_quant' '(' resource = [ResourceType|FQN]
+		',' ('NoCheck' | logic = ExpressionOr) '
+	)'
 ;
 
 ResultWatchValue:
-	'watch_value' resource = [ResourceType|FQN]
-	( 'NoCheck'? | logic = ExpressionOr ) ':' expression = ExpressionOr
+	'watch_value' '(' resource = [ResourceType|FQN] ','
+	( 'NoCheck' | logic = ExpressionOr ) ',' expression = ExpressionOr ')'
 ;
 
 ResultGetValue:
-	'get_value' expression = ExpressionOr
+	'get_value' '(' expression = ExpressionOr ')'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

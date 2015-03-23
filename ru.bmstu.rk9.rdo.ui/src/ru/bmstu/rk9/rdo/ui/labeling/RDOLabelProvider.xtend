@@ -43,8 +43,7 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointPriorActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
 
-import ru.bmstu.rk9.rdo.rdo.Results
-import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
+import ru.bmstu.rk9.rdo.rdo.Result
 import ru.bmstu.rk9.rdo.rdo.ResultWatchParameter
 import ru.bmstu.rk9.rdo.rdo.ResultWatchState
 import ru.bmstu.rk9.rdo.rdo.ResultWatchQuant
@@ -157,13 +156,8 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def image(DecisionPointSearch dpt) { "search.gif" }
 
 	// Results
-	def  text(Results r) {
-		"Results : " + (if(r.name != null) {r.name + " "} else "") + "(" +
-			r.eAllContents.toList.filter(typeof(ResultDeclaration)).size.toString + ")" }
-	def image(Results r) { "clipboard.gif" }
-
-	def  text(ResultDeclaration d) { d.name + " : " + resultype(d)}
-	def resultype(ResultDeclaration declaration) {
+	def  text(Result d) { d.name + " : " + resultype(d)}
+	def resultype(Result declaration) {
 		switch declaration.type {
 			ResultWatchParameter: "watch_par"
 			ResultWatchState    : "watch_state"
@@ -172,7 +166,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 			ResultGetValue      : "get_value"
 		}
 	}
-	def image(ResultDeclaration d) { "parameter.gif" }
+	def image(Result d) { "parameter.gif" }
 
 	// Simulation run
 	def  text(SimulationRun smr) { "SMR : Simulation run" }

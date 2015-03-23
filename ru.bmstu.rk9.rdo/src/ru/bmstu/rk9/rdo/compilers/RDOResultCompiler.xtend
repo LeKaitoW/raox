@@ -11,8 +11,7 @@ import ru.bmstu.rk9.rdo.generator.LocalContext
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
 
-import ru.bmstu.rk9.rdo.rdo.Results
-import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
+import ru.bmstu.rk9.rdo.rdo.Result
 
 import ru.bmstu.rk9.rdo.rdo.ResultType
 
@@ -26,12 +25,9 @@ import ru.bmstu.rk9.rdo.generator.RDOExpression
 
 class RDOResultCompiler
 {
-	def public static compileResult(ResultDeclaration result, String filename)
+	def public static compileResult(Result result, String filename)
 	{
-		val name =
-			(if((result.eContainer as Results).name != null)
-				(result.eContainer as Results).name + "_" else "")
-			+ result.name
+		val name = result.name
 		'''
 		package «filename»;
 

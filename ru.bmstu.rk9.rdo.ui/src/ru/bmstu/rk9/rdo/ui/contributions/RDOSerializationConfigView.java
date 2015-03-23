@@ -51,7 +51,7 @@ import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource;
 import ru.bmstu.rk9.rdo.rdo.Pattern;
 import ru.bmstu.rk9.rdo.rdo.RDOModel;
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration;
-import ru.bmstu.rk9.rdo.rdo.ResultDeclaration;
+import ru.bmstu.rk9.rdo.rdo.Result;
 import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource;
 
 public class RDOSerializationConfigView extends ViewPart {
@@ -277,7 +277,7 @@ class SerializationConfigurator {
 		fillCategory(
 				modelNode.getVisibleChildren().get(
 						SerializationCategory.RESULTS.ordinal()), model,
-				ResultDeclaration.class);
+				Result.class);
 
 		fillCategory(
 				modelNode.getVisibleChildren().get(

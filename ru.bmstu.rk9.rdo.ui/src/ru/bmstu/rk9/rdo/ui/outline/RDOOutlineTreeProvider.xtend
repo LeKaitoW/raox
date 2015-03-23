@@ -32,7 +32,7 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointPriorActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
 
-import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
+import ru.bmstu.rk9.rdo.rdo.Result
 
 import ru.bmstu.rk9.rdo.rdo.SimulationRun
 
@@ -139,7 +139,7 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 	def _isLeaf(DecisionPointActivity d)       { true }
 
 	// Results
-	def _isLeaf(ResultDeclaration r) { true }
+	def _isLeaf(Result r) { true }
 
 	// Simulation run
 	def _isLeaf(SimulationRun smr) { true }

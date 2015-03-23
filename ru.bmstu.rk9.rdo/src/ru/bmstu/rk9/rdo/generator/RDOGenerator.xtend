@@ -47,8 +47,7 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
 
 import ru.bmstu.rk9.rdo.rdo.Frame
 
-import ru.bmstu.rk9.rdo.rdo.Results
-import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
+import ru.bmstu.rk9.rdo.rdo.Result
 
 import ru.bmstu.rk9.rdo.rdo.SimulationRun
 
@@ -110,10 +109,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 				for(e : resource.allContents.toIterable.filter(typeof(Frame)))
 					fsa.generateFile(filename + "/" + e.name + ".java",	e.compileFrame(filename))
 
-				for(e : resource.allContents.toIterable.filter(typeof(ResultDeclaration)))
-					fsa.generateFile(filename + "/" + (
-						if((e.eContainer as Results).name != null)	(e.eContainer as Results).name + "_"
-							else "") + e.name + ".java", e.compileResult(filename))
+				for(e : resource.allContents.toIterable.filter(typeof(Result)))
+					fsa.generateFile(filename + "/" + e.name + ".java", e.compileResult(filename))
 			}
 
 		fsa.generateFile("rdo_model/" + RDONaming.getProjectName(resources.resources.get(0).URI) +"Model.java",
@@ -185,7 +182,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«ENDFOR»
 
 				«FOR r : rs.resources»
-				«FOR c : r.allContents.filter(typeof(ResultDeclaration)).toIterable»
+				«FOR c : r.allContents.filter(typeof(Result)).toIterable»
 					«c.fullyQualifiedName».init();
 				«ENDFOR»
 				«ENDFOR»
@@ -245,7 +242,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				«ENDFOR»
 
 				«FOR r : rs.resources»
-				«FOR c : r.allContents.filter(typeof(ResultDeclaration)).toIterable»
+				«FOR c : r.allContents.filter(typeof(Result)).toIterable»
 					«c.fullyQualifiedName».init();
 				«ENDFOR»
 				«ENDFOR»

@@ -62,7 +62,7 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 
 import ru.bmstu.rk9.rdo.rdo.Frame
 
-import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
+import ru.bmstu.rk9.rdo.rdo.Result
 
 import ru.bmstu.rk9.rdo.rdo.SimulationRun
 
@@ -270,7 +270,7 @@ class RDOValidator extends AbstractRDOValidator
 			e instanceof Pattern             ||
 			e instanceof DecisionPoint       ||
 			e instanceof Frame               ||
-			e instanceof ResultDeclaration
+			e instanceof Result
 		].toList
 
 		for(e : checklist)
@@ -352,8 +352,8 @@ class RDOValidator extends AbstractRDOValidator
 			Frame:
 				RdoPackage.eINSTANCE.frame_Name
 
-			ResultDeclaration:
-				RdoPackage.eINSTANCE.resultDeclaration_Name
+			Result:
+				RdoPackage.eINSTANCE.result_Name
 
 			PatternParameter:
 				RdoPackage.eINSTANCE.patternParameter_Name

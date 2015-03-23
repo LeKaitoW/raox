@@ -40,8 +40,7 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 
 import ru.bmstu.rk9.rdo.rdo.Frame
 
-import ru.bmstu.rk9.rdo.rdo.Results
-import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
+import ru.bmstu.rk9.rdo.rdo.Result
 
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.RDOReal
@@ -133,10 +132,7 @@ class RDONaming
 			Frame:
 				return object.name
 
-			Results:
-				return (if(object.name == null) "*null*" else object.name)
-
-			ResultDeclaration:
+			Result:
 				return object.name
 
 			default:
@@ -188,13 +184,8 @@ class RDONaming
 			Frame:
 				return object.eContainer.nameGeneric + "." + object.name
 
-			Results:
-				return object.eContainer.nameGeneric + "." + object.nameGeneric
-
-			ResultDeclaration:
-				return object.eContainer.eContainer.nameGeneric + "." +
-					(if(object.eContainer.nameGeneric != "*null*")
-						(object.eContainer.nameGeneric + "_") else "") + object.name
+			Result:
+				return object.eContainer.nameGeneric + "." + object.name
 
 			default:
 				return "ERROR"

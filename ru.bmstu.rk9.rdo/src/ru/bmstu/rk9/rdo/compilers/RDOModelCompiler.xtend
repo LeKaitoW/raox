@@ -12,7 +12,7 @@ import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
-import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
+import ru.bmstu.rk9.rdo.rdo.Result
 import ru.bmstu.rk9.rdo.rdo.ResultWatchParameter
 import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
 import ru.bmstu.rk9.rdo.rdo.ResultWatchQuant
@@ -169,7 +169,7 @@ class RDOModelCompiler
 
 		var results = ""
 		for(r : rs.resources)
-			for(rslt : r.allContents.filter(typeof(ResultDeclaration)).toIterable)
+			for(rslt : r.allContents.filter(typeof(Result)).toIterable)
 				results = results +
 					'''
 					.put
@@ -224,7 +224,7 @@ class RDOModelCompiler
 		return ret
 	}
 
-	def private static compileResultTypePart(ResultDeclaration result)
+	def private static compileResultTypePart(Result result)
 	{
 		val type = result.type
 		switch(type)
