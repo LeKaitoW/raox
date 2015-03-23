@@ -269,9 +269,7 @@ DecisionPointActivity:
 //                           Sequences
 // ==========================================================
 Sequence:
-	'$Sequence' name = ID ':' returntype = RDOType
-	'$Type' '='	type = SequenceType
-	'$End'
+	returntype = RDOType name = ID '=' type = SequenceType
 ;
 
 SequenceType
@@ -281,13 +279,14 @@ SequenceType
 ;
 
 EnumerativeSequence:
-	'enumerative'
-	'$Body'
+	'enumerative' '(' ')'
+	'{'
 		values += Primary+
+	'}'
 ;
 
 RegularSequence:
-	type = RegularSequenceType seed = INT legacy ?= 'legacy'?
+	legacy ?= 'legacy'? type = RegularSequenceType '(' seed = INT ')'
 ;
 
 enum RegularSequenceType
@@ -298,9 +297,10 @@ enum RegularSequenceType
 ;
 
 HistogramSequence:
-	'by_hist' seed = INT legacy ?= 'legacy'?
-	'$Body'
+	legacy ?= 'legacy'? 'by_hist' '(' seed = INT ')'
+	'{'
 		values += Primary+
+	'}'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
