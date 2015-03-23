@@ -16,7 +16,7 @@ import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 import ru.bmstu.rk9.rdo.rdo.ResourceExpressionList
 
-import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+import ru.bmstu.rk9.rdo.rdo.Constant
 
 import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic
 import ru.bmstu.rk9.rdo.rdo.FunctionTable
@@ -630,7 +630,7 @@ class RDOExpressionCompiler
 			RDORTPParameterEnum  : type.type.compileType
 			RDORTPParameterArray : type.type.compileType
 
-			ConstantDeclaration: type.type.compileType
+			Constant: type.type.compileType
 
 			RDOInteger:
 //					if(type.range != null)
@@ -666,7 +666,7 @@ class RDOExpressionCompiler
 			RDORTPParameterEnum  : type.type.compileTypePrimitive
 			RDORTPParameterArray : type.type.compileTypePrimitive
 
-			ConstantDeclaration: type.type.compileTypePrimitive
+			Constant: type.type.compileTypePrimitive
 
 			RDOInteger: "int"
 			RDOReal   : "double"
@@ -692,7 +692,7 @@ class RDOExpressionCompiler
 			RDORTPParameterEnum  : type.type
 			RDORTPParameterArray : type.type.resolveAllArrays
 
-			ConstantDeclaration: type.type.resolveAllSuchAs.resolveAllArrays
+			Constant: type.type.resolveAllSuchAs.resolveAllArrays
 
 			RDOInteger: type
 			RDOReal   : type
@@ -718,7 +718,7 @@ class RDOExpressionCompiler
 			RDORTPParameterEnum  : type.type
 			RDORTPParameterArray : type.type
 
-			ConstantDeclaration: type.type.resolveAllSuchAs
+			Constant: type.type.resolveAllSuchAs
 
 			RDOInteger: type
 			RDOReal   : type

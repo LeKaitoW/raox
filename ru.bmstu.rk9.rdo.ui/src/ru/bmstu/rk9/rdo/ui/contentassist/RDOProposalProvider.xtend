@@ -12,7 +12,7 @@ import org.eclipse.emf.ecore.EObject
 
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 
-import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+import ru.bmstu.rk9.rdo.rdo.Constant
 
 
 class RDOProposalProvider extends AbstractRDOProposalProvider
@@ -36,7 +36,7 @@ class RDOProposalProvider extends AbstractRDOProposalProvider
 			{
 				RDORTPParameterSuchAs:
 					context.previousModel.eContainer.eContainer
-				ConstantDeclaration:
+				Constant:
 					context.previousModel.eContainer
 				default: null
 			}

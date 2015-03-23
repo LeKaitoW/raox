@@ -8,7 +8,7 @@ import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter;
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration;
 
-import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration;
+import ru.bmstu.rk9.rdo.rdo.Constant;
 
 import ru.bmstu.rk9.rdo.rdo.Function;
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter;
@@ -82,11 +82,11 @@ public class GlobalContext {
 	}
 
 	public class CON {
-		public ConstantDeclaration origin;
+		public Constant origin;
 
 		public String type;
 
-		public CON(ConstantDeclaration con) {
+		public CON(Constant con) {
 			origin = con;
 			type = RDOExpressionCompiler.compileType(con.getType());
 		}
@@ -129,7 +129,7 @@ public class GlobalContext {
 		return new SEQ(seq);
 	}
 
-	public CON newCON(ConstantDeclaration con) {
+	public CON newCON(Constant con) {
 		return new CON(con);
 	}
 

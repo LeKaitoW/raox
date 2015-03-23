@@ -7,14 +7,14 @@ import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
 
 import ru.bmstu.rk9.rdo.generator.LocalContext
 
-import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+import ru.bmstu.rk9.rdo.rdo.Constant
 
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 
 class RDOConstantCompiler
 {
-	def public static compileConstant(ConstantDeclaration con, String filename)
+	def public static compileConstant(Constant con, String filename)
 	{
 		'''
 		package «filename»;

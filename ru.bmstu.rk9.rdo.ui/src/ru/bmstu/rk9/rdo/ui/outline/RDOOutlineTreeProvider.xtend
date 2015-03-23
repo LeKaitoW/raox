@@ -14,7 +14,7 @@ import ru.bmstu.rk9.rdo.rdo.Sequence
 import ru.bmstu.rk9.rdo.rdo.Function
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter
 
-import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+import ru.bmstu.rk9.rdo.rdo.Constant
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.PatternParameter
@@ -66,7 +66,7 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 	def _isLeaf(FunctionParameter p) { true }
 
 	// Constants
-	def _isLeaf (ConstantDeclaration c) { true }
+	def _isLeaf (Constant c) { true }
 
 	// Pattern
 	def _createChildren(IOutlineNode parentNode, Pattern pat)

@@ -30,7 +30,7 @@ import ru.bmstu.rk9.rdo.rdo.ResourceType
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
-import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+import ru.bmstu.rk9.rdo.rdo.Constant
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
 
@@ -81,7 +81,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileResourceType(filename,
 						declarationList.filter[r | r.reference.fullyQualifiedName == e.fullyQualifiedName]))
 
-				for(e : resource.allContents.toIterable.filter(typeof(ConstantDeclaration)))
+				for(e : resource.allContents.toIterable.filter(typeof(Constant)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileConstant(filename))
 
 				for(e : resource.allContents.toIterable.filter(typeof(Sequence)))
@@ -140,7 +140,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 			for(seq : r.allContents.filter(typeof(Sequence)).toIterable)
 				info.sequences.put(seq.name, info.newSEQ(seq))
 
-			for(con : r.allContents.filter(typeof(ConstantDeclaration)).toIterable)
+			for(con : r.allContents.filter(typeof(Constant)).toIterable)
 				info.constants.put(con.name, info.newCON(con))
 
 			for(fun : r.allContents.filter(typeof(Function)).toIterable)

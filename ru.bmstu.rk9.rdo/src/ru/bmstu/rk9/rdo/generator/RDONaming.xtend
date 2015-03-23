@@ -23,7 +23,7 @@ import ru.bmstu.rk9.rdo.rdo.META_RelResType
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
 
-import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+import ru.bmstu.rk9.rdo.rdo.Constant
 
 import ru.bmstu.rk9.rdo.rdo.Function
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter
@@ -97,7 +97,7 @@ class RDONaming
 			Sequence:
 				return object.name
 
-			ConstantDeclaration:
+			Constant:
 				return object.name
 
 			Function:
@@ -164,7 +164,7 @@ class RDONaming
 			Sequence:
 				return object.eContainer.nameGeneric + "." + object.name
 
-			ConstantDeclaration:
+			Constant:
 				return object.eContainer.eContainer.nameGeneric + "." + object.name
 
 			Function:

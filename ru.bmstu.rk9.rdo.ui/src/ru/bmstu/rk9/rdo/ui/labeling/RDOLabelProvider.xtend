@@ -19,8 +19,7 @@ import ru.bmstu.rk9.rdo.rdo.Sequence
 import ru.bmstu.rk9.rdo.rdo.Function
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter
 
-import ru.bmstu.rk9.rdo.rdo.Constants
-import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+import ru.bmstu.rk9.rdo.rdo.Constant
 
 import ru.bmstu.rk9.rdo.rdo.EnumerativeSequence
 import ru.bmstu.rk9.rdo.rdo.RegularSequence
@@ -81,12 +80,8 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 		def image(ResourceDeclaration rss) { "plus.gif" }
 
 	// Constants
-	def  text(Constants c) { "CON : " + c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size.toString +
-		" constant" + if(c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size % 10 != 1) "s" else ""}
-	def image(Constants c) { "floppy.gif" }
-
-	def image(ConstantDeclaration c) { "constant2.gif" }
-	def  text(ConstantDeclaration c) { c.name + c.type.typeGenericLabel }
+	def image(Constant c) { "constant2.gif" }
+	def  text(Constant c) { c.name + c.type.typeGenericLabel }
 
 	// Sequence
 	def  text(Sequence seq) { "SEQ : " + seq.name + " : " + (

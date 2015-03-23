@@ -40,7 +40,7 @@ import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
 
-import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+import ru.bmstu.rk9.rdo.rdo.Constant
 
 import ru.bmstu.rk9.rdo.rdo.Function
 import ru.bmstu.rk9.rdo.rdo.FunctionTable
@@ -192,14 +192,14 @@ class RDOValidator extends AbstractRDOValidator
 	}
 
 	@Check
-	def exportConstants(ConstantDeclaration con)
+	def exportConstants(Constant con)
 	{
 		val model = con.modelRoot
 		if(variableIndex == null || variableIndex.get(model.nameGeneric) == null)
 			return
 
 		val conindex = variableIndex.get(model.nameGeneric).constants
-		val conmodel = model.eAllContents.filter(typeof(ConstantDeclaration)).toMap[name]
+		val conmodel = model.eAllContents.filter(typeof(Constant)).toMap[name]
 		for(r : conmodel.keySet)
 			if(conindex.get(r) == null || r == con.name)
 				conindex.put(r, variableIndex.get(model.nameGeneric).newCON(conmodel.get(r)))
@@ -265,7 +265,7 @@ class RDOValidator extends AbstractRDOValidator
 			e instanceof ResourceType        ||
 			e instanceof ResourceDeclaration ||
 			e instanceof Sequence            ||
-			e instanceof ConstantDeclaration ||
+			e instanceof Constant ||
 			e instanceof Function            ||
 			e instanceof Pattern             ||
 			e instanceof DecisionPoint       ||
@@ -331,7 +331,7 @@ class RDOValidator extends AbstractRDOValidator
 			Sequence:
 				RdoPackage.eINSTANCE.sequence_Name
 
-			ConstantDeclaration:
+			Constant:
 				RdoPackage.eINSTANCE.META_SuchAs_Name
 
 			Function:
@@ -390,7 +390,7 @@ class RDOValidator extends AbstractRDOValidator
 					default: return false
 				}
 			}
-			ConstantDeclaration:
+			Constant:
 			{
 				switch object.type
 				{
@@ -423,7 +423,7 @@ class RDOValidator extends AbstractRDOValidator
 			RDORTPParameterSuchAs:
 				first = ref.eContainer.eContainer
 
-			ConstantDeclaration:
+			Constant:
 				first = ref.eContainer
 
 			default: return

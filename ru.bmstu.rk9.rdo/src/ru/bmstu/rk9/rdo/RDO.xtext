@@ -15,7 +15,7 @@ RDOEntity
 	: ResourceType   // RTP
 	| Resources      // RSS
 	| Sequence       // FUN-SEQ 
-	| Constants      // FUN-CON
+	| Constant      // FUN-CON
 	| Function       // FUN-FUN
 	| Pattern        // PAT & EVN
 	| DecisionPoint  // DPT
@@ -308,14 +308,8 @@ HistogramSequence:
 // ==========================================================
 //                          Constants
 // ==========================================================
-Constants:
-	'$Constant'
-		(constants += ConstantDeclaration)+
-	'$End'
-;
-
-ConstantDeclaration:
-	name = ID ':' type = RDOType '=' value = ExpressionOr
+Constant:
+	'const' name = ID ':' type = RDOType '=' value = ExpressionOr
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -584,7 +578,7 @@ META_RelResType
 
 META_SuchAs
 	: ResourceTypeParameter
-	| ConstantDeclaration
+	| Constant
 ;
 
 META_DecisionPointActivity
@@ -597,7 +591,7 @@ META_DecisionPointActivity
 //	: ResourceDeclaration
 //	| LocalVariableDeclaration
 //	| Sequence
-//	| ConstantDeclaration
+//	| Constant
 //	| Function
 //	| EnumID
 //;
