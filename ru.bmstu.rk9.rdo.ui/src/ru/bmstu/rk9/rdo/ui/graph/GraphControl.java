@@ -5,6 +5,6 @@ import java.util.Map;
 
 public class GraphControl {
 	
-	public static Map<Integer, GraphFrame> openedGraphList = new HashMap<Integer, GraphFrame>(); 
+	public static Map<Integer, GraphFrame> openedGraphMap = new HashMap<Integer, GraphFrame>();
 	
 }

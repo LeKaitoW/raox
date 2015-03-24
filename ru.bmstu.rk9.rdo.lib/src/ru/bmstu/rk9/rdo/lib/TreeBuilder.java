@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.bmstu.rk9.rdo.lib.Database;
 import ru.bmstu.rk9.rdo.lib.Database.Entry;
@@ -14,11 +15,12 @@ import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 import ru.bmstu.rk9.rdo.lib.RDOLibStringJoiner.StringFormat;
 
 public class TreeBuilder implements Subscriber {
-	
+
 	@Override
 	public void fireChange() {
-		final Database.Entry entry = Simulator.getDatabase().getAllEntries().get(entryNumber++);
+		final Database.Entry entry = Simulator.getDatabase().getAllEntries().get(entryNumber);
 		parseEntry(entry);
+		entryNumber++;
 		notifyGUIPart();
 	}
 	
@@ -32,6 +34,8 @@ public class TreeBuilder implements Subscriber {
 	public final void setGUISubscriber(Subscriber subscriber) {
 		this.GUISubscriber = subscriber;
 	}
+	
+	public ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock(true);
 
 	public class Node {
 
@@ -91,9 +95,15 @@ public class TreeBuilder implements Subscriber {
 				treeNode.parent = null;
 				treeNode.index = 0;
 				treeNode.label = Integer.toString(treeNode.index);
-				listMap.get(dptNumber).add(treeNode);
-				System.out.println("treeB last node index = " + treeNode.index);
-				System.out.println("treeB last node parent index = null(root)");
+				rwLock.writeLock().lock();
+				try {
+					listMap.get(dptNumber).add(treeNode);
+					lastAddedNodeIndexMap.put(dptNumber, treeNode.index);
+				} finally {
+					rwLock.writeLock().unlock();
+				}
+				//System.out.println("treeB last node index = " + treeNode.index);
+				//System.out.println("treeB last node parent index = null(root)");
 				break;
 			}
 			case END: {
@@ -171,9 +181,16 @@ public class TreeBuilder implements Subscriber {
 					treeNode.ruleCost = ruleCost;
 					treeNode.index = nodeNumber;
 					treeNode.label = Integer.toString(treeNode.index);
-					listMap.get(dptNumber).add(treeNode);
-					System.out.println("treeB last node index = " + treeNode.index);
-					System.out.println("treeB last node parent index = " + treeNode.parent.index);
+					rwLock.writeLock().lock();
+					try {
+						listMap.get(dptNumber).add(treeNode);
+						lastAddedNodeIndexMap.put(dptNumber, treeNode.index);
+						System.out.println("TreeB lastAddedNodeIndex = " + treeNode.index + " " + "dpt = " + dptNumber);
+					} finally {
+						rwLock.writeLock().unlock();
+					}
+					//System.out.println("treeB last node index = " + treeNode.index);
+					//System.out.println("treeB last node parent index = " + treeNode.parent.index);
 					break;
 				case WORSE:
 					break;
@@ -208,6 +225,12 @@ public class TreeBuilder implements Subscriber {
 
 	
 	private int entryNumber = 0;
+	
+	private HashMap<Integer, Integer> lastAddedNodeIndexMap = new HashMap<Integer, Integer>();
+	
+	public HashMap<Integer, Integer> getLastAddedNodeIndexMap() {
+		return lastAddedNodeIndexMap;
+	}
 	
 	public int getEntryNumber() {
 		return entryNumber;

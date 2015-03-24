@@ -119,12 +119,11 @@ public class RDOTraceView extends ViewPart
 		int dptNum = frameInfo.dptNumber;
 		String frameName = frameInfo.frameName;
 		
-		if (!GraphControl.openedGraphList.containsValue(dptNum)) {
+		if (!GraphControl.openedGraphMap.containsValue(dptNum)) {
 			TreeBuilder treeBuilder = Simulator.getTreeBuilder();
 			treeBuilder.buildTree();
-			GraphFrame graphFrame = new GraphFrame(treeBuilder.listMap.get(dptNum), treeBuilder.infoMap.get(dptNum), treeBuilder.solutionMap
-					.get(dptNum));
-			GraphControl.openedGraphList.put(dptNum, graphFrame);
+			GraphFrame graphFrame = new GraphFrame(dptNum);
+			GraphControl.openedGraphMap.put(dptNum, graphFrame);
 			graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			graphFrame.setSize(800, 600);
 			graphFrame.setTitle(frameName);
@@ -171,7 +170,7 @@ public class RDOTraceView extends ViewPart
 				public void windowClosed(WindowEvent e) {
 					// TODO Auto-generated method stub
 					graphUpdateTimer.cancel();
-					GraphControl.openedGraphList.remove(dptNum);
+					GraphControl.openedGraphMap.remove(dptNum);
 					System.out.println("window closed");
 				}
 				
@@ -263,10 +262,15 @@ public class RDOTraceView extends ViewPart
 				switch (traceOutput.type()) {
 				case SEARCH_BEGIN:
 					FrameInfo frameInfo = determineDPTInfo(traceOutput);
-					if (!GraphControl.openedGraphList.containsKey(frameInfo.dptNumber))
+					if (!GraphControl.openedGraphMap.containsKey(frameInfo.dptNumber))
 						createWindow(frameInfo);
-					else
-						GraphControl.openedGraphList.get(frameInfo.dptNumber).setState(Frame.NORMAL);
+					else {
+						GraphFrame currentFrame = GraphControl.openedGraphMap.get(frameInfo.dptNumber);
+						if (currentFrame.getState() == Frame.ICONIFIED)
+							currentFrame.setState(Frame.NORMAL);
+						else if (!currentFrame.isActive())
+							currentFrame.setVisible(true);
+					}
 					break;
 				default:
 					break;
