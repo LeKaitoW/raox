@@ -41,7 +41,6 @@ import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.Rule
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
-import ru.bmstu.rk9.rdo.rdo.DecisionPointPrior
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
 
@@ -103,9 +102,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileEvent(filename))
 
 				for(e : resource.allContents.toIterable.filter[d |
-						d instanceof DecisionPointSome || d instanceof DecisionPointPrior])
-					fsa.generateFile(filename + "/" + (e as DecisionPoint).name + ".java",
-						(e as DecisionPoint).compileDecisionPoint(filename))
+						d instanceof DecisionPointSome])
+					fsa.generateFile(filename + "/" + (e as DecisionPointSome).name + ".java",
+						(e as DecisionPointSome).compileDecisionPoint(filename))
 
 				for(e : resource.allContents.toIterable.filter(typeof(DecisionPointSearch)))
 					fsa.generateFile(filename + "/" + e.name + ".java",	e.compileDecisionPointSearch(filename))

@@ -6,24 +6,17 @@ import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.Rule
 
-import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
-import ru.bmstu.rk9.rdo.rdo.DecisionPointPrior
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
 
 
 class RDODecisionPointCompiler
 {
-	def public static compileDecisionPoint(DecisionPoint dpt, String filename)
+	def public static compileDecisionPoint(DecisionPointSome dpt, String filename)
 	{
-		val activities = switch dpt
-		{
-			DecisionPointSome : dpt.activities
-			DecisionPointPrior: dpt.activities.map[a | a.activity]
-		}
+		val activities = dpt.activities
 
-		val priorities = if(dpt instanceof DecisionPointPrior)
-			(dpt as DecisionPointPrior).activities.map[a | a.priority] else null
+		val priorities = activities.map[a | a.priority]
 
 		val parameters = activities.map[a |
 			if(a.pattern instanceof Operation)
@@ -32,8 +25,7 @@ class RDODecisionPointCompiler
 				(a.pattern as Rule).parameters
 		]
 
-		val priority = if(dpt instanceof DecisionPointPrior)
-			(dpt as DecisionPointPrior).priority else null
+		val priority = dpt.priority
 
 		return
 			'''
@@ -53,18 +45,19 @@ class RDODecisionPointCompiler
 				«ENDIF»
 				«ENDFOR»
 
-				private static DecisionPoint«IF dpt instanceof DecisionPointPrior»Prior«ENDIF» dpt =
-					new DecisionPoint«IF dpt instanceof DecisionPointPrior»Prior«ENDIF»
+				private static DecisionPointPrior dpt =
+					new DecisionPointPrior
 					(
 						"«dpt.fullyQualifiedName»",
-						«IF priority != null»new DecisionPoint.Priority()
+						new DecisionPointPrior.Priority()
 						{
 							@Override
 							public void calculate()
 							{
-								priority = «priority.compileExpression.value»;
+								priority = «IF priority != null»«
+									priority.compileExpression.value»«ELSE»0«ENDIF»;
 							}
-						}«ELSE»null«ENDIF»,
+						},
 						«IF dpt.condition != null
 						»new DecisionPoint.Condition()
 						{
@@ -80,19 +73,19 @@ class RDODecisionPointCompiler
 				{
 					«FOR i : 0 ..< activities.size»
 						dpt.addActivity(
-							new DecisionPoint«IF dpt instanceof DecisionPointPrior»Prior«
-								ENDIF».Activity«IF dpt instanceof DecisionPointPrior»
+							new DecisionPointPrior.Activity
 							(
-								«ELSE»(«ENDIF»"«activities.get(i).name»"«IF dpt instanceof DecisionPointPrior»,
-								«IF priorities.get(i) != null»new DecisionPoint.Priority()
+								"«activities.get(i).name»",
+								new DecisionPoint.Priority()
 								{
 									@Override
 									public void calculate()
 									{
-										priority = «priorities.get(i).compileExpression.value»;
+										priority = «IF priorities.get(i) != null»«
+											priorities.get(i).compileExpression.value»
+										«ELSE»0«ENDIF»;
 									}
-								}«ELSE»null«ENDIF»
-							«ENDIF»)
+								})
 							{
 								@Override
 								public boolean checkActivity()
@@ -115,8 +108,7 @@ class RDODecisionPointCompiler
 										executed
 									);
 
-									executed.addResourceEntriesToDatabase(Pattern.ExecutedFrom.«
-										IF dpt instanceof DecisionPointPrior»PRIOR«ELSE»SOME«ENDIF»);
+									executed.addResourceEntriesToDatabase(Pattern.ExecutedFrom.PRIOR);
 
 									return executed;
 								}

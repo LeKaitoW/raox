@@ -43,7 +43,6 @@ import ru.bmstu.rk9.rdo.lib.Database.SerializationCategory;
 import ru.bmstu.rk9.rdo.lib.DecisionPointSearch.SerializationLevel;
 import ru.bmstu.rk9.rdo.lib.SerializationConfig;
 import ru.bmstu.rk9.rdo.lib.SerializationConfig.SerializationNode;
-import ru.bmstu.rk9.rdo.rdo.DecisionPointPrior;
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch;
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome;
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource;
@@ -268,11 +267,6 @@ class SerializationConfigurator {
 				modelNode.getVisibleChildren().get(
 						SerializationCategory.DECISION_POINTS.ordinal()),
 				model, DecisionPointSome.class);
-
-		fillCategory(
-				modelNode.getVisibleChildren().get(
-						SerializationCategory.DECISION_POINTS.ordinal()),
-				model, DecisionPointPrior.class);
 
 		fillCategory(
 				modelNode.getVisibleChildren().get(

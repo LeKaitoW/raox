@@ -18,7 +18,7 @@ RDOEntity
 	| Constant      // former FUN-CON
 	| Function       // FUN-FUN
 	| Pattern        // PAT & EVN
-	| DecisionPoint  // DPT
+	| DecisionPoint  // former DPT
 	| Frame          // FRM
 	| Result        // former PMD
 	| DefaultMethod  // former SMR
@@ -214,53 +214,49 @@ enum PatternConvertStatus
 // ==========================================================
 DecisionPoint
 	: DecisionPointSome
-	| DecisionPointPrior
 	| DecisionPointSearch
 ;
 
 DecisionPointSome:
-	 '$Decision_point' name = ID ':' 'some'
-	('$Parent' parent = [DecisionPoint|FQN])?
-	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
-	 '$Activities'
-		( activities += DecisionPointActivity ';' )+
-	 '$End'
-;
-
-DecisionPointPrior:
-	 '$Decision_point' name = ID ':' 'prior'
-	('$Parent' parent = [DecisionPoint|FQN])?
-	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
-	 '$Priority' priority = ExpressionOr
-	 '$Activities'
-		( activities += DecisionPointPriorActivity ';' )+
-	 '$End'
+	'dpt' name = ID 'is' 'some' '(' ')' '{'
+	('setParent' '(' parent = [DecisionPoint|FQN] ')' ';')?
+	('setCondition' '(' (condition = ExpressionOr | 'NoCheck') ')' ';')?
+	('setPriority' '(' (priority = ExpressionOr) ')' ';')?
+	( activities += DecisionPointActivity ';' )+
+	'}'
 ;
 
 DecisionPointSearch:
-	 '$Decision_point' name = ID ':' 'search'
-	('$Parent' parent = [DecisionPoint|FQN])?
-	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
-	 '$Term_condition' termination = ExpressionOr
-	 '$Evaluate_by' evaluateby = ExpressionOr
-	 '$Compare_tops' '=' ((comparetops ?= 'YES') | 'NO')
-	 '$Activities'
-		( activities += DecisionPointSearchActivity ';' )+
-	 '$End'
+	'dpt' name = ID 'is' 'search' '(' ')' '{'
+	('setParent' '(' parent = [DecisionPoint|FQN] ')' ';')?
+	('setCondition' '(' (condition = ExpressionOr | 'NoCheck') ')' ';')?
+	'setTerminateCondition' '(' termination = ExpressionOr ')' ';'
+	'evaluateBy' '(' evaluateby = ExpressionOr ')' ';'
+	'compareTops' '(' ((comparetops ?= 'true') | 'false') ')' ';'
+	( activities += DecisionPointSearchActivity ';' )+
+	'}'
 ;
 
 DecisionPointSearchActivity:
-	name = ID ':' pattern = [Rule|FQN] ('(' parameters += ExpressionOr (',' parameters += ExpressionOr)* ')')?
-	('value before' valuebefore = ExpressionOr
-	|'value after'  valueafter = ExpressionOr)
-;
-
-DecisionPointPriorActivity:
-	activity = DecisionPointActivity (('CF' | 'cf') '=' priority = ExpressionOr)?
+	'activity' name = ID 'is' pattern = [Rule|FQN]
+	(
+		'(' parameters += ExpressionOr (
+		',' parameters += ExpressionOr)* ')'
+	)?
+	'.'
+	(
+		'setValueBefore' '(' valuebefore = ExpressionOr ')'
+		| 'setValueAfter'  '(' valueafter = ExpressionOr ')'
+	) ';'
 ;
 
 DecisionPointActivity:
-	name = ID ':' pattern = [META_DecisionPointActivity|FQN] ('(' parameters += ExpressionOr (',' parameters += ExpressionOr)* ')')?
+	'activity' name = ID '(' (priority = ExpressionOr)? ')'
+	'is' pattern = [META_DecisionPointActivity|FQN]
+	(
+		'(' parameters += ExpressionOr (
+			',' parameters += ExpressionOr)* ')'
+	)?
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -269,7 +265,7 @@ DecisionPointActivity:
 //                           Sequences
 // ==========================================================
 Sequence:
-	returntype = RDOType name = ID '=' type = SequenceType
+	returntype = RDOType name = ID 'is' type = SequenceType
 ;
 
 SequenceType
