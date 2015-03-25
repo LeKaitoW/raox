@@ -330,7 +330,7 @@ FunctionType
 
 FunctionAlgorithmic:
 	 'algorithmic'
-	('$Parameters'? | ('$Parameters' 
+	('$Parameters'? | ('$Parameters'
 		parameters = FunctionParameters))
 	 '$Body'
 		algorithm = StatementList
@@ -339,10 +339,10 @@ FunctionAlgorithmic:
 
 FunctionTable:
 	'table'
-	'$Parameters' 
+	'$Parameters'
 		parameters = FunctionParameters
 	'$Body'
-		table += Primary+ 
+		table += Primary+
 	'$End'
 ;
 
@@ -465,7 +465,7 @@ FrameIfStatement returns IfStatement:
 ;
 
 FrameForStatement returns ForStatement:
-	'for' '(' 
+	'for' '('
 	( declaration = LocalVariableDeclaration | init = Expression )? ';'
 	  condition = Expression? ';'
 	  update = Expression? ')'
@@ -643,7 +643,7 @@ RangeValue
 ;
 
 RDOEnum:
-	'(' enums += EnumID (',' enums += EnumID)* ')' 
+	'(' enums += EnumID (',' enums += EnumID)* ')'
 ;
 
 EnumID:
@@ -718,7 +718,7 @@ IfStatement:
 ;
 
 ForStatement:
-	'for' '(' 
+	'for' '('
 	( declaration = LocalVariableDeclaration | init = Expression )? ';'
 	  condition = Expression? ';'
 	  update = Expression? ')'
@@ -776,16 +776,16 @@ ExpressionOr returns Expression:
 		('or' | '||') {ExpressionOr.left = current} right = ExpressionAnd
 	)*
 ;
- 
+
 // And: left associative, priority 1
 ExpressionAnd returns Expression:
 	ExpressionCompare (
 		('and' | '&&') {ExpressionAnd.left = current} right = ExpressionCompare
 	)*
 ;
- 
+
 // Comparisons: left associative, priority 2
-ExpressionCompare returns Expression: 
+ExpressionCompare returns Expression:
 	ExpressionPlusMinus (
 		('>'  {ExpressionLarger.left=current} right=ExpressionPlusMinus) |
 		('>=' {ExpressionLarger_Equal.left=current} right=ExpressionPlusMinus) |
@@ -797,13 +797,13 @@ ExpressionCompare returns Expression:
 ;
 
 // addition/subtraction: left associative, priority 3
-ExpressionPlusMinus returns Expression: 
+ExpressionPlusMinus returns Expression:
 	ExpressionMultiplicationDivisionModulo (
 		('+'  {ExpressionPlus.left=current} right=ExpressionMultiplicationDivisionModulo) |
 		('-'  {ExpressionMinus.left=current} right=ExpressionMultiplicationDivisionModulo)
 	)*
 ;
- 
+
 // multiplication/division, left associative, priority 4
 ExpressionMultiplicationDivisionModulo returns Expression:
 	ExpressionUnary (
@@ -812,16 +812,16 @@ ExpressionMultiplicationDivisionModulo returns Expression:
 		(('%' | 'mod') {ExpressionModulo.left=current} right=ExpressionUnary)
 	)*
 ;
- 
+
 // Unary operators: right associative, priority 5
 ExpressionUnary returns Expression
 	: ExpressionExponentiation
 	| (('!' | 'not') {ExpressionNegate} exp=ExpressionUnary)
 	| ('-'   {ExpressionInvert} exp=ExpressionUnary)
 ;
- 
+
 // exponentiation: right associative, priority 6
-ExpressionExponentiation returns Expression: 
+ExpressionExponentiation returns Expression:
 	Primary
 	( ('^' | '**') {ExpressionExponentiation.left=current} right=ExpressionExponentiation )?
 ;
