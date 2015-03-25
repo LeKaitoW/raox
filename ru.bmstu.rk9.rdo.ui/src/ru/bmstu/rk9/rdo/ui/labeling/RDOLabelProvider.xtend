@@ -49,9 +49,8 @@ import ru.bmstu.rk9.rdo.rdo.ResultWatchState
 import ru.bmstu.rk9.rdo.rdo.ResultWatchQuant
 import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
 import ru.bmstu.rk9.rdo.rdo.ResultGetValue
-
-import ru.bmstu.rk9.rdo.rdo.SimulationRun
-
+import ru.bmstu.rk9.rdo.rdo.OnInit
+import ru.bmstu.rk9.rdo.rdo.TerminateCondition
 
 class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider {
 
@@ -168,7 +167,11 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	}
 	def image(Result d) { "parameter.gif" }
 
-	// Simulation run
-	def  text(SimulationRun smr) { "SMR : Simulation run" }
-	def image(SimulationRun smr) { "run.gif" }
+	// OnInit
+	def  text(OnInit onInit) { "OnInit : Model initialization" }
+	def image(OnInit onInit) { "run.gif" }
+
+	// TerminateCondition
+	def  text(TerminateCondition term) { "Term : TerminateCondition" }
+	def image(TerminateCondition term) { "run.gif" }
 }

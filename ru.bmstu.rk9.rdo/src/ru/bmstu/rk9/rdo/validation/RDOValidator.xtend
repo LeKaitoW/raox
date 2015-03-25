@@ -64,12 +64,11 @@ import ru.bmstu.rk9.rdo.rdo.Frame
 
 import ru.bmstu.rk9.rdo.rdo.Result
 
-import ru.bmstu.rk9.rdo.rdo.SimulationRun
-
 import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
-
+import ru.bmstu.rk9.rdo.rdo.OnInit
+import ru.bmstu.rk9.rdo.rdo.TerminateCondition
 
 class SuchAsHistory
 {
@@ -240,18 +239,34 @@ class RDOValidator extends AbstractRDOValidator
 		}
 	}
 
+	// TODO: merge two validators below into one
 	@Check
-	def checkSMRCount(SimulationRun smr)
+	def checkOnInitCount(OnInit method)
 	{
-		var ArrayList<SimulationRun> smrs = new ArrayList<SimulationRun>();
+		var ArrayList<OnInit> overridenMethods
+				= new ArrayList<OnInit>();
 		for(r : resourceIndex)
-			smrs.addAll(r.allContents.toIterable.filter(typeof(SimulationRun)))
+			overridenMethods.addAll(r.allContents.toIterable.filter(typeof(OnInit)))
 
+		if(overridenMethods.size > 1)
+			for(e : overridenMethods)
+				if(e.eResource == method.eResource)
+					error("Error - default method cannot be set more that once", e,
+						e.getNameStructuralFeature)
+	}
 
-		if(smrs.size > 1)
-			for(e : smrs)
-				if(e.eResource == smr.eResource)
-					error("Error - project can have no more than one Simulation run block", e,
+	@Check
+	def checkTerminateConditionCount(TerminateCondition method)
+	{
+		var ArrayList<TerminateCondition> overridenMethods
+				= new ArrayList<TerminateCondition>();
+		for(r : resourceIndex)
+			overridenMethods.addAll(r.allContents.toIterable.filter(typeof(TerminateCondition)))
+
+		if(overridenMethods.size > 1)
+			for(e : overridenMethods)
+				if(e.eResource == method.eResource)
+					error("Error - default method cannot be set more that once", e,
 						e.getNameStructuralFeature)
 	}
 

@@ -12,8 +12,6 @@ import ru.bmstu.rk9.rdo.rdo.RuleConvert
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.EventConvert
 
-import ru.bmstu.rk9.rdo.rdo.TerminateIf
-
 import ru.bmstu.rk9.rdo.rdo.StatementList
 import ru.bmstu.rk9.rdo.rdo.ExpressionStatement
 import ru.bmstu.rk9.rdo.rdo.NestedStatement
@@ -34,6 +32,7 @@ import ru.bmstu.rk9.rdo.rdo.FrameObjectCircle
 import ru.bmstu.rk9.rdo.rdo.FrameObjectEllipse
 import ru.bmstu.rk9.rdo.rdo.FrameObjectTriangle
 import ru.bmstu.rk9.rdo.rdo.FrameColour
+import ru.bmstu.rk9.rdo.rdo.TerminateCondition
 
 class RDOStatementCompiler
 {
@@ -217,7 +216,7 @@ class RDOStatementCompiler
 				«st.call» = («st.value.compileExpression.value»);
 				'''
 
-			TerminateIf:
+			TerminateCondition:
 				'''
 				Simulator.addTerminateCondition
 				(

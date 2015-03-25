@@ -12,16 +12,16 @@ RDOModel:
 ;
 
 RDOEntity
-	: ResourceType   // RTP
-	| Resources      // RSS
-	| Sequence       // FUN-SEQ 
-	| Constant      // FUN-CON
+	: ResourceType   // former RTP
+	| Resources      // former RSS
+	| Sequence       // former FUN-SEQ
+	| Constant      // former FUN-CON
 	| Function       // FUN-FUN
 	| Pattern        // PAT & EVN
 	| DecisionPoint  // DPT
 	| Frame          // FRM
-	| Result        // PMD
-	| SimulationRun  // SMR
+	| Result        // former PMD
+	| DefaultMethod  // former SMR
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -545,21 +545,27 @@ FrameObjectTriangle:
 
 
 // ==========================================================
-//                      Simulation run
+//                      Default methods
 // ==========================================================
-SimulationRun:
-	name = '$Simulation_run'
-		commands += SimulationCommand*
-	'$End'
+DefaultMethod:
+	'set' method = DefaultMethodType
 ;
 
-SimulationCommand
-	: Statement
-	| TerminateIf ';'
+DefaultMethodType
+	: OnInit
+	| TerminateCondition
 ;
 
-TerminateIf:
-	term = 'Terminate_if' => condition = ExpressionOr
+OnInit:
+	name = 'onInit' '(' ')' '{'
+		body += Statement*
+	'}'
+;
+
+TerminateCondition:
+	name = 'terminateCondition' '(' ')' '{'
+		'return' condition = ExpressionOr ';'
+	'}'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
