@@ -595,16 +595,16 @@ class RDOExpressionCompiler
 					(fun.type as FunctionList).parameters
 			}
 
-			if(next.args != null && params != null && params.parameters.size == next.args.values.size)
+			if(next.args != null && params != null && params.size == next.args.values.size)
 			{
 				var flag = false
 				var i = 0
 				for(a : next.args.values)
 				{
 					gcall = gcall + (if(flag) ", " else "") +
-						if(params.parameters.get(i).type.compileType.endsWith("_enum"))
+						if(params.get(i).type.compileType.endsWith("_enum"))
 							a.compileExpressionContext((new LocalContext(localContext)).
-								populateWithEnums(params.parameters.get(i).type.resolveAllSuchAs as RDOEnum)).value
+								populateWithEnums(params.get(i).type.resolveAllSuchAs as RDOEnum)).value
 						else
 							a.compileExpression.value
 					i = i + 1

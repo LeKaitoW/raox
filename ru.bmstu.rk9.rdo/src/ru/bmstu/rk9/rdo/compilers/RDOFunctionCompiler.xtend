@@ -51,16 +51,15 @@ class RDOFunctionCompiler
 
 				'''
 				{
-					«IF type.parameters != null»«type.parameters.parameters.compileEnumsForFunction»«ENDIF»
+					«IF type.parameters != null»«type.parameters.compileEnumsForFunction»«ENDIF»
 					public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
-						»«type.parameters.parameters.compileFunctionTypeParameters»«ENDIF»)
+						»«type.parameters.compileFunctionTypeParameters»«ENDIF»)
 					{
 						if(true)
 						{
 							«type.algorithm.compileStatementContext(context)»
 						}
-						return «IF fun.^default != null»«
-							fun.^default.compileExpressionContext(context).value»«ELSE»null«ENDIF»;
+						return null;
 					}
 				}
 				'''
@@ -69,7 +68,7 @@ class RDOFunctionCompiler
 			FunctionTable:
 			'''
 			{
-				«IF type.parameters != null»«type.parameters.parameters.compileEnumsForFunction»«ENDIF»
+				«IF type.parameters != null»«type.parameters.compileEnumsForFunction»«ENDIF»
 				private static «fun.returntype.compileType»[] values =
 				{
 					«type.table.compileTable(
@@ -77,15 +76,15 @@ class RDOFunctionCompiler
 							(new LocalContext).populateWithEnums(fun.returntype.resolveAllSuchAs as RDOEnum)
 						else
 							null,
-						type.parameters.parameters.get(0).type.resolveAllSuchAs.tableLength
+						type.parameters.get(0).type.resolveAllSuchAs.tableLength
 					)»
 				};
 
 				public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
-						»«type.parameters.parameters.compileFunctionTypeParameters»«ENDIF»)
+						»«type.parameters.compileFunctionTypeParameters»«ENDIF»)
 				{
 					return values[
-						«type.parameters.parameters.compileTableReturn»
+						«type.parameters.compileTableReturn»
 					];
 				}
 			}
@@ -96,7 +95,7 @@ class RDOFunctionCompiler
 
 				var paramscontext =
 					if(type.parameters != null)
-						type.parameters.parameters.map
+						type.parameters.map
 							[ p |
 								if(p.type.compileType.endsWith("_enum"))
 									(new LocalContext).populateWithEnums(p.type.resolveAllSuchAs as RDOEnum)
@@ -109,17 +108,17 @@ class RDOFunctionCompiler
 				'''
 				{
 					«IF type.parameters != null
-						»«type.parameters.parameters.compileEnumsForFunction»«ENDIF»
+						»«type.parameters.compileEnumsForFunction»«ENDIF»
 					public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
-							»«type.parameters.parameters.compileFunctionTypeParameters»«ENDIF»)
+							»«type.parameters.compileFunctionTypeParameters»«ENDIF»)
 					{
 						«IF type.parameters != null»
 						«FOR i : 0 ..< type.list.size»
-						«IF type.list.get(i).parameters.size == type.parameters.parameters.size»
+						«IF type.list.get(i).parameters.size == type.parameters.size»
 							if
 							(
 								«FOR j : 0 ..< type.list.get(i).parameters.size»
-									«type.parameters.parameters.get(j).name» == «
+									«type.parameters.get(j).name» == «
 										type.list.get(i).parameters.get(j).compileExpressionContext(
 											paramscontext.get(j)).value»«
 										IF j < type.list.get(i).parameters.size - 1» &&«ENDIF»
@@ -130,8 +129,7 @@ class RDOFunctionCompiler
 						«ENDIF»
 						«ENDFOR»
 						«ENDIF»
-						return «IF fun.^default != null»«
-							fun.^default.compileExpressionContext(context).value»«ELSE»null«ENDIF»;
+						return null;
 					}
 				}
 				'''

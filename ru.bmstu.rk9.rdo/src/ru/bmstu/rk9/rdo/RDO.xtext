@@ -16,7 +16,7 @@ RDOEntity
 	| Resources      // former RSS
 	| Sequence       // former FUN-SEQ
 	| Constant      // former FUN-CON
-	| Function       // FUN-FUN
+	| Function       // former FUN-FUN
 	| Pattern        // PAT & EVN
 	| DecisionPoint  // former DPT
 	| Frame          // FRM
@@ -265,7 +265,7 @@ DecisionPointActivity:
 //                           Sequences
 // ==========================================================
 Sequence:
-	returntype = RDOType name = ID 'is' type = SequenceType
+	'seq' returntype = RDOType name = ID 'is' type = SequenceType
 ;
 
 SequenceType
@@ -305,7 +305,7 @@ HistogramSequence:
 //                          Constants
 // ==========================================================
 Constant:
-	'const' name = ID ':' type = RDOType '=' value = ExpressionOr
+	'const' type = RDOType name = ID '=' value = ExpressionOr
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -314,8 +314,7 @@ Constant:
 //                          Functions
 // ==========================================================
 Function:
-	'$Function' name = ID ':' returntype = RDOType ('=' default = ExpressionOr)?
-	'$Type' '=' type = FunctionType
+	'fun' returntype = RDOType name = ID 'is' type = FunctionType
 ;
 
 FunctionType
@@ -325,38 +324,34 @@ FunctionType
 ;
 
 FunctionAlgorithmic:
-	 'algorithmic'
-	('$Parameters'? | ('$Parameters'
-		parameters = FunctionParameters))
-	 '$Body'
+	'algorithmic' '('
+	(parameters += FunctionParameter (
+		',' parameters += FunctionParameter)*)? ')'
+	'{'
 		algorithm = StatementList
-	 '$End'
+	'}'
 ;
 
 FunctionTable:
-	'table'
-	'$Parameters'
-		parameters = FunctionParameters
-	'$Body'
+	'table' '('
+		parameters += FunctionParameter (
+		',' parameters += FunctionParameter)* ')'
+	'{'
 		table += Primary+
-	'$End'
+	'}'
 ;
 
 FunctionList:
-	'list'
-	'$Parameters'
-		parameters = FunctionParameters
-	'$Body'
+	'list' '('
+		parameters += FunctionParameter (
+		',' parameters += FunctionParameter)* ')'
+	'{'
 		list += FunctionListValue+
-	'$End'
-;
-
-FunctionParameters:
-	parameters += FunctionParameter+
+	'}'
 ;
 
 FunctionParameter:
-	name = ID ':' type = RDOType
+	type = RDOType name = ID
 ;
 
 FunctionListValue:

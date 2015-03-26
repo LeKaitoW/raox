@@ -2,21 +2,17 @@ package ru.bmstu.rk9.rdo.generator;
 
 import java.util.LinkedList;
 import java.util.HashMap;
+import java.util.List;
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType;
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter;
-
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration;
-
 import ru.bmstu.rk9.rdo.rdo.Constant;
-
 import ru.bmstu.rk9.rdo.rdo.Function;
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter;
-import ru.bmstu.rk9.rdo.rdo.FunctionParameters;
 import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic;
 import ru.bmstu.rk9.rdo.rdo.FunctionList;
 import ru.bmstu.rk9.rdo.rdo.FunctionTable;
-
 import ru.bmstu.rk9.rdo.rdo.Sequence;
 import ru.bmstu.rk9.rdo.rdo.SequenceType;
 import ru.bmstu.rk9.rdo.rdo.EnumerativeSequence;
@@ -102,7 +98,7 @@ public class GlobalContext {
 		public FUN(Function fun) {
 			origin = fun;
 
-			FunctionParameters parameters = null;
+			List<FunctionParameter> parameters = null;
 
 			type = RDOExpressionCompiler.compileType(fun.getReturntype());
 
@@ -115,7 +111,7 @@ public class GlobalContext {
 				parameters = ((FunctionList) fun.getType()).getParameters();
 
 			if (parameters != null)
-				for (FunctionParameter p : parameters.getParameters())
+				for (FunctionParameter p : parameters)
 					this.parameters.addLast(RDOExpressionCompiler.compileType(p
 							.getType()));
 		}

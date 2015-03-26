@@ -71,7 +71,7 @@ public class LocalContext {
 
 	public LocalContext populateFromFunction(FunctionAlgorithmic fun) {
 		if (fun.getParameters() != null)
-			for (FunctionParameter p : fun.getParameters().getParameters())
+			for (FunctionParameter p : fun.getParameters())
 				if (RDOExpressionCompiler.compileType(p.getType()).endsWith(
 						"_enum"))
 					this.addRawEntry(p.getName(),
@@ -93,7 +93,7 @@ public class LocalContext {
 
 	public LocalContext populateFromFunction(FunctionList fun) {
 		if (fun.getParameters() != null)
-			for (FunctionParameter p : fun.getParameters().getParameters())
+			for (FunctionParameter p : fun.getParameters())
 				if (RDOExpressionCompiler.compileType(p.getType()).endsWith(
 						"_enum"))
 					this.addRawEntry(p.getName(),

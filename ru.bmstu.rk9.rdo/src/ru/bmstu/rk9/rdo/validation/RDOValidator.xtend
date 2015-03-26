@@ -764,7 +764,7 @@ class RDOValidator extends AbstractRDOValidator
 		if(fun.parameters == null)
 			return;
 
-		for(p : fun.parameters.parameters)
+		for(p : fun.parameters)
 		{
 			val actual = p.type.resolveAllSuchAs
 			if(!(actual instanceof RDOEnum || (actual instanceof RDOInteger && (actual as RDOInteger).range != null)))
