@@ -609,19 +609,19 @@ RDOType
 ;
 
 RDOInteger:
-	type = 'integer' range=DeclarationRange?
+	type = 'int' range=DeclarationRange?
 ;
 
 RDOReal:
-	type = 'real' range=DeclarationRange?
+	type = 'double' range=DeclarationRange?
 ;
 
 RDOBoolean:
-	type = 'bool'
+	type = 'boolean'
 ;
 
 RDOString:
-	type = 'string'
+	type = 'String'
 ;
 
 DeclarationRange
