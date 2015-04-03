@@ -12,16 +12,17 @@ RDOModel:
 ;
 
 RDOEntity
-	: ResourceType   // former RTP
-	| Resources      // former RSS
-	| Sequence       // former FUN-SEQ
-	| Constant      // former FUN-CON
-	| Function       // former FUN-FUN
-	| Pattern        // PAT & EVN
-	| DecisionPoint  // former DPT
-	| Frame          // FRM
-	| Result        // former PMD
-	| DefaultMethod  // former SMR
+	: ResourceType
+	| Resources
+	| Sequence
+	| Constant
+	| Function
+	| Pattern
+	| DecisionPoint
+	| Frame
+	| Result
+	| DefaultMethod
+	| EnumDeclaration
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -560,6 +561,13 @@ TerminateCondition:
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+// ==========================================================
+//                        Enum Declarations
+// ==========================================================
+EnumDeclaration:
+	'enum' typeName = ID '{' values += ID (',' values += ID)* '}'
+;
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 // ==========================================================
 //               Meta types for cross-references
