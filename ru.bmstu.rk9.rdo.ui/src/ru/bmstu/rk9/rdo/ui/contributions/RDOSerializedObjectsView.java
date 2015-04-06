@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
+import java.util.TimerTask;
+
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -8,16 +10,18 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode;
 import ru.bmstu.rk9.rdo.lib.Simulator;
+import ru.bmstu.rk9.rdo.lib.Subscriber;
 
 public class RDOSerializedObjectsView extends ViewPart {
 
-	private static TreeViewer serializedObjectsTreeViewer;
+	static TreeViewer serializedObjectsTreeViewer;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -30,17 +34,10 @@ public class RDOSerializedObjectsView extends ViewPart {
 				.setContentProvider(new RDOSerializedObjectsContentProvider());
 		serializedObjectsTreeViewer
 				.setLabelProvider(new RDOSerializedObjectsLabelProvider());
-	}
 
-	public static void initializeTree() {
-		if (!readyForInput())
-			return;
-
-		CollectedDataNode root = Simulator.getDatabase().getIndexHelper()
-				.getTree();
-
-		PlatformUI.getWorkbench().getDisplay()
-				.asyncExec(() -> serializedObjectsTreeViewer.setInput(root));
+		if (Simulator.isInitialized()) {
+			commonUpdater.fireChange();
+		}
 	}
 
 	@Override
@@ -53,6 +50,66 @@ public class RDOSerializedObjectsView extends ViewPart {
 				&& serializedObjectsTreeViewer.getContentProvider() != null
 				&& serializedObjectsTreeViewer.getLabelProvider() != null;
 	}
+
+	private static boolean haveNewRealTimeData = false;
+
+	public static final Subscriber realTimeUpdater = new Subscriber() {
+		@Override
+		public void fireChange() {
+			haveNewRealTimeData = true;
+		}
+	};
+
+	public static TimerTask getRealTimeUpdaterTask() {
+		return new TimerTask() {
+			private final Display display = PlatformUI.getWorkbench()
+					.getDisplay();
+			private final Runnable updater = new Runnable() {
+				@Override
+				public void run() {
+					if (!readyForInput())
+						return;
+					RDOSerializedObjectsView.
+							serializedObjectsTreeViewer.refresh();
+				}
+			};
+
+			@Override
+			public void run() {
+				if (haveNewRealTimeData && readyForInput()
+						&& !display.isDisposed()) {
+					haveNewRealTimeData = false;
+					display.asyncExec(updater);
+				}
+			}
+		};
+	}
+
+	public static final Subscriber commonUpdater = new Subscriber() {
+		@Override
+		public void fireChange() {
+			if (!readyForInput())
+				return;
+
+			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					if (!readyForInput())
+						return;
+
+					CollectedDataNode root = Simulator.getDatabase()
+							.getIndexHelper().getTree();
+
+					PlatformUI
+							.getWorkbench()
+							.getDisplay()
+							.asyncExec(
+									() -> serializedObjectsTreeViewer
+											.setInput(root));
+				}
+			});
+		}
+	};
 }
 
 class RDOSerializedObjectsContentProvider implements ITreeContentProvider {
