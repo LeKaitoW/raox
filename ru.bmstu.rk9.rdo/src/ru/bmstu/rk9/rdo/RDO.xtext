@@ -104,16 +104,18 @@ Pattern
 ;
 
 Operation:
-	'$Pattern' name = ID ':' type = OperationType
-	('$Parameters'
-		parameters += PatternParameter+ )?
-	 '$Relevant_resources'
-		 relevantresources += OperationRelevantResource+
-		(combinational = PatternChoiceMethod)?
-	 '$Time' '=' time = ExpressionOr
-	 '$Body'
-		algorithms += OperationConvert+
-	 '$End'
+	'pat' name = ID 'is' type = OperationType  '('
+		(parameters += PatternParameter+ (
+			',' parameters += PatternParameter+)* )? ')' '{'
+			 relevantresources += OperationRelevantResource+
+			(combinational = PatternChoiceMethod)?
+		'set' 'time' '(' ')' '{'
+			'return' time = ExpressionOr ';'
+		'}'
+		'set' 'execute' '(' ')' '{'
+			algorithms += OperationConvert+
+		'}'
+	'}'
 ;
 
 enum OperationType
@@ -122,7 +124,7 @@ enum OperationType
 ;
 
 OperationRelevantResource:	
-	name = ID ':' type = [META_RelResType|FQN] // !!! SCOPING NEEDED
+	'relevant' type = [META_RelResType|FQN] name = ID // !!! SCOPING NEEDED
 	begin = PatternConvertStatus end = PatternConvertStatus
 ;
 
@@ -136,19 +138,19 @@ OperationConvert:
 ;
 
 Rule:
-	'$Pattern' name = ID ':' 'rule'
-	('$Parameters'
-		parameters += PatternParameter+ )?
-	 '$Relevant_resources'
-		 relevantresources += RuleRelevantResource+
-		(combinational = PatternChoiceMethod)?
-	 '$Body'
-		algorithms += RuleConvert+
-	 '$End'
+	'pat' name = ID 'is' 'rule' '('
+		(parameters += PatternParameter+ (
+			',' parameters += PatternParameter+)* )? ')' '{'
+			 relevantresources += RuleRelevantResource+
+			(combinational = PatternChoiceMethod)?
+		'set' 'execute' '(' ')' '{'
+			algorithms += RuleConvert+
+		'}'
+	'}'
 ;
 
 RuleRelevantResource:
-	name = ID ':' type = [META_RelResType|FQN]
+	'relevant' type = [META_RelResType|FQN] name = ID
 	rule = PatternConvertStatus
 ;
 
@@ -160,18 +162,18 @@ RuleConvert:
 ;
 
 Event:
-	'$Pattern' name = ID ':' 'event'
-	('$Parameters'
-		parameters += PatternParameter+ )?
-	 '$Relevant_resources'
-		relevantresources += EventRelevantResource+
-	 '$Body'
-		algorithms += EventConvert+
-	 '$End'
+	'pat' name = ID 'is' 'event' '('
+		(parameters += PatternParameter+ (
+			',' parameters += PatternParameter+)* )? ')' '{'
+			relevantresources += EventRelevantResource+
+		'set' 'execute' '(' ')' '{'
+			algorithms += EventConvert+
+		'}'
+	'}'
 ;
 
 EventRelevantResource:
-	name = ID ':' type = [META_RelResType|FQN]
+	'relevant' type = [META_RelResType|FQN] name = ID
 	rule = PatternConvertStatus
 ;
 
