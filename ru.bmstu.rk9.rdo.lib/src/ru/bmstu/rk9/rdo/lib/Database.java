@@ -15,6 +15,7 @@ import ru.bmstu.rk9.rdo.lib.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.DecisionPointIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceTypeIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceParameterIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex.SearchInfo;
 import ru.bmstu.rk9.rdo.lib.json.*;
 
@@ -79,11 +80,6 @@ public class Database {
 			ResourceTypeIndex resourceTypeIndex = new ResourceTypeIndex(i,
 					resourceType.getJSONObject("structure"));
 			typeNode.setIndex(resourceTypeIndex);
-
-			JSONArray resources = resourceType.getJSONArray("resources");
-			for (int j = 0; j < resources.length(); j++)
-				typeNode.addChild(resources.getString(j))
-						.setIndex(new ResourceIndex(j));
 		}
 
 		JSONArray results = modelStructure.getJSONArray("results");
@@ -283,9 +279,17 @@ public class Database {
 
 		switch (status) {
 		case CREATED:
-			resourceIndex = new ResourceIndex(resource.getNumber());
+			CollectedDataNode resourceNode = resourceTypeNode.addChild(name);
 
-			resourceTypeNode.addChild(name).setIndex(resourceIndex);
+			resourceIndex = new ResourceIndex(resource.getNumber());
+			resourceNode.setIndex(resourceIndex);
+
+			JSONArray parameters = resourceTypeIndex.getStructure()
+					.getJSONArray("parameters");
+			for (int i = 0; i < parameters.length(); i++)
+				resourceNode.addChild(
+						parameters.getJSONObject(i).getString("name"))
+						.setIndex(new ResourceParameterIndex(i));
 			break;
 		case SEARCH:
 			shouldSerializeToIndex = false;
@@ -316,7 +320,7 @@ public class Database {
 		addEntry(entry);
 
 		if (shouldSerializeToIndex)
-			resourceIndex.entries.add(allEntries.size() - 1);
+			resourceIndex.entryNumbers.add(allEntries.size() - 1);
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -375,7 +379,7 @@ public class Database {
 		Entry entry = new Entry(header, data);
 
 		addEntry(entry);
-		index.entries.add(allEntries.size() - 1);
+		index.entryNumbers.add(allEntries.size() - 1);
 	}
 
 	public void addEventEntry(PatternType type, Pattern pattern) {
@@ -425,7 +429,7 @@ public class Database {
 		Entry entry = new Entry(header, data);
 
 		addEntry(entry);
-		index.entries.add(allEntries.size() - 1);
+		index.entryNumbers.add(allEntries.size() - 1);
 	}
 
 	private void fillRelevantResources(ByteBuffer data, int[] relevantResources) {
@@ -492,8 +496,8 @@ public class Database {
 
 		ByteBuffer data = result.serialize();
 		if (!index.isEmpty()) {
-			ByteBuffer lastResultValue = allEntries.get(index.getEntries().get(
-					index.getEntries().size() - 1)).data.duplicate();
+			ByteBuffer lastResultValue = allEntries.get(index.getEntryNumbers().get(
+					index.getEntryNumbers().size() - 1)).data.duplicate();
 			ByteBuffer currentResultValue = data.duplicate();
 			currentResultValue.rewind();
 			lastResultValue.rewind();
@@ -508,6 +512,6 @@ public class Database {
 		Entry entry = new Entry(header, data);
 
 		addEntry(entry);
-		index.getEntries().add(allEntries.size() - 1);
+		index.getEntryNumbers().add(allEntries.size() - 1);
 	}
 }

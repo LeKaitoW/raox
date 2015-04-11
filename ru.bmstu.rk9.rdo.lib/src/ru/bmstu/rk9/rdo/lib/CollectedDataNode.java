@@ -13,7 +13,7 @@ public class CollectedDataNode {
 	}
 
 	public static interface AbstractIndex {
-		public List<Integer> getEntries();
+		public List<Integer> getEntryNumbers();
 
 		public void addEntry(Integer entry);
 
@@ -30,12 +30,12 @@ public class CollectedDataNode {
 			this.type = type;
 		}
 
-		public final List<Integer> getEntries() {
-			return entries;
+		public List<Integer> getEntryNumbers() {
+			return entryNumbers;
 		}
 
 		public final void addEntry(Integer entry) {
-			entries.add(entry);
+			entryNumbers.add(entry);
 		}
 
 		public final int getNumber() {
@@ -43,14 +43,14 @@ public class CollectedDataNode {
 		}
 
 		public final boolean isEmpty() {
-			return entries.isEmpty();
+			return entryNumbers.isEmpty();
 		}
 
 		public final IndexType getType() {
 			return type;
 		}
 
-		protected final List<Integer> entries = new ArrayList<Integer>();
+		protected final List<Integer> entryNumbers = new ArrayList<Integer>();
 		protected final int number;
 		private final IndexType type;
 	}
@@ -129,6 +129,12 @@ public class CollectedDataNode {
 	public static class DecisionPointIndex extends Index {
 		DecisionPointIndex(int number) {
 			super(number, IndexType.DECISION_POINT);
+		}
+	}
+
+	public static class ResourceParameterIndex extends Index {
+		ResourceParameterIndex(int number) {
+			super(number, IndexType.RESOURCE_PARAMETER);
 		}
 	}
 
