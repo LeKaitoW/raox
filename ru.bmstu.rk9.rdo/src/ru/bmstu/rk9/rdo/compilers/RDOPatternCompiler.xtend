@@ -112,9 +112,7 @@ class RDOPatternCompiler
 					@Override
 					public void run(RelevantResources resources, Parameters parameters)
 					{
-						«FOR e : evn.algorithms»
-							«e.compileConvert(0)»
-						«ENDFOR»
+						«evn.algorithm.compileConvert(0)»
 					}
 				};
 

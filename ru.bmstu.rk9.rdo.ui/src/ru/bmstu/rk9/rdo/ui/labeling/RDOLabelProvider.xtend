@@ -29,7 +29,6 @@ import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.EventConvert
 import ru.bmstu.rk9.rdo.rdo.RuleConvert
 import ru.bmstu.rk9.rdo.rdo.OperationConvert
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
@@ -99,9 +98,6 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	// Event
 	def  text(Event evn) { "EVN : " + evn.name + " : event"}
 	def image(Event evn) { "event.gif" }
-
-	def  text(EventConvert c) { c.relres.name }
-	def image(EventConvert c) { "parameter.gif" }
 
 	def image(EventRelevantResource r) { "parameter.gif" }
 	def  text(EventRelevantResource r) { r.name + r.type.relResName }

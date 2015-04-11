@@ -42,10 +42,10 @@ class RDOStatementCompiler
 		{
 			EventConvert:
 					'''
-					// «st.relres.name» convert event
+					// convert event
 					{
 						«st.statements.compileStatementContext(
-							(new LocalContext).populateFromEvent(st.eContainer as Event).tuneForConvert(st.relres.name))»
+							(new LocalContext).populateFromEvent(st.eContainer as Event))»
 					}
 					'''
 

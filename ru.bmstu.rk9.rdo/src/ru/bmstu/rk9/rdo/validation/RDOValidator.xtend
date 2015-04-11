@@ -56,7 +56,6 @@ import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource
 import ru.bmstu.rk9.rdo.rdo.RuleConvert
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
-import ru.bmstu.rk9.rdo.rdo.EventConvert
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 
@@ -632,47 +631,6 @@ class RDOValidator extends AbstractRDOValidator
 						}
 				}
 
-			}
-			Event:
-			{
-				var relreslist  = o.eAllContents.toList.filter(typeof(EventRelevantResource))
-				val convertlist = o.eAllContents.toList.filter(typeof(EventConvert))
-
-				for(r : relreslist)
-				{
-					i = i + 1
-					count = 0
-					found = false
-					for(c : convertlist)
-						if(c.relres.name == r.name)
-						{
-							count = count + 1
-							found = true
-						}
-
-					if(count > 1)
-						for(c : convertlist)
-							if(c.relres == r)
-								error("Multiple converts for relevant resource " + r.name,
-									c, RdoPackage.eINSTANCE.eventConvert_Relres)
-					if(!found)
-						error("No convert found for relevant resource " + r.name,
-							r, RdoPackage.eINSTANCE.eventRelevantResource_Name)
-
-					j = 0
-					if(found && (count == 1))
-						for(c : convertlist)
-						{
-							j = j + 1
-							if((i == j) && (c.relres != r))
-								if(c.relres.name != null)
-									error("Wrong relevant resource converts order: found " +
-										c.relres.name +	" instead of " + r.name, c,
-											RdoPackage.eINSTANCE.eventConvert_Relres)
-								else
-									i = i + 1
-						}
-				}
 			}
 		}
 	}
