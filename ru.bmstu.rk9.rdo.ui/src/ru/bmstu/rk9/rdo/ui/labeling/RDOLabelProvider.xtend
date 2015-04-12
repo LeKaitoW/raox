@@ -29,8 +29,6 @@ import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.RuleConvert
-import ru.bmstu.rk9.rdo.rdo.OperationConvert
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
 import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
@@ -106,18 +104,12 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def  text(Operation pat) { "PAT : " + pat.name + " : " + pat.type.literal}
 	def image(Operation pat) { "script_block.gif" }
 
-	def  text(OperationConvert c) { c.relres.name }
-	def image(OperationConvert c) { "parameter.gif" }
-
 	def image(OperationRelevantResource r) { "parameter.gif" }
 	def  text(OperationRelevantResource r) { r.name + r.type.relResName }
 
 	// Rule
 	def  text(Rule pat) { "PAT : " + pat.name + " : rule"}
 	def image(Rule pat) { "script_block.gif" }
-
-	def  text(RuleConvert c) { c.relres.name }
-	def image(RuleConvert c) { "parameter.gif" }
 
 	def image(RuleRelevantResource r) { "parameter.gif" }
 	def  text(RuleRelevantResource r) { r.name + r.type.relResName }

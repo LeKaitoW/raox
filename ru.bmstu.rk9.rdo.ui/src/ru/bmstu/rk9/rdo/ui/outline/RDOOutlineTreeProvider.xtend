@@ -22,9 +22,6 @@ import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
 import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.Event
-import ru.bmstu.rk9.rdo.rdo.RuleConvert
-import ru.bmstu.rk9.rdo.rdo.EventConvert
-import ru.bmstu.rk9.rdo.rdo.OperationConvert
 import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 
@@ -34,7 +31,6 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
 import ru.bmstu.rk9.rdo.rdo.Result
 import ru.bmstu.rk9.rdo.rdo.OnInit
 import ru.bmstu.rk9.rdo.rdo.TerminateCondition
-
 public class VirtualOutlineNode extends AbstractOutlineNode
 {
 	protected new(IOutlineNode parent, Image image, Object text, boolean isLeaf)
@@ -88,12 +84,6 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 				{
 					createEObjectNode(groupRelRes, r)
 				}
-
-				val groupRelBody = new VirtualOutlineNode(parentNode, parentNode.image, "Body", false)
-				for(b : pat.eAllContents.toIterable.filter(typeof(RuleConvert)))
-				{
-					createEObjectNode(groupRelBody, b)
-				}
 			}
 			Operation:
 			{
@@ -101,12 +91,6 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 				for(r : pat.eAllContents.toIterable.filter(typeof(OperationRelevantResource)))
 				{
 					createEObjectNode(groupRelRes, r)
-				}
-
-				val groupRelBody = new VirtualOutlineNode(parentNode, parentNode.image, "Body", false)
-				for(b : pat.eAllContents.toIterable.filter(typeof(OperationConvert)))
-				{
-					createEObjectNode(groupRelBody, b)
 				}
 			}
 			Event:
@@ -116,21 +100,11 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 				{
 					createEObjectNode(groupRelRes, r)
 				}
-
-				val groupRelBody = new VirtualOutlineNode(parentNode, parentNode.image, "Body", false)
-				for(b : pat.eAllContents.toIterable.filter(typeof(EventConvert)))
-				{
-					createEObjectNode(groupRelBody, b)
-				}
 			}
 		}
 	}
 
 	def _isLeaf(PatternParameter p) { true }
-
-	def _isLeaf(RuleConvert c)      { true }
-	def _isLeaf(OperationConvert c) { true }
-	def _isLeaf(EventConvert c)     { true }
 
 	// Decision points
 	def _isLeaf(DecisionPointSearchActivity d) { true }

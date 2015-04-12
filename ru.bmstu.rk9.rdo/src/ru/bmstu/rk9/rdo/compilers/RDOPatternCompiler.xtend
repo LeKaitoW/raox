@@ -23,10 +23,9 @@ import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
 import ru.bmstu.rk9.rdo.rdo.PatternConvertStatus
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.OperationConvert
 import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.RuleConvert
-
+import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource
+import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
 
 class RDOPatternCompiler
 {
@@ -112,7 +111,7 @@ class RDOPatternCompiler
 					@Override
 					public void run(RelevantResources resources, Parameters parameters)
 					{
-						«evn.algorithm.compileConvert(0)»
+						«evn.algorithm.compileConvert()»
 					}
 				};
 
@@ -312,61 +311,68 @@ class RDOPatternCompiler
 				);
 				static
 				{
-				«FOR rc : rule.algorithms.filter[r | r.relres.rule.literal != "Create"]»
+				«FOR relres : rule.relevantresources.filter[r | r.rule.literal != "Create"]»
 					choice.addFinder
 					(
-						new CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
+						new CombinationalChoiceFrom.Finder<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters>
 						(
-							new CombinationalChoiceFrom.Retriever<«rc.relres.type.relResFullyQualifiedName»>()
+							new CombinationalChoiceFrom.Retriever<«relres.type.relResFullyQualifiedName»>()
 							{
 								@Override
-								public java.util.Collection<«rc.relres.type.relResFullyQualifiedName»> getResources()
+								public java.util.Collection<«relres.type.relResFullyQualifiedName»> getResources()
 								{
-									«IF rc.relres.type instanceof ResourceDeclaration»
-									java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»> singlelist =
-										new java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»>();
-									singlelist.add(«rc.relres.type.relResFullyQualifiedName».getResource("«
-										(rc.relres.type as ResourceDeclaration).fullyQualifiedName»"));
+									«IF relres.type instanceof ResourceDeclaration»
+									java.util.LinkedList<«relres.type.relResFullyQualifiedName»> singlelist =
+										new java.util.LinkedList<«relres.type.relResFullyQualifiedName»>();
+									singlelist.add(«relres.type.relResFullyQualifiedName».getResource("«
+										(relres.type as ResourceDeclaration).fullyQualifiedName»"));
 									return singlelist;
 									«ELSE»
-									return «rc.relres.type.relResFullyQualifiedName».get«
-										IF rc.relres.rule.literal == "Erase"»Temporary«ELSE»All«ENDIF»();
+									return «relres.type.relResFullyQualifiedName».get«
+										IF relres.rule.literal == "Erase"»Temporary«ELSE»All«ENDIF»();
 									«ENDIF»
 								}
 							},
-							new SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
+							new SimpleChoiceFrom<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters>
 							(
-								«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.relResFullyQualifiedName, rc.relres.name, rc.relres.type.relResFullyQualifiedName)»,
+								«relres.choicefrom.compileChoiceFrom(rule, relres.type.relResFullyQualifiedName, relres.name, relres.type.relResFullyQualifiedName)»,
 								null
 							),
-							new CombinationalChoiceFrom.Setter<RelevantResources, «rc.relres.type.relResFullyQualifiedName»>()
+							new CombinationalChoiceFrom.Setter<RelevantResources, «relres.type.relResFullyQualifiedName»>()
 							{
-								public void set(RelevantResources set, «rc.relres.type.relResFullyQualifiedName» resource)
+								public void set(RelevantResources set, «relres.type.relResFullyQualifiedName» resource)
 								{
-									set.«rc.relres.name» = resource;
+									set.«relres.name» = resource;
 								}
 							}
 						)
 					);
-
 				«ENDFOR»
 				}
 
 			«ELSE»
-			«FOR rc : rule.algorithms.filter[r | r.relres.rule.literal != "Create"]»
-			«IF rc.relres.type instanceof ResourceDeclaration»
-			// just checker «rc.relres.name»
-			private static SimpleChoiceFrom.Checker<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «
-				rc.relres.name»Checker = «rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.relResFullyQualifiedName,
-						rc.relres.name, rc.relres.type.relResFullyQualifiedName)»;
+			«FOR relres : rule.relevantresources.filter[r | r.rule.literal != "Create"]»
+			«IF relres.type instanceof ResourceDeclaration»
+			// just checker «relres.name»
+			private static SimpleChoiceFrom.Checker<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters> «
+				relres.name»Checker = «relres.choicefrom.compileChoiceFrom(
+					rule, relres.type.relResFullyQualifiedName,
+					relres.name, relres.type.relResFullyQualifiedName)»;
 
 			«ELSE»
-			// choice «rc.relres.name»
-			private static SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «rc.relres.name»Choice =
-				new SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
+			// choice «relres.name»
+			private static SimpleChoiceFrom<RelevantResources, «
+				relres.type.relResFullyQualifiedName», Parameters> «relres.name»Choice =
+				new SimpleChoiceFrom<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters>
 				(
-					«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.relResFullyQualifiedName, rc.relres.name, rc.relres.type.relResFullyQualifiedName)»,
-					«rc.choicemethod.compileChoiceMethod(rule.name, rc.relres.type.relResFullyQualifiedName)»
+					«relres.choicefrom.compileChoiceFrom(
+						rule, relres.type.relResFullyQualifiedName,
+						relres.name,
+						relres.type.relResFullyQualifiedName
+					)»,
+					«relres.choicemethod.compileChoiceMethod(
+						rule.name, relres.type.relResFullyQualifiedName
+					)»
 				);
 
 			«ENDIF»
@@ -378,9 +384,7 @@ class RDOPatternCompiler
 						@Override
 						public void run(RelevantResources resources, Parameters parameters)
 						{
-							«FOR e : rule.algorithms.filter[r | r.haverule]»
-								«e.compileConvert(0)»
-							«ENDFOR»
+							«rule.algorithm.compileConvert»
 						}
 					};
 
@@ -393,16 +397,16 @@ class RDOPatternCompiler
 					return false;
 
 				«ELSE»
-				«FOR rc : rule.algorithms.filter[r | r.relres.rule.literal != "Create"]»
-				«IF rc.relres.type instanceof ResourceDeclaration»
-					if(!«rc.relres.name»Checker.check(staticResources, staticResources.«rc.relres.name», parameters))
+				«FOR relres : rule.relevantresources.filter[r | r.rule.literal != "Create"]»
+				«IF relres.type instanceof ResourceDeclaration»
+					if(!«relres.name»Checker.check(staticResources, staticResources.«relres.name», parameters))
 						return false;
 
 				«ELSE»
-					staticResources.«rc.relres.name» = «rc.relres.name»Choice.find(staticResources, «rc.relres.type.fullyQualifiedName».get«
-						IF rc.relres.rule.literal == "Erase"»Temporary«ELSE»All«ENDIF»(), parameters);
+					staticResources.«relres.name» = «relres.name»Choice.find(staticResources, «relres.type.fullyQualifiedName».get«
+						IF relres.rule.literal == "Erase"»Temporary«ELSE»All«ENDIF»(), parameters);
 
-					if(staticResources.«rc.relres.name» == null)
+					if(staticResources.«relres.name» == null)
 						return false;
 
 				«ENDIF»
@@ -614,38 +618,38 @@ class RDOPatternCompiler
 				);
 				static
 				{
-				«FOR rc : op.algorithms.filter[r | r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
+				«FOR relres : op.relevantresources.filter[r | r.begin.literal != "Create" && r.end.literal != "Create"]»
 					choice.addFinder
 					(
-						new CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.fullyQualifiedName», Parameters>
+						new CombinationalChoiceFrom.Finder<RelevantResources, «relres.type.fullyQualifiedName», Parameters>
 						(
-							new CombinationalChoiceFrom.Retriever<«rc.relres.type.fullyQualifiedName»>()
+							new CombinationalChoiceFrom.Retriever<«relres.type.fullyQualifiedName»>()
 							{
 								@Override
-								public java.util.Collection<«rc.relres.type.fullyQualifiedName»> getResources()
+								public java.util.Collection<«relres.type.fullyQualifiedName»> getResources()
 								{
-									«IF rc.relres.type instanceof ResourceDeclaration»
-									java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»> singlelist =
-										new java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»>();
-									singlelist.add(«rc.relres.type.relResFullyQualifiedName».getResource("«
-										(rc.relres.type as ResourceDeclaration).fullyQualifiedName»"));
+									«IF relres.type instanceof ResourceDeclaration»
+									java.util.LinkedList<«relres.type.relResFullyQualifiedName»> singlelist =
+										new java.util.LinkedList<«relres.type.relResFullyQualifiedName»>();
+									singlelist.add(«relres.type.relResFullyQualifiedName».getResource("«
+										(relres.type as ResourceDeclaration).fullyQualifiedName»"));
 									return singlelist;
 									«ELSE»
-									return «rc.relres.type.relResFullyQualifiedName».get«
-										IF rc.relres.begin.literal == "Erase" || rc.relres.end.literal == "Erase"»Temporary«ELSE»All«ENDIF»();
+									return «relres.type.relResFullyQualifiedName».get«
+										IF relres.begin.literal == "Erase" || relres.end.literal == "Erase"»Temporary«ELSE»All«ENDIF»();
 									«ENDIF»
 								}
 							},
-							new SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName», Parameters>
+							new SimpleChoiceFrom<RelevantResources, «relres.type.fullyQualifiedName», Parameters>
 							(
-								«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.fullyQualifiedName, rc.relres.name, rc.relres.type.fullyQualifiedName)»,
+								«relres.choicefrom.compileChoiceFrom(op, relres.type.fullyQualifiedName, relres.name, relres.type.fullyQualifiedName)»,
 								null
 							),
-							new CombinationalChoiceFrom.Setter<RelevantResources, «rc.relres.type.fullyQualifiedName»>()
+							new CombinationalChoiceFrom.Setter<RelevantResources, «relres.type.fullyQualifiedName»>()
 							{
-								public void set(RelevantResources set, «rc.relres.type.fullyQualifiedName» resource)
+								public void set(RelevantResources set, «relres.type.fullyQualifiedName» resource)
 								{
-									set.«rc.relres.name» = resource;
+									set.«relres.name» = resource;
 								}
 							}
 						)
@@ -655,20 +659,20 @@ class RDOPatternCompiler
 				}
 
 			«ELSE»
-			«FOR rc : op.algorithms.filter[r | r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
-			«IF rc.relres.type instanceof ResourceDeclaration»
-			// just checker «rc.relres.name»
-			private static SimpleChoiceFrom.Checker<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «
-				rc.relres.name»Checker = «rc.choicefrom.compileChoiceFrom(op, rc.relres.type.relResFullyQualifiedName,
-						rc.relres.name, rc.relres.type.relResFullyQualifiedName)»;
+			«FOR relres : op.relevantresources.filter[r | r.begin.literal != "Create" && r.end.literal != "Create"]»
+			«IF relres.type instanceof ResourceDeclaration»
+			// just checker «relres.name»
+			private static SimpleChoiceFrom.Checker<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters> «
+				relres.name»Checker = «relres.choicefrom.compileChoiceFrom(op, relres.type.relResFullyQualifiedName,
+						relres.name, relres.type.relResFullyQualifiedName)»;
 
 			«ELSE»
-			// choice «rc.relres.name»
-			private static SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «rc.relres.name»Choice =
-				new SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
+			// choice «relres.name»
+			private static SimpleChoiceFrom<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters> «relres.name»Choice =
+				new SimpleChoiceFrom<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters>
 				(
-					«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.relResFullyQualifiedName, rc.relres.name, rc.relres.type.relResFullyQualifiedName)»,
-					«rc.choicemethod.compileChoiceMethod(op.name, rc.relres.type.relResFullyQualifiedName)»
+					«relres.choicefrom.compileChoiceFrom(op, relres.type.relResFullyQualifiedName, relres.name, relres.type.relResFullyQualifiedName)»,
+					«relres.choicemethod.compileChoiceMethod(op.name, relres.type.relResFullyQualifiedName)»
 				);
 
 			«ENDIF»
@@ -681,9 +685,7 @@ class RDOPatternCompiler
 						@Override
 						public void run(RelevantResources resources, Parameters parameters)
 						{
-							«FOR e : op.algorithms.filter[r | r.havebegin]»
-								«e.compileConvert(0)»
-							«ENDFOR»
+							«op.begin_algorithm.compileConvert»
 						}
 					};
 
@@ -693,9 +695,7 @@ class RDOPatternCompiler
 						@Override
 						public void run(RelevantResources resources, Parameters parameters)
 						{
-							«FOR e : op.algorithms.filter[r | r.haveend]»
-								«e.compileConvert(1)»
-							«ENDFOR»
+							«op.end_algorithm.compileConvert»
 						}
 					};
 
@@ -708,16 +708,16 @@ class RDOPatternCompiler
 					return false;
 
 				«ELSE»
-				«FOR rc : op.algorithms.filter[r | r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
-				«IF rc.relres.type instanceof ResourceDeclaration»
-					if(!«rc.relres.name»Checker.check(staticResources, staticResources.«rc.relres.name», parameters))
+				«FOR relres : op.relevantresources.filter[r | r.begin.literal != "Create" && r.end.literal != "Create"]»
+				«IF relres.type instanceof ResourceDeclaration»
+					if(!«relres.name»Checker.check(staticResources, staticResources.«relres.name», parameters))
 						return false;
 
 				«ELSE»
-					staticResources.«rc.relres.name» = «rc.relres.name»Choice.find(staticResources, «rc.relres.type.fullyQualifiedName».get«
-						IF rc.relres.begin.literal == "Erase" || rc.relres.end.literal == "Erase"»Temporary«ELSE»All«ENDIF»(), parameters);
+					staticResources.«relres.name» = «relres.name»Choice.find(staticResources, «relres.type.fullyQualifiedName».get«
+						IF relres.begin.literal == "Erase" || relres.end.literal == "Erase"»Temporary«ELSE»All«ENDIF»(), parameters);
 
-					if(staticResources.«rc.relres.name» == null)
+					if(staticResources.«relres.name» == null)
 						return false;
 
 				«ENDIF»
@@ -918,8 +918,8 @@ class RDOPatternCompiler
 			else
 			{
 				pat = cm.eContainer.eContainer
-				relres = (if(cm.eContainer instanceof OperationConvert) (cm.eContainer as OperationConvert).relres.name
-					else (cm.eContainer as RuleConvert).relres.name)
+				relres = (if(cm.eContainer instanceof OperationRelevantResource) (cm.eContainer as OperationRelevantResource).name
+					else (cm.eContainer as RuleRelevantResource).name)
 			}
 
 			val context = (if(pat instanceof Rule) (new LocalContext).populateFromRule(pat as Rule)

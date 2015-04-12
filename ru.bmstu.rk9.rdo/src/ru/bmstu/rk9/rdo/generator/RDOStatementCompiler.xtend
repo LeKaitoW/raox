@@ -6,11 +6,8 @@ import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
 import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.OperationConvert
 import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.RuleConvert
 import ru.bmstu.rk9.rdo.rdo.Event
-import ru.bmstu.rk9.rdo.rdo.EventConvert
 
 import ru.bmstu.rk9.rdo.rdo.StatementList
 import ru.bmstu.rk9.rdo.rdo.ExpressionStatement
@@ -36,45 +33,33 @@ import ru.bmstu.rk9.rdo.rdo.TerminateCondition
 
 class RDOStatementCompiler
 {
-	def static String compileConvert(EObject st, int parameter)
+	def static String compileConvert(StatementList st)
 	{
-		switch st
+		switch st.eContainer
 		{
-			EventConvert:
+			Event:
 					'''
-					// convert event
 					{
-						«st.statements.compileStatementContext(
+						«st.compileStatementContext(
 							(new LocalContext).populateFromEvent(st.eContainer as Event))»
 					}
 					'''
 
-			RuleConvert:
+			Rule:
 					'''
-					// «st.relres.name» convert rule
 					{
-						«st.statements.compileStatementContext(
-							(new LocalContext).populateFromRule(st.eContainer as Rule).tuneForConvert(st.relres.name))»
+						«st.compileStatementContext(
+							(new LocalContext).populateFromRule(st.eContainer as Rule))»
 					}
 					'''
 
-			OperationConvert:
-				if(parameter == 0)
-						'''
-						// «st.relres.name» convert begin
-						{
-							«st.beginstatements.compileStatementContext(
-							(new LocalContext).populateFromOperation(st.eContainer as Operation).tuneForConvert(st.relres.name))»
-						}
-						'''
-				else
-						'''
-						// «st.relres.name» convert end
-						{
-							«st.endstatements.compileStatementContext(
-							(new LocalContext).populateFromOperation(st.eContainer as Operation).tuneForConvert(st.relres.name))»
-						}
-						'''
+			Operation:
+					'''
+					{
+						«st.compileStatementContext(
+						(new LocalContext).populateFromOperation(st.eContainer as Operation))»
+					}
+					'''
 		}
 	}
 

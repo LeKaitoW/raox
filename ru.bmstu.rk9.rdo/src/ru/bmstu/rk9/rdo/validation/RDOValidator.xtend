@@ -50,10 +50,8 @@ import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
-import ru.bmstu.rk9.rdo.rdo.OperationConvert
 import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource
-import ru.bmstu.rk9.rdo.rdo.RuleConvert
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 
@@ -541,148 +539,6 @@ class RDOValidator extends AbstractRDOValidator
 	}
 
 	@Check
-	def checkPatternRelResConverts(Pattern o)
-	{
-		var count = 0; var i = 0; var j = 0
-		var found = false
-
-		switch o
-		{
-			Operation:
-			{
-				val relreslist  = o.eAllContents.toList.filter(typeof(OperationRelevantResource))
-				val convertlist = o.eAllContents.toList.filter(typeof(OperationConvert))
-
-				for(r : relreslist)
-				{
-					i = i + 1
-					count = 0
-					found = false
-					for(c : convertlist)
-						if(c.relres.name == r.name)
-						{
-							count = count + 1
-							found = true
-						}
-
-					if(count > 1)
-						for(c : convertlist)
-							if(c.relres == r)
-								error("Multiple converts for relevant resource " + r.name,
-									c, RdoPackage.eINSTANCE.operationConvert_Relres)
-					if(!found)
-						error("No convert found for relevant resource " + r.name,
-							r, RdoPackage.eINSTANCE.operationRelevantResource_Name)
-
-					j = 0
-					if(found && (count == 1))
-						for(c : convertlist)
-						{
-							j = j + 1
-							if((i == j) && (c.relres != r))
-								if(c.relres.name != null)
-									error("Wrong relevant resource converts order: found " +
-										c.relres.name +	" instead of " + r.name, c,
-											RdoPackage.eINSTANCE.operationConvert_Relres)
-								else
-									i = i + 1
-						}
-				}
-
-			}
-			Rule:
-			{
-				val relreslist  = o.eAllContents.toList.filter(typeof(RuleRelevantResource))
-				val convertlist = o.eAllContents.toList.filter(typeof(RuleConvert))
-
-				for(r : relreslist)
-				{
-					i = i + 1
-					count = 0
-					found = false
-					for(c : convertlist)
-						if(c.relres.name == r.name)
-						{
-							count = count + 1
-							found = true
-						}
-
-					if(count > 1)
-						for(c : convertlist)
-							if(c.relres == r)
-								error("Multiple converts for relevant resource " + r.name,
-									c, RdoPackage.eINSTANCE.ruleConvert_Relres)
-					if(!found)
-						error("No convert found for relevant resource " + r.name,
-							r, RdoPackage.eINSTANCE.ruleRelevantResource_Name)
-
-					j = 0
-					if(found && (count == 1))
-						for(c : convertlist)
-						{
-							j = j + 1
-							if((i == j) && (c.relres != r))
-								if(c.relres.name != null)
-									error("Wrong relevant resource converts order: found " +
-										c.relres.name +	" instead of " + r.name, c,
-											RdoPackage.eINSTANCE.ruleConvert_Relres)
-								else
-									i = i + 1
-						}
-				}
-
-			}
-		}
-	}
-
-	@Check
-	def checkConvertAssociations(OperationConvert c)
-	{
-		val begin = c.relres.begin.literal
-		val end   = c.relres.end.literal
-
-		if(begin == "Keep" || begin == "Create")
-			if(!c.havebegin)
-				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" is missing a convert begin",
-					RdoPackage.eINSTANCE.operationConvert_Relres)
-
-		if(end == "Keep" || end == "Create")
-			if(!c.haveend)
-				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" is missing a convert end",
-					RdoPackage.eINSTANCE.operationConvert_Relres)
-
-		if(begin == "NonExist" || begin == "NoChange")
-			if(c.havebegin)
-				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" shouldn't have a convert begin",
-					RdoPackage.eINSTANCE.operationConvert_Havebegin)
-
-		if(end == "NonExist" || end == "NoChange")
-			if(c.haveend)
-				error("Resource " + c.relres.name + " with convert status "+begin+" "+end+" shouldn't have a convert end",
-					RdoPackage.eINSTANCE.operationConvert_Haveend)
-	}
-
-	@Check
-	def checkConvertAssociations(RuleConvert c)
-	{
-		val rule = c.relres.rule.literal
-
-		if(rule == "Keep" || rule == "Create")
-			if(!c.haverule)
-				error("Resource " + c.relres.name + " with convert status "+rule+" is missing a convert rule",
-					RdoPackage.eINSTANCE.ruleConvert_Relres)
-
-		if(rule == "NoChange")
-			if(c.haverule)
-				error("Resource " + c.relres.name + " with convert status "+rule+" shouldn't have a convert rule",
-					RdoPackage.eINSTANCE.ruleConvert_Haverule)
-
-		if(rule == "Create" && c.havechoice)
-			error("Relevant resource " + c.relres.name + " with convert status "+rule+" shouldn't have a choice from",
-				RdoPackage.eINSTANCE.ruleConvert_Havechoice)
-	}
-
-	@Check
 	def checkForCombinationalChioceMethod(Pattern pat)
 	{
 		var havechoicemethods = false
@@ -695,8 +551,8 @@ class RDOValidator extends AbstractRDOValidator
 				Operation: iscombinatorial = true
 				Rule     : iscombinatorial = true
 
-				OperationConvert: havechoicemethods = true
-				RuleConvert     : havechoicemethods = true
+				OperationRelevantResource: havechoicemethods = true
+				RuleRelevantResource     : havechoicemethods = true
 			}
 		}
 
@@ -705,13 +561,13 @@ class RDOValidator extends AbstractRDOValidator
 			{
 				switch e.eContainer
 				{
-					OperationConvert:
+					OperationRelevantResource:
 						error("Operation " + (pat as Operation).name + " already uses combinational approach for relevant resources search",
-							e.eContainer, RdoPackage.eINSTANCE.operationConvert_Choicemethod)
+							e.eContainer, RdoPackage.eINSTANCE.operationRelevantResource_Choicemethod)
 
-					RuleConvert:
+					RuleRelevantResource:
 						error("Rule " + (pat as Rule).name + " already uses combinational approach for relevant resources search",
-							e.eContainer, RdoPackage.eINSTANCE.ruleConvert_Choicemethod)
+							e.eContainer, RdoPackage.eINSTANCE.ruleRelevantResource_Choicemethod)
 				}
 			}
 	}

@@ -112,8 +112,11 @@ Operation:
 		'set' 'time' '(' ')' '{'
 			'return' time = ExpressionOr ';'
 		'}'
-		'set' 'execute' '(' ')' '{'
-			algorithms += OperationConvert+
+		'set' 'begin' '(' ')' '{'
+			begin_algorithm = StatementList
+		'}'
+		'set' 'end' '(' ')' '{'
+			end_algorithm = StatementList
 		'}'
 	'}'
 ;
@@ -124,41 +127,29 @@ enum OperationType
 ;
 
 OperationRelevantResource:	
-	'relevant' type = [META_RelResType|FQN] name = ID // !!! SCOPING NEEDED
+	'relevant' name = ID '=' type = [META_RelResType|FQN]
+	(havechoice ?= '.' 'choose' '(' choicefrom = PatternChoiceFrom ')' (choicemethod = PatternChoiceMethod)?)?
 	begin = PatternConvertStatus end = PatternConvertStatus
-;
-
-OperationConvert:
-	relres = [OperationRelevantResource|FQN] ':'
-	(havechoice ?= 'Choice' choicefrom = PatternChoiceFrom (choicemethod = PatternChoiceMethod)? )?
-	(havebegin ?= 'Convert_begin'
-		beginstatements = StatementList )?
-	(haveend ?= 'Convert_end'
-		endstatements = StatementList )?
 ;
 
 Rule:
 	'pat' name = ID 'is' 'rule' '('
 		(parameters += PatternParameter+ (
 			',' parameters += PatternParameter+)* )? ')' '{'
-			 relevantresources += RuleRelevantResource+
-			(combinational = PatternChoiceMethod)?
+		relevantresources += RuleRelevantResource+
+		(combinational = PatternChoiceMethod)?
 		'set' 'execute' '(' ')' '{'
-			algorithms += RuleConvert+
+			algorithm = StatementList
 		'}'
 	'}'
 ;
 
 RuleRelevantResource:
-	'relevant' type = [META_RelResType|FQN] name = ID
+	'relevant' name = ID '=' type = [META_RelResType|FQN]
+	(havechoice ?= '.' 'choose' '(' choicefrom = PatternChoiceFrom ')'
+		(choicemethod = PatternChoiceMethod)?
+	)?
 	rule = PatternConvertStatus
-;
-
-RuleConvert:
-	relres = [RuleRelevantResource|ID] ':'
-	(havechoice ?= 'Choice' choicefrom = PatternChoiceFrom (choicemethod = PatternChoiceMethod)? )?
-	(haverule ?= 'Convert_rule'
-		statements = StatementList )?
 ;
 
 Event:
@@ -167,30 +158,24 @@ Event:
 			',' parameters += PatternParameter+)* )? ')' '{'
 			relevantresources += EventRelevantResource+
 		'set' 'execute' '(' ')' '{'
-			algorithms += EventConvert+
+			algorithm = StatementList
 		'}'
 	'}'
 ;
 
 EventRelevantResource:
-	'relevant' type = [META_RelResType|FQN] name = ID
+	'relevant' name = ID '=' type = [META_RelResType|FQN]
 	rule = PatternConvertStatus
 ;
 
-EventConvert:
-	relres = [EventRelevantResource|ID] ':'
-	'Convert_event'
-		statements = StatementList
-;
-
 PatternChoiceFrom
-	: 'from' logic = ExpressionOr
+	: logic = ExpressionOr
 	| nocheck ?= 'NoCheck'
 ;
 
 PatternChoiceMethod
-	: first ?= 'first'
-	| withtype = PatternChoiceWithType expression = ExpressionOr
+	: first ?= '.' 'first' '(' ')'
+	| '.' withtype = PatternChoiceWithType '(' expression = ExpressionOr ')'
 ;
 
 enum PatternChoiceWithType
