@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
 import java.net.URL;
+import java.util.List;
 import java.util.TimerTask;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -12,21 +13,31 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.IndexType;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceIndex;
+import ru.bmstu.rk9.rdo.lib.PlotDataParser;
+import ru.bmstu.rk9.rdo.lib.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
+import ru.bmstu.rk9.rdo.ui.runtime.JFreeChartPlot;
 
 public class RDOSerializedObjectsView extends ViewPart {
 
@@ -43,6 +54,31 @@ public class RDOSerializedObjectsView extends ViewPart {
 				.setContentProvider(new RDOSerializedObjectsContentProvider());
 		serializedObjectsTreeViewer
 				.setLabelProvider(new RDOSerializedObjectsLabelProvider());
+
+		Menu popupMenu = new Menu(serializedObjectsTreeViewer.getTree());
+		MenuItem plot = new MenuItem(popupMenu, SWT.CASCADE);
+		plot.setText("Plot");
+		plot.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
+						.getTree().getSelection()[0].getData();
+				System.out.println(node.getName());
+				AbstractIndex index = node.getIndex();
+				if (index != null
+						&& index.getType() == IndexType.RESOURCE_PARAMETER) {
+					final XYSeriesCollection dataset = new XYSeriesCollection();
+					final XYSeries series = new XYSeries("Array");
+					dataset.addSeries(series);
+					List<PlotItem> items = PlotDataParser.parseEntries(node);
+					for (int i = 0; i < items.size(); i++) {
+						PlotItem item = items.get(i);
+						series.add(item.x, item.y);
+					}
+					JFreeChartPlot.plotXY(dataset);
+				}
+			}
+		});
+		serializedObjectsTreeViewer.getTree().setMenu(popupMenu);
 
 		if (Simulator.isInitialized()) {
 			commonUpdater.fireChange();
@@ -78,8 +114,8 @@ public class RDOSerializedObjectsView extends ViewPart {
 				public void run() {
 					if (!readyForInput())
 						return;
-					RDOSerializedObjectsView.
-							serializedObjectsTreeViewer.refresh();
+					RDOSerializedObjectsView.serializedObjectsTreeViewer
+							.refresh();
 				}
 			};
 
@@ -160,7 +196,7 @@ class RDOSerializedObjectsContentProvider implements ITreeContentProvider {
 }
 
 class RDOSerializedObjectsLabelProvider implements ILabelProvider,
-		IColorProvider{
+		IColorProvider {
 	@Override
 	public void addListener(ILabelProviderListener listener) {
 	}
@@ -186,20 +222,15 @@ class RDOSerializedObjectsLabelProvider implements ILabelProvider,
 		Display display = PlatformUI.getWorkbench().getDisplay();
 
 		if (index == null) {
-			url = FileLocator.find(
-					Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
-					new org.eclipse.core.runtime.Path("icons/cross-small-white.png"),
-					null);
-		}
-		else if (index.getType() == IndexType.RESOURCE
+			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+					new org.eclipse.core.runtime.Path(
+							"icons/cross-small-white.png"), null);
+		} else if (index.getType() == IndexType.RESOURCE
 				&& ((ResourceIndex) index).isErased()) {
-			url = FileLocator.find(
-					Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
-					new org.eclipse.core.runtime.Path("icons/cross.png"),
-					null);
+			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+					new org.eclipse.core.runtime.Path("icons/cross.png"), null);
 		} else {
-			url = FileLocator.find(
-					Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
 					new org.eclipse.core.runtime.Path("icons/globe-small.png"),
 					null);
 		}
