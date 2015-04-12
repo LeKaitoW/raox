@@ -786,23 +786,24 @@ class RDOValidator extends AbstractRDOValidator
 	def checkConvertStatusSearch(DecisionPointSearch search)
 	{
 		val activities = search.activities
-		
-		for (a : activities)
-		{
-			val rule = a.pattern
-			
-			if(a.pattern instanceof Rule) {
-				for (r : rule.relevantresources) 	{
-					val status = r.rule.literal
-					
+
+		for (activity : activities) {
+			val rule = activity.pattern
+
+			if (rule instanceof Rule) {
+				for (relevantResource : rule.relevantresources) {
+					val status = relevantResource.rule.literal
+
 					if (!(status == "Keep" || status == "NoChange"))
-						error("Invalid convert status: "+status+" - only Keep and NoChange statuses could be used for resource",
-							RdoPackage.eINSTANCE.decisionPoint_Name)
+						error(
+							"Invalid convert status: " + status +
+								" - only Keep and NoChange statuses could be used for resource",
+							activity, RdoPackage.eINSTANCE.decisionPointSearchActivity_Pattern)
 				}
-			}
-			else
-				error("Invalid pattern name: "+a.pattern.name+" - only Rule pattern type allowed",
+			} else {
+				error("Invalid pattern name: " + rule.name + " - only Rule pattern type allowed",
 					RdoPackage.eINSTANCE.decisionPoint_Name)
+			}
 		}
 	}
 	
