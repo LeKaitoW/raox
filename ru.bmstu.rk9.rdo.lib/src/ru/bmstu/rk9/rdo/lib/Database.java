@@ -17,6 +17,7 @@ import ru.bmstu.rk9.rdo.lib.CollectedDataNode.DecisionPointIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceTypeIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceParameterIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex.SearchInfo;
+import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ValueType;
 import ru.bmstu.rk9.rdo.lib.json.*;
 
 public class Database {
@@ -286,10 +287,17 @@ public class Database {
 
 			JSONArray parameters = resourceTypeIndex.getStructure()
 					.getJSONArray("parameters");
-			for (int i = 0; i < parameters.length(); i++)
+			for (int paramNum = 0; paramNum < parameters.length(); paramNum++) {
+				JSONObject param = parameters.getJSONObject(paramNum);
+				ValueType paramType = ValueType.get(param.getString("type"));
+				int offset = param.getInt("offset");
 				resourceNode.addChild(
-						parameters.getJSONObject(i).getString("name"))
-						.setIndex(new ResourceParameterIndex(i));
+						parameters.getJSONObject(paramNum).getString("name"))
+						.setIndex(
+								new ResourceParameterIndex(paramNum, paramType,
+										offset));
+			}
+
 			break;
 		case SEARCH:
 			shouldSerializeToIndex = false;

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ValueType;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
 public class CollectedDataNode {
@@ -133,9 +134,22 @@ public class CollectedDataNode {
 	}
 
 	public static class ResourceParameterIndex extends Index {
-		ResourceParameterIndex(int number) {
+		ResourceParameterIndex(int number, ValueType type, int offset) {
 			super(number, IndexType.RESOURCE_PARAMETER);
+			this.type = type;
+			this.offset = offset;
 		}
+
+		public final ValueType getValueType() {
+			return type;
+		}
+
+		public final int getOffset() {
+			return offset;
+		}
+
+		private final ValueType type;
+		private final int offset;
 	}
 
 	public CollectedDataNode(String name, CollectedDataNode parent) {
