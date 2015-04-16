@@ -55,23 +55,26 @@ public class RDOSerializedObjectsView extends ViewPart {
 		serializedObjectsTreeViewer
 				.setLabelProvider(new RDOSerializedObjectsLabelProvider());
 
-		Menu popupMenu = new Menu(serializedObjectsTreeViewer.getTree());
-		MenuItem plot = new MenuItem(popupMenu, SWT.CASCADE);
+		final Menu popupMenu = new Menu(serializedObjectsTreeViewer.getTree());
+		final MenuItem plot = new MenuItem(popupMenu, SWT.CASCADE);
 		plot.setText("Plot");
 		plot.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent event) {
-				CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
+			@Override
+			public void widgetSelected(final SelectionEvent event) {
+				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
 						.getTree().getSelection()[0].getData();
-				System.out.println(node.getName());
-				AbstractIndex index = node.getIndex();
+				final AbstractIndex index = node.getIndex();
 				if (index != null
-						&& index.getType() == IndexType.RESOURCE_PARAMETER) {
+						&& index.getType() == IndexType.RESOURCE_PARAMETER
+						|| index.getType() == IndexType.RESULT) {
 					final XYSeriesCollection dataset = new XYSeriesCollection();
-					final XYSeries series = new XYSeries("Array");
+					final XYSeries series = new XYSeries(String.valueOf(node
+							.getName()));
 					dataset.addSeries(series);
-					List<PlotItem> items = PlotDataParser.parseEntries(node);
+					final List<PlotItem> items = PlotDataParser
+							.parseEntries(node);
 					for (int i = 0; i < items.size(); i++) {
-						PlotItem item = items.get(i);
+						final PlotItem item = items.get(i);
 						series.add(item.x, item.y);
 					}
 					JFreeChartPlot.plotXY(dataset);
