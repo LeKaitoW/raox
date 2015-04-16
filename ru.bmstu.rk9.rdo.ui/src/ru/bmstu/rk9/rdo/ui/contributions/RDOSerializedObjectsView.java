@@ -21,6 +21,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
@@ -58,15 +60,25 @@ public class RDOSerializedObjectsView extends ViewPart {
 		final Menu popupMenu = new Menu(serializedObjectsTreeViewer.getTree());
 		final MenuItem plot = new MenuItem(popupMenu, SWT.CASCADE);
 		plot.setText("Plot");
+		popupMenu.addListener(SWT.Show, new Listener() {
+			public void handleEvent(Event event) {
+				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
+						.getTree().getSelection()[0].getData();
+				final AbstractIndex index = node.getIndex();
+				Boolean enable = (index != null && (index.getType() == IndexType.RESOURCE_PARAMETER || index
+						.getType() == IndexType.RESULT));
+
+				plot.setEnabled(enable);
+			}
+		});
 		plot.addSelectionListener(new SelectionAdapter() {
-			@Override
 			public void widgetSelected(final SelectionEvent event) {
 				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
 						.getTree().getSelection()[0].getData();
 				final AbstractIndex index = node.getIndex();
 				if (index != null
-						&& index.getType() == IndexType.RESOURCE_PARAMETER
-						|| index.getType() == IndexType.RESULT) {
+						&& (index.getType() == IndexType.RESOURCE_PARAMETER || index
+								.getType() == IndexType.RESULT)) {
 					final XYSeriesCollection dataset = new XYSeriesCollection();
 					final XYSeries series = new XYSeries(String.valueOf(node
 							.getName()));
