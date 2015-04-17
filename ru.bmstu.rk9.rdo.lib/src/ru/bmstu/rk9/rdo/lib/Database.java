@@ -86,8 +86,9 @@ public class Database {
 		JSONArray results = modelStructure.getJSONArray("results");
 		for (int i = 0; i < results.length(); i++) {
 			JSONObject result = results.getJSONObject(i);
+			ResultType type = ResultType.get(result.getString("type"));
 			indexHelper.addResult(result.getString("name")).setIndex(
-					new ResultIndex(i));
+					new ResultIndex(i, type));
 		}
 
 		JSONArray patterns = modelStructure.getJSONArray("patterns");
@@ -495,6 +496,30 @@ public class Database {
 	// -------------------------- RESULT ENTRIES --------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
+	public static enum ResultType {
+		GET_VALUE("get_value"), WATCH_PAR("watch_par"), WATCH_QUANT(
+				"watch_quant"), WATCH_STATE("watch_state"), WATCH_VALUE(
+				"watch_value");
+
+		ResultType(String type) {
+			this.type = type;
+		}
+
+		static final ResultType get(final String type) {
+			for (ResultType t : values()) {
+				if (t.type.equals(type))
+					return t;
+			}
+			return null;
+		}
+
+		public String getString() {
+			return type;
+		}
+
+		final private String type;
+	}
+
 	public void addResultEntry(Result result) {
 		String name = result.getName();
 		if (!sensitivityList.contains(name))
@@ -504,8 +529,8 @@ public class Database {
 
 		ByteBuffer data = result.serialize();
 		if (!index.isEmpty()) {
-			ByteBuffer lastResultValue = allEntries.get(index.getEntryNumbers().get(
-					index.getEntryNumbers().size() - 1)).data.duplicate();
+			ByteBuffer lastResultValue = allEntries.get(index.getEntryNumbers()
+					.get(index.getEntryNumbers().size() - 1)).data.duplicate();
 			ByteBuffer currentResultValue = data.duplicate();
 			currentResultValue.rewind();
 			lastResultValue.rewind();

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import ru.bmstu.rk9.rdo.lib.Database.ResultType;
 import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ValueType;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
@@ -122,9 +123,16 @@ public class CollectedDataNode {
 	}
 
 	public static class ResultIndex extends Index {
-		ResultIndex(int number) {
+		ResultIndex(int number, ResultType type) {
 			super(number, IndexType.RESULT);
+			this.type = type;
 		}
+
+		public final ResultType getResultType() {
+			return type;
+		}
+
+		private final ResultType type;
 	}
 
 	public static class DecisionPointIndex extends Index {
