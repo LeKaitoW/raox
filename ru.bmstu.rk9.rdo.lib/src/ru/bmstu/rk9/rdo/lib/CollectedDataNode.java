@@ -96,6 +96,44 @@ public class CollectedDataNode {
 		private final JSONObject structure;
 	}
 
+	public static class ResultIndex extends Index {
+		ResultIndex(int number, ResultType type) {
+			super(number, IndexType.RESULT);
+			this.type = type;
+		}
+
+		public final ResultType getResultType() {
+			return type;
+		}
+
+		private final ResultType type;
+	}
+
+	public static class DecisionPointIndex extends Index {
+		DecisionPointIndex(int number) {
+			super(number, IndexType.DECISION_POINT);
+		}
+	}
+
+	public static class ResourceParameterIndex extends Index {
+		ResourceParameterIndex(int number, ValueType type, int offset) {
+			super(number, IndexType.RESOURCE_PARAMETER);
+			this.type = type;
+			this.offset = offset;
+		}
+
+		public final ValueType getValueType() {
+			return type;
+		}
+
+		public final int getOffset() {
+			return offset;
+		}
+
+		private final ValueType type;
+		private final int offset;
+	}
+
 	public CollectedDataNode(String name, CollectedDataNode parent) {
 		this.name = name;
 		this.parent = parent;
