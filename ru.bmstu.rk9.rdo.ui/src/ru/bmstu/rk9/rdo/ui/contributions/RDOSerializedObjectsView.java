@@ -35,6 +35,8 @@ import ru.bmstu.rk9.rdo.lib.CollectedDataNode;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.IndexType;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
+import ru.bmstu.rk9.rdo.lib.Database.ResultType;
 import ru.bmstu.rk9.rdo.lib.PlotDataParser;
 import ru.bmstu.rk9.rdo.lib.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rdo.lib.Simulator;
@@ -60,37 +62,48 @@ public class RDOSerializedObjectsView extends ViewPart {
 		final Menu popupMenu = new Menu(serializedObjectsTreeViewer.getTree());
 		final MenuItem plot = new MenuItem(popupMenu, SWT.CASCADE);
 		plot.setText("Plot");
+
 		popupMenu.addListener(SWT.Show, new Listener() {
 			public void handleEvent(Event event) {
 				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
 						.getTree().getSelection()[0].getData();
 				final AbstractIndex index = node.getIndex();
-				Boolean enable = (index != null && (index.getType() == IndexType.RESOURCE_PARAMETER || index
-						.getType() == IndexType.RESULT));
-
-				plot.setEnabled(enable);
+				Boolean enabled = false;
+				if (index != null) {
+					switch (index.getType()) {
+					case RESOURCE_PARAMETER:
+						enabled = true;
+						break;
+					case RESULT:
+						final ResultIndex resultIndex = (ResultIndex) index;
+						final ResultType resultType = resultIndex
+								.getResultType();
+						if (resultType != ResultType.GET_VALUE) {
+							enabled = true;
+						}
+						break;
+					default:
+						break;
+					}
+				}
+				plot.setEnabled(enabled);
 			}
 		});
+
 		plot.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(final SelectionEvent event) {
 				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
 						.getTree().getSelection()[0].getData();
-				final AbstractIndex index = node.getIndex();
-				if (index != null
-						&& (index.getType() == IndexType.RESOURCE_PARAMETER || index
-								.getType() == IndexType.RESULT)) {
-					final XYSeriesCollection dataset = new XYSeriesCollection();
-					final XYSeries series = new XYSeries(String.valueOf(node
-							.getName()));
-					dataset.addSeries(series);
-					final List<PlotItem> items = PlotDataParser
-							.parseEntries(node);
-					for (int i = 0; i < items.size(); i++) {
-						final PlotItem item = items.get(i);
-						series.add(item.x, item.y);
-					}
-					JFreeChartPlot.plotXY(dataset);
+				final XYSeriesCollection dataset = new XYSeriesCollection();
+				final XYSeries series = new XYSeries(String.valueOf(node
+						.getName()));
+				dataset.addSeries(series);
+				final List<PlotItem> items = PlotDataParser.parseEntries(node);
+				for (int i = 0; i < items.size(); i++) {
+					final PlotItem item = items.get(i);
+					series.add(item.x, item.y);
 				}
+				JFreeChartPlot.plotXY(dataset);
 			}
 		});
 		serializedObjectsTreeViewer.getTree().setMenu(popupMenu);
