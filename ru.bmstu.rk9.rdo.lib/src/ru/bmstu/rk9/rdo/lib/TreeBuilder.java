@@ -19,9 +19,10 @@ public class TreeBuilder implements Subscriber {
 	@Override
 	public void fireChange() {
 		final Database.Entry entry = Simulator.getDatabase().getAllEntries().get(entryNumber);
-		parseEntry(entry);
+		boolean isSearchEntry = parseEntry(entry);
 		entryNumber++;
-		notifyGUIPart();
+		if (isSearchEntry)
+			notifyGUIPart();
 	}
 	
 	private Subscriber GUISubscriber = null;
@@ -66,15 +67,17 @@ public class TreeBuilder implements Subscriber {
 	public HashMap<Integer, ArrayList<Node>> listMap = new HashMap<Integer, ArrayList<Node>>();
 	
 	public final void buildTree() {
+		System.out.println("started building tree");
 		final List<Database.Entry> entries = Simulator.getDatabase().getAllEntries();
 
 		int size = entries.size();
 		while (entryNumber < size) {
 			parseEntry(entries.get(entryNumber++));
 		}
+		System.out.println("finished building tree");
 	}
 
-	private void parseEntry(Entry entry) {
+	private boolean parseEntry(Entry entry) {
 		final EntryType type = EntryType.values()[entry.header.get(
 				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 		switch (type) {
@@ -92,6 +95,7 @@ public class TreeBuilder implements Subscriber {
 				Node treeNode = new Node();
 				solutionMap.put(dptNumber, new ArrayList<Node>());
 				listMap.put(dptNumber, new ArrayList<Node>());
+				dptSimulationInfoMap.put(dptNumber, new DPTSimulationInfo());
 				treeNode.parent = null;
 				treeNode.index = 0;
 				treeNode.label = Integer.toString(treeNode.index);
@@ -102,40 +106,28 @@ public class TreeBuilder implements Subscriber {
 				} finally {
 					rwLock.writeLock().unlock();
 				}
-				//System.out.println("treeB last node index = " + treeNode.index);
-				//System.out.println("treeB last node parent index = null(root)");
 				break;
 			}
 			case END: {
 				final ByteBuffer data = Tracer.prepareBufferForReading(entry.data);
-				final DecisionPointSearch.StopCode endStatus = DecisionPointSearch.StopCode.values()[data.get()];
 				infoMap.put(dptNumber, new GraphInfo());
-				Tracer.skipPart(data, TypeSize.LONG * 2);
-				//TODO delete switch?
-				switch (endStatus) {
-				case SUCCESS: {
-					final double finalCost = data.getDouble();
-					final int totalOpened = data.getInt();
-					final int totalNodes = data.getInt();
+				Tracer.skipPart(data, TypeSize.BYTE + TypeSize.LONG * 2);
+
+				final double finalCost = data.getDouble();
+				final int totalOpened = data.getInt();
+				final int totalNodes = data.getInt();
+
+				rwLock.writeLock().lock();
+				try {
 					infoMap.get(dptNumber).solutionCost = finalCost;
 					infoMap.get(dptNumber).numOpened = totalOpened;
 					infoMap.get(dptNumber).numNodes = totalNodes;
-					break;
+					dptSimulationInfoMap.get(dptNumber).isFinished = true;
+				} finally {
+					rwLock.writeLock().unlock();
 				}
-				case FAIL: {
-					final double finalCost = data.getDouble();
-					final int totalOpened = data.getInt();
-					final int totalNodes = data.getInt();
-					infoMap.get(dptNumber).solutionCost = finalCost;
-					infoMap.get(dptNumber).numOpened = totalOpened;
-					infoMap.get(dptNumber).numNodes = totalNodes;
-					break;
-				}
-				default:
-					break;
-				}
-			}
 				break;
+			}
 			case OPEN:
 				break;
 			case SPAWN: {
@@ -189,8 +181,6 @@ public class TreeBuilder implements Subscriber {
 					} finally {
 						rwLock.writeLock().unlock();
 					}
-					//System.out.println("treeB last node index = " + treeNode.index);
-					//System.out.println("treeB last node parent index = " + treeNode.parent.index);
 					break;
 				case WORSE:
 					break;
@@ -207,9 +197,9 @@ public class TreeBuilder implements Subscriber {
 				break;
 			}
 			}
-			break;
+			return true;
 		default:
-			break;
+			return false;
 		}
 	}
 
@@ -223,15 +213,20 @@ public class TreeBuilder implements Subscriber {
 
 	public HashMap<Integer, GraphInfo> infoMap = new HashMap<Integer, GraphInfo>();
 
-	
+	public class DPTSimulationInfo {
+		public boolean isFinished = false;
+	}
+
+	public HashMap<Integer, DPTSimulationInfo> dptSimulationInfoMap = new HashMap<Integer, DPTSimulationInfo>();
+
 	private int entryNumber = 0;
-	
+
 	private HashMap<Integer, Integer> lastAddedNodeIndexMap = new HashMap<Integer, Integer>();
-	
+
 	public HashMap<Integer, Integer> getLastAddedNodeIndexMap() {
 		return lastAddedNodeIndexMap;
 	}
-	
+
 	public int getEntryNumber() {
 		return entryNumber;
 	}

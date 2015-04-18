@@ -60,13 +60,19 @@ public class GraphFrame extends JFrame {
 	final String solutionColor = "fillColor=32CD32;";
 	final String strokeColor = "strokeColor=000000;";
 	final String fontColor = "fontColor=000000;";
-
+	
 	public void colorNodes(Map<Node, mxCell> vertexMap, ArrayList<Node> nodeList, ArrayList<Node> solution) {
+		System.out.println("solution is empty? " + solution.isEmpty());
 		if (!solution.isEmpty()) {
 			Node rootNode = nodeList.get(0);
 			vertexMap.get(rootNode).setStyle(solutionColor + fontColor + strokeColor);
 			for (int i = 0; i < solution.size(); i++) {
+				String style = vertexMap.get(solution.get(i)).getStyle();
+				System.out.println("style before = " + style);
 				vertexMap.get(solution.get(i)).setStyle(solutionColor + fontColor + strokeColor);
+				System.out.println("style after 1 = " + style);
+				style = vertexMap.get(solution.get(i)).getStyle();
+				System.out.println("style after 2 = " + style);
 			}
 		}
 	}
@@ -81,8 +87,6 @@ public class GraphFrame extends JFrame {
 				Node node = nodeList.get(i);
 				System.out.println("drawV lastAddedVertexIndex before = " + lastAddedVertexIndex + " " + "dpt = " + dptNum);
 				if (!vertexMap.containsKey(node)) {
-					//System.out.println("drawNV node index = " + node.index);
-					//System.out.println("drawNV node parent index = " + node.parent.index);
 					mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, node, 385, 100, 30, 30,
 							fontColor + strokeColor);
 					vertexMap.put(node, vertex);
@@ -99,7 +103,6 @@ public class GraphFrame extends JFrame {
 	}
 
 	public mxCell insertInfo(mxGraph graph, GraphInfo info) {
-
 		final String solutionCost = "Стоимость решения: " + Double.toString(info.solutionCost) + "\n";
 		final String numOpened = "Количество раскрытых вершин: " + Integer.toString(info.numOpened) + "\n";
 		final String numNodes = "Количество вершин в графе: " + Integer.toString(info.numNodes);
@@ -149,25 +152,41 @@ public class GraphFrame extends JFrame {
 				width, height);
 	}
 	
-	private TimerTask graphFrameTimerTask;
+	private TimerTask graphFrameUpdateTimerTask;
 	
-	public TimerTask getGraphFrameTimerTask() {
-		return graphFrameTimerTask;
+	public TimerTask getGraphFrameUpdateTimerTask() {
+		return graphFrameUpdateTimerTask;
 	}
+	
+	private TimerTask graphFrameFinTimerTask;
+	
+	public TimerTask getGraphFrameFinTimerTask() {
+		return graphFrameFinTimerTask;
+	}
+	
+	boolean isFinished = false;
 
 	public GraphFrame(int dptNum) {
 
 		ArrayList<Node> nodeList = Simulator.getTreeBuilder().listMap.get(dptNum);
-		GraphInfo info = Simulator.getTreeBuilder().infoMap.get(dptNum);
-		ArrayList<Node> solution = Simulator.getTreeBuilder().solutionMap.get(dptNum);
 		
 		final mxGraph graph = new mxGraph();
 
 		graph.getModel().beginUpdate();
 		try {
 			drawGraph(graph, nodeList, nodeList.get(0));
-			// TODO temporarily commented
-			if (!Simulator.isRunning()) {
+			
+			boolean isFinished;
+			
+			Simulator.getTreeBuilder().rwLock.readLock().lock();
+			try {
+				isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap.get(dptNum).isFinished;
+			} finally {
+				Simulator.getTreeBuilder().rwLock.readLock().unlock();
+			}
+			if (isFinished) {
+				GraphInfo info = Simulator.getTreeBuilder().infoMap.get(dptNum);
+				ArrayList<Node> solution = Simulator.getTreeBuilder().solutionMap.get(dptNum);
 				colorNodes(vertexMap, nodeList, solution);
 				insertInfo(graph, info);
 			}
@@ -188,28 +207,55 @@ public class GraphFrame extends JFrame {
 
 		layout.execute(graph.getDefaultParent());
 
-		graphFrameTimerTask = new TimerTask() {
+		graphFrameUpdateTimerTask = new TimerTask() {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				if (haveNewRealTimeData) {
-					haveNewRealTimeData = false;
+				if (!haveNewRealTimeData)
+					return;
+				haveNewRealTimeData = false;
+				graph.getModel().beginUpdate();
+				try {
+					drawNewVertex(graph, nodeList, dptNum);
+					layout.execute(graph.getDefaultParent());
+				} finally {
+					graph.getModel().endUpdate();
+				}
+				boolean isFinished;
+				
+				Simulator.getTreeBuilder().rwLock.readLock().lock();
+				try {
+					isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap.get(dptNum).isFinished;
+				} finally {
+					Simulator.getTreeBuilder().rwLock.readLock().unlock();
+				}
+				
+				if (isFinished)
+					this.cancel();
+			}
+		};
+		
+		graphFrameFinTimerTask = new TimerTask() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				Simulator.getTreeBuilder().rwLock.readLock().lock();
+				try {
+					isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap.get(dptNum).isFinished;
+				} finally {
+					Simulator.getTreeBuilder().rwLock.readLock().unlock();
+				}
+				if (isFinished) {
 					graph.getModel().beginUpdate();
 					try {
-						drawNewVertex(graph, nodeList, dptNum);
-						layout.execute(graph.getDefaultParent());
+						GraphInfo info = Simulator.getTreeBuilder().infoMap.get(dptNum);
+						ArrayList<Node> solution = Simulator.getTreeBuilder().solutionMap.get(dptNum);
+						colorNodes(vertexMap, nodeList, solution);
+						insertInfo(graph, info);
 					} finally {
 						graph.getModel().endUpdate();
 					}
-					if (!Simulator.isRunning()) {
-						graph.getModel().beginUpdate();
-						try {
-							colorNodes(vertexMap, nodeList, solution);
-							insertInfo(graph, info);
-						} finally {
-							graph.getModel().endUpdate();
-						}
-					}
+					this.cancel();
 				}
 			}
 		};

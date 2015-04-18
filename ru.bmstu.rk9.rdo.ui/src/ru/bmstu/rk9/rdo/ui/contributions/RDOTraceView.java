@@ -130,9 +130,13 @@ public class RDOTraceView extends ViewPart
 			graphFrame.setLocationRelativeTo(null);
 			graphFrame.setVisible(true);
 			
-			TimerTask graphUpdateTask = graphFrame.getGraphFrameTimerTask();
+			TimerTask graphUpdateTask = graphFrame.getGraphFrameUpdateTimerTask();
 			Timer graphUpdateTimer = new Timer();
 			graphUpdateTimer.scheduleAtFixedRate(graphUpdateTask, 0, 10);
+			
+			TimerTask graphFinTask = graphFrame.getGraphFrameFinTimerTask();
+			Timer graphFinTimer = new Timer();
+			graphFinTimer.scheduleAtFixedRate(graphFinTask, 0, 10);
 			
 			graphFrame.addWindowListener(new WindowListener() {
 				
