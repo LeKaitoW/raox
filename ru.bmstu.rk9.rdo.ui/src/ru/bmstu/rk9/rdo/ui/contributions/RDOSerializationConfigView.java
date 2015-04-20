@@ -55,7 +55,7 @@ import ru.bmstu.rk9.rdo.rdo.ResultDeclaration;
 import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource;
 
 public class RDOSerializationConfigView extends ViewPart {
-	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOSerializeConfigView";
+	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOSerializationConfigView";
 
 	private static CheckboxTreeViewer serializationTreeViewer;
 

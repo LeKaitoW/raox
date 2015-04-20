@@ -69,7 +69,6 @@ public class PlotDataParser {
 				item = new PlotItem(time, data.get() != 0 ? 1 : 0);
 				break;
 			default:
-				System.out.println(resultNum);
 				return null;
 			}
 			dataset.add(item);

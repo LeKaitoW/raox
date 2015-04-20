@@ -8,6 +8,7 @@ import org.eclipse.ui.console.IConsoleConstants;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializedObjectsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
 
@@ -26,13 +27,17 @@ public class RDOPerspective implements IPerspectiveFactory {
 	}
 
 	private void addAssociatedViews() {
-		IFolderLayout topLeft = factory.createFolder("topLeft", // NON-NLS-1
+		IFolderLayout middleLeft = factory.createFolder("middleLeft",
 				IPageLayout.LEFT, 0.2f, factory.getEditorArea());
+		middleLeft.addView(RDOSerializedObjectsView.ID);
+
+		IFolderLayout topLeft = factory.createFolder("topLeft", // NON-NLS-1
+				IPageLayout.TOP, 0.6f, "middleLeft");
 		topLeft.addView(IPageLayout.ID_PROJECT_EXPLORER);
 
 		IFolderLayout bottomLeft = factory.createFolder("bottomLeft", // NON-NLS-1
-				IPageLayout.BOTTOM, 0.5f, "topLeft"); // NON-NLS-1
-		bottomLeft.addView(IPageLayout.ID_OUTLINE);
+				IPageLayout.BOTTOM, 0.6f, "topLeft"); // NON-NLS-1
+		// bottomLeft.addView(IPageLayout.ID_OUTLINE);
 		bottomLeft.addView(RDOSerializationConfigView.ID);
 
 		IFolderLayout bottom = factory.createFolder("bottom", // NON-NLS-1
@@ -45,6 +50,8 @@ public class RDOPerspective implements IPerspectiveFactory {
 
 		IFolderLayout bottomRight = factory.createFolder("bottomRight", // NON-NLS-1
 				IPageLayout.RIGHT, 0.75f, "bottom"); // NON-NLS-1
+
 		bottomRight.addView(RDOStatusView.ID);
+
 	}
 }

@@ -26,6 +26,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.jfree.data.xy.XYSeries;
@@ -41,11 +43,12 @@ import ru.bmstu.rk9.rdo.lib.PlotDataParser;
 import ru.bmstu.rk9.rdo.lib.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
-import ru.bmstu.rk9.rdo.ui.runtime.JFreeChartPlot;
 
 public class RDOSerializedObjectsView extends ViewPart {
 
 	static TreeViewer serializedObjectsTreeViewer;
+	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOSerializedObjectsView";
+	public static int secondaryID;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -92,18 +95,37 @@ public class RDOSerializedObjectsView extends ViewPart {
 
 		plot.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(final SelectionEvent event) {
-				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
-						.getTree().getSelection()[0].getData();
-				final XYSeriesCollection dataset = new XYSeriesCollection();
-				final XYSeries series = new XYSeries(String.valueOf(node
-						.getName()));
-				dataset.addSeries(series);
-				final List<PlotItem> items = PlotDataParser.parseEntries(node);
-				for (int i = 0; i < items.size(); i++) {
-					final PlotItem item = items.get(i);
-					series.add(item.x, item.y);
+				try {
+					final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
+							.getTree().getSelection()[0].getData();
+					final XYSeriesCollection dataset = new XYSeriesCollection();
+
+					final XYSeries series = new XYSeries(String.valueOf(node
+							.getName()));
+					dataset.addSeries(series);
+					final List<PlotItem> items = PlotDataParser
+							.parseEntries(node);
+					for (int i = 0; i < items.size(); i++) {
+						final PlotItem item = items.get(i);
+						series.add(item.x, item.y);
+					}
+
+					RDOPlotView.setName(String.valueOf(dataset.getSeriesKey(0)));
+					PlatformUI
+							.getWorkbench()
+							.getActiveWorkbenchWindow()
+							.getActivePage()
+							.showView("ru.bmstu.rk9.rdo.ui.RDOPlotView",
+									String.valueOf(secondaryID),
+									IWorkbenchPage.VIEW_ACTIVATE);
+					secondaryID++;
+
+					RDOPlotView.plotXY(dataset);
+				} catch (PartInitException e) {
+					System.out.println("Code exception caught");
+					e.printStackTrace();
 				}
-				JFreeChartPlot.plotXY(dataset);
+
 			}
 		});
 		serializedObjectsTreeViewer.getTree().setMenu(popupMenu);

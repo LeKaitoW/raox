@@ -1019,6 +1019,14 @@
            name="Collected Objects"
            restorable="true">
      </view>
+     <view
+           category="ru.bmstu.rk9.rdo.ui.views"
+           class="ru.bmstu.rk9.rdo.ui.contributions.RDOPlotView"
+           id="ru.bmstu.rk9.rdo.ui.RDOPlotView"
+           name="RDO Plot"
+           restorable="true"
+           allowMultiple = "true">
+     </view>
   </extension>
 
 </plugin>
