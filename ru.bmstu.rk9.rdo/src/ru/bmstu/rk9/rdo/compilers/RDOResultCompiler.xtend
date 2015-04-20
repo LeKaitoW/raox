@@ -9,7 +9,6 @@ import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import ru.bmstu.rk9.rdo.generator.LocalContext
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
 
 import ru.bmstu.rk9.rdo.rdo.Result
 
@@ -22,6 +21,7 @@ import ru.bmstu.rk9.rdo.rdo.ResultWatchState
 import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
 
 import ru.bmstu.rk9.rdo.generator.RDOExpression
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnumNew
 
 class RDOResultCompiler
 {
@@ -482,7 +482,7 @@ class RDOResultCompiler
 								== expr.type.substring(0, expr.type.lastIndexOf('.'))] as ResourceType)
 									.parameters.findFirst[p | p.name == expr.type.substring(
 										expr.type.lastIndexOf('.') + 1, expr.type.length - 5)]
-											.type as RDORTPParameterEnum).type.enums»
+											.type as RDORTPParameterEnumNew).type.getId.values»
 							.put("«e.name»")
 						«ENDFOR»
 				);

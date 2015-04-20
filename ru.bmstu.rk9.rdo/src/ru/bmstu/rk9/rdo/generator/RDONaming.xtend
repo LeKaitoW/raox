@@ -10,10 +10,8 @@ import ru.bmstu.rk9.rdo.rdo.RDOModel
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
 
@@ -46,11 +44,10 @@ import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.RDOReal
 import ru.bmstu.rk9.rdo.rdo.RDOBoolean
 import ru.bmstu.rk9.rdo.rdo.RDOString
-import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDOArray
-import ru.bmstu.rk9.rdo.rdo.RDOOwnType
-
+import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
+import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDONaming
 {
@@ -187,6 +184,9 @@ class RDONaming
 			Result:
 				return object.eContainer.nameGeneric + "." + object.name
 
+			EnumDeclaration:
+				return object.eContainer.nameGeneric + "." + object.name
+
 			default:
 				return "ERROR"
 		}
@@ -220,7 +220,6 @@ class RDONaming
 		{
 			RDORTPParameterBasic : getTypeGenericLabel(type.type)
 			RDORTPParameterString: getTypeGenericLabel(type.type)
-			RDORTPParameterEnum  : getTypeGenericLabel(type.type)
 			RDORTPParameterSuchAs: getTypeGenericLabel(type.type)
 			RDORTPParameterArray : getTypeGenericLabel(type.type)
 
@@ -228,7 +227,6 @@ class RDONaming
 			RDOReal   : " : " + type.type
 			RDOBoolean: " : " + type.type
 			RDOString : " : " + type.type
-			RDOEnum   : " : enumerative"
 			RDOSuchAs : " : such_as " + switch type.eContainer
 			{
 				RDORTPParameterSuchAs:
@@ -237,37 +235,9 @@ class RDONaming
 			}
 
 			RDOArray  : " : array" + getTypeGenericLabel(type.arraytype)
-			RDOOwnType: " : " + type.id.nameGeneric
+			RDOEnum: " : " + type.getId
 
 			default: ""
 		}
 	}
-
-	def static String getEnumParentName(RDOEnum enm, boolean isFQN)
-	{
-		var container = enm.eContainer
-
-		while(container instanceof RDOArray)
-		{
-			container = container.eContainer
-		}
-
-		var doubleclass = true
-		if(container instanceof RDORTPParameterType)
-		{
-			doubleclass = false
-			container = container.eContainer
-		}
-
-		if(container instanceof FunctionParameter)
-		{
-			doubleclass = false
-		}
-
-		if(isFQN)
-			return container.fullyQualifiedName + (if(doubleclass) ("." + container.nameGeneric) else "")
-		else
-			return container.nameGeneric
-	}
-
 }

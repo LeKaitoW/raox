@@ -49,6 +49,8 @@ import ru.bmstu.rk9.rdo.rdo.Frame
 import ru.bmstu.rk9.rdo.rdo.Result
 import ru.bmstu.rk9.rdo.rdo.OnInit
 import ru.bmstu.rk9.rdo.rdo.TerminateCondition
+import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
+import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
 
 class RDOGenerator implements IMultipleResourceGenerator
 {
@@ -78,6 +80,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 			if(resource.contents.head != null)
 			{
 				val filename = (resource.contents.head as RDOModel).filenameFromURI
+
+				for(e : resource.allContents.toIterable.filter(typeof(EnumDeclaration)))
+					fsa.generateFile(filename + "/" + e.name + ".java", e.compileEnum(filename))
 
 				for(e : resource.allContents.toIterable.filter(typeof(ResourceType)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileResourceType(filename,

@@ -1,19 +1,16 @@
 package ru.bmstu.rk9.rdo.generator;
 
 import java.util.LinkedList;
-
 import java.util.HashMap;
 
+import ru.bmstu.rk9.rdo.rdo.RDOEnum;
 import ru.bmstu.rk9.rdo.rdo.ResourceType;
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter;
-
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration;
-
 import ru.bmstu.rk9.rdo.rdo.Function;
 import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic;
 import ru.bmstu.rk9.rdo.rdo.FunctionList;
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter;
-
 import ru.bmstu.rk9.rdo.rdo.PatternParameter;
 import ru.bmstu.rk9.rdo.rdo.Event;
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource;
@@ -21,11 +18,9 @@ import ru.bmstu.rk9.rdo.rdo.Operation;
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource;
 import ru.bmstu.rk9.rdo.rdo.Rule;
 import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource;
-
 import ru.bmstu.rk9.rdo.rdo.GroupBy;
-
-import ru.bmstu.rk9.rdo.rdo.RDOEnum;
 import ru.bmstu.rk9.rdo.rdo.EnumID;
+import ru.bmstu.rk9.rdo.generator.LocalContext;
 
 public class LocalContext {
 	public static class ContextEntry {
@@ -61,7 +56,7 @@ public class LocalContext {
 	}
 
 	public LocalContext populateWithEnums(RDOEnum enm) {
-		for (EnumID id : enm.getEnums())
+		for (EnumID id : enm.getId().getValues())
 			this.addRawEntry(id.getName(),
 					RDOExpressionCompiler.compileType(enm),
 					RDOExpressionCompiler.compileType(enm) + "." + id.getName());

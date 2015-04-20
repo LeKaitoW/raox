@@ -16,7 +16,6 @@ import ru.bmstu.rk9.rdo.rdo.HistogramSequence
 import ru.bmstu.rk9.rdo.rdo.RDOType
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
-
 class RDOSequenceCompiler
 {
 	def public static compileSequence(Sequence seq, String filename)
@@ -90,7 +89,6 @@ class RDOSequenceCompiler
 				public static «seq.returntype.compileTypePrimitive» getNext()
 				{
 					double x = histogram.calculateValue(prng.nextDouble());
-
 					return «IF seq.returntype.compileType.endsWith("_enum")»enums[ (int)x ]«ELSE»(«seq.returntype.compileTypePrimitive»)x«ENDIF»;
 				}
 			«ENDIF»
@@ -151,7 +149,7 @@ class RDOSequenceCompiler
 		var ret = ""
 		var flag = false
 
-		val context = (new LocalContext).populateWithEnums((seq.eContainer as Sequence).returntype.resolveAllSuchAs as RDOEnum)
+		val context = (new LocalContext).populateWithEnums((seq.eContainer as Sequence).returntype as RDOEnum)
 
 		for(i : 0 ..< seq.values.size/2)
 		{

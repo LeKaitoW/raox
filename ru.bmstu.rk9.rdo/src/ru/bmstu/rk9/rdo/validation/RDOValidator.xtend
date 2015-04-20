@@ -62,10 +62,10 @@ import ru.bmstu.rk9.rdo.rdo.Frame
 import ru.bmstu.rk9.rdo.rdo.Result
 
 import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
-import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.OnInit
 import ru.bmstu.rk9.rdo.rdo.TerminateCondition
+import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class SuchAsHistory
 {

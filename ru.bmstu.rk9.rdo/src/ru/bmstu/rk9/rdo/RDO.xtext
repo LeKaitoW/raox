@@ -43,9 +43,9 @@ ResourceTypeParameter:
 RDORTPParameterType
 	: RDORTPParameterBasic
 	| RDORTPParameterString
-	| RDORTPParameterEnum
 	| RDORTPParameterSuchAs
 	| RDORTPParameterArray
+	| RDORTPParameterEnumNew
 ;
 
 RDORTPParameterBasic:
@@ -56,16 +56,16 @@ RDORTPParameterString:
 	type = RDOString  ('=' default = STRING)?
 ;
 
-RDORTPParameterEnum:
-	type = RDOEnum ('=' default = [EnumID])?
-;
-
 RDORTPParameterSuchAs:
 	type = RDOSuchAs ('=' default = ExpressionOr)?
 ;
 
 RDORTPParameterArray:
 	type = RDOArray ('=' default = ArrayValues)?
+;
+
+RDORTPParameterEnumNew:
+	type = RDOEnum ('=' default = [EnumID])?
 ;
 
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -552,7 +552,7 @@ TerminateCondition:
 //                        Enum Declarations
 // ==========================================================
 EnumDeclaration:
-	'enum' typeName = ID '{' values += ID (',' values += ID)* '}'
+	'enum' name = ID '{' values += EnumID (',' values += EnumID)* '}'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -597,10 +597,9 @@ RDOType
 	| RDOReal
 	| RDOBoolean
 	| RDOString
-	| RDOEnum
 	| RDOSuchAs	
 	| RDOArray
-	| RDOOwnType
+	| RDOEnum
 ;
 
 RDOInteger:
@@ -629,7 +628,7 @@ RangeValue
 ;
 
 RDOEnum:
-	'(' enums += EnumID (',' enums += EnumID)* ')'
+	id = [EnumDeclaration|FQN]
 ;
 
 EnumID:
@@ -644,9 +643,6 @@ RDOArray:
 	'array' '<' arraytype = RDOType '>'
 ;
 
-RDOOwnType:
-	id = [ResourceType|FQN]
-;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 

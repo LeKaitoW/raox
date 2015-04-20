@@ -7,15 +7,10 @@ import org.eclipse.emf.ecore.EObject
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
-import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
-
-import ru.bmstu.rk9.rdo.generator.LocalContext
-
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
@@ -25,10 +20,11 @@ import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.RDOReal
 import ru.bmstu.rk9.rdo.rdo.RDOBoolean
-import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.RDOString
 import ru.bmstu.rk9.rdo.rdo.RDOArray
 import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnumNew
+import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOResourceTypeCompiler
 {
@@ -155,14 +151,6 @@ class RDOResourceTypeCompiler
 				managerCurrent = manager;
 			}
 
-			«IF rtp.eAllContents.filter(typeof(RDOEnum)).toList.size > 0»// ENUMS«ENDIF»
-			«FOR e : rtp.eAllContents.toIterable.filter(typeof(RDOEnum))»
-				public enum «e.getEnumParentName(false)»_enum
-				{
-					«e.makeEnumBody»
-				}
-
-			«ENDFOR»
 			«FOR parameter : rtp.parameters»
 				private volatile «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
 
@@ -303,21 +291,6 @@ class RDOResourceTypeCompiler
 				ctype = "enum"
 				offset = offset + basicSizes.ENUM
 				isenum = true
-				if(type.substring(0, type.length - 5) == p.fullyQualifiedName)
-				{
-					enums =
-						'''
-						.put
-						(
-							"enums", new JSONArray()
-						'''
-					for(e : (p.resolveAllSuchAs as RDOEnum).enums)
-						enums = enums + "\t\t.put(\"" + e.name + "\")\n"
-					enums = enums +
-						'''
-						)
-						'''
-				}
 				enums = enums +
 					'''
 					.put("enum_origin", "«type.substring(0, type.length - 5)»")
@@ -330,21 +303,6 @@ class RDOResourceTypeCompiler
 				if(ctype.endsWith("_enum"))
 				{
 					isenum = true
-					if(ctype.substring(0, ctype.length - 5) == p.fullyQualifiedName)
-					{
-						enums =
-							'''
-							.put
-							(
-								"enums", new JSONArray()
-							'''
-						for(e : (p.resolveAllArrays as RDOEnum).enums)
-							enums = enums + "\t\t.put(\"" + e.name + "\")\n"
-						enums = enums +
-							'''
-							)
-							'''
-					}
 					enums = enums +
 						'''
 						.put("enum_origin", "«ctype.substring(0, ctype.length - 5)»")
@@ -635,10 +593,10 @@ class RDOResourceTypeCompiler
 	{
 		switch(type)
 		{
-			RDOInteger: return "integer"
-			RDOReal   : return "real"
-			RDOBoolean: return "boolean"
-			RDOEnum   : return type.compileType
+			RDOInteger : return "integer"
+			RDOReal : return "real"
+			RDOBoolean : return "boolean"
+			RDOEnum : return type.compileType
 			RDOString : return "string"
 			RDOSuchAs : return type.resolveAllSuchAs.getTypename
 			default: return null
@@ -652,15 +610,11 @@ class RDOResourceTypeCompiler
 			RDORTPParameterBasic:
 				return if(parameter.^default != null) " = " + parameter.^default.compileExpression.value else ""
 
-			RDORTPParameterEnum:
+			RDORTPParameterEnumNew:
 				return if(parameter.^default != null) " = " + parameter.type.compileType + "." + parameter.^default.name else ""
 
 			RDORTPParameterSuchAs:
-				if(parameter.type.compileType.endsWith("_enum"))
-					return if(parameter.^default != null) " = " + parameter.^default.compileExpressionContext((new LocalContext).
-						populateWithEnums(parameter.type.resolveAllSuchAs as RDOEnum)).value else ""
-				else
-					return if(parameter.^default != null) " = " + parameter.^default.compileExpression.value else ""
+				return if(parameter.^default != null) " = " + parameter.^default.compileExpression.value else ""
 
 			RDORTPParameterString:
 				return if(parameter.^default != null) ' = "' + parameter.^default + '"' else ""

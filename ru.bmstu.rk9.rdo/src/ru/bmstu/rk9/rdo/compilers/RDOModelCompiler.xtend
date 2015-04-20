@@ -20,7 +20,7 @@ import ru.bmstu.rk9.rdo.rdo.ResultWatchState
 import ru.bmstu.rk9.rdo.rdo.ResultGetValue
 
 import ru.bmstu.rk9.rdo.generator.LocalContext
-
+import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
 
 class RDOModelCompiler
 {
@@ -132,6 +132,19 @@ class RDOModelCompiler
 				.put("name", "«rs.resources.head.allContents.head.nameGeneric»")
 				'''
 
+		var enums = ""
+		for (r : rs.resources)
+			for(e : r.allContents.filter(typeof(EnumDeclaration)).toIterable)
+				enums = enums +
+					'''
+					.put
+					(
+						new JSONObject()
+							.put("name", "«e.fullyQualifiedName»")
+							.put("structure", «e.fullyQualifiedName».structure)
+					)
+					'''
+
 		var resTypes = ""
 		for(r : rs.resources)
 			for(rtp : r.allContents.filter(typeof(ResourceType)).toIterable)
@@ -182,6 +195,11 @@ class RDOModelCompiler
 
 		ret = ret +
 			'''
+			.put
+			(
+				"enums", new JSONArray()
+					«enums»
+			)
 			.put
 			(
 				"resource_types", new JSONArray()

@@ -5,7 +5,6 @@ import java.util.List
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
 
-import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
 
 import ru.bmstu.rk9.rdo.generator.LocalContext
 
@@ -22,10 +21,10 @@ import ru.bmstu.rk9.rdo.rdo.RDOType
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.IntConstant
 import ru.bmstu.rk9.rdo.rdo.DoubleConstant
-import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 import ru.bmstu.rk9.rdo.rdo.Expression
-
+import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
+import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOFunctionCompiler
 {
@@ -73,7 +72,7 @@ class RDOFunctionCompiler
 				{
 					«type.table.compileTable(
 						if(fun.returntype.compileType.endsWith("_enum"))
-							(new LocalContext).populateWithEnums(fun.returntype.resolveAllSuchAs as RDOEnum)
+							(new LocalContext).populateWithEnums(fun.returntype as RDOEnum)
 						else
 							null,
 						type.parameters.get(0).type.resolveAllSuchAs.tableLength
@@ -98,7 +97,7 @@ class RDOFunctionCompiler
 						type.parameters.map
 							[ p |
 								if(p.type.compileType.endsWith("_enum"))
-									(new LocalContext).populateWithEnums(p.type.resolveAllSuchAs as RDOEnum)
+									(new LocalContext).populateWithEnums(p.type as RDOEnum)
 								else
 									null
 							]
@@ -157,7 +156,7 @@ class RDOFunctionCompiler
 					return 0
 
 			RDOEnum:
-				return type.enums.size
+				return type.getId.values.size
 
 			default:
 				return 0
@@ -224,7 +223,7 @@ class RDOFunctionCompiler
 		«FOR p : parameters.filter[c | c.type instanceof RDOEnum]»
 		public static enum «p.name»_enum
 		{
-			«(p.type as RDOEnum).makeEnumBody»
+			«(p.type as RDOEnum).getId.makeEnumBody»
 		}
 
 		«ENDFOR»

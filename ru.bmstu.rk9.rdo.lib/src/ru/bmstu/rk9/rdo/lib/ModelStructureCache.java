@@ -94,34 +94,20 @@ public class ModelStructureCache {
 	}
 
 	final static JSONObject getEnumOrigin(String enumOrigin) {
-		JSONObject originParam = null;
-
 		String typeName = enumOrigin.substring(0, enumOrigin.lastIndexOf("."));
-		String paramName = enumOrigin
-				.substring(enumOrigin.lastIndexOf(".") + 1);
 
-		JSONArray resourceTypes = Simulator.getDatabase().getModelStructure()
-				.getJSONArray("resource_types");
-		JSONObject originType = null;
-		for (int num = 0; num < resourceTypes.length(); num++) {
-			JSONObject curType = resourceTypes.getJSONObject(num);
+		JSONArray enums = Simulator.getDatabase().getModelStructure()
+				.getJSONArray("enums");
+		JSONObject originDeclaration = null;
+		for (int num = 0; num < enums.length(); num++) {
+			JSONObject curType = enums.getJSONObject(num);
 			if (typeName.equals(curType.getString("name"))) {
-				originType = curType;
+				originDeclaration = curType;
 				break;
 			}
 		}
 
-		JSONArray originParams = originType.getJSONObject("structure")
-				.getJSONArray("parameters");
-		for (int num = 0; num < originParams.length(); num++) {
-			JSONObject curParam = originParams.getJSONObject(num);
-			if (paramName.equals(curParam.getString("name"))) {
-				originParam = curParam;
-				break;
-			}
-		}
-
-		return originParam;
+		return originDeclaration;
 	}
 
 	public final static String getRelativeName(final String fullName) {
@@ -134,15 +120,12 @@ class ValueCache {
 		type = ModelStructureCache.ValueType.get(param.getString("type"));
 		if (type == ModelStructureCache.ValueType.ENUM) {
 			enumNames = new HashMap<Integer, String>();
-			JSONObject originParam = null;
-			if (param.has("enums")) {
-				originParam = param;
-			} else {
-				String enumOriginName = param.getString("enum_origin");
-				originParam = ModelStructureCache.getEnumOrigin(enumOriginName);
-			}
+			JSONObject enumOrigin = null;
+			String enumOriginName = param.getString("enum_origin");
+			enumOrigin = ModelStructureCache.getEnumOrigin(enumOriginName);
 
-			JSONArray enums = originParam.getJSONArray("enums");
+			JSONArray enums = enumOrigin.getJSONObject("structure")
+					.getJSONArray("enums");
 			for (int num = 0; num < enums.length(); num++)
 				enumNames.put(num, enums.getString(num));
 		} else

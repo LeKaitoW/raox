@@ -4,13 +4,13 @@ import org.eclipse.emf.ecore.EObject
 
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
 
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 import ru.bmstu.rk9.rdo.rdo.RDODefaultParameter
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
@@ -32,7 +32,6 @@ import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.RDOReal
 import ru.bmstu.rk9.rdo.rdo.RDOBoolean
 import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
-import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.RDOArray
 import ru.bmstu.rk9.rdo.rdo.RDOString
 
@@ -70,6 +69,8 @@ import ru.bmstu.rk9.rdo.rdo.PlanningStatement
 import ru.bmstu.rk9.rdo.rdo.TimeNow
 
 import ru.bmstu.rk9.rdo.rdo.RDOType
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnumNew
+import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 enum ExpressionOperation
 {
@@ -437,10 +438,12 @@ class RDOExpressionCompiler
 					else
 					{
 						val exp = e.compileExpression
+
 						if(parameters != null && exp.type == "unknown" && exp.value.checkSingleID &&
 							parameters.size > expr.expressions.indexOf(e) &&
 								parameters.get(expr.expressions.indexOf(e)).endsWith("_enum"))
 							exp.value = parameters.get(expr.expressions.indexOf(e)) + "." + exp.value
+
 						list = list + ( if(flag) ", " else "" ) + exp.value
 					}
 					flag = true
@@ -469,7 +472,7 @@ class RDOExpressionCompiler
 					if(parameters != null && exp.type == "unknown" && exp.value.checkSingleID &&
 						parameters.size > expr.parameters.indexOf(e) &&
 							parameters.get(expr.parameters.indexOf(e)).endsWith("_enum"))
-						exp.value = parameters.get(expr.parameters.indexOf(e)) + "." + exp.value
+						exp.value = parameters.get(expr.parameters.indexOf(e))
 					list = list + ( if(flag) ", " else "" ) + exp.value
 					flag = true
 				}
@@ -602,9 +605,9 @@ class RDOExpressionCompiler
 				for(a : next.args.values)
 				{
 					gcall = gcall + (if(flag) ", " else "") +
-						if(params.get(i).type.compileType.endsWith("_enum"))
+						if (params.get(i).type.compileType.endsWith("_enum"))
 							a.compileExpressionContext((new LocalContext(localContext)).
-								populateWithEnums(params.get(i).type.resolveAllSuchAs as RDOEnum)).value
+								populateWithEnums(params.get(i).type as RDOEnum)).value
 						else
 							a.compileExpression.value
 					i = i + 1
@@ -625,10 +628,10 @@ class RDOExpressionCompiler
 			ResourceTypeParameter: type.type.compileType
 
 			RDORTPParameterBasic : type.type.compileType
-			RDORTPParameterString: type.type.compileType
-			RDORTPParameterSuchAs: type.type.compileType
-			RDORTPParameterEnum  : type.type.compileType
+			RDORTPParameterString : type.type.compileType
+			RDORTPParameterSuchAs : type.type.compileType
 			RDORTPParameterArray : type.type.compileType
+			RDORTPParameterEnumNew : type.type.compileType
 
 			Constant: type.type.compileType
 
@@ -644,11 +647,11 @@ class RDOExpressionCompiler
 //					else
 						"Double"
 
-			RDOBoolean: "Boolean"
+			RDOBoolean : "Boolean"
 			RDOString : "String"
-			RDOEnum   : type.getEnumParentName(true) + "_enum"
 			RDOSuchAs : type.type.compileType
-			RDOArray  : "java.util.ArrayList<" + type.arraytype.compileType + ">"
+			RDOArray : "java.util.ArrayList<" + type.arraytype.compileType + ">"
+			RDOEnum : type.getFullEnumName
 
 			default: "Integer /* TYPE IS ACTUALLY UNKNOWN */"
 		}
@@ -663,8 +666,8 @@ class RDOExpressionCompiler
 			RDORTPParameterBasic : type.type.compileTypePrimitive
 			RDORTPParameterString: type.type.compileTypePrimitive
 			RDORTPParameterSuchAs: type.type.compileTypePrimitive
-			RDORTPParameterEnum  : type.type.compileTypePrimitive
 			RDORTPParameterArray : type.type.compileTypePrimitive
+			RDORTPParameterEnumNew : type.type.compileType
 
 			Constant: type.type.compileTypePrimitive
 
@@ -672,9 +675,9 @@ class RDOExpressionCompiler
 			RDOReal   : "double"
 			RDOBoolean: "boolean"
 			RDOString : "String"
-			RDOEnum   : type.getEnumParentName(true) + "_enum"
 			RDOSuchAs : type.type.compileTypePrimitive
 			RDOArray  : "java.util.ArrayList<" + type.arraytype.compileType + ">"
+			RDOEnum : type.getFullEnumName
 
 			default: "int /* TYPE IS ACTUALLY UNKNOWN */"
 		}
@@ -689,7 +692,6 @@ class RDOExpressionCompiler
 			RDORTPParameterBasic : type.type
 			RDORTPParameterString: type.type
 			RDORTPParameterSuchAs: type.type.type.resolveAllSuchAs.resolveAllArrays
-			RDORTPParameterEnum  : type.type
 			RDORTPParameterArray : type.type.resolveAllArrays
 
 			Constant: type.type.resolveAllSuchAs.resolveAllArrays
@@ -698,7 +700,6 @@ class RDOExpressionCompiler
 			RDOReal   : type
 			RDOBoolean: type
 			RDOString : type
-			RDOEnum   : type
 			RDOSuchAs : type.type.resolveAllSuchAs.resolveAllArrays
 			RDOArray  : type.arraytype.resolveAllArrays
 
@@ -715,7 +716,6 @@ class RDOExpressionCompiler
 			RDORTPParameterBasic : type.type
 			RDORTPParameterString: type.type
 			RDORTPParameterSuchAs: type.type.type.resolveAllSuchAs
-			RDORTPParameterEnum  : type.type
 			RDORTPParameterArray : type.type
 
 			Constant: type.type.resolveAllSuchAs
@@ -724,7 +724,6 @@ class RDOExpressionCompiler
 			RDOReal   : type
 			RDOBoolean: type
 			RDOString : type
-			RDOEnum   : type
 			RDOSuchAs : type.type.resolveAllSuchAs
 			RDOArray  : type
 
