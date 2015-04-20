@@ -7,6 +7,10 @@ import java.nio.charset.StandardCharsets;
 import ru.bmstu.rk9.rdo.lib.Database.Entry;
 import ru.bmstu.rk9.rdo.lib.Database.EntryType;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
+import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ActivityCache;
+import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ResourceTypeCache;
+import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ResultCache;
+import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ValueCache;
 import ru.bmstu.rk9.rdo.lib.RDOLibStringJoiner.StringFormat;
 public class Tracer implements Subscriber
 {
@@ -651,7 +655,7 @@ public class Tracer implements Subscriber
  /                               HELPER METHODS                              /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
 
-	final static void skipPart(final ByteBuffer buffer, final int size)
+	public final static void skipPart(final ByteBuffer buffer, final int size)
 	{
 		for(int i = 0; i < size; i++)
 			buffer.get();
@@ -662,7 +666,7 @@ public class Tracer implements Subscriber
 		return "[" + String.valueOf(index) + "]";
 	}
 
-	final static ByteBuffer prepareBufferForReading(final ByteBuffer buffer)
+	public final static ByteBuffer prepareBufferForReading(final ByteBuffer buffer)
 	{
 		return (ByteBuffer) buffer.duplicate().rewind();
 	}

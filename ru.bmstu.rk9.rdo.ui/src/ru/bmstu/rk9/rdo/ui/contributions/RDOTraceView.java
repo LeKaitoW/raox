@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rdo.ui.contributions;
 import java.awt.Frame;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -58,13 +59,16 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import ru.bmstu.rk9.rdo.lib.Database.Entry;
-import ru.bmstu.rk9.rdo.ui.graph.GraphControl;
+import ru.bmstu.rk9.rdo.lib.Database.EntryType;
+import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
+import ru.bmstu.rk9.rdo.lib.Tracer;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
 import ru.bmstu.rk9.rdo.lib.TreeBuilder;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView.SearchHelper.SearchResult;
+import ru.bmstu.rk9.rdo.ui.graph.GraphControl;
 import ru.bmstu.rk9.rdo.ui.graph.GraphFrame;
 import ru.bmstu.rk9.rdo.ui.runtime.ExportTraceHandler;
 
@@ -88,31 +92,33 @@ public class RDOTraceView extends ViewPart
 		int dptNumber;
 		String frameName;
 		
-		FrameInfo(int dptNum, String frameName) {
+		private FrameInfo(int dptNum, String frameName) {
 			this.dptNumber = dptNum;
 			this.frameName = frameName;
 		}
 	}
 	
-	private FrameInfo determineDPTInfo (TraceOutput traceOutput) {
-		String content = traceOutput.content();
-		int flagIndex = content.length() - 1;	
+	private FrameInfo determineDPTInfo(TraceOutput traceOutput, int stringNum) {
+		Entry entry = Simulator.getDatabase().getAllEntries().get(stringNum);
+		final EntryType type = EntryType.values()[entry.getHeader().get(TypeSize.Internal.ENTRY_TYPE_OFFSET)];
+		System.err.println("entry type = " + type.name());
 		
-		do {
-			flagIndex--;
-		} while (content.charAt(flagIndex) != ' ');
+		final int dptNumber;
 		
-		String frameName = "";
+		switch (type) {
+		case SEARCH:
+			final ByteBuffer header = Tracer.prepareBufferForReading(entry.getHeader());
+			Tracer.skipPart(header, 2 * TypeSize.BYTE + TypeSize.DOUBLE);
+			dptNumber = header.getInt();
+			break;
+		default:
+			System.err.println("wrong string");
+			return null;
+		}
 		
-		String dptName = content.substring(flagIndex + 1);
+		String dptName = Simulator.getModelStructureCache().getDecisionPointsInfo().get(dptNumber).getName();
 		
-		frameName = dptName;
-		
-		dptName = "model_1_file." + dptName;
-		
-		final int dptNum = Simulator.getDatabase().getIndexHelper().getSearch(dptName).getIndex().getNumber();
-		
-		return new FrameInfo(dptNum, frameName);
+		return new FrameInfo(dptNumber, dptName);
 	}
 	
 	private void createWindow(FrameInfo frameInfo) {
@@ -130,13 +136,16 @@ public class RDOTraceView extends ViewPart
 			graphFrame.setLocationRelativeTo(null);
 			graphFrame.setVisible(true);
 			
-			TimerTask graphUpdateTask = graphFrame.getGraphFrameUpdateTimerTask();
-			Timer graphUpdateTimer = new Timer();
-			graphUpdateTimer.scheduleAtFixedRate(graphUpdateTask, 0, 10);
-			
-			TimerTask graphFinTask = graphFrame.getGraphFrameFinTimerTask();
-			Timer graphFinTimer = new Timer();
-			graphFinTimer.scheduleAtFixedRate(graphFinTask, 0, 10);
+			boolean isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap.get(dptNum).isFinished;
+			if (!isFinished) {
+				TimerTask graphUpdateTask = graphFrame.getGraphFrameUpdateTimerTask();
+				Timer graphUpdateTimer = new Timer();
+				graphUpdateTimer.scheduleAtFixedRate(graphUpdateTask, 0, 10);
+
+				TimerTask graphFinTask = graphFrame.getGraphFrameFinTimerTask();
+				Timer graphFinTimer = new Timer();
+				graphFinTimer.scheduleAtFixedRate(graphFinTask, 0, 10);
+			}
 			
 			graphFrame.addWindowListener(new WindowListener() {
 				
@@ -173,7 +182,7 @@ public class RDOTraceView extends ViewPart
 				@Override
 				public void windowClosed(WindowEvent e) {
 					// TODO Auto-generated method stub
-					graphUpdateTimer.cancel();
+					//graphUpdateTimer.cancel();
 					GraphControl.openedGraphMap.remove(dptNum);
 					System.out.println("window closed");
 				}
@@ -260,24 +269,24 @@ public class RDOTraceView extends ViewPart
 
 			@Override
 			public void doubleClick(DoubleClickEvent e) {
-				
+
 				TraceOutput traceOutput = (TraceOutput) viewer.getTable().getSelection()[0].getData();
 
-				switch (traceOutput.type()) {
-				case SEARCH_BEGIN:
-					FrameInfo frameInfo = determineDPTInfo(traceOutput);
-					if (!GraphControl.openedGraphMap.containsKey(frameInfo.dptNumber))
-						createWindow(frameInfo);
-					else {
-						GraphFrame currentFrame = GraphControl.openedGraphMap.get(frameInfo.dptNumber);
-						if (currentFrame.getState() == Frame.ICONIFIED)
-							currentFrame.setState(Frame.NORMAL);
-						else if (!currentFrame.isActive())
-							currentFrame.setVisible(true);
-					}
-					break;
-				default:
-					break;
+				int stringNumber = viewer.getTable().getSelectionIndex();
+
+				FrameInfo frameInfo = determineDPTInfo(traceOutput, stringNumber);
+				
+				if (frameInfo == null)
+					return;
+				
+				if (!GraphControl.openedGraphMap.containsKey(frameInfo.dptNumber))
+					createWindow(frameInfo);
+				else {
+					GraphFrame currentFrame = GraphControl.openedGraphMap.get(frameInfo.dptNumber);
+					if (currentFrame.getState() == Frame.ICONIFIED)
+						currentFrame.setState(Frame.NORMAL);
+					else if (!currentFrame.isActive())
+						currentFrame.setVisible(true);
 				}
 			}
 		});

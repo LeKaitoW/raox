@@ -20,6 +20,8 @@ import java.util.TreeSet;
 import ru.bmstu.rk9.rdo.lib.Database.Entry;
 import ru.bmstu.rk9.rdo.lib.Database.EntryType;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
+import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ResourceTypeCache;
+import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ResultCache;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
 import ru.bmstu.rk9.rdo.lib.json.JSONArray;
