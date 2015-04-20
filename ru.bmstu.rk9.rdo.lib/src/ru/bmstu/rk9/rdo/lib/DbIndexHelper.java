@@ -2,7 +2,7 @@ package ru.bmstu.rk9.rdo.lib;
 
 import ru.bmstu.rk9.rdo.lib.Database.SerializationCategory;
 
-public class DbIndexHelper {
+public class DbIndexHelper implements Subscriber {
 	public final CollectedDataNode getTree() {
 		return root;
 	}
@@ -33,8 +33,8 @@ public class DbIndexHelper {
 	}
 
 	public final CollectedDataNode getResourceType(String name) {
-		return getCategory(SerializationCategory.RESOURCES).getChildren()
-				.get(name);
+		return getCategory(SerializationCategory.RESOURCES).getChildren().get(
+				name);
 	}
 
 	public final CollectedDataNode addResult(String name) {
@@ -42,8 +42,8 @@ public class DbIndexHelper {
 	}
 
 	public final CollectedDataNode getResult(String name) {
-		return getCategory(SerializationCategory.RESULTS).getChildren()
-				.get(name);
+		return getCategory(SerializationCategory.RESULTS).getChildren().get(
+				name);
 	}
 
 	public final CollectedDataNode addPattern(String name) {
@@ -51,8 +51,8 @@ public class DbIndexHelper {
 	}
 
 	public final CollectedDataNode getPattern(String name) {
-		return getCategory(SerializationCategory.PATTERNS).getChildren()
-				.get(name);
+		return getCategory(SerializationCategory.PATTERNS).getChildren().get(
+				name);
 	}
 
 	public final CollectedDataNode addDecisionPoint(String name) {
@@ -61,8 +61,8 @@ public class DbIndexHelper {
 	}
 
 	public final CollectedDataNode getDecisionPoint(String name) {
-		return getCategory(SerializationCategory.DECISION_POINTS)
-				.getChildren().get(name);
+		return getCategory(SerializationCategory.DECISION_POINTS).getChildren()
+				.get(name);
 	}
 
 	public final CollectedDataNode addSearch(String name) {
@@ -76,4 +76,50 @@ public class DbIndexHelper {
 
 	private String modelName;
 	private final CollectedDataNode root = new CollectedDataNode("root", null);
+
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// -----------------------NOTIFICATION SYSTEM -------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+	//TODO unify with Tracer notification system
+
+	private boolean paused = true;
+
+	public final synchronized void setPaused(boolean paused) {
+		if (this.paused == paused)
+			return;
+
+		this.paused = paused;
+		fireChange();
+	}
+
+	private Subscriber realTimeSubscriber = null;
+
+	public final void setRealTimeSubscriber(Subscriber subscriber) {
+		this.realTimeSubscriber = subscriber;
+	}
+
+	private final void notifyRealTimeSubscriber() {
+		if (realTimeSubscriber != null)
+			realTimeSubscriber.fireChange();
+	}
+
+	private Subscriber commonSubscriber = null;
+
+	public final void setCommonSubscriber(Subscriber subscriber) {
+		this.commonSubscriber = subscriber;
+	}
+
+	public final void notifyCommonSubscriber() {
+		if (commonSubscriber != null)
+			commonSubscriber.fireChange();
+	}
+
+	@Override
+	public void fireChange() {
+		if (paused)
+			return;
+
+		notifyRealTimeSubscriber();
+	}
 }

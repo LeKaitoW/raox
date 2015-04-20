@@ -34,7 +34,7 @@ public class RDOStatusView extends ViewPart {
 	private ScrolledComposite scrolledComposite;
 	private RowLayout scrolledCompositeLayout;
 
-	private Composite composite; 
+	private Composite composite;
 
 	public static class Element extends Composite {
 		private Label label;
@@ -95,7 +95,7 @@ public class RDOStatusView extends ViewPart {
 		Element control = new Element(composite, name);
 		control.label.setFont(editorFont);
 		control.text.setFont(editorFont);
-		
+
 		Color background = composite.getBackground();
 		control.setBackground(background);
 		control.label.setBackground(background);
@@ -118,7 +118,7 @@ public class RDOStatusView extends ViewPart {
 			element = it.next();
 		else
 			return;
-			
+
 		while (it.hasNext()) {
 			String next = it.next();
 			controls.get(next).moveAbove(controls.get(element));
@@ -138,8 +138,8 @@ public class RDOStatusView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		scrolledComposite = new ScrolledComposite(parent,
-				SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL
+				| SWT.V_SCROLL);
 
 		themeManager = PlatformUI.getWorkbench().getThemeManager();
 		ITheme currentTheme = themeManager.getCurrentTheme();
@@ -148,7 +148,8 @@ public class RDOStatusView extends ViewPart {
 
 		composite = new Composite(scrolledComposite, SWT.NONE);
 		scrolledCompositeLayout = RowLayoutFactory.fillDefaults()
-				.type(SWT.VERTICAL).wrap(false).margins(5, 5).spacing(2).create();
+				.type(SWT.VERTICAL).wrap(false).margins(5, 5).spacing(2)
+				.create();
 		composite.setLayout(scrolledCompositeLayout);
 
 		fontListener = new IPropertyChangeListener() {
@@ -197,13 +198,13 @@ public class RDOStatusView extends ViewPart {
 			int x = sizeL.x + sizeT.x;
 			h = x > h ? x : h;
 
-			v += scrolledCompositeLayout.spacing +
-					sizeL.y > sizeT.y ? sizeL.y : sizeT.y;
+			v += scrolledCompositeLayout.spacing + sizeL.y > sizeT.y ? sizeL.y
+					: sizeT.y;
 		}
 		h += scrolledCompositeLayout.marginWidth * 2;
 		v += scrolledCompositeLayout.marginHeight * 2;
 
-		scrolledComposite.setMinSize(h, v);		
+		scrolledComposite.setMinSize(h, v);
 		scrolledComposite.layout(true, true);
 	}
 
@@ -214,8 +215,7 @@ public class RDOStatusView extends ViewPart {
 	}
 
 	private static boolean isInitialized() {
-		return INSTANCE != null
-			&& !INSTANCE.composite.isDisposed();
+		return INSTANCE != null && !INSTANCE.composite.isDisposed();
 	}
 
 	@Override

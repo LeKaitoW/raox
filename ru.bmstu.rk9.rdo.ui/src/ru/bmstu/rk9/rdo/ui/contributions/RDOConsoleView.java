@@ -18,8 +18,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.themes.ITheme;
 import org.eclipse.ui.themes.IThemeManager;
 
-public class RDOConsoleView extends ViewPart
-{
+public class RDOConsoleView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOConsoleView"; //$NON-NLS-1$
 
 	private static StyledText styledText;
@@ -27,89 +26,73 @@ public class RDOConsoleView extends ViewPart
 	private static String text = "";
 
 	@Override
-	public void createPartControl(Composite parent)
-	{
+	public void createPartControl(Composite parent) {
 		styledText = new StyledText(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		styledText.setAlwaysShowScrollBars(false);
 		redrawText();
 		styledText.setEditable(false);
 		styledText.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true));
 		styledText.setLeftMargin(2);
-		styledText.setTopMargin (5);
+		styledText.setTopMargin(5);
 
 		Menu popupMenu = new Menu(styledText);
 		MenuItem copy = new MenuItem(popupMenu, SWT.CASCADE);
 		copy.setText("Copy\tCtrl+C");
 		copy.setAccelerator(SWT.CTRL + 'C');
-		copy.addSelectionListener
-		(
-			new SelectionAdapter()
-			{
-				public void widgetSelected(SelectionEvent event)
-				{
-					styledText.invokeAction(ST.COPY);
-				}
+		copy.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				styledText.invokeAction(ST.COPY);
 			}
-		);
+		});
 		styledText.setMenu(popupMenu);
 
 		registerTextFontUpdateListener();
 		updateTextFont();
 	}
 
-	private void updateTextFont()
-	{
-		IThemeManager themeManager = PlatformUI.getWorkbench().getThemeManager();
+	private void updateTextFont() {
+		IThemeManager themeManager = PlatformUI.getWorkbench()
+				.getThemeManager();
 		ITheme currentTheme = themeManager.getCurrentTheme();
 		FontRegistry fontRegistry = currentTheme.getFontRegistry();
-		styledText.setFont(fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
+		styledText.setFont(fontRegistry
+				.get(PreferenceConstants.EDITOR_TEXT_FONT));
 	}
 
-	public static void clearConsoleText()
-	{
+	public static void clearConsoleText() {
 		text = "";
 		redrawText();
 	}
 
-	public static void addLine(String line)
-	{
+	public static void addLine(String line) {
 		text = text + line + "\n";
 		redrawText();
 	}
 
-	public static void appendText(String add)
-	{
+	public static void appendText(String add) {
 		text = text + add;
 		redrawText();
 	}
 
-	public static void redrawText()
-	{
-		if(styledText != null)
-			styledText.getDisplay().asyncExec
-			(
-				new Runnable ()
-				{
-					public void run ()
-					{
-						styledText.setText(text);
-					}
+	public static void redrawText() {
+		if (styledText != null)
+			styledText.getDisplay().asyncExec(new Runnable() {
+				public void run() {
+					styledText.setText(text);
 				}
-			);
+			});
 	}
 
 	private static IThemeManager themeManager;
 	private static IPropertyChangeListener fontListener;
 
-	private void registerTextFontUpdateListener()
-	{
+	private void registerTextFontUpdateListener() {
 		themeManager = PlatformUI.getWorkbench().getThemeManager();
-		fontListener = new IPropertyChangeListener()
-		{
+		fontListener = new IPropertyChangeListener() {
 			@Override
-			public void propertyChange(PropertyChangeEvent event)
-			{
-				if(event.getProperty().equals(PreferenceConstants.EDITOR_TEXT_FONT))
+			public void propertyChange(PropertyChangeEvent event) {
+				if (event.getProperty().equals(
+						PreferenceConstants.EDITOR_TEXT_FONT))
 					updateTextFont();
 			}
 		};
@@ -117,13 +100,13 @@ public class RDOConsoleView extends ViewPart
 	}
 
 	@Override
-	public void dispose()
-	{
+	public void dispose() {
 		themeManager.removePropertyChangeListener(fontListener);
 		super.dispose();
 	}
 
 	@Override
-	public void setFocus() {}
+	public void setFocus() {
+	}
 
 }

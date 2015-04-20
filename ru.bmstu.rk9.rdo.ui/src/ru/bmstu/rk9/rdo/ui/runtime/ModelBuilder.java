@@ -53,170 +53,145 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import ru.bmstu.rk9.rdo.IMultipleResourceGenerator;
 
-
-public class ModelBuilder
-{
-	public static URI getURI(IResource res)
-	{
-		return URI.createPlatformResourceURI(res.getProject().getName()
-			+ "/" + res.getProjectRelativePath(), true);
+public class ModelBuilder {
+	public static URI getURI(IResource res) {
+		return URI.createPlatformResourceURI(res.getProject().getName() + "/"
+				+ res.getProjectRelativePath(), true);
 	}
 
-	public static ArrayList<IResource> getAllRDOFilesInProject(IProject project)
-	{
+	public static ArrayList<IResource> getAllRDOFilesInProject(IProject project) {
 		ArrayList<IResource> allRDOFiles = new ArrayList<IResource>();
 		IPath path = project.getLocation();
-		recursiveFindRDOFiles(allRDOFiles,path,ResourcesPlugin.getWorkspace().getRoot());
+		recursiveFindRDOFiles(allRDOFiles, path, ResourcesPlugin.getWorkspace()
+				.getRoot());
 		return allRDOFiles;
 	}
 
-	private static void recursiveFindRDOFiles(ArrayList<IResource> allRDOFiles,IPath path, IWorkspaceRoot workspaceRoot)
-	{
+	private static void recursiveFindRDOFiles(ArrayList<IResource> allRDOFiles,
+			IPath path, IWorkspaceRoot workspaceRoot) {
 		IContainer container = workspaceRoot.getContainerForLocation(path);
-		try
-		{
+		try {
 			IResource[] iResources;
 			iResources = container.members();
-			for(IResource iR : iResources)
-			{
-				if("rdo".equalsIgnoreCase(iR.getFileExtension()))
+			for (IResource iR : iResources) {
+				if ("rdo".equalsIgnoreCase(iR.getFileExtension()))
 					allRDOFiles.add(iR);
-				if(iR.getType() == IResource.FOLDER)
-				{
+				if (iR.getType() == IResource.FOLDER) {
 					IPath tempPath = iR.getLocation();
 					recursiveFindRDOFiles(allRDOFiles, tempPath, workspaceRoot);
 				}
 			}
-		}
-		catch (CoreException e)
-		{
+		} catch (CoreException e) {
 			e.printStackTrace();
 		}
 	}
 
-	static IProject getProject(IEditorPart activeEditor)
-	{
-		IFile file = (IFile) activeEditor.getEditorInput().getAdapter(IFile.class);
-		if(file != null)
+	static IProject getProject(IEditorPart activeEditor) {
+		IFile file = (IFile) activeEditor.getEditorInput().getAdapter(
+				IFile.class);
+		if (file != null)
 			return file.getProject();
 		else
 			return null;
 	}
 
-	public static IMarker[] calculateCompilationErrorMarkers(IProject project)
-	{
-		ArrayList <IMarker> result = new ArrayList <IMarker>();
+	public static IMarker[] calculateCompilationErrorMarkers(IProject project) {
+		ArrayList<IMarker> result = new ArrayList<IMarker>();
 		IMarker[] markers = null;
 
-		try
-		{
+		try {
 			markers = project.findMarkers(null, true, IResource.DEPTH_INFINITE);
-			for(IMarker marker: markers)
-			{
+			for (IMarker marker : markers) {
 				Integer severityType;
 				severityType = (Integer) marker.getAttribute(IMarker.SEVERITY);
-				if(severityType != null && severityType.intValue() == IMarker.SEVERITY_ERROR &&
-						marker.getType().startsWith("ru.bmstu.rk9.rdo"))
+				if (severityType != null
+						&& severityType.intValue() == IMarker.SEVERITY_ERROR
+						&& marker.getType().startsWith("ru.bmstu.rk9.rdo"))
 					result.add(marker);
 			}
-		}
-		catch (CoreException e)
-		{
+		} catch (CoreException e) {
 			e.printStackTrace();
 		}
 
 		return result.toArray(new IMarker[result.size()]);
 	}
 
-	private static void checkProjectClassPath(IProject project, IProgressMonitor monitor)
-	{
+	private static void checkProjectClassPath(IProject project,
+			IProgressMonitor monitor) {
 		Bundle lib = Platform.getBundle("ru.bmstu.rk9.rdo.lib");
 		File libPath = null;
-		try
-		{
+		try {
 			libPath = FileLocator.getBundleFile(lib);
-			if(libPath != null)
-			{
+			if (libPath != null) {
 				IJavaProject jProject = JavaCore.create(project);
 
-				IClasspathEntry[] projectClassPathArray = jProject.getRawClasspath();
+				IClasspathEntry[] projectClassPathArray = jProject
+						.getRawClasspath();
 
 				IPath libPathBinary;
-				if(libPath.isDirectory())
-					libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
+				if (libPath.isDirectory())
+					libPathBinary = new Path(libPath.getAbsolutePath()
+							+ "/bin/");
 				else
 					libPathBinary = new Path(libPath.getAbsolutePath());
 
-				if(projectClassPathArray.length > 2)
-				{
-					if(!projectClassPathArray[2].getPath().equals(libPathBinary))
-					{
-						projectClassPathArray[2] = JavaCore.newLibraryEntry(libPathBinary, null, null);
+				if (projectClassPathArray.length > 2) {
+					if (!projectClassPathArray[2].getPath().equals(
+							libPathBinary)) {
+						projectClassPathArray[2] = JavaCore.newLibraryEntry(
+								libPathBinary, null, null);
 						jProject.setRawClasspath(projectClassPathArray, monitor);
 					}
-				}
-				else
-				{
-					ArrayList<IClasspathEntry> projectClassPathList =
-						new ArrayList<IClasspathEntry>(Arrays.asList(projectClassPathArray));
-					IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary, null, null);
+				} else {
+					ArrayList<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
+							Arrays.asList(projectClassPathArray));
+					IClasspathEntry libEntry = JavaCore.newLibraryEntry(
+							libPathBinary, null, null);
 					projectClassPathList.add(libEntry);
 
 					jProject.setRawClasspath(
-						(IClasspathEntry[])projectClassPathList.toArray(
-							new IClasspathEntry[projectClassPathList.size()]), monitor);
+							(IClasspathEntry[]) projectClassPathList
+									.toArray(new IClasspathEntry[projectClassPathList
+											.size()]), monitor);
 				}
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 	}
 
-	static Job build
-	(
-		final ExecutionEvent event,
-		final EclipseResourceFileSystemAccess2 fsa,
-		final IResourceSetProvider resourceSetProvider,
-		final EclipseOutputConfigurationProvider ocp,
-		final IMultipleResourceGenerator generator
-	)
-	{
-		Job job = new Job("Building RDO model")
-		{
-			protected IStatus run(IProgressMonitor monitor)
-			{
+	static Job build(final ExecutionEvent event,
+			final EclipseResourceFileSystemAccess2 fsa,
+			final IResourceSetProvider resourceSetProvider,
+			final EclipseOutputConfigurationProvider ocp,
+			final IMultipleResourceGenerator generator) {
+		Job job = new Job("Building RDO model") {
+			protected IStatus run(IProgressMonitor monitor) {
 				IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
 				final IProject project = getProject(activeEditor);
 
-				if(project != null)
-				{
+				if (project != null) {
 					checkProjectClassPath(project, monitor);
 
 					IJobManager jobMan = Job.getJobManager();
-					try
-					{
-						for(Job j : jobMan.find(project.getName()))
+					try {
+						for (Job j : jobMan.find(project.getName()))
 							j.join();
-					}
-					catch (Exception e)
-					{
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 
-					final ArrayList<IResource> projectFiles = ModelBuilder.getAllRDOFilesInProject(project);
+					final ArrayList<IResource> projectFiles = ModelBuilder
+							.getAllRDOFilesInProject(project);
 					IFolder srcGenFolder = project.getFolder("src-gen");
-					if(!srcGenFolder.exists())
-					{
-						try
-						{
-							srcGenFolder.create(true, true,	new NullProgressMonitor());
-						}
-						catch (CoreException e)
-						{
-							return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui", "Build failed", e);
+					if (!srcGenFolder.exists()) {
+						try {
+							srcGenFolder.create(true, true,
+									new NullProgressMonitor());
+						} catch (CoreException e) {
+							return new Status(Status.ERROR,
+									"ru.bmstu.rk9.rdo.ui", "Build failed", e);
 						}
 					}
 
@@ -225,55 +200,56 @@ public class ModelBuilder
 					fsa.setMonitor(monitor);
 					fsa.setProject(project);
 
-					HashMap<String, OutputConfiguration> outputConfigurations =
-						new HashMap<String,OutputConfiguration>();
+					HashMap<String, OutputConfiguration> outputConfigurations = new HashMap<String, OutputConfiguration>();
 
-					for(OutputConfiguration oc : ocp.getOutputConfigurations(project))
+					for (OutputConfiguration oc : ocp
+							.getOutputConfigurations(project))
 						outputConfigurations.put(oc.getName(), oc);
 
 					fsa.setOutputConfigurations(outputConfigurations);
 
-					final ResourceSet resourceSet = resourceSetProvider.get(project);
+					final ResourceSet resourceSet = resourceSetProvider
+							.get(project);
 
 					boolean projectHasErrors = false;
 
-					for(IResource res : projectFiles)
-					{
-						Resource loadedResource = resourceSet.getResource(getURI(res), true);
-						if(!loadedResource.getErrors().isEmpty())
+					for (IResource res : projectFiles) {
+						Resource loadedResource = resourceSet.getResource(
+								getURI(res), true);
+						if (!loadedResource.getErrors().isEmpty())
 							projectHasErrors = true;
 					}
 
-					if(calculateCompilationErrorMarkers(project).length > 0)
+					if (calculateCompilationErrorMarkers(project).length > 0)
 						projectHasErrors = true;
 
-					if(projectHasErrors)
-					{
-						try
-						{
-							srcGenFolder.delete(true, new NullProgressMonitor());
-						}
-						catch (CoreException e)
-						{
+					if (projectHasErrors) {
+						try {
+							srcGenFolder
+									.delete(true, new NullProgressMonitor());
+						} catch (CoreException e) {
 							e.printStackTrace();
 						}
-						return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui", "Model has errors");
+						return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui",
+								"Model has errors");
 					}
 
 					generator.doGenerate(resourceSet, fsa);
 
-					try
-					{
-						project.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, monitor);
-					}
-					catch (CoreException e)
-					{
+					try {
+						project.build(
+								IncrementalProjectBuilder.INCREMENTAL_BUILD,
+								monitor);
+					} catch (CoreException e) {
 						e.printStackTrace();
 					}
-				}
-				else
-					return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui",
-						"File '" + activeEditor.getTitle() + "' is not a part of any project in workspace.");
+				} else
+					return new Status(
+							Status.ERROR,
+							"ru.bmstu.rk9.rdo.ui",
+							"File '"
+									+ activeEditor.getTitle()
+									+ "' is not a part of any project in workspace.");
 
 				return Status.OK_STATUS;
 			}

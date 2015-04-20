@@ -194,16 +194,14 @@ public class SerializationConfig {
 		return models;
 	}
 
-	public final SerializationNode findModel(
-			final String modelName) {
+	public final SerializationNode findModel(final String modelName) {
 		for (SerializationNode c : root.getVisibleChildren())
 			if (c.getFullName().equals(modelName))
 				return c;
 		return null;
 	}
 
-	public final void removeModel(
-			final SerializationNode modelNode) {
+	public final void removeModel(final SerializationNode modelNode) {
 		root.children.remove(modelNode);
 	}
 

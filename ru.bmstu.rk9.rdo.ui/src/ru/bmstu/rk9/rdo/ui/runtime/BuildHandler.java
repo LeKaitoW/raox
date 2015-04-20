@@ -13,8 +13,7 @@ import ru.bmstu.rk9.rdo.IMultipleResourceGenerator;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-public class BuildHandler extends AbstractHandler
-{
+public class BuildHandler extends AbstractHandler {
 	@Inject
 	private IMultipleResourceGenerator generator;
 
@@ -28,16 +27,10 @@ public class BuildHandler extends AbstractHandler
 	EclipseOutputConfigurationProvider outputConfigurationProvider;
 
 	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException
-	{
-		ModelBuilder.build
-		(
-			event,
-			fileAccessProvider.get(),
-			resourceSetProvider,
-			outputConfigurationProvider,
-			generator
-		).schedule();
+	public Object execute(ExecutionEvent event) throws ExecutionException {
+		ModelBuilder.build(event, fileAccessProvider.get(),
+				resourceSetProvider, outputConfigurationProvider, generator)
+				.schedule();
 		return null;
-    }
+	}
 }

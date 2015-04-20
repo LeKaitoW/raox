@@ -237,13 +237,11 @@ public class RDOSerializationConfigView extends ViewPart {
 	public void setFocus() {
 	}
 
-	public final static boolean readyForInput()
-	{
-		return
-			serializationTreeViewer != null
-			&& !serializationTreeViewer.getTree().isDisposed()
-			&& serializationTreeViewer.getContentProvider() != null
-			&& serializationTreeViewer.getLabelProvider() != null;
+	public final static boolean readyForInput() {
+		return serializationTreeViewer != null
+				&& !serializationTreeViewer.getTree().isDisposed()
+				&& serializationTreeViewer.getContentProvider() != null
+				&& serializationTreeViewer.getLabelProvider() != null;
 	}
 }
 
@@ -283,8 +281,8 @@ class SerializationConfigurator {
 
 		fillCategory(
 				modelNode.getVisibleChildren().get(
-						SerializationCategory.SEARCH.ordinal()),
-				model, DecisionPointSearch.class);
+						SerializationCategory.SEARCH.ordinal()), model,
+				DecisionPointSearch.class);
 	}
 
 	private final <T extends EObject> void fillCategory(
@@ -350,14 +348,14 @@ class RDOSerializationConfigContentProvider implements ITreeContentProvider {
 	public Object[] getElements(Object inputElement) {
 		SerializationConfig serializationConfig = (SerializationConfig) inputElement;
 		if (!serializationConfig.getRoot().hasChildren())
-			return new Object[]{};
+			return new Object[] {};
 		return serializationConfig.getRoot().getVisibleChildren().toArray();
 	}
 
 	public Object[] getChildren(Object parentElement) {
 		SerializationNode serializationNode = (SerializationNode) parentElement;
 		if (!serializationNode.hasChildren())
-			return new Object[]{};
+			return new Object[] {};
 		return serializationNode.getVisibleChildren().toArray();
 	}
 

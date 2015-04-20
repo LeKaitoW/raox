@@ -1,8 +1,8 @@
 package ru.bmstu.rk9.rdo.lib;
 
-public interface AnimationFrame
-{
+public interface AnimationFrame {
 	public String getName();
+
 	public void draw(AnimationContext context);
 
 	/**

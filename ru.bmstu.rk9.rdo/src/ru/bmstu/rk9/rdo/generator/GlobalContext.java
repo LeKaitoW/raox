@@ -23,32 +23,27 @@ import ru.bmstu.rk9.rdo.rdo.EnumerativeSequence;
 import ru.bmstu.rk9.rdo.rdo.HistogramSequence;
 import ru.bmstu.rk9.rdo.rdo.RegularSequence;
 
-
-public class GlobalContext
-{
-	public class RTP
-	{
+public class GlobalContext {
+	public class RTP {
 		public ResourceType origin;
 
 		public HashMap<String, String> parameters;
 
-		public RTP(ResourceType rtp)
-		{
+		public RTP(ResourceType rtp) {
 			origin = rtp;
 			parameters = new HashMap<String, String>();
-			for(ResourceTypeParameter p : rtp.getParameters())
-				parameters.put(p.getName(), RDOExpressionCompiler.compileType(p));
+			for (ResourceTypeParameter p : rtp.getParameters())
+				parameters.put(p.getName(),
+						RDOExpressionCompiler.compileType(p));
 		}
 	}
 
-	public class RSS
-	{
+	public class RSS {
 		public ResourceDeclaration origin;
 
 		public String reference;
 
-		public RSS(ResourceDeclaration rss)
-		{
+		public RSS(ResourceDeclaration rss) {
 			origin = rss;
 			ResourceType rtp = rss.getReference();
 			restypes.put(rtp.getName(), new RTP(rtp));
@@ -56,101 +51,93 @@ public class GlobalContext
 		}
 	}
 
-	public class SEQ
-	{
+	public class SEQ {
 		public Sequence origin;
 
 		public String type;
 		public int parameters;
 
-		public SEQ(Sequence seq)
-		{
+		public SEQ(Sequence seq) {
 			origin = seq;
 			type = RDOExpressionCompiler.compileType(seq.getReturntype());
 			SequenceType type = seq.getType();
-			if(type instanceof EnumerativeSequence || type instanceof HistogramSequence)
+			if (type instanceof EnumerativeSequence
+					|| type instanceof HistogramSequence)
 				parameters = 0;
 			else
-				switch (((RegularSequence)type).getType())
-				{
-					case EXPONENTIAL:
-						parameters = 1;
+				switch (((RegularSequence) type).getType()) {
+				case EXPONENTIAL:
+					parameters = 1;
 
-					case NORMAL:
-						parameters = 2;
+				case NORMAL:
+					parameters = 2;
 
-					case TRIANGULAR:
-						parameters = 3;
+				case TRIANGULAR:
+					parameters = 3;
 
-					case UNIFORM:
-						parameters = 2;
+				case UNIFORM:
+					parameters = 2;
 				}
 		}
 	}
 
-	public class CON
-	{
+	public class CON {
 		public ConstantDeclaration origin;
 
 		public String type;
 
-		public CON(ConstantDeclaration con)
-		{
+		public CON(ConstantDeclaration con) {
 			origin = con;
 			type = RDOExpressionCompiler.compileType(con.getType());
 		}
 	}
 
-	public class FUN
-	{
+	public class FUN {
 		public Function origin;
 
 		public LinkedList<String> parameters = new LinkedList<String>();
 
 		public String type;
 
-		public FUN(Function fun)
-		{
+		public FUN(Function fun) {
 			origin = fun;
 
 			FunctionParameters parameters = null;
 
 			type = RDOExpressionCompiler.compileType(fun.getReturntype());
 
-			if(fun.getType() instanceof FunctionAlgorithmic)
-				parameters = ((FunctionAlgorithmic)fun.getType()).getParameters();
-			if(fun.getType() instanceof FunctionTable)
-				parameters = ((FunctionTable)fun.getType()).getParameters();
-			if(fun.getType() instanceof FunctionList)
-				parameters = ((FunctionList)fun.getType()).getParameters();
+			if (fun.getType() instanceof FunctionAlgorithmic)
+				parameters = ((FunctionAlgorithmic) fun.getType())
+						.getParameters();
+			if (fun.getType() instanceof FunctionTable)
+				parameters = ((FunctionTable) fun.getType()).getParameters();
+			if (fun.getType() instanceof FunctionList)
+				parameters = ((FunctionList) fun.getType()).getParameters();
 
-			if(parameters != null)
-				for(FunctionParameter p : parameters.getParameters())
-					this.parameters.addLast(RDOExpressionCompiler.compileType(p.getType()));
+			if (parameters != null)
+				for (FunctionParameter p : parameters.getParameters())
+					this.parameters.addLast(RDOExpressionCompiler.compileType(p
+							.getType()));
 		}
 	}
 
-	public RSS newRSS(ResourceDeclaration rss)
-	{
+	public RSS newRSS(ResourceDeclaration rss) {
 		return new RSS(rss);
 	}
 
-	public SEQ newSEQ(Sequence seq)
-	{
+	public SEQ newSEQ(Sequence seq) {
 		return new SEQ(seq);
 	}
 
-	public CON newCON(ConstantDeclaration con)
-	{
+	public CON newCON(ConstantDeclaration con) {
 		return new CON(con);
 	}
 
-	public FUN newFUN(Function fun)
-	{
+	public FUN newFUN(Function fun) {
 		return new FUN(fun);
 	}
 
-	public HashMap<String, RTP> restypes  = new HashMap<String, RTP>();
+	public HashMap<String, RTP> restypes = new HashMap<String, RTP>();
 	public HashMap<String, RSS> resources = new HashMap<String, RSS>();
 	public HashMap<String, SEQ> sequences = new HashMap<String, SEQ>();
 	public HashMap<String, CON> constants = new HashMap<String, CON>();

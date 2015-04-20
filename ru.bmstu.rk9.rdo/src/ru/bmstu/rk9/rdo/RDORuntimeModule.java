@@ -18,12 +18,12 @@ public class RDORuntimeModule extends ru.bmstu.rk9.rdo.AbstractRDORuntimeModule 
 		return RDOLinkingDiagnosticMessageProvider.class;
 	}
 
-    @Override
-    public Class<? extends IQualifiedNameProvider> bindIQualifiedNameProvider() {
-        return RDOQualifiedNameProvider.class;
-    }
+	@Override
+	public Class<? extends IQualifiedNameProvider> bindIQualifiedNameProvider() {
+		return RDOQualifiedNameProvider.class;
+	}
 
-    public Class<? extends IMultipleResourceGenerator> bindIGenerator2 () {
-        return RDOGenerator.class;
-    }
+	public Class<? extends IMultipleResourceGenerator> bindIGenerator2() {
+		return RDOGenerator.class;
+	}
 }
