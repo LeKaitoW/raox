@@ -6,7 +6,9 @@ import java.util.TimerTask;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IColorProvider;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -44,6 +46,23 @@ public class RDOSerializedObjectsView extends ViewPart {
 		serializedObjectsTreeViewer
 				.setLabelProvider(new RDOSerializedObjectsLabelProvider());
 
+		serializedObjectsTreeViewer
+				.addDoubleClickListener(new IDoubleClickListener() {
+					@Override
+					public void doubleClick(DoubleClickEvent event) {
+						Object item = serializedObjectsTreeViewer.getTree()
+								.getSelection()[0].getData();
+						if (item == null)
+							return;
+
+						if (serializedObjectsTreeViewer.getExpandedState(item))
+							serializedObjectsTreeViewer
+									.collapseToLevel(item, 1);
+						else
+							serializedObjectsTreeViewer.expandToLevel(item, 1);
+					}
+				});
+
 		if (Simulator.isInitialized()) {
 			commonUpdater.fireChange();
 		}
@@ -78,8 +97,8 @@ public class RDOSerializedObjectsView extends ViewPart {
 				public void run() {
 					if (!readyForInput())
 						return;
-					RDOSerializedObjectsView.
-							serializedObjectsTreeViewer.refresh();
+					RDOSerializedObjectsView.serializedObjectsTreeViewer
+							.refresh();
 				}
 			};
 
@@ -160,7 +179,7 @@ class RDOSerializedObjectsContentProvider implements ITreeContentProvider {
 }
 
 class RDOSerializedObjectsLabelProvider implements ILabelProvider,
-		IColorProvider{
+		IColorProvider {
 	@Override
 	public void addListener(ILabelProviderListener listener) {
 	}
@@ -186,20 +205,15 @@ class RDOSerializedObjectsLabelProvider implements ILabelProvider,
 		Display display = PlatformUI.getWorkbench().getDisplay();
 
 		if (index == null) {
-			url = FileLocator.find(
-					Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
-					new org.eclipse.core.runtime.Path("icons/cross-small-white.png"),
-					null);
-		}
-		else if (index.getType() == IndexType.RESOURCE
+			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+					new org.eclipse.core.runtime.Path(
+							"icons/cross-small-white.png"), null);
+		} else if (index.getType() == IndexType.RESOURCE
 				&& ((ResourceIndex) index).isErased()) {
-			url = FileLocator.find(
-					Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
-					new org.eclipse.core.runtime.Path("icons/cross.png"),
-					null);
+			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+					new org.eclipse.core.runtime.Path("icons/cross.png"), null);
 		} else {
-			url = FileLocator.find(
-					Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
 					new org.eclipse.core.runtime.Path("icons/globe-small.png"),
 					null);
 		}
