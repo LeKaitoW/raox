@@ -37,7 +37,6 @@ public class RDOPerspective implements IPerspectiveFactory {
 
 		IFolderLayout bottomLeft = factory.createFolder("bottomLeft", // NON-NLS-1
 				IPageLayout.BOTTOM, 0.6f, "topLeft"); // NON-NLS-1
-		// bottomLeft.addView(IPageLayout.ID_OUTLINE);
 		bottomLeft.addView(RDOSerializationConfigView.ID);
 
 		IFolderLayout bottom = factory.createFolder("bottom", // NON-NLS-1
@@ -50,8 +49,7 @@ public class RDOPerspective implements IPerspectiveFactory {
 
 		IFolderLayout bottomRight = factory.createFolder("bottomRight", // NON-NLS-1
 				IPageLayout.RIGHT, 0.75f, "bottom"); // NON-NLS-1
-
 		bottomRight.addView(RDOStatusView.ID);
-
+		
 	}
 }

@@ -48,7 +48,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 
 	static TreeViewer serializedObjectsTreeViewer;
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOSerializedObjectsView";
-	public static int secondaryID;
+	public static int secondaryID = 0;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -100,8 +100,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 							.getTree().getSelection()[0].getData();
 					final XYSeriesCollection dataset = new XYSeriesCollection();
 
-					final XYSeries series = new XYSeries(String.valueOf(node
-							.getName()));
+					final XYSeries series = new XYSeries(node.getName());
 					dataset.addSeries(series);
 					final List<PlotItem> items = PlotDataParser
 							.parseEntries(node);

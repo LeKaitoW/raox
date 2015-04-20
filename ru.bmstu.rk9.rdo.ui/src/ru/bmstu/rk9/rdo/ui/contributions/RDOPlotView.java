@@ -15,7 +15,7 @@ import org.jfree.experimental.chart.swt.ChartComposite;
 public class RDOPlotView extends ViewPart {
 
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOPlotView";
-	public static ChartComposite frame;
+	private static ChartComposite frame;
 	private static String partName;
 
 	public static void setName(String name) {
