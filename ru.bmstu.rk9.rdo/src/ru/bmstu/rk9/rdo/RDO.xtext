@@ -109,15 +109,7 @@ Operation:
 			',' parameters += PatternParameter+)* )? ')' '{'
 			 relevantresources += OperationRelevantResource+
 			(combinational = PatternChoiceMethod)?
-		'set' 'time' '(' ')' '{'
-			'return' time = ExpressionOr ';'
-		'}'
-		'set' 'begin' '(' ')' '{'
-			begin_algorithm = StatementList
-		'}'
-		'set' 'end' '(' ')' '{'
-			end_algorithm = StatementList
-		'}'
+		defaultMethods += DefaultMethod*
 	'}'
 ;
 
@@ -138,9 +130,7 @@ Rule:
 			',' parameters += PatternParameter+)* )? ')' '{'
 		relevantresources += RuleRelevantResource+
 		(combinational = PatternChoiceMethod)?
-		'set' 'execute' '(' ')' '{'
-			algorithm = StatementList
-		'}'
+		defaultMethods += DefaultMethod*
 	'}'
 ;
 
@@ -157,9 +147,7 @@ Event:
 		(parameters += PatternParameter+ (
 			',' parameters += PatternParameter+)* )? ')' '{'
 			relevantresources += EventRelevantResource+
-		'set' 'execute' '(' ')' '{'
-			algorithm = StatementList
-		'}'
+		defaultMethods += DefaultMethod*
 	'}'
 ;
 
@@ -207,21 +195,25 @@ DecisionPoint
 
 DecisionPointSome:
 	'dpt' name = ID 'is' 'some' '(' ')' '{'
-	('setParent' '(' parent = [DecisionPoint|FQN] ')' ';')?
-	('setCondition' '(' (condition = ExpressionOr | 'NoCheck') ')' ';')?
-	('setPriority' '(' (priority = ExpressionOr) ')' ';')?
-	( activities += DecisionPointActivity ';' )+
+		('set' 'init' '(' ')' '{'
+			('setParent' '(' parent = [DecisionPoint|FQN] ')' ';')?
+			('setCondition' '(' (condition = ExpressionOr | 'NoCheck') ')' ';')?
+			('setPriority' '(' (priority = ExpressionOr) ')' ';')?
+		'}')?
+		( activities += DecisionPointActivity ';' )+
 	'}'
 ;
 
 DecisionPointSearch:
 	'dpt' name = ID 'is' 'search' '(' ')' '{'
-	('setParent' '(' parent = [DecisionPoint|FQN] ')' ';')?
-	('setCondition' '(' (condition = ExpressionOr | 'NoCheck') ')' ';')?
-	'setTerminateCondition' '(' termination = ExpressionOr ')' ';'
-	'evaluateBy' '(' evaluateby = ExpressionOr ')' ';'
-	'compareTops' '(' ((comparetops ?= 'true') | 'false') ')' ';'
-	( activities += DecisionPointSearchActivity ';' )+
+		'set' 'init' '(' ')' '{'
+			('setParent' '(' parent = [DecisionPoint|FQN] ')' ';')?
+			('setCondition' '(' (condition = ExpressionOr | 'NoCheck') ')' ';')?
+			'setTerminateCondition' '(' termination = ExpressionOr ')' ';'
+			'evaluateBy' '(' evaluateby = ExpressionOr ')' ';'
+			'compareTops' '(' ((comparetops ?= 'true') | 'false') ')' ';'
+			( activities += DecisionPointSearchActivity ';' )+
+		'}'
 	'}'
 ;
 
@@ -533,10 +525,14 @@ DefaultMethod:
 DefaultMethodType
 	: OnInit
 	| TerminateCondition
+	| Duration
+	| OnBegin
+	| OnEnd
+	| OnExecute
 ;
 
 OnInit:
-	name = 'onInit' '(' ')' '{'
+	name = 'init' '(' ')' '{'
 		body += Statement*
 	'}'
 ;
@@ -546,6 +542,31 @@ TerminateCondition:
 		'return' condition = ExpressionOr ';'
 	'}'
 ;
+
+Duration:
+	name = 'duration' '(' ')' '{'
+		'return' time = ExpressionOr ';'
+	'}'
+;
+
+OnBegin:
+	name = 'begin' '(' ')' '{'
+		begin_algorithm = StatementList
+	'}'
+;
+
+OnEnd:
+	name = 'end' '(' ')' '{'
+		end_algorithm = StatementList
+	'}'
+;
+
+OnExecute:
+	name = 'execute' '(' ')' '{'
+		algorithm = StatementList
+	'}'
+;
+
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 // ==========================================================

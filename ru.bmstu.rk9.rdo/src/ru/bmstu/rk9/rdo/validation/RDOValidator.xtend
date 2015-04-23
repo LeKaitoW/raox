@@ -63,9 +63,8 @@ import ru.bmstu.rk9.rdo.rdo.Result
 
 import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
-import ru.bmstu.rk9.rdo.rdo.OnInit
-import ru.bmstu.rk9.rdo.rdo.TerminateCondition
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
+import ru.bmstu.rk9.rdo.rdo.DefaultMethod
 
 class SuchAsHistory
 {
@@ -236,35 +235,69 @@ class RDOValidator extends AbstractRDOValidator
 		}
 	}
 
-	// TODO: merge two validators below into one
-	@Check
-	def checkOnInitCount(OnInit method)
+	def checkDefaultMethodCountGeneric(EObject parent, Iterable<DefaultMethod> methods,
+			Map<String, Integer> counts
+	)
 	{
-		var ArrayList<OnInit> overridenMethods
-				= new ArrayList<OnInit>();
-		for(r : resourceIndex)
-			overridenMethods.addAll(r.allContents.toIterable.filter(typeof(OnInit)))
+		for(d : methods) {
+			if (!counts.containsKey(d.method.name))
+				error("Error - incorrect default method name", d,
+					d.getNameStructuralFeature
+				)
+			else if (counts.get(d.method.name) > 0)
+				error("Error - default method cannot be set more than once", d,
+					d.getNameStructuralFeature
+				)
+			else
+				counts.put(d.method.name, 1)
+		}
 
-		if(overridenMethods.size > 1)
-			for(e : overridenMethods)
-				if(e.eResource == method.eResource)
-					error("Error - default method cannot be set more that once", e,
-						e.getNameStructuralFeature)
+		for(k : counts.keySet)
+			if (counts.get(k) == 0)
+				warning("Warning - default method " + k + " not set", parent,
+					parent.getNameStructuralFeature
+				)
 	}
 
 	@Check
-	def checkTerminateConditionCount(TerminateCondition method)
+	def checkDefaultMethodGlobalCount(RDOModel model)
 	{
-		var ArrayList<TerminateCondition> overridenMethods
-				= new ArrayList<TerminateCondition>();
-		for(r : resourceIndex)
-			overridenMethods.addAll(r.allContents.toIterable.filter(typeof(TerminateCondition)))
+		var Map<String, Integer> counts = new HashMap<String, Integer>()
+		for (v : RDOValidatorHelper.DefaultMethodsHelper.GlobalMethods.values)
+			counts.put(v.name, 0)
 
-		if(overridenMethods.size > 1)
-			for(e : overridenMethods)
-				if(e.eResource == method.eResource)
-					error("Error - default method cannot be set more that once", e,
-						e.getNameStructuralFeature)
+		var methods = model.objects.filter(typeof(DefaultMethod))
+		checkDefaultMethodCountGeneric(model, methods, counts)
+	}
+
+	@Check
+	def checkDefaultMethodOperatioCount(Operation op)
+	{
+		var Map<String, Integer> counts = new HashMap<String, Integer>()
+		for (v : RDOValidatorHelper.DefaultMethodsHelper.OperationMethods.values)
+			counts.put(v.name, 0)
+
+		checkDefaultMethodCountGeneric(op, op.defaultMethods, counts)
+	}
+
+	@Check
+	def checkDefaultMethodRuleCount(Rule rule)
+	{
+		var Map<String, Integer> counts = new HashMap<String, Integer>()
+		for (v : RDOValidatorHelper.DefaultMethodsHelper.EventOrRuleMethods.values)
+			counts.put(v.name, 0)
+
+		checkDefaultMethodCountGeneric(rule, rule.defaultMethods, counts)
+	}
+
+	@Check
+	def checkDefaultMethodEventCount(Event evn)
+	{
+		var Map<String, Integer> counts = new HashMap<String, Integer>()
+		for (v : RDOValidatorHelper.DefaultMethodsHelper.EventOrRuleMethods.values)
+			counts.put(v.name, 0)
+
+		checkDefaultMethodCountGeneric(evn, evn.defaultMethods, counts)
 	}
 
 	@Check

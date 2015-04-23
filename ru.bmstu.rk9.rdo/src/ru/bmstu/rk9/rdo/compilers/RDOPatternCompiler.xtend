@@ -26,6 +26,10 @@ import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
+import ru.bmstu.rk9.rdo.rdo.OnExecute
+import ru.bmstu.rk9.rdo.rdo.OnBegin
+import ru.bmstu.rk9.rdo.rdo.OnEnd
+import ru.bmstu.rk9.rdo.rdo.Duration
 
 class RDOPatternCompiler
 {
@@ -111,7 +115,9 @@ class RDOPatternCompiler
 					@Override
 					public void run(RelevantResources resources, Parameters parameters)
 					{
-						«evn.algorithm.compileConvert()»
+						«FOR e: evn.defaultMethods.filter[m | m.method.name == "execute"]»
+							«(e.method as OnExecute).algorithm.compileConvert()»
+						«ENDFOR»
 					}
 				};
 
@@ -384,7 +390,9 @@ class RDOPatternCompiler
 						@Override
 						public void run(RelevantResources resources, Parameters parameters)
 						{
-							«rule.algorithm.compileConvert»
+							«FOR e: rule.defaultMethods.filter[m | m.method.name == "execute"]»
+								«(e.method as OnExecute).algorithm.compileConvert()»
+							«ENDFOR»
 						}
 					};
 
@@ -685,7 +693,9 @@ class RDOPatternCompiler
 						@Override
 						public void run(RelevantResources resources, Parameters parameters)
 						{
-							«op.begin_algorithm.compileConvert»
+							«FOR e: op.defaultMethods.filter[m | m.method.name == "begin"]»
+								«(e.method as OnBegin).begin_algorithm.compileConvert()»
+							«ENDFOR»
 						}
 					};
 
@@ -695,7 +705,9 @@ class RDOPatternCompiler
 						@Override
 						public void run(RelevantResources resources, Parameters parameters)
 						{
-							«op.end_algorithm.compileConvert»
+							«FOR e: op.defaultMethods.filter[m | m.method.name == "end"]»
+								«(e.method as OnEnd).end_algorithm.compileConvert()»
+							«ENDFOR»
 						}
 					};
 
@@ -742,8 +754,12 @@ class RDOPatternCompiler
 
 				begin.run(resources, parameters);
 
-				«op.name» instance = new «op.name»(Simulator.getTime() + «
-					op.time.compileExpressionContext((new LocalContext).populateFromOperation(op)).value», resources.copyUpdate(), parameters);
+				«FOR e: op.defaultMethods.filter[m | m.method.name == "duration"]»
+					«op.name» instance = new «op.name»(Simulator.getTime() + «
+						(e.method as Duration).time.compileExpressionContext(
+							(new LocalContext).populateFromOperation(op)
+						).value», resources.copyUpdate(), parameters);
+				«ENDFOR»
 
 				«IF !op.relevantresources.filter[t | t.begin.literal == "Erase"].empty»
 					// erase resources

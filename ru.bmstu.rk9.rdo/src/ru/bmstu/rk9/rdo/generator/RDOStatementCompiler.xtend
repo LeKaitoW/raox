@@ -35,13 +35,14 @@ class RDOStatementCompiler
 {
 	def static String compileConvert(StatementList st)
 	{
-		switch st.eContainer
+		var cont = st.eContainer.eContainer.eContainer
+		switch cont
 		{
 			Event:
 					'''
 					{
 						«st.compileStatementContext(
-							(new LocalContext).populateFromEvent(st.eContainer as Event))»
+							(new LocalContext).populateFromEvent(cont))»
 					}
 					'''
 
@@ -49,7 +50,7 @@ class RDOStatementCompiler
 					'''
 					{
 						«st.compileStatementContext(
-							(new LocalContext).populateFromRule(st.eContainer as Rule))»
+							(new LocalContext).populateFromRule(cont))»
 					}
 					'''
 
@@ -57,7 +58,7 @@ class RDOStatementCompiler
 					'''
 					{
 						«st.compileStatementContext(
-						(new LocalContext).populateFromOperation(st.eContainer as Operation))»
+						(new LocalContext).populateFromOperation(cont))»
 					}
 					'''
 		}
