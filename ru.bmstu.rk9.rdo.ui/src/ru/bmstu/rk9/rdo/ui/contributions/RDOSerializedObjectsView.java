@@ -114,7 +114,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 							.getWorkbench()
 							.getActiveWorkbenchWindow()
 							.getActivePage()
-							.showView("ru.bmstu.rk9.rdo.ui.RDOPlotView",
+							.showView(RDOPlotView.ID,
 									String.valueOf(secondaryID),
 									IWorkbenchPage.VIEW_ACTIVATE);
 					secondaryID++;

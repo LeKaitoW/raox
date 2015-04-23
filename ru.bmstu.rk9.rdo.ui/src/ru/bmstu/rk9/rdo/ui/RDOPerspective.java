@@ -6,6 +6,7 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.console.IConsoleConstants;
 
 import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOPlotView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializedObjectsView;
@@ -19,11 +20,20 @@ public class RDOPerspective implements IPerspectiveFactory {
 		super();
 	}
 
+	@SuppressWarnings("restriction")
 	@Override
 	public void createInitialLayout(IPageLayout factory) {
 		this.factory = factory;
 
 		addAssociatedViews();
+
+		// FIXME
+		// editor area emits restricted access warning
+		if (factory instanceof org.eclipse.ui.internal.e4.compatibility.ModeledPageLayout) {
+			org.eclipse.ui.internal.e4.compatibility.ModeledPageLayout plotLayout = (org.eclipse.ui.internal.e4.compatibility.ModeledPageLayout) factory;
+			plotLayout.stackView(RDOPlotView.ID + ":*",
+					factory.getEditorArea(), false);
+		}
 	}
 
 	private void addAssociatedViews() {
