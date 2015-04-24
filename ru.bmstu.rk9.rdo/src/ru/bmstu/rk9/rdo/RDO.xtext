@@ -44,7 +44,7 @@ RDORTPParameterType
 	: RDORTPParameterBasic
 	| RDORTPParameterString
 	| RDORTPParameterArray
-	| RDORTPParameterEnumNew
+	| RDORTPParameterEnum
 ;
 
 RDORTPParameterBasic:
@@ -59,7 +59,7 @@ RDORTPParameterArray:
 	type = RDOArray ('=' default = ArrayValues)?
 ;
 
-RDORTPParameterEnumNew:
+RDORTPParameterEnum:
 	type = RDOEnum ('=' default = [EnumID])?
 ;
 

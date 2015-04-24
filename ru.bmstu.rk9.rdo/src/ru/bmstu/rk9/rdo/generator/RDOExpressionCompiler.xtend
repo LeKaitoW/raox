@@ -67,7 +67,7 @@ import ru.bmstu.rk9.rdo.rdo.PlanningStatement
 import ru.bmstu.rk9.rdo.rdo.TimeNow
 
 import ru.bmstu.rk9.rdo.rdo.RDOType
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnumNew
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 enum ExpressionOperation
@@ -628,7 +628,7 @@ class RDOExpressionCompiler
 			RDORTPParameterBasic : type.type.compileType
 			RDORTPParameterString : type.type.compileType
 			RDORTPParameterArray : type.type.compileType
-			RDORTPParameterEnumNew : type.type.compileType
+			RDORTPParameterEnum : type.type.compileType
 
 			Constant: type.type.compileType
 
@@ -662,7 +662,7 @@ class RDOExpressionCompiler
 			RDORTPParameterBasic : type.type.compileTypePrimitive
 			RDORTPParameterString: type.type.compileTypePrimitive
 			RDORTPParameterArray : type.type.compileTypePrimitive
-			RDORTPParameterEnumNew : type.type.compileType
+			RDORTPParameterEnum : type.type.compileType
 
 			Constant: type.type.compileTypePrimitive
 

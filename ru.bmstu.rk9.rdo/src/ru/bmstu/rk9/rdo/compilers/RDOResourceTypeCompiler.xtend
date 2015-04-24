@@ -21,7 +21,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOReal
 import ru.bmstu.rk9.rdo.rdo.RDOBoolean
 import ru.bmstu.rk9.rdo.rdo.RDOString
 import ru.bmstu.rk9.rdo.rdo.RDOArray
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnumNew
+import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOResourceTypeCompiler
@@ -607,7 +607,7 @@ class RDOResourceTypeCompiler
 			RDORTPParameterBasic:
 				return if(parameter.^default != null) " = " + parameter.^default.compileExpression.value else ""
 
-			RDORTPParameterEnumNew:
+			RDORTPParameterEnum:
 				return if(parameter.^default != null) " = " + parameter.type.compileType + "." + parameter.^default.name else ""
 
 			RDORTPParameterString:
