@@ -10,7 +10,6 @@ import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 import ru.bmstu.rk9.rdo.rdo.RDODefaultParameter
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
@@ -31,7 +30,6 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivity
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.RDOReal
 import ru.bmstu.rk9.rdo.rdo.RDOBoolean
-import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDOArray
 import ru.bmstu.rk9.rdo.rdo.RDOString
 
@@ -629,7 +627,6 @@ class RDOExpressionCompiler
 
 			RDORTPParameterBasic : type.type.compileType
 			RDORTPParameterString : type.type.compileType
-			RDORTPParameterSuchAs : type.type.compileType
 			RDORTPParameterArray : type.type.compileType
 			RDORTPParameterEnumNew : type.type.compileType
 
@@ -649,7 +646,6 @@ class RDOExpressionCompiler
 
 			RDOBoolean : "Boolean"
 			RDOString : "String"
-			RDOSuchAs : type.type.compileType
 			RDOArray : "java.util.ArrayList<" + type.arraytype.compileType + ">"
 			RDOEnum : type.getFullEnumName
 
@@ -665,7 +661,6 @@ class RDOExpressionCompiler
 
 			RDORTPParameterBasic : type.type.compileTypePrimitive
 			RDORTPParameterString: type.type.compileTypePrimitive
-			RDORTPParameterSuchAs: type.type.compileTypePrimitive
 			RDORTPParameterArray : type.type.compileTypePrimitive
 			RDORTPParameterEnumNew : type.type.compileType
 
@@ -675,7 +670,6 @@ class RDOExpressionCompiler
 			RDOReal   : "double"
 			RDOBoolean: "boolean"
 			RDOString : "String"
-			RDOSuchAs : type.type.compileTypePrimitive
 			RDOArray  : "java.util.ArrayList<" + type.arraytype.compileType + ">"
 			RDOEnum : type.getFullEnumName
 
@@ -691,40 +685,36 @@ class RDOExpressionCompiler
 
 			RDORTPParameterBasic : type.type
 			RDORTPParameterString: type.type
-			RDORTPParameterSuchAs: type.type.type.resolveAllSuchAs.resolveAllArrays
 			RDORTPParameterArray : type.type.resolveAllArrays
 
-			Constant: type.type.resolveAllSuchAs.resolveAllArrays
+			Constant: type.type.resolveAllTypes.resolveAllArrays
 
 			RDOInteger: type
 			RDOReal   : type
 			RDOBoolean: type
 			RDOString : type
-			RDOSuchAs : type.type.resolveAllSuchAs.resolveAllArrays
 			RDOArray  : type.arraytype.resolveAllArrays
 
 			default: null
 		}
 	}
 
-	def static RDOType resolveAllSuchAs(EObject type)
+	def static RDOType resolveAllTypes(EObject type)
 	{
 		switch type
 		{
-			ResourceTypeParameter: type.type.resolveAllSuchAs
+			ResourceTypeParameter: type.type.resolveAllTypes
 
 			RDORTPParameterBasic : type.type
 			RDORTPParameterString: type.type
-			RDORTPParameterSuchAs: type.type.type.resolveAllSuchAs
 			RDORTPParameterArray : type.type
 
-			Constant: type.type.resolveAllSuchAs
+			Constant: type.type.resolveAllTypes
 
 			RDOInteger: type
 			RDOReal   : type
 			RDOBoolean: type
 			RDOString : type
-			RDOSuchAs : type.type.resolveAllSuchAs
 			RDOArray  : type
 
 			default: null

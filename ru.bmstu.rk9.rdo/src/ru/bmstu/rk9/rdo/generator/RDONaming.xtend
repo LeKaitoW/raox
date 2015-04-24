@@ -12,7 +12,6 @@ import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
@@ -44,7 +43,6 @@ import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.RDOReal
 import ru.bmstu.rk9.rdo.rdo.RDOBoolean
 import ru.bmstu.rk9.rdo.rdo.RDOString
-import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDOArray
 import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
@@ -220,20 +218,12 @@ class RDONaming
 		{
 			RDORTPParameterBasic : getTypeGenericLabel(type.type)
 			RDORTPParameterString: getTypeGenericLabel(type.type)
-			RDORTPParameterSuchAs: getTypeGenericLabel(type.type)
 			RDORTPParameterArray : getTypeGenericLabel(type.type)
 
 			RDOInteger: " : " + type.type
 			RDOReal   : " : " + type.type
 			RDOBoolean: " : " + type.type
 			RDOString : " : " + type.type
-			RDOSuchAs : " : such_as " + switch type.eContainer
-			{
-				RDORTPParameterSuchAs:
-					getContextQualifiedName(type.type, type.eContainer.eContainer.eContainer)
-				default: getContextQualifiedName(type.type, type.modelRoot)
-			}
-
 			RDOArray  : " : array" + getTypeGenericLabel(type.arraytype)
 			RDOEnum: " : " + type.getId
 

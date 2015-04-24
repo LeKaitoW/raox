@@ -26,15 +26,11 @@ import ru.bmstu.rk9.rdo.generator.GlobalContext
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
-import ru.bmstu.rk9.rdo.RDOQualifiedNameProvider
-
 import ru.bmstu.rk9.rdo.rdo.RdoPackage
 
 import ru.bmstu.rk9.rdo.rdo.RDOModel
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
@@ -61,57 +57,9 @@ import ru.bmstu.rk9.rdo.rdo.Frame
 
 import ru.bmstu.rk9.rdo.rdo.Result
 
-import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.DefaultMethod
-
-class SuchAsHistory
-{
-	private List<EObject> history
-	private String text
-
-	new(EObject first)
-	{
-		history = new ArrayList<EObject>
-		history.add(first)
-
-		switch first
-		{
-			ResourceTypeParameter:
-				text = first.eContainer.getNameGeneric + "." + first.getNameGeneric
-
-			default:
-				text = first.getNameGeneric
-		}
-	}
-
-	public def boolean add(EObject object)
-	{
-		var ret = !history.contains(object)
-		history.add(object)
-
-		var extmodel = ""
-		var extname = RDOQualifiedNameProvider.filenameFromURI((object.eContainer.eContainer as RDOModel))
-		if(RDOQualifiedNameProvider.filenameFromURI((history.head.eContainer.eContainer as RDOModel)) != extname)
-			extmodel = extmodel + extname + "."
-
-		switch object
-		{
-			ResourceTypeParameter:
-				text = text + " \u2192 " + extmodel + object.eContainer.getNameGeneric + "." + object.getNameGeneric
-
-			default:
-				text = text + " \u2192 " + extmodel + object.getNameGeneric
-		}
-		return ret
-	}
-
-	public def String getText()
-	{
-		return text
-	}
-}
 
 class RDOValidator extends AbstractRDOValidator
 {
@@ -376,9 +324,6 @@ class RDOValidator extends AbstractRDOValidator
 			Sequence:
 				RdoPackage.eINSTANCE.sequence_Name
 
-			Constant:
-				RdoPackage.eINSTANCE.META_SuchAs_Name
-
 			Function:
 				RdoPackage.eINSTANCE.function_Name
 
@@ -412,71 +357,6 @@ class RDOValidator extends AbstractRDOValidator
 			EventRelevantResource:
 				RdoPackage.eINSTANCE.eventRelevantResource_Name
 		}
-	}
-
-	def boolean resolveCyclicSuchAs(EObject object, SuchAsHistory history)
-	{
-		if(object.eContainer == null)	// check unresolved reference in order
-		    return false              	// to avoid exception in second switch
-
-		switch object
-		{
-			ResourceTypeParameter:
-			{
-				switch object.type
-				{
-					RDORTPParameterSuchAs:
-					{
-						if(history.add(object))
-							return resolveCyclicSuchAs((object.type as RDORTPParameterSuchAs).type.type, history)
-						else
-							return true
-					}
-					default: return false
-				}
-			}
-			Constant:
-			{
-				switch object.type
-				{
-					RDOSuchAs:
-					{
-						if(history.add(object))
-							return resolveCyclicSuchAs((object.type as RDOSuchAs).type, history)
-						else
-							return true
-					}
-					default: return false
-				}
-			}
-			default:
-			{
-				error("This is a bug. Please, let us know and send us the text of your model.",
-					RdoPackage.eINSTANCE.META_SuchAs_Name)
-				return false
-			}
-		}
-	}
-
-	@Check
-	def checkCyclicSuchAs(RDOSuchAs ref)
-	{
-		var EObject first
-
-		switch ref.eContainer
-		{
-			RDORTPParameterSuchAs:
-				first = ref.eContainer.eContainer
-
-			Constant:
-				first = ref.eContainer
-
-			default: return
-		}
-		var SuchAsHistory history = new SuchAsHistory(first)
-		if(resolveCyclicSuchAs(ref.type, history))
-			error("Cyclic such_as found in '" + first.nameGeneric + "': " + history.text +". Resulting type is unknown.",
-				first, RdoPackage.eINSTANCE.META_SuchAs_Name)
 	}
 
 	@Check
@@ -613,7 +493,7 @@ class RDOValidator extends AbstractRDOValidator
 
 		for(p : fun.parameters)
 		{
-			val actual = p.type.resolveAllSuchAs
+			val actual = p.type.resolveAllTypes
 			if(!(actual instanceof RDOEnum || (actual instanceof RDOInteger && (actual as RDOInteger).range != null)))
 				error("Invalid parameter type. Table function allows enumerative and ranged integer parameters only",
 					p, RdoPackage.eINSTANCE.functionParameter_Type)

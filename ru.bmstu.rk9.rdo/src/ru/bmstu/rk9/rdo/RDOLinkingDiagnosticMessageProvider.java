@@ -20,11 +20,6 @@ public class RDOLinkingDiagnosticMessageProvider extends
 		String msg;
 		switch (referenceType.getName()) {
 
-		case "META_SuchAs":
-			msg = "Couldn't resolve such_as reference to '"
-					+ context.getLinkText() + "'.";
-			break;
-
 		case "META_TypeDeclaration":
 			msg = "Couldn't find type with name '" + context.getLinkText()
 					+ "'.";

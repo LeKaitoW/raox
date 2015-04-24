@@ -75,7 +75,7 @@ class RDOFunctionCompiler
 							(new LocalContext).populateWithEnums(fun.returntype as RDOEnum)
 						else
 							null,
-						type.parameters.get(0).type.resolveAllSuchAs.tableLength
+						type.parameters.get(0).type.resolveAllTypes.tableLength
 					)»
 				};
 
@@ -192,7 +192,7 @@ class RDOFunctionCompiler
 		for(i : 0 ..< parameters.size)
 		{
 			list.set(i, multiplier)
-			multiplier = multiplier * parameters.get(i).type.resolveAllSuchAs.tableLength
+			multiplier = multiplier * parameters.get(i).type.resolveAllTypes.tableLength
 		}
 
 		var compiled = ""

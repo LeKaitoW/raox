@@ -11,7 +11,6 @@ import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
 
@@ -22,7 +21,6 @@ import ru.bmstu.rk9.rdo.rdo.RDOReal
 import ru.bmstu.rk9.rdo.rdo.RDOBoolean
 import ru.bmstu.rk9.rdo.rdo.RDOString
 import ru.bmstu.rk9.rdo.rdo.RDOArray
-import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnumNew
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
@@ -598,7 +596,6 @@ class RDOResourceTypeCompiler
 			RDOBoolean : return "boolean"
 			RDOEnum : return type.compileType
 			RDOString : return "string"
-			RDOSuchAs : return type.resolveAllSuchAs.getTypename
 			default: return null
 		}
 	}
@@ -612,9 +609,6 @@ class RDOResourceTypeCompiler
 
 			RDORTPParameterEnumNew:
 				return if(parameter.^default != null) " = " + parameter.type.compileType + "." + parameter.^default.name else ""
-
-			RDORTPParameterSuchAs:
-				return if(parameter.^default != null) " = " + parameter.^default.compileExpression.value else ""
 
 			RDORTPParameterString:
 				return if(parameter.^default != null) ' = "' + parameter.^default + '"' else ""

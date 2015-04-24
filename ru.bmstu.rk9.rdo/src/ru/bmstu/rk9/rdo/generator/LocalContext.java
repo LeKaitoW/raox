@@ -80,7 +80,7 @@ public class LocalContext {
 				((Function) fun.eContainer()).getReturntype())
 				.endsWith("_enum"))
 			this.populateWithEnums((RDOEnum) (RDOExpressionCompiler
-					.resolveAllSuchAs(((Function) fun.eContainer())
+					.resolveAllTypes(((Function) fun.eContainer())
 							.getReturntype())));
 
 		return this;
@@ -102,7 +102,7 @@ public class LocalContext {
 				((Function) fun.eContainer()).getReturntype())
 				.endsWith("_enum"))
 			this.populateWithEnums((RDOEnum) (RDOExpressionCompiler
-					.resolveAllSuchAs(((Function) fun.eContainer())
+					.resolveAllTypes(((Function) fun.eContainer())
 							.getReturntype())));
 
 		return this;

@@ -43,7 +43,6 @@ ResourceTypeParameter:
 RDORTPParameterType
 	: RDORTPParameterBasic
 	| RDORTPParameterString
-	| RDORTPParameterSuchAs
 	| RDORTPParameterArray
 	| RDORTPParameterEnumNew
 ;
@@ -54,10 +53,6 @@ RDORTPParameterBasic:
 
 RDORTPParameterString:
 	type = RDOString  ('=' default = STRING)?
-;
-
-RDORTPParameterSuchAs:
-	type = RDOSuchAs ('=' default = ExpressionOr)?
 ;
 
 RDORTPParameterArray:
@@ -585,11 +580,6 @@ META_RelResType
 	| ResourceDeclaration
 ;
 
-META_SuchAs
-	: ResourceTypeParameter
-	| Constant
-;
-
 META_DecisionPointActivity
 	: Operation
 	| Rule
@@ -618,7 +608,6 @@ RDOType
 	| RDOReal
 	| RDOBoolean
 	| RDOString
-	| RDOSuchAs	
 	| RDOArray
 	| RDOEnum
 ;
@@ -654,10 +643,6 @@ RDOEnum:
 
 EnumID:
 	name = ID
-;
-
-RDOSuchAs:
-	'such_as' type = [META_SuchAs|FQN]
 ;
 
 RDOArray:
