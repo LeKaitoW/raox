@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceParameterIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
@@ -34,9 +35,49 @@ public class PlotDataParser {
 		case RESULT:
 			final ResultIndex resultIndex = (ResultIndex) index;
 			return parseResult(resultIndex);
+		case PATTERN:
+			final PatternIndex patternIndex = (PatternIndex) index;
+			return parsePattern(patternIndex);
 		default:
 			return null;
 		}
+	}
+
+	private static List<PlotItem> parsePattern(PatternIndex patternIndex) {
+		final List<PlotItem> dataset = new ArrayList<PlotItem>();
+		final List<Integer> entriesNumbers = patternIndex.getEntryNumbers();
+		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
+		int count = 0;
+		PlotItem item = null;
+		item = new PlotItem(0, 0);
+		dataset.add(item);
+		for (int i = 0; i < entriesNumbers.size(); i++) {
+			final int currentNumberEntry = entriesNumbers.get(i);
+			final Entry currentEntry = allEntries.get(currentNumberEntry);
+			final ByteBuffer header = Tracer
+					.prepareBufferForReading(currentEntry.header);
+
+			Tracer.skipPart(header, TypeSize.BYTE);
+			final double time = header.getDouble();
+
+			final Database.PatternType entryType = Database.PatternType
+					.values()[header.get()];
+
+			switch (entryType) {
+			case OPERATION_BEGIN:
+				count++;
+				item = new PlotItem(time, count);
+				break;
+			case OPERATION_END:
+				count--;
+				item = new PlotItem(time, count);
+				break;
+			default:
+				return null;
+			}
+			dataset.add(item);
+		}
+		return dataset;
 	}
 
 	private static List<PlotItem> parseResult(final ResultIndex resultIndex) {
@@ -64,6 +105,9 @@ public class PlotDataParser {
 				break;
 			case REAL:
 				item = new PlotItem(time, data.getDouble());
+				break;
+			case ENUM:
+				item = new PlotItem(time, data.getShort());
 				break;
 			case BOOLEAN:
 				item = new PlotItem(time, data.get() != 0 ? 1 : 0);
@@ -104,6 +148,10 @@ public class PlotDataParser {
 				break;
 			case REAL:
 				item = new PlotItem(time, data.getDouble(resourceParameterIndex
+						.getOffset()));
+				break;
+			case ENUM:
+				item = new PlotItem(time, data.getShort(resourceParameterIndex
 						.getOffset()));
 				break;
 			case BOOLEAN:

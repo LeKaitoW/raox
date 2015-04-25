@@ -36,6 +36,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.IndexType;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rdo.lib.Database.ResultType;
@@ -82,6 +83,14 @@ public class RDOSerializedObjectsView extends ViewPart {
 						final ResultType resultType = resultIndex
 								.getResultType();
 						if (resultType != ResultType.GET_VALUE) {
+							enabled = true;
+						}
+						break;
+					case PATTERN:
+						final PatternIndex patternIndex = (PatternIndex) index;
+						final String patternType = patternIndex.getStructrure()
+								.getString("type");
+						if (patternType.equals("operation")) {
 							enabled = true;
 						}
 						break;

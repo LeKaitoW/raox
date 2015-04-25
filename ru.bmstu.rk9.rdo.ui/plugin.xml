@@ -1026,10 +1026,7 @@
            name="RDO Plot"
            icon="icons/system-monitor.png"
            restorable="true"
-           allowMultiple = "true"
-           minimized="false"
-           relationship="stack"
-           visible="false">
+           allowMultiple = "true">
      </view>
   </extension>
 

@@ -105,8 +105,13 @@ public class CollectedDataNode {
 			this.structure = structure;
 		}
 
+		public JSONObject getStructrure() {
+			return structure;
+		}
+
 		JSONObject structure;
 		int timesExecuted = 0;
+
 	}
 
 	public static class ResourceTypeIndex extends Index {
