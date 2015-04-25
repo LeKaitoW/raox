@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType;
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter;
+import ru.bmstu.rk9.rdo.rdo.ParameterType;
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration;
 import ru.bmstu.rk9.rdo.rdo.Constant;
 import ru.bmstu.rk9.rdo.rdo.Function;
@@ -28,8 +28,8 @@ public class GlobalContext {
 		public RTP(ResourceType rtp) {
 			origin = rtp;
 			parameters = new HashMap<String, String>();
-			for (ResourceTypeParameter p : rtp.getParameters())
-				parameters.put(p.getName(),
+			for (ParameterType p : rtp.getParameters())
+				parameters.put(p.getParam().getName(),
 						RDOExpressionCompiler.compileType(p));
 		}
 	}

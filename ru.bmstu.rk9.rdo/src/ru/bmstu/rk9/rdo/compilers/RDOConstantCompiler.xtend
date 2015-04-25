@@ -28,11 +28,11 @@ class RDOConstantCompiler
 					con.type as RDOEnum)).value»«ELSE»«con.value.compileExpression.value»«ENDIF»;
 			«IF con.type instanceof RDOEnum»
 
-				public enum «(con.type as RDOEnum).getId.eContainer.nameGeneric
-					».«(con.type as RDOEnum).getId.name».«
-						(con.type as RDOEnum).getId.name»_enum
+				public enum «(con.type as RDOEnum).type.eContainer.nameGeneric
+					».«(con.type as RDOEnum).type.name».«
+						(con.type as RDOEnum).type.name»_enum
 				{
-					«(con.type as RDOEnum).getId.makeEnumBody»
+					«(con.type as RDOEnum).type.makeEnumBody»
 				}«
 			ENDIF»
 		}

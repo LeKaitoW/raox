@@ -9,10 +9,10 @@ import org.eclipse.emf.ecore.EObject
 import ru.bmstu.rk9.rdo.rdo.RDOModel
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
+import ru.bmstu.rk9.rdo.rdo.ParameterType
+import ru.bmstu.rk9.rdo.rdo.ParameterTypeBasic
+import ru.bmstu.rk9.rdo.rdo.ParameterTypeString
+import ru.bmstu.rk9.rdo.rdo.ParameterTypeArray
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
@@ -25,7 +25,6 @@ import ru.bmstu.rk9.rdo.rdo.Constant
 import ru.bmstu.rk9.rdo.rdo.Function
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter
 
-import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
 import ru.bmstu.rk9.rdo.rdo.Rule
@@ -82,8 +81,8 @@ class RDONaming
 			ResourceType:
 				return object.name
 
-			ResourceTypeParameter:
-				return object.name
+			ParameterType:
+				return object.param.name
 
 			ResourceDeclaration:
 				return object.name
@@ -98,9 +97,6 @@ class RDONaming
 				return object.name
 
 			FunctionParameter:
-				return object.name
-
-			PatternParameter:
 				return object.name
 
 			Operation:
@@ -145,9 +141,9 @@ class RDONaming
 			ResourceType:
 				return object.eContainer.nameGeneric + "." + object.name
 
-			ResourceTypeParameter:
+			ParameterType:
 				return object.eContainer.eContainer.nameGeneric +
-					"." + object.eContainer.nameGeneric + "." + object.name
+					"." + object.eContainer.nameGeneric + "." + object.param.name
 
 			ResourceDeclaration:
 				return object.eContainer.eContainer.nameGeneric + "." + object.name
@@ -216,16 +212,16 @@ class RDONaming
 	{
 		switch type
 		{
-			RDORTPParameterBasic : getTypeGenericLabel(type.type)
-			RDORTPParameterString: getTypeGenericLabel(type.type)
-			RDORTPParameterArray : getTypeGenericLabel(type.type)
+			ParameterTypeBasic : getTypeGenericLabel(type.type)
+			ParameterTypeString: getTypeGenericLabel(type.type)
+			ParameterTypeArray : getTypeGenericLabel(type.type)
 
 			RDOInteger: " : " + type.type
 			RDOReal   : " : " + type.type
 			RDOBoolean: " : " + type.type
 			RDOString : " : " + type.type
 			RDOArray  : " : array" + getTypeGenericLabel(type.arraytype)
-			RDOEnum: " : " + type.getId
+			RDOEnum: " : " + type.type
 
 			default: ""
 		}

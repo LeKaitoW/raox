@@ -32,35 +32,36 @@ RDOEntity
 // ==========================================================
 ResourceType:
 	'type' name = ID '{'
-		(parameters += ResourceTypeParameter)+
+		(parameters += ParameterType)+
 	'}'
 ;
 
-ResourceTypeParameter:
-	name = ID ':' type = RDORTPParameterType
+ParameterType
+	: param = ParameterTypeList
 ;
 
-RDORTPParameterType
-	: RDORTPParameterBasic
-	| RDORTPParameterString
-	| RDORTPParameterArray
-	| RDORTPParameterEnum
+ParameterTypeList
+	: ParameterTypeBasic
+	| ParameterTypeString
+	| ParameterTypeArray
+	| ParameterTypeEnum
 ;
 
-RDORTPParameterBasic:
-	type = (RDOInteger | RDOReal | RDOBoolean) ('=' default = ExpressionOr)?
+ParameterTypeBasic:
+	type = (RDOInteger | RDOReal | RDOBoolean) name = ID
+		('=' default = ExpressionOr)?
 ;
 
-RDORTPParameterString:
-	type = RDOString  ('=' default = STRING)?
+ParameterTypeString:
+	type = RDOString name = ID ('=' default = STRING)?
 ;
 
-RDORTPParameterArray:
-	type = RDOArray ('=' default = ArrayValues)?
+ParameterTypeArray:
+	type = RDOArray name = ID ('=' default = ArrayValues)?
 ;
 
-RDORTPParameterEnum:
-	type = RDOEnum ('=' default = [EnumID])?
+ParameterTypeEnum:
+	type = RDOEnum name = ID ('=' default = [EnumID])?
 ;
 
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -100,8 +101,8 @@ Pattern
 
 Operation:
 	'pat' name = ID 'is' type = OperationType  '('
-		(parameters += PatternParameter+ (
-			',' parameters += PatternParameter+)* )? ')' '{'
+		(parameters += ParameterType+ (
+			',' parameters += ParameterType+)* )? ')' '{'
 			 relevantresources += OperationRelevantResource+
 			(combinational = PatternChoiceMethod)?
 		defaultMethods += DefaultMethod*
@@ -121,8 +122,8 @@ OperationRelevantResource:
 
 Rule:
 	'pat' name = ID 'is' 'rule' '('
-		(parameters += PatternParameter+ (
-			',' parameters += PatternParameter+)* )? ')' '{'
+		(parameters += ParameterType+ (
+			',' parameters += ParameterType+)* )? ')' '{'
 		relevantresources += RuleRelevantResource+
 		(combinational = PatternChoiceMethod)?
 		defaultMethods += DefaultMethod*
@@ -139,8 +140,8 @@ RuleRelevantResource:
 
 Event:
 	'pat' name = ID 'is' 'event' '('
-		(parameters += PatternParameter+ (
-			',' parameters += PatternParameter+)* )? ')' '{'
+		(parameters += ParameterType+ (
+			',' parameters += ParameterType+)* )? ')' '{'
 			relevantresources += EventRelevantResource+
 		defaultMethods += DefaultMethod*
 	'}'
@@ -164,10 +165,6 @@ PatternChoiceMethod
 enum PatternChoiceWithType
 	: WITH_MIN = 'with_min'
 	| WITH_MAX = 'with_max'
-;
-
-PatternParameter:
-	name = ID ':' type = RDORTPParameterType
 ;
 
 enum PatternConvertStatus
@@ -638,7 +635,7 @@ RangeValue
 ;
 
 RDOEnum:
-	id = [EnumDeclaration|FQN]
+	type = [EnumDeclaration|FQN]
 ;
 
 EnumID:

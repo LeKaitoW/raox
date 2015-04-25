@@ -156,7 +156,7 @@ class RDOFunctionCompiler
 					return 0
 
 			RDOEnum:
-				return type.getId.values.size
+				return type.type.values.size
 
 			default:
 				return 0
@@ -223,7 +223,7 @@ class RDOFunctionCompiler
 		«FOR p : parameters.filter[c | c.type instanceof RDOEnum]»
 		public static enum «p.name»_enum
 		{
-			«(p.type as RDOEnum).getId.makeEnumBody»
+			«(p.type as RDOEnum).type.makeEnumBody»
 		}
 
 		«ENDFOR»

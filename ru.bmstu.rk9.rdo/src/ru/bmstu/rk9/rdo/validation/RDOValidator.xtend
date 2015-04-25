@@ -42,7 +42,7 @@ import ru.bmstu.rk9.rdo.rdo.Function
 import ru.bmstu.rk9.rdo.rdo.FunctionTable
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
-import ru.bmstu.rk9.rdo.rdo.PatternParameter
+import ru.bmstu.rk9.rdo.rdo.ParameterType
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
@@ -292,7 +292,7 @@ class RDOValidator extends AbstractRDOValidator
 	def checkNamesInPatterns (Pattern pat)
 	{
 		val List<EObject> paramlist  = pat.eAllContents.filter[e |
-			e instanceof PatternParameter
+			e instanceof ParameterType
 		].toList
 		val List<EObject> relreslist = pat.eAllContents.filter[e |
 			e instanceof OperationRelevantResource ||
@@ -345,8 +345,8 @@ class RDOValidator extends AbstractRDOValidator
 			Result:
 				RdoPackage.eINSTANCE.result_Name
 
-			PatternParameter:
-				RdoPackage.eINSTANCE.patternParameter_Name
+//			ParameterType:
+//				RdoPackage.eINSTANCE.ParameterType_Type
 
 			OperationRelevantResource:
 				RdoPackage.eINSTANCE.operationRelevantResource_Name

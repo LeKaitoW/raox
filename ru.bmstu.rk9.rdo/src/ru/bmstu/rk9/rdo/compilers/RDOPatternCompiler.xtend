@@ -7,7 +7,6 @@ import org.eclipse.emf.ecore.EObject
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
-
 import static extension ru.bmstu.rk9.rdo.compilers.RDOResourceTypeCompiler.*
 
 import ru.bmstu.rk9.rdo.generator.LocalContext
@@ -17,7 +16,7 @@ import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
-import ru.bmstu.rk9.rdo.rdo.PatternParameter
+import ru.bmstu.rk9.rdo.rdo.ParameterType
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceFrom
 import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
 import ru.bmstu.rk9.rdo.rdo.PatternConvertStatus
@@ -30,6 +29,7 @@ import ru.bmstu.rk9.rdo.rdo.OnExecute
 import ru.bmstu.rk9.rdo.rdo.OnBegin
 import ru.bmstu.rk9.rdo.rdo.OnEnd
 import ru.bmstu.rk9.rdo.rdo.Duration
+import ru.bmstu.rk9.rdo.rdo.RDOType
 
 class RDOPatternCompiler
 {
@@ -86,14 +86,14 @@ class RDOPatternCompiler
 			{
 				«IF !evn.parameters.empty»
 				«FOR p : evn.parameters»
-					public «p.type.compileType» «p.name»«p.type.getDefault»;
+					public «(p.param as RDOType).compileType» «p.param.name»«p.getDefault»;
 				«ENDFOR»
 
-				public Parameters(«evn.parameters.compilePatternParameters»)
+				public Parameters(«evn.parameters.compileParameterTypes»)
 				{
 					«FOR parameter : evn.parameters»
-						if(«parameter.name» != null)
-							this.«parameter.name» = «parameter.name»;
+						if(«parameter.param.name» != null)
+							this.«parameter.param.name» = «parameter.param.name»;
 					«ENDFOR»
 				}
 				«ENDIF»
@@ -144,10 +144,10 @@ class RDOPatternCompiler
 				«ENDFOR»
 			}
 
-			public «evn.name»(double time«IF !evn.parameters.empty», «ENDIF»«evn.parameters.compilePatternParameters»)
+			public «evn.name»(double time«IF !evn.parameters.empty», «ENDIF»«evn.parameters.compileParameterTypes»)
 			{
 				this.time = time;
-				this.parameters = new Parameters(«evn.parameters.compilePatternParametersCall»);
+				this.parameters = new Parameters(«evn.parameters.compileParameterTypesCall»);
 			}
 
 			@Override
@@ -266,14 +266,14 @@ class RDOPatternCompiler
 			{
 				«IF !rule.parameters.empty»
 				«FOR p : rule.parameters»
-					public «p.type.compileType» «p.name»«p.type.getDefault»;
+					public «p.param.compileType» «p.param.name»«p.getDefault»;
 				«ENDFOR»
 
-				public Parameters(«rule.parameters.compilePatternParameters»)
+				public Parameters(«rule.parameters.compileParameterTypes»)
 				{
 					«FOR p : rule.parameters»
-						if(«p.name» != null)
-							this.«p.name» = «p.name»;
+						if(«p.param.name» != null)
+							this.«p.param.name» = «p.param.name»;
 					«ENDFOR»
 				}
 				«ENDIF»
@@ -573,14 +573,14 @@ class RDOPatternCompiler
 			{
 				«IF !op.parameters.empty»
 				«FOR p : op.parameters»
-					public «p.type.compileType» «p.name»«p.type.getDefault»;
+					public «p.param.compileType» «p.param.name»«p.getDefault»;
 				«ENDFOR»
 
-				public Parameters(«op.parameters.compilePatternParameters»)
+				public Parameters(«op.parameters.compileParameterTypes»)
 				{
 					«FOR p : op.parameters»
-						if(«p.name» != null)
-							this.«p.name» = «p.name»;
+						if(«p.param.name» != null)
+							this.«p.param.name» = «p.param.name»;
 					«ENDFOR»
 				}
 				«ENDIF»
@@ -959,23 +959,23 @@ class RDOPatternCompiler
 		}
 	}
 
-	def public static compilePatternParametersCall(List<PatternParameter> parameters)
+	def public static compileParameterTypesCall(List<ParameterType> parameters)
 	{
 		'''«IF !parameters.empty»«
-			parameters.get(0).name»«
+			parameters.get(0).param.name»«
 			FOR parameter : parameters.subList(1, parameters.size)», «
-				parameter.name»«
+				parameter.param.name»«
 			ENDFOR»«
 		ENDIF»'''
 	}
 
-	def public static compilePatternParameters(List<PatternParameter> parameters)
+	def public static compileParameterTypes(List<ParameterType> parameters)
 	{
-		'''«IF !parameters.empty»«parameters.get(0).type.compileType» «
-			parameters.get(0).name»«
+		'''«IF !parameters.empty»«parameters.get(0).param.compileType» «
+			parameters.get(0).param.name»«
 			FOR parameter : parameters.subList(1, parameters.size)», «
-				parameter.type.compileType» «
-				parameter.name»«
+				parameter.param.compileType» «
+				parameter.param.name»«
 			ENDFOR»«
 		ENDIF»'''
 	}

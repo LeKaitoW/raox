@@ -9,7 +9,7 @@ import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import ru.bmstu.rk9.rdo.rdo.RDOModel
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
+import ru.bmstu.rk9.rdo.rdo.ParameterType
 
 import ru.bmstu.rk9.rdo.rdo.Resources
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
@@ -25,7 +25,6 @@ import ru.bmstu.rk9.rdo.rdo.EnumerativeSequence
 import ru.bmstu.rk9.rdo.rdo.RegularSequence
 import ru.bmstu.rk9.rdo.rdo.HistogramSequence
 
-import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.Rule
@@ -61,8 +60,8 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def  text(ResourceType rtp) { "RTP : " + rtp.name }
 	def image(ResourceType rtp) { "puzzle_plus.gif" }
 
-	def  text(ResourceTypeParameter p) { p.name + p.type.typeGenericLabel }
-	def image(ResourceTypeParameter p) { "parameter.gif" }
+//	def  text(ParameterType p) { p.param.name + p.param.type.typeGenericLabel }
+//	def image(ParameterType p) { "parameter.gif" }
 
 	// Resources
 	def  text(Resources rss) {"RSS : objects"}
@@ -91,7 +90,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def  text(FunctionParameter p) { p.name + p.type.typeGenericLabel }
 
 	// Pattern
-	def image(PatternParameter p) { "parameter.gif" }
+	def image(ParameterType p) { "parameter.gif" }
 
 	// Event
 	def  text(Event evn) { "EVN : " + evn.name + " : event"}

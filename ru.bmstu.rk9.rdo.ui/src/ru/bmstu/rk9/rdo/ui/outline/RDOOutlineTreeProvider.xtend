@@ -5,7 +5,7 @@ import org.eclipse.swt.graphics.Image
 import org.eclipse.xtext.ui.editor.outline.impl.AbstractOutlineNode
 import org.eclipse.xtext.ui.editor.outline.IOutlineNode
 
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
+import ru.bmstu.rk9.rdo.rdo.ParameterType
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
@@ -17,7 +17,6 @@ import ru.bmstu.rk9.rdo.rdo.FunctionParameter
 import ru.bmstu.rk9.rdo.rdo.Constant
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
-import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
 import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.Operation
@@ -42,7 +41,7 @@ public class VirtualOutlineNode extends AbstractOutlineNode
 class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.DefaultOutlineTreeProvider
 {
 	// Resource Types
-	def _isLeaf(ResourceTypeParameter rtp) { true }
+	def _isLeaf(ParameterType rtp) { true }
 
 	// Resources
 	def _isLeaf(ResourceDeclaration rss) { true }
@@ -66,10 +65,10 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 	// Pattern
 	def _createChildren(IOutlineNode parentNode, Pattern pat)
 	{
-		if(!pat.eAllContents.filter(typeof(PatternParameter)).empty)
+		if(!pat.eAllContents.filter(typeof(ParameterType)).empty)
 		{
 			val groupParameters = new VirtualOutlineNode(parentNode, parentNode.image, "Parameters", false)
-			for(p : pat.eAllContents.toIterable.filter(typeof(PatternParameter)))
+			for(p : pat.eAllContents.toIterable.filter(typeof(ParameterType)))
 			{
 				createEObjectNode(groupParameters, p)
 			}
@@ -103,8 +102,6 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 			}
 		}
 	}
-
-	def _isLeaf(PatternParameter p) { true }
 
 	// Decision points
 	def _isLeaf(DecisionPointSearchActivity d) { true }

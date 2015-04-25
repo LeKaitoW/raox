@@ -6,11 +6,11 @@ import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
 
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
+import ru.bmstu.rk9.rdo.rdo.ParameterType
 import ru.bmstu.rk9.rdo.rdo.RDODefaultParameter
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
+import ru.bmstu.rk9.rdo.rdo.ParameterTypeBasic
+import ru.bmstu.rk9.rdo.rdo.ParameterTypeString
+import ru.bmstu.rk9.rdo.rdo.ParameterTypeArray
 
 import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 import ru.bmstu.rk9.rdo.rdo.ResourceExpressionList
@@ -67,7 +67,7 @@ import ru.bmstu.rk9.rdo.rdo.PlanningStatement
 import ru.bmstu.rk9.rdo.rdo.TimeNow
 
 import ru.bmstu.rk9.rdo.rdo.RDOType
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
+import ru.bmstu.rk9.rdo.rdo.ParameterTypeEnum
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 enum ExpressionOperation
@@ -420,10 +420,10 @@ class RDOExpressionCompiler
 				val parameters = switch parent
 				{
 					ResourceDeclaration:
-						parent.reference.parameters.map[p | p.type.compileType]
+						parent.reference.parameters.map[p | p.param.compileType]
 
 					PlanningStatement:
-						parent.event.parameters.map[p | p.type.compileType]
+						parent.event.parameters.map[p | p.param.compileType]
 				}
 
 				var String list = ""
@@ -455,10 +455,10 @@ class RDOExpressionCompiler
 				val parameters = switch pattern
 				{
 					Rule:
-						pattern.parameters.map[p | p.type.compileType]
+						pattern.parameters.map[p | p.param.compileType]
 
 					Operation:
-						pattern.parameters.map[p | p.type.compileType]
+						pattern.parameters.map[p | p.param.compileType]
 				}
 
 				var String list = ""
@@ -479,7 +479,7 @@ class RDOExpressionCompiler
 
 			DecisionPointSearchActivity:
 			{
-				val parameters = expr.pattern.parameters.map[p | p.type.compileType]
+				val parameters = expr.pattern.parameters.map[p | p.param.compileType]
 
 				var String list = ""
 				var flag = false
@@ -623,12 +623,12 @@ class RDOExpressionCompiler
 	{
 		switch type
 		{
-			ResourceTypeParameter: type.type.compileType
+			ParameterType: type.param.compileType
 
-			RDORTPParameterBasic : type.type.compileType
-			RDORTPParameterString : type.type.compileType
-			RDORTPParameterArray : type.type.compileType
-			RDORTPParameterEnum : type.type.compileType
+			ParameterTypeBasic : type.type.compileType
+			ParameterTypeString : type.type.compileType
+			ParameterTypeArray : type.type.compileType
+			ParameterTypeEnum : type.type.compileType
 
 			Constant: type.type.compileType
 
@@ -657,12 +657,12 @@ class RDOExpressionCompiler
 	{
 		switch type
 		{
-			ResourceTypeParameter: type.type.compileTypePrimitive
+			ParameterType: type.param.compileTypePrimitive
 
-			RDORTPParameterBasic : type.type.compileTypePrimitive
-			RDORTPParameterString: type.type.compileTypePrimitive
-			RDORTPParameterArray : type.type.compileTypePrimitive
-			RDORTPParameterEnum : type.type.compileType
+			ParameterTypeBasic : type.type.compileTypePrimitive
+			ParameterTypeString: type.type.compileTypePrimitive
+			ParameterTypeArray : type.type.compileTypePrimitive
+			ParameterTypeEnum : type.type.compileType
 
 			Constant: type.type.compileTypePrimitive
 
@@ -677,15 +677,23 @@ class RDOExpressionCompiler
 		}
 	}
 
+//	def static String getDefault(EObject type)
+//	{
+//		switch type
+//		{
+//			ParameterType: type.type
+//		}
+//	}
+
 	def static RDOType resolveAllArrays(EObject type)
 	{
 		switch type
 		{
-			ResourceTypeParameter: type.type.resolveAllArrays
+			ParameterType: type.param.resolveAllArrays
 
-			RDORTPParameterBasic : type.type
-			RDORTPParameterString: type.type
-			RDORTPParameterArray : type.type.resolveAllArrays
+			ParameterTypeBasic : type.type
+			ParameterTypeString: type.type
+			ParameterTypeArray : type.type.resolveAllArrays
 
 			Constant: type.type.resolveAllTypes.resolveAllArrays
 
@@ -703,11 +711,11 @@ class RDOExpressionCompiler
 	{
 		switch type
 		{
-			ResourceTypeParameter: type.type.resolveAllTypes
+			ParameterType: type.param.resolveAllTypes
 
-			RDORTPParameterBasic : type.type
-			RDORTPParameterString: type.type
-			RDORTPParameterArray : type.type
+			ParameterTypeBasic : type.type
+			ParameterTypeString: type.type
+			ParameterTypeArray : type.type
 
 			Constant: type.type.resolveAllTypes
 

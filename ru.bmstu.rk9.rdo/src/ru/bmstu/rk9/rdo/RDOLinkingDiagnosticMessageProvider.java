@@ -7,7 +7,7 @@ import org.eclipse.xtext.diagnostics.DiagnosticMessage;
 import org.eclipse.xtext.linking.impl.LinkingDiagnosticMessageProvider;
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType;
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter;
+import ru.bmstu.rk9.rdo.rdo.ParameterType;
 
 public class RDOLinkingDiagnosticMessageProvider extends
 		LinkingDiagnosticMessageProvider {
@@ -36,12 +36,12 @@ public class RDOLinkingDiagnosticMessageProvider extends
 			break;
 
 		case "EnumID":
-			ResourceTypeParameter parent = (ResourceTypeParameter) context
+			ParameterType parent = (ParameterType) context
 					.getContext().eContainer();
 			ResourceType grandparent = (ResourceType) parent.eContainer();
 			msg = "Value '" + context.getLinkText()
 					+ "' not found in enumerative resource type parameter "
-					+ grandparent.getName() + "." + parent.getName() + ".";
+					+ grandparent.getName() + "." + parent.getParam().getName() + ".";
 			break;
 
 		case "ResourceType":

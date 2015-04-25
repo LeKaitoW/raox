@@ -53,8 +53,8 @@ class RDOEnumCompiler
 
 	def public static getFullEnumName(RDOEnum e)
 	{
-		e.id.eContainer.nameGeneric + "."
-				+ e.id.name + "." + e.id.name + "_enum"
+		e.type.eContainer.nameGeneric + "."
+				+ e.type.name + "." + e.type.name + "_enum"
 	}
 
 	def public static makeEnumBody(EnumDeclaration e)
