@@ -60,8 +60,9 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def  text(ResourceType rtp) { "RTP : " + rtp.name }
 	def image(ResourceType rtp) { "puzzle_plus.gif" }
 
-//	def  text(ParameterType p) { p.param.name + p.param.type.typeGenericLabel }
-//	def image(ParameterType p) { "parameter.gif" }
+	//Parameter types
+	def  text(ParameterType p) { p.param.name + p.param.typeGenericLabel }
+	def image(ParameterType p) { "parameter.gif" }
 
 	// Resources
 	def  text(Resources rss) {"RSS : objects"}
@@ -88,9 +89,6 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	def image(FunctionParameter p) { "parameter.gif" }
 	def  text(FunctionParameter p) { p.name + p.type.typeGenericLabel }
-
-	// Pattern
-	def image(ParameterType p) { "parameter.gif" }
 
 	// Event
 	def  text(Event evn) { "EVN : " + evn.name + " : event"}
