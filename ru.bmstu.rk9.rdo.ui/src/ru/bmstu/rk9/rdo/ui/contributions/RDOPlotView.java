@@ -1,7 +1,11 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.ViewPart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -43,6 +47,12 @@ public class RDOPlotView extends ViewPart {
 				"Value", dataset, PlotOrientation.VERTICAL, true, true, false);
 
 		final XYPlot plot = (XYPlot) chart.getPlot();
+		Color white = new Color(0xFF, 0XFF, 0xFF);
+		plot.setBackgroundPaint(white);
+		Color grey = new Color(0x99, 0x99, 0x99);
+		plot.setDomainGridlinePaint(grey);
+		plot.setRangeGridlinePaint(grey);
+		plot.getRenderer().setSeriesStroke(0, new BasicStroke((float)2.5));
 
 		final NumberAxis rangeAxis = new NumberAxis();
 		rangeAxis.setAutoRangeIncludesZero(true);
