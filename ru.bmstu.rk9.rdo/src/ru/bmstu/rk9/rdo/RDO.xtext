@@ -100,11 +100,11 @@ Pattern
 ;
 
 Operation:
-	'pat' name = ID 'is' type = OperationType  '('
+	type = OperationType name = ID ('('
 		(parameters += ParameterType+ (
-			',' parameters += ParameterType+)* )? ')' '{'
+			',' parameters += ParameterType+)* )? ')')? '{'
 			 relevantresources += OperationRelevantResource+
-			(combinational = PatternChoiceMethod)?
+			(combinational = PatternSelectMethod)?
 		defaultMethods += DefaultMethod*
 	'}'
 ;
@@ -116,32 +116,32 @@ enum OperationType
 
 OperationRelevantResource:	
 	'relevant' name = ID '=' type = [META_RelResType|FQN]
-	(havechoice ?= '.' 'choose' '(' choicefrom = PatternChoiceFrom ')' (choicemethod = PatternChoiceMethod)?)?
+	(haveselect ?= '.' 'select' '(' select = PatternSelectLogic ')' (selectmethod = PatternSelectMethod)?)?
 	begin = PatternConvertStatus end = PatternConvertStatus
 ;
 
 Rule:
-	'pat' name = ID 'is' 'rule' '('
+	'rule' name = ID ('('
 		(parameters += ParameterType+ (
-			',' parameters += ParameterType+)* )? ')' '{'
+			',' parameters += ParameterType+)* )? ')')? '{'
 		relevantresources += RuleRelevantResource+
-		(combinational = PatternChoiceMethod)?
+		(combinational = PatternSelectMethod)?
 		defaultMethods += DefaultMethod*
 	'}'
 ;
 
 RuleRelevantResource:
 	'relevant' name = ID '=' type = [META_RelResType|FQN]
-	(havechoice ?= '.' 'choose' '(' choicefrom = PatternChoiceFrom ')'
-		(choicemethod = PatternChoiceMethod)?
+	(haveselect ?= '.' 'select' '(' select = PatternSelectLogic ')'
+		(selectmethod = PatternSelectMethod)?
 	)?
 	rule = PatternConvertStatus
 ;
 
 Event:
-	'pat' name = ID 'is' 'event' '('
+	'event' name = ID ('('
 		(parameters += ParameterType+ (
-			',' parameters += ParameterType+)* )? ')' '{'
+			',' parameters += ParameterType+)* )? ')')? '{'
 			relevantresources += EventRelevantResource+
 		defaultMethods += DefaultMethod*
 	'}'
@@ -152,19 +152,19 @@ EventRelevantResource:
 	rule = PatternConvertStatus
 ;
 
-PatternChoiceFrom
+PatternSelectLogic
 	: logic = ExpressionOr
-	| nocheck ?= 'NoCheck'
+	| any ?= 'any'
 ;
 
-PatternChoiceMethod
+PatternSelectMethod
 	: first ?= '.' 'first' '(' ')'
 	| '.' withtype = PatternChoiceWithType '(' expression = ExpressionOr ')'
 ;
 
 enum PatternChoiceWithType
-	: WITH_MIN = 'with_min'
-	| WITH_MAX = 'with_max'
+	: WITH_MIN = 'withMin'
+	| WITH_MAX = 'withMax'
 ;
 
 enum PatternConvertStatus
@@ -186,10 +186,10 @@ DecisionPoint
 ;
 
 DecisionPointSome:
-	'dpt' name = ID 'is' 'some' '(' ')' '{'
+	'dpt' name = ID '{'
 		('set' 'init' '(' ')' '{'
 			('setParent' '(' parent = [DecisionPoint|FQN] ')' ';')?
-			('setCondition' '(' (condition = ExpressionOr | 'NoCheck') ')' ';')?
+			('setCondition' '(' (condition = ExpressionOr | 'any') ')' ';')?
 			('setPriority' '(' (priority = ExpressionOr) ')' ';')?
 		'}')?
 		( activities += DecisionPointActivity ';' )+
@@ -197,10 +197,10 @@ DecisionPointSome:
 ;
 
 DecisionPointSearch:
-	'dpt' name = ID 'is' 'search' '(' ')' '{'
+	'search' name = ID '{'
 		'set' 'init' '(' ')' '{'
 			('setParent' '(' parent = [DecisionPoint|FQN] ')' ';')?
-			('setCondition' '(' (condition = ExpressionOr | 'NoCheck') ')' ';')?
+			('setCondition' '(' (condition = ExpressionOr | 'any') ')' ';')?
 			'setTerminateCondition' '(' termination = ExpressionOr ')' ';'
 			'evaluateBy' '(' evaluateby = ExpressionOr ')' ';'
 			'compareTops' '(' ((comparetops ?= 'true') | 'false') ')' ';'
@@ -237,7 +237,7 @@ DecisionPointActivity:
 //                           Sequences
 // ==========================================================
 Sequence:
-	'seq' returntype = RDOType name = ID 'is' type = SequenceType
+	'seq' returntype = RDOType  name = ID 'is' type = SequenceType
 ;
 
 SequenceType
@@ -265,7 +265,7 @@ enum RegularSequenceType
 ;
 
 HistogramSequence:
-	legacy ?= 'legacy'? 'by_hist' '(' seed = INT ')'
+	legacy ?= 'legacy'? 'hist' '(' seed = INT ')'
 	'{'
 		values += Primary+
 	'}'
@@ -348,26 +348,26 @@ ResultType
 ;
 
 ResultWatchParameter:
-	'watch_par' '(' parameter = VariableMethodCallExpression ')'
+	'watchPar' '(' parameter = VariableMethodCallExpression ')'
 ;
 
 ResultWatchState:
-	'watch_state' '(' logic = ExpressionOr ')'
+	'watchState' '(' logic = ExpressionOr ')'
 ;
 
 ResultWatchQuant:
-	'watch_quant' '(' resource = [ResourceType|FQN]
-		',' ('NoCheck' | logic = ExpressionOr) '
+	'watchQuant' '(' resource = [ResourceType|FQN]
+		',' ('any' | logic = ExpressionOr) '
 	)'
 ;
 
 ResultWatchValue:
-	'watch_value' '(' resource = [ResourceType|FQN] ','
-	( 'NoCheck' | logic = ExpressionOr ) ',' expression = ExpressionOr ')'
+	'watchValue' '(' resource = [ResourceType|FQN] ','
+	( 'any' | logic = ExpressionOr ) ',' expression = ExpressionOr ')'
 ;
 
 ResultGetValue:
-	'get_value' '(' expression = ExpressionOr ')'
+	'getValue' '(' expression = ExpressionOr ')'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -376,14 +376,14 @@ ResultGetValue:
 //                      Animation frame
 // ==========================================================
 Frame:
-	'$Frame' name = ID
+	'frame' name = ID '{'
 	(backpicture = FrameBackPicture)?
 		frame = FrameStatementList
-	'$End'	
+	'}'
 ;
 
 FrameBackPicture:
-	'$Back_picture' colour = FrameColour
+	'background' 'is' colour = FrameColour
 	(picture = ProjectFilePath | size = FrameBackPictureSize)
 ;
 
@@ -819,11 +819,11 @@ Primary returns Expression
 Atomic returns Expression
 	: {IntConstant}    value = INT
 	| {DoubleConstant} value = DOUBLE
-	| {TimeNow} invoke = ('Time_now' | 'time_now')
+	| {TimeNow} invoke = ('currentTime')
 	| {StringConstant} value = STRING
 	| {BoolConstant}   value = BOOL
 	| {GroupExpression} type = BuiltInLogical '(' arg = GroupBy ')'
-	| {SelectExpression} 'Select' '(' arg = GroupBy ')' '.' method = SelectMethod '(' (arg2 = ExpressionOr | 'NoCheck'?) ')'
+	| {SelectExpression} 'Select' '(' arg = GroupBy ')' '.' method = SelectMethod '(' (arg2 = ExpressionOr | 'any'?) ')'
 	| ArrayValues
 	| VariableIncDecExpression
 ;
@@ -833,24 +833,24 @@ ArrayValues:
 ;
 
 enum BuiltInLogical
-	: EXIST = 'Exist'
-	| NOTEXIST = 'Not_Exist'
-	| FORALL = 'For_All'
-	| NOTFORALL = 'Not_For_All'
+	: EXIST = 'exist'
+	| NOTEXIST = 'notExist'
+	| FORALL = 'forAll'
+	| NOTFORALL = 'except'
 ;
 
 enum SelectMethod
-	: EXIST = 'Exist'
-	| NOTEXIST = 'Not_Exist'
-	| FORALL = 'For_All'
-	| NOTFORALL = 'Not_For_All'
-	| EMPTY = 'Empty'
-	| SIZE = 'Size'
+	: EXIST = 'exist'
+	| NOTEXIST = 'notExist'
+	| FORALL = 'forAll'
+	| NOTFORALL = 'except'
+	| EMPTY = 'empty'
+	| SIZE = 'size'
 ;
 
 GroupBy:
 	type = [ResourceType|FQN] ':'
-		(condition = ExpressionOr | 'NoCheck')
+		(condition = ExpressionOr | 'any')
 ;
 
 VariableIncDecExpression

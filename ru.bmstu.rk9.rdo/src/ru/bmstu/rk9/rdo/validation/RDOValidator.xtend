@@ -43,7 +43,7 @@ import ru.bmstu.rk9.rdo.rdo.FunctionTable
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.ParameterType
-import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
+import ru.bmstu.rk9.rdo.rdo.PatternSelectMethod
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
 import ru.bmstu.rk9.rdo.rdo.Rule
@@ -457,7 +457,7 @@ class RDOValidator extends AbstractRDOValidator
 		var havechoicemethods = false
 		var iscombinatorial = false
 
-		for(e : pat.eAllContents.toList.filter(typeof(PatternChoiceMethod)))
+		for(e : pat.eAllContents.toList.filter(typeof(PatternSelectMethod)))
 		{
 			switch e.eContainer
 			{
@@ -470,17 +470,17 @@ class RDOValidator extends AbstractRDOValidator
 		}
 
 		if(havechoicemethods && iscombinatorial)
-			for(e : pat.eAllContents.toList.filter(typeof(PatternChoiceMethod)))
+			for(e : pat.eAllContents.toList.filter(typeof(PatternSelectMethod)))
 			{
 				switch e.eContainer
 				{
 					OperationRelevantResource:
 						error("Operation " + (pat as Operation).name + " already uses combinational approach for relevant resources search",
-							e.eContainer, RdoPackage.eINSTANCE.operationRelevantResource_Choicemethod)
+							e.eContainer, RdoPackage.eINSTANCE.operationRelevantResource_Selectmethod)
 
 					RuleRelevantResource:
 						error("Rule " + (pat as Rule).name + " already uses combinational approach for relevant resources search",
-							e.eContainer, RdoPackage.eINSTANCE.ruleRelevantResource_Choicemethod)
+							e.eContainer, RdoPackage.eINSTANCE.ruleRelevantResource_Selectmethod)
 				}
 			}
 	}

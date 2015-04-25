@@ -17,8 +17,7 @@ import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.ParameterType
-import ru.bmstu.rk9.rdo.rdo.PatternChoiceFrom
-import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
+import ru.bmstu.rk9.rdo.rdo.PatternSelectMethod
 import ru.bmstu.rk9.rdo.rdo.PatternConvertStatus
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.Operation
@@ -30,6 +29,7 @@ import ru.bmstu.rk9.rdo.rdo.OnBegin
 import ru.bmstu.rk9.rdo.rdo.OnEnd
 import ru.bmstu.rk9.rdo.rdo.Duration
 import ru.bmstu.rk9.rdo.rdo.RDOType
+import ru.bmstu.rk9.rdo.rdo.PatternSelectLogic
 
 class RDOPatternCompiler
 {
@@ -341,7 +341,7 @@ class RDOPatternCompiler
 							},
 							new SimpleChoiceFrom<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters>
 							(
-								«relres.choicefrom.compileChoiceFrom(rule, relres.type.relResFullyQualifiedName, relres.name, relres.type.relResFullyQualifiedName)»,
+								«relres.select.compileChoiceFrom(rule, relres.type.relResFullyQualifiedName, relres.name, relres.type.relResFullyQualifiedName)»,
 								null
 							),
 							new CombinationalChoiceFrom.Setter<RelevantResources, «relres.type.relResFullyQualifiedName»>()
@@ -361,7 +361,7 @@ class RDOPatternCompiler
 			«IF relres.type instanceof ResourceDeclaration»
 			// just checker «relres.name»
 			private static SimpleChoiceFrom.Checker<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters> «
-				relres.name»Checker = «relres.choicefrom.compileChoiceFrom(
+				relres.name»Checker = «relres.select.compileChoiceFrom(
 					rule, relres.type.relResFullyQualifiedName,
 					relres.name, relres.type.relResFullyQualifiedName)»;
 
@@ -371,12 +371,12 @@ class RDOPatternCompiler
 				relres.type.relResFullyQualifiedName», Parameters> «relres.name»Choice =
 				new SimpleChoiceFrom<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters>
 				(
-					«relres.choicefrom.compileChoiceFrom(
+					«relres.select.compileChoiceFrom(
 						rule, relres.type.relResFullyQualifiedName,
 						relres.name,
 						relres.type.relResFullyQualifiedName
 					)»,
-					«relres.choicemethod.compileChoiceMethod(
+					«relres.selectmethod.compileChoiceMethod(
 						rule.name, relres.type.relResFullyQualifiedName
 					)»
 				);
@@ -650,7 +650,7 @@ class RDOPatternCompiler
 							},
 							new SimpleChoiceFrom<RelevantResources, «relres.type.fullyQualifiedName», Parameters>
 							(
-								«relres.choicefrom.compileChoiceFrom(op, relres.type.fullyQualifiedName, relres.name, relres.type.fullyQualifiedName)»,
+								«relres.select.compileChoiceFrom(op, relres.type.fullyQualifiedName, relres.name, relres.type.fullyQualifiedName)»,
 								null
 							),
 							new CombinationalChoiceFrom.Setter<RelevantResources, «relres.type.fullyQualifiedName»>()
@@ -671,7 +671,7 @@ class RDOPatternCompiler
 			«IF relres.type instanceof ResourceDeclaration»
 			// just checker «relres.name»
 			private static SimpleChoiceFrom.Checker<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters> «
-				relres.name»Checker = «relres.choicefrom.compileChoiceFrom(op, relres.type.relResFullyQualifiedName,
+				relres.name»Checker = «relres.select.compileChoiceFrom(op, relres.type.relResFullyQualifiedName,
 						relres.name, relres.type.relResFullyQualifiedName)»;
 
 			«ELSE»
@@ -679,8 +679,8 @@ class RDOPatternCompiler
 			private static SimpleChoiceFrom<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters> «relres.name»Choice =
 				new SimpleChoiceFrom<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters>
 				(
-					«relres.choicefrom.compileChoiceFrom(op, relres.type.relResFullyQualifiedName, relres.name, relres.type.relResFullyQualifiedName)»,
-					«relres.choicemethod.compileChoiceMethod(op.name, relres.type.relResFullyQualifiedName)»
+					«relres.select.compileChoiceFrom(op, relres.type.relResFullyQualifiedName, relres.name, relres.type.relResFullyQualifiedName)»,
+					«relres.selectmethod.compileChoiceMethod(op.name, relres.type.relResFullyQualifiedName)»
 				);
 
 			«ENDIF»
@@ -871,9 +871,9 @@ class RDOPatternCompiler
 		'''
 	}
 
-	def public static compileChoiceFrom(PatternChoiceFrom cf, Pattern pattern, String resource, String relres, String relrestype)
+	def public static compileChoiceFrom(PatternSelectLogic cf, Pattern pattern, String resource, String relres, String relrestype)
 	{
-		val havecf = cf != null && !cf.nocheck;
+		val havecf = cf != null && !cf.any;
 
 		var List<String> relreslist;
 		var List<String> relrestypes;
@@ -921,7 +921,7 @@ class RDOPatternCompiler
 			}'''
 	}
 
-	def public static compileChoiceMethod(PatternChoiceMethod cm, String pattern, String resource)
+	def public static compileChoiceMethod(PatternSelectMethod cm, String pattern, String resource)
 	{
 		if(cm == null || cm.first)
 			return "null"
