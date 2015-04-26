@@ -43,14 +43,12 @@ public class PlotDataParser {
 		}
 	}
 
-	private static List<PlotItem> parsePattern(PatternIndex patternIndex) {
+	private static List<PlotItem> parsePattern(final PatternIndex patternIndex) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = patternIndex.getEntryNumbers();
 		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
 		int count = 0;
-		PlotItem item = null;
-		item = new PlotItem(0, 0);
-		dataset.add(item);
+		dataset.add(new PlotItem(0, count));
 		for (int i = 0; i < entriesNumbers.size(); i++) {
 			final int currentNumberEntry = entriesNumbers.get(i);
 			final Entry currentEntry = allEntries.get(currentNumberEntry);
@@ -66,16 +64,14 @@ public class PlotDataParser {
 			switch (entryType) {
 			case OPERATION_BEGIN:
 				count++;
-				item = new PlotItem(time, count);
 				break;
 			case OPERATION_END:
 				count--;
-				item = new PlotItem(time, count);
 				break;
 			default:
 				return null;
 			}
-			dataset.add(item);
+			dataset.add(new PlotItem(time, count));
 		}
 		return dataset;
 	}

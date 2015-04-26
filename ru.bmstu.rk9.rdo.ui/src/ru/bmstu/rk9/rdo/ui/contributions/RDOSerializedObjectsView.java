@@ -107,6 +107,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 				try {
 					final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
 							.getTree().getSelection()[0].getData();
+					final AbstractIndex index = node.getIndex();
 					final XYSeriesCollection dataset = new XYSeriesCollection();
 
 					final XYSeries series = new XYSeries(node.getName());
@@ -118,19 +119,32 @@ public class RDOSerializedObjectsView extends ViewPart {
 						series.add(item.x, item.y);
 					}
 
-					RDOPlotView.setName(String.valueOf(dataset.getSeriesKey(0)));
-					PlatformUI
-							.getWorkbench()
-							.getActiveWorkbenchWindow()
-							.getActivePage()
-							.showView(RDOPlotView.ID,
-									String.valueOf(secondaryID),
-									IWorkbenchPage.VIEW_ACTIVATE);
-					secondaryID++;
+					RDOPlotView.initialize(
+							String.valueOf(dataset.getSeriesKey(0)), index,
+							secondaryID);
+					if (RDOPlotView.openedPlotMap.containsKey(index)) {
+						PlatformUI
+								.getWorkbench()
+								.getActiveWorkbenchWindow()
+								.getActivePage()
+								.showView(
+										RDOPlotView.ID,
+										String.valueOf(RDOPlotView.openedPlotMap
+												.get(index)),
+										IWorkbenchPage.VIEW_ACTIVATE);
+					} else {
+						PlatformUI
+								.getWorkbench()
+								.getActiveWorkbenchWindow()
+								.getActivePage()
+								.showView(RDOPlotView.ID,
+										String.valueOf(secondaryID),
+										IWorkbenchPage.VIEW_ACTIVATE);
+						secondaryID++;
+					}
 
 					RDOPlotView.plotXY(dataset);
 				} catch (PartInitException e) {
-					System.out.println("Code exception caught");
 					e.printStackTrace();
 				}
 

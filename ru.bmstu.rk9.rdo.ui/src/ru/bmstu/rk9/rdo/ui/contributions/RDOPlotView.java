@@ -2,10 +2,9 @@ package ru.bmstu.rk9.rdo.ui.contributions;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-
+import java.util.HashMap;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.ViewPart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -16,20 +15,31 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.experimental.chart.swt.ChartComposite;
 
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
+
 public class RDOPlotView extends ViewPart {
 
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOPlotView";
 	private static ChartComposite frame;
 	private static String partName;
+	public static AbstractIndex partIndex;
+	public static int partSecondaryID;
+	final public static HashMap<AbstractIndex, Integer> openedPlotMap = new HashMap<AbstractIndex, Integer>();
 
-	public static void setName(String name) {
+	public static void initialize(final String name, final AbstractIndex index,
+			final int secondaryID) {
 		partName = name;
+		partIndex = index;
+		partSecondaryID = secondaryID;
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
 		setPartName(partName);
 		frame = new ChartComposite(parent, SWT.NONE);
+		if (partIndex != null) {
+			openedPlotMap.put(partIndex, partSecondaryID);
+		}
 	}
 
 	@Override
@@ -52,7 +62,7 @@ public class RDOPlotView extends ViewPart {
 		Color grey = new Color(0x99, 0x99, 0x99);
 		plot.setDomainGridlinePaint(grey);
 		plot.setRangeGridlinePaint(grey);
-		plot.getRenderer().setSeriesStroke(0, new BasicStroke((float)2.5));
+		plot.getRenderer().setSeriesStroke(0, new BasicStroke((float) 2.5));
 
 		final NumberAxis rangeAxis = new NumberAxis();
 		rangeAxis.setAutoRangeIncludesZero(true);
