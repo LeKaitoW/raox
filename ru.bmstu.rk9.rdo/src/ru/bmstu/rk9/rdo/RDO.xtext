@@ -204,8 +204,8 @@ DecisionPointSearch:
 			'setTerminateCondition' '(' termination = ExpressionOr ')' ';'
 			'evaluateBy' '(' evaluateby = ExpressionOr ')' ';'
 			'compareTops' '(' ((comparetops ?= 'true') | 'false') ')' ';'
-			( activities += DecisionPointSearchActivity ';' )+
 		'}'
+		( activities += DecisionPointSearchActivity ';' )+
 	'}'
 ;
 
