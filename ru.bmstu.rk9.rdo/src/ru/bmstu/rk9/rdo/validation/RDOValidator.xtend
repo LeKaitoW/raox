@@ -183,8 +183,9 @@ class RDOValidator extends AbstractRDOValidator
 		}
 	}
 
-	def checkDefaultMethodCountGeneric(EObject parent, Iterable<DefaultMethod> methods,
-			Map<String, Integer> counts
+	def checkDefaultMethodCountGeneric(EObject parent,
+			Iterable<DefaultMethod> methods,
+			Map<String, DefaultMethodsHelper.MethodInfo> counts
 	)
 	{
 		for(d : methods) {
@@ -192,27 +193,42 @@ class RDOValidator extends AbstractRDOValidator
 				error("Error - incorrect default method name", d,
 					d.getNameStructuralFeature
 				)
-			else if (counts.get(d.method.name) > 0)
+			else if (counts.get(d.method.name).count > 0)
 				error("Error - default method cannot be set more than once", d,
 					d.getNameStructuralFeature
 				)
-			else
-				counts.put(d.method.name, 1)
+			else {
+				var count = counts.get(d.method.name)
+				count.count++
+				counts.put(d.method.name, count)
+			}
 		}
 
 		for(k : counts.keySet)
-			if (counts.get(k) == 0)
-				warning("Warning - default method " + k + " not set", parent,
-					parent.getNameStructuralFeature
-				)
+			if (counts.get(k).count == 0) {
+				switch counts.get(k).action {
+					case WARNING:
+						warning("Warning - default method " + k + " not set",
+								parent,
+								parent.getNameStructuralFeature)
+					case ERROR:
+						error("Error - default method " + k + " not set",
+								parent,
+								parent.getNameStructuralFeature)
+					default: {}
+				}
+			}
 	}
 
 	@Check
 	def checkDefaultMethodGlobalCount(RDOModel model)
 	{
-		var Map<String, Integer> counts = new HashMap<String, Integer>()
-		for (v : RDOValidatorHelper.DefaultMethodsHelper.GlobalMethods.values)
-			counts.put(v.name, 0)
+		var Map<String, DefaultMethodsHelper.MethodInfo> counts =
+				new HashMap<String, DefaultMethodsHelper.MethodInfo>()
+		for (v : DefaultMethodsHelper.GlobalMethodInfo.values)
+			counts.put(v.name,
+					new DefaultMethodsHelper.MethodInfo(v.validatorAction)
+			)
 
 		var methods = model.objects.filter(typeof(DefaultMethod))
 		checkDefaultMethodCountGeneric(model, methods, counts)
@@ -221,9 +237,12 @@ class RDOValidator extends AbstractRDOValidator
 	@Check
 	def checkDefaultMethodOperatioCount(Operation op)
 	{
-		var Map<String, Integer> counts = new HashMap<String, Integer>()
-		for (v : RDOValidatorHelper.DefaultMethodsHelper.OperationMethods.values)
-			counts.put(v.name, 0)
+		var Map<String, DefaultMethodsHelper.MethodInfo> counts =
+				new HashMap<String, DefaultMethodsHelper.MethodInfo>()
+		for (v : DefaultMethodsHelper.OperationMethodInfo.values)
+			counts.put(v.name,
+					new DefaultMethodsHelper.MethodInfo(v.validatorAction)
+			)
 
 		checkDefaultMethodCountGeneric(op, op.defaultMethods, counts)
 	}
@@ -231,9 +250,12 @@ class RDOValidator extends AbstractRDOValidator
 	@Check
 	def checkDefaultMethodRuleCount(Rule rule)
 	{
-		var Map<String, Integer> counts = new HashMap<String, Integer>()
-		for (v : RDOValidatorHelper.DefaultMethodsHelper.EventOrRuleMethods.values)
-			counts.put(v.name, 0)
+		var Map<String, DefaultMethodsHelper.MethodInfo> counts =
+				new HashMap<String, DefaultMethodsHelper.MethodInfo>()
+		for (v : DefaultMethodsHelper.EventOrRuleMethodInfo.values)
+			counts.put(v.name,
+					new DefaultMethodsHelper.MethodInfo(v.validatorAction)
+			)
 
 		checkDefaultMethodCountGeneric(rule, rule.defaultMethods, counts)
 	}
@@ -241,9 +263,12 @@ class RDOValidator extends AbstractRDOValidator
 	@Check
 	def checkDefaultMethodEventCount(Event evn)
 	{
-		var Map<String, Integer> counts = new HashMap<String, Integer>()
-		for (v : RDOValidatorHelper.DefaultMethodsHelper.EventOrRuleMethods.values)
-			counts.put(v.name, 0)
+		var Map<String, DefaultMethodsHelper.MethodInfo> counts =
+				new HashMap<String, DefaultMethodsHelper.MethodInfo>()
+		for (v : DefaultMethodsHelper.EventOrRuleMethodInfo.values)
+			counts.put(v.name,
+					new DefaultMethodsHelper.MethodInfo(v.validatorAction)
+			)
 
 		checkDefaultMethodCountGeneric(evn, evn.defaultMethods, counts)
 	}
@@ -454,7 +479,7 @@ class RDOValidator extends AbstractRDOValidator
 	@Check
 	def checkForCombinationalChioceMethod(Pattern pat)
 	{
-		var havechoicemethods = false
+		var haveselectmethods = false
 		var iscombinatorial = false
 
 		for(e : pat.eAllContents.toList.filter(typeof(PatternSelectMethod)))
@@ -464,12 +489,12 @@ class RDOValidator extends AbstractRDOValidator
 				Operation: iscombinatorial = true
 				Rule     : iscombinatorial = true
 
-				OperationRelevantResource: havechoicemethods = true
-				RuleRelevantResource     : havechoicemethods = true
+				OperationRelevantResource: haveselectmethods = true
+				RuleRelevantResource     : haveselectmethods = true
 			}
 		}
 
-		if(havechoicemethods && iscombinatorial)
+		if(haveselectmethods && iscombinatorial)
 			for(e : pat.eAllContents.toList.filter(typeof(PatternSelectMethod)))
 			{
 				switch e.eContainer
