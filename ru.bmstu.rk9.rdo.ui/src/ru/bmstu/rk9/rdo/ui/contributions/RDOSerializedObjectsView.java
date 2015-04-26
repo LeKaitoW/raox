@@ -7,7 +7,9 @@ import java.util.TimerTask;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IColorProvider;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -151,6 +153,23 @@ public class RDOSerializedObjectsView extends ViewPart {
 			}
 		});
 		serializedObjectsTreeViewer.getTree().setMenu(popupMenu);
+
+		serializedObjectsTreeViewer
+				.addDoubleClickListener(new IDoubleClickListener() {
+					@Override
+					public void doubleClick(DoubleClickEvent event) {
+						Object item = serializedObjectsTreeViewer.getTree()
+								.getSelection()[0].getData();
+						if (item == null)
+							return;
+
+						if (serializedObjectsTreeViewer.getExpandedState(item))
+							serializedObjectsTreeViewer
+									.collapseToLevel(item, 1);
+						else
+							serializedObjectsTreeViewer.expandToLevel(item, 1);
+					}
+				});
 
 		if (Simulator.isInitialized()) {
 			commonUpdater.fireChange();
