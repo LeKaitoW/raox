@@ -3,7 +3,10 @@ package ru.bmstu.rk9.rdo.ui.contributions;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.util.HashMap;
+
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.jfree.chart.ChartFactory;
@@ -20,38 +23,50 @@ import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
 public class RDOPlotView extends ViewPart {
 
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOPlotView";
-	private static ChartComposite frame;
-	private static String partName;
-	public static AbstractIndex partIndex;
-	public static int partSecondaryID;
-	final public static HashMap<AbstractIndex, Integer> openedPlotMap = new HashMap<AbstractIndex, Integer>();
+	private final static HashMap<AbstractIndex, Integer> openedPlotMap = new HashMap<AbstractIndex, Integer>();
 
-	public static void initialize(final String name, final AbstractIndex index,
-			final int secondaryID) {
-		partName = name;
+	private ChartComposite frame;
+	private AbstractIndex partIndex;
+
+	public static HashMap<AbstractIndex, Integer> getOpenedplotmap() {
+		return openedPlotMap;
+	}
+
+	public void setName(final String name) {
+		setPartName(name);
+	}
+
+	public void setIndex(final AbstractIndex index) {
 		partIndex = index;
-		partSecondaryID = secondaryID;
+	}
+
+	public static void addToOpenedPlotMap(final AbstractIndex index,
+			final int secondaryID) {
+		openedPlotMap.put(index, secondaryID);
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-		setPartName(partName);
 		frame = new ChartComposite(parent, SWT.NONE);
-		if (partIndex != null) {
-			openedPlotMap.put(partIndex, partSecondaryID);
-		}
+		frame.addDisposeListener(new DisposeListener() {
+
+			@Override
+			public void widgetDisposed(DisposeEvent event) {
+				openedPlotMap.remove(partIndex);
+			}
+		});
 	}
 
 	@Override
 	public void setFocus() {
 	}
 
-	public static void plotXY(final XYSeriesCollection dataset) {
+	public void plotXY(final XYSeriesCollection dataset) {
 		final JFreeChart chart = createChart(dataset);
 		frame.setChart(chart);
 	}
 
-	private static JFreeChart createChart(final XYDataset dataset) {
+	private JFreeChart createChart(final XYDataset dataset) {
 
 		final JFreeChart chart = ChartFactory.createXYStepChart("", "Time",
 				"Value", dataset, PlotOrientation.VERTICAL, true, true, false);

@@ -121,37 +121,37 @@ public class RDOSerializedObjectsView extends ViewPart {
 						series.add(item.x, item.y);
 					}
 
-					RDOPlotView.initialize(
-							String.valueOf(dataset.getSeriesKey(0)), index,
-							secondaryID);
-					if (RDOPlotView.openedPlotMap.containsKey(index)) {
+					if (RDOPlotView.getOpenedplotmap().containsKey(index)) {
 						PlatformUI
 								.getWorkbench()
 								.getActiveWorkbenchWindow()
 								.getActivePage()
 								.showView(
 										RDOPlotView.ID,
-										String.valueOf(RDOPlotView.openedPlotMap
-												.get(index)),
+										String.valueOf(RDOPlotView
+												.getOpenedplotmap().get(index)),
 										IWorkbenchPage.VIEW_ACTIVATE);
 					} else {
-						PlatformUI
+						final RDOPlotView newView = (RDOPlotView) PlatformUI
 								.getWorkbench()
 								.getActiveWorkbenchWindow()
 								.getActivePage()
 								.showView(RDOPlotView.ID,
 										String.valueOf(secondaryID),
 										IWorkbenchPage.VIEW_ACTIVATE);
+						newView.setName(String.valueOf(dataset.getSeriesKey(0)));
+						newView.setIndex(index);
+						RDOPlotView.addToOpenedPlotMap(index, secondaryID);
+						newView.plotXY(dataset);
 						secondaryID++;
 					}
-
-					RDOPlotView.plotXY(dataset);
 				} catch (PartInitException e) {
 					e.printStackTrace();
 				}
 
 			}
 		});
+
 		serializedObjectsTreeViewer.getTree().setMenu(popupMenu);
 
 		serializedObjectsTreeViewer
