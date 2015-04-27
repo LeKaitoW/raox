@@ -567,6 +567,12 @@ EnumDeclaration:
 // ==========================================================
 //               Meta types for cross-references
 // ==========================================================
+META_RelevantResource
+	: OperationRelevantResource
+	| RuleRelevantResource
+	| EventRelevantResource
+;
+
 META_RelResType
 	: ResourceType
 	| ResourceCreateStatement
@@ -666,6 +672,7 @@ Statement
 	| PlanningStatement ';'
 	| LegacySetStatement ';'
 	| ResourceCreateStatement ';'
+	| ResourceEraseStatement ';'
 //	| watch_start
 //	| watch_stop
 ;
@@ -734,6 +741,10 @@ LegacySetStatement:
 ResourceCreateStatement:
 	('resource' name = ID '=')? reference = [ResourceType|FQN]
 		'.' 'create' '(' ( parameters = ResourceExpressionList )? ')'
+;
+
+ResourceEraseStatement:
+	relres = [META_RelevantResource | FQN] '.' 'erase' '('')'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

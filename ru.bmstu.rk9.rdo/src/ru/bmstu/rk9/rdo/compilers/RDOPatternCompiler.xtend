@@ -259,7 +259,7 @@ class RDOPatternCompiler
 			}
 
 			private static RelevantResources staticResources = new RelevantResources();
-			private RelevantResources instanceResources;
+			private RelevantResources resources;
 
 			public static class Parameters
 			{
@@ -282,7 +282,7 @@ class RDOPatternCompiler
 
 			private «rule.name»(RelevantResources resources)
 			{
-				this.instanceResources = resources;
+				this.resources = resources;
 			}
 
 			«IF rule.combinational != null»
@@ -439,13 +439,6 @@ class RDOPatternCompiler
 
 				«rule.name» executed = new «rule.name»(resources.copyUpdate());
 
-				«IF !rule.relevantresources.filter[t | t.rule.literal == "Erase"].empty»
-					// erase resources
-					«FOR r : rule.relevantresources.filter[t |t.rule.literal == "Erase"]»
-						«(r.type as ResourceType).fullyQualifiedName».eraseResource(resources.«r.name»);
-					«ENDFOR»
-
-				«ENDIF»
 				return executed;
 			}
 
@@ -461,7 +454,7 @@ class RDOPatternCompiler
 						executedFrom.resourceSpecialStatus != null
 							? executedFrom.resourceSpecialStatus
 							: «r.rule.compileResourceTraceStatus»,
-						instanceResources.«r.name»,
+						resources.«r.name»,
 						"«rule.fullyQualifiedName».«r.name»"
 					);
 				«ENDFOR»
@@ -473,7 +466,7 @@ class RDOPatternCompiler
 				return new int[]
 				{
 					«FOR i : 0 ..< rule.relevantresources.size»
-						instanceResources.«rule.relevantresources.get(i).name».getNumber()«
+						resources.«rule.relevantresources.get(i).name».getNumber()«
 							IF i < rule.relevantresources.size - 1»,«ENDIF»
 					«ENDFOR»
 				};
@@ -566,7 +559,7 @@ class RDOPatternCompiler
 			}
 
 			private static RelevantResources staticResources = new RelevantResources();
-			private RelevantResources instanceResources;
+			private RelevantResources resources;
 
 			public static class Parameters
 			{
@@ -590,7 +583,7 @@ class RDOPatternCompiler
 			private «op.name»(double time, RelevantResources resources, Parameters parameters)
 			{
 				this.time = time;
-				this.instanceResources = resources;
+				this.resources = resources;
 				this.parameters = parameters;
 			}
 
@@ -760,13 +753,6 @@ class RDOPatternCompiler
 						).value», resources.copyUpdate(), parameters);
 				«ENDFOR»
 
-				«IF !op.relevantresources.filter[t | t.begin.literal == "Erase"].empty»
-					// erase resources
-					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Erase"]»
-						«(r.type as ResourceType).fullyQualifiedName».eraseResource(resources.«r.name»);
-					«ENDFOR»
-
-				«ENDIF»
 				Simulator.pushEvent(instance);
 
 				return instance;
@@ -784,7 +770,7 @@ class RDOPatternCompiler
 						executedFrom.resourceSpecialStatus != null
 							? executedFrom.resourceSpecialStatus
 							: «r.begin.compileResourceTraceStatus»,
-						instanceResources.«r.name»,
+						resources.«r.name»,
 						"«op.fullyQualifiedName».«r.name»"
 					);
 				«ENDFOR»
@@ -805,29 +791,21 @@ class RDOPatternCompiler
 				«IF !op.relevantresources.filter[t | t.end.literal == "Create"].empty»
 					// create resources
 					«FOR r : op.relevantresources.filter[t |t.end.literal == "Create"]»
-						instanceResources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
+						resources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
 							(r.type as ResourceType).parameters.size.compileAllDefault»);
-						instanceResources.«r.name».register();
+						resources.«r.name».register();
 
 					«ENDFOR»
 
 				«ENDIF»
-				end.run(instanceResources, parameters);
-
-				«IF !op.relevantresources.filter[t | t.end.literal == "Erase"].empty»
-					// erase resources
-					«FOR r : op.relevantresources.filter[t | t.end.literal == "Erase"]»
-						«(r.type as ResourceType).fullyQualifiedName».eraseResource(instanceResources.«r.name»);
-					«ENDFOR»
-
-				«ENDIF»
+				end.run(resources, parameters);
 
 				// database operations
 				db.addEventEntry(Database.PatternType.OPERATION_END, this);
 
 				«FOR r : op.relevantresources.filter[t |
 						t.end != PatternConvertStatus.NOCHANGE && t.end != PatternConvertStatus.NONEXIST]»
-					db.addResourceEntry(«r.end.compileResourceTraceStatus», instanceResources.«r.name
+					db.addResourceEntry(«r.end.compileResourceTraceStatus», resources.«r.name
 						», "«op.fullyQualifiedName».«r.name»");
 				«ENDFOR»
 			}
@@ -838,7 +816,7 @@ class RDOPatternCompiler
 				return new int[]
 				{
 					«FOR i : 0 ..< op.relevantresources.size»
-						instanceResources.«op.relevantresources.get(i).name».getNumber()«
+						resources.«op.relevantresources.get(i).name».getNumber()«
 							IF i < op.relevantresources.size - 1»,«ENDIF»
 					«ENDFOR»
 				};

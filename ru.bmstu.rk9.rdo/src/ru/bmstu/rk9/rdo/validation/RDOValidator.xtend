@@ -307,7 +307,7 @@ class RDOValidator extends AbstractRDOValidator
 			for(e : checklist)
 			{
 				val name = e.fullyQualifiedName
-				if(duplicates.contains(name))
+				if(name != "ERROR.null" && duplicates.contains(name))
 					error("Error - multiple declarations of object '" + name + "'.", e,
 						e.getNameStructuralFeature)
 			}
@@ -370,17 +370,13 @@ class RDOValidator extends AbstractRDOValidator
 			Result:
 				RdoPackage.eINSTANCE.result_Name
 
-//			ParameterType:
-//				RdoPackage.eINSTANCE.ParameterType_Type
+			ParameterType:
+				RdoPackage.eINSTANCE.parameterType_Param
 
-			OperationRelevantResource:
-				RdoPackage.eINSTANCE.operationRelevantResource_Name
-
-			RuleRelevantResource:
-				RdoPackage.eINSTANCE.ruleRelevantResource_Name
-
+			OperationRelevantResource,
+			RuleRelevantResource,
 			EventRelevantResource:
-				RdoPackage.eINSTANCE.eventRelevantResource_Name
+				RdoPackage.eINSTANCE.META_RelevantResource_Name
 		}
 	}
 

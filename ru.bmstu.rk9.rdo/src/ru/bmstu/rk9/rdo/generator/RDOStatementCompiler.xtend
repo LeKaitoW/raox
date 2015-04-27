@@ -31,6 +31,8 @@ import ru.bmstu.rk9.rdo.rdo.FrameObjectTriangle
 import ru.bmstu.rk9.rdo.rdo.FrameColour
 import ru.bmstu.rk9.rdo.rdo.TerminateCondition
 import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
+import ru.bmstu.rk9.rdo.rdo.ResourceEraseStatement
+import ru.bmstu.rk9.rdo.rdo.ResourceType
 
 class RDOStatementCompiler
 {
@@ -229,6 +231,12 @@ class RDOStatementCompiler
 					new «st.reference.fullyQualifiedName»(«if(st.parameters != null)
 							st.parameters.compileExpression.value else ""»).register();
 				«ENDIF»
+				'''
+
+				ResourceEraseStatement:
+				'''
+					«(st.relres.type as ResourceType).fullyQualifiedName
+						».eraseResource(resources.«st.relres.name»);
 				'''
 
 			FrameObject:
