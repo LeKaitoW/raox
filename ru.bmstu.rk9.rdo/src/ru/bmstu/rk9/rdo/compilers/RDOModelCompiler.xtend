@@ -11,7 +11,7 @@ import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 import ru.bmstu.rk9.rdo.rdo.Result
 import ru.bmstu.rk9.rdo.rdo.ResultWatchParameter
 import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
@@ -21,6 +21,7 @@ import ru.bmstu.rk9.rdo.rdo.ResultGetValue
 
 import ru.bmstu.rk9.rdo.generator.LocalContext
 import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
+import ru.bmstu.rk9.rdo.rdo.Resources
 
 class RDOModelCompiler
 {
@@ -51,13 +52,24 @@ class RDOModelCompiler
 
 				Database db = Simulator.getDatabase();
 				«FOR r : rs.resources»
-
-					«FOR rtp : r.allContents.filter(typeof(ResourceDeclaration)).toIterable»
-						«rtp.reference.fullyQualifiedName» «rtp.name» = new «rtp.reference.fullyQualifiedName»(«if(rtp.parameters != null)
-							rtp.parameters.compileExpression.value else ""»);
-						«rtp.name».register("«rtp.fullyQualifiedName»");
-						db.addResourceEntry(Database.ResourceEntryType.CREATED, «rtp.name», "«rtp.fullyQualifiedName»");
-
+					«FOR rtp : r.allContents.filter(typeof(ResourceCreateStatement))
+							.filter(res | res.eContainer instanceof Resources).toIterable»
+							«IF rtp.name != null»
+								«rtp.reference.fullyQualifiedName» «rtp.name» = new «
+									rtp.reference.fullyQualifiedName»(«if(rtp.parameters != null)
+										rtp.parameters.compileExpression.value else ""»);
+									«rtp.name».register("«rtp.fullyQualifiedName»");
+								db.addResourceEntry(
+										Database.ResourceEntryType.CREATED,
+										«rtp.name»,
+										"«rtp.fullyQualifiedName»");
+							«ELSE»
+								db.addResourceEntry(
+										Database.ResourceEntryType.CREATED,
+										new «rtp.reference.fullyQualifiedName»(«if(rtp.parameters != null)
+											rtp.parameters.compileExpression.value else ""»).register(),
+										"«rtp.fullyQualifiedName»");
+							«ENDIF»
 					«ENDFOR»
 				«ENDFOR»
 			}
@@ -230,8 +242,11 @@ class RDOModelCompiler
 
 		for(r : rs.resources)
 			for(rss : r.allContents
-				.filter(typeof(ResourceDeclaration))
-				.filter[s | s.reference == rtp].toIterable)
+				.filter(typeof(ResourceCreateStatement))
+				.filter(s | s.eContainer instanceof Resources)
+				.filter[s | s.reference == rtp]
+				.filter[s | s.name != null]
+				.toIterable)
 			{
 				ret = ret +
 					'''

@@ -12,7 +12,7 @@ import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ParameterType
 
 import ru.bmstu.rk9.rdo.rdo.Resources
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
 
@@ -69,8 +69,8 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def image(Resources rss) { "puzzle.gif" }
 
 		// Resource declaration
-		def  text(ResourceDeclaration rss) { "rss : " + rss.name }
-		def image(ResourceDeclaration rss) { "plus.gif" }
+		def  text(ResourceCreateStatement rss) { "rss : " + rss.name }
+		def image(ResourceCreateStatement rss) { "plus.gif" }
 
 	// Constants
 	def image(Constant c) { "constant2.gif" }
@@ -115,7 +115,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def getRelResName(EObject object) {
 		switch object {
 			ResourceType: " : RTP : " + object.name
-			ResourceDeclaration: " : RSS : " + object.name
+			ResourceCreateStatement: " : RSS : " + object.name
 			default: ""
 		}
 	}

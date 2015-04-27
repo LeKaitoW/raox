@@ -32,7 +32,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOModel
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
 
@@ -103,14 +103,14 @@ class RDOValidator extends AbstractRDOValidator
 	}
 
 	@Check
-	def exportResourceDeclarations(ResourceDeclaration rss)
+	def exportResourceCreateStatements(ResourceCreateStatement rss)
 	{
 		val model = rss.modelRoot
 		if(variableIndex == null || variableIndex.get(model.nameGeneric) == null)
 			return
 
 		val resindex = variableIndex.get(model.nameGeneric).resources
-		val resmodel = model.eAllContents.filter(typeof(ResourceDeclaration)).toMap[name]
+		val resmodel = model.eAllContents.filter(typeof(ResourceCreateStatement)).toMap[name]
 		for(r : resmodel.keySet)
 			if(resindex.get(r) == null || r == rss.name)
 				resindex.put(r, variableIndex.get(model.nameGeneric).newRSS(resmodel.get(r)))
@@ -281,7 +281,7 @@ class RDOValidator extends AbstractRDOValidator
 
 		val List<EObject> checklist = model.eAllContents.filter[e |
 			e instanceof ResourceType        ||
-			e instanceof ResourceDeclaration ||
+			e instanceof ResourceCreateStatement ||
 			e instanceof Sequence            ||
 			e instanceof Constant ||
 			e instanceof Function            ||
@@ -343,7 +343,7 @@ class RDOValidator extends AbstractRDOValidator
 			ResourceType:
 				RdoPackage.eINSTANCE.META_RelResType_Name
 
-			ResourceDeclaration:
+			ResourceCreateStatement:
 				RdoPackage.eINSTANCE.META_RelResType_Name
 
 			Sequence:
@@ -412,7 +412,7 @@ class RDOValidator extends AbstractRDOValidator
 						RdoPackage.eINSTANCE.operationRelevantResource_Begin)
 			}
 
-			ResourceDeclaration:
+			ResourceCreateStatement:
 			{
 				if(begin == "Create" || begin == "Erase" || begin == "NonExist")
 					error("Invalid convert status: "+begin+" - only Keep and NoChange statuses could be used for resource",
@@ -439,7 +439,7 @@ class RDOValidator extends AbstractRDOValidator
 
 		switch type
 		{
-			ResourceDeclaration:
+			ResourceCreateStatement:
 			{
 				if(rule == "Create" || rule == "Erase")
 					error("Invalid convert status: "+rule+" - only Keep and NoChange statuses could be used for resource",
@@ -469,7 +469,7 @@ class RDOValidator extends AbstractRDOValidator
 					error("Invalid convert status: "+rule+" couldn't be used for resource type in event",
 						RdoPackage.eINSTANCE.eventRelevantResource_Rule)
 			}
-			ResourceDeclaration:
+			ResourceCreateStatement:
 				if(rule == 'Create')
 					error("Invalid convert status: "+rule+" couldn't be used for resource in event",
 						RdoPackage.eINSTANCE.eventRelevantResource_Rule)

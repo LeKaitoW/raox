@@ -14,7 +14,7 @@ import ru.bmstu.rk9.rdo.rdo.ParameterTypeBasic
 import ru.bmstu.rk9.rdo.rdo.ParameterTypeString
 import ru.bmstu.rk9.rdo.rdo.ParameterTypeArray
 
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
 import ru.bmstu.rk9.rdo.rdo.META_RelResType
 
@@ -84,7 +84,7 @@ class RDONaming
 			ParameterType:
 				return object.param.name
 
-			ResourceDeclaration:
+			ResourceCreateStatement:
 				return object.name
 
 			Sequence:
@@ -145,7 +145,7 @@ class RDONaming
 				return object.eContainer.eContainer.nameGeneric +
 					"." + object.eContainer.nameGeneric + "." + object.param.name
 
-			ResourceDeclaration:
+			ResourceCreateStatement:
 				return object.eContainer.eContainer.nameGeneric + "." + object.name
 
 			Sequence:
@@ -188,8 +188,8 @@ class RDONaming
 
 	def static relResFullyQualifiedName(META_RelResType relres)
 	{
-		if(relres instanceof ResourceDeclaration)
-			return (relres as ResourceDeclaration).reference.fullyQualifiedName
+		if(relres instanceof ResourceCreateStatement)
+			return (relres as ResourceCreateStatement).reference.fullyQualifiedName
 		else
 			return relres.fullyQualifiedName
 	}

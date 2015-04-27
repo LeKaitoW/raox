@@ -7,7 +7,7 @@ import org.eclipse.xtext.ui.editor.outline.IOutlineNode
 
 import ru.bmstu.rk9.rdo.rdo.ParameterType
 
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
 
@@ -44,7 +44,7 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 	def _isLeaf(ParameterType rtp) { true }
 
 	// Resources
-	def _isLeaf(ResourceDeclaration rss) { true }
+	def _isLeaf(ResourceCreateStatement rss) { true }
 
 	// Sequence
 	def _isLeaf(Sequence seq) { true }

@@ -4,7 +4,7 @@ import org.eclipse.emf.ecore.EObject
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 
@@ -23,7 +23,7 @@ class RDOKeywordProposalValidator
 						if(keyword != "Create")
 							return false
 
-					ResourceDeclaration:
+					ResourceCreateStatement:
 						if(keyword != "Keep")
 							return false
 				}

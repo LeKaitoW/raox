@@ -49,7 +49,7 @@ import ru.bmstu.rk9.rdo.rdo.EventRelevantResource;
 import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource;
 import ru.bmstu.rk9.rdo.rdo.Pattern;
 import ru.bmstu.rk9.rdo.rdo.RDOModel;
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration;
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement;
 import ru.bmstu.rk9.rdo.rdo.Result;
 import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource;
 
@@ -256,7 +256,7 @@ class SerializationConfigurator {
 		fillCategory(
 				modelNode.getVisibleChildren().get(
 						SerializationCategory.RESOURCES.ordinal()), model,
-				ResourceDeclaration.class);
+				ResourceCreateStatement.class);
 
 		fillCategory(
 				modelNode.getVisibleChildren().get(

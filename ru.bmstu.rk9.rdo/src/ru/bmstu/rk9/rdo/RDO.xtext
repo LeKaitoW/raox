@@ -71,12 +71,7 @@ ParameterTypeEnum:
 //                           Resources
 // ==========================================================
 Resources:
-	resource = ResourceDeclaration
-;
-
-ResourceDeclaration:
-	'resource' name = ID '=' reference = [ResourceType|FQN]
-	'(' ( parameters = ResourceExpressionList )? ')'
+	resource = ResourceCreateStatement
 ;
 
 ResourceExpressionList:
@@ -574,7 +569,7 @@ EnumDeclaration:
 // ==========================================================
 META_RelResType
 	: ResourceType
-	| ResourceDeclaration
+	| ResourceCreateStatement
 ;
 
 META_DecisionPointActivity
@@ -584,7 +579,7 @@ META_DecisionPointActivity
 
 // это не работает. FQN рушит вызов методов, линкер требует нормальных имен
 //META_VariableForExpression
-//	: ResourceDeclaration
+//	: ResourceCreateStatement
 //	| LocalVariableDeclaration
 //	| Sequence
 //	| Constant
@@ -670,6 +665,7 @@ Statement
 	| StoppingStatement ';' // ?????????
 	| PlanningStatement ';'
 	| LegacySetStatement ';'
+	| ResourceCreateStatement ';'
 //	| watch_start
 //	| watch_stop
 ;
@@ -733,6 +729,11 @@ PlanningStatement:
 
 LegacySetStatement:
 	call = FQN 'set' value = Expression
+;
+
+ResourceCreateStatement:
+	('resource' name = ID '=')? reference = [ResourceType|FQN]
+		'.' 'create' '(' ( parameters = ResourceExpressionList )? ')'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

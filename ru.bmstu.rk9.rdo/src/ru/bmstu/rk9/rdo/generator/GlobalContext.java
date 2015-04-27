@@ -6,7 +6,7 @@ import java.util.List;
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType;
 import ru.bmstu.rk9.rdo.rdo.ParameterType;
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration;
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement;
 import ru.bmstu.rk9.rdo.rdo.Constant;
 import ru.bmstu.rk9.rdo.rdo.Function;
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter;
@@ -35,11 +35,11 @@ public class GlobalContext {
 	}
 
 	public class RSS {
-		public ResourceDeclaration origin;
+		public ResourceCreateStatement origin;
 
 		public String reference;
 
-		public RSS(ResourceDeclaration rss) {
+		public RSS(ResourceCreateStatement rss) {
 			origin = rss;
 			ResourceType rtp = rss.getReference();
 			restypes.put(rtp.getName(), new RTP(rtp));
@@ -117,7 +117,7 @@ public class GlobalContext {
 		}
 	}
 
-	public RSS newRSS(ResourceDeclaration rss) {
+	public RSS newRSS(ResourceCreateStatement rss) {
 		return new RSS(rss);
 	}
 

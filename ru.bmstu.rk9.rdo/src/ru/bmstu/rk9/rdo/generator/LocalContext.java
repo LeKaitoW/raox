@@ -6,7 +6,7 @@ import java.util.HashMap;
 import ru.bmstu.rk9.rdo.rdo.RDOEnum;
 import ru.bmstu.rk9.rdo.rdo.ResourceType;
 import ru.bmstu.rk9.rdo.rdo.ParameterType;
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration;
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement;
 import ru.bmstu.rk9.rdo.rdo.Function;
 import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic;
 import ru.bmstu.rk9.rdo.rdo.FunctionList;
@@ -133,7 +133,7 @@ public class LocalContext {
 			if (relres.getType() instanceof ResourceType)
 				type = ((ResourceType) relres.getType());
 			else
-				type = ((ResourceDeclaration) relres.getType()).getReference();
+				type = ((ResourceCreateStatement) relres.getType()).getReference();
 
 			for (ParameterType p : type.getParameters())
 				this.addRawEntry(relres.getName() + "." + p.getParam().getName(),
@@ -155,7 +155,7 @@ public class LocalContext {
 			if (relres.getType() instanceof ResourceType)
 				type = ((ResourceType) relres.getType());
 			else
-				type = ((ResourceDeclaration) relres.getType()).getReference();
+				type = ((ResourceCreateStatement) relres.getType()).getReference();
 
 			for (ParameterType p : type.getParameters())
 				this.addRawEntry(relres.getName() + "." + p.getParam().getName(),
@@ -177,7 +177,7 @@ public class LocalContext {
 			if (relres.getType() instanceof ResourceType)
 				type = ((ResourceType) relres.getType());
 			else
-				type = ((ResourceDeclaration) relres.getType()).getReference();
+				type = ((ResourceCreateStatement) relres.getType()).getReference();
 
 			for (ParameterType p : type.getParameters())
 				this.addRawEntry(relres.getName() + "." + p.getParam().getName(),

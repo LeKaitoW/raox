@@ -12,7 +12,7 @@ import ru.bmstu.rk9.rdo.rdo.ParameterTypeBasic
 import ru.bmstu.rk9.rdo.rdo.ParameterTypeString
 import ru.bmstu.rk9.rdo.rdo.ParameterTypeArray
 
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 import ru.bmstu.rk9.rdo.rdo.ResourceExpressionList
 
 import ru.bmstu.rk9.rdo.rdo.Constant
@@ -419,7 +419,7 @@ class RDOExpressionCompiler
 				val parent = expr.eContainer
 				val parameters = switch parent
 				{
-					ResourceDeclaration:
+					ResourceCreateStatement:
 						parent.reference.parameters.map[p | p.param.compileType]
 
 					PlanningStatement:

@@ -28,7 +28,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOModel
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
 import ru.bmstu.rk9.rdo.rdo.Constant
 
@@ -61,9 +61,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 	{
 		exportVariableInfo(resources)
 
-		val declarationList = new java.util.ArrayList<ResourceDeclaration>();
+		val declarationList = new java.util.ArrayList<ResourceCreateStatement>();
 		for(resource : resources.resources)
-			declarationList.addAll(resource.allContents.filter(typeof(ResourceDeclaration)).toIterable)
+			declarationList.addAll(resource.allContents.filter(typeof(ResourceCreateStatement)).toIterable)
 
 		val simulationList = new java.util.ArrayList<OnInit>();
 		for(resource : resources.resources)
@@ -139,7 +139,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		{
 			val info = variableIndex.get(r.resourceName)
 
-			for(rss : r.allContents.filter(typeof(ResourceDeclaration)).toIterable)
+			for(rss : r.allContents.filter(typeof(ResourceCreateStatement)).toIterable)
 				info.resources.put(rss.name, info.newRSS(rss))
 
 			for(seq : r.allContents.filter(typeof(Sequence)).toIterable)

@@ -13,7 +13,7 @@ import ru.bmstu.rk9.rdo.generator.LocalContext
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.ParameterType
@@ -28,7 +28,6 @@ import ru.bmstu.rk9.rdo.rdo.OnExecute
 import ru.bmstu.rk9.rdo.rdo.OnBegin
 import ru.bmstu.rk9.rdo.rdo.OnEnd
 import ru.bmstu.rk9.rdo.rdo.Duration
-import ru.bmstu.rk9.rdo.rdo.RDOType
 import ru.bmstu.rk9.rdo.rdo.PatternSelectLogic
 
 class RDOPatternCompiler
@@ -59,16 +58,16 @@ class RDOPatternCompiler
 					«IF r.type instanceof ResourceType»
 						public «r.type.fullyQualifiedName» «r.name»;
 					«ELSE»
-						public «(r.type as ResourceDeclaration).reference.fullyQualifiedName» «r.name»;
+						public «(r.type as ResourceCreateStatement).reference.fullyQualifiedName» «r.name»;
 					«ENDIF»
 				«ENDFOR»
 
 				public RelevantResources init()
 				{
 					«FOR r : evn.relevantresources»
-						«IF r.type instanceof ResourceDeclaration»
-							«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName
-								».getResource("«(r.type as ResourceDeclaration).fullyQualifiedName»");
+						«IF r.type instanceof ResourceCreateStatement»
+							«r.name» = «(r.type as ResourceCreateStatement).reference.fullyQualifiedName
+								».getResource("«(r.type as ResourceCreateStatement).fullyQualifiedName»");
 						«ELSE»
 							«IF r.rule.literal == "Create"»
 								«r.name» = new «r.type.fullyQualifiedName»(«(r.type as ResourceType).parameters.size.compileAllDefault»);
@@ -86,7 +85,7 @@ class RDOPatternCompiler
 			{
 				«IF !evn.parameters.empty»
 				«FOR p : evn.parameters»
-					public «(p.param as RDOType).compileType» «p.param.name»«p.getDefault»;
+					public «p.param.compileType» «p.param.name»«p.getDefault»;
 				«ENDFOR»
 
 				public Parameters(«evn.parameters.compileParameterTypes»)
@@ -174,8 +173,8 @@ class RDOPatternCompiler
 								new JSONObject()
 									.put("name", "«r.name»")
 									.put("type", "«
-										IF r.type instanceof ResourceDeclaration
-											»«(r.type as ResourceDeclaration).reference.fullyQualifiedName»«
+										IF r.type instanceof ResourceCreateStatement
+											»«(r.type as ResourceCreateStatement).reference.fullyQualifiedName»«
 										ELSE
 											»«(r.type as ResourceType).fullyQualifiedName»«
 										ENDIF»")
@@ -224,7 +223,7 @@ class RDOPatternCompiler
 					«IF r.type instanceof ResourceType»
 						public «r.type.fullyQualifiedName» «r.name»;
 					«ELSE»
-						public «(r.type as ResourceDeclaration).reference.fullyQualifiedName» «r.name»;
+						public «(r.type as ResourceCreateStatement).reference.fullyQualifiedName» «r.name»;
 					«ENDIF»
 				«ENDFOR»
 				«FOR r : rule.relevantresources.filter[res | res.rule.literal == "Create"]»
@@ -237,8 +236,8 @@ class RDOPatternCompiler
 
 					«FOR r : rule.relevantresources.filter[res | res.rule.literal != "Create"]»
 						clone.«r.name» = «(
-							if(r.type instanceof ResourceDeclaration)
-								(r.type as ResourceDeclaration).reference
+							if(r.type instanceof ResourceCreateStatement)
+								(r.type as ResourceCreateStatement).reference
 							else r.type).fullyQualifiedName
 							».getResource(this.«r.name».getNumber());
 					«ENDFOR»
@@ -249,9 +248,9 @@ class RDOPatternCompiler
 				public void clear()
 				{
 					«FOR r : rule.relevantresources.filter[res | res.rule.literal != "Create"]»
-					«IF r.type instanceof ResourceDeclaration»
-						this.«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName
-							».getResource("«(r.type as ResourceDeclaration).fullyQualifiedName»");
+					«IF r.type instanceof ResourceCreateStatement»
+						this.«r.name» = «(r.type as ResourceCreateStatement).reference.fullyQualifiedName
+							».getResource("«(r.type as ResourceCreateStatement).fullyQualifiedName»");
 					«ELSE»
 						this.«r.name» = null;
 					«ENDIF»
@@ -327,11 +326,11 @@ class RDOPatternCompiler
 								@Override
 								public java.util.Collection<«relres.type.relResFullyQualifiedName»> getResources()
 								{
-									«IF relres.type instanceof ResourceDeclaration»
+									«IF relres.type instanceof ResourceCreateStatement»
 									java.util.LinkedList<«relres.type.relResFullyQualifiedName»> singlelist =
 										new java.util.LinkedList<«relres.type.relResFullyQualifiedName»>();
 									singlelist.add(«relres.type.relResFullyQualifiedName».getResource("«
-										(relres.type as ResourceDeclaration).fullyQualifiedName»"));
+										(relres.type as ResourceCreateStatement).fullyQualifiedName»"));
 									return singlelist;
 									«ELSE»
 									return «relres.type.relResFullyQualifiedName».get«
@@ -358,7 +357,7 @@ class RDOPatternCompiler
 
 			«ELSE»
 			«FOR relres : rule.relevantresources.filter[r | r.rule.literal != "Create"]»
-			«IF relres.type instanceof ResourceDeclaration»
+			«IF relres.type instanceof ResourceCreateStatement»
 			// just checker «relres.name»
 			private static SimpleChoiceFrom.Checker<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters> «
 				relres.name»Checker = «relres.select.compileChoiceFrom(
@@ -406,7 +405,7 @@ class RDOPatternCompiler
 
 				«ELSE»
 				«FOR relres : rule.relevantresources.filter[r | r.rule.literal != "Create"]»
-				«IF relres.type instanceof ResourceDeclaration»
+				«IF relres.type instanceof ResourceCreateStatement»
 					if(!«relres.name»Checker.check(staticResources, staticResources.«relres.name», parameters))
 						return false;
 
@@ -492,8 +491,8 @@ class RDOPatternCompiler
 								new JSONObject()
 									.put("name", "«r.name»")
 									.put("type", "«
-										IF r.type instanceof ResourceDeclaration
-											»«(r.type as ResourceDeclaration).reference.fullyQualifiedName»«
+										IF r.type instanceof ResourceCreateStatement
+											»«(r.type as ResourceCreateStatement).reference.fullyQualifiedName»«
 										ELSE
 											»«(r.type as ResourceType).fullyQualifiedName»«
 										ENDIF»")
@@ -531,7 +530,7 @@ class RDOPatternCompiler
 					«IF r.type instanceof ResourceType»
 						public «r.type.fullyQualifiedName» «r.name»;
 					«ELSE»
-						public «(r.type as ResourceDeclaration).reference.fullyQualifiedName» «r.name»;
+						public «(r.type as ResourceCreateStatement).reference.fullyQualifiedName» «r.name»;
 					«ENDIF»
 				«ENDFOR»
 				«FOR r : op.relevantresources.filter[res | res.begin.literal == "Create" || res.end.literal == "Create"]»
@@ -544,8 +543,8 @@ class RDOPatternCompiler
 
 					«FOR r : op.relevantresources.filter[res | res.begin.literal != "Create" && res.end.literal != "Create"]»
 						clone.«r.name» = «(
-							if(r.type instanceof ResourceDeclaration)
-								(r.type as ResourceDeclaration).reference
+							if(r.type instanceof ResourceCreateStatement)
+								(r.type as ResourceCreateStatement).reference
 							else r.type).fullyQualifiedName
 							».getResource(this.«r.name».getNumber());
 					«ENDFOR»
@@ -556,9 +555,9 @@ class RDOPatternCompiler
 				public void clear()
 				{
 					«FOR r : op.relevantresources.filter[res | res.begin.literal != "Create" && res.end.literal != "Create"]»
-					«IF r.type instanceof ResourceDeclaration»
-						this.«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName
-							».getResource("«(r.type as ResourceDeclaration).fullyQualifiedName»");
+					«IF r.type instanceof ResourceCreateStatement»
+						this.«r.name» = «(r.type as ResourceCreateStatement).reference.fullyQualifiedName
+							».getResource("«(r.type as ResourceCreateStatement).fullyQualifiedName»");
 					«ELSE»
 						this.«r.name» = null;
 					«ENDIF»
@@ -636,11 +635,11 @@ class RDOPatternCompiler
 								@Override
 								public java.util.Collection<«relres.type.fullyQualifiedName»> getResources()
 								{
-									«IF relres.type instanceof ResourceDeclaration»
+									«IF relres.type instanceof ResourceCreateStatement»
 									java.util.LinkedList<«relres.type.relResFullyQualifiedName»> singlelist =
 										new java.util.LinkedList<«relres.type.relResFullyQualifiedName»>();
 									singlelist.add(«relres.type.relResFullyQualifiedName».getResource("«
-										(relres.type as ResourceDeclaration).fullyQualifiedName»"));
+										(relres.type as ResourceCreateStatement).fullyQualifiedName»"));
 									return singlelist;
 									«ELSE»
 									return «relres.type.relResFullyQualifiedName».get«
@@ -668,7 +667,7 @@ class RDOPatternCompiler
 
 			«ELSE»
 			«FOR relres : op.relevantresources.filter[r | r.begin.literal != "Create" && r.end.literal != "Create"]»
-			«IF relres.type instanceof ResourceDeclaration»
+			«IF relres.type instanceof ResourceCreateStatement»
 			// just checker «relres.name»
 			private static SimpleChoiceFrom.Checker<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters> «
 				relres.name»Checker = «relres.select.compileChoiceFrom(op, relres.type.relResFullyQualifiedName,
@@ -721,7 +720,7 @@ class RDOPatternCompiler
 
 				«ELSE»
 				«FOR relres : op.relevantresources.filter[r | r.begin.literal != "Create" && r.end.literal != "Create"]»
-				«IF relres.type instanceof ResourceDeclaration»
+				«IF relres.type instanceof ResourceCreateStatement»
 					if(!«relres.name»Checker.check(staticResources, staticResources.«relres.name», parameters))
 						return false;
 
@@ -857,8 +856,8 @@ class RDOPatternCompiler
 								new JSONObject()
 									.put("name", "«r.name»")
 									.put("type", "«
-										IF r.type instanceof ResourceDeclaration
-											»«(r.type as ResourceDeclaration).reference.fullyQualifiedName»«
+										IF r.type instanceof ResourceCreateStatement
+											»«(r.type as ResourceCreateStatement).reference.fullyQualifiedName»«
 										ELSE
 											»«(r.type as ResourceType).fullyQualifiedName»«
 										ENDIF»")
@@ -887,7 +886,7 @@ class RDOPatternCompiler
 					if(r.type instanceof ResourceType)
 						(r.type as ResourceType).fullyQualifiedName
 					else
-						(r.type as ResourceDeclaration).reference.fullyQualifiedName
+						(r.type as ResourceCreateStatement).reference.fullyQualifiedName
 				]
 			}
 
@@ -898,7 +897,7 @@ class RDOPatternCompiler
 					if(r.type instanceof ResourceType)
 						(r.type as ResourceType).fullyQualifiedName
 					else
-						(r.type as ResourceDeclaration).reference.fullyQualifiedName
+						(r.type as ResourceCreateStatement).reference.fullyQualifiedName
 				]
 			}
 		}

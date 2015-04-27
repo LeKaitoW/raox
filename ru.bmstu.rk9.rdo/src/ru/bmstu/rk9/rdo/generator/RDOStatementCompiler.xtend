@@ -30,6 +30,7 @@ import ru.bmstu.rk9.rdo.rdo.FrameObjectEllipse
 import ru.bmstu.rk9.rdo.rdo.FrameObjectTriangle
 import ru.bmstu.rk9.rdo.rdo.FrameColour
 import ru.bmstu.rk9.rdo.rdo.TerminateCondition
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
 class RDOStatementCompiler
 {
@@ -215,6 +216,19 @@ class RDOStatementCompiler
 						}
 					}
 				);
+				'''
+
+			ResourceCreateStatement:
+				'''
+				«IF st.name != null»
+					«st.reference.fullyQualifiedName» «st.name» = new «
+						st.reference.fullyQualifiedName»(«if(st.parameters != null)
+							st.parameters.compileExpression.value else ""»);
+					«st.name».register("«st.fullyQualifiedName»");
+				«ELSE»
+					new «st.reference.fullyQualifiedName»(«if(st.parameters != null)
+							st.parameters.compileExpression.value else ""»).register();
+				«ENDIF»
 				'''
 
 			FrameObject:

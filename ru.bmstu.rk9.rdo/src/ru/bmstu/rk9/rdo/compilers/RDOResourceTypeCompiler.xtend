@@ -13,7 +13,7 @@ import ru.bmstu.rk9.rdo.rdo.ParameterTypeBasic
 import ru.bmstu.rk9.rdo.rdo.ParameterTypeString
 import ru.bmstu.rk9.rdo.rdo.ParameterTypeArray
 
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.RDOReal
@@ -28,7 +28,7 @@ class RDOResourceTypeCompiler
 	private static var chunkstart = 0;
 	private static var chunknumber = 0;
 
-	def public static compileResourceType(ResourceType rtp, String filename, Iterable<ResourceDeclaration> instances)
+	def public static compileResourceType(ResourceType rtp, String filename, Iterable<ResourceCreateStatement> instances)
 	{
 		'''
 		package «filename»;
@@ -71,19 +71,21 @@ class RDOResourceTypeCompiler
 				return number;
 			}
 
-			public void register(String name)
+			public «rtp.name» register(String name)
 			{
 				this.name = name;
 				this.number = managerCurrent.getNextNumber();
 				managerCurrent.addResource(this);
 				lastCreated = this;
+				return this;
 			}
 
-			public void register()
+			public «rtp.name» register()
 			{
 				this.number = managerCurrent.getNextNumber();
 				managerCurrent.addResource(this);
 				lastCreated = this;
+				return this;
 			}
 
 			private static «rtp.name» lastCreated;
