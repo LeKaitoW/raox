@@ -28,7 +28,7 @@ public class RDOPlotView extends ViewPart {
 	private ChartComposite frame;
 	private AbstractIndex partIndex;
 
-	public static HashMap<AbstractIndex, Integer> getOpenedplotmap() {
+	public static HashMap<AbstractIndex, Integer> getOpenedPlotMap() {
 		return openedPlotMap;
 	}
 

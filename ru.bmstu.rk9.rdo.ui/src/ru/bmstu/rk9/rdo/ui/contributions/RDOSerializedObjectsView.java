@@ -121,7 +121,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 						series.add(item.x, item.y);
 					}
 
-					if (RDOPlotView.getOpenedplotmap().containsKey(index)) {
+					if (RDOPlotView.getOpenedPlotMap().containsKey(index)) {
 						PlatformUI
 								.getWorkbench()
 								.getActiveWorkbenchWindow()
@@ -129,7 +129,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 								.showView(
 										RDOPlotView.ID,
 										String.valueOf(RDOPlotView
-												.getOpenedplotmap().get(index)),
+												.getOpenedPlotMap().get(index)),
 										IWorkbenchPage.VIEW_ACTIVATE);
 					} else {
 						final RDOPlotView newView = (RDOPlotView) PlatformUI
