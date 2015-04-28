@@ -59,6 +59,10 @@ import ru.bmstu.rk9.rdo.rdo.Result
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.DefaultMethod
+import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
+import ru.bmstu.rk9.rdo.rdo.DptSetConditionStatement
+import ru.bmstu.rk9.rdo.rdo.DptSetPriotiryStatement
+import ru.bmstu.rk9.rdo.rdo.DptSetParentStatement
 
 class RDOValidator extends AbstractRDOValidator
 {
@@ -374,6 +378,11 @@ class RDOValidator extends AbstractRDOValidator
 			SelectableRelevantResource,
 			EventRelevantResource:
 				RdoPackage.eINSTANCE.META_RelevantResource_Name
+
+			DptSetConditionStatement,
+			DptSetParentStatement,
+			DptSetPriotiryStatement:
+				RdoPackage.eINSTANCE.dptStatements_Name
 		}
 	}
 
@@ -420,4 +429,32 @@ class RDOValidator extends AbstractRDOValidator
 		}
 	}
 
+	@Check
+	def checkDptInitStatements(DecisionPointSome dpt)
+	{
+		var setCondStatements = dpt.initStatements.filter(
+				s | s instanceof DptSetConditionStatement
+			)
+		var setPriorStatements = dpt.initStatements.filter(
+				s | s instanceof DptSetPriotiryStatement
+			)
+		var setParentStatements = dpt.initStatements.filter(
+				s | s instanceof DptSetParentStatement
+			)
+
+		if (setCondStatements.size > 1)
+			for (s : setCondStatements)
+				error("Multiple setCondition() calls are not allowed",
+						s, s.getNameStructuralFeature)
+
+		if (setPriorStatements.size > 1)
+			for (s : setPriorStatements)
+				error("Multiple setPriority() calls are not allowed",
+						s, s.getNameStructuralFeature)
+
+		if (setParentStatements.size > 1)
+			for (s : setParentStatements)
+				error("Multiple setParent() calls are not allowed",
+						s, s.getNameStructuralFeature)
+	}
 }

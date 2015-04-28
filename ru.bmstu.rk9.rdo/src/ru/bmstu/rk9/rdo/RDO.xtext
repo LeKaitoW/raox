@@ -165,12 +165,32 @@ DecisionPoint
 DecisionPointSome:
 	'dpt' name = ID '{'
 		('set' 'init' '(' ')' '{'
-			('setParent' '(' parent = [DecisionPoint|FQN] ')' ';')?
-			('setCondition' '(' (condition = ExpressionOr | 'any') ')' ';')?
-			('setPriority' '(' (priority = ExpressionOr) ')' ';')?
+			initStatements += DptStatements*
 		'}')?
 		( activities += DecisionPointActivity ';' )+
 	'}'
+;
+
+DptStatements
+	: DptCommonStatements
+	| DptSetPriotiryStatement
+;
+
+DptCommonStatements
+	: DptSetParentStatement
+	| DptSetConditionStatement
+;
+
+DptSetParentStatement:
+	name = 'setParent' '(' parent = [DecisionPoint|FQN] ')' ';'
+;
+
+DptSetConditionStatement:
+	name = 'setCondition' '(' (condition = ExpressionOr | 'any') ')' ';'
+;
+
+DptSetPriotiryStatement:
+	name = 'setPriority' '(' (priority = ExpressionOr) ')' ';'
 ;
 
 DecisionPointSearch:
