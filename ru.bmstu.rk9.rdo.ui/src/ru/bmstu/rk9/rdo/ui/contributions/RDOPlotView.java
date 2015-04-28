@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rdo.ui.contributions;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -19,16 +20,21 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.experimental.chart.swt.ChartComposite;
 
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
+import ru.bmstu.rk9.rdo.lib.PlotDataParser;
 
 public class RDOPlotView extends ViewPart {
 
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOPlotView";
-	private final static HashMap<AbstractIndex, Integer> openedPlotMap = new HashMap<AbstractIndex, Integer>();
+	private final static Map<AbstractIndex, Integer> openedPlotMap = new HashMap<AbstractIndex, Integer>();
 
 	private ChartComposite frame;
 	private AbstractIndex partIndex;
 
-	public static HashMap<AbstractIndex, Integer> getOpenedPlotMap() {
+	public ChartComposite getFrame() {
+		return frame;
+	}
+
+	public static Map<AbstractIndex, Integer> getOpenedPlotMap() {
 		return openedPlotMap;
 	}
 
@@ -53,6 +59,7 @@ public class RDOPlotView extends ViewPart {
 			@Override
 			public void widgetDisposed(DisposeEvent event) {
 				openedPlotMap.remove(partIndex);
+				PlotDataParser.getLastItemMap().remove(partIndex);
 			}
 		});
 	}

@@ -110,28 +110,43 @@ public class RDOSerializedObjectsView extends ViewPart {
 					final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
 							.getTree().getSelection()[0].getData();
 					final AbstractIndex index = node.getIndex();
-					final XYSeriesCollection dataset = new XYSeriesCollection();
-
-					final XYSeries series = new XYSeries(node.getName());
-					dataset.addSeries(series);
-					final List<PlotItem> items = PlotDataParser
-							.parseEntries(node);
-					for (int i = 0; i < items.size(); i++) {
-						final PlotItem item = items.get(i);
-						series.add(item.x, item.y);
-					}
 
 					if (RDOPlotView.getOpenedPlotMap().containsKey(index)) {
-						PlatformUI
-								.getWorkbench()
-								.getActiveWorkbenchWindow()
-								.getActivePage()
-								.showView(
-										RDOPlotView.ID,
-										String.valueOf(RDOPlotView
-												.getOpenedPlotMap().get(index)),
-										IWorkbenchPage.VIEW_ACTIVATE);
+						final List<PlotItem> items = PlotDataParser
+								.parseEntries(node);
+
+						if (!items.isEmpty()) {
+							final RDOPlotView existedView = (RDOPlotView) PlatformUI
+									.getWorkbench()
+									.getActiveWorkbenchWindow()
+									.getActivePage()
+									.showView(
+											RDOPlotView.ID,
+											String.valueOf(RDOPlotView
+													.getOpenedPlotMap().get(
+															index)),
+											IWorkbenchPage.VIEW_ACTIVATE);
+
+							final XYSeriesCollection newDataset = (XYSeriesCollection) existedView
+									.getFrame().getChart().getXYPlot()
+									.getDataset();
+							final XYSeries newSeries = newDataset.getSeries(0);
+							for (int i = 0; i < items.size(); i++) {
+								final PlotItem item = items.get(i);
+								newSeries.add(item.x, item.y);
+							}
+						}
+
 					} else {
+						final XYSeriesCollection dataset = new XYSeriesCollection();
+						final XYSeries series = new XYSeries(node.getName());
+						dataset.addSeries(series);
+						final List<PlotItem> items = PlotDataParser
+								.parseEntries(node);
+						for (int i = 0; i < items.size(); i++) {
+							final PlotItem item = items.get(i);
+							series.add(item.x, item.y);
+						}
 						final RDOPlotView newView = (RDOPlotView) PlatformUI
 								.getWorkbench()
 								.getActiveWorkbenchWindow()
@@ -142,6 +157,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 						newView.setName(String.valueOf(dataset.getSeriesKey(0)));
 						newView.setIndex(index);
 						RDOPlotView.addToOpenedPlotMap(index, secondaryID);
+
 						newView.plotXY(dataset);
 						secondaryID++;
 					}

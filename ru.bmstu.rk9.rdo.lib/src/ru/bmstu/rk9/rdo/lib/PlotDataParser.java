@@ -2,7 +2,9 @@ package ru.bmstu.rk9.rdo.lib;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.PatternIndex;
@@ -13,6 +15,9 @@ import ru.bmstu.rk9.rdo.lib.Database.Entry;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 
 public class PlotDataParser {
+
+	private static final Map<AbstractIndex, Integer> lastItemMap = new HashMap<AbstractIndex, Integer>();
+
 	public final static class PlotItem {
 		PlotItem(final double x, final double y) {
 			this.x = x;
@@ -21,6 +26,10 @@ public class PlotDataParser {
 
 		final public double x;
 		final public double y;
+	}
+
+	public static Map<AbstractIndex, Integer> getLastItemMap() {
+		return lastItemMap;
 	}
 
 	public static List<PlotItem> parseEntries(final CollectedDataNode node) {
@@ -81,8 +90,14 @@ public class PlotDataParser {
 		final List<Integer> entriesNumbers = resultIndex.getEntryNumbers();
 		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
 
-		for (int i = 0; i < entriesNumbers.size(); i++) {
-			final int currentNumberEntry = entriesNumbers.get(i);
+		int i = 0;
+		if (lastItemMap.containsKey(resultIndex)) {
+			i = lastItemMap.get(resultIndex);
+		}
+
+		int currentNumberEntry = 0;
+		while (i < entriesNumbers.size()) {
+			currentNumberEntry = entriesNumbers.get(i);
 			final Entry currentEntry = allEntries.get(currentNumberEntry);
 			final ByteBuffer header = Tracer
 					.prepareBufferForReading(currentEntry.header);
@@ -112,7 +127,11 @@ public class PlotDataParser {
 				return null;
 			}
 			dataset.add(item);
+			i++;
 		}
+
+		lastItemMap.put(resultIndex, currentNumberEntry);
+
 		return dataset;
 	}
 
