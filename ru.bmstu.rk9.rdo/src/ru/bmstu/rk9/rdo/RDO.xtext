@@ -98,8 +98,8 @@ Operation:
 	type = OperationType name = ID ('('
 		(parameters += ParameterType+ (
 			',' parameters += ParameterType+)* )? ')')? '{'
-			 relevantresources += OperationRelevantResource+
-			(combinational = PatternSelectMethod)?
+			 relevantresources += SelectableRelevantResource+
+			('relevantSet' combinational = PatternSelectMethod)?
 		defaultMethods += DefaultMethod*
 	'}'
 ;
@@ -109,28 +109,19 @@ enum OperationType
 	| KEYBOARD = 'keyboard'
 ;
 
-OperationRelevantResource:	
-	'relevant' name = ID '=' type = [META_RelResType|FQN]
-	(haveselect ?= '.' 'select' '(' select = PatternSelectLogic ')' (selectmethod = PatternSelectMethod)?)?
-	begin = PatternConvertStatus end = PatternConvertStatus
-;
-
 Rule:
 	'rule' name = ID ('('
 		(parameters += ParameterType+ (
 			',' parameters += ParameterType+)* )? ')')? '{'
-		relevantresources += RuleRelevantResource+
-		(combinational = PatternSelectMethod)?
+		relevantresources += SelectableRelevantResource+
+		('relevantSet' combinational = PatternSelectMethod)?
 		defaultMethods += DefaultMethod*
 	'}'
 ;
 
-RuleRelevantResource:
+SelectableRelevantResource:
 	'relevant' name = ID '=' type = [META_RelResType|FQN]
-	(haveselect ?= '.' 'select' '(' select = PatternSelectLogic ')'
-		(selectmethod = PatternSelectMethod)?
-	)?
-	rule = PatternConvertStatus
+	(haveselect ?= '.' 'select' '(' select = PatternSelectLogic ')' (selectmethod = PatternSelectMethod)?)?
 ;
 
 Event:
@@ -144,7 +135,6 @@ Event:
 
 EventRelevantResource:
 	'relevant' name = ID '=' type = [META_RelResType|FQN]
-	rule = PatternConvertStatus
 ;
 
 PatternSelectLogic
@@ -160,14 +150,6 @@ PatternSelectMethod
 enum PatternChoiceWithType
 	: WITH_MIN = 'withMin'
 	| WITH_MAX = 'withMax'
-;
-
-enum PatternConvertStatus
-	: KEEP = 'Keep'
-	| NOCHANGE = 'NoChange'
-	| CREATE = 'Create'
-	| ERASE = 'Erase'
-	| NONEXIST = 'NonExist'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -568,8 +550,7 @@ EnumDeclaration:
 //               Meta types for cross-references
 // ==========================================================
 META_RelevantResource
-	: OperationRelevantResource
-	| RuleRelevantResource
+	: SelectableRelevantResource
 	| EventRelevantResource
 ;
 

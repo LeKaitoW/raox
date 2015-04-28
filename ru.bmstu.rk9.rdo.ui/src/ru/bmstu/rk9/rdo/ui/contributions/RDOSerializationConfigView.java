@@ -46,12 +46,11 @@ import ru.bmstu.rk9.rdo.lib.SerializationConfig.SerializationNode;
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch;
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome;
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource;
-import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource;
+import ru.bmstu.rk9.rdo.rdo.SelectableRelevantResource;
 import ru.bmstu.rk9.rdo.rdo.Pattern;
 import ru.bmstu.rk9.rdo.rdo.RDOModel;
 import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement;
 import ru.bmstu.rk9.rdo.rdo.Result;
-import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource;
 
 public class RDOSerializationConfigView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOSerializeConfigView";
@@ -292,9 +291,9 @@ class SerializationConfigurator {
 					.getFullyQualifiedName(c));
 			if (c instanceof Pattern) {
 				for (EObject relRes : c.eContents()) {
-					if (relRes instanceof RuleRelevantResource
+					if (relRes instanceof SelectableRelevantResource
 							|| relRes instanceof EventRelevantResource
-							|| relRes instanceof OperationRelevantResource)
+							|| relRes instanceof SelectableRelevantResource)
 						child.addChild(child.getFullName() + "."
 								+ RDONaming.getNameGeneric(relRes));
 				}

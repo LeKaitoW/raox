@@ -45,9 +45,8 @@ import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.ParameterType
 import ru.bmstu.rk9.rdo.rdo.PatternSelectMethod
 import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
+import ru.bmstu.rk9.rdo.rdo.SelectableRelevantResource
 import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 
@@ -320,8 +319,7 @@ class RDOValidator extends AbstractRDOValidator
 			e instanceof ParameterType
 		].toList
 		val List<EObject> relreslist = pat.eAllContents.filter[e |
-			e instanceof OperationRelevantResource ||
-			e instanceof RuleRelevantResource      ||
+			e instanceof SelectableRelevantResource ||
 			e instanceof EventRelevantResource
 		].toList
 
@@ -373,102 +371,9 @@ class RDOValidator extends AbstractRDOValidator
 			ParameterType:
 				RdoPackage.eINSTANCE.parameterType_Param
 
-			OperationRelevantResource,
-			RuleRelevantResource,
+			SelectableRelevantResource,
 			EventRelevantResource:
 				RdoPackage.eINSTANCE.META_RelevantResource_Name
-		}
-	}
-
-	@Check
-	def checkConvertStatus(OperationRelevantResource relres)
-	{
-		val type  = relres.type
-		val begin = relres.begin.literal
-		val end   = relres.end.literal
-
-		switch type
-		{
-			ResourceType:
-			{
-				if(begin == "NonExist" && end != "Create")
-					error("Invalid convert status: "+end+" - for NonExist convert begin status a resource should be created",
-						RdoPackage.eINSTANCE.operationRelevantResource_End)
-
-				if(end == "Create" && begin != "NonExist")
-					error("Invalid convert status: "+begin+" - there is no resource initially for Create convert end status",
-						RdoPackage.eINSTANCE.operationRelevantResource_Begin)
-
-				if(begin == "Erase" && end != "NonExist")
-					error("Invalid convert status: "+end+" - convert end status for erased resource should be NonExist",
-						RdoPackage.eINSTANCE.operationRelevantResource_End)
-
-				if(end == "NonExist" && begin != "Erase")
-					error("Invalid convert status: "+begin+" - relevant resource isn't being erased",
-						RdoPackage.eINSTANCE.operationRelevantResource_Begin)
-			}
-
-			ResourceCreateStatement:
-			{
-				if(begin == "Create" || begin == "Erase" || begin == "NonExist")
-					error("Invalid convert status: "+begin+" - only Keep and NoChange statuses could be used for resource",
-						RdoPackage.eINSTANCE.operationRelevantResource_Begin)
-
-				if(end == "Create" || end == "Erase" || end == "NonExist")
-					error("Invalid convert status: "+end+" - only Keep and NoChange statuses could be used for resource",
-						RdoPackage.eINSTANCE.operationRelevantResource_End)
-			}
-		}
-	}
-
-	@Check
-	def checkConvertStatus(RuleRelevantResource relres)
-	{
-		val type = relres.type
-		val rule = relres.rule.literal
-
-		if(rule == "NonExist") {
-			error("Invalid convert status: "+rule+" couldn't be used in condition-action rule",
-				RdoPackage.eINSTANCE.ruleRelevantResource_Rule)
-			return
-		}
-
-		switch type
-		{
-			ResourceCreateStatement:
-			{
-				if(rule == "Create" || rule == "Erase")
-					error("Invalid convert status: "+rule+" - only Keep and NoChange statuses could be used for resource",
-						RdoPackage.eINSTANCE.ruleRelevantResource_Rule)
-			}
-		}
-	}
-
-	@Check
-	def checkConvertStatus(EventRelevantResource relres)
-	{
-		val type = relres.type
-		val rule = relres.rule.literal
-
-		if(rule == "NonExist" || rule == "Erase" || rule == "NoChange")
-		{
-			error("Invalid convert status: "+rule+" couldn't be used in event",
-				RdoPackage.eINSTANCE.eventRelevantResource_Rule)
-			return
-		}
-
-		switch type
-		{
-			ResourceType:
-			{
-				if(rule == 'Keep')
-					error("Invalid convert status: "+rule+" couldn't be used for resource type in event",
-						RdoPackage.eINSTANCE.eventRelevantResource_Rule)
-			}
-			ResourceCreateStatement:
-				if(rule == 'Create')
-					error("Invalid convert status: "+rule+" couldn't be used for resource in event",
-						RdoPackage.eINSTANCE.eventRelevantResource_Rule)
 		}
 	}
 
@@ -485,8 +390,7 @@ class RDOValidator extends AbstractRDOValidator
 				Operation: iscombinatorial = true
 				Rule     : iscombinatorial = true
 
-				OperationRelevantResource: haveselectmethods = true
-				RuleRelevantResource     : haveselectmethods = true
+				SelectableRelevantResource: haveselectmethods = true
 			}
 		}
 
@@ -495,14 +399,9 @@ class RDOValidator extends AbstractRDOValidator
 			{
 				switch e.eContainer
 				{
-					OperationRelevantResource:
+					SelectableRelevantResource:
 						error("Operation " + (pat as Operation).name + " already uses combinational approach for relevant resources search",
-							e.eContainer, RdoPackage.eINSTANCE.operationRelevantResource_Selectmethod)
-
-					RuleRelevantResource:
-						error("Rule " + (pat as Rule).name + " already uses combinational approach for relevant resources search",
-							e.eContainer, RdoPackage.eINSTANCE.ruleRelevantResource_Selectmethod)
-				}
+							e.eContainer, RdoPackage.eINSTANCE.selectableRelevantResource_Selectmethod)}
 			}
 	}
 

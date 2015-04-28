@@ -26,9 +26,8 @@ import ru.bmstu.rk9.rdo.rdo.Function
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter
 
 import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
+import ru.bmstu.rk9.rdo.rdo.SelectableRelevantResource
 import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 
@@ -102,13 +101,10 @@ class RDONaming
 			Operation:
 				return object.name
 
-			OperationRelevantResource:
+			SelectableRelevantResource:
 				return object.name
 
 			Rule:
-				return object.name
-
-			RuleRelevantResource:
 				return object.name
 
 			Event:

@@ -28,8 +28,7 @@ import ru.bmstu.rk9.rdo.rdo.HistogramSequence
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
-import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource
+import ru.bmstu.rk9.rdo.rdo.SelectableRelevantResource
 import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
@@ -101,17 +100,15 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def  text(Operation pat) { "PAT : " + pat.name + " : " + pat.type.literal}
 	def image(Operation pat) { "script_block.gif" }
 
-	def image(OperationRelevantResource r) { "parameter.gif" }
-	def  text(OperationRelevantResource r) { r.name + r.type.relResName }
-
 	// Rule
 	def  text(Rule pat) { "PAT : " + pat.name + " : rule"}
 	def image(Rule pat) { "script_block.gif" }
 
-	def image(RuleRelevantResource r) { "parameter.gif" }
-	def  text(RuleRelevantResource r) { r.name + r.type.relResName }
-
 	// Common for patterns
+
+	def image(SelectableRelevantResource r) { "parameter.gif" }
+	def  text(SelectableRelevantResource r) { r.name + r.type.relResName }
+
 	def getRelResName(EObject object) {
 		switch object {
 			ResourceType: " : RTP : " + object.name
