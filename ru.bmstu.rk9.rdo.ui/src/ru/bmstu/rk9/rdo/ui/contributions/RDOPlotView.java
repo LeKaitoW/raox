@@ -19,22 +19,22 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.experimental.chart.swt.ChartComposite;
 
-import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode;
 import ru.bmstu.rk9.rdo.lib.PlotDataParser;
 
 public class RDOPlotView extends ViewPart {
 
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOPlotView";
-	private final static Map<AbstractIndex, Integer> openedPlotMap = new HashMap<AbstractIndex, Integer>();
+	private final static Map<CollectedDataNode, Integer> openedPlotMap = new HashMap<CollectedDataNode, Integer>();
 
 	private ChartComposite frame;
-	private AbstractIndex partIndex;
+	private CollectedDataNode partNode;
 
 	public ChartComposite getFrame() {
 		return frame;
 	}
 
-	public static Map<AbstractIndex, Integer> getOpenedPlotMap() {
+	public static Map<CollectedDataNode, Integer> getOpenedPlotMap() {
 		return openedPlotMap;
 	}
 
@@ -42,13 +42,13 @@ public class RDOPlotView extends ViewPart {
 		setPartName(name);
 	}
 
-	public void setIndex(final AbstractIndex index) {
-		partIndex = index;
+	public void setNode(final CollectedDataNode node) {
+		partNode = node;
 	}
 
-	public static void addToOpenedPlotMap(final AbstractIndex index,
+	public static void addToOpenedPlotMap(final CollectedDataNode node,
 			final int secondaryID) {
-		openedPlotMap.put(index, secondaryID);
+		openedPlotMap.put(node, secondaryID);
 	}
 
 	@Override
@@ -58,8 +58,8 @@ public class RDOPlotView extends ViewPart {
 
 			@Override
 			public void widgetDisposed(DisposeEvent event) {
-				openedPlotMap.remove(partIndex);
-				PlotDataParser.getLastItemMap().remove(partIndex);
+				openedPlotMap.remove(partNode);
+				PlotDataParser.getLastItemMap().remove(partNode.getIndex());
 			}
 		});
 	}

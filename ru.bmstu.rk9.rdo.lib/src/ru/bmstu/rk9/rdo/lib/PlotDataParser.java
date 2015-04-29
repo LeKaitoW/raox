@@ -130,7 +130,7 @@ public class PlotDataParser {
 			i++;
 		}
 
-		lastItemMap.put(resultIndex, currentNumberEntry);
+		lastItemMap.put(resultIndex, i);
 
 		return dataset;
 	}

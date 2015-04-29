@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -109,9 +110,8 @@ public class RDOSerializedObjectsView extends ViewPart {
 				try {
 					final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
 							.getTree().getSelection()[0].getData();
-					final AbstractIndex index = node.getIndex();
 
-					if (RDOPlotView.getOpenedPlotMap().containsKey(index)) {
+					if (RDOPlotView.getOpenedPlotMap().containsKey(node)) {
 						final List<PlotItem> items = PlotDataParser
 								.parseEntries(node);
 
@@ -124,7 +124,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 											RDOPlotView.ID,
 											String.valueOf(RDOPlotView
 													.getOpenedPlotMap().get(
-															index)),
+															node)),
 											IWorkbenchPage.VIEW_ACTIVATE);
 
 							final XYSeriesCollection newDataset = (XYSeriesCollection) existedView
@@ -155,8 +155,8 @@ public class RDOSerializedObjectsView extends ViewPart {
 										String.valueOf(secondaryID),
 										IWorkbenchPage.VIEW_ACTIVATE);
 						newView.setName(String.valueOf(dataset.getSeriesKey(0)));
-						newView.setIndex(index);
-						RDOPlotView.addToOpenedPlotMap(index, secondaryID);
+						newView.setNode(node);
+						RDOPlotView.addToOpenedPlotMap(node, secondaryID);
 
 						newView.plotXY(dataset);
 						secondaryID++;
@@ -189,6 +189,33 @@ public class RDOSerializedObjectsView extends ViewPart {
 
 		if (Simulator.isInitialized()) {
 			commonUpdater.fireChange();
+		}
+	}
+
+	private static final void updateAllOpenedCharts() {
+		for (CollectedDataNode node : RDOPlotView.getOpenedPlotMap().keySet()) {
+			final int currentSecondaryID = RDOPlotView.getOpenedPlotMap().get(
+					node);
+			final IViewReference viewReference = PlatformUI
+					.getWorkbench()
+					.getActiveWorkbenchWindow()
+					.getActivePage()
+					.findViewReference(RDOPlotView.ID,
+							String.valueOf(currentSecondaryID));
+			final RDOPlotView viewPart = (RDOPlotView) viewReference
+					.getView(false);
+			System.out.println(viewPart);
+			final List<PlotItem> items = PlotDataParser.parseEntries(node);
+
+			if (!items.isEmpty()) {
+				final XYSeriesCollection newDataset = (XYSeriesCollection) viewPart
+						.getFrame().getChart().getXYPlot().getDataset();
+				final XYSeries newSeries = newDataset.getSeries(0);
+				for (int i = 0; i < items.size(); i++) {
+					final PlotItem item = items.get(i);
+					newSeries.add(item.x, item.y);
+				}
+			}
 		}
 	}
 
@@ -258,6 +285,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 							.asyncExec(
 									() -> serializedObjectsTreeViewer
 											.setInput(root));
+					updateAllOpenedCharts();
 				}
 			});
 		}
