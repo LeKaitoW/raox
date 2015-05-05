@@ -167,7 +167,7 @@ DecisionPointSome:
 		('set' 'init' '(' ')' '{'
 			initStatements += DptStatements*
 		'}')?
-		( activities += DecisionPointActivity ';' )+
+		( activities += DecisionPointActivity)+
 	'}'
 ;
 
@@ -202,7 +202,7 @@ DecisionPointSearch:
 			'evaluateBy' '(' evaluateby = ExpressionOr ')' ';'
 			'compareTops' '(' ((comparetops ?= 'true') | 'false') ')' ';'
 		'}'
-		( activities += DecisionPointSearchActivity ';' )+
+		( activities += DecisionPointSearchActivity)+
 	'}'
 ;
 
@@ -216,7 +216,7 @@ DecisionPointSearchActivity:
 	(
 		'setValueBefore' '(' valuebefore = ExpressionOr ')'
 		| 'setValueAfter'  '(' valueafter = ExpressionOr ')'
-	) ';'
+	)
 ;
 
 DecisionPointActivity:
