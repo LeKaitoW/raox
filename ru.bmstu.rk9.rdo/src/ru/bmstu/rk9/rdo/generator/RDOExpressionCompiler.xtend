@@ -702,6 +702,7 @@ class RDOExpressionCompiler
 			RDOBoolean: type
 			RDOString : type
 			RDOArray  : type.arraytype.resolveAllArrays
+			RDOEnum : type
 
 			default: null
 		}
@@ -724,6 +725,7 @@ class RDOExpressionCompiler
 			RDOBoolean: type
 			RDOString : type
 			RDOArray  : type
+			RDOEnum : type
 
 			default: null
 		}
