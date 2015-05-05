@@ -112,21 +112,19 @@ public class RDOSerializedObjectsView extends ViewPart {
 							.getTree().getSelection()[0].getData();
 
 					if (RDOPlotView.getOpenedPlotMap().containsKey(node)) {
+						final RDOPlotView existedView = (RDOPlotView) PlatformUI
+								.getWorkbench()
+								.getActiveWorkbenchWindow()
+								.getActivePage()
+								.showView(
+										RDOPlotView.ID,
+										String.valueOf(RDOPlotView
+												.getOpenedPlotMap().get(node)),
+										IWorkbenchPage.VIEW_ACTIVATE);
 						final List<PlotItem> items = PlotDataParser
 								.parseEntries(node);
 
 						if (!items.isEmpty()) {
-							final RDOPlotView existedView = (RDOPlotView) PlatformUI
-									.getWorkbench()
-									.getActiveWorkbenchWindow()
-									.getActivePage()
-									.showView(
-											RDOPlotView.ID,
-											String.valueOf(RDOPlotView
-													.getOpenedPlotMap().get(
-															node)),
-											IWorkbenchPage.VIEW_ACTIVATE);
-
 							final XYSeriesCollection newDataset = (XYSeriesCollection) existedView
 									.getFrame().getChart().getXYPlot()
 									.getDataset();
@@ -204,7 +202,6 @@ public class RDOSerializedObjectsView extends ViewPart {
 							String.valueOf(currentSecondaryID));
 			final RDOPlotView viewPart = (RDOPlotView) viewReference
 					.getView(false);
-			System.out.println(viewPart);
 			final List<PlotItem> items = PlotDataParser.parseEntries(node);
 
 			if (!items.isEmpty()) {
