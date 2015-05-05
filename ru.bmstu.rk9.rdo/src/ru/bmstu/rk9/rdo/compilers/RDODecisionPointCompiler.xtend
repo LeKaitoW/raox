@@ -9,10 +9,13 @@ import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
 import ru.bmstu.rk9.rdo.rdo.DptSetConditionStatement
-import ru.bmstu.rk9.rdo.rdo.DptSetPriotiryStatement
+import ru.bmstu.rk9.rdo.rdo.DptSetPriorityStatement
 import ru.bmstu.rk9.rdo.rdo.Expression
 import ru.bmstu.rk9.rdo.rdo.DptSetParentStatement
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
+import ru.bmstu.rk9.rdo.rdo.DptSetTerminateConditionStatement
+import ru.bmstu.rk9.rdo.rdo.DptEvaluateByStatement
+import ru.bmstu.rk9.rdo.rdo.DptCompareTopsStatement
 
 class RDODecisionPointCompiler
 {
@@ -33,7 +36,7 @@ class RDODecisionPointCompiler
 				s | s instanceof DptSetConditionStatement
 			)
 		var setPriorStatements = dpt.initStatements.filter(
-				s | s instanceof DptSetPriotiryStatement
+				s | s instanceof DptSetPriorityStatement
 			)
 		var setParentStatements = dpt.initStatements.filter(
 				s | s instanceof DptSetParentStatement
@@ -47,7 +50,7 @@ class RDODecisionPointCompiler
 
 		var Expression priority
 		if (!setPriorStatements.empty)
-			priority = (setPriorStatements.get(0) as DptSetPriotiryStatement).priority
+			priority = (setPriorStatements.get(0) as DptSetPriorityStatement).priority
 		else
 			priority = null
 
@@ -185,6 +188,52 @@ class RDODecisionPointCompiler
 		val activities = dpt.activities
 		val parameters = activities.map[a | a.pattern.parameters]
 
+		var setCondStatements = dpt.initStatements.filter(
+				s | s instanceof DptSetConditionStatement
+			)
+		var setParentStatements = dpt.initStatements.filter(
+				s | s instanceof DptSetParentStatement
+			)
+		var setTerminateConditionStatements = dpt.initStatements.filter(
+				s | s instanceof DptSetTerminateConditionStatement
+			)
+		var evaluateByStatements = dpt.initStatements.filter(
+				s | s instanceof DptEvaluateByStatement
+			)
+		var compareTopsStatements = dpt.initStatements.filter(
+				s | s instanceof DptCompareTopsStatement
+			)
+
+		var Expression condition
+		if (!setCondStatements.empty)
+			condition = (setCondStatements.get(0) as DptSetConditionStatement).condition
+		else
+			condition = null
+
+		var DecisionPoint parent
+		if (!setParentStatements.empty)
+			parent = (setParentStatements.get(0) as DptSetParentStatement).parent
+		else
+			parent = null
+
+		var Expression termination
+		if (!setTerminateConditionStatements.empty)
+			termination = (setTerminateConditionStatements.get(0) as DptSetTerminateConditionStatement).termination
+		else
+			termination = null
+
+		var Expression evaluateby
+		if (!evaluateByStatements.empty)
+			evaluateby = (evaluateByStatements.get(0) as DptEvaluateByStatement).evaluateby
+		else
+			evaluateby = null
+
+		var boolean comparetops
+		if (!compareTopsStatements.empty)
+			comparetops = (compareTopsStatements.get(0) as DptCompareTopsStatement).comparetops
+		else
+			comparetops = false
+
 		return
 		'''
 			package «filename»;
@@ -208,13 +257,13 @@ class RDODecisionPointCompiler
 					new DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»Model>
 					(
 						"«dpt.fullyQualifiedName»",
-						«IF dpt.condition != null
+						«IF condition != null
 						»new DecisionPoint.Condition()
 						{
 							@Override
 							public boolean check()
 							{
-								return «dpt.condition.compileExpression.value»;
+								return «condition.compileExpression.value»;
 							}
 						}«ELSE»null«ENDIF»,
 						new DecisionPoint.Condition()
@@ -222,7 +271,7 @@ class RDODecisionPointCompiler
 							@Override
 							public boolean check()
 							{
-								return «dpt.termination.compileExpression.value»;
+								return «termination.compileExpression.value»;
 							}
 						},
 						new DecisionPointSearch.EvaluateBy()
@@ -230,10 +279,10 @@ class RDODecisionPointCompiler
 							@Override
 							public double get()
 							{
-								return «dpt.evaluateby.compileExpression.value»;
+								return «evaluateby.compileExpression.value»;
 							}
 						},
-						«IF dpt.comparetops»true«ELSE»false«ENDIF»,
+						«IF comparetops»true«ELSE»false«ENDIF»,
 						new DecisionPointSearch.DatabaseRetriever<rdo_model.«dpt.eResource.URI.projectName»Model>()
 						{
 							@Override
@@ -275,10 +324,10 @@ class RDODecisionPointCompiler
 						);
 					«ENDFOR»
 
-					«IF dpt.parent == null»
+					«IF parent == null»
 						Simulator.addDecisionPoint(dpt);
 					«ELSE»
-						«dpt.parent.fullyQualifiedName».getDPT().addChild(dpt);
+						«parent.fullyQualifiedName».getDPT().addChild(dpt);
 					«ENDIF»
 				}
 
@@ -290,8 +339,8 @@ class RDODecisionPointCompiler
 				public static final JSONObject structure = new JSONObject()
 					.put("name", "«dpt.fullyQualifiedName»")
 					.put("type", "search")
-					.put("parent", «IF dpt.parent != null»"«dpt.parent.fullyQualifiedName»"«ELSE»(String)null«ENDIF»)
-					.put("compare_tops", "«IF dpt.comparetops»YES«ELSE»NO«ENDIF»")
+					.put("parent", «IF parent != null»"«parent.fullyQualifiedName»"«ELSE»(String)null«ENDIF»)
+					.put("compare_tops", "«IF comparetops»YES«ELSE»NO«ENDIF»")
 					.put
 					(
 						"activities", new JSONArray()

@@ -61,8 +61,12 @@ import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.DefaultMethod
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
 import ru.bmstu.rk9.rdo.rdo.DptSetConditionStatement
-import ru.bmstu.rk9.rdo.rdo.DptSetPriotiryStatement
+import ru.bmstu.rk9.rdo.rdo.DptSetPriorityStatement
 import ru.bmstu.rk9.rdo.rdo.DptSetParentStatement
+import ru.bmstu.rk9.rdo.rdo.DptEvaluateByStatement
+import ru.bmstu.rk9.rdo.rdo.DptCompareTopsStatement
+import ru.bmstu.rk9.rdo.rdo.DptSetTerminateConditionStatement
+import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
 
 class RDOValidator extends AbstractRDOValidator
 {
@@ -379,10 +383,23 @@ class RDOValidator extends AbstractRDOValidator
 			EventRelevantResource:
 				RdoPackage.eINSTANCE.META_RelevantResource_Name
 
-			DptSetConditionStatement,
-			DptSetParentStatement,
-			DptSetPriotiryStatement:
-				RdoPackage.eINSTANCE.dptStatements_Name
+			DptSetConditionStatement:
+				RdoPackage.eINSTANCE.dptSetConditionStatement_Name
+
+			DptSetParentStatement:
+				RdoPackage.eINSTANCE.dptSetParentStatement_Name
+
+			DptEvaluateByStatement:
+				RdoPackage.eINSTANCE.dptEvaluateByStatement_Name
+
+			DptSetPriorityStatement:
+				RdoPackage.eINSTANCE.dptSetPriorityStatement_Name
+
+			DptCompareTopsStatement:
+				RdoPackage.eINSTANCE.dptCompareTopsStatement_Name
+
+			DptSetTerminateConditionStatement:
+				RdoPackage.eINSTANCE.dptSetTerminateConditionStatement_Name
 		}
 	}
 
@@ -436,7 +453,7 @@ class RDOValidator extends AbstractRDOValidator
 				s | s instanceof DptSetConditionStatement
 			)
 		var setPriorStatements = dpt.initStatements.filter(
-				s | s instanceof DptSetPriotiryStatement
+				s | s instanceof DptSetPriorityStatement
 			)
 		var setParentStatements = dpt.initStatements.filter(
 				s | s instanceof DptSetParentStatement
@@ -456,5 +473,59 @@ class RDOValidator extends AbstractRDOValidator
 			for (s : setParentStatements)
 				error("Multiple setParent() calls are not allowed",
 						s, s.getNameStructuralFeature)
+	}
+
+	@Check
+	def checkSearchInitStatements(DecisionPointSearch dpt)
+	{
+		var setCondStatements = dpt.initStatements.filter(
+				s | s instanceof DptSetConditionStatement
+			)
+		var setParentStatements = dpt.initStatements.filter(
+				s | s instanceof DptSetParentStatement
+			)
+		var setTerminateConditionStatements = dpt.initStatements.filter(
+				s | s instanceof DptSetTerminateConditionStatement
+			)
+		var evaluateByStatements = dpt.initStatements.filter(
+				s | s instanceof DptEvaluateByStatement
+			)
+		var compareTopsStatements = dpt.initStatements.filter(
+				s | s instanceof DptCompareTopsStatement
+			)
+
+		if (setCondStatements.size > 1)
+			for (s : setCondStatements)
+				error("Multiple setCondition() calls are not allowed",
+						s, s.getNameStructuralFeature)
+
+		if (setParentStatements.size > 1)
+			for (s : setParentStatements)
+				error("Multiple setParent() calls are not allowed",
+						s, s.getNameStructuralFeature)
+
+		if (setTerminateConditionStatements.size > 1)
+			for (s : setTerminateConditionStatements)
+				error("Multiple setTerminateCondition() calls are not allowed",
+						s, s.getNameStructuralFeature)
+		else if (setTerminateConditionStatements.empty)
+				error("setTerminateCondition() method must be called explicitly",
+						dpt, dpt.getNameStructuralFeature)
+
+		if (evaluateByStatements.size > 1)
+			for (s : evaluateByStatements)
+				error("Multiple evaluateBy() calls are not allowed",
+						s, s.getNameStructuralFeature)
+		else if (evaluateByStatements.empty)
+				error("evaluateBy() method must be called explicitly",
+						dpt, dpt.getNameStructuralFeature)
+
+		if (compareTopsStatements.size > 1)
+			for (s : compareTopsStatements)
+				error("Multiple compareTops() calls are not allowed",
+						s, s.getNameStructuralFeature)
+		else if (compareTopsStatements.empty)
+				error("compareTops() method must be called explicitly",
+						dpt, dpt.getNameStructuralFeature)
 	}
 }

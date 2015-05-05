@@ -171,36 +171,25 @@ DecisionPointSome:
 	'}'
 ;
 
-DptStatements
-	: DptCommonStatements
-	| DptSetPriotiryStatement
+DecisionPointActivity:
+	'activity' name = ID '(' (priority = ExpressionOr)? ')'
+	'is' pattern = [META_DecisionPointActivity|FQN]
+	(
+		'(' parameters += ExpressionOr (
+			',' parameters += ExpressionOr)* ')'
+	)?
 ;
 
-DptCommonStatements
+DptStatements
 	: DptSetParentStatement
 	| DptSetConditionStatement
-;
-
-DptSetParentStatement:
-	name = 'setParent' '(' parent = [DecisionPoint|FQN] ')' ';'
-;
-
-DptSetConditionStatement:
-	name = 'setCondition' '(' (condition = ExpressionOr | 'any') ')' ';'
-;
-
-DptSetPriotiryStatement:
-	name = 'setPriority' '(' (priority = ExpressionOr) ')' ';'
+	| DptSetPriorityStatement
 ;
 
 DecisionPointSearch:
 	'search' name = ID '{'
 		'set' 'init' '(' ')' '{'
-			('setParent' '(' parent = [DecisionPoint|FQN] ')' ';')?
-			('setCondition' '(' (condition = ExpressionOr | 'any') ')' ';')?
-			'setTerminateCondition' '(' termination = ExpressionOr ')' ';'
-			'evaluateBy' '(' evaluateby = ExpressionOr ')' ';'
-			'compareTops' '(' ((comparetops ?= 'true') | 'false') ')' ';'
+			initStatements += DptSearchStatemets*
 		'}'
 		( activities += DecisionPointSearchActivity)+
 	'}'
@@ -219,14 +208,38 @@ DecisionPointSearchActivity:
 	)
 ;
 
-DecisionPointActivity:
-	'activity' name = ID '(' (priority = ExpressionOr)? ')'
-	'is' pattern = [META_DecisionPointActivity|FQN]
-	(
-		'(' parameters += ExpressionOr (
-			',' parameters += ExpressionOr)* ')'
-	)?
+DptSearchStatemets
+	: DptSetTerminateConditionStatement
+	| DptEvaluateByStatement
+	| DptCompareTopsStatement
+	| DptSetParentStatement
+	| DptSetConditionStatement
 ;
+
+DptSetParentStatement:
+	name = 'setParent' '(' parent = [DecisionPoint|FQN] ')' ';'
+;
+
+DptSetConditionStatement:
+	name = 'setCondition' '(' (condition = ExpressionOr | 'any') ')' ';'
+;
+
+DptSetPriorityStatement:
+	name = 'setPriority' '(' (priority = ExpressionOr) ')' ';'
+;
+
+DptSetTerminateConditionStatement:
+	name = 'setTerminateCondition' '(' termination = ExpressionOr ')' ';'
+;
+
+DptEvaluateByStatement:
+	name = 'evaluateBy' '(' evaluateby = ExpressionOr ')' ';'
+;
+
+DptCompareTopsStatement:
+	name = 'compareTops' '(' ((comparetops ?= 'true') | 'false') ')' ';'
+;
+
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
