@@ -229,18 +229,17 @@ public class RDOSerializedObjectsView extends ViewPart {
 			private final Runnable updater = new Runnable() {
 				@Override
 				public void run() {
-					if (!readyForInput())
-						return;
-					RDOSerializedObjectsView.serializedObjectsTreeViewer
-							.refresh();
 					updateAllOpenedCharts();
+					if (readyForInput()) {
+						RDOSerializedObjectsView.serializedObjectsTreeViewer
+								.refresh();
+					}
 				}
 			};
 
 			@Override
 			public void run() {
-				if (haveNewRealTimeData && readyForInput()
-						&& !display.isDisposed()) {
+				if (haveNewRealTimeData && !display.isDisposed()) {
 					haveNewRealTimeData = false;
 					display.asyncExec(updater);
 				}
