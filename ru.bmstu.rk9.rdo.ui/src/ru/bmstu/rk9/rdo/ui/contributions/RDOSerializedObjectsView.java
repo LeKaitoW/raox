@@ -127,6 +127,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 						dataset.addSeries(series);
 						final List<PlotItem> items = PlotDataParser
 								.parseEntries(node);
+						String[] enumLabels = PlotDataParser.getEnumLabels(node);
 						for (int i = 0; i < items.size(); i++) {
 							final PlotItem item = items.get(i);
 							series.add(item.x, item.y);
@@ -142,7 +143,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 						newView.setNode(node);
 						RDOPlotView.addToOpenedPlotMap(node, secondaryID);
 
-						newView.plotXY(dataset);
+						newView.plotXY(dataset, enumLabels);
 						secondaryID++;
 					}
 				} catch (PartInitException e) {

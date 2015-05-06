@@ -17,7 +17,6 @@ import ru.bmstu.rk9.rdo.lib.CollectedDataNode.DecisionPointIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceTypeIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceParameterIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex.SearchInfo;
-import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ValueType;
 import ru.bmstu.rk9.rdo.lib.json.*;
 
 public class Database {
@@ -290,7 +289,7 @@ public class Database {
 					.getJSONArray("parameters");
 			for (int paramNum = 0; paramNum < parameters.length(); paramNum++) {
 				JSONObject param = parameters.getJSONObject(paramNum);
-				ValueType paramType = ValueType.get(param.getString("type"));
+				ValueCache paramType = new ValueCache(param);
 				int offset = param.getInt("offset");
 				resourceNode.addChild(
 						parameters.getJSONObject(paramNum).getString("name"))

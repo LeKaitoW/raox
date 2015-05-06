@@ -13,6 +13,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.SymbolAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYDataset;
@@ -75,12 +76,13 @@ public class RDOPlotView extends ViewPart {
 	public void setFocus() {
 	}
 
-	public void plotXY(final XYSeriesCollection dataset) {
-		final JFreeChart chart = createChart(dataset);
+	public void plotXY(final XYSeriesCollection dataset, String[] enumLabels) {
+		final JFreeChart chart = createChart(dataset, enumLabels);
 		frame.setChart(chart);
 	}
 
-	private JFreeChart createChart(final XYDataset dataset) {
+	private JFreeChart createChart(final XYDataset dataset,
+			final String[] enumLabels) {
 
 		final JFreeChart chart = ChartFactory.createXYStepChart("", "Time",
 				"Value", dataset, PlotOrientation.VERTICAL, true, true, false);
@@ -93,9 +95,16 @@ public class RDOPlotView extends ViewPart {
 		plot.setRangeGridlinePaint(grey);
 		plot.getRenderer().setSeriesStroke(0, new BasicStroke((float) 2.5));
 
-		final NumberAxis rangeAxis = new NumberAxis();
-		rangeAxis.setAutoRangeIncludesZero(true);
-		plot.setRangeAxis(rangeAxis);
+		if (enumLabels != null) {
+			final SymbolAxis rangeAxis = new SymbolAxis("Enum", enumLabels);
+			rangeAxis.setAutoRangeIncludesZero(true);
+			plot.setRangeAxis(rangeAxis);
+
+		} else {
+			final NumberAxis rangeAxis = new NumberAxis();
+			rangeAxis.setAutoRangeIncludesZero(true);
+			plot.setRangeAxis(rangeAxis);
+		}
 
 		final NumberAxis domainAxis = new NumberAxis();
 		domainAxis.setAutoRangeIncludesZero(true);

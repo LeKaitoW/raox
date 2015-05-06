@@ -170,7 +170,7 @@ public class PlotDataParser {
 			Tracer.skipPart(header, TypeSize.BYTE);
 			PlotItem item = null;
 
-			switch (resourceParameterIndex.getValueType()) {
+			switch (resourceParameterIndex.getValueCache().type) {
 			case INTEGER:
 				item = new PlotItem(time, data.getInt(resourceParameterIndex
 						.getOffset()));
@@ -198,5 +198,36 @@ public class PlotDataParser {
 		lastItemMap.put(resourceParameterIndex, i);
 
 		return dataset;
+	}
+
+	public static String[] getEnumLabels(final CollectedDataNode node) {
+		String[] enumLabels = null;
+		final AbstractIndex index = node.getIndex();
+		if (index != null) {
+			switch (index.getType()) {
+			case RESOURCE_PARAMETER:
+				List<String> enumNames = ((ResourceParameterIndex) index)
+						.getValueCache().enumNames;
+				if (enumNames != null) {
+					enumLabels = new String[enumNames.size()];
+					enumLabels = enumNames.toArray(enumLabels);
+				}
+				break;
+			case RESULT:
+				int resultNumber = index.getNumber();
+				final ResultCache resultCache = Simulator
+						.getModelStructureCache().resultsInfo.get(resultNumber);
+				List<String> enumResultNames = resultCache.enumNames;
+				if (enumResultNames != null) {
+					enumLabels = new String[enumResultNames.size()];
+					enumLabels = enumResultNames.toArray(enumLabels);
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		return enumLabels;
+
 	}
 }
