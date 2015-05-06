@@ -112,7 +112,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 							.getTree().getSelection()[0].getData();
 
 					if (RDOPlotView.getOpenedPlotMap().containsKey(node)) {
-						final RDOPlotView existedView = (RDOPlotView) PlatformUI
+						PlatformUI
 								.getWorkbench()
 								.getActiveWorkbenchWindow()
 								.getActivePage()
@@ -121,20 +121,6 @@ public class RDOSerializedObjectsView extends ViewPart {
 										String.valueOf(RDOPlotView
 												.getOpenedPlotMap().get(node)),
 										IWorkbenchPage.VIEW_ACTIVATE);
-						final List<PlotItem> items = PlotDataParser
-								.parseEntries(node);
-
-						if (!items.isEmpty()) {
-							final XYSeriesCollection newDataset = (XYSeriesCollection) existedView
-									.getFrame().getChart().getXYPlot()
-									.getDataset();
-							final XYSeries newSeries = newDataset.getSeries(0);
-							for (int i = 0; i < items.size(); i++) {
-								final PlotItem item = items.get(i);
-								newSeries.add(item.x, item.y);
-							}
-						}
-
 					} else {
 						final XYSeriesCollection dataset = new XYSeriesCollection();
 						final XYSeries series = new XYSeries(node.getName());
@@ -247,6 +233,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 						return;
 					RDOSerializedObjectsView.serializedObjectsTreeViewer
 							.refresh();
+					updateAllOpenedCharts();
 				}
 			};
 
