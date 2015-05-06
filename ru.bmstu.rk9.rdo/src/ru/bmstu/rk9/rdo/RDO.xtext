@@ -75,7 +75,7 @@ Resources:
 ;
 
 ResourceExpressionList:
-	expressions += (ResourceParameterExpression) (',' expressions += ResourceParameterExpression)*	
+	expressions += (ResourceParameterExpression) (',' expressions += ResourceParameterExpression)*
 ;
 
 ResourceParameterExpression
@@ -475,7 +475,7 @@ FrameObjectRectangle:
 		x = ExpressionOr ',' y = ExpressionOr ','
 		width = ExpressionOr ',' height = ExpressionOr ','
 		backcolour = FrameColour ','
-		bordercolour = FrameColour		
+		bordercolour = FrameColour
 	')'
 ;
 
@@ -483,7 +483,7 @@ FrameObjectLine:
 	'line' '('
 		x1 = ExpressionOr ',' y1 = ExpressionOr ','
 		x2 = ExpressionOr ',' y2 = ExpressionOr ','
-		colour = FrameColour ','		
+		colour = FrameColour ','
 	')'
 ;
 
@@ -492,7 +492,7 @@ FrameObjectCircle:
 		x = ExpressionOr ',' y = ExpressionOr ','
 		radius = ExpressionOr ','
 		backcolour = FrameColour ','
-		bordercolour = FrameColour		
+		bordercolour = FrameColour
 	')'
 ;
 
@@ -501,7 +501,7 @@ FrameObjectEllipse:
 		x = ExpressionOr ',' y = ExpressionOr ','
 		width = ExpressionOr ',' height = ExpressionOr ','
 		backcolour = FrameColour ','
-		bordercolour = FrameColour		
+		bordercolour = FrameColour
 	')'
 ;
 
@@ -511,7 +511,7 @@ FrameObjectTriangle:
 		x2 = ExpressionOr ',' y2 = ExpressionOr ','
 		x3 = ExpressionOr ',' y3 = ExpressionOr ','
 		backcolour = FrameColour ','
-		bordercolour = FrameColour		
+		bordercolour = FrameColour
 	')'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -767,7 +767,7 @@ ResourceEraseStatement:
 //                      Expression language
 // ==========================================================
 ExpressionList:
-	values += Expression  (',' values += Expression)*	
+	values += Expression  (',' values += Expression)*
 ;
 
 Expression
@@ -778,7 +778,7 @@ Expression
 ExpressionAssignment returns Expression:
 	ExpressionOr (
 		=> op = ('='|'+='|'-='|'*='|'/='|'%=') {ExpressionAssignment.left = current} next = ExpressionOr
-	)*	
+	)*
 ;
 
 // Or: left associative, priority 0
@@ -915,7 +915,7 @@ BOOL returns ecore::EBoolean:
 //           Full unicode support for identificators
 // ==========================================================
 terminal ID:
-	'^'? (IDENTIFIER_START | UNICODE_ESCAPE) (IDENTIFIER_PART | UNICODE_ESCAPE)*	
+	'^'? (IDENTIFIER_START | UNICODE_ESCAPE) (IDENTIFIER_PART | UNICODE_ESCAPE)*
 ;
 
 terminal fragment UNICODE_ESCAPE:
