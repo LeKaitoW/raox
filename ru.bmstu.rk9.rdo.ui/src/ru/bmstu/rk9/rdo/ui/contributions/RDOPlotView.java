@@ -58,8 +58,15 @@ public class RDOPlotView extends ViewPart {
 
 			@Override
 			public void widgetDisposed(DisposeEvent event) {
-				openedPlotMap.remove(partNode);
-				PlotDataParser.getLastItemMap().remove(partNode.getIndex());
+				if (!openedPlotMap.isEmpty()
+						&& openedPlotMap.containsKey(partNode)) {
+					openedPlotMap.remove(partNode);
+				}
+				if (!PlotDataParser.getLastItemMap().isEmpty()
+						&& PlotDataParser.getLastItemMap().containsKey(
+								partNode.getIndex())) {
+					PlotDataParser.getLastItemMap().remove(partNode.getIndex());
+				}
 			}
 		});
 	}
