@@ -200,34 +200,25 @@ public class PlotDataParser {
 		return dataset;
 	}
 
-	public static String[] getEnumLabels(final CollectedDataNode node) {
-		String[] enumLabels = null;
+	public static List<String> getEnumNames(final CollectedDataNode node) {
+		List<String> enumNames = null;
 		final AbstractIndex index = node.getIndex();
 		if (index != null) {
 			switch (index.getType()) {
 			case RESOURCE_PARAMETER:
-				List<String> enumNames = ((ResourceParameterIndex) index)
-						.getValueCache().enumNames;
-				if (enumNames != null) {
-					enumLabels = new String[enumNames.size()];
-					enumLabels = enumNames.toArray(enumLabels);
-				}
+				enumNames = ((ResourceParameterIndex) index).getValueCache().enumNames;
 				break;
 			case RESULT:
 				int resultNumber = index.getNumber();
 				final ResultCache resultCache = Simulator
 						.getModelStructureCache().resultsInfo.get(resultNumber);
-				List<String> enumResultNames = resultCache.enumNames;
-				if (enumResultNames != null) {
-					enumLabels = new String[enumResultNames.size()];
-					enumLabels = enumResultNames.toArray(enumLabels);
-				}
+				enumNames = resultCache.enumNames;
 				break;
 			default:
 				break;
 			}
 		}
-		return enumLabels;
+		return enumNames;
 
 	}
 }

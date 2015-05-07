@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rdo.ui.contributions;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
@@ -76,13 +77,13 @@ public class RDOPlotView extends ViewPart {
 	public void setFocus() {
 	}
 
-	public void plotXY(final XYSeriesCollection dataset, String[] enumLabels) {
-		final JFreeChart chart = createChart(dataset, enumLabels);
+	public void plotXY(final XYSeriesCollection dataset, List<String> enumNames) {
+		final JFreeChart chart = createChart(dataset, enumNames);
 		frame.setChart(chart);
 	}
 
 	private JFreeChart createChart(final XYDataset dataset,
-			final String[] enumLabels) {
+			final List<String> enumNames) {
 
 		final JFreeChart chart = ChartFactory.createXYStepChart("", "Time",
 				"Value", dataset, PlotOrientation.VERTICAL, true, true, false);
@@ -95,8 +96,12 @@ public class RDOPlotView extends ViewPart {
 		plot.setRangeGridlinePaint(grey);
 		plot.getRenderer().setSeriesStroke(0, new BasicStroke((float) 2.5));
 
-		if (enumLabels != null) {
-			final SymbolAxis rangeAxis = new SymbolAxis("Enum", enumLabels);
+		if (enumNames != null) {
+			String[] enumLabels = new String[enumNames.size()];
+			enumLabels = enumNames.toArray(enumLabels);
+
+			final SymbolAxis rangeAxis = new SymbolAxis(String.valueOf(dataset
+					.getSeriesKey(0)), enumLabels);
 			rangeAxis.setAutoRangeIncludesZero(true);
 			plot.setRangeAxis(rangeAxis);
 
