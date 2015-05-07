@@ -131,7 +131,7 @@ public class ModelStructureCache {
 		return fullName.substring(fullName.lastIndexOf(".") + 1);
 	}
 
-	class ValueCache {
+	public class ValueCache {
 		ValueCache(final JSONObject param) {
 			type = ModelStructureCache.ValueType.get(param.getString("type"));
 			if (type == ModelStructureCache.ValueType.ENUM) {
@@ -155,7 +155,7 @@ public class ModelStructureCache {
 		final HashMap<Integer, String> enumNames;
 	}
 
-	class ResourceTypeCache {
+	public class ResourceTypeCache {
 		ResourceTypeCache(final JSONObject resourceType) {
 			name = ModelStructureCache.getRelativeName(resourceType.getString("name"));
 			temporary = resourceType.getBoolean("temporary");
@@ -186,7 +186,7 @@ public class ModelStructureCache {
 		final int finalOffset;
 	}
 
-	class PatternCache {
+	public class PatternCache {
 		PatternCache(final JSONObject pattern) {
 			name = ModelStructureCache.getRelativeName(pattern.getString("name"));
 			relResTypes = new HashMap<Integer, Integer>();
@@ -229,7 +229,7 @@ public class ModelStructureCache {
 		final HashMap<Integer, ActivityCache> activitiesInfo;
 	}
 
-	class ActivityCache {
+	public class ActivityCache {
 		ActivityCache(final JSONObject activity) {
 			name = ModelStructureCache.getRelativeName(activity.getString("name"));
 
@@ -247,7 +247,7 @@ public class ModelStructureCache {
 		int patternNumber = -1;
 	}
 
-	class ResultCache {
+	public class ResultCache {
 		ResultCache(final JSONObject result) {
 			name = ModelStructureCache.getRelativeName(result.getString("name"));
 			String valueTypeRaw = result.getString("value_type");
