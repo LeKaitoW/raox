@@ -7,10 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.ui.PreferenceConstants;
+import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -101,7 +104,13 @@ public class RDOPlotView extends ViewPart {
 			String[] enumLabels = new String[enumNames.size()];
 			enumLabels = enumNames.toArray(enumLabels);
 
-			final Font font = new Font("Arial", Font.BOLD, 8);
+			final FontRegistry fontRegistry = PlatformUI.getWorkbench()
+					.getThemeManager().getCurrentTheme().getFontRegistry();
+			final String fontName = fontRegistry.get(
+					PreferenceConstants.EDITOR_TEXT_FONT).getFontData()[0]
+					.getName();
+
+			final Font font = new Font(fontName, Font.PLAIN, 10);
 			final SymbolAxis rangeAxis = new SymbolAxis("", enumLabels);
 			rangeAxis.setAutoRangeIncludesZero(true);
 			plot.setRangeAxis(rangeAxis);
