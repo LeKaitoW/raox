@@ -161,13 +161,13 @@ public class Database {
 
 	public static class Entry {
 		final ByteBuffer header;
-		
+
 		public final ByteBuffer getHeader() {
 			return this.header;
 		}
-		
+
 		final ByteBuffer data;
-		
+
 		public final ByteBuffer getData() {
 			return this.data;
 		}
