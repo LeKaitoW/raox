@@ -62,7 +62,6 @@ public class RDOSerializedObjectsView extends ViewPart {
 
 			@Override
 			public void handleEvent(Event arg0) {
-				// TODO Auto-generated method stub
 				boolean enabled = false;
 
 				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
