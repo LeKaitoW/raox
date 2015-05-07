@@ -15,7 +15,7 @@ public class DefaultMethodsHelper {
 
 	public static enum GlobalMethodInfo {
 		INIT("init", ValidatorAction.NOTHING), TERMINATE_CONDITION(
-				"terminateCondition", ValidatorAction.WARNING);
+				"terminateCondition", ValidatorAction.NOTHING);
 
 		GlobalMethodInfo(String name, ValidatorAction validatorAction) {
 			this.name = name;
