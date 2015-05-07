@@ -1,6 +1,5 @@
 package ru.bmstu.rk9.rdo.generator;
 
-import java.util.LinkedList;
 import java.util.HashMap;
 
 import ru.bmstu.rk9.rdo.rdo.RDOEnum;
@@ -55,7 +54,8 @@ public class LocalContext {
 
 	public LocalContext populateWithEnums(RDOEnum enm) {
 		for (EnumID id : enm.getType().getValues())
-			this.addRawEntry(id.getName(),
+			this.addRawEntry(
+					enm.getType().getName() + "." + id.getName(),
 					RDOExpressionCompiler.compileType(enm),
 					RDOExpressionCompiler.compileType(enm) + "." + id.getName());
 
@@ -184,17 +184,6 @@ public class LocalContext {
 								+ relres.getName() + ".get_" + p.getParam().getName()
 								+ "()");
 		}
-
-		return this;
-	}
-
-	public LocalContext tuneForConvert(String relres) {
-		LinkedList<String> vars = new LinkedList<String>(index.keySet());
-
-		for (String var : vars)
-			if (var.startsWith(relres + ".")
-					&& var.indexOf(".", relres.length() + 1) == -1)
-				index.put(var.replace(relres + ".", ""), index.get(var));
 
 		return this;
 	}

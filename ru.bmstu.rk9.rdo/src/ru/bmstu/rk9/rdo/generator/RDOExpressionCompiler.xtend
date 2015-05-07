@@ -343,11 +343,11 @@ class RDOExpressionCompiler
 				val left = expr.left.compileExpression
 				val right = expr.right.compileExpression
 
-				if(left.type == "unknown" && right.type.endsWith("_enum") && left.value.checkSingleID)
-					left.value = right.type + "." + left.value
+				if(left.type == "unknown" && checkValidEnumID(right.type, left.value))
+					left.value = right.type + "." + left.value.substring(left.value.lastIndexOf('.') + 1)
 
-				if(right.type == "unknown" && left.type.endsWith("_enum") && right.value.checkSingleID)
-					right.value = left.type + "." + right.value
+				if(right.type == "unknown" && checkValidEnumID(left.type, right.value))
+					right.value = left.type + "." + right.value.substring(right.value.lastIndexOf('.') + 1)
 
 				return new RDOExpression(left.value +
 					" == " + right.value, "Boolean")
@@ -358,11 +358,11 @@ class RDOExpressionCompiler
 				val left = expr.left.compileExpression
 				val right = expr.right.compileExpression
 
-				if(left.type == "unknown" && right.type.endsWith("_enum") && left.value.checkSingleID)
-					left.value = right.type + "." + left.value
+				if(left.type == "unknown" && checkValidEnumID(right.type, left.value))
+					left.value = right.type + "." + left.value.substring(left.value.lastIndexOf('.') + 1)
 
-				if(right.type == "unknown" && left.type.endsWith("_enum") && right.value.checkSingleID)
-					right.value = left.type + "." + right.value
+				if(right.type == "unknown" && checkValidEnumID(left.type, right.value))
+					right.value = left.type + "." + right.value.substring(right.value.lastIndexOf('.') + 1)
 
 				return new RDOExpression(left.value +
 					" != " + right.value, "Boolean")
@@ -381,8 +381,8 @@ class RDOExpressionCompiler
 				val left = expr.left.compileExpression
 				val next = expr.next.compileExpression
 
-				if(next.type == "unknown" && left.type.endsWith("_enum") && next.value.checkSingleID)
-					next.value = left.type + "." + next.value
+				if(next.type == "unknown" && checkValidEnumID(left.type, next.value))
+					next.value = left.type + "." + next.value.substring(next.value.lastIndexOf('.') + 1)
 
 				if(expr.left instanceof VariableIncDecExpression)
 				{
@@ -437,10 +437,12 @@ class RDOExpressionCompiler
 					{
 						val exp = e.compileExpression
 
-						if(parameters != null && exp.type == "unknown" && exp.value.checkSingleID &&
-							parameters.size > expr.expressions.indexOf(e) &&
-								parameters.get(expr.expressions.indexOf(e)).endsWith("_enum"))
-							exp.value = parameters.get(expr.expressions.indexOf(e)) + "." + exp.value
+						if(parameters != null && exp.type == "unknown"
+								&& parameters.size > expr.expressions.indexOf(e)
+								&& checkValidEnumID(
+									parameters.get(expr.expressions.indexOf(e)), exp.value))
+							exp.value = parameters.get(expr.expressions.indexOf(e)) + "."
+									 + exp.value.substring(exp.value.lastIndexOf('.') + 1)
 
 						list = list + ( if(flag) ", " else "" ) + exp.value
 					}
@@ -467,10 +469,13 @@ class RDOExpressionCompiler
 				for(e : expr.parameters)
 				{
 					val exp = e.compileExpression
-					if(parameters != null && exp.type == "unknown" && exp.value.checkSingleID &&
-						parameters.size > expr.parameters.indexOf(e) &&
-							parameters.get(expr.parameters.indexOf(e)).endsWith("_enum"))
-						exp.value = parameters.get(expr.parameters.indexOf(e))
+					if(parameters != null && exp.type == "unknown"
+							&& parameters.size > expr.parameters.indexOf(e)
+							&& checkValidEnumID(
+								parameters.get(expr.parameters.indexOf(e)), exp.value
+							))
+						exp.value = parameters.get(expr.parameters.indexOf(e)) + '.'
+								+ exp.value.substring(exp.value.lastIndexOf('.') + 1)
 					list = list + ( if(flag) ", " else "" ) + exp.value
 					flag = true
 				}
@@ -487,10 +492,14 @@ class RDOExpressionCompiler
 				for(e : expr.parameters)
 				{
 					val exp = e.compileExpression
-					if(parameters != null && exp.type == "unknown" && exp.value.checkSingleID &&
-						parameters.size > expr.parameters.indexOf(e) &&
-							parameters.get(expr.parameters.indexOf(e)).endsWith("_enum"))
-						exp.value = parameters.get(expr.parameters.indexOf(e)) + "." + exp.value
+
+					if(parameters != null && exp.type == "unknown"
+							&& parameters.size > expr.parameters.indexOf(e)
+							&& checkValidEnumID(parameters.get(
+								expr.parameters.indexOf(e)), exp.value))
+						exp.value = parameters.get(expr.parameters.indexOf(e)) + '.'
+								+ exp.value.substring(exp.value.lastIndexOf('.') + 1)
+
 					list = list + ( if(flag) ", " else "" ) + exp.value
 					flag = true
 				}
@@ -502,18 +511,20 @@ class RDOExpressionCompiler
 		}
 	}
 
-	def static boolean checkSingleID(String s)
+	def static boolean checkValidEnumID(String type, String id)
 	{
-		val sum = s.indexOf(".") + s.indexOf("(") + s.indexOf(")") + s.indexOf(" ")
-		if(sum == -4)
-			return true
-		else
+		if (!type.endsWith("_enum"))
 			return false
-	}
+		if (id.indexOf("(") + id.indexOf(")") != -2)
+			return false
 
-	def static boolean checkPlainCall(VariableExpression expr)
-	{
-		return expr.arrayfirst || expr.arraylast || expr.functionfirst || expr.functionlast
+		var typeName = type.substring(type.indexOf(".") + 1)
+		typeName = typeName.substring(0, typeName.lastIndexOf("."))
+		val idTypeName = id.substring(0, id.lastIndexOf("."))
+		if (typeName != idTypeName)
+			return false
+
+		return true
 	}
 
 	def static LocalContext.ContextEntry lookupLocal(VariableMethodCallExpression expr)
@@ -662,7 +673,7 @@ class RDOExpressionCompiler
 			ParameterTypeBasic : type.type.compileTypePrimitive
 			ParameterTypeString: type.type.compileTypePrimitive
 			ParameterTypeArray : type.type.compileTypePrimitive
-			ParameterTypeEnum : type.type.compileType
+			ParameterTypeEnum : type.type.compileTypePrimitive
 
 			Constant: type.type.compileTypePrimitive
 
@@ -694,6 +705,7 @@ class RDOExpressionCompiler
 			ParameterTypeBasic : type.type
 			ParameterTypeString: type.type
 			ParameterTypeArray : type.type.resolveAllArrays
+			ParameterTypeEnum : type.type
 
 			Constant: type.type.resolveAllTypes.resolveAllArrays
 
@@ -717,6 +729,7 @@ class RDOExpressionCompiler
 			ParameterTypeBasic : type.type
 			ParameterTypeString: type.type
 			ParameterTypeArray : type.type
+			ParameterTypeEnum : type.type
 
 			Constant: type.type.resolveAllTypes
 
@@ -733,15 +746,14 @@ class RDOExpressionCompiler
 
 	def static String compileAllDefault(int count)
 	{
-				var String list = ""
-				var flag = false
+		var String list = ""
+		var flag = false
 
-				for(i : 0 ..< count)
-				{
-					list = list + ( if(flag) ", " else "" ) + "null"
-					flag = true
-				}
-				return list
+		for(i : 0 ..< count)
+		{
+			list = list + ( if(flag) ", " else "" ) + "null"
+			flag = true
+		}
+		return list
 	}
-
 }
