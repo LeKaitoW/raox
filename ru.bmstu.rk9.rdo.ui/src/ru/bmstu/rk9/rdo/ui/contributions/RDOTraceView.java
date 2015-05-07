@@ -1,18 +1,12 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
-import java.awt.Frame;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import javax.swing.JFrame;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
@@ -66,10 +60,9 @@ import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.Tracer;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
-import ru.bmstu.rk9.rdo.lib.TreeBuilder;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView.SearchHelper.SearchResult;
 import ru.bmstu.rk9.rdo.ui.graph.GraphControl;
-import ru.bmstu.rk9.rdo.ui.graph.GraphFrame;
+import ru.bmstu.rk9.rdo.ui.graph.GraphControl.FrameInfo;
 import ru.bmstu.rk9.rdo.ui.runtime.ExportTraceHandler;
 
 public class RDOTraceView extends ViewPart {
@@ -80,24 +73,14 @@ public class RDOTraceView extends ViewPart {
   /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
  /                                VIEW SETUP                                 /
 /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
-	
-	private class FrameInfo {
-		int dptNumber;
-		String frameName;
-		
-		private FrameInfo(int dptNum, String frameName) {
-			this.dptNumber = dptNum;
-			this.frameName = frameName;
-		}
-	}
-	
+
 	private FrameInfo determineDPTInfo(TraceOutput traceOutput, int stringNum) {
 		Entry entry = Simulator.getDatabase().getAllEntries().get(stringNum);
 		final EntryType type = EntryType.values()[entry.getHeader().get(TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 		System.err.println("entry type = " + type.name());
-		
+
 		int dptNumber;
-		
+
 		switch (type) {
 		case SEARCH:
 			final ByteBuffer header = Tracer.prepareBufferForReading(entry.getHeader());
@@ -108,93 +91,16 @@ public class RDOTraceView extends ViewPart {
 			System.err.println("wrong string");
 			return null;
 		}
-		
-		String dptName = Simulator.getModelStructureCache().getDecisionPointsInfo().get(dptNumber).getName();
-		
-		return new FrameInfo(dptNumber, dptName);
-	}
-	
-	private void createWindow(FrameInfo frameInfo) {
-		int dptNum = frameInfo.dptNumber;
-		String frameName = frameInfo.frameName;
-		
-		if (!GraphControl.openedGraphMap.containsValue(dptNum)) {
-			TreeBuilder treeBuilder = Simulator.getTreeBuilder();
-			treeBuilder.buildTree();
-			GraphFrame graphFrame = new GraphFrame(dptNum);
-			GraphControl.openedGraphMap.put(dptNum, graphFrame);
-			graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-			graphFrame.setSize(800, 600);
-			graphFrame.setTitle(frameName);
-			graphFrame.setLocationRelativeTo(null);
-			graphFrame.setVisible(true);
-			
-			boolean isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap.get(dptNum).isFinished;
-			if (!isFinished) {
-				TimerTask graphUpdateTask = graphFrame.getGraphFrameUpdateTimerTask();
-				Timer graphUpdateTimer = new Timer();
-				graphUpdateTimer.scheduleAtFixedRate(graphUpdateTask, 0, 10);
 
-				TimerTask graphFinTask = graphFrame.getGraphFrameFinTimerTask();
-				Timer graphFinTimer = new Timer();
-				graphFinTimer.scheduleAtFixedRate(graphFinTask, 0, 10);
-			}
-			
-			graphFrame.addWindowListener(new WindowListener() {
-				
-				@Override
-				public void windowOpened(WindowEvent e) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void windowIconified(WindowEvent e) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void windowDeiconified(WindowEvent e) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void windowDeactivated(WindowEvent e) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void windowClosing(WindowEvent e) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void windowClosed(WindowEvent e) {
-					// TODO Auto-generated method stub
-					//graphUpdateTimer.cancel();
-					GraphControl.openedGraphMap.remove(dptNum);
-					System.out.println("window closed");
-				}
-				
-				@Override
-				public void windowActivated(WindowEvent e) {
-					// TODO Auto-generated method stub
-					
-				}
-			});
-		}
+		String dptName = Simulator.getModelStructureCache().getDecisionPointsInfo().get(dptNumber).getName();
+
+		return new FrameInfo(dptNumber, dptName);
 	}
 
 	public void createPartControl(Composite parent) {
-		viewer = new TableViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL
-				| SWT.VIRTUAL);
+		viewer = new TableViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.VIRTUAL);
 
-		FontRegistry fontRegistry = PlatformUI.getWorkbench().getThemeManager()
-				.getCurrentTheme().getFontRegistry();
+		FontRegistry fontRegistry = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getFontRegistry();
 
 		Menu popupMenu = new Menu(viewer.getTable());
 		MenuItem copy = new MenuItem(popupMenu, SWT.CASCADE);
@@ -220,13 +126,11 @@ public class RDOTraceView extends ViewPart {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
-						&& (e.keyCode == 'c')) {
+				if (((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'c')) {
 					copyTraceLine();
 				}
 
-				if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
-						&& (e.keyCode == 'f')) {
+				if (((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'f')) {
 					showFindDialog();
 				}
 			}
@@ -235,8 +139,8 @@ public class RDOTraceView extends ViewPart {
 		viewer.setContentProvider(new RDOTraceViewContentProvider());
 		viewer.setLabelProvider(new RDOTraceViewLabelProvider());
 		viewer.setUseHashlookup(true);
-		viewer.getTable().setFont(fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));		
-		
+		viewer.getTable().setFont(fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
+
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
 
 			@Override
@@ -247,27 +151,18 @@ public class RDOTraceView extends ViewPart {
 				int stringNumber = viewer.getTable().getSelectionIndex();
 
 				FrameInfo frameInfo = determineDPTInfo(traceOutput, stringNumber);
-				
+
 				if (frameInfo == null)
 					return;
 				
-				if (!GraphControl.openedGraphMap.containsKey(frameInfo.dptNumber))
-					createWindow(frameInfo);
-				else {
-					GraphFrame currentFrame = GraphControl.openedGraphMap.get(frameInfo.dptNumber);
-					if (currentFrame.getState() == Frame.ICONIFIED)
-						currentFrame.setState(Frame.NORMAL);
-					else if (!currentFrame.isActive())
-						currentFrame.setVisible(true);
-				}
+				GraphControl.openFrameWindow(frameInfo);
 			}
 		});
 
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
-				if (viewer.getTable().getSelectionIndex() != viewer.getTable()
-						.getItemCount() - 1)
+				if (viewer.getTable().getSelectionIndex() != viewer.getTable().getItemCount() - 1)
 					shouldFollowOutput = false;
 				else
 					shouldFollowOutput = true;
@@ -277,8 +172,7 @@ public class RDOTraceView extends ViewPart {
 		configureToolbar();
 
 		if (Simulator.isInitialized()) {
-			final List<Entry> allEntries = Simulator.getDatabase()
-					.getAllEntries();
+			final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
 			RDOTraceView.viewer.setInput(allEntries);
 			RDOTraceView.viewer.setItemCount(allEntries.size());
 			viewer.refresh();
@@ -286,17 +180,14 @@ public class RDOTraceView extends ViewPart {
 	}
 
 	private final void configureToolbar() {
-		IToolBarManager toolbarMgr = getViewSite().getActionBars()
-				.getToolBarManager();
+		IToolBarManager toolbarMgr = getViewSite().getActionBars().getToolBarManager();
 
 		toolbarMgr.add(new Action() {
 			ImageDescriptor image;
 
 			{
-				image = ImageDescriptor.createFromURL(FileLocator.find(
-						Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
-						new org.eclipse.core.runtime.Path("icons/search.gif"),
-						null));
+				image = ImageDescriptor.createFromURL(FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+						new org.eclipse.core.runtime.Path("icons/search.gif"), null));
 				setImageDescriptor(image);
 				setText("Find");
 			}
@@ -310,10 +201,8 @@ public class RDOTraceView extends ViewPart {
 		toolbarMgr.add(new Action() {
 			ImageDescriptor image;
 			{
-				image = ImageDescriptor.createFromURL(FileLocator.find(Platform
-						.getBundle("ru.bmstu.rk9.rdo.ui"),
-						new org.eclipse.core.runtime.Path(
-								"icons/clipboard-list.png"), null));
+				image = ImageDescriptor.createFromURL(FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+						new org.eclipse.core.runtime.Path("icons/clipboard-list.png"), null));
 				setImageDescriptor(image);
 				setText("Export trace output");
 			}
