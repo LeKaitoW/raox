@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.bmstu.rk9.rdo.lib.Database.Entry;
@@ -40,7 +41,7 @@ public class TreeBuilder implements Subscriber {
 
 		public Node parent;
 
-		public ArrayList<Node> children = new ArrayList<Node>();
+		public List<Node> children = new ArrayList<Node>();
 
 		public int index;
 
@@ -62,8 +63,8 @@ public class TreeBuilder implements Subscriber {
 		}
 	}
 
-	public HashMap<Integer, ArrayList<Node>> listMap = new HashMap<Integer, ArrayList<Node>>();
-	
+	public Map<Integer, ArrayList<Node>> listMap = new HashMap<Integer, ArrayList<Node>>();
+
 	public final void buildTree() {
 		System.out.println("started building tree");
 		final List<Database.Entry> entries = Simulator.getDatabase().getAllEntries();
@@ -201,7 +202,7 @@ public class TreeBuilder implements Subscriber {
 		}
 	}
 
-	public HashMap<Integer, ArrayList<Node>> solutionMap = new HashMap<Integer, ArrayList<Node>>();
+	public Map<Integer, ArrayList<Node>> solutionMap = new HashMap<Integer, ArrayList<Node>>();
 
 	public class GraphInfo {
 		public double solutionCost;
@@ -209,19 +210,19 @@ public class TreeBuilder implements Subscriber {
 		public int numNodes;
 	}
 
-	public HashMap<Integer, GraphInfo> infoMap = new HashMap<Integer, GraphInfo>();
+	public Map<Integer, GraphInfo> infoMap = new HashMap<Integer, GraphInfo>();
 
 	public class DPTSimulationInfo {
 		public boolean isFinished = false;
 	}
 
-	public HashMap<Integer, DPTSimulationInfo> dptSimulationInfoMap = new HashMap<Integer, DPTSimulationInfo>();
+	public Map<Integer, DPTSimulationInfo> dptSimulationInfoMap = new HashMap<Integer, DPTSimulationInfo>();
 
 	private int entryNumber = 0;
 
-	private HashMap<Integer, Integer> lastAddedNodeIndexMap = new HashMap<Integer, Integer>();
+	private Map<Integer, Integer> lastAddedNodeIndexMap = new HashMap<Integer, Integer>();
 
-	public HashMap<Integer, Integer> getLastAddedNodeIndexMap() {
+	public Map<Integer, Integer> getLastAddedNodeIndexMap() {
 		return lastAddedNodeIndexMap;
 	}
 
