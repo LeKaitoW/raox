@@ -66,14 +66,12 @@ public class TreeBuilder implements Subscriber {
 	public Map<Integer, ArrayList<Node>> listMap = new HashMap<Integer, ArrayList<Node>>();
 
 	public final void buildTree() {
-		System.out.println("started building tree");
 		final List<Database.Entry> entries = Simulator.getDatabase().getAllEntries();
 
 		int size = entries.size();
 		while (entryNumber < size) {
 			parseEntry(entries.get(entryNumber++));
 		}
-		System.out.println("finished building tree");
 	}
 
 	private boolean parseEntry(Entry entry) {
@@ -176,7 +174,6 @@ public class TreeBuilder implements Subscriber {
 					try {
 						listMap.get(dptNumber).add(treeNode);
 						lastAddedNodeIndexMap.put(dptNumber, treeNode.index);
-						System.out.println("TreeB lastAddedNodeIndex = " + treeNode.index + " " + "dpt = " + dptNumber);
 					} finally {
 						rwLock.writeLock().unlock();
 					}
