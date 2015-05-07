@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rdo.ui.contributions;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,10 +101,13 @@ public class RDOPlotView extends ViewPart {
 			String[] enumLabels = new String[enumNames.size()];
 			enumLabels = enumNames.toArray(enumLabels);
 
+			Font font = new Font("Arial", Font.BOLD, 8);
 			final SymbolAxis rangeAxis = new SymbolAxis(String.valueOf(dataset
 					.getSeriesKey(0)), enumLabels);
 			rangeAxis.setAutoRangeIncludesZero(true);
 			plot.setRangeAxis(rangeAxis);
+			rangeAxis.setTickLabelFont(font);
+			rangeAxis.setLabelFont(font);
 
 		} else {
 			final NumberAxis rangeAxis = new NumberAxis();
