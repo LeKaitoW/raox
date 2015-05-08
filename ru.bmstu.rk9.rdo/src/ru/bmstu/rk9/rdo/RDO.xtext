@@ -98,7 +98,7 @@ Operation:
 	type = OperationType name = ID ('('
 		(parameters += ParameterType+ (
 			',' parameters += ParameterType+)* )? ')')? '{'
-			 relevantresources += SelectableRelevantResource+
+			relevantresources += SelectableRelevantResource*
 			('relevantSet' combinational = PatternSelectMethod)?
 		defaultMethods += DefaultMethod*
 	'}'
@@ -113,7 +113,7 @@ Rule:
 	'rule' name = ID ('('
 		(parameters += ParameterType+ (
 			',' parameters += ParameterType+)* )? ')')? '{'
-		relevantresources += SelectableRelevantResource+
+		relevantresources += SelectableRelevantResource*
 		('relevantSet' combinational = PatternSelectMethod)?
 		defaultMethods += DefaultMethod*
 	'}'
@@ -128,7 +128,7 @@ Event:
 	'event' name = ID ('('
 		(parameters += ParameterType+ (
 			',' parameters += ParameterType+)* )? ')')? '{'
-			relevantresources += EventRelevantResource+
+			relevantresources += EventRelevantResource*
 		defaultMethods += DefaultMethod*
 	'}'
 ;

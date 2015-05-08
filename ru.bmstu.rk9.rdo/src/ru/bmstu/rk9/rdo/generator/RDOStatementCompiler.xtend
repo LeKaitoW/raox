@@ -233,7 +233,7 @@ class RDOStatementCompiler
 				«ENDIF»
 				'''
 
-				ResourceEraseStatement:
+			ResourceEraseStatement:
 				'''
 					«(st.relres.type as ResourceType).fullyQualifiedName
 						».eraseResource(resources.«st.relres.name»);

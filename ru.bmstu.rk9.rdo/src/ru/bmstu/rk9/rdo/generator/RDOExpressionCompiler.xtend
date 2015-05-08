@@ -212,11 +212,11 @@ class RDOExpressionCompiler
 			VariableIncDecExpression:
 			{
 				val ret = expr.^var.compileExpression
-				if(expr.pre != null && ret.value.contains(".get_") && ret.value.endsWith("()") && expr.^var.lookupLocal != null)
+				if(expr.pre != null && ret.value.contains(".get_") && ret.value.endsWith("()"))
 					return new RDOExpression(ret.value.replace(".get_", ".set_").cutLastChars(2) +
 						"(" + ret.value + (if(expr.pre == "--") "- 1" else " + 1") + ")", ret.type)
 
-				if(expr.post != null && ret.value.contains(".get_") && ret.value.endsWith("()") && expr.^var.lookupLocal != null)
+				if(expr.post != null && ret.value.contains(".get_") && ret.value.endsWith("()"))
 						return new RDOExpression(ret.value.replace(".get_", ".set_").cutLastChars(2) +
 							"_after(" + ret.value + (if(expr.post == "--") " - 1" else " + 1") + ")", ret.type)
 
@@ -386,14 +386,12 @@ class RDOExpressionCompiler
 
 				if(expr.left instanceof VariableIncDecExpression)
 				{
-
 					val idex = expr.left as VariableIncDecExpression
-					var lcall = lookupLocal(idex.^var)
-					if(lcall != null && lcall.generated.contains(".get_") && lcall.generated.endsWith("()"))
+					if(left.value.contains(".get_") && left.value.endsWith("()"))
 					{
 						var op = (if(idex.op.length > 1) idex.op.substring(0, 1) else null)
-						return new RDOExpression(RDOStatementCompiler.cutLastChars(lcall.generated, 2).replace(".get_", ".set_") + "("
-							+ (if(op != null) lcall.generated + " " + op + " " else "") + next.value + ")", lcall.type)
+						return new RDOExpression(RDOStatementCompiler.cutLastChars(left.value, 2).replace(".get_", ".set_") + "("
+							+ (if(op != null) left.value + " " + op + " " else "") + next.value + ")", left.type)
 					}
 				}
 
