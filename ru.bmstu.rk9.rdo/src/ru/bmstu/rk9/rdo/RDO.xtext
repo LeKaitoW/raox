@@ -32,7 +32,7 @@ RDOEntity
 // ==========================================================
 ResourceType:
 	'type' name = ID '{'
-		(parameters += ParameterType)+
+		(parameters += ParameterType (';')? )+
 	'}'
 ;
 
@@ -71,7 +71,7 @@ ParameterTypeEnum:
 //                           Resources
 // ==========================================================
 Resources:
-	resource = ResourceCreateStatement
+	resource = ResourceCreateStatement (';')?
 ;
 
 ResourceExpressionList:
@@ -98,8 +98,8 @@ Operation:
 	type = OperationType name = ID ('('
 		(parameters += ParameterType+ (
 			',' parameters += ParameterType+)* )? ')')? '{'
-			relevantresources += SelectableRelevantResource*
-			('relevantSet' combinational = PatternSelectMethod)?
+		relevantresources += SelectableRelevantResource*
+		('relevantSet' combinational = PatternSelectMethod (';')?)?
 		defaultMethods += DefaultMethod*
 	'}'
 ;
@@ -114,27 +114,29 @@ Rule:
 		(parameters += ParameterType+ (
 			',' parameters += ParameterType+)* )? ')')? '{'
 		relevantresources += SelectableRelevantResource*
-		('relevantSet' combinational = PatternSelectMethod)?
+		('relevantSet' combinational = PatternSelectMethod (';')?)?
 		defaultMethods += DefaultMethod*
 	'}'
 ;
 
 SelectableRelevantResource:
 	'relevant' name = ID '=' type = [META_RelResType|FQN]
-	(haveselect ?= '.' 'select' '(' select = PatternSelectLogic ')' (selectmethod = PatternSelectMethod)?)?
+	(haveselect ?= '.' 'select' '(' select = PatternSelectLogic ')'
+		(selectmethod = PatternSelectMethod)?
+	)? (';')?
 ;
 
 Event:
 	'event' name = ID ('('
 		(parameters += ParameterType+ (
 			',' parameters += ParameterType+)* )? ')')? '{'
-			relevantresources += EventRelevantResource*
+		relevantresources += EventRelevantResource*
 		defaultMethods += DefaultMethod*
 	'}'
 ;
 
 EventRelevantResource:
-	'relevant' name = ID '=' type = [META_RelResType|FQN]
+	'relevant' name = ID '=' type = [META_RelResType|FQN] (';')?
 ;
 
 PatternSelectLogic
@@ -165,9 +167,9 @@ DecisionPoint
 DecisionPointSome:
 	'dpt' name = ID '{'
 		('set' 'init' '(' ')' '{'
-			initStatements += DptStatements*
+			(initStatements += DptStatements ';')*
 		'}')?
-		( activities += DecisionPointActivity)+
+		( activities += DecisionPointActivity (';')?)+
 	'}'
 ;
 
@@ -189,9 +191,9 @@ DptStatements
 DecisionPointSearch:
 	'search' name = ID '{'
 		'set' 'init' '(' ')' '{'
-			initStatements += DptSearchStatemets*
+			(initStatements += DptSearchStatemets ';')*
 		'}'
-		( activities += DecisionPointSearchActivity)+
+		( activities += DecisionPointSearchActivity (';')?)+
 	'}'
 ;
 
@@ -217,27 +219,27 @@ DptSearchStatemets
 ;
 
 DptSetParentStatement:
-	name = 'setParent' '(' parent = [DecisionPoint|FQN] ')' ';'
+	name = 'setParent' '(' parent = [DecisionPoint|FQN] ')'
 ;
 
 DptSetConditionStatement:
-	name = 'setCondition' '(' (condition = ExpressionOr | 'any') ')' ';'
+	name = 'setCondition' '(' (condition = ExpressionOr | 'any') ')'
 ;
 
 DptSetPriorityStatement:
-	name = 'setPriority' '(' (priority = ExpressionOr) ')' ';'
+	name = 'setPriority' '(' (priority = ExpressionOr) ')'
 ;
 
 DptSetTerminateConditionStatement:
-	name = 'setTerminateCondition' '(' termination = ExpressionOr ')' ';'
+	name = 'setTerminateCondition' '(' termination = ExpressionOr ')'
 ;
 
 DptEvaluateByStatement:
-	name = 'evaluateBy' '(' evaluateby = ExpressionOr ')' ';'
+	name = 'evaluateBy' '(' evaluateby = ExpressionOr ')'
 ;
 
 DptCompareTopsStatement:
-	name = 'compareTops' '(' ((comparetops ?= 'true') | 'false') ')' ';'
+	name = 'compareTops' '(' ((comparetops ?= 'true') | 'false') ')'
 ;
 
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -346,7 +348,7 @@ FunctionListValue:
 //                           Results
 // ==========================================================
 Result:
-	'result' name = ID 'is' type = ResultType
+	'result' name = ID 'is' type = ResultType (';')?
 ;
 
 ResultType
