@@ -120,7 +120,7 @@ Rule:
 ;
 
 SelectableRelevantResource:
-	'relevant' name = ID '=' type = [META_RelResType|FQN]
+	'relevant' name = ID 'is' type = [META_RelResType|FQN]
 	(haveselect ?= '.' 'select' '(' select = PatternSelectLogic ')'
 		(selectmethod = PatternSelectMethod)?
 	)? (';')?
@@ -136,7 +136,7 @@ Event:
 ;
 
 EventRelevantResource:
-	'relevant' name = ID '=' type = [META_RelResType|FQN] (';')?
+	'relevant' name = ID 'is' type = [META_RelResType|FQN] (';')?
 ;
 
 PatternSelectLogic
@@ -174,7 +174,7 @@ DecisionPointSome:
 ;
 
 DecisionPointActivity:
-	'activity' name = ID '(' (priority = ExpressionOr)? ')'
+	'activity' name = ID ('(' priority = ExpressionOr ')')?
 	'is' pattern = [META_DecisionPointActivity|FQN]
 	(
 		'(' parameters += ExpressionOr (
