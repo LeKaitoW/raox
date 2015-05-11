@@ -18,6 +18,8 @@ import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOSequenceCompiler
 {
+	//FIXME: temporally commented out usage of non-legacy sequences
+	// because org.apache package cannot be resolved
 	def public static compileSequence(Sequence seq, String filename)
 	{
 		'''
@@ -33,8 +35,12 @@ class RDOSequenceCompiler
 				private static RDOLegacyRandom prng =
 					new RDOLegacyRandom(«(seq.type as RegularSequence).seed»);
 				«ELSE»
+				private static RDOLegacyRandom prng =
+					new RDOLegacyRandom(«(seq.type as RegularSequence).seed»);
+				/*
 				private static org.apache.commons.math3.random.MersenneTwister prng =
 					new org.apache.commons.math3.random.MersenneTwister(«(seq.type as RegularSequence).seed»);
+				*/
 				«ENDIF»
 
 				public static void setSeed(long seed)
@@ -68,8 +74,11 @@ class RDOSequenceCompiler
 				private static RDOLegacyRandom prng =
 					new RDOLegacyRandom(«(seq.type as HistogramSequence).seed»);
 				«ELSE»
-				private static org.apache.commons.math3.random.MersenneTwister prng =
+				private static RDOLegacyRandom prng =
+					new RDOLegacyRandom(«(seq.type as HistogramSequence).seed»);
+				/* private static org.apache.commons.math3.random.MersenneTwister prng =
 					new org.apache.commons.math3.random.MersenneTwister(«(seq.type as HistogramSequence).seed»);
+				*/
 				«ENDIF»
 
 				public static void setSeed(long seed)
@@ -173,14 +182,14 @@ class RDOSequenceCompiler
 					}
 					'''
 			case RegularSequenceType.EXPONENTIAL:
-				return if(!legacy)
+				/*return if(!legacy)
 					'''
 					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» mean)
 					{
 						return («rtype.compileTypePrimitive»)(-1.0 * mean * org.apache.commons.math3.util.FastMath.log(1 - prng.nextDouble()));
 					}
 					'''
-				else
+				else*/
 					'''
 					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» mean)
 					{
@@ -188,14 +197,14 @@ class RDOSequenceCompiler
 					}
 					'''
 			case RegularSequenceType.NORMAL:
-				return if(!legacy)
+				/*return if(!legacy)
 					'''
 					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» mean, «rtype.compileTypePrimitive» deviation)
 					{
 						return («rtype.compileTypePrimitive»)(mean + deviation * org.apache.commons.math3.util.FastMath.sqrt(2) * org.apache.commons.math3.special.Erf.erfInv(2 * prng.nextDouble() - 1));
 					}
 					'''
-				else
+				else*/
 					'''
 					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» mean, «rtype.compileTypePrimitive» deviation)
 					{
