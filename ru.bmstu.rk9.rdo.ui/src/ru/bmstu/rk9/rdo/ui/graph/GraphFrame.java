@@ -44,7 +44,7 @@ public class GraphFrame extends JFrame {
 
 	/*--------------------------------------------------------------*/
 
-	Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
+	final Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
 
 	private void drawGraph(mxGraph graph, ArrayList<Node> nodeList,
 			Node parentNode) {
@@ -125,10 +125,10 @@ public class GraphFrame extends JFrame {
 				+ Integer.toString(info.numNodes);
 		final String text = solutionCost + numOpened + numNodes;
 
-		int fontSize = mxConstants.DEFAULT_FONTSIZE;
+		final int fontSize = mxConstants.DEFAULT_FONTSIZE;
 
-		int style = Font.PLAIN;
-		Font font = new Font("Arial", style, fontSize);
+		final int style = Font.PLAIN;
+		final Font font = new Font("Arial", style, fontSize);
 		double scale = 1.0;
 		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
 
@@ -160,9 +160,9 @@ public class GraphFrame extends JFrame {
 		final String text = nodeIndex + parentIndex + g + h + ruleName
 				+ ruleCost;
 
-		int fontSize = mxConstants.DEFAULT_FONTSIZE;
+		final int fontSize = mxConstants.DEFAULT_FONTSIZE;
 
-		int style = Font.PLAIN;
+		final int style = Font.PLAIN;
 		Font font = new Font("Arial", style, fontSize);
 		double scale = 1.0;
 		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
