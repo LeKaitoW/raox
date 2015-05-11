@@ -249,7 +249,7 @@ DptCompareTopsStatement:
 //                           Sequences
 // ==========================================================
 Sequence:
-	'sequence' returntype = RDOType  name = ID 'is' type = SequenceType
+	'sequence' returntype = RDOType  name = ID 'is' type = SequenceType (';')?
 ;
 
 SequenceType
@@ -289,7 +289,7 @@ HistogramSequence:
 //                          Constants
 // ==========================================================
 Constant:
-	'constant' type = RDOType name = ID '=' value = ExpressionOr
+	'constant' type = RDOType name = ID '=' value = ExpressionOr (';')?
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
