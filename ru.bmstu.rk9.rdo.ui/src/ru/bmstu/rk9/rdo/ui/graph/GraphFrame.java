@@ -8,6 +8,8 @@ import java.util.TimerTask;
 
 import javax.swing.JFrame;
 
+import org.eclipse.ui.PlatformUI;
+
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.TreeBuilder.GraphInfo;
@@ -210,53 +212,76 @@ public class GraphFrame extends JFrame {
 		graphFrameUpdateTimerTask = new TimerTask() {
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
-				if (!haveNewRealTimeData)
-					return;
-				haveNewRealTimeData = false;
-				graph.getModel().beginUpdate();
-				try {
-					drawNewVertex(graph, nodeList, dptNum);
-					layout.execute(graph.getDefaultParent());
-				} finally {
-					graph.getModel().endUpdate();
-				}
-				boolean isFinished;
-				
-				Simulator.getTreeBuilder().rwLock.readLock().lock();
-				try {
-					isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap.get(dptNum).isFinished;
-				} finally {
-					Simulator.getTreeBuilder().rwLock.readLock().unlock();
-				}
-				
-				if (isFinished)
-					this.cancel();
+				PlatformUI.getWorkbench().getDisplay()
+						.asyncExec(new Runnable() {
+
+							@Override
+							public void run() {
+								if (!haveNewRealTimeData)
+									return;
+								haveNewRealTimeData = false;
+								graph.getModel().beginUpdate();
+								try {
+									drawNewVertex(graph, nodeList, dptNum);
+									layout.execute(graph.getDefaultParent());
+								} finally {
+									graph.getModel().endUpdate();
+								}
+								boolean isFinished;
+
+								Simulator.getTreeBuilder().rwLock.readLock()
+										.lock();
+								try {
+									isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap
+											.get(dptNum).isFinished;
+								} finally {
+									Simulator.getTreeBuilder().rwLock
+											.readLock().unlock();
+								}
+
+								if (isFinished)
+									cancel();
+							}
+						});
 			}
 		};
 		
 		graphFrameFinTimerTask = new TimerTask() {
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
-				Simulator.getTreeBuilder().rwLock.readLock().lock();
-				try {
-					isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap.get(dptNum).isFinished;
-				} finally {
-					Simulator.getTreeBuilder().rwLock.readLock().unlock();
-				}
-				if (isFinished) {
-					graph.getModel().beginUpdate();
-					try {
-						GraphInfo info = Simulator.getTreeBuilder().infoMap.get(dptNum);
-						ArrayList<Node> solution = Simulator.getTreeBuilder().solutionMap.get(dptNum);
-						colorNodes(vertexMap, nodeList, solution);
-						insertInfo(graph, info);
-					} finally {
-						graph.getModel().endUpdate();
-					}
-					this.cancel();
-				}
+				PlatformUI.getWorkbench().getDisplay()
+						.asyncExec(new Runnable() {
+
+							@Override
+							public void run() {
+								Simulator.getTreeBuilder().rwLock.readLock()
+										.lock();
+								try {
+									isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap
+											.get(dptNum).isFinished;
+									if (isFinished) {
+										graph.getModel().beginUpdate();
+										try {
+											GraphInfo info = Simulator
+													.getTreeBuilder().infoMap
+													.get(dptNum);
+											ArrayList<Node> solution = Simulator
+													.getTreeBuilder().solutionMap
+													.get(dptNum);
+											colorNodes(vertexMap, nodeList,
+													solution);
+											insertInfo(graph, info);
+										} finally {
+											graph.getModel().endUpdate();
+										}
+										cancel();
+									}
+								} finally {
+									Simulator.getTreeBuilder().rwLock
+											.readLock().unlock();
+								}
+							}
+						});
 			}
 		};
 
