@@ -249,7 +249,7 @@ DptCompareTopsStatement:
 //                           Sequences
 // ==========================================================
 Sequence:
-	'seq' returntype = RDOType  name = ID 'is' type = SequenceType
+	'sequence' returntype = RDOType  name = ID 'is' type = SequenceType
 ;
 
 SequenceType
@@ -277,7 +277,7 @@ enum RegularSequenceType
 ;
 
 HistogramSequence:
-	legacy ?= 'legacy'? 'hist' '(' seed = INT ')'
+	legacy ?= 'legacy'? 'histogram' '(' seed = INT ')'
 	'{'
 		values += Primary+
 	'}'
@@ -289,7 +289,7 @@ HistogramSequence:
 //                          Constants
 // ==========================================================
 Constant:
-	'const' type = RDOType name = ID '=' value = ExpressionOr
+	'constant' type = RDOType name = ID '=' value = ExpressionOr
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -298,7 +298,7 @@ Constant:
 //                          Functions
 // ==========================================================
 Function:
-	'fun' returntype = RDOType name = ID type = FunctionType
+	'function' returntype = RDOType name = ID type = FunctionType
 ;
 
 FunctionType
