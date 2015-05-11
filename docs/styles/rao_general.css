@@ -1,12 +1,44 @@
+#wrapper {
+  padding-left: 220px;
+}
+
+#sidebar-wrapper {
+  margin-left: -220px;
+  left: 220px;
+  width: 220px;
+  background: #fff;
+  position: fixed;
+  height: 100%;
+  border-right: 1px solid gray;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#page-content-wrapper {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.sidebar-nav {
+  position: absolute;
+  width: 200px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.page-content {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
 body {
   font-family: Helvetica, arial, sans-serif;
   font-size: 14px;
   line-height: 1.6;
-  padding-top: 10px;
-  padding-bottom: 10px;
   background-color: white;
-  padding: 30px;
   color: #333;
+  overflow-x: hidden;
+  word-wrap: break-word;
 }
 
 body > *:first-child {
