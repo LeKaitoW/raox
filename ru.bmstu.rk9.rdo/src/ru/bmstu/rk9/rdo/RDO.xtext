@@ -249,7 +249,7 @@ DptCompareTopsStatement:
 //                           Sequences
 // ==========================================================
 Sequence:
-	'sequence' returntype = RDOType  name = ID 'is' type = SequenceType (';')?
+	'sequence' name = ID 'is' returntype = RDOType type = SequenceType (';')?
 ;
 
 SequenceType
@@ -360,7 +360,7 @@ ResultType
 ;
 
 ResultWatchParameter:
-	'watchPar' '(' parameter = VariableMethodCallExpression ')'
+	'watchParameter' '(' parameter = VariableMethodCallExpression ')'
 ;
 
 ResultWatchState:
@@ -755,7 +755,7 @@ LegacySetStatement:
 ;
 
 ResourceCreateStatement:
-	('resource' name = ID '=')? reference = [ResourceType|FQN]
+	('resource' name = ID 'is')? reference = [ResourceType|FQN]
 		'.' 'create' '(' ( parameters = ResourceExpressionList )? ')'
 ;
 
