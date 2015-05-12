@@ -254,8 +254,8 @@ Sequence:
 
 SequenceType
 	: EnumerativeSequence
-	| RegularSequence
 	| HistogramSequence
+	| RegularSequence
 ;
 
 EnumerativeSequence:
@@ -265,23 +265,44 @@ EnumerativeSequence:
 	'}'
 ;
 
-RegularSequence:
-	legacy ?= 'legacy'? type = RegularSequenceType '(' seed = INT ')'
-;
-
-enum RegularSequenceType
-	: UNIFORM = 'uniform'
-	| EXPONENTIAL = 'exponential'
-	| NORMAL = 'normal'
-	| TRIANGULAR = 'triangular'
-;
-
 HistogramSequence:
 	legacy ?= 'legacy'? 'histogram' '(' seed = INT ')'
 	'{'
 		values += Primary+
 	'}'
 ;
+
+RegularSequence
+	: UniformSequence
+	| ExponentialSequence
+	| NormalSequence
+	| TriangularSequence
+;
+
+UniformSequence:
+	legacy ?= 'legacy'? type = 'uniform' '('
+			seed = INT ',' a = DOUBLE ',' b = DOUBLE
+	')'
+;
+
+ExponentialSequence:
+	legacy ?= 'legacy'? type = 'exponential' '('
+			seed = INT ',' rate = DOUBLE
+	')'
+;
+
+NormalSequence:
+	legacy ?= 'legacy'? type = 'normal' '('
+			seed = INT ',' mean = DOUBLE ',' deviation = DOUBLE
+	')'
+;
+
+TriangularSequence:
+	legacy ?= 'legacy'? type = 'triangular' '('
+			seed = INT ',' a = DOUBLE ',' b = DOUBLE ',' c = DOUBLE
+	')'
+;
+
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 

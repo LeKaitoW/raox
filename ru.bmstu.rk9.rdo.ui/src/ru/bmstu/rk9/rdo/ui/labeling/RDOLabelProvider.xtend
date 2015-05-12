@@ -78,7 +78,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	// Sequence
 	def  text(Sequence seq) { "SEQ : " + seq.name + " : " + (
 		if(seq.type instanceof EnumerativeSequence) "enumerative" else "" +
-		if(seq.type instanceof RegularSequence) (seq.type as RegularSequence).type.literal else "" +
+		if(seq.type instanceof RegularSequence) (seq.type as RegularSequence).type else "" +
 		if(seq.type instanceof HistogramSequence) "histogram" else "" ) + seq.returntype.typeGenericLabel }
 	def image(Sequence seq) { "chart.gif" }
 

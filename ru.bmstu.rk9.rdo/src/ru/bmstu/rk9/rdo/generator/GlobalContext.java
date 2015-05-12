@@ -14,10 +14,6 @@ import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic;
 import ru.bmstu.rk9.rdo.rdo.FunctionList;
 import ru.bmstu.rk9.rdo.rdo.FunctionTable;
 import ru.bmstu.rk9.rdo.rdo.Sequence;
-import ru.bmstu.rk9.rdo.rdo.SequenceType;
-import ru.bmstu.rk9.rdo.rdo.EnumerativeSequence;
-import ru.bmstu.rk9.rdo.rdo.HistogramSequence;
-import ru.bmstu.rk9.rdo.rdo.RegularSequence;
 
 public class GlobalContext {
 	public class RTP {
@@ -51,29 +47,11 @@ public class GlobalContext {
 		public Sequence origin;
 
 		public String type;
-		public int parameters;
+		public int parameters = 0;
 
 		public SEQ(Sequence seq) {
 			origin = seq;
 			type = RDOExpressionCompiler.compileType(seq.getReturntype());
-			SequenceType type = seq.getType();
-			if (type instanceof EnumerativeSequence
-					|| type instanceof HistogramSequence)
-				parameters = 0;
-			else
-				switch (((RegularSequence) type).getType()) {
-				case EXPONENTIAL:
-					parameters = 1;
-
-				case NORMAL:
-					parameters = 2;
-
-				case TRIANGULAR:
-					parameters = 3;
-
-				case UNIFORM:
-					parameters = 2;
-				}
 		}
 	}
 

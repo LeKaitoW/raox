@@ -577,10 +577,11 @@ class RDOExpressionCompiler
 			}
 		}
 
-		if(info.sequences.get(next.call) != null && !iter.hasNext)
+		if(info.sequences.get(next.call) != null && iter.hasNext && next.args == null)
 		{
-			gcall = gcall + "." + next.call + ".getNext("
-			if(next.args != null)
+			val getNextMethod = iter.next
+			gcall = gcall + "." + next.call + "." + getNextMethod.call + "("
+			if(getNextMethod.args != null)
 				gcall = gcall + next.args.compileExpression.value
 			return new LocalContext.ContextEntry(gcall + ")", info.sequences.get(next.call).type)
 		}

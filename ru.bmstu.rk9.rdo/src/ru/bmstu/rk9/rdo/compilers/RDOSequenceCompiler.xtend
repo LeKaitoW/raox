@@ -7,7 +7,6 @@ import ru.bmstu.rk9.rdo.generator.LocalContext
 import ru.bmstu.rk9.rdo.rdo.Sequence
 
 import ru.bmstu.rk9.rdo.rdo.RegularSequence
-import ru.bmstu.rk9.rdo.rdo.RegularSequenceType
 
 import ru.bmstu.rk9.rdo.rdo.EnumerativeSequence
 
@@ -15,6 +14,10 @@ import ru.bmstu.rk9.rdo.rdo.HistogramSequence
 
 import ru.bmstu.rk9.rdo.rdo.RDOType
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
+import ru.bmstu.rk9.rdo.rdo.UniformSequence
+import ru.bmstu.rk9.rdo.rdo.ExponentialSequence
+import ru.bmstu.rk9.rdo.rdo.NormalSequence
+import ru.bmstu.rk9.rdo.rdo.TriangularSequence
 
 class RDOSequenceCompiler
 {
@@ -61,7 +64,7 @@ class RDOSequenceCompiler
 
 				private int current = 0;
 
-				public «seq.returntype.compileTypePrimitive» getNext()
+				public «seq.returntype.compileTypePrimitive» next()
 				{
 					if(current == values.length)
 						current = 0;
@@ -95,7 +98,7 @@ class RDOSequenceCompiler
 					new double[]{«(seq.type as HistogramSequence).compileHistogramWeights»}
 				);
 
-				public static «seq.returntype.compileTypePrimitive» getNext()
+				public static «seq.returntype.compileTypePrimitive» next()
 				{
 					double x = histogram.calculateValue(prng.nextDouble());
 					return «IF seq.returntype.compileType.endsWith("_enum")»enums[ (int)x ]«ELSE»(«seq.returntype.compileTypePrimitive»)x«ENDIF»;
@@ -169,44 +172,66 @@ class RDOSequenceCompiler
 		return ret
 	}
 
-	def public static compileRegularSequence(RegularSequence seq, RDOType rtype, boolean legacy)
+	def public static compileRegularSequence(RegularSequence seq,
+			RDOType rtype, boolean legacy
+	)
 	{
 		switch seq.type
 		{
-			case RegularSequenceType.UNIFORM:
+			case "uniform":
 				return
 					'''
-					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» from, «rtype.compileTypePrimitive» to)
+					private static final double from = «(seq as UniformSequence).a»;
+					private static final double to = «(seq as UniformSequence).b»;
+
+					public static «rtype.compileTypePrimitive» next()
 					{
 						return («rtype.compileTypePrimitive»)((to - from) * prng.nextDouble() + from);
 					}
 					'''
-			case RegularSequenceType.EXPONENTIAL:
-				/*return if(!legacy)
+			case "exponential": {
+				val ret =
 					'''
-					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» mean)
+					private static final double rate = «(seq as ExponentialSequence).rate»;
+
+					'''
+				/*return if(!legacy)
+					ret +
+					'''
+					public static «rtype.compileTypePrimitive» next(«rtype.compileTypePrimitive» mean)
 					{
-						return («rtype.compileTypePrimitive»)(-1.0 * mean * org.apache.commons.math3.util.FastMath.log(1 - prng.nextDouble()));
+						return («rtype.compileTypePrimitive»)(-1.0 * rate * org.apache.commons.math3.util.FastMath.log(1 - prng.nextDouble()));
 					}
 					'''
 				else*/
+					return ret +
 					'''
-					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» mean)
+					public static «rtype.compileTypePrimitive» next()
 					{
-						return («rtype.compileTypePrimitive»)(-mean * Math.log(prng.nextDouble()));
+						return («rtype.compileTypePrimitive»)(-rate * Math.log(prng.nextDouble()));
 					}
 					'''
-			case RegularSequenceType.NORMAL:
-				/*return if(!legacy)
+			}
+
+			case "normal": {
+				val ret =
 					'''
-					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» mean, «rtype.compileTypePrimitive» deviation)
+					private static final double mean = «(seq as NormalSequence).mean»;
+					private static final double deviation = «(seq as NormalSequence).deviation»;
+
+					''';
+				/*return if(!legacy)
+					ret +
+					'''
+					public static «rtype.compileTypePrimitive» next(«rtype.compileTypePrimitive» mean, «rtype.compileTypePrimitive» deviation)
 					{
 						return («rtype.compileTypePrimitive»)(mean + deviation * org.apache.commons.math3.util.FastMath.sqrt(2) * org.apache.commons.math3.special.Erf.erfInv(2 * prng.nextDouble() - 1));
 					}
 					'''
 				else*/
+					return ret +
 					'''
-					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» mean, «rtype.compileTypePrimitive» deviation)
+					public static «rtype.compileTypePrimitive» next()
 					{
 						double ran = 0;
 						for(int i = 0; i < 12; ++i)
@@ -216,18 +241,27 @@ class RDOSequenceCompiler
 						return deviation * (ran - 6) + mean;
 					}
 					'''
-			case RegularSequenceType.TRIANGULAR:
+			}
+			case "triangular":
 				return
 					'''
-					public static «rtype.compileTypePrimitive» getNext(«rtype.compileTypePrimitive» a, «rtype.compileTypePrimitive» c, «rtype.compileTypePrimitive» b)
+					private static final double a = «(seq as TriangularSequence).a»;
+					private static final double b = «(seq as TriangularSequence).b»;
+					private static final double c = «(seq as TriangularSequence).c»;
+
+					public static «rtype.compileTypePrimitive» next()
 					{
 						double next = prng.nextDouble();
 						double edge = (double)(c - a) / (double)(b - a);
 
 					if(next < edge)
-							return («rtype.compileTypePrimitive»)(a + «IF !legacy»org.apache.commons.math3.util.Fast«ENDIF»Math.sqrt((b - a) * (c - a) * next));
+							return («rtype.compileTypePrimitive»)(a + /*«
+							IF !legacy»org.apache.commons.math3.util.Fast«
+							ENDIF»*/Math.sqrt((b - a) * (c - a) * next));
 						else
-							return («rtype.compileTypePrimitive»)(b - «IF !legacy»org.apache.commons.math3.util.Fast«ENDIF»Math.sqrt((1 - next) * (b - a) * (b - c)));
+							return («rtype.compileTypePrimitive»)(b -/* «
+							IF !legacy»org.apache.commons.math3.util.Fast
+							«ENDIF»*/Math.sqrt((1 - next) * (b - a) * (b - c)));
 					}
 					'''
 		}
