@@ -116,7 +116,7 @@ Rule:
 ;
 
 SelectableRelevantResource:
-	'relevant' name = ID 'is' type = [META_RelResType|FQN]
+	'relevant' name = ID '=' type = [META_RelResType|FQN]
 	(haveselect ?= '.' 'select' '(' select = PatternSelectLogic ')'
 		(selectmethod = PatternSelectMethod)?
 	)? (';')?
@@ -132,7 +132,7 @@ Event:
 ;
 
 EventRelevantResource:
-	'relevant' name = ID 'is' type = [META_RelResType|FQN] (';')?
+	'relevant' name = ID '=' type = [META_RelResType|FQN] (';')?
 ;
 
 PatternSelectLogic
@@ -171,11 +171,9 @@ DecisionPointSome:
 
 DecisionPointActivity:
 	'activity' name = ID ('(' priority = ExpressionOr ')')?
-	'is' pattern = [META_DecisionPointActivity|FQN]
-	(
-		'(' parameters += ExpressionOr (
-			',' parameters += ExpressionOr)* ')'
-	)?
+	'checks' pattern = [META_DecisionPointActivity|FQN]
+	'(' ( parameters += ExpressionOr (
+			',' parameters += ExpressionOr)* )? ')'
 ;
 
 DptStatements
@@ -194,13 +192,10 @@ DecisionPointSearch:
 ;
 
 DecisionPointSearchActivity:
-	'activity' name = ID 'is' pattern = [Rule|FQN]
-	(
-		'(' parameters += ExpressionOr (
-		',' parameters += ExpressionOr)* ')'
-	)?
-	'.'
-	(
+	'activity' name = ID 'checks' pattern = [Rule|FQN]
+	'(' ( parameters += ExpressionOr (
+		',' parameters += ExpressionOr)* )? ')'
+	'.' (
 		'setValueBefore' '(' valuebefore = ExpressionOr ')'
 		| 'setValueAfter'  '(' valueafter = ExpressionOr ')'
 	)
@@ -245,7 +240,7 @@ DptCompareTopsStatement:
 //                           Sequences
 // ==========================================================
 Sequence:
-	'sequence' name = ID 'is' returntype = RDOType type = SequenceType (';')?
+	'sequence' name = ID '=' returntype = RDOType type = SequenceType (';')?
 ;
 
 SequenceType
@@ -365,7 +360,7 @@ FunctionListValue:
 //                           Results
 // ==========================================================
 Result:
-	'result' name = ID 'is' type = ResultType (';')?
+	'result' name = ID '=' type = ResultType (';')?
 ;
 
 ResultType
@@ -412,7 +407,7 @@ Frame:
 ;
 
 FrameBackPicture:
-	'background' 'is' colour = FrameColour
+	'background' '=' colour = FrameColour
 	(picture = ProjectFilePath | size = FrameBackPictureSize)
 ;
 
@@ -772,7 +767,7 @@ LegacySetStatement:
 ;
 
 ResourceCreateStatement:
-	('resource' name = ID 'is')? reference = [ResourceType|FQN]
+	('resource' name = ID '=')? reference = [ResourceType|FQN]
 		'.' 'create' '(' ( parameters = ResourceExpressionList )? ')'
 ;
 
