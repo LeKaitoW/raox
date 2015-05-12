@@ -83,7 +83,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def image(Sequence seq) { "chart.gif" }
 
 	// Function
-	def  text(Function fun) { "FUN : " + fun.name + fun.returntype.typeGenericLabel }
+	def  text(Function fun) { "FUN : " + fun.type.name + fun.returntype.typeGenericLabel }
 	def image(Function fun) { "calc_arrow.gif" }
 
 	def image(FunctionParameter p) { "parameter.gif" }

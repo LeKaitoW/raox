@@ -67,6 +67,7 @@ import ru.bmstu.rk9.rdo.rdo.DptEvaluateByStatement
 import ru.bmstu.rk9.rdo.rdo.DptCompareTopsStatement
 import ru.bmstu.rk9.rdo.rdo.DptSetTerminateConditionStatement
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
+import ru.bmstu.rk9.rdo.rdo.FunctionType
 
 class RDOValidator extends AbstractRDOValidator
 {
@@ -165,9 +166,9 @@ class RDOValidator extends AbstractRDOValidator
 			return
 
 		val funindex = variableIndex.get(model.nameGeneric).functions
-		val funmodel = model.eAllContents.filter(typeof(Function)).toMap[name]
+		val funmodel = model.eAllContents.filter(typeof(Function)).toMap[type.name]
 		for(r : funmodel.keySet)
-			if(funindex.get(r) == null || r == fun.name)
+			if(funindex.get(r) == null || r == fun.type.name)
 				funindex.put(r, variableIndex.get(model.nameGeneric).newFUN(funmodel.get(r)))
 
 		clearMissing(funindex, funmodel)
@@ -355,8 +356,8 @@ class RDOValidator extends AbstractRDOValidator
 			Sequence:
 				RdoPackage.eINSTANCE.sequence_Name
 
-			Function:
-				RdoPackage.eINSTANCE.function_Name
+			FunctionType:
+				RdoPackage.eINSTANCE.functionType_Name
 
 			Operation:
 				RdoPackage.eINSTANCE.operation_Name

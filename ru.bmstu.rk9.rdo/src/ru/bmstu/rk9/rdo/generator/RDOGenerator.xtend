@@ -95,7 +95,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileSequence(filename))
 
 				for(e : resource.allContents.toIterable.filter(typeof(Function)))
-					fsa.generateFile(filename + "/" + e.name + ".java", e.compileFunction(filename))
+					fsa.generateFile(filename + "/" + e.type.name + ".java", e.compileFunction(filename))
 
 				for(e : resource.allContents.toIterable.filter(typeof(Operation)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileOperation(filename))
@@ -149,7 +149,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 				info.constants.put(con.name, info.newCON(con))
 
 			for(fun : r.allContents.filter(typeof(Function)).toIterable)
-				info.functions.put(fun.name, info.newFUN(fun))
+				info.functions.put(fun.type.name, info.newFUN(fun))
 		}
 	}
 

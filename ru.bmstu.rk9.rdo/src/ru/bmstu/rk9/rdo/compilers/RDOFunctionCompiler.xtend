@@ -31,7 +31,6 @@ class RDOFunctionCompiler
 	def public static compileFunction(Function fun, String filename)
 	{
 		val type = fun.type
-
 		return
 		'''
 		package «filename»;
@@ -39,7 +38,7 @@ class RDOFunctionCompiler
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «fun.name»
+		public class «fun.type.name»
 		'''
 		 +
 		switch type

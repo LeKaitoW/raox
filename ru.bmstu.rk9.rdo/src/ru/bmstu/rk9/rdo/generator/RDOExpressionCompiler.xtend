@@ -16,10 +16,6 @@ import ru.bmstu.rk9.rdo.rdo.ResourceExpressionList
 
 import ru.bmstu.rk9.rdo.rdo.Constant
 
-import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic
-import ru.bmstu.rk9.rdo.rdo.FunctionTable
-import ru.bmstu.rk9.rdo.rdo.FunctionList
-
 import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.Operation
 
@@ -595,15 +591,7 @@ class RDOExpressionCompiler
 			gcall = gcall + "." + next.call + ".evaluate("
 
 			val fun = info.functions.get(next.call).origin
-			val params = switch fun.type
-			{
-				FunctionAlgorithmic:
-					(fun.type as FunctionAlgorithmic).parameters
-				FunctionTable:
-					(fun.type as FunctionTable).parameters
-				FunctionList:
-					(fun.type as FunctionList).parameters
-			}
+			val params = fun.type.parameters
 
 			if(next.args != null && params != null && params.size == next.args.values.size)
 			{

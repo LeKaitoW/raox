@@ -10,9 +10,6 @@ import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement;
 import ru.bmstu.rk9.rdo.rdo.Constant;
 import ru.bmstu.rk9.rdo.rdo.Function;
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter;
-import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic;
-import ru.bmstu.rk9.rdo.rdo.FunctionList;
-import ru.bmstu.rk9.rdo.rdo.FunctionTable;
 import ru.bmstu.rk9.rdo.rdo.Sequence;
 
 public class GlobalContext {
@@ -80,13 +77,7 @@ public class GlobalContext {
 
 			type = RDOExpressionCompiler.compileType(fun.getReturntype());
 
-			if (fun.getType() instanceof FunctionAlgorithmic)
-				parameters = ((FunctionAlgorithmic) fun.getType())
-						.getParameters();
-			if (fun.getType() instanceof FunctionTable)
-				parameters = ((FunctionTable) fun.getType()).getParameters();
-			if (fun.getType() instanceof FunctionList)
-				parameters = ((FunctionList) fun.getType()).getParameters();
+			parameters = fun.getType().getParameters();
 
 			if (parameters != null)
 				for (FunctionParameter p : parameters)

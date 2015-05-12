@@ -315,7 +315,7 @@ Constant:
 //                          Functions
 // ==========================================================
 Function:
-	'function' returntype = RDOType name = ID type = FunctionType
+	returntype = RDOType type = FunctionType
 ;
 
 FunctionType
@@ -325,7 +325,7 @@ FunctionType
 ;
 
 FunctionAlgorithmic:
-	('is' 'algorithmic')? '('
+	('function')? name = ID '('
 	(parameters += FunctionParameter (
 		',' parameters += FunctionParameter)*)? ')'
 	'{'
@@ -334,7 +334,7 @@ FunctionAlgorithmic:
 ;
 
 FunctionTable:
-	'is' 'table' '('
+	'table' name = ID '('
 		parameters += FunctionParameter (
 		',' parameters += FunctionParameter)* ')'
 	'{'
@@ -343,7 +343,7 @@ FunctionTable:
 ;
 
 FunctionList:
-	'is' 'list' '('
+	'list' name = ID '('
 		parameters += FunctionParameter (
 		',' parameters += FunctionParameter)* ')'
 	'{'

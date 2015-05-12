@@ -93,7 +93,7 @@ class RDONaming
 				return object.name
 
 			Function:
-				return object.name
+				return object.type.name
 
 			FunctionParameter:
 				return object.name
@@ -151,7 +151,7 @@ class RDONaming
 				return object.eContainer.eContainer.nameGeneric + "." + object.name
 
 			Function:
-				return object.eContainer.nameGeneric + "." + object.name
+				return object.eContainer.nameGeneric + "." + object.type.name
 
 			FunctionParameter:
 				return object.eContainer.eContainer.eContainer.fullyQualifiedName + "." + object.name
