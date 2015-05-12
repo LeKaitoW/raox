@@ -377,7 +377,7 @@ class RDOValidator extends AbstractRDOValidator
 				RdoPackage.eINSTANCE.result_Name
 
 			ParameterType:
-				RdoPackage.eINSTANCE.parameterType_Param
+				RdoPackage.eINSTANCE.parameterType_Name
 
 			SelectableRelevantResource,
 			EventRelevantResource:

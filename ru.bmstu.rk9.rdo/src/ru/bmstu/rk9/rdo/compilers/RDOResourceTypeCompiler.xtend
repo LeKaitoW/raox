@@ -151,28 +151,28 @@ class RDOResourceTypeCompiler
 			}
 
 			«FOR parameter : rtp.parameters»
-				private volatile «parameter.param.compileType» «parameter.param.name»«parameter.getDefault»;
+				private volatile «parameter.compileType» «parameter.name»«parameter.getDefault»;
 
-				public «parameter.param.compileType» get_«parameter.param.name»()
+				public «parameter.compileType» get_«parameter.name»()
 				{
-					return «parameter.param.name»;
+					return «parameter.name»;
 				}
 
-				public «parameter.param.compileType» set_«parameter.param.name»(«parameter.param.compileType» «parameter.param.name»)
+				public «parameter.compileType» set_«parameter.name»(«parameter.compileType» «parameter.name»)
 				{
 					if(managerOwner == managerCurrent)
-						this.«parameter.param.name» = «parameter.param.name»;
+						this.«parameter.name» = «parameter.name»;
 					else
-						this.copyForNewOwner().«parameter.param.name» = «parameter.param.name»;
+						this.copyForNewOwner().«parameter.name» = «parameter.name»;
 
-					return «parameter.param.name»;
+					return «parameter.name»;
 				}
 
-				public «parameter.param.compileType» set_«parameter.param.name»_after(«parameter.param.compileType» «parameter.param.name»)
+				public «parameter.compileType» set_«parameter.name»_after(«parameter.compileType» «parameter.name»)
 				{
-					«parameter.param.compileTypePrimitive» copy = this.«parameter.param.name»;
+					«parameter.compileTypePrimitive» copy = this.«parameter.name»;
 
-					set_«parameter.param.name»(«parameter.param.name»);
+					set_«parameter.name»(«parameter.name»);
 
 					return copy;
 				}
@@ -191,8 +191,8 @@ class RDOResourceTypeCompiler
 			public «rtp.name»(«rtp.parameters.compileParameterTypes»)
 			{
 				«FOR parameter : rtp.parameters»
-					if(«parameter.param.name» != null)
-						this.«parameter.param.name» = «parameter.param.name»;
+					if(«parameter.name» != null)
+						this.«parameter.name» = «parameter.name»;
 				«ENDFOR»
 			}
 
@@ -200,7 +200,7 @@ class RDOResourceTypeCompiler
 			public boolean checkEqual(«rtp.name» other)
 			{
 				«FOR parameter : rtp.parameters»
-					if(!this.«parameter.param.name».equals(other.«parameter.param.name»))
+					if(!this.«parameter.name».equals(other.«parameter.name»))
 						return false;
 				«ENDFOR»
 
@@ -216,7 +216,7 @@ class RDOResourceTypeCompiler
 				int size = «chunkstart + chunknumber * basicSizes.INT»;
 				«rtp.parameters.filter
 				[ p |
-					val type = p.param.compileType
+					val type = p.compileType
 					if(type == "String" || type.startsWith("java.util.ArrayList"))
 						return true
 					else
@@ -236,9 +236,9 @@ class RDOResourceTypeCompiler
 	def public static compileParameterTypesCopyCall(List<ParameterType> parameters)
 	{
 		'''«IF parameters.size > 0»«
-			parameters.get(0).param.name»«
+			parameters.get(0).name»«
 			FOR parameter : parameters.subList(1, parameters.size)», «
-				parameter.param.name»«
+				parameter.name»«
 			ENDFOR»«
 		ENDIF»'''
 	}
@@ -323,7 +323,7 @@ class RDOResourceTypeCompiler
 				.put
 				(
 					new JSONObject()
-						.put("name", "«p.param.name»")
+						.put("name", "«p.name»")
 						.put("type", "«ctype»")
 						«IF isenum»
 							«enums»
@@ -365,8 +365,8 @@ class RDOResourceTypeCompiler
 			{
 				typename = typename.substring("java.util.ArrayList<".length, typename.length - 1)
 				ret = ret + '''
-					«i.TABS»size += «basicSizes.INT» * («IF i == 0»«p.param.name»«ELSE»inner«i - 1»«ENDIF».size() + 1);
-					«i.TABS»for(«typename» inner«i» : «IF i == 0»«p.param.name»«ELSE»inner«i - 1»«ENDIF»)
+					«i.TABS»size += «basicSizes.INT» * («IF i == 0»«p.name»«ELSE»inner«i - 1»«ENDIF».size() + 1);
+					«i.TABS»for(«typename» inner«i» : «IF i == 0»«p.name»«ELSE»inner«i - 1»«ENDIF»)
 					«i.TABS»{
 					'''
 			}
@@ -376,20 +376,20 @@ class RDOResourceTypeCompiler
 				typename = typename.substring("java.util.ArrayList<".length, typename.length - 1)
 				ret = ret + '''
 				«(depth - 1).TABS»size += «basicSizes.INT» + «IF typename == "Integer"
-					»«basicSizes.INT» * «IF depth > 1»inner«depth - 2»«ELSE»«p.param.name»«ENDIF».size();«
+					»«basicSizes.INT» * «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF».size();«
 				ENDIF»«
 				IF typename == "Double"
-					»«basicSizes.DOUBLE» * «IF depth > 1»inner«depth - 2»«ELSE»«p.param.name»«ENDIF».size();«
+					»«basicSizes.DOUBLE» * «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF».size();«
 				ENDIF»«
 				IF typename == "Boolean"
-					»«basicSizes.BOOL» * «IF depth > 1»inner«depth - 2»«ELSE»«p.param.name»«ENDIF».size();«
+					»«basicSizes.BOOL» * «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF».size();«
 				ENDIF»«
 				IF typename.endsWith("_enum")
-					»«basicSizes.ENUM» * «IF depth > 1»inner«depth - 2»«ELSE»«p.param.name»«ENDIF».size();«
+					»«basicSizes.ENUM» * «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF».size();«
 				ENDIF»«
 				IF typename == "String"
-					»«basicSizes.INT» * «IF depth > 1»inner«depth - 2»«ELSE»«p.param.name»«ENDIF».size();
-				«(depth - 1).TABS»for(String inner : «IF depth > 1»inner«depth - 2»«ELSE»«p.param.name»«ENDIF»)
+					»«basicSizes.INT» * «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF».size();
+				«(depth - 1).TABS»for(String inner : «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF»)
 				«(depth - 1).TABS»	size += «basicSizes.INT» + inner.getBytes().length;«
 				ENDIF»
 				'''
@@ -397,8 +397,8 @@ class RDOResourceTypeCompiler
 			else
 			{
 				ret = ret + '''
-				«IF typename == "String"»byte[] bytes_of_«p.param.name» = «p.param.name».getBytes();
-				size += «basicSizes.INT» + bytes_of_«p.param.name».length;
+				«IF typename == "String"»byte[] bytes_of_«p.name» = «p.name».getBytes();
+				size += «basicSizes.INT» + bytes_of_«p.name».length;
 				«ENDIF»'''
 			}
 
@@ -418,7 +418,7 @@ class RDOResourceTypeCompiler
 		var ret = ""
 		val constsize = parameters.filter
 			[ p |
-				val type = p.param.compileType
+				val type = p.compileType
 				if(type == "String" || type.startsWith("java.util.ArrayList"))
 					return false
 				else
@@ -426,7 +426,7 @@ class RDOResourceTypeCompiler
 			]
 		val chunks =  parameters.filter
 			[ p |
-				val type = p.param.compileType
+				val type = p.compileType
 				if(type == "String" || type.startsWith("java.util.ArrayList"))
 					return true
 				else
@@ -439,19 +439,19 @@ class RDOResourceTypeCompiler
 
 			if(type == "Integer")
 				ret = ret + '''
-					entry.putInt(«p.param.name»);
+					entry.putInt(«p.name»);
 					'''
 			if(type == "Double")
 				ret = ret + '''
-					entry.putDouble(«p.param.name»);
+					entry.putDouble(«p.name»);
 					'''
 			if(type == "Boolean")
 				ret = ret + '''
-					entry.put(«p.param.name» ? (byte)1 : (byte)0);
+					entry.put(«p.name» ? (byte)1 : (byte)0);
 					'''
 			if(type.endsWith("_enum"))
 				ret = ret + '''
-					entry.putShort((short)«p.param.name».ordinal());
+					entry.putShort((short)«p.name».ordinal());
 					'''
 		}
 
@@ -488,7 +488,7 @@ class RDOResourceTypeCompiler
 					«(i+1).TABS»entry.position(entry.position() + size«i - 1» * «basicSizes.INT»);
 					«ENDIF»
 					«(i+1).TABS»int counter«i» = 0;
-					«(i+1).TABS»for(«typename» inner«i» : «IF i == 0»«p.param.name»«ELSE»inner«i - 1»«ENDIF»)
+					«(i+1).TABS»for(«typename» inner«i» : «IF i == 0»«p.name»«ELSE»inner«i - 1»«ENDIF»)
 					«(i+1).TABS»{
 					«(i+1).TABS»	entry.putInt(stack.peekLast() + (counter«i»++) * «basicSizes.INT», entry.position());
 					'''
@@ -499,29 +499,29 @@ class RDOResourceTypeCompiler
 			{
 				typename = typename.substring("java.util.ArrayList<".length, typename.length - 1)
 				ret = ret + '''
-					«depth.TABS»int size«depth - 1» = «IF depth > 1»inner«depth - 2»«ELSE»«p.param.name»«ENDIF».size();
+					«depth.TABS»int size«depth - 1» = «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF».size();
 					«depth.TABS»entry.putInt(size«depth - 1»);
 					«IF typename == "Integer"
-						»«depth.TABS»for(Integer inner«depth - 1» : «IF depth > 1»inner«depth - 2»«ELSE»«p.param.name»«ENDIF»)
+						»«depth.TABS»for(Integer inner«depth - 1» : «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF»)
 					«depth.TABS»	entry.putInt(inner«depth - 1»);«
 					ENDIF»«
 					IF typename == "Double"
-						»«depth.TABS»for(Double inner«depth - 1» : «IF depth > 1»inner«depth - 2»«ELSE»«p.param.name»«ENDIF»)
+						»«depth.TABS»for(Double inner«depth - 1» : «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF»)
 					«depth.TABS»	entry.putDouble(inner«depth - 1»);«
 					ENDIF»«
 					IF typename == "Boolean"
-						»«depth.TABS»for(Boolean inner«depth - 1» : «IF depth > 1»inner«depth - 2»«ELSE»«p.param.name»«ENDIF»)
+						»«depth.TABS»for(Boolean inner«depth - 1» : «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF»)
 					«depth.TABS»	entry.put(inner«depth - 1» ? (byte)1 : (byte)0);«
 					ENDIF»«
 					IF typename.endsWith("_enum")
-						»«depth.TABS»for(«typename» inner«depth - 1» : «IF depth > 1»inner«depth - 2»«ELSE»«p.param.name»«ENDIF»)
+						»«depth.TABS»for(«typename» inner«depth - 1» : «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF»)
 					«depth.TABS»	entry.putShort((short)inner«depth - 1».ordinal());«
 					ENDIF»«
 					IF typename == "String"
 						»«depth.TABS»stack.add(entry.position());
 					«depth.TABS»entry.position(entry.position() + size«depth - 1» * «basicSizes.INT»);
 					«depth.TABS»int counter = 0;
-					«depth.TABS»for(String inner : «IF depth > 1»inner«depth - 2»«ELSE»«p.param.name»«ENDIF»)
+					«depth.TABS»for(String inner : «IF depth > 1»inner«depth - 2»«ELSE»«p.name»«ENDIF»)
 					«depth.TABS»{
 					«depth.TABS»	entry.putInt(stack.peekLast() + (counter++) * «basicSizes.INT», entry.position());
 					«depth.TABS»	byte[] bytes_of_inner = inner.getBytes();
@@ -536,8 +536,8 @@ class RDOResourceTypeCompiler
 			else
 			{
 				ret = ret + '''
-					«IF typename == "String"»	entry.putInt(bytes_of_«p.param.name».length);
-						entry.put(bytes_of_«p.param.name»);
+					«IF typename == "String"»	entry.putInt(bytes_of_«p.name».length);
+						entry.put(bytes_of_«p.name»);
 					«ENDIF»'''
 			}
 
@@ -560,7 +560,7 @@ class RDOResourceTypeCompiler
 
 	def static int getArrayDepth(ParameterType parameter)
 	{
-		var EObject type = parameter.param
+		var EObject type = parameter
 		var depth = 0;
 
 		while(type instanceof ParameterTypeArray || type instanceof RDOArray)
@@ -577,7 +577,7 @@ class RDOResourceTypeCompiler
 
 	def static String getArrayType(ParameterType parameter)
 	{
-		var EObject type = parameter.param
+		var EObject type = parameter
 
 		while(type instanceof ParameterTypeArray || type instanceof RDOArray)
 			if(type instanceof ParameterTypeArray)
@@ -603,7 +603,7 @@ class RDOResourceTypeCompiler
 
 	def static String getDefault(ParameterType parameter)
 	{
-		var type = parameter.param
+		var type = parameter
 		switch type
 		{
 			ParameterTypeBasic:
@@ -622,11 +622,11 @@ class RDOResourceTypeCompiler
 
 	def public static compileParameterTypes(List<ParameterType> parameters)
 	{
-		'''«IF parameters.size > 0»«parameters.get(0).param.compileType» «
-			parameters.get(0).param.name»«
+		'''«IF parameters.size > 0»«parameters.get(0).compileType» «
+			parameters.get(0).name»«
 			FOR parameter : parameters.subList(1, parameters.size)», «
-				parameter.param.compileType» «
-				parameter.param.name»«
+				parameter.compileType» «
+				parameter.name»«
 			ENDFOR»«
 		ENDIF»'''
 	}

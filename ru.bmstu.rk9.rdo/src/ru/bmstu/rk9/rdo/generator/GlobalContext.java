@@ -25,7 +25,7 @@ public class GlobalContext {
 			origin = rtp;
 			parameters = new HashMap<String, String>();
 			for (ParameterType p : rtp.getParameters())
-				parameters.put(p.getParam().getName(),
+				parameters.put(p.getName(),
 						RDOExpressionCompiler.compileType(p));
 		}
 	}

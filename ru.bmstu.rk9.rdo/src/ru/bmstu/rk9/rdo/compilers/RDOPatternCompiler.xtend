@@ -79,14 +79,14 @@ class RDOPatternCompiler
 			{
 				«IF !evn.parameters.empty»
 				«FOR p : evn.parameters»
-					public «p.param.compileType» «p.param.name»«p.getDefault»;
+					public «p.compileType» «p.name»«p.getDefault»;
 				«ENDFOR»
 
 				public Parameters(«evn.parameters.compileParameterTypes»)
 				{
 					«FOR parameter : evn.parameters»
-						if(«parameter.param.name» != null)
-							this.«parameter.param.name» = «parameter.param.name»;
+						if(«parameter.name» != null)
+							this.«parameter.name» = «parameter.name»;
 					«ENDFOR»
 				}
 				«ENDIF»
@@ -236,14 +236,14 @@ class RDOPatternCompiler
 			{
 				«IF !rule.parameters.empty»
 				«FOR p : rule.parameters»
-					public «p.param.compileType» «p.param.name»«p.getDefault»;
+					public «p.compileType» «p.name»«p.getDefault»;
 				«ENDFOR»
 
 				public Parameters(«rule.parameters.compileParameterTypes»)
 				{
 					«FOR p : rule.parameters»
-						if(«p.param.name» != null)
-							this.«p.param.name» = «p.param.name»;
+						if(«p.name» != null)
+							this.«p.name» = «p.name»;
 					«ENDFOR»
 				}
 				«ENDIF»
@@ -523,14 +523,14 @@ class RDOPatternCompiler
 			{
 				«IF !op.parameters.empty»
 				«FOR p : op.parameters»
-					public «p.param.compileType» «p.param.name»«p.getDefault»;
+					public «p.compileType» «p.name»«p.getDefault»;
 				«ENDFOR»
 
 				public Parameters(«op.parameters.compileParameterTypes»)
 				{
 					«FOR p : op.parameters»
-						if(«p.param.name» != null)
-							this.«p.param.name» = «p.param.name»;
+						if(«p.name» != null)
+							this.«p.name» = «p.name»;
 					«ENDFOR»
 				}
 				«ENDIF»
@@ -872,20 +872,20 @@ class RDOPatternCompiler
 	def public static compileParameterTypesCall(List<ParameterType> parameters)
 	{
 		'''«IF !parameters.empty»«
-			parameters.get(0).param.name»«
+			parameters.get(0).name»«
 			FOR parameter : parameters.subList(1, parameters.size)», «
-				parameter.param.name»«
+				parameter.name»«
 			ENDFOR»«
 		ENDIF»'''
 	}
 
 	def public static compileParameterTypes(List<ParameterType> parameters)
 	{
-		'''«IF !parameters.empty»«parameters.get(0).param.compileType» «
-			parameters.get(0).param.name»«
+		'''«IF !parameters.empty»«parameters.get(0).compileType» «
+			parameters.get(0).name»«
 			FOR parameter : parameters.subList(1, parameters.size)», «
-				parameter.param.compileType» «
-				parameter.param.name»«
+				parameter.compileType» «
+				parameter.name»«
 			ENDFOR»«
 		ENDIF»'''
 	}

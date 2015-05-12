@@ -60,7 +60,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def image(ResourceType rtp) { "puzzle_plus.gif" }
 
 	//Parameter types
-	def  text(ParameterType p) { p.param.name + p.param.typeGenericLabel }
+	def  text(ParameterType p) { p.name + p.typeGenericLabel }
 	def image(ParameterType p) { "parameter.gif" }
 
 	// Resources

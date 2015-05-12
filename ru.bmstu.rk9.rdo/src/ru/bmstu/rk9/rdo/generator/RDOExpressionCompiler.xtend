@@ -6,7 +6,6 @@ import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
 
-import ru.bmstu.rk9.rdo.rdo.ParameterType
 import ru.bmstu.rk9.rdo.rdo.RDODefaultParameter
 import ru.bmstu.rk9.rdo.rdo.ParameterTypeBasic
 import ru.bmstu.rk9.rdo.rdo.ParameterTypeString
@@ -418,10 +417,10 @@ class RDOExpressionCompiler
 				val parameters = switch parent
 				{
 					ResourceCreateStatement:
-						parent.reference.parameters.map[p | p.param.compileType]
+						parent.reference.parameters.map[p | p.compileType]
 
 					PlanningStatement:
-						parent.event.parameters.map[p | p.param.compileType]
+						parent.event.parameters.map[p | p.compileType]
 				}
 
 				var String list = ""
@@ -455,10 +454,10 @@ class RDOExpressionCompiler
 				val parameters = switch pattern
 				{
 					Rule:
-						pattern.parameters.map[p | p.param.compileType]
+						pattern.parameters.map[p | p.compileType]
 
 					Operation:
-						pattern.parameters.map[p | p.param.compileType]
+						pattern.parameters.map[p | p.compileType]
 				}
 
 				var String list = ""
@@ -482,7 +481,7 @@ class RDOExpressionCompiler
 
 			DecisionPointSearchActivity:
 			{
-				val parameters = expr.pattern.parameters.map[p | p.param.compileType]
+				val parameters = expr.pattern.parameters.map[p | p.compileType]
 
 				var String list = ""
 				var flag = false
@@ -633,8 +632,6 @@ class RDOExpressionCompiler
 	{
 		switch type
 		{
-			ParameterType: type.param.compileType
-
 			ParameterTypeBasic : type.type.compileType
 			ParameterTypeString : type.type.compileType
 			ParameterTypeArray : type.type.compileType
@@ -667,8 +664,6 @@ class RDOExpressionCompiler
 	{
 		switch type
 		{
-			ParameterType: type.param.compileTypePrimitive
-
 			ParameterTypeBasic : type.type.compileTypePrimitive
 			ParameterTypeString: type.type.compileTypePrimitive
 			ParameterTypeArray : type.type.compileTypePrimitive
@@ -699,8 +694,6 @@ class RDOExpressionCompiler
 	{
 		switch type
 		{
-			ParameterType: type.param.resolveAllArrays
-
 			ParameterTypeBasic : type.type
 			ParameterTypeString: type.type
 			ParameterTypeArray : type.type.resolveAllArrays
@@ -723,8 +716,6 @@ class RDOExpressionCompiler
 	{
 		switch type
 		{
-			ParameterType: type.param.resolveAllTypes
-
 			ParameterTypeBasic : type.type
 			ParameterTypeString: type.type
 			ParameterTypeArray : type.type

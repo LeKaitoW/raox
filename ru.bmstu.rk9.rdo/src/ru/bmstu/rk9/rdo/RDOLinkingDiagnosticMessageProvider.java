@@ -41,7 +41,7 @@ public class RDOLinkingDiagnosticMessageProvider extends
 			ResourceType grandparent = (ResourceType) parent.eContainer();
 			msg = "Value '" + context.getLinkText()
 					+ "' not found in enumerative resource type parameter "
-					+ grandparent.getName() + "." + parent.getParam().getName() + ".";
+					+ grandparent.getName() + "." + parent.getName() + ".";
 			break;
 
 		case "ResourceType":

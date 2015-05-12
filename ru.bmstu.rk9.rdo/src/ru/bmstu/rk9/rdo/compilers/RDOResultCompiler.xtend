@@ -480,9 +480,9 @@ class RDOResultCompiler
 						«FOR e : ((result.modelRoot.eAllContents.findFirst
 							[r | r instanceof ResourceType && (r as ResourceType).fullyQualifiedName
 								== expr.type.substring(0, expr.type.lastIndexOf('.'))] as ResourceType)
-									.parameters.findFirst[p | p.param.name == expr.type.substring(
+									.parameters.findFirst[p | p.name == expr.type.substring(
 										expr.type.lastIndexOf('.') + 1, expr.type.length - 5)]
-											.param as ParameterTypeEnum).type.type.values»
+											 as ParameterTypeEnum).type.type.values»
 							.put("«e.name»")
 						«ENDFOR»
 				);

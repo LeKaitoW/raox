@@ -113,19 +113,19 @@ public class LocalContext {
 	public LocalContext populateWithResourceRename(ResourceType rtp,
 			String newName) {
 		for (ParameterType p : rtp.getParameters()) {
-			this.addRawEntry(rtp.getName() + "." + p.getParam().getName(),
+			this.addRawEntry(rtp.getName() + "." + p.getName(),
 					RDOExpressionCompiler.compileType(p),
-					newName + ".get_" + p.getParam().getName() + "()");
-			this.addRawEntry(p.getParam().getName(), RDOExpressionCompiler.compileType(p),
-					newName + ".get_" + p.getParam().getName() + "()");
+					newName + ".get_" + p.getName() + "()");
+			this.addRawEntry(p.getName(), RDOExpressionCompiler.compileType(p),
+					newName + ".get_" + p.getName() + "()");
 		}
 		return this;
 	}
 
 	public LocalContext populateFromEvent(Event evn) {
 		for (ParameterType p : evn.getParameters())
-			this.addRawEntry(p.getParam().getName(), RDOExpressionCompiler.compileType(p),
-					"parameters." + p.getParam().getName());
+			this.addRawEntry(p.getName(), RDOExpressionCompiler.compileType(p),
+					"parameters." + p.getName());
 
 		for (EventRelevantResource relres : evn.getRelevantresources()) {
 			ResourceType type;
@@ -135,9 +135,9 @@ public class LocalContext {
 				type = ((ResourceCreateStatement) relres.getType()).getReference();
 
 			for (ParameterType p : type.getParameters())
-				this.addRawEntry(relres.getName() + "." + p.getParam().getName(),
+				this.addRawEntry(relres.getName() + "." + p.getName(),
 						RDOExpressionCompiler.compileType(p), "resources."
-								+ relres.getName() + ".get_" + p.getParam().getName()
+								+ relres.getName() + ".get_" + p.getName()
 								+ "()");
 		}
 
@@ -146,8 +146,8 @@ public class LocalContext {
 
 	public LocalContext populateFromRule(Rule rule) {
 		for (ParameterType p : rule.getParameters())
-			this.addRawEntry(p.getParam().getName(), RDOExpressionCompiler.compileType(p),
-					"parameters." + p.getParam().getName());
+			this.addRawEntry(p.getName(), RDOExpressionCompiler.compileType(p),
+					"parameters." + p.getName());
 
 		for (SelectableRelevantResource relres : rule.getRelevantresources()) {
 			ResourceType type;
@@ -157,9 +157,9 @@ public class LocalContext {
 				type = ((ResourceCreateStatement) relres.getType()).getReference();
 
 			for (ParameterType p : type.getParameters())
-				this.addRawEntry(relres.getName() + "." + p.getParam().getName(),
+				this.addRawEntry(relres.getName() + "." + p.getName(),
 						RDOExpressionCompiler.compileType(p), "resources."
-								+ relres.getName() + ".get_" + p.getParam().getName()
+								+ relres.getName() + ".get_" + p.getName()
 								+ "()");
 		}
 
@@ -168,8 +168,8 @@ public class LocalContext {
 
 	public LocalContext populateFromOperation(Operation op) {
 		for (ParameterType p : op.getParameters())
-			this.addRawEntry(p.getParam().getName(), RDOExpressionCompiler.compileType(p),
-					"parameters." + p.getParam().getName());
+			this.addRawEntry(p.getName(), RDOExpressionCompiler.compileType(p),
+					"parameters." + p.getName());
 
 		for (SelectableRelevantResource relres : op.getRelevantresources()) {
 			ResourceType type;
@@ -179,9 +179,9 @@ public class LocalContext {
 				type = ((ResourceCreateStatement) relres.getType()).getReference();
 
 			for (ParameterType p : type.getParameters())
-				this.addRawEntry(relres.getName() + "." + p.getParam().getName(),
+				this.addRawEntry(relres.getName() + "." + p.getName(),
 						RDOExpressionCompiler.compileType(p), "resources."
-								+ relres.getName() + ".get_" + p.getParam().getName()
+								+ relres.getName() + ".get_" + p.getName()
 								+ "()");
 		}
 

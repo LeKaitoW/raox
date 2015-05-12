@@ -81,7 +81,7 @@ class RDONaming
 				return object.name
 
 			ParameterType:
-				return object.param.name
+				return object.name
 
 			ResourceCreateStatement:
 				return object.name
@@ -139,7 +139,7 @@ class RDONaming
 
 			ParameterType:
 				return object.eContainer.eContainer.nameGeneric +
-					"." + object.eContainer.nameGeneric + "." + object.param.name
+					"." + object.eContainer.nameGeneric + "." + object.name
 
 			ResourceCreateStatement:
 				return object.eContainer.eContainer.nameGeneric + "." + object.name

@@ -37,10 +37,6 @@ ResourceType:
 ;
 
 ParameterType
-	: param = ParameterTypeList
-;
-
-ParameterTypeList
 	: ParameterTypeBasic
 	| ParameterTypeString
 	| ParameterTypeArray
