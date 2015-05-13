@@ -31,22 +31,27 @@ public class CollectedDataNode {
 			this.type = type;
 		}
 
+		@Override
 		public List<Integer> getEntryNumbers() {
 			return entryNumbers;
 		}
 
+		@Override
 		public final void addEntry(Integer entry) {
 			entryNumbers.add(entry);
 		}
 
+		@Override
 		public final int getNumber() {
 			return number;
 		}
 
+		@Override
 		public final boolean isEmpty() {
 			return entryNumbers.isEmpty();
 		}
 
+		@Override
 		public final IndexType getType() {
 			return type;
 		}
