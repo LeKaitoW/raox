@@ -29,20 +29,22 @@ public class PlotDataParser {
 		final public double y;
 	}
 
-	public static Map<AbstractIndex, Integer> getLastItemMap() {
-		return lastItemMap;
-	}
-
-	public static Map<AbstractIndex, Integer> getLastPatternCountMap() {
-		return lastPatternCountMap;
+	public static void removeIndexFromMaps(AbstractIndex index) {
+		if (!lastItemMap.isEmpty() && lastItemMap.containsKey(index)) {
+			lastItemMap.remove(index);
+		}
+		if (!lastPatternCountMap.isEmpty()
+				&& lastPatternCountMap.containsKey(index)) {
+			lastPatternCountMap.remove(index);
+		}
 	}
 
 	public static List<PlotItem> parseEntries(final CollectedDataNode node) {
 		final AbstractIndex index = node.getIndex();
 
-		int i = 0;
+		int startItemNumber = 0;
 		if (lastItemMap.containsKey(index)) {
-			i = lastItemMap.get(index);
+			startItemNumber = lastItemMap.get(index);
 		}
 
 		switch (index.getType()) {
@@ -52,20 +54,20 @@ public class PlotDataParser {
 			final ResourceIndex resourceIndex = (ResourceIndex) resourceNode
 					.getIndex();
 			return parseResourceParameter(resourceParameterIndex,
-					resourceIndex, i);
+					resourceIndex, startItemNumber);
 		case RESULT:
 			final ResultIndex resultIndex = (ResultIndex) index;
-			return parseResult(resultIndex, i);
+			return parseResult(resultIndex, startItemNumber);
 		case PATTERN:
 			final PatternIndex patternIndex = (PatternIndex) index;
-			return parsePattern(patternIndex, i);
+			return parsePattern(patternIndex, startItemNumber);
 		default:
 			return null;
 		}
 	}
 
 	private static List<PlotItem> parsePattern(final PatternIndex patternIndex,
-			int i) {
+			int startItemNumber) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = patternIndex.getEntryNumbers();
 		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
@@ -78,8 +80,8 @@ public class PlotDataParser {
 			dataset.add(new PlotItem(0, count));
 		}
 
-		while (i < entriesNumbers.size()) {
-			int currentEntryNumber = entriesNumbers.get(i);
+		while (startItemNumber < entriesNumbers.size()) {
+			int currentEntryNumber = entriesNumbers.get(startItemNumber);
 			final Entry currentEntry = allEntries.get(currentEntryNumber);
 			final ByteBuffer header = Tracer
 					.prepareBufferForReading(currentEntry.header);
@@ -101,23 +103,23 @@ public class PlotDataParser {
 				return null;
 			}
 			dataset.add(new PlotItem(time, count));
-			i++;
+			startItemNumber++;
 		}
 
 		lastPatternCountMap.put(patternIndex, count);
-		lastItemMap.put(patternIndex, i);
+		lastItemMap.put(patternIndex, startItemNumber);
 
 		return dataset;
 	}
 
 	private static List<PlotItem> parseResult(final ResultIndex resultIndex,
-			int i) {
+			int startItemNumber) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = resultIndex.getEntryNumbers();
 		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
 
-		while (i < entriesNumbers.size()) {
-			int currentEntryNumber = entriesNumbers.get(i);
+		while (startItemNumber < entriesNumbers.size()) {
+			int currentEntryNumber = entriesNumbers.get(startItemNumber);
 			final Entry currentEntry = allEntries.get(currentEntryNumber);
 			final ByteBuffer header = Tracer
 					.prepareBufferForReading(currentEntry.header);
@@ -147,23 +149,23 @@ public class PlotDataParser {
 				return null;
 			}
 			dataset.add(item);
-			i++;
+			startItemNumber++;
 		}
 
-		lastItemMap.put(resultIndex, i);
+		lastItemMap.put(resultIndex, startItemNumber);
 
 		return dataset;
 	}
 
 	private static List<PlotItem> parseResourceParameter(
 			final ResourceParameterIndex resourceParameterIndex,
-			final ResourceIndex resourceIndex, int i) {
+			final ResourceIndex resourceIndex, int startItemNumber) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = resourceIndex.getEntryNumbers();
 		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
 
-		while (i < entriesNumbers.size()) {
-			int currentEntryNumber = entriesNumbers.get(i);
+		while (startItemNumber < entriesNumbers.size()) {
+			int currentEntryNumber = entriesNumbers.get(startItemNumber);
 			final Entry currentEntry = allEntries.get(currentEntryNumber);
 
 			final ByteBuffer header = Tracer
@@ -198,10 +200,10 @@ public class PlotDataParser {
 			}
 
 			dataset.add(item);
-			i++;
+			startItemNumber++;
 		}
 
-		lastItemMap.put(resourceParameterIndex, i);
+		lastItemMap.put(resourceParameterIndex, startItemNumber);
 
 		return dataset;
 	}

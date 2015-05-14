@@ -68,16 +68,8 @@ public class RDOPlotView extends ViewPart {
 						&& openedPlotMap.containsKey(partNode)) {
 					openedPlotMap.remove(partNode);
 				}
-				if (!PlotDataParser.getLastItemMap().isEmpty()
-						&& PlotDataParser.getLastItemMap().containsKey(
-								partNode.getIndex())) {
-					PlotDataParser.getLastItemMap().remove(partNode.getIndex());
-				}
-				if (!PlotDataParser.getLastPatternCountMap().isEmpty()
-						&& PlotDataParser.getLastPatternCountMap().containsKey(
-								partNode.getIndex())) {
-					PlotDataParser.getLastPatternCountMap().remove(
-							partNode.getIndex());
+				if (partNode.getIndex() != null) {
+					PlotDataParser.removeIndexFromMaps(partNode.getIndex());
 				}
 			}
 		});
