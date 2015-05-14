@@ -290,6 +290,8 @@ public class GraphFrame extends JFrame {
 
 		graph.setCellsEditable(false);
 		graph.setCellsDisconnectable(false);
+		graph.setDisconnectOnMove(false);
+		graph.setDropEnabled(false);
 		graph.setCellsResizable(false);
 		graph.setAllowDanglingEdges(false);
 
