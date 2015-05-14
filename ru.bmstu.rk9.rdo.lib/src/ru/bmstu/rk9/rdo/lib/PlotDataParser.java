@@ -17,6 +17,7 @@ import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 public class PlotDataParser {
 
 	private static final Map<AbstractIndex, Integer> lastItemMap = new HashMap<AbstractIndex, Integer>();
+	private static final Map<AbstractIndex, Integer> lastPatternCountMap = new HashMap<AbstractIndex, Integer>();
 
 	public final static class PlotItem {
 		PlotItem(final double x, final double y) {
@@ -32,36 +33,49 @@ public class PlotDataParser {
 		return lastItemMap;
 	}
 
+	public static Map<AbstractIndex, Integer> getLastPatternCountMap() {
+		return lastPatternCountMap;
+	}
+
 	public static List<PlotItem> parseEntries(final CollectedDataNode node) {
 		final AbstractIndex index = node.getIndex();
+
+		int i = 0;
+		if (lastItemMap.containsKey(index)) {
+			i = lastItemMap.get(index);
+		}
+
 		switch (index.getType()) {
 		case RESOURCE_PARAMETER:
 			final ResourceParameterIndex resourceParameterIndex = (ResourceParameterIndex) index;
 			final CollectedDataNode resourceNode = node.getParent();
 			final ResourceIndex resourceIndex = (ResourceIndex) resourceNode
 					.getIndex();
-			return parseResourceParameter(resourceParameterIndex, resourceIndex);
+			return parseResourceParameter(resourceParameterIndex,
+					resourceIndex, i);
 		case RESULT:
 			final ResultIndex resultIndex = (ResultIndex) index;
-			return parseResult(resultIndex);
+			return parseResult(resultIndex, i);
 		case PATTERN:
 			final PatternIndex patternIndex = (PatternIndex) index;
-			return parsePattern(patternIndex);
+			return parsePattern(patternIndex, i);
 		default:
 			return null;
 		}
 	}
 
-	private static List<PlotItem> parsePattern(final PatternIndex patternIndex) {
+	private static List<PlotItem> parsePattern(final PatternIndex patternIndex,
+			int i) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = patternIndex.getEntryNumbers();
 		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
-		int count = 0;
-		dataset.add(new PlotItem(0, count));
+		int count;
 
-		int i = 0;
-		if (lastItemMap.containsKey(patternIndex)) {
-			i = lastItemMap.get(patternIndex);
+		if (lastPatternCountMap.containsKey(patternIndex)) {
+			count = lastPatternCountMap.get(patternIndex);
+		} else {
+			count = 0;
+			dataset.add(new PlotItem(0, count));
 		}
 
 		while (i < entriesNumbers.size()) {
@@ -90,20 +104,17 @@ public class PlotDataParser {
 			i++;
 		}
 
+		lastPatternCountMap.put(patternIndex, count);
 		lastItemMap.put(patternIndex, i);
 
 		return dataset;
 	}
 
-	private static List<PlotItem> parseResult(final ResultIndex resultIndex) {
+	private static List<PlotItem> parseResult(final ResultIndex resultIndex,
+			int i) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = resultIndex.getEntryNumbers();
 		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
-
-		int i = 0;
-		if (lastItemMap.containsKey(resultIndex)) {
-			i = lastItemMap.get(resultIndex);
-		}
 
 		while (i < entriesNumbers.size()) {
 			int currentEntryNumber = entriesNumbers.get(i);
@@ -146,15 +157,10 @@ public class PlotDataParser {
 
 	private static List<PlotItem> parseResourceParameter(
 			final ResourceParameterIndex resourceParameterIndex,
-			final ResourceIndex resourceIndex) {
+			final ResourceIndex resourceIndex, int i) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = resourceIndex.getEntryNumbers();
 		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
-
-		int i = 0;
-		if (lastItemMap.containsKey(resourceParameterIndex)) {
-			i = lastItemMap.get(resourceParameterIndex);
-		}
 
 		while (i < entriesNumbers.size()) {
 			int currentEntryNumber = entriesNumbers.get(i);

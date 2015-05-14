@@ -73,6 +73,12 @@ public class RDOPlotView extends ViewPart {
 								partNode.getIndex())) {
 					PlotDataParser.getLastItemMap().remove(partNode.getIndex());
 				}
+				if (!PlotDataParser.getLastPatternCountMap().isEmpty()
+						&& PlotDataParser.getLastPatternCountMap().containsKey(
+								partNode.getIndex())) {
+					PlotDataParser.getLastPatternCountMap().remove(
+							partNode.getIndex());
+				}
 			}
 		});
 	}
