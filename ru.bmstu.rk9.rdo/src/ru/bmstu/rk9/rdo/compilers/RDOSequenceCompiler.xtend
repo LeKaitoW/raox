@@ -21,14 +21,14 @@ import ru.bmstu.rk9.rdo.rdo.TriangularSequence
 
 class RDOSequenceCompiler
 {
-	//FIXME: temporally commented out usage of non-legacy sequences
-	// because org.apache package cannot be resolved
 	def public static compileSequence(Sequence seq, String filename)
 	{
 		'''
 		package «filename»;
 
 		import ru.bmstu.rk9.rdo.lib.*;
+		import ru.bmstu.rk9.rdo.lib.math.MersenneTwisterFast;
+		import ru.bmstu.rk9.rdo.lib.math.Erf;
 		@SuppressWarnings("all")
 
 		public class «seq.name»
@@ -38,12 +38,8 @@ class RDOSequenceCompiler
 				private static RDOLegacyRandom prng =
 					new RDOLegacyRandom(«(seq.type as RegularSequence).seed»);
 				«ELSE»
-				private static RDOLegacyRandom prng =
-					new RDOLegacyRandom(«(seq.type as RegularSequence).seed»);
-				/*
-				private static org.apache.commons.math3.random.MersenneTwister prng =
-					new org.apache.commons.math3.random.MersenneTwister(«(seq.type as RegularSequence).seed»);
-				*/
+				private static MersenneTwisterFast prng =
+					new MersenneTwisterFast(«(seq.type as RegularSequence).seed»);
 				«ENDIF»
 
 				public static void setSeed(long seed)
@@ -77,11 +73,8 @@ class RDOSequenceCompiler
 				private static RDOLegacyRandom prng =
 					new RDOLegacyRandom(«(seq.type as HistogramSequence).seed»);
 				«ELSE»
-				private static RDOLegacyRandom prng =
-					new RDOLegacyRandom(«(seq.type as HistogramSequence).seed»);
-				/* private static org.apache.commons.math3.random.MersenneTwister prng =
-					new org.apache.commons.math3.random.MersenneTwister(«(seq.type as HistogramSequence).seed»);
-				*/
+				private MersenneTwisterFast prng =
+					new MersenneTwisterFast(«(seq.type as HistogramSequence).seed»);
 				«ENDIF»
 
 				public static void setSeed(long seed)
@@ -195,20 +188,20 @@ class RDOSequenceCompiler
 					private static final double rate = «(seq as ExponentialSequence).rate»;
 
 					'''
-				/*return if(!legacy)
+				return if(!legacy)
 					ret +
-					'''
-					public static «rtype.compileTypePrimitive» next(«rtype.compileTypePrimitive» mean)
-					{
-						return («rtype.compileTypePrimitive»)(-1.0 * rate * org.apache.commons.math3.util.FastMath.log(1 - prng.nextDouble()));
-					}
-					'''
-				else*/
-					return ret +
 					'''
 					public static «rtype.compileTypePrimitive» next()
 					{
-						return («rtype.compileTypePrimitive»)(-rate * Math.log(prng.nextDouble()));
+						return («rtype.compileTypePrimitive»)(-1.0 * rate * Math.log(1 - prng.nextDouble()));
+					}
+					'''
+				else
+					ret +
+					'''
+					public static «rtype.compileTypePrimitive» next()
+					{
+						return («rtype.compileTypePrimitive»)(-rate * Math.log(1 - prng.nextDouble()));
 					}
 					'''
 			}
@@ -220,15 +213,15 @@ class RDOSequenceCompiler
 					private static final double deviation = «(seq as NormalSequence).deviation»;
 
 					''';
-				/*return if(!legacy)
+				return if(!legacy)
 					ret +
 					'''
-					public static «rtype.compileTypePrimitive» next(«rtype.compileTypePrimitive» mean, «rtype.compileTypePrimitive» deviation)
+					public static «rtype.compileTypePrimitive» next()
 					{
-						return («rtype.compileTypePrimitive»)(mean + deviation * org.apache.commons.math3.util.FastMath.sqrt(2) * org.apache.commons.math3.special.Erf.erfInv(2 * prng.nextDouble() - 1));
+						return («rtype.compileTypePrimitive»)(mean + deviation * Math.sqrt(2) * Erf.erfInv(2 * prng.nextDouble() - 1));
 					}
 					'''
-				else*/
+				else
 					return ret +
 					'''
 					public static «rtype.compileTypePrimitive» next()
@@ -255,13 +248,9 @@ class RDOSequenceCompiler
 						double edge = (double)(c - a) / (double)(b - a);
 
 					if(next < edge)
-							return («rtype.compileTypePrimitive»)(a + /*«
-							IF !legacy»org.apache.commons.math3.util.Fast«
-							ENDIF»*/Math.sqrt((b - a) * (c - a) * next));
+							return («rtype.compileTypePrimitive»)(a + Math.sqrt((b - a) * (c - a) * next));
 						else
-							return («rtype.compileTypePrimitive»)(b -/* «
-							IF !legacy»org.apache.commons.math3.util.Fast
-							«ENDIF»*/Math.sqrt((1 - next) * (b - a) * (b - c)));
+							return («rtype.compileTypePrimitive»)(b - Math.sqrt((1 - next) * (b - a) * (b - c)));
 					}
 					'''
 		}
