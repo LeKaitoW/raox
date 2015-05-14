@@ -190,8 +190,14 @@ public class GraphFrame extends JFrame {
 
 	public GraphFrame(int dptNum) {
 
-		ArrayList<Node> nodeList = Simulator.getTreeBuilder().listMap
-				.get(dptNum);
+		ArrayList<Node> nodeList;
+
+		Simulator.getTreeBuilder().rwLock.readLock().lock();
+		try {
+			nodeList = Simulator.getTreeBuilder().listMap.get(dptNum);
+		} finally {
+			Simulator.getTreeBuilder().rwLock.readLock().unlock();
+		}
 
 		final mxGraph graph = new mxGraph();
 
