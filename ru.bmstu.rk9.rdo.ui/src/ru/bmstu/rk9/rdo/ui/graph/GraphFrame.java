@@ -299,6 +299,7 @@ public class GraphFrame extends JFrame {
 										} finally {
 											graph.getModel().endUpdate();
 										}
+										graph.refresh();
 										cancel();
 									}
 								} finally {
