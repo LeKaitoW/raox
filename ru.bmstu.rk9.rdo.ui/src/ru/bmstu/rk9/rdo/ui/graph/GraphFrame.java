@@ -66,19 +66,13 @@ public class GraphFrame extends JFrame {
 
 	public void colorNodes(Map<Node, mxCell> vertexMap,
 			ArrayList<Node> nodeList, ArrayList<Node> solution) {
-		System.out.println("solution is empty? " + solution.isEmpty());
 		if (!solution.isEmpty()) {
 			Node rootNode = nodeList.get(0);
 			vertexMap.get(rootNode).setStyle(
 					solutionColor + fontColor + strokeColor);
 			for (int i = 0; i < solution.size(); i++) {
-				String style = vertexMap.get(solution.get(i)).getStyle();
-				System.out.println("style before = " + style);
 				vertexMap.get(solution.get(i)).setStyle(
 						solutionColor + fontColor + strokeColor);
-				System.out.println("style after 1 = " + style);
-				style = vertexMap.get(solution.get(i)).getStyle();
-				System.out.println("style after 2 = " + style);
 			}
 		}
 	}
@@ -93,16 +87,12 @@ public class GraphFrame extends JFrame {
 					.getLastAddedNodeIndexMap().get(dptNum);
 			for (int i = lastAddedVertexIndex; i <= lastAddedNodeIndex; i++) {
 				Node node = nodeList.get(i);
-				System.out.println("drawV lastAddedVertexIndex before = "
-						+ lastAddedVertexIndex + " " + "dpt = " + dptNum);
 				if (!vertexMap.containsKey(node)) {
 					mxCell vertex = (mxCell) graph.insertVertex(
 							graph.getDefaultParent(), null, node, 385, 100, 30,
 							30, fontColor + strokeColor);
 					vertexMap.put(node, vertex);
 					lastAddedVertexIndex = node.index;
-					System.out.println("drawV lastAddedVertexIndex after = "
-							+ lastAddedVertexIndex + " " + "dpt = " + dptNum);
 					if (node.parent != null)
 						graph.insertEdge(graph.getDefaultParent(), null, null,
 								vertexMap.get(node.parent),

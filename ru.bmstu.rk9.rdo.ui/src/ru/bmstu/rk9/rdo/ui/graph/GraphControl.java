@@ -91,7 +91,6 @@ public class GraphControl {
 				@Override
 				public void windowClosed(WindowEvent e) {
 					GraphControl.openedGraphMap.remove(dptNum);
-					System.out.println("window closed");
 				}
 
 				@Override
