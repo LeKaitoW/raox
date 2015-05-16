@@ -174,8 +174,10 @@ class RDOSequenceCompiler
 			case "uniform":
 				return
 					'''
-					private static final double from = «(seq as UniformSequence).a»;
-					private static final double to = «(seq as UniformSequence).b»;
+					private static final double from = «
+						(seq as UniformSequence).a.compileExpression.value»;
+					private static final double to = «
+						(seq as UniformSequence).b.compileExpression.value»;
 
 					public static «rtype.compileTypePrimitive» next()
 					{
@@ -183,25 +185,13 @@ class RDOSequenceCompiler
 					}
 					'''
 			case "exponential": {
-				val ret =
 					'''
-					private static final double rate = «(seq as ExponentialSequence).rate»;
+					private static final double rate = «
+						(seq as ExponentialSequence).rate.compileExpression.value»;
 
-					'''
-				return if(!legacy)
-					ret +
-					'''
 					public static «rtype.compileTypePrimitive» next()
 					{
-						return («rtype.compileTypePrimitive»)(-1.0 * rate * Math.log(1 - prng.nextDouble()));
-					}
-					'''
-				else
-					ret +
-					'''
-					public static «rtype.compileTypePrimitive» next()
-					{
-						return («rtype.compileTypePrimitive»)(-rate * Math.log(1 - prng.nextDouble()));
+						return («rtype.compileTypePrimitive»)(-1.0 / rate * Math.log(1 - prng.nextDouble()));
 					}
 					'''
 			}
@@ -209,8 +199,10 @@ class RDOSequenceCompiler
 			case "normal": {
 				val ret =
 					'''
-					private static final double mean = «(seq as NormalSequence).mean»;
-					private static final double deviation = «(seq as NormalSequence).deviation»;
+					private static final double mean = «
+						(seq as NormalSequence).mean.compileExpression.value»;
+					private static final double deviation = «
+						(seq as NormalSequence).deviation.compileExpression.value»;
 
 					''';
 				return if(!legacy)
@@ -238,9 +230,12 @@ class RDOSequenceCompiler
 			case "triangular":
 				return
 					'''
-					private static final double a = «(seq as TriangularSequence).a»;
-					private static final double b = «(seq as TriangularSequence).b»;
-					private static final double c = «(seq as TriangularSequence).c»;
+					private static final double a = «
+						(seq as TriangularSequence).a.compileExpression.value»;
+					private static final double b = «
+						(seq as TriangularSequence).b.compileExpression.value»;
+					private static final double c = «
+						(seq as TriangularSequence).c.compileExpression.value»;
 
 					public static «rtype.compileTypePrimitive» next()
 					{
