@@ -150,14 +150,14 @@ class KeyChartComposite extends ChartComposite implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if (e.keyCode == SWT.CTRL) {
+		if (e.keyCode == SWT.SHIFT) {
 			this.setRangeZoomable(true);
 		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if (e.keyCode == SWT.CTRL) {
+		if (e.keyCode == SWT.SHIFT) {
 			this.setRangeZoomable(false);
 		}
 	}
