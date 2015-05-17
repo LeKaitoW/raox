@@ -59,7 +59,11 @@ public class RDOPlotView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		frame = new ChartComposite(parent, SWT.NONE);
+		frame = new ChartComposite(parent, SWT.NONE, null,
+				ChartComposite.DEFAULT_WIDTH, ChartComposite.DEFAULT_HEIGHT, 0,
+				0, Integer.MAX_VALUE, Integer.MAX_VALUE,
+				ChartComposite.DEFAULT_BUFFER_USED, true, true, true, true,
+				true);
 		frame.addDisposeListener(new DisposeListener() {
 
 			@Override
@@ -82,6 +86,7 @@ public class RDOPlotView extends ViewPart {
 	public void plotXY(final XYSeriesCollection dataset, List<String> enumNames) {
 		final JFreeChart chart = createChart(dataset, enumNames);
 		frame.setChart(chart);
+		frame.setRangeZoomable(false);
 	}
 
 	private JFreeChart createChart(final XYDataset dataset,
