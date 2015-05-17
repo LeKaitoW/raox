@@ -14,7 +14,14 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Slider;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.jfree.chart.ChartFactory;
@@ -35,7 +42,7 @@ public class RDOPlotView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOPlotView";
 	private final static Map<CollectedDataNode, Integer> openedPlotMap = new HashMap<CollectedDataNode, Integer>();
 
-	private ChartComposite frame;
+	private RDOChartComposite frame;
 	private CollectedDataNode partNode;
 
 	public ChartComposite getFrame() {
@@ -61,11 +68,27 @@ public class RDOPlotView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		frame = new KeyChartComposite(parent, SWT.NONE, null,
-				ChartComposite.DEFAULT_WIDTH, ChartComposite.DEFAULT_HEIGHT, 0,
-				0, Integer.MAX_VALUE, Integer.MAX_VALUE,
-				ChartComposite.DEFAULT_BUFFER_USED, true, true, true, true,
-				true);
+		frame = new RDOChartComposite(parent, SWT.NONE);
+		FormLayout layout = new FormLayout();
+		parent.setLayout(layout);
+		Slider slider = new Slider(parent, SWT.NONE);
+		FormData sliderLayoutData = new FormData();
+		sliderLayoutData.left = new FormAttachment(0, 0);
+		sliderLayoutData.bottom = new FormAttachment(100, 0);
+		sliderLayoutData.right = new FormAttachment(100, 0);
+		slider.setLayoutData(sliderLayoutData);
+
+		FormData graphLayoutData = new FormData();
+		graphLayoutData.left = new FormAttachment(0, 0);
+		graphLayoutData.right = new FormAttachment(100, 0);
+		graphLayoutData.top = new FormAttachment(0, 0);
+		graphLayoutData.bottom = new FormAttachment(slider);
+		frame.setLayoutData(graphLayoutData);
+
+		parent.layout(true);
+		slider.setEnabled(false);
+		frame.setSlider(slider);
+
 		frame.addDisposeListener(new DisposeListener() {
 
 			@Override
@@ -131,21 +154,51 @@ public class RDOPlotView extends ViewPart {
 		domainAxis.setAutoRangeIncludesZero(true);
 		plot.setDomainAxis(domainAxis);
 
+		double sliderMaximum = domainAxis.getRange().getLength();
+		frame.setSliderMaximum(sliderMaximum);
+
 		return chart;
 	}
 
 }
 
-class KeyChartComposite extends ChartComposite implements KeyListener {
-	public KeyChartComposite(Composite comp, int style, JFreeChart jfreechart,
-			int width, int height, int minimumDrawW, int minimumDrawH,
-			int maximumDrawW, int maximumDrawH, boolean usingBuffer,
-			boolean properties, boolean save, boolean print, boolean zoom,
-			boolean tooltips) {
-		super(comp, style, jfreechart, width, height, minimumDrawW,
-				minimumDrawH, maximumDrawW, maximumDrawH, usingBuffer,
-				properties, save, print, zoom, tooltips);
+class RDOChartComposite extends ChartComposite implements KeyListener {
+
+	private Slider slider;
+
+	public RDOChartComposite(Composite comp, int style) {
+		super(comp, style, null, ChartComposite.DEFAULT_WIDTH,
+				ChartComposite.DEFAULT_HEIGHT, 0, 0, Integer.MAX_VALUE,
+				Integer.MAX_VALUE, ChartComposite.DEFAULT_BUFFER_USED, true,
+				true, true, true, true);
 		addSWTListener(this);
+	}
+
+	public void setSlider(Slider slider) {
+		this.slider = slider;
+		slider.setMinimum(0);
+		this.slider.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getChart().getXYPlot().getDomainAxis()
+						.setLowerBound(slider.getSelection());
+				getChart()
+						.getXYPlot()
+						.getDomainAxis()
+						.setUpperBound(
+								slider.getThumb() + slider.getSelection());
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+
+			}
+		});
+	}
+
+	public void setSliderMaximum(double sliderMaximum) {
+		slider.setMaximum((int) sliderMaximum);
 	}
 
 	@Override
@@ -160,5 +213,24 @@ class KeyChartComposite extends ChartComposite implements KeyListener {
 		if (e.keyCode == SWT.SHIFT) {
 			this.setRangeZoomable(false);
 		}
+	}
+
+	@Override
+	public void zoom(Rectangle selection) {
+		super.zoom(selection);
+
+		XYPlot plot = getChart().getXYPlot();
+		slider.setEnabled(true);
+		slider.setThumb((int) (plot.getDomainAxis().getUpperBound() - plot
+				.getDomainAxis().getLowerBound()));
+		slider.setSelection((int) (plot.getDomainAxis().getLowerBound()));
+	}
+
+	@Override
+	public void restoreAutoBounds() {
+		super.restoreAutoBounds();
+		slider.setEnabled(false);
+		slider.setMaximum((int) getChart().getXYPlot().getDomainAxis()
+				.getRange().getLength());
 	}
 }

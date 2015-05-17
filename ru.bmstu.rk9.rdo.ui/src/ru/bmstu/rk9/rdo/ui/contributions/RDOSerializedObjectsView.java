@@ -200,6 +200,8 @@ public class RDOSerializedObjectsView extends ViewPart {
 					final PlotItem item = items.get(i);
 					newSeries.add(item.x, item.y);
 				}
+				((RDOChartComposite) viewPart.getFrame())
+						.setSliderMaximum(newSeries.getMaxX());
 			}
 		}
 	}
