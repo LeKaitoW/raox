@@ -12,6 +12,8 @@ import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -59,7 +61,7 @@ public class RDOPlotView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		frame = new ChartComposite(parent, SWT.NONE, null,
+		frame = new KeyChartComposite(parent, SWT.NONE, null,
 				ChartComposite.DEFAULT_WIDTH, ChartComposite.DEFAULT_HEIGHT, 0,
 				0, Integer.MAX_VALUE, Integer.MAX_VALUE,
 				ChartComposite.DEFAULT_BUFFER_USED, true, true, true, true,
@@ -72,7 +74,7 @@ public class RDOPlotView extends ViewPart {
 						&& openedPlotMap.containsKey(partNode)) {
 					openedPlotMap.remove(partNode);
 				}
-				if (partNode.getIndex() != null) {
+				if (partNode != null) {
 					PlotDataParser.removeIndexFromMaps(partNode.getIndex());
 				}
 			}
@@ -132,4 +134,31 @@ public class RDOPlotView extends ViewPart {
 		return chart;
 	}
 
+}
+
+class KeyChartComposite extends ChartComposite implements KeyListener {
+	public KeyChartComposite(Composite comp, int style, JFreeChart jfreechart,
+			int width, int height, int minimumDrawW, int minimumDrawH,
+			int maximumDrawW, int maximumDrawH, boolean usingBuffer,
+			boolean properties, boolean save, boolean print, boolean zoom,
+			boolean tooltips) {
+		super(comp, style, jfreechart, width, height, minimumDrawW,
+				minimumDrawH, maximumDrawW, maximumDrawH, usingBuffer,
+				properties, save, print, zoom, tooltips);
+		addSWTListener(this);
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if (e.keyCode == SWT.CTRL) {
+			this.setRangeZoomable(true);
+		}
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		if (e.keyCode == SWT.CTRL) {
+			this.setRangeZoomable(false);
+		}
+	}
 }
