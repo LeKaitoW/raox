@@ -6,6 +6,7 @@ import org.eclipse.emf.ecore.EObject
 
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ParameterType
@@ -20,7 +21,6 @@ import ru.bmstu.rk9.rdo.rdo.RDOReal
 import ru.bmstu.rk9.rdo.rdo.RDOBoolean
 import ru.bmstu.rk9.rdo.rdo.RDOString
 import ru.bmstu.rk9.rdo.rdo.RDOArray
-import ru.bmstu.rk9.rdo.rdo.ParameterTypeEnum
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOResourceTypeCompiler
@@ -603,17 +603,28 @@ class RDOResourceTypeCompiler
 
 	def static String getDefault(ParameterType parameter)
 	{
-		var type = parameter
-		switch type
+		switch parameter
 		{
-			ParameterTypeBasic:
-				return if(type.^default != null) " = " + type.^default.compileExpression.value else ""
+			ParameterTypeBasic: {
+				var def = ""
+				if(parameter.^default != null) {
+					if (parameter.type instanceof RDOEnum) {
+						val value = parameter.^default.compileExpression.value
+						val fullTypeName = (parameter.type as RDOEnum).getFullEnumName
+						if (checkValidEnumID(
+								(parameter.type as RDOEnum).getFullEnumName,
+								value))
+							def = " = " + compileEnumValue(fullTypeName, value)
+					}
+					else
+						def = " = " + parameter.^default.compileExpression.value
+				}
 
-			ParameterTypeEnum:
-				return if(type.^default != null) " = " + type.type.compileType + "." + type.^default.name else ""
+				return def
+			}
 
 			ParameterTypeString:
-				return if(type.^default != null) ' = "' + type.^default + '"' else ""
+				return if(parameter.^default != null) ' = "' + parameter.^default + '"' else ""
 
 			default:
 				return ""

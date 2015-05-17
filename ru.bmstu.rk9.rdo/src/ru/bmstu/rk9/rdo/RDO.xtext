@@ -40,11 +40,10 @@ ParameterType
 	: ParameterTypeBasic
 	| ParameterTypeString
 	| ParameterTypeArray
-	| ParameterTypeEnum
 ;
 
 ParameterTypeBasic:
-	type = (RDOInteger | RDOReal | RDOBoolean) name = ID
+	type = (RDOInteger | RDOReal | RDOBoolean | RDOEnum) name = ID
 		('=' default = ExpressionOr)?
 ;
 
@@ -54,10 +53,6 @@ ParameterTypeString:
 
 ParameterTypeArray:
 	type = RDOArray name = ID ('=' default = ArrayValues)?
-;
-
-ParameterTypeEnum:
-	type = RDOEnum name = ID ('=' default = [EnumID])?
 ;
 
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

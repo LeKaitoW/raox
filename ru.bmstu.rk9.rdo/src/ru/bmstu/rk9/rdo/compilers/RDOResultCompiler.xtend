@@ -21,7 +21,8 @@ import ru.bmstu.rk9.rdo.rdo.ResultWatchState
 import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
 
 import ru.bmstu.rk9.rdo.generator.RDOExpression
-import ru.bmstu.rk9.rdo.rdo.ParameterTypeEnum
+import ru.bmstu.rk9.rdo.rdo.ParameterTypeBasic
+import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOResultCompiler
 {
@@ -477,12 +478,12 @@ class RDOResultCompiler
 				.put
 				(
 					"enums", new JSONArray()
-						«FOR e : ((result.modelRoot.eAllContents.findFirst
+						«FOR e : (((result.modelRoot.eAllContents.findFirst
 							[r | r instanceof ResourceType && (r as ResourceType).fullyQualifiedName
 								== expr.type.substring(0, expr.type.lastIndexOf('.'))] as ResourceType)
 									.parameters.findFirst[p | p.name == expr.type.substring(
 										expr.type.lastIndexOf('.') + 1, expr.type.length - 5)]
-											 as ParameterTypeEnum).type.type.values»
+											 as ParameterTypeBasic).type as RDOEnum).type.values»
 							.put("«e.name»")
 						«ENDFOR»
 				);

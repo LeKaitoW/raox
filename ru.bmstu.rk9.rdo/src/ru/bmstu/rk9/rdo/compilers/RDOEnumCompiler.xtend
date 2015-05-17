@@ -71,4 +71,27 @@ class RDOEnumCompiler
 		}
 		return body
 	}
+
+	def public static boolean checkValidEnumID(String type, String id)
+	{
+		if (!type.endsWith("_enum"))
+			return false
+		if (id.indexOf("(") + id.indexOf(")") != -2)
+			return false
+		if (!id.contains("."))
+			return false
+
+		var typeName = type.substring(type.indexOf(".") + 1)
+		typeName = typeName.substring(0, typeName.lastIndexOf("."))
+		val idTypeName = id.substring(0, id.lastIndexOf("."))
+		if (typeName != idTypeName)
+			return false
+
+		return true
+	}
+
+	def public static compileEnumValue(String type, String id)
+	{
+		return type + "." + id.substring(id.lastIndexOf('.') + 1)
+	}
 }

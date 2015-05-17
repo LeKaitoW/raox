@@ -62,7 +62,6 @@ import ru.bmstu.rk9.rdo.rdo.PlanningStatement
 import ru.bmstu.rk9.rdo.rdo.TimeNow
 
 import ru.bmstu.rk9.rdo.rdo.RDOType
-import ru.bmstu.rk9.rdo.rdo.ParameterTypeEnum
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 enum ExpressionOperation
@@ -207,6 +206,7 @@ class RDOExpressionCompiler
 			VariableIncDecExpression:
 			{
 				val ret = expr.^var.compileExpression
+
 				if(expr.pre != null && ret.value.contains(".get_") && ret.value.endsWith("()"))
 					return new RDOExpression(ret.value.replace(".get_", ".set_").cutLastChars(2) +
 						"(" + ret.value + (if(expr.pre == "--") "- 1" else " + 1") + ")", ret.type)
@@ -339,10 +339,10 @@ class RDOExpressionCompiler
 				val right = expr.right.compileExpression
 
 				if(left.type == "unknown" && checkValidEnumID(right.type, left.value))
-					left.value = right.type + "." + left.value.substring(left.value.lastIndexOf('.') + 1)
+					left.value = compileEnumValue(right.type, left.value)
 
 				if(right.type == "unknown" && checkValidEnumID(left.type, right.value))
-					right.value = left.type + "." + right.value.substring(right.value.lastIndexOf('.') + 1)
+					right.value = compileEnumValue(left.type, right.value)
 
 				return new RDOExpression(left.value +
 					" == " + right.value, "Boolean")
@@ -354,10 +354,10 @@ class RDOExpressionCompiler
 				val right = expr.right.compileExpression
 
 				if(left.type == "unknown" && checkValidEnumID(right.type, left.value))
-					left.value = right.type + "." + left.value.substring(left.value.lastIndexOf('.') + 1)
+					left.value = compileEnumValue(right.type, left.value)
 
 				if(right.type == "unknown" && checkValidEnumID(left.type, right.value))
-					right.value = left.type + "." + right.value.substring(right.value.lastIndexOf('.') + 1)
+					right.value = compileEnumValue(left.type, right.value)
 
 				return new RDOExpression(left.value +
 					" != " + right.value, "Boolean")
@@ -377,7 +377,7 @@ class RDOExpressionCompiler
 				val next = expr.next.compileExpression
 
 				if(next.type == "unknown" && checkValidEnumID(left.type, next.value))
-					next.value = left.type + "." + next.value.substring(next.value.lastIndexOf('.') + 1)
+					next.value = compileEnumValue(left.type, next.value)
 
 				if(expr.left instanceof VariableIncDecExpression)
 				{
@@ -466,9 +466,12 @@ class RDOExpressionCompiler
 							&& parameters.size > expr.parameters.indexOf(e)
 							&& checkValidEnumID(
 								parameters.get(expr.parameters.indexOf(e)), exp.value
-							))
-						exp.value = parameters.get(expr.parameters.indexOf(e)) + '.'
-								+ exp.value.substring(exp.value.lastIndexOf('.') + 1)
+							)) {
+						exp.value = compileEnumValue(
+							parameters.get(expr.parameters.indexOf(e)),
+							exp.value)
+					}
+
 					list = list + ( if(flag) ", " else "" ) + exp.value
 					flag = true
 				}
@@ -488,10 +491,13 @@ class RDOExpressionCompiler
 
 					if(parameters != null && exp.type == "unknown"
 							&& parameters.size > expr.parameters.indexOf(e)
-							&& checkValidEnumID(parameters.get(
-								expr.parameters.indexOf(e)), exp.value))
-						exp.value = parameters.get(expr.parameters.indexOf(e)) + '.'
-								+ exp.value.substring(exp.value.lastIndexOf('.') + 1)
+							&& checkValidEnumID(
+								parameters.get(expr.parameters.indexOf(e)), exp.value
+							)) {
+						exp.value = compileEnumValue(
+							parameters.get(expr.parameters.indexOf(e)),
+							exp.value)
+					}
 
 					list = list + ( if(flag) ", " else "" ) + exp.value
 					flag = true
@@ -502,22 +508,6 @@ class RDOExpressionCompiler
 			default:
 				return new RDOExpression("VAL", "unknown")
 		}
-	}
-
-	def static boolean checkValidEnumID(String type, String id)
-	{
-		if (!type.endsWith("_enum"))
-			return false
-		if (id.indexOf("(") + id.indexOf(")") != -2)
-			return false
-
-		var typeName = type.substring(type.indexOf(".") + 1)
-		typeName = typeName.substring(0, typeName.lastIndexOf("."))
-		val idTypeName = id.substring(0, id.lastIndexOf("."))
-		if (typeName != idTypeName)
-			return false
-
-		return true
 	}
 
 	def static LocalContext.ContextEntry lookupLocal(VariableMethodCallExpression expr)
@@ -623,7 +613,6 @@ class RDOExpressionCompiler
 			ParameterTypeBasic : type.type.compileType
 			ParameterTypeString : type.type.compileType
 			ParameterTypeArray : type.type.compileType
-			ParameterTypeEnum : type.type.compileType
 
 			Constant: type.type.compileType
 
@@ -655,7 +644,6 @@ class RDOExpressionCompiler
 			ParameterTypeBasic : type.type.compileTypePrimitive
 			ParameterTypeString: type.type.compileTypePrimitive
 			ParameterTypeArray : type.type.compileTypePrimitive
-			ParameterTypeEnum : type.type.compileTypePrimitive
 
 			Constant: type.type.compileTypePrimitive
 
@@ -685,7 +673,6 @@ class RDOExpressionCompiler
 			ParameterTypeBasic : type.type
 			ParameterTypeString: type.type
 			ParameterTypeArray : type.type.resolveAllArrays
-			ParameterTypeEnum : type.type
 
 			Constant: type.type.resolveAllTypes.resolveAllArrays
 
@@ -707,8 +694,6 @@ class RDOExpressionCompiler
 			ParameterTypeBasic : type.type
 			ParameterTypeString: type.type
 			ParameterTypeArray : type.type
-			ParameterTypeEnum : type.type
-
 			Constant: type.type.resolveAllTypes
 
 			RDOInteger: type
