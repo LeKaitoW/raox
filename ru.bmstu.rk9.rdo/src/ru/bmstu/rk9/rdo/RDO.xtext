@@ -272,25 +272,26 @@ RegularSequence
 
 UniformSequence:
 	legacy ?= 'legacy'? type = 'uniform' '('
-			seed = INT ',' a = ExpressionOr ',' b = ExpressionOr
+			seed = INT (',' a = ExpressionOr ',' b = ExpressionOr)?
 	')'
 ;
 
 ExponentialSequence:
 	legacy ?= 'legacy'? type = 'exponential' '('
-			seed = INT ',' rate = ExpressionOr
+			seed = INT (',' rate = ExpressionOr)?
 	')'
 ;
 
 NormalSequence:
 	legacy ?= 'legacy'? type = 'normal' '('
-			seed = INT ',' mean = ExpressionOr ',' deviation = ExpressionOr
+			seed = INT (',' mean = ExpressionOr ',' deviation = ExpressionOr)?
 	')'
 ;
 
 TriangularSequence:
 	legacy ?= 'legacy'? type = 'triangular' '('
-			seed = INT ',' a = ExpressionOr ',' b = ExpressionOr ',' c = ExpressionOr
+			seed = INT (',' a = ExpressionOr ','
+				b = ExpressionOr ',' c = ExpressionOr)?
 	')'
 ;
 

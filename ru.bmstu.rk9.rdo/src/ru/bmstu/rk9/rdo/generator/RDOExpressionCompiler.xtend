@@ -577,7 +577,7 @@ class RDOExpressionCompiler
 			val getNextMethod = iter.next
 			gcall = gcall + "." + next.call + "." + getNextMethod.call + "("
 			if(getNextMethod.args != null)
-				gcall = gcall + next.args.compileExpression.value
+				gcall = gcall + getNextMethod.args.compileExpression.value
 			return new LocalContext.ContextEntry(gcall + ")", info.sequences.get(next.call).type)
 		}
 

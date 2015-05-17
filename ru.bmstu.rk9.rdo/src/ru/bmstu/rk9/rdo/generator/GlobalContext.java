@@ -4,6 +4,9 @@ import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.List;
 
+import ru.bmstu.rk9.rdo.rdo.EnumerativeSequence;
+import ru.bmstu.rk9.rdo.rdo.HistogramSequence;
+import ru.bmstu.rk9.rdo.rdo.RegularSequence;
 import ru.bmstu.rk9.rdo.rdo.ResourceType;
 import ru.bmstu.rk9.rdo.rdo.ParameterType;
 import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement;
@@ -11,6 +14,7 @@ import ru.bmstu.rk9.rdo.rdo.Constant;
 import ru.bmstu.rk9.rdo.rdo.Function;
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter;
 import ru.bmstu.rk9.rdo.rdo.Sequence;
+import ru.bmstu.rk9.rdo.rdo.SequenceType;
 
 public class GlobalContext {
 	public class RTP {
@@ -44,11 +48,26 @@ public class GlobalContext {
 		public Sequence origin;
 
 		public String type;
-		public int parameters = 0;
+		public int parameters;
 
 		public SEQ(Sequence seq) {
 			origin = seq;
 			type = RDOExpressionCompiler.compileType(seq.getReturntype());
+			SequenceType type = seq.getType();
+			if (type instanceof EnumerativeSequence
+					|| type instanceof HistogramSequence)
+				parameters = 0;
+			else
+				switch (((RegularSequence) type).getType()) {
+				case "exponential":
+					parameters = 1;
+				case "normal":
+					parameters = 2;
+				case "triangular":
+					parameters = 3;
+				case "uniform":
+					parameters = 2;
+				}
 		}
 	}
 
