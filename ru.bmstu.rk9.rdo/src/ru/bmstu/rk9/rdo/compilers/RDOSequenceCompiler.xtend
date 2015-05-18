@@ -21,7 +21,7 @@ import ru.bmstu.rk9.rdo.rdo.TriangularSequence
 
 class RDOSequenceCompiler
 {
-	def public static compileSequence(Sequence seq, String filename)
+	def static compileSequence(Sequence seq, String filename)
 	{
 		'''
 		package «filename»;
@@ -101,7 +101,7 @@ class RDOSequenceCompiler
 		'''
 	}
 
-	def public static compileHistogramValues(HistogramSequence seq)
+	def private static compileHistogramValues(HistogramSequence seq)
 	{
 		var ret = ""
 		var flag = false
@@ -130,7 +130,7 @@ class RDOSequenceCompiler
 		return ret
 	}
 
-	def public static compileHistogramWeights(HistogramSequence seq)
+	def private static compileHistogramWeights(HistogramSequence seq)
 	{
 		var ret = ""
 		var flag = false
@@ -149,7 +149,7 @@ class RDOSequenceCompiler
 		return ret
 	}
 
-	def public static compileHistogramEnums(HistogramSequence seq)
+	def private static compileHistogramEnums(HistogramSequence seq)
 	{
 		var ret = ""
 		var flag = false
@@ -165,7 +165,7 @@ class RDOSequenceCompiler
 		return ret
 	}
 
-	def public static compileRegularSequence(RegularSequence seq,
+	def private static compileRegularSequence(RegularSequence seq,
 			RDOType rtype, boolean legacy
 	)
 	{
@@ -304,7 +304,6 @@ class RDOSequenceCompiler
 					'''
 				return ret
 			}
-
 		}
 	}
 }

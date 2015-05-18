@@ -13,7 +13,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOConstantCompiler
 {
-	def public static compileConstant(Constant con, String filename)
+	def static compileConstant(Constant con, String filename)
 	{
 		'''
 		package «filename»;

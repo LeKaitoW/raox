@@ -25,7 +25,7 @@ import ru.bmstu.rk9.rdo.rdo.Resources
 
 class RDOModelCompiler
 {
-	def public static compileModel(ResourceSet rs, String project)
+	def static compileModel(ResourceSet rs, String project)
 	{
 		'''
 		package rdo_model;

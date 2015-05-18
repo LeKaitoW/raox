@@ -7,7 +7,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOEnumCompiler
 {
-	def public static compileEnum(EnumDeclaration e, String filename)
+	def static compileEnum(EnumDeclaration e, String filename)
 	{
 		'''
 		package «filename»;
@@ -51,13 +51,13 @@ class RDOEnumCompiler
 		return enums
 	}
 
-	def public static getFullEnumName(RDOEnum e)
+	def static getFullEnumName(RDOEnum e)
 	{
 		e.type.eContainer.nameGeneric + "."
 				+ e.type.name + "." + e.type.name + "_enum"
 	}
 
-	def public static makeEnumBody(EnumDeclaration e)
+	def static makeEnumBody(EnumDeclaration e)
 	{
 		var flag = false
 		var body = ""
@@ -72,7 +72,7 @@ class RDOEnumCompiler
 		return body
 	}
 
-	def public static boolean checkValidEnumID(String type, String id)
+	def static boolean checkValidEnumID(String type, String id)
 	{
 		if (!type.endsWith("_enum"))
 			return false
@@ -90,7 +90,7 @@ class RDOEnumCompiler
 		return true
 	}
 
-	def public static compileEnumValue(String type, String id)
+	def static compileEnumValue(String type, String id)
 	{
 		return type + "." + id.substring(id.lastIndexOf('.') + 1)
 	}

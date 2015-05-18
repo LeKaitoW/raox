@@ -30,7 +30,7 @@ import ru.bmstu.rk9.rdo.rdo.PatternSelectLogic
 
 class RDOPatternCompiler
 {
-	def public static compileEvent(Event evn, String filename)
+	def static compileEvent(Event evn, String filename)
 	{
 		'''
 		package «filename»;
@@ -109,7 +109,7 @@ class RDOPatternCompiler
 					public void run(RelevantResources resources, Parameters parameters)
 					{
 						«FOR e: evn.defaultMethods.filter[m | m.method.name == "execute"]»
-							«(e.method as OnExecute).algorithm.compileConvert()»
+							«(e.method as OnExecute).algorithm.compilePatternAction()»
 						«ENDFOR»
 					}
 				};
@@ -171,7 +171,7 @@ class RDOPatternCompiler
 		'''
 	}
 
-	def public static compileRule(Rule rule, String filename)
+	def static compileRule(Rule rule, String filename)
 	{
 		'''
 		package «filename»;
@@ -360,7 +360,7 @@ class RDOPatternCompiler
 						public void run(RelevantResources resources, Parameters parameters)
 						{
 							«FOR e: rule.defaultMethods.filter[m | m.method.name == "execute"]»
-								«(e.method as OnExecute).algorithm.compileConvert()»
+								«(e.method as OnExecute).algorithm.compilePatternAction()»
 							«ENDFOR»
 						}
 					};
@@ -458,7 +458,7 @@ class RDOPatternCompiler
 		'''
 	}
 
-	def public static compileOperation(Operation op, String filename)
+	def static compileOperation(Operation op, String filename)
 	{
 		'''
 		package «filename»;
@@ -643,7 +643,7 @@ class RDOPatternCompiler
 						public void run(RelevantResources resources, Parameters parameters)
 						{
 							«FOR e: op.defaultMethods.filter[m | m.method.name == "begin"]»
-								«(e.method as OnBegin).begin_algorithm.compileConvert()»
+								«(e.method as OnBegin).begin_algorithm.compilePatternAction()»
 							«ENDFOR»
 						}
 					};
@@ -655,7 +655,7 @@ class RDOPatternCompiler
 						public void run(RelevantResources resources, Parameters parameters)
 						{
 							«FOR e: op.defaultMethods.filter[m | m.method.name == "end"]»
-								«(e.method as OnEnd).end_algorithm.compileConvert()»
+								«(e.method as OnEnd).end_algorithm.compilePatternAction()»
 							«ENDFOR»
 						}
 					};
@@ -781,7 +781,7 @@ class RDOPatternCompiler
 		'''
 	}
 
-	def public static compileChoiceFrom(PatternSelectLogic cf, Pattern pattern, String resource, String relres, String relrestype)
+	def static compileChoiceFrom(PatternSelectLogic cf, Pattern pattern, String resource, String relres, String relrestype)
 	{
 		val havecf = cf != null && !cf.any;
 
@@ -831,7 +831,7 @@ class RDOPatternCompiler
 			}'''
 	}
 
-	def public static compileChoiceMethod(PatternSelectMethod cm, String pattern, String resource)
+	def private static compileChoiceMethod(PatternSelectMethod cm, String pattern, String resource)
 	{
 		if(cm == null || cm.first)
 			return "null"
@@ -869,7 +869,7 @@ class RDOPatternCompiler
 		}
 	}
 
-	def public static compileParameterTypesCall(List<ParameterType> parameters)
+	def private static compileParameterTypesCall(List<ParameterType> parameters)
 	{
 		'''«IF !parameters.empty»«
 			parameters.get(0).name»«
@@ -879,7 +879,7 @@ class RDOPatternCompiler
 		ENDIF»'''
 	}
 
-	def public static compileParameterTypes(List<ParameterType> parameters)
+	def private static compileParameterTypes(List<ParameterType> parameters)
 	{
 		'''«IF !parameters.empty»«parameters.get(0).compileType» «
 			parameters.get(0).name»«

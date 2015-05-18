@@ -19,7 +19,7 @@ import ru.bmstu.rk9.rdo.rdo.DptCompareTopsStatement
 
 class RDODecisionPointCompiler
 {
-	def public static compileDecisionPoint(DecisionPointSome dpt, String filename)
+	def static compileDecisionPoint(DecisionPointSome dpt, String filename)
 	{
 		val activities = dpt.activities
 
@@ -183,7 +183,7 @@ class RDODecisionPointCompiler
 			'''
 	}
 
-	def public static compileDecisionPointSearch(DecisionPointSearch dpt, String filename)
+	def static compileDecisionPointSearch(DecisionPointSearch dpt, String filename)
 	{
 		val activities = dpt.activities
 		val parameters = activities.map[a | a.pattern.parameters]

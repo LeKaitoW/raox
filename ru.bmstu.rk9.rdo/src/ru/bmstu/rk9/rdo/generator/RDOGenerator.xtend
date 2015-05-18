@@ -153,7 +153,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		}
 	}
 
-	def compileStandalone(ResourceSet rs, OnInit onInit, TerminateCondition term)
+	def private compileStandalone(ResourceSet rs, OnInit onInit, TerminateCondition term)
 	{
 		val project = RDONaming.getProjectName(rs.resources.get(0).URI)
 		'''
@@ -221,7 +221,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 	}
 
-	def compileEmbedded(ResourceSet rs, OnInit onInit, TerminateCondition term)
+	def private compileEmbedded(ResourceSet rs, OnInit onInit, TerminateCondition term)
 	{
 		val project = RDONaming.getProjectName(rs.resources.get(0).URI)
 		'''

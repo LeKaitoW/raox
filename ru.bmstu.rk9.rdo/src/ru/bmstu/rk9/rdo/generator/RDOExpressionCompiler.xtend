@@ -510,7 +510,7 @@ class RDOExpressionCompiler
 		}
 	}
 
-	def static LocalContext.ContextEntry lookupLocal(VariableMethodCallExpression expr)
+	def private static LocalContext.ContextEntry lookupLocal(VariableMethodCallExpression expr)
 	{
 		var lcall = ""
 		var flag = false
@@ -657,14 +657,6 @@ class RDOExpressionCompiler
 			default: "int /* TYPE IS ACTUALLY UNKNOWN */"
 		}
 	}
-
-//	def static String getDefault(EObject type)
-//	{
-//		switch type
-//		{
-//			ParameterType: type.type
-//		}
-//	}
 
 	def static RDOType resolveAllArrays(EObject type)
 	{

@@ -36,7 +36,7 @@ import ru.bmstu.rk9.rdo.rdo.ResourceType
 
 class RDOStatementCompiler
 {
-	def static String compileConvert(StatementList st)
+	def static String compilePatternAction(StatementList st)
 	{
 		var cont = st.eContainer.eContainer.eContainer
 		switch cont

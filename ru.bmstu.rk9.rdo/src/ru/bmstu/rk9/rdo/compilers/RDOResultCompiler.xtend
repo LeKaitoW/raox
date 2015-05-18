@@ -26,7 +26,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOResultCompiler
 {
-	def public static compileResult(Result result, String filename)
+	def static compileResult(Result result, String filename)
 	{
 		val name = result.name
 		'''
@@ -76,7 +76,7 @@ class RDOResultCompiler
 		}
 	}
 
-	def public static compileResultBody(ResultType type)
+	def private static compileResultBody(ResultType type)
 	{
 		switch type
 		{

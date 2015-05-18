@@ -7,7 +7,7 @@ import ru.bmstu.rk9.rdo.generator.RDONaming
 
 class RDOFrameCompiler
 {
-		def public static compileFrame(Frame frm, String filename)
+	def static compileFrame(Frame frm, String filename)
 	{
 		'''
 		package «filename»;

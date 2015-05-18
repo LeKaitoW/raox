@@ -28,7 +28,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOFunctionCompiler
 {
-	def public static compileFunction(Function fun, String filename)
+	def static compileFunction(Function fun, String filename)
 	{
 		val type = fun.type
 		return
@@ -135,7 +135,7 @@ class RDOFunctionCompiler
 		}
 	}
 
-	def public static int getTableLength(RDOType type)
+	def private static int getTableLength(RDOType type)
 	{
 		switch type
 		{
@@ -162,7 +162,7 @@ class RDOFunctionCompiler
 		}
 	}
 
-	def public static compileTable(List<Expression> table, LocalContext context, int cut)
+	def private static compileTable(List<Expression> table, LocalContext context, int cut)
 	{
 		var values = ""
 		var flag = false
@@ -184,7 +184,7 @@ class RDOFunctionCompiler
 		return values
 	}
 
-	def public static compileTableReturn(List<FunctionParameter> parameters)
+	def private static compileTableReturn(List<FunctionParameter> parameters)
 	{
 		val list = newIntArrayOfSize(parameters.size)
 		var multiplier = 1;
@@ -205,7 +205,7 @@ class RDOFunctionCompiler
 		return compiled
 	}
 
-	def public static compileFunctionTypeParameters(List<FunctionParameter> parameters)
+	def private static compileFunctionTypeParameters(List<FunctionParameter> parameters)
 	{
 		'''«IF !parameters.empty»«parameters.get(0).type.compileType» «
 			parameters.get(0).name»«
@@ -216,7 +216,7 @@ class RDOFunctionCompiler
 		ENDIF»'''
 	}
 
-	def public static compileEnumsForFunction(List<FunctionParameter> parameters)
+	def private static compileEnumsForFunction(List<FunctionParameter> parameters)
 	{
 		'''
 		«FOR p : parameters.filter[c | c.type instanceof RDOEnum]»

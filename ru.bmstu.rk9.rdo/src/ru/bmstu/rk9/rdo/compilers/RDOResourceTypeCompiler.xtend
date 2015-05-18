@@ -28,7 +28,7 @@ class RDOResourceTypeCompiler
 	private static var chunkstart = 0;
 	private static var chunknumber = 0;
 
-	def public static compileResourceType(ResourceType rtp, String filename, Iterable<ResourceCreateStatement> instances)
+	def static compileResourceType(ResourceType rtp, String filename, Iterable<ResourceCreateStatement> instances)
 	{
 		'''
 		package «filename»;
@@ -233,7 +233,7 @@ class RDOResourceTypeCompiler
 		'''
 	}
 
-	def public static compileParameterTypesCopyCall(List<ParameterType> parameters)
+	def private static compileParameterTypesCopyCall(List<ParameterType> parameters)
 	{
 		'''«IF parameters.size > 0»«
 			parameters.get(0).name»«
@@ -553,12 +553,12 @@ class RDOResourceTypeCompiler
 		return ret
 	}
 
-	def static String TABS(int number)
+	def private static String TABS(int number)
 	{
 		return '''«FOR i : 0 ..< number»	«ENDFOR»'''
 	}
 
-	def static int getArrayDepth(ParameterType parameter)
+	def private static int getArrayDepth(ParameterType parameter)
 	{
 		var EObject type = parameter
 		var depth = 0;
@@ -588,7 +588,7 @@ class RDOResourceTypeCompiler
 		type.getTypename
 	}
 
-	def static String getTypename(EObject type)
+	def private static String getTypename(EObject type)
 	{
 		switch(type)
 		{
@@ -631,7 +631,7 @@ class RDOResourceTypeCompiler
 		}
 	}
 
-	def public static compileParameterTypes(List<ParameterType> parameters)
+	def private static compileParameterTypes(List<ParameterType> parameters)
 	{
 		'''«IF parameters.size > 0»«parameters.get(0).compileType» «
 			parameters.get(0).name»«
