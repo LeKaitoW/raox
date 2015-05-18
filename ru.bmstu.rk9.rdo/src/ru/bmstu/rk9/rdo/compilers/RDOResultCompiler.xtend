@@ -68,11 +68,11 @@ class RDOResultCompiler
 	{
 		switch(type)
 		{
-			ResultGetValue:       "get_value"
-			ResultWatchParameter: "watch_par"
-			ResultWatchQuant:     "watch_quant"
-			ResultWatchState:     "watch_state"
-			ResultWatchValue:     "watch_value"
+			ResultGetValue:       "getValue"
+			ResultWatchParameter: "watchPar"
+			ResultWatchQuant:     "watchQuant"
+			ResultWatchState:     "watchState"
+			ResultWatchValue:     "watchValue"
 		}
 	}
 
@@ -145,7 +145,7 @@ class RDOResultCompiler
 				val context = (new LocalContext).populateWithResourceRename(type.resource, "this.deleted")
 				val expr = type.expression.compileExpressionContext(context)
 				expr.value = expr.value.replaceFirst("this.deleted", "(this.deleted = " +
-					type.resource.fullyQualifiedName + ".getLastDeleted())") 
+					type.resource.fullyQualifiedName + ".getLastDeleted())")
 				'''
 				«type.resource.fullyQualifiedName» deleted = null;
 

@@ -16,8 +16,8 @@ import ru.bmstu.rk9.rdo.rdo.ParameterTypeArray
 
 import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
-import ru.bmstu.rk9.rdo.rdo.RDOInteger
-import ru.bmstu.rk9.rdo.rdo.RDOReal
+import ru.bmstu.rk9.rdo.rdo.RDOInt
+import ru.bmstu.rk9.rdo.rdo.RDODouble
 import ru.bmstu.rk9.rdo.rdo.RDOBoolean
 import ru.bmstu.rk9.rdo.rdo.RDOString
 import ru.bmstu.rk9.rdo.rdo.RDOArray
@@ -592,8 +592,8 @@ class RDOResourceTypeCompiler
 	{
 		switch(type)
 		{
-			RDOInteger : return "integer"
-			RDOReal : return "real"
+			RDOInt : return "integer"
+			RDODouble : return "real"
 			RDOBoolean : return "boolean"
 			RDOEnum : return type.compileType
 			RDOString : return "string"

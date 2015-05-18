@@ -43,7 +43,7 @@ ParameterType
 ;
 
 ParameterTypeBasic:
-	type = (RDOInteger | RDOReal | RDOBoolean | RDOEnum) name = ID
+	type = (RDOInt | RDODouble | RDOBoolean | RDOEnum) name = ID
 		('=' default = ExpressionOr)?
 ;
 
@@ -137,10 +137,10 @@ PatternSelectLogic
 
 PatternSelectMethod
 	: first ?= '.' 'first' '(' ')'
-	| '.' withtype = PatternChoiceWithType '(' expression = ExpressionOr ')'
+	| '.' withtype = PatternSelectWithType '(' expression = ExpressionOr ')'
 ;
 
-enum PatternChoiceWithType
+enum PatternSelectWithType
 	: WITH_MIN = 'withMin'
 	| WITH_MAX = 'withMax'
 ;
@@ -626,19 +626,19 @@ FQN: ID ('.' ID)*;
 // fully qualified names enable nested types cross references
 
 RDOType
-	: RDOInteger
-	| RDOReal
+	: RDOInt
+	| RDODouble
 	| RDOBoolean
 	| RDOString
 	| RDOArray
 	| RDOEnum
 ;
 
-RDOInteger:
+RDOInt:
 	type = 'int' range=DeclarationRange?
 ;
 
-RDOReal:
+RDODouble:
 	type = 'double' range=DeclarationRange?
 ;
 
@@ -691,10 +691,8 @@ Statement
 	| BreakStatement ';'
 	| ReturnStatement ';'
 //	| process_input_statement
-	| NoChangeStatement ';'
 	| StoppingStatement ';' // ?????????
 	| PlanningStatement ';'
-	| LegacySetStatement ';'
 	| ResourceCreateStatement ';'
 	| ResourceEraseStatement ';'
 //	| watch_start
@@ -745,10 +743,6 @@ ReturnStatement:
 	invoke = 'return' return = Expression?
 ;
 
-NoChangeStatement:
-	name = ID 'NoChange'
-;
-
 StoppingStatement:
 	event = [Event|FQN] '.' 'stopping' '(' ')'
 ;
@@ -756,10 +750,6 @@ StoppingStatement:
 PlanningStatement:
 	event = [Event|FQN] '.' 'planning' '(' value = Expression
 		(',' parameters = ResourceExpressionList)? ')'
-;
-
-LegacySetStatement:
-	call = FQN 'set' value = Expression
 ;
 
 ResourceCreateStatement:

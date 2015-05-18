@@ -18,7 +18,7 @@ import ru.bmstu.rk9.rdo.rdo.FunctionTable
 import ru.bmstu.rk9.rdo.rdo.FunctionList
 
 import ru.bmstu.rk9.rdo.rdo.RDOType
-import ru.bmstu.rk9.rdo.rdo.RDOInteger
+import ru.bmstu.rk9.rdo.rdo.RDOInt
 import ru.bmstu.rk9.rdo.rdo.IntConstant
 import ru.bmstu.rk9.rdo.rdo.DoubleConstant
 
@@ -139,7 +139,7 @@ class RDOFunctionCompiler
 	{
 		switch type
 		{
-			RDOInteger:
+			RDOInt:
 				if(type.range != null)
 					return
 						if(type.range.hi instanceof IntConstant)

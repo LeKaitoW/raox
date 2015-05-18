@@ -56,7 +56,7 @@ import ru.bmstu.rk9.rdo.rdo.Frame
 
 import ru.bmstu.rk9.rdo.rdo.Result
 
-import ru.bmstu.rk9.rdo.rdo.RDOInteger
+import ru.bmstu.rk9.rdo.rdo.RDOInt
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.DefaultMethod
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
@@ -174,7 +174,7 @@ class RDOValidator extends AbstractRDOValidator
 		clearMissing(funindex, funmodel)
 	}
 
-	def clearMissing(Map<String, ?> index, Map<String, ?> model)
+	def private clearMissing(Map<String, ?> index, Map<String, ?> model)
 	{
 		if(index.size != model.size)
 		{
@@ -191,7 +191,7 @@ class RDOValidator extends AbstractRDOValidator
 		}
 	}
 
-	def checkDefaultMethodCountGeneric(EObject parent,
+	def private checkDefaultMethodCountGeneric(EObject parent,
 			Iterable<DefaultMethod> methods,
 			Map<String, DefaultMethodsHelper.MethodInfo> counts
 	)
@@ -343,7 +343,7 @@ class RDOValidator extends AbstractRDOValidator
 					e.getNameStructuralFeature)
 	}
 
-	def EStructuralFeature getNameStructuralFeature (EObject object)
+	def private EStructuralFeature getNameStructuralFeature (EObject object)
 	{
 		switch object
 		{
@@ -441,7 +441,7 @@ class RDOValidator extends AbstractRDOValidator
 		for(p : fun.parameters)
 		{
 			val actual = p.type.resolveAllTypes
-			if(!(actual instanceof RDOEnum || (actual instanceof RDOInteger && (actual as RDOInteger).range != null)))
+			if(!(actual instanceof RDOEnum || (actual instanceof RDOInt && (actual as RDOInt).range != null)))
 				error("Invalid parameter type. Table function allows enumerative and ranged integer parameters only",
 					p, RdoPackage.eINSTANCE.functionParameter_Type)
 		}

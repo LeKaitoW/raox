@@ -19,7 +19,6 @@ import ru.bmstu.rk9.rdo.rdo.ForStatement
 import ru.bmstu.rk9.rdo.rdo.BreakStatement
 import ru.bmstu.rk9.rdo.rdo.ReturnStatement
 import ru.bmstu.rk9.rdo.rdo.PlanningStatement
-import ru.bmstu.rk9.rdo.rdo.LegacySetStatement
 
 import ru.bmstu.rk9.rdo.rdo.FrameObject
 import ru.bmstu.rk9.rdo.rdo.FrameObjectText
@@ -199,11 +198,6 @@ class RDOStatementCompiler
 						(if(st.parameters != null) (", " + st.parameters.compileExpression.value) else
 							(if(st.event.parameters != null && !st.event.parameters.empty)
 								(", " + compileAllDefault(st.event.parameters.size)) else "")) + "));"
-
-			LegacySetStatement:
-				'''
-				«st.call» = («st.value.compileExpression.value»);
-				'''
 
 			TerminateCondition:
 				'''

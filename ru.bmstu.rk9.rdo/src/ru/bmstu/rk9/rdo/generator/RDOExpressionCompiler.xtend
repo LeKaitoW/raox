@@ -22,8 +22,8 @@ import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivity
 
-import ru.bmstu.rk9.rdo.rdo.RDOInteger
-import ru.bmstu.rk9.rdo.rdo.RDOReal
+import ru.bmstu.rk9.rdo.rdo.RDOInt
+import ru.bmstu.rk9.rdo.rdo.RDODouble
 import ru.bmstu.rk9.rdo.rdo.RDOBoolean
 import ru.bmstu.rk9.rdo.rdo.RDOArray
 import ru.bmstu.rk9.rdo.rdo.RDOString
@@ -610,28 +610,28 @@ class RDOExpressionCompiler
 	{
 		switch type
 		{
-			ParameterTypeBasic : type.type.compileType
-			ParameterTypeString : type.type.compileType
-			ParameterTypeArray : type.type.compileType
+			ParameterTypeBasic: type.type.compileType
+			ParameterTypeString: type.type.compileType
+			ParameterTypeArray: type.type.compileType
 
 			Constant: type.type.compileType
 
-			RDOInteger:
+			RDOInt:
 //					if(type.range != null)
 //						"RDORangedInteger"
 //					else
 						"Integer"
 
-			RDOReal   :
+			RDODouble:
 //					if(type.range != null)
 //						"RDORangedDouble"
 //					else
 						"Double"
 
-			RDOBoolean : "Boolean"
-			RDOString : "String"
-			RDOArray : "java.util.ArrayList<" + type.arraytype.compileType + ">"
-			RDOEnum : type.getFullEnumName
+			RDOBoolean: "Boolean"
+			RDOString: "String"
+			RDOArray: "java.util.ArrayList<" + type.arraytype.compileType + ">"
+			RDOEnum: type.getFullEnumName
 
 			default: "Integer /* TYPE IS ACTUALLY UNKNOWN */"
 		}
@@ -647,12 +647,12 @@ class RDOExpressionCompiler
 
 			Constant: type.type.compileTypePrimitive
 
-			RDOInteger: "int"
-			RDOReal   : "double"
+			RDOInt: "int"
+			RDODouble: "double"
 			RDOBoolean: "boolean"
-			RDOString : "String"
-			RDOArray  : "java.util.ArrayList<" + type.arraytype.compileType + ">"
-			RDOEnum : type.getFullEnumName
+			RDOString: "String"
+			RDOArray: "java.util.ArrayList<" + type.arraytype.compileType + ">"
+			RDOEnum: type.getFullEnumName
 
 			default: "int /* TYPE IS ACTUALLY UNKNOWN */"
 		}
@@ -662,18 +662,18 @@ class RDOExpressionCompiler
 	{
 		switch type
 		{
-			ParameterTypeBasic : type.type
+			ParameterTypeBasic: type.type
 			ParameterTypeString: type.type
-			ParameterTypeArray : type.type.resolveAllArrays
+			ParameterTypeArray: type.type.resolveAllArrays
 
 			Constant: type.type.resolveAllTypes.resolveAllArrays
 
-			RDOInteger: type
-			RDOReal   : type
-			RDOBoolean: type
-			RDOString : type
-			RDOArray  : type.arraytype.resolveAllArrays
-			RDOEnum : type
+			RDOInt,
+			RDODouble,
+			RDOBoolean,
+			RDOString,
+			RDOEnum: type
+			RDOArray: type.arraytype.resolveAllArrays
 
 			default: null
 		}
@@ -683,17 +683,17 @@ class RDOExpressionCompiler
 	{
 		switch type
 		{
-			ParameterTypeBasic : type.type
+			ParameterTypeBasic: type.type
 			ParameterTypeString: type.type
-			ParameterTypeArray : type.type
+			ParameterTypeArray: type.type
 			Constant: type.type.resolveAllTypes
 
-			RDOInteger: type
-			RDOReal   : type
-			RDOBoolean: type
-			RDOString : type
-			RDOArray  : type
-			RDOEnum : type
+			RDOInt,
+			RDODouble,
+			RDOBoolean,
+			RDOString,
+			RDOArray,
+			RDOEnum: type
 
 			default: null
 		}

@@ -37,8 +37,8 @@ import ru.bmstu.rk9.rdo.rdo.Frame
 
 import ru.bmstu.rk9.rdo.rdo.Result
 
-import ru.bmstu.rk9.rdo.rdo.RDOInteger
-import ru.bmstu.rk9.rdo.rdo.RDOReal
+import ru.bmstu.rk9.rdo.rdo.RDOInt
+import ru.bmstu.rk9.rdo.rdo.RDODouble
 import ru.bmstu.rk9.rdo.rdo.RDOBoolean
 import ru.bmstu.rk9.rdo.rdo.RDOString
 import ru.bmstu.rk9.rdo.rdo.RDOArray
@@ -212,8 +212,8 @@ class RDONaming
 			ParameterTypeString: getTypeGenericLabel(type.type)
 			ParameterTypeArray : getTypeGenericLabel(type.type)
 
-			RDOInteger: " : " + type.type
-			RDOReal   : " : " + type.type
+			RDOInt: " : " + type.type
+			RDODouble   : " : " + type.type
 			RDOBoolean: " : " + type.type
 			RDOString : " : " + type.type
 			RDOArray  : " : array" + getTypeGenericLabel(type.arraytype)
