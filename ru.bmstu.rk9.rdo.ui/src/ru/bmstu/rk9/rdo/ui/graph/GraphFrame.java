@@ -178,7 +178,9 @@ public class GraphFrame extends JFrame {
 
 	boolean isFinished = false;
 
-	public GraphFrame(int dptNum) {
+	public GraphFrame(int dptNum, int width, int height) {
+
+		this.setSize(width, height);
 
 		ArrayList<Node> nodeList;
 

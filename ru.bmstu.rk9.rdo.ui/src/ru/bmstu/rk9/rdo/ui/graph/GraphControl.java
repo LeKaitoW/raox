@@ -32,10 +32,9 @@ public class GraphControl {
 		if (!GraphControl.openedGraphMap.containsValue(dptNum)) {
 			TreeBuilder treeBuilder = Simulator.getTreeBuilder();
 			treeBuilder.buildTree();
-			GraphFrame graphFrame = new GraphFrame(dptNum);
+			GraphFrame graphFrame = new GraphFrame(dptNum, 800, 600);
 			GraphControl.openedGraphMap.put(dptNum, graphFrame);
 			graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-			graphFrame.setSize(800, 600);
 			graphFrame.setTitle(frameName);
 			graphFrame.setLocationRelativeTo(null);
 			graphFrame.setVisible(true);
