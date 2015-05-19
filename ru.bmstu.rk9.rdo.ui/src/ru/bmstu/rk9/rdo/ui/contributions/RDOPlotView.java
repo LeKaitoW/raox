@@ -71,23 +71,34 @@ public class RDOPlotView extends ViewPart {
 		frame = new RDOChartComposite(parent, SWT.NONE);
 		FormLayout layout = new FormLayout();
 		parent.setLayout(layout);
-		Slider slider = new Slider(parent, SWT.NONE);
-		FormData sliderLayoutData = new FormData();
-		sliderLayoutData.left = new FormAttachment(0, 0);
-		sliderLayoutData.bottom = new FormAttachment(100, 0);
-		sliderLayoutData.right = new FormAttachment(100, 0);
-		slider.setLayoutData(sliderLayoutData);
+
+		Slider verticalSlider = new Slider(parent, SWT.VERTICAL);
+		FormData verticalSliderLayoutData = new FormData();
+
+		Slider horizontalSlider = new Slider(parent, SWT.HORIZONTAL);
+		FormData horizontalSliderLayoutData = new FormData();
+
+		horizontalSliderLayoutData.left = new FormAttachment(0, 0);
+		horizontalSliderLayoutData.bottom = new FormAttachment(100, 0);
+		horizontalSliderLayoutData.right = new FormAttachment(verticalSlider);
+		horizontalSlider.setLayoutData(horizontalSliderLayoutData);
+
+		verticalSliderLayoutData.right = new FormAttachment(100, 0);
+		verticalSliderLayoutData.bottom = new FormAttachment(horizontalSlider);
+		verticalSliderLayoutData.top = new FormAttachment(0, 0);
+		verticalSlider.setLayoutData(verticalSliderLayoutData);
 
 		FormData graphLayoutData = new FormData();
 		graphLayoutData.left = new FormAttachment(0, 0);
-		graphLayoutData.right = new FormAttachment(100, 0);
+		graphLayoutData.right = new FormAttachment(verticalSlider);
 		graphLayoutData.top = new FormAttachment(0, 0);
-		graphLayoutData.bottom = new FormAttachment(slider);
+		graphLayoutData.bottom = new FormAttachment(horizontalSlider);
 		frame.setLayoutData(graphLayoutData);
 
 		parent.layout(true);
-		slider.setEnabled(false);
-		frame.setSlider(slider);
+		horizontalSlider.setEnabled(false);
+		verticalSlider.setEnabled(false);
+		frame.setSliders(horizontalSlider, verticalSlider);
 
 		frame.addDisposeListener(new DisposeListener() {
 
@@ -128,6 +139,7 @@ public class RDOPlotView extends ViewPart {
 		plot.setRangeGridlinePaint(grey);
 		plot.getRenderer().setSeriesStroke(0, new BasicStroke((float) 2.5));
 
+		NumberAxis rangeAxis;
 		if (enumNames != null) {
 			String[] enumLabels = new String[enumNames.size()];
 			enumLabels = enumNames.toArray(enumLabels);
@@ -139,13 +151,13 @@ public class RDOPlotView extends ViewPart {
 					.getName();
 
 			final Font font = new Font(fontName, Font.PLAIN, 10);
-			final SymbolAxis rangeAxis = new SymbolAxis("", enumLabels);
+			rangeAxis = new SymbolAxis("", enumLabels);
 			rangeAxis.setAutoRangeIncludesZero(true);
 			plot.setRangeAxis(rangeAxis);
 			rangeAxis.setTickLabelFont(font);
 
 		} else {
-			final NumberAxis rangeAxis = new NumberAxis();
+			rangeAxis = new NumberAxis();
 			rangeAxis.setAutoRangeIncludesZero(true);
 			plot.setRangeAxis(rangeAxis);
 		}
@@ -154,8 +166,9 @@ public class RDOPlotView extends ViewPart {
 		domainAxis.setAutoRangeIncludesZero(true);
 		plot.setDomainAxis(domainAxis);
 
-		double sliderMaximum = domainAxis.getRange().getLength();
-		frame.setSliderMaximum(sliderMaximum);
+		double horizontalSliderMaximum = domainAxis.getRange().getLength();
+		double verticalSliderMaximum = rangeAxis.getRange().getLength();
+		frame.setSlidersMaximum(horizontalSliderMaximum, verticalSliderMaximum);
 
 		return chart;
 	}
@@ -164,7 +177,8 @@ public class RDOPlotView extends ViewPart {
 
 class RDOChartComposite extends ChartComposite implements KeyListener {
 
-	private Slider slider;
+	private Slider horizontalSlider;
+	private Slider verticalSlider;
 
 	public RDOChartComposite(Composite comp, int style) {
 		super(comp, style, null, ChartComposite.DEFAULT_WIDTH,
@@ -174,20 +188,49 @@ class RDOChartComposite extends ChartComposite implements KeyListener {
 		addSWTListener(this);
 	}
 
-	public void setSlider(Slider slider) {
-		this.slider = slider;
-		slider.setMinimum(0);
-		this.slider.addSelectionListener(new SelectionListener() {
+	public void setSliders(Slider horizontalSlider, Slider verticalSlider) {
+		this.horizontalSlider = horizontalSlider;
+		this.verticalSlider = verticalSlider;
+		horizontalSlider.setMinimum(0);
+		verticalSlider.setMinimum(0);
+
+		this.horizontalSlider.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				getChart().getXYPlot().getDomainAxis()
-						.setLowerBound(slider.getSelection());
+						.setLowerBound(horizontalSlider.getSelection());
 				getChart()
 						.getXYPlot()
 						.getDomainAxis()
 						.setUpperBound(
-								slider.getThumb() + slider.getSelection());
+								horizontalSlider.getThumb()
+										+ horizontalSlider.getSelection());
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+
+			}
+		});
+
+		this.verticalSlider.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				getChart()
+						.getXYPlot()
+						.getRangeAxis()
+						.setLowerBound(
+								(verticalSlider.getMaximum()
+										- verticalSlider.getSelection() - verticalSlider
+										.getThumb()) / 100.0);
+				getChart()
+						.getXYPlot()
+						.getRangeAxis()
+						.setUpperBound(
+								(verticalSlider.getMaximum() - verticalSlider
+										.getSelection()) / 100.0);
 			}
 
 			@Override
@@ -197,8 +240,21 @@ class RDOChartComposite extends ChartComposite implements KeyListener {
 		});
 	}
 
-	public void setSliderMaximum(double sliderMaximum) {
-		slider.setMaximum((int) sliderMaximum);
+	public void setSlidersMaximum(double horizontalSliderMaximum,
+			double verticalSliderMaximum) {
+		horizontalSlider.setMaximum((int) horizontalSliderMaximum);
+		verticalSlider.setMaximum((int) (verticalSliderMaximum * 100));
+
+		if (getChart() != null) {
+			XYPlot plot = getChart().getXYPlot();
+
+			verticalSlider.setEnabled(true);
+			verticalSlider.setThumb((int) Math
+					.round((plot.getRangeAxis().getUpperBound() - plot
+							.getRangeAxis().getLowerBound()) * 100));
+			verticalSlider.setSelection((int) Math.round(verticalSlider
+					.getMaximum() - plot.getRangeAxis().getUpperBound() * 100));
+		}
 	}
 
 	@Override
@@ -220,17 +276,33 @@ class RDOChartComposite extends ChartComposite implements KeyListener {
 		super.zoom(selection);
 
 		XYPlot plot = getChart().getXYPlot();
-		slider.setEnabled(true);
-		slider.setThumb((int) (plot.getDomainAxis().getUpperBound() - plot
-				.getDomainAxis().getLowerBound()));
-		slider.setSelection((int) (plot.getDomainAxis().getLowerBound()));
+
+		horizontalSlider.setEnabled(true);
+		horizontalSlider
+				.setThumb((int) (plot.getDomainAxis().getUpperBound() - plot
+						.getDomainAxis().getLowerBound()));
+		horizontalSlider.setSelection((int) (plot.getDomainAxis()
+				.getLowerBound()));
+
+		if (this.isRangeZoomable()) {
+			verticalSlider.setEnabled(true);
+			verticalSlider.setThumb((int) Math
+					.round((plot.getRangeAxis().getUpperBound() - plot
+							.getRangeAxis().getLowerBound()) * 100));
+			verticalSlider.setSelection((int) Math.round(verticalSlider
+					.getMaximum() - plot.getRangeAxis().getUpperBound() * 100));
+		}
+
 	}
 
 	@Override
 	public void restoreAutoBounds() {
 		super.restoreAutoBounds();
-		slider.setEnabled(false);
-		slider.setMaximum((int) getChart().getXYPlot().getDomainAxis()
-				.getRange().getLength());
+		horizontalSlider.setEnabled(false);
+		horizontalSlider.setMaximum((int) getChart().getXYPlot()
+				.getDomainAxis().getRange().getLength());
+		verticalSlider.setEnabled(false);
+		verticalSlider.setMaximum((int) (getChart().getXYPlot().getRangeAxis()
+				.getRange().getLength() * 100));
 	}
 }
