@@ -32,7 +32,7 @@ RDOEntity
 // ==========================================================
 ResourceType:
 	'type' name = ID '{'
-		(parameters += ParameterType (';')? )+
+		(parameters += ParameterType ';' )+
 	'}'
 ;
 
@@ -62,7 +62,7 @@ ParameterTypeArray:
 //                           Resources
 // ==========================================================
 Resources:
-	resource = ResourceCreateStatement (';')?
+	resource = ResourceCreateStatement ';'
 ;
 
 ResourceExpressionList:
@@ -90,7 +90,7 @@ Operation:
 		(parameters += ParameterType+ (
 			',' parameters += ParameterType+)* )? ')')? '{'
 		relevantresources += SelectableRelevantResource*
-		('relevantSet' combinational = PatternSelectMethod (';')?)?
+		('relevantSet' combinational = PatternSelectMethod ';')?
 		defaultMethods += DefaultMethod*
 	'}'
 ;
@@ -105,7 +105,7 @@ Rule:
 		(parameters += ParameterType+ (
 			',' parameters += ParameterType+)* )? ')')? '{'
 		relevantresources += SelectableRelevantResource*
-		('relevantSet' combinational = PatternSelectMethod (';')?)?
+		('relevantSet' combinational = PatternSelectMethod ';')?
 		defaultMethods += DefaultMethod*
 	'}'
 ;
@@ -114,7 +114,7 @@ SelectableRelevantResource:
 	'relevant' name = ID '=' type = [META_RelResType|FQN]
 	(haveselect ?= '.' 'select' '(' select = PatternSelectLogic ')'
 		(selectmethod = PatternSelectMethod)?
-	)? (';')?
+	)? ';'
 ;
 
 Event:
@@ -127,7 +127,7 @@ Event:
 ;
 
 EventRelevantResource:
-	'relevant' name = ID '=' type = [META_RelResType|FQN] (';')?
+	'relevant' name = ID '=' type = [META_RelResType|FQN] ';'
 ;
 
 PatternSelectLogic
@@ -160,7 +160,7 @@ DecisionPointSome:
 		('set' 'init' '(' ')' '{'
 			(initStatements += DptStatements ';')*
 		'}')?
-		( activities += DecisionPointActivity (';')?)+
+		( activities += DecisionPointActivity ';')+
 	'}'
 ;
 
@@ -182,7 +182,7 @@ DecisionPointSearch:
 		'set' 'init' '(' ')' '{'
 			(initStatements += DptSearchStatemets ';')*
 		'}'
-		( activities += DecisionPointSearchActivity (';')?)+
+		( activities += DecisionPointSearchActivity ';')+
 	'}'
 ;
 
@@ -235,7 +235,7 @@ DptCompareTopsStatement:
 //                           Sequences
 // ==========================================================
 Sequence:
-	'sequence' name = ID '=' returntype = RDOType type = SequenceType (';')?
+	'sequence' name = ID '=' returntype = RDOType type = SequenceType
 ;
 
 SequenceType
@@ -268,26 +268,26 @@ RegularSequence
 UniformSequence:
 	legacy ?= 'legacy'? type = 'uniform' '('
 			seed = INT (',' a = ExpressionOr ',' b = ExpressionOr)?
-	')'
+	')' ';'
 ;
 
 ExponentialSequence:
 	legacy ?= 'legacy'? type = 'exponential' '('
 			seed = INT (',' rate = ExpressionOr)?
-	')'
+	')' ';'
 ;
 
 NormalSequence:
 	legacy ?= 'legacy'? type = 'normal' '('
 			seed = INT (',' mean = ExpressionOr ',' deviation = ExpressionOr)?
-	')'
+	')' ';'
 ;
 
 TriangularSequence:
 	legacy ?= 'legacy'? type = 'triangular' '('
 			seed = INT (',' a = ExpressionOr ','
 				b = ExpressionOr ',' c = ExpressionOr)?
-	')'
+	')' ';'
 ;
 
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -297,7 +297,7 @@ TriangularSequence:
 //                          Constants
 // ==========================================================
 Constant:
-	'constant' type = RDOType name = ID '=' value = ExpressionOr (';')?
+	'constant' type = RDOType name = ID '=' value = ExpressionOr ';'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -356,7 +356,7 @@ FunctionListValue:
 //                           Results
 // ==========================================================
 Result:
-	'result' name = ID '=' type = ResultType (';')?
+	'result' name = ID '=' type = ResultType ';'
 ;
 
 ResultType
