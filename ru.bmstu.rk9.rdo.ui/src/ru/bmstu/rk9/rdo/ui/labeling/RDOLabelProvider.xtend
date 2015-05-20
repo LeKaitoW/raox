@@ -42,8 +42,7 @@ import ru.bmstu.rk9.rdo.rdo.ResultWatchState
 import ru.bmstu.rk9.rdo.rdo.ResultWatchQuant
 import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
 import ru.bmstu.rk9.rdo.rdo.ResultGetValue
-import ru.bmstu.rk9.rdo.rdo.OnInit
-import ru.bmstu.rk9.rdo.rdo.TerminateCondition
+import ru.bmstu.rk9.rdo.rdo.DefaultMethod
 
 class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider {
 
@@ -55,6 +54,10 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	// Model
 	def image(RDOModel m) { "model.gif" }
 
+	//Default methods
+	def text(DefaultMethod dm) { "set : " + dm.method.name }
+	def image(DefaultMethod dm) { "run.gif" }
+
 	// Resource types
 	def  text(ResourceType rtp) { "RTP : " + rtp.name }
 	def image(ResourceType rtp) { "puzzle_plus.gif" }
@@ -63,13 +66,9 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def  text(ParameterType p) { p.name + p.typeGenericLabel }
 	def image(ParameterType p) { "parameter.gif" }
 
-	// Resources
-	def  text(Resources rss) {"RSS : objects"}
-	def image(Resources rss) { "puzzle.gif" }
-
-		// Resource declaration
-		def  text(ResourceCreateStatement rss) { "rss : " + rss.name }
-		def image(ResourceCreateStatement rss) { "plus.gif" }
+	// Resource declaration
+	def  text(Resources rss) { "rss : " + rss.resource.name }
+	def image(Resources rss) { "plus.gif" }
 
 	// Constants
 	def image(Constant c) { "constant2.gif" }
@@ -133,20 +132,12 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def  text(Result d) { d.name + " : " + resultype(d)}
 	def resultype(Result declaration) {
 		switch declaration.type {
-			ResultWatchParameter: "watch_par"
-			ResultWatchState    : "watch_state"
-			ResultWatchQuant    : "watch_quant"
-			ResultWatchValue    : "watch_value"
-			ResultGetValue      : "get_value"
+			ResultWatchParameter: "watchPar"
+			ResultWatchState    : "watchState"
+			ResultWatchQuant    : "watchQuant"
+			ResultWatchValue    : "watchValue"
+			ResultGetValue      : "getValue"
 		}
 	}
 	def image(Result d) { "parameter.gif" }
-
-	// OnInit
-	def  text(OnInit onInit) { "OnInit : Model initialization" }
-	def image(OnInit onInit) { "run.gif" }
-
-	// TerminateCondition
-	def  text(TerminateCondition term) { "Term : TerminateCondition" }
-	def image(TerminateCondition term) { "run.gif" }
 }
