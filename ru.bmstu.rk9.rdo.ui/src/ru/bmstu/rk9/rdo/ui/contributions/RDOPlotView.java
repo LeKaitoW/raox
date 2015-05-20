@@ -97,7 +97,9 @@ public class RDOPlotView extends ViewPart {
 
 		parent.layout(true);
 		horizontalSlider.setEnabled(false);
+		horizontalSlider.setVisible(false);
 		verticalSlider.setEnabled(false);
+		verticalSlider.setVisible(false);
 		frame.setSliders(horizontalSlider, verticalSlider);
 
 		frame.addDisposeListener(new DisposeListener() {
@@ -248,6 +250,7 @@ class RDOChartComposite extends ChartComposite implements KeyListener {
 		if (getChart() != null) {
 			XYPlot plot = getChart().getXYPlot();
 
+			verticalSlider.setVisible(true);
 			verticalSlider.setEnabled(true);
 			verticalSlider.setThumb((int) Math
 					.round((plot.getRangeAxis().getUpperBound() - plot
@@ -277,6 +280,7 @@ class RDOChartComposite extends ChartComposite implements KeyListener {
 
 		XYPlot plot = getChart().getXYPlot();
 
+		horizontalSlider.setVisible(true);
 		horizontalSlider.setEnabled(true);
 		horizontalSlider
 				.setThumb((int) (plot.getDomainAxis().getUpperBound() - plot
@@ -285,6 +289,7 @@ class RDOChartComposite extends ChartComposite implements KeyListener {
 				.getLowerBound()));
 
 		if (this.isRangeZoomable()) {
+			verticalSlider.setVisible(true);
 			verticalSlider.setEnabled(true);
 			verticalSlider.setThumb((int) Math
 					.round((plot.getRangeAxis().getUpperBound() - plot
@@ -299,9 +304,11 @@ class RDOChartComposite extends ChartComposite implements KeyListener {
 	public void restoreAutoBounds() {
 		super.restoreAutoBounds();
 		horizontalSlider.setEnabled(false);
+		horizontalSlider.setVisible(false);
 		horizontalSlider.setMaximum((int) getChart().getXYPlot()
 				.getDomainAxis().getRange().getLength());
 		verticalSlider.setEnabled(false);
+		verticalSlider.setVisible(false);
 		verticalSlider.setMaximum((int) (getChart().getXYPlot().getRangeAxis()
 				.getRange().getLength() * 100));
 	}
