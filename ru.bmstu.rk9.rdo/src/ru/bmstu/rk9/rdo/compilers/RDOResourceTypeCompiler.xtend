@@ -272,12 +272,12 @@ class RDOResourceTypeCompiler
 
 			if(type == "Integer")
 			{
-				ctype = "integer"
+				ctype = "int"
 				offset = offset + basicSizes.INT
 			}
 			if(type == "Double")
 			{
-				ctype = "real"
+				ctype = "double"
 				offset = offset + basicSizes.DOUBLE
 			}
 			if(type == "Boolean")
@@ -315,7 +315,7 @@ class RDOResourceTypeCompiler
 			if(type == "String")
 			{
 				ischunk = true
-				ctype = "string"
+				ctype = "String"
 				chunkindex = chunkindex + 1
 			}
 
@@ -575,7 +575,7 @@ class RDOResourceTypeCompiler
 		return depth
 	}
 
-	def static String getArrayType(ParameterType parameter)
+	def private static String getArrayType(ParameterType parameter)
 	{
 		var EObject type = parameter
 

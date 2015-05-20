@@ -264,29 +264,29 @@ class RDOModelCompiler
 		{
 			ResultWatchParameter:
 				'''
-				.put("type", "watch_par")
+				.put("type", "watchPar")
 				.put("value_type", "«type.parameter.compileExpression.type.backToRDOType»")
 				'''
 			ResultWatchState:
 				'''
-				.put("type", "watch_state")
+				.put("type", "watchState")
 				.put("value_type", "boolean")
 				'''
 			ResultWatchQuant:
 				'''
-				.put("type", "watch_quant")
-				.put("value_type", "integer")
+				.put("type", "watchQuant")
+				.put("value_type", "int")
 				'''
 			ResultWatchValue:
 				'''
-				.put("type", "watch_value")
+				.put("type", "watchValue")
 				.put("value_type", "«type.expression.compileExpressionContext(
 					(new LocalContext).populateWithResourceRename(
 						type.resource, "whatever")).type.backToRDOType»")
 				'''
 			ResultGetValue:
 				'''
-				.put("type", "get_value")
+				.put("type", "getValue")
 				.put("value_type", "«type.expression.compileExpression.type.backToRDOType»")
 				'''
 		}

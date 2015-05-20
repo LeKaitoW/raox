@@ -2,11 +2,6 @@ package ru.bmstu.rk9.rdo.compilers
 
 class Util
 {
-	def static withFirstUpper(String s)
-	{
-		return Character.toUpperCase(s.charAt(0)) + s.substring(1)
-	}
-
 	def static String getTypeConstantSize(String type)
 	{
 		if(type == "Integer")
@@ -31,10 +26,9 @@ class Util
 
 		switch(type)
 		{
-			case "String": "string"
-			case "Integer": "integer"
-			case "Boolean": "boolean"
-			case "Double": "real"
+			case "Integer",
+			case "Boolean",
+			case "Double": toSimpleType(type)
 			default: type
 		}
 	}

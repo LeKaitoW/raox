@@ -30,7 +30,7 @@ public class LocalContext {
 		}
 	}
 
-	private HashMap<String, ContextEntry> index;
+	HashMap<String, ContextEntry> index;
 
 	public LocalContext addRawEntry(String name, String type, String generated) {
 		index.put(name, new ContextEntry(generated, type));
@@ -186,5 +186,11 @@ public class LocalContext {
 		}
 
 		return this;
+	}
+
+	public void addCreatedResource(ResourceCreateStatement st) {
+		for (ParameterType p : st.getReference().getParameters())
+			this.addRawEntry(st.getName() + "." + p.getName(), RDOExpressionCompiler.compileType(p),
+					st.getName() + ".get_" + p.getName() + "()");
 	}
 }

@@ -51,6 +51,7 @@ import ru.bmstu.rk9.rdo.rdo.OnInit
 import ru.bmstu.rk9.rdo.rdo.TerminateCondition
 import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
 import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
+import ru.bmstu.rk9.rdo.rdo.Resources
 
 class RDOGenerator implements IMultipleResourceGenerator
 {
@@ -139,7 +140,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 		{
 			val info = variableIndex.get(r.resourceName)
 
-			for(rss : r.allContents.filter(typeof(ResourceCreateStatement)).toIterable)
+			for(rss : r.allContents.filter(typeof(ResourceCreateStatement))
+					.filter(res | res.eContainer instanceof Resources).toIterable
+			)
 				info.resources.put(rss.name, info.newRSS(rss))
 
 			for(seq : r.allContents.filter(typeof(Sequence)).toIterable)

@@ -1,9 +1,7 @@
 package ru.bmstu.rk9.rdo.compilers
 
 import static extension ru.bmstu.rk9.rdo.compilers.Util.*
-
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
-
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 
 import ru.bmstu.rk9.rdo.generator.LocalContext

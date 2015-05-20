@@ -287,6 +287,7 @@ class SerializationConfigurator {
 		Iterables.addAll(categoryList, iterable);
 
 		for (T c : categoryList) {
+			//TODO correctly handle nameless resources
 			SerializationNode child = category.addChild(RDONaming
 					.getFullyQualifiedName(c));
 			if (c instanceof Pattern) {

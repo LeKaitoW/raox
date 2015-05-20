@@ -214,18 +214,23 @@ class RDOStatementCompiler
 				);
 				'''
 
-			ResourceCreateStatement:
-				'''
-				«IF st.name != null»
-					«st.reference.fullyQualifiedName» «st.name» = new «
-						st.reference.fullyQualifiedName»(«if(st.parameters != null)
-							st.parameters.compileExpression.value else ""»);
-					«st.name».register("«st.fullyQualifiedName»");
-				«ELSE»
-					new «st.reference.fullyQualifiedName»(«if(st.parameters != null)
-							st.parameters.compileExpression.value else ""»).register();
-				«ENDIF»
-				'''
+			ResourceCreateStatement: {
+				if (localContext != null)
+					localContext.addCreatedResource(st)
+
+				return
+					'''
+					«IF st.name != null»
+						«st.reference.fullyQualifiedName» «st.name» = new «
+							st.reference.fullyQualifiedName»(«if(st.parameters != null)
+								st.parameters.compileExpression.value else ""»);
+						«st.name».register();
+					«ELSE»
+						new «st.reference.fullyQualifiedName»(«if(st.parameters != null)
+								st.parameters.compileExpression.value else ""»).register();
+					«ENDIF»
+					'''
+			}
 
 			ResourceEraseStatement:
 				'''
@@ -307,10 +312,5 @@ class RDOStatementCompiler
 	{
 		'''new int[] {«colour.r», «colour.g
 			», «colour.b», «255 - colour.alpha»}'''
-	}
-
-	def static String cutLastChars(String s, int c)
-	{
-		return s.substring(0, s.length - c)
 	}
 }

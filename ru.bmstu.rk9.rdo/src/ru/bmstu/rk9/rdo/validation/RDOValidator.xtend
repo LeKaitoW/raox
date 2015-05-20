@@ -315,7 +315,10 @@ class RDOValidator extends AbstractRDOValidator
 			for(e : checklist)
 			{
 				val name = e.fullyQualifiedName
-				if(name != "ERROR.null" && duplicates.contains(name))
+				val hasNoName = (name.contains(".")
+					&& name.substring(name.lastIndexOf(".") +1 ) == "null"
+				)
+				if(!hasNoName && duplicates.contains(name))
 					error("Error - multiple declarations of object '" + name + "'.", e,
 						e.getNameStructuralFeature)
 			}

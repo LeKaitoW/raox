@@ -18,8 +18,8 @@ public class ModelStructureCache {
 	}
 
 	enum ValueType {
-		INTEGER("integer"), REAL("real"), BOOLEAN("boolean"), ENUM("enum"), STRING(
-				"string");
+		INTEGER("int"), REAL("double"), BOOLEAN("boolean"), ENUM("enum"), STRING(
+				"String");
 
 		private final String type;
 

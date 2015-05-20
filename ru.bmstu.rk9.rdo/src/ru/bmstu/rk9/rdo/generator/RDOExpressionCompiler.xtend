@@ -3,7 +3,6 @@ package ru.bmstu.rk9.rdo.generator
 import org.eclipse.emf.ecore.EObject
 
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
-import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
 
 import ru.bmstu.rk9.rdo.rdo.RDODefaultParameter
@@ -229,6 +228,7 @@ class RDOExpressionCompiler
 				}
 
 				var gcall = expr.lookupGlobal
+
 				if(gcall != null)
 					return new RDOExpression(gcall.generated, gcall.type)
 
@@ -372,7 +372,6 @@ class RDOExpressionCompiler
 
 			ExpressionAssignment:
 			{
-
 				val left = expr.left.compileExpression
 				val next = expr.next.compileExpression
 
@@ -385,7 +384,7 @@ class RDOExpressionCompiler
 					if(left.value.contains(".get_") && left.value.endsWith("()"))
 					{
 						var op = (if(idex.op.length > 1) idex.op.substring(0, 1) else null)
-						return new RDOExpression(RDOStatementCompiler.cutLastChars(left.value, 2).replace(".get_", ".set_") + "("
+						return new RDOExpression(cutLastChars(left.value, 2).replace(".get_", ".set_") + "("
 							+ (if(op != null) left.value + " " + op + " " else "") + next.value + ")", left.type)
 					}
 				}
@@ -710,5 +709,10 @@ class RDOExpressionCompiler
 			flag = true
 		}
 		return list
+	}
+
+	def static String cutLastChars(String s, int c)
+	{
+		return s.substring(0, s.length - c)
 	}
 }
