@@ -24,12 +24,12 @@
 <pre><code class="rao">enum OperatorState {FREE, BUSY}
 
 type TechSupport {
-    OperatorState operatorState
-    int queueLength
-    int peopleServed
+    OperatorState operatorState;
+    int queueLength;
+    int peopleServed;
 }
 
-resource techSupport = TechSupport.create(OperatorState.FREE, 0, 0)
+resource techSupport = TechSupport.create(OperatorState.FREE, 0, 0);
 
 event newCall {
     set execute() {
@@ -40,7 +40,7 @@ event newCall {
 
 operation callProcessingPattern {
     relevant _techSupport = techSupport.select(_techSupport.queueLength > 0
-            and _techSupport.operatorState == OperatorState.FREE)
+            and _techSupport.operatorState == OperatorState.FREE);
     set duration() {
         return callProcessingTime.next();
     }
@@ -55,7 +55,7 @@ operation callProcessingPattern {
 }
 
 dpt model {
-    activity callProcessing checks callProcessingPattern()
+    activity callProcessing checks callProcessingPattern();
 }
 
 set init() {
@@ -66,11 +66,11 @@ set terminateCondition() {
     return currentTime >= 480;
 }
 
-sequence newCallInterval = double exponential(123456789, 1/30.0)
-sequence callProcessingTime = double uniform(123456789, 20, 40)
+sequence newCallInterval = double exponential(123456789, 1/30.0);
+sequence callProcessingTime = double uniform(123456789, 20, 40);
 
-result totalPeopleServed = getValue(techSupport.peopleServed)
-result queueLengthStatistics = watchParameter(techSupport.queueLength)</code></pre>
+result totalPeopleServed = getValue(techSupport.peopleServed);
+result queueLengthStatistics = watchParameter(techSupport.queueLength);</code></pre>
 <h3>Описание ресурсов</h3>
 <p>Данная модель так же будет иметь единственный ресурс - службу технической поддержки. Однако параметрами ресурса теперь будет длина очереди, состояние оператора (свободен или занят), а также общее число успешно обслуженных заявок. Для объявления перечислимых значений используется ключевое слово <code>enum</code>.</p>
 <pre><code class="rao">enum OperatorState {FREE, BUSY}
@@ -81,10 +81,10 @@ type TechSupport {
     int peopleServed;
 }
 
-resource techSupport = TechSupport.create(OperatorState.FREE, 0, 0)</code></pre>
+resource techSupport = TechSupport.create(OperatorState.FREE, 0, 0);</code></pre>
 <h3>Описание последовательностей</h3>
 <p>Равномерное распределение (uniform) задается аналогично тому, как задавалось экспоненциальное в прошлой модели.</p>
-<pre><code class="rao">sequence callProcessingTime = double uniform(123456789, 20, 40)</code></pre>
+<pre><code class="rao">sequence callProcessingTime = double uniform(123456789, 20, 40);</code></pre>
 <h3>Описание действий</h3>
 <p>Процесс обслуживание оператором заявки описывается с помощью действий (операций). Описание операций производится с помощью ключевого слова <code>operation</code>.</p>
 <pre><code class="rao">operation callProcessingPattern {
@@ -109,12 +109,12 @@ resource techSupport = TechSupport.create(OperatorState.FREE, 0, 0)</code></pre>
     and _techSupport.operatorState == OperatorState.FREE)</code></pre>
 <p>Операции в языке РДО не являются самостоятельными сущностями. Это лишь заготовки, которые должны быть реализованы активностями. Активности проверяются на возможность выполнения каждый раз, когда меняется состояние модели (см. подход сканирования активностей). Список активностей и порядок их сканирования задаются с помощью ключевого слова <code>dpt</code> (decision point).</p>
 <pre><code class="rao">dpt model {
-    activity callProcessing checks callProcessingPattern()
+    activity callProcessing checks callProcessingPattern();
 }</code></pre>
 <p>Связь активности и операции, которую она реализует, задается с помощью ключевого слова <code>checks</code>.</p>
 <h3>Описание собираемых показателей</h3>
 <p>Общее количество обслуженных заявок можно получить, используя описанный ранее результат типа <code>getValue</code>. Для сбора подробной статистики по длине очереди следует использовать результат типа <code>watchParameter</code>.</p>
-<pre><code class="rao">result totalPeopleServed = getValue(techSupport.peopleServed)
+<pre><code class="rao">result totalPeopleServed = getValue(techSupport.peopleServed);
 result queueLengthStatistics = watchParameter(techSupport.queueLength)</code></pre>
 <h3>Результаты моделирования</h3>
 <pre><code class="rao">simple.totalPeopleServed: get_value

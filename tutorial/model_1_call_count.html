@@ -25,7 +25,7 @@
     int callCount;
 }
 
-resource techSupport = TechSupport.create(0)
+resource techSupport = TechSupport.create(0);
 
 event newCall {
     set execute() {
@@ -42,20 +42,20 @@ set terminateCondition() {
     return currentTime >= 480;
 }
 
-sequence newCallInterval is double exponential(123456789, 1/30.0)
+sequence newCallInterval is double exponential(123456789, 1/30.0);
 
-result totalCallCount is getValue(techSupport.callCount)
+result totalCallCount is getValue(techSupport.callCount);
 </code></pre>
 <h3>Описание ресурсов</h3>
-<p>База данных модели будет представлена единственным ресурсом - службой технической поддержки. Для него в простейшей модели необходимо задать только один параметр: число поступивших заявок. Определение нового типа ресурса осуществляется с помощью ключевого слова <code>type</code>. После чего следует список параметров ресурса. При этом разделять параметры точками с запятыми не обязательно.</p>
+<p>База данных модели будет представлена единственным ресурсом - службой технической поддержки. Для него в простейшей модели необходимо задать только один параметр: число поступивших заявок. Определение нового типа ресурса осуществляется с помощью ключевого слова <code>type</code>. После чего следует список параметров ресурса. Параметры разделяются точками с запятыми.</p>
 <pre><code class="rao">type TechSupport {
     int callCount;
 }</code></pre>
 <p>Создание нового ресурса производится с помощью ключевого слова <code>resource</code> и вызова метода <code>create()</code> у желаемого типа. В метод <code>create()</code> передаются начальные значения параметров ресурса.</p>
-<pre><code class="rao">resource techSupport = TechSupport.create(0)</pre></code>
+<pre><code class="rao">resource techSupport = TechSupport.create(0);</pre></code>
 <h3>Описание последовательностей</h3>
 <p>Для модели задано одно случайное распределение: для описания интервала между двумя последовательными звонками. Последовательности описываются в РДО с помощью ключевого слова <code>sequence</code>.</p>
-<pre><code class="rao">sequence newCallInterval = double exponential(123456789, 1/30.0)</code></pre>
+<pre><code class="rao">sequence newCallInterval = double exponential(123456789, 1/30.0);</code></pre>
 <p>Для создания последовательности необходимо задать тип ее возвращаемого значения, тип последовательности (здесь <code>exponential</code>) и задать в качестве параметров начальное значение базы генератора и параметры закона (в данном случае &#955;).</p>
 <h3>Описание событий</h3>
 <p>Для описания логики функционирования модели необходимо определить случайные события (поступление нового звонка), происходящие в системе.</p>
@@ -84,7 +84,7 @@ result totalCallCount is getValue(techSupport.callCount)
 }</code></pre>
 <h3>Описание собираемых показателей</h3>
 <p>Простейшим примером собираемого показателя будет получение общего количества звонков в конце моделирования. Результаты моделирования описываются с помощью ключевого слова <code>result</code>. Для получения значения в конце моделирования используется результат типа <code>getValue</code>.</p>
-<pre><code class="rao">result totalCallCount is getValue(techSupport.callCount)</code></pre>
+<pre><code class="rao">result totalCallCount = getValue(techSupport.callCount);</code></pre>
 <h3>Результаты моделирования</h3>
 <p>Собранные показатели отображаются в окне результатов. Для данной модели можно увидеть, что за рабочий день в службу технической поддержки поступило 17 звонков.</p>
 <pre><code class="rao">simple.totalCallCount: get_value
