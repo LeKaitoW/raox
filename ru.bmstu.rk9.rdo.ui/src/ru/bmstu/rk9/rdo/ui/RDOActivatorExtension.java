@@ -1,38 +1,30 @@
 package ru.bmstu.rk9.rdo.ui;
 
-import org.osgi.framework.BundleContext;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.osgi.framework.BundleContext;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IExecutionListener;
 import org.eclipse.core.commands.NotHandledException;
-
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-
 import org.eclipse.swt.SWT;
-
 import org.eclipse.jface.dialogs.MessageDialog;
-
 import org.eclipse.swt.widgets.Display;
-
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchListener;
 import org.eclipse.ui.PlatformUI;
-
 import org.eclipse.ui.commands.ICommandService;
-
 import org.eclipse.ui.services.ISourceProviderService;
 
 import ru.bmstu.rk9.rdo.ui.internal.RDOActivator;
-
+import ru.bmstu.rk9.rdo.ui.contributions.RDOPlotView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSpeedSelectionToolbar;
-
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView;
-
 import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
-
 import ru.bmstu.rk9.rdo.ui.runtime.ModelExecutionSourceProvider;
 import ru.bmstu.rk9.rdo.ui.runtime.SetSimulationScaleHandler;
 
@@ -89,7 +81,7 @@ public class RDOActivatorExtension extends RDOActivator {
 						.getSourceProvider(ModelExecutionSourceProvider.ModelExecutionKey);
 
 				final int[] result = new int[1];
-
+				result[0] = 0;
 				if (sourceProvider.getCurrentState().get(
 						ModelExecutionSourceProvider.ModelExecutionKey) == ModelExecutionSourceProvider.running) {
 					workbench.getDisplay().syncExec(new Runnable() {
@@ -98,9 +90,28 @@ public class RDOActivatorExtension extends RDOActivator {
 							result[0] = closeDialog.open();
 						}
 					});
-					return result[0] == 0 ? true : false;
 				}
-				return true;
+				if (result[0] == 0) {
+					List<Integer> secondaryIDList = new ArrayList<Integer>(
+							RDOPlotView.getOpenedPlotMap().values());
+					for (int secondaryID : secondaryIDList) {
+						RDOPlotView oldView = (RDOPlotView) PlatformUI
+								.getWorkbench()
+								.getActiveWorkbenchWindow()
+								.getActivePage()
+								.findViewReference(RDOPlotView.ID,
+										String.valueOf(secondaryID))
+								.getView(false);
+						if (oldView != null) {
+							PlatformUI.getWorkbench()
+													.getActiveWorkbenchWindow()
+													.getActivePage()
+													.hideView(oldView);
+						}
+
+					}
+				}
+				return result[0] == 0 ? true : false;
 			}
 
 			@Override
