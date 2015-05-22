@@ -27,15 +27,13 @@
 
 resource techSupport = TechSupport.create(0);
 
-event newCall {
-    set execute() {
-        techSupport.callCount++;
-        newCall.planning(currentTime + newCallInterval.next());
-    }
+event newCall() {
+    techSupport.callCount++;
+    newCall.plan(currentTime + newCallInterval.next());
 }
 
 set init() {
-    newCall.planning(currentTime + newCallInterval.next());
+    newCall.plan(currentTime + newCallInterval.next());
 }
 
 set terminateCondition() {
@@ -60,23 +58,19 @@ result totalCallCount is getValue(techSupport.callCount);
 <h3>Описание событий</h3>
 <p>Для описания логики функционирования модели необходимо определить случайные события (поступление нового звонка), происходящие в системе.</p>
 <p>События описываются с помощью ключевого слова <code>event</code>.</p>
-<pre><code class="rao">event newCall {
-    set execute() {
-        techSupport.callCount++;
-    }
+<pre><code class="rao">event newCall() {
+    techSupport.callCount++;
 }</code></pre>
-<p>С каждым событием связан метод <code>execute()</code>, который необходимо переопределить с помощью ключевого слова <code>set</code>. В теле метода <code>execute()</code> описываются действия, которые выполняются при совершении данного события. В данной модели во время поступления нового звонка счетчик увеличивается на единицу.</p>
+<p>Событию могут быть переданы параметры, но в данном случае их нет и потому скобки после имени пустые. В теле события описываются действия, которые выполняются при его наступлении. В данной модели во время поступления нового звонка счетчик увеличивается на единицу.</p>
 <h3>Инициализация модели</h3>
 <p>Для того, чтобы модель смогла функционировать, необходимо периодически планировать событие поступления нового звонка. Чтобы модель смогла начать работу, первый раз событие должно быть запланировано до начала прогона модели. Действия, которые необходимо произвести до начала прогона, описываются в глобальном методе <code>init()</code> модели, который так же можно переопределить с помощью ключевого слова <code>set</code>.</p>
 <pre><code class="rao">set init() {
-    newCall.planning(currentTime + newCallInterval.next());
+    newCall.plan(currentTime + newCallInterval.next());
 }</code></pre>
-<p>Планирование событий выполняется с помощью метода <code>planning(double time)</code>, которому в качестве параметра передается момент времени, в который должно быть выполнено событие. Глобальный параметр <code>currentTime</code> позволяет получить текущее модельное время. Для получения интервала по случайному распределению, вызывается метод <code>next()</code> (получить следующее значение) описанной ранее последовательности <code>newCallInterval</code>. Метод <code>planning()</code> планирует событие только один раз, поэтому для моделирования постоянного прихода звонков его также необходимо вызывать в теле метода <code>execute()</code> описанного события.</p>
-<pre><code class="rao">event newCall {
-    set execute() {
-        techSupport.callCount++;
-        newCall.planning(currentTime + newCallInterval.next());
-    }
+<p>Планирование событий выполняется с помощью метода <code>plan(double time)</code>, которому в качестве параметра передается момент времени, в который должно быть выполнено событие. Глобальный параметр <code>currentTime</code> позволяет получить текущее модельное время. Для получения интервала по случайному распределению, вызывается метод <code>next()</code> (получить следующее значение) описанной ранее последовательности <code>newCallInterval</code>. Метод <code>plan()</code> планирует событие только один раз, поэтому для моделирования постоянного прихода звонков его также необходимо вызывать в его теле.</p>
+<pre><code class="rao">event newCall() {
+    techSupport.callCount++;
+    newCall.plan(currentTime + newCallInterval.next());
 }</code></pre>
 <p>Условие завершение модели задается в методе <code>terminateCondition()</code>.</p>
 <pre><code class="rao">set terminateCondition() {
