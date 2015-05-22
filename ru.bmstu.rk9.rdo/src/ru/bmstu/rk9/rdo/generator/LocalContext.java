@@ -11,9 +11,8 @@ import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic;
 import ru.bmstu.rk9.rdo.rdo.FunctionList;
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter;
 import ru.bmstu.rk9.rdo.rdo.Event;
-import ru.bmstu.rk9.rdo.rdo.EventRelevantResource;
 import ru.bmstu.rk9.rdo.rdo.Operation;
-import ru.bmstu.rk9.rdo.rdo.SelectableRelevantResource;
+import ru.bmstu.rk9.rdo.rdo.RelevantResource;
 import ru.bmstu.rk9.rdo.rdo.Rule;
 import ru.bmstu.rk9.rdo.rdo.GroupBy;
 import ru.bmstu.rk9.rdo.rdo.EnumID;
@@ -127,20 +126,6 @@ public class LocalContext {
 			this.addRawEntry(p.getName(), RDOExpressionCompiler.compileType(p),
 					"parameters." + p.getName());
 
-		for (EventRelevantResource relres : evn.getRelevantresources()) {
-			ResourceType type;
-			if (relres.getType() instanceof ResourceType)
-				type = ((ResourceType) relres.getType());
-			else
-				type = ((ResourceCreateStatement) relres.getType()).getReference();
-
-			for (ParameterType p : type.getParameters())
-				this.addRawEntry(relres.getName() + "." + p.getName(),
-						RDOExpressionCompiler.compileType(p), "resources."
-								+ relres.getName() + ".get_" + p.getName()
-								+ "()");
-		}
-
 		return this;
 	}
 
@@ -149,7 +134,7 @@ public class LocalContext {
 			this.addRawEntry(p.getName(), RDOExpressionCompiler.compileType(p),
 					"parameters." + p.getName());
 
-		for (SelectableRelevantResource relres : rule.getRelevantresources()) {
+		for (RelevantResource relres : rule.getRelevantresources()) {
 			ResourceType type;
 			if (relres.getType() instanceof ResourceType)
 				type = ((ResourceType) relres.getType());
@@ -171,7 +156,7 @@ public class LocalContext {
 			this.addRawEntry(p.getName(), RDOExpressionCompiler.compileType(p),
 					"parameters." + p.getName());
 
-		for (SelectableRelevantResource relres : op.getRelevantresources()) {
+		for (RelevantResource relres : op.getRelevantresources()) {
 			ResourceType type;
 			if (relres.getType() instanceof ResourceType)
 				type = ((ResourceType) relres.getType());

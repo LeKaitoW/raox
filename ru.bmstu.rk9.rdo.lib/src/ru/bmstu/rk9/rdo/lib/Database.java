@@ -372,7 +372,7 @@ public class Database {
 		index.entries.add(allEntries.size() - 1);
 	}
 
-	public void addEventEntry(PatternType type, Pattern pattern) {
+	public void addOperationEndEntry(Pattern pattern) {
 		String name = pattern.getName();
 		if (!sensitivityList.contains(name))
 			return;
@@ -382,39 +382,53 @@ public class Database {
 		PatternPoolEntry poolEntry = null;
 		Index dptIndex = null;
 
-		if (type == PatternType.OPERATION_END) {
-			poolEntry = patternPool.remove(pattern);
-			if (poolEntry == null)
-				return;
-			CollectedDataNode dptNode = indexHelper
-					.getDecisionPoint(poolEntry.dpt.getName());
-			dptIndex = (Index) dptNode.getIndex();
-			index = (PatternIndex) dptNode.getChildren()
-					.get(poolEntry.activity.getName()).getIndex();
-		} else {
-			if (!sensitivityList.contains(name))
-				return;
-			index = (PatternIndex) indexHelper.getPattern(name).getIndex();
-		}
+		poolEntry = patternPool.remove(pattern);
+		if (poolEntry == null)
+			return;
+		CollectedDataNode dptNode = indexHelper.getDecisionPoint(poolEntry.dpt
+				.getName());
+		dptIndex = (Index) dptNode.getIndex();
+		index = (PatternIndex) dptNode.getChildren()
+				.get(poolEntry.activity.getName()).getIndex();
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
 		header.put((byte) EntryType.PATTERN.ordinal())
-				.putDouble(Simulator.getTime()).put((byte) type.ordinal());
+				.putDouble(Simulator.getTime())
+				.put((byte) PatternType.OPERATION_END.ordinal());
 
 		int[] relevantResources = pattern.getRelevantInfo();
 
-		ByteBuffer data = ByteBuffer
-				.allocate(TypeSize.INTEGER
-						* (relevantResources.length + (type == PatternType.OPERATION_END ? 4
-								: 3)));
+		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER
+				* (relevantResources.length + 4));
 
-		if (type == PatternType.OPERATION_END)
-			data.putInt(dptIndex.number).putInt(index.number)
-					.putInt(poolEntry.number);
-		else
-			data.putInt(index.number).putInt(index.timesExecuted++);
+		data.putInt(dptIndex.number).putInt(index.number)
+				.putInt(poolEntry.number);
 
 		fillRelevantResources(data, relevantResources);
+
+		Entry entry = new Entry(header, data);
+
+		addEntry(entry);
+		index.entries.add(allEntries.size() - 1);
+	}
+
+	public void addEventEntry(Event event) {
+		String name = event.getName();
+		if (!sensitivityList.contains(name))
+			return;
+
+		if (!sensitivityList.contains(name))
+			return;
+		PatternIndex index = (PatternIndex) indexHelper.getPattern(name)
+				.getIndex();
+
+		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
+		header.put((byte) EntryType.PATTERN.ordinal())
+				.putDouble(Simulator.getTime())
+				.put((byte) PatternType.EVENT.ordinal());
+
+		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER * 2);
+		data.putInt(index.number).putInt(index.timesExecuted++);
 
 		Entry entry = new Entry(header, data);
 

@@ -18,7 +18,7 @@ import ru.bmstu.rk9.rdo.rdo.IfStatement
 import ru.bmstu.rk9.rdo.rdo.ForStatement
 import ru.bmstu.rk9.rdo.rdo.BreakStatement
 import ru.bmstu.rk9.rdo.rdo.ReturnStatement
-import ru.bmstu.rk9.rdo.rdo.PlanningStatement
+import ru.bmstu.rk9.rdo.rdo.PlanStatement
 
 import ru.bmstu.rk9.rdo.rdo.FrameObject
 import ru.bmstu.rk9.rdo.rdo.FrameObjectText
@@ -40,14 +40,6 @@ class RDOStatementCompiler
 		var cont = st.eContainer.eContainer.eContainer
 		switch cont
 		{
-			Event:
-					'''
-					{
-						«st.compileStatementContext(
-							(new LocalContext).populateFromEvent(cont))»
-					}
-					'''
-
 			Rule:
 					'''
 					{
@@ -64,6 +56,17 @@ class RDOStatementCompiler
 					}
 					'''
 		}
+	}
+
+	def static String compileEventAction(StatementList st)
+	{
+		return
+			'''
+			{
+				«st.compileStatementContext(
+					(new LocalContext).populateFromEvent(st.eContainer as Event))»
+			}
+			'''
 	}
 
 	private static LocalContext localContext
@@ -192,7 +195,7 @@ class RDOStatementCompiler
 					'''
 			}
 
-			PlanningStatement:
+			PlanStatement:
 				"Simulator.pushEvent(new " +
 					st.event.getFullyQualifiedName + "(" + RDOExpressionCompiler.compileExpression(st.value).value +
 						(if(st.parameters != null) (", " + st.parameters.compileExpression.value) else

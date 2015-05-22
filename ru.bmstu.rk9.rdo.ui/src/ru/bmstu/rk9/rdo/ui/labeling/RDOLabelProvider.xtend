@@ -28,8 +28,7 @@ import ru.bmstu.rk9.rdo.rdo.HistogramSequence
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.SelectableRelevantResource
-import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
+import ru.bmstu.rk9.rdo.rdo.RelevantResource
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
@@ -92,9 +91,6 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def  text(Event evn) { "EVN : " + evn.name + " : event"}
 	def image(Event evn) { "event.gif" }
 
-	def image(EventRelevantResource r) { "parameter.gif" }
-	def  text(EventRelevantResource r) { r.name + r.type.relResName }
-
 	// Operation
 	def  text(Operation pat) { "PAT : " + pat.name + " : " + pat.type.literal}
 	def image(Operation pat) { "script_block.gif" }
@@ -105,8 +101,8 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 
 	// Common for patterns
 
-	def image(SelectableRelevantResource r) { "parameter.gif" }
-	def  text(SelectableRelevantResource r) { r.name + r.type.relResName }
+	def image(RelevantResource r) { "parameter.gif" }
+	def  text(RelevantResource r) { r.name + r.type.relResName }
 
 	def getRelResName(EObject object) {
 		switch object {

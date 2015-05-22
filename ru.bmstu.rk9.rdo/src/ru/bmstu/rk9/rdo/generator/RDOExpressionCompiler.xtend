@@ -56,7 +56,7 @@ import ru.bmstu.rk9.rdo.rdo.VariableMethodCallExpression
 import ru.bmstu.rk9.rdo.rdo.VariableExpression
 import ru.bmstu.rk9.rdo.rdo.ExpressionAssignment
 
-import ru.bmstu.rk9.rdo.rdo.PlanningStatement
+import ru.bmstu.rk9.rdo.rdo.PlanStatement
 
 import ru.bmstu.rk9.rdo.rdo.TimeNow
 
@@ -414,7 +414,7 @@ class RDOExpressionCompiler
 					ResourceCreateStatement:
 						parent.reference.parameters.map[p | p.compileType]
 
-					PlanningStatement:
+					PlanStatement:
 						parent.event.parameters.map[p | p.compileType]
 				}
 

@@ -40,10 +40,10 @@ public class DefaultMethodsHelper {
 		final ValidatorAction validatorAction;
 	}
 
-	public static enum EventOrRuleMethodInfo {
+	public static enum RuleMethodInfo {
 		EXECUTE("execute", ValidatorAction.ERROR);
 
-		EventOrRuleMethodInfo(String name, ValidatorAction validatorAction) {
+		RuleMethodInfo(String name, ValidatorAction validatorAction) {
 			this.name = name;
 			this.validatorAction = validatorAction;
 		}

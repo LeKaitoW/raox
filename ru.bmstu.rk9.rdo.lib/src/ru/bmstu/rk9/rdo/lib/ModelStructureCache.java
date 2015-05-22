@@ -171,7 +171,14 @@ class ResourceTypeCache {
 class PatternCache {
 	PatternCache(final JSONObject pattern) {
 		name = ModelStructureCache.getRelativeName(pattern.getString("name"));
+		String type = pattern.getString("type");
+		if (type.equals("event")) {
+			relResTypes = null;
+			return;
+		}
+
 		relResTypes = new HashMap<Integer, Integer>();
+
 		JSONArray relevantResources = pattern
 				.getJSONArray("relevant_resources");
 		for (int num = 0; num < relevantResources.length(); num++) {

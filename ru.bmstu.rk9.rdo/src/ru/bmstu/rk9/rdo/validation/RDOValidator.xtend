@@ -45,10 +45,9 @@ import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.ParameterType
 import ru.bmstu.rk9.rdo.rdo.PatternSelectMethod
 import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.SelectableRelevantResource
+import ru.bmstu.rk9.rdo.rdo.RelevantResource
 import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.Event
-import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 
@@ -260,25 +259,12 @@ class RDOValidator extends AbstractRDOValidator
 	{
 		var Map<String, DefaultMethodsHelper.MethodInfo> counts =
 				new HashMap<String, DefaultMethodsHelper.MethodInfo>()
-		for (v : DefaultMethodsHelper.EventOrRuleMethodInfo.values)
+		for (v : DefaultMethodsHelper.RuleMethodInfo.values)
 			counts.put(v.name,
 					new DefaultMethodsHelper.MethodInfo(v.validatorAction)
 			)
 
 		checkDefaultMethodCountGeneric(rule, rule.defaultMethods, counts)
-	}
-
-	@Check
-	def checkDefaultMethodEventCount(Event evn)
-	{
-		var Map<String, DefaultMethodsHelper.MethodInfo> counts =
-				new HashMap<String, DefaultMethodsHelper.MethodInfo>()
-		for (v : DefaultMethodsHelper.EventOrRuleMethodInfo.values)
-			counts.put(v.name,
-					new DefaultMethodsHelper.MethodInfo(v.validatorAction)
-			)
-
-		checkDefaultMethodCountGeneric(evn, evn.defaultMethods, counts)
 	}
 
 	@Check
@@ -331,9 +317,7 @@ class RDOValidator extends AbstractRDOValidator
 			e instanceof ParameterType
 		].toList
 		val List<EObject> relreslist = pat.eAllContents.filter[e |
-			e instanceof SelectableRelevantResource ||
-			e instanceof EventRelevantResource
-		].toList
+			e instanceof RelevantResource].toList
 
 		for(e : paramlist)
 			if(relreslist.map[r | r.nameGeneric].contains(e.nameGeneric))
@@ -383,9 +367,8 @@ class RDOValidator extends AbstractRDOValidator
 			ParameterType:
 				RdoPackage.eINSTANCE.parameterType_Name
 
-			SelectableRelevantResource,
-			EventRelevantResource:
-				RdoPackage.eINSTANCE.META_RelevantResource_Name
+			RelevantResource:
+				RdoPackage.eINSTANCE.relevantResource_Name
 
 			DptSetConditionStatement:
 				RdoPackage.eINSTANCE.dptSetConditionStatement_Name
@@ -420,7 +403,7 @@ class RDOValidator extends AbstractRDOValidator
 				Operation: iscombinatorial = true
 				Rule     : iscombinatorial = true
 
-				SelectableRelevantResource: haveselectmethods = true
+				RelevantResource: haveselectmethods = true
 			}
 		}
 
@@ -429,9 +412,9 @@ class RDOValidator extends AbstractRDOValidator
 			{
 				switch e.eContainer
 				{
-					SelectableRelevantResource:
+					RelevantResource:
 						error("Operation " + (pat as Operation).name + " already uses combinational approach for relevant resources search",
-							e.eContainer, RdoPackage.eINSTANCE.selectableRelevantResource_Selectmethod)}
+							e.eContainer, RdoPackage.eINSTANCE.relevantResource_Selectmethod)}
 			}
 	}
 

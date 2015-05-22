@@ -21,7 +21,7 @@ import ru.bmstu.rk9.rdo.rdo.PatternSelectMethod
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.SelectableRelevantResource
+import ru.bmstu.rk9.rdo.rdo.RelevantResource
 import ru.bmstu.rk9.rdo.rdo.OnExecute
 import ru.bmstu.rk9.rdo.rdo.OnBegin
 import ru.bmstu.rk9.rdo.rdo.OnEnd
@@ -50,31 +50,6 @@ class RDOPatternCompiler
 				return name;
 			}
 
-			private static class RelevantResources
-			{
-				«FOR r : evn.relevantresources»
-					«IF r.type instanceof ResourceType»
-						public «r.type.fullyQualifiedName» «r.name»;
-					«ELSE»
-						public «(r.type as ResourceCreateStatement).reference.fullyQualifiedName» «r.name»;
-					«ENDIF»
-				«ENDFOR»
-
-				public RelevantResources init()
-				{
-					«FOR r : evn.relevantresources»
-						«IF r.type instanceof ResourceCreateStatement»
-							«r.name» = «(r.type as ResourceCreateStatement).reference.fullyQualifiedName
-								».getResource("«(r.type as ResourceCreateStatement).fullyQualifiedName»");
-						«ENDIF»
-					«ENDFOR»
-
-					return this;
-				}
-			}
-
-			private static RelevantResources staticResources = new RelevantResources();
-
 			private static class Parameters
 			{
 				«IF !evn.parameters.empty»
@@ -102,31 +77,19 @@ class RDOPatternCompiler
 				return time;
 			}
 
-			private static Converter<RelevantResources, Parameters> converter =
-				new Converter<RelevantResources, Parameters>()
-				{
-					@Override
-					public void run(RelevantResources resources, Parameters parameters)
-					{
-						«FOR e: evn.defaultMethods.filter[m | m.method.name == "execute"]»
-							«(e.method as OnExecute).algorithm.compilePatternAction()»
-						«ENDFOR»
-					}
-				};
+			private static void execute(Parameters parameters)
+			{
+				«evn.body.compileEventAction()»
+			}
 
 			@Override
 			public void run()
 			{
-				converter.run(staticResources.init(), parameters);
+				execute(parameters);
 				Database db = Simulator.getDatabase();
 
 				// database operations
-				db.addEventEntry(Database.PatternType.EVENT, this);
-
-				«FOR r : evn.relevantresources»
-					db.addResourceEntry(Database.ResourceEntryType.ALTERED, staticResources.«r.name
-						», "«evn.fullyQualifiedName».«r.name»");
-				«ENDFOR»
+				db.addEventEntry(this);
 			}
 
 			public «evn.name»(double time«IF !evn.parameters.empty», «ENDIF»«evn.parameters.compileParameterTypes»)
@@ -135,38 +98,9 @@ class RDOPatternCompiler
 				this.parameters = new Parameters(«evn.parameters.compileParameterTypesCall»);
 			}
 
-			@Override
-			public int[] getRelevantInfo()
-			{
-				return new int[]
-				{
-					«FOR i : 0 ..< evn.relevantresources.size»
-						staticResources.«evn.relevantresources.get(i).name».getNumber()«
-							IF i < evn.relevantresources.size - 1»,«ENDIF»
-					«ENDFOR»
-				};
-			}
-
 			public static final JSONObject structure = new JSONObject()
 				.put("name", "«evn.fullyQualifiedName»")
-				.put("type", "event")
-				.put
-				(
-					"relevant_resources", new JSONArray()
-						«FOR r : evn.relevantresources»
-							.put
-							(
-								new JSONObject()
-									.put("name", "«r.name»")
-									.put("type", "«
-										IF r.type instanceof ResourceCreateStatement
-											»«(r.type as ResourceCreateStatement).reference.fullyQualifiedName»«
-										ELSE
-											»«(r.type as ResourceType).fullyQualifiedName»«
-										ENDIF»")
-							)
-						«ENDFOR»
-				);
+				.put("type", "event");
 		}
 		'''
 	}
@@ -737,7 +671,7 @@ class RDOPatternCompiler
 				end.run(resources, parameters);
 
 				// database operations
-				db.addEventEntry(Database.PatternType.OPERATION_END, this);
+				db.addOperationEndEntry(this);
 
 				«FOR r : op.relevantresources»
 					db.addResourceEntry(Database.ResourceEntryType.ALTERED, resources.«r.name
@@ -844,8 +778,8 @@ class RDOPatternCompiler
 			else
 			{
 				pat = cm.eContainer.eContainer
-				relres = (if(cm.eContainer instanceof SelectableRelevantResource) (cm.eContainer as SelectableRelevantResource).name
-					else (cm.eContainer as SelectableRelevantResource).name)
+				relres = (if(cm.eContainer instanceof RelevantResource) (cm.eContainer as RelevantResource).name
+					else (cm.eContainer as RelevantResource).name)
 			}
 
 			val context = (if(pat instanceof Rule) (new LocalContext).populateFromRule(pat as Rule)

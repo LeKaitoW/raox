@@ -30,7 +30,7 @@ public class RDOLinkingDiagnosticMessageProvider extends
 					+ context.getLinkText() + "'.";
 			break;
 
-		case "SelectableRelevantResource":
+		case "RelevantResource":
 			msg = "Couldn't find relevant resorce with name '"
 					+ context.getLinkText() + "'.";
 			break;

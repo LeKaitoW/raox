@@ -17,6 +17,7 @@ RDOEntity
 	| Sequence
 	| Constant
 	| Function
+	| Event
 	| Pattern
 	| DecisionPoint
 	| Frame
@@ -77,19 +78,32 @@ ResourceParameterExpression
 
 
 // ==========================================================
+//                          Events
+// ==========================================================
+
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Event:
+	'event' name = ID '('
+		(parameters += ParameterType+ (
+			',' parameters += ParameterType+)* )? ')' '{'
+		body = StatementList
+	'}'
+;
+
+// ==========================================================
 //                          Patterns
 // ==========================================================
 Pattern
 	: Operation
 	| Rule
-	| Event
 ;
 
 Operation:
-	type = OperationType name = ID ('('
+	type = OperationType name = ID '('
 		(parameters += ParameterType+ (
-			',' parameters += ParameterType+)* )? ')')? '{'
-		relevantresources += SelectableRelevantResource*
+			',' parameters += ParameterType+)* )? ')' '{'
+		relevantresources += RelevantResource*
 		('relevantSet' combinational = PatternSelectMethod ';')?
 		defaultMethods += DefaultMethod*
 	'}'
@@ -101,33 +115,20 @@ enum OperationType
 ;
 
 Rule:
-	'rule' name = ID ('('
+	'rule' name = ID '('
 		(parameters += ParameterType+ (
-			',' parameters += ParameterType+)* )? ')')? '{'
-		relevantresources += SelectableRelevantResource*
+			',' parameters += ParameterType+)* )? ')' '{'
+		relevantresources += RelevantResource*
 		('relevantSet' combinational = PatternSelectMethod ';')?
 		defaultMethods += DefaultMethod*
 	'}'
 ;
 
-SelectableRelevantResource:
+RelevantResource:
 	'relevant' name = ID '=' type = [META_RelResType|FQN]
 	(haveselect ?= '.' 'select' '(' select = PatternSelectLogic ')'
 		(selectmethod = PatternSelectMethod)?
 	)? ';'
-;
-
-Event:
-	'event' name = ID ('('
-		(parameters += ParameterType+ (
-			',' parameters += ParameterType+)* )? ')')? '{'
-		relevantresources += EventRelevantResource*
-		defaultMethods += DefaultMethod*
-	'}'
-;
-
-EventRelevantResource:
-	'relevant' name = ID '=' type = [META_RelResType|FQN] ';'
 ;
 
 PatternSelectLogic
@@ -592,11 +593,6 @@ EnumDeclaration:
 // ==========================================================
 //               Meta types for cross-references
 // ==========================================================
-META_RelevantResource
-	: SelectableRelevantResource
-	| EventRelevantResource
-;
-
 META_RelResType
 	: ResourceType
 	| ResourceCreateStatement
@@ -691,8 +687,8 @@ Statement
 	| BreakStatement ';'
 	| ReturnStatement ';'
 //	| process_input_statement
-	| StoppingStatement ';' // ?????????
-	| PlanningStatement ';'
+	| StopStatement ';' // ?????????
+	| PlanStatement ';'
 	| ResourceCreateStatement ';'
 	| ResourceEraseStatement ';'
 //	| watch_start
@@ -743,12 +739,12 @@ ReturnStatement:
 	invoke = 'return' return = Expression?
 ;
 
-StoppingStatement:
-	event = [Event|FQN] '.' 'stopping' '(' ')'
+StopStatement:
+	event = [Event|FQN] '.' 'stop' '(' ')'
 ;
 
-PlanningStatement:
-	event = [Event|FQN] '.' 'planning' '(' value = Expression
+PlanStatement:
+	event = [Event|FQN] '.' 'plan' '(' value = Expression
 		(',' parameters = ResourceExpressionList)? ')'
 ;
 
@@ -758,7 +754,7 @@ ResourceCreateStatement:
 ;
 
 ResourceEraseStatement:
-	relres = [META_RelevantResource | FQN] '.' 'erase' '('')'
+	relres = [RelevantResource | FQN] '.' 'erase' '('')'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

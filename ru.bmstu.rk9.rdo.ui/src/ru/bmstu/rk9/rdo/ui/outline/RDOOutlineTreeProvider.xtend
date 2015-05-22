@@ -17,11 +17,9 @@ import ru.bmstu.rk9.rdo.rdo.FunctionParameter
 import ru.bmstu.rk9.rdo.rdo.Constant
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
-import ru.bmstu.rk9.rdo.rdo.SelectableRelevantResource
+import ru.bmstu.rk9.rdo.rdo.RelevantResource
 import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.Event
-import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
@@ -29,6 +27,7 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
 import ru.bmstu.rk9.rdo.rdo.Result
 import ru.bmstu.rk9.rdo.rdo.OnInit
 import ru.bmstu.rk9.rdo.rdo.TerminateCondition
+
 public class VirtualOutlineNode extends AbstractOutlineNode
 {
 	protected new(IOutlineNode parent, Image image, Object text, boolean isLeaf)
@@ -78,7 +77,7 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 			Rule:
 			{
 				val groupRelRes = new VirtualOutlineNode(parentNode, parentNode.image, "Relevant resources", false)
-				for(r : pat.eAllContents.toIterable.filter(typeof(SelectableRelevantResource)))
+				for(r : pat.eAllContents.toIterable.filter(typeof(RelevantResource)))
 				{
 					createEObjectNode(groupRelRes, r)
 				}
@@ -86,15 +85,7 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 			Operation:
 			{
 				val groupRelRes = new VirtualOutlineNode(parentNode, parentNode.image, "Relevant resources", false)
-				for(r : pat.eAllContents.toIterable.filter(typeof(SelectableRelevantResource)))
-				{
-					createEObjectNode(groupRelRes, r)
-				}
-			}
-			Event:
-			{
-				val groupRelRes = new VirtualOutlineNode(parentNode, parentNode.image, "Relevant resources", false)
-				for(r : pat.eAllContents.toIterable.filter(typeof(EventRelevantResource)))
+				for(r : pat.eAllContents.toIterable.filter(typeof(RelevantResource)))
 				{
 					createEObjectNode(groupRelRes, r)
 				}
