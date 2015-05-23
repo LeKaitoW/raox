@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rdo.generator;
 
 import java.util.HashMap;
 
+import ru.bmstu.rk9.rdo.rdo.Pattern;
 import ru.bmstu.rk9.rdo.rdo.RDOEnum;
 import ru.bmstu.rk9.rdo.rdo.ResourceType;
 import ru.bmstu.rk9.rdo.rdo.ParameterType;
@@ -11,9 +12,7 @@ import ru.bmstu.rk9.rdo.rdo.FunctionAlgorithmic;
 import ru.bmstu.rk9.rdo.rdo.FunctionList;
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter;
 import ru.bmstu.rk9.rdo.rdo.Event;
-import ru.bmstu.rk9.rdo.rdo.Operation;
 import ru.bmstu.rk9.rdo.rdo.RelevantResource;
-import ru.bmstu.rk9.rdo.rdo.Rule;
 import ru.bmstu.rk9.rdo.rdo.GroupBy;
 import ru.bmstu.rk9.rdo.rdo.EnumID;
 import ru.bmstu.rk9.rdo.generator.LocalContext;
@@ -129,34 +128,12 @@ public class LocalContext {
 		return this;
 	}
 
-	public LocalContext populateFromRule(Rule rule) {
-		for (ParameterType p : rule.getParameters())
+	public LocalContext populateFromPattern(Pattern pat) {
+		for (ParameterType p : pat.getParameters())
 			this.addRawEntry(p.getName(), RDOExpressionCompiler.compileType(p),
 					"parameters." + p.getName());
 
-		for (RelevantResource relres : rule.getRelevantresources()) {
-			ResourceType type;
-			if (relres.getType() instanceof ResourceType)
-				type = ((ResourceType) relres.getType());
-			else
-				type = ((ResourceCreateStatement) relres.getType()).getReference();
-
-			for (ParameterType p : type.getParameters())
-				this.addRawEntry(relres.getName() + "." + p.getName(),
-						RDOExpressionCompiler.compileType(p), "resources."
-								+ relres.getName() + ".get_" + p.getName()
-								+ "()");
-		}
-
-		return this;
-	}
-
-	public LocalContext populateFromOperation(Operation op) {
-		for (ParameterType p : op.getParameters())
-			this.addRawEntry(p.getName(), RDOExpressionCompiler.compileType(p),
-					"parameters." + p.getName());
-
-		for (RelevantResource relres : op.getRelevantresources()) {
+		for (RelevantResource relres : pat.getRelevantresources()) {
 			ResourceType type;
 			if (relres.getType() instanceof ResourceType)
 				type = ((ResourceType) relres.getType());

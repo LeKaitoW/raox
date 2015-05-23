@@ -5,8 +5,6 @@ import org.eclipse.emf.ecore.EObject
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
-import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.Event
 
 import ru.bmstu.rk9.rdo.rdo.StatementList
@@ -32,6 +30,7 @@ import ru.bmstu.rk9.rdo.rdo.TerminateCondition
 import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 import ru.bmstu.rk9.rdo.rdo.ResourceEraseStatement
 import ru.bmstu.rk9.rdo.rdo.ResourceType
+import ru.bmstu.rk9.rdo.rdo.Pattern
 
 class RDOStatementCompiler
 {
@@ -40,19 +39,11 @@ class RDOStatementCompiler
 		var cont = st.eContainer.eContainer.eContainer
 		switch cont
 		{
-			Rule:
+			Pattern:
 					'''
 					{
 						«st.compileStatementContext(
-							(new LocalContext).populateFromRule(cont))»
-					}
-					'''
-
-			Operation:
-					'''
-					{
-						«st.compileStatementContext(
-						(new LocalContext).populateFromOperation(cont))»
+						(new LocalContext).populateFromPattern(cont))»
 					}
 					'''
 		}

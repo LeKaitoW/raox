@@ -74,54 +74,40 @@ ResourceParameterExpression
 	: {RDODefaultParameter} '*'
 	| ExpressionOr
 ;
+
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 // ==========================================================
 //                          Events
 // ==========================================================
-
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 Event:
 	'event' name = ID '('
-		(parameters += ParameterType+ (
-			',' parameters += ParameterType+)* )? ')' '{'
+		(parameters += ParameterType (
+			',' parameters += ParameterType)* )? ')' '{'
 		body = StatementList
 	'}'
 ;
 
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 // ==========================================================
 //                          Patterns
 // ==========================================================
-Pattern
-	: Operation
-	| Rule
-;
-
-Operation:
-	type = OperationType name = ID '('
-		(parameters += ParameterType+ (
-			',' parameters += ParameterType+)* )? ')' '{'
+Pattern:
+	type = PatternType name = ID '('
+		(parameters += ParameterType (
+			',' parameters += ParameterType)* )? ')' '{'
 		relevantresources += RelevantResource*
 		('relevantSet' combinational = PatternSelectMethod ';')?
 		defaultMethods += DefaultMethod*
 	'}'
 ;
 
-enum OperationType
+enum PatternType
 	: OPERATION = 'operation'
+	| RULE = 'rule'
 	| KEYBOARD = 'keyboard'
-;
-
-Rule:
-	'rule' name = ID '('
-		(parameters += ParameterType+ (
-			',' parameters += ParameterType+)* )? ')' '{'
-		relevantresources += RelevantResource*
-		('relevantSet' combinational = PatternSelectMethod ';')?
-		defaultMethods += DefaultMethod*
-	'}'
 ;
 
 RelevantResource:
@@ -187,8 +173,9 @@ DecisionPointSearch:
 	'}'
 ;
 
+//TODO need validate rule
 DecisionPointSearchActivity:
-	'activity' name = ID 'checks' pattern = [Rule|FQN]
+	'activity' name = ID 'checks' pattern = [Pattern|FQN]
 	'(' ( parameters += ExpressionOr (
 		',' parameters += ExpressionOr)* )? ')'
 	'.' (
@@ -599,8 +586,7 @@ META_RelResType
 ;
 
 META_DecisionPointActivity
-	: Operation
-	| Rule
+	: Pattern
 ;
 
 // это не работает. FQN рушит вызов методов, линкер требует нормальных имен

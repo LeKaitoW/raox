@@ -18,9 +18,6 @@ import ru.bmstu.rk9.rdo.rdo.Constant
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.RelevantResource
-import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.Operation
-
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
 
@@ -72,24 +69,11 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 			}
 		}
 
-		switch pat
+
+		val groupRelRes = new VirtualOutlineNode(parentNode, parentNode.image, "Relevant resources", false)
+		for(r : pat.eAllContents.toIterable.filter(typeof(RelevantResource)))
 		{
-			Rule:
-			{
-				val groupRelRes = new VirtualOutlineNode(parentNode, parentNode.image, "Relevant resources", false)
-				for(r : pat.eAllContents.toIterable.filter(typeof(RelevantResource)))
-				{
-					createEObjectNode(groupRelRes, r)
-				}
-			}
-			Operation:
-			{
-				val groupRelRes = new VirtualOutlineNode(parentNode, parentNode.image, "Relevant resources", false)
-				for(r : pat.eAllContents.toIterable.filter(typeof(RelevantResource)))
-				{
-					createEObjectNode(groupRelRes, r)
-				}
-			}
+			createEObjectNode(groupRelRes, r)
 		}
 	}
 

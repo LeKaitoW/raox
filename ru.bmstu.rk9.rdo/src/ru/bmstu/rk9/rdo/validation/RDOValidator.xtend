@@ -44,9 +44,7 @@ import ru.bmstu.rk9.rdo.rdo.FunctionTable
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.ParameterType
 import ru.bmstu.rk9.rdo.rdo.PatternSelectMethod
-import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.RelevantResource
-import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.Event
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
@@ -67,6 +65,7 @@ import ru.bmstu.rk9.rdo.rdo.DptCompareTopsStatement
 import ru.bmstu.rk9.rdo.rdo.DptSetTerminateConditionStatement
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
 import ru.bmstu.rk9.rdo.rdo.FunctionType
+import ru.bmstu.rk9.rdo.rdo.PatternType
 
 class RDOValidator extends AbstractRDOValidator
 {
@@ -242,29 +241,24 @@ class RDOValidator extends AbstractRDOValidator
 	}
 
 	@Check
-	def checkDefaultMethodOperatioCount(Operation op)
+	def checkDefaultMethodPatternCount(Pattern pat)
 	{
 		var Map<String, DefaultMethodsHelper.MethodInfo> counts =
 				new HashMap<String, DefaultMethodsHelper.MethodInfo>()
-		for (v : DefaultMethodsHelper.OperationMethodInfo.values)
-			counts.put(v.name,
-					new DefaultMethodsHelper.MethodInfo(v.validatorAction)
-			)
+		switch (pat.type)
+		{
+			case RULE:
+				for (v : DefaultMethodsHelper.RuleMethodInfo.values)
+					counts.put(v.name,
+							new DefaultMethodsHelper.MethodInfo(v.validatorAction))
+			case OPERATION,
+			case KEYBOARD:
+				for (v : DefaultMethodsHelper.OperationMethodInfo.values)
+					counts.put(v.name,
+							new DefaultMethodsHelper.MethodInfo(v.validatorAction))
+		}
 
-		checkDefaultMethodCountGeneric(op, op.defaultMethods, counts)
-	}
-
-	@Check
-	def checkDefaultMethodRuleCount(Rule rule)
-	{
-		var Map<String, DefaultMethodsHelper.MethodInfo> counts =
-				new HashMap<String, DefaultMethodsHelper.MethodInfo>()
-		for (v : DefaultMethodsHelper.RuleMethodInfo.values)
-			counts.put(v.name,
-					new DefaultMethodsHelper.MethodInfo(v.validatorAction)
-			)
-
-		checkDefaultMethodCountGeneric(rule, rule.defaultMethods, counts)
+		checkDefaultMethodCountGeneric(pat, pat.defaultMethods, counts)
 	}
 
 	@Check
@@ -346,11 +340,8 @@ class RDOValidator extends AbstractRDOValidator
 			FunctionType:
 				RdoPackage.eINSTANCE.functionType_Name
 
-			Operation:
-				RdoPackage.eINSTANCE.operation_Name
-
-			Rule:
-				RdoPackage.eINSTANCE.rule_Name
+			Pattern:
+				RdoPackage.eINSTANCE.pattern_Name
 
 			Event:
 				RdoPackage.eINSTANCE.event_Name
@@ -400,9 +391,7 @@ class RDOValidator extends AbstractRDOValidator
 		{
 			switch e.eContainer
 			{
-				Operation: iscombinatorial = true
-				Rule     : iscombinatorial = true
-
+				Pattern: iscombinatorial = true
 				RelevantResource: haveselectmethods = true
 			}
 		}
@@ -413,7 +402,7 @@ class RDOValidator extends AbstractRDOValidator
 				switch e.eContainer
 				{
 					RelevantResource:
-						error("Operation " + (pat as Operation).name + " already uses combinational approach for relevant resources search",
+						error("Pattern " + (pat as Pattern).name + " already uses combinational approach for relevant resources search",
 							e.eContainer, RdoPackage.eINSTANCE.relevantResource_Selectmethod)}
 			}
 	}
@@ -431,6 +420,15 @@ class RDOValidator extends AbstractRDOValidator
 				error("Invalid parameter type. Table function allows enumerative and ranged integer parameters only",
 					p, RdoPackage.eINSTANCE.functionParameter_Type)
 		}
+	}
+
+	@Check
+	def checkSearchActivities(DecisionPointSearch search)
+	{
+		for (a : search.activities)
+			if (a.pattern.type != PatternType.RULE)
+				error("Only rules are allowed as search activities",
+					a, RdoPackage.eINSTANCE.decisionPointSearchActivity_Name)
 	}
 
 	@Check

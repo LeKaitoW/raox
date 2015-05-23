@@ -18,9 +18,6 @@ import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.ParameterType
 import ru.bmstu.rk9.rdo.rdo.PatternSelectMethod
-import ru.bmstu.rk9.rdo.rdo.Event
-import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.RelevantResource
 import ru.bmstu.rk9.rdo.rdo.OnExecute
 import ru.bmstu.rk9.rdo.rdo.OnBegin
@@ -30,82 +27,19 @@ import ru.bmstu.rk9.rdo.rdo.PatternSelectLogic
 
 class RDOPatternCompiler
 {
-	def static compileEvent(Event evn, String filename)
+	def static compilePattern(Pattern pattern, String filename)
 	{
-		'''
-		package «filename»;
-
-		import ru.bmstu.rk9.rdo.lib.json.*;
-
-		import ru.bmstu.rk9.rdo.lib.*;
-		@SuppressWarnings("all")
-
-		public class «evn.name» implements Event
+		switch (pattern.type)
 		{
-			private static final String name =  "«evn.fullyQualifiedName»";
-
-			@Override
-			public String getName()
-			{
-				return name;
-			}
-
-			private static class Parameters
-			{
-				«IF !evn.parameters.empty»
-				«FOR p : evn.parameters»
-					public «p.compileType» «p.name»«p.getDefault»;
-				«ENDFOR»
-
-				public Parameters(«evn.parameters.compileParameterTypes»)
-				{
-					«FOR parameter : evn.parameters»
-						if(«parameter.name» != null)
-							this.«parameter.name» = «parameter.name»;
-					«ENDFOR»
-				}
-				«ENDIF»
-			}
-
-			private Parameters parameters;
-
-			private double time;
-
-			@Override
-			public double getTime()
-			{
-				return time;
-			}
-
-			private static void execute(Parameters parameters)
-			{
-				«evn.body.compileEventAction()»
-			}
-
-			@Override
-			public void run()
-			{
-				execute(parameters);
-				Database db = Simulator.getDatabase();
-
-				// database operations
-				db.addEventEntry(this);
-			}
-
-			public «evn.name»(double time«IF !evn.parameters.empty», «ENDIF»«evn.parameters.compileParameterTypes»)
-			{
-				this.time = time;
-				this.parameters = new Parameters(«evn.parameters.compileParameterTypesCall»);
-			}
-
-			public static final JSONObject structure = new JSONObject()
-				.put("name", "«evn.fullyQualifiedName»")
-				.put("type", "event");
+			case OPERATION,
+			case KEYBOARD:
+				return compileOperation(pattern, filename)
+			case RULE:
+				return compileRule(pattern, filename)
 		}
-		'''
 	}
 
-	def static compileRule(Rule rule, String filename)
+	def static compileRule(Pattern rule, String filename)
 	{
 		'''
 		package «filename»;
@@ -392,7 +326,7 @@ class RDOPatternCompiler
 		'''
 	}
 
-	def static compileOperation(Operation op, String filename)
+	def static compileOperation(Pattern op, String filename)
 	{
 		'''
 		package «filename»;
@@ -629,7 +563,7 @@ class RDOPatternCompiler
 				«FOR e: op.defaultMethods.filter[m | m.method.name == "duration"]»
 					«op.name» instance = new «op.name»(Simulator.getTime() + «
 						(e.method as Duration).time.compileExpressionContext(
-							(new LocalContext).populateFromOperation(op)
+							(new LocalContext).populateFromPattern(op)
 						).value», resources.copyUpdate(), parameters);
 				«ENDFOR»
 
@@ -722,30 +656,13 @@ class RDOPatternCompiler
 		var List<String> relreslist;
 		var List<String> relrestypes;
 
-		switch pattern
-		{
-			Operation:
-			{
-				relreslist = pattern.relevantresources.map[r | r.name]
-				relrestypes = pattern.relevantresources.map[r |
-					if(r.type instanceof ResourceType)
-						(r.type as ResourceType).fullyQualifiedName
-					else
-						(r.type as ResourceCreateStatement).reference.fullyQualifiedName
-				]
-			}
-
-			Rule:
-			{
-				relreslist = pattern.relevantresources.map[r | r.name]
-				relrestypes = pattern.relevantresources.map[r |
-					if(r.type instanceof ResourceType)
-						(r.type as ResourceType).fullyQualifiedName
-					else
-						(r.type as ResourceCreateStatement).reference.fullyQualifiedName
-				]
-			}
-		}
+		relreslist = pattern.relevantresources.map[r | r.name]
+		relrestypes = pattern.relevantresources.map[r |
+			if(r.type instanceof ResourceType)
+				(r.type as ResourceType).fullyQualifiedName
+			else
+				(r.type as ResourceCreateStatement).reference.fullyQualifiedName
+		]
 
 		return
 			'''
@@ -754,11 +671,9 @@ class RDOPatternCompiler
 				@Override
 				public boolean check(RelevantResources resources, «resource» «relres», Parameters parameters)
 				{
-					return «IF havecf»(«IF pattern instanceof Operation»«
-						cf.logic.compileExpressionContext((new LocalContext).populateFromOperation(pattern as Operation)).value.
-							replaceAll("resources." + relres + ".", relres + ".")»«	ELSE»«
-								cf.logic.compileExpressionContext((new LocalContext).populateFromRule(pattern as Rule)).value.
-									replaceAll("resources." + relres + ".", relres + ".")»«ENDIF»)«ELSE»true«ENDIF»«
+					return «IF havecf»(«
+						cf.logic.compileExpressionContext((new LocalContext).populateFromPattern(pattern)).value.
+							replaceAll("resources." + relres + ".", relres + ".")»)«ELSE»true«ENDIF»«
 										FOR i : 0 ..< relreslist.size»«IF relres != relreslist.get(i) && relrestype ==
 											relrestypes.get(i)»«"\t"»&& «relres» != resources.«relreslist.get(i)»«ENDIF»«ENDFOR»;
 				}
@@ -773,7 +688,7 @@ class RDOPatternCompiler
 		{
 			var EObject pat;
 			var String relres = "@NOPE";
-			if(cm.eContainer instanceof Rule || cm.eContainer instanceof Operation)
+			if(cm.eContainer instanceof Pattern)
 				pat = cm.eContainer
 			else
 			{
@@ -782,8 +697,7 @@ class RDOPatternCompiler
 					else (cm.eContainer as RelevantResource).name)
 			}
 
-			val context = (if(pat instanceof Rule) (new LocalContext).populateFromRule(pat as Rule)
-				else (new LocalContext).populateFromOperation(pat as Operation))
+			val context = (new LocalContext).populateFromPattern(pat as Pattern)
 
 			val expr = cm.expression.compileExpressionContext(context).value
 			return
@@ -803,17 +717,7 @@ class RDOPatternCompiler
 		}
 	}
 
-	def private static compileParameterTypesCall(List<ParameterType> parameters)
-	{
-		'''«IF !parameters.empty»«
-			parameters.get(0).name»«
-			FOR parameter : parameters.subList(1, parameters.size)», «
-				parameter.name»«
-			ENDFOR»«
-		ENDIF»'''
-	}
-
-	def private static compileParameterTypes(List<ParameterType> parameters)
+	def static compileParameterTypes(List<ParameterType> parameters)
 	{
 		'''«IF !parameters.empty»«parameters.get(0).compileType» «
 			parameters.get(0).name»«

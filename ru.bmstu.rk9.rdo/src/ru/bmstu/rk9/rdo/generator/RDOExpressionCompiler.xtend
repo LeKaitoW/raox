@@ -15,9 +15,6 @@ import ru.bmstu.rk9.rdo.rdo.ResourceExpressionList
 
 import ru.bmstu.rk9.rdo.rdo.Constant
 
-import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.Operation
-
 import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivity
 
@@ -62,6 +59,7 @@ import ru.bmstu.rk9.rdo.rdo.TimeNow
 
 import ru.bmstu.rk9.rdo.rdo.RDOType
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
+import ru.bmstu.rk9.rdo.rdo.Pattern
 
 enum ExpressionOperation
 {
@@ -446,14 +444,7 @@ class RDOExpressionCompiler
 			DecisionPointActivity:
 			{
 				val pattern = expr.pattern
-				val parameters = switch pattern
-				{
-					Rule:
-						pattern.parameters.map[p | p.compileType]
-
-					Operation:
-						pattern.parameters.map[p | p.compileType]
-				}
+				val parameters = (pattern as Pattern).parameters.map[p | p.compileType]
 
 				var String list = ""
 				var flag = false

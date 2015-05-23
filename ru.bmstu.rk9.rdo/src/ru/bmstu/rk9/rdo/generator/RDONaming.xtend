@@ -25,9 +25,7 @@ import ru.bmstu.rk9.rdo.rdo.Constant
 import ru.bmstu.rk9.rdo.rdo.Function
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter
 
-import ru.bmstu.rk9.rdo.rdo.Operation
 import ru.bmstu.rk9.rdo.rdo.RelevantResource
-import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.Event
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
@@ -43,6 +41,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOString
 import ru.bmstu.rk9.rdo.rdo.RDOArray
 import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
+import ru.bmstu.rk9.rdo.rdo.Pattern
 
 class RDONaming
 {
@@ -97,13 +96,10 @@ class RDONaming
 			FunctionParameter:
 				return object.name
 
-			Operation:
+			Pattern:
 				return object.name
 
 			RelevantResource:
-				return object.name
-
-			Rule:
 				return object.name
 
 			Event:
@@ -152,10 +148,7 @@ class RDONaming
 			FunctionParameter:
 				return object.eContainer.eContainer.eContainer.fullyQualifiedName + "." + object.name
 
-			Operation:
-				return object.eContainer.nameGeneric + "." + object.name
-
-			Rule:
+			Pattern:
 				return object.eContainer.nameGeneric + "." + object.name
 
 			Event:

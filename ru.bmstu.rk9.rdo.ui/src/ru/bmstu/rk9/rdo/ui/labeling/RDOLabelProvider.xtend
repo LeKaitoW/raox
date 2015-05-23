@@ -26,8 +26,6 @@ import ru.bmstu.rk9.rdo.rdo.RegularSequence
 import ru.bmstu.rk9.rdo.rdo.HistogramSequence
 
 import ru.bmstu.rk9.rdo.rdo.Event
-import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.Rule
 import ru.bmstu.rk9.rdo.rdo.RelevantResource
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
@@ -42,6 +40,7 @@ import ru.bmstu.rk9.rdo.rdo.ResultWatchQuant
 import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
 import ru.bmstu.rk9.rdo.rdo.ResultGetValue
 import ru.bmstu.rk9.rdo.rdo.DefaultMethod
+import ru.bmstu.rk9.rdo.rdo.Pattern
 
 class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider {
 
@@ -92,12 +91,8 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def image(Event evn) { "event.gif" }
 
 	// Operation
-	def  text(Operation pat) { "PAT : " + pat.name + " : " + pat.type.literal}
-	def image(Operation pat) { "script_block.gif" }
-
-	// Rule
-	def  text(Rule pat) { "PAT : " + pat.name + " : rule"}
-	def image(Rule pat) { "script_block.gif" }
+	def  text(Pattern pat) { "PAT : " + pat.name + " : " + pat.type.literal}
+	def image(Pattern pat) { "script_block.gif" }
 
 	// Common for patterns
 

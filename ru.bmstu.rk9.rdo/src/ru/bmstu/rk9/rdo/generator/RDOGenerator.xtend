@@ -15,6 +15,7 @@ import static extension ru.bmstu.rk9.rdo.compilers.RDOSequenceCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOFunctionCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOResourceTypeCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOPatternCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.RDOEventCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDODecisionPointCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOFrameCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOResultCompiler.*
@@ -37,8 +38,6 @@ import ru.bmstu.rk9.rdo.rdo.Sequence
 import ru.bmstu.rk9.rdo.rdo.Function
 
 import ru.bmstu.rk9.rdo.rdo.Event
-import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.Rule
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
@@ -52,6 +51,7 @@ import ru.bmstu.rk9.rdo.rdo.TerminateCondition
 import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
 import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
 import ru.bmstu.rk9.rdo.rdo.Resources
+import ru.bmstu.rk9.rdo.rdo.Pattern
 
 class RDOGenerator implements IMultipleResourceGenerator
 {
@@ -98,11 +98,8 @@ class RDOGenerator implements IMultipleResourceGenerator
 				for(e : resource.allContents.toIterable.filter(typeof(Function)))
 					fsa.generateFile(filename + "/" + e.type.name + ".java", e.compileFunction(filename))
 
-				for(e : resource.allContents.toIterable.filter(typeof(Operation)))
-					fsa.generateFile(filename + "/" + e.name + ".java", e.compileOperation(filename))
-
-				for(e : resource.allContents.toIterable.filter(typeof(Rule)))
-					fsa.generateFile(filename + "/" + e.name + ".java", e.compileRule(filename))
+				for(e : resource.allContents.toIterable.filter(typeof(Pattern)))
+					fsa.generateFile(filename + "/" + e.name + ".java", e.compilePattern(filename))
 
 				for(e : resource.allContents.toIterable.filter(typeof(Event)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileEvent(filename))

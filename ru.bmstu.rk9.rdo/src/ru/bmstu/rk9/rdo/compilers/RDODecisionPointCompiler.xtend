@@ -3,9 +3,6 @@ package ru.bmstu.rk9.rdo.compilers
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
-import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.Rule
-
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
 import ru.bmstu.rk9.rdo.rdo.DptSetConditionStatement
@@ -16,6 +13,8 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 import ru.bmstu.rk9.rdo.rdo.DptSetTerminateConditionStatement
 import ru.bmstu.rk9.rdo.rdo.DptEvaluateByStatement
 import ru.bmstu.rk9.rdo.rdo.DptCompareTopsStatement
+import ru.bmstu.rk9.rdo.rdo.Pattern
+import ru.bmstu.rk9.rdo.rdo.PatternType
 
 class RDODecisionPointCompiler
 {
@@ -25,12 +24,7 @@ class RDODecisionPointCompiler
 
 		val priorities = activities.map[a | a.priority]
 
-		val parameters = activities.map[a |
-			if(a.pattern instanceof Operation)
-				(a.pattern as Operation).parameters
-			else
-				(a.pattern as Rule).parameters
-		]
+		val parameters = activities.map[a | (a.pattern as Pattern).parameters]
 
 		var setCondStatements = dpt.initStatements.filter(
 				s | s instanceof DptSetConditionStatement
@@ -138,7 +132,7 @@ class RDODecisionPointCompiler
 									Simulator.getDatabase().addDecisionEntry
 									(
 										dpt, this, Database.PatternType.«
-											IF activities.get(i).pattern instanceof Rule»RULE«ELSE»OPERATION_BEGIN«ENDIF»,
+											IF (activities.get(i).pattern as Pattern).type == PatternType.RULE»RULE«ELSE»OPERATION_BEGIN«ENDIF»,
 										executed
 									);
 
