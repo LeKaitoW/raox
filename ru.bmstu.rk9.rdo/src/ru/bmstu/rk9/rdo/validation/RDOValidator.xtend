@@ -402,7 +402,7 @@ class RDOValidator extends AbstractRDOValidator
 				switch e.eContainer
 				{
 					RelevantResource:
-						error("Pattern " + (pat as Pattern).name + " already uses combinational approach for relevant resources search",
+						error("Pattern " + pat.name + " already uses combinational approach for relevant resources search",
 							e.eContainer, RdoPackage.eINSTANCE.relevantResource_Selectmethod)}
 			}
 	}

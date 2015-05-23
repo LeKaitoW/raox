@@ -59,7 +59,6 @@ import ru.bmstu.rk9.rdo.rdo.TimeNow
 
 import ru.bmstu.rk9.rdo.rdo.RDOType
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
-import ru.bmstu.rk9.rdo.rdo.Pattern
 
 enum ExpressionOperation
 {
@@ -444,7 +443,7 @@ class RDOExpressionCompiler
 			DecisionPointActivity:
 			{
 				val pattern = expr.pattern
-				val parameters = (pattern as Pattern).parameters.map[p | p.compileType]
+				val parameters = pattern.parameters.map[p | p.compileType]
 
 				var String list = ""
 				var flag = false

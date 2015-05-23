@@ -153,7 +153,7 @@ DecisionPointSome:
 
 DecisionPointActivity:
 	'activity' name = ID ('(' priority = ExpressionOr ')')?
-	'checks' pattern = [META_DecisionPointActivity|FQN]
+	'checks' pattern = [Pattern|FQN]
 	'(' ( parameters += ExpressionOr (
 			',' parameters += ExpressionOr)* )? ')'
 ;
@@ -585,10 +585,6 @@ META_RelResType
 	| ResourceCreateStatement
 ;
 
-META_DecisionPointActivity
-	: Pattern
-;
-
 // это не работает. FQN рушит вызов методов, линкер требует нормальных имен
 //META_VariableForExpression
 //	: ResourceCreateStatement
@@ -672,13 +668,10 @@ Statement
 	| ForStatement
 	| BreakStatement ';'
 	| ReturnStatement ';'
-//	| process_input_statement
-	| StopStatement ';' // ?????????
+	| StopStatement ';' // not implemented in generator
 	| PlanStatement ';'
 	| ResourceCreateStatement ';'
 	| ResourceEraseStatement ';'
-//	| watch_start
-//	| watch_stop
 ;
 
 ExpressionStatement:
@@ -871,6 +864,7 @@ VariableMethodCallExpression
 ;
 
 // будешь сидеть и валидировать этот ID до посинения
+// +1
 VariableExpression
 	: call = ID
 	( => functionfirst ?= '(' (args = ExpressionList)? ')' ( => arraylast ?= '[' iterator = Expression ']' )?
