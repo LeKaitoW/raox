@@ -26,7 +26,6 @@ import ru.bmstu.rk9.rdo.rdo.FrameObjectCircle
 import ru.bmstu.rk9.rdo.rdo.FrameObjectEllipse
 import ru.bmstu.rk9.rdo.rdo.FrameObjectTriangle
 import ru.bmstu.rk9.rdo.rdo.FrameColour
-import ru.bmstu.rk9.rdo.rdo.TerminateCondition
 import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 import ru.bmstu.rk9.rdo.rdo.ResourceEraseStatement
 import ru.bmstu.rk9.rdo.rdo.ResourceType
@@ -36,7 +35,7 @@ class RDOStatementCompiler
 {
 	def static String compilePatternAction(StatementList st)
 	{
-		var cont = st.eContainer.eContainer.eContainer
+		var cont = st.eContainer.eContainer
 		switch cont
 		{
 			Pattern:
@@ -192,21 +191,6 @@ class RDOStatementCompiler
 						(if(st.parameters != null) (", " + st.parameters.compileExpression.value) else
 							(if(st.event.parameters != null && !st.event.parameters.empty)
 								(", " + compileAllDefault(st.event.parameters.size)) else "")) + "));"
-
-			TerminateCondition:
-				'''
-				Simulator.addTerminateCondition
-				(
-					new TerminateCondition()
-					{
-						@Override
-						public boolean check()
-						{
-							return «st.condition.compileExpression.value»;
-						}
-					}
-				);
-				'''
 
 			ResourceCreateStatement: {
 				if (localContext != null)

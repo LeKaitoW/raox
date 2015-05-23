@@ -194,19 +194,19 @@ class RDOValidator extends AbstractRDOValidator
 			Map<String, DefaultMethodsHelper.MethodInfo> counts
 	)
 	{
-		for(d : methods) {
-			if (!counts.containsKey(d.method.name))
-				error("Error - incorrect default method name", d,
-					d.getNameStructuralFeature
+		for(m : methods) {
+			if (!counts.containsKey(m.name))
+				error("Error - incorrect default method name", m,
+					m.getNameStructuralFeature
 				)
-			else if (counts.get(d.method.name).count > 0)
-				error("Error - default method cannot be set more than once", d,
-					d.getNameStructuralFeature
+			else if (counts.get(m.name).count > 0)
+				error("Error - default method cannot be set more than once", m,
+					m.getNameStructuralFeature
 				)
 			else {
-				var count = counts.get(d.method.name)
+				var count = counts.get(m.name)
 				count.count++
-				counts.put(d.method.name, count)
+				counts.put(m.name, count)
 			}
 		}
 
@@ -429,6 +429,15 @@ class RDOValidator extends AbstractRDOValidator
 			if (a.pattern.type != PatternType.RULE)
 				error("Only rules are allowed as search activities",
 					a, RdoPackage.eINSTANCE.decisionPointSearchActivity_Name)
+	}
+
+	//TODO generalize set method for dpt instead of validating its name here
+	@Check
+	def checkDptInitName(DecisionPoint dpt)
+	{
+		if(dpt.initName != null && dpt.initName != "init")
+			error("Invalid default method name \"" + dpt.initName + "\".",
+				dpt, RdoPackage.eINSTANCE.decisionPoint_InitName)
 	}
 
 	@Check

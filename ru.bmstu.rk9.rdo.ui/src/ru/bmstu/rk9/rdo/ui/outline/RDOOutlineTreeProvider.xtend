@@ -22,8 +22,7 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
 
 import ru.bmstu.rk9.rdo.rdo.Result
-import ru.bmstu.rk9.rdo.rdo.OnInit
-import ru.bmstu.rk9.rdo.rdo.TerminateCondition
+import ru.bmstu.rk9.rdo.rdo.DefaultMethod
 
 public class VirtualOutlineNode extends AbstractOutlineNode
 {
@@ -85,8 +84,5 @@ class RDOOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 	def _isLeaf(Result r) { true }
 
 	// OnInit
-	def _isLeaf(OnInit onInit) { true }
-
-	// TerminateCondition
-	def _isLeaf(TerminateCondition terminateCondition) { true }
+	def _isLeaf(DefaultMethod method) { true }
 }

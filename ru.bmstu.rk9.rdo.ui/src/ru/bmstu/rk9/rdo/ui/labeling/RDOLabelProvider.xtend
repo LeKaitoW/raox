@@ -53,7 +53,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def image(RDOModel m) { "model.gif" }
 
 	//Default methods
-	def text(DefaultMethod dm) { "set : " + dm.method.name }
+	def text(DefaultMethod dm) { "set : " + dm.name }
 	def image(DefaultMethod dm) { "run.gif" }
 
 	// Resource types

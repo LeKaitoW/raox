@@ -19,10 +19,6 @@ import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.ParameterType
 import ru.bmstu.rk9.rdo.rdo.PatternSelectMethod
 import ru.bmstu.rk9.rdo.rdo.RelevantResource
-import ru.bmstu.rk9.rdo.rdo.OnExecute
-import ru.bmstu.rk9.rdo.rdo.OnBegin
-import ru.bmstu.rk9.rdo.rdo.OnEnd
-import ru.bmstu.rk9.rdo.rdo.Duration
 import ru.bmstu.rk9.rdo.rdo.PatternSelectLogic
 
 class RDOPatternCompiler
@@ -221,14 +217,15 @@ class RDOPatternCompiler
 			«ENDIF»
 			«ENDFOR»
 			«ENDIF»
+
 			private static Converter<RelevantResources, Parameters> rule =
 					new Converter<RelevantResources, Parameters>()
 					{
 						@Override
 						public void run(RelevantResources resources, Parameters parameters)
 						{
-							«FOR e: rule.defaultMethods.filter[m | m.method.name == "execute"]»
-								«(e.method as OnExecute).algorithm.compilePatternAction()»
+							«FOR m: rule.defaultMethods.filter[m | m.name == "execute"]»
+								«m.body.compilePatternAction»
 							«ENDFOR»
 						}
 					};
@@ -510,8 +507,8 @@ class RDOPatternCompiler
 						@Override
 						public void run(RelevantResources resources, Parameters parameters)
 						{
-							«FOR e: op.defaultMethods.filter[m | m.method.name == "begin"]»
-								«(e.method as OnBegin).begin_algorithm.compilePatternAction()»
+							«FOR m: op.defaultMethods.filter[m | m.name == "begin"]»
+								«m.body.compilePatternAction»
 							«ENDFOR»
 						}
 					};
@@ -522,8 +519,8 @@ class RDOPatternCompiler
 						@Override
 						public void run(RelevantResources resources, Parameters parameters)
 						{
-							«FOR e: op.defaultMethods.filter[m | m.method.name == "end"]»
-								«(e.method as OnEnd).end_algorithm.compilePatternAction()»
+							«FOR m: op.defaultMethods.filter[m | m.name == "end"]»
+								«m.body.compilePatternAction»
 							«ENDFOR»
 						}
 					};
@@ -554,18 +551,27 @@ class RDOPatternCompiler
 				return true;
 			}
 
+			private static double duration(RelevantResources resources, Parameters parameters)
+			{
+				«FOR m: op.defaultMethods.filter[m | m.name == "duration"]»
+					«m.body.compileStatementContext(
+						(new LocalContext).populateFromPattern(op)
+					)»
+				«ENDFOR»
+			}
+
 			public static «op.name» executeRule(Parameters parameters)
 			{
 				RelevantResources resources = staticResources;
 
 				begin.run(resources, parameters);
 
-				«FOR e: op.defaultMethods.filter[m | m.method.name == "duration"]»
-					«op.name» instance = new «op.name»(Simulator.getTime() + «
-						(e.method as Duration).time.compileExpressionContext(
-							(new LocalContext).populateFromPattern(op)
-						).value», resources.copyUpdate(), parameters);
-				«ENDFOR»
+
+				«op.name» instance = new «op.name»(
+					Simulator.getTime() + duration(resources, parameters),
+					resources.copyUpdate(),
+					parameters);
+
 
 				Simulator.pushEvent(instance);
 

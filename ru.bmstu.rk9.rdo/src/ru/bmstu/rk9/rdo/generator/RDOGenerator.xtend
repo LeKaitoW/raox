@@ -46,12 +46,11 @@ import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
 import ru.bmstu.rk9.rdo.rdo.Frame
 
 import ru.bmstu.rk9.rdo.rdo.Result
-import ru.bmstu.rk9.rdo.rdo.OnInit
-import ru.bmstu.rk9.rdo.rdo.TerminateCondition
 import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
 import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
 import ru.bmstu.rk9.rdo.rdo.Resources
 import ru.bmstu.rk9.rdo.rdo.Pattern
+import ru.bmstu.rk9.rdo.rdo.DefaultMethod
 
 class RDOGenerator implements IMultipleResourceGenerator
 {
@@ -66,13 +65,17 @@ class RDOGenerator implements IMultipleResourceGenerator
 		for(resource : resources.resources)
 			declarationList.addAll(resource.allContents.filter(typeof(ResourceCreateStatement)).toIterable)
 
-		val simulationList = new java.util.ArrayList<OnInit>();
+		val simulationList = new java.util.ArrayList<DefaultMethod>();
 		for(resource : resources.resources)
-			simulationList.addAll(resource.allContents.filter(typeof(OnInit)).toIterable)
+			simulationList.addAll(resource.allContents.filter(typeof(DefaultMethod))
+				.filter[m | m.name == "init"].toIterable
+			)
 
-		val terminateConditionList = new java.util.ArrayList<TerminateCondition>();
+		val terminateConditionList = new java.util.ArrayList<DefaultMethod>();
 		for(resource : resources.resources)
-				terminateConditionList.addAll(resource.allContents.filter(typeof(TerminateCondition)).toIterable)
+				terminateConditionList.addAll(resource.allContents.filter(
+					typeof(DefaultMethod)
+				).filter[m | m.name == "terminateCondition"].toIterable)
 
 		var onInit = if(simulationList.size > 0) simulationList.get(0) else null;
 		var term = if(terminateConditionList.size > 0) terminateConditionList.get(0) else null;
@@ -153,7 +156,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 		}
 	}
 
-	def private compileStandalone(ResourceSet rs, OnInit onInit, TerminateCondition term)
+	def private compileStandalone(ResourceSet rs,
+			DefaultMethod onInit, DefaultMethod term
+	)
 	{
 		val project = RDONaming.getProjectName(rs.resources.get(0).URI)
 		'''
@@ -179,12 +184,22 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				«project»Model.init();
 
-				«IF onInit != null»«FOR c :onInit.body»
-					«c.compileStatement»
-				«ENDFOR»«ENDIF»
+				«IF onInit != null»
+					«onInit.body.compileStatement»
+				«ENDIF»
 
 				«IF term != null»
-					«term.compileStatement»
+				Simulator.addTerminateCondition
+				(
+					new TerminateCondition()
+					{
+						@Override
+						public boolean check()
+						{
+							«term.body.compileStatement»
+						}
+					}
+				);
 				«ENDIF»
 
 				«FOR r : rs.resources»
@@ -221,7 +236,9 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 	}
 
-	def private compileEmbedded(ResourceSet rs, OnInit onInit, TerminateCondition term)
+	def private compileEmbedded(ResourceSet rs,
+			DefaultMethod onInit, DefaultMethod term
+	)
 	{
 		val project = RDONaming.getProjectName(rs.resources.get(0).URI)
 		'''
@@ -243,12 +260,22 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				«project»Model.init();
 
-				«IF onInit != null»«FOR c :onInit.body»
-					«c.compileStatement»
-				«ENDFOR»«ENDIF»
+				«IF onInit != null»
+					«onInit.body.compileStatement»
+				«ENDIF»
 
 				«IF term != null»
-					«term.compileStatement»
+				Simulator.addTerminateCondition
+				(
+					new TerminateCondition()
+					{
+						@Override
+						public boolean check()
+						{
+							«term.body.compileStatement»
+						}
+					}
+				);
 				«ENDIF»
 
 				«FOR r : rs.resources»

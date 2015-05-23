@@ -144,7 +144,7 @@ DecisionPoint
 
 DecisionPointSome:
 	'dpt' name = ID '{'
-		('set' 'init' '(' ')' '{'
+		('set' initName = ID '(' ')' '{'
 			(initStatements += DptStatements ';')*
 		'}')?
 		( activities += DecisionPointActivity ';')+
@@ -166,14 +166,13 @@ DptStatements
 
 DecisionPointSearch:
 	'search' name = ID '{'
-		'set' 'init' '(' ')' '{'
+		'set' initName = ID '(' ')' '{'
 			(initStatements += DptSearchStatemets ';')*
 		'}'
 		( activities += DecisionPointSearchActivity ';')+
 	'}'
 ;
 
-//TODO need validate rule
 DecisionPointSearchActivity:
 	'activity' name = ID 'checks' pattern = [Pattern|FQN]
 	'(' ( parameters += ExpressionOr (
@@ -519,51 +518,8 @@ FrameObjectTriangle:
 //                      Default methods
 // ==========================================================
 DefaultMethod:
-	'set' method = DefaultMethodType
-;
-
-DefaultMethodType
-	: OnInit
-	| TerminateCondition
-	| Duration
-	| OnBegin
-	| OnEnd
-	| OnExecute
-;
-
-OnInit:
-	name = 'init' '(' ')' '{'
-		body += Statement*
-	'}'
-;
-
-TerminateCondition:
-	name = 'terminateCondition' '(' ')' '{'
-		'return' condition = ExpressionOr ';'
-	'}'
-;
-
-Duration:
-	name = 'duration' '(' ')' '{'
-		'return' time = ExpressionOr ';'
-	'}'
-;
-
-OnBegin:
-	name = 'begin' '(' ')' '{'
-		begin_algorithm = StatementList
-	'}'
-;
-
-OnEnd:
-	name = 'end' '(' ')' '{'
-		end_algorithm = StatementList
-	'}'
-;
-
-OnExecute:
-	name = 'execute' '(' ')' '{'
-		algorithm = StatementList
+	'set' name = ID '(' ')' '{'
+		body = StatementList
 	'}'
 ;
 
@@ -585,15 +541,6 @@ META_RelResType
 	| ResourceCreateStatement
 ;
 
-// это не работает. FQN рушит вызов методов, линкер требует нормальных имен
-//META_VariableForExpression
-//	: ResourceCreateStatement
-//	| LocalVariableDeclaration
-//	| Sequence
-//	| Constant
-//	| Function
-//	| EnumID
-//;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
