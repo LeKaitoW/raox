@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.TimerTask;
 
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
 
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
@@ -53,7 +52,8 @@ public class GraphFrame extends JFrame {
 	private void drawGraph(mxGraph graph, ArrayList<Node> nodeList,
 			Node parentNode) {
 		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(),
-				null, parentNode, 0, 0, 30, 30, fontColor + strokeColor);
+				null, parentNode, 0, 0, nodeWidth, nodeHeight, fontColor
+						+ strokeColor);
 		vertexMap.put(parentNode, vertex);
 		lastAddedVertexIndex = parentNode.index;
 		if (parentNode.parent != null)
@@ -95,8 +95,8 @@ public class GraphFrame extends JFrame {
 				Node node = nodeList.get(i);
 				if (!vertexMap.containsKey(node)) {
 					mxCell vertex = (mxCell) graph.insertVertex(
-							graph.getDefaultParent(), null, node, 0, 0, 30,
-							30, fontColor + strokeColor);
+							graph.getDefaultParent(), null, node, 0, 0,
+							nodeWidth, nodeHeight, fontColor + strokeColor);
 					vertexMap.put(node, vertex);
 					lastAddedVertexIndex = node.index;
 					if (node.parent != null)
@@ -110,6 +110,12 @@ public class GraphFrame extends JFrame {
 		}
 	}
 
+	final int fontSize = mxConstants.DEFAULT_FONTSIZE;
+	final int style = Font.PLAIN;
+	Font font = new Font("Arial", style, fontSize);
+	double scale = 1.0;
+	final int fontHeight = font.getSize();
+
 	public mxCell insertInfo(mxGraph graph, GraphInfo info) {
 		final String solutionCost = "Стоимость решения: "
 				+ Double.toString(info.solutionCost) + "\n";
@@ -119,11 +125,6 @@ public class GraphFrame extends JFrame {
 				+ Integer.toString(info.numNodes);
 		final String text = solutionCost + numOpened + numNodes;
 
-		final int fontSize = mxConstants.DEFAULT_FONTSIZE;
-
-		final int style = Font.PLAIN;
-		final Font font = new Font("Arial", style, fontSize);
-		double scale = 1.0;
 		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
 
 		final double delta = 20;
@@ -154,11 +155,6 @@ public class GraphFrame extends JFrame {
 		final String text = nodeIndex + parentIndex + g + h + ruleName
 				+ ruleCost;
 
-		final int fontSize = mxConstants.DEFAULT_FONTSIZE;
-
-		final int style = Font.PLAIN;
-		Font font = new Font("Arial", style, fontSize);
-		double scale = 1.0;
 		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
 
 		final double delta = 20;
@@ -186,13 +182,17 @@ public class GraphFrame extends JFrame {
 
 	int maxNumOfNodesInWidth;
 
-	double nodeWidth = 30;
+	int nodeWidth = 30;
 
-	double delta = nodeWidth / 2;
-	
-	double minNodeWidth = 5;
+	int nodeHeight = nodeWidth;
 
-	private void zoomToF(mxGraph graph, mxCompactTreeLayout layout,
+	int nodeDistance = 10;
+
+	int levelDistance = 60;
+
+	int minNodeWidth = 5;
+
+	private void zoomToFit(mxGraph graph, mxCompactTreeLayout layout,
 			mxGraphComponent graphComponent) {
 		Dimension frameDimension = this.getSize();
 
@@ -200,16 +200,18 @@ public class GraphFrame extends JFrame {
 		mxRectangle graphBounds = graph.getBoundsForCells(cells, false, false,
 				false);
 
-		maxNumOfNodesInWidth = (int) ((graphBounds.getWidth() + 2 * delta) / (nodeWidth + 2 * delta));
+		maxNumOfNodesInWidth = (int) ((graphBounds.getWidth() + 2 * nodeDistance) / (nodeWidth + 2 * nodeDistance));
 
 		double period = frameDimension.getWidth() / maxNumOfNodesInWidth;
 
 		if (nodeWidth < minNodeWidth) {
 			nodeWidth = minNodeWidth;
-			delta = nodeWidth;
+			nodeHeight = nodeWidth;
+			nodeDistance = nodeWidth;
 		} else {
-			nodeWidth = 0.8 * period;
-			delta = 0.1 * period;
+			nodeWidth = (int) (0.8 * period);
+			nodeHeight = nodeWidth;
+			nodeDistance = (int) (0.1 * period);
 		}
 
 		mxRectangle bound = new mxRectangle(0, 0, nodeWidth, nodeWidth);
@@ -220,9 +222,12 @@ public class GraphFrame extends JFrame {
 
 		graph.getModel().beginUpdate();
 		try {
-			graphComponent.setAlignmentX(0);
+			if (nodeHeight < fontHeight)
+				for (mxCell cell : vertexMap.values()) {
+					cell.setStyle(cell.getStyle() + "textOpacity=0;");
+				}
 			graph.resizeCells(cells, bounds);
-			layout.setNodeDistance((int) delta);
+			layout.setNodeDistance(nodeDistance);
 			layout.execute(graph.getDefaultParent());
 		} finally {
 			graph.getModel().endUpdate();
@@ -231,14 +236,14 @@ public class GraphFrame extends JFrame {
 		setScrollsToCenter(graphComponent);
 		graph.refresh();
 	}
-	
+
 	private void setScrollsToCenter(mxGraphComponent graphComponent) {
 		Rectangle paneBounds = graphComponent.getViewport().getViewRect();
 		Dimension paneSize = graphComponent.getViewport().getViewSize();
-		
+
 		int x = (paneSize.width - paneBounds.width) / 2;
 		int y = (paneSize.height - paneBounds.height) / 2;
-		graphComponent.getViewport().setViewPosition(new Point(x,y));
+		graphComponent.getViewport().setViewPosition(new Point(x, y));
 	}
 
 	public GraphFrame(int dptNum, int width, int height) {
@@ -287,8 +292,8 @@ public class GraphFrame extends JFrame {
 
 		mxCompactTreeLayout layout = new mxCompactTreeLayout(graph, false);
 
-		layout.setLevelDistance(40);
-		layout.setNodeDistance((int) delta);
+		layout.setLevelDistance(levelDistance);
+		layout.setNodeDistance(nodeDistance);
 		layout.setEdgeRouting(false);
 
 		layout.execute(graph.getDefaultParent());
@@ -300,7 +305,6 @@ public class GraphFrame extends JFrame {
 					return;
 				haveNewRealTimeData = false;
 				graph.getModel().beginUpdate();
-				boolean updated = false;
 				try {
 					drawNewVertex(graph, nodeList, dptNum);
 
@@ -310,31 +314,13 @@ public class GraphFrame extends JFrame {
 					mxRectangle graphBounds = graph.getBoundsForCells(cells,
 							false, false, false);
 					if (graphBounds.getWidth() > frameDimension.getWidth()) {
-						updated = true;
-						// System.out.println("g b width = " +
-						// graphBounds.getWidth());
-						// System.out.println("f b width = " +
-						// frameDimension.getWidth());
-						zoomToF(graph, layout, graphComponent);
-						graph.setMaximumGraphBounds(new mxRectangle(
-								frameDimension.getWidth() / 2, frameDimension
-										.getHeight() / 2, frameDimension
-										.getWidth(), frameDimension.getHeight()));
-						layout.execute(graph.getDefaultParent());
+						layout.setMoveTree(true);
+						zoomToFit(graph, layout, graphComponent);
 						graph.refresh();
 					} else
 						layout.execute(graph.getDefaultParent());
 				} finally {
 					graph.getModel().endUpdate();
-//					if (updated) {
-//						Object[] cells = vertexMap.values().toArray();
-//						System.out.println("g a width = "
-//								+ graph.getBoundsForCells(cells, false, false,
-//										false).getWidth());
-//						Dimension frameDimension = getSize();
-//						System.out.println("f a width = "
-//								+ frameDimension.getWidth());
-//					}
 				}
 				boolean isFinished;
 
@@ -426,48 +412,22 @@ public class GraphFrame extends JFrame {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (e.getKeyChar() == 'i') {
-					System.err.println("ZOOM in");
+				if (e.isControlDown() && e.getKeyChar() == '+') {
 					graphComponent.zoomIn();
 				}
-				if (e.getKeyChar() == 'j') {
-					System.err.println("ZOOM out");
+				if (e.isControlDown() && e.getKeyChar() == '-') {
 					graphComponent.zoomOut();
 				}
-
-				if (e.getKeyChar() == 'k') {
-					mxRectangle bound = new mxRectangle(0, 0, 5, 5);
-					mxRectangle[] bounds = new mxRectangle[vertexMap.size()];
-					for (int i = 0; i < vertexMap.size(); i++) {
-						bounds[i] = bound;
-					}
-					Object[] cells = new mxCell[vertexMap.size()];
-					cells = vertexMap.values().toArray();
-					graph.getModel().beginUpdate();
-					try {
-						graph.resizeCells(cells, bounds);
-					} finally {
-						graph.getModel().endUpdate();
-					}
-					layout.execute(graph.getDefaultParent());
-					graph.refresh();
-				}
-				if (e.getKeyChar() == 'p') {
-					System.err.println("ppp");
+				if (e.isControlDown() && e.getKeyChar() != 'z'
+						&& e.getKeyCode() == 90) {
+					Dimension frameDimension = getSize();
 					Object[] cells = vertexMap.values().toArray();
-					mxRectangle bounds = graph.getBoundsForCells(cells, false,
-							false, false);
-					System.err.println("bounds: " + bounds.toString());
-					graph.insertVertex(graph.getDefaultParent(), null, null, 0,
-							0, bounds.getWidth(), bounds.getHeight(), fontColor
-									+ strokeColor + "opacity=20;");
-				}
-				if (e.getKeyChar() == 'z') {
-					zoomToF(graph, layout, graphComponent);
-				}
-				if (e.getKeyChar() == 'e') {
-					graph.repaint();
-					System.err.println("repaint");
+					mxRectangle graphBounds = graph.getBoundsForCells(cells,
+							false, false, false);
+					while ((graphBounds.getWidth() >= frameDimension.getWidth())
+							&& (nodeWidth > minNodeWidth)) {
+						zoomToFit(graph, layout, graphComponent);
+					}
 				}
 			}
 		});
