@@ -8,13 +8,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
-<<<<<<< HEAD
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.Index;
-=======
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.EventIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceIndex;
->>>>>>> 8f335bb... new grammar: fix serialization config (bogachev-pa/rdo-xtext#25)
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceTypeIndex;
@@ -102,8 +98,6 @@ public class Database {
 		for (int i = 0; i < patterns.length(); i++) {
 			JSONObject pattern = patterns.getJSONObject(i);
 			String name = pattern.getString("name");
-			CollectedDataNode patternNode = indexHelper.addPattern(name);
-			patternNode.setIndex(new PatternIndex(i, pattern));
 			patternsByName.put(name, pattern);
 		}
 
@@ -405,8 +399,6 @@ public class Database {
 		if (!sensitivityList.contains(name))
 			return;
 
-		PatternIndex index;
-
 		PatternPoolEntry poolEntry = null;
 		Index dptIndex = null;
 
@@ -415,8 +407,9 @@ public class Database {
 			return;
 		CollectedDataNode dptNode = indexHelper.getDecisionPoint(poolEntry.dpt
 				.getName());
-		dptIndex = (Index) dptNode.getIndex();
-		index = (PatternIndex) dptNode.getChildren()
+
+		dptIndex = (DecisionPointIndex) dptNode.getIndex();
+		PatternIndex index = (PatternIndex) dptNode.getChildren()
 				.get(poolEntry.activity.getName()).getIndex();
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
@@ -551,7 +544,7 @@ public class Database {
 		if (!sensitivityList.contains(name))
 			return;
 
-		AbstractIndex index = indexHelper.getResult(name).getIndex();
+		Index index = indexHelper.getResult(name).getIndex();
 
 		ByteBuffer data = result.serialize();
 		if (!index.isEmpty()) {

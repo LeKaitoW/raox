@@ -15,6 +15,8 @@ public class DbIndexHelper {
 		modelName = name;
 		CollectedDataNode modelIndex = root.addChild(name);
 		for (SerializationCategory value : SerializationCategory.values()) {
+			if (value == SerializationCategory.PATTERNS)
+				continue;
 			modelIndex.addChild(value.getName());
 		}
 		return modelIndex;
@@ -43,15 +45,6 @@ public class DbIndexHelper {
 
 	public final CollectedDataNode getResult(String name) {
 		return getCategory(SerializationCategory.RESULTS).getChildren().get(
-				name);
-	}
-
-	public final CollectedDataNode addPattern(String name) {
-		return getCategory(SerializationCategory.PATTERNS).addChild(name);
-	}
-
-	public final CollectedDataNode getPattern(String name) {
-		return getCategory(SerializationCategory.PATTERNS).getChildren().get(
 				name);
 	}
 

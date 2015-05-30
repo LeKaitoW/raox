@@ -12,18 +12,8 @@ public class CollectedDataNode {
 		RESOURCE_TYPE, RESOURCE, RESOURCE_PARAMETER, RESULT, PATTERN, EVENT, SEARCH, DECISION_POINT
 	}
 
-	public static interface AbstractIndex {
-		public List<Integer> getEntries();
-
-		public void addEntry(Integer entry);
-
-		public int getNumber();
-
-		public boolean isEmpty();
-	}
-
-	public static class Index implements AbstractIndex {
-		public Index(int number) {
+	public static class Index {
+		public Index(int number, IndexType type) {
 			this.number = number;
 		}
 
@@ -159,11 +149,11 @@ public class CollectedDataNode {
 		return child;
 	}
 
-	public final void setIndex(AbstractIndex index) {
+	public final void setIndex(Index index) {
 		this.index = index;
 	}
 
-	public final AbstractIndex getIndex() {
+	public final Index getIndex() {
 		return index;
 	}
 
@@ -191,7 +181,7 @@ public class CollectedDataNode {
 		return SerializationConfig.getRelativeElementName(name);
 	}
 
-	private AbstractIndex index = null;
+	private Index index = null;
 	private final String name;
 	private final CollectedDataNode parent;
 	private final Map<String, CollectedDataNode> children =

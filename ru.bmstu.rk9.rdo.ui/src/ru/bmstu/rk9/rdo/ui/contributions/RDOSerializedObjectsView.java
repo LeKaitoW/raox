@@ -13,6 +13,9 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.Index;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.IndexType;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceIndex;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 
 public class RDOSerializedObjectsView extends ViewPart {
@@ -115,12 +118,49 @@ class RDOSerializedObjectsLabelProvider implements ILabelProvider {
 
 	@Override
 	public Image getImage(Object element) {
-		return null;
+		CollectedDataNode node = (CollectedDataNode) element;
+		Index index = node.getIndex();
+		URL url;
+		Display display = PlatformUI.getWorkbench().getDisplay();
+
+		if (index == null) {
+			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+					new org.eclipse.core.runtime.Path(
+							"icons/cross-small-white.png"), null);
+		} else if (index.getType() == IndexType.RESOURCE
+				&& ((ResourceIndex) index).isErased()) {
+			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+					new org.eclipse.core.runtime.Path("icons/cross.png"), null);
+		} else {
+			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+					new org.eclipse.core.runtime.Path("icons/globe-small.png"),
+					null);
+		}
+
+		ImageDescriptor img = ImageDescriptor.createFromURL(url);
+		return new Image(display, img.getImageData());
 	}
 
 	@Override
 	public String getText(Object element) {
 		CollectedDataNode node = (CollectedDataNode) element;
 		return node.getName();
+	}
+
+	@Override
+	public Color getForeground(Object element) {
+		CollectedDataNode node = (CollectedDataNode) element;
+		Index index = node.getIndex();
+		if (index != null && index.getType() == IndexType.RESOURCE
+				&& ((ResourceIndex) index).isErased()) {
+			Display display = PlatformUI.getWorkbench().getDisplay();
+			return new Color(display, 0x88, 0x88, 0x88);
+		}
+		return null;
+	}
+
+	@Override
+	public Color getBackground(Object element) {
+		return null;
 	}
 }
