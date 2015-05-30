@@ -41,7 +41,7 @@ class RDOEnumCompiler
 			'''
 
 		for(v : e.values)
-			enums = enums + "\t\t.put(\"" + v.name + "\")\n"
+			enums = enums + "\t\t.put(\"" + v + "\")\n"
 
 		enums = enums +
 			'''
@@ -66,7 +66,7 @@ class RDOEnumCompiler
 		{
 			if(flag)
 				body = body + ", "
-			body = body + i.name
+			body = body + i
 			flag = true
 		}
 		return body

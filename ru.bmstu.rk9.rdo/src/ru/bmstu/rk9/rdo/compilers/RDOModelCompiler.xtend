@@ -21,7 +21,8 @@ import ru.bmstu.rk9.rdo.rdo.ResultGetValue
 
 import ru.bmstu.rk9.rdo.generator.LocalContext
 import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
-import ru.bmstu.rk9.rdo.rdo.Resources
+import ru.bmstu.rk9.rdo.rdo.Event
+import ru.bmstu.rk9.rdo.rdo.RDOModel
 
 class RDOModelCompiler
 {
@@ -52,23 +53,23 @@ class RDOModelCompiler
 
 				Database db = Simulator.getDatabase();
 				«FOR r : rs.resources»
-					«FOR rtp : r.allContents.filter(typeof(ResourceCreateStatement))
-							.filter(res | res.eContainer instanceof Resources).toIterable»
-							«IF rtp.name != null»
-								«rtp.reference.fullyQualifiedName» «rtp.name» = new «
-									rtp.reference.fullyQualifiedName»(«if(rtp.parameters != null)
-										rtp.parameters.compileExpression.value else ""»);
-									«rtp.name».register("«rtp.fullyQualifiedName»");
+					«FOR res : r.allContents.filter(typeof(ResourceCreateStatement))
+							.filter(res | res.eContainer instanceof RDOModel).toIterable»
+							«IF res.name != null»
+								«res.reference.fullyQualifiedName» «res.name» = new «
+									res.reference.fullyQualifiedName»(«if(res.parameters != null)
+										res.parameters.compileExpression.value else ""»);
+									«res.name».register("«res.fullyQualifiedName»");
 								db.addResourceEntry(
 										Database.ResourceEntryType.CREATED,
-										«rtp.name»,
-										"«rtp.fullyQualifiedName»");
+										«res.name»,
+										"«res.fullyQualifiedName»");
 							«ELSE»
 								db.addResourceEntry(
 										Database.ResourceEntryType.CREATED,
-										new «rtp.reference.fullyQualifiedName»(«if(rtp.parameters != null)
-											rtp.parameters.compileExpression.value else ""»).register(),
-										"«rtp.fullyQualifiedName»");
+										new «res.reference.fullyQualifiedName»(«if(res.parameters != null)
+											res.parameters.compileExpression.value else ""»).register(),
+										"«res.fullyQualifiedName»");
 							«ENDIF»
 					«ENDFOR»
 				«ENDFOR»
@@ -184,6 +185,14 @@ class RDOModelCompiler
 					.put(«p.fullyQualifiedName».structure)
 					'''
 
+		var events = ""
+		for(r : rs.resources)
+			for(e : r.allContents.filter(typeof(Event)).toIterable)
+				events = events +
+					'''
+					.put(«e.fullyQualifiedName».structure)
+					'''
+
 		var decisionPoints = ""
 		for(r : rs.resources)
 			for(dpt : r.allContents.filter(typeof(DecisionPoint)).toIterable)
@@ -224,6 +233,11 @@ class RDOModelCompiler
 			)
 			.put
 			(
+				"events", new JSONArray()
+					«events»
+			)
+			.put
+			(
 				"decision_points", new JSONArray()
 					«decisionPoints»
 			)
@@ -243,7 +257,7 @@ class RDOModelCompiler
 		for(r : rs.resources)
 			for(rss : r.allContents
 				.filter(typeof(ResourceCreateStatement))
-				.filter(s | s.eContainer instanceof Resources)
+				.filter(s | s.eContainer instanceof RDOModel)
 				.filter[s | s.reference == rtp]
 				.filter[s | s.name != null]
 				.toIterable)

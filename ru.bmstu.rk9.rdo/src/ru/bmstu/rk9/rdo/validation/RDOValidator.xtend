@@ -329,10 +329,10 @@ class RDOValidator extends AbstractRDOValidator
 		switch object
 		{
 			ResourceType:
-				RdoPackage.eINSTANCE.META_RelResType_Name
+				RdoPackage.eINSTANCE.resourceType_Name
 
 			ResourceCreateStatement:
-				RdoPackage.eINSTANCE.META_RelResType_Name
+				RdoPackage.eINSTANCE.resourceCreateStatement_Name
 
 			Sequence:
 				RdoPackage.eINSTANCE.sequence_Name

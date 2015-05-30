@@ -55,6 +55,15 @@ public class DbIndexHelper {
 				name);
 	}
 
+	public final CollectedDataNode addEvent(String name) {
+		return getCategory(SerializationCategory.EVENTS).addChild(name);
+	}
+
+	public final CollectedDataNode getEvent(String name) {
+		return getCategory(SerializationCategory.EVENTS).getChildren().get(
+				name);
+	}
+
 	public final CollectedDataNode addDecisionPoint(String name) {
 		return getCategory(SerializationCategory.DECISION_POINTS)
 				.addChild(name);

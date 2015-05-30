@@ -134,7 +134,7 @@ class RDONaming
 					"." + object.eContainer.nameGeneric + "." + object.name
 
 			ResourceCreateStatement:
-				return object.eContainer.eContainer.nameGeneric + "." + object.name
+				return object.eContainer.nameGeneric + "." + object.name
 
 			Sequence:
 				return object.eContainer.nameGeneric + "." + object.name

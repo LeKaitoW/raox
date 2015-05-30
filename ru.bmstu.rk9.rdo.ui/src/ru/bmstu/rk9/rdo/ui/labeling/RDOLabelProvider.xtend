@@ -11,7 +11,6 @@ import ru.bmstu.rk9.rdo.rdo.RDOModel
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ParameterType
 
-import ru.bmstu.rk9.rdo.rdo.Resources
 import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
@@ -65,8 +64,8 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def image(ParameterType p) { "parameter.gif" }
 
 	// Resource declaration
-	def  text(Resources rss) { "rss : " + rss.resource.name }
-	def image(Resources rss) { "plus.gif" }
+	def  text(ResourceCreateStatement rss) { "rss : " + rss.name }
+	def image(ResourceCreateStatement rss) { "plus.gif" }
 
 	// Constants
 	def image(Constant c) { "constant2.gif" }

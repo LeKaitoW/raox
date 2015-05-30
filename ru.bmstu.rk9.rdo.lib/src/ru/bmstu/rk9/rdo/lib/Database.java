@@ -9,7 +9,12 @@ import java.util.List;
 import java.util.Map;
 
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
+<<<<<<< HEAD
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.Index;
+=======
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.EventIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceIndex;
+>>>>>>> 8f335bb... new grammar: fix serialization config (bogachev-pa/rdo-xtext#25)
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceTypeIndex;
@@ -46,7 +51,7 @@ public class Database {
 	}
 
 	public enum SerializationCategory {
-		RESOURCES("Resources"), PATTERNS("Patterns"), DECISION_POINTS(
+		RESOURCES("Resources"), PATTERNS("Patterns"), EVENTS("Events"), DECISION_POINTS(
 				"Decision points"), RESULTS("Results"), SEARCH("Search");
 
 		SerializationCategory(String name) {
@@ -95,14 +100,19 @@ public class Database {
 		JSONArray patterns = modelStructure.getJSONArray("patterns");
 		Map<String, JSONObject> patternsByName = new HashMap<String, JSONObject>();
 		for (int i = 0; i < patterns.length(); i++) {
-			JSONObject patternStructure = patterns.getJSONObject(i);
-			String name = patternStructure.getString("name");
-			String type = patternStructure.getString("type");
+			JSONObject pattern = patterns.getJSONObject(i);
+			String name = pattern.getString("name");
 			CollectedDataNode patternNode = indexHelper.addPattern(name);
-			if (type.equals("event"))
-				patternNode.setIndex(new PatternIndex(i, patternStructure));
-			else
-				patternsByName.put(name, patternStructure);
+			patternNode.setIndex(new PatternIndex(i, pattern));
+			patternsByName.put(name, pattern);
+		}
+
+		JSONArray events = modelStructure.getJSONArray("events");
+		for (int i = 0; i < events.length(); i++) {
+			JSONObject event = events.getJSONObject(i);
+			String name = event.getString("name");
+			CollectedDataNode eventNode = indexHelper.addEvent(name);
+			eventNode.setIndex(new EventIndex(i, event));
 		}
 
 		JSONArray decisionPoints = modelStructure
@@ -282,7 +292,24 @@ public class Database {
 
 		switch (status) {
 		case CREATED:
-			resourceIndex = new Index(resource.getNumber());
+			CollectedDataNode resourceNode = resourceTypeNode.addChild(name);
+
+			resourceIndex = new ResourceIndex(resource.getNumber());
+			resourceNode.setIndex(resourceIndex);
+
+			JSONArray parameters = resourceTypeIndex.getStructure()
+					.getJSONArray("parameters");
+			for (int paramNum = 0; paramNum < parameters.length(); paramNum++) {
+				JSONObject param = parameters.getJSONObject(paramNum);
+				ValueType paramType = ValueType.get(param.getString("type"));
+				int offset = (paramType != ValueType.STRING) ? param
+						.getInt("offset") : -1;
+				resourceNode.addChild(
+						parameters.getJSONObject(paramNum).getString("name"))
+						.setIndex(
+								new ResourceParameterIndex(paramNum, paramType,
+										offset));
+			}
 
 			resourceTypeNode.addChild(name).setIndex(resourceIndex);
 			break;
@@ -413,6 +440,16 @@ public class Database {
 		index.entries.add(allEntries.size() - 1);
 	}
 
+	private void fillRelevantResources(ByteBuffer data, int[] relevantResources) {
+		data.putInt(relevantResources.length);
+		for (int number : relevantResources)
+			data.putInt(number);
+	}
+
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ------------------------ PATTERN ENTRIES ---------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
 	public void addEventEntry(Event event) {
 		String name = event.getName();
 		if (!sensitivityList.contains(name))
@@ -420,8 +457,7 @@ public class Database {
 
 		if (!sensitivityList.contains(name))
 			return;
-		PatternIndex index = (PatternIndex) indexHelper.getPattern(name)
-				.getIndex();
+		EventIndex index = (EventIndex) indexHelper.getEvent(name).getIndex();
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
 		header.put((byte) EntryType.PATTERN.ordinal())
@@ -435,12 +471,6 @@ public class Database {
 
 		addEntry(entry);
 		index.entries.add(allEntries.size() - 1);
-	}
-
-	private void fillRelevantResources(ByteBuffer data, int[] relevantResources) {
-		data.putInt(relevantResources.length);
-		for (int number : relevantResources)
-			data.putInt(number);
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

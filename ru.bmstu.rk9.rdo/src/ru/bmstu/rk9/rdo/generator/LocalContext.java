@@ -14,7 +14,6 @@ import ru.bmstu.rk9.rdo.rdo.FunctionParameter;
 import ru.bmstu.rk9.rdo.rdo.Event;
 import ru.bmstu.rk9.rdo.rdo.RelevantResource;
 import ru.bmstu.rk9.rdo.rdo.GroupBy;
-import ru.bmstu.rk9.rdo.rdo.EnumID;
 import ru.bmstu.rk9.rdo.generator.LocalContext;
 
 public class LocalContext {
@@ -51,11 +50,11 @@ public class LocalContext {
 	}
 
 	public LocalContext populateWithEnums(RDOEnum enm) {
-		for (EnumID id : enm.getType().getValues())
+		for (String id : enm.getType().getValues())
 			this.addRawEntry(
-					enm.getType().getName() + "." + id.getName(),
+					enm.getType().getName() + "." + id,
 					RDOExpressionCompiler.compileType(enm),
-					RDOExpressionCompiler.compileType(enm) + "." + id.getName());
+					RDOExpressionCompiler.compileType(enm) + "." + id);
 
 		return this;
 	}

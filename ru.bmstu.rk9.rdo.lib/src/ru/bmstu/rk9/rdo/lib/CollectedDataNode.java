@@ -8,6 +8,10 @@ import java.util.TreeMap;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
 public class CollectedDataNode {
+	public enum IndexType {
+		RESOURCE_TYPE, RESOURCE, RESOURCE_PARAMETER, RESULT, PATTERN, EVENT, SEARCH, DECISION_POINT
+	}
+
 	public static interface AbstractIndex {
 		public List<Integer> getEntries();
 
@@ -76,6 +80,16 @@ public class CollectedDataNode {
 	public static class PatternIndex extends Index {
 		public PatternIndex(int number, JSONObject structure) {
 			super(number);
+			this.structure = structure;
+		}
+
+		JSONObject structure;
+		int timesExecuted = 0;
+	}
+
+	public static class EventIndex extends Index {
+		public EventIndex(int number, JSONObject structure) {
+			super(number, IndexType.EVENT);
 			this.structure = structure;
 		}
 

@@ -19,6 +19,7 @@ import static extension ru.bmstu.rk9.rdo.compilers.RDOEventCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDODecisionPointCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOFrameCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.RDOResultCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
 
 import static extension ru.bmstu.rk9.rdo.RDOQualifiedNameProvider.*
 
@@ -47,8 +48,6 @@ import ru.bmstu.rk9.rdo.rdo.Frame
 
 import ru.bmstu.rk9.rdo.rdo.Result
 import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
-import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
-import ru.bmstu.rk9.rdo.rdo.Resources
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.DefaultMethod
 
@@ -141,7 +140,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 			val info = variableIndex.get(r.resourceName)
 
 			for(rss : r.allContents.filter(typeof(ResourceCreateStatement))
-					.filter(res | res.eContainer instanceof Resources).toIterable
+					.filter(res | res.eContainer instanceof RDOModel).toIterable
 			)
 				info.resources.put(rss.name, info.newRSS(rss))
 

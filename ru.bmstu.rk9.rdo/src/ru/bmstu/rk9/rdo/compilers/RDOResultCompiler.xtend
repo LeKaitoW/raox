@@ -482,7 +482,7 @@ class RDOResultCompiler
 									.parameters.findFirst[p | p.name == expr.type.substring(
 										expr.type.lastIndexOf('.') + 1, expr.type.length - 5)]
 											 as ParameterTypeBasic).type as RDOEnum).type.values»
-							.put("«e.name»")
+							.put("«e»")
 						«ENDFOR»
 				);
 			'''

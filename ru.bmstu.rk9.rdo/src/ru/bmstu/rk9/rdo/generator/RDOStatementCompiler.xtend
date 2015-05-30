@@ -39,12 +39,12 @@ class RDOStatementCompiler
 		switch cont
 		{
 			Pattern:
-					'''
-					{
-						«st.compileStatementContext(
-						(new LocalContext).populateFromPattern(cont))»
-					}
-					'''
+				'''
+				{
+					«st.compileStatementContext(
+					(new LocalContext).populateFromPattern(cont))»
+				}
+				'''
 		}
 	}
 
@@ -203,9 +203,16 @@ class RDOStatementCompiler
 							st.reference.fullyQualifiedName»(«if(st.parameters != null)
 								st.parameters.compileExpression.value else ""»);
 						«st.name».register();
+						Simulator.getDatabase().addResourceEntry(
+								Database.ResourceEntryType.CREATED,
+								«st.name»,
+								"«st.findResourceSender»");
 					«ELSE»
-						new «st.reference.fullyQualifiedName»(«if(st.parameters != null)
-								st.parameters.compileExpression.value else ""»).register();
+						Simulator.getDatabase().addResourceEntry(
+								Database.ResourceEntryType.CREATED,
+								new «st.reference.fullyQualifiedName»(«if(st.parameters != null)
+									st.parameters.compileExpression.value else ""»).register(),
+								"«st.findResourceSender»");
 					«ENDIF»
 					'''
 			}
@@ -284,6 +291,17 @@ class RDOStatementCompiler
 						'''
 				}
 		}
+	}
+
+	def private static String findResourceSender(ResourceCreateStatement st)
+	{
+		var EObject cont = st.eContainer;
+		while (cont != null) {
+			if (cont instanceof Pattern || cont instanceof Event)
+				return cont.fullyQualifiedName
+			cont = cont.eContainer
+		}
+		return ""
 	}
 
 	def static String compileFrameColour(FrameColour colour)

@@ -13,7 +13,7 @@ RDOModel:
 
 RDOEntity
 	: ResourceType
-	| Resources
+	| ResourceCreateStatement
 	| Sequence
 	| Constant
 	| Function
@@ -62,10 +62,6 @@ ParameterTypeArray:
 // ==========================================================
 //                           Resources
 // ==========================================================
-Resources:
-	resource = ResourceCreateStatement ';'
-;
-
 ResourceExpressionList:
 	expressions += (ResourceParameterExpression) (',' expressions += ResourceParameterExpression)*
 ;
@@ -364,8 +360,7 @@ ResultWatchState:
 
 ResultWatchQuant:
 	'watchQuant' '(' resource = [ResourceType|FQN]
-		',' ('any' | logic = ExpressionOr) '
-	)'
+		',' ('any' | logic = ExpressionOr) ')'
 ;
 
 ResultWatchValue:
@@ -529,7 +524,7 @@ DefaultMethod:
 //                        Enum Declarations
 // ==========================================================
 EnumDeclaration:
-	'enum' name = ID '{' values += EnumID (',' values += EnumID)* '}'
+	'enum' name = ID '{' values += ID (',' values += ID)* '}'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -588,10 +583,6 @@ RDOEnum:
 	type = [EnumDeclaration|FQN]
 ;
 
-EnumID:
-	name = ID
-;
-
 RDOArray:
 	'array' '<' arraytype = RDOType '>'
 ;
@@ -608,21 +599,21 @@ StatementList:
 
 Statement
 	: empty ?= ';'
-	| ExpressionStatement ';'
+	| ExpressionStatement
 	| NestedStatement
-	| LocalVariableDeclaration ';'
+	| LocalVariableDeclaration
 	| IfStatement
 	| ForStatement
-	| BreakStatement ';'
-	| ReturnStatement ';'
-	| StopStatement ';' // not implemented in generator
-	| PlanStatement ';'
-	| ResourceCreateStatement ';'
-	| ResourceEraseStatement ';'
+	| BreakStatement
+	| ReturnStatement
+	| StopStatement // not implemented in generator
+	| PlanStatement
+	| ResourceCreateStatement
+	| ResourceEraseStatement
 ;
 
 ExpressionStatement:
-	expr = ExpressionAssignment
+	expr = ExpressionAssignment ';'
 ;
 
 NestedStatement:
@@ -630,7 +621,7 @@ NestedStatement:
 ;
 
 LocalVariableDeclaration:
-	type = RDOType list = VariableDeclarationList
+	type = RDOType list = VariableDeclarationList ';'
 ;
 
 VariableDeclarationList:
@@ -658,29 +649,29 @@ ForStatement:
 ;
 
 BreakStatement:
-	break ?= 'break'
+	break ?= 'break' ';'
 ;
 
 ReturnStatement:
-	invoke = 'return' return = Expression?
+	invoke = 'return' return = Expression? ';'
 ;
 
 StopStatement:
-	event = [Event|FQN] '.' 'stop' '(' ')'
+	event = [Event|FQN] '.' 'stop' '(' ')' ';'
 ;
 
 PlanStatement:
 	event = [Event|FQN] '.' 'plan' '(' value = Expression
-		(',' parameters = ResourceExpressionList)? ')'
+		(',' parameters = ResourceExpressionList)? ')' ';'
 ;
 
 ResourceCreateStatement:
 	('resource' name = ID '=')? reference = [ResourceType|FQN]
-		'.' 'create' '(' ( parameters = ResourceExpressionList )? ')'
+		'.' 'create' '(' ( parameters = ResourceExpressionList )? ')' ';'
 ;
 
 ResourceEraseStatement:
-	relres = [RelevantResource | FQN] '.' 'erase' '('')'
+	relres = [RelevantResource | FQN] '.' 'erase' '('')' ';'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

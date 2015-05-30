@@ -81,8 +81,7 @@ class RDOEventCompiler
 			}
 
 			public static final JSONObject structure = new JSONObject()
-				.put("name", "«evn.fullyQualifiedName»")
-				.put("type", "event");
+				.put("name", "«evn.fullyQualifiedName»");
 		}
 		'''
 	}
