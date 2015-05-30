@@ -324,6 +324,8 @@ public class RDOTraceView extends ViewPart {
 			private final Runnable updater = new Runnable() {
 				@Override
 				public void run() {
+					if (!readyForInput())
+						return;
 					final List<Entry> allEntries = Simulator.getDatabase()
 							.getAllEntries();
 					final int size = allEntries.size();

@@ -186,6 +186,7 @@ public class Simulator {
 		}
 		INSTANCE.database.addSystemEntry(simFinishType);
 		INSTANCE.tracer.notifyCommonSubscriber();
+		INSTANCE.database.getIndexHelper().notifyCommonSubscriber();
 		notifyChange("ExecutionComplete");
 		isRunning = false;
 		return code;

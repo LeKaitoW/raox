@@ -13,8 +13,12 @@ import ru.bmstu.rk9.rdo.lib.CollectedDataNode.EventIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.PatternIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.DecisionPointIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceTypeIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceParameterIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex.SearchInfo;
+import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ValueType;
 import ru.bmstu.rk9.rdo.lib.json.*;
 
 public class Database {
@@ -78,11 +82,6 @@ public class Database {
 			ResourceTypeIndex resourceTypeIndex = new ResourceTypeIndex(i,
 					resourceType.getJSONObject("structure"));
 			typeNode.setIndex(resourceTypeIndex);
-
-			JSONArray resources = resourceType.getJSONArray("resources");
-			for (int j = 0; j < resources.length(); j++)
-				typeNode.addChild(resources.getString(j))
-						.setIndex(new Index(j));
 		}
 
 		JSONArray results = modelStructure.getJSONArray("results");
@@ -119,7 +118,7 @@ public class Database {
 			case "prior":
 				CollectedDataNode dptNode = indexHelper
 						.addDecisionPoint(decisionPoint.getString("name"));
-				dptNode.setIndex(new Index(i));
+				dptNode.setIndex(new DecisionPointIndex(i));
 
 				JSONArray activities = decisionPoint.getJSONArray("activities");
 				for (int j = 0; j < activities.length(); j++) {
@@ -264,7 +263,7 @@ public class Database {
 		ResourceTypeIndex resourceTypeIndex = (ResourceTypeIndex) resourceTypeNode
 				.getIndex();
 
-		Index resourceIndex;
+		ResourceIndex resourceIndex;
 
 		String name = resource.getName();
 		if (name != null) {
@@ -296,8 +295,10 @@ public class Database {
 			for (int paramNum = 0; paramNum < parameters.length(); paramNum++) {
 				JSONObject param = parameters.getJSONObject(paramNum);
 				ValueType paramType = ValueType.get(param.getString("type"));
+
 				int offset = (paramType != ValueType.STRING) ? param
 						.getInt("offset") : -1;
+
 				resourceNode.addChild(
 						parameters.getJSONObject(paramNum).getString("name"))
 						.setIndex(
@@ -305,15 +306,18 @@ public class Database {
 										offset));
 			}
 
-			resourceTypeNode.addChild(name).setIndex(resourceIndex);
 			break;
 		case SEARCH:
 			shouldSerializeToIndex = false;
-		case ERASED:
 		case ALTERED:
 		case SOLUTION:
-			resourceIndex = (Index) resourceTypeNode.getChildren().get(name)
-					.getIndex();
+			resourceIndex = (ResourceIndex) resourceTypeNode.getChildren()
+					.get(name).getIndex();
+			break;
+		case ERASED:
+			resourceIndex = (ResourceIndex) resourceTypeNode.getChildren()
+					.get(name).getIndex();
+			resourceIndex.erased = true;
 			break;
 		default:
 			resourceIndex = null;
@@ -332,7 +336,7 @@ public class Database {
 		addEntry(entry);
 
 		if (shouldSerializeToIndex)
-			resourceIndex.entries.add(allEntries.size() - 1);
+			resourceIndex.entryNumbers.add(allEntries.size() - 1);
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -371,7 +375,7 @@ public class Database {
 				.putDouble(Simulator.getTime()).put((byte) type.ordinal());
 
 		CollectedDataNode dptNode = indexHelper.getDecisionPoint(dptName);
-		Index dptIndex = (Index) dptNode.getIndex();
+		DecisionPointIndex dptIndex = (DecisionPointIndex) dptNode.getIndex();
 		PatternIndex index = (PatternIndex) dptNode.getChildren()
 				.get(activity.getName()).getIndex();
 
@@ -391,7 +395,7 @@ public class Database {
 		Entry entry = new Entry(header, data);
 
 		addEntry(entry);
-		index.entries.add(allEntries.size() - 1);
+		index.entryNumbers.add(allEntries.size() - 1);
 	}
 
 	public void addOperationEndEntry(Pattern pattern) {
@@ -400,7 +404,7 @@ public class Database {
 			return;
 
 		PatternPoolEntry poolEntry = null;
-		Index dptIndex = null;
+		DecisionPointIndex dptIndex = null;
 
 		poolEntry = patternPool.remove(pattern);
 		if (poolEntry == null)
@@ -430,7 +434,7 @@ public class Database {
 		Entry entry = new Entry(header, data);
 
 		addEntry(entry);
-		index.entries.add(allEntries.size() - 1);
+		index.entryNumbers.add(allEntries.size() - 1);
 	}
 
 	private void fillRelevantResources(ByteBuffer data, int[] relevantResources) {
@@ -463,7 +467,7 @@ public class Database {
 		Entry entry = new Entry(header, data);
 
 		addEntry(entry);
-		index.entries.add(allEntries.size() - 1);
+		index.entryNumbers.add(allEntries.size() - 1);
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -564,6 +568,6 @@ public class Database {
 		Entry entry = new Entry(header, data);
 
 		addEntry(entry);
-		index.getEntries().add(allEntries.size() - 1);
+		index.getEntryNumbers().add(allEntries.size() - 1);
 	}
 }

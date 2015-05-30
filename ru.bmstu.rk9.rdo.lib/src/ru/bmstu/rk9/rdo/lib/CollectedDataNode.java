@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import ru.bmstu.rk9.rdo.lib.Database.ResultType;
+import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ValueType;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
 public class CollectedDataNode {
@@ -15,14 +17,15 @@ public class CollectedDataNode {
 	public static class Index {
 		public Index(int number, IndexType type) {
 			this.number = number;
+			this.type = type;
 		}
 
-		public final List<Integer> getEntries() {
-			return entries;
+		public List<Integer> getEntryNumbers() {
+			return entryNumbers;
 		}
 
 		public final void addEntry(Integer entry) {
-			entries.add(entry);
+			entryNumbers.add(entry);
 		}
 
 		public final int getNumber() {
@@ -30,11 +33,16 @@ public class CollectedDataNode {
 		}
 
 		public final boolean isEmpty() {
-			return entries.isEmpty();
+			return entryNumbers.isEmpty();
 		}
 
-		protected final List<Integer> entries = new ArrayList<Integer>();
+		public final IndexType getType() {
+			return type;
+		}
+
+		protected final List<Integer> entryNumbers = new ArrayList<Integer>();
 		protected final int number;
+		private final IndexType type;
 	}
 
 	public static class SearchIndex extends Index {
@@ -61,15 +69,27 @@ public class CollectedDataNode {
 		}
 
 		SearchIndex(int number) {
-			super(number);
+			super(number, IndexType.SEARCH);
 		}
 
 		List<SearchInfo> searches = new ArrayList<SearchInfo>();
 	}
 
+	public static class ResourceIndex extends Index {
+		public ResourceIndex(int number) {
+			super(number, IndexType.RESOURCE);
+		}
+
+		public boolean isErased() {
+			return erased;
+		}
+
+		boolean erased = false;
+	}
+
 	public static class PatternIndex extends Index {
 		public PatternIndex(int number, JSONObject structure) {
-			super(number);
+			super(number, IndexType.PATTERN);
 			this.structure = structure;
 		}
 
@@ -89,7 +109,7 @@ public class CollectedDataNode {
 
 	public static class ResourceTypeIndex extends Index {
 		ResourceTypeIndex(int number, JSONObject structure) {
-			super(number);
+			super(number, IndexType.RESOURCE_TYPE);
 			this.structure = structure;
 		}
 
@@ -184,6 +204,5 @@ public class CollectedDataNode {
 	private Index index = null;
 	private final String name;
 	private final CollectedDataNode parent;
-	private final Map<String, CollectedDataNode> children =
-			new TreeMap<String, CollectedDataNode>();
+	private final Map<String, CollectedDataNode> children = new TreeMap<String, CollectedDataNode>();
 }
