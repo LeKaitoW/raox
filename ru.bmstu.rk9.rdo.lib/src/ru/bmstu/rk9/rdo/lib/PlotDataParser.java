@@ -29,6 +29,16 @@ public class PlotDataParser {
 		final public double y;
 	}
 
+	public final static class ParseInfo {
+		ParseInfo(final List<PlotItem> dataset, final int itemNumber) {
+			this.dataset = dataset;
+			this.itemNumber = itemNumber;
+		}
+
+		final public List<PlotItem> dataset;
+		final public int itemNumber;
+	}
+
 	public static void removeIndexFromMaps(AbstractIndex index) {
 		if (!lastItemMap.isEmpty() && lastItemMap.containsKey(index)) {
 			lastItemMap.remove(index);
@@ -41,6 +51,7 @@ public class PlotDataParser {
 
 	public static List<PlotItem> parseEntries(final CollectedDataNode node) {
 		final AbstractIndex index = node.getIndex();
+		ParseInfo parseInfo;
 
 		int startItemNumber = 0;
 		if (lastItemMap.containsKey(index)) {
@@ -53,25 +64,32 @@ public class PlotDataParser {
 			final CollectedDataNode resourceNode = node.getParent();
 			final ResourceIndex resourceIndex = (ResourceIndex) resourceNode
 					.getIndex();
-			return parseResourceParameter(resourceParameterIndex,
+			parseInfo = parseResourceParameter(resourceParameterIndex,
 					resourceIndex, startItemNumber);
+			break;
 		case RESULT:
 			final ResultIndex resultIndex = (ResultIndex) index;
-			return parseResult(resultIndex, startItemNumber);
+			parseInfo = parseResult(resultIndex, startItemNumber);
+			break;
 		case PATTERN:
 			final PatternIndex patternIndex = (PatternIndex) index;
-			return parsePattern(patternIndex, startItemNumber);
+			parseInfo = parsePattern(patternIndex, startItemNumber);
+			break;
 		default:
 			return null;
 		}
+		lastItemMap.put(index, parseInfo.itemNumber);
+
+		return parseInfo.dataset;
 	}
 
-	private static List<PlotItem> parsePattern(final PatternIndex patternIndex,
-			int startItemNumber) {
+	private static ParseInfo parsePattern(final PatternIndex patternIndex,
+			final int startItemNumber) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = patternIndex.getEntryNumbers();
 		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
 		int count;
+		int itemNumber = startItemNumber;
 
 		if (lastPatternCountMap.containsKey(patternIndex)) {
 			count = lastPatternCountMap.get(patternIndex);
@@ -80,8 +98,8 @@ public class PlotDataParser {
 			dataset.add(new PlotItem(0, count));
 		}
 
-		while (startItemNumber < entriesNumbers.size()) {
-			int currentEntryNumber = entriesNumbers.get(startItemNumber);
+		while (itemNumber < entriesNumbers.size()) {
+			int currentEntryNumber = entriesNumbers.get(itemNumber);
 			final Entry currentEntry = allEntries.get(currentEntryNumber);
 			final ByteBuffer header = Tracer
 					.prepareBufferForReading(currentEntry.header);
@@ -103,23 +121,23 @@ public class PlotDataParser {
 				return null;
 			}
 			dataset.add(new PlotItem(time, count));
-			startItemNumber++;
+			itemNumber++;
 		}
 
 		lastPatternCountMap.put(patternIndex, count);
-		lastItemMap.put(patternIndex, startItemNumber);
 
-		return dataset;
+		return new ParseInfo(dataset, itemNumber);
 	}
 
-	private static List<PlotItem> parseResult(final ResultIndex resultIndex,
-			int startItemNumber) {
+	private static ParseInfo parseResult(final ResultIndex resultIndex,
+			final int startItemNumber) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = resultIndex.getEntryNumbers();
 		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
+		int itemNumber = startItemNumber;
 
-		while (startItemNumber < entriesNumbers.size()) {
-			int currentEntryNumber = entriesNumbers.get(startItemNumber);
+		while (itemNumber < entriesNumbers.size()) {
+			int currentEntryNumber = entriesNumbers.get(itemNumber);
 			final Entry currentEntry = allEntries.get(currentEntryNumber);
 			final ByteBuffer header = Tracer
 					.prepareBufferForReading(currentEntry.header);
@@ -149,23 +167,22 @@ public class PlotDataParser {
 				return null;
 			}
 			dataset.add(item);
-			startItemNumber++;
+			itemNumber++;
 		}
 
-		lastItemMap.put(resultIndex, startItemNumber);
-
-		return dataset;
+		return new ParseInfo(dataset, itemNumber);
 	}
 
-	private static List<PlotItem> parseResourceParameter(
+	private static ParseInfo parseResourceParameter(
 			final ResourceParameterIndex resourceParameterIndex,
-			final ResourceIndex resourceIndex, int startItemNumber) {
+			final ResourceIndex resourceIndex, final int startItemNumber) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = resourceIndex.getEntryNumbers();
 		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
+		int itemNumber = startItemNumber;
 
-		while (startItemNumber < entriesNumbers.size()) {
-			int currentEntryNumber = entriesNumbers.get(startItemNumber);
+		while (itemNumber < entriesNumbers.size()) {
+			int currentEntryNumber = entriesNumbers.get(itemNumber);
 			final Entry currentEntry = allEntries.get(currentEntryNumber);
 
 			final ByteBuffer header = Tracer
@@ -200,12 +217,10 @@ public class PlotDataParser {
 			}
 
 			dataset.add(item);
-			startItemNumber++;
+			itemNumber++;
 		}
 
-		lastItemMap.put(resourceParameterIndex, startItemNumber);
-
-		return dataset;
+		return new ParseInfo(dataset, itemNumber);
 	}
 
 	public static List<String> getEnumNames(final CollectedDataNode node) {
