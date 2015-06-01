@@ -20,7 +20,7 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.services.ISourceProviderService;
 
 import ru.bmstu.rk9.rdo.ui.internal.RDOActivator;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOPlotView;
+import ru.bmstu.rk9.rdo.ui.contributions.PlotView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSpeedSelectionToolbar;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView;
@@ -93,13 +93,13 @@ public class RDOActivatorExtension extends RDOActivator {
 				}
 				if (result[0] == 0) {
 					List<Integer> secondaryIDList = new ArrayList<Integer>(
-							RDOPlotView.getOpenedPlotMap().values());
+							PlotView.getOpenedPlotMap().values());
 					for (int secondaryID : secondaryIDList) {
-						RDOPlotView oldView = (RDOPlotView) PlatformUI
+						PlotView oldView = (PlotView) PlatformUI
 								.getWorkbench()
 								.getActiveWorkbenchWindow()
 								.getActivePage()
-								.findViewReference(RDOPlotView.ID,
+								.findViewReference(PlotView.ID,
 										String.valueOf(secondaryID))
 								.getView(false);
 						if (oldView != null) {

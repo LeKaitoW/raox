@@ -111,14 +111,14 @@ public class RDOSerializedObjectsView extends ViewPart {
 					final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
 							.getTree().getSelection()[0].getData();
 
-					if (RDOPlotView.getOpenedPlotMap().containsKey(node)) {
+					if (PlotView.getOpenedPlotMap().containsKey(node)) {
 						PlatformUI
 								.getWorkbench()
 								.getActiveWorkbenchWindow()
 								.getActivePage()
 								.showView(
-										RDOPlotView.ID,
-										String.valueOf(RDOPlotView
+										PlotView.ID,
+										String.valueOf(PlotView
 												.getOpenedPlotMap().get(node)),
 										IWorkbenchPage.VIEW_ACTIVATE);
 					} else {
@@ -133,16 +133,16 @@ public class RDOSerializedObjectsView extends ViewPart {
 							final PlotItem item = items.get(i);
 							series.add(item.x, item.y);
 						}
-						final RDOPlotView newView = (RDOPlotView) PlatformUI
+						final PlotView newView = (PlotView) PlatformUI
 								.getWorkbench()
 								.getActiveWorkbenchWindow()
 								.getActivePage()
-								.showView(RDOPlotView.ID,
+								.showView(PlotView.ID,
 										String.valueOf(secondaryID),
 										IWorkbenchPage.VIEW_ACTIVATE);
 						newView.setName(String.valueOf(dataset.getSeriesKey(0)));
 						newView.setNode(node);
-						RDOPlotView.addToOpenedPlotMap(node, secondaryID);
+						PlotView.addToOpenedPlotMap(node, secondaryID);
 
 						newView.plotXY(dataset, enumNames);
 						secondaryID++;
@@ -160,8 +160,8 @@ public class RDOSerializedObjectsView extends ViewPart {
 				.addDoubleClickListener(new IDoubleClickListener() {
 					@Override
 					public void doubleClick(DoubleClickEvent event) {
-						Object item = serializedObjectsTreeViewer.getTree()
-								.getSelection()[0].getData();
+						final Object item = serializedObjectsTreeViewer
+								.getTree().getSelection()[0].getData();
 						if (item == null)
 							return;
 
@@ -179,17 +179,16 @@ public class RDOSerializedObjectsView extends ViewPart {
 	}
 
 	private static final void updateAllOpenedCharts() {
-		for (CollectedDataNode node : RDOPlotView.getOpenedPlotMap().keySet()) {
-			final int currentSecondaryID = RDOPlotView.getOpenedPlotMap().get(
-					node);
+		for (CollectedDataNode node : PlotView.getOpenedPlotMap().keySet()) {
+			final int currentSecondaryID = PlotView.getOpenedPlotMap()
+					.get(node);
 			final IViewReference viewReference = PlatformUI
 					.getWorkbench()
 					.getActiveWorkbenchWindow()
 					.getActivePage()
-					.findViewReference(RDOPlotView.ID,
+					.findViewReference(PlotView.ID,
 							String.valueOf(currentSecondaryID));
-			final RDOPlotView viewPart = (RDOPlotView) viewReference
-					.getView(false);
+			final PlotView viewPart = (PlotView) viewReference.getView(false);
 			final List<PlotItem> items = PlotDataParser.parseEntries(node);
 
 			if (!items.isEmpty()) {
@@ -200,7 +199,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 					final PlotItem item = items.get(i);
 					newSeries.add(item.x, item.y);
 				}
-				((RDOChartComposite) viewPart.getFrame()).setSlidersMaximum(
+				((ChartFrame) viewPart.getFrame()).setSlidersMaximum(
 						newSeries.getMaxX(), newSeries.getMaxY());
 			}
 		}
@@ -338,10 +337,17 @@ class RDOSerializedObjectsLabelProvider implements ILabelProvider,
 
 	@Override
 	public Image getImage(Object element) {
-		CollectedDataNode node = (CollectedDataNode) element;
-		AbstractIndex index = node.getIndex();
-		URL url;
-		Display display = PlatformUI.getWorkbench().getDisplay();
+		final CollectedDataNode collectedDataNode = (CollectedDataNode) element;
+		final Display display = PlatformUI.getWorkbench().getDisplay();
+		final ImageDescriptor img = ImageDescriptor
+				.createFromURL(getImageUrl(collectedDataNode));
+
+		return new Image(display, img.getImageData());
+	}
+
+	final private URL getImageUrl(final CollectedDataNode collectedDataNode) {
+		final URL url;
+		final AbstractIndex index = collectedDataNode.getIndex();
 
 		if (index == null) {
 			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
@@ -357,8 +363,7 @@ class RDOSerializedObjectsLabelProvider implements ILabelProvider,
 					null);
 		}
 
-		ImageDescriptor img = ImageDescriptor.createFromURL(url);
-		return new Image(display, img.getImageData());
+		return url;
 	}
 
 	@Override

@@ -37,16 +37,16 @@ import org.jfree.experimental.chart.swt.ChartComposite;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode;
 import ru.bmstu.rk9.rdo.lib.PlotDataParser;
 
-public class RDOPlotView extends ViewPart {
+public class PlotView extends ViewPart {
 
-	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOPlotView";
+	public static final String ID = "ru.bmstu.rk9.rdo.ui.PlotView";
 	private final static Map<CollectedDataNode, Integer> openedPlotMap = new HashMap<CollectedDataNode, Integer>();
 
-	private RDOChartComposite frame;
+	private ChartFrame chartFrame;
 	private CollectedDataNode partNode;
 
 	public ChartComposite getFrame() {
-		return frame;
+		return chartFrame;
 	}
 
 	public static Map<CollectedDataNode, Integer> getOpenedPlotMap() {
@@ -68,7 +68,7 @@ public class RDOPlotView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		frame = new RDOChartComposite(parent, SWT.NONE);
+		chartFrame = new ChartFrame(parent, SWT.NONE);
 		FormLayout layout = new FormLayout();
 		parent.setLayout(layout);
 
@@ -93,17 +93,16 @@ public class RDOPlotView extends ViewPart {
 		graphLayoutData.right = new FormAttachment(verticalSlider);
 		graphLayoutData.top = new FormAttachment(0, 0);
 		graphLayoutData.bottom = new FormAttachment(horizontalSlider);
-		frame.setLayoutData(graphLayoutData);
+		chartFrame.setLayoutData(graphLayoutData);
 
 		parent.layout(true);
 		horizontalSlider.setEnabled(false);
 		horizontalSlider.setVisible(false);
 		verticalSlider.setEnabled(false);
 		verticalSlider.setVisible(false);
-		frame.setSliders(horizontalSlider, verticalSlider);
+		chartFrame.setSliders(horizontalSlider, verticalSlider);
 
-		frame.addDisposeListener(new DisposeListener() {
-
+		chartFrame.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent event) {
 				if (!openedPlotMap.isEmpty()
@@ -123,8 +122,8 @@ public class RDOPlotView extends ViewPart {
 
 	public void plotXY(final XYSeriesCollection dataset, List<String> enumNames) {
 		final JFreeChart chart = createChart(dataset, enumNames);
-		frame.setChart(chart);
-		frame.setRangeZoomable(false);
+		chartFrame.setChart(chart);
+		chartFrame.setRangeZoomable(false);
 	}
 
 	private JFreeChart createChart(final XYDataset dataset,
@@ -157,7 +156,6 @@ public class RDOPlotView extends ViewPart {
 			rangeAxis.setAutoRangeIncludesZero(true);
 			plot.setRangeAxis(rangeAxis);
 			rangeAxis.setTickLabelFont(font);
-
 		} else {
 			rangeAxis = new NumberAxis();
 			rangeAxis.setAutoRangeIncludesZero(true);
@@ -170,19 +168,19 @@ public class RDOPlotView extends ViewPart {
 
 		double horizontalSliderMaximum = domainAxis.getRange().getLength();
 		double verticalSliderMaximum = rangeAxis.getRange().getLength();
-		frame.setSlidersMaximum(horizontalSliderMaximum, verticalSliderMaximum);
+		chartFrame.setSlidersMaximum(horizontalSliderMaximum,
+				verticalSliderMaximum);
 
 		return chart;
 	}
-
 }
 
-class RDOChartComposite extends ChartComposite implements KeyListener {
+class ChartFrame extends ChartComposite implements KeyListener {
 
 	private Slider horizontalSlider;
 	private Slider verticalSlider;
 
-	public RDOChartComposite(Composite comp, int style) {
+	public ChartFrame(Composite comp, int style) {
 		super(comp, style, null, ChartComposite.DEFAULT_WIDTH,
 				ChartComposite.DEFAULT_HEIGHT, 0, 0, Integer.MAX_VALUE,
 				Integer.MAX_VALUE, ChartComposite.DEFAULT_BUFFER_USED, true,
@@ -197,7 +195,6 @@ class RDOChartComposite extends ChartComposite implements KeyListener {
 		verticalSlider.setMinimum(0);
 
 		this.horizontalSlider.addSelectionListener(new SelectionListener() {
-
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				getChart().getXYPlot().getDomainAxis()
@@ -212,12 +209,10 @@ class RDOChartComposite extends ChartComposite implements KeyListener {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-
 			}
 		});
 
 		this.verticalSlider.addSelectionListener(new SelectionListener() {
-
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				getChart()
@@ -237,7 +232,6 @@ class RDOChartComposite extends ChartComposite implements KeyListener {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-
 			}
 		});
 	}
@@ -297,7 +291,6 @@ class RDOChartComposite extends ChartComposite implements KeyListener {
 			verticalSlider.setSelection((int) Math.round(verticalSlider
 					.getMaximum() - plot.getRangeAxis().getUpperBound() * 100));
 		}
-
 	}
 
 	@Override
