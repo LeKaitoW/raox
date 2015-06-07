@@ -56,6 +56,7 @@ public class GraphFrame extends JFrame {
 						+ strokeColor);
 		vertexMap.put(parentNode, vertex);
 		lastAddedVertexIndex = parentNode.index;
+		updateTypicalDimensions(parentNode);
 		if (parentNode.parent != null)
 			graph.insertEdge(graph.getDefaultParent(), null, null,
 					vertexMap.get(parentNode.parent),
@@ -99,6 +100,7 @@ public class GraphFrame extends JFrame {
 							nodeWidth, nodeHeight, fontColor + strokeColor);
 					vertexMap.put(node, vertex);
 					lastAddedVertexIndex = node.index;
+					updateTypicalDimensions(node);
 					if (node.parent != null)
 						graph.insertEdge(graph.getDefaultParent(), null, null,
 								vertexMap.get(node.parent),
@@ -192,6 +194,8 @@ public class GraphFrame extends JFrame {
 
 	int minNodeWidth = 5;
 
+	/*---------------------------- ZOOM ----------------------------*/
+
 	private void zoomToFit(mxGraph graph, mxCompactTreeLayout layout,
 			mxGraphComponent graphComponent) {
 		Dimension frameDimension = this.getSize();
@@ -245,6 +249,37 @@ public class GraphFrame extends JFrame {
 		int y = (paneSize.height - paneBounds.height) / 2;
 		graphComponent.getViewport().setViewPosition(new Point(x, y));
 	}
+
+	private Dimension small = new Dimension();
+	private Dimension medium = new Dimension();
+	private Dimension large = new Dimension();
+
+	private void updateTypicalDimensions(Node node) {
+		String number = node.toString();
+		String costFunction = Double.toString(node.g + node.h) + " = "
+				+ Double.toString(node.g) + " + " + Double.toString(node.h);
+		String rule = node.ruleName + " = " + Double.toString(node.ruleCost);
+
+		String smallText = number;
+		String mediumText = number + "\n" + costFunction;
+		String largeText = mediumText + "\n" + rule;
+
+		mxRectangle smallBounds = mxUtils.getSizeForString(smallText, font,
+				scale);
+		mxRectangle mediumBounds = mxUtils.getSizeForString(mediumText, font,
+				scale);
+		mxRectangle largeBounds = mxUtils.getSizeForString(largeText, font,
+				scale);
+
+		small.setSize(smallBounds.getWidth(), smallBounds.getHeight());
+		medium.setSize(mediumBounds.getWidth(), mediumBounds.getHeight());
+		large.setSize(largeBounds.getWidth(), largeBounds.getHeight());
+	}
+
+	private void zoomIn() {
+	}
+
+	/*--------------------------------------------------------------*/
 
 	public GraphFrame(int dptNum, int width, int height) {
 
