@@ -10,10 +10,16 @@ import java.util.TimerTask;
 
 import javax.swing.JFrame;
 
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.ui.PlatformUI;
+
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.TreeBuilder;
 
 public class GraphControl {
+
+	final static Rectangle monitorBounds = PlatformUI.getWorkbench()
+			.getDisplay().getBounds();
 
 	public static class FrameInfo {
 		public int dptNumber;
@@ -32,10 +38,14 @@ public class GraphControl {
 		if (!GraphControl.openedGraphMap.containsValue(dptNum)) {
 			TreeBuilder treeBuilder = Simulator.getTreeBuilder();
 			treeBuilder.buildTree();
-			GraphFrame graphFrame = new GraphFrame(dptNum);
+
+			int frameWidth = GraphFrame.setWidth(monitorBounds, 0.5);
+			int frameHeight = GraphFrame.setHeight(monitorBounds, 0.5);
+
+			GraphFrame graphFrame = new GraphFrame(dptNum, frameWidth,
+					frameHeight);
 			GraphControl.openedGraphMap.put(dptNum, graphFrame);
 			graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-			graphFrame.setSize(800, 600);
 			graphFrame.setTitle(frameName);
 			graphFrame.setLocationRelativeTo(null);
 			graphFrame.setVisible(true);

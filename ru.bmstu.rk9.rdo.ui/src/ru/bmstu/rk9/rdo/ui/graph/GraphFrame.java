@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rdo.ui.graph;
 
+import java.awt.Dimension;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +8,8 @@ import java.util.Map;
 import java.util.TimerTask;
 
 import javax.swing.JFrame;
+
+import org.eclipse.swt.graphics.Rectangle;
 
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
@@ -47,7 +50,8 @@ public class GraphFrame extends JFrame {
 	private void drawGraph(mxGraph graph, ArrayList<Node> nodeList,
 			Node parentNode) {
 		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(),
-				null, parentNode, 385, 100, 30, 30, fontColor + strokeColor);
+				null, parentNode, setRelX(0.5), setRelY(0.05), nodeWidth,
+				nodeHeight, fontColor + strokeColor);
 		vertexMap.put(parentNode, vertex);
 		lastAddedVertexIndex = parentNode.index;
 		if (parentNode.parent != null)
@@ -97,8 +101,9 @@ public class GraphFrame extends JFrame {
 						+ lastAddedVertexIndex + " " + "dpt = " + dptNum);
 				if (!vertexMap.containsKey(node)) {
 					mxCell vertex = (mxCell) graph.insertVertex(
-							graph.getDefaultParent(), null, node, 385, 100, 30,
-							30, fontColor + strokeColor);
+							graph.getDefaultParent(), null, node, setRelX(0.5),
+							setRelY(0.05), nodeWidth, nodeHeight, fontColor
+									+ strokeColor);
 					vertexMap.put(node, vertex);
 					lastAddedVertexIndex = node.index;
 					System.out.println("drawV lastAddedVertexIndex after = "
@@ -130,13 +135,13 @@ public class GraphFrame extends JFrame {
 		double scale = 1.0;
 		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
 
-		final double delta = 20;
+		final double delta = setWidth(frameDimension, 0.01);
 
 		double width = bounds.getWidth() + delta;
 		double height = bounds.getHeight() + delta;
 
 		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null,
-				text, delta / 2, delta / 2, width, height);
+				text, delta, delta, width, height);
 	}
 
 	public mxCell showCellInfo(mxGraph graph, mxCell cell) {
@@ -165,13 +170,14 @@ public class GraphFrame extends JFrame {
 		double scale = 1.0;
 		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
 
-		final double delta = 20;
+		final double delta = setWidth(frameDimension, 0.01);
 
 		double width = bounds.getWidth() + delta;
 		double height = bounds.getHeight() + delta;
 
 		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null,
-				text, 800 - width - (delta / 2), delta / 2, width, height);
+				text, setWidth(frameDimension, 1) - width - (delta), delta,
+				width, height);
 	}
 
 	private TimerTask graphFrameUpdateTimerTask;
@@ -188,7 +194,30 @@ public class GraphFrame extends JFrame {
 
 	boolean isFinished = false;
 
-	public GraphFrame(int dptNum) {
+	Dimension frameDimension;
+
+	int nodeWidth;
+
+	int nodeHeight;
+
+	int nodeDistance;
+
+	int levelDistance;
+
+	private void setProportions(Dimension d) {
+		nodeWidth = setWidth(d, 0.05);
+		nodeHeight = setHeight(d, 0.05);
+		nodeDistance = (int) (d.width * 0.01);
+		levelDistance = (int) (d.height * 0.1);
+	}
+
+	public GraphFrame(int dptNum, int width, int height) {
+
+		this.setSize(width, height);
+
+		frameDimension = this.getSize();
+
+		setProportions(frameDimension);
 
 		ArrayList<Node> nodeList = Simulator.getTreeBuilder().listMap
 				.get(dptNum);
@@ -226,8 +255,8 @@ public class GraphFrame extends JFrame {
 
 		mxCompactTreeLayout layout = new mxCompactTreeLayout(graph, false);
 
-		layout.setLevelDistance(30);
-		layout.setNodeDistance(5);
+		layout.setLevelDistance(levelDistance);
+		layout.setNodeDistance(nodeDistance);
 		layout.setEdgeRouting(false);
 
 		layout.execute(graph.getDefaultParent());
@@ -321,5 +350,31 @@ public class GraphFrame extends JFrame {
 						}
 					}
 				});
+	}
+
+	/*----------------------- RELATIVE COORINATES -----------------------*/
+
+	public int setRelX(double relX) {
+		return (int) (this.getSize().width * relX);
+	}
+
+	public int setRelY(double relY) {
+		return (int) (this.getSize().height * relY);
+	}
+
+	public static int setWidth(Dimension d, double relativeWidth) {
+		return (int) (d.width * relativeWidth);
+	}
+
+	public static int setWidth(Rectangle r, double relativeWidth) {
+		return (int) (r.width * relativeWidth);
+	}
+
+	public static int setHeight(Dimension d, double relativeHeight) {
+		return (int) (d.height * relativeHeight);
+	}
+
+	public static int setHeight(Rectangle r, double relativeHeight) {
+		return (int) (r.height * relativeHeight);
 	}
 }
