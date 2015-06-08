@@ -347,24 +347,24 @@ class RDOSerializedObjectsLabelProvider implements ILabelProvider,
 	}
 
 	final private URL getImageUrl(final CollectedDataNode collectedDataNode) {
-		final URL url;
+		final URL imageUrl;
 		final AbstractIndex index = collectedDataNode.getIndex();
 
 		if (index == null) {
-			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+			imageUrl = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
 					new org.eclipse.core.runtime.Path(
 							"icons/cross-small-white.png"), null);
 		} else if (index.getType() == IndexType.RESOURCE
 				&& ((ResourceIndex) index).isErased()) {
-			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+			imageUrl = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
 					new org.eclipse.core.runtime.Path("icons/cross.png"), null);
 		} else {
-			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+			imageUrl = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
 					new org.eclipse.core.runtime.Path("icons/globe-small.png"),
 					null);
 		}
 
-		return url;
+		return imageUrl;
 	}
 
 	@Override
