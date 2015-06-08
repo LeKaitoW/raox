@@ -255,7 +255,7 @@ public class GraphFrame extends JFrame {
 	private Dimension large = new Dimension();
 
 	private void updateTypicalDimensions(Node node) {
-		String number = node.toString();
+		String number = Integer.toString(node.index);
 		String costFunction = Double.toString(node.g + node.h) + " = "
 				+ Double.toString(node.g) + " + " + Double.toString(node.h);
 		String rule = node.ruleName + " = " + Double.toString(node.ruleCost);
@@ -271,12 +271,87 @@ public class GraphFrame extends JFrame {
 		mxRectangle largeBounds = mxUtils.getSizeForString(largeText, font,
 				scale);
 
-		small.setSize(smallBounds.getWidth(), smallBounds.getHeight());
-		medium.setSize(mediumBounds.getWidth(), mediumBounds.getHeight());
-		large.setSize(largeBounds.getWidth(), largeBounds.getHeight());
+		if (smallBounds.getWidth() > small.width)
+			small.setSize(smallBounds.getWidth(), smallBounds.getHeight());
+		if (mediumBounds.getWidth() > medium.width)
+			medium.setSize(mediumBounds.getWidth(), mediumBounds.getHeight());
+		if (largeBounds.getWidth() > large.width)
+			large.setSize(largeBounds.getWidth(), largeBounds.getHeight());
 	}
 
-	private void zoomIn() {
+	enum SizeType {
+		SMALL, MEDIUM, LARGE
+	}
+
+	private SizeType checkSize() {
+		if (nodeWidth < medium.width)
+			return SizeType.SMALL;
+		if (nodeWidth > medium.width && nodeWidth < large.width)
+			return SizeType.MEDIUM;
+		if (nodeWidth > large.width)
+			return SizeType.LARGE;
+		return SizeType.SMALL;
+	}
+
+	private void zoomIn(mxGraph graph, mxCompactTreeLayout layout) {
+		Object[] cells = vertexMap.values().toArray();
+
+		double scale = 1.1;
+		nodeWidth *= scale;
+		nodeDistance *= scale;
+		levelDistance *= scale;
+
+		mxRectangle bound = new mxRectangle(0, 0, nodeWidth, nodeWidth);
+		mxRectangle[] bounds = new mxRectangle[vertexMap.size()];
+		for (int i = 0; i < vertexMap.size(); i++) {
+			bounds[i] = bound;
+		}
+
+		graph.getModel().beginUpdate();
+		try {
+			graph.resizeCells(cells, bounds);
+			SizeType type = checkSize();
+			switch (type) {
+			case SMALL:
+				for (mxCell cell : vertexMap.values()) {
+					Node node = (Node) cell.getValue();
+					String number = Integer.toString(node.index);
+					node.label = number;
+					cell.setValue(node);
+				}
+				break;
+			case MEDIUM:
+				for (mxCell cell : vertexMap.values()) {
+					Node node = (Node) cell.getValue();
+					String number = Integer.toString(node.index);
+					String costFunction = Double.toString(node.g + node.h)
+							+ " = " + Double.toString(node.g) + " + "
+							+ Double.toString(node.h);
+					String text = number + "\n" + costFunction;
+					node.label = text;
+					cell.setValue(node);
+				}
+				break;
+			case LARGE:
+				for (mxCell cell : vertexMap.values()) {
+					Node node = (Node) cell.getValue();
+					String number = Integer.toString(node.index);
+					String costFunction = Double.toString(node.g + node.h)
+							+ " = " + Double.toString(node.g) + " + "
+							+ Double.toString(node.h);
+					String rule = node.ruleName + " = "
+							+ Double.toString(node.ruleCost);
+					String text = number + "\n" + costFunction + "\n" + rule;
+					node.label = text;
+					cell.setValue(node);
+				}
+				break;
+			}
+			layout.execute(graph.getDefaultParent());
+		} finally {
+			graph.getModel().endUpdate();
+		}
+		graph.refresh();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -448,7 +523,10 @@ public class GraphFrame extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.isControlDown() && e.getKeyChar() == '+') {
-					graphComponent.zoomIn();
+					if (nodeWidth > large.width)
+						graphComponent.zoomIn();
+					else
+						zoomIn(graph, layout);
 				}
 				if (e.isControlDown() && e.getKeyChar() == '-') {
 					graphComponent.zoomOut();
