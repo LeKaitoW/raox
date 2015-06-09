@@ -358,6 +358,31 @@ public class GraphFrame extends JFrame {
 		graph.refresh();
 	}
 
+	private void zoomOut(mxGraph graph, mxCompactTreeLayout layout) {
+		Object[] cells = vertexMap.values().toArray();
+
+		double scale = 1 / 1.1;
+		nodeWidth *= scale;
+		nodeDistance *= scale;
+		levelDistance *= scale;
+
+		mxRectangle bound = new mxRectangle(0, 0, nodeWidth, nodeWidth);
+		mxRectangle[] bounds = new mxRectangle[vertexMap.size()];
+		for (int i = 0; i < vertexMap.size(); i++) {
+			bounds[i] = bound;
+		}
+
+		graph.getModel().beginUpdate();
+		try {
+			graph.resizeCells(cells, bounds);
+			setTextForVertexes();
+			layout.execute(graph.getDefaultParent());
+		} finally {
+			graph.getModel().endUpdate();
+		}
+		graph.refresh();
+	}
+
 	/*--------------------------------------------------------------*/
 
 	public GraphFrame(int dptNum, int width, int height) {
