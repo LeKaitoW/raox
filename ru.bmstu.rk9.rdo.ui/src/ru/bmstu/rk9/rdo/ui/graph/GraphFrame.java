@@ -552,13 +552,10 @@ public class GraphFrame extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.isControlDown() && e.getKeyChar() == '+') {
-					if (nodeWidth > large.width)
-						graphComponent.zoomIn();
-					else
-						zoomIn(graph, layout);
+					zoomIn(graph, layout);
 				}
 				if (e.isControlDown() && e.getKeyChar() == '-') {
-					graphComponent.zoomOut();
+					zoomOut(graph, layout);
 				}
 				if (e.isControlDown() && e.getKeyChar() != 'z'
 						&& e.getKeyCode() == 90) {
