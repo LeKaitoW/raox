@@ -293,6 +293,46 @@ public class GraphFrame extends JFrame {
 		return SizeType.SMALL;
 	}
 
+	private void setTextForVertexes() {
+		SizeType type = checkSize();
+		switch (type) {
+		case SMALL:
+			for (mxCell cell : vertexMap.values()) {
+				Node node = (Node) cell.getValue();
+				String number = Integer.toString(node.index);
+				node.label = number;
+				cell.setValue(node);
+			}
+			break;
+		case MEDIUM:
+			for (mxCell cell : vertexMap.values()) {
+				Node node = (Node) cell.getValue();
+				String number = Integer.toString(node.index);
+				String costFunction = Double.toString(node.g + node.h) + " = "
+						+ Double.toString(node.g) + " + "
+						+ Double.toString(node.h);
+				String text = number + "\n" + costFunction;
+				node.label = text;
+				cell.setValue(node);
+			}
+			break;
+		case LARGE:
+			for (mxCell cell : vertexMap.values()) {
+				Node node = (Node) cell.getValue();
+				String number = Integer.toString(node.index);
+				String costFunction = Double.toString(node.g + node.h) + " = "
+						+ Double.toString(node.g) + " + "
+						+ Double.toString(node.h);
+				String rule = node.ruleName + " = "
+						+ Double.toString(node.ruleCost);
+				String text = number + "\n" + costFunction + "\n" + rule;
+				node.label = text;
+				cell.setValue(node);
+			}
+			break;
+		}
+	}
+
 	private void zoomIn(mxGraph graph, mxCompactTreeLayout layout) {
 		Object[] cells = vertexMap.values().toArray();
 
@@ -310,43 +350,7 @@ public class GraphFrame extends JFrame {
 		graph.getModel().beginUpdate();
 		try {
 			graph.resizeCells(cells, bounds);
-			SizeType type = checkSize();
-			switch (type) {
-			case SMALL:
-				for (mxCell cell : vertexMap.values()) {
-					Node node = (Node) cell.getValue();
-					String number = Integer.toString(node.index);
-					node.label = number;
-					cell.setValue(node);
-				}
-				break;
-			case MEDIUM:
-				for (mxCell cell : vertexMap.values()) {
-					Node node = (Node) cell.getValue();
-					String number = Integer.toString(node.index);
-					String costFunction = Double.toString(node.g + node.h)
-							+ " = " + Double.toString(node.g) + " + "
-							+ Double.toString(node.h);
-					String text = number + "\n" + costFunction;
-					node.label = text;
-					cell.setValue(node);
-				}
-				break;
-			case LARGE:
-				for (mxCell cell : vertexMap.values()) {
-					Node node = (Node) cell.getValue();
-					String number = Integer.toString(node.index);
-					String costFunction = Double.toString(node.g + node.h)
-							+ " = " + Double.toString(node.g) + " + "
-							+ Double.toString(node.h);
-					String rule = node.ruleName + " = "
-							+ Double.toString(node.ruleCost);
-					String text = number + "\n" + costFunction + "\n" + rule;
-					node.label = text;
-					cell.setValue(node);
-				}
-				break;
-			}
+			setTextForVertexes();
 			layout.execute(graph.getDefaultParent());
 		} finally {
 			graph.getModel().endUpdate();
