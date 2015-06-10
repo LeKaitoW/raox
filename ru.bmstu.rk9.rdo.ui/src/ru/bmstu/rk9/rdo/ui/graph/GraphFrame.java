@@ -280,23 +280,23 @@ public class GraphFrame extends JFrame {
 	}
 
 	enum SizeType {
-		SMALL, MEDIUM, LARGE
+		BRIEF, NORMAL, FULL
 	}
 
 	private SizeType checkSize() {
 		if (nodeWidth < medium.width)
-			return SizeType.SMALL;
+			return SizeType.BRIEF;
 		if (nodeWidth > medium.width && nodeWidth < large.width)
-			return SizeType.MEDIUM;
+			return SizeType.NORMAL;
 		if (nodeWidth > large.width)
-			return SizeType.LARGE;
-		return SizeType.SMALL;
+			return SizeType.FULL;
+		return SizeType.BRIEF;
 	}
 
 	private void setTextForVertexes() {
 		SizeType type = checkSize();
 		switch (type) {
-		case SMALL:
+		case BRIEF:
 			for (mxCell cell : vertexMap.values()) {
 				Node node = (Node) cell.getValue();
 				String number = Integer.toString(node.index);
@@ -304,7 +304,7 @@ public class GraphFrame extends JFrame {
 				cell.setValue(node);
 			}
 			break;
-		case MEDIUM:
+		case NORMAL:
 			for (mxCell cell : vertexMap.values()) {
 				Node node = (Node) cell.getValue();
 				String number = Integer.toString(node.index);
@@ -316,7 +316,7 @@ public class GraphFrame extends JFrame {
 				cell.setValue(node);
 			}
 			break;
-		case LARGE:
+		case FULL:
 			for (mxCell cell : vertexMap.values()) {
 				Node node = (Node) cell.getValue();
 				String number = Integer.toString(node.index);
