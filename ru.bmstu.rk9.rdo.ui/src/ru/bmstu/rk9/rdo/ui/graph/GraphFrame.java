@@ -336,8 +336,6 @@ public class GraphFrame extends JFrame {
 	final double zoomScale = 1.1;
 
 	private void zoomIn(mxGraph graph, mxCompactTreeLayout layout) {
-		Object[] cells = vertexMap.values().toArray();
-
 		nodeWidth *= zoomScale;
 		nodeDistance *= zoomScale;
 		levelDistance *= zoomScale;
@@ -348,6 +346,7 @@ public class GraphFrame extends JFrame {
 			bounds[i] = bound;
 		}
 
+		Object[] cells = vertexMap.values().toArray();
 		graph.getModel().beginUpdate();
 		try {
 			graph.resizeCells(cells, bounds);
@@ -360,8 +359,6 @@ public class GraphFrame extends JFrame {
 	}
 
 	private void zoomOut(mxGraph graph, mxCompactTreeLayout layout) {
-		Object[] cells = vertexMap.values().toArray();
-
 		nodeWidth /= zoomScale;
 		nodeDistance /= zoomScale;
 		levelDistance /= zoomScale;
@@ -372,6 +369,7 @@ public class GraphFrame extends JFrame {
 			bounds[i] = bound;
 		}
 
+		Object[] cells = vertexMap.values().toArray();
 		graph.getModel().beginUpdate();
 		try {
 			graph.resizeCells(cells, bounds);
