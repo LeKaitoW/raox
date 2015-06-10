@@ -5,42 +5,60 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import ru.bmstu.rk9.rdo.lib.Database.ResultType;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
 public class CollectedDataNode {
+	public enum IndexType {
+		RESOURCE_TYPE, RESOURCE, RESOURCE_PARAMETER, RESULT, PATTERN, SEARCH, DECISION_POINT
+	}
+
 	public static interface AbstractIndex {
-		public List<Integer> getEntries();
+		public List<Integer> getEntryNumbers();
 
 		public void addEntry(Integer entry);
 
 		public int getNumber();
 
 		public boolean isEmpty();
+
+		public IndexType getType();
 	}
 
-	public static class Index implements AbstractIndex {
-		public Index(int number) {
+	private static class Index implements AbstractIndex {
+		public Index(int number, IndexType type) {
 			this.number = number;
+			this.type = type;
 		}
 
-		public final List<Integer> getEntries() {
-			return entries;
+		@Override
+		public List<Integer> getEntryNumbers() {
+			return entryNumbers;
 		}
 
+		@Override
 		public final void addEntry(Integer entry) {
-			entries.add(entry);
+			entryNumbers.add(entry);
 		}
 
+		@Override
 		public final int getNumber() {
 			return number;
 		}
 
+		@Override
 		public final boolean isEmpty() {
-			return entries.isEmpty();
+			return entryNumbers.isEmpty();
 		}
 
-		protected final List<Integer> entries = new ArrayList<Integer>();
+		@Override
+		public final IndexType getType() {
+			return type;
+		}
+
+		protected final List<Integer> entryNumbers = new ArrayList<Integer>();
 		protected final int number;
+		private final IndexType type;
 	}
 
 	public static class SearchIndex extends Index {
@@ -67,25 +85,42 @@ public class CollectedDataNode {
 		}
 
 		SearchIndex(int number) {
-			super(number);
+			super(number, IndexType.SEARCH);
 		}
 
 		List<SearchInfo> searches = new ArrayList<SearchInfo>();
 	}
 
+	public static class ResourceIndex extends Index {
+		public ResourceIndex(int number) {
+			super(number, IndexType.RESOURCE);
+		}
+
+		public boolean isErased() {
+			return erased;
+		}
+
+		boolean erased = false;
+	}
+
 	public static class PatternIndex extends Index {
 		public PatternIndex(int number, JSONObject structure) {
-			super(number);
+			super(number, IndexType.PATTERN);
 			this.structure = structure;
+		}
+
+		public JSONObject getStructrure() {
+			return structure;
 		}
 
 		JSONObject structure;
 		int timesExecuted = 0;
+
 	}
 
 	public static class ResourceTypeIndex extends Index {
 		ResourceTypeIndex(int number, JSONObject structure) {
-			super(number);
+			super(number, IndexType.RESOURCE_TYPE);
 			this.structure = structure;
 		}
 
@@ -94,6 +129,44 @@ public class CollectedDataNode {
 		}
 
 		private final JSONObject structure;
+	}
+
+	public static class ResultIndex extends Index {
+		ResultIndex(int number, ResultType type) {
+			super(number, IndexType.RESULT);
+			this.type = type;
+		}
+
+		public final ResultType getResultType() {
+			return type;
+		}
+
+		private final ResultType type;
+	}
+
+	public static class DecisionPointIndex extends Index {
+		DecisionPointIndex(int number) {
+			super(number, IndexType.DECISION_POINT);
+		}
+	}
+
+	public static class ResourceParameterIndex extends Index {
+		ResourceParameterIndex(int number, ValueCache cache, int offset) {
+			super(number, IndexType.RESOURCE_PARAMETER);
+			this.cache = cache;
+			this.offset = offset;
+		}
+
+		public final ValueCache getValueCache() {
+			return cache;
+		}
+
+		public final int getOffset() {
+			return offset;
+		}
+
+		private final ValueCache cache;
+		private final int offset;
 	}
 
 	public CollectedDataNode(String name, CollectedDataNode parent) {
@@ -142,6 +215,5 @@ public class CollectedDataNode {
 	private AbstractIndex index = null;
 	private final String name;
 	private final CollectedDataNode parent;
-	private final Map<String, CollectedDataNode> children =
-			new TreeMap<String, CollectedDataNode>();
+	private final Map<String, CollectedDataNode> children = new TreeMap<String, CollectedDataNode>();
 }
