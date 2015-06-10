@@ -333,13 +333,7 @@ public class GraphFrame extends JFrame {
 		}
 	}
 
-	final double zoomScale = 1.1;
-
-	private void zoomIn(mxGraph graph, mxCompactTreeLayout layout) {
-		nodeWidth *= zoomScale;
-		nodeDistance *= zoomScale;
-		levelDistance *= zoomScale;
-
+	private void resizeGraph(mxGraph graph, mxCompactTreeLayout layout) {
 		mxRectangle bound = new mxRectangle(0, 0, nodeWidth, nodeWidth);
 		mxRectangle[] bounds = new mxRectangle[vertexMap.size()];
 		for (int i = 0; i < vertexMap.size(); i++) {
@@ -358,27 +352,20 @@ public class GraphFrame extends JFrame {
 		graph.refresh();
 	}
 
+	final double zoomScale = 1.1;
+
+	private void zoomIn(mxGraph graph, mxCompactTreeLayout layout) {
+		nodeWidth *= zoomScale;
+		nodeDistance *= zoomScale;
+		levelDistance *= zoomScale;
+		resizeGraph(graph, layout);
+	}
+
 	private void zoomOut(mxGraph graph, mxCompactTreeLayout layout) {
 		nodeWidth /= zoomScale;
 		nodeDistance /= zoomScale;
 		levelDistance /= zoomScale;
-
-		mxRectangle bound = new mxRectangle(0, 0, nodeWidth, nodeWidth);
-		mxRectangle[] bounds = new mxRectangle[vertexMap.size()];
-		for (int i = 0; i < vertexMap.size(); i++) {
-			bounds[i] = bound;
-		}
-
-		Object[] cells = vertexMap.values().toArray();
-		graph.getModel().beginUpdate();
-		try {
-			graph.resizeCells(cells, bounds);
-			setTextForVertexes();
-			layout.execute(graph.getDefaultParent());
-		} finally {
-			graph.getModel().endUpdate();
-		}
-		graph.refresh();
+		resizeGraph(graph, layout);
 	}
 
 	/*--------------------------------------------------------------*/
