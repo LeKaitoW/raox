@@ -218,25 +218,7 @@ public class GraphFrame extends JFrame {
 			nodeDistance = (int) (0.1 * period);
 		}
 
-		mxRectangle bound = new mxRectangle(0, 0, nodeWidth, nodeWidth);
-		mxRectangle[] bounds = new mxRectangle[vertexMap.size()];
-		for (int i = 0; i < vertexMap.size(); i++) {
-			bounds[i] = bound;
-		}
-
-		graph.getModel().beginUpdate();
-		try {
-			if (nodeHeight < fontHeight)
-				for (mxCell cell : vertexMap.values()) {
-					cell.setStyle(cell.getStyle() + "textOpacity=0;");
-				}
-			graph.resizeCells(cells, bounds);
-			layout.setNodeDistance(nodeDistance);
-			layout.execute(graph.getDefaultParent());
-		} finally {
-			graph.getModel().endUpdate();
-		}
-		layout.execute(graph.getDefaultParent());
+		resizeGraph(graph, layout);
 		setScrollsToCenter(graphComponent);
 		graph.refresh();
 	}
@@ -280,12 +262,12 @@ public class GraphFrame extends JFrame {
 	}
 
 	enum SizeType {
-		BRIEF, NORMAL, FULL
+		NOTEXT, BRIEF, NORMAL, FULL
 	}
 
 	private SizeType checkSize() {
-		if (nodeWidth < medium.width)
-			return SizeType.BRIEF;
+		if (nodeWidth <= minNodeWidth)
+			return SizeType.NOTEXT;
 		if (nodeWidth > medium.width && nodeWidth < large.width)
 			return SizeType.NORMAL;
 		if (nodeWidth > large.width)
@@ -296,6 +278,13 @@ public class GraphFrame extends JFrame {
 	private void setTextForVertexes() {
 		SizeType type = checkSize();
 		switch (type) {
+		case NOTEXT:
+			for (mxCell cell : vertexMap.values()) {
+				Node node = (Node) cell.getValue();
+				node.label = "";
+				cell.setValue(node);
+			}
+			break;
 		case BRIEF:
 			for (mxCell cell : vertexMap.values()) {
 				Node node = (Node) cell.getValue();
@@ -345,6 +334,7 @@ public class GraphFrame extends JFrame {
 		try {
 			graph.resizeCells(cells, bounds);
 			setTextForVertexes();
+			layout.setNodeDistance(nodeDistance);
 			layout.execute(graph.getDefaultParent());
 		} finally {
 			graph.getModel().endUpdate();
