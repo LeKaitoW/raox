@@ -46,7 +46,7 @@ public class PlotView extends ViewPart {
 	private ChartFrame chartFrame;
 	private CollectedDataNode partNode;
 
-	public ChartComposite getFrame() {
+	public ChartFrame getFrame() {
 		return chartFrame;
 	}
 
@@ -121,14 +121,15 @@ public class PlotView extends ViewPart {
 	public void setFocus() {
 	}
 
-	public void plotXY(final XYSeriesCollection dataset, List<String> enumNames) {
-		final JFreeChart chart = createChart(dataset, enumNames);
+	public void plotXY(final XYSeriesCollection dataset,
+			List<String> axisSymbols) {
+		final JFreeChart chart = createChart(dataset, axisSymbols);
 		chartFrame.setChart(chart);
 		chartFrame.setRangeZoomable(false);
 	}
 
 	private JFreeChart createChart(final XYDataset dataset,
-			final List<String> enumNames) {
+			final List<String> axisSymbols) {
 
 		final JFreeChart chart = ChartFactory.createXYStepChart("", "Time",
 				"Value", dataset, PlotOrientation.VERTICAL, true, true, false);
@@ -142,9 +143,9 @@ public class PlotView extends ViewPart {
 		plot.getRenderer().setSeriesStroke(0, new BasicStroke((float) 2.5));
 
 		NumberAxis rangeAxis;
-		if (enumNames != null) {
-			String[] enumLabels = new String[enumNames.size()];
-			enumLabels = enumNames.toArray(enumLabels);
+		if (axisSymbols != null) {
+			String[] enumLabels = new String[axisSymbols.size()];
+			enumLabels = axisSymbols.toArray(enumLabels);
 
 			final FontRegistry fontRegistry = PlatformUI.getWorkbench()
 					.getThemeManager().getCurrentTheme().getFontRegistry();
@@ -262,7 +263,7 @@ class ChartFrame extends ChartComposite implements KeyListener {
 						.getLowerBound()) * horizontalRatio));
 		horizontalSlider.setSelection((int) Math.round(domainAxis
 				.getLowerBound() * horizontalRatio));
-		
+
 		if (verticalMaximum > rangeAxis.getRange().getUpperBound()) {
 			verticalSlider.setVisible(true);
 			verticalSlider.setEnabled(true);
@@ -271,7 +272,6 @@ class ChartFrame extends ChartComposite implements KeyListener {
 			verticalSlider
 					.setThumb((int) Math.round((rangeAxis.getUpperBound() - rangeAxis
 							.getLowerBound()) * verticalRatio));
-			System.out.println(verticalSlider.getThumb());
 			verticalSlider.setSelection((int) Math
 					.round((verticalMaximum - rangeAxis.getUpperBound())
 							* verticalRatio));

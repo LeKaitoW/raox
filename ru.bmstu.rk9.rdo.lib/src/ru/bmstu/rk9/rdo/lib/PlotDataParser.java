@@ -13,6 +13,7 @@ import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceParameterIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rdo.lib.Database.Entry;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
+import ru.bmstu.rk9.rdo.lib.exception.PlotDataParserException;
 
 public class PlotDataParser {
 
@@ -76,7 +77,8 @@ public class PlotDataParser {
 			parseInfo = parsePattern(patternIndex, startItemNumber);
 			break;
 		default:
-			return null;
+			throw new PlotDataParserException("Unexpected index type: "
+					+ index.getType());
 		}
 		lastItemMap.put(index, parseInfo.itemNumber);
 
@@ -118,7 +120,8 @@ public class PlotDataParser {
 				count--;
 				break;
 			default:
-				return null;
+				throw new PlotDataParserException("Unexpected entry type: "
+						+ entryType);
 			}
 			dataset.add(new PlotItem(time, count));
 			itemNumber++;
@@ -164,7 +167,8 @@ public class PlotDataParser {
 				item = new PlotItem(time, data.get() != 0 ? 1 : 0);
 				break;
 			default:
-				return null;
+				throw new PlotDataParserException("Unexpected value type: "
+						+ resultCache.valueType);
 			}
 			dataset.add(item);
 			itemNumber++;
@@ -213,7 +217,8 @@ public class PlotDataParser {
 						.getOffset()) != 0 ? 1 : 0);
 				break;
 			default:
-				return null;
+				throw new PlotDataParserException("Unexpected value type: "
+						+ resourceParameterIndex.getValueCache().type);
 			}
 
 			dataset.add(item);
@@ -241,7 +246,7 @@ public class PlotDataParser {
 				break;
 			}
 		}
-		return enumNames;
 
+		return enumNames;
 	}
 }

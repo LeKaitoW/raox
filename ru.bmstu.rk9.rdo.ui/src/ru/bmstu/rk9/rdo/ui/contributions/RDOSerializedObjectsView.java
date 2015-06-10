@@ -127,8 +127,6 @@ public class RDOSerializedObjectsView extends ViewPart {
 						dataset.addSeries(series);
 						final List<PlotItem> items = PlotDataParser
 								.parseEntries(node);
-						List<String> enumNames = PlotDataParser
-								.getEnumNames(node);
 						for (int i = 0; i < items.size(); i++) {
 							final PlotItem item = items.get(i);
 							series.add(item.x, item.y);
@@ -144,7 +142,8 @@ public class RDOSerializedObjectsView extends ViewPart {
 						newView.setNode(node);
 						PlotView.addToOpenedPlotMap(node, secondaryID);
 
-						newView.plotXY(dataset, enumNames);
+						newView.plotXY(dataset,
+								PlotDataParser.getEnumNames(node));
 						secondaryID++;
 					}
 				} catch (PartInitException e) {
@@ -199,9 +198,9 @@ public class RDOSerializedObjectsView extends ViewPart {
 					final PlotItem item = items.get(i);
 					newSeries.add(item.x, item.y);
 				}
-				((ChartFrame) viewPart.getFrame()).setChartMaximum(
-						newSeries.getMaxX(), newSeries.getMaxY());
-				((ChartFrame) viewPart.getFrame()).updateSliders();
+				viewPart.getFrame().setChartMaximum(newSeries.getMaxX(),
+						newSeries.getMaxY());
+				viewPart.getFrame().updateSliders();
 			}
 		}
 	}
@@ -351,15 +350,18 @@ class RDOSerializedObjectsLabelProvider implements ILabelProvider,
 		final AbstractIndex index = collectedDataNode.getIndex();
 
 		if (index == null) {
-			imageUrl = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+			imageUrl = FileLocator.find(Platform
+					.getBundle("ru.bmstu.rk9.rdo.ui"),
 					new org.eclipse.core.runtime.Path(
 							"icons/cross-small-white.png"), null);
 		} else if (index.getType() == IndexType.RESOURCE
 				&& ((ResourceIndex) index).isErased()) {
-			imageUrl = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+			imageUrl = FileLocator.find(
+					Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
 					new org.eclipse.core.runtime.Path("icons/cross.png"), null);
 		} else {
-			imageUrl = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+			imageUrl = FileLocator.find(
+					Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
 					new org.eclipse.core.runtime.Path("icons/globe-small.png"),
 					null);
 		}
