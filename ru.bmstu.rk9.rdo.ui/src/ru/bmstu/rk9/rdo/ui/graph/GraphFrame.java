@@ -237,21 +237,22 @@ public class GraphFrame extends JFrame {
 	private Dimension large = new Dimension();
 
 	private void updateTypicalDimensions(Node node) {
-		String number = Integer.toString(node.index);
-		String costFunction = Double.toString(node.g + node.h) + " = "
+		final String number = Integer.toString(node.index);
+		final String costFunction = Double.toString(node.g + node.h) + " = "
 				+ Double.toString(node.g) + " + " + Double.toString(node.h);
-		String rule = node.ruleName + " = " + Double.toString(node.ruleCost);
+		final String rule = node.ruleName + " = "
+				+ Double.toString(node.ruleCost);
 
-		String smallText = number;
-		String mediumText = number + "\n" + costFunction;
-		String largeText = mediumText + "\n" + rule;
+		final String smallText = number;
+		final String mediumText = number + "\n" + costFunction;
+		final String largeText = mediumText + "\n" + rule;
 
-		mxRectangle smallBounds = mxUtils.getSizeForString(smallText, font,
-				scale);
-		mxRectangle mediumBounds = mxUtils.getSizeForString(mediumText, font,
-				scale);
-		mxRectangle largeBounds = mxUtils.getSizeForString(largeText, font,
-				scale);
+		final mxRectangle smallBounds = mxUtils.getSizeForString(smallText,
+				font, scale);
+		final mxRectangle mediumBounds = mxUtils.getSizeForString(mediumText,
+				font, scale);
+		final mxRectangle largeBounds = mxUtils.getSizeForString(largeText,
+				font, scale);
 
 		if (smallBounds.getWidth() > small.width)
 			small.setSize(smallBounds.getWidth(), smallBounds.getHeight());
@@ -288,7 +289,7 @@ public class GraphFrame extends JFrame {
 		case BRIEF:
 			for (mxCell cell : vertexMap.values()) {
 				Node node = (Node) cell.getValue();
-				String number = Integer.toString(node.index);
+				final String number = Integer.toString(node.index);
 				node.label = number;
 				cell.setValue(node);
 			}
@@ -296,11 +297,11 @@ public class GraphFrame extends JFrame {
 		case NORMAL:
 			for (mxCell cell : vertexMap.values()) {
 				Node node = (Node) cell.getValue();
-				String number = Integer.toString(node.index);
-				String costFunction = Double.toString(node.g + node.h) + " = "
-						+ Double.toString(node.g) + " + "
+				final String number = Integer.toString(node.index);
+				final String costFunction = Double.toString(node.g + node.h)
+						+ " = " + Double.toString(node.g) + " + "
 						+ Double.toString(node.h);
-				String text = number + "\n" + costFunction;
+				final String text = number + "\n" + costFunction;
 				node.label = text;
 				cell.setValue(node);
 			}
@@ -308,13 +309,13 @@ public class GraphFrame extends JFrame {
 		case FULL:
 			for (mxCell cell : vertexMap.values()) {
 				Node node = (Node) cell.getValue();
-				String number = Integer.toString(node.index);
-				String costFunction = Double.toString(node.g + node.h) + " = "
-						+ Double.toString(node.g) + " + "
+				final String number = Integer.toString(node.index);
+				final String costFunction = Double.toString(node.g + node.h)
+						+ " = " + Double.toString(node.g) + " + "
 						+ Double.toString(node.h);
-				String rule = node.ruleName + " = "
+				final String rule = node.ruleName + " = "
 						+ Double.toString(node.ruleCost);
-				String text = number + "\n" + costFunction + "\n" + rule;
+				final String text = number + "\n" + costFunction + "\n" + rule;
 				node.label = text;
 				cell.setValue(node);
 			}
@@ -323,13 +324,13 @@ public class GraphFrame extends JFrame {
 	}
 
 	private void resizeGraph(mxGraph graph, mxCompactTreeLayout layout) {
-		mxRectangle bound = new mxRectangle(0, 0, nodeWidth, nodeWidth);
-		mxRectangle[] bounds = new mxRectangle[vertexMap.size()];
+		final mxRectangle bound = new mxRectangle(0, 0, nodeWidth, nodeWidth);
+		final mxRectangle[] bounds = new mxRectangle[vertexMap.size()];
 		for (int i = 0; i < vertexMap.size(); i++) {
 			bounds[i] = bound;
 		}
 
-		Object[] cells = vertexMap.values().toArray();
+		final Object[] cells = vertexMap.values().toArray();
 		graph.getModel().beginUpdate();
 		try {
 			graph.resizeCells(cells, bounds);
