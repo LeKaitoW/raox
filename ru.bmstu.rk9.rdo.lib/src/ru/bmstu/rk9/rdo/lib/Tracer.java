@@ -62,6 +62,12 @@ public class Tracer implements Subscriber {
 		}
 	}
 
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// -----------------------NOTIFICATION SYSTEM -------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+	//TODO unify with DbIndexHelper notification System
+
 	private boolean paused = true;
 
 	public final synchronized void setPaused(boolean paused) {

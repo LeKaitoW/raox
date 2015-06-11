@@ -39,7 +39,7 @@ public class Statistics {
 			AbstractIndex resultIndex = database.getIndexHelper()
 					.getResult(result.getName()).getIndex();
 
-			if (resultIndex != null && !resultIndex.getEntries().isEmpty()) {
+			if (resultIndex != null && !resultIndex.getEntryNumbers().isEmpty()) {
 				Function<Integer, Double> getValue = result.getData()
 						.getString("valueType").equals("real") ? i -> database
 						.getAllEntries().get(i).data.getDouble(0)
@@ -47,10 +47,10 @@ public class Statistics {
 								.getInt(0);
 
 				PriorityQueue<Integer> queue = new PriorityQueue<Integer>(
-						resultIndex.getEntries().size(), (a, b) -> getValue
+						resultIndex.getEntryNumbers().size(), (a, b) -> getValue
 								.apply(a).compareTo(getValue.apply(b)));
 
-				queue.addAll(resultIndex.getEntries());
+				queue.addAll(resultIndex.getEntryNumbers());
 
 				int size = queue.size(), value = -1;
 
@@ -134,7 +134,7 @@ public class Statistics {
 			AbstractIndex resultIndex = database.getIndexHelper()
 					.getResult(result.getName()).getIndex();
 
-			if (resultIndex != null && !resultIndex.getEntries().isEmpty()) {
+			if (resultIndex != null && !resultIndex.getEntryNumbers().isEmpty()) {
 				Function<Integer, Double> getValue = result.getData()
 						.getString("valueType").equals("real") ? i -> database
 						.getAllEntries().get(i).data.getDouble(0)
@@ -142,13 +142,13 @@ public class Statistics {
 								.getInt(0);
 
 				PriorityQueue<Integer> queue = new PriorityQueue<Integer>(
-						resultIndex.getEntries().size(), (a, b) -> getValue
-								.apply(resultIndex.getEntries().get(a))
+						resultIndex.getEntryNumbers().size(), (a, b) -> getValue
+								.apply(resultIndex.getEntryNumbers().get(a))
 								.compareTo(
-										getValue.apply(resultIndex.getEntries()
+										getValue.apply(resultIndex.getEntryNumbers()
 												.get(b))));
 
-				for (int i = 0; i < resultIndex.getEntries().size(); i++)
+				for (int i = 0; i < resultIndex.getEntryNumbers().size(); i++)
 					queue.add(i);
 
 				double tempSum = weightSum;
@@ -162,18 +162,18 @@ public class Statistics {
 
 					previousW = weight;
 					weight = database.getAllEntries().get(
-							resultIndex.getEntries().get(number + 1)).header
+							resultIndex.getEntryNumbers().get(number + 1)).header
 							.getDouble(Database.TypeSize.Internal.TIME_OFFSET)
 							- database.getAllEntries().get(
-									resultIndex.getEntries().get(number)).header
+									resultIndex.getEntryNumbers().get(number)).header
 									.getDouble(Database.TypeSize.Internal.TIME_OFFSET);
 
 					tempSum -= weight;
 				}
 
-				double value = getValue.apply(resultIndex.getEntries().get(
+				double value = getValue.apply(resultIndex.getEntryNumbers().get(
 						number));
-				double previous = getValue.apply(resultIndex.getEntries().get(
+				double previous = getValue.apply(resultIndex.getEntryNumbers().get(
 						previousN));
 
 				median = 2d

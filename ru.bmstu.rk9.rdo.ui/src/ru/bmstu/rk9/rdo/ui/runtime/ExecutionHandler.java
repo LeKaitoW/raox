@@ -209,16 +209,28 @@ public class ExecutionHandler extends AbstractHandler {
 							.addSubscriber(
 									SimulationSynchronizer.getInstance().simulationStateListener);
 
+					RDOSerializedObjectsView.commonUpdater.fireChange();
 					RDOTraceView.commonUpdater.fireChange();
 
 					databaseNotifier.getSubscription("EntryAdded")
-							.addSubscriber(Simulator.getTracer());
+							.addSubscriber(Simulator.getTracer())
+							.addSubscriber(Simulator.getDatabase().getIndexHelper());
 
 					Simulator.getTracer().setRealTimeSubscriber(
 							RDOTraceView.realTimeUpdater);
+					Simulator
+							.getDatabase()
+							.getIndexHelper()
+							.setRealTimeSubscriber(
+									RDOSerializedObjectsView.realTimeUpdater);
 
 					Simulator.getTracer().setCommonSubscriber(
 							RDOTraceView.commonUpdater);
+					Simulator
+							.getDatabase()
+							.getIndexHelper()
+							.setCommonSubscriber(
+									RDOSerializedObjectsView.commonUpdater);
 
 					RDOConsoleView
 							.addLine("Started model " + project.getName());
@@ -239,6 +251,10 @@ public class ExecutionHandler extends AbstractHandler {
 
 					traceRealTimeUpdater.scheduleAtFixedRate(
 							RDOTraceView.getRealTimeUpdaterTask(), 0, 100);
+
+					traceRealTimeUpdater.scheduleAtFixedRate(
+							RDOSerializedObjectsView.getRealTimeUpdaterTask(),
+							0, 100);
 
 					animationUpdater.scheduleAtFixedRate(
 							RDOAnimationView.getRedrawTimerTask(), 0, 20);
@@ -276,7 +292,6 @@ public class ExecutionHandler extends AbstractHandler {
 							+ String.valueOf(System.currentTimeMillis()
 									- startTime) + "ms");
 
-					RDOSerializedObjectsView.initializeTree();
 					SimulationSynchronizer.finish();
 
 					uiRealTime.cancel();
