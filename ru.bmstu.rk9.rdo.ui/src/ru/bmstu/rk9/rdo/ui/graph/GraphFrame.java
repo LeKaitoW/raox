@@ -48,7 +48,7 @@ public class GraphFrame extends JFrame {
 	private void drawGraph(mxGraph graph, ArrayList<Node> nodeList,
 			Node parentNode) {
 		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(),
-				null, parentNode, setRelX(0.5), setRelY(0.05), nodeWidth,
+				null, parentNode, getAbsoluteX(0.5), getAbsoluteY(0.05), nodeWidth,
 				nodeHeight, fontColor + strokeColor);
 		vertexMap.put(parentNode, vertex);
 		lastAddedVertexIndex = parentNode.index;
@@ -99,8 +99,8 @@ public class GraphFrame extends JFrame {
 						+ lastAddedVertexIndex + " " + "dpt = " + dptNum);
 				if (!vertexMap.containsKey(node)) {
 					mxCell vertex = (mxCell) graph.insertVertex(
-							graph.getDefaultParent(), null, node, setRelX(0.5),
-							setRelY(0.05), nodeWidth, nodeHeight, fontColor
+							graph.getDefaultParent(), null, node, getAbsoluteX(0.5),
+							getAbsoluteY(0.05), nodeWidth, nodeHeight, fontColor
 									+ strokeColor);
 					vertexMap.put(node, vertex);
 					lastAddedVertexIndex = node.index;
@@ -360,12 +360,12 @@ public class GraphFrame extends JFrame {
 		frameAspectRatio = (double) this.getWidth() / this.getHeight();
 	}
 
-	public int setRelX(double relX) {
-		return (int) (this.getSize().width * relX);
+	public int getAbsoluteX(double relativeX) {
+		return (int) (this.getSize().width * relativeX);
 	}
 
-	public int setRelY(double relY) {
-		return (int) (this.getSize().height * relY);
+	public int getAbsoluteY(double relativeY) {
+		return (int) (this.getSize().height * relativeY);
 	}
 
 	public int setWidth(Dimension d, double relativeWidth) {
