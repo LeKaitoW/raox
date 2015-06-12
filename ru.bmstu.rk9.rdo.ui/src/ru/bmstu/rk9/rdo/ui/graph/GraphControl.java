@@ -44,6 +44,7 @@ public class GraphControl {
 
 			GraphFrame graphFrame = new GraphFrame(dptNum, frameWidth,
 					frameHeight);
+
 			GraphControl.openedGraphMap.put(dptNum, graphFrame);
 			graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			graphFrame.setTitle(frameName);
