@@ -69,7 +69,7 @@ import ru.bmstu.rk9.rdo.rdo.SimulationRun
 import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.RDOInteger
-
+import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
 
 class SuchAsHistory
 {
@@ -782,4 +782,29 @@ class RDOValidator extends AbstractRDOValidator
 		}
 	}
 
+	@Check
+	def checkConvertStatusSearch(DecisionPointSearch search)
+	{
+		val activities = search.activities
+
+		for (activity : activities) {
+			val rule = activity.pattern
+
+			if (rule instanceof Rule) {
+				for (relevantResource : rule.relevantresources) {
+					val status = relevantResource.rule.literal
+
+					if (!(status == "Keep" || status == "NoChange"))
+						error(
+							"Invalid convert status: " + status +
+								" - only Keep and NoChange statuses could be used for resource",
+							activity, RdoPackage.eINSTANCE.decisionPointSearchActivity_Pattern)
+				}
+			} else {
+				error("Invalid pattern name: " + rule.name + " - only Rule pattern type allowed",
+					RdoPackage.eINSTANCE.decisionPoint_Name)
+			}
+		}
+	}
+	
 }
