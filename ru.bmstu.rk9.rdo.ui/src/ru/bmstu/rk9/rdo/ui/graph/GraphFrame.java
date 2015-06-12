@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rdo.ui.graph;
 
+import java.awt.Dimension;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +48,8 @@ public class GraphFrame extends JFrame {
 	private void drawGraph(mxGraph graph, ArrayList<Node> nodeList,
 			Node parentNode) {
 		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(),
-				null, parentNode, 385, 100, 30, 30, fontColor + strokeColor);
+				null, parentNode, getAbsoluteX(0.5), getAbsoluteY(0.05), nodeWidth,
+				nodeHeight, fontColor + strokeColor);
 		vertexMap.put(parentNode, vertex);
 		lastAddedVertexIndex = parentNode.index;
 		if (parentNode.parent != null)
@@ -89,8 +91,9 @@ public class GraphFrame extends JFrame {
 				Node node = nodeList.get(i);
 				if (!vertexMap.containsKey(node)) {
 					mxCell vertex = (mxCell) graph.insertVertex(
-							graph.getDefaultParent(), null, node, 385, 100, 30,
-							30, fontColor + strokeColor);
+							graph.getDefaultParent(), null, node, getAbsoluteX(0.5),
+							getAbsoluteY(0.05), nodeWidth, nodeHeight, fontColor
+									+ strokeColor);
 					vertexMap.put(node, vertex);
 					lastAddedVertexIndex = node.index;
 					if (node.parent != null)
@@ -120,13 +123,13 @@ public class GraphFrame extends JFrame {
 		double scale = 1.0;
 		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
 
-		final double delta = 20;
+		final double delta = setWidth(frameDimension, 0.01);
 
 		double width = bounds.getWidth() + delta;
 		double height = bounds.getHeight() + delta;
 
 		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null,
-				text, delta / 2, delta / 2, width, height);
+				text, delta, delta, width, height);
 	}
 
 	public mxCell showCellInfo(mxGraph graph, mxCell cell) {
@@ -155,13 +158,14 @@ public class GraphFrame extends JFrame {
 		double scale = 1.0;
 		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
 
-		final double delta = 20;
+		final double delta = setWidth(frameDimension, 0.01);
 
 		double width = bounds.getWidth() + delta;
 		double height = bounds.getHeight() + delta;
 
 		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null,
-				text, 800 - width - (delta / 2), delta / 2, width, height);
+				text, setWidth(frameDimension, 1) - width - (delta), delta,
+				width, height);
 	}
 
 	private TimerTask graphFrameUpdateTimerTask;
@@ -178,7 +182,32 @@ public class GraphFrame extends JFrame {
 
 	boolean isFinished = false;
 
-	public GraphFrame(int dptNum) {
+	Dimension frameDimension;
+
+	int nodeWidth;
+
+	int nodeHeight;
+
+	int nodeDistance;
+
+	int levelDistance;
+
+	private void setProportions(Dimension d) {
+		nodeWidth = setWidth(d, 0.05);
+		nodeHeight = setHeight(d, 0.05);
+		nodeDistance = (int) (d.width * 0.01);
+		levelDistance = (int) (d.height * 0.1);
+	}
+
+	public GraphFrame(int dptNum, int width, int height) {
+
+		this.setSize(width, height);
+
+		setAspectRatio();
+
+		frameDimension = this.getSize();
+
+		setProportions(frameDimension);
 
 		ArrayList<Node> nodeList;
 
@@ -222,8 +251,8 @@ public class GraphFrame extends JFrame {
 
 		mxCompactTreeLayout layout = new mxCompactTreeLayout(graph, false);
 
-		layout.setLevelDistance(30);
-		layout.setNodeDistance(5);
+		layout.setLevelDistance(levelDistance);
+		layout.setNodeDistance(nodeDistance);
 		layout.setEdgeRouting(false);
 
 		layout.execute(graph.getDefaultParent());
@@ -317,5 +346,29 @@ public class GraphFrame extends JFrame {
 						}
 					}
 				});
+	}
+
+	/*----------------------- RELATIVE COORINATES -----------------------*/
+
+	private double frameAspectRatio;
+
+	private void setAspectRatio() {
+		frameAspectRatio = (double) this.getWidth() / this.getHeight();
+	}
+
+	public int getAbsoluteX(double relativeX) {
+		return (int) (this.getSize().width * relativeX);
+	}
+
+	public int getAbsoluteY(double relativeY) {
+		return (int) (this.getSize().height * relativeY);
+	}
+
+	public int setWidth(Dimension d, double relativeWidth) {
+		return (int) (d.width * relativeWidth / frameAspectRatio);
+	}
+
+	public int setHeight(Dimension d, double relativeHeight) {
+		return (int) (d.height * relativeHeight);
 	}
 }
