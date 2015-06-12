@@ -9,8 +9,6 @@ import java.util.TimerTask;
 
 import javax.swing.JFrame;
 
-import org.eclipse.swt.graphics.Rectangle;
-
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.TreeBuilder.GraphInfo;
@@ -215,6 +213,8 @@ public class GraphFrame extends JFrame {
 
 		this.setSize(width, height);
 
+		setAspectRatio();
+
 		frameDimension = this.getSize();
 
 		setProportions(frameDimension);
@@ -354,6 +354,12 @@ public class GraphFrame extends JFrame {
 
 	/*----------------------- RELATIVE COORINATES -----------------------*/
 
+	private double frameAspectRatio;
+
+	private void setAspectRatio() {
+		frameAspectRatio = (double) this.getWidth() / this.getHeight();
+	}
+
 	public int setRelX(double relX) {
 		return (int) (this.getSize().width * relX);
 	}
@@ -362,19 +368,11 @@ public class GraphFrame extends JFrame {
 		return (int) (this.getSize().height * relY);
 	}
 
-	public static int setWidth(Dimension d, double relativeWidth) {
-		return (int) (d.width * relativeWidth);
+	public int setWidth(Dimension d, double relativeWidth) {
+		return (int) (d.width * relativeWidth / frameAspectRatio);
 	}
 
-	public static int setWidth(Rectangle r, double relativeWidth) {
-		return (int) (r.width * relativeWidth);
-	}
-
-	public static int setHeight(Dimension d, double relativeHeight) {
+	public int setHeight(Dimension d, double relativeHeight) {
 		return (int) (d.height * relativeHeight);
-	}
-
-	public static int setHeight(Rectangle r, double relativeHeight) {
-		return (int) (r.height * relativeHeight);
 	}
 }

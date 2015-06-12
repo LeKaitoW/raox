@@ -39,8 +39,8 @@ public class GraphControl {
 			TreeBuilder treeBuilder = Simulator.getTreeBuilder();
 			treeBuilder.buildTree();
 
-			int frameWidth = GraphFrame.setWidth(monitorBounds, 0.5);
-			int frameHeight = GraphFrame.setHeight(monitorBounds, 0.5);
+			int frameWidth = setWidth(monitorBounds, 1.2);
+			int frameHeight = setHeight(monitorBounds, 0.8);
 
 			GraphFrame graphFrame = new GraphFrame(dptNum, frameWidth,
 					frameHeight);
@@ -126,4 +126,15 @@ public class GraphControl {
 	}
 
 	public static final Map<Integer, GraphFrame> openedGraphMap = new HashMap<Integer, GraphFrame>();
+
+	public static final double monitorAspectRatio = (double) monitorBounds.width
+			/ monitorBounds.height;
+
+	public static int setWidth(Rectangle r, double relativeWidth) {
+		return (int) (r.width * relativeWidth / GraphControl.monitorAspectRatio);
+	}
+
+	public static int setHeight(Rectangle r, double relativeHeight) {
+		return (int) (r.height * relativeHeight);
+	}
 }
