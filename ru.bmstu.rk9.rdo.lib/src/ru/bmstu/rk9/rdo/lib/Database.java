@@ -9,10 +9,13 @@ import java.util.List;
 import java.util.Map;
 
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
-import ru.bmstu.rk9.rdo.lib.CollectedDataNode.Index;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.PatternIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.DecisionPointIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceTypeIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceParameterIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex.SearchInfo;
 import ru.bmstu.rk9.rdo.lib.json.*;
 
@@ -77,18 +80,14 @@ public class Database {
 			ResourceTypeIndex resourceTypeIndex = new ResourceTypeIndex(i,
 					resourceType.getJSONObject("structure"));
 			typeNode.setIndex(resourceTypeIndex);
-
-			JSONArray resources = resourceType.getJSONArray("resources");
-			for (int j = 0; j < resources.length(); j++)
-				typeNode.addChild(resources.getString(j))
-						.setIndex(new Index(j));
 		}
 
 		JSONArray results = modelStructure.getJSONArray("results");
 		for (int i = 0; i < results.length(); i++) {
 			JSONObject result = results.getJSONObject(i);
+			ResultType type = ResultType.get(result.getString("type"));
 			indexHelper.addResult(result.getString("name")).setIndex(
-					new Index(i));
+					new ResultIndex(i, type));
 		}
 
 		JSONArray patterns = modelStructure.getJSONArray("patterns");
@@ -114,7 +113,7 @@ public class Database {
 			case "prior":
 				CollectedDataNode dptNode = indexHelper
 						.addDecisionPoint(decisionPoint.getString("name"));
-				dptNode.setIndex(new Index(i));
+				dptNode.setIndex(new DecisionPointIndex(i));
 
 				JSONArray activities = decisionPoint.getJSONArray("activities");
 				for (int j = 0; j < activities.length(); j++) {
@@ -259,7 +258,7 @@ public class Database {
 		ResourceTypeIndex resourceTypeIndex = (ResourceTypeIndex) resourceTypeNode
 				.getIndex();
 
-		Index resourceIndex;
+		ResourceIndex resourceIndex;
 
 		String name = resource.getName();
 		if (name != null) {
@@ -281,17 +280,36 @@ public class Database {
 
 		switch (status) {
 		case CREATED:
-			resourceIndex = new Index(resource.getNumber());
+			CollectedDataNode resourceNode = resourceTypeNode.addChild(name);
 
-			resourceTypeNode.addChild(name).setIndex(resourceIndex);
+			resourceIndex = new ResourceIndex(resource.getNumber());
+			resourceNode.setIndex(resourceIndex);
+
+			JSONArray parameters = resourceTypeIndex.getStructure()
+					.getJSONArray("parameters");
+			for (int paramNum = 0; paramNum < parameters.length(); paramNum++) {
+				JSONObject param = parameters.getJSONObject(paramNum);
+				ValueCache paramType = new ValueCache(param);
+				int offset = param.getInt("offset");
+				resourceNode.addChild(
+						parameters.getJSONObject(paramNum).getString("name"))
+						.setIndex(
+								new ResourceParameterIndex(paramNum, paramType,
+										offset));
+			}
+
 			break;
 		case SEARCH:
 			shouldSerializeToIndex = false;
-		case ERASED:
 		case ALTERED:
 		case SOLUTION:
-			resourceIndex = (Index) resourceTypeNode.getChildren().get(name)
-					.getIndex();
+			resourceIndex = (ResourceIndex) resourceTypeNode.getChildren()
+					.get(name).getIndex();
+			break;
+		case ERASED:
+			resourceIndex = (ResourceIndex) resourceTypeNode.getChildren()
+					.get(name).getIndex();
+			resourceIndex.erased = true;
 			break;
 		default:
 			resourceIndex = null;
@@ -310,7 +328,7 @@ public class Database {
 		addEntry(entry);
 
 		if (shouldSerializeToIndex)
-			resourceIndex.entries.add(allEntries.size() - 1);
+			resourceIndex.entryNumbers.add(allEntries.size() - 1);
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -336,21 +354,24 @@ public class Database {
 
 	private Map<Pattern, PatternPoolEntry> patternPool = new HashMap<Pattern, PatternPoolEntry>();
 
-	public void addDecisionEntry(DecisionPoint dpt,
-			DecisionPoint.Activity activity, PatternType type, Pattern pattern) {
-		String dptName = dpt.getName();
+	public final void addDecisionEntry(final DecisionPoint dpt,
+			final DecisionPoint.Activity activity, final PatternType type,
+			final Pattern pattern) {
+		final String dptName = dpt.getName();
 
 		if (!sensitivityList.contains(dptName)
 				&& !sensitivityList.contains(pattern.getName()))
 			return;
 
-		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
+		final ByteBuffer header = ByteBuffer
+				.allocate(EntryType.PATTERN.HEADER_SIZE);
 		header.put((byte) EntryType.PATTERN.ordinal())
 				.putDouble(Simulator.getTime()).put((byte) type.ordinal());
 
-		CollectedDataNode dptNode = indexHelper.getDecisionPoint(dptName);
-		Index dptIndex = (Index) dptNode.getIndex();
-		PatternIndex index = (PatternIndex) dptNode.getChildren()
+		final CollectedDataNode dptNode = indexHelper.getDecisionPoint(dptName);
+		final DecisionPointIndex dptIndex = (DecisionPointIndex) dptNode
+				.getIndex();
+		final PatternIndex index = (PatternIndex) dptNode.getChildren()
 				.get(activity.getName()).getIndex();
 
 		int number = index.timesExecuted++;
@@ -358,18 +379,18 @@ public class Database {
 			patternPool.put(pattern,
 					new PatternPoolEntry(dpt, activity, number));
 
-		int[] relevantResources = pattern.getRelevantInfo();
+		final int[] relevantResources = pattern.getRelevantInfo();
 
-		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER
+		final ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER
 				* (relevantResources.length + 4));
 		data.putInt(dptIndex.number).putInt(index.number).putInt(number);
 
 		fillRelevantResources(data, relevantResources);
 
-		Entry entry = new Entry(header, data);
+		final Entry entry = new Entry(header, data);
 
 		addEntry(entry);
-		index.entries.add(allEntries.size() - 1);
+		index.entryNumbers.add(allEntries.size() - 1);
 	}
 
 	public void addEventEntry(PatternType type, Pattern pattern) {
@@ -380,7 +401,7 @@ public class Database {
 		PatternIndex index;
 
 		PatternPoolEntry poolEntry = null;
-		Index dptIndex = null;
+		DecisionPointIndex dptIndex = null;
 
 		if (type == PatternType.OPERATION_END) {
 			poolEntry = patternPool.remove(pattern);
@@ -388,7 +409,7 @@ public class Database {
 				return;
 			CollectedDataNode dptNode = indexHelper
 					.getDecisionPoint(poolEntry.dpt.getName());
-			dptIndex = (Index) dptNode.getIndex();
+			dptIndex = (DecisionPointIndex) dptNode.getIndex();
 			index = (PatternIndex) dptNode.getChildren()
 					.get(poolEntry.activity.getName()).getIndex();
 		} else {
@@ -419,7 +440,7 @@ public class Database {
 		Entry entry = new Entry(header, data);
 
 		addEntry(entry);
-		index.entries.add(allEntries.size() - 1);
+		index.entryNumbers.add(allEntries.size() - 1);
 	}
 
 	private void fillRelevantResources(ByteBuffer data, int[] relevantResources) {
@@ -477,6 +498,30 @@ public class Database {
 	// -------------------------- RESULT ENTRIES --------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
+	public static enum ResultType {
+		GET_VALUE("get_value"), WATCH_PAR("watch_par"), WATCH_QUANT(
+				"watch_quant"), WATCH_STATE("watch_state"), WATCH_VALUE(
+				"watch_value");
+
+		ResultType(String type) {
+			this.type = type;
+		}
+
+		static final ResultType get(final String type) {
+			for (ResultType t : values()) {
+				if (t.type.equals(type))
+					return t;
+			}
+			return null;
+		}
+
+		public String getString() {
+			return type;
+		}
+
+		final private String type;
+	}
+
 	public void addResultEntry(Result result) {
 		String name = result.getName();
 		if (!sensitivityList.contains(name))
@@ -486,8 +531,8 @@ public class Database {
 
 		ByteBuffer data = result.serialize();
 		if (!index.isEmpty()) {
-			ByteBuffer lastResultValue = allEntries.get(index.getEntries().get(
-					index.getEntries().size() - 1)).data.duplicate();
+			ByteBuffer lastResultValue = allEntries.get(index.getEntryNumbers()
+					.get(index.getEntryNumbers().size() - 1)).data.duplicate();
 			ByteBuffer currentResultValue = data.duplicate();
 			currentResultValue.rewind();
 			lastResultValue.rewind();
@@ -502,6 +547,6 @@ public class Database {
 		Entry entry = new Entry(header, data);
 
 		addEntry(entry);
-		index.getEntries().add(allEntries.size() - 1);
+		index.getEntryNumbers().add(allEntries.size() - 1);
 	}
 }

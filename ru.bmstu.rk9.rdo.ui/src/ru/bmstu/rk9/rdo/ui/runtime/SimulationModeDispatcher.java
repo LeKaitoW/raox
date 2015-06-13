@@ -16,10 +16,12 @@ public class SimulationModeDispatcher {
 			case "P":
 			case "NA":
 				Simulator.getTracer().setPaused(true);
+				Simulator.getDatabase().getIndexHelper().setPaused(true);
 				break;
 			case "FF":
 			case "NS":
 				Simulator.getTracer().setPaused(false);
+				Simulator.getDatabase().getIndexHelper().setPaused(false);
 				break;
 			}
 		}
