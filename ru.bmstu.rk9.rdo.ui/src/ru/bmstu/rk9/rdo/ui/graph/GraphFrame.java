@@ -327,7 +327,8 @@ public class GraphFrame extends JFrame {
 						+ Double.toString(node.h);
 				final String rule = node.ruleName + " = "
 						+ Double.toString(node.ruleCost);
-				final String text = number + "\n" + costFunction + "\n" + rule;
+				final String shortRule = rule.replaceAll("\\(.*\\)", "");
+				final String text = number + "\n" + costFunction + "\n" + shortRule;
 				node.label = text;
 				cell.setValue(node);
 			}
