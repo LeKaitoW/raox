@@ -35,81 +35,78 @@ public class GraphControl {
 		int dptNum = frameInfo.dptNumber;
 		String frameName = frameInfo.frameName;
 
-		if (!GraphControl.openedGraphMap.containsValue(dptNum)) {
-			TreeBuilder treeBuilder = Simulator.getTreeBuilder();
-			treeBuilder.buildTree();
+		TreeBuilder treeBuilder = Simulator.getTreeBuilder();
+		treeBuilder.buildTree();
 
-			int frameWidth = setWidth(monitorBounds, 1.2);
-			int frameHeight = setHeight(monitorBounds, 0.8);
+		int frameWidth = setWidth(monitorBounds, 1.2);
+		int frameHeight = setHeight(monitorBounds, 0.8);
 
-			GraphFrame graphFrame = new GraphFrame(dptNum, frameWidth,
-					frameHeight);
+		GraphFrame graphFrame = new GraphFrame(dptNum, frameWidth, frameHeight);
 
-			GraphControl.openedGraphMap.put(dptNum, graphFrame);
-			graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-			graphFrame.setTitle(frameName);
-			graphFrame.setLocationRelativeTo(null);
-			graphFrame.setVisible(true);
+		GraphControl.openedGraphMap.put(dptNum, graphFrame);
+		graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		graphFrame.setTitle(frameName);
+		graphFrame.setLocationRelativeTo(null);
+		graphFrame.setVisible(true);
 
-			boolean isFinished;
+		boolean isFinished;
 
-			Simulator.getTreeBuilder().rwLock.readLock().lock();
-			try {
-				isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap
-						.get(dptNum).isFinished;
-			} finally {
-				Simulator.getTreeBuilder().rwLock.readLock().unlock();
-			}
-
-			if (!isFinished) {
-				TimerTask graphUpdateTask = graphFrame
-						.getGraphFrameUpdateTimerTask();
-				Timer graphUpdateTimer = new Timer();
-				graphUpdateTimer.scheduleAtFixedRate(graphUpdateTask, 0, 10);
-
-				TimerTask graphFinTask = graphFrame.getGraphFrameFinTimerTask();
-				Timer graphFinTimer = new Timer();
-				graphFinTimer.scheduleAtFixedRate(graphFinTask, 0, 10);
-			}
-
-			graphFrame.addWindowListener(new WindowListener() {
-
-				@Override
-				public void windowOpened(WindowEvent e) {
-
-				}
-
-				@Override
-				public void windowIconified(WindowEvent e) {
-
-				}
-
-				@Override
-				public void windowDeiconified(WindowEvent e) {
-
-				}
-
-				@Override
-				public void windowDeactivated(WindowEvent e) {
-
-				}
-
-				@Override
-				public void windowClosing(WindowEvent e) {
-
-				}
-
-				@Override
-				public void windowClosed(WindowEvent e) {
-					GraphControl.openedGraphMap.remove(dptNum);
-				}
-
-				@Override
-				public void windowActivated(WindowEvent e) {
-
-				}
-			});
+		Simulator.getTreeBuilder().rwLock.readLock().lock();
+		try {
+			isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap
+					.get(dptNum).isFinished;
+		} finally {
+			Simulator.getTreeBuilder().rwLock.readLock().unlock();
 		}
+
+		if (!isFinished) {
+			TimerTask graphUpdateTask = graphFrame
+					.getGraphFrameUpdateTimerTask();
+			Timer graphUpdateTimer = new Timer();
+			graphUpdateTimer.scheduleAtFixedRate(graphUpdateTask, 0, 10);
+
+			TimerTask graphFinTask = graphFrame.getGraphFrameFinTimerTask();
+			Timer graphFinTimer = new Timer();
+			graphFinTimer.scheduleAtFixedRate(graphFinTask, 0, 10);
+		}
+
+		graphFrame.addWindowListener(new WindowListener() {
+
+			@Override
+			public void windowOpened(WindowEvent e) {
+
+			}
+
+			@Override
+			public void windowIconified(WindowEvent e) {
+
+			}
+
+			@Override
+			public void windowDeiconified(WindowEvent e) {
+
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+
+			}
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+
+			}
+
+			@Override
+			public void windowClosed(WindowEvent e) {
+				GraphControl.openedGraphMap.remove(dptNum);
+			}
+
+			@Override
+			public void windowActivated(WindowEvent e) {
+
+			}
+		});
 	}
 
 	public static void openFrameWindow(FrameInfo frameInfo) {
