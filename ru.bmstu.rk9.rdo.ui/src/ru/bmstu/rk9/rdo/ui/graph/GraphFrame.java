@@ -254,10 +254,11 @@ public class GraphFrame extends JFrame {
 				+ Double.toString(node.g) + " + " + Double.toString(node.h);
 		final String rule = node.ruleName + " = "
 				+ Double.toString(node.ruleCost);
+		final String shortRule = rule.replaceAll("\\(.*\\)", "");
 
 		final String smallText = number;
 		final String mediumText = number + "\n" + costFunction;
-		final String largeText = mediumText + "\n" + rule;
+		final String largeText = mediumText + "\n" + shortRule;
 
 		final mxRectangle smallBounds = mxUtils.getSizeForString(smallText,
 				font, scale);
