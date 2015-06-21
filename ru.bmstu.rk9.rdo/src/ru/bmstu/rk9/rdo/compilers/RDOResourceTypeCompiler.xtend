@@ -160,23 +160,13 @@ class RDOResourceTypeCompiler
 
 				public «parameter.compileType» set_«parameter.name»(«parameter.compileType» «parameter.name»)
 				{
-					if(managerOwner == managerCurrent)
-						this.«parameter.name» = «parameter.name»;
-					else
-						this.copyForNewOwner().«parameter.name» = «parameter.name»;
+					if(managerOwner != managerCurrent)
+						this.copyForNewOwner();
 
-					return «parameter.name»;
+					this.«parameter.name» = «parameter.name»;
+
+					return this.«parameter.name»;
 				}
-
-				public «parameter.compileType» set_«parameter.name»_after(«parameter.compileType» «parameter.name»)
-				{
-					«parameter.compileTypePrimitive» copy = this.«parameter.name»;
-
-					set_«parameter.name»(«parameter.name»);
-
-					return copy;
-				}
-
 			«ENDFOR»
 			private «rtp.name» copyForNewOwner()
 			{
@@ -184,7 +174,10 @@ class RDOResourceTypeCompiler
 
 				copy.name = name;
 				copy.number = number;
-				managerCurrent.addResource(copy);
+				copy.managerOwner = managerOwner;
+				managerOwner.addResource(copy);
+				managerOwner = managerCurrent;
+
 				return copy;
 			}
 
