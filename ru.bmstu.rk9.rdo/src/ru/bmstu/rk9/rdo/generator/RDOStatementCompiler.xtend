@@ -219,8 +219,8 @@ class RDOStatementCompiler
 
 			ResourceEraseStatement:
 				'''
-					«(st.relres.type as ResourceType).fullyQualifiedName
-						».eraseResource(resources.«st.relres.name»);
+				«(st.relres.type as ResourceType).fullyQualifiedName
+					».eraseResource(resources.«st.relres.name»);
 				'''
 
 			FrameObject:

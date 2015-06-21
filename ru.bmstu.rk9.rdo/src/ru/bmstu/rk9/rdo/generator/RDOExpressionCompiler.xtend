@@ -203,13 +203,17 @@ class RDOExpressionCompiler
 			{
 				val ret = expr.^var.compileExpression
 
-				if(expr.pre != null && ret.value.contains(".get_") && ret.value.endsWith("()"))
-					return new RDOExpression(ret.value.replace(".get_", ".set_").cutLastChars(2) +
-						"(" + ret.value + (if(expr.pre == "--") "- 1" else " + 1") + ")", ret.type)
+				if (ret.value.contains(".get_") && ret.value.endsWith("()")) {
+					var String incDec = null
+					if(expr.pre != null)
+						incDec = expr.pre
+					else
+						incDec = expr.post
 
-				if(expr.post != null && ret.value.contains(".get_") && ret.value.endsWith("()"))
+					if (incDec != null)
 						return new RDOExpression(ret.value.replace(".get_", ".set_").cutLastChars(2) +
-							"_after(" + ret.value + (if(expr.post == "--") " - 1" else " + 1") + ")", ret.type)
+							"(" + ret.value + (if(incDec == "--") "- 1" else " + 1") + ")", ret.type)
+				}
 
 				return new RDOExpression((if(expr.pre != null) expr.pre else "") +
 					 ret.value + (if(expr.post != null) expr.post else ""), ret.type)
