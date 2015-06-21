@@ -175,7 +175,7 @@ public class Database {
 	public static enum EntryType {
 		SYSTEM(TypeSize.BYTE * 2 + TypeSize.DOUBLE), RESOURCE(TypeSize.BYTE * 2
 				+ TypeSize.INTEGER * 2 + TypeSize.DOUBLE), PATTERN(
-				TypeSize.BYTE * 2 + TypeSize.DOUBLE), SEARCH(TypeSize.BYTE * 2
+				TypeSize.BYTE * 2 + TypeSize.DOUBLE), EVENT(TypeSize.BYTE * 2 + TypeSize.DOUBLE), SEARCH(TypeSize.BYTE * 2
 				+ TypeSize.INTEGER * 2 + TypeSize.DOUBLE), RESULT(TypeSize.BYTE
 				+ TypeSize.INTEGER + TypeSize.DOUBLE);
 
@@ -344,7 +344,7 @@ public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	public static enum PatternType {
-		EVENT, RULE, OPERATION_BEGIN, OPERATION_END
+		RULE, OPERATION_BEGIN, OPERATION_END
 	}
 
 	private static class PatternPoolEntry {
@@ -444,7 +444,7 @@ public class Database {
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-	// ------------------------ PATTERN ENTRIES ---------------------------- //
+	// ------------------------- EVENT ENTRIES ----------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	public void addEventEntry(Event event) {
@@ -457,9 +457,8 @@ public class Database {
 		EventIndex index = (EventIndex) indexHelper.getEvent(name).getIndex();
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
-		header.put((byte) EntryType.PATTERN.ordinal())
-				.putDouble(Simulator.getTime())
-				.put((byte) PatternType.EVENT.ordinal());
+		header.put((byte) EntryType.EVENT.ordinal())
+				.putDouble(Simulator.getTime());
 
 		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER * 2);
 		data.putInt(index.number).putInt(index.timesExecuted++);

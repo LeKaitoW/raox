@@ -15,6 +15,7 @@ public class ModelStructureCache {
 		initPatternsCache();
 		initDecisionPointsCache();
 		initResultsCache();
+		initEventNames();
 	}
 
 	enum ValueType {
@@ -40,6 +41,7 @@ public class ModelStructureCache {
 	final List<ResourceTypeCache> resourceTypesInfo = new ArrayList<ResourceTypeCache>();
 	final List<ResultCache> resultsInfo = new ArrayList<ResultCache>();
 	final List<PatternCache> patternsInfo = new ArrayList<PatternCache>();
+	final List<String> eventNames = new ArrayList<String>();
 	final List<DecisionPointCache> decisionPointsInfo = new ArrayList<DecisionPointCache>();
 
 	final void initResourceCache() {
@@ -91,6 +93,14 @@ public class ModelStructureCache {
 
 		for (int num = 0; num < results.length(); num++)
 			resultsInfo.add(new ResultCache(results.getJSONObject(num)));
+	}
+
+	final void initEventNames() {
+		final JSONArray events = Simulator.getDatabase().getModelStructure()
+				.getJSONArray("events");
+
+		for (int num = 0; num < events.length(); num++)
+			eventNames.add(events.getJSONObject(num).getString("name"));
 	}
 
 	final static JSONObject getEnumOrigin(String enumOrigin) {

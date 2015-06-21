@@ -52,7 +52,7 @@ public class Tracer implements Subscriber {
 	// -----------------------NOTIFICATION SYSTEM -------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	//TODO unify with DbIndexHelper notification System
+	// TODO unify with DbIndexHelper notification System
 
 	private boolean paused = true;
 
@@ -110,6 +110,8 @@ public class Tracer implements Subscriber {
 			return parseResourceEntry(entry);
 		case PATTERN:
 			return parsePatternEntry(entry);
+		case EVENT:
+			return parseEventEntry(entry);
 		case SEARCH:
 			return parseSearchEntry(entry);
 		case RESULT:
@@ -244,9 +246,6 @@ public class Tracer implements Subscriber {
 		final Database.PatternType entryType = Database.PatternType.values()[header
 				.get()];
 		switch (entryType) {
-		case EVENT:
-			traceType = TraceType.EVENT;
-			break;
 		case RULE:
 			traceType = TraceType.RULE;
 			break;
@@ -262,59 +261,68 @@ public class Tracer implements Subscriber {
 
 		return new TraceOutput(traceType, new RDOLibStringJoiner(delimiter)
 				.add(traceType.toString()).add(time)
-				.add(parsePatternData(data, traceType)).getString());
+				.add(parsePatternData(data)).getString());
 	}
 
-	private String parsePatternData(final ByteBuffer data,
-			final TraceType patternType) {
+	private String parsePatternData(final ByteBuffer data) {
 		final RDOLibStringJoiner stringJoiner = new RDOLibStringJoiner(
 				delimiter);
 
-		int patternNumber;
+		int dptNumber = data.getInt();
+		int activityNumber = data.getInt();
+		int actionNumber = data.getInt();
+		ActivityCache activity = Simulator.getModelStructureCache().decisionPointsInfo
+				.get(dptNumber).activitiesInfo.get(activityNumber);
+		int patternNumber = activity.patternNumber;
+		stringJoiner.add(activity.name + encloseIndex(actionNumber));
 
-		switch (patternType) {
-		case EVENT: {
-			int eventNumber = data.getInt();
-			int actionNumber = data.getInt();
-			patternNumber = eventNumber;
-			stringJoiner.add(Simulator.getModelStructureCache().patternsInfo
-					.get(eventNumber).name + encloseIndex(actionNumber));
-			return stringJoiner.getString();
+		final RDOLibStringJoiner relResStringJoiner = new RDOLibStringJoiner(
+				RDOLibStringJoiner.StringFormat.FUNCTION);
+
+		int numberOfRelevantResources = data.getInt();
+		for (int num = 0; num < numberOfRelevantResources; num++) {
+			final int resNum = data.getInt();
+			final int typeNum = Simulator.getModelStructureCache().patternsInfo
+					.get(patternNumber).relResTypes.get(num);
+			final String typeName = Simulator.getModelStructureCache().resourceTypesInfo
+					.get(typeNum).name;
+
+			final String name = Simulator.getModelStructureCache().resourceNames
+					.get(typeNum).get(resNum);
+			final String resourceName = name != null ? name : typeName
+					+ encloseIndex(resNum);
+
+			relResStringJoiner.add(resourceName);
 		}
-		case RULE:
-		case OPERATION_BEGIN:
-		case OPERATION_END: {
-			int dptNumber = data.getInt();
-			int activityNumber = data.getInt();
-			int actionNumber = data.getInt();
-			ActivityCache activity = Simulator.getModelStructureCache().decisionPointsInfo
-					.get(dptNumber).activitiesInfo.get(activityNumber);
-			patternNumber = activity.patternNumber;
-			stringJoiner.add(activity.name + encloseIndex(actionNumber));
+		return stringJoiner.getString() + relResStringJoiner.getString();
+	}
 
-			final RDOLibStringJoiner relResStringJoiner = new RDOLibStringJoiner(
-					RDOLibStringJoiner.StringFormat.FUNCTION);
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// --------------------------- EVENT ENTRIES --------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-			int numberOfRelevantResources = data.getInt();
-			for (int num = 0; num < numberOfRelevantResources; num++) {
-				final int resNum = data.getInt();
-				final int typeNum = Simulator.getModelStructureCache().patternsInfo
-						.get(patternNumber).relResTypes.get(num);
-				final String typeName = Simulator.getModelStructureCache().resourceTypesInfo
-						.get(typeNum).name;
+	private TraceOutput parseEventEntry(final Entry entry) {
+		final ByteBuffer header = prepareBufferForReading(entry.header);
+		final ByteBuffer data = prepareBufferForReading(entry.data);
 
-				final String name = Simulator.getModelStructureCache().resourceNames
-						.get(typeNum).get(resNum);
-				final String resourceName = name != null ? name : typeName
-						+ encloseIndex(resNum);
+		skipPart(header, TypeSize.BYTE);
+		final double time = header.getDouble();
+		final TraceType traceType = TraceType.EVENT;
 
-				relResStringJoiner.add(resourceName);
-			}
-			return stringJoiner.getString() + relResStringJoiner.getString();
-		}
-		default:
-			return null;
-		}
+		return new TraceOutput(traceType, new RDOLibStringJoiner(delimiter)
+				.add(traceType.toString()).add(time).add(parseEventData(data))
+				.getString());
+	}
+
+	private String parseEventData(final ByteBuffer data) {
+		final RDOLibStringJoiner stringJoiner = new RDOLibStringJoiner(
+				delimiter);
+
+		int eventNumber = data.getInt();
+		int actionNumber = data.getInt();
+		stringJoiner.add(Simulator.getModelStructureCache().eventNames
+				.get(eventNumber) + encloseIndex(actionNumber));
+		return stringJoiner.getString();
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
