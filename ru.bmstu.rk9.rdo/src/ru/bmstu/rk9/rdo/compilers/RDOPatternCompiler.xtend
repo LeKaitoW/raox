@@ -61,7 +61,7 @@ class RDOPatternCompiler
 					«IF r.type instanceof ResourceType»
 						public «r.type.fullyQualifiedName» «r.name»;
 					«ELSE»
-						public «(r.type as ResourceCreateStatement).reference.fullyQualifiedName» «r.name»;
+						public «(r.type as ResourceCreateStatement).type.fullyQualifiedName» «r.name»;
 					«ENDIF»
 				«ENDFOR»
 
@@ -72,7 +72,7 @@ class RDOPatternCompiler
 					«FOR r : rule.relevantresources»
 						clone.«r.name» = «(
 							if(r.type instanceof ResourceCreateStatement)
-								(r.type as ResourceCreateStatement).reference
+								(r.type as ResourceCreateStatement).type
 							else r.type).fullyQualifiedName
 							».getResource(this.«r.name».getNumber());
 					«ENDFOR»
@@ -84,7 +84,7 @@ class RDOPatternCompiler
 				{
 					«FOR r : rule.relevantresources»
 					«IF r.type instanceof ResourceCreateStatement»
-						this.«r.name» = «(r.type as ResourceCreateStatement).reference.fullyQualifiedName
+						this.«r.name» = «(r.type as ResourceCreateStatement).type.fullyQualifiedName
 							».getResource("«(r.type as ResourceCreateStatement).fullyQualifiedName»");
 					«ELSE»
 						this.«r.name» = null;
@@ -270,6 +270,7 @@ class RDOPatternCompiler
 				return executed;
 			}
 
+			@Override
 			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom)
 			{
 				Database db = Simulator.getDatabase();
@@ -303,7 +304,7 @@ class RDOPatternCompiler
 									.put("name", "«r.name»")
 									.put("type", "«
 										IF r.type instanceof ResourceCreateStatement
-											»«(r.type as ResourceCreateStatement).reference.fullyQualifiedName»«
+											»«(r.type as ResourceCreateStatement).type.fullyQualifiedName»«
 										ELSE
 											»«(r.type as ResourceType).fullyQualifiedName»«
 										ENDIF»")
@@ -340,7 +341,7 @@ class RDOPatternCompiler
 					«IF r.type instanceof ResourceType»
 						public «r.type.fullyQualifiedName» «r.name»;
 					«ELSE»
-						public «(r.type as ResourceCreateStatement).reference.fullyQualifiedName» «r.name»;
+						public «(r.type as ResourceCreateStatement).type.fullyQualifiedName» «r.name»;
 					«ENDIF»
 				«ENDFOR»
 
@@ -351,7 +352,7 @@ class RDOPatternCompiler
 					«FOR r : op.relevantresources»
 						clone.«r.name» = «(
 							if(r.type instanceof ResourceCreateStatement)
-								(r.type as ResourceCreateStatement).reference
+								(r.type as ResourceCreateStatement).type
 							else r.type).fullyQualifiedName
 							».getResource(this.«r.name».getNumber());
 					«ENDFOR»
@@ -363,7 +364,7 @@ class RDOPatternCompiler
 				{
 					«FOR r : op.relevantresources»
 					«IF r.type instanceof ResourceCreateStatement»
-						this.«r.name» = «(r.type as ResourceCreateStatement).reference.fullyQualifiedName
+						this.«r.name» = «(r.type as ResourceCreateStatement).type.fullyQualifiedName
 							».getResource("«(r.type as ResourceCreateStatement).fullyQualifiedName»");
 					«ELSE»
 						this.«r.name» = null;
@@ -569,6 +570,7 @@ class RDOPatternCompiler
 				return instance;
 			}
 
+			@Override
 			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom)
 			{
 				Database db = Simulator.getDatabase();
@@ -624,7 +626,7 @@ class RDOPatternCompiler
 									.put("name", "«r.name»")
 									.put("type", "«
 										IF r.type instanceof ResourceCreateStatement
-											»«(r.type as ResourceCreateStatement).reference.fullyQualifiedName»«
+											»«(r.type as ResourceCreateStatement).type.fullyQualifiedName»«
 										ELSE
 											»«(r.type as ResourceType).fullyQualifiedName»«
 										ENDIF»")
@@ -647,7 +649,7 @@ class RDOPatternCompiler
 			if(r.type instanceof ResourceType)
 				(r.type as ResourceType).fullyQualifiedName
 			else
-				(r.type as ResourceCreateStatement).reference.fullyQualifiedName
+				(r.type as ResourceCreateStatement).type.fullyQualifiedName
 		]
 
 		return

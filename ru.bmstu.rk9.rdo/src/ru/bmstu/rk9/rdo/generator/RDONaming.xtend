@@ -174,7 +174,7 @@ class RDONaming
 	def static relResFullyQualifiedName(META_RelResType relres)
 	{
 		if(relres instanceof ResourceCreateStatement)
-			return (relres as ResourceCreateStatement).reference.fullyQualifiedName
+			return (relres as ResourceCreateStatement).type.fullyQualifiedName
 		else
 			return relres.fullyQualifiedName
 	}

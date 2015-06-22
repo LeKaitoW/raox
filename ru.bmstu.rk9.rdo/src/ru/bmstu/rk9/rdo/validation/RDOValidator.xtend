@@ -332,7 +332,7 @@ class RDOValidator extends AbstractRDOValidator
 				RdoPackage.eINSTANCE.resourceType_Name
 
 			ResourceCreateStatement:
-				RdoPackage.eINSTANCE.resourceCreateStatement_Name
+				RdoPackage.eINSTANCE.META_ResReference_Name
 
 			Sequence:
 				RdoPackage.eINSTANCE.sequence_Name
@@ -359,7 +359,7 @@ class RDOValidator extends AbstractRDOValidator
 				RdoPackage.eINSTANCE.parameterType_Name
 
 			RelevantResource:
-				RdoPackage.eINSTANCE.relevantResource_Name
+				RdoPackage.eINSTANCE.META_ResReference_Name
 
 			DptSetConditionStatement:
 				RdoPackage.eINSTANCE.dptSetConditionStatement_Name

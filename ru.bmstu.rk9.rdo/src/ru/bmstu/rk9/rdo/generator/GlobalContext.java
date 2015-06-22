@@ -38,7 +38,7 @@ public class GlobalContext {
 
 		public RSS(ResourceCreateStatement rss) {
 			origin = rss;
-			ResourceType rtp = rss.getReference();
+			ResourceType rtp = rss.getType();
 			restypes.put(rtp.getName(), new RTP(rtp));
 			reference = rtp.getName();
 		}

@@ -297,7 +297,7 @@ class SerializationConfigurator {
 					continue;
 				if (((ResourceCreateStatement) c).getName() == null) {
 					final String typeName = ((ResourceCreateStatement) c)
-							.getReference().getName();
+							.getType().getName();
 					int count = 0;
 
 					if (globalResNaming.containsKey(typeName)) {

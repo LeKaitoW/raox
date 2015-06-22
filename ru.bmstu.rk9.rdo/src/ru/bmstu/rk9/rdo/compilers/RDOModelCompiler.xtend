@@ -56,15 +56,15 @@ class RDOModelCompiler
 					«FOR res : r.allContents.filter(typeof(ResourceCreateStatement))
 							.filter(res | res.eContainer instanceof RDOModel).toIterable»
 							«IF res.name != null»
-								«res.reference.fullyQualifiedName» «res.name» = new «
-									res.reference.fullyQualifiedName»(«if(res.parameters != null)
+								«res.type.fullyQualifiedName» «res.name» = new «
+									res.type.fullyQualifiedName»(«if(res.parameters != null)
 										res.parameters.compileExpression.value else ""»);
 									«res.name».register("«res.fullyQualifiedName»");
 								db.memorizeResourceEntry(
 										«res.name», Database.ResourceEntryType.CREATED);
 							«ELSE»
 								db.memorizeResourceEntry(
-										new «res.reference.fullyQualifiedName»(«if(res.parameters != null)
+										new «res.type.fullyQualifiedName»(«if(res.parameters != null)
 											res.parameters.compileExpression.value else ""»).register(),
 										Database.ResourceEntryType.CREATED);
 							«ENDIF»
@@ -256,7 +256,7 @@ class RDOModelCompiler
 			for(rss : r.allContents
 				.filter(typeof(ResourceCreateStatement))
 				.filter(s | s.eContainer instanceof RDOModel)
-				.filter[s | s.reference == rtp]
+				.filter[s | s.type == rtp]
 				.filter[s | s.name != null]
 				.toIterable)
 			{

@@ -413,7 +413,7 @@ class RDOExpressionCompiler
 				val parameters = switch parent
 				{
 					ResourceCreateStatement:
-						parent.reference.parameters.map[p | p.compileType]
+						parent.type.parameters.map[p | p.compileType]
 
 					PlanStatement:
 						parent.event.parameters.map[p | p.compileType]

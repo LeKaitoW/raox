@@ -137,7 +137,7 @@ public class LocalContext {
 			if (relres.getType() instanceof ResourceType)
 				type = ((ResourceType) relres.getType());
 			else
-				type = ((ResourceCreateStatement) relres.getType()).getReference();
+				type = ((ResourceCreateStatement) relres.getType()).getType();
 
 			for (ParameterType p : type.getParameters())
 				this.addRawEntry(relres.getName() + "." + p.getName(),
@@ -150,7 +150,7 @@ public class LocalContext {
 	}
 
 	public void addCreatedResource(ResourceCreateStatement st) {
-		for (ParameterType p : st.getReference().getParameters())
+		for (ParameterType p : st.getType().getParameters())
 			this.addRawEntry(st.getName() + "." + p.getName(), RDOExpressionCompiler.compileType(p),
 					st.getName() + ".get_" + p.getName() + "()");
 	}

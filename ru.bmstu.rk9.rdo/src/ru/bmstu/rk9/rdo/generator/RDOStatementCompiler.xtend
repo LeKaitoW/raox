@@ -30,6 +30,7 @@ import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 import ru.bmstu.rk9.rdo.rdo.ResourceEraseStatement
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.Pattern
+import ru.bmstu.rk9.rdo.rdo.RelevantResource
 
 class RDOStatementCompiler
 {
@@ -199,8 +200,8 @@ class RDOStatementCompiler
 				return
 					'''
 					«IF st.name != null»
-						«st.reference.fullyQualifiedName» «st.name» = new «
-							st.reference.fullyQualifiedName»(«if(st.parameters != null)
+						«st.type.fullyQualifiedName» «st.name» = new «
+							st.type.fullyQualifiedName»(«if(st.parameters != null)
 								st.parameters.compileExpression.value else ""»);
 						«st.name».register();
 						Simulator.getDatabase().memorizeResourceEntry(
@@ -209,7 +210,7 @@ class RDOStatementCompiler
 
 					«ELSE»
 						Simulator.getDatabase().memorizeResourceEntry(
-								new «st.reference.fullyQualifiedName»(«if(st.parameters != null)
+								new «st.type.fullyQualifiedName»(«if(st.parameters != null)
 									st.parameters.compileExpression.value else ""»).register().copy(),
 								Database.ResourceEntryType.CREATED);
 					«ENDIF»
@@ -217,15 +218,29 @@ class RDOStatementCompiler
 			}
 
 			ResourceEraseStatement:
+			{
+				var ResourceType type
+				var String resourceReference
+				if (st.res instanceof RelevantResource) {
+					type = ((st.res as RelevantResource).type) as ResourceType
+					resourceReference = "resources." + st.res.name
+				}
+
+				if (st.res instanceof ResourceCreateStatement) {
+					type = ((st.res as ResourceCreateStatement).type) as ResourceType
+					resourceReference = st.res.name
+				}
+
 				'''
 				Simulator.getDatabase().memorizeResourceEntry(
-						resources.«st.relres.name»,
+						«resourceReference»,
 						Database.ResourceEntryType.ERASED);
 
-				«(st.relres.type as ResourceType).fullyQualifiedName
-					».eraseResource(resources.«st.relres.name»);
+				«type.fullyQualifiedName
+					».eraseResource(«resourceReference»);
 
 				'''
+			}
 
 			FrameObject:
 				switch st

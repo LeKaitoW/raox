@@ -89,7 +89,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				for(e : resource.allContents.toIterable.filter(typeof(ResourceType)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileResourceType(filename,
-						declarationList.filter[r | r.reference.fullyQualifiedName == e.fullyQualifiedName]))
+						declarationList.filter[r | r.type.fullyQualifiedName == e.fullyQualifiedName]))
 
 				for(e : resource.allContents.toIterable.filter(typeof(Constant)))
 					fsa.generateFile(filename + "/" + e.name + ".java", e.compileConstant(filename))

@@ -536,6 +536,11 @@ META_RelResType
 	| ResourceCreateStatement
 ;
 
+META_ResReference
+	: ResourceCreateStatement
+	| RelevantResource
+;
+
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -666,12 +671,12 @@ PlanStatement:
 ;
 
 ResourceCreateStatement:
-	('resource' name = ID '=')? reference = [ResourceType|FQN]
+	('resource' name = ID '=')? type = [ResourceType|FQN]
 		'.' 'create' '(' ( parameters = ResourceExpressionList )? ')' ';'
 ;
 
 ResourceEraseStatement:
-	relres = [RelevantResource | FQN] '.' 'erase' '('')' ';'
+	res = [META_ResReference | FQN] '.' 'erase' '('')' ';'
 ;
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
