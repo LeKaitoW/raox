@@ -275,7 +275,7 @@ class RDOPatternCompiler
 			{
 				Database db = Simulator.getDatabase();
 				db.addMemorizedResourceEntries(
-						"«rule.fullyQualifiedName»",
+						"«rule.fullyQualifiedName».createdResources",
 						executedFrom);
 			}
 
@@ -575,7 +575,7 @@ class RDOPatternCompiler
 			{
 				Database db = Simulator.getDatabase();
 				db.addMemorizedResourceEntries(
-						"«op.fullyQualifiedName»",
+						"«op.fullyQualifiedName».createdResources",
 						null);
 			}
 

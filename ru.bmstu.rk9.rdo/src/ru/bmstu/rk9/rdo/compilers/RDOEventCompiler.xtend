@@ -73,7 +73,7 @@ class RDOEventCompiler
 				// database operations
 				db.addEventEntry(this);
 				db.addMemorizedResourceEntries(
-						"«evn.fullyQualifiedName»",
+						"«evn.fullyQualifiedName».createdResources",
 						null);
 			}
 

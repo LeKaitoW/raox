@@ -316,6 +316,9 @@ class SerializationConfigurator {
 				for (SerializationLevel type : SerializationLevel.values())
 					child.addChild(child.getFullName() + "." + type.toString());
 			}
+			if (c instanceof Pattern || c instanceof Event) {
+				child.addChild(child.getFullName() + ".createdResources");
+			}
 		}
 	}
 
