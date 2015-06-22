@@ -60,19 +60,17 @@ class RDOModelCompiler
 									res.reference.fullyQualifiedName»(«if(res.parameters != null)
 										res.parameters.compileExpression.value else ""»);
 									«res.name».register("«res.fullyQualifiedName»");
-								db.addResourceEntry(
-										Database.ResourceEntryType.CREATED,
-										«res.name»,
-										"«res.fullyQualifiedName»");
+								db.memorizeResourceEntry(
+										«res.name», Database.ResourceEntryType.CREATED);
 							«ELSE»
-								db.addResourceEntry(
-										Database.ResourceEntryType.CREATED,
+								db.memorizeResourceEntry(
 										new «res.reference.fullyQualifiedName»(«if(res.parameters != null)
 											res.parameters.compileExpression.value else ""»).register(),
-										"«res.fullyQualifiedName»");
+										Database.ResourceEntryType.CREATED);
 							«ENDIF»
 					«ENDFOR»
 				«ENDFOR»
+				db.addMemorizedResourceEntries(null, null);
 			}
 
 			public static «project»Model getCurrent()

@@ -72,6 +72,9 @@ class RDOEventCompiler
 
 				// database operations
 				db.addEventEntry(this);
+				db.addMemorizedResourceEntries(
+						"«evn.fullyQualifiedName»",
+						null);
 			}
 
 			public «evn.name»(double time«IF !evn.parameters.empty», «ENDIF»«evn.parameters.compileParameterTypes»)

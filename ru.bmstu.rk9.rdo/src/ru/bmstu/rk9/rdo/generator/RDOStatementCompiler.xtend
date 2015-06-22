@@ -203,24 +203,28 @@ class RDOStatementCompiler
 							st.reference.fullyQualifiedName»(«if(st.parameters != null)
 								st.parameters.compileExpression.value else ""»);
 						«st.name».register();
-						Simulator.getDatabase().addResourceEntry(
-								Database.ResourceEntryType.CREATED,
-								«st.name»,
-								"«st.findResourceSender»");
+						Simulator.getDatabase().memorizeResourceEntry(
+								«st.name».copy(),
+								Database.ResourceEntryType.CREATED);
+
 					«ELSE»
-						Simulator.getDatabase().addResourceEntry(
-								Database.ResourceEntryType.CREATED,
+						Simulator.getDatabase().memorizeResourceEntry(
 								new «st.reference.fullyQualifiedName»(«if(st.parameters != null)
-									st.parameters.compileExpression.value else ""»).register(),
-								"«st.findResourceSender»");
+									st.parameters.compileExpression.value else ""»).register().copy(),
+								Database.ResourceEntryType.CREATED);
 					«ENDIF»
 					'''
 			}
 
 			ResourceEraseStatement:
 				'''
+				Simulator.getDatabase().memorizeResourceEntry(
+						resources.«st.relres.name»,
+						Database.ResourceEntryType.ERASED);
+
 				«(st.relres.type as ResourceType).fullyQualifiedName
 					».eraseResource(resources.«st.relres.name»);
+
 				'''
 
 			FrameObject:
@@ -291,17 +295,6 @@ class RDOStatementCompiler
 						'''
 				}
 		}
-	}
-
-	def private static String findResourceSender(ResourceCreateStatement st)
-	{
-		var EObject cont = st.eContainer;
-		while (cont != null) {
-			if (cont instanceof Pattern || cont instanceof Event)
-				return cont.fullyQualifiedName
-			cont = cont.eContainer
-		}
-		return ""
 	}
 
 	def static String compileFrameColour(FrameColour colour)

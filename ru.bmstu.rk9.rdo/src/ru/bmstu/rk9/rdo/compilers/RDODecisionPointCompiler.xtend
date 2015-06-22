@@ -135,7 +135,7 @@ class RDODecisionPointCompiler
 										executed
 									);
 
-									executed.addResourceEntriesToDatabase(Pattern.ExecutedFrom.PRIOR);
+									executed.addResourceEntriesToDatabase(null);
 
 									return executed;
 								}

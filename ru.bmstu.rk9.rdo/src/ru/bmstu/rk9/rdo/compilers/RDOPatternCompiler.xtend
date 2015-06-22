@@ -270,21 +270,12 @@ class RDOPatternCompiler
 				return executed;
 			}
 
-			@Override
 			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom)
 			{
 				Database db = Simulator.getDatabase();
-
-				«FOR r : rule.relevantresources»
-					db.addResourceEntry
-					(
-						executedFrom.resourceSpecialStatus != null
-							? executedFrom.resourceSpecialStatus
-							: Database.ResourceEntryType.ALTERED,
-						resources.«r.name»,
-						"«rule.fullyQualifiedName».«r.name»"
-					);
-				«ENDFOR»
+				db.addMemorizedResourceEntries(
+						"«rule.fullyQualifiedName»",
+						executedFrom);
 			}
 
 			@Override
@@ -578,21 +569,12 @@ class RDOPatternCompiler
 				return instance;
 			}
 
-			@Override
 			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom)
 			{
 				Database db = Simulator.getDatabase();
-
-				«FOR r : op.relevantresources»
-					db.addResourceEntry
-					(
-						executedFrom.resourceSpecialStatus != null
-							? executedFrom.resourceSpecialStatus
-							: Database.ResourceEntryType.ALTERED,
-						resources.«r.name»,
-						"«op.fullyQualifiedName».«r.name»"
-					);
-				«ENDFOR»
+				db.addMemorizedResourceEntries(
+						"«op.fullyQualifiedName»",
+						null);
 			}
 
 			private double time;
@@ -612,11 +594,9 @@ class RDOPatternCompiler
 
 				// database operations
 				db.addOperationEndEntry(this);
-
-				«FOR r : op.relevantresources»
-					db.addResourceEntry(Database.ResourceEntryType.ALTERED, resources.«r.name
-						», "«op.fullyQualifiedName».«r.name»");
-				«ENDFOR»
+				db.addMemorizedResourceEntries(
+						"«op.fullyQualifiedName»",
+						null);
 			}
 
 			@Override

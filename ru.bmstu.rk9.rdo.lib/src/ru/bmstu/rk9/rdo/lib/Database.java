@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.Index;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.EventIndex;
@@ -175,9 +177,10 @@ public class Database {
 	public static enum EntryType {
 		SYSTEM(TypeSize.BYTE * 2 + TypeSize.DOUBLE), RESOURCE(TypeSize.BYTE * 2
 				+ TypeSize.INTEGER * 2 + TypeSize.DOUBLE), PATTERN(
-				TypeSize.BYTE * 2 + TypeSize.DOUBLE), EVENT(TypeSize.BYTE * 2 + TypeSize.DOUBLE), SEARCH(TypeSize.BYTE * 2
-				+ TypeSize.INTEGER * 2 + TypeSize.DOUBLE), RESULT(TypeSize.BYTE
-				+ TypeSize.INTEGER + TypeSize.DOUBLE);
+				TypeSize.BYTE * 2 + TypeSize.DOUBLE), EVENT(TypeSize.BYTE * 2
+				+ TypeSize.DOUBLE), SEARCH(TypeSize.BYTE * 2 + TypeSize.INTEGER
+				* 2 + TypeSize.DOUBLE), RESULT(TypeSize.BYTE + TypeSize.INTEGER
+				+ TypeSize.DOUBLE);
 
 		public final int HEADER_SIZE;
 
@@ -253,7 +256,74 @@ public class Database {
 		CREATED, ERASED, ALTERED, SEARCH, SOLUTION
 	}
 
-	public void addResourceEntry(ResourceEntryType status, Resource resource,
+	public class ResourceUniqueEntry {
+		public ResourceUniqueEntry(Resource resource, ResourceEntryType status) {
+			this.resource = resource;
+			this.status = status;
+		}
+
+		private final Resource resource;
+		private final ResourceEntryType status;
+
+		@Override
+		public boolean equals(Object o) {
+			if (o == null || !(o instanceof ResourceUniqueEntry))
+				return false;
+
+			ResourceUniqueEntry other = (ResourceUniqueEntry) o;
+			if (this.resource.getTypeName()
+					.equals(other.resource.getTypeName())
+					&& this.resource.getNumber() == other.resource.getNumber()
+					&& this.status == other.status) {
+				return true;
+			}
+
+			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			final int primeMagic = 31;
+			int result = 17;
+
+			result = result * primeMagic + status.ordinal();
+			result = result * primeMagic + resource.getNumber();
+			result = result * primeMagic + resource.getTypeName().hashCode();
+
+			return result;
+		}
+	}
+
+	private final Set<ResourceUniqueEntry> memorizedResourceEntries = new LinkedHashSet<ResourceUniqueEntry>();
+
+	public final void memorizeResourceEntry(Resource resource,
+			ResourceEntryType updateType) {
+		ResourceUniqueEntry entry = new ResourceUniqueEntry(resource,
+				updateType);
+		memorizedResourceEntries.remove(entry);
+		memorizedResourceEntries.add(entry);
+	}
+
+	public final void addMemorizedResourceEntries(String sender,
+			Rule.ExecutedFrom executedFrom) {
+		for (ResourceUniqueEntry entry : memorizedResourceEntries) {
+			Resource resource = entry.resource;
+			ResourceEntryType status = entry.status;
+			ResourceEntryType actualStatus;
+
+			if (executedFrom != null && status == ResourceEntryType.ALTERED)
+				actualStatus = executedFrom.resourceSpecialStatus;
+			else
+				actualStatus = status;
+
+			Simulator.getDatabase().addResourceEntry(resource, actualStatus,
+					sender);
+		}
+
+		memorizedResourceEntries.clear();
+	}
+
+	private void addResourceEntry(Resource resource, ResourceEntryType status,
 			String sender) {
 		String typeName = resource.getTypeName();
 
@@ -271,14 +341,16 @@ public class Database {
 				return;
 		} else {
 			name = typeName + "[" + String.valueOf(resource.getNumber()) + "]";
-			if (!sensitivityList.contains(name))
+			if (!sensitivityList.contains(name)) {
 				if (status == ResourceEntryType.CREATED) {
 					if (sensitivityList.contains(sender))
 						sensitivityList.add(name);
 					else
 						return;
-				} else
+				} else {
 					return;
+				}
+			}
 		}
 
 		boolean shouldSerializeToIndex = true;
@@ -360,14 +432,14 @@ public class Database {
 		}
 	}
 
-	private Map<Pattern, PatternPoolEntry> patternPool = new HashMap<Pattern, PatternPoolEntry>();
+	private Map<Rule, PatternPoolEntry> patternPool = new HashMap<Rule, PatternPoolEntry>();
 
 	public void addDecisionEntry(DecisionPoint dpt,
-			DecisionPoint.Activity activity, PatternType type, Pattern pattern) {
+			DecisionPoint.Activity activity, PatternType type, Rule rule) {
 		String dptName = dpt.getName();
 
 		if (!sensitivityList.contains(dptName)
-				&& !sensitivityList.contains(pattern.getName()))
+				&& !sensitivityList.contains(rule.getName()))
 			return;
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
@@ -381,10 +453,9 @@ public class Database {
 
 		int number = index.timesExecuted++;
 		if (type == PatternType.OPERATION_BEGIN)
-			patternPool.put(pattern,
-					new PatternPoolEntry(dpt, activity, number));
+			patternPool.put(rule, new PatternPoolEntry(dpt, activity, number));
 
-		int[] relevantResources = pattern.getRelevantInfo();
+		int[] relevantResources = rule.getRelevantInfo();
 
 		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER
 				* (relevantResources.length + 4));
@@ -398,15 +469,15 @@ public class Database {
 		index.entryNumbers.add(allEntries.size() - 1);
 	}
 
-	public void addOperationEndEntry(Pattern pattern) {
-		String name = pattern.getName();
+	public void addOperationEndEntry(Rule rule) {
+		String name = rule.getName();
 		if (!sensitivityList.contains(name))
 			return;
 
 		PatternPoolEntry poolEntry = null;
 		DecisionPointIndex dptIndex = null;
 
-		poolEntry = patternPool.remove(pattern);
+		poolEntry = patternPool.remove(rule);
 		if (poolEntry == null)
 			return;
 		CollectedDataNode dptNode = indexHelper.getDecisionPoint(poolEntry.dpt
@@ -421,7 +492,7 @@ public class Database {
 				.putDouble(Simulator.getTime())
 				.put((byte) PatternType.OPERATION_END.ordinal());
 
-		int[] relevantResources = pattern.getRelevantInfo();
+		int[] relevantResources = rule.getRelevantInfo();
 
 		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER
 				* (relevantResources.length + 4));
@@ -457,8 +528,8 @@ public class Database {
 		EventIndex index = (EventIndex) indexHelper.getEvent(name).getIndex();
 
 		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
-		header.put((byte) EntryType.EVENT.ordinal())
-				.putDouble(Simulator.getTime());
+		header.put((byte) EntryType.EVENT.ordinal()).putDouble(
+				Simulator.getTime());
 
 		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER * 2);
 		data.putInt(index.number).putInt(index.timesExecuted++);

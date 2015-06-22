@@ -165,9 +165,14 @@ class RDOResourceTypeCompiler
 
 					this.«parameter.name» = «parameter.name»;
 
+					Simulator.getDatabase().memorizeResourceEntry(
+							this.copy(),
+							Database.ResourceEntryType.ALTERED);
+
 					return this.«parameter.name»;
 				}
 			«ENDFOR»
+
 			private «rtp.name» copyForNewOwner()
 			{
 				«rtp.name» copy = new «rtp.name»(«rtp.parameters.compileParameterTypesCopyCall»);
@@ -177,6 +182,16 @@ class RDOResourceTypeCompiler
 				copy.managerOwner = managerOwner;
 				managerOwner.addResource(copy);
 				managerOwner = managerCurrent;
+
+				return copy;
+			}
+
+			public «rtp.name» copy()
+			{
+				«rtp.name» copy = new «rtp.name»(«rtp.parameters.compileParameterTypesCopyCall»);
+
+				copy.name = name;
+				copy.number = number;
 
 				return copy;
 			}
