@@ -1,38 +1,31 @@
 package ru.bmstu.rk9.rdo.ui;
 
-import org.osgi.framework.BundleContext;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.osgi.framework.BundleContext;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IExecutionListener;
 import org.eclipse.core.commands.NotHandledException;
-
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-
 import org.eclipse.swt.SWT;
-
 import org.eclipse.jface.dialogs.MessageDialog;
-
 import org.eclipse.swt.widgets.Display;
-
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchListener;
 import org.eclipse.ui.PlatformUI;
-
 import org.eclipse.ui.commands.ICommandService;
-
 import org.eclipse.ui.services.ISourceProviderService;
 
 import ru.bmstu.rk9.rdo.ui.internal.RDOActivator;
-
+import ru.bmstu.rk9.rdo.ui.contributions.PlotView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSpeedSelectionToolbar;
-
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView;
-
 import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
-
 import ru.bmstu.rk9.rdo.ui.runtime.ModelExecutionSourceProvider;
 import ru.bmstu.rk9.rdo.ui.runtime.SetSimulationScaleHandler;
 
@@ -88,19 +81,36 @@ public class RDOActivatorExtension extends RDOActivator {
 				ModelExecutionSourceProvider sourceProvider = (ModelExecutionSourceProvider) sourceProviderService
 						.getSourceProvider(ModelExecutionSourceProvider.ModelExecutionKey);
 
-				final int[] result = new int[1];
-
+				final AtomicInteger result = new AtomicInteger(0);
 				if (sourceProvider.getCurrentState().get(
 						ModelExecutionSourceProvider.ModelExecutionKey) == ModelExecutionSourceProvider.running) {
 					workbench.getDisplay().syncExec(new Runnable() {
 						@Override
 						public void run() {
-							result[0] = closeDialog.open();
+							result.set(closeDialog.open());
 						}
 					});
-					return result[0] == 0 ? true : false;
 				}
-				return true;
+				if (result.get() == 0) {
+					List<Integer> secondaryIDList = new ArrayList<Integer>(
+							PlotView.getOpenedPlotMap().values());
+					for (int secondaryID : secondaryIDList) {
+						PlotView oldView = (PlotView) PlatformUI
+								.getWorkbench()
+								.getActiveWorkbenchWindow()
+								.getActivePage()
+								.findViewReference(PlotView.ID,
+										String.valueOf(secondaryID))
+								.getView(false);
+						if (oldView != null) {
+							PlatformUI.getWorkbench()
+									.getActiveWorkbenchWindow().getActivePage()
+									.hideView(oldView);
+						}
+
+					}
+				}
+				return result.get() == 0 ? true : false;
 			}
 
 			@Override

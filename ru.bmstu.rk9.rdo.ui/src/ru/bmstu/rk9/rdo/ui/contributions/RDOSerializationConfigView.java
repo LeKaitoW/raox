@@ -12,8 +12,10 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
+import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.ICheckStateProvider;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -52,7 +54,7 @@ import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement;
 import ru.bmstu.rk9.rdo.rdo.Result;
 
 public class RDOSerializationConfigView extends ViewPart {
-	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOSerializeConfigView";
+	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOSerializationConfigView";
 
 	private static CheckboxTreeViewer serializationTreeViewer;
 
@@ -91,6 +93,22 @@ public class RDOSerializationConfigView extends ViewPart {
 						serializationTreeViewer.setSubtreeChecked(
 								event.getElement(), serializationState);
 						node.setSerializeVisibleChildren(serializationState);
+					}
+				});
+
+		serializationTreeViewer
+				.addDoubleClickListener(new IDoubleClickListener() {
+					@Override
+					public void doubleClick(DoubleClickEvent event) {
+						Object item = serializationTreeViewer.getTree()
+								.getSelection()[0].getData();
+						if (item == null)
+							return;
+
+						if (serializationTreeViewer.getExpandedState(item))
+							serializationTreeViewer.collapseToLevel(item, 1);
+						else
+							serializationTreeViewer.expandToLevel(item, 1);
 					}
 				});
 

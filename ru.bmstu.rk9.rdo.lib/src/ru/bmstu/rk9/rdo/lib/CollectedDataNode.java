@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import ru.bmstu.rk9.rdo.lib.Database.ResultType;
-import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ValueType;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
 public class CollectedDataNode {
@@ -93,8 +92,13 @@ public class CollectedDataNode {
 			this.structure = structure;
 		}
 
+		public JSONObject getStructrure() {
+			return structure;
+		}
+
 		JSONObject structure;
 		int timesExecuted = 0;
+
 	}
 
 	public static class EventIndex extends Index {
@@ -140,21 +144,21 @@ public class CollectedDataNode {
 	}
 
 	public static class ResourceParameterIndex extends Index {
-		ResourceParameterIndex(int number, ValueType type, int offset) {
+		ResourceParameterIndex(int number, ValueCache cache, int offset) {
 			super(number, IndexType.RESOURCE_PARAMETER);
-			this.type = type;
+			this.cache = cache;
 			this.offset = offset;
 		}
 
-		public final ValueType getValueType() {
-			return type;
+		public final ValueCache getValueCache() {
+			return cache;
 		}
 
 		public final int getOffset() {
 			return offset;
 		}
 
-		private final ValueType type;
+		private final ValueCache cache;
 		private final int offset;
 	}
 

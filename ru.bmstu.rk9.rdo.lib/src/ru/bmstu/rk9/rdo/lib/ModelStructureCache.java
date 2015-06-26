@@ -129,7 +129,7 @@ class ValueCache {
 	ValueCache(final JSONObject param) {
 		type = ModelStructureCache.ValueType.get(param.getString("type"));
 		if (type == ModelStructureCache.ValueType.ENUM) {
-			enumNames = new HashMap<Integer, String>();
+			enumNames = new ArrayList<String>();
 			JSONObject enumOrigin = null;
 			String enumOriginName = param.getString("enum_origin");
 			enumOrigin = ModelStructureCache.getEnumOrigin(enumOriginName);
@@ -137,13 +137,13 @@ class ValueCache {
 			JSONArray enums = enumOrigin.getJSONObject("structure")
 					.getJSONArray("enums");
 			for (int num = 0; num < enums.length(); num++)
-				enumNames.put(num, enums.getString(num));
+				enumNames.add(enums.getString(num));
 		} else
 			enumNames = null;
 	}
 
 	final ModelStructureCache.ValueType type;
-	final HashMap<Integer, String> enumNames;
+	final List<String> enumNames;
 }
 
 class ResourceTypeCache {
@@ -156,13 +156,13 @@ class ResourceTypeCache {
 		JSONArray parameters = structure.getJSONArray("parameters");
 		numberOfParameters = parameters.length();
 
-		paramTypes = new HashMap<Integer, ValueCache>();
+		paramTypes = new ArrayList<ValueCache>();
 		indexList = new HashMap<Integer, Integer>();
 		for (int num = 0; num < numberOfParameters; num++) {
 			final JSONObject currentParameter = parameters.getJSONObject(num);
 			ModelStructureCache.ValueType type = ModelStructureCache.ValueType
 					.get(currentParameter.getString("type"));
-			paramTypes.put(num, new ValueCache(currentParameter));
+			paramTypes.add(new ValueCache(currentParameter));
 			if (type == ModelStructureCache.ValueType.STRING) {
 				indexList.put(num, currentParameter.getInt("index"));
 			}
@@ -173,7 +173,7 @@ class ResourceTypeCache {
 	final String name;
 	final boolean temporary;
 	final int numberOfParameters;
-	final HashMap<Integer, ValueCache> paramTypes;
+	final List<ValueCache> paramTypes;
 	final HashMap<Integer, Integer> indexList;
 	final int finalOffset;
 }
@@ -217,15 +217,15 @@ class DecisionPointCache {
 	DecisionPointCache(final JSONObject dpt) {
 		name = ModelStructureCache.getRelativeName(dpt.getString("name"));
 
-		activitiesInfo = new HashMap<Integer, ActivityCache>();
+		activitiesInfo = new ArrayList<ActivityCache>();
 		JSONArray activities = dpt.getJSONArray("activities");
 		for (int num = 0; num < activities.length(); num++)
-			activitiesInfo.put(num,
-					new ActivityCache(activities.getJSONObject(num)));
+			activitiesInfo
+					.add(new ActivityCache(activities.getJSONObject(num)));
 	}
 
 	final String name;
-	final HashMap<Integer, ActivityCache> activitiesInfo;
+	final List<ActivityCache> activitiesInfo;
 }
 
 class ActivityCache {
@@ -254,7 +254,7 @@ class ResultCache {
 		String valueTypeRaw = result.getString("value_type");
 		if (valueTypeRaw.contains("_enum")) {
 			valueType = ModelStructureCache.ValueType.ENUM;
-			enumNames = new HashMap<Integer, String>();
+			enumNames = new ArrayList<String>();
 			String enumOriginName = valueTypeRaw.substring(0,
 					valueTypeRaw.lastIndexOf("_"));
 			JSONObject originParam = ModelStructureCache
@@ -262,7 +262,7 @@ class ResultCache {
 
 			JSONArray enums = originParam.getJSONArray("enums");
 			for (int num = 0; num < enums.length(); num++)
-				enumNames.put(num, enums.getString(num));
+				enumNames.add(enums.getString(num));
 		} else {
 			valueType = ModelStructureCache.ValueType.get(result
 					.getString("value_type"));
@@ -272,5 +272,5 @@ class ResultCache {
 
 	final String name;
 	final ModelStructureCache.ValueType valueType;
-	final HashMap<Integer, String> enumNames;
+	final List<String> enumNames;
 }

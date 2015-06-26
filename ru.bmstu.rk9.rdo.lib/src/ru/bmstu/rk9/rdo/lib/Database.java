@@ -366,9 +366,9 @@ public class Database {
 					.getJSONArray("parameters");
 			for (int paramNum = 0; paramNum < parameters.length(); paramNum++) {
 				JSONObject param = parameters.getJSONObject(paramNum);
-				ValueType paramType = ValueType.get(param.getString("type"));
+				ValueCache paramType = new ValueCache(param);;
 
-				int offset = (paramType != ValueType.STRING) ? param
+				int offset = (paramType.type != ValueType.STRING) ? param
 						.getInt("offset") : -1;
 
 				resourceNode.addChild(
@@ -436,34 +436,36 @@ public class Database {
 
 	public void addDecisionEntry(DecisionPoint dpt,
 			DecisionPoint.Activity activity, PatternType type, Rule rule) {
-		String dptName = dpt.getName();
+		final String dptName = dpt.getName();
 
 		if (!sensitivityList.contains(dptName)
 				&& !sensitivityList.contains(rule.getName()))
 			return;
 
-		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
+		final ByteBuffer header = ByteBuffer
+				.allocate(EntryType.PATTERN.HEADER_SIZE);
 		header.put((byte) EntryType.PATTERN.ordinal())
 				.putDouble(Simulator.getTime()).put((byte) type.ordinal());
 
-		CollectedDataNode dptNode = indexHelper.getDecisionPoint(dptName);
-		DecisionPointIndex dptIndex = (DecisionPointIndex) dptNode.getIndex();
-		PatternIndex index = (PatternIndex) dptNode.getChildren()
+		final CollectedDataNode dptNode = indexHelper.getDecisionPoint(dptName);
+		final DecisionPointIndex dptIndex = (DecisionPointIndex) dptNode
+				.getIndex();
+		final PatternIndex index = (PatternIndex) dptNode.getChildren()
 				.get(activity.getName()).getIndex();
 
 		int number = index.timesExecuted++;
 		if (type == PatternType.OPERATION_BEGIN)
 			patternPool.put(rule, new PatternPoolEntry(dpt, activity, number));
 
-		int[] relevantResources = rule.getRelevantInfo();
+		final int[] relevantResources = rule.getRelevantInfo();
 
-		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER
+		final ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER
 				* (relevantResources.length + 4));
 		data.putInt(dptIndex.number).putInt(index.number).putInt(number);
 
 		fillRelevantResources(data, relevantResources);
 
-		Entry entry = new Entry(header, data);
+		final Entry entry = new Entry(header, data);
 
 		addEntry(entry);
 		index.entryNumbers.add(allEntries.size() - 1);

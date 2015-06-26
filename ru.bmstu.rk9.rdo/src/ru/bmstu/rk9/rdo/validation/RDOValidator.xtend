@@ -522,4 +522,18 @@ class RDOValidator extends AbstractRDOValidator
 				error("compareTops() method must be called explicitly",
 						dpt, dpt.getNameStructuralFeature)
 	}
+
+	@Check
+	def checkSearchPatternType(DecisionPointSearch search)
+	{
+		val activities = search.activities
+
+		for (activity : activities) {
+			val pat = activity.pattern
+			if (pat.type != PatternType.RULE) {
+				error("Invalid pattern name: " + pat.name + " - only Rule pattern type allowed",
+					RdoPackage.eINSTANCE.decisionPoint_Name)
+			}
+		}
+	}
 }

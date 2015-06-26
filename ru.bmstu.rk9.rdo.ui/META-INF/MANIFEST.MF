@@ -30,3 +30,8 @@ Export-Package: ru.bmstu.rk9.rdo.ui.contentassist;uses:="org.eclipse.xtext,org.e
  ru.bmstu.rk9.rdo.ui.internal;uses:="org.eclipse.ui.plugin,org.osgi.framework,com.google.inject",
  ru.bmstu.rk9.rdo.ui.quickfix;uses:="org.eclipse.xtext.ui.editor.quickfix"
 Bundle-Activator: ru.bmstu.rk9.rdo.ui.RDOActivatorExtension
+Bundle-ClassPath: .,
+ thirdparty/jcommon-1.0.23.jar,
+ thirdparty/jfreechart-1.0.19-experimental.jar,
+ thirdparty/jfreechart-1.0.19-swt.jar,
+ thirdparty/jfreechart-1.0.19.jar

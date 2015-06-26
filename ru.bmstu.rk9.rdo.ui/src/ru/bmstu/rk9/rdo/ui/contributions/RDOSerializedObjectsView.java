@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
 import java.net.URL;
+import java.util.List;
 import java.util.TimerTask;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -14,25 +15,44 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.Index;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.IndexType;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
+import ru.bmstu.rk9.rdo.lib.Database.ResultType;
+import ru.bmstu.rk9.rdo.lib.PlotDataParser;
+import ru.bmstu.rk9.rdo.lib.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
 
 public class RDOSerializedObjectsView extends ViewPart {
 
 	static TreeViewer serializedObjectsTreeViewer;
+	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOSerializedObjectsView";
+	public static int secondaryID = 0;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -46,12 +66,101 @@ public class RDOSerializedObjectsView extends ViewPart {
 		serializedObjectsTreeViewer
 				.setLabelProvider(new RDOSerializedObjectsLabelProvider());
 
+		final Menu popupMenu = new Menu(serializedObjectsTreeViewer.getTree());
+		final MenuItem plot = new MenuItem(popupMenu, SWT.CASCADE);
+		plot.setText("Plot");
+
+		popupMenu.addListener(SWT.Show, new Listener() {
+			public void handleEvent(Event event) {
+				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
+						.getTree().getSelection()[0].getData();
+				final Index index = node.getIndex();
+				Boolean enabled = false;
+				if (index != null) {
+					switch (index.getType()) {
+					case RESOURCE_PARAMETER:
+						enabled = true;
+						break;
+					case RESULT:
+						final ResultIndex resultIndex = (ResultIndex) index;
+						final ResultType resultType = resultIndex
+								.getResultType();
+						if (resultType != ResultType.GET_VALUE) {
+							enabled = true;
+						}
+						break;
+					case PATTERN:
+						final PatternIndex patternIndex = (PatternIndex) index;
+						final String patternType = patternIndex.getStructrure()
+								.getString("type");
+						if (patternType.equals("operation")) {
+							enabled = true;
+						}
+						break;
+					default:
+						break;
+					}
+				}
+				plot.setEnabled(enabled);
+			}
+		});
+
+		plot.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(final SelectionEvent event) {
+				try {
+					final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
+							.getTree().getSelection()[0].getData();
+
+					if (PlotView.getOpenedPlotMap().containsKey(node)) {
+						PlatformUI
+								.getWorkbench()
+								.getActiveWorkbenchWindow()
+								.getActivePage()
+								.showView(
+										PlotView.ID,
+										String.valueOf(PlotView
+												.getOpenedPlotMap().get(node)),
+										IWorkbenchPage.VIEW_ACTIVATE);
+					} else {
+						final XYSeriesCollection dataset = new XYSeriesCollection();
+						final XYSeries series = new XYSeries(node.getName());
+						dataset.addSeries(series);
+						final List<PlotItem> items = PlotDataParser
+								.parseEntries(node);
+						for (int i = 0; i < items.size(); i++) {
+							final PlotItem item = items.get(i);
+							series.add(item.x, item.y);
+						}
+						final PlotView newView = (PlotView) PlatformUI
+								.getWorkbench()
+								.getActiveWorkbenchWindow()
+								.getActivePage()
+								.showView(PlotView.ID,
+										String.valueOf(secondaryID),
+										IWorkbenchPage.VIEW_ACTIVATE);
+						newView.setName(String.valueOf(dataset.getSeriesKey(0)));
+						newView.setNode(node);
+						PlotView.addToOpenedPlotMap(node, secondaryID);
+
+						newView.plotXY(dataset,
+								PlotDataParser.getEnumNames(node));
+						secondaryID++;
+					}
+				} catch (PartInitException e) {
+					e.printStackTrace();
+				}
+
+			}
+		});
+
+		serializedObjectsTreeViewer.getTree().setMenu(popupMenu);
+
 		serializedObjectsTreeViewer
 				.addDoubleClickListener(new IDoubleClickListener() {
 					@Override
 					public void doubleClick(DoubleClickEvent event) {
-						Object item = serializedObjectsTreeViewer.getTree()
-								.getSelection()[0].getData();
+						final Object item = serializedObjectsTreeViewer
+								.getTree().getSelection()[0].getData();
 						if (item == null)
 							return;
 
@@ -65,6 +174,34 @@ public class RDOSerializedObjectsView extends ViewPart {
 
 		if (Simulator.isInitialized()) {
 			commonUpdater.fireChange();
+		}
+	}
+
+	private static final void updateAllOpenedCharts() {
+		for (CollectedDataNode node : PlotView.getOpenedPlotMap().keySet()) {
+			final int currentSecondaryID = PlotView.getOpenedPlotMap()
+					.get(node);
+			final IViewReference viewReference = PlatformUI
+					.getWorkbench()
+					.getActiveWorkbenchWindow()
+					.getActivePage()
+					.findViewReference(PlotView.ID,
+							String.valueOf(currentSecondaryID));
+			final PlotView viewPart = (PlotView) viewReference.getView(false);
+			final List<PlotItem> items = PlotDataParser.parseEntries(node);
+
+			if (!items.isEmpty()) {
+				final XYSeriesCollection newDataset = (XYSeriesCollection) viewPart
+						.getFrame().getChart().getXYPlot().getDataset();
+				final XYSeries newSeries = newDataset.getSeries(0);
+				for (int i = 0; i < items.size(); i++) {
+					final PlotItem item = items.get(i);
+					newSeries.add(item.x, item.y);
+				}
+				viewPart.getFrame().setChartMaximum(newSeries.getMaxX(),
+						newSeries.getMaxY());
+				viewPart.getFrame().updateSliders();
+			}
 		}
 	}
 
@@ -95,17 +232,17 @@ public class RDOSerializedObjectsView extends ViewPart {
 			private final Runnable updater = new Runnable() {
 				@Override
 				public void run() {
-					if (!readyForInput())
-						return;
-					RDOSerializedObjectsView.serializedObjectsTreeViewer
-							.refresh();
+					updateAllOpenedCharts();
+					if (readyForInput()) {
+						RDOSerializedObjectsView.serializedObjectsTreeViewer
+								.refresh();
+					}
 				}
 			};
 
 			@Override
 			public void run() {
-				if (haveNewRealTimeData && readyForInput()
-						&& !display.isDisposed()) {
+				if (haveNewRealTimeData && !display.isDisposed()) {
 					haveNewRealTimeData = false;
 					display.asyncExec(updater);
 				}
@@ -134,6 +271,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 							.asyncExec(
 									() -> serializedObjectsTreeViewer
 											.setInput(root));
+					updateAllOpenedCharts();
 				}
 			});
 		}
@@ -199,27 +337,36 @@ class RDOSerializedObjectsLabelProvider implements ILabelProvider,
 
 	@Override
 	public Image getImage(Object element) {
-		CollectedDataNode node = (CollectedDataNode) element;
-		Index index = node.getIndex();
-		URL url;
-		Display display = PlatformUI.getWorkbench().getDisplay();
+		final CollectedDataNode collectedDataNode = (CollectedDataNode) element;
+		final Display display = PlatformUI.getWorkbench().getDisplay();
+		final ImageDescriptor img = ImageDescriptor
+				.createFromURL(getImageUrl(collectedDataNode));
+
+		return new Image(display, img.getImageData());
+	}
+
+	final private URL getImageUrl(final CollectedDataNode collectedDataNode) {
+		final URL imageUrl;
+		final Index index = collectedDataNode.getIndex();
 
 		if (index == null) {
-			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+			imageUrl = FileLocator.find(Platform
+					.getBundle("ru.bmstu.rk9.rdo.ui"),
 					new org.eclipse.core.runtime.Path(
 							"icons/cross-small-white.png"), null);
 		} else if (index.getType() == IndexType.RESOURCE
 				&& ((ResourceIndex) index).isErased()) {
-			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+			imageUrl = FileLocator.find(
+					Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
 					new org.eclipse.core.runtime.Path("icons/cross.png"), null);
 		} else {
-			url = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
+			imageUrl = FileLocator.find(
+					Platform.getBundle("ru.bmstu.rk9.rdo.ui"),
 					new org.eclipse.core.runtime.Path("icons/globe-small.png"),
 					null);
 		}
 
-		ImageDescriptor img = ImageDescriptor.createFromURL(url);
-		return new Image(display, img.getImageData());
+		return imageUrl;
 	}
 
 	@Override
