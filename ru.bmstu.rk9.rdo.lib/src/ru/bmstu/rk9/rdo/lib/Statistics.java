@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.function.Function;
 
-import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.Index;
 
 public class Statistics {
 	public static class Storeless {
@@ -36,7 +36,7 @@ public class Statistics {
 
 		public boolean initFromDatabase(Result result) {
 			Database database = Simulator.getDatabase();
-			AbstractIndex resultIndex = database.getIndexHelper()
+			Index resultIndex = database.getIndexHelper()
 					.getResult(result.getName()).getIndex();
 
 			if (resultIndex != null && !resultIndex.getEntryNumbers().isEmpty()) {
@@ -131,7 +131,7 @@ public class Statistics {
 
 		public boolean initFromDatabase(Result result) {
 			Database database = Simulator.getDatabase();
-			AbstractIndex resultIndex = database.getIndexHelper()
+			Index resultIndex = database.getIndexHelper()
 					.getResult(result.getName()).getIndex();
 
 			if (resultIndex != null && !resultIndex.getEntryNumbers().isEmpty()) {

@@ -45,16 +45,13 @@ import ru.bmstu.rk9.rdo.lib.Database.SerializationCategory;
 import ru.bmstu.rk9.rdo.lib.DecisionPointSearch.SerializationLevel;
 import ru.bmstu.rk9.rdo.lib.SerializationConfig;
 import ru.bmstu.rk9.rdo.lib.SerializationConfig.SerializationNode;
-import ru.bmstu.rk9.rdo.rdo.DecisionPointPrior;
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch;
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome;
-import ru.bmstu.rk9.rdo.rdo.EventRelevantResource;
-import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource;
+import ru.bmstu.rk9.rdo.rdo.Event;
 import ru.bmstu.rk9.rdo.rdo.Pattern;
 import ru.bmstu.rk9.rdo.rdo.RDOModel;
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration;
-import ru.bmstu.rk9.rdo.rdo.ResultDeclaration;
-import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource;
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement;
+import ru.bmstu.rk9.rdo.rdo.Result;
 
 public class RDOSerializationConfigView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOSerializationConfigView";
@@ -64,9 +61,9 @@ public class RDOSerializationConfigView extends ViewPart {
 	private static SerializationConfig serializationConfig = new SerializationConfig();
 	private static SerializationConfigurator serializationConfigurator = new SerializationConfigurator();
 
-  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
- /                                VIEW SETUP                                 /
-/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ---------------------------- VIEW SETUP ----------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -263,9 +260,9 @@ public class RDOSerializationConfigView extends ViewPart {
 	}
 }
 
-  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
- /                             HELPER CLASSES                                /
-/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+// ---------------------------- HELPER CLASSES ----------------------------- //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 class SerializationConfigurator {
 	public final void fillCategories(Resource model, SerializationNode modelNode) {
@@ -275,7 +272,7 @@ class SerializationConfigurator {
 		fillCategory(
 				modelNode.getVisibleChildren().get(
 						SerializationCategory.RESOURCES.ordinal()), model,
-				ResourceDeclaration.class);
+				ResourceCreateStatement.class);
 
 		fillCategory(
 				modelNode.getVisibleChildren().get(
@@ -284,18 +281,18 @@ class SerializationConfigurator {
 
 		fillCategory(
 				modelNode.getVisibleChildren().get(
+						SerializationCategory.EVENTS.ordinal()), model,
+				Event.class);
+
+		fillCategory(
+				modelNode.getVisibleChildren().get(
 						SerializationCategory.DECISION_POINTS.ordinal()),
 				model, DecisionPointSome.class);
 
 		fillCategory(
 				modelNode.getVisibleChildren().get(
-						SerializationCategory.DECISION_POINTS.ordinal()),
-				model, DecisionPointPrior.class);
-
-		fillCategory(
-				modelNode.getVisibleChildren().get(
 						SerializationCategory.RESULTS.ordinal()), model,
-				ResultDeclaration.class);
+				Result.class);
 
 		fillCategory(
 				modelNode.getVisibleChildren().get(
@@ -305,28 +302,51 @@ class SerializationConfigurator {
 
 	private final <T extends EObject> void fillCategory(
 			SerializationNode category, Resource model, Class<T> categoryClass) {
-		TreeIterator<EObject> allContents = model.getAllContents();
+		final List<T> categoryList = filterAllContents(model.getAllContents(),
+				categoryClass);
+
+		final Map<String, Integer> globalResNaming = new HashMap<String, Integer>();
+
+		for (T c : categoryList) {
+			String name = RDONaming.getFullyQualifiedName(c);
+
+			if (c instanceof ResourceCreateStatement) {
+				if (!(c.eContainer() instanceof RDOModel))
+					continue;
+				if (((ResourceCreateStatement) c).getName() == null) {
+					final String typeName = ((ResourceCreateStatement) c)
+							.getType().getName();
+					int count = 0;
+
+					if (globalResNaming.containsKey(typeName)) {
+						count = globalResNaming.get(typeName) + 1;
+					}
+					globalResNaming.put(typeName, count);
+
+					name = name.substring(0, name.lastIndexOf('.') + 1)
+							+ typeName + "[" + count + "]";
+				}
+			}
+
+			SerializationNode child = category.addChild(name);
+
+			if (c instanceof DecisionPointSearch) {
+				for (SerializationLevel type : SerializationLevel.values())
+					child.addChild(child.getFullName() + "." + type.toString());
+			}
+			if (c instanceof Pattern || c instanceof Event) {
+				child.addChild(child.getFullName() + ".createdResources");
+			}
+		}
+	}
+
+	private final <T extends EObject> List<T> filterAllContents(
+			TreeIterator<EObject> allContents, Class<T> categoryClass) {
 		final ArrayList<T> categoryList = new ArrayList<T>();
 		Iterator<T> filter = Iterators.<T> filter(allContents, categoryClass);
 		Iterable<T> iterable = IteratorExtensions.<T> toIterable(filter);
 		Iterables.addAll(categoryList, iterable);
-
-		for (T c : categoryList) {
-			SerializationNode child = category.addChild(RDONaming
-					.getFullyQualifiedName(c));
-			if (c instanceof Pattern) {
-				for (EObject relRes : c.eContents()) {
-					if (relRes instanceof RuleRelevantResource
-							|| relRes instanceof EventRelevantResource
-							|| relRes instanceof OperationRelevantResource)
-						child.addChild(child.getFullName() + "."
-								+ RDONaming.getNameGeneric(relRes));
-				}
-			} else if (c instanceof DecisionPointSearch) {
-				for (SerializationLevel type : SerializationLevel.values())
-					child.addChild(child.getFullName() + "." + type.toString());
-			}
-		}
+		return categoryList;
 	}
 
 	public final SerializationNode initModel(SerializationNode root,
@@ -339,9 +359,9 @@ class SerializationConfigurator {
 	}
 }
 
-  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
- /                                PROVIDERS                                  /
-/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+// ------------------------------- PROVIDERS ------------------------------- //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 class RDOSerializationConfigCheckStateProvider implements ICheckStateProvider {
 	@Override

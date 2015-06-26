@@ -3,37 +3,55 @@ package ru.bmstu.rk9.rdo.compilers
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
-import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.Rule
-
-import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
-import ru.bmstu.rk9.rdo.rdo.DecisionPointPrior
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
-
+import ru.bmstu.rk9.rdo.rdo.DptSetConditionStatement
+import ru.bmstu.rk9.rdo.rdo.DptSetPriorityStatement
+import ru.bmstu.rk9.rdo.rdo.Expression
+import ru.bmstu.rk9.rdo.rdo.DptSetParentStatement
+import ru.bmstu.rk9.rdo.rdo.DecisionPoint
+import ru.bmstu.rk9.rdo.rdo.DptSetTerminateConditionStatement
+import ru.bmstu.rk9.rdo.rdo.DptEvaluateByStatement
+import ru.bmstu.rk9.rdo.rdo.DptCompareTopsStatement
+import ru.bmstu.rk9.rdo.rdo.PatternType
 
 class RDODecisionPointCompiler
 {
-	def public static compileDecisionPoint(DecisionPoint dpt, String filename)
+	def static compileDecisionPoint(DecisionPointSome dpt, String filename)
 	{
-		val activities = switch dpt
-		{
-			DecisionPointSome : dpt.activities
-			DecisionPointPrior: dpt.activities.map[a | a.activity]
-		}
+		val activities = dpt.activities
 
-		val priorities = if(dpt instanceof DecisionPointPrior)
-			(dpt as DecisionPointPrior).activities.map[a | a.priority] else null
+		val priorities = activities.map[a | a.priority]
 
-		val parameters = activities.map[a |
-			if(a.pattern instanceof Operation)
-				(a.pattern as Operation).parameters
-			else
-				(a.pattern as Rule).parameters
-		]
+		val parameters = activities.map[a | a.pattern.parameters]
 
-		val priority = if(dpt instanceof DecisionPointPrior)
-			(dpt as DecisionPointPrior).priority else null
+		var setCondStatements = dpt.initStatements.filter(
+				s | s instanceof DptSetConditionStatement
+			)
+		var setPriorStatements = dpt.initStatements.filter(
+				s | s instanceof DptSetPriorityStatement
+			)
+		var setParentStatements = dpt.initStatements.filter(
+				s | s instanceof DptSetParentStatement
+			)
+
+		var Expression condition
+		if (!setCondStatements.empty)
+			condition = (setCondStatements.get(0) as DptSetConditionStatement).condition
+		else
+			condition = null
+
+		var Expression priority
+		if (!setPriorStatements.empty)
+			priority = (setPriorStatements.get(0) as DptSetPriorityStatement).priority
+		else
+			priority = null
+
+		var DecisionPoint parent
+		if (!setParentStatements.empty)
+			parent = (setParentStatements.get(0) as DptSetParentStatement).parent
+		else
+			parent = null
 
 		return
 			'''
@@ -53,46 +71,48 @@ class RDODecisionPointCompiler
 				«ENDIF»
 				«ENDFOR»
 
-				private static DecisionPoint«IF dpt instanceof DecisionPointPrior»Prior«ENDIF» dpt =
-					new DecisionPoint«IF dpt instanceof DecisionPointPrior»Prior«ENDIF»
+				private static DecisionPointPrior dpt =
+					new DecisionPointPrior
 					(
 						"«dpt.fullyQualifiedName»",
-						«IF priority != null»new DecisionPoint.Priority()
+						new DecisionPointPrior.Priority()
 						{
 							@Override
 							public void calculate()
 							{
-								priority = «priority.compileExpression.value»;
+								priority = «IF priority != null»«
+									priority.compileExpression.value»«ELSE»0«ENDIF»;
 							}
-						}«ELSE»null«ENDIF»,
-						«IF dpt.condition != null
-						»new DecisionPoint.Condition()
-						{
-							@Override
-							public boolean check()
+						},
+						«IF condition != null»
+							new DecisionPoint.Condition()
 							{
-								return «dpt.condition.compileExpression.value»;
+								@Override
+								public boolean check()
+								{
+									return «condition.compileExpression.value»;
+								}
 							}
-						}«ELSE»null«ENDIF»
+						«ELSE»null«ENDIF»
 					);
 
 				public static void init()
 				{
 					«FOR i : 0 ..< activities.size»
 						dpt.addActivity(
-							new DecisionPoint«IF dpt instanceof DecisionPointPrior»Prior«
-								ENDIF».Activity«IF dpt instanceof DecisionPointPrior»
+							new DecisionPointPrior.Activity
 							(
-								«ELSE»(«ENDIF»"«activities.get(i).name»"«IF dpt instanceof DecisionPointPrior»,
-								«IF priorities.get(i) != null»new DecisionPoint.Priority()
+								"«activities.get(i).name»",
+								new DecisionPoint.Priority()
 								{
 									@Override
 									public void calculate()
 									{
-										priority = «priorities.get(i).compileExpression.value»;
+										priority = «IF priorities.get(i) != null»«
+											priorities.get(i).compileExpression.value»
+										«ELSE»0«ENDIF»;
 									}
-								}«ELSE»null«ENDIF»
-							«ENDIF»)
+								})
 							{
 								@Override
 								public boolean checkActivity()
@@ -111,12 +131,11 @@ class RDODecisionPointCompiler
 									Simulator.getDatabase().addDecisionEntry
 									(
 										dpt, this, Database.PatternType.«
-											IF activities.get(i).pattern instanceof Rule»RULE«ELSE»OPERATION_BEGIN«ENDIF»,
+											IF activities.get(i).pattern.type == PatternType.RULE»RULE«ELSE»OPERATION_BEGIN«ENDIF»,
 										executed
 									);
 
-									executed.addResourceEntriesToDatabase(Pattern.ExecutedFrom.«
-										IF dpt instanceof DecisionPointPrior»PRIOR«ELSE»SOME«ENDIF»);
+									executed.addResourceEntriesToDatabase(null);
 
 									return executed;
 								}
@@ -124,10 +143,11 @@ class RDODecisionPointCompiler
 						);
 
 					«ENDFOR»
-					«IF dpt.parent == null»
+
+					«IF parent == null»
 						Simulator.addDecisionPoint(dpt);
 					«ELSE»
-						«dpt.parent.fullyQualifiedName».getDPT().addChild(dpt);
+						parent.fullyQualifiedName».getDPT().addChild(dpt);
 					«ENDIF»
 				}
 
@@ -139,7 +159,7 @@ class RDODecisionPointCompiler
 				public static final JSONObject structure = new JSONObject()
 					.put("name", "«dpt.fullyQualifiedName»")
 					.put("type", "«IF dpt instanceof DecisionPointSome»some«ELSE»prior«ENDIF»")
-					.put("parent", «IF dpt.parent != null»"«dpt.parent.fullyQualifiedName»"«ELSE»(String)null«ENDIF»)
+					.put("parent", «IF parent != null»"«parent.fullyQualifiedName»"«ELSE»(String)null«ENDIF»)
 					.put
 					(
 						"activities", new JSONArray()
@@ -156,10 +176,56 @@ class RDODecisionPointCompiler
 			'''
 	}
 
-	def public static compileDecisionPointSearch(DecisionPointSearch dpt, String filename)
+	def static compileDecisionPointSearch(DecisionPointSearch dpt, String filename)
 	{
 		val activities = dpt.activities
 		val parameters = activities.map[a | a.pattern.parameters]
+
+		var setCondStatements = dpt.initStatements.filter(
+				s | s instanceof DptSetConditionStatement
+			)
+		var setParentStatements = dpt.initStatements.filter(
+				s | s instanceof DptSetParentStatement
+			)
+		var setTerminateConditionStatements = dpt.initStatements.filter(
+				s | s instanceof DptSetTerminateConditionStatement
+			)
+		var evaluateByStatements = dpt.initStatements.filter(
+				s | s instanceof DptEvaluateByStatement
+			)
+		var compareTopsStatements = dpt.initStatements.filter(
+				s | s instanceof DptCompareTopsStatement
+			)
+
+		var Expression condition
+		if (!setCondStatements.empty)
+			condition = (setCondStatements.get(0) as DptSetConditionStatement).condition
+		else
+			condition = null
+
+		var DecisionPoint parent
+		if (!setParentStatements.empty)
+			parent = (setParentStatements.get(0) as DptSetParentStatement).parent
+		else
+			parent = null
+
+		var Expression termination
+		if (!setTerminateConditionStatements.empty)
+			termination = (setTerminateConditionStatements.get(0) as DptSetTerminateConditionStatement).termination
+		else
+			termination = null
+
+		var Expression evaluateby
+		if (!evaluateByStatements.empty)
+			evaluateby = (evaluateByStatements.get(0) as DptEvaluateByStatement).evaluateby
+		else
+			evaluateby = null
+
+		var boolean comparetops
+		if (!compareTopsStatements.empty)
+			comparetops = (compareTopsStatements.get(0) as DptCompareTopsStatement).comparetops
+		else
+			comparetops = false
 
 		return
 		'''
@@ -184,13 +250,13 @@ class RDODecisionPointCompiler
 					new DecisionPointSearch<rdo_model.«dpt.eResource.URI.projectName»Model>
 					(
 						"«dpt.fullyQualifiedName»",
-						«IF dpt.condition != null
+						«IF condition != null
 						»new DecisionPoint.Condition()
 						{
 							@Override
 							public boolean check()
 							{
-								return «dpt.condition.compileExpression.value»;
+								return «condition.compileExpression.value»;
 							}
 						}«ELSE»null«ENDIF»,
 						new DecisionPoint.Condition()
@@ -198,7 +264,7 @@ class RDODecisionPointCompiler
 							@Override
 							public boolean check()
 							{
-								return «dpt.termination.compileExpression.value»;
+								return «termination.compileExpression.value»;
 							}
 						},
 						new DecisionPointSearch.EvaluateBy()
@@ -206,10 +272,10 @@ class RDODecisionPointCompiler
 							@Override
 							public double get()
 							{
-								return «dpt.evaluateby.compileExpression.value»;
+								return «evaluateby.compileExpression.value»;
 							}
 						},
-						«IF dpt.comparetops»true«ELSE»false«ENDIF»,
+						«IF comparetops»true«ELSE»false«ENDIF»,
 						new DecisionPointSearch.DatabaseRetriever<rdo_model.«dpt.eResource.URI.projectName»Model>()
 						{
 							@Override
@@ -251,10 +317,10 @@ class RDODecisionPointCompiler
 						);
 					«ENDFOR»
 
-					«IF dpt.parent == null»
+					«IF parent == null»
 						Simulator.addDecisionPoint(dpt);
 					«ELSE»
-						«dpt.parent.fullyQualifiedName».getDPT().addChild(dpt);
+						«parent.fullyQualifiedName».getDPT().addChild(dpt);
 					«ENDIF»
 				}
 
@@ -266,8 +332,8 @@ class RDODecisionPointCompiler
 				public static final JSONObject structure = new JSONObject()
 					.put("name", "«dpt.fullyQualifiedName»")
 					.put("type", "search")
-					.put("parent", «IF dpt.parent != null»"«dpt.parent.fullyQualifiedName»"«ELSE»(String)null«ENDIF»)
-					.put("compare_tops", "«IF dpt.comparetops»YES«ELSE»NO«ENDIF»")
+					.put("parent", «IF parent != null»"«parent.fullyQualifiedName»"«ELSE»(String)null«ENDIF»)
+					.put("compare_tops", "«IF comparetops»YES«ELSE»NO«ENDIF»")
 					.put
 					(
 						"activities", new JSONArray()

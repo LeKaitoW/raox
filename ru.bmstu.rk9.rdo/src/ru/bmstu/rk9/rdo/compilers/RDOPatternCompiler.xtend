@@ -7,195 +7,35 @@ import org.eclipse.emf.ecore.EObject
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
-
 import static extension ru.bmstu.rk9.rdo.compilers.RDOResourceTypeCompiler.*
 
 import ru.bmstu.rk9.rdo.generator.LocalContext
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
-import ru.bmstu.rk9.rdo.rdo.PatternParameter
-import ru.bmstu.rk9.rdo.rdo.PatternChoiceFrom
-import ru.bmstu.rk9.rdo.rdo.PatternChoiceMethod
-import ru.bmstu.rk9.rdo.rdo.PatternConvertStatus
-import ru.bmstu.rk9.rdo.rdo.Event
-import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.OperationConvert
-import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.RuleConvert
-
+import ru.bmstu.rk9.rdo.rdo.ParameterType
+import ru.bmstu.rk9.rdo.rdo.PatternSelectMethod
+import ru.bmstu.rk9.rdo.rdo.RelevantResource
+import ru.bmstu.rk9.rdo.rdo.PatternSelectLogic
 
 class RDOPatternCompiler
 {
-	def public static compileEvent(Event evn, String filename)
+	def static compilePattern(Pattern pattern, String filename)
 	{
-		'''
-		package «filename»;
-
-		import ru.bmstu.rk9.rdo.lib.json.*;
-
-		import ru.bmstu.rk9.rdo.lib.*;
-		@SuppressWarnings("all")
-
-		public class «evn.name» implements Event
+		switch (pattern.type)
 		{
-			private static final String name =  "«evn.fullyQualifiedName»";
-
-			@Override
-			public String getName()
-			{
-				return name;
-			}
-
-			private static class RelevantResources
-			{
-				«FOR r : evn.relevantresources»
-					«IF r.type instanceof ResourceType»
-						public «r.type.fullyQualifiedName» «r.name»;
-					«ELSE»
-						public «(r.type as ResourceDeclaration).reference.fullyQualifiedName» «r.name»;
-					«ENDIF»
-				«ENDFOR»
-
-				public RelevantResources init()
-				{
-					«FOR r : evn.relevantresources»
-						«IF r.type instanceof ResourceDeclaration»
-							«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName
-								».getResource("«(r.type as ResourceDeclaration).fullyQualifiedName»");
-						«ELSE»
-							«IF r.rule.literal == "Create"»
-								«r.name» = new «r.type.fullyQualifiedName»(«(r.type as ResourceType).parameters.size.compileAllDefault»);
-							«ENDIF»
-						«ENDIF»
-					«ENDFOR»
-
-					return this;
-				}
-			}
-
-			private static RelevantResources staticResources = new RelevantResources();
-
-			private static class Parameters
-			{
-				«IF !evn.parameters.empty»
-				«FOR p : evn.parameters»
-					public «p.type.compileType» «p.name»«p.type.getDefault»;
-				«ENDFOR»
-
-				public Parameters(«evn.parameters.compilePatternParameters»)
-				{
-					«FOR parameter : evn.parameters»
-						if(«parameter.name» != null)
-							this.«parameter.name» = «parameter.name»;
-					«ENDFOR»
-				}
-				«ENDIF»
-			}
-
-			private Parameters parameters;
-
-			private double time;
-
-			@Override
-			public double getTime()
-			{
-				return time;
-			}
-
-			private static Converter<RelevantResources, Parameters> converter =
-				new Converter<RelevantResources, Parameters>()
-				{
-					@Override
-					public void run(RelevantResources resources, Parameters parameters)
-					{
-						«FOR e : evn.algorithms»
-							«e.compileConvert(0)»
-						«ENDFOR»
-					}
-				};
-
-			@Override
-			public void run()
-			{
-				converter.run(staticResources.init(), parameters);
-				Database db = Simulator.getDatabase();
-				«IF !evn.relevantresources.filter[t | t.rule.literal == "Create"].empty»
-
-					// add resources
-					«FOR r : evn.relevantresources.filter[t | t.rule.literal == "Create"]»
-						staticResources.«r.name».register();
-					«ENDFOR»
-				«ENDIF»
-
-				// database operations
-				db.addEventEntry(Database.PatternType.EVENT, this);
-
-				«FOR r : evn.relevantresources.filter[t |
-						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
-					db.addResourceEntry(«r.rule.compileResourceTraceStatus», staticResources.«r.name
-						», "«evn.fullyQualifiedName».«r.name»");
-				«ENDFOR»
-			}
-
-			public «evn.name»(double time«IF !evn.parameters.empty», «ENDIF»«evn.parameters.compilePatternParameters»)
-			{
-				this.time = time;
-				this.parameters = new Parameters(«evn.parameters.compilePatternParametersCall»);
-			}
-
-			@Override
-			public int[] getRelevantInfo()
-			{
-				return new int[]
-				{
-					«FOR i : 0 ..< evn.relevantresources.size»
-						staticResources.«evn.relevantresources.get(i).name».getNumber()«
-							IF i < evn.relevantresources.size - 1»,«ENDIF»
-					«ENDFOR»
-				};
-			}
-
-			public static final JSONObject structure = new JSONObject()
-				.put("name", "«evn.fullyQualifiedName»")
-				.put("type", "event")
-				.put
-				(
-					"relevant_resources", new JSONArray()
-						«FOR r : evn.relevantresources»
-							.put
-							(
-								new JSONObject()
-									.put("name", "«r.name»")
-									.put("type", "«
-										IF r.type instanceof ResourceDeclaration
-											»«(r.type as ResourceDeclaration).reference.fullyQualifiedName»«
-										ELSE
-											»«(r.type as ResourceType).fullyQualifiedName»«
-										ENDIF»")
-									.put("convert_event", "«r.rule.literal»")
-							)
-						«ENDFOR»
-				);
-		}
-		'''
-	}
-
-	def private static compileResourceTraceStatus(PatternConvertStatus status)
-	{
-		switch status
-		{
-			case CREATE: "Database.ResourceEntryType.CREATED"
-			case ERASE : "Database.ResourceEntryType.ERASED"
-			case KEEP  : "Database.ResourceEntryType.ALTERED"
-			default    : "null"
+			case OPERATION,
+			case KEYBOARD:
+				return compileOperation(pattern, filename)
+			case RULE:
+				return compileRule(pattern, filename)
 		}
 	}
 
-	def public static compileRule(Rule rule, String filename)
+	def static compileRule(Pattern rule, String filename)
 	{
 		'''
 		package «filename»;
@@ -217,25 +57,22 @@ class RDOPatternCompiler
 
 			private static class RelevantResources
 			{
-				«FOR r : rule.relevantresources.filter[res | res.rule.literal != "Create"]»
+				«FOR r : rule.relevantresources»
 					«IF r.type instanceof ResourceType»
 						public «r.type.fullyQualifiedName» «r.name»;
 					«ELSE»
-						public «(r.type as ResourceDeclaration).reference.fullyQualifiedName» «r.name»;
+						public «(r.type as ResourceCreateStatement).type.fullyQualifiedName» «r.name»;
 					«ENDIF»
-				«ENDFOR»
-				«FOR r : rule.relevantresources.filter[res | res.rule.literal == "Create"]»
-					public «r.type.fullyQualifiedName» «r.name»;
 				«ENDFOR»
 
 				public RelevantResources copyUpdate()
 				{
 					RelevantResources clone = new RelevantResources();
 
-					«FOR r : rule.relevantresources.filter[res | res.rule.literal != "Create"]»
+					«FOR r : rule.relevantresources»
 						clone.«r.name» = «(
-							if(r.type instanceof ResourceDeclaration)
-								(r.type as ResourceDeclaration).reference
+							if(r.type instanceof ResourceCreateStatement)
+								(r.type as ResourceCreateStatement).type
 							else r.type).fullyQualifiedName
 							».getResource(this.«r.name».getNumber());
 					«ENDFOR»
@@ -245,10 +82,10 @@ class RDOPatternCompiler
 
 				public void clear()
 				{
-					«FOR r : rule.relevantresources.filter[res | res.rule.literal != "Create"]»
-					«IF r.type instanceof ResourceDeclaration»
-						this.«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName
-							».getResource("«(r.type as ResourceDeclaration).fullyQualifiedName»");
+					«FOR r : rule.relevantresources»
+					«IF r.type instanceof ResourceCreateStatement»
+						this.«r.name» = «(r.type as ResourceCreateStatement).type.fullyQualifiedName
+							».getResource("«(r.type as ResourceCreateStatement).fullyQualifiedName»");
 					«ELSE»
 						this.«r.name» = null;
 					«ENDIF»
@@ -257,16 +94,16 @@ class RDOPatternCompiler
 			}
 
 			private static RelevantResources staticResources = new RelevantResources();
-			private RelevantResources instanceResources;
+			private RelevantResources resources;
 
 			public static class Parameters
 			{
 				«IF !rule.parameters.empty»
 				«FOR p : rule.parameters»
-					public «p.type.compileType» «p.name»«p.type.getDefault»;
+					public «p.compileType» «p.name»«p.getDefault»;
 				«ENDFOR»
 
-				public Parameters(«rule.parameters.compilePatternParameters»)
+				public Parameters(«rule.parameters.compileParameterTypes»)
 				{
 					«FOR p : rule.parameters»
 						if(«p.name» != null)
@@ -280,7 +117,7 @@ class RDOPatternCompiler
 
 			private «rule.name»(RelevantResources resources)
 			{
-				this.instanceResources = resources;
+				this.resources = resources;
 			}
 
 			«IF rule.combinational != null»
@@ -296,7 +133,7 @@ class RDOPatternCompiler
 						{
 							RelevantResources clone = new RelevantResources();
 
-							«FOR relres : rule.relevantresources.filter[r | r.rule.literal != "Create"]»
+							«FOR relres : rule.relevantresources»
 								clone.«relres.name» = set.«relres.name»;
 							«ENDFOR»
 
@@ -306,7 +143,7 @@ class RDOPatternCompiler
 						@Override
 						public void apply(RelevantResources origin, RelevantResources set)
 						{
-							«FOR relres : rule.relevantresources.filter[r | r.rule.literal != "Create"]»
+							«FOR relres : rule.relevantresources»
 								origin.«relres.name» = set.«relres.name»;
 							«ENDFOR»
 						}
@@ -314,74 +151,81 @@ class RDOPatternCompiler
 				);
 				static
 				{
-				«FOR rc : rule.algorithms.filter[r | r.relres.rule.literal != "Create"]»
+				«FOR relres : rule.relevantresources»
 					choice.addFinder
 					(
-						new CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
+						new CombinationalChoiceFrom.Finder<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters>
 						(
-							new CombinationalChoiceFrom.Retriever<«rc.relres.type.relResFullyQualifiedName»>()
+							new CombinationalChoiceFrom.Retriever<«relres.type.relResFullyQualifiedName»>()
 							{
 								@Override
-								public java.util.Collection<«rc.relres.type.relResFullyQualifiedName»> getResources()
+								public java.util.Collection<«relres.type.relResFullyQualifiedName»> getResources()
 								{
-									«IF rc.relres.type instanceof ResourceDeclaration»
-									java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»> singlelist =
-										new java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»>();
-									singlelist.add(«rc.relres.type.relResFullyQualifiedName».getResource("«
-										(rc.relres.type as ResourceDeclaration).fullyQualifiedName»"));
+									«IF relres.type instanceof ResourceCreateStatement»
+									java.util.LinkedList<«relres.type.relResFullyQualifiedName»> singlelist =
+										new java.util.LinkedList<«relres.type.relResFullyQualifiedName»>();
+									singlelist.add(«relres.type.relResFullyQualifiedName».getResource("«
+										(relres.type as ResourceCreateStatement).fullyQualifiedName»"));
 									return singlelist;
 									«ELSE»
-									return «rc.relres.type.relResFullyQualifiedName».get«
-										IF rc.relres.rule.literal == "Erase"»Temporary«ELSE»All«ENDIF»();
+									return «relres.type.relResFullyQualifiedName».getAll();
 									«ENDIF»
 								}
 							},
-							new SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
+							new SimpleChoiceFrom<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters>
 							(
-								«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.relResFullyQualifiedName, rc.relres.name, rc.relres.type.relResFullyQualifiedName)»,
+								«relres.select.compileChoiceFrom(rule, relres.type.relResFullyQualifiedName, relres.name, relres.type.relResFullyQualifiedName)»,
 								null
 							),
-							new CombinationalChoiceFrom.Setter<RelevantResources, «rc.relres.type.relResFullyQualifiedName»>()
+							new CombinationalChoiceFrom.Setter<RelevantResources, «relres.type.relResFullyQualifiedName»>()
 							{
-								public void set(RelevantResources set, «rc.relres.type.relResFullyQualifiedName» resource)
+								public void set(RelevantResources set, «relres.type.relResFullyQualifiedName» resource)
 								{
-									set.«rc.relres.name» = resource;
+									set.«relres.name» = resource;
 								}
 							}
 						)
 					);
-
 				«ENDFOR»
 				}
 
 			«ELSE»
-			«FOR rc : rule.algorithms.filter[r | r.relres.rule.literal != "Create"]»
-			«IF rc.relres.type instanceof ResourceDeclaration»
-			// just checker «rc.relres.name»
-			private static SimpleChoiceFrom.Checker<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «
-				rc.relres.name»Checker = «rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.relResFullyQualifiedName,
-						rc.relres.name, rc.relres.type.relResFullyQualifiedName)»;
+			«FOR relres : rule.relevantresources»
+			«IF relres.type instanceof ResourceCreateStatement»
+			// just checker «relres.name»
+			private static SimpleChoiceFrom.Checker<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters> «
+				relres.name»Checker = «relres.select.compileChoiceFrom(
+					rule, relres.type.relResFullyQualifiedName,
+					relres.name, relres.type.relResFullyQualifiedName)»;
 
 			«ELSE»
-			// choice «rc.relres.name»
-			private static SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «rc.relres.name»Choice =
-				new SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
+			// choice «relres.name»
+			private static SimpleChoiceFrom<RelevantResources, «
+				relres.type.relResFullyQualifiedName», Parameters> «relres.name»Choice =
+				new SimpleChoiceFrom<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters>
 				(
-					«rc.choicefrom.compileChoiceFrom(rule, rc.relres.type.relResFullyQualifiedName, rc.relres.name, rc.relres.type.relResFullyQualifiedName)»,
-					«rc.choicemethod.compileChoiceMethod(rule.name, rc.relres.type.relResFullyQualifiedName)»
+					«relres.select.compileChoiceFrom(
+						rule, relres.type.relResFullyQualifiedName,
+						relres.name,
+						relres.type.relResFullyQualifiedName
+					)»,
+					«relres.selectmethod.compileChoiceMethod(
+						rule.name, relres.type.relResFullyQualifiedName
+					)»
 				);
 
 			«ENDIF»
 			«ENDFOR»
 			«ENDIF»
+
 			private static Converter<RelevantResources, Parameters> rule =
 					new Converter<RelevantResources, Parameters>()
 					{
 						@Override
 						public void run(RelevantResources resources, Parameters parameters)
 						{
-							«FOR e : rule.algorithms.filter[r | r.haverule]»
-								«e.compileConvert(0)»
+							«FOR m: rule.defaultMethods.filter[m | m.name == "execute"]»
+								«m.body.compilePatternAction»
 							«ENDFOR»
 						}
 					};
@@ -395,16 +239,18 @@ class RDOPatternCompiler
 					return false;
 
 				«ELSE»
-				«FOR rc : rule.algorithms.filter[r | r.relres.rule.literal != "Create"]»
-				«IF rc.relres.type instanceof ResourceDeclaration»
-					if(!«rc.relres.name»Checker.check(staticResources, staticResources.«rc.relres.name», parameters))
+				«FOR relres : rule.relevantresources»
+				«IF relres.type instanceof ResourceCreateStatement»
+					if(!«relres.name»Checker.check(staticResources, staticResources.«relres.name», parameters))
 						return false;
 
 				«ELSE»
-					staticResources.«rc.relres.name» = «rc.relres.name»Choice.find(staticResources, «rc.relres.type.fullyQualifiedName».get«
-						IF rc.relres.rule.literal == "Erase"»Temporary«ELSE»All«ENDIF»(), parameters);
+					staticResources.«relres.name» = «relres.name»Choice.find(
+							staticResources,
+							«relres.type.fullyQualifiedName».getAll(),
+							parameters);
 
-					if(staticResources.«rc.relres.name» == null)
+					if(staticResources.«relres.name» == null)
 						return false;
 
 				«ENDIF»
@@ -417,26 +263,10 @@ class RDOPatternCompiler
 			{
 				RelevantResources resources = staticResources;
 
-				«IF !rule.relevantresources.filter[t | t.rule.literal == "Create"].empty»
-					// create resources
-					«FOR r : rule.relevantresources.filter[t |t.rule.literal == "Create"]»
-						resources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
-							(r.type as ResourceType).parameters.size.compileAllDefault»);
-						resources.«r.name».register();
-					«ENDFOR»
-
-				«ENDIF»
 				rule.run(resources, parameters);
 
 				«rule.name» executed = new «rule.name»(resources.copyUpdate());
 
-				«IF !rule.relevantresources.filter[t | t.rule.literal == "Erase"].empty»
-					// erase resources
-					«FOR r : rule.relevantresources.filter[t |t.rule.literal == "Erase"]»
-						«(r.type as ResourceType).fullyQualifiedName».eraseResource(resources.«r.name»);
-					«ENDFOR»
-
-				«ENDIF»
 				return executed;
 			}
 
@@ -444,18 +274,9 @@ class RDOPatternCompiler
 			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom)
 			{
 				Database db = Simulator.getDatabase();
-
-				«FOR r : rule.relevantresources.filter[t |
-						t.rule != PatternConvertStatus.NOCHANGE && t.rule != PatternConvertStatus.NONEXIST]»
-					db.addResourceEntry
-					(
-						executedFrom.resourceSpecialStatus != null
-							? executedFrom.resourceSpecialStatus
-							: «r.rule.compileResourceTraceStatus»,
-						instanceResources.«r.name»,
-						"«rule.fullyQualifiedName».«r.name»"
-					);
-				«ENDFOR»
+				db.addMemorizedResourceEntries(
+						"«rule.fullyQualifiedName».createdResources",
+						executedFrom);
 			}
 
 			@Override
@@ -464,7 +285,7 @@ class RDOPatternCompiler
 				return new int[]
 				{
 					«FOR i : 0 ..< rule.relevantresources.size»
-						instanceResources.«rule.relevantresources.get(i).name».getNumber()«
+						resources.«rule.relevantresources.get(i).name».getNumber()«
 							IF i < rule.relevantresources.size - 1»,«ENDIF»
 					«ENDFOR»
 				};
@@ -482,12 +303,11 @@ class RDOPatternCompiler
 								new JSONObject()
 									.put("name", "«r.name»")
 									.put("type", "«
-										IF r.type instanceof ResourceDeclaration
-											»«(r.type as ResourceDeclaration).reference.fullyQualifiedName»«
+										IF r.type instanceof ResourceCreateStatement
+											»«(r.type as ResourceCreateStatement).type.fullyQualifiedName»«
 										ELSE
 											»«(r.type as ResourceType).fullyQualifiedName»«
 										ENDIF»")
-									.put("convert_rule", "«r.rule.literal»")
 							)
 						«ENDFOR»
 				);
@@ -495,7 +315,7 @@ class RDOPatternCompiler
 		'''
 	}
 
-	def public static compileOperation(Operation op, String filename)
+	def static compileOperation(Pattern op, String filename)
 	{
 		'''
 		package «filename»;
@@ -517,25 +337,22 @@ class RDOPatternCompiler
 
 			private static class RelevantResources
 			{
-				«FOR r : op.relevantresources.filter[res | res.begin.literal != "Create" && res.end.literal != "Create"]»
+				«FOR r : op.relevantresources»
 					«IF r.type instanceof ResourceType»
 						public «r.type.fullyQualifiedName» «r.name»;
 					«ELSE»
-						public «(r.type as ResourceDeclaration).reference.fullyQualifiedName» «r.name»;
+						public «(r.type as ResourceCreateStatement).type.fullyQualifiedName» «r.name»;
 					«ENDIF»
-				«ENDFOR»
-				«FOR r : op.relevantresources.filter[res | res.begin.literal == "Create" || res.end.literal == "Create"]»
-					public «r.type.fullyQualifiedName» «r.name»;
 				«ENDFOR»
 
 				public RelevantResources copyUpdate()
 				{
 					RelevantResources clone = new RelevantResources();
 
-					«FOR r : op.relevantresources.filter[res | res.begin.literal != "Create" && res.end.literal != "Create"]»
+					«FOR r : op.relevantresources»
 						clone.«r.name» = «(
-							if(r.type instanceof ResourceDeclaration)
-								(r.type as ResourceDeclaration).reference
+							if(r.type instanceof ResourceCreateStatement)
+								(r.type as ResourceCreateStatement).type
 							else r.type).fullyQualifiedName
 							».getResource(this.«r.name».getNumber());
 					«ENDFOR»
@@ -545,10 +362,10 @@ class RDOPatternCompiler
 
 				public void clear()
 				{
-					«FOR r : op.relevantresources.filter[res | res.begin.literal != "Create" && res.end.literal != "Create"]»
-					«IF r.type instanceof ResourceDeclaration»
-						this.«r.name» = «(r.type as ResourceDeclaration).reference.fullyQualifiedName
-							».getResource("«(r.type as ResourceDeclaration).fullyQualifiedName»");
+					«FOR r : op.relevantresources»
+					«IF r.type instanceof ResourceCreateStatement»
+						this.«r.name» = «(r.type as ResourceCreateStatement).type.fullyQualifiedName
+							».getResource("«(r.type as ResourceCreateStatement).fullyQualifiedName»");
 					«ELSE»
 						this.«r.name» = null;
 					«ENDIF»
@@ -557,16 +374,16 @@ class RDOPatternCompiler
 			}
 
 			private static RelevantResources staticResources = new RelevantResources();
-			private RelevantResources instanceResources;
+			private RelevantResources resources;
 
 			public static class Parameters
 			{
 				«IF !op.parameters.empty»
 				«FOR p : op.parameters»
-					public «p.type.compileType» «p.name»«p.type.getDefault»;
+					public «p.compileType» «p.name»«p.getDefault»;
 				«ENDFOR»
 
-				public Parameters(«op.parameters.compilePatternParameters»)
+				public Parameters(«op.parameters.compileParameterTypes»)
 				{
 					«FOR p : op.parameters»
 						if(«p.name» != null)
@@ -581,7 +398,7 @@ class RDOPatternCompiler
 			private «op.name»(double time, RelevantResources resources, Parameters parameters)
 			{
 				this.time = time;
-				this.instanceResources = resources;
+				this.resources = resources;
 				this.parameters = parameters;
 			}
 
@@ -598,7 +415,7 @@ class RDOPatternCompiler
 						{
 							RelevantResources clone = new RelevantResources();
 
-							«FOR relres : op.relevantresources.filter[r | r.begin.literal != "Create" && r.end.literal != "Create"]»
+							«FOR relres : op.relevantresources»
 								clone.«relres.name» = set.«relres.name»;
 							«ENDFOR»
 
@@ -608,7 +425,7 @@ class RDOPatternCompiler
 						@Override
 						public void apply(RelevantResources origin, RelevantResources set)
 						{
-							«FOR relres : op.relevantresources.filter[r | r.begin.literal != "Create" && r.end.literal != "Create"]»
+							«FOR relres : op.relevantresources»
 								origin.«relres.name» = set.«relres.name»;
 							«ENDFOR»
 						}
@@ -616,38 +433,37 @@ class RDOPatternCompiler
 				);
 				static
 				{
-				«FOR rc : op.algorithms.filter[r | r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
+				«FOR relres : op.relevantresources»
 					choice.addFinder
 					(
-						new CombinationalChoiceFrom.Finder<RelevantResources, «rc.relres.type.fullyQualifiedName», Parameters>
+						new CombinationalChoiceFrom.Finder<RelevantResources, «relres.type.fullyQualifiedName», Parameters>
 						(
-							new CombinationalChoiceFrom.Retriever<«rc.relres.type.fullyQualifiedName»>()
+							new CombinationalChoiceFrom.Retriever<«relres.type.fullyQualifiedName»>()
 							{
 								@Override
-								public java.util.Collection<«rc.relres.type.fullyQualifiedName»> getResources()
+								public java.util.Collection<«relres.type.fullyQualifiedName»> getResources()
 								{
-									«IF rc.relres.type instanceof ResourceDeclaration»
-									java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»> singlelist =
-										new java.util.LinkedList<«rc.relres.type.relResFullyQualifiedName»>();
-									singlelist.add(«rc.relres.type.relResFullyQualifiedName».getResource("«
-										(rc.relres.type as ResourceDeclaration).fullyQualifiedName»"));
+									«IF relres.type instanceof ResourceCreateStatement»
+									java.util.LinkedList<«relres.type.relResFullyQualifiedName»> singlelist =
+										new java.util.LinkedList<«relres.type.relResFullyQualifiedName»>();
+									singlelist.add(«relres.type.relResFullyQualifiedName».getResource("«
+										(relres.type as ResourceCreateStatement).fullyQualifiedName»"));
 									return singlelist;
 									«ELSE»
-									return «rc.relres.type.relResFullyQualifiedName».get«
-										IF rc.relres.begin.literal == "Erase" || rc.relres.end.literal == "Erase"»Temporary«ELSE»All«ENDIF»();
+									return «relres.type.relResFullyQualifiedName».getAll();
 									«ENDIF»
 								}
 							},
-							new SimpleChoiceFrom<RelevantResources, «rc.relres.type.fullyQualifiedName», Parameters>
+							new SimpleChoiceFrom<RelevantResources, «relres.type.fullyQualifiedName», Parameters>
 							(
-								«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.fullyQualifiedName, rc.relres.name, rc.relres.type.fullyQualifiedName)»,
+								«relres.select.compileChoiceFrom(op, relres.type.fullyQualifiedName, relres.name, relres.type.fullyQualifiedName)»,
 								null
 							),
-							new CombinationalChoiceFrom.Setter<RelevantResources, «rc.relres.type.fullyQualifiedName»>()
+							new CombinationalChoiceFrom.Setter<RelevantResources, «relres.type.fullyQualifiedName»>()
 							{
-								public void set(RelevantResources set, «rc.relres.type.fullyQualifiedName» resource)
+								public void set(RelevantResources set, «relres.type.fullyQualifiedName» resource)
 								{
-									set.«rc.relres.name» = resource;
+									set.«relres.name» = resource;
 								}
 							}
 						)
@@ -657,20 +473,20 @@ class RDOPatternCompiler
 				}
 
 			«ELSE»
-			«FOR rc : op.algorithms.filter[r | r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
-			«IF rc.relres.type instanceof ResourceDeclaration»
-			// just checker «rc.relres.name»
-			private static SimpleChoiceFrom.Checker<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «
-				rc.relres.name»Checker = «rc.choicefrom.compileChoiceFrom(op, rc.relres.type.relResFullyQualifiedName,
-						rc.relres.name, rc.relres.type.relResFullyQualifiedName)»;
+			«FOR relres : op.relevantresources»
+			«IF relres.type instanceof ResourceCreateStatement»
+			// just checker «relres.name»
+			private static SimpleChoiceFrom.Checker<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters> «
+				relres.name»Checker = «relres.select.compileChoiceFrom(op, relres.type.relResFullyQualifiedName,
+						relres.name, relres.type.relResFullyQualifiedName)»;
 
 			«ELSE»
-			// choice «rc.relres.name»
-			private static SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters> «rc.relres.name»Choice =
-				new SimpleChoiceFrom<RelevantResources, «rc.relres.type.relResFullyQualifiedName», Parameters>
+			// choice «relres.name»
+			private static SimpleChoiceFrom<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters> «relres.name»Choice =
+				new SimpleChoiceFrom<RelevantResources, «relres.type.relResFullyQualifiedName», Parameters>
 				(
-					«rc.choicefrom.compileChoiceFrom(op, rc.relres.type.relResFullyQualifiedName, rc.relres.name, rc.relres.type.relResFullyQualifiedName)»,
-					«rc.choicemethod.compileChoiceMethod(op.name, rc.relres.type.relResFullyQualifiedName)»
+					«relres.select.compileChoiceFrom(op, relres.type.relResFullyQualifiedName, relres.name, relres.type.relResFullyQualifiedName)»,
+					«relres.selectmethod.compileChoiceMethod(op.name, relres.type.relResFullyQualifiedName)»
 				);
 
 			«ENDIF»
@@ -683,8 +499,8 @@ class RDOPatternCompiler
 						@Override
 						public void run(RelevantResources resources, Parameters parameters)
 						{
-							«FOR e : op.algorithms.filter[r | r.havebegin]»
-								«e.compileConvert(0)»
+							«FOR m: op.defaultMethods.filter[m | m.name == "begin"]»
+								«m.body.compilePatternAction»
 							«ENDFOR»
 						}
 					};
@@ -695,8 +511,8 @@ class RDOPatternCompiler
 						@Override
 						public void run(RelevantResources resources, Parameters parameters)
 						{
-							«FOR e : op.algorithms.filter[r | r.haveend]»
-								«e.compileConvert(1)»
+							«FOR m: op.defaultMethods.filter[m | m.name == "end"]»
+								«m.body.compilePatternAction»
 							«ENDFOR»
 						}
 					};
@@ -710,16 +526,15 @@ class RDOPatternCompiler
 					return false;
 
 				«ELSE»
-				«FOR rc : op.algorithms.filter[r | r.relres.begin.literal != "Create" && r.relres.end.literal != "Create"]»
-				«IF rc.relres.type instanceof ResourceDeclaration»
-					if(!«rc.relres.name»Checker.check(staticResources, staticResources.«rc.relres.name», parameters))
+				«FOR relres : op.relevantresources»
+				«IF relres.type instanceof ResourceCreateStatement»
+					if(!«relres.name»Checker.check(staticResources, staticResources.«relres.name», parameters))
 						return false;
 
 				«ELSE»
-					staticResources.«rc.relres.name» = «rc.relres.name»Choice.find(staticResources, «rc.relres.type.fullyQualifiedName».get«
-						IF rc.relres.begin.literal == "Erase" || rc.relres.end.literal == "Erase"»Temporary«ELSE»All«ENDIF»(), parameters);
+					staticResources.«relres.name» = «relres.name»Choice.find(staticResources, «relres.type.fullyQualifiedName».getAll(), parameters);
 
-					if(staticResources.«rc.relres.name» == null)
+					if(staticResources.«relres.name» == null)
 						return false;
 
 				«ENDIF»
@@ -728,32 +543,28 @@ class RDOPatternCompiler
 				return true;
 			}
 
+			private static double duration(RelevantResources resources, Parameters parameters)
+			{
+				«FOR m: op.defaultMethods.filter[m | m.name == "duration"]»
+					«m.body.compileStatementContext(
+						(new LocalContext).populateFromPattern(op)
+					)»
+				«ENDFOR»
+			}
+
 			public static «op.name» executeRule(Parameters parameters)
 			{
 				RelevantResources resources = staticResources;
 
-				«IF !op.relevantresources.filter[t | t.begin.literal == "Create"].empty»
-					// create resources
-					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Create"]»
-						resources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
-							(r.type as ResourceType).parameters.size.compileAllDefault»);
-						resources.«r.name».register();
-					«ENDFOR»
-
-				«ENDIF»
-
 				begin.run(resources, parameters);
 
-				«op.name» instance = new «op.name»(Simulator.getTime() + «
-					op.time.compileExpressionContext((new LocalContext).populateFromOperation(op)).value», resources.copyUpdate(), parameters);
 
-				«IF !op.relevantresources.filter[t | t.begin.literal == "Erase"].empty»
-					// erase resources
-					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Erase"]»
-						«(r.type as ResourceType).fullyQualifiedName».eraseResource(resources.«r.name»);
-					«ENDFOR»
+				«op.name» instance = new «op.name»(
+					Simulator.getTime() + duration(resources, parameters),
+					resources.copyUpdate(),
+					parameters);
 
-				«ENDIF»
+
 				Simulator.pushEvent(instance);
 
 				return instance;
@@ -763,18 +574,9 @@ class RDOPatternCompiler
 			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom)
 			{
 				Database db = Simulator.getDatabase();
-
-				«FOR r : op.relevantresources.filter[t |
-						t.begin != PatternConvertStatus.NOCHANGE && t.begin != PatternConvertStatus.NONEXIST]»
-					db.addResourceEntry
-					(
-						executedFrom.resourceSpecialStatus != null
-							? executedFrom.resourceSpecialStatus
-							: «r.begin.compileResourceTraceStatus»,
-						instanceResources.«r.name»,
-						"«op.fullyQualifiedName».«r.name»"
-					);
-				«ENDFOR»
+				db.addMemorizedResourceEntries(
+						"«op.fullyQualifiedName».createdResources",
+						null);
 			}
 
 			private double time;
@@ -789,34 +591,14 @@ class RDOPatternCompiler
 			public void run()
 			{
 				Database db = Simulator.getDatabase();
-				«IF !op.relevantresources.filter[t | t.end.literal == "Create"].empty»
-					// create resources
-					«FOR r : op.relevantresources.filter[t |t.end.literal == "Create"]»
-						instanceResources.«r.name» = new «(r.type as ResourceType).fullyQualifiedName»(«
-							(r.type as ResourceType).parameters.size.compileAllDefault»);
-						instanceResources.«r.name».register();
 
-					«ENDFOR»
-
-				«ENDIF»
-				end.run(instanceResources, parameters);
-
-				«IF !op.relevantresources.filter[t | t.end.literal == "Erase"].empty»
-					// erase resources
-					«FOR r : op.relevantresources.filter[t | t.end.literal == "Erase"]»
-						«(r.type as ResourceType).fullyQualifiedName».eraseResource(instanceResources.«r.name»);
-					«ENDFOR»
-
-				«ENDIF»
+				end.run(resources, parameters);
 
 				// database operations
-				db.addEventEntry(Database.PatternType.OPERATION_END, this);
-
-				«FOR r : op.relevantresources.filter[t |
-						t.end != PatternConvertStatus.NOCHANGE && t.end != PatternConvertStatus.NONEXIST]»
-					db.addResourceEntry(«r.end.compileResourceTraceStatus», instanceResources.«r.name
-						», "«op.fullyQualifiedName».«r.name»");
-				«ENDFOR»
+				db.addOperationEndEntry(this);
+				db.addMemorizedResourceEntries(
+						"«op.fullyQualifiedName»",
+						null);
 			}
 
 			@Override
@@ -825,7 +607,7 @@ class RDOPatternCompiler
 				return new int[]
 				{
 					«FOR i : 0 ..< op.relevantresources.size»
-						instanceResources.«op.relevantresources.get(i).name».getNumber()«
+						resources.«op.relevantresources.get(i).name».getNumber()«
 							IF i < op.relevantresources.size - 1»,«ENDIF»
 					«ENDFOR»
 				};
@@ -843,13 +625,11 @@ class RDOPatternCompiler
 								new JSONObject()
 									.put("name", "«r.name»")
 									.put("type", "«
-										IF r.type instanceof ResourceDeclaration
-											»«(r.type as ResourceDeclaration).reference.fullyQualifiedName»«
+										IF r.type instanceof ResourceCreateStatement
+											»«(r.type as ResourceCreateStatement).type.fullyQualifiedName»«
 										ELSE
 											»«(r.type as ResourceType).fullyQualifiedName»«
 										ENDIF»")
-									.put("convert_begin", "«r.begin.literal»")
-									.put("convert_end", "«r.end.literal»")
 							)
 						«ENDFOR»
 				);
@@ -857,37 +637,20 @@ class RDOPatternCompiler
 		'''
 	}
 
-	def public static compileChoiceFrom(PatternChoiceFrom cf, Pattern pattern, String resource, String relres, String relrestype)
+	def static compileChoiceFrom(PatternSelectLogic cf, Pattern pattern, String resource, String relres, String relrestype)
 	{
-		val havecf = cf != null && !cf.nocheck;
+		val havecf = cf != null && !cf.any;
 
 		var List<String> relreslist;
 		var List<String> relrestypes;
 
-		switch pattern
-		{
-			Operation:
-			{
-				relreslist = pattern.relevantresources.map[r | r.name]
-				relrestypes = pattern.relevantresources.map[r |
-					if(r.type instanceof ResourceType)
-						(r.type as ResourceType).fullyQualifiedName
-					else
-						(r.type as ResourceDeclaration).reference.fullyQualifiedName
-				]
-			}
-
-			Rule:
-			{
-				relreslist = pattern.relevantresources.map[r | r.name]
-				relrestypes = pattern.relevantresources.map[r |
-					if(r.type instanceof ResourceType)
-						(r.type as ResourceType).fullyQualifiedName
-					else
-						(r.type as ResourceDeclaration).reference.fullyQualifiedName
-				]
-			}
-		}
+		relreslist = pattern.relevantresources.map[r | r.name]
+		relrestypes = pattern.relevantresources.map[r |
+			if(r.type instanceof ResourceType)
+				(r.type as ResourceType).fullyQualifiedName
+			else
+				(r.type as ResourceCreateStatement).type.fullyQualifiedName
+		]
 
 		return
 			'''
@@ -896,18 +659,16 @@ class RDOPatternCompiler
 				@Override
 				public boolean check(RelevantResources resources, «resource» «relres», Parameters parameters)
 				{
-					return «IF havecf»(«IF pattern instanceof Operation»«
-						cf.logic.compileExpressionContext((new LocalContext).populateFromOperation(pattern as Operation)).value.
-							replaceAll("resources." + relres + ".", relres + ".")»«	ELSE»«
-								cf.logic.compileExpressionContext((new LocalContext).populateFromRule(pattern as Rule)).value.
-									replaceAll("resources." + relres + ".", relres + ".")»«ENDIF»)«ELSE»true«ENDIF»«
+					return «IF havecf»(«
+						cf.logic.compileExpressionContext((new LocalContext).populateFromPattern(pattern)).value.
+							replaceAll("resources." + relres + ".", relres + ".")»)«ELSE»true«ENDIF»«
 										FOR i : 0 ..< relreslist.size»«IF relres != relreslist.get(i) && relrestype ==
 											relrestypes.get(i)»«"\t"»&& «relres» != resources.«relreslist.get(i)»«ENDIF»«ENDFOR»;
 				}
 			}'''
 	}
 
-	def public static compileChoiceMethod(PatternChoiceMethod cm, String pattern, String resource)
+	def private static compileChoiceMethod(PatternSelectMethod cm, String pattern, String resource)
 	{
 		if(cm == null || cm.first)
 			return "null"
@@ -915,17 +676,16 @@ class RDOPatternCompiler
 		{
 			var EObject pat;
 			var String relres = "@NOPE";
-			if(cm.eContainer instanceof Rule || cm.eContainer instanceof Operation)
+			if(cm.eContainer instanceof Pattern)
 				pat = cm.eContainer
 			else
 			{
 				pat = cm.eContainer.eContainer
-				relres = (if(cm.eContainer instanceof OperationConvert) (cm.eContainer as OperationConvert).relres.name
-					else (cm.eContainer as RuleConvert).relres.name)
+				relres = (if(cm.eContainer instanceof RelevantResource) (cm.eContainer as RelevantResource).name
+					else (cm.eContainer as RelevantResource).name)
 			}
 
-			val context = (if(pat instanceof Rule) (new LocalContext).populateFromRule(pat as Rule)
-				else (new LocalContext).populateFromOperation(pat as Operation))
+			val context = (new LocalContext).populateFromPattern(pat as Pattern)
 
 			val expr = cm.expression.compileExpressionContext(context).value
 			return
@@ -945,22 +705,12 @@ class RDOPatternCompiler
 		}
 	}
 
-	def public static compilePatternParametersCall(List<PatternParameter> parameters)
+	def static compileParameterTypes(List<ParameterType> parameters)
 	{
-		'''«IF !parameters.empty»«
+		'''«IF !parameters.empty»«parameters.get(0).compileType» «
 			parameters.get(0).name»«
 			FOR parameter : parameters.subList(1, parameters.size)», «
-				parameter.name»«
-			ENDFOR»«
-		ENDIF»'''
-	}
-
-	def public static compilePatternParameters(List<PatternParameter> parameters)
-	{
-		'''«IF !parameters.empty»«parameters.get(0).type.compileType» «
-			parameters.get(0).name»«
-			FOR parameter : parameters.subList(1, parameters.size)», «
-				parameter.type.compileType» «
+				parameter.compileType» «
 				parameter.name»«
 			ENDFOR»«
 		ENDIF»'''

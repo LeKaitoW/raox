@@ -9,51 +9,37 @@ import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import ru.bmstu.rk9.rdo.rdo.RDOModel
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
+import ru.bmstu.rk9.rdo.rdo.ParameterType
 
-import ru.bmstu.rk9.rdo.rdo.Resources
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
 
 import ru.bmstu.rk9.rdo.rdo.Function
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter
 
-import ru.bmstu.rk9.rdo.rdo.Constants
-import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+import ru.bmstu.rk9.rdo.rdo.Constant
 
 import ru.bmstu.rk9.rdo.rdo.EnumerativeSequence
 import ru.bmstu.rk9.rdo.rdo.RegularSequence
 import ru.bmstu.rk9.rdo.rdo.HistogramSequence
 
-import ru.bmstu.rk9.rdo.rdo.PatternParameter
 import ru.bmstu.rk9.rdo.rdo.Event
-import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.EventConvert
-import ru.bmstu.rk9.rdo.rdo.RuleConvert
-import ru.bmstu.rk9.rdo.rdo.OperationConvert
-import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
-import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource
-import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
+import ru.bmstu.rk9.rdo.rdo.RelevantResource
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSome
-import ru.bmstu.rk9.rdo.rdo.DecisionPointPrior
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearch
 import ru.bmstu.rk9.rdo.rdo.DecisionPointSearchActivity
-import ru.bmstu.rk9.rdo.rdo.DecisionPointPriorActivity
 import ru.bmstu.rk9.rdo.rdo.DecisionPointActivity
 
-import ru.bmstu.rk9.rdo.rdo.Results
-import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
+import ru.bmstu.rk9.rdo.rdo.Result
 import ru.bmstu.rk9.rdo.rdo.ResultWatchParameter
 import ru.bmstu.rk9.rdo.rdo.ResultWatchState
 import ru.bmstu.rk9.rdo.rdo.ResultWatchQuant
 import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
 import ru.bmstu.rk9.rdo.rdo.ResultGetValue
-
-import ru.bmstu.rk9.rdo.rdo.SimulationRun
-
+import ru.bmstu.rk9.rdo.rdo.DefaultMethod
+import ru.bmstu.rk9.rdo.rdo.Pattern
 
 class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider {
 
@@ -65,122 +51,83 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	// Model
 	def image(RDOModel m) { "model.gif" }
 
+	//Default methods
+	def text(DefaultMethod dm) { "set : " + dm.name }
+	def image(DefaultMethod dm) { "run.gif" }
+
 	// Resource types
 	def  text(ResourceType rtp) { "RTP : " + rtp.name }
-	def image(ResourceType rtp) { if(rtp.type.literal == "permanent") "puzzle_plus.gif" else "puzzle_plus_gray.gif" }
+	def image(ResourceType rtp) { "puzzle_plus.gif" }
 
-	def  text(ResourceTypeParameter p) { p.name + p.type.typeGenericLabel }
-	def image(ResourceTypeParameter p) { "parameter.gif" }
+	//Parameter types
+	def  text(ParameterType p) { p.name + p.typeGenericLabel }
+	def image(ParameterType p) { "parameter.gif" }
 
-	// Resources
-	def  text(Resources rss) {"RSS : " +
-		(if(!rss.resources.empty) {rss.resources.size.toString + " objects"} else "") }
-	def image(Resources rss) { "puzzle.gif" }
-
-		// Resource declaration
-		def  text(ResourceDeclaration rss) { "rss : " + rss.name }
-		def image(ResourceDeclaration rss) { "plus.gif" }
+	// Resource declaration
+	def  text(ResourceCreateStatement rss) { "rss : " + rss.name }
+	def image(ResourceCreateStatement rss) { "plus.gif" }
 
 	// Constants
-	def  text(Constants c) { "CON : " + c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size.toString +
-		" constant" + if(c.eAllContents.toList.filter(typeof(ConstantDeclaration)).size % 10 != 1) "s" else ""}
-	def image(Constants c) { "floppy.gif" }
-
-	def image(ConstantDeclaration c) { "constant2.gif" }
-	def  text(ConstantDeclaration c) { c.name + c.type.typeGenericLabel }
+	def image(Constant c) { "constant2.gif" }
+	def  text(Constant c) { c.name + c.type.typeGenericLabel }
 
 	// Sequence
 	def  text(Sequence seq) { "SEQ : " + seq.name + " : " + (
 		if(seq.type instanceof EnumerativeSequence) "enumerative" else "" +
-		if(seq.type instanceof RegularSequence) (seq.type as RegularSequence).type.literal else "" +
+		if(seq.type instanceof RegularSequence) (seq.type as RegularSequence).type else "" +
 		if(seq.type instanceof HistogramSequence) "histogram" else "" ) + seq.returntype.typeGenericLabel }
 	def image(Sequence seq) { "chart.gif" }
 
 	// Function
-	def  text(Function fun) { "FUN : " + fun.name + fun.returntype.typeGenericLabel }
+	def  text(Function fun) { "FUN : " + fun.type.name + fun.returntype.typeGenericLabel }
 	def image(Function fun) { "calc_arrow.gif" }
 
 	def image(FunctionParameter p) { "parameter.gif" }
 	def  text(FunctionParameter p) { p.name + p.type.typeGenericLabel }
 
-	// Pattern
-	def image(PatternParameter p) { "parameter.gif" }
-
 	// Event
 	def  text(Event evn) { "EVN : " + evn.name + " : event"}
 	def image(Event evn) { "event.gif" }
 
-	def  text(EventConvert c) { c.relres.name }
-	def image(EventConvert c) { "parameter.gif" }
-
-	def image(EventRelevantResource r) { "parameter.gif" }
-	def  text(EventRelevantResource r) { r.name + r.type.relResName }
-
 	// Operation
-	def  text(Operation pat) { "PAT : " + pat.name + " : " + pat.type.literal}
-	def image(Operation pat) { "script_block.gif" }
-
-	def  text(OperationConvert c) { c.relres.name }
-	def image(OperationConvert c) { "parameter.gif" }
-
-	def image(OperationRelevantResource r) { "parameter.gif" }
-	def  text(OperationRelevantResource r) { r.name + r.type.relResName }
-
-	// Rule
-	def  text(Rule pat) { "PAT : " + pat.name + " : rule"}
-	def image(Rule pat) { "script_block.gif" }
-
-	def  text(RuleConvert c) { c.relres.name }
-	def image(RuleConvert c) { "parameter.gif" }
-
-	def image(RuleRelevantResource r) { "parameter.gif" }
-	def  text(RuleRelevantResource r) { r.name + r.type.relResName }
+	def  text(Pattern pat) { "PAT : " + pat.name + " : " + pat.type.literal}
+	def image(Pattern pat) { "script_block.gif" }
 
 	// Common for patterns
+
+	def image(RelevantResource r) { "parameter.gif" }
+	def  text(RelevantResource r) { r.name + r.type.relResName }
+
 	def getRelResName(EObject object) {
 		switch object {
 			ResourceType: " : RTP : " + object.name
-			ResourceDeclaration: " : RSS : " + object.name
+			ResourceCreateStatement: " : RSS : " + object.name
 			default: ""
 		}
 	}
 
 	// Decision points
 	def image(DecisionPointSearchActivity d) { "script_block.gif" }
-	def image(DecisionPointPriorActivity d) { "script_block.gif" }
 	def image(DecisionPointActivity d) { "script_block.gif" }
 
 	// DecisionPointSome
 	def  text(DecisionPointSome dpt) { "DPT : " + dpt.name + " : some" }
 	def image(DecisionPointSome dpt) { "block.gif" }
 
-	// DecisionPointPrior
-	def  text(DecisionPointPrior dpt) { "DPT : " + dpt.name + " : prior" }
-	def image(DecisionPointPrior dpt) { "block_prior.gif" }
-
 	// DecisionPointSearch
 	def  text(DecisionPointSearch dpt) {"DPT : " + dpt.name + " : search" }
 	def image(DecisionPointSearch dpt) { "search.gif" }
 
 	// Results
-	def  text(Results r) {
-		"Results : " + (if(r.name != null) {r.name + " "} else "") + "(" +
-			r.eAllContents.toList.filter(typeof(ResultDeclaration)).size.toString + ")" }
-	def image(Results r) { "clipboard.gif" }
-
-	def  text(ResultDeclaration d) { d.name + " : " + resultype(d)}
-	def resultype(ResultDeclaration declaration) {
+	def  text(Result d) { d.name + " : " + resultype(d)}
+	def resultype(Result declaration) {
 		switch declaration.type {
-			ResultWatchParameter: "watch_par"
-			ResultWatchState    : "watch_state"
-			ResultWatchQuant    : "watch_quant"
-			ResultWatchValue    : "watch_value"
-			ResultGetValue      : "get_value"
+			ResultWatchParameter: "watchPar"
+			ResultWatchState    : "watchState"
+			ResultWatchQuant    : "watchQuant"
+			ResultWatchValue    : "watchValue"
+			ResultGetValue      : "getValue"
 		}
 	}
-	def image(ResultDeclaration d) { "parameter.gif" }
-
-	// Simulation run
-	def  text(SimulationRun smr) { "SMR : Simulation run" }
-	def image(SimulationRun smr) { "run.gif" }
+	def image(Result d) { "parameter.gif" }
 }
