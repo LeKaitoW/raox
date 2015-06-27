@@ -302,26 +302,26 @@ class SerializationConfigurator {
 
 	private final <T extends EObject> void fillCategory(
 			SerializationNode category, Resource model, Class<T> categoryClass) {
-		final List<T> categoryList = filterAllContents(model.getAllContents(),
+		final List<T> categoryItems = filterAllContents(model.getAllContents(),
 				categoryClass);
 
-		final Map<String, Integer> globalResNaming = new HashMap<String, Integer>();
+		final Map<String, Integer> instanceCountOfResourceType = new HashMap<String, Integer>();
 
-		for (T c : categoryList) {
-			String name = RDONaming.getFullyQualifiedName(c);
+		for (T categoryItem : categoryItems) {
+			String name = RDONaming.getFullyQualifiedName(categoryItem);
 
-			if (c instanceof ResourceCreateStatement) {
-				if (!(c.eContainer() instanceof RDOModel))
+			if (categoryItem instanceof ResourceCreateStatement) {
+				if (!(categoryItem.eContainer() instanceof RDOModel))
 					continue;
-				if (((ResourceCreateStatement) c).getName() == null) {
-					final String typeName = ((ResourceCreateStatement) c)
+				if (((ResourceCreateStatement) categoryItem).getName() == null) {
+					final String typeName = ((ResourceCreateStatement) categoryItem)
 							.getType().getName();
 					int count = 0;
 
-					if (globalResNaming.containsKey(typeName)) {
-						count = globalResNaming.get(typeName) + 1;
+					if (instanceCountOfResourceType.containsKey(typeName)) {
+						count = instanceCountOfResourceType.get(typeName) + 1;
 					}
-					globalResNaming.put(typeName, count);
+					instanceCountOfResourceType.put(typeName, count);
 
 					name = name.substring(0, name.lastIndexOf('.') + 1)
 							+ typeName + "[" + count + "]";
@@ -330,11 +330,12 @@ class SerializationConfigurator {
 
 			SerializationNode child = category.addChild(name);
 
-			if (c instanceof DecisionPointSearch) {
+			if (categoryItem instanceof DecisionPointSearch) {
 				for (SerializationLevel type : SerializationLevel.values())
 					child.addChild(child.getFullName() + "." + type.toString());
 			}
-			if (c instanceof Pattern || c instanceof Event) {
+			if (categoryItem instanceof Pattern
+					|| categoryItem instanceof Event) {
 				child.addChild(child.getFullName() + ".createdResources");
 			}
 		}

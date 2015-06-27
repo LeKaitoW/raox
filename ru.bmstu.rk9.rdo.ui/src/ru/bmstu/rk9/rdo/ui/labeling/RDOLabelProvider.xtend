@@ -51,7 +51,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	// Model
 	def image(RDOModel m) { "model.gif" }
 
-	//Default methods
+	// Default methods
 	def text(DefaultMethod dm) { "set : " + dm.name }
 	def image(DefaultMethod dm) { "run.gif" }
 
@@ -59,7 +59,7 @@ class RDOLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def  text(ResourceType rtp) { "RTP : " + rtp.name }
 	def image(ResourceType rtp) { "puzzle_plus.gif" }
 
-	//Parameter types
+	// Parameter types
 	def  text(ParameterType p) { p.name + p.typeGenericLabel }
 	def image(ParameterType p) { "parameter.gif" }
 
