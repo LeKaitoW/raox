@@ -376,7 +376,6 @@ public class Database {
 			for (int paramNum = 0; paramNum < parameters.length(); paramNum++) {
 				final JSONObject param = parameters.getJSONObject(paramNum);
 				final ValueCache paramType = new ValueCache(param);
-				;
 
 				final int offset = (paramType.type != ValueType.STRING) ? param
 						.getInt("offset") : -1;
