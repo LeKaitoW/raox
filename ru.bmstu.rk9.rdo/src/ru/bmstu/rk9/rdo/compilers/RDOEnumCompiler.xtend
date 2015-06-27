@@ -76,7 +76,7 @@ class RDOEnumCompiler
 	{
 		if (!type.endsWith("_enum"))
 			return false
-		if (id.indexOf("(") + id.indexOf(")") != -2)
+		if (id.indexOf("(") != -1 || id.indexOf(")") != -1)
 			return false
 		if (!id.contains("."))
 			return false
