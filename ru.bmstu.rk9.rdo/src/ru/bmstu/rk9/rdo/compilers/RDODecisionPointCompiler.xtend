@@ -21,23 +21,23 @@ class RDODecisionPointCompiler
 	{
 		val activities = dpt.activities
 
-		val priorities = activities.map[a | a.priority]
+		val priorities = activities.map[activity | activity.priority]
 
-		val parameters = activities.map[a | a.pattern.parameters]
+		val parameters = activities.map[activity | activity.pattern.parameters]
 
-		var setCondStatements = dpt.initStatements.filter(
-				s | s instanceof DptSetConditionStatement
+		var setConditionStatements = dpt.initStatements.filter(
+				statement | statement instanceof DptSetConditionStatement
 			)
 		var setPriorStatements = dpt.initStatements.filter(
-				s | s instanceof DptSetPriorityStatement
+				statement | statement instanceof DptSetPriorityStatement
 			)
 		var setParentStatements = dpt.initStatements.filter(
-				s | s instanceof DptSetParentStatement
+				statement | statement instanceof DptSetParentStatement
 			)
 
 		var Expression condition
-		if (!setCondStatements.empty)
-			condition = (setCondStatements.get(0) as DptSetConditionStatement).condition
+		if (!setConditionStatements.empty)
+			condition = (setConditionStatements.get(0) as DptSetConditionStatement).condition
 		else
 			condition = null
 
@@ -163,12 +163,12 @@ class RDODecisionPointCompiler
 					.put
 					(
 						"activities", new JSONArray()
-							«FOR a : activities»
+							«FOR activity : activities»
 							.put
 							(
 								new JSONObject()
-									.put("name", "«a.name»")
-									.put("pattern", "«a.pattern.fullyQualifiedName»")
+									.put("name", "«activity.name»")
+									.put("pattern", "«activity.pattern.fullyQualifiedName»")
 							)
 							«ENDFOR»
 					);
@@ -179,27 +179,27 @@ class RDODecisionPointCompiler
 	def static compileDecisionPointSearch(DecisionPointSearch dpt, String filename)
 	{
 		val activities = dpt.activities
-		val parameters = activities.map[a | a.pattern.parameters]
+		val parameters = activities.map[activity | activity.pattern.parameters]
 
-		var setCondStatements = dpt.initStatements.filter(
-				s | s instanceof DptSetConditionStatement
+		var setConditionStatements = dpt.initStatements.filter(
+				statement | statement instanceof DptSetConditionStatement
 			)
 		var setParentStatements = dpt.initStatements.filter(
-				s | s instanceof DptSetParentStatement
+				statement | statement instanceof DptSetParentStatement
 			)
 		var setTerminateConditionStatements = dpt.initStatements.filter(
-				s | s instanceof DptSetTerminateConditionStatement
+				statement | statement instanceof DptSetTerminateConditionStatement
 			)
 		var evaluateByStatements = dpt.initStatements.filter(
-				s | s instanceof DptEvaluateByStatement
+				statement | statement instanceof DptEvaluateByStatement
 			)
 		var compareTopsStatements = dpt.initStatements.filter(
-				s | s instanceof DptCompareTopsStatement
+				statement | statement instanceof DptCompareTopsStatement
 			)
 
 		var Expression condition
-		if (!setCondStatements.empty)
-			condition = (setCondStatements.get(0) as DptSetConditionStatement).condition
+		if (!setConditionStatements.empty)
+			condition = (setConditionStatements.get(0) as DptSetConditionStatement).condition
 		else
 			condition = null
 
@@ -215,17 +215,17 @@ class RDODecisionPointCompiler
 		else
 			termination = null
 
-		var Expression evaluateby
+		var Expression evaluateBy
 		if (!evaluateByStatements.empty)
-			evaluateby = (evaluateByStatements.get(0) as DptEvaluateByStatement).evaluateby
+			evaluateBy = (evaluateByStatements.get(0) as DptEvaluateByStatement).evaluateBy
 		else
-			evaluateby = null
+			evaluateBy = null
 
-		var boolean comparetops
+		var boolean compareTops
 		if (!compareTopsStatements.empty)
-			comparetops = (compareTopsStatements.get(0) as DptCompareTopsStatement).comparetops
+			compareTops = (compareTopsStatements.get(0) as DptCompareTopsStatement).compareTops
 		else
-			comparetops = false
+			compareTops = false
 
 		return
 		'''
@@ -272,10 +272,10 @@ class RDODecisionPointCompiler
 							@Override
 							public double get()
 							{
-								return «evaluateby.compileExpression.value»;
+								return «evaluateBy.compileExpression.value»;
 							}
 						},
-						«IF comparetops»true«ELSE»false«ENDIF»,
+						«IF compareTops»true«ELSE»false«ENDIF»,
 						new DecisionPointSearch.DatabaseRetriever<rdo_model.«dpt.eResource.URI.projectName»Model>()
 						{
 							@Override
@@ -288,30 +288,30 @@ class RDODecisionPointCompiler
 
 				public static void init()
 				{
-					«FOR a : activities»
+					«FOR activity : activities»
 						dpt.addActivity(
-							new DecisionPointSearch.Activity("«filename».«a.name»",«
-								IF a.valueafter != null»DecisionPointSearch.Activity.ApplyMoment.after«
+							new DecisionPointSearch.Activity("«filename».«activity.name»",«
+								IF activity.valueAfter != null»DecisionPointSearch.Activity.ApplyMoment.after«
 									ELSE»DecisionPointSearch.Activity.ApplyMoment.before«ENDIF»)
 							{
 								@Override
 								public boolean checkActivity()
 								{
-									return «a.pattern.fullyQualifiedName».findResources(«a.name»);
+									return «activity.pattern.fullyQualifiedName».findResources(«activity.name»);
 								}
 
 								@Override
 								public Rule executeActivity()
 								{
-									«a.pattern.fullyQualifiedName» executed = «a.pattern.fullyQualifiedName».executeRule(«a.name»);
+									«activity.pattern.fullyQualifiedName» executed = «activity.pattern.fullyQualifiedName».executeRule(«activity.name»);
 									return executed;
 								}
 
 								@Override
 								public double calculateValue()
 								{
-									return «IF a.valueafter != null»«a.valueafter.compileExpression.value
-										»«ELSE»«a.valuebefore.compileExpression.value»«ENDIF»;
+									return «IF activity.valueAfter != null»«activity.valueAfter.compileExpression.value
+										»«ELSE»«activity.valueBefore.compileExpression.value»«ENDIF»;
 								}
 							}
 						);
@@ -333,16 +333,16 @@ class RDODecisionPointCompiler
 					.put("name", "«dpt.fullyQualifiedName»")
 					.put("type", "search")
 					.put("parent", «IF parent != null»"«parent.fullyQualifiedName»"«ELSE»(String)null«ENDIF»)
-					.put("compare_tops", "«IF comparetops»YES«ELSE»NO«ENDIF»")
+					.put("compare_tops", "«IF compareTops»YES«ELSE»NO«ENDIF»")
 					.put
 					(
 						"activities", new JSONArray()
-							«FOR a : activities»
+							«FOR activity : activities»
 							.put
 							(
 								new JSONObject()
-									.put("name", "«a.name»")
-									.put("pattern", "«a.pattern.fullyQualifiedName»")
+									.put("name", "«activity.name»")
+									.put("pattern", "«activity.pattern.fullyQualifiedName»")
 							)
 							«ENDFOR»
 					);

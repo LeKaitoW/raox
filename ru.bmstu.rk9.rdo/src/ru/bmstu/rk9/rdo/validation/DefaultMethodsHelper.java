@@ -9,6 +9,7 @@ public class DefaultMethodsHelper {
 		MethodInfo(ValidatorAction action) {
 			this.action = action;
 		}
+
 		int count = 0;
 		ValidatorAction action;
 	}

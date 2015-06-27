@@ -5,93 +5,82 @@ import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
-class RDOEnumCompiler
-{
-	def static compileEnum(EnumDeclaration e, String filename)
-	{
+class RDOEnumCompiler {
+	def static compileEnum(EnumDeclaration enumDeclaration, String filename) {
 		'''
-		package «filename»;
+			package «filename»;
 
-		import ru.bmstu.rk9.rdo.lib.json.*;
+			import ru.bmstu.rk9.rdo.lib.json.*;
 
-		import ru.bmstu.rk9.rdo.lib.*;
-		@SuppressWarnings("all")
+			import ru.bmstu.rk9.rdo.lib.*;
+			@SuppressWarnings("all")
 
-		public class «e.name»
-		{
-			public enum «e.name»_enum
+			public class «enumDeclaration.name»
 			{
-				«e.makeEnumBody»
-			}
+				public enum «enumDeclaration.name»_enum
+				{
+					«enumDeclaration.makeEnumBody»
+				}
 
-			public final static JSONObject structure = new JSONObject()
-				«e.compileStructure»;
-		}
+				public final static JSONObject structure = new JSONObject()
+				«enumDeclaration.compileStructure»;
+			}
 		'''
 	}
 
-	def private static compileStructure(EnumDeclaration e)
-	{
-		var enums =
-			'''
+	def private static compileStructure(EnumDeclaration enumDeclaration) {
+		var enums = '''
 			.put
 			(
 				"enums",
 				new JSONArray()
-			'''
+		'''
 
-		for(v : e.values)
-			enums = enums + "\t\t.put(\"" + v + "\")\n"
+		for (value : enumDeclaration.values)
+			enums = enums + "\t\t.put(\"" + value + "\")\n"
 
-		enums = enums +
-			'''
+		enums = enums + '''
 			)
-			'''
+		'''
 
 		return enums
 	}
 
-	def static getFullEnumName(RDOEnum e)
-	{
-		e.type.eContainer.nameGeneric + "."
-				+ e.type.name + "." + e.type.name + "_enum"
+	def static getFullEnumName(RDOEnum ^enum) {
+		enum.type.eContainer.nameGeneric + "." + enum.type.name + "." + enum.type.name + "_enum"
 	}
 
-	def static makeEnumBody(EnumDeclaration e)
-	{
+	def static makeEnumBody(EnumDeclaration enumDeclaration) {
 		var flag = false
 		var body = ""
 
-		for(i : e.values)
-		{
-			if(flag)
+		for (value : enumDeclaration.values) {
+			if (flag)
 				body = body + ", "
-			body = body + i
+			body = body + value
 			flag = true
 		}
 		return body
 	}
 
-	def static boolean checkValidEnumID(String type, String id)
-	{
+	def static boolean checkValidEnumID(String type, String enumID) {
 		if (!type.endsWith("_enum"))
 			return false
-		if (id.indexOf("(") != -1 || id.indexOf(")") != -1)
+		if (enumID.indexOf("(") != -1 || enumID.indexOf(")") != -1)
 			return false
-		if (!id.contains("."))
+		if (!enumID.contains("."))
 			return false
 
 		var typeName = type.substring(type.indexOf(".") + 1)
 		typeName = typeName.substring(0, typeName.lastIndexOf("."))
-		val idTypeName = id.substring(0, id.lastIndexOf("."))
+		val idTypeName = enumID.substring(0, enumID.lastIndexOf("."))
 		if (typeName != idTypeName)
 			return false
 
 		return true
 	}
 
-	def static compileEnumValue(String type, String id)
-	{
-		return type + "." + id.substring(id.lastIndexOf('.') + 1)
+	def static compileEnumValue(String type, String enumID) {
+		return type + "." + enumID.substring(enumID.lastIndexOf('.') + 1)
 	}
 }

@@ -7,7 +7,7 @@ import ru.bmstu.rk9.rdo.generator.RDONaming
 
 class RDOFrameCompiler
 {
-	def static compileFrame(Frame frm, String filename)
+	def static compileFrame(Frame frame, String filename)
 	{
 		'''
 		package «filename»;
@@ -15,34 +15,34 @@ class RDOFrameCompiler
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «frm.name» implements AnimationFrame
+		public class «frame.name» implements AnimationFrame
 		{
 			@Override
 			public String getName()
 			{
-				return "«RDONaming.getFullyQualifiedName(frm)»";
+				return "«RDONaming.getFullyQualifiedName(frame)»";
 			}
 
-			public static «frm.name» INSTANCE = new «frm.name»();
+			public static «frame.name» INSTANCE = new «frame.name»();
 
 			@Override
 			public void draw(AnimationContext context)
 			{
-				«frm.frame.compileStatement»
+				«frame.frame.compileStatement»
 			}
 
 			private int[] backgroundData = new int[]
 			{
-				«IF frm.backpicture != null»
-					«IF frm.backpicture.size != null»
-						«frm.backpicture.size.width», «frm.backpicture.size.height»,
+				«IF frame.backPicture != null»
+					«IF frame.backPicture.size != null»
+						«frame.backPicture.size.width», «frame.backPicture.size.height»,
 					«ELSE»
 						««« TODO handle background picture
 						800, 600
 					«ENDIF»
-					«frm.backpicture.colour.r
-					», «frm.backpicture.colour.g
-					», «frm.backpicture.colour.b»
+					«frame.backPicture.colour.r
+					», «frame.backPicture.colour.g
+					», «frame.backPicture.colour.b»
 				«ELSE»
 				800, 600,
 				255, 255, 255
