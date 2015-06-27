@@ -31,28 +31,6 @@
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.xtext.ui.shared.xtextNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>thirdparty/jcommon-1.0.23.jar</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/rdo-xtext-lekaitow/rdo-xtext/ru.bmstu.rk9.rdo.ui/thirdparty/jcommon-1.0.23.jar</locationURI>
-		</link>
-		<link>
-			<name>thirdparty/jfreechart-1.0.19-experimental.jar</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/rdo-xtext-lekaitow/rdo-xtext/ru.bmstu.rk9.rdo.ui/thirdparty/jfreechart-1.0.19-experimental.jar</locationURI>
-		</link>
-		<link>
-			<name>thirdparty/jfreechart-1.0.19-swt.jar</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/rdo-xtext-lekaitow/rdo-xtext/ru.bmstu.rk9.rdo.ui/thirdparty/jfreechart-1.0.19-swt.jar</locationURI>
-		</link>
-		<link>
-			<name>thirdparty/jfreechart-1.0.19.jar</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/rdo-xtext-lekaitow/rdo-xtext/ru.bmstu.rk9.rdo.ui/thirdparty/jfreechart-1.0.19.jar</locationURI>
-		</link>
-	</linkedResources>
 	<filteredResources>
 		<filter>
 			<id>1399637349384</id>
