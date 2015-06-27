@@ -175,17 +175,19 @@ public class Database {
 	}
 
 	public static enum EntryType {
-		SYSTEM(TypeSize.BYTE * 2 + TypeSize.DOUBLE), RESOURCE(TypeSize.BYTE * 2
-				+ TypeSize.INTEGER * 2 + TypeSize.DOUBLE), PATTERN(
-				TypeSize.BYTE * 2 + TypeSize.DOUBLE), EVENT(TypeSize.BYTE * 2
-				+ TypeSize.DOUBLE), SEARCH(TypeSize.BYTE * 2 + TypeSize.INTEGER
-				* 2 + TypeSize.DOUBLE), RESULT(TypeSize.BYTE + TypeSize.INTEGER
-				+ TypeSize.DOUBLE);
+		SYSTEM(TypeSize.BYTE * 2 + TypeSize.DOUBLE, 0), RESOURCE(TypeSize.BYTE
+				* 2 + TypeSize.INTEGER * 2 + TypeSize.DOUBLE, 0), PATTERN(
+				TypeSize.BYTE * 2 + TypeSize.DOUBLE, TypeSize.INTEGER * 4), EVENT(
+				TypeSize.BYTE * 2 + TypeSize.DOUBLE, TypeSize.INTEGER * 2), SEARCH(
+				TypeSize.BYTE * 2 + TypeSize.INTEGER * 2 + TypeSize.DOUBLE, 0), RESULT(
+				TypeSize.BYTE + TypeSize.INTEGER + TypeSize.DOUBLE, 0);
 
 		public final int HEADER_SIZE;
+		public final int METADATA_SIZE;
 
-		private EntryType(int HEADER_SIZE) {
+		private EntryType(final int HEADER_SIZE, final int METADATA_SIZE) {
 			this.HEADER_SIZE = HEADER_SIZE;
+			this.METADATA_SIZE = METADATA_SIZE;
 		}
 	}
 
@@ -266,11 +268,11 @@ public class Database {
 		private final ResourceEntryType status;
 
 		@Override
-		public boolean equals(Object o) {
-			if (o == null || !(o instanceof ResourceUniqueEntry))
+		public boolean equals(Object object) {
+			if (object == null || !(object instanceof ResourceUniqueEntry))
 				return false;
 
-			ResourceUniqueEntry other = (ResourceUniqueEntry) o;
+			ResourceUniqueEntry other = (ResourceUniqueEntry) object;
 			if (this.resource.getTypeName()
 					.equals(other.resource.getTypeName())
 					&& this.resource.getNumber() == other.resource.getNumber()
@@ -366,7 +368,8 @@ public class Database {
 					.getJSONArray("parameters");
 			for (int paramNum = 0; paramNum < parameters.length(); paramNum++) {
 				JSONObject param = parameters.getJSONObject(paramNum);
-				ValueCache paramType = new ValueCache(param);;
+				ValueCache paramType = new ValueCache(param);
+				;
 
 				int offset = (paramType.type != ValueType.STRING) ? param
 						.getInt("offset") : -1;
@@ -459,8 +462,9 @@ public class Database {
 
 		final int[] relevantResources = rule.getRelevantInfo();
 
-		final ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER
-				* (relevantResources.length + 4));
+		final ByteBuffer data = ByteBuffer
+				.allocate(EntryType.PATTERN.METADATA_SIZE
+						+ relevantResources.length * TypeSize.INTEGER);
 		data.putInt(dptIndex.number).putInt(index.number).putInt(number);
 
 		fillRelevantResources(data, relevantResources);
@@ -496,8 +500,8 @@ public class Database {
 
 		int[] relevantResources = rule.getRelevantInfo();
 
-		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER
-				* (relevantResources.length + 4));
+		ByteBuffer data = ByteBuffer.allocate(EntryType.PATTERN.METADATA_SIZE
+				+ relevantResources.length * TypeSize.INTEGER);
 
 		data.putInt(dptIndex.number).putInt(index.number)
 				.putInt(poolEntry.number);
@@ -533,7 +537,7 @@ public class Database {
 		header.put((byte) EntryType.EVENT.ordinal()).putDouble(
 				Simulator.getTime());
 
-		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER * 2);
+		ByteBuffer data = ByteBuffer.allocate(EntryType.EVENT.METADATA_SIZE);
 		data.putInt(index.number).putInt(index.timesExecuted++);
 
 		Entry entry = new Entry(header, data);

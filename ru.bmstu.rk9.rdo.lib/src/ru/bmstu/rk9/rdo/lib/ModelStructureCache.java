@@ -108,16 +108,15 @@ public class ModelStructureCache {
 
 		JSONArray enums = Simulator.getDatabase().getModelStructure()
 				.getJSONArray("enums");
-		JSONObject originDeclaration = null;
 		for (int num = 0; num < enums.length(); num++) {
-			JSONObject curType = enums.getJSONObject(num);
-			if (typeName.equals(curType.getString("name"))) {
-				originDeclaration = curType;
-				break;
+			JSONObject enumItem = enums.getJSONObject(num);
+			if (typeName.equals(enumItem.getString("name"))) {
+				return enumItem;
 			}
 		}
 
-		return originDeclaration;
+		//TODO throw exception
+		return null;
 	}
 
 	public final static String getRelativeName(final String fullName) {
@@ -130,9 +129,8 @@ class ValueCache {
 		type = ModelStructureCache.ValueType.get(param.getString("type"));
 		if (type == ModelStructureCache.ValueType.ENUM) {
 			enumNames = new ArrayList<String>();
-			JSONObject enumOrigin = null;
 			String enumOriginName = param.getString("enum_origin");
-			enumOrigin = ModelStructureCache.getEnumOrigin(enumOriginName);
+			JSONObject enumOrigin = ModelStructureCache.getEnumOrigin(enumOriginName);
 
 			JSONArray enums = enumOrigin.getJSONObject("structure")
 					.getJSONArray("enums");
@@ -181,12 +179,6 @@ class ResourceTypeCache {
 class PatternCache {
 	PatternCache(final JSONObject pattern) {
 		name = ModelStructureCache.getRelativeName(pattern.getString("name"));
-		String type = pattern.getString("type");
-		if (type.equals("event")) {
-			relResTypes = null;
-			return;
-		}
-
 		relResTypes = new HashMap<Integer, Integer>();
 
 		JSONArray relevantResources = pattern
