@@ -175,11 +175,8 @@ class RDOResourceTypeCompiler
 
 			private «rtp.name» copyForNewOwner()
 			{
-				«rtp.name» copy = new «rtp.name»(«rtp.parameters.compileParameterTypesCopyCall»);
+				«rtp.name» copy = copy();
 
-				copy.name = name;
-				copy.number = number;
-				copy.managerOwner = managerOwner;
 				managerOwner.addResource(copy);
 				managerOwner = managerCurrent;
 
@@ -192,6 +189,7 @@ class RDOResourceTypeCompiler
 
 				copy.name = name;
 				copy.number = number;
+				copy.managerOwner = managerOwner;
 
 				return copy;
 			}
