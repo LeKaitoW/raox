@@ -182,7 +182,7 @@ class RDOSequenceCompiler
 
 						public static «returnType.compileTypePrimitive» next()
 						{
-							return («returnType.compileTypePrimitive»)((to - from) * prng.nextDouble() + from);
+							«returnType.compileUniformBody»
 						}
 					«ENDIF»
 					'''
@@ -190,7 +190,7 @@ class RDOSequenceCompiler
 					'''
 					public static «returnType.compileTypePrimitive» next(double from, double to)
 					{
-						return («returnType.compileTypePrimitive»)((to - from) * prng.nextDouble() + from);
+						«returnType.compileUniformBody»
 					}
 					'''
 				return ret
@@ -204,7 +204,7 @@ class RDOSequenceCompiler
 
 						public static «returnType.compileTypePrimitive» next()
 						{
-							return («returnType.compileTypePrimitive»)(-1.0 / rate * Math.log(1 - prng.nextDouble()));
+							«returnType.compileExponentialBody»
 						}
 					«ENDIF»
 					'''
@@ -212,7 +212,7 @@ class RDOSequenceCompiler
 					'''
 					public static «returnType.compileTypePrimitive» next(double rate)
 					{
-						return («returnType.compileTypePrimitive»)(-1.0 / rate * Math.log(1 - prng.nextDouble()));
+						«returnType.compileExponentialBody»
 					}
 					'''
 				return ret
@@ -230,17 +230,12 @@ class RDOSequenceCompiler
 						«IF !legacy»
 						public static «returnType.compileTypePrimitive» next()
 						{
-							return («returnType.compileTypePrimitive»)(mean + deviation * Math.sqrt(2) * Erf.erfInv(2 * prng.nextDouble() - 1));
+							«returnType.compileNormalBody»
 						}
 						«ELSE»
 						public static «returnType.compileTypePrimitive» next()
 						{
-							double ran = 0;
-							for (int i = 0; i < 12; ++i)
-							{
-								ran += prng.nextDouble();
-							}
-							return deviation * (ran - 6) + mean;
+							«returnType.compileNormalBodyLegacy»
 						}
 						«ENDIF»
 					«ENDIF»
@@ -250,17 +245,12 @@ class RDOSequenceCompiler
 					«IF !legacy»
 					public static «returnType.compileTypePrimitive» next(double mean, double deviation)
 					{
-						return («returnType.compileTypePrimitive»)(mean + deviation * Math.sqrt(2) * Erf.erfInv(2 * prng.nextDouble() - 1));
+						«returnType.compileNormalBody»
 					}
 					«ELSE»
 					public static «returnType.compileTypePrimitive» next(double mean, double deviation)
 					{
-						double ran = 0;
-						for (int i = 0; i < 12; ++i)
-						{
-							ran += prng.nextDouble();
-						}
-						return deviation * (ran - 6) + mean;
+						«returnType.compileNormalBodyLegacy»
 					}
 					«ENDIF»
 					'''
@@ -279,13 +269,7 @@ class RDOSequenceCompiler
 
 					public static «returnType.compileTypePrimitive» next()
 					{
-						double next = prng.nextDouble();
-						double edge = (double)(c - a) / (double)(b - a);
-
-					if (next < edge)
-							return («returnType.compileTypePrimitive»)(a + Math.sqrt((b - a) * (c - a) * next));
-						else
-							return («returnType.compileTypePrimitive»)(b - Math.sqrt((1 - next) * (b - a) * (b - c)));
+						«returnType.compileTriangularBody»
 					}
 					«ENDIF»
 					'''
@@ -293,17 +277,53 @@ class RDOSequenceCompiler
 					'''
 					public static «returnType.compileTypePrimitive» next(double a, double b, double c)
 					{
-						double next = prng.nextDouble();
-						double edge = (double)(c - a) / (double)(b - a);
-
-					if (next < edge)
-							return («returnType.compileTypePrimitive»)(a + Math.sqrt((b - a) * (c - a) * next));
-						else
-							return («returnType.compileTypePrimitive»)(b - Math.sqrt((1 - next) * (b - a) * (b - c)));
+						«returnType.compileTriangularBody»
 					}
 					'''
 				return ret
 			}
 		}
+	}
+
+	def private static compileUniformBody(RDOType returnType)
+	{
+		return '''return («returnType.compileTypePrimitive»)((to - from) * prng.nextDouble() + from);'''
+	}
+
+	def private static compileExponentialBody(RDOType returnType)
+	{
+		return '''return («returnType.compileTypePrimitive»)(-1.0 / rate * Math.log(1 - prng.nextDouble()));'''
+	}
+
+	def private static compileNormalBodyLegacy(RDOType returnType)
+	{
+		return
+			'''
+			double ran = 0;
+			for (int i = 0; i < 12; ++i)
+			{
+				ran += prng.nextDouble();
+			}
+			return deviation * (ran - 6) + mean;
+			'''
+	}
+
+	def private static compileNormalBody(RDOType returnType)
+	{
+		return '''return («returnType.compileTypePrimitive»)(mean + deviation * Math.sqrt(2) * Erf.erfInv(2 * prng.nextDouble() - 1));'''
+	}
+
+	def private static compileTriangularBody(RDOType returnType)
+	{
+		return
+			'''
+			double next = prng.nextDouble();
+			double edge = (double)(c - a) / (double)(b - a);
+
+			if (next < edge)
+				return («returnType.compileTypePrimitive»)(a + Math.sqrt((b - a) * (c - a) * next));
+			else
+				return («returnType.compileTypePrimitive»)(b - Math.sqrt((1 - next) * (b - a) * (b - c)));
+			'''
 	}
 }
