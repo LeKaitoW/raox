@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: rdo-game5
+Bundle-SymbolicName: rdo-game5;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: rdo.game5.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ ru.bmstu.rk9.rdo;bundle-version="1.0.0",
+ ru.bmstu.rk9.rdo.lib;bundle-version="0.1.0",
+ ru.bmstu.rk9.rdo.ui;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

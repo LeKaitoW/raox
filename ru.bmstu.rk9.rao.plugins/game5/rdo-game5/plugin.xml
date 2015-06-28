@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            label="Sample Action Set"
+            visible="true"
+            id="rdo-game5.actionSet">
+         <menu
+               label="Sample &amp;Menu"
+               id="sampleMenu">
+            <separator
+                  name="sampleGroup">
+            </separator>
+         </menu>
+         <action
+               label="&amp;Sample Action"
+               icon="icons/sample.gif"
+               class="rdo.game5.SampleAction"
+               tooltip="Game 5"
+               menubarPath="sampleMenu/sampleGroup"
+               toolbarPath="sampleGroup"
+               id="rdo.game5.SampleAction">
+         </action>
+      </actionSet>
+   </extension>
+   <extension
+   		point="org.eclipse.ui.views">
+   			<category id="rdo-game5.views"
+   				name="Game 5">
+     		</category>
+     		<view category="rdo-game5.views"
+     			class="rdo.game5.Game5View"
+     			id="rdo-game5.Game5View" 
+    		 	name="Game 5"
+		     	icon="icons/sample.gif"
+     			restorable="true"
+		     	allowMultiple="false"
+     			relationship="stack">
+     		</view>
+     </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+         <perspective
+         name="Game 5"
+         class="rdo.game5.Perspective"
+         id="rdo-game5.Perspective">
+         </perspective>
+   </extension>
+</plugin>
