@@ -248,21 +248,37 @@ class ChartFrame extends ChartComposite implements KeyListener {
 
 	public final void setChartMaximum(final double horizontalMaximum,
 			final double verticalMaximum) {
-		final double freeSpaceCoefficient = 1.05;
+		final double freeSpaceCoefficient = 1.0;
 		this.horizontalMaximum = horizontalMaximum * freeSpaceCoefficient;
 		this.verticalMaximum = verticalMaximum * freeSpaceCoefficient;
 	}
 
 	public final void updateSliders() {
-		final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
-		final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
+		updateHorizontalSlider();
+		updateVerticalSlider();
+	}
 
-		horizontalRatio = horizontalSlider.getMaximum() / horizontalMaximum;
-		horizontalSlider
-				.setThumb((int) Math.round((domainAxis.getUpperBound() - domainAxis
-						.getLowerBound()) * horizontalRatio));
-		horizontalSlider.setSelection((int) Math.round(domainAxis
-				.getLowerBound() * horizontalRatio));
+	private final void updateHorizontalSlider() {
+		ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
+
+		if (horizontalMaximum > domainAxis.getRange().getUpperBound()) {
+			horizontalSlider.setVisible(true);
+			horizontalSlider.setEnabled(true);
+
+			horizontalRatio = horizontalSlider.getMaximum() / horizontalMaximum;
+			horizontalSlider.setThumb((int) Math.round((domainAxis
+					.getUpperBound() - domainAxis.getLowerBound())
+					* horizontalRatio));
+			horizontalSlider.setSelection((int) Math.round(domainAxis
+					.getLowerBound() * horizontalRatio));
+		} else {
+			horizontalSlider.setVisible(false);
+			horizontalSlider.setEnabled(false);
+		}
+	}
+
+	private final void updateVerticalSlider() {
+		ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
 
 		if (verticalMaximum > rangeAxis.getRange().getUpperBound()) {
 			verticalSlider.setVisible(true);
@@ -275,6 +291,9 @@ class ChartFrame extends ChartComposite implements KeyListener {
 			verticalSlider.setSelection((int) Math
 					.round((verticalMaximum - rangeAxis.getUpperBound())
 							* verticalRatio));
+		} else {
+			verticalSlider.setVisible(false);
+			verticalSlider.setEnabled(false);
 		}
 	}
 
@@ -293,23 +312,44 @@ class ChartFrame extends ChartComposite implements KeyListener {
 	}
 
 	@Override
+	public void zoomInDomain(double x, double y) {
+		super.zoomInDomain(x, y);
+		updateHorizontalSlider();
+	}
+
+	@Override
+	public void zoomInRange(double x, double y) {
+		super.zoomInRange(x, y);
+		updateVerticalSlider();
+	}
+
+	@Override
+	public void zoomOutDomain(double x, double y) {
+		super.zoomOutDomain(x, y);
+		updateHorizontalSlider();
+	}
+
+	@Override
+	public void zoomOutRange(double x, double y) {
+		super.zoomOutRange(x, y);
+		updateVerticalSlider();
+	}
+
+	@Override
 	public void zoom(Rectangle selection) {
 		super.zoom(selection);
-		horizontalSlider.setVisible(true);
-		horizontalSlider.setEnabled(true);
-		if (this.isRangeZoomable()) {
-			verticalSlider.setVisible(true);
-			verticalSlider.setEnabled(true);
-		}
 		updateSliders();
 	}
 
 	@Override
-	public void restoreAutoBounds() {
-		super.restoreAutoBounds();
-		horizontalSlider.setEnabled(false);
-		horizontalSlider.setVisible(false);
-		verticalSlider.setEnabled(false);
-		verticalSlider.setVisible(false);
+	public void restoreAutoDomainBounds() {
+		super.restoreAutoDomainBounds();
+		updateHorizontalSlider();
+	}
+
+	@Override
+	public void restoreAutoRangeBounds() {
+		super.restoreAutoRangeBounds();
+		updateVerticalSlider();
 	}
 }
