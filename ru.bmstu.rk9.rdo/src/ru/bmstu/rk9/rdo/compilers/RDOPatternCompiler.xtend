@@ -47,173 +47,12 @@ class RDOPatternCompiler
 
 		public class «rule.name» implements Rule
 		{
-			private static final String name = "«filename».«rule.name»";
-
-			@Override
-			public String getName()
-			{
-				return name;
-			}
-
-			private static class RelevantResources
-			{
-				«FOR relevantResource : rule.relevantResources»
-					«IF relevantResource.type instanceof ResourceType»
-						public «relevantResource.type.fullyQualifiedName» «relevantResource.name»;
-					«ELSE»
-						public «(relevantResource.type as ResourceCreateStatement).type.fullyQualifiedName» «relevantResource.name»;
-					«ENDIF»
-				«ENDFOR»
-
-				public RelevantResources copyUpdate()
-				{
-					RelevantResources clone = new RelevantResources();
-
-					«FOR relevantResource : rule.relevantResources»
-						clone.«relevantResource.name» = «(
-							if (relevantResource.type instanceof ResourceCreateStatement)
-								(relevantResource.type as ResourceCreateStatement).type
-							else relevantResource.type).fullyQualifiedName
-							».getResource(this.«relevantResource.name».getNumber());
-					«ENDFOR»
-
-					return clone;
-				}
-
-				public void clear()
-				{
-					«FOR relevantResource : rule.relevantResources»
-						«IF relevantResource.type instanceof ResourceCreateStatement»
-							this.«relevantResource.name» = «(relevantResource.type as ResourceCreateStatement).type.fullyQualifiedName
-								».getResource("«(relevantResource.type as ResourceCreateStatement).fullyQualifiedName»");
-						«ELSE»
-							this.«relevantResource.name» = null;
-						«ENDIF»
-					«ENDFOR»
-				}
-			}
-
-			private static RelevantResources staticResources = new RelevantResources();
-			private RelevantResources resources;
-
-			public static class Parameters
-			{
-				«IF !rule.parameters.empty»
-				«FOR parameter : rule.parameters»
-					public «parameter.compileType» «parameter.name»«parameter.getDefault»;
-				«ENDFOR»
-
-				public Parameters(«rule.parameters.compileParameterTypes»)
-				{
-					«FOR parameter : rule.parameters»
-						if («parameter.name» != null)
-							this.«parameter.name» = «parameter.name»;
-					«ENDFOR»
-				}
-				«ENDIF»
-			}
-
-			private Parameters parameters;
-
 			private «rule.name»(RelevantResources resources)
 			{
 				this.resources = resources;
 			}
 
-			«IF rule.combinational != null»
-			static private CombinationalChoiceFrom<RelevantResources, Parameters> choice =
-				new CombinationalChoiceFrom<RelevantResources, Parameters>
-				(
-					staticResources,
-					«rule.combinational.compileChoiceMethod("RelevantResources")»,
-					new CombinationalChoiceFrom.RelevantResourcesManager<RelevantResources>()
-					{
-						@Override
-						public RelevantResources create(RelevantResources set)
-						{
-							RelevantResources clone = new RelevantResources();
-
-							«FOR relevantResource : rule.relevantResources»
-								clone.«relevantResource.name» = set.«relevantResource.name»;
-							«ENDFOR»
-
-							return clone;
-						}
-
-						@Override
-						public void apply(RelevantResources origin, RelevantResources set)
-						{
-							«FOR relevantResource : rule.relevantResources»
-								origin.«relevantResource.name» = set.«relevantResource.name»;
-							«ENDFOR»
-						}
-					}
-				);
-				static
-				{
-				«FOR relevantResource : rule.relevantResources»
-					choice.addFinder
-					(
-						new CombinationalChoiceFrom.Finder<RelevantResources, «relevantResource.type.relevantResourceFullyQualifiedName», Parameters>
-						(
-							new CombinationalChoiceFrom.Retriever<«relevantResource.type.relevantResourceFullyQualifiedName»>()
-							{
-								@Override
-								public java.util.Collection<«relevantResource.type.relevantResourceFullyQualifiedName»> getResources()
-								{
-									«IF relevantResource.type instanceof ResourceCreateStatement»
-									java.util.LinkedList<«relevantResource.type.relevantResourceFullyQualifiedName»> singlelist =
-										new java.util.LinkedList<«relevantResource.type.relevantResourceFullyQualifiedName»>();
-									singlelist.add(«relevantResource.type.relevantResourceFullyQualifiedName».getResource("«
-										(relevantResource.type as ResourceCreateStatement).fullyQualifiedName»"));
-									return singlelist;
-									«ELSE»
-									return «relevantResource.type.relevantResourceFullyQualifiedName».getAll();
-									«ENDIF»
-								}
-							},
-							new SimpleChoiceFrom<RelevantResources, «relevantResource.type.relevantResourceFullyQualifiedName», Parameters>
-							(
-								«relevantResource.select.compileChoiceFrom(rule, relevantResource.type.relevantResourceFullyQualifiedName, relevantResource.name, relevantResource.type.relevantResourceFullyQualifiedName)»,
-								null
-							),
-							new CombinationalChoiceFrom.Setter<RelevantResources, «relevantResource.type.relevantResourceFullyQualifiedName»>()
-							{
-								public void set(RelevantResources set, «relevantResource.type.relevantResourceFullyQualifiedName» resource)
-								{
-									set.«relevantResource.name» = resource;
-								}
-							}
-						)
-					);
-				«ENDFOR»
-				}
-
-			«ELSE»
-				«FOR relevantResource : rule.relevantResources»
-					«IF relevantResource.type instanceof ResourceCreateStatement»
-					// just checker «relevantResource.name»
-					private static SimpleChoiceFrom.Checker<RelevantResources, «relevantResource.type.relevantResourceFullyQualifiedName», Parameters> «
-						relevantResource.name»Checker = «relevantResource.select.compileChoiceFrom(
-							rule, relevantResource.type.relevantResourceFullyQualifiedName,
-							relevantResource.name, relevantResource.type.relevantResourceFullyQualifiedName)»;
-					«ELSE»
-					// choice «relevantResource.name»
-					private static SimpleChoiceFrom<RelevantResources, «
-						relevantResource.type.relevantResourceFullyQualifiedName», Parameters> «relevantResource.name»Choice =
-						new SimpleChoiceFrom<RelevantResources, «relevantResource.type.relevantResourceFullyQualifiedName», Parameters>
-						(
-							«relevantResource.select.compileChoiceFrom(
-								rule, relevantResource.type.relevantResourceFullyQualifiedName,
-								relevantResource.name,
-								relevantResource.type.relevantResourceFullyQualifiedName
-							)»,
-							«relevantResource.selectMethod.compileChoiceMethod(relevantResource.type.relevantResourceFullyQualifiedName
-							)»
-						);
-					«ENDIF»
-				«ENDFOR»
-			«ENDIF»
+			«rule.compileCommonPatternBodyPart(filename)»
 
 			private static Converter<RelevantResources, Parameters> rule =
 					new Converter<RelevantResources, Parameters>()
@@ -227,34 +66,6 @@ class RDOPatternCompiler
 						}
 					};
 
-			public static boolean findResources(Parameters parameters)
-			{
-				staticResources.clear();
-
-				«IF rule.combinational != null»
-				if (!choice.find(parameters))
-					return false;
-				«ELSE»
-					«FOR relevantResource : rule.relevantResources»
-						«IF relevantResource.type instanceof ResourceCreateStatement»
-							if (!«relevantResource.name»Checker.check(staticResources, staticResources.«relevantResource.name», parameters))
-								return false;
-
-						«ELSE»
-							staticResources.«relevantResource.name» = «relevantResource.name»Choice.find(
-									staticResources,
-									«relevantResource.type.fullyQualifiedName».getAll(),
-									parameters);
-
-							if (staticResources.«relevantResource.name» == null)
-								return false;
-
-						«ENDIF»
-					«ENDFOR»
-				«ENDIF»
-				return true;
-			}
-
 			public static «rule.name» executeRule(Parameters parameters)
 			{
 				RelevantResources resources = staticResources;
@@ -264,27 +75,6 @@ class RDOPatternCompiler
 				«rule.name» executed = new «rule.name»(resources.copyUpdate());
 
 				return executed;
-			}
-
-			@Override
-			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom)
-			{
-				Database db = Simulator.getDatabase();
-				db.addMemorizedResourceEntries(
-						"«rule.fullyQualifiedName».createdResources",
-						executedFrom);
-			}
-
-			@Override
-			public int[] getRelevantInfo()
-			{
-				return new int[]
-				{
-					«FOR i : 0 ..< rule.relevantResources.size»
-						resources.«rule.relevantResources.get(i).name».getNumber()«
-							IF i < rule.relevantResources.size - 1»,«ENDIF»
-					«ENDFOR»
-				};
 			}
 
 			public static final JSONObject structure = new JSONObject()
@@ -323,74 +113,6 @@ class RDOPatternCompiler
 
 		public class «operation.name» implements Rule, Event
 		{
-			private static final String name = "«filename».«operation.name»";
-
-			@Override
-			public String getName()
-			{
-				return name;
-			}
-
-			private static class RelevantResources
-			{
-				«FOR relevantResource : operation.relevantResources»
-					«IF relevantResource.type instanceof ResourceType»
-						public «relevantResource.type.fullyQualifiedName» «relevantResource.name»;
-					«ELSE»
-						public «(relevantResource.type as ResourceCreateStatement).type.fullyQualifiedName» «relevantResource.name»;
-					«ENDIF»
-				«ENDFOR»
-
-				public RelevantResources copyUpdate()
-				{
-					RelevantResources clone = new RelevantResources();
-
-					«FOR relevantResource : operation.relevantResources»
-						clone.«relevantResource.name» = «(
-							if (relevantResource.type instanceof ResourceCreateStatement)
-								(relevantResource.type as ResourceCreateStatement).type
-							else relevantResource.type).fullyQualifiedName
-							».getResource(this.«relevantResource.name».getNumber());
-					«ENDFOR»
-
-					return clone;
-				}
-
-				public void clear()
-				{
-					«FOR relevantResource : operation.relevantResources»
-						«IF relevantResource.type instanceof ResourceCreateStatement»
-							this.«relevantResource.name» = «(relevantResource.type as ResourceCreateStatement).type.fullyQualifiedName
-								».getResource("«(relevantResource.type as ResourceCreateStatement).fullyQualifiedName»");
-						«ELSE»
-							this.«relevantResource.name» = null;
-						«ENDIF»
-					«ENDFOR»
-				}
-			}
-
-			private static RelevantResources staticResources = new RelevantResources();
-			private RelevantResources resources;
-
-			public static class Parameters
-			{
-				«IF !operation.parameters.empty»
-				«FOR parameter : operation.parameters»
-					public «parameter.compileType» «parameter.name»«parameter.getDefault»;
-				«ENDFOR»
-
-				public Parameters(«operation.parameters.compileParameterTypes»)
-				{
-					«FOR parameter : operation.parameters»
-						if («parameter.name» != null)
-							this.«parameter.name» = «parameter.name»;
-					«ENDFOR»
-				}
-				«ENDIF»
-			}
-
-			private Parameters parameters;
-
 			private «operation.name»(double time, RelevantResources resources, Parameters parameters)
 			{
 				this.time = time;
@@ -398,93 +120,7 @@ class RDOPatternCompiler
 				this.parameters = parameters;
 			}
 
-			«IF operation.combinational != null»
-			static private CombinationalChoiceFrom<RelevantResources, Parameters> choice =
-				new CombinationalChoiceFrom<RelevantResources, Parameters>
-				(
-					staticResources,
-					«operation.combinational.compileChoiceMethod("RelevantResources")»,
-					new CombinationalChoiceFrom.RelevantResourcesManager<RelevantResources>()
-					{
-						@Override
-						public RelevantResources create(RelevantResources set)
-						{
-							RelevantResources clone = new RelevantResources();
-
-							«FOR relevantResource : operation.relevantResources»
-								clone.«relevantResource.name» = set.«relevantResource.name»;
-							«ENDFOR»
-
-							return clone;
-						}
-
-						@Override
-						public void apply(RelevantResources origin, RelevantResources set)
-						{
-							«FOR relevantResource : operation.relevantResources»
-								origin.«relevantResource.name» = set.«relevantResource.name»;
-							«ENDFOR»
-						}
-					}
-				);
-				static
-				{
-				«FOR relevantResource : operation.relevantResources»
-					choice.addFinder
-					(
-						new CombinationalChoiceFrom.Finder<RelevantResources, «relevantResource.type.fullyQualifiedName», Parameters>
-						(
-							new CombinationalChoiceFrom.Retriever<«relevantResource.type.fullyQualifiedName»>()
-							{
-								@Override
-								public java.util.Collection<«relevantResource.type.fullyQualifiedName»> getResources()
-								{
-									«IF relevantResource.type instanceof ResourceCreateStatement»
-									java.util.LinkedList<«relevantResource.type.relevantResourceFullyQualifiedName»> singlelist =
-										new java.util.LinkedList<«relevantResource.type.relevantResourceFullyQualifiedName»>();
-									singlelist.add(«relevantResource.type.relevantResourceFullyQualifiedName».getResource("«
-										(relevantResource.type as ResourceCreateStatement).fullyQualifiedName»"));
-									return singlelist;
-									«ELSE»
-									return «relevantResource.type.relevantResourceFullyQualifiedName».getAll();
-									«ENDIF»
-								}
-							},
-							new SimpleChoiceFrom<RelevantResources, «relevantResource.type.fullyQualifiedName», Parameters>
-							(
-								«relevantResource.select.compileChoiceFrom(operation, relevantResource.type.fullyQualifiedName, relevantResource.name, relevantResource.type.fullyQualifiedName)»,
-								null
-							),
-							new CombinationalChoiceFrom.Setter<RelevantResources, «relevantResource.type.fullyQualifiedName»>()
-							{
-								public void set(RelevantResources set, «relevantResource.type.fullyQualifiedName» resource)
-								{
-									set.«relevantResource.name» = resource;
-								}
-							}
-						)
-					);
-
-				«ENDFOR»
-				}
-			«ELSE»
-				«FOR relevantResource : operation.relevantResources»
-					«IF relevantResource.type instanceof ResourceCreateStatement»
-						// just checker «relevantResource.name»
-						private static SimpleChoiceFrom.Checker<RelevantResources, «relevantResource.type.relevantResourceFullyQualifiedName», Parameters> «
-							relevantResource.name»Checker = «relevantResource.select.compileChoiceFrom(operation, relevantResource.type.relevantResourceFullyQualifiedName,
-									relevantResource.name, relevantResource.type.relevantResourceFullyQualifiedName)»;
-					«ELSE»
-						// choice «relevantResource.name»
-						private static SimpleChoiceFrom<RelevantResources, «relevantResource.type.relevantResourceFullyQualifiedName», Parameters> «relevantResource.name»Choice =
-							new SimpleChoiceFrom<RelevantResources, «relevantResource.type.relevantResourceFullyQualifiedName», Parameters>
-							(
-								«relevantResource.select.compileChoiceFrom(operation, relevantResource.type.relevantResourceFullyQualifiedName, relevantResource.name, relevantResource.type.relevantResourceFullyQualifiedName)»,
-								«relevantResource.selectMethod.compileChoiceMethod(relevantResource.type.relevantResourceFullyQualifiedName)»
-							);
-					«ENDIF»
-				«ENDFOR»
-			«ENDIF»
+			«operation.compileCommonPatternBodyPart(filename)»
 
 			private static Converter<RelevantResources, Parameters> begin =
 					new Converter<RelevantResources, Parameters>()
@@ -510,32 +146,6 @@ class RDOPatternCompiler
 						}
 					};
 
-			public static boolean findResources(Parameters parameters)
-			{
-				staticResources.clear();
-
-				«IF operation.combinational != null»
-				if (!choice.find(parameters))
-					return false;
-
-				«ELSE»
-				«FOR relevantResource : operation.relevantResources»
-				«IF relevantResource.type instanceof ResourceCreateStatement»
-					if (!«relevantResource.name»Checker.check(staticResources, staticResources.«relevantResource.name», parameters))
-						return false;
-
-				«ELSE»
-					staticResources.«relevantResource.name» = «relevantResource.name»Choice.find(staticResources, «relevantResource.type.fullyQualifiedName».getAll(), parameters);
-
-					if (staticResources.«relevantResource.name» == null)
-						return false;
-
-				«ENDIF»
-				«ENDFOR»
-				«ENDIF»
-				return true;
-			}
-
 			private static double duration(RelevantResources resources, Parameters parameters)
 			{
 				«FOR defaultMethod: operation.defaultMethods.filter[defaultMethod | defaultMethod.name == "duration"]»
@@ -551,25 +161,14 @@ class RDOPatternCompiler
 
 				begin.run(resources, parameters);
 
-
 				«operation.name» instance = new «operation.name»(
 					Simulator.getTime() + duration(resources, parameters),
 					resources.copyUpdate(),
 					parameters);
 
-
 				Simulator.pushEvent(instance);
 
 				return instance;
-			}
-
-			@Override
-			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom)
-			{
-				Database db = Simulator.getDatabase();
-				db.addMemorizedResourceEntries(
-						"«operation.fullyQualifiedName».createdResources",
-						null);
 			}
 
 			private double time;
@@ -592,18 +191,6 @@ class RDOPatternCompiler
 				db.addMemorizedResourceEntries(
 						"«operation.fullyQualifiedName»",
 						null);
-			}
-
-			@Override
-			public int[] getRelevantInfo()
-			{
-				return new int[]
-				{
-					«FOR i : 0 ..< operation.relevantResources.size»
-						resources.«operation.relevantResources.get(i).name».getNumber()«
-							IF i < operation.relevantResources.size - 1»,«ENDIF»
-					«ENDFOR»
-				};
 			}
 
 			public static final JSONObject structure = new JSONObject()
@@ -630,7 +217,224 @@ class RDOPatternCompiler
 		'''
 	}
 
-	def static compileChoiceFrom(PatternSelectLogic selectLogic, Pattern pattern, String resource,
+	def private static compileCommonPatternBodyPart(Pattern pattern, String filename) {
+		return
+			'''
+			private static final String name = "«filename».«pattern.name»";
+
+			@Override
+			public String getName()
+			{
+				return name;
+			}
+
+			private static class RelevantResources
+			{
+				«FOR relevantResource : pattern.relevantResources»
+					«IF relevantResource.type instanceof ResourceType»
+						public «relevantResource.type.fullyQualifiedName» «relevantResource.name»;
+					«ELSE»
+						public «(relevantResource.type as ResourceCreateStatement).type.fullyQualifiedName» «relevantResource.name»;
+					«ENDIF»
+				«ENDFOR»
+
+				public RelevantResources copyUpdate()
+				{
+					RelevantResources clone = new RelevantResources();
+
+					«FOR relevantResource : pattern.relevantResources»
+						clone.«relevantResource.name» = «(
+							if (relevantResource.type instanceof ResourceCreateStatement)
+								(relevantResource.type as ResourceCreateStatement).type
+							else relevantResource.type).fullyQualifiedName
+							».getResource(this.«relevantResource.name».getNumber());
+					«ENDFOR»
+
+					return clone;
+				}
+
+				public void clear()
+				{
+					«FOR relevantResource : pattern.relevantResources»
+						«IF relevantResource.type instanceof ResourceCreateStatement»
+							this.«relevantResource.name» = «(relevantResource.type as ResourceCreateStatement).type.fullyQualifiedName
+								».getResource("«(relevantResource.type as ResourceCreateStatement).fullyQualifiedName»");
+						«ELSE»
+							this.«relevantResource.name» = null;
+						«ENDIF»
+					«ENDFOR»
+				}
+			}
+
+			private static RelevantResources staticResources = new RelevantResources();
+			private RelevantResources resources;
+
+			public static class Parameters
+			{
+				«IF !pattern.parameters.empty»
+				«FOR parameter : pattern.parameters»
+					public «parameter.compileType» «parameter.name»«parameter.getDefault»;
+				«ENDFOR»
+
+				public Parameters(«pattern.parameters.compileParameterTypes»)
+				{
+					«FOR parameter : pattern.parameters»
+						if («parameter.name» != null)
+							this.«parameter.name» = «parameter.name»;
+					«ENDFOR»
+				}
+				«ENDIF»
+			}
+
+			private Parameters parameters;
+
+			«IF pattern.combinational != null»
+			static private CombinationalChoiceFrom<RelevantResources, Parameters> choice =
+				new CombinationalChoiceFrom<RelevantResources, Parameters>
+				(
+					staticResources,
+					«pattern.combinational.compileChoiceMethod("RelevantResources")»,
+					new CombinationalChoiceFrom.RelevantResourcesManager<RelevantResources>()
+					{
+						@Override
+						public RelevantResources create(RelevantResources set)
+						{
+							RelevantResources clone = new RelevantResources();
+
+							«FOR relevantResource : pattern.relevantResources»
+								clone.«relevantResource.name» = set.«relevantResource.name»;
+							«ENDFOR»
+
+							return clone;
+						}
+
+						@Override
+						public void apply(RelevantResources origin, RelevantResources set)
+						{
+							«FOR relevantResource : pattern.relevantResources»
+								origin.«relevantResource.name» = set.«relevantResource.name»;
+							«ENDFOR»
+						}
+					}
+				);
+				static
+				{
+				«FOR relevantResource : pattern.relevantResources»
+					choice.addFinder
+					(
+						new CombinationalChoiceFrom.Finder<RelevantResources, «relevantResource.type.relevantResourceFullyQualifiedName», Parameters>
+						(
+							new CombinationalChoiceFrom.Retriever<«relevantResource.type.relevantResourceFullyQualifiedName»>()
+							{
+								@Override
+								public java.util.Collection<«relevantResource.type.relevantResourceFullyQualifiedName»> getResources()
+								{
+									«IF relevantResource.type instanceof ResourceCreateStatement»
+									java.util.LinkedList<«relevantResource.type.relevantResourceFullyQualifiedName»> singlelist =
+										new java.util.LinkedList<«relevantResource.type.relevantResourceFullyQualifiedName»>();
+									singlelist.add(«relevantResource.type.relevantResourceFullyQualifiedName».getResource("«
+										(relevantResource.type as ResourceCreateStatement).fullyQualifiedName»"));
+									return singlelist;
+									«ELSE»
+									return «relevantResource.type.relevantResourceFullyQualifiedName».getAll();
+									«ENDIF»
+								}
+							},
+							new SimpleChoiceFrom<RelevantResources, «relevantResource.type.relevantResourceFullyQualifiedName», Parameters>
+							(
+								«relevantResource.select.compileChoiceFrom(pattern, relevantResource.type.relevantResourceFullyQualifiedName, relevantResource.name, relevantResource.type.relevantResourceFullyQualifiedName)»,
+								null
+							),
+							new CombinationalChoiceFrom.Setter<RelevantResources, «relevantResource.type.relevantResourceFullyQualifiedName»>()
+							{
+								public void set(RelevantResources set, «relevantResource.type.relevantResourceFullyQualifiedName» resource)
+								{
+									set.«relevantResource.name» = resource;
+								}
+							}
+						)
+					);
+				«ENDFOR»
+				}
+
+			«ELSE»
+				«FOR relevantResource : pattern.relevantResources»
+					«IF relevantResource.type instanceof ResourceCreateStatement»
+					// just checker «relevantResource.name»
+					private static SimpleChoiceFrom.Checker<RelevantResources, «relevantResource.type.relevantResourceFullyQualifiedName», Parameters> «
+						relevantResource.name»Checker = «relevantResource.select.compileChoiceFrom(
+							pattern, relevantResource.type.relevantResourceFullyQualifiedName,
+							relevantResource.name, relevantResource.type.relevantResourceFullyQualifiedName)»;
+					«ELSE»
+					// choice «relevantResource.name»
+					private static SimpleChoiceFrom<RelevantResources, «
+						relevantResource.type.relevantResourceFullyQualifiedName», Parameters> «relevantResource.name»Choice =
+						new SimpleChoiceFrom<RelevantResources, «relevantResource.type.relevantResourceFullyQualifiedName», Parameters>
+						(
+							«relevantResource.select.compileChoiceFrom(
+								pattern, relevantResource.type.relevantResourceFullyQualifiedName,
+								relevantResource.name,
+								relevantResource.type.relevantResourceFullyQualifiedName
+							)»,
+							«relevantResource.selectMethod.compileChoiceMethod(relevantResource.type.relevantResourceFullyQualifiedName
+							)»
+						);
+					«ENDIF»
+				«ENDFOR»
+			«ENDIF»
+
+			public static boolean findResources(Parameters parameters)
+			{
+				staticResources.clear();
+
+				«IF pattern.combinational != null»
+				if (!choice.find(parameters))
+					return false;
+				«ELSE»
+					«FOR relevantResource : pattern.relevantResources»
+						«IF relevantResource.type instanceof ResourceCreateStatement»
+							if (!«relevantResource.name»Checker.check(staticResources, staticResources.«relevantResource.name», parameters))
+								return false;
+
+						«ELSE»
+							staticResources.«relevantResource.name» = «relevantResource.name»Choice.find(
+									staticResources,
+									«relevantResource.type.fullyQualifiedName».getAll(),
+									parameters);
+
+							if (staticResources.«relevantResource.name» == null)
+								return false;
+
+						«ENDIF»
+					«ENDFOR»
+				«ENDIF»
+				return true;
+			}
+
+			@Override
+			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom)
+			{
+				Database db = Simulator.getDatabase();
+				db.addMemorizedResourceEntries(
+						"«pattern.fullyQualifiedName».createdResources",
+						executedFrom);
+			}
+
+			@Override
+			public int[] getRelevantInfo()
+			{
+				return new int[]
+				{
+					«FOR i : 0 ..< pattern.relevantResources.size»
+						resources.«pattern.relevantResources.get(i).name».getNumber()«
+							IF i < pattern.relevantResources.size - 1»,«ENDIF»
+					«ENDFOR»
+				};
+			}
+			'''
+	}
+
+	def private static compileChoiceFrom(PatternSelectLogic selectLogic, Pattern pattern, String resource,
 			String relevantResource, String relevantResourceType) {
 		val haveSelectLogic = selectLogic != null && !selectLogic.any;
 
