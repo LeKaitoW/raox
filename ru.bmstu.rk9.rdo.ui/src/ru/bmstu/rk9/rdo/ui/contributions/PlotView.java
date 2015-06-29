@@ -178,12 +178,50 @@ public class PlotView extends ViewPart {
 
 class ChartFrame extends ChartComposite implements KeyListener {
 
-	private Slider horizontalSlider;
-	private Slider verticalSlider;
-	private double horizontalMaximum;
-	private double verticalMaximum;
-	private double horizontalRatio;
-	private double verticalRatio;
+	private interface Axis {
+		public ValueAxis get();
+	}
+
+	private interface Position {
+		public double get();
+	}
+
+	class ChartSlider {
+
+		private ChartSlider(Slider slider, Axis axis, Position position,
+				SelectionListener selectionListener) {
+			this.slider = slider;
+			this.axis = axis;
+			this.slider.setMinimum(0);
+			this.slider.addSelectionListener(selectionListener);
+			this.position = position;
+		}
+
+		private final void update() {
+			if (maximum > axis.get().getRange().getUpperBound()) {
+				slider.setVisible(true);
+				slider.setEnabled(true);
+
+				ratio = slider.getMaximum() / maximum;
+				slider.setThumb((int) Math
+						.round((axis.get().getUpperBound() - axis.get()
+								.getLowerBound()) * ratio));
+				slider.setSelection((int) Math.round(position.get() * ratio));
+			} else {
+				slider.setVisible(false);
+				slider.setEnabled(false);
+			}
+		}
+
+		private final Slider slider;
+		private final Axis axis;
+		private final Position position;
+		private double maximum;
+		private double ratio;
+	}
+
+	private ChartSlider horizontalSlider;
+	private ChartSlider verticalSlider;
 
 	public ChartFrame(final Composite comp, final int style) {
 		super(comp, style, null, ChartComposite.DEFAULT_WIDTH,
@@ -193,28 +231,26 @@ class ChartFrame extends ChartComposite implements KeyListener {
 		addSWTListener(this);
 	}
 
-	public final void setSliders(final Slider horizontalSlider,
-			final Slider verticalSlider) {
-		this.horizontalSlider = horizontalSlider;
-		this.verticalSlider = verticalSlider;
-		horizontalSlider.setMinimum(0);
-		verticalSlider.setMinimum(0);
-
-		this.horizontalSlider.addSelectionListener(new SelectionListener() {
+	public final void setSliders(Slider horizontalSlider_,
+			Slider verticalSlider_) {
+		horizontalSlider = new ChartSlider(horizontalSlider_, new Axis() {
+			@Override
+			public ValueAxis get() {
+				return getChart().getXYPlot().getDomainAxis();
+			}
+		}, new Position() {
+			@Override
+			public double get() {
+				return horizontalSlider.axis.get().getLowerBound();
+			}
+		}, new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getChart()
-						.getXYPlot()
-						.getDomainAxis()
-						.setLowerBound(
-								horizontalSlider.getSelection()
-										/ horizontalRatio);
-				getChart()
-						.getXYPlot()
-						.getDomainAxis()
-						.setUpperBound(
-								(horizontalSlider.getThumb() + horizontalSlider
-										.getSelection()) / horizontalRatio);
+				ValueAxis axis = horizontalSlider.axis.get();
+				axis.setLowerBound(horizontalSlider.slider.getSelection()
+						/ horizontalSlider.ratio);
+				axis.setUpperBound((horizontalSlider.slider.getThumb() + horizontalSlider.slider
+						.getSelection()) / horizontalSlider.ratio);
 			}
 
 			@Override
@@ -222,22 +258,26 @@ class ChartFrame extends ChartComposite implements KeyListener {
 			}
 		});
 
-		this.verticalSlider.addSelectionListener(new SelectionListener() {
+		verticalSlider = new ChartSlider(verticalSlider_, new Axis() {
+			@Override
+			public ValueAxis get() {
+				return getChart().getXYPlot().getRangeAxis();
+			}
+		}, new Position() {
+			@Override
+			public double get() {
+				ValueAxis axis = verticalSlider.axis.get();
+				return verticalSlider.maximum - axis.getUpperBound();
+			}
+		}, new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getChart()
-						.getXYPlot()
-						.getRangeAxis()
-						.setLowerBound(
-								(verticalSlider.getMaximum()
-										- verticalSlider.getSelection() - verticalSlider
-											.getThumb()) / verticalRatio);
-				getChart()
-						.getXYPlot()
-						.getRangeAxis()
-						.setUpperBound(
-								(verticalSlider.getMaximum() - verticalSlider
-										.getSelection()) / verticalRatio);
+				ValueAxis axis = verticalSlider.axis.get();
+				axis.setLowerBound((verticalSlider.slider.getMaximum()
+						- verticalSlider.slider.getSelection() - verticalSlider.slider
+							.getThumb()) / verticalSlider.ratio);
+				axis.setUpperBound((verticalSlider.slider.getMaximum() - verticalSlider.slider
+						.getSelection()) / verticalSlider.ratio);
 			}
 
 			@Override
@@ -246,55 +286,15 @@ class ChartFrame extends ChartComposite implements KeyListener {
 		});
 	}
 
-	public final void setChartMaximum(final double horizontalMaximum,
-			final double verticalMaximum) {
-		final double freeSpaceCoefficient = 1.0;
-		this.horizontalMaximum = horizontalMaximum * freeSpaceCoefficient;
-		this.verticalMaximum = verticalMaximum * freeSpaceCoefficient;
+	public final void setChartMaximum(double horizontalSliderMaximum,
+			double verticalSliderMaximum) {
+		horizontalSlider.maximum = horizontalSliderMaximum;
+		verticalSlider.maximum = verticalSliderMaximum;
 	}
 
 	public final void updateSliders() {
-		updateHorizontalSlider();
-		updateVerticalSlider();
-	}
-
-	private final void updateHorizontalSlider() {
-		ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
-
-		if (horizontalMaximum > domainAxis.getRange().getUpperBound()) {
-			horizontalSlider.setVisible(true);
-			horizontalSlider.setEnabled(true);
-
-			horizontalRatio = horizontalSlider.getMaximum() / horizontalMaximum;
-			horizontalSlider.setThumb((int) Math.round((domainAxis
-					.getUpperBound() - domainAxis.getLowerBound())
-					* horizontalRatio));
-			horizontalSlider.setSelection((int) Math.round(domainAxis
-					.getLowerBound() * horizontalRatio));
-		} else {
-			horizontalSlider.setVisible(false);
-			horizontalSlider.setEnabled(false);
-		}
-	}
-
-	private final void updateVerticalSlider() {
-		ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
-
-		if (verticalMaximum > rangeAxis.getRange().getUpperBound()) {
-			verticalSlider.setVisible(true);
-			verticalSlider.setEnabled(true);
-
-			verticalRatio = verticalSlider.getMaximum() / verticalMaximum;
-			verticalSlider
-					.setThumb((int) Math.round((rangeAxis.getUpperBound() - rangeAxis
-							.getLowerBound()) * verticalRatio));
-			verticalSlider.setSelection((int) Math
-					.round((verticalMaximum - rangeAxis.getUpperBound())
-							* verticalRatio));
-		} else {
-			verticalSlider.setVisible(false);
-			verticalSlider.setEnabled(false);
-		}
+		horizontalSlider.update();
+		verticalSlider.update();
 	}
 
 	@Override
@@ -314,25 +314,25 @@ class ChartFrame extends ChartComposite implements KeyListener {
 	@Override
 	public void zoomInDomain(double x, double y) {
 		super.zoomInDomain(x, y);
-		updateHorizontalSlider();
+		horizontalSlider.update();
 	}
 
 	@Override
 	public void zoomInRange(double x, double y) {
 		super.zoomInRange(x, y);
-		updateVerticalSlider();
+		verticalSlider.update();
 	}
 
 	@Override
 	public void zoomOutDomain(double x, double y) {
 		super.zoomOutDomain(x, y);
-		updateHorizontalSlider();
+		horizontalSlider.update();
 	}
 
 	@Override
 	public void zoomOutRange(double x, double y) {
 		super.zoomOutRange(x, y);
-		updateVerticalSlider();
+		verticalSlider.update();
 	}
 
 	@Override
@@ -344,12 +344,12 @@ class ChartFrame extends ChartComposite implements KeyListener {
 	@Override
 	public void restoreAutoDomainBounds() {
 		super.restoreAutoDomainBounds();
-		updateHorizontalSlider();
+		horizontalSlider.update();
 	}
 
 	@Override
 	public void restoreAutoRangeBounds() {
 		super.restoreAutoRangeBounds();
-		updateVerticalSlider();
+		verticalSlider.update();
 	}
 }
