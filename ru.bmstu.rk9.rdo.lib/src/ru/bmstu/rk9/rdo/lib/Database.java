@@ -17,9 +17,10 @@ import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceTypeIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex.SearchInfo;
-import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ValueType;
+import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ValueCache;
 import ru.bmstu.rk9.rdo.lib.json.JSONArray;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
+
 
 public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -301,7 +302,7 @@ public class Database {
 					.getJSONArray("parameters");
 			for (int paramNum = 0; paramNum < parameters.length(); paramNum++) {
 				JSONObject param = parameters.getJSONObject(paramNum);
-				ValueType paramType = ValueType.get(param.getString("type"));
+				ValueCache paramType = new ValueCache(param);
 				int offset = param.getInt("offset");
 				resourceNode.addChild(
 						parameters.getJSONObject(paramNum).getString("name"))
@@ -366,21 +367,24 @@ public class Database {
 
 	private Map<Pattern, PatternPoolEntry> patternPool = new HashMap<Pattern, PatternPoolEntry>();
 
-	public void addDecisionEntry(DecisionPoint dpt,
-			DecisionPoint.Activity activity, PatternType type, Pattern pattern) {
-		String dptName = dpt.getName();
+	public final void addDecisionEntry(final DecisionPoint dpt,
+			final DecisionPoint.Activity activity, final PatternType type,
+			final Pattern pattern) {
+		final String dptName = dpt.getName();
 
 		if (!sensitivityList.contains(dptName)
 				&& !sensitivityList.contains(pattern.getName()))
 			return;
 
-		ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
+		final ByteBuffer header = ByteBuffer
+				.allocate(EntryType.PATTERN.HEADER_SIZE);
 		header.put((byte) EntryType.PATTERN.ordinal())
 				.putDouble(Simulator.getTime()).put((byte) type.ordinal());
 
-		CollectedDataNode dptNode = indexHelper.getDecisionPoint(dptName);
-		DecisionPointIndex dptIndex = (DecisionPointIndex) dptNode.getIndex();
-		PatternIndex index = (PatternIndex) dptNode.getChildren()
+		final CollectedDataNode dptNode = indexHelper.getDecisionPoint(dptName);
+		final DecisionPointIndex dptIndex = (DecisionPointIndex) dptNode
+				.getIndex();
+		final PatternIndex index = (PatternIndex) dptNode.getChildren()
 				.get(activity.getName()).getIndex();
 
 		int number = index.timesExecuted++;
@@ -388,15 +392,15 @@ public class Database {
 			patternPool.put(pattern,
 					new PatternPoolEntry(dpt, activity, number));
 
-		int[] relevantResources = pattern.getRelevantInfo();
+		final int[] relevantResources = pattern.getRelevantInfo();
 
-		ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER
+		final ByteBuffer data = ByteBuffer.allocate(TypeSize.INTEGER
 				* (relevantResources.length + 4));
 		data.putInt(dptIndex.number).putInt(index.number).putInt(number);
 
 		fillRelevantResources(data, relevantResources);
 
-		Entry entry = new Entry(header, data);
+		final Entry entry = new Entry(header, data);
 
 		addEntry(entry);
 		index.entryNumbers.add(allEntries.size() - 1);

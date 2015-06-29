@@ -58,5 +58,9 @@ Export-Package: com.mxgraph.analysis,
    ru.bmstu.rk9.rdo.services",
  ru.bmstu.rk9.rdo.ui.internal;uses:="org.eclipse.ui.plugin,org.osgi.framework,com.google.inject",
  ru.bmstu.rk9.rdo.ui.quickfix;uses:="org.eclipse.xtext.ui.editor.quickfix"
-Bundle-ClassPath: .,thirdparty/jgraphx.jar
+Bundle-ClassPath: .,thirdparty/jgraphx.jar,
+ thirdparty/jcommon-1.0.23.jar,
+ thirdparty/jfreechart-1.0.19-experimental.jar,
+ thirdparty/jfreechart-1.0.19-swt.jar,
+ thirdparty/jfreechart-1.0.19.jar
 Bundle-Activator: ru.bmstu.rk9.rdo.ui.RDOActivatorExtension

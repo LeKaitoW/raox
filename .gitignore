@@ -58,3 +58,8 @@ $RECYCLE.BIN/
 #############
 
 ru.bmstu.rk9.rdo.lib*.jar
+
+#############
+##JFreeChart Lib
+#############
+thirdparty/
