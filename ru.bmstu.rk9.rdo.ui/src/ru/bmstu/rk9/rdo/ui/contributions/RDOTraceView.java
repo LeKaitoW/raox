@@ -103,6 +103,7 @@ public class RDOTraceView extends ViewPart {
 		return new FrameInfo(dptNumber, dptName);
 	}
 
+	@Override
 	public void createPartControl(Composite parent) {
 		viewer = new TableViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL
 				| SWT.VIRTUAL);
