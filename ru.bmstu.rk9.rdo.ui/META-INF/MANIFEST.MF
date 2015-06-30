@@ -21,34 +21,12 @@ Require-Bundle: ru.bmstu.rk9.rdo;visibility:=reexport,
  org.eclipse.ui.console;bundle-version="3.5.0",
  org.eclipse.jface,
  org.eclipse.jdt.ui;bundle-version="3.5.0",
- org.eclipse.jdt.core;bundle-version="3.5.0"
+ org.eclipse.jdt.core;bundle-version="3.5.0",
+ org.eclipse.xtext.xbase.lib
 Import-Package: org.apache.log4j,
  org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: com.mxgraph.analysis,
- com.mxgraph.canvas,
- com.mxgraph.costfunction,
- com.mxgraph.generatorfunction,
- com.mxgraph.io,
- com.mxgraph.io.graphml,
- com.mxgraph.layout,
- com.mxgraph.layout.hierarchical,
- com.mxgraph.layout.hierarchical.model,
- com.mxgraph.layout.hierarchical.stage,
- com.mxgraph.layout.orthogonal,
- com.mxgraph.layout.orthogonal.model,
- com.mxgraph.model,
- com.mxgraph.reader,
- com.mxgraph.shape,
- com.mxgraph.swing,
- com.mxgraph.swing.handler,
- com.mxgraph.swing.util,
- com.mxgraph.swing.view,
- com.mxgraph.util,
- com.mxgraph.util.png,
- com.mxgraph.util.svg,
- com.mxgraph.view,
- ru.bmstu.rk9.rdo.ui.contentassist;uses:="org.eclipse.xtext,org.eclipse.emf.ecore,org.eclipse.xtext.ui.editor.contentassist",
+Export-Package: ru.bmstu.rk9.rdo.ui.contentassist;uses:="org.eclipse.xtext,org.eclipse.emf.ecore,org.eclipse.xtext.ui.editor.contentassist",
  ru.bmstu.rk9.rdo.ui.contentassist.antlr;
   uses:="org.eclipse.xtext,
    ru.bmstu.rk9.rdo.ui.contentassist.antlr.internal,
@@ -58,9 +36,5 @@ Export-Package: com.mxgraph.analysis,
    ru.bmstu.rk9.rdo.services",
  ru.bmstu.rk9.rdo.ui.internal;uses:="org.eclipse.ui.plugin,org.osgi.framework,com.google.inject",
  ru.bmstu.rk9.rdo.ui.quickfix;uses:="org.eclipse.xtext.ui.editor.quickfix"
-Bundle-ClassPath: .,thirdparty/jgraphx.jar,
- thirdparty/jcommon-1.0.23.jar,
- thirdparty/jfreechart-1.0.19-experimental.jar,
- thirdparty/jfreechart-1.0.19-swt.jar,
- thirdparty/jfreechart-1.0.19.jar
+Bundle-ClassPath: .,thirdparty/jgraphx.jar,thirdparty/jcommon-1.0.23.jar,thirdparty/jfreechart-1.0.19-experimental.jar,thirdparty/jfreechart-1.0.19-swt.jar,thirdparty/jfreechart-1.0.19.jar
 Bundle-Activator: ru.bmstu.rk9.rdo.ui.RDOActivatorExtension
