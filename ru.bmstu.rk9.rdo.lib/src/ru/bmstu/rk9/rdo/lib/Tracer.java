@@ -7,10 +7,6 @@ import java.nio.charset.StandardCharsets;
 import ru.bmstu.rk9.rdo.lib.Database.Entry;
 import ru.bmstu.rk9.rdo.lib.Database.EntryType;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
-import ru.bmstu.rk9.rdo.lib.ActivityCache;
-import ru.bmstu.rk9.rdo.lib.ResourceTypeCache;
-import ru.bmstu.rk9.rdo.lib.ResultCache;
-import ru.bmstu.rk9.rdo.lib.ValueCache;
 import ru.bmstu.rk9.rdo.lib.RDOLibStringJoiner.StringFormat;
 
 public class Tracer implements Subscriber {

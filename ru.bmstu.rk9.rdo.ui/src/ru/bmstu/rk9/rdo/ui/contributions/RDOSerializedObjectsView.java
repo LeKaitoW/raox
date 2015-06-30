@@ -48,7 +48,6 @@ import ru.bmstu.rk9.rdo.lib.PlotDataParser;
 import ru.bmstu.rk9.rdo.lib.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
-import ru.bmstu.rk9.rdo.ui.contributions.PlotView;
 import ru.bmstu.rk9.rdo.ui.graph.GraphControl;
 import ru.bmstu.rk9.rdo.ui.graph.GraphControl.FrameInfo;
 

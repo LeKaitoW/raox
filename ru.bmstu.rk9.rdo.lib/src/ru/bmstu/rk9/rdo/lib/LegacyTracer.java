@@ -20,8 +20,6 @@ import java.util.TreeSet;
 import ru.bmstu.rk9.rdo.lib.Database.Entry;
 import ru.bmstu.rk9.rdo.lib.Database.EntryType;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
-import ru.bmstu.rk9.rdo.lib.ResourceTypeCache;
-import ru.bmstu.rk9.rdo.lib.ResultCache;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
 import ru.bmstu.rk9.rdo.lib.json.JSONArray;
@@ -585,7 +583,6 @@ public class LegacyTracer {
 			return String.valueOf(data.getShort());
 		case STRING:
 			final ByteArrayOutputStream rawString = new ByteArrayOutputStream();
-
 			while (data.hasRemaining()) {
 				rawString.write(data.get());
 			}
