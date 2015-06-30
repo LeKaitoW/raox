@@ -52,15 +52,14 @@ public class Simulator {
 	public static Tracer getTracer() {
 		return INSTANCE.tracer;
 	}
-	
+
 	private TreeBuilder treeBuilder;
-	
+
 	public static TreeBuilder getTreeBuilder() {
 		return INSTANCE.treeBuilder;
 	}
-	
-	public static synchronized void initTreeBuilder()
-	{
+
+	public static synchronized void initTreeBuilder() {
 		INSTANCE.treeBuilder = new TreeBuilder();
 	}
 

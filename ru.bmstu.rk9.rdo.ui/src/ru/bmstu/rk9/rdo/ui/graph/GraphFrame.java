@@ -183,17 +183,11 @@ public class GraphFrame extends JFrame {
 	}
 
 	boolean isFinished = false;
-
 	Dimension frameDimension;
-
 	int nodeWidth;
-
 	int nodeHeight;
-
 	int minNodeWidth;
-
 	int nodeDistance;
-
 	int levelDistance;
 
 	private void setProportions(Dimension d) {
@@ -329,7 +323,8 @@ public class GraphFrame extends JFrame {
 				final String rule = node.ruleName + " = "
 						+ Double.toString(node.ruleCost);
 				final String shortRule = rule.replaceAll("\\(.*\\)", "");
-				final String text = number + "\n" + costFunction + "\n" + shortRule;
+				final String text = number + "\n" + costFunction + "\n"
+						+ shortRule;
 				node.label = text;
 				cell.setValue(node);
 			}

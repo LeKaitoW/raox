@@ -154,21 +154,15 @@ public class RDOTraceView extends ViewPart {
 				fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
 
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
-
 			@Override
 			public void doubleClick(DoubleClickEvent e) {
-
 				TraceOutput traceOutput = (TraceOutput) viewer.getTable()
 						.getSelection()[0].getData();
-
-				int stringNumber = viewer.getTable().getSelectionIndex();
-
-				FrameInfo frameInfo = determineDPTInfo(traceOutput,
-						stringNumber);
-
+				FrameInfo frameInfo = determineDPTInfo(traceOutput, viewer
+						.getTable().getSelectionIndex());
 				if (frameInfo == null)
 					return;
-
+				
 				GraphControl.openFrameWindow(frameInfo);
 			}
 		});

@@ -104,7 +104,7 @@ public class SimulationSynchronizer {
 
 		INSTANCE.simulationManager.speedDelayMillis = (long) (-Math
 				.log10(value / 100d) * 1000d);
-		DecisionPointSearch.delay = (int)INSTANCE.simulationManager.speedDelayMillis;
+		DecisionPointSearch.delay = (int) INSTANCE.simulationManager.speedDelayMillis;
 	}
 
 	public static void setSimulationScale(double value) {
@@ -113,8 +113,8 @@ public class SimulationSynchronizer {
 
 		INSTANCE.simulationManager.timeScale = 60060d / value;
 		INSTANCE.simulationManager.startRealTime = System.currentTimeMillis();
-		INSTANCE.simulationManager.startSimulationTime =
-				Simulator.isRunning() ? Simulator.getTime() : 0;
+		INSTANCE.simulationManager.startSimulationTime = Simulator.isRunning() ? Simulator
+				.getTime() : 0;
 	}
 
 	public class SimulationManager {
@@ -185,9 +185,8 @@ public class SimulationSynchronizer {
 
 					long timeToWait = speedDelayMillis;
 					while (timeToWait > 0
-							&& (executionMode == ExecutionMode.FAST_FORWARD
-								|| executionMode == ExecutionMode.NORMAL_SPEED)
-									&& !simulationAborted) {
+							&& (executionMode == ExecutionMode.FAST_FORWARD || executionMode == ExecutionMode.NORMAL_SPEED)
+							&& !simulationAborted) {
 						delay(timeToWait > 50 ? 50 : timeToWait);
 						timeToWait = startTime + speedDelayMillis
 								- System.currentTimeMillis();
