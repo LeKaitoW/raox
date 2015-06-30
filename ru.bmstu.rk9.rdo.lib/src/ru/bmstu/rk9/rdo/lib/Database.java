@@ -17,7 +17,7 @@ import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceTypeIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex.SearchInfo;
-import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ValueCache;
+import ru.bmstu.rk9.rdo.lib.ValueCache;
 import ru.bmstu.rk9.rdo.lib.json.JSONArray;
 import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 

@@ -10,7 +10,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import ru.bmstu.rk9.rdo.lib.Database.Entry;
 import ru.bmstu.rk9.rdo.lib.Database.EntryType;
 import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
-import ru.bmstu.rk9.rdo.lib.ModelStructureCache.ActivityCache;
+import ru.bmstu.rk9.rdo.lib.ActivityCache;
 import ru.bmstu.rk9.rdo.lib.RDOLibStringJoiner.StringFormat;
 
 public class TreeBuilder implements Subscriber {

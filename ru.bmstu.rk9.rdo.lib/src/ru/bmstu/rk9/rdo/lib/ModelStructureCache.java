@@ -46,6 +46,10 @@ public class ModelStructureCache {
 		return this.decisionPointsInfo;
 	}
 
+	public final String getDecisionPointName(int dptNumber) {
+		return getDecisionPointsInfo().get(dptNumber).getName();
+	}
+
 	final void initResourceCache() {
 		final JSONArray resourceTypes = Simulator.getDatabase()
 				.getModelStructure().getJSONArray("resource_types");
@@ -131,159 +135,154 @@ public class ModelStructureCache {
 	public final static String getRelativeName(final String fullName) {
 		return fullName.substring(fullName.lastIndexOf(".") + 1);
 	}
+}
 
-	public static class ValueCache {
-		ValueCache(final JSONObject param) {
-			type = ModelStructureCache.ValueType.get(param.getString("type"));
-			if (type == ModelStructureCache.ValueType.ENUM) {
-				enumNames = new ArrayList<String>();
-				JSONObject originParam = null;
-				if (param.has("enums")) {
-					originParam = param;
-				} else {
-					String enumOriginName = param.getString("enum_origin");
-					originParam = ModelStructureCache
-							.getEnumOrigin(enumOriginName);
-				}
-
-				JSONArray enums = originParam.getJSONArray("enums");
-				for (int num = 0; num < enums.length(); num++)
-					enumNames.add(enums.getString(num));
-			} else
-				enumNames = null;
-		}
-
-		final ModelStructureCache.ValueType type;
-		final List<String> enumNames;
-	}
-
-	public class ResourceTypeCache {
-		ResourceTypeCache(final JSONObject resourceType) {
-			name = ModelStructureCache.getRelativeName(resourceType
-					.getString("name"));
-			temporary = resourceType.getBoolean("temporary");
-
-			JSONObject structure = resourceType.getJSONObject("structure");
-			JSONArray parameters = structure.getJSONArray("parameters");
-			numberOfParameters = parameters.length();
-
-			paramTypes = new ArrayList<ValueCache>();
-			indexList = new HashMap<Integer, Integer>();
-			for (int num = 0; num < numberOfParameters; num++) {
-				final JSONObject currentParameter = parameters
-						.getJSONObject(num);
-				ModelStructureCache.ValueType type = ModelStructureCache.ValueType
-						.get(currentParameter.getString("type"));
-				paramTypes.add(new ValueCache(currentParameter));
-				if (type == ModelStructureCache.ValueType.STRING) {
-					indexList.put(num, currentParameter.getInt("index"));
-				}
+class ValueCache {
+	ValueCache(final JSONObject param) {
+		type = ModelStructureCache.ValueType.get(param.getString("type"));
+		if (type == ModelStructureCache.ValueType.ENUM) {
+			enumNames = new ArrayList<String>();
+			JSONObject originParam = null;
+			if (param.has("enums")) {
+				originParam = param;
+			} else {
+				String enumOriginName = param.getString("enum_origin");
+				originParam = ModelStructureCache.getEnumOrigin(enumOriginName);
 			}
-			finalOffset = structure.getInt("last_offset");
-		}
 
-		final String name;
-		final boolean temporary;
-		final int numberOfParameters;
-		final List<ValueCache> paramTypes;
-		final HashMap<Integer, Integer> indexList;
-		final int finalOffset;
+			JSONArray enums = originParam.getJSONArray("enums");
+			for (int num = 0; num < enums.length(); num++)
+				enumNames.add(enums.getString(num));
+		} else
+			enumNames = null;
 	}
 
-	public class PatternCache {
-		PatternCache(final JSONObject pattern) {
-			name = ModelStructureCache.getRelativeName(pattern
-					.getString("name"));
-			relResTypes = new HashMap<Integer, Integer>();
-			JSONArray relevantResources = pattern
-					.getJSONArray("relevant_resources");
-			for (int num = 0; num < relevantResources.length(); num++) {
-				String typeName = relevantResources.getJSONObject(num)
-						.getString("type");
+	final ModelStructureCache.ValueType type;
+	final List<String> enumNames;
+}
 
-				JSONArray resTypes = Simulator.getDatabase()
-						.getModelStructure().getJSONArray("resource_types");
-				int typeNum = -1;
-				// TODO throw exception if not found
-				for (int i = 0; i < resTypes.length(); i++)
-					if (typeName.equals(resTypes.getJSONObject(i).getString(
-							"name"))) {
-						typeNum = i;
-						break;
-					}
-				relResTypes.put(num, typeNum);
+class ResourceTypeCache {
+	ResourceTypeCache(final JSONObject resourceType) {
+		name = ModelStructureCache.getRelativeName(resourceType
+				.getString("name"));
+		temporary = resourceType.getBoolean("temporary");
+
+		JSONObject structure = resourceType.getJSONObject("structure");
+		JSONArray parameters = structure.getJSONArray("parameters");
+		numberOfParameters = parameters.length();
+
+		paramTypes = new ArrayList<ValueCache>();
+		indexList = new HashMap<Integer, Integer>();
+		for (int num = 0; num < numberOfParameters; num++) {
+			final JSONObject currentParameter = parameters.getJSONObject(num);
+			ModelStructureCache.ValueType type = ModelStructureCache.ValueType
+					.get(currentParameter.getString("type"));
+			paramTypes.add(new ValueCache(currentParameter));
+			if (type == ModelStructureCache.ValueType.STRING) {
+				indexList.put(num, currentParameter.getInt("index"));
 			}
 		}
-
-		final String name;
-		final HashMap<Integer, Integer> relResTypes;
+		finalOffset = structure.getInt("last_offset");
 	}
 
-	public class DecisionPointCache {
-		DecisionPointCache(final JSONObject dpt) {
-			name = ModelStructureCache.getRelativeName(dpt.getString("name"));
+	final String name;
+	final boolean temporary;
+	final int numberOfParameters;
+	final List<ValueCache> paramTypes;
+	final HashMap<Integer, Integer> indexList;
+	final int finalOffset;
+}
 
-			activitiesInfo = new ArrayList<ActivityCache>();
-			JSONArray activities = dpt.getJSONArray("activities");
-			for (int num = 0; num < activities.length(); num++)
-				activitiesInfo.add(new ActivityCache(activities
-						.getJSONObject(num)));
-		}
+class PatternCache {
+	PatternCache(final JSONObject pattern) {
+		name = ModelStructureCache.getRelativeName(pattern.getString("name"));
+		relResTypes = new HashMap<Integer, Integer>();
+		JSONArray relevantResources = pattern
+				.getJSONArray("relevant_resources");
+		for (int num = 0; num < relevantResources.length(); num++) {
+			String typeName = relevantResources.getJSONObject(num).getString(
+					"type");
 
-		final String name;
-		final List<ActivityCache> activitiesInfo;
-
-		public String getName() {
-			return name;
-		}
-	}
-
-	public class ActivityCache {
-		ActivityCache(final JSONObject activity) {
-			name = ModelStructureCache.getRelativeName(activity
-					.getString("name"));
-
-			final String patternName = activity.getString("pattern");
-			JSONArray patterns = Simulator.getDatabase().getModelStructure()
-					.getJSONArray("patterns");
+			JSONArray resTypes = Simulator.getDatabase().getModelStructure()
+					.getJSONArray("resource_types");
+			int typeNum = -1;
 			// TODO throw exception if not found
-			for (int num = 0; num < patterns.length(); num++)
-				if (patternName.equals(patterns.getJSONObject(num).getString(
-						"name"))) {
-					patternNumber = num;
+			for (int i = 0; i < resTypes.length(); i++)
+				if (typeName
+						.equals(resTypes.getJSONObject(i).getString("name"))) {
+					typeNum = i;
 					break;
 				}
+			relResTypes.put(num, typeNum);
 		}
-
-		final String name;
-		int patternNumber = -1;
 	}
 
-	public class ResultCache {
-		ResultCache(final JSONObject result) {
-			name = ModelStructureCache
-					.getRelativeName(result.getString("name"));
-			String valueTypeRaw = result.getString("value_type");
-			if (valueTypeRaw.contains("_enum")) {
-				valueType = ModelStructureCache.ValueType.ENUM;
-				enumNames = new ArrayList<String>();
-				String enumOriginName = valueTypeRaw.substring(0,
-						valueTypeRaw.lastIndexOf("_"));
-				JSONObject originParam = ModelStructureCache
-						.getEnumOrigin(enumOriginName);
+	final String name;
+	final HashMap<Integer, Integer> relResTypes;
+}
 
-				JSONArray enums = originParam.getJSONArray("enums");
-				for (int num = 0; num < enums.length(); num++)
-					enumNames.add(enums.getString(num));
-			} else {
-				valueType = ModelStructureCache.ValueType.get(result
-						.getString("value_type"));
-				enumNames = null;
+class DecisionPointCache {
+	DecisionPointCache(final JSONObject dpt) {
+		name = ModelStructureCache.getRelativeName(dpt.getString("name"));
+
+		activitiesInfo = new ArrayList<ActivityCache>();
+		JSONArray activities = dpt.getJSONArray("activities");
+		for (int num = 0; num < activities.length(); num++)
+			activitiesInfo
+					.add(new ActivityCache(activities.getJSONObject(num)));
+	}
+
+	final String name;
+	final List<ActivityCache> activitiesInfo;
+
+	public String getName() {
+		return name;
+	}
+}
+
+class ActivityCache {
+	ActivityCache(final JSONObject activity) {
+		name = ModelStructureCache.getRelativeName(activity.getString("name"));
+
+		final String patternName = activity.getString("pattern");
+		JSONArray patterns = Simulator.getDatabase().getModelStructure()
+				.getJSONArray("patterns");
+		// TODO throw exception if not found
+		for (int num = 0; num < patterns.length(); num++)
+			if (patternName.equals(patterns.getJSONObject(num)
+					.getString("name"))) {
+				patternNumber = num;
+				break;
 			}
-		}
-
-		final String name;
-		final ModelStructureCache.ValueType valueType;
-		final List<String> enumNames;
 	}
+
+	final String name;
+	int patternNumber = -1;
+}
+
+class ResultCache {
+	ResultCache(final JSONObject result) {
+		name = ModelStructureCache.getRelativeName(result.getString("name"));
+		String valueTypeRaw = result.getString("value_type");
+		if (valueTypeRaw.contains("_enum")) {
+			valueType = ModelStructureCache.ValueType.ENUM;
+			enumNames = new ArrayList<String>();
+			String enumOriginName = valueTypeRaw.substring(0,
+					valueTypeRaw.lastIndexOf("_"));
+			JSONObject originParam = ModelStructureCache
+					.getEnumOrigin(enumOriginName);
+
+			JSONArray enums = originParam.getJSONArray("enums");
+			for (int num = 0; num < enums.length(); num++)
+				enumNames.add(enums.getString(num));
+		} else {
+			valueType = ModelStructureCache.ValueType.get(result
+					.getString("value_type"));
+			enumNames = null;
+		}
+	}
+
+	final String name;
+	final ModelStructureCache.ValueType valueType;
+	final List<String> enumNames;
 }
