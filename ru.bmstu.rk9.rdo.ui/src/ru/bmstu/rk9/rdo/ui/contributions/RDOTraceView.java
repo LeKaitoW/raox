@@ -269,7 +269,7 @@ public class RDOTraceView extends ViewPart {
 
 		final SearchResult findLine(String line) {
 			@SuppressWarnings("unchecked")
-			final ArrayList<Entry> allEntries = (ArrayList<Entry>) viewer
+			final List<Entry> allEntries = (ArrayList<Entry>) viewer
 					.getInput();
 			if (allEntries == null)
 				return SearchResult.NOT_FOUND;

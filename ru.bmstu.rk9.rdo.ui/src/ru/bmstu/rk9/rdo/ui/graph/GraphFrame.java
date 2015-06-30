@@ -6,8 +6,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TimerTask;
 
@@ -49,7 +49,7 @@ public class GraphFrame extends JFrame {
 
 	final Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
 
-	private void drawGraph(mxGraph graph, ArrayList<Node> nodeList,
+	private void drawGraph(mxGraph graph, List<Node> nodeList,
 			Node parentNode) {
 		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(),
 				null, parentNode, getAbsoluteX(0.5), getAbsoluteY(0.05),
@@ -72,7 +72,7 @@ public class GraphFrame extends JFrame {
 	final String fontColor = "fontColor=000000;";
 
 	public void colorNodes(Map<Node, mxCell> vertexMap,
-			ArrayList<Node> nodeList, ArrayList<Node> solution) {
+			List<Node> nodeList, List<Node> solution) {
 		if (!solution.isEmpty()) {
 			Node rootNode = nodeList.get(0);
 			vertexMap.get(rootNode).setStyle(
@@ -86,7 +86,7 @@ public class GraphFrame extends JFrame {
 
 	private int lastAddedVertexIndex = 0;
 
-	private void drawNewVertex(mxGraph graph, ArrayList<Node> nodeList,
+	private void drawNewVertex(mxGraph graph, List<Node> nodeList,
 			int dptNum) {
 		Simulator.getTreeBuilder().rwLock.readLock().lock();
 		try {
@@ -380,7 +380,7 @@ public class GraphFrame extends JFrame {
 
 		setProportions(frameDimension);
 
-		ArrayList<Node> nodeList;
+		List<Node> nodeList;
 
 		Simulator.getTreeBuilder().rwLock.readLock().lock();
 		try {
@@ -406,7 +406,7 @@ public class GraphFrame extends JFrame {
 			}
 			if (isFinished) {
 				GraphInfo info = Simulator.getTreeBuilder().infoMap.get(dptNum);
-				ArrayList<Node> solution = Simulator.getTreeBuilder().solutionMap
+				List<Node> solution = Simulator.getTreeBuilder().solutionMap
 						.get(dptNum);
 				colorNodes(vertexMap, nodeList, solution);
 				insertInfo(graph, info);
@@ -479,7 +479,7 @@ public class GraphFrame extends JFrame {
 						try {
 							GraphInfo info = Simulator.getTreeBuilder().infoMap
 									.get(dptNum);
-							ArrayList<Node> solution = Simulator
+							List<Node> solution = Simulator
 									.getTreeBuilder().solutionMap.get(dptNum);
 							colorNodes(vertexMap, nodeList, solution);
 							insertInfo(graph, info);

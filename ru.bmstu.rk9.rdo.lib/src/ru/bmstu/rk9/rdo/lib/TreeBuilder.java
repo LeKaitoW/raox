@@ -62,7 +62,7 @@ public class TreeBuilder implements Subscriber {
 		}
 	}
 
-	public final Map<Integer, ArrayList<Node>> listMap = new HashMap<Integer, ArrayList<Node>>();
+	public final Map<Integer, List<Node>> listMap = new HashMap<Integer, List<Node>>();
 
 	public final void buildTree() {
 		final List<Database.Entry> entries = Simulator.getDatabase()
@@ -195,8 +195,8 @@ public class TreeBuilder implements Subscriber {
 		case DECISION: {
 			final ByteBuffer data = Tracer.prepareBufferForReading(entry.data);
 			final int number = data.getInt();
-			ArrayList<Node> currentSolutionList = solutionMap.get(dptNumber);
-			ArrayList<Node> currentNodeList = listMap.get(dptNumber);
+			List<Node> currentSolutionList = solutionMap.get(dptNumber);
+			List<Node> currentNodeList = listMap.get(dptNumber);
 			Node solutionNode = currentNodeList.get(number);
 			currentSolutionList.add(solutionNode);
 			break;
@@ -205,7 +205,7 @@ public class TreeBuilder implements Subscriber {
 		return true;
 	}
 
-	public final Map<Integer, ArrayList<Node>> solutionMap = new HashMap<Integer, ArrayList<Node>>();
+	public final Map<Integer, List<Node>> solutionMap = new HashMap<Integer, List<Node>>();
 
 	public class GraphInfo {
 		public double solutionCost;
