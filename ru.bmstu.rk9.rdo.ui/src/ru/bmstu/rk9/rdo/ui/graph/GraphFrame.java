@@ -500,9 +500,6 @@ public class GraphFrame extends JFrame {
 		graph.setCellsResizable(false);
 		graph.setAllowDanglingEdges(false);
 
-		// TODO temporarily commented
-		// double height = graphInfoCell.getGeometry().getHeight();
-
 		graph.getSelectionModel().addListener(mxEvent.CHANGE,
 				new mxIEventListener() {
 
@@ -512,7 +509,6 @@ public class GraphFrame extends JFrame {
 					public void invoke(Object sender, mxEventObject evt) {
 						mxGraphSelectionModel selectionModel = (mxGraphSelectionModel) sender;
 						mxCell cell = (mxCell) selectionModel.getCell();
-						// TODO temporarily commented
 						if (cell != null && cell.isVertex() && cell != cellInfo) {
 							graph.getModel().beginUpdate();
 							try {
