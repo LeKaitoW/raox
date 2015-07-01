@@ -78,17 +78,10 @@ public class RDOSerializedObjectsView extends ViewPart {
 
 			@Override
 			public void handleEvent(Event arg0) {
-				boolean enabled = false;
-
-				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
+				CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
 						.getTree().getSelection()[0].getData();
 				IndexType type = node.getIndex().getType();
-
-				if (type == IndexType.SEARCH) {
-					enabled = true;
-				}
-
-				graphMenuItem.setEnabled(enabled);
+				graphMenuItem.setEnabled(type == IndexType.SEARCH);
 			}
 		});
 
@@ -102,7 +95,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 				int dptNum = node.getIndex().getNumber();
 				String frameName = node.getName();
 				FrameInfo frameInfo = new FrameInfo(dptNum, frameName);
-				
+
 				GraphControl.openFrameWindow(frameInfo);
 			}
 
