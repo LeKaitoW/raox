@@ -81,7 +81,7 @@ public class DbIndexHelper implements Subscriber {
 	// -----------------------NOTIFICATION SYSTEM -------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	//TODO unify with Tracer notification system
+	// TODO unify with Tracer notification system
 
 	private boolean paused = true;
 

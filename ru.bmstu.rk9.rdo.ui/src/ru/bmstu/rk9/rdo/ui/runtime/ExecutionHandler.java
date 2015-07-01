@@ -1,14 +1,14 @@
 package ru.bmstu.rk9.rdo.ui.runtime;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.LinkedList;
-import java.lang.reflect.Method;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.Command;
@@ -33,10 +33,6 @@ import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import ru.bmstu.rk9.rdo.IMultipleResourceGenerator;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-
 import ru.bmstu.rk9.rdo.lib.AnimationFrame;
 import ru.bmstu.rk9.rdo.lib.Notifier;
 import ru.bmstu.rk9.rdo.lib.Result;
@@ -46,8 +42,12 @@ import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializedObjectsView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
+import ru.bmstu.rk9.rdo.ui.graph.GraphFrame;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 public class ExecutionHandler extends AbstractHandler {
 	@Inject
@@ -212,6 +212,13 @@ public class ExecutionHandler extends AbstractHandler {
 					RDOSerializedObjectsView.commonUpdater.fireChange();
 					RDOTraceView.commonUpdater.fireChange();
 
+					databaseNotifier
+						.getSubscription("EntryAdded")
+							.addSubscriber(Simulator.getTreeBuilder());
+
+					Simulator.getTreeBuilder()
+						.setGUISubscriber(GraphFrame.realTimeUpdater);
+
 					databaseNotifier.getSubscription("EntryAdded")
 							.addSubscriber(Simulator.getTracer())
 							.addSubscriber(Simulator.getDatabase().getIndexHelper());
@@ -234,8 +241,8 @@ public class ExecutionHandler extends AbstractHandler {
 
 					RDOConsoleView
 							.addLine("Started model " + project.getName());
-					final long startTime = System.currentTimeMillis();
 
+					final long startTime = System.currentTimeMillis();
 					uiRealTime.scheduleAtFixedRate(new TimerTask() {
 						@Override
 						public void run() {

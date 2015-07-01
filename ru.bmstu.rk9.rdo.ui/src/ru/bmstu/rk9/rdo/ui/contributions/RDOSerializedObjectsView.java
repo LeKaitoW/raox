@@ -18,6 +18,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
@@ -47,6 +48,8 @@ import ru.bmstu.rk9.rdo.lib.PlotDataParser;
 import ru.bmstu.rk9.rdo.lib.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
+import ru.bmstu.rk9.rdo.ui.graph.GraphControl;
+import ru.bmstu.rk9.rdo.ui.graph.GraphControl.FrameInfo;
 
 public class RDOSerializedObjectsView extends ViewPart {
 
@@ -67,6 +70,38 @@ public class RDOSerializedObjectsView extends ViewPart {
 				.setLabelProvider(new RDOSerializedObjectsLabelProvider());
 
 		final Menu popupMenu = new Menu(serializedObjectsTreeViewer.getTree());
+		final MenuItem graphMenuItem = new MenuItem(popupMenu, SWT.CASCADE);
+		graphMenuItem.setText("Build graph");
+		serializedObjectsTree.setMenu(popupMenu);
+
+		popupMenu.addListener(SWT.Show, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
+						.getTree().getSelection()[0].getData();
+				IndexType type = node.getIndex().getType();
+				graphMenuItem.setEnabled(type == IndexType.SEARCH);
+			}
+		});
+
+		graphMenuItem.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
+						.getTree().getSelection()[0].getData();
+
+				int dptNum = node.getIndex().getNumber();
+				String frameName = node.getName();
+				FrameInfo frameInfo = new FrameInfo(dptNum, frameName);
+
+				GraphControl.openFrameWindow(frameInfo);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent event) {
+			}
+		});
+
 		final MenuItem plot = new MenuItem(popupMenu, SWT.CASCADE);
 		plot.setText("Plot");
 
@@ -149,7 +184,6 @@ public class RDOSerializedObjectsView extends ViewPart {
 				} catch (PartInitException e) {
 					e.printStackTrace();
 				}
-
 			}
 		});
 

@@ -9,15 +9,17 @@ import java.util.List;
 import java.util.Map;
 
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
-import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceIndex;
-import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex;
-import ru.bmstu.rk9.rdo.lib.CollectedDataNode.PatternIndex;
-import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.DecisionPointIndex;
-import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceTypeIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.PatternIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceParameterIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceTypeIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.SearchIndex.SearchInfo;
-import ru.bmstu.rk9.rdo.lib.json.*;
+import ru.bmstu.rk9.rdo.lib.json.JSONArray;
+import ru.bmstu.rk9.rdo.lib.json.JSONObject;
+
 
 public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -159,7 +161,16 @@ public class Database {
 
 	public static class Entry {
 		final ByteBuffer header;
+
+		public final ByteBuffer getHeader() {
+			return header;
+		}
+
 		final ByteBuffer data;
+
+		public final ByteBuffer getData() {
+			return data;
+		}
 
 		Entry(final ByteBuffer header, final ByteBuffer data) {
 			this.header = header != null ? header.asReadOnlyBuffer() : null;
