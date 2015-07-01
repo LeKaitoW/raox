@@ -13,6 +13,10 @@ import java.util.TimerTask;
 
 import javax.swing.JFrame;
 
+import org.eclipse.jdt.ui.PreferenceConstants;
+import org.eclipse.jface.resource.FontRegistry;
+import org.eclipse.ui.PlatformUI;
+
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.TreeBuilder.GraphInfo;
@@ -111,11 +115,8 @@ public class GraphFrame extends JFrame {
 		}
 	}
 
-	final int fontSize = mxConstants.DEFAULT_FONTSIZE;
-	final int style = Font.PLAIN;
-	Font font = new Font("Arial", style, fontSize);
+	final Font font;
 	double scale = 1.0;
-	final int fontHeight = font.getSize();
 
 	public mxCell insertInfo(mxGraph graph, GraphInfo info) {
 		final String solutionCost = "Стоимость решения: "
@@ -371,6 +372,13 @@ public class GraphFrame extends JFrame {
 	public GraphFrame(int dptNum, int width, int height) {
 		this.setSize(width, height);
 		setAspectRatio();
+
+		final FontRegistry fontRegistry = PlatformUI.getWorkbench()
+				.getThemeManager().getCurrentTheme().getFontRegistry();
+		final String fontName = fontRegistry.get(
+				PreferenceConstants.EDITOR_TEXT_FONT).getFontData()[0]
+				.getName();
+		font = new Font(fontName, Font.PLAIN, mxConstants.DEFAULT_FONTSIZE);
 
 		frameDimension = this.getSize();
 		setProportions(frameDimension);
