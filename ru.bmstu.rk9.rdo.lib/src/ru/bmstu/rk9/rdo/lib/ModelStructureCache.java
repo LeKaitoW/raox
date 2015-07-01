@@ -42,6 +42,14 @@ public class ModelStructureCache {
 	final List<PatternCache> patternsInfo = new ArrayList<PatternCache>();
 	final List<DecisionPointCache> decisionPointsInfo = new ArrayList<DecisionPointCache>();
 
+	public final List<DecisionPointCache> getDecisionPointsInfo() {
+		return decisionPointsInfo;
+	}
+
+	public final String getDecisionPointName(int dptNumber) {
+		return getDecisionPointsInfo().get(dptNumber).getName();
+	}
+
 	final void initResourceCache() {
 		final JSONArray resourceTypes = Simulator.getDatabase()
 				.getModelStructure().getJSONArray("resource_types");
@@ -226,6 +234,10 @@ class DecisionPointCache {
 
 	final String name;
 	final List<ActivityCache> activitiesInfo;
+
+	public String getName() {
+		return name;
+	}
 }
 
 class ActivityCache {
