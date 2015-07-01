@@ -748,7 +748,6 @@ class RDOPatternCompiler
 					op.time.compileExpressionContext((new LocalContext).populateFromOperation(op)).value», resources.copyUpdate(), parameters);
 
 				«IF !op.relevantresources.filter[t | t.begin.literal == "Erase"].empty»
-
 					// erase resources
 					«FOR r : op.relevantresources.filter[t |t.begin.literal == "Erase"]»
 						«(r.type as ResourceType).fullyQualifiedName».eraseResource(resources.«r.name»);
