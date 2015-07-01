@@ -82,8 +82,7 @@ public class RDOTraceView extends ViewPart {
 		final EntryType type = EntryType.values()[entry.getHeader().get(
 				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 
-		int dptNumber;
-
+		final int dptNumber;
 		switch (type) {
 		case SEARCH:
 			final ByteBuffer header = Tracer.prepareBufferForReading(entry

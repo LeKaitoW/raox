@@ -24,14 +24,14 @@ public class TreeBuilder implements Subscriber {
 			notifyGUIPart();
 	}
 
-	private Subscriber GUISubscriber = null;
+	private Subscriber subscriber;
 
 	public final void notifyGUIPart() {
-		GUISubscriber.fireChange();
+		subscriber.fireChange();
 	}
 
 	public final void setGUISubscriber(Subscriber subscriber) {
-		this.GUISubscriber = subscriber;
+		this.subscriber = subscriber;
 	}
 
 	public ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock(true);

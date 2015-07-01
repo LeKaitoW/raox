@@ -212,7 +212,6 @@ public class GraphFrame extends JFrame {
 				false);
 
 		maxNumOfNodesInWidth = (int) ((graphBounds.getWidth() + 2 * nodeDistance) / (nodeWidth + 2 * nodeDistance));
-
 		double period = frameDimension.getWidth() / maxNumOfNodesInWidth;
 
 		if (nodeWidth < minNodeWidth) {

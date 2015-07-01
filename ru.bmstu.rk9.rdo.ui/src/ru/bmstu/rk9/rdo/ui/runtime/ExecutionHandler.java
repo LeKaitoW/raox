@@ -219,8 +219,6 @@ public class ExecutionHandler extends AbstractHandler {
 					Simulator.getTreeBuilder()
 						.setGUISubscriber(GraphFrame.realTimeUpdater);
 
-					RDOConsoleView.addLine("Started model " + project.getName());
-
 					databaseNotifier.getSubscription("EntryAdded")
 							.addSubscriber(Simulator.getTracer())
 							.addSubscriber(Simulator.getDatabase().getIndexHelper());
@@ -245,7 +243,6 @@ public class ExecutionHandler extends AbstractHandler {
 							.addLine("Started model " + project.getName());
 
 					final long startTime = System.currentTimeMillis();
-
 					uiRealTime.scheduleAtFixedRate(new TimerTask() {
 						@Override
 						public void run() {

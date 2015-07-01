@@ -75,9 +75,8 @@ public class RDOSerializedObjectsView extends ViewPart {
 		serializedObjectsTree.setMenu(popupMenu);
 
 		popupMenu.addListener(SWT.Show, new Listener() {
-
 			@Override
-			public void handleEvent(Event arg0) {
+			public void handleEvent(Event event) {
 				CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
 						.getTree().getSelection()[0].getData();
 				IndexType type = node.getIndex().getType();
@@ -86,7 +85,6 @@ public class RDOSerializedObjectsView extends ViewPart {
 		});
 
 		graphMenuItem.addSelectionListener(new SelectionListener() {
-
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
@@ -101,7 +99,6 @@ public class RDOSerializedObjectsView extends ViewPart {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent event) {
-
 			}
 		});
 

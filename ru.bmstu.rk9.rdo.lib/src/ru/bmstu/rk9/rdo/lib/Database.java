@@ -163,13 +163,13 @@ public class Database {
 		final ByteBuffer header;
 
 		public final ByteBuffer getHeader() {
-			return this.header;
+			return header;
 		}
 
 		final ByteBuffer data;
 
 		public final ByteBuffer getData() {
-			return this.data;
+			return data;
 		}
 
 		Entry(final ByteBuffer header, final ByteBuffer data) {
@@ -277,7 +277,6 @@ public class Database {
 				return;
 		} else {
 			name = typeName + "[" + String.valueOf(resource.getNumber()) + "]";
-
 			if (!sensitivityList.contains(name))
 				if (status == ResourceEntryType.CREATED) {
 					if (sensitivityList.contains(sender))
@@ -536,7 +535,6 @@ public class Database {
 
 	public void addResultEntry(Result result) {
 		String name = result.getName();
-
 		if (!sensitivityList.contains(name))
 			return;
 

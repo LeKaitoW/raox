@@ -122,8 +122,6 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 	private int totalSpawned;
 	private int totalAdded;
 
-	public static int delay = 100;
-
 	@Override
 	public boolean check() {
 		Database database = Simulator.getDatabase();
@@ -156,15 +154,6 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 		nodesOpen.addAll(head.children);
 
 		while (!nodesOpen.isEmpty()) {
-			// TODO REMOVE THIS
-			try
-			{
-				Thread.sleep(delay);
-			}
-			catch(Exception e)
-			{
-				
-			}
 			if (!allowSearch)
 				return stop(StopCode.ABORTED);
 
@@ -320,8 +309,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 			break;
 		case SUCCESS:
 			databaseAddDecision();
-			//TODO delete this
-			//decisionCode = true;
+			decisionCode = true;
 		default:
 			finalCost = current.g;
 			break;

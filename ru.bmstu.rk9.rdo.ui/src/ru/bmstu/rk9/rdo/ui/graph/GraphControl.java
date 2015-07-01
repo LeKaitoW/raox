@@ -103,9 +103,9 @@ public class GraphControl {
 	}
 
 	public static void openFrameWindow(FrameInfo frameInfo) {
-		if (!GraphControl.openedGraphMap.containsKey(frameInfo.dptNumber))
+		if (!GraphControl.openedGraphMap.containsKey(frameInfo.dptNumber)) {
 			GraphControl.createFrameWindow(frameInfo);
-		else {
+		} else {
 			GraphFrame currentFrame = GraphControl.openedGraphMap
 					.get(frameInfo.dptNumber);
 			if (currentFrame.getState() == Frame.ICONIFIED)

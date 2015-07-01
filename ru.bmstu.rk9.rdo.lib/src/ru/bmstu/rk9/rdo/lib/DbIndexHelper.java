@@ -24,7 +24,7 @@ public class DbIndexHelper implements Subscriber {
 		return root.getChildren().get(modelName);
 	}
 
-	public final CollectedDataNode getCategory(SerializationCategory category) {
+	private final CollectedDataNode getCategory(SerializationCategory category) {
 		return getModel().getChildren().get(category.getName());
 	}
 
@@ -81,7 +81,7 @@ public class DbIndexHelper implements Subscriber {
 	// -----------------------NOTIFICATION SYSTEM -------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	//TODO unify with Tracer notification system
+	// TODO unify with Tracer notification system
 
 	private boolean paused = true;
 

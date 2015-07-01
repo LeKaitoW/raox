@@ -43,7 +43,7 @@ public class ModelStructureCache {
 	final List<DecisionPointCache> decisionPointsInfo = new ArrayList<DecisionPointCache>();
 
 	public final List<DecisionPointCache> getDecisionPointsInfo() {
-		return this.decisionPointsInfo;
+		return decisionPointsInfo;
 	}
 
 	public final String getDecisionPointName(int dptNumber) {
