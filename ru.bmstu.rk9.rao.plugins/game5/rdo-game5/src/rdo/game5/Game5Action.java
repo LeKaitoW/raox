@@ -6,7 +6,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import rdo.game5.Game5View;
 
 /**
  * Our sample action implements workbench action delegate. The action proxy will
@@ -16,11 +15,11 @@ import rdo.game5.Game5View;
  * 
  * @see IWorkbenchWindowActionDelegate
  */
-public class SampleAction implements IWorkbenchWindowActionDelegate {
+public class Game5Action implements IWorkbenchWindowActionDelegate {
 	/**
 	 * The constructor.
 	 */
-	public SampleAction() {
+	public Game5Action() {
 	}
 
 	/**
@@ -31,11 +30,9 @@ public class SampleAction implements IWorkbenchWindowActionDelegate {
 	 */
 	public void run(IAction action) {
 		try {
-			PlatformUI
-					.getWorkbench()
-					.getActiveWorkbenchWindow()
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 					.getActivePage()
-					.showView(Game5View.ID);
+					.openEditor(new Game5EditorInput(), Game5View.ID);
 		} catch (PartInitException e) {
 			e.printStackTrace();
 		}
