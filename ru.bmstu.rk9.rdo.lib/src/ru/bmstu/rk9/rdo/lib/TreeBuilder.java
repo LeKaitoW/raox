@@ -37,23 +37,14 @@ public class TreeBuilder implements Subscriber {
 	public ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock(true);
 
 	public class Node {
-
 		public Node parent;
-
 		public List<Node> children = new ArrayList<Node>();
-
 		public int index;
-
 		public double g;
-
 		public double h;
-
 		public int ruleNumber;
-
 		public String ruleDesсription;
-
 		public double ruleCost;
-
 		public String label;
 
 		@Override
@@ -220,9 +211,7 @@ public class TreeBuilder implements Subscriber {
 	}
 
 	public final Map<Integer, DPTSimulationInfo> dptSimulationInfoMap = new HashMap<Integer, DPTSimulationInfo>();
-
 	private int entryNumber = 0;
-
 	private final Map<Integer, Integer> lastAddedNodeIndexMap = new HashMap<Integer, Integer>();
 
 	public Map<Integer, Integer> getLastAddedNodeIndexMap() {

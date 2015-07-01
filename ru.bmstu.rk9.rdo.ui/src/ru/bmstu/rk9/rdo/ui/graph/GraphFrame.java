@@ -49,8 +49,7 @@ public class GraphFrame extends JFrame {
 
 	final Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
 
-	private void drawGraph(mxGraph graph, List<Node> nodeList,
-			Node parentNode) {
+	private void drawGraph(mxGraph graph, List<Node> nodeList, Node parentNode) {
 		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(),
 				null, parentNode, getAbsoluteX(0.5), getAbsoluteY(0.05),
 				nodeWidth, nodeHeight, fontColor + strokeColor);
@@ -71,8 +70,8 @@ public class GraphFrame extends JFrame {
 	final String strokeColor = "strokeColor=000000;";
 	final String fontColor = "fontColor=000000;";
 
-	public void colorNodes(Map<Node, mxCell> vertexMap,
-			List<Node> nodeList, List<Node> solution) {
+	public void colorNodes(Map<Node, mxCell> vertexMap, List<Node> nodeList,
+			List<Node> solution) {
 		if (!solution.isEmpty()) {
 			Node rootNode = nodeList.get(0);
 			vertexMap.get(rootNode).setStyle(
@@ -86,8 +85,7 @@ public class GraphFrame extends JFrame {
 
 	private int lastAddedVertexIndex = 0;
 
-	private void drawNewVertex(mxGraph graph, List<Node> nodeList,
-			int dptNum) {
+	private void drawNewVertex(mxGraph graph, List<Node> nodeList, int dptNum) {
 		Simulator.getTreeBuilder().rwLock.readLock().lock();
 		try {
 			int lastAddedNodeIndex = Simulator.getTreeBuilder()
@@ -373,15 +371,12 @@ public class GraphFrame extends JFrame {
 	public GraphFrame(int dptNum, int width, int height) {
 
 		this.setSize(width, height);
-
 		setAspectRatio();
 
 		frameDimension = this.getSize();
-
 		setProportions(frameDimension);
 
 		List<Node> nodeList;
-
 		Simulator.getTreeBuilder().rwLock.readLock().lock();
 		try {
 			nodeList = Simulator.getTreeBuilder().listMap.get(dptNum);
@@ -390,13 +385,11 @@ public class GraphFrame extends JFrame {
 		}
 
 		final mxGraph graph = new mxGraph();
-
 		graph.getModel().beginUpdate();
 		try {
 			drawGraph(graph, nodeList, nodeList.get(0));
 
 			boolean isFinished;
-
 			Simulator.getTreeBuilder().rwLock.readLock().lock();
 			try {
 				isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap
@@ -421,11 +414,9 @@ public class GraphFrame extends JFrame {
 		getContentPane().add(graphComponent);
 
 		mxCompactTreeLayout layout = new mxCompactTreeLayout(graph, false);
-
 		layout.setLevelDistance(levelDistance);
 		layout.setNodeDistance(nodeDistance);
 		layout.setEdgeRouting(false);
-
 		layout.execute(graph.getDefaultParent());
 
 		graphFrameUpdateTimerTask = new TimerTask() {
@@ -479,8 +470,8 @@ public class GraphFrame extends JFrame {
 						try {
 							GraphInfo info = Simulator.getTreeBuilder().infoMap
 									.get(dptNum);
-							List<Node> solution = Simulator
-									.getTreeBuilder().solutionMap.get(dptNum);
+							List<Node> solution = Simulator.getTreeBuilder().solutionMap
+									.get(dptNum);
 							colorNodes(vertexMap, nodeList, solution);
 							insertInfo(graph, info);
 						} finally {
@@ -529,15 +520,12 @@ public class GraphFrame extends JFrame {
 				});
 
 		this.addKeyListener(new KeyListener() {
-
 			@Override
 			public void keyTyped(KeyEvent e) {
-
 			}
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-
 			}
 
 			@Override
