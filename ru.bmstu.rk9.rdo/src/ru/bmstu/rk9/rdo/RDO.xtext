@@ -4,335 +4,281 @@ import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 
 generate rdo "http://www.bmstu.ru/rk9/rdo/RDO"
 
-// ==========================================================
-//                          Root tokens
-// ==========================================================
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                               Root tokens                             //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
 RDOModel:
 	{RDOModel} objects += RDOEntity*
 ;
 
 RDOEntity
-	: ResourceType   // RTP
-	| Resources      // RSS
-	| Sequence       // FUN-SEQ 
-	| Constants      // FUN-CON
-	| Function       // FUN-FUN
-	| Pattern        // PAT & EVN
-	| DecisionPoint  // DPT
-	| Frame          // FRM
-	| Results        // PMD
-	| SimulationRun  // SMR
+	: ResourceType
+	| ResourceCreateStatement
+	| Sequence
+	| Constant
+	| Function
+	| Event
+	| Pattern
+	| DecisionPoint
+	| Frame
+	| Result
+	| DefaultMethod
+	| EnumDeclaration
 ;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                             Resource Types                            //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-// ==========================================================
-//                        Resource Types
-// ==========================================================
 ResourceType:
-	'$Resource_type' name = ID ':' type = ResourceTypeKind
-	'$Parameters'
-		(parameters += ResourceTypeParameter)+
-	'$End'
+	'type' name = ID '{'
+		(parameters += ParameterType ';' )+
+	'}'
 ;
 
-ResourceTypeParameter:
-	name = ID ':' type = RDORTPParameterType
+ParameterType
+	: ParameterTypeBasic
+	| ParameterTypeString
+	| ParameterTypeArray
 ;
 
-RDORTPParameterType
-	: RDORTPParameterBasic
-	| RDORTPParameterString
-	| RDORTPParameterEnum
-	| RDORTPParameterSuchAs
-	| RDORTPParameterArray
+ParameterTypeBasic:
+	type = (RDOInt | RDODouble | RDOBoolean | RDOEnum) name = ID
+		('=' default = ExpressionOr)?
 ;
 
-RDORTPParameterBasic:
-	type = (RDOInteger | RDOReal | RDOBoolean) ('=' default = ExpressionOr)?
+ParameterTypeString:
+	type = RDOString name = ID ('=' default = STRING)?
 ;
 
-RDORTPParameterString:
-	type = RDOString  ('=' default = STRING)?
+ParameterTypeArray:
+	type = RDOArray name = ID ('=' default = ArrayValues)?
 ;
 
-RDORTPParameterEnum:
-	type = RDOEnum ('=' default = [EnumID])?
-;
-
-RDORTPParameterSuchAs:
-	type = RDOSuchAs ('=' default = ExpressionOr)?
-;
-
-RDORTPParameterArray:
-	type = RDOArray ('=' default = ArrayValues)?
-;
-
-enum ResourceTypeKind
-	: PERMANENT = 'permanent'
-	| TEMPORARY = 'temporary'
-;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-// ==========================================================
-//                           Resources
-// ==========================================================
-Resources:
-	object = '$Resources'
-		(resources += ResourceDeclaration)+
-	'$End'
-;
-
-ResourceDeclaration:
-	name = ID '=' reference = [ResourceType|FQN]
-	'(' ( parameters = ResourceExpressionList )? ')' ';'
-;
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                                Resources                              //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 ResourceExpressionList:
-	expressions += (ResourceParameterExpression) (',' expressions += ResourceParameterExpression)*	
+	expressions += (ResourceParameterExpression) (',' expressions += ResourceParameterExpression)*
 ;
 
 ResourceParameterExpression
 	: {RDODefaultParameter} '*'
 	| ExpressionOr
 ;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                                 Events                                //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-// ==========================================================
-//                          Patterns
-// ==========================================================
-Pattern
-	: Operation
-	| Rule
-	| Event
+Event:
+	'event' name = ID '('
+		(parameters += ParameterType (
+			',' parameters += ParameterType)* )? ')' '{'
+		body = StatementList
+	'}'
 ;
 
-Operation:
-	'$Pattern' name = ID ':' type = OperationType
-	('$Parameters'
-		parameters += PatternParameter+ )?
-	 '$Relevant_resources'
-		 relevantresources += OperationRelevantResource+
-		(combinational = PatternChoiceMethod)?
-	 '$Time' '=' time = ExpressionOr
-	 '$Body'
-		algorithms += OperationConvert+
-	 '$End'
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                                 Patterns                              //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+Pattern:
+	type = PatternType name = ID '('
+		(parameters += ParameterType (
+			',' parameters += ParameterType)* )? ')' '{'
+		relevantresources += RelevantResource*
+		('relevantSet' combinational = PatternSelectMethod ';')?
+		defaultMethods += DefaultMethod*
+	'}'
 ;
 
-enum OperationType
+enum PatternType
 	: OPERATION = 'operation'
+	| RULE = 'rule'
 	| KEYBOARD = 'keyboard'
 ;
 
-OperationRelevantResource:	
-	name = ID ':' type = [META_RelResType|FQN] // !!! SCOPING NEEDED
-	begin = PatternConvertStatus end = PatternConvertStatus
+RelevantResource:
+	'relevant' name = ID '=' type = [META_RelResType|FQN]
+	(haveselect ?= '.' 'select' '(' select = PatternSelectLogic ')'
+		(selectmethod = PatternSelectMethod)?
+	)? ';'
 ;
 
-OperationConvert:
-	relres = [OperationRelevantResource|FQN] ':'
-	(havechoice ?= 'Choice' choicefrom = PatternChoiceFrom (choicemethod = PatternChoiceMethod)? )?
-	(havebegin ?= 'Convert_begin'
-		beginstatements = StatementList )?
-	(haveend ?= 'Convert_end'
-		endstatements = StatementList )?
+PatternSelectLogic
+	: logic = ExpressionOr
+	| any ?= 'any'
 ;
 
-Rule:
-	'$Pattern' name = ID ':' 'rule'
-	('$Parameters'
-		parameters += PatternParameter+ )?
-	 '$Relevant_resources'
-		 relevantresources += RuleRelevantResource+
-		(combinational = PatternChoiceMethod)?
-	 '$Body'
-		algorithms += RuleConvert+
-	 '$End'
+PatternSelectMethod
+	: first ?= '.' 'first' '(' ')'
+	| '.' withtype = PatternSelectWithType '(' expression = ExpressionOr ')'
 ;
 
-RuleRelevantResource:
-	name = ID ':' type = [META_RelResType|FQN]
-	rule = PatternConvertStatus
+enum PatternSelectWithType
+	: WITH_MIN = 'withMin'
+	| WITH_MAX = 'withMax'
 ;
 
-RuleConvert:
-	relres = [RuleRelevantResource|ID] ':'
-	(havechoice ?= 'Choice' choicefrom = PatternChoiceFrom (choicemethod = PatternChoiceMethod)? )?
-	(haverule ?= 'Convert_rule'
-		statements = StatementList )?
-;
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                              Decision point                           //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-Event:
-	'$Pattern' name = ID ':' 'event'
-	('$Parameters'
-		parameters += PatternParameter+ )?
-	 '$Relevant_resources'
-		relevantresources += EventRelevantResource+
-	 '$Body'
-		algorithms += EventConvert+
-	 '$End'
-;
-
-EventRelevantResource:
-	name = ID ':' type = [META_RelResType|FQN]
-	rule = PatternConvertStatus
-;
-
-EventConvert:
-	relres = [EventRelevantResource|ID] ':'
-	'Convert_event'
-		statements = StatementList
-;
-
-PatternChoiceFrom
-	: 'from' logic = ExpressionOr
-	| nocheck ?= 'NoCheck'
-;
-
-PatternChoiceMethod
-	: first ?= 'first'
-	| withtype = PatternChoiceWithType expression = ExpressionOr
-;
-
-enum PatternChoiceWithType
-	: WITH_MIN = 'with_min'
-	| WITH_MAX = 'with_max'
-;
-
-PatternParameter:
-	name = ID ':' type = RDORTPParameterType
-;
-
-enum PatternConvertStatus
-	: KEEP = 'Keep'
-	| NOCHANGE = 'NoChange'
-	| CREATE = 'Create'
-	| ERASE = 'Erase'
-	| NONEXIST = 'NonExist'
-;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-// ==========================================================
-//                        Decision point
-// ==========================================================
 DecisionPoint
 	: DecisionPointSome
-	| DecisionPointPrior
 	| DecisionPointSearch
 ;
 
 DecisionPointSome:
-	 '$Decision_point' name = ID ':' 'some'
-	('$Parent' parent = [DecisionPoint|FQN])?
-	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
-	 '$Activities'
-		( activities += DecisionPointActivity ';' )+
-	 '$End'
-;
-
-DecisionPointPrior:
-	 '$Decision_point' name = ID ':' 'prior'
-	('$Parent' parent = [DecisionPoint|FQN])?
-	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
-	 '$Priority' priority = ExpressionOr
-	 '$Activities'
-		( activities += DecisionPointPriorActivity ';' )+
-	 '$End'
-;
-
-DecisionPointSearch:
-	 '$Decision_point' name = ID ':' 'search'
-	('$Parent' parent = [DecisionPoint|FQN])?
-	('$Condition' (condition = ExpressionOr | 'NoCheck'))?
-	 '$Term_condition' termination = ExpressionOr
-	 '$Evaluate_by' evaluateby = ExpressionOr
-	 '$Compare_tops' '=' ((comparetops ?= 'YES') | 'NO')
-	 '$Activities'
-		( activities += DecisionPointSearchActivity ';' )+
-	 '$End'
-;
-
-DecisionPointSearchActivity:
-	name = ID ':' pattern = [Rule|FQN] ('(' parameters += ExpressionOr (',' parameters += ExpressionOr)* ')')?
-	('value before' valuebefore = ExpressionOr
-	|'value after'  valueafter = ExpressionOr)
-;
-
-DecisionPointPriorActivity:
-	activity = DecisionPointActivity (('CF' | 'cf') '=' priority = ExpressionOr)?
+	'dpt' name = ID '{'
+		('set' initName = ID '(' ')' '{'
+			(initStatements += DptStatements ';')*
+		'}')?
+		( activities += DecisionPointActivity ';')+
+	'}'
 ;
 
 DecisionPointActivity:
-	name = ID ':' pattern = [META_DecisionPointActivity|FQN] ('(' parameters += ExpressionOr (',' parameters += ExpressionOr)* ')')?
+	'activity' name = ID ('(' priority = ExpressionOr ')')?
+	'checks' pattern = [Pattern|FQN]
+	'(' ( parameters += ExpressionOr (
+			',' parameters += ExpressionOr)* )? ')'
 ;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+DptStatements
+	: DptSetParentStatement
+	| DptSetConditionStatement
+	| DptSetPriorityStatement
+;
 
-// ==========================================================
-//                           Sequences
-// ==========================================================
+DecisionPointSearch:
+	'search' name = ID '{'
+		'set' initName = ID '(' ')' '{'
+			(initStatements += DptSearchStatemets ';')*
+		'}'
+		( activities += DecisionPointSearchActivity ';')+
+	'}'
+;
+
+DecisionPointSearchActivity:
+	'activity' name = ID 'checks' pattern = [Pattern|FQN]
+	'(' ( parameters += ExpressionOr (
+		',' parameters += ExpressionOr)* )? ')'
+	'.' (
+		'setValueBefore' '(' valuebefore = ExpressionOr ')'
+		| 'setValueAfter'  '(' valueafter = ExpressionOr ')'
+	)
+;
+
+DptSearchStatemets
+	: DptSetTerminateConditionStatement
+	| DptEvaluateByStatement
+	| DptCompareTopsStatement
+	| DptSetParentStatement
+	| DptSetConditionStatement
+;
+
+DptSetParentStatement:
+	name = 'setParent' '(' parent = [DecisionPoint|FQN] ')'
+;
+
+DptSetConditionStatement:
+	name = 'setCondition' '(' (condition = ExpressionOr | 'any') ')'
+;
+
+DptSetPriorityStatement:
+	name = 'setPriority' '(' (priority = ExpressionOr) ')'
+;
+
+DptSetTerminateConditionStatement:
+	name = 'setTerminateCondition' '(' termination = ExpressionOr ')'
+;
+
+DptEvaluateByStatement:
+	name = 'evaluateBy' '(' evaluateby = ExpressionOr ')'
+;
+
+DptCompareTopsStatement:
+	name = 'compareTops' '(' ((comparetops ?= 'true') | 'false') ')'
+;
+
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                                  Sequences                            //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
 Sequence:
-	'$Sequence' name = ID ':' returntype = RDOType
-	'$Type' '='	type = SequenceType
-	'$End'
+	'sequence' name = ID '=' returntype = RDOType type = SequenceType
 ;
 
 SequenceType
 	: EnumerativeSequence
-	| RegularSequence
 	| HistogramSequence
+	| RegularSequence
 ;
 
 EnumerativeSequence:
-	'enumerative'
-	'$Body'
+	'enumerative' '(' ')'
+	'{'
 		values += Primary+
-;
-
-RegularSequence:
-	type = RegularSequenceType seed = INT legacy ?= 'legacy'?
-;
-
-enum RegularSequenceType
-	: UNIFORM = 'uniform'
-	| EXPONENTIAL = 'exponential'
-	| NORMAL = 'normal'
-	| TRIANGULAR = 'triangular'
+	'}'
 ;
 
 HistogramSequence:
-	'by_hist' seed = INT legacy ?= 'legacy'?
-	'$Body'
+	legacy ?= 'legacy'? 'histogram' '(' seed = INT ')'
+	'{'
 		values += Primary+
-;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-// ==========================================================
-//                          Constants
-// ==========================================================
-Constants:
-	'$Constant'
-		(constants += ConstantDeclaration)+
-	'$End'
+	'}'
 ;
 
-ConstantDeclaration:
-	name = ID ':' type = RDOType '=' value = ExpressionOr
+RegularSequence
+	: UniformSequence
+	| ExponentialSequence
+	| NormalSequence
+	| TriangularSequence
 ;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+UniformSequence:
+	legacy ?= 'legacy'? type = 'uniform' '('
+			seed = INT (',' a = ExpressionOr ',' b = ExpressionOr)?
+	')' ';'
+;
 
-// ==========================================================
-//                          Functions
-// ==========================================================
+ExponentialSequence:
+	legacy ?= 'legacy'? type = 'exponential' '('
+			seed = INT (',' rate = ExpressionOr)?
+	')' ';'
+;
+
+NormalSequence:
+	legacy ?= 'legacy'? type = 'normal' '('
+			seed = INT (',' mean = ExpressionOr ',' deviation = ExpressionOr)?
+	')' ';'
+;
+
+TriangularSequence:
+	legacy ?= 'legacy'? type = 'triangular' '('
+			seed = INT (',' a = ExpressionOr ','
+				b = ExpressionOr ',' c = ExpressionOr)?
+	')' ';'
+;
+
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                               Constants                               //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+Constant:
+	'constant' type = RDOType name = ID '=' value = ExpressionOr ';'
+;
+
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                              Functions                                //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
 Function:
-	'$Function' name = ID ':' returntype = RDOType ('=' default = ExpressionOr)?
-	'$Type' '=' type = FunctionType
+	returntype = RDOType type = FunctionType
 ;
 
 FunctionType
@@ -342,57 +288,46 @@ FunctionType
 ;
 
 FunctionAlgorithmic:
-	 'algorithmic'
-	('$Parameters'? | ('$Parameters' 
-		parameters = FunctionParameters))
-	 '$Body'
+	('function')? name = ID '('
+	(parameters += FunctionParameter (
+		',' parameters += FunctionParameter)*)? ')'
+	'{'
 		algorithm = StatementList
-	 '$End'
+	'}'
 ;
 
 FunctionTable:
-	'table'
-	'$Parameters' 
-		parameters = FunctionParameters
-	'$Body'
-		table += Primary+ 
-	'$End'
+	'table' name = ID '('
+		parameters += FunctionParameter (
+		',' parameters += FunctionParameter)* ')'
+	'{'
+		table += Primary+
+	'}'
 ;
 
 FunctionList:
-	'list'
-	'$Parameters'
-		parameters = FunctionParameters
-	'$Body'
+	'list' name = ID '('
+		parameters += FunctionParameter (
+		',' parameters += FunctionParameter)* ')'
+	'{'
 		list += FunctionListValue+
-	'$End'
-;
-
-FunctionParameters:
-	parameters += FunctionParameter+
+	'}'
 ;
 
 FunctionParameter:
-	name = ID ':' type = RDOType
+	type = RDOType name = ID
 ;
 
 FunctionListValue:
 	parameters += Primary+ '=' value = ExpressionOr
 ;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                                Results                                //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-// ==========================================================
-//                           Results
-// ==========================================================
-Results:
-	'$Results' name = ID?
-		(results += ResultDeclaration)+
-	'$End'
-;
-
-ResultDeclaration:
-	name = ID ':' type = ResultType
+Result:
+	'result' name = ID '=' type = ResultType ';'
 ;
 
 ResultType
@@ -404,40 +339,40 @@ ResultType
 ;
 
 ResultWatchParameter:
-	'watch_par' parameter = VariableMethodCallExpression
+	'watchParameter' '(' parameter = VariableMethodCallExpression ')'
 ;
 
 ResultWatchState:
-	'watch_state' logic = ExpressionOr
+	'watchState' '(' logic = ExpressionOr ')'
 ;
 
 ResultWatchQuant:
-	'watch_quant' resource = [ResourceType|FQN] ('NoCheck' | logic = ExpressionOr)
+	'watchQuant' '(' resource = [ResourceType|FQN]
+		',' ('any' | logic = ExpressionOr) ')'
 ;
 
 ResultWatchValue:
-	'watch_value' resource = [ResourceType|FQN]
-	( 'NoCheck'? | logic = ExpressionOr ) ':' expression = ExpressionOr
+	'watchValue' '(' resource = [ResourceType|FQN] ','
+	( 'any' | logic = ExpressionOr ) ',' expression = ExpressionOr ')'
 ;
 
 ResultGetValue:
-	'get_value' expression = ExpressionOr
+	'getValue' '(' expression = ExpressionOr ')'
 ;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                           Animation frame                             //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-// ==========================================================
-//                      Animation frame
-// ==========================================================
 Frame:
-	'$Frame' name = ID
+	'frame' name = ID '{'
 	(backpicture = FrameBackPicture)?
 		frame = FrameStatementList
-	'$End'	
+	'}'
 ;
 
 FrameBackPicture:
-	'$Back_picture' colour = FrameColour
+	'background' '=' colour = FrameColour
 	(picture = ProjectFilePath | size = FrameBackPictureSize)
 ;
 
@@ -482,7 +417,7 @@ FrameIfStatement returns IfStatement:
 ;
 
 FrameForStatement returns ForStatement:
-	'for' '(' 
+	'for' '('
 	( declaration = LocalVariableDeclaration | init = Expression )? ';'
 	  condition = Expression? ';'
 	  update = Expression? ')'
@@ -519,7 +454,7 @@ FrameObjectRectangle:
 		x = ExpressionOr ',' y = ExpressionOr ','
 		width = ExpressionOr ',' height = ExpressionOr ','
 		backcolour = FrameColour ','
-		bordercolour = FrameColour		
+		bordercolour = FrameColour
 	')'
 ;
 
@@ -527,7 +462,7 @@ FrameObjectLine:
 	'line' '('
 		x1 = ExpressionOr ',' y1 = ExpressionOr ','
 		x2 = ExpressionOr ',' y2 = ExpressionOr ','
-		colour = FrameColour ','		
+		colour = FrameColour ','
 	')'
 ;
 
@@ -536,7 +471,7 @@ FrameObjectCircle:
 		x = ExpressionOr ',' y = ExpressionOr ','
 		radius = ExpressionOr ','
 		backcolour = FrameColour ','
-		bordercolour = FrameColour		
+		bordercolour = FrameColour
 	')'
 ;
 
@@ -545,7 +480,7 @@ FrameObjectEllipse:
 		x = ExpressionOr ',' y = ExpressionOr ','
 		width = ExpressionOr ',' height = ExpressionOr ','
 		backcolour = FrameColour ','
-		bordercolour = FrameColour		
+		bordercolour = FrameColour
 	')'
 ;
 
@@ -555,93 +490,72 @@ FrameObjectTriangle:
 		x2 = ExpressionOr ',' y2 = ExpressionOr ','
 		x3 = ExpressionOr ',' y3 = ExpressionOr ','
 		backcolour = FrameColour ','
-		bordercolour = FrameColour		
+		bordercolour = FrameColour
 	')'
 ;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                             Default methods                           //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-// ==========================================================
-//                      Simulation run
-// ==========================================================
-SimulationRun:
-	name = '$Simulation_run'
-		commands += SimulationCommand*
-	'$End'
+DefaultMethod:
+	'set' name = ID '(' ')' '{'
+		body = StatementList
+	'}'
 ;
 
-SimulationCommand
-	: Statement
-	| TerminateIf ';'
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                           Enum Declarations                           //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+EnumDeclaration:
+	'enum' name = ID '{' values += ID (',' values += ID)* '}'
 ;
 
-TerminateIf:
-	term = 'Terminate_if' => condition = ExpressionOr
-;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                      Meta types for cross-references                  //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-
-// ==========================================================
-//               Meta types for cross-references
-// ==========================================================
 META_RelResType
 	: ResourceType
-	| ResourceDeclaration
+	| ResourceCreateStatement
 ;
 
-META_SuchAs
-	: ResourceTypeParameter
-	| ConstantDeclaration
+META_ResReference
+	: ResourceCreateStatement
+	| RelevantResource
 ;
 
-META_DecisionPointActivity
-	: Operation
-	| Rule
-;
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                               RAO types                               //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-// это не работает. FQN рушит вызов методов, линкер требует нормальных имен
-//META_VariableForExpression
-//	: ResourceDeclaration
-//	| LocalVariableDeclaration
-//	| Sequence
-//	| ConstantDeclaration
-//	| Function
-//	| EnumID
-//;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-// ==========================================================
-//                           RAO types
-// ==========================================================
 FQN: ID ('.' ID)*;
 // fully qualified names enable nested types cross references
 
 RDOType
-	: RDOInteger
-	| RDOReal
+	: RDOInt
+	| RDODouble
 	| RDOBoolean
 	| RDOString
-	| RDOEnum
-	| RDOSuchAs	
 	| RDOArray
-	| RDOOwnType
+	| RDOEnum
 ;
 
-RDOInteger:
-	type = 'integer' range=DeclarationRange?
+RDOInt:
+	type = 'int' range=DeclarationRange?
 ;
 
-RDOReal:
-	type = 'real' range=DeclarationRange?
+RDODouble:
+	type = 'double' range=DeclarationRange?
 ;
 
 RDOBoolean:
-	type = 'bool'
+	type = 'boolean'
 ;
 
 RDOString:
-	type = 'string'
+	type = 'String'
 ;
 
 DeclarationRange
@@ -654,54 +568,38 @@ RangeValue
 ;
 
 RDOEnum:
-	'(' enums += EnumID (',' enums += EnumID)* ')' 
-;
-
-EnumID:
-	name = ID
-;
-
-RDOSuchAs:
-	'such_as' type = [META_SuchAs|FQN]
+	type = [EnumDeclaration|FQN]
 ;
 
 RDOArray:
 	'array' '<' arraytype = RDOType '>'
 ;
 
-RDOOwnType:
-	id = [ResourceType|FQN]
-;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                           Statement language                          //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-
-// ==========================================================
-//                      Statement language
-// ==========================================================
 StatementList:
 	(statements += Statement)+
 ;
 
 Statement
 	: empty ?= ';'
-	| ExpressionStatement ';'
+	| ExpressionStatement
 	| NestedStatement
-	| LocalVariableDeclaration ';'
+	| LocalVariableDeclaration
 	| IfStatement
 	| ForStatement
-	| BreakStatement ';'
-	| ReturnStatement ';'
-//	| process_input_statement
-	| NoChangeStatement ';'
-	| StoppingStatement ';' // ?????????
-	| PlanningStatement ';'
-	| LegacySetStatement ';'
-//	| watch_start
-//	| watch_stop
+	| BreakStatement
+	| ReturnStatement
+	| StopStatement // not implemented in generator
+	| PlanStatement
+	| ResourceCreateStatement
+	| ResourceEraseStatement
 ;
 
 ExpressionStatement:
-	expr = ExpressionAssignment
+	expr = ExpressionAssignment ';'
 ;
 
 NestedStatement:
@@ -709,7 +607,7 @@ NestedStatement:
 ;
 
 LocalVariableDeclaration:
-	type = RDOType list = VariableDeclarationList
+	type = RDOType list = VariableDeclarationList ';'
 ;
 
 VariableDeclarationList:
@@ -729,7 +627,7 @@ IfStatement:
 ;
 
 ForStatement:
-	'for' '(' 
+	'for' '('
 	( declaration = LocalVariableDeclaration | init = Expression )? ';'
 	  condition = Expression? ';'
 	  update = Expression? ')'
@@ -737,37 +635,37 @@ ForStatement:
 ;
 
 BreakStatement:
-	break ?= 'break'
+	break ?= 'break' ';'
 ;
 
 ReturnStatement:
-	invoke = 'return' return = Expression?
+	invoke = 'return' return = Expression? ';'
 ;
 
-NoChangeStatement:
-	name = ID 'NoChange'
+StopStatement:
+	event = [Event|FQN] '.' 'stop' '(' ')' ';'
 ;
 
-StoppingStatement:
-	event = [Event|FQN] '.' 'stopping' '(' ')'
+PlanStatement:
+	event = [Event|FQN] '.' 'plan' '(' value = Expression
+		(',' parameters = ResourceExpressionList)? ')' ';'
 ;
 
-PlanningStatement:
-	event = [Event|FQN] '.' 'planning' '(' value = Expression
-		(',' parameters = ResourceExpressionList)? ')'
+ResourceCreateStatement:
+	('resource' name = ID '=')? type = [ResourceType|FQN]
+		'.' 'create' '(' ( parameters = ResourceExpressionList )? ')' ';'
 ;
 
-LegacySetStatement:
-	call = FQN 'set' value = Expression
+ResourceEraseStatement:
+	res = [META_ResReference | FQN] '.' 'erase' '('')' ';'
 ;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                          Expression language                          //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-// ==========================================================
-//                      Expression language
-// ==========================================================
 ExpressionList:
-	values += Expression  (',' values += Expression)*	
+	values += Expression  (',' values += Expression)*
 ;
 
 Expression
@@ -778,7 +676,7 @@ Expression
 ExpressionAssignment returns Expression:
 	ExpressionOr (
 		=> op = ('='|'+='|'-='|'*='|'/='|'%=') {ExpressionAssignment.left = current} next = ExpressionOr
-	)*	
+	)*
 ;
 
 // Or: left associative, priority 0
@@ -787,16 +685,16 @@ ExpressionOr returns Expression:
 		('or' | '||') {ExpressionOr.left = current} right = ExpressionAnd
 	)*
 ;
- 
+
 // And: left associative, priority 1
 ExpressionAnd returns Expression:
 	ExpressionCompare (
 		('and' | '&&') {ExpressionAnd.left = current} right = ExpressionCompare
 	)*
 ;
- 
+
 // Comparisons: left associative, priority 2
-ExpressionCompare returns Expression: 
+ExpressionCompare returns Expression:
 	ExpressionPlusMinus (
 		('>'  {ExpressionLarger.left=current} right=ExpressionPlusMinus) |
 		('>=' {ExpressionLarger_Equal.left=current} right=ExpressionPlusMinus) |
@@ -808,13 +706,13 @@ ExpressionCompare returns Expression:
 ;
 
 // addition/subtraction: left associative, priority 3
-ExpressionPlusMinus returns Expression: 
+ExpressionPlusMinus returns Expression:
 	ExpressionMultiplicationDivisionModulo (
 		('+'  {ExpressionPlus.left=current} right=ExpressionMultiplicationDivisionModulo) |
 		('-'  {ExpressionMinus.left=current} right=ExpressionMultiplicationDivisionModulo)
 	)*
 ;
- 
+
 // multiplication/division, left associative, priority 4
 ExpressionMultiplicationDivisionModulo returns Expression:
 	ExpressionUnary (
@@ -823,16 +721,16 @@ ExpressionMultiplicationDivisionModulo returns Expression:
 		(('%' | 'mod') {ExpressionModulo.left=current} right=ExpressionUnary)
 	)*
 ;
- 
+
 // Unary operators: right associative, priority 5
 ExpressionUnary returns Expression
 	: ExpressionExponentiation
 	| (('!' | 'not') {ExpressionNegate} exp=ExpressionUnary)
 	| ('-'   {ExpressionInvert} exp=ExpressionUnary)
 ;
- 
+
 // exponentiation: right associative, priority 6
-ExpressionExponentiation returns Expression: 
+ExpressionExponentiation returns Expression:
 	Primary
 	( ('^' | '**') {ExpressionExponentiation.left=current} right=ExpressionExponentiation )?
 ;
@@ -845,11 +743,11 @@ Primary returns Expression
 Atomic returns Expression
 	: {IntConstant}    value = INT
 	| {DoubleConstant} value = DOUBLE
-	| {TimeNow} invoke = ('Time_now' | 'time_now')
+	| {TimeNow} invoke = ('currentTime')
 	| {StringConstant} value = STRING
 	| {BoolConstant}   value = BOOL
 	| {GroupExpression} type = BuiltInLogical '(' arg = GroupBy ')'
-	| {SelectExpression} 'Select' '(' arg = GroupBy ')' '.' method = SelectMethod '(' (arg2 = ExpressionOr | 'NoCheck'?) ')'
+	| {SelectExpression} 'Select' '(' arg = GroupBy ')' '.' method = SelectMethod '(' (arg2 = ExpressionOr | 'any'?) ')'
 	| ArrayValues
 	| VariableIncDecExpression
 ;
@@ -859,24 +757,24 @@ ArrayValues:
 ;
 
 enum BuiltInLogical
-	: EXIST = 'Exist'
-	| NOTEXIST = 'Not_Exist'
-	| FORALL = 'For_All'
-	| NOTFORALL = 'Not_For_All'
+	: EXIST = 'exist'
+	| NOTEXIST = 'notExist'
+	| FORALL = 'forAll'
+	| NOTFORALL = 'except'
 ;
 
 enum SelectMethod
-	: EXIST = 'Exist'
-	| NOTEXIST = 'Not_Exist'
-	| FORALL = 'For_All'
-	| NOTFORALL = 'Not_For_All'
-	| EMPTY = 'Empty'
-	| SIZE = 'Size'
+	: EXIST = 'exist'
+	| NOTEXIST = 'notExist'
+	| FORALL = 'forAll'
+	| NOTFORALL = 'except'
+	| EMPTY = 'empty'
+	| SIZE = 'size'
 ;
 
 GroupBy:
 	type = [ResourceType|FQN] ':'
-		(condition = ExpressionOr | 'NoCheck')
+		(condition = ExpressionOr | 'any')
 ;
 
 VariableIncDecExpression
@@ -889,18 +787,18 @@ VariableMethodCallExpression
 ;
 
 // будешь сидеть и валидировать этот ID до посинения
+// +1
 VariableExpression
 	: call = ID
 	( => functionfirst ?= '(' (args = ExpressionList)? ')' ( => arraylast ?= '[' iterator = Expression ']' )?
 	| => arrayfirst ?= '[' iterator = Expression ']' ( => functionlast ?= '(' (args = ExpressionList)? ')' )?
 	)?
 ;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                           Basic Terminals                             //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-// ==========================================================
-//                        Basic Terminals
-// ==========================================================
 terminal fragment DIGIT: '0'..'9';
 terminal fragment HEX_DIGIT: DIGIT | 'a'..'f' | 'A'..'F';
 
@@ -911,11 +809,12 @@ BOOL returns ecore::EBoolean:
 	'true' | 'false'
 ;
 
-// ==========================================================
-//           Full unicode support for identificators
-// ==========================================================
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//              Full unicode support for identificators                  //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
 terminal ID:
-	'^'? (IDENTIFIER_START | UNICODE_ESCAPE) (IDENTIFIER_PART | UNICODE_ESCAPE)*	
+	'^'? (IDENTIFIER_START | UNICODE_ESCAPE) (IDENTIFIER_PART | UNICODE_ESCAPE)*
 ;
 
 terminal fragment UNICODE_ESCAPE:
@@ -1370,4 +1269,3 @@ terminal fragment IDENTIFIER_PART_IMPL:
 	| '\uFF10'..'\uFF19'
 	| '\uFFF9'..'\uFFFB'
 ;
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

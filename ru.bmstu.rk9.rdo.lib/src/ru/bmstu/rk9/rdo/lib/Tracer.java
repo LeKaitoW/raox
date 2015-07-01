@@ -11,26 +11,12 @@ import ru.bmstu.rk9.rdo.lib.RDOLibStringJoiner.StringFormat;
 
 public class Tracer implements Subscriber {
 	public static enum TraceType {
-		RESOURCE_CREATE("RC"),
-		RESOURCE_KEEP("RK"),
-		RESOURCE_ERASE("RE"),
-		SYSTEM("ES"),
-		OPERATION_BEGIN("EB"),
-		OPERATION_END("EF"),
-		EVENT("EI"),
-		RULE("ER"),
-		RESULT("V "),
-		SEARCH_BEGIN("SB"),
-		SEARCH_OPEN("SO "),
-		SEARCH_SPAWN_NEW("STN"),
-		SEARCH_SPAWN_WORSE("STD"),
-		SEARCH_SPAWN_BETTER("STR"),
-		SEARCH_RESOURCE_KEEP("SRK"),
-		SEARCH_DECISION("SD "),
-		SEARCH_END_ABORTED("SEA"),
-		SEARCH_END_CONDITION("SEC"),
-		SEARCH_END_SUCCESS("SES"),
-		SEARCH_END_FAIL("SEN");
+		RESOURCE_CREATE("RC"), RESOURCE_KEEP("RK"), RESOURCE_ERASE("RE"), SYSTEM(
+				"ES"), OPERATION_BEGIN("EB"), OPERATION_END("EF"), EVENT("EI"), RULE(
+				"ER"), RESULT("V "), SEARCH_BEGIN("SB"), SEARCH_OPEN("SO "), SEARCH_SPAWN_NEW(
+				"STN"), SEARCH_SPAWN_WORSE("STD"), SEARCH_SPAWN_BETTER("STR"), SEARCH_RESOURCE_KEEP(
+				"SRK"), SEARCH_DECISION("SD "), SEARCH_END_ABORTED("SEA"), SEARCH_END_CONDITION(
+				"SEC"), SEARCH_END_SUCCESS("SES"), SEARCH_END_FAIL("SEN");
 
 		private final String traceCode;
 
@@ -66,7 +52,7 @@ public class Tracer implements Subscriber {
 	// -----------------------NOTIFICATION SYSTEM -------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	//TODO unify with DbIndexHelper notification System
+	// TODO unify with DbIndexHelper notification System
 
 	private boolean paused = true;
 
@@ -110,9 +96,9 @@ public class Tracer implements Subscriber {
 
 	static private final String delimiter = " ";
 
-  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
- /                                   GENERAL                                 /
-/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ------------------------------ GENERAL ------------------------------ //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	public final TraceOutput parseSerializedData(final Entry entry) {
 		final EntryType type = EntryType.values()[entry.header
@@ -124,6 +110,8 @@ public class Tracer implements Subscriber {
 			return parseResourceEntry(entry);
 		case PATTERN:
 			return parsePatternEntry(entry);
+		case EVENT:
+			return parseEventEntry(entry);
 		case SEARCH:
 			return parseSearchEntry(entry);
 		case RESULT:
@@ -133,11 +121,11 @@ public class Tracer implements Subscriber {
 		}
 	}
 
-  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
- /                          PARSING SYSTEM ENTRIES                           /
-/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// -------------------------- SYSTEM ENTRIES --------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	protected TraceOutput parseSystemEntry(final Entry entry) {
+	private TraceOutput parseSystemEntry(final Entry entry) {
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 
 		final TraceType traceType = TraceType.SYSTEM;
@@ -154,11 +142,11 @@ public class Tracer implements Subscriber {
 		return new TraceOutput(traceType, headerLine);
 	}
 
-  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
- /                          PARSING RESOURCE ENTRIES                         /
-/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ------------------------- RESOURCE ENTRIES -------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	protected TraceOutput parseResourceEntry(final Entry entry) {
+	private TraceOutput parseResourceEntry(final Entry entry) {
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
 
@@ -201,7 +189,7 @@ public class Tracer implements Subscriber {
 				.add(parseResourceParameters(data, typeInfo)).getString());
 	}
 
-	protected String parseResourceParameters(final ByteBuffer data,
+	private String parseResourceParameters(final ByteBuffer data,
 			final ResourceTypeCache typeInfo) {
 		final RDOLibStringJoiner stringJoiner = new RDOLibStringJoiner(
 				RDOLibStringJoiner.StringFormat.STRUCTURE);
@@ -243,11 +231,11 @@ public class Tracer implements Subscriber {
 		return stringJoiner.getString();
 	}
 
-  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
- /                          PARSING PATTERN ENTRIES                          /
-/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// -------------------------- PATTERN ENTRIES -------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	protected TraceOutput parsePatternEntry(final Entry entry) {
+	private TraceOutput parsePatternEntry(final Entry entry) {
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
 
@@ -258,9 +246,6 @@ public class Tracer implements Subscriber {
 		final Database.PatternType entryType = Database.PatternType.values()[header
 				.get()];
 		switch (entryType) {
-		case EVENT:
-			traceType = TraceType.EVENT;
-			break;
 		case RULE:
 			traceType = TraceType.RULE;
 			break;
@@ -276,40 +261,20 @@ public class Tracer implements Subscriber {
 
 		return new TraceOutput(traceType, new RDOLibStringJoiner(delimiter)
 				.add(traceType.toString()).add(time)
-				.add(parsePatternData(data, traceType)).getString());
+				.add(parsePatternData(data)).getString());
 	}
 
-	protected String parsePatternData(final ByteBuffer data,
-			final TraceType patternType) {
+	private String parsePatternData(final ByteBuffer data) {
 		final RDOLibStringJoiner stringJoiner = new RDOLibStringJoiner(
 				delimiter);
 
-		int patternNumber;
-
-		switch (patternType) {
-		case EVENT: {
-			int eventNumber = data.getInt();
-			int actionNumber = data.getInt();
-			patternNumber = eventNumber;
-			stringJoiner.add(Simulator.getModelStructureCache().patternsInfo
-					.get(eventNumber).name + encloseIndex(actionNumber));
-			break;
-		}
-		case RULE:
-		case OPERATION_BEGIN:
-		case OPERATION_END: {
-			int dptNumber = data.getInt();
-			int activityNumber = data.getInt();
-			int actionNumber = data.getInt();
-			ActivityCache activity = Simulator.getModelStructureCache().decisionPointsInfo
-					.get(dptNumber).activitiesInfo.get(activityNumber);
-			patternNumber = activity.patternNumber;
-			stringJoiner.add(activity.name + encloseIndex(actionNumber));
-			break;
-		}
-		default:
-			return null;
-		}
+		int dptNumber = data.getInt();
+		int activityNumber = data.getInt();
+		int actionNumber = data.getInt();
+		ActivityCache activity = Simulator.getModelStructureCache().decisionPointsInfo
+				.get(dptNumber).activitiesInfo.get(activityNumber);
+		int patternNumber = activity.patternNumber;
+		stringJoiner.add(activity.name + encloseIndex(actionNumber));
 
 		final RDOLibStringJoiner relResStringJoiner = new RDOLibStringJoiner(
 				RDOLibStringJoiner.StringFormat.FUNCTION);
@@ -329,15 +294,42 @@ public class Tracer implements Subscriber {
 
 			relResStringJoiner.add(resourceName);
 		}
-
 		return stringJoiner.getString() + relResStringJoiner.getString();
 	}
 
-  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
- /                              SEARCH ENTRIES                               /
-/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// --------------------------- EVENT ENTRIES --------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	protected TraceOutput parseSearchEntry(final Entry entry) {
+	private TraceOutput parseEventEntry(final Entry entry) {
+		final ByteBuffer header = prepareBufferForReading(entry.header);
+		final ByteBuffer data = prepareBufferForReading(entry.data);
+
+		skipPart(header, TypeSize.BYTE);
+		final double time = header.getDouble();
+		final TraceType traceType = TraceType.EVENT;
+
+		return new TraceOutput(traceType, new RDOLibStringJoiner(delimiter)
+				.add(traceType.toString()).add(time).add(parseEventData(data))
+				.getString());
+	}
+
+	private String parseEventData(final ByteBuffer data) {
+		final RDOLibStringJoiner stringJoiner = new RDOLibStringJoiner(
+				delimiter);
+
+		int eventNumber = data.getInt();
+		int actionNumber = data.getInt();
+		stringJoiner.add(Simulator.getModelStructureCache().eventNames
+				.get(eventNumber) + encloseIndex(actionNumber));
+		return stringJoiner.getString();
+	}
+
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// -------------------------- SEARCH ENTRIES --------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+	private TraceOutput parseSearchEntry(final Entry entry) {
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 
 		final RDOLibStringJoiner stringJoiner = new RDOLibStringJoiner(
@@ -507,11 +499,11 @@ public class Tracer implements Subscriber {
 		return new TraceOutput(traceType, stringJoiner.getString());
 	}
 
-  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
- /                           PARSING RESULT ENTRIES                          /
-/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// -------------------------- RESULT ENTRIES --------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	protected TraceOutput parseResultEntry(final Entry entry) {
+	private TraceOutput parseResultEntry(final Entry entry) {
 		final ByteBuffer header = prepareBufferForReading(entry.header);
 		final ByteBuffer data = prepareBufferForReading(entry.data);
 
@@ -527,7 +519,7 @@ public class Tracer implements Subscriber {
 				.add(parseResultParameter(data, resultCache)).getString());
 	}
 
-	protected String parseResultParameter(final ByteBuffer data,
+	private String parseResultParameter(final ByteBuffer data,
 			final ResultCache resultCache) {
 		switch (resultCache.valueType) {
 		case INTEGER:
@@ -552,9 +544,9 @@ public class Tracer implements Subscriber {
 		return null;
 	}
 
-  /*――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/
- /                               HELPER METHODS                              /
-/――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――*/
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// -------------------------- HELPER METHODS --------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	public final static void skipPart(final ByteBuffer buffer, final int size) {
 		for (int i = 0; i < size; i++)

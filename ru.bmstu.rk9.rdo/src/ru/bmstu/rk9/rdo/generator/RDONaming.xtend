@@ -9,49 +9,39 @@ import org.eclipse.emf.ecore.EObject
 import ru.bmstu.rk9.rdo.rdo.RDOModel
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
+import ru.bmstu.rk9.rdo.rdo.ParameterType
+import ru.bmstu.rk9.rdo.rdo.ParameterTypeBasic
+import ru.bmstu.rk9.rdo.rdo.ParameterTypeString
+import ru.bmstu.rk9.rdo.rdo.ParameterTypeArray
 
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
 import ru.bmstu.rk9.rdo.rdo.META_RelResType
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
 
-import ru.bmstu.rk9.rdo.rdo.ConstantDeclaration
+import ru.bmstu.rk9.rdo.rdo.Constant
 
 import ru.bmstu.rk9.rdo.rdo.Function
 import ru.bmstu.rk9.rdo.rdo.FunctionParameter
 
-import ru.bmstu.rk9.rdo.rdo.PatternParameter
-import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.OperationRelevantResource
-import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.RuleRelevantResource
+import ru.bmstu.rk9.rdo.rdo.RelevantResource
 import ru.bmstu.rk9.rdo.rdo.Event
-import ru.bmstu.rk9.rdo.rdo.EventRelevantResource
 
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 
 import ru.bmstu.rk9.rdo.rdo.Frame
 
-import ru.bmstu.rk9.rdo.rdo.Results
-import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
+import ru.bmstu.rk9.rdo.rdo.Result
 
-import ru.bmstu.rk9.rdo.rdo.RDOInteger
-import ru.bmstu.rk9.rdo.rdo.RDOReal
+import ru.bmstu.rk9.rdo.rdo.RDOInt
+import ru.bmstu.rk9.rdo.rdo.RDODouble
 import ru.bmstu.rk9.rdo.rdo.RDOBoolean
 import ru.bmstu.rk9.rdo.rdo.RDOString
-import ru.bmstu.rk9.rdo.rdo.RDOEnum
-import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
 import ru.bmstu.rk9.rdo.rdo.RDOArray
-import ru.bmstu.rk9.rdo.rdo.RDOOwnType
-
+import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
+import ru.bmstu.rk9.rdo.rdo.RDOEnum
+import ru.bmstu.rk9.rdo.rdo.Pattern
 
 class RDONaming
 {
@@ -88,43 +78,31 @@ class RDONaming
 			ResourceType:
 				return object.name
 
-			ResourceTypeParameter:
+			ParameterType:
 				return object.name
 
-			ResourceDeclaration:
+			ResourceCreateStatement:
 				return object.name
 
 			Sequence:
 				return object.name
 
-			ConstantDeclaration:
+			Constant:
 				return object.name
 
 			Function:
-				return object.name
+				return object.type.name
 
 			FunctionParameter:
 				return object.name
 
-			PatternParameter:
+			Pattern:
 				return object.name
 
-			Operation:
-				return object.name
-
-			OperationRelevantResource:
-				return object.name
-
-			Rule:
-				return object.name
-
-			RuleRelevantResource:
+			RelevantResource:
 				return object.name
 
 			Event:
-				return object.name
-
-			EventRelevantResource:
 				return object.name
 
 			DecisionPoint:
@@ -133,10 +111,7 @@ class RDONaming
 			Frame:
 				return object.name
 
-			Results:
-				return (if(object.name == null) "*null*" else object.name)
-
-			ResultDeclaration:
+			Result:
 				return object.name
 
 			default:
@@ -154,29 +129,26 @@ class RDONaming
 			ResourceType:
 				return object.eContainer.nameGeneric + "." + object.name
 
-			ResourceTypeParameter:
+			ParameterType:
 				return object.eContainer.eContainer.nameGeneric +
 					"." + object.eContainer.nameGeneric + "." + object.name
 
-			ResourceDeclaration:
-				return object.eContainer.eContainer.nameGeneric + "." + object.name
+			ResourceCreateStatement:
+				return object.eContainer.nameGeneric + "." + object.name
 
 			Sequence:
 				return object.eContainer.nameGeneric + "." + object.name
 
-			ConstantDeclaration:
+			Constant:
 				return object.eContainer.eContainer.nameGeneric + "." + object.name
 
 			Function:
-				return object.eContainer.nameGeneric + "." + object.name
+				return object.eContainer.nameGeneric + "." + object.type.name
 
 			FunctionParameter:
 				return object.eContainer.eContainer.eContainer.fullyQualifiedName + "." + object.name
 
-			Operation:
-				return object.eContainer.nameGeneric + "." + object.name
-
-			Rule:
+			Pattern:
 				return object.eContainer.nameGeneric + "." + object.name
 
 			Event:
@@ -188,13 +160,11 @@ class RDONaming
 			Frame:
 				return object.eContainer.nameGeneric + "." + object.name
 
-			Results:
-				return object.eContainer.nameGeneric + "." + object.nameGeneric
+			Result:
+				return object.eContainer.nameGeneric + "." + object.name
 
-			ResultDeclaration:
-				return object.eContainer.eContainer.nameGeneric + "." +
-					(if(object.eContainer.nameGeneric != "*null*")
-						(object.eContainer.nameGeneric + "_") else "") + object.name
+			EnumDeclaration:
+				return object.eContainer.nameGeneric + "." + object.name
 
 			default:
 				return "ERROR"
@@ -203,8 +173,8 @@ class RDONaming
 
 	def static relResFullyQualifiedName(META_RelResType relres)
 	{
-		if(relres instanceof ResourceDeclaration)
-			return (relres as ResourceDeclaration).reference.fullyQualifiedName
+		if(relres instanceof ResourceCreateStatement)
+			return (relres as ResourceCreateStatement).type.fullyQualifiedName
 		else
 			return relres.fullyQualifiedName
 	}
@@ -227,56 +197,18 @@ class RDONaming
 	{
 		switch type
 		{
-			RDORTPParameterBasic : getTypeGenericLabel(type.type)
-			RDORTPParameterString: getTypeGenericLabel(type.type)
-			RDORTPParameterEnum  : getTypeGenericLabel(type.type)
-			RDORTPParameterSuchAs: getTypeGenericLabel(type.type)
-			RDORTPParameterArray : getTypeGenericLabel(type.type)
+			ParameterTypeBasic : getTypeGenericLabel(type.type)
+			ParameterTypeString: getTypeGenericLabel(type.type)
+			ParameterTypeArray : getTypeGenericLabel(type.type)
 
-			RDOInteger: " : " + type.type
-			RDOReal   : " : " + type.type
+			RDOInt: " : " + type.type
+			RDODouble   : " : " + type.type
 			RDOBoolean: " : " + type.type
 			RDOString : " : " + type.type
-			RDOEnum   : " : enumerative"
-			RDOSuchAs : " : such_as " + switch type.eContainer
-			{
-				RDORTPParameterSuchAs:
-					getContextQualifiedName(type.type, type.eContainer.eContainer.eContainer)
-				default: getContextQualifiedName(type.type, type.modelRoot)
-			}
-
 			RDOArray  : " : array" + getTypeGenericLabel(type.arraytype)
-			RDOOwnType: " : " + type.id.nameGeneric
+			RDOEnum: " : " + type.type
 
 			default: ""
 		}
 	}
-
-	def static String getEnumParentName(RDOEnum enm, boolean isFQN)
-	{
-		var container = enm.eContainer
-
-		while(container instanceof RDOArray)
-		{
-			container = container.eContainer
-		}
-
-		var doubleclass = true
-		if(container instanceof RDORTPParameterType)
-		{
-			doubleclass = false
-			container = container.eContainer
-		}
-
-		if(container instanceof FunctionParameter)
-		{
-			doubleclass = false
-		}
-
-		if(isFQN)
-			return container.fullyQualifiedName + (if(doubleclass) ("." + container.nameGeneric) else "")
-		else
-			return container.nameGeneric
-	}
-
 }

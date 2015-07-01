@@ -15,6 +15,8 @@ public class DbIndexHelper implements Subscriber {
 		modelName = name;
 		CollectedDataNode modelIndex = root.addChild(name);
 		for (SerializationCategory value : SerializationCategory.values()) {
+			if (value == SerializationCategory.PATTERNS)
+				continue;
 			modelIndex.addChild(value.getName());
 		}
 		return modelIndex;
@@ -46,12 +48,12 @@ public class DbIndexHelper implements Subscriber {
 				name);
 	}
 
-	public final CollectedDataNode addPattern(String name) {
-		return getCategory(SerializationCategory.PATTERNS).addChild(name);
+	public final CollectedDataNode addEvent(String name) {
+		return getCategory(SerializationCategory.EVENTS).addChild(name);
 	}
 
-	public final CollectedDataNode getPattern(String name) {
-		return getCategory(SerializationCategory.PATTERNS).getChildren().get(
+	public final CollectedDataNode getEvent(String name) {
+		return getCategory(SerializationCategory.EVENTS).getChildren().get(
 				name);
 	}
 

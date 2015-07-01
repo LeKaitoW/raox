@@ -1,10 +1,9 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.TimerTask;
+import java.nio.ByteBuffer;
+import java.util.EnumMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -70,12 +69,9 @@ public class RDOTraceView extends ViewPart {
 
 	static TableViewer viewer;
 
-	/*
-	 * ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
-	 * / / VIEW SETUP /
-	 * /――――――――――――――――――――――――――――――――――――――――――――――――――――――――
-	 * ――――――――――――――――――
-	 */
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ---------------------------- VIEW SETUP ----------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private FrameInfo determineDPTInfo(TraceOutput traceOutput, int stringNum) {
 		Entry entry = Simulator.getDatabase().getAllEntries().get(stringNum);
@@ -226,12 +222,9 @@ public class RDOTraceView extends ViewPart {
 		});
 	}
 
-	/*
-	 * ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
-	 * / / SEARCH AND COPY /
-	 * /―――――――――――――――――――――――――――――――――――――――――――――――――――
-	 * ―――――――――――――――――――――――
-	 */
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// -------------------------- SEARCH AND COPY -------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private final static void copyTraceLine() {
 		String text = viewer.getTable().getSelection()[0].getText(0);
@@ -266,7 +259,7 @@ public class RDOTraceView extends ViewPart {
 
 		final SearchResult findLine(String line) {
 			@SuppressWarnings("unchecked")
-			final List<Entry> allEntries = (ArrayList<Entry>) viewer.getInput();
+			final List<Entry> allEntries = (List<Entry>) viewer.getInput();
 			if (allEntries == null)
 				return SearchResult.NOT_FOUND;
 
@@ -348,12 +341,9 @@ public class RDOTraceView extends ViewPart {
 		searchHelper.openDialog();
 	}
 
-	/*
-	 * ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
-	 * / / REAL TIME OUTPUT /
-	 * /――――――――――――――――――――――――――――――――――――――――――――――――――
-	 * ――――――――――――――――――――――――
-	 */
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ------------------------- REAL TIME OUTPUT -------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private static boolean shouldFollowOutput = true;
 
@@ -435,11 +425,9 @@ public class RDOTraceView extends ViewPart {
 	}
 }
 
-/*
- * ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/ /
- * PROVIDERS /
- * /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
- */
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+// -------------------------------- PROVIDERS ------------------------------ //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 class RDOTraceViewContentProvider implements ILazyContentProvider {
 	private List<Entry> allEntries;
@@ -616,11 +604,9 @@ class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider {
 	}
 }
 
-/*
- * ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――/ /
- * HELPER CLASSES /
- * /――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
- */
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+// ------------------------------ HELPER CLASSES --------------------------- //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 class SearchDialog extends Dialog {
 	private Text searchText;

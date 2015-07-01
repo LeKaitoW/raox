@@ -7,7 +7,7 @@ import org.eclipse.xtext.diagnostics.DiagnosticMessage;
 import org.eclipse.xtext.linking.impl.LinkingDiagnosticMessageProvider;
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType;
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter;
+import ru.bmstu.rk9.rdo.rdo.ParameterType;
 
 public class RDOLinkingDiagnosticMessageProvider extends
 		LinkingDiagnosticMessageProvider {
@@ -20,11 +20,6 @@ public class RDOLinkingDiagnosticMessageProvider extends
 		String msg;
 		switch (referenceType.getName()) {
 
-		case "META_SuchAs":
-			msg = "Couldn't resolve such_as reference to '"
-					+ context.getLinkText() + "'.";
-			break;
-
 		case "META_TypeDeclaration":
 			msg = "Couldn't find type with name '" + context.getLinkText()
 					+ "'.";
@@ -35,13 +30,13 @@ public class RDOLinkingDiagnosticMessageProvider extends
 					+ context.getLinkText() + "'.";
 			break;
 
-		case "RuleRelevantResource":
+		case "RelevantResource":
 			msg = "Couldn't find relevant resorce with name '"
 					+ context.getLinkText() + "'.";
 			break;
 
 		case "EnumID":
-			ResourceTypeParameter parent = (ResourceTypeParameter) context
+			ParameterType parent = (ParameterType) context
 					.getContext().eContainer();
 			ResourceType grandparent = (ResourceType) parent.eContainer();
 			msg = "Value '" + context.getLinkText()
