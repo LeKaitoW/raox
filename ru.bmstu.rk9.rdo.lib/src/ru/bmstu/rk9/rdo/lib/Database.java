@@ -170,7 +170,16 @@ public class Database {
 
 	public static class Entry {
 		final ByteBuffer header;
+
+		public final ByteBuffer getHeader() {
+			return header;
+		}
+
 		final ByteBuffer data;
+
+		public final ByteBuffer getData() {
+			return data;
+		}
 
 		Entry(final ByteBuffer header, final ByteBuffer data) {
 			this.header = header != null ? header.asReadOnlyBuffer() : null;

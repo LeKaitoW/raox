@@ -548,7 +548,7 @@ public class Tracer implements Subscriber {
 	// -------------------------- HELPER METHODS --------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	final static void skipPart(final ByteBuffer buffer, final int size) {
+	public final static void skipPart(final ByteBuffer buffer, final int size) {
 		for (int i = 0; i < size; i++)
 			buffer.get();
 	}
@@ -557,7 +557,8 @@ public class Tracer implements Subscriber {
 		return "[" + String.valueOf(index) + "]";
 	}
 
-	final static ByteBuffer prepareBufferForReading(final ByteBuffer buffer) {
+	public final static ByteBuffer prepareBufferForReading(
+			final ByteBuffer buffer) {
 		return (ByteBuffer) buffer.duplicate().rewind();
 	}
 }

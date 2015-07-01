@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rdo.ui.contributions;
 
 import java.util.List;
 import java.util.TimerTask;
+import java.nio.ByteBuffer;
 import java.util.EnumMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -15,7 +16,9 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IColorProvider;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILazyContentProvider;
@@ -49,11 +52,16 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import ru.bmstu.rk9.rdo.lib.Database.Entry;
+import ru.bmstu.rk9.rdo.lib.Database.EntryType;
+import ru.bmstu.rk9.rdo.lib.Database.TypeSize;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
-import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
+import ru.bmstu.rk9.rdo.lib.Tracer;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
+import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
 import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView.SearchHelper.SearchResult;
+import ru.bmstu.rk9.rdo.ui.graph.GraphControl;
+import ru.bmstu.rk9.rdo.ui.graph.GraphControl.FrameInfo;
 import ru.bmstu.rk9.rdo.ui.runtime.ExportTraceHandler;
 
 public class RDOTraceView extends ViewPart {
@@ -64,6 +72,29 @@ public class RDOTraceView extends ViewPart {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 	// ---------------------------- VIEW SETUP ----------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+	private FrameInfo determineDPTInfo(TraceOutput traceOutput, int stringNum) {
+		Entry entry = Simulator.getDatabase().getAllEntries().get(stringNum);
+		final EntryType type = EntryType.values()[entry.getHeader().get(
+				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
+
+		final int dptNumber;
+		switch (type) {
+		case SEARCH:
+			final ByteBuffer header = Tracer.prepareBufferForReading(entry
+					.getHeader());
+			Tracer.skipPart(header, 2 * TypeSize.BYTE + TypeSize.DOUBLE);
+			dptNumber = header.getInt();
+			break;
+		default:
+			return null;
+		}
+
+		String dptName = Simulator.getModelStructureCache()
+				.getDecisionPointName(dptNumber);
+
+		return new FrameInfo(dptNumber, dptName);
+	}
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -114,6 +145,20 @@ public class RDOTraceView extends ViewPart {
 		viewer.setUseHashlookup(true);
 		viewer.getTable().setFont(
 				fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
+
+		viewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent e) {
+				TraceOutput traceOutput = (TraceOutput) viewer.getTable()
+						.getSelection()[0].getData();
+				FrameInfo frameInfo = determineDPTInfo(traceOutput, viewer
+						.getTable().getSelectionIndex());
+				if (frameInfo == null)
+					return;
+
+				GraphControl.openFrameWindow(frameInfo);
+			}
+		});
 
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
