@@ -14,7 +14,6 @@ gunzip -c eclipse-dsl-luna-SR2-linux-gtk-x86_64.tar.gz  | tar xvf -
 cd eclipse
 ./eclipse
 ```
- * Download [JFreeChart](http://www.jfree.org/jfreechart/download.html)
  * Git clone `rdo-xtext` repository
 ```bash
 ssh-add ~/.ssh/github.openssh.private.key
@@ -40,13 +39,6 @@ git clone git@github.com:aurusov/rdo-xtext.git
 ```
 >**[!]** *If your output differs from the one above by a lot of errors mentioning* `RULE_ANY_OTHER`*, you should run the generation process again and again until the bulid is succesfull. This is Xtext/Antlr bug caused by complex rules supporting unicode identifiers in grammar, sorry for the inconvenience*
 
-* `ru.bmstu.rk9.rdo.ui` `>` `New` `>` `Folder` `>` `Folder name:` `=` `thirdparty` `>` `Finish`
-* Drag and drop files from `jfreechart-1.0.19\lib`
- * `jcommon-1.0.23.jar`
- * `jfreechart-1.0.19.jar`
- * `jfreechart-1.0.19-experimental.jar`
- * `jfreechart-1.0.19-swt.jar`
-* `Select how files should be imported into the project:` `>` `Copy files` `>` `Ok`
 * `Run` `>` `Run Configurations...` `>` `Eclipse Application` `>` `New` `>` `Name` `=` `runtime-EclipseXtext` `>` `Location` `=` `${workspace_loc}/../runtime-EclipseXtext` `>` `Run`
  * *Ignore this if you use Java version 8 or later.* Eclipse Platform may freeze during its launch. This happens due to the unsufficient [permgen](http://wiki.eclipse.org/FAQ_How_do_I_increase_the_permgen_size_available_to_Eclipse%3F) size available to Eclipse. To prevent that, add `-XX:MaxPermSize=256M` to VM arguments in Run Configuration.
 * And that's it.
