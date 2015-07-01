@@ -152,7 +152,7 @@ public class GraphFrame extends JFrame {
 				+ "\n";
 		final String h = "Стоимость оставшегося пути h = "
 				+ Double.toString(cellNode.h) + "\n";
-		final String ruleName = cellNode.ruleName + "\n";
+		final String ruleName = cellNode.ruleDesсription + "\n";
 		final String ruleCost = "Стоимость применения правила = "
 				+ Double.toString(cellNode.ruleCost);
 		final String text = nodeIndex + parentIndex + g + h + ruleName
@@ -246,7 +246,7 @@ public class GraphFrame extends JFrame {
 		final String number = Integer.toString(node.index);
 		final String costFunction = Double.toString(node.g + node.h) + " = "
 				+ Double.toString(node.g) + " + " + Double.toString(node.h);
-		final String rule = node.ruleName + " = "
+		final String rule = node.ruleDesсription + " = "
 				+ Double.toString(node.ruleCost);
 		final String shortRule = rule.replaceAll("\\(.*\\)", "");
 
@@ -320,7 +320,7 @@ public class GraphFrame extends JFrame {
 				final String costFunction = Double.toString(node.g + node.h)
 						+ " = " + Double.toString(node.g) + " + "
 						+ Double.toString(node.h);
-				final String rule = node.ruleName + " = "
+				final String rule = node.ruleDesсription + " = "
 						+ Double.toString(node.ruleCost);
 				final String shortRule = rule.replaceAll("\\(.*\\)", "");
 				final String text = number + "\n" + costFunction + "\n"

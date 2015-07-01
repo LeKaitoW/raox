@@ -50,7 +50,7 @@ public class TreeBuilder implements Subscriber {
 
 		public int ruleNumber;
 
-		public String ruleName;
+		public String ruleDesсription;
 
 		public double ruleCost;
 
@@ -174,7 +174,7 @@ public class TreeBuilder implements Subscriber {
 				treeNode.g = g;
 				treeNode.h = h;
 				treeNode.ruleNumber = ruleNum;
-				treeNode.ruleName = activity.name
+				treeNode.ruleDesсription = activity.name
 						+ relResStringJoiner.getString();
 				treeNode.ruleCost = ruleCost;
 				treeNode.index = nodeNumber;
