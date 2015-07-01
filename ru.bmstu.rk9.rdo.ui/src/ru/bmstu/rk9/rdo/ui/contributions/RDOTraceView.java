@@ -81,7 +81,6 @@ public class RDOTraceView extends ViewPart {
 		Entry entry = Simulator.getDatabase().getAllEntries().get(stringNum);
 		final EntryType type = EntryType.values()[entry.getHeader().get(
 				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
-		System.err.println("entry type = " + type.name());
 
 		int dptNumber;
 
@@ -93,7 +92,6 @@ public class RDOTraceView extends ViewPart {
 			dptNumber = header.getInt();
 			break;
 		default:
-			System.err.println("wrong string");
 			return null;
 		}
 
@@ -162,7 +160,7 @@ public class RDOTraceView extends ViewPart {
 						.getTable().getSelectionIndex());
 				if (frameInfo == null)
 					return;
-				
+
 				GraphControl.openFrameWindow(frameInfo);
 			}
 		});
@@ -269,8 +267,7 @@ public class RDOTraceView extends ViewPart {
 
 		final SearchResult findLine(String line) {
 			@SuppressWarnings("unchecked")
-			final List<Entry> allEntries = (ArrayList<Entry>) viewer
-					.getInput();
+			final List<Entry> allEntries = (ArrayList<Entry>) viewer.getInput();
 			if (allEntries == null)
 				return SearchResult.NOT_FOUND;
 
