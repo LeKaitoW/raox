@@ -34,7 +34,9 @@ public class GraphFrame extends JFrame {
 
 	private static final long serialVersionUID = 1668866556340389760L;
 
-	/*-----------------------REAL TIME OUTPUT-----------------------*/
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ------------------------- REAL TIME OUTPUT -------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private static volatile boolean haveNewRealTimeData = false;
 
@@ -44,8 +46,6 @@ public class GraphFrame extends JFrame {
 			haveNewRealTimeData = true;
 		}
 	};
-
-	/*--------------------------------------------------------------*/
 
 	final Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
 
@@ -196,7 +196,9 @@ public class GraphFrame extends JFrame {
 		levelDistance = (int) (d.height * 0.1);
 	}
 
-	/*---------------------------- ZOOM ----------------------------*/
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ------------------------------ ZOOM --------------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	int maxNumOfNodesInWidth;
 
@@ -366,10 +368,7 @@ public class GraphFrame extends JFrame {
 		resizeGraph(graph, layout);
 	}
 
-	/*--------------------------------------------------------------*/
-
 	public GraphFrame(int dptNum, int width, int height) {
-
 		this.setSize(width, height);
 		setAspectRatio();
 
@@ -551,7 +550,9 @@ public class GraphFrame extends JFrame {
 		});
 	}
 
-	/*----------------------- RELATIVE COORINATES -----------------------*/
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ----------------------- RELATIVE COORINATES ------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private double frameAspectRatio;
 
