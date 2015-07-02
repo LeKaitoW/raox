@@ -287,8 +287,6 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 	}
 
 	private boolean stop(StopCode code) {
-		boolean decisionCode = false;
-
 		ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.BYTE
 				+ Database.TypeSize.DOUBLE + Database.TypeSize.INTEGER * 4
 				+ Database.TypeSize.LONG * 2);
@@ -309,7 +307,6 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 			break;
 		case SUCCESS:
 			databaseAddDecision();
-			decisionCode = true;
 		default:
 			finalCost = current.g;
 			break;
@@ -327,7 +324,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 					Database.SearchEntryType.END, data);
 		}
 
-		return decisionCode;
+		return false;
 	}
 
 	private void databaseAddDecision() {
