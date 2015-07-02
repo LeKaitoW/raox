@@ -5,14 +5,7 @@ import org.eclipse.emf.ecore.EObject
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 
-import ru.bmstu.rk9.rdo.rdo.Operation
-import ru.bmstu.rk9.rdo.rdo.OperationConvert
-import ru.bmstu.rk9.rdo.rdo.Rule
-import ru.bmstu.rk9.rdo.rdo.RuleConvert
 import ru.bmstu.rk9.rdo.rdo.Event
-import ru.bmstu.rk9.rdo.rdo.EventConvert
-
-import ru.bmstu.rk9.rdo.rdo.TerminateIf
 
 import ru.bmstu.rk9.rdo.rdo.StatementList
 import ru.bmstu.rk9.rdo.rdo.ExpressionStatement
@@ -23,8 +16,7 @@ import ru.bmstu.rk9.rdo.rdo.IfStatement
 import ru.bmstu.rk9.rdo.rdo.ForStatement
 import ru.bmstu.rk9.rdo.rdo.BreakStatement
 import ru.bmstu.rk9.rdo.rdo.ReturnStatement
-import ru.bmstu.rk9.rdo.rdo.PlanningStatement
-import ru.bmstu.rk9.rdo.rdo.LegacySetStatement
+import ru.bmstu.rk9.rdo.rdo.PlanStatement
 
 import ru.bmstu.rk9.rdo.rdo.FrameObject
 import ru.bmstu.rk9.rdo.rdo.FrameObjectText
@@ -34,49 +26,38 @@ import ru.bmstu.rk9.rdo.rdo.FrameObjectCircle
 import ru.bmstu.rk9.rdo.rdo.FrameObjectEllipse
 import ru.bmstu.rk9.rdo.rdo.FrameObjectTriangle
 import ru.bmstu.rk9.rdo.rdo.FrameColour
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
+import ru.bmstu.rk9.rdo.rdo.ResourceEraseStatement
+import ru.bmstu.rk9.rdo.rdo.ResourceType
+import ru.bmstu.rk9.rdo.rdo.Pattern
+import ru.bmstu.rk9.rdo.rdo.RelevantResource
 
 class RDOStatementCompiler
 {
-	def static String compileConvert(EObject st, int parameter)
+	def static String compilePatternAction(StatementList st)
 	{
-		switch st
+		var cont = st.eContainer.eContainer
+		switch cont
 		{
-			EventConvert:
-					'''
-					// «st.relres.name» convert event
-					{
-						«st.statements.compileStatementContext(
-							(new LocalContext).populateFromEvent(st.eContainer as Event).tuneForConvert(st.relres.name))»
-					}
-					'''
-
-			RuleConvert:
-					'''
-					// «st.relres.name» convert rule
-					{
-						«st.statements.compileStatementContext(
-							(new LocalContext).populateFromRule(st.eContainer as Rule).tuneForConvert(st.relres.name))»
-					}
-					'''
-
-			OperationConvert:
-				if(parameter == 0)
-						'''
-						// «st.relres.name» convert begin
-						{
-							«st.beginstatements.compileStatementContext(
-							(new LocalContext).populateFromOperation(st.eContainer as Operation).tuneForConvert(st.relres.name))»
-						}
-						'''
-				else
-						'''
-						// «st.relres.name» convert end
-						{
-							«st.endstatements.compileStatementContext(
-							(new LocalContext).populateFromOperation(st.eContainer as Operation).tuneForConvert(st.relres.name))»
-						}
-						'''
+			Pattern:
+				'''
+				{
+					«st.compileStatementContext(
+					(new LocalContext).populateFromPattern(cont))»
+				}
+				'''
 		}
+	}
+
+	def static String compileEventAction(StatementList st)
+	{
+		return
+			'''
+			{
+				«st.compileStatementContext(
+					(new LocalContext).populateFromEvent(st.eContainer as Event))»
+			}
+			'''
 	}
 
 	private static LocalContext localContext
@@ -205,32 +186,61 @@ class RDOStatementCompiler
 					'''
 			}
 
-			PlanningStatement:
+			PlanStatement:
 				"Simulator.pushEvent(new " +
 					st.event.getFullyQualifiedName + "(" + RDOExpressionCompiler.compileExpression(st.value).value +
 						(if(st.parameters != null) (", " + st.parameters.compileExpression.value) else
 							(if(st.event.parameters != null && !st.event.parameters.empty)
 								(", " + compileAllDefault(st.event.parameters.size)) else "")) + "));"
 
-			LegacySetStatement:
-				'''
-				«st.call» = («st.value.compileExpression.value»);
-				'''
+			ResourceCreateStatement: {
+				if (localContext != null)
+					localContext.addCreatedResource(st)
 
-			TerminateIf:
+				return
+					'''
+					«IF st.name != null»
+						«st.type.fullyQualifiedName» «st.name» = new «
+							st.type.fullyQualifiedName»(«if(st.parameters != null)
+								st.parameters.compileExpression.value else ""»);
+						«st.name».register();
+						Simulator.getDatabase().memorizeResourceEntry(
+								«st.name».copy(),
+								Database.ResourceEntryType.CREATED);
+
+					«ELSE»
+						Simulator.getDatabase().memorizeResourceEntry(
+								new «st.type.fullyQualifiedName»(«if(st.parameters != null)
+									st.parameters.compileExpression.value else ""»).register().copy(),
+								Database.ResourceEntryType.CREATED);
+					«ENDIF»
+					'''
+			}
+
+			ResourceEraseStatement:
+			{
+				var ResourceType type
+				var String resourceReference
+				if (st.res instanceof RelevantResource) {
+					type = ((st.res as RelevantResource).type) as ResourceType
+					resourceReference = "resources." + st.res.name
+				}
+
+				if (st.res instanceof ResourceCreateStatement) {
+					type = ((st.res as ResourceCreateStatement).type) as ResourceType
+					resourceReference = st.res.name
+				}
+
 				'''
-				Simulator.addTerminateCondition
-				(
-					new TerminateCondition()
-					{
-						@Override
-						public boolean check()
-						{
-							return «st.condition.compileExpression.value»;
-						}
-					}
-				);
+				Simulator.getDatabase().memorizeResourceEntry(
+						«resourceReference»,
+						Database.ResourceEntryType.ERASED);
+
+				«type.fullyQualifiedName
+					».eraseResource(«resourceReference»);
+
 				'''
+			}
 
 			FrameObject:
 				switch st
@@ -306,10 +316,5 @@ class RDOStatementCompiler
 	{
 		'''new int[] {«colour.r», «colour.g
 			», «colour.b», «255 - colour.alpha»}'''
-	}
-
-	def static String cutLastChars(String s, int c)
-	{
-		return s.substring(0, s.length - c)
 	}
 }

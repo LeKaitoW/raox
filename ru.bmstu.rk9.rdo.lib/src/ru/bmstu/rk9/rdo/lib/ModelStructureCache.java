@@ -15,11 +15,12 @@ public class ModelStructureCache {
 		initPatternsCache();
 		initDecisionPointsCache();
 		initResultsCache();
+		initEventNames();
 	}
 
 	enum ValueType {
-		INTEGER("integer"), REAL("real"), BOOLEAN("boolean"), ENUM("enum"), STRING(
-				"string");
+		INTEGER("int"), REAL("double"), BOOLEAN("boolean"), ENUM("enum"), STRING(
+				"String");
 
 		private final String type;
 
@@ -40,7 +41,16 @@ public class ModelStructureCache {
 	final List<ResourceTypeCache> resourceTypesInfo = new ArrayList<ResourceTypeCache>();
 	final List<ResultCache> resultsInfo = new ArrayList<ResultCache>();
 	final List<PatternCache> patternsInfo = new ArrayList<PatternCache>();
+	final List<String> eventNames = new ArrayList<String>();
 	final List<DecisionPointCache> decisionPointsInfo = new ArrayList<DecisionPointCache>();
+
+	public final List<DecisionPointCache> getDecisionPointsInfo() {
+		return decisionPointsInfo;
+	}
+
+	public final String getDecisionPointName(int dptNumber) {
+		return getDecisionPointsInfo().get(dptNumber).getName();
+	}
 
 	final void initResourceCache() {
 		final JSONArray resourceTypes = Simulator.getDatabase()
@@ -93,35 +103,28 @@ public class ModelStructureCache {
 			resultsInfo.add(new ResultCache(results.getJSONObject(num)));
 	}
 
+	final void initEventNames() {
+		final JSONArray events = Simulator.getDatabase().getModelStructure()
+				.getJSONArray("events");
+
+		for (int num = 0; num < events.length(); num++)
+			eventNames.add(events.getJSONObject(num).getString("name"));
+	}
+
 	final static JSONObject getEnumOrigin(String enumOrigin) {
-		JSONObject originParam = null;
-
 		String typeName = enumOrigin.substring(0, enumOrigin.lastIndexOf("."));
-		String paramName = enumOrigin
-				.substring(enumOrigin.lastIndexOf(".") + 1);
 
-		JSONArray resourceTypes = Simulator.getDatabase().getModelStructure()
-				.getJSONArray("resource_types");
-		JSONObject originType = null;
-		for (int num = 0; num < resourceTypes.length(); num++) {
-			JSONObject curType = resourceTypes.getJSONObject(num);
-			if (typeName.equals(curType.getString("name"))) {
-				originType = curType;
-				break;
+		JSONArray enums = Simulator.getDatabase().getModelStructure()
+				.getJSONArray("enums");
+		for (int num = 0; num < enums.length(); num++) {
+			JSONObject enumItem = enums.getJSONObject(num);
+			if (typeName.equals(enumItem.getString("name"))) {
+				return enumItem;
 			}
 		}
 
-		JSONArray originParams = originType.getJSONObject("structure")
-				.getJSONArray("parameters");
-		for (int num = 0; num < originParams.length(); num++) {
-			JSONObject curParam = originParams.getJSONObject(num);
-			if (paramName.equals(curParam.getString("name"))) {
-				originParam = curParam;
-				break;
-			}
-		}
-
-		return originParam;
+		//TODO throw exception
+		return null;
 	}
 
 	public final static String getRelativeName(final String fullName) {
@@ -134,15 +137,11 @@ class ValueCache {
 		type = ModelStructureCache.ValueType.get(param.getString("type"));
 		if (type == ModelStructureCache.ValueType.ENUM) {
 			enumNames = new ArrayList<String>();
-			JSONObject originParam = null;
-			if (param.has("enums")) {
-				originParam = param;
-			} else {
-				String enumOriginName = param.getString("enum_origin");
-				originParam = ModelStructureCache.getEnumOrigin(enumOriginName);
-			}
+			String enumOriginName = param.getString("enum_origin");
+			JSONObject enumOrigin = ModelStructureCache.getEnumOrigin(enumOriginName);
 
-			JSONArray enums = originParam.getJSONArray("enums");
+			JSONArray enums = enumOrigin.getJSONObject("structure")
+					.getJSONArray("enums");
 			for (int num = 0; num < enums.length(); num++)
 				enumNames.add(enums.getString(num));
 		} else
@@ -189,6 +188,7 @@ class PatternCache {
 	PatternCache(final JSONObject pattern) {
 		name = ModelStructureCache.getRelativeName(pattern.getString("name"));
 		relResTypes = new HashMap<Integer, Integer>();
+
 		JSONArray relevantResources = pattern
 				.getJSONArray("relevant_resources");
 		for (int num = 0; num < relevantResources.length(); num++) {
@@ -226,6 +226,10 @@ class DecisionPointCache {
 
 	final String name;
 	final List<ActivityCache> activitiesInfo;
+
+	public String getName() {
+		return name;
+	}
 }
 
 class ActivityCache {

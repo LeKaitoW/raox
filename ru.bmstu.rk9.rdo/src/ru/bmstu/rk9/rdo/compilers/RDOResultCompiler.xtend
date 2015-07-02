@@ -1,18 +1,14 @@
 package ru.bmstu.rk9.rdo.compilers
 
 import static extension ru.bmstu.rk9.rdo.compilers.Util.*
-
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
-
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 
 import ru.bmstu.rk9.rdo.generator.LocalContext
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
 
-import ru.bmstu.rk9.rdo.rdo.Results
-import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
+import ru.bmstu.rk9.rdo.rdo.Result
 
 import ru.bmstu.rk9.rdo.rdo.ResultType
 
@@ -23,15 +19,14 @@ import ru.bmstu.rk9.rdo.rdo.ResultWatchState
 import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
 
 import ru.bmstu.rk9.rdo.generator.RDOExpression
+import ru.bmstu.rk9.rdo.rdo.ParameterTypeBasic
+import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOResultCompiler
 {
-	def public static compileResult(ResultDeclaration result, String filename)
+	def static compileResult(Result result, String filename)
 	{
-		val name =
-			(if((result.eContainer as Results).name != null)
-				(result.eContainer as Results).name + "_" else "")
-			+ result.name
+		val name = result.name
 		'''
 		package «filename»;
 
@@ -71,15 +66,15 @@ class RDOResultCompiler
 	{
 		switch(type)
 		{
-			ResultGetValue:       "get_value"
-			ResultWatchParameter: "watch_par"
-			ResultWatchQuant:     "watch_quant"
-			ResultWatchState:     "watch_state"
-			ResultWatchValue:     "watch_value"
+			ResultGetValue:       "getValue"
+			ResultWatchParameter: "watchPar"
+			ResultWatchQuant:     "watchQuant"
+			ResultWatchState:     "watchState"
+			ResultWatchValue:     "watchValue"
 		}
 	}
 
-	def public static compileResultBody(ResultType type)
+	def private static compileResultBody(ResultType type)
 	{
 		switch type
 		{
@@ -148,7 +143,7 @@ class RDOResultCompiler
 				val context = (new LocalContext).populateWithResourceRename(type.resource, "this.deleted")
 				val expr = type.expression.compileExpressionContext(context)
 				expr.value = expr.value.replaceFirst("this.deleted", "(this.deleted = " +
-					type.resource.fullyQualifiedName + ".getLastDeleted())") 
+					type.resource.fullyQualifiedName + ".getLastDeleted())")
 				'''
 				«type.resource.fullyQualifiedName» deleted = null;
 
@@ -481,13 +476,13 @@ class RDOResultCompiler
 				.put
 				(
 					"enums", new JSONArray()
-						«FOR e : ((result.modelRoot.eAllContents.findFirst
+						«FOR e : (((result.modelRoot.eAllContents.findFirst
 							[r | r instanceof ResourceType && (r as ResourceType).fullyQualifiedName
 								== expr.type.substring(0, expr.type.lastIndexOf('.'))] as ResourceType)
 									.parameters.findFirst[p | p.name == expr.type.substring(
 										expr.type.lastIndexOf('.') + 1, expr.type.length - 5)]
-											.type as RDORTPParameterEnum).type.enums»
-							.put("«e.name»")
+											 as ParameterTypeBasic).type as RDOEnum).type.values»
+							.put("«e»")
 						«ENDFOR»
 				);
 			'''

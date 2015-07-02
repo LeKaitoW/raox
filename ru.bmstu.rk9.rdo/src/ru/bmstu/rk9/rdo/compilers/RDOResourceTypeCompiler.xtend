@@ -6,36 +6,29 @@ import org.eclipse.emf.ecore.EObject
 
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
-
 import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
 
-import ru.bmstu.rk9.rdo.generator.LocalContext
-
 import ru.bmstu.rk9.rdo.rdo.ResourceType
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeParameter
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterType
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterBasic
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterEnum
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterSuchAs
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterString
-import ru.bmstu.rk9.rdo.rdo.RDORTPParameterArray
+import ru.bmstu.rk9.rdo.rdo.ParameterType
+import ru.bmstu.rk9.rdo.rdo.ParameterTypeBasic
+import ru.bmstu.rk9.rdo.rdo.ParameterTypeString
+import ru.bmstu.rk9.rdo.rdo.ParameterTypeArray
 
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
-import ru.bmstu.rk9.rdo.rdo.RDOInteger
-import ru.bmstu.rk9.rdo.rdo.RDOReal
+import ru.bmstu.rk9.rdo.rdo.RDOInt
+import ru.bmstu.rk9.rdo.rdo.RDODouble
 import ru.bmstu.rk9.rdo.rdo.RDOBoolean
-import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.RDOString
 import ru.bmstu.rk9.rdo.rdo.RDOArray
-import ru.bmstu.rk9.rdo.rdo.RDOSuchAs
+import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOResourceTypeCompiler
 {
 	private static var chunkstart = 0;
 	private static var chunknumber = 0;
 
-	def public static compileResourceType(ResourceType rtp, String filename, Iterable<ResourceDeclaration> instances)
+	def static compileResourceType(ResourceType rtp, String filename, Iterable<ResourceCreateStatement> instances)
 	{
 		'''
 		package «filename»;
@@ -78,19 +71,21 @@ class RDOResourceTypeCompiler
 				return number;
 			}
 
-			public void register(String name)
+			public «rtp.name» register(String name)
 			{
 				this.name = name;
 				this.number = managerCurrent.getNextNumber();
 				managerCurrent.addResource(this);
 				lastCreated = this;
+				return this;
 			}
 
-			public void register()
+			public «rtp.name» register()
 			{
 				this.number = managerCurrent.getNextNumber();
 				managerCurrent.addResource(this);
 				lastCreated = this;
+				return this;
 			}
 
 			private static «rtp.name» lastCreated;
@@ -155,53 +150,51 @@ class RDOResourceTypeCompiler
 				managerCurrent = manager;
 			}
 
-			«IF rtp.eAllContents.filter(typeof(RDOEnum)).toList.size > 0»// ENUMS«ENDIF»
-			«FOR e : rtp.eAllContents.toIterable.filter(typeof(RDOEnum))»
-				public enum «e.getEnumParentName(false)»_enum
-				{
-					«e.makeEnumBody»
-				}
-
-			«ENDFOR»
 			«FOR parameter : rtp.parameters»
-				private volatile «parameter.type.compileType» «parameter.name»«parameter.type.getDefault»;
+				private volatile «parameter.compileType» «parameter.name»«parameter.getDefault»;
 
-				public «parameter.type.compileType» get_«parameter.name»()
+				public «parameter.compileType» get_«parameter.name»()
 				{
 					return «parameter.name»;
 				}
 
-				public «parameter.type.compileType» set_«parameter.name»(«parameter.type.compileType» «parameter.name»)
+				public «parameter.compileType» set_«parameter.name»(«parameter.compileType» «parameter.name»)
 				{
-					if(managerOwner == managerCurrent)
-						this.«parameter.name» = «parameter.name»;
-					else
-						this.copyForNewOwner().«parameter.name» = «parameter.name»;
+					if(managerOwner != managerCurrent)
+						this.copyForNewOwner();
 
-					return «parameter.name»;
+					this.«parameter.name» = «parameter.name»;
+
+					Simulator.getDatabase().memorizeResourceEntry(
+							this.copy(),
+							Database.ResourceEntryType.ALTERED);
+
+					return this.«parameter.name»;
 				}
-
-				public «parameter.type.compileType» set_«parameter.name»_after(«parameter.type.compileType» «parameter.name»)
-				{
-					«parameter.type.compileTypePrimitive» copy = this.«parameter.name»;
-
-					set_«parameter.name»(«parameter.name»);
-
-					return copy;
-				}
-
 			«ENDFOR»
+
 			private «rtp.name» copyForNewOwner()
 			{
-				«rtp.name» copy = new «rtp.name»(«rtp.parameters.compileResourceTypeParametersCopyCall»);
+				«rtp.name» copy = copy();
 
-				copy.name = name;
-				copy.number = number;
-				managerCurrent.addResource(copy);
+				managerOwner.addResource(copy);
+				managerOwner = managerCurrent;
+
 				return copy;
 			}
 
-			public «rtp.name»(«rtp.parameters.compileResourceTypeParameters»)
+			public «rtp.name» copy()
+			{
+				«rtp.name» copy = new «rtp.name»(«rtp.parameters.compileParameterTypesCopyCall»);
+
+				copy.name = name;
+				copy.number = number;
+				copy.managerOwner = managerOwner;
+
+				return copy;
+			}
+
+			public «rtp.name»(«rtp.parameters.compileParameterTypes»)
 			{
 				«FOR parameter : rtp.parameters»
 					if(«parameter.name» != null)
@@ -229,7 +222,7 @@ class RDOResourceTypeCompiler
 				int size = «chunkstart + chunknumber * basicSizes.INT»;
 				«rtp.parameters.filter
 				[ p |
-					val type = p.type.compileType
+					val type = p.compileType
 					if(type == "String" || type.startsWith("java.util.ArrayList"))
 						return true
 					else
@@ -246,7 +239,7 @@ class RDOResourceTypeCompiler
 		'''
 	}
 
-	def public static compileResourceTypeParametersCopyCall(List<ResourceTypeParameter> parameters)
+	def private static compileParameterTypesCopyCall(List<ParameterType> parameters)
 	{
 		'''«IF parameters.size > 0»«
 			parameters.get(0).name»«
@@ -285,12 +278,12 @@ class RDOResourceTypeCompiler
 
 			if(type == "Integer")
 			{
-				ctype = "integer"
+				ctype = "int"
 				offset = offset + basicSizes.INT
 			}
 			if(type == "Double")
 			{
-				ctype = "real"
+				ctype = "double"
 				offset = offset + basicSizes.DOUBLE
 			}
 			if(type == "Boolean")
@@ -303,21 +296,6 @@ class RDOResourceTypeCompiler
 				ctype = "enum"
 				offset = offset + basicSizes.ENUM
 				isenum = true
-				if(type.substring(0, type.length - 5) == p.fullyQualifiedName)
-				{
-					enums =
-						'''
-						.put
-						(
-							"enums", new JSONArray()
-						'''
-					for(e : (p.resolveAllSuchAs as RDOEnum).enums)
-						enums = enums + "\t\t.put(\"" + e.name + "\")\n"
-					enums = enums +
-						'''
-						)
-						'''
-				}
 				enums = enums +
 					'''
 					.put("enum_origin", "«type.substring(0, type.length - 5)»")
@@ -330,21 +308,6 @@ class RDOResourceTypeCompiler
 				if(ctype.endsWith("_enum"))
 				{
 					isenum = true
-					if(ctype.substring(0, ctype.length - 5) == p.fullyQualifiedName)
-					{
-						enums =
-							'''
-							.put
-							(
-								"enums", new JSONArray()
-							'''
-						for(e : (p.resolveAllArrays as RDOEnum).enums)
-							enums = enums + "\t\t.put(\"" + e.name + "\")\n"
-						enums = enums +
-							'''
-							)
-							'''
-					}
 					enums = enums +
 						'''
 						.put("enum_origin", "«ctype.substring(0, ctype.length - 5)»")
@@ -358,7 +321,7 @@ class RDOResourceTypeCompiler
 			if(type == "String")
 			{
 				ischunk = true
-				ctype = "string"
+				ctype = "String"
 				chunkindex = chunkindex + 1
 			}
 
@@ -395,7 +358,7 @@ class RDOResourceTypeCompiler
 
 	}
 
-	def private static String compileBufferCalculation(Iterable<ResourceTypeParameter> parameters)
+	def private static String compileBufferCalculation(Iterable<ParameterType> parameters)
 	{
 		var ret = ""
 
@@ -456,12 +419,12 @@ class RDOResourceTypeCompiler
 		return ret
 	}
 
-	def private static String compileSerialization(Iterable<ResourceTypeParameter> parameters)
+	def private static String compileSerialization(Iterable<ParameterType> parameters)
 	{
 		var ret = ""
 		val constsize = parameters.filter
 			[ p |
-				val type = p.type.compileType
+				val type = p.compileType
 				if(type == "String" || type.startsWith("java.util.ArrayList"))
 					return false
 				else
@@ -469,7 +432,7 @@ class RDOResourceTypeCompiler
 			]
 		val chunks =  parameters.filter
 			[ p |
-				val type = p.type.compileType
+				val type = p.compileType
 				if(type == "String" || type.startsWith("java.util.ArrayList"))
 					return true
 				else
@@ -596,20 +559,20 @@ class RDOResourceTypeCompiler
 		return ret
 	}
 
-	def static String TABS(int number)
+	def private static String TABS(int number)
 	{
 		return '''«FOR i : 0 ..< number»	«ENDFOR»'''
 	}
 
-	def static int getArrayDepth(ResourceTypeParameter parameter)
+	def private static int getArrayDepth(ParameterType parameter)
 	{
-		var EObject type = parameter.type
+		var EObject type = parameter
 		var depth = 0;
 
-		while(type instanceof RDORTPParameterArray || type instanceof RDOArray)
+		while(type instanceof ParameterTypeArray || type instanceof RDOArray)
 		{
-			if(type instanceof RDORTPParameterArray)
-				type = (type as RDORTPParameterArray).type.arraytype
+			if(type instanceof ParameterTypeArray)
+				type = (type as ParameterTypeArray).type.arraytype
 			else
 				type = (type as RDOArray).arraytype
 			depth = depth + 1
@@ -618,51 +581,55 @@ class RDOResourceTypeCompiler
 		return depth
 	}
 
-	def static String getArrayType(ResourceTypeParameter parameter)
+	def private static String getArrayType(ParameterType parameter)
 	{
-		var EObject type = parameter.type
+		var EObject type = parameter
 
-		while(type instanceof RDORTPParameterArray || type instanceof RDOArray)
-			if(type instanceof RDORTPParameterArray)
-				type = (type as RDORTPParameterArray).type.arraytype
+		while(type instanceof ParameterTypeArray || type instanceof RDOArray)
+			if(type instanceof ParameterTypeArray)
+				type = (type as ParameterTypeArray).type.arraytype
 			else
 				type = (type as RDOArray).arraytype
 
 		type.getTypename
 	}
 
-	def static String getTypename(EObject type)
+	def private static String getTypename(EObject type)
 	{
 		switch(type)
 		{
-			RDOInteger: return "integer"
-			RDOReal   : return "real"
-			RDOBoolean: return "boolean"
-			RDOEnum   : return type.compileType
+			RDOInt : return "integer"
+			RDODouble : return "real"
+			RDOBoolean : return "boolean"
+			RDOEnum : return type.compileType
 			RDOString : return "string"
-			RDOSuchAs : return type.resolveAllSuchAs.getTypename
 			default: return null
 		}
 	}
 
-	def static String getDefault(RDORTPParameterType parameter)
+	def static String getDefault(ParameterType parameter)
 	{
 		switch parameter
 		{
-			RDORTPParameterBasic:
-				return if(parameter.^default != null) " = " + parameter.^default.compileExpression.value else ""
+			ParameterTypeBasic: {
+				var def = ""
+				if(parameter.^default != null) {
+					if (parameter.type instanceof RDOEnum) {
+						val value = parameter.^default.compileExpression.value
+						val fullTypeName = (parameter.type as RDOEnum).getFullEnumName
+						if (checkValidEnumID(
+								(parameter.type as RDOEnum).getFullEnumName,
+								value))
+							def = " = " + compileEnumValue(fullTypeName, value)
+					}
+					else
+						def = " = " + parameter.^default.compileExpression.value
+				}
 
-			RDORTPParameterEnum:
-				return if(parameter.^default != null) " = " + parameter.type.compileType + "." + parameter.^default.name else ""
+				return def
+			}
 
-			RDORTPParameterSuchAs:
-				if(parameter.type.compileType.endsWith("_enum"))
-					return if(parameter.^default != null) " = " + parameter.^default.compileExpressionContext((new LocalContext).
-						populateWithEnums(parameter.type.resolveAllSuchAs as RDOEnum)).value else ""
-				else
-					return if(parameter.^default != null) " = " + parameter.^default.compileExpression.value else ""
-
-			RDORTPParameterString:
+			ParameterTypeString:
 				return if(parameter.^default != null) ' = "' + parameter.^default + '"' else ""
 
 			default:
@@ -670,12 +637,12 @@ class RDOResourceTypeCompiler
 		}
 	}
 
-	def public static compileResourceTypeParameters(List<ResourceTypeParameter> parameters)
+	def private static compileParameterTypes(List<ParameterType> parameters)
 	{
-		'''«IF parameters.size > 0»«parameters.get(0).type.compileType» «
+		'''«IF parameters.size > 0»«parameters.get(0).compileType» «
 			parameters.get(0).name»«
 			FOR parameter : parameters.subList(1, parameters.size)», «
-				parameter.type.compileType» «
+				parameter.compileType» «
 				parameter.name»«
 			ENDFOR»«
 		ENDIF»'''

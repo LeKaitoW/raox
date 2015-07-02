@@ -7,13 +7,12 @@ import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 import static extension ru.bmstu.rk9.rdo.compilers.Util.*
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
-import ru.bmstu.rk9.rdo.rdo.ResourceTypeKind
 
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.DecisionPoint
 
-import ru.bmstu.rk9.rdo.rdo.ResourceDeclaration
-import ru.bmstu.rk9.rdo.rdo.ResultDeclaration
+import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
+import ru.bmstu.rk9.rdo.rdo.Result
 import ru.bmstu.rk9.rdo.rdo.ResultWatchParameter
 import ru.bmstu.rk9.rdo.rdo.ResultWatchValue
 import ru.bmstu.rk9.rdo.rdo.ResultWatchQuant
@@ -21,11 +20,13 @@ import ru.bmstu.rk9.rdo.rdo.ResultWatchState
 import ru.bmstu.rk9.rdo.rdo.ResultGetValue
 
 import ru.bmstu.rk9.rdo.generator.LocalContext
-
+import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
+import ru.bmstu.rk9.rdo.rdo.Event
+import ru.bmstu.rk9.rdo.rdo.RDOModel
 
 class RDOModelCompiler
 {
-	def public static compileModel(ResourceSet rs, String project)
+	def static compileModel(ResourceSet rs, String project)
 	{
 		'''
 		package rdo_model;
@@ -52,15 +53,24 @@ class RDOModelCompiler
 
 				Database db = Simulator.getDatabase();
 				«FOR r : rs.resources»
-
-					«FOR rtp : r.allContents.filter(typeof(ResourceDeclaration)).toIterable»
-						«rtp.reference.fullyQualifiedName» «rtp.name» = new «rtp.reference.fullyQualifiedName»(«if(rtp.parameters != null)
-							rtp.parameters.compileExpression.value else ""»);
-						«rtp.name».register("«rtp.fullyQualifiedName»");
-						db.addResourceEntry(Database.ResourceEntryType.CREATED, «rtp.name», "«rtp.fullyQualifiedName»");
-
+					«FOR res : r.allContents.filter(typeof(ResourceCreateStatement))
+							.filter(res | res.eContainer instanceof RDOModel).toIterable»
+							«IF res.name != null»
+								«res.type.fullyQualifiedName» «res.name» = new «
+									res.type.fullyQualifiedName»(«if(res.parameters != null)
+										res.parameters.compileExpression.value else ""»);
+									«res.name».register("«res.fullyQualifiedName»");
+								db.memorizeResourceEntry(
+										«res.name», Database.ResourceEntryType.CREATED);
+							«ELSE»
+								db.memorizeResourceEntry(
+										new «res.type.fullyQualifiedName»(«if(res.parameters != null)
+											res.parameters.compileExpression.value else ""»).register(),
+										Database.ResourceEntryType.CREATED);
+							«ENDIF»
 					«ENDFOR»
 				«ENDFOR»
+				db.addMemorizedResourceEntries(null, null);
 			}
 
 			public static «project»Model getCurrent()
@@ -133,6 +143,19 @@ class RDOModelCompiler
 				.put("name", "«rs.resources.head.allContents.head.nameGeneric»")
 				'''
 
+		var enums = ""
+		for (r : rs.resources)
+			for(e : r.allContents.filter(typeof(EnumDeclaration)).toIterable)
+				enums = enums +
+					'''
+					.put
+					(
+						new JSONObject()
+							.put("name", "«e.fullyQualifiedName»")
+							.put("structure", «e.fullyQualifiedName».structure)
+					)
+					'''
+
 		var resTypes = ""
 		for(r : rs.resources)
 			for(rtp : r.allContents.filter(typeof(ResourceType)).toIterable)
@@ -142,7 +165,7 @@ class RDOModelCompiler
 					(
 						new JSONObject()
 							.put("name", "«rtp.fullyQualifiedName»")
-							.put("temporary", «rtp.type == ResourceTypeKind.TEMPORARY»)
+							.put("temporary", true)
 							.put("structure", «rtp.fullyQualifiedName».structure)
 							.put
 							(
@@ -160,6 +183,14 @@ class RDOModelCompiler
 					.put(«p.fullyQualifiedName».structure)
 					'''
 
+		var events = ""
+		for(r : rs.resources)
+			for(e : r.allContents.filter(typeof(Event)).toIterable)
+				events = events +
+					'''
+					.put(«e.fullyQualifiedName».structure)
+					'''
+
 		var decisionPoints = ""
 		for(r : rs.resources)
 			for(dpt : r.allContents.filter(typeof(DecisionPoint)).toIterable)
@@ -170,7 +201,7 @@ class RDOModelCompiler
 
 		var results = ""
 		for(r : rs.resources)
-			for(rslt : r.allContents.filter(typeof(ResultDeclaration)).toIterable)
+			for(rslt : r.allContents.filter(typeof(Result)).toIterable)
 				results = results +
 					'''
 					.put
@@ -185,6 +216,11 @@ class RDOModelCompiler
 			'''
 			.put
 			(
+				"enums", new JSONArray()
+					«enums»
+			)
+			.put
+			(
 				"resource_types", new JSONArray()
 					«resTypes»
 			)
@@ -192,6 +228,11 @@ class RDOModelCompiler
 			(
 				"patterns", new JSONArray()
 					«patterns»
+			)
+			.put
+			(
+				"events", new JSONArray()
+					«events»
 			)
 			.put
 			(
@@ -213,8 +254,11 @@ class RDOModelCompiler
 
 		for(r : rs.resources)
 			for(rss : r.allContents
-				.filter(typeof(ResourceDeclaration))
-				.filter[s | s.reference == rtp].toIterable)
+				.filter(typeof(ResourceCreateStatement))
+				.filter(s | s.eContainer instanceof RDOModel)
+				.filter[s | s.type == rtp]
+				.filter[s | s.name != null]
+				.toIterable)
 			{
 				ret = ret +
 					'''
@@ -225,36 +269,36 @@ class RDOModelCompiler
 		return ret
 	}
 
-	def private static compileResultTypePart(ResultDeclaration result)
+	def private static compileResultTypePart(Result result)
 	{
 		val type = result.type
 		switch(type)
 		{
 			ResultWatchParameter:
 				'''
-				.put("type", "watch_par")
+				.put("type", "watchPar")
 				.put("value_type", "«type.parameter.compileExpression.type.backToRDOType»")
 				'''
 			ResultWatchState:
 				'''
-				.put("type", "watch_state")
+				.put("type", "watchState")
 				.put("value_type", "boolean")
 				'''
 			ResultWatchQuant:
 				'''
-				.put("type", "watch_quant")
-				.put("value_type", "integer")
+				.put("type", "watchQuant")
+				.put("value_type", "int")
 				'''
 			ResultWatchValue:
 				'''
-				.put("type", "watch_value")
+				.put("type", "watchValue")
 				.put("value_type", "«type.expression.compileExpressionContext(
 					(new LocalContext).populateWithResourceRename(
 						type.resource, "whatever")).type.backToRDOType»")
 				'''
 			ResultGetValue:
 				'''
-				.put("type", "get_value")
+				.put("type", "getValue")
 				.put("value_type", "«type.expression.compileExpression.type.backToRDOType»")
 				'''
 		}

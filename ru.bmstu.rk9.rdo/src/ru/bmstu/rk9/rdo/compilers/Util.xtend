@@ -2,12 +2,7 @@ package ru.bmstu.rk9.rdo.compilers
 
 class Util
 {
-	def public static withFirstUpper(String s)
-	{
-		return Character.toUpperCase(s.charAt(0)) + s.substring(1)
-	}
-
-	def public static String getTypeConstantSize(String type)
+	def static String getTypeConstantSize(String type)
 	{
 		if(type == "Integer")
 			return "4"
@@ -24,22 +19,21 @@ class Util
 		return "0"
 	}
 
-	def public static String backToRDOType(String type)
+	def static String backToRDOType(String type)
 	{
 		if(type.startsWith("java.util.ArrayList"))
 			"array<" + type.substring(20, type.length - 21).backToRDOType + ">"
 
 		switch(type)
 		{
-			case "String": "string"
-			case "Integer": "integer"
-			case "Boolean": "boolean"
-			case "Double": "real"
+			case "Integer",
+			case "Boolean",
+			case "Double": toSimpleType(type)
 			default: type
 		}
 	}
 
-	def public static String toSimpleType(String type)
+	def static String toSimpleType(String type)
 	{
 		switch(type)
 		{
