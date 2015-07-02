@@ -110,6 +110,8 @@ public class LegacyTracer {
 			return parseResourceEntry(entry);
 		case PATTERN:
 			return parsePatternEntry(entry);
+		case EVENT:
+			return parseEventEntry(entry);
 		case SEARCH:
 			return parseSearchEntry(entry);
 		case RESULT:
@@ -120,7 +122,7 @@ public class LegacyTracer {
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-	// ------------------- -- PARSING SYSTEM ENTRIES ----------------------- //
+	// -------------------------- SYSTEM ENTRIES --------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	protected TraceOutput parseSystemEntry(final Entry entry) {
@@ -156,7 +158,7 @@ public class LegacyTracer {
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-	// ---------------------- PARSING RESOURCE ENTRIES --------------------- //
+	// --------------------------- RESOURCE ENTRIES ------------------------ //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	protected final TraceOutput parseResourceEntry(final Entry entry) {
@@ -254,7 +256,7 @@ public class LegacyTracer {
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-	// ---------------------  PARSING PATTERN ENTRIES ---------------------- //
+	// -------------------------- PATTERN ENTRIES -------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	protected final TraceOutput parsePatternEntry(final Entry entry) {
@@ -268,9 +270,6 @@ public class LegacyTracer {
 		final Database.PatternType entryType = Database.PatternType.values()[header
 				.get()];
 		switch (entryType) {
-		case EVENT:
-			traceType = TraceType.EVENT;
-			break;
 		case RULE:
 			traceType = TraceType.RULE;
 			break;
@@ -297,12 +296,6 @@ public class LegacyTracer {
 		int patternNumber;
 
 		switch (patternType) {
-		case EVENT: {
-			patternNumber = data.getInt();
-			Tracer.skipPart(data, TypeSize.INTEGER);
-			stringJoiner.add(patternNumber + 1).add(patternNumber + 1);
-			break;
-		}
 		case RULE: {
 			int dptNumber = data.getInt();
 			int activityNumber = data.getInt();
@@ -368,6 +361,33 @@ public class LegacyTracer {
 			}
 		}
 
+		return stringJoiner.getString();
+	}
+
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// --------------------------- EVENT ENTRIES --------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+	private TraceOutput parseEventEntry(final Entry entry) {
+		final ByteBuffer header = Tracer.prepareBufferForReading(entry.header);
+		final ByteBuffer data = Tracer.prepareBufferForReading(entry.data);
+
+		Tracer.skipPart(header, TypeSize.BYTE);
+		final double time = header.getDouble();
+		final TraceType traceType = TraceType.EVENT;
+
+		return new TraceOutput(traceType, new RDOLibStringJoiner(delimiter)
+				.add(traceType.toString()).add(time).add(parseEventData(data))
+				.getString());
+	}
+
+	private String parseEventData(final ByteBuffer data) {
+		final RDOLibStringJoiner stringJoiner = new RDOLibStringJoiner(
+				delimiter);
+
+		int eventNumber = data.getInt();
+		Tracer.skipPart(data, TypeSize.INTEGER);
+		stringJoiner.add(eventNumber + 1).add(eventNumber + 1);
 		return stringJoiner.getString();
 	}
 
@@ -550,7 +570,7 @@ public class LegacyTracer {
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-	// ---------------------- PARSING RESULT ENTRIES ----------------------- //
+	// --------------------------- RESULT ENTRIES -------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	protected final TraceOutput parseResultEntry(final Entry entry) {

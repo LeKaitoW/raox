@@ -10,48 +10,31 @@ import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
 public class CollectedDataNode {
 	public enum IndexType {
-		RESOURCE_TYPE, RESOURCE, RESOURCE_PARAMETER, RESULT, PATTERN, SEARCH, DECISION_POINT
+		RESOURCE_TYPE, RESOURCE, RESOURCE_PARAMETER, RESULT, PATTERN, EVENT, SEARCH, DECISION_POINT
 	}
 
-	public static interface AbstractIndex {
-		public List<Integer> getEntryNumbers();
-
-		public void addEntry(Integer entry);
-
-		public int getNumber();
-
-		public boolean isEmpty();
-
-		public IndexType getType();
-	}
-
-	private static class Index implements AbstractIndex {
+	public static class Index {
 		public Index(int number, IndexType type) {
 			this.number = number;
 			this.type = type;
 		}
 
-		@Override
 		public List<Integer> getEntryNumbers() {
 			return entryNumbers;
 		}
 
-		@Override
 		public final void addEntry(Integer entry) {
 			entryNumbers.add(entry);
 		}
 
-		@Override
 		public final int getNumber() {
 			return number;
 		}
 
-		@Override
 		public final boolean isEmpty() {
 			return entryNumbers.isEmpty();
 		}
 
-		@Override
 		public final IndexType getType() {
 			return type;
 		}
@@ -118,6 +101,16 @@ public class CollectedDataNode {
 
 	}
 
+	public static class EventIndex extends Index {
+		public EventIndex(int number, JSONObject structure) {
+			super(number, IndexType.EVENT);
+			this.structure = structure;
+		}
+
+		JSONObject structure;
+		int timesExecuted = 0;
+	}
+
 	public static class ResourceTypeIndex extends Index {
 		ResourceTypeIndex(int number, JSONObject structure) {
 			super(number, IndexType.RESOURCE_TYPE);
@@ -180,11 +173,11 @@ public class CollectedDataNode {
 		return child;
 	}
 
-	public final void setIndex(AbstractIndex index) {
+	public final void setIndex(Index index) {
 		this.index = index;
 	}
 
-	public final AbstractIndex getIndex() {
+	public final Index getIndex() {
 		return index;
 	}
 
@@ -212,7 +205,7 @@ public class CollectedDataNode {
 		return SerializationConfig.getRelativeElementName(name);
 	}
 
-	private AbstractIndex index = null;
+	private Index index = null;
 	private final String name;
 	private final CollectedDataNode parent;
 	private final Map<String, CollectedDataNode> children = new TreeMap<String, CollectedDataNode>();

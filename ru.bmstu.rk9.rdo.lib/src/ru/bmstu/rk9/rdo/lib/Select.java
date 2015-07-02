@@ -7,14 +7,14 @@ public class Select {
 		public boolean check(T res);
 	}
 
-	public static <T> boolean Exist(Collection<T> resources, Checker<T> checker) {
+	public static <T> boolean exist(Collection<T> resources, Checker<T> checker) {
 		for (T res : resources)
 			if (checker.check(res))
 				return true;
 		return false;
 	}
 
-	public static <T> boolean Not_Exist(Collection<T> resources,
+	public static <T> boolean notExist(Collection<T> resources,
 			Checker<T> checker) {
 		for (T res : resources)
 			if (checker.check(res))
@@ -22,7 +22,7 @@ public class Select {
 		return true;
 	}
 
-	public static <T> boolean For_All(Collection<T> resources,
+	public static <T> boolean forAll(Collection<T> resources,
 			Checker<T> checker) {
 		for (T res : resources)
 			if (!checker.check(res))
@@ -30,7 +30,7 @@ public class Select {
 		return true;
 	}
 
-	public static <T> boolean Not_For_All(Collection<T> resources,
+	public static <T> boolean except(Collection<T> resources,
 			Checker<T> checker) {
 		for (T res : resources)
 			if (!checker.check(res))
@@ -38,11 +38,11 @@ public class Select {
 		return false;
 	}
 
-	public static <T> boolean Empty(Collection<T> resources, Checker<T> checker) {
-		return Not_Exist(resources, checker);
+	public static <T> boolean empty(Collection<T> resources, Checker<T> checker) {
+		return notExist(resources, checker);
 	}
 
-	public static <T> int Size(Collection<T> resources, Checker<T> checker) {
+	public static <T> int size(Collection<T> resources, Checker<T> checker) {
 		int count = 0;
 		for (T res : resources)
 			if (checker.check(res))

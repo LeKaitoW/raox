@@ -5,7 +5,6 @@ import java.util.List
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
 
-import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
 
 import ru.bmstu.rk9.rdo.generator.LocalContext
 
@@ -19,20 +18,19 @@ import ru.bmstu.rk9.rdo.rdo.FunctionTable
 import ru.bmstu.rk9.rdo.rdo.FunctionList
 
 import ru.bmstu.rk9.rdo.rdo.RDOType
-import ru.bmstu.rk9.rdo.rdo.RDOInteger
+import ru.bmstu.rk9.rdo.rdo.RDOInt
 import ru.bmstu.rk9.rdo.rdo.IntConstant
 import ru.bmstu.rk9.rdo.rdo.DoubleConstant
-import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 import ru.bmstu.rk9.rdo.rdo.Expression
-
+import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
+import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOFunctionCompiler
 {
-	def public static compileFunction(Function fun, String filename)
+	def static compileFunction(Function fun, String filename)
 	{
 		val type = fun.type
-
 		return
 		'''
 		package «filename»;
@@ -40,7 +38,7 @@ class RDOFunctionCompiler
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «fun.name»
+		public class «fun.type.name»
 		'''
 		 +
 		switch type
@@ -51,16 +49,15 @@ class RDOFunctionCompiler
 
 				'''
 				{
-					«IF type.parameters != null»«type.parameters.parameters.compileEnumsForFunction»«ENDIF»
+					«IF type.parameters != null»«type.parameters.compileEnumsForFunction»«ENDIF»
 					public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
-						»«type.parameters.parameters.compileFunctionTypeParameters»«ENDIF»)
+						»«type.parameters.compileFunctionTypeParameters»«ENDIF»)
 					{
 						if(true)
 						{
 							«type.algorithm.compileStatementContext(context)»
 						}
-						return «IF fun.^default != null»«
-							fun.^default.compileExpressionContext(context).value»«ELSE»null«ENDIF»;
+						return null;
 					}
 				}
 				'''
@@ -69,23 +66,23 @@ class RDOFunctionCompiler
 			FunctionTable:
 			'''
 			{
-				«IF type.parameters != null»«type.parameters.parameters.compileEnumsForFunction»«ENDIF»
+				«IF type.parameters != null»«type.parameters.compileEnumsForFunction»«ENDIF»
 				private static «fun.returntype.compileType»[] values =
 				{
 					«type.table.compileTable(
 						if(fun.returntype.compileType.endsWith("_enum"))
-							(new LocalContext).populateWithEnums(fun.returntype.resolveAllSuchAs as RDOEnum)
+							(new LocalContext).populateWithEnums(fun.returntype as RDOEnum)
 						else
 							null,
-						type.parameters.parameters.get(0).type.resolveAllSuchAs.tableLength
+						type.parameters.get(0).type.resolveAllTypes.tableLength
 					)»
 				};
 
 				public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
-						»«type.parameters.parameters.compileFunctionTypeParameters»«ENDIF»)
+						»«type.parameters.compileFunctionTypeParameters»«ENDIF»)
 				{
 					return values[
-						«type.parameters.parameters.compileTableReturn»
+						«type.parameters.compileTableReturn»
 					];
 				}
 			}
@@ -96,10 +93,10 @@ class RDOFunctionCompiler
 
 				var paramscontext =
 					if(type.parameters != null)
-						type.parameters.parameters.map
+						type.parameters.map
 							[ p |
 								if(p.type.compileType.endsWith("_enum"))
-									(new LocalContext).populateWithEnums(p.type.resolveAllSuchAs as RDOEnum)
+									(new LocalContext).populateWithEnums(p.type as RDOEnum)
 								else
 									null
 							]
@@ -109,17 +106,17 @@ class RDOFunctionCompiler
 				'''
 				{
 					«IF type.parameters != null
-						»«type.parameters.parameters.compileEnumsForFunction»«ENDIF»
+						»«type.parameters.compileEnumsForFunction»«ENDIF»
 					public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
-							»«type.parameters.parameters.compileFunctionTypeParameters»«ENDIF»)
+							»«type.parameters.compileFunctionTypeParameters»«ENDIF»)
 					{
 						«IF type.parameters != null»
 						«FOR i : 0 ..< type.list.size»
-						«IF type.list.get(i).parameters.size == type.parameters.parameters.size»
+						«IF type.list.get(i).parameters.size == type.parameters.size»
 							if
 							(
 								«FOR j : 0 ..< type.list.get(i).parameters.size»
-									«type.parameters.parameters.get(j).name» == «
+									«type.parameters.get(j).name» == «
 										type.list.get(i).parameters.get(j).compileExpressionContext(
 											paramscontext.get(j)).value»«
 										IF j < type.list.get(i).parameters.size - 1» &&«ENDIF»
@@ -130,8 +127,7 @@ class RDOFunctionCompiler
 						«ENDIF»
 						«ENDFOR»
 						«ENDIF»
-						return «IF fun.^default != null»«
-							fun.^default.compileExpressionContext(context).value»«ELSE»null«ENDIF»;
+						return null;
 					}
 				}
 				'''
@@ -139,11 +135,11 @@ class RDOFunctionCompiler
 		}
 	}
 
-	def public static int getTableLength(RDOType type)
+	def private static int getTableLength(RDOType type)
 	{
 		switch type
 		{
-			RDOInteger:
+			RDOInt:
 				if(type.range != null)
 					return
 						if(type.range.hi instanceof IntConstant)
@@ -159,14 +155,14 @@ class RDOFunctionCompiler
 					return 0
 
 			RDOEnum:
-				return type.enums.size
+				return type.type.values.size
 
 			default:
 				return 0
 		}
 	}
 
-	def public static compileTable(List<Expression> table, LocalContext context, int cut)
+	def private static compileTable(List<Expression> table, LocalContext context, int cut)
 	{
 		var values = ""
 		var flag = false
@@ -188,14 +184,14 @@ class RDOFunctionCompiler
 		return values
 	}
 
-	def public static compileTableReturn(List<FunctionParameter> parameters)
+	def private static compileTableReturn(List<FunctionParameter> parameters)
 	{
 		val list = newIntArrayOfSize(parameters.size)
 		var multiplier = 1;
 		for(i : 0 ..< parameters.size)
 		{
 			list.set(i, multiplier)
-			multiplier = multiplier * parameters.get(i).type.resolveAllSuchAs.tableLength
+			multiplier = multiplier * parameters.get(i).type.resolveAllTypes.tableLength
 		}
 
 		var compiled = ""
@@ -209,7 +205,7 @@ class RDOFunctionCompiler
 		return compiled
 	}
 
-	def public static compileFunctionTypeParameters(List<FunctionParameter> parameters)
+	def private static compileFunctionTypeParameters(List<FunctionParameter> parameters)
 	{
 		'''«IF !parameters.empty»«parameters.get(0).type.compileType» «
 			parameters.get(0).name»«
@@ -220,13 +216,13 @@ class RDOFunctionCompiler
 		ENDIF»'''
 	}
 
-	def public static compileEnumsForFunction(List<FunctionParameter> parameters)
+	def private static compileEnumsForFunction(List<FunctionParameter> parameters)
 	{
 		'''
 		«FOR p : parameters.filter[c | c.type instanceof RDOEnum]»
 		public static enum «p.name»_enum
 		{
-			«(p.type as RDOEnum).makeEnumBody»
+			«(p.type as RDOEnum).type.makeEnumBody»
 		}
 
 		«ENDFOR»

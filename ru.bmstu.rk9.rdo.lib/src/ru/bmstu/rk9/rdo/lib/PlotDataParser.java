@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ru.bmstu.rk9.rdo.lib.CollectedDataNode.AbstractIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.Index;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceParameterIndex;
@@ -17,8 +17,8 @@ import ru.bmstu.rk9.rdo.lib.exception.PlotDataParserException;
 
 public class PlotDataParser {
 
-	private static final Map<AbstractIndex, Integer> lastItemMap = new HashMap<AbstractIndex, Integer>();
-	private static final Map<AbstractIndex, Integer> lastPatternCountMap = new HashMap<AbstractIndex, Integer>();
+	private static final Map<Index, Integer> lastItemMap = new HashMap<Index, Integer>();
+	private static final Map<Index, Integer> lastPatternCountMap = new HashMap<Index, Integer>();
 
 	public final static class PlotItem {
 		PlotItem(final double x, final double y) {
@@ -40,7 +40,7 @@ public class PlotDataParser {
 		final public int itemNumber;
 	}
 
-	public static void removeIndexFromMaps(AbstractIndex index) {
+	public static void removeIndexFromMaps(Index index) {
 		if (!lastItemMap.isEmpty() && lastItemMap.containsKey(index)) {
 			lastItemMap.remove(index);
 		}
@@ -51,7 +51,7 @@ public class PlotDataParser {
 	}
 
 	public static List<PlotItem> parseEntries(final CollectedDataNode node) {
-		final AbstractIndex index = node.getIndex();
+		final Index index = node.getIndex();
 		ParseInfo parseInfo;
 
 		int startItemNumber = 0;
@@ -230,7 +230,7 @@ public class PlotDataParser {
 
 	public static List<String> getEnumNames(final CollectedDataNode node) {
 		List<String> enumNames = null;
-		final AbstractIndex index = node.getIndex();
+		final Index index = node.getIndex();
 		if (index != null) {
 			switch (index.getType()) {
 			case RESOURCE_PARAMETER:
