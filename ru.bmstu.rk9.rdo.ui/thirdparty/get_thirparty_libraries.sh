@@ -33,7 +33,7 @@ unpack_source() {
 	unzip "$archive_name" "$library_name"/"$source"/* \
 			-d "$output_folder" >/dev/null
 	cd "$output_folder"/"$library_name"/ >/dev/null
-	zip -r "$output_folder"/source/"$source".zip \
+	zip -rX "$output_folder"/source/"$source".zip \
 			"$source"/ >/dev/null
 	cd - >/dev/null
 }
