@@ -14,19 +14,18 @@ gunzip -c eclipse-dsl-luna-SR2-linux-gtk-x86_64.tar.gz  | tar xvf -
 cd eclipse
 ./eclipse
 ```
- * Download [JFreeChart](http://www.jfree.org/jfreechart/download.html)
  * Git clone `rdo-xtext` repository
 ```bash
 ssh-add ~/.ssh/github.openssh.private.key
 git clone git@github.com:aurusov/rdo-xtext.git
 ```
-## Installing  
+## Installing
 ### Setting up the workspace for Eclipse
 * `File` `>` `Import` `>` `General` `>` `Existing Projects into Workspace``>` `Select root directory` `>` `/home/USERNAME/git/rdo-xtext` `>` `Finish`
 * Wait for the workspace to build and get tons of errors
 * `ru.bmstu.rk9.rdo/src/ru.bmstu.rk9.rdo/RDO.xtext` `>` `Run As` `>` `Generate Xtext Artifacts` `>` `Proceed`
 * `*ATTENTION* It is recommended to use the ANTLR 3...` press `y`
-``` 
+```
 0    [main] INFO  lipse.emf.mwe.utils.StandaloneSetup  - Registering platform uri '/home/drobus/git/rdo-xtext'
 637  [main] INFO  lipse.emf.mwe.utils.StandaloneSetup  - Adding generated EPackage 'org.eclipse.xtext.common.types.TypesPackage'
 644  [main] INFO  ipse.emf.mwe.utils.DirectoryCleaner  - Cleaning /home/drobus/git/rdo-xtext/ru.bmstu.rk9.rdo/../ru.bmstu.rk9.rdo/src-gen
@@ -40,18 +39,11 @@ git clone git@github.com:aurusov/rdo-xtext.git
 ```
 >**[!]** *If your output differs from the one above by a lot of errors mentioning* `RULE_ANY_OTHER`*, you should run the generation process again and again until the bulid is succesfull. This is Xtext/Antlr bug caused by complex rules supporting unicode identifiers in grammar, sorry for the inconvenience*
 
-* `ru.bmstu.rk9.rdo.ui` `>` `New` `>` `Folder` `>` `Folder name:` `=` `thirdparty` `>` `Finish`
-* Drag and drop files from `jfreechart-1.0.19\lib`
- * `jcommon-1.0.23.jar`
- * `jfreechart-1.0.19.jar`
- * `jfreechart-1.0.19-experimental.jar`
- * `jfreechart-1.0.19-swt.jar`
-* `Select how files should be imported into the project:` `>` `Copy files` `>` `Ok`
 * `Run` `>` `Run Configurations...` `>` `Eclipse Application` `>` `New` `>` `Name` `=` `runtime-EclipseXtext` `>` `Location` `=` `${workspace_loc}/../runtime-EclipseXtext` `>` `Run`
  * *Ignore this if you use Java version 8 or later.* Eclipse Platform may freeze during its launch. This happens due to the unsufficient [permgen](http://wiki.eclipse.org/FAQ_How_do_I_increase_the_permgen_size_available_to_Eclipse%3F) size available to Eclipse. To prevent that, add `-XX:MaxPermSize=256M` to VM arguments in Run Configuration.
 * And that's it.
 
-## Running  
+## Running
 * `Window` `>` `Open Perspective` `>` `Other...` `>` `RDO`
 * `File` `>` `New` `>` `Project...` `>` `Java Project` `>` `Next>` `>` `Project name:` `>` set project name `>` `Project layout` `>` `Configure default` `>` `Source folder name` `=` `src-gen` `>` `OK` `>` `Finish`
  * `Do you want to open this perspective now?` `>` `No`
