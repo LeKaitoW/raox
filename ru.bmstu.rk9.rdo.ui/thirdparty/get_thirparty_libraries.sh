@@ -18,6 +18,7 @@ download_library() {
 create_output_folders() {
 	local library_name=$1
 
+	rm -rf "$library_name"
 	mkdir -p "$library_name"
 	mkdir -p "$library_name"/lib
 	mkdir -p "$library_name"/source
