@@ -26,7 +26,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOModel
 
 class RDOModelCompiler
 {
-	def static compileModel(ResourceSet rs, String project)
+	def static compileModel(ResourceSet resourceSet, String project)
 	{
 		'''
 		package rdo_model;
@@ -38,10 +38,10 @@ class RDOModelCompiler
 
 		public class «project»Model implements ModelState<«project»Model>
 		{
-			«FOR r : rs.resources»
-				«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
-					ResourceManager<«rtp.fullyQualifiedName»> «r.allContents.head.nameGeneric
-							»_«rtp.name»_manager;
+			«FOR ecoreResource : resourceSet.resources»
+				«FOR resourceType : ecoreResource.allContents.filter(typeof(ResourceType)).toIterable»
+					ResourceManager<«resourceType.fullyQualifiedName»> «ecoreResource.allContents.head.nameGeneric
+							»_«resourceType.name»_manager;
 				«ENDFOR»
 			«ENDFOR»
 
@@ -52,20 +52,20 @@ class RDOModelCompiler
 				(new «project»Model()).deploy();
 
 				Database db = Simulator.getDatabase();
-				«FOR r : rs.resources»
-					«FOR res : r.allContents.filter(typeof(ResourceCreateStatement))
+				«FOR ecoreResource : resourceSet.resources»
+					«FOR resource : ecoreResource.allContents.filter(typeof(ResourceCreateStatement))
 							.filter(res | res.eContainer instanceof RDOModel).toIterable»
-							«IF res.name != null»
-								«res.type.fullyQualifiedName» «res.name» = new «
-									res.type.fullyQualifiedName»(«if(res.parameters != null)
-										res.parameters.compileExpression.value else ""»);
-									«res.name».register("«res.fullyQualifiedName»");
+							«IF resource.name != null»
+								«resource.type.fullyQualifiedName» «resource.name» = new «
+									resource.type.fullyQualifiedName»(«if (resource.parameters != null)
+										resource.parameters.compileExpression.value else ""»);
+									«resource.name».register("«resource.fullyQualifiedName»");
 								db.memorizeResourceEntry(
-										«res.name», Database.ResourceEntryType.CREATED);
+										«resource.name», Database.ResourceEntryType.CREATED);
 							«ELSE»
 								db.memorizeResourceEntry(
-										new «res.type.fullyQualifiedName»(«if(res.parameters != null)
-											res.parameters.compileExpression.value else ""»).register(),
+										new «resource.type.fullyQualifiedName»(«if (resource.parameters != null)
+											resource.parameters.compileExpression.value else ""»).register(),
 										Database.ResourceEntryType.CREATED);
 							«ENDIF»
 					«ENDFOR»
@@ -80,19 +80,19 @@ class RDOModelCompiler
 
 			private «project»Model()
 			{
-				«FOR r : rs.resources»
-					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
-						this.«r.allContents.head.nameGeneric»_«rtp.name
-							»_manager = new ResourceManager<«rtp.fullyQualifiedName»>();
+				«FOR ecoreResource : resourceSet.resources»
+					«FOR resourceType : ecoreResource.allContents.filter(typeof(ResourceType)).toIterable»
+						this.«ecoreResource.allContents.head.nameGeneric»_«resourceType.name
+							»_manager = new ResourceManager<«resourceType.fullyQualifiedName»>();
 					«ENDFOR»
 				«ENDFOR»
 			}
 
 			private «project»Model(«project»Model other)
 			{
-				«FOR r : rs.resources»
-					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
-						this.«r.allContents.head.nameGeneric»_«rtp.name»_manager = other.«r.allContents.head.nameGeneric»_«rtp.name»_manager.copy();
+				«FOR ecoreResource : resourceSet.resources»
+					«FOR resourceType : ecoreResource.allContents.filter(typeof(ResourceType)).toIterable»
+						this.«ecoreResource.allContents.head.nameGeneric»_«resourceType.name»_manager = other.«ecoreResource.allContents.head.nameGeneric»_«resourceType.name»_manager.copy();
 					«ENDFOR»
 				«ENDFOR»
 			}
@@ -102,9 +102,9 @@ class RDOModelCompiler
 			{
 				current = this;
 
-				«FOR r : rs.resources»
-					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
-						«rtp.fullyQualifiedName».setCurrentManager(«r.allContents.head.nameGeneric»_«rtp.name»_manager);
+				«FOR ecoreResource : resourceSet.resources»
+					«FOR resourceType : ecoreResource.allContents.filter(typeof(ResourceType)).toIterable»
+						«resourceType.fullyQualifiedName».setCurrentManager(«ecoreResource.allContents.head.nameGeneric»_«resourceType.name»_manager);
 					«ENDFOR»
 				«ENDFOR»
 			}
@@ -118,10 +118,10 @@ class RDOModelCompiler
 			@Override
 			public boolean checkEqual(«project»Model other)
 			{
-				«FOR r : rs.resources»
-					«FOR rtp : r.allContents.filter(typeof(ResourceType)).toIterable»
-						if(!this.«r.allContents.head.nameGeneric»_«rtp.name»_manager.checkEqual(other.«
-							r.allContents.head.nameGeneric»_«rtp.name»_manager))
+				«FOR ecoreResource : resourceSet.resources»
+					«FOR resourceType : ecoreResource.allContents.filter(typeof(ResourceType)).toIterable»
+						if (!this.«ecoreResource.allContents.head.nameGeneric»_«resourceType.name»_manager.checkEqual(other.«
+							ecoreResource.allContents.head.nameGeneric»_«resourceType.name»_manager))
 							return false;
 					«ENDFOR»
 				«ENDFOR»
@@ -130,87 +130,79 @@ class RDOModelCompiler
 			}
 
 			final static JSONObject modelStructure = new JSONObject()
-				«rs.compileModelStructure»;
+				«resourceSet.compileModelStructure»;
 		}
 		'''
 	}
 
-	def private static compileModelStructure(ResourceSet rs)
-	{
+	def private static compileModelStructure(ResourceSet resourceSet) {
 		var ret = ""
-		ret = ret +
-				'''
-				.put("name", "«rs.resources.head.allContents.head.nameGeneric»")
-				'''
+		ret = ret + '''
+			.put("name", "«resourceSet.resources.head.allContents.head.nameGeneric»")
+		'''
 
 		var enums = ""
-		for (r : rs.resources)
-			for(e : r.allContents.filter(typeof(EnumDeclaration)).toIterable)
-				enums = enums +
-					'''
+		for (ecoreResource : resourceSet.resources)
+			for (enumDeclaration : ecoreResource.allContents.filter(typeof(EnumDeclaration)).toIterable)
+				enums = enums + '''
 					.put
 					(
 						new JSONObject()
-							.put("name", "«e.fullyQualifiedName»")
-							.put("structure", «e.fullyQualifiedName».structure)
+							.put("name", "«enumDeclaration.fullyQualifiedName»")
+							.put("structure", «enumDeclaration.fullyQualifiedName».structure)
 					)
-					'''
+				'''
 
-		var resTypes = ""
-		for(r : rs.resources)
-			for(rtp : r.allContents.filter(typeof(ResourceType)).toIterable)
-				resTypes = resTypes +
-					'''
+		var resourceTypes = ""
+		for (ecoreResource : resourceSet.resources)
+			for (resourceType : ecoreResource.allContents.filter(typeof(ResourceType)).toIterable)
+				resourceTypes = resourceTypes + '''
 					.put
 					(
 						new JSONObject()
-							.put("name", "«rtp.fullyQualifiedName»")
+							.put("name", "«resourceType.fullyQualifiedName»")
 							.put("temporary", true)
-							.put("structure", «rtp.fullyQualifiedName».structure)
+							.put("structure", «resourceType.fullyQualifiedName».structure)
 							.put
 							(
 								"resources", new JSONArray()
-									«rtp.compileResourcesInStructure(rs)»
+									«resourceType.compileResourcesInStructure(resourceSet)»
 							)
 					)
-					'''
+				'''
 
 		var patterns = ""
-		for(r : rs.resources)
-			for(p : r.allContents.filter(typeof(Pattern)).toIterable)
-				patterns = patterns +
-					'''
-					.put(«p.fullyQualifiedName».structure)
-					'''
+		for (ecoreResource : resourceSet.resources)
+			for (pattern : ecoreResource.allContents.filter(typeof(Pattern)).toIterable)
+				patterns = patterns + '''
+					.put(«pattern.fullyQualifiedName».structure)
+				'''
 
 		var events = ""
-		for(r : rs.resources)
-			for(e : r.allContents.filter(typeof(Event)).toIterable)
-				events = events +
-					'''
-					.put(«e.fullyQualifiedName».structure)
-					'''
+		for (ecoreResource : resourceSet.resources)
+			for (event : ecoreResource.allContents.filter(typeof(Event)).toIterable)
+				events = events + '''
+					.put(«event.fullyQualifiedName».structure)
+				'''
 
 		var decisionPoints = ""
-		for(r : rs.resources)
-			for(dpt : r.allContents.filter(typeof(DecisionPoint)).toIterable)
-				decisionPoints = decisionPoints +
-					'''
+		for (ecoreResource : resourceSet.resources)
+			for (dpt : ecoreResource.allContents.filter(typeof(DecisionPoint)).toIterable)
+				decisionPoints = decisionPoints + '''
 					.put(«dpt.fullyQualifiedName».structure)
-					'''
+				'''
 
 		var results = ""
-		for(r : rs.resources)
-			for(rslt : r.allContents.filter(typeof(Result)).toIterable)
-				results = results +
-					'''
+		for (ecoreResource : resourceSet.resources)
+			for (result : ecoreResource.allContents.filter(typeof(Result)).toIterable)
+				results = results + '''
 					.put
 					(
 						new JSONObject()
-							.put("name", "«rslt.fullyQualifiedName»")
-							«rslt.compileResultTypePart»
+							.put("name", "«result.fullyQualifiedName»")
+							«result.compileResultTypePart»
 					)
-					'''
+				'''
 
 		ret = ret +
 			'''
@@ -222,7 +214,7 @@ class RDOModelCompiler
 			.put
 			(
 				"resource_types", new JSONArray()
-					«resTypes»
+					«resourceTypes»
 			)
 			.put
 			(
@@ -248,22 +240,15 @@ class RDOModelCompiler
 		return ret
 	}
 
-	def private static compileResourcesInStructure(ResourceType rtp, ResourceSet rs)
-	{
+	def private static compileResourcesInStructure(ResourceType resourceType, ResourceSet resourceSet) {
 		var ret = ""
 
-		for(r : rs.resources)
-			for(rss : r.allContents
-				.filter(typeof(ResourceCreateStatement))
-				.filter(s | s.eContainer instanceof RDOModel)
-				.filter[s | s.type == rtp]
-				.filter[s | s.name != null]
-				.toIterable)
-			{
-				ret = ret +
-					'''
-					.put("«rss.fullyQualifiedName»")
-					'''
+		for (ecoreResource : resourceSet.resources)
+			for (globalResource : ecoreResource.allContents.filter(typeof(ResourceCreateStatement)).filter(
+				s|s.eContainer instanceof RDOModel).filter[s|s.type == resourceType].filter[s|s.name != null].toIterable) {
+				ret = ret + '''
+					.put("«globalResource.fullyQualifiedName»")
+				'''
 			}
 
 		return ret
@@ -272,7 +257,7 @@ class RDOModelCompiler
 	def private static compileResultTypePart(Result result)
 	{
 		val type = result.type
-		switch(type)
+		switch (type)
 		{
 			ResultWatchParameter:
 				'''

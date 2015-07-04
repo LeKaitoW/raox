@@ -89,7 +89,7 @@ Pattern:
 	type = PatternType name = ID '('
 		(parameters += ParameterType (
 			',' parameters += ParameterType)* )? ')' '{'
-		relevantresources += RelevantResource*
+		relevantResources += RelevantResource*
 		('relevantSet' combinational = PatternSelectMethod ';')?
 		defaultMethods += DefaultMethod*
 	'}'
@@ -102,9 +102,9 @@ enum PatternType
 ;
 
 RelevantResource:
-	'relevant' name = ID '=' type = [META_RelResType|FQN]
-	(haveselect ?= '.' 'select' '(' select = PatternSelectLogic ')'
-		(selectmethod = PatternSelectMethod)?
+	'relevant' name = ID '=' type = [META_RelevantResourceType|FQN]
+	(haveSelect ?= '.' 'select' '(' select = PatternSelectLogic ')'
+		(selectMethod = PatternSelectMethod)?
 	)? ';'
 ;
 
@@ -115,7 +115,7 @@ PatternSelectLogic
 
 PatternSelectMethod
 	: first ?= '.' 'first' '(' ')'
-	| '.' withtype = PatternSelectWithType '(' expression = ExpressionOr ')'
+	| '.' withType = PatternSelectWithType '(' expression = ExpressionOr ')'
 ;
 
 enum PatternSelectWithType
@@ -134,7 +134,7 @@ DecisionPoint
 
 DecisionPointSome:
 	'dpt' name = ID '{'
-		('set' initName = ID '(' ')' '{'
+		('set' initMethodName = ID '(' ')' '{'
 			(initStatements += DptStatements ';')*
 		'}')?
 		( activities += DecisionPointActivity ';')+
@@ -156,7 +156,7 @@ DptStatements
 
 DecisionPointSearch:
 	'search' name = ID '{'
-		'set' initName = ID '(' ')' '{'
+		'set' initMethodName = ID '(' ')' '{'
 			(initStatements += DptSearchStatemets ';')*
 		'}'
 		( activities += DecisionPointSearchActivity ';')+
@@ -168,8 +168,8 @@ DecisionPointSearchActivity:
 	'(' ( parameters += ExpressionOr (
 		',' parameters += ExpressionOr)* )? ')'
 	'.' (
-		'setValueBefore' '(' valuebefore = ExpressionOr ')'
-		| 'setValueAfter'  '(' valueafter = ExpressionOr ')'
+		'setValueBefore' '(' valueBefore = ExpressionOr ')'
+		| 'setValueAfter'  '(' valueAfter = ExpressionOr ')'
 	)
 ;
 
@@ -198,11 +198,11 @@ DptSetTerminateConditionStatement:
 ;
 
 DptEvaluateByStatement:
-	name = 'evaluateBy' '(' evaluateby = ExpressionOr ')'
+	name = 'evaluateBy' '(' evaluateBy = ExpressionOr ')'
 ;
 
 DptCompareTopsStatement:
-	name = 'compareTops' '(' ((comparetops ?= 'true') | 'false') ')'
+	name = 'compareTops' '(' ((compareTops ?= 'true') | 'false') ')'
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -210,7 +210,7 @@ DptCompareTopsStatement:
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 Sequence:
-	'sequence' name = ID '=' returntype = RDOType type = SequenceType
+	'sequence' name = ID '=' returnType = RDOType type = SequenceType
 ;
 
 SequenceType
@@ -278,7 +278,7 @@ Constant:
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 Function:
-	returntype = RDOType type = FunctionType
+	returnType = RDOType type = FunctionType
 ;
 
 FunctionType
@@ -366,7 +366,7 @@ ResultGetValue:
 
 Frame:
 	'frame' name = ID '{'
-	(backpicture = FrameBackPicture)?
+	(backPicture = FrameBackPicture)?
 		frame = FrameStatementList
 	'}'
 ;
@@ -437,7 +437,7 @@ FrameObjectText:
 	'text' '('
 		x = ExpressionOr ',' y = ExpressionOr ','
 		width = ExpressionOr ',' height = ExpressionOr ','
-		backcolour = FrameColour ','
+		backColour = FrameColour ','
 		textcolour = FrameColour ','
 		(alignment = FrameAlignment)? text = ExpressionOr
 	')'
@@ -453,8 +453,8 @@ FrameObjectRectangle:
 	'rect' '('
 		x = ExpressionOr ',' y = ExpressionOr ','
 		width = ExpressionOr ',' height = ExpressionOr ','
-		backcolour = FrameColour ','
-		bordercolour = FrameColour
+		backColour = FrameColour ','
+		borderColour = FrameColour
 	')'
 ;
 
@@ -470,8 +470,8 @@ FrameObjectCircle:
 	'circle' '('
 		x = ExpressionOr ',' y = ExpressionOr ','
 		radius = ExpressionOr ','
-		backcolour = FrameColour ','
-		bordercolour = FrameColour
+		backColour = FrameColour ','
+		borderColour = FrameColour
 	')'
 ;
 
@@ -479,8 +479,8 @@ FrameObjectEllipse:
 	'ellipse' '('
 		x = ExpressionOr ',' y = ExpressionOr ','
 		width = ExpressionOr ',' height = ExpressionOr ','
-		backcolour = FrameColour ','
-		bordercolour = FrameColour
+		backColour = FrameColour ','
+		borderColour = FrameColour
 	')'
 ;
 
@@ -489,8 +489,8 @@ FrameObjectTriangle:
 		x1 = ExpressionOr ',' y1 = ExpressionOr ','
 		x2 = ExpressionOr ',' y2 = ExpressionOr ','
 		x3 = ExpressionOr ',' y3 = ExpressionOr ','
-		backcolour = FrameColour ','
-		bordercolour = FrameColour
+		backColour = FrameColour ','
+		borderColour = FrameColour
 	')'
 ;
 
@@ -516,12 +516,12 @@ EnumDeclaration:
 //                      Meta types for cross-references                  //
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-META_RelResType
+META_RelevantResourceType
 	: ResourceType
 	| ResourceCreateStatement
 ;
 
-META_ResReference
+META_ResourceReference
 	: ResourceCreateStatement
 	| RelevantResource
 ;
@@ -543,11 +543,11 @@ RDOType
 ;
 
 RDOInt:
-	type = 'int' range=DeclarationRange?
+	type = 'int' range = DeclarationRange?
 ;
 
 RDODouble:
-	type = 'double' range=DeclarationRange?
+	type = 'double' range = DeclarationRange?
 ;
 
 RDOBoolean:
@@ -559,7 +559,7 @@ RDOString:
 ;
 
 DeclarationRange
-	:'[' lo = RangeValue ('..' | ':') hi = RangeValue ']'
+	:'[' lowerBound = RangeValue ('..' | ':') upperBound = RangeValue ']'
 ;
 
 RangeValue
@@ -572,7 +572,7 @@ RDOEnum:
 ;
 
 RDOArray:
-	'array' '<' arraytype = RDOType '>'
+	'array' '<' arrayType = RDOType '>'
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -652,12 +652,12 @@ PlanStatement:
 ;
 
 ResourceCreateStatement:
-	('resource' name = ID '=')? type = [ResourceType|FQN]
+	('resource' name = ID '=')? type = [ResourceType | FQN]
 		'.' 'create' '(' ( parameters = ResourceExpressionList )? ')' ';'
 ;
 
 ResourceEraseStatement:
-	res = [META_ResReference | FQN] '.' 'erase' '('')' ';'
+	res = [META_ResourceReference | FQN] '.' 'erase' '('')' ';'
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -675,7 +675,7 @@ Expression
 // Assignment: left associative, higher priority (-1)
 ExpressionAssignment returns Expression:
 	ExpressionOr (
-		=> op = ('='|'+='|'-='|'*='|'/='|'%=') {ExpressionAssignment.left = current} next = ExpressionOr
+		=> operation = ('='|'+='|'-='|'*='|'/='|'%=') {ExpressionAssignment.left = current} next = ExpressionOr
 	)*
 ;
 
@@ -773,7 +773,7 @@ enum SelectMethod
 ;
 
 GroupBy:
-	type = [ResourceType|FQN] ':'
+	type = [ResourceType | FQN] ':'
 		(condition = ExpressionOr | 'any')
 ;
 
@@ -790,8 +790,8 @@ VariableMethodCallExpression
 // +1
 VariableExpression
 	: call = ID
-	( => functionfirst ?= '(' (args = ExpressionList)? ')' ( => arraylast ?= '[' iterator = Expression ']' )?
-	| => arrayfirst ?= '[' iterator = Expression ']' ( => functionlast ?= '(' (args = ExpressionList)? ')' )?
+	( => functionFirst ?= '(' (args = ExpressionList)? ')' ( => arrayLast ?= '[' iterator = Expression ']' )?
+	| => arrayFirst ?= '[' iterator = Expression ']' ( => functionLast ?= '(' (args = ExpressionList)? ')' )?
 	)?
 ;
 

@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rdo.generator;
 import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.bmstu.rk9.rdo.rdo.EnumerativeSequence;
 import ru.bmstu.rk9.rdo.rdo.HistogramSequence;
@@ -17,43 +18,45 @@ import ru.bmstu.rk9.rdo.rdo.Sequence;
 import ru.bmstu.rk9.rdo.rdo.SequenceType;
 
 public class GlobalContext {
-	public class RTP {
+	public class ResourceTypeGlobalReference {
 		public ResourceType origin;
 
 		public HashMap<String, String> parameters;
 
-		public RTP(ResourceType rtp) {
-			origin = rtp;
+		public ResourceTypeGlobalReference(ResourceType resourceType) {
+			origin = resourceType;
 			parameters = new HashMap<String, String>();
-			for (ParameterType p : rtp.getParameters())
+			for (ParameterType p : resourceType.getParameters())
 				parameters.put(p.getName(),
 						RDOExpressionCompiler.compileType(p));
 		}
 	}
 
-	public class RSS {
+	public class ResourceGlobalReference {
 		public ResourceCreateStatement origin;
 
-		public String reference;
+		public String type;
 
-		public RSS(ResourceCreateStatement rss) {
-			origin = rss;
-			ResourceType rtp = rss.getType();
-			restypes.put(rtp.getName(), new RTP(rtp));
-			reference = rtp.getName();
+		public ResourceGlobalReference(
+				ResourceCreateStatement resourceCreateStatement) {
+			origin = resourceCreateStatement;
+			ResourceType resourceType = resourceCreateStatement.getType();
+			resourceTypes.put(resourceType.getName(),
+					new ResourceTypeGlobalReference(resourceType));
+			type = resourceType.getName();
 		}
 	}
 
-	public class SEQ {
+	public class SequenceGlobalReference {
 		public Sequence origin;
 
 		public String type;
 		public int parameters;
 
-		public SEQ(Sequence seq) {
-			origin = seq;
-			type = RDOExpressionCompiler.compileType(seq.getReturntype());
-			SequenceType type = seq.getType();
+		public SequenceGlobalReference(Sequence sequence) {
+			origin = sequence;
+			type = RDOExpressionCompiler.compileType(sequence.getReturnType());
+			SequenceType type = sequence.getType();
 			if (type instanceof EnumerativeSequence
 					|| type instanceof HistogramSequence)
 				parameters = 0;
@@ -71,32 +74,32 @@ public class GlobalContext {
 		}
 	}
 
-	public class CON {
+	public class ConstantGlobalReference {
 		public Constant origin;
 
 		public String type;
 
-		public CON(Constant con) {
-			origin = con;
-			type = RDOExpressionCompiler.compileType(con.getType());
+		public ConstantGlobalReference(Constant constant) {
+			origin = constant;
+			type = RDOExpressionCompiler.compileType(constant.getType());
 		}
 	}
 
-	public class FUN {
+	public class FunctionGlobalReference {
 		public Function origin;
 
 		public LinkedList<String> parameters = new LinkedList<String>();
 
 		public String type;
 
-		public FUN(Function fun) {
-			origin = fun;
+		public FunctionGlobalReference(Function function) {
+			origin = function;
 
 			List<FunctionParameter> parameters = null;
 
-			type = RDOExpressionCompiler.compileType(fun.getReturntype());
+			type = RDOExpressionCompiler.compileType(function.getReturnType());
 
-			parameters = fun.getType().getParameters();
+			parameters = function.getType().getParameters();
 
 			if (parameters != null)
 				for (FunctionParameter p : parameters)
@@ -105,25 +108,26 @@ public class GlobalContext {
 		}
 	}
 
-	public RSS newRSS(ResourceCreateStatement rss) {
-		return new RSS(rss);
+	public ResourceGlobalReference newResourceReference(
+			ResourceCreateStatement resourceCreateStatement) {
+		return new ResourceGlobalReference(resourceCreateStatement);
 	}
 
-	public SEQ newSEQ(Sequence seq) {
-		return new SEQ(seq);
+	public SequenceGlobalReference newSequenceReference(Sequence sequence) {
+		return new SequenceGlobalReference(sequence);
 	}
 
-	public CON newCON(Constant con) {
-		return new CON(con);
+	public ConstantGlobalReference newConstantReference(Constant constant) {
+		return new ConstantGlobalReference(constant);
 	}
 
-	public FUN newFUN(Function fun) {
-		return new FUN(fun);
+	public FunctionGlobalReference newFunctionReference(Function fun) {
+		return new FunctionGlobalReference(fun);
 	}
 
-	public HashMap<String, RTP> restypes = new HashMap<String, RTP>();
-	public HashMap<String, RSS> resources = new HashMap<String, RSS>();
-	public HashMap<String, SEQ> sequences = new HashMap<String, SEQ>();
-	public HashMap<String, CON> constants = new HashMap<String, CON>();
-	public HashMap<String, FUN> functions = new HashMap<String, FUN>();
+	public final Map<String, ResourceTypeGlobalReference> resourceTypes = new HashMap<String, ResourceTypeGlobalReference>();
+	public final Map<String, ResourceGlobalReference> resources = new HashMap<String, ResourceGlobalReference>();
+	public final Map<String, SequenceGlobalReference> sequences = new HashMap<String, SequenceGlobalReference>();
+	public final Map<String, ConstantGlobalReference> constants = new HashMap<String, ConstantGlobalReference>();
+	public final Map<String, FunctionGlobalReference> functions = new HashMap<String, FunctionGlobalReference>();
 }

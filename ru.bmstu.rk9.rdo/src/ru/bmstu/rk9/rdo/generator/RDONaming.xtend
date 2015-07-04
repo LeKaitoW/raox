@@ -16,7 +16,6 @@ import ru.bmstu.rk9.rdo.rdo.ParameterTypeArray
 
 import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement
 
-import ru.bmstu.rk9.rdo.rdo.META_RelResType
 
 import ru.bmstu.rk9.rdo.rdo.Sequence
 
@@ -42,6 +41,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOArray
 import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 import ru.bmstu.rk9.rdo.rdo.Pattern
+import ru.bmstu.rk9.rdo.rdo.META_RelevantResourceType
 
 class RDONaming
 {
@@ -50,10 +50,10 @@ class RDONaming
 		return uri.toPlatformString(true).substring(1, uri.toPlatformString(true).indexOf("/", 1))
 	}
 
-	def static getResourceName(Resource res)
+	def static getResourceName(Resource resource)
 	{
-		var name = res.getURI().lastSegment()
-		if(name.endsWith(".rdo"))
+		var name = resource.getURI().lastSegment()
+		if (name.endsWith(".rdo"))
 			name = name.substring(0, name.length() - 4)
 		name.replace(".", "_")
 		return name
@@ -171,26 +171,26 @@ class RDONaming
 		}
 	}
 
-	def static relResFullyQualifiedName(META_RelResType relres)
+	def static relevantResourceFullyQualifiedName(META_RelevantResourceType relevantResource)
 	{
-		if(relres instanceof ResourceCreateStatement)
-			return (relres as ResourceCreateStatement).type.fullyQualifiedName
+		if (relevantResource instanceof ResourceCreateStatement)
+			return (relevantResource as ResourceCreateStatement).type.fullyQualifiedName
 		else
-			return relres.fullyQualifiedName
+			return relevantResource.fullyQualifiedName
 	}
 
 	def static getContextQualifiedName(EObject object, EObject context)
 	{
-		var oname = object.fullyQualifiedName
-		var cname = context.fullyQualifiedName
+		var objectName = object.fullyQualifiedName
+		var contextName = context.fullyQualifiedName
 
-		while(oname.startsWith(cname.substring(0,
-			if(cname.indexOf(".") > 0)	cname.indexOf(".") else (cname.length - 1))))
+		while (objectName.startsWith(contextName.substring(0,
+			if (contextName.indexOf(".") > 0)	contextName.indexOf(".") else (contextName.length - 1))))
 		{
-			oname = oname.substring(oname.indexOf(".") + 1)
-			cname = cname.substring(cname.indexOf(".") + 1)
+			objectName = objectName.substring(objectName.indexOf(".") + 1)
+			contextName = contextName.substring(contextName.indexOf(".") + 1)
 		}
-		return oname
+		return objectName
 	}
 
 	def static String getTypeGenericLabel(EObject type)
@@ -205,7 +205,7 @@ class RDONaming
 			RDODouble   : " : " + type.type
 			RDOBoolean: " : " + type.type
 			RDOString : " : " + type.type
-			RDOArray  : " : array" + getTypeGenericLabel(type.arraytype)
+			RDOArray  : " : array" + getTypeGenericLabel(type.arrayType)
 			RDOEnum: " : " + type.type
 
 			default: ""

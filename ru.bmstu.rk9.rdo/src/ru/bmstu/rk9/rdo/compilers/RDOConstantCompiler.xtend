@@ -13,7 +13,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOConstantCompiler
 {
-	def static compileConstant(Constant con, String filename)
+	def static compileConstant(Constant constant, String filename)
 	{
 		'''
 		package «filename»;
@@ -21,18 +21,18 @@ class RDOConstantCompiler
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «con.name»
+		public class «constant.name»
 		{
-			public static final «con.type.compileType» value = «IF con.type.compileType.endsWith("_enum")»«
-				con.value.compileExpressionContext((new LocalContext).populateWithEnums(
-					con.type as RDOEnum)).value»«ELSE»«con.value.compileExpression.value»«ENDIF»;
-			«IF con.type instanceof RDOEnum»
+			public static final «constant.type.compileType» value = «IF constant.type.compileType.endsWith("_enum")»«
+				constant.value.compileExpressionContext((new LocalContext).populateWithEnums(
+					constant.type as RDOEnum)).value»«ELSE»«constant.value.compileExpression.value»«ENDIF»;
+			«IF constant.type instanceof RDOEnum»
 
-				public enum «(con.type as RDOEnum).type.eContainer.nameGeneric
-					».«(con.type as RDOEnum).type.name».«
-						(con.type as RDOEnum).type.name»_enum
+				public enum «(constant.type as RDOEnum).type.eContainer.nameGeneric
+					».«(constant.type as RDOEnum).type.name».«
+						(constant.type as RDOEnum).type.name»_enum
 				{
-					«(con.type as RDOEnum).type.makeEnumBody»
+					«(constant.type as RDOEnum).type.makeEnumBody»
 				}«
 			ENDIF»
 		}
