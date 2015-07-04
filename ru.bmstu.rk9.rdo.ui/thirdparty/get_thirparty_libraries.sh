@@ -6,6 +6,7 @@ download_library() {
 	local download_path=$1
 	local destination_path=$2
 
+	echo download $download_path
 	wget -q "$download_path" -O "$destination_path"
 
 	if [ $? -ne 0 ]; then
@@ -37,12 +38,14 @@ unpack_source() {
 }
 
 get_jfreechart_library() {
+	echo jfreechart
 	local download_path="http://sourceforge.net/projects/jfreechart/files/latest/download?source=files"
 	local library_name=jfreechart-1.0.19
 	local archive_name="$thirdparty_dir"/"$library_name".zip
 	local output_folder="$thirdparty_dir"/jfreechart
 
 	download_library "$download_path" "$archive_name"
+	echo generate $output_folder
 	create_output_folders "$output_folder"
 
 	declare -a sources=(source swt experimental)
@@ -62,15 +65,18 @@ get_jfreechart_library() {
 
 	rm -rf "$output_folder"/"$library_name"
 	rm "$archive_name"
+	echo done
 }
 
 get_jgraphx_library() {
+	echo jgraphx
 	local download_path=https://github.com/jgraph/jgraphx/archive/v3.3.1.1.zip
 	local library_name=jgraphx-3.3.1.1
 	local archive_name="$thirdparty_dir"/"$library_name".zip
 	local output_folder="$thirdparty_dir"/jgraphx
 
 	download_library "$download_path" "$archive_name"
+	echo generate $output_folder
 	create_output_folders "$output_folder"
 
 	unpack_source "$archive_name" "$library_name" src "$output_folder"
@@ -80,6 +86,7 @@ get_jgraphx_library() {
 
 	rm -rf "$output_folder"/"$library_name"
 	rm "$archive_name"
+	echo done
 }
 
 get_jfreechart_library
