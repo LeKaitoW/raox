@@ -8,11 +8,11 @@ import ru.bmstu.rk9.rdo.rdo.RDOModel;
 public class RDOQualifiedNameProvider extends
 		DefaultDeclarativeQualifiedNameProvider {
 
-	public static String filenameFromURI(RDOModel e) {
-		if (e == null)
+	public static String filenameFromURI(RDOModel model) {
+		if (model == null)
 			return "";
 
-		String name = e.eResource().getURI().lastSegment();
+		String name = model.eResource().getURI().lastSegment();
 		if (name.endsWith(".rdo"))
 			name = name.substring(0, name.length() - 4);
 		name.replace(".", "_");
@@ -20,7 +20,7 @@ public class RDOQualifiedNameProvider extends
 		return name;
 	}
 
-	QualifiedName qualifiedName(RDOModel e) {
-		return QualifiedName.create(filenameFromURI(e));
+	QualifiedName qualifiedName(RDOModel model) {
+		return QualifiedName.create(filenameFromURI(model));
 	}
 }

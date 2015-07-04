@@ -64,7 +64,7 @@ class RDOResultCompiler
 
 	def private static String compileTypeEnum(ResultType type)
 	{
-		switch(type)
+		switch (type)
 		{
 			ResultGetValue:       "getValue"
 			ResultWatchParameter: "watchPar"
@@ -80,13 +80,13 @@ class RDOResultCompiler
 		{
 			ResultGetValue:
 			{
-				val expr = type.expression.compileExpression
+				val expression = type.expression.compileExpression
 				'''
 				public static void init()
 				{
 					Simulator.addResult(INSTANCE);
 
-					«type.compileValueType(expr)»
+					«type.compileValueType(expression)»
 				}
 
 				@Override
@@ -106,7 +106,7 @@ class RDOResultCompiler
 						"value",
 						String.valueOf
 						(
-							«expr.value»
+							«expression.value»
 						)
 					);
 				}
@@ -114,8 +114,8 @@ class RDOResultCompiler
 			}
 			ResultWatchParameter:
 			{
-				val cexpr = type.parameter.lookupGlobal
-				val expr = new RDOExpression(cexpr.generated, cexpr.type);
+				val contextEntry = type.parameter.lookupGlobal
+				val expression = new RDOExpression(contextEntry.generated, contextEntry.type);
 
 				'''
 				public static void init()
@@ -131,18 +131,18 @@ class RDOResultCompiler
 					notifier.getSubscription("ExecutionComplete")
 						.addSubscriber(INSTANCE.finalizer);
 
-					«type.compileValueType(expr)»
+					«type.compileValueType(expression)»
 				}
 
 				'''
 				+
-				expr.compileNumericalStat
+				expression.compileNumericalStat
 			}
 			ResultWatchValue:
 			{
 				val context = (new LocalContext).populateWithResourceRename(type.resource, "this.deleted")
-				val expr = type.expression.compileExpressionContext(context)
-				expr.value = expr.value.replaceFirst("this.deleted", "(this.deleted = " +
+				val expression = type.expression.compileExpressionContext(context)
+				expression.value = expression.value.replaceFirst("this.deleted", "(this.deleted = " +
 					type.resource.fullyQualifiedName + ".getLastDeleted())")
 				'''
 				«type.resource.fullyQualifiedName» deleted = null;
@@ -156,28 +156,28 @@ class RDOResultCompiler
 					«type.resource.fullyQualifiedName».getNotifier().getSubscription(«""
 						»"ResourceDeleted").addSubscriber(INSTANCE);
 
-					«type.compileValueType(expr)»
+					«type.compileValueType(expression)»
 				}
 
 				private Statistics.Storeless storelessStats
 					= new Statistics.Storeless();
 
-				private «expr.type.toSimpleType» value;
+				private «expression.type.toSimpleType» value;
 
-				private «expr.type.toSimpleType» minValue = «expr.type».MAX_VALUE;
-				private «expr.type.toSimpleType» maxValue = «expr.type».MIN_VALUE;
+				private «expression.type.toSimpleType» minValue = «expression.type».MAX_VALUE;
+				private «expression.type.toSimpleType» maxValue = «expression.type».MIN_VALUE;
 
 				private int watchCounter;
 
 				@Override
 				public void fireChange()
 				{
-					value = «expr.value»;
+					value = «expression.value»;
 
-					if(value < minValue)
+					if (value < minValue)
 						minValue = value;
 
-					if(value > maxValue)
+					if (value > maxValue)
 						maxValue = value;
 
 					watchCounter++;
@@ -190,8 +190,8 @@ class RDOResultCompiler
 				@Override
 				public ByteBuffer serialize()
 				{
-					ByteBuffer data = ByteBuffer.allocate(«expr.type.getTypeConstantSize»);
-					«expr.type.compileBufferData»
+					ByteBuffer data = ByteBuffer.allocate(«expression.type.getTypeConstantSize»);
+					«expression.type.compileBufferData»
 
 					return data;
 				}
@@ -212,14 +212,14 @@ class RDOResultCompiler
 						.put("max", maxValue)
 						.put("counter", watchCounter);
 
-					if(storelessStats.initFromDatabase(this))
+					if (storelessStats.initFromDatabase(this))
 						data.put("median", storelessStats.getMedian());
 				}
 				'''
 			}
 			ResultWatchState:
 			{
-				val cexpr = type.logic.compileExpression
+				val contextEntry = type.logic.compileExpression
 				'''
 				public static void init()
 				{
@@ -262,16 +262,16 @@ class RDOResultCompiler
 				@Override
 				public void fireChange()
 				{
-					boolean newValue = «cexpr.value»;
+					boolean newValue = «contextEntry.value»;
 
 					double timeNow;
 
 					valueCheck:
-					if(newValue != value || watchCounter == 0)
+					if (newValue != value || watchCounter == 0)
 					{
 						timeNow = Simulator.getTime();
 
-						if(watchCounter == 0)
+						if (watchCounter == 0)
 							break valueCheck;
 
 						double delta = timeNow - lastTime;
@@ -315,7 +315,7 @@ class RDOResultCompiler
 			ResultWatchQuant:
 			{
 				val context = (new LocalContext).populateWithResourceRename(type.resource, "current")
-				val expr = new RDOExpression
+				val expression = new RDOExpression
 				(
 					'''«IF type.logic == null»«
 							type.resource.fullyQualifiedName».getTemporary().size()«
@@ -325,7 +325,7 @@ class RDOResultCompiler
 					"Integer"
 				);
 
-				(if(type.logic != null)
+				(if (type.logic != null)
 					'''
 					private static Select.Checker logic =
 						new Select.Checker<«type.resource.fullyQualifiedName»>()
@@ -355,17 +355,17 @@ class RDOResultCompiler
 					notifier.getSubscription("ExecutionComplete")
 						.addSubscriber(INSTANCE.finalizer);
 
-					INSTANCE.data.put("valueType", "«expr.type.backToRDOType»");
+					INSTANCE.data.put("valueType", "«expression.type.backToRDOType»");
 				}
 
 				'''
 				+
-				expr.compileNumericalStat
+				expression.compileNumericalStat
 			}
 		}
 	}
 
-	def private static compileNumericalStat(RDOExpression expr)
+	def private static compileNumericalStat(RDOExpression expression)
 	{
 		'''
 		private Statistics.WeightedStoreless storelessStats
@@ -384,27 +384,27 @@ class RDOResultCompiler
 			}
 		};
 
-		private «expr.type.toSimpleType» value;
+		private «expression.type.toSimpleType» value;
 
-		private «expr.type.toSimpleType» minValue = «expr.type».MAX_VALUE;
-		private «expr.type.toSimpleType» maxValue = «expr.type».MIN_VALUE;
+		private «expression.type.toSimpleType» minValue = «expression.type».MAX_VALUE;
+		private «expression.type.toSimpleType» maxValue = «expression.type».MIN_VALUE;
 
 		private int watchCounter;
 
 		@Override
 		public void fireChange()
 		{
-			«expr.type.toSimpleType» newValue = «expr.value»;
+			«expression.type.toSimpleType» newValue = «expression.value»;
 
-			if(newValue != value || watchCounter == 0)
+			if (newValue != value || watchCounter == 0)
 				value = newValue;
 			else
 				return;
 
-			if(value < minValue)
+			if (value < minValue)
 				minValue = value;
 
-			if(value > maxValue)
+			if (value > maxValue)
 				maxValue = value;
 
 			watchCounter++;
@@ -417,8 +417,8 @@ class RDOResultCompiler
 		@Override
 		public ByteBuffer serialize()
 		{
-			ByteBuffer data = ByteBuffer.allocate(«expr.type.getTypeConstantSize»);
-			«expr.type.compileBufferData»
+			ByteBuffer data = ByteBuffer.allocate(«expression.type.getTypeConstantSize»);
+			«expression.type.compileBufferData»
 
 			return data;
 		}
@@ -439,56 +439,52 @@ class RDOResultCompiler
 				.put("max", maxValue)
 				.put("counter", watchCounter);
 
-			if(storelessStats.initFromDatabase(this))
+			if (storelessStats.initFromDatabase(this))
 				data.put("median", storelessStats.getMedian());
 		}
 		'''
 	}
 
-	def private static compileBufferData(String type)
-	{
-		if(type == "Integer")
+	def private static compileBufferData(String type) {
+		if (type == "Integer")
 			return "data.putInt(value);\n"
 
-		if(type == "Double")
+		if (type == "Double")
 			return "data.putDouble(value);\n"
 
-		if(type == "Boolean")
+		if (type == "Boolean")
 			return "data.put(value == true ? (byte)1 : (byte)0);\n"
 
-		if(type == "String")
+		if (type == "String")
 			return "data.put(bytes_of_value);\n"
 
-		if(type.endsWith("_enum"))
+		if (type.endsWith("_enum"))
 			return "data.putShort((short)value.ordinal());\n"
 
 		return ""
 
 	}
 
-	def private static compileValueType(ResultType result, RDOExpression expr)
-	{
-		if(expr.type.endsWith("_enum"))
-			'''
+	def private static compileValueType(ResultType result, RDOExpression expression) {
+		if (expression.type.endsWith("_enum")) '''
 			INSTANCE.data
 				.put("valueType", "enum")
-				.put("enum_origin", "«expr.type.substring(0, expr.type.length - 5)»")
+				.put("enum_origin", "«expression.type.substring(0, expression.type.length - 5)»")
 				.put
 				(
 					"enums", new JSONArray()
-						«FOR e : (((result.modelRoot.eAllContents.findFirst
-							[r | r instanceof ResourceType && (r as ResourceType).fullyQualifiedName
-								== expr.type.substring(0, expr.type.lastIndexOf('.'))] as ResourceType)
-									.parameters.findFirst[p | p.name == expr.type.substring(
-										expr.type.lastIndexOf('.') + 1, expr.type.length - 5)]
-											 as ParameterTypeBasic).type as RDOEnum).type.values»
-							.put("«e»")
+						«FOR enumValue : (((result.modelRoot.eAllContents.findFirst[resourceType |
+									resourceType instanceof ResourceType && (resourceType as ResourceType).fullyQualifiedName ==
+									expression.type.substring(0, expression.type.lastIndexOf('.'))
+								] as ResourceType).parameters.findFirst[parameter |
+									parameter.name == expression.type.substring(
+									expression.type.lastIndexOf('.') + 1, expression.type.length - 5)
+								] as ParameterTypeBasic).type as RDOEnum).type.values»
+							.put("«enumValue»")
 						«ENDFOR»
 				);
-			'''
-		else
-		'''
-		INSTANCE.data.put("valueType", "«expr.type.backToRDOType»");
+		''' else '''
+			INSTANCE.data.put("valueType", "«expression.type.backToRDOType»");
 		'''
 	}
 }

@@ -50,6 +50,7 @@ import ru.bmstu.rk9.rdo.rdo.Result
 import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
 import ru.bmstu.rk9.rdo.rdo.Pattern
 import ru.bmstu.rk9.rdo.rdo.DefaultMethod
+import java.util.Map
 
 class RDOGenerator implements IMultipleResourceGenerator
 {
@@ -61,64 +62,64 @@ class RDOGenerator implements IMultipleResourceGenerator
 		exportVariableInfo(resources)
 
 		val declarationList = new java.util.ArrayList<ResourceCreateStatement>();
-		for(resource : resources.resources)
+		for (resource : resources.resources)
 			declarationList.addAll(resource.allContents.filter(typeof(ResourceCreateStatement)).toIterable)
 
 		val simulationList = new java.util.ArrayList<DefaultMethod>();
-		for(resource : resources.resources)
+		for (resource : resources.resources)
 			simulationList.addAll(resource.allContents.filter(typeof(DefaultMethod))
-				.filter[m | m.name == "init"].toIterable
+				.filter[method | method.name == "init"].toIterable
 			)
 
 		val terminateConditionList = new java.util.ArrayList<DefaultMethod>();
-		for(resource : resources.resources)
+		for (resource : resources.resources)
 				terminateConditionList.addAll(resource.allContents.filter(
 					typeof(DefaultMethod)
-				).filter[m | m.name == "terminateCondition"].toIterable)
+				).filter[method | method.name == "terminateCondition"].toIterable)
 
-		var onInit = if(simulationList.size > 0) simulationList.get(0) else null;
-		var term = if(terminateConditionList.size > 0) terminateConditionList.get(0) else null;
+		var onInit = if (simulationList.size > 0) simulationList.get(0) else null;
+		var term = if (terminateConditionList.size > 0) terminateConditionList.get(0) else null;
 
-		for(resource : resources.resources)
-			if(resource.contents.head != null)
+		for (ecoreResource : resources.resources)
+			if (ecoreResource.contents.head != null)
 			{
-				val filename = (resource.contents.head as RDOModel).filenameFromURI
+				val filename = (ecoreResource.contents.head as RDOModel).filenameFromURI
 
-				for(e : resource.allContents.toIterable.filter(typeof(EnumDeclaration)))
-					fsa.generateFile(filename + "/" + e.name + ".java", e.compileEnum(filename))
+				for (enumDeclaration : ecoreResource.allContents.toIterable.filter(typeof(EnumDeclaration)))
+					fsa.generateFile(filename + "/" + enumDeclaration.name + ".java", enumDeclaration.compileEnum(filename))
 
-				for(e : resource.allContents.toIterable.filter(typeof(ResourceType)))
-					fsa.generateFile(filename + "/" + e.name + ".java", e.compileResourceType(filename,
-						declarationList.filter[r | r.type.fullyQualifiedName == e.fullyQualifiedName]))
+				for (resourceType : ecoreResource.allContents.toIterable.filter(typeof(ResourceType)))
+					fsa.generateFile(filename + "/" + resourceType.name + ".java", resourceType.compileResourceType(filename,
+						declarationList.filter[r | r.type.fullyQualifiedName == resourceType.fullyQualifiedName]))
 
-				for(e : resource.allContents.toIterable.filter(typeof(Constant)))
-					fsa.generateFile(filename + "/" + e.name + ".java", e.compileConstant(filename))
+				for (constant : ecoreResource.allContents.toIterable.filter(typeof(Constant)))
+					fsa.generateFile(filename + "/" + constant.name + ".java", constant.compileConstant(filename))
 
-				for(e : resource.allContents.toIterable.filter(typeof(Sequence)))
-					fsa.generateFile(filename + "/" + e.name + ".java", e.compileSequence(filename))
+				for (sequence : ecoreResource.allContents.toIterable.filter(typeof(Sequence)))
+					fsa.generateFile(filename + "/" + sequence.name + ".java", sequence.compileSequence(filename))
 
-				for(e : resource.allContents.toIterable.filter(typeof(Function)))
-					fsa.generateFile(filename + "/" + e.type.name + ".java", e.compileFunction(filename))
+				for (function : ecoreResource.allContents.toIterable.filter(typeof(Function)))
+					fsa.generateFile(filename + "/" + function.type.name + ".java", function.compileFunction(filename))
 
-				for(e : resource.allContents.toIterable.filter(typeof(Pattern)))
-					fsa.generateFile(filename + "/" + e.name + ".java", e.compilePattern(filename))
+				for (pattern : ecoreResource.allContents.toIterable.filter(typeof(Pattern)))
+					fsa.generateFile(filename + "/" + pattern.name + ".java", pattern.compilePattern(filename))
 
-				for(e : resource.allContents.toIterable.filter(typeof(Event)))
-					fsa.generateFile(filename + "/" + e.name + ".java", e.compileEvent(filename))
+				for (event : ecoreResource.allContents.toIterable.filter(typeof(Event)))
+					fsa.generateFile(filename + "/" + event.name + ".java", event.compileEvent(filename))
 
-				for(e : resource.allContents.toIterable.filter[d |
-						d instanceof DecisionPointSome])
-					fsa.generateFile(filename + "/" + (e as DecisionPointSome).name + ".java",
-						(e as DecisionPointSome).compileDecisionPoint(filename))
+				for (decisionPoint : ecoreResource.allContents.toIterable.filter[decisionPoint |
+						decisionPoint instanceof DecisionPointSome])
+					fsa.generateFile(filename + "/" + (decisionPoint as DecisionPointSome).name + ".java",
+						(decisionPoint as DecisionPointSome).compileDecisionPoint(filename))
 
-				for(e : resource.allContents.toIterable.filter(typeof(DecisionPointSearch)))
-					fsa.generateFile(filename + "/" + e.name + ".java",	e.compileDecisionPointSearch(filename))
+				for (search : ecoreResource.allContents.toIterable.filter(typeof(DecisionPointSearch)))
+					fsa.generateFile(filename + "/" + search.name + ".java",	search.compileDecisionPointSearch(filename))
 
-				for(e : resource.allContents.toIterable.filter(typeof(Frame)))
-					fsa.generateFile(filename + "/" + e.name + ".java",	e.compileFrame(filename))
+				for (frame : ecoreResource.allContents.toIterable.filter(typeof(Frame)))
+					fsa.generateFile(filename + "/" + frame.name + ".java",	frame.compileFrame(filename))
 
-				for(e : resource.allContents.toIterable.filter(typeof(Result)))
-					fsa.generateFile(filename + "/" + e.name + ".java", e.compileResult(filename))
+				for (result : ecoreResource.allContents.toIterable.filter(typeof(Result)))
+					fsa.generateFile(filename + "/" + result.name + ".java", result.compileResult(filename))
 			}
 
 		fsa.generateFile("rdo_model/" + RDONaming.getProjectName(resources.resources.get(0).URI) +"Model.java",
@@ -127,39 +128,39 @@ class RDOGenerator implements IMultipleResourceGenerator
 		fsa.generateFile("rdo_model/Embedded.java", compileEmbedded(resources, onInit, term))
 	}
 
-	public static HashMap<String, GlobalContext> variableIndex = new HashMap<String, GlobalContext>
+	public static final Map<String, GlobalContext> variableIndex = new HashMap<String, GlobalContext>
 
-	def exportVariableInfo(ResourceSet rs)
+	def exportVariableInfo(ResourceSet resourceSet)
 	{
 		variableIndex.clear
-		for(r : rs.resources)
-			variableIndex.put(r.resourceName, new GlobalContext)
+		for (ecoreResource : resourceSet.resources)
+			variableIndex.put(ecoreResource.resourceName, new GlobalContext)
 
-		for(r : rs.resources)
+		for (ecoreResource : resourceSet.resources)
 		{
-			val info = variableIndex.get(r.resourceName)
+			val globalContext = variableIndex.get(ecoreResource.resourceName)
 
-			for(rss : r.allContents.filter(typeof(ResourceCreateStatement))
-					.filter(res | res.eContainer instanceof RDOModel).toIterable
+			for (resource : ecoreResource.allContents.filter(typeof(ResourceCreateStatement))
+					.filter(resource | resource.eContainer instanceof RDOModel).toIterable
 			)
-				info.resources.put(rss.name, info.newRSS(rss))
+				globalContext.resources.put(resource.name, globalContext.newResourceReference(resource))
 
-			for(seq : r.allContents.filter(typeof(Sequence)).toIterable)
-				info.sequences.put(seq.name, info.newSEQ(seq))
+			for (sequence : ecoreResource.allContents.filter(typeof(Sequence)).toIterable)
+				globalContext.sequences.put(sequence.name, globalContext.newSequenceReference(sequence))
 
-			for(con : r.allContents.filter(typeof(Constant)).toIterable)
-				info.constants.put(con.name, info.newCON(con))
+			for (constant : ecoreResource.allContents.filter(typeof(Constant)).toIterable)
+				globalContext.constants.put(constant.name, globalContext.newConstantReference(constant))
 
-			for(fun : r.allContents.filter(typeof(Function)).toIterable)
-				info.functions.put(fun.type.name, info.newFUN(fun))
+			for (function : ecoreResource.allContents.filter(typeof(Function)).toIterable)
+				globalContext.functions.put(function.type.name, globalContext.newFunctionReference(function))
 		}
 	}
 
-	def private compileStandalone(ResourceSet rs,
-			DefaultMethod onInit, DefaultMethod term
+	def private compileStandalone(ResourceSet resourceSet,
+			DefaultMethod initializeMethod, DefaultMethod terminateConditionMethod
 	)
 	{
-		val project = RDONaming.getProjectName(rs.resources.get(0).URI)
+		val project = RDONaming.getProjectName(resourceSet.resources.get(0).URI)
 		'''
 		package rdo_model;
 
@@ -179,16 +180,16 @@ class RDOGenerator implements IMultipleResourceGenerator
 				Simulator.initTreeBuilder();
 
 				System.out.println(" === RDO-Simulator ===\n");
-				System.out.println("   Project «RDONaming.getProjectName(rs.resources.get(0).URI)»");
-				System.out.println("      Source files are «rs.resources.map[r | r.contents.head.nameGeneric].toString»\n");
+				System.out.println("   Project «RDONaming.getProjectName(resourceSet.resources.get(0).URI)»");
+				System.out.println("      Source files are «resourceSet.resources.map[r | r.contents.head.nameGeneric].toString»\n");
 
 				«project»Model.init();
 
-				«IF onInit != null»
-					«onInit.body.compileStatement»
+				«IF initializeMethod != null»
+					«initializeMethod.body.compileStatement»
 				«ENDIF»
 
-				«IF term != null»
+				«IF terminateConditionMethod != null»
 				Simulator.addTerminateCondition
 				(
 					new TerminateCondition()
@@ -196,35 +197,35 @@ class RDOGenerator implements IMultipleResourceGenerator
 						@Override
 						public boolean check()
 						{
-							«term.body.compileStatement»
+							«terminateConditionMethod.body.compileStatement»
 						}
 					}
 				);
 				«ENDIF»
 
-				«FOR r : rs.resources»
-				«FOR c : r.allContents.filter(typeof(DecisionPoint)).toIterable»
-					«c.fullyQualifiedName».init();
-				«ENDFOR»
+				«FOR ecoreResource : resourceSet.resources»
+					«FOR decisionPoint : ecoreResource.allContents.filter(typeof(DecisionPoint)).toIterable»
+						«decisionPoint.fullyQualifiedName».init();
+					«ENDFOR»
 				«ENDFOR»
 
-				«FOR r : rs.resources»
-				«FOR c : r.allContents.filter(typeof(Result)).toIterable»
-					«c.fullyQualifiedName».init();
-				«ENDFOR»
+				«FOR ecoreResource : resourceSet.resources»
+					«FOR result : ecoreResource.allContents.filter(typeof(Result)).toIterable»
+						«result.fullyQualifiedName».init();
+					«ENDFOR»
 				«ENDFOR»
 
 				System.out.println("   Started model");
 
 				int result = Simulator.run();
 
-				if(result == 1)
+				if (result == 1)
 					System.out.println("\n   Stopped by terminate condition");
 
-				if(result == 0)
+				if (result == 0)
 					System.out.println("\n   Stopped (no more events)");
 
-				for(Result r : Simulator.getResults())
+				for (Result r : Simulator.getResults())
 				{
 					r.calculate();
 					System.out.println(r.getData().toString(2));
@@ -236,11 +237,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 		'''
 	}
 
-	def private compileEmbedded(ResourceSet rs,
-			DefaultMethod onInit, DefaultMethod term
+	def private compileEmbedded(ResourceSet resourceSet,
+			DefaultMethod initializeMethod, DefaultMethod terminateConditionMethod
 	)
 	{
-		val project = RDONaming.getProjectName(rs.resources.get(0).URI)
+		val project = RDONaming.getProjectName(resourceSet.resources.get(0).URI)
 		'''
 		package rdo_model;
 
@@ -261,11 +262,11 @@ class RDOGenerator implements IMultipleResourceGenerator
 
 				«project»Model.init();
 
-				«IF onInit != null»
-					«onInit.body.compileStatement»
+				«IF initializeMethod != null»
+					«initializeMethod.body.compileStatement»
 				«ENDIF»
 
-				«IF term != null»
+				«IF terminateConditionMethod != null»
 				Simulator.addTerminateCondition
 				(
 					new TerminateCondition()
@@ -273,28 +274,28 @@ class RDOGenerator implements IMultipleResourceGenerator
 						@Override
 						public boolean check()
 						{
-							«term.body.compileStatement»
+							«terminateConditionMethod.body.compileStatement»
 						}
 					}
 				);
 				«ENDIF»
 
-				«FOR r : rs.resources»
-				«FOR c : r.allContents.filter(typeof(DecisionPoint)).toIterable»
-					«c.fullyQualifiedName».init();
-				«ENDFOR»
-				«ENDFOR»
-
-				«FOR r : rs.resources»
-				«FOR c : r.allContents.filter(typeof(Result)).toIterable»
-					«c.fullyQualifiedName».init();
-				«ENDFOR»
+				«FOR ecoreResource : resourceSet.resources»
+					«FOR decisionPoint : ecoreResource.allContents.filter(typeof(DecisionPoint)).toIterable»
+						«decisionPoint.fullyQualifiedName».init();
+					«ENDFOR»
 				«ENDFOR»
 
-				«FOR r : rs.resources»
-				«FOR c : r.allContents.filter(typeof(Frame)).toIterable»
-					frames.add(«c.fullyQualifiedName».INSTANCE);
+				«FOR ecoreResource : resourceSet.resources»
+					«FOR result : ecoreResource.allContents.filter(typeof(Result)).toIterable»
+						«result.fullyQualifiedName».init();
+					«ENDFOR»
 				«ENDFOR»
+
+				«FOR ecoreResource : resourceSet.resources»
+					«FOR frame : ecoreResource.allContents.filter(typeof(Frame)).toIterable»
+						frames.add(«frame.fullyQualifiedName».INSTANCE);
+					«ENDFOR»
 				«ENDFOR»
 			}
 
