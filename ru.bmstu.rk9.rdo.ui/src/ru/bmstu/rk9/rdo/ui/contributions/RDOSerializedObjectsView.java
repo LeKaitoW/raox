@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
 
@@ -18,7 +19,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
@@ -57,6 +57,134 @@ public class RDOSerializedObjectsView extends ViewPart {
 	static TreeViewer serializedObjectsTreeViewer;
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOSerializedObjectsView";
 	public static int secondaryID = 0;
+	private List<ConditionalMenuItem> conditionalMenuItems = new ArrayList<ConditionalMenuItem>();
+
+	abstract class ConditionalMenuItem extends MenuItem {
+
+		public ConditionalMenuItem(Menu parent, String name) {
+			super(parent, SWT.CASCADE);
+			setText(name);
+
+			parent.addListener(SWT.Show, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
+							.getTree().getSelection()[0].getData();
+					setEnabled(isEnable(node));
+				}
+			});
+
+			addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent event) {
+					CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
+							.getTree().getSelection()[0].getData();
+					show(node);
+				}
+			});
+		}
+
+		@Override
+		final protected void checkSubclass() {
+		}
+
+		abstract public boolean isEnable(CollectedDataNode node);
+
+		abstract public void show(CollectedDataNode node);
+	}
+
+	class PlotMenuItem extends ConditionalMenuItem {
+
+		public PlotMenuItem(Menu parent) {
+			super(parent, "Plot");
+		}
+
+		@Override
+		public boolean isEnable(CollectedDataNode node) {
+			Index index = node.getIndex();
+			if (index == null)
+				return false;
+
+			switch (index.getType()) {
+			case RESOURCE_PARAMETER:
+				return true;
+
+			case RESULT:
+				ResultIndex resultIndex = (ResultIndex) index;
+				ResultType resultType = resultIndex.getResultType();
+				return resultType != ResultType.GET_VALUE;
+
+			case PATTERN:
+				PatternIndex patternIndex = (PatternIndex) index;
+				String patternType = patternIndex.getStructrure().getString(
+						"type");
+				return patternType.equals("operation");
+
+			default:
+				return false;
+			}
+		}
+
+		@Override
+		public void show(CollectedDataNode node) {
+			try {
+				if (PlotView.getOpenedPlotMap().containsKey(node)) {
+					PlatformUI
+							.getWorkbench()
+							.getActiveWorkbenchWindow()
+							.getActivePage()
+							.showView(
+									PlotView.ID,
+									String.valueOf(PlotView.getOpenedPlotMap()
+											.get(node)),
+									IWorkbenchPage.VIEW_ACTIVATE);
+				} else {
+					XYSeriesCollection dataset = new XYSeriesCollection();
+					XYSeries series = new XYSeries(node.getName());
+					dataset.addSeries(series);
+					List<PlotItem> items = PlotDataParser.parseEntries(node);
+					for (int i = 0; i < items.size(); i++) {
+						PlotItem item = items.get(i);
+						series.add(item.x, item.y);
+					}
+					PlotView newView = (PlotView) PlatformUI
+							.getWorkbench()
+							.getActiveWorkbenchWindow()
+							.getActivePage()
+							.showView(PlotView.ID, String.valueOf(secondaryID),
+									IWorkbenchPage.VIEW_ACTIVATE);
+					newView.setName(String.valueOf(dataset.getSeriesKey(0)));
+					newView.setNode(node);
+					PlotView.addToOpenedPlotMap(node, secondaryID);
+
+					newView.plotXY(dataset, PlotDataParser.getEnumNames(node));
+					secondaryID++;
+				}
+			} catch (PartInitException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	class GraphMenuItem extends ConditionalMenuItem {
+
+		public GraphMenuItem(Menu parent) {
+			super(parent, "Graph");
+		}
+
+		@Override
+		public boolean isEnable(CollectedDataNode node) {
+			return node.getIndex().getType() == IndexType.SEARCH;
+		}
+
+		@Override
+		public void show(CollectedDataNode node) {
+			int dptNumber = node.getIndex().getNumber();
+			String frameName = node.getName();
+			FrameInfo frameInfo = new FrameInfo(dptNumber, frameName);
+			GraphControl.openFrameWindow(frameInfo);
+		}
+	}
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -70,60 +198,10 @@ public class RDOSerializedObjectsView extends ViewPart {
 		serializedObjectsTreeViewer
 				.setLabelProvider(new RDOSerializedObjectsLabelProvider());
 
-		final Menu popupMenu = new Menu(serializedObjectsTreeViewer.getTree());
-		final MenuItem graphMenuItem = new MenuItem(popupMenu, SWT.CASCADE);
-		graphMenuItem.setText("Build graph");
+		Menu popupMenu = new Menu(serializedObjectsTreeViewer.getTree());
 		serializedObjectsTree.setMenu(popupMenu);
-
-		popupMenu.addListener(SWT.Show, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
-						.getTree().getSelection()[0].getData();
-				IndexType type = node.getIndex().getType();
-				graphMenuItem.setEnabled(type == IndexType.SEARCH);
-			}
-		});
-
-		graphMenuItem.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
-						.getTree().getSelection()[0].getData();
-
-				int dptNum = node.getIndex().getNumber();
-				String frameName = node.getName();
-				FrameInfo frameInfo = new FrameInfo(dptNum, frameName);
-
-				GraphControl.openFrameWindow(frameInfo);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent event) {
-			}
-		});
-
-		final MenuItem plot = new MenuItem(popupMenu, SWT.CASCADE);
-		plot.setText("Plot");
-
-		popupMenu.addListener(SWT.Show, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
-						.getTree().getSelection()[0].getData();
-				plot.setEnabled(isPlotPossible(node));
-			}
-		});
-
-		plot.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(final SelectionEvent event) {
-				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
-						.getTree().getSelection()[0].getData();
-				showPlot(node);
-			}
-		});
-
+		conditionalMenuItems.add(new PlotMenuItem(popupMenu));
+		conditionalMenuItems.add(new GraphMenuItem(popupMenu));
 		serializedObjectsTreeViewer.getTree().setMenu(popupMenu);
 
 		serializedObjectsTreeViewer
@@ -138,8 +216,14 @@ public class RDOSerializedObjectsView extends ViewPart {
 							return;
 
 						if (treeItem.getItemCount() == 0) {
-							if (isPlotPossible(node))
-								showPlot(node);
+							List<ConditionalMenuItem> enabledMenuItems = new ArrayList<ConditionalMenuItem>();
+							for (ConditionalMenuItem conditionalMenuItem : conditionalMenuItems) {
+								if (conditionalMenuItem.isEnable(node))
+									enabledMenuItems.add(conditionalMenuItem);
+							}
+
+							if (enabledMenuItems.size() == 1)
+								enabledMenuItems.get(0).show(node);
 						} else {
 							if (serializedObjectsTreeViewer
 									.getExpandedState(node)) {
@@ -258,68 +342,6 @@ public class RDOSerializedObjectsView extends ViewPart {
 			});
 		}
 	};
-
-	private final boolean isPlotPossible(CollectedDataNode node) {
-		AbstractIndex index = node.getIndex();
-		if (index == null)
-			return false;
-
-		switch (index.getType()) {
-		case RESOURCE_PARAMETER:
-			return true;
-
-		case RESULT:
-			ResultIndex resultIndex = (ResultIndex) index;
-			ResultType resultType = resultIndex.getResultType();
-			return resultType != ResultType.GET_VALUE;
-
-		case PATTERN:
-			PatternIndex patternIndex = (PatternIndex) index;
-			String patternType = patternIndex.getStructrure().getString("type");
-			return patternType.equals("operation");
-
-		default:
-			return false;
-		}
-	}
-
-	private final void showPlot(CollectedDataNode node) {
-		try {
-			if (PlotView.getOpenedPlotMap().containsKey(node)) {
-				PlatformUI
-						.getWorkbench()
-						.getActiveWorkbenchWindow()
-						.getActivePage()
-						.showView(
-								PlotView.ID,
-								String.valueOf(PlotView.getOpenedPlotMap().get(
-										node)), IWorkbenchPage.VIEW_ACTIVATE);
-			} else {
-				XYSeriesCollection dataset = new XYSeriesCollection();
-				XYSeries series = new XYSeries(node.getName());
-				dataset.addSeries(series);
-				List<PlotItem> items = PlotDataParser.parseEntries(node);
-				for (int i = 0; i < items.size(); i++) {
-					PlotItem item = items.get(i);
-					series.add(item.x, item.y);
-				}
-				PlotView newView = (PlotView) PlatformUI
-						.getWorkbench()
-						.getActiveWorkbenchWindow()
-						.getActivePage()
-						.showView(PlotView.ID, String.valueOf(secondaryID),
-								IWorkbenchPage.VIEW_ACTIVATE);
-				newView.setName(String.valueOf(dataset.getSeriesKey(0)));
-				newView.setNode(node);
-				PlotView.addToOpenedPlotMap(node, secondaryID);
-
-				newView.plotXY(dataset, PlotDataParser.getEnumNames(node));
-				secondaryID++;
-			}
-		} catch (PartInitException e) {
-			e.printStackTrace();
-		}
-	}
 }
 
 class RDOSerializedObjectsContentProvider implements ITreeContentProvider {
