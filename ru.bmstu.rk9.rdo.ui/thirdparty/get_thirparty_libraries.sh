@@ -25,14 +25,14 @@ create_output_folders() {
 unpack_source() {
 	local archive_name=$1
 	local library_name=$2
-	local source_path=$3
+	local source=$3
 	local output_folder=$4
 
-	unzip "$archive_name" "$library_name"/"$source_path"/* \
+	unzip "$archive_name" "$library_name"/"$source"/* \
 			-d "$output_folder" >/dev/null
 	cd "$output_folder"/"$library_name"/ >/dev/null
 	zip -r "$output_folder"/source/"$source".zip \
-			"$source_path"/ >/dev/null
+			"$source"/ >/dev/null
 	cd - >/dev/null
 }
 
