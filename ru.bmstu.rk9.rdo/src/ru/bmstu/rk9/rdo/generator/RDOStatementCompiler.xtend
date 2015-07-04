@@ -34,57 +34,57 @@ import ru.bmstu.rk9.rdo.rdo.RelevantResource
 
 class RDOStatementCompiler
 {
-	def static String compilePatternAction(StatementList st)
+	def static String compilePatternAction(StatementList statementList)
 	{
-		var cont = st.eContainer.eContainer
-		switch cont
+		var container = statementList.eContainer.eContainer
+		switch container
 		{
 			Pattern:
 				'''
 				{
-					«st.compileStatementContext(
-					(new LocalContext).populateFromPattern(cont))»
+					«statementList.compileStatementContext(
+					(new LocalContext).populateFromPattern(container))»
 				}
 				'''
 		}
 	}
 
-	def static String compileEventAction(StatementList st)
+	def static String compileEventAction(StatementList statementList)
 	{
 		return
 			'''
 			{
-				«st.compileStatementContext(
-					(new LocalContext).populateFromEvent(st.eContainer as Event))»
+				«statementList.compileStatementContext(
+					(new LocalContext).populateFromEvent(statementList.eContainer as Event))»
 			}
 			'''
 	}
 
 	private static LocalContext localContext
 
-	def static String compileStatementContext(EObject st, LocalContext context)
+	def static String compileStatementContext(EObject statement, LocalContext context)
 	{
 		localContext = context
-		val ret = st.compileStatement
+		val ret = statement.compileStatement
 		localContext = null
 
 		return ret
 	}
 
-	def static String compileStatement(EObject st)
+	def static String compileStatement(EObject statement)
 	{
-		switch st
+		switch statement
 		{
 			StatementList:
 				'''
-				«FOR s : st.statements»
-				«s.compileStatement»
+				«FOR nestedStatement : statement.statements»
+					«nestedStatement.compileStatement»
 				«ENDFOR»
 				'''
 
 			ExpressionStatement:
 			{
-				st.expr.compileExpressionContext(localContext).value + ";"
+				statement.expr.compileExpressionContext(localContext).value + ";"
 			}
 
 			NestedStatement:
@@ -95,7 +95,7 @@ class RDOStatementCompiler
 				val ret =
 					'''
 					{
-						«st.statements.compileStatement»
+						«statement.statements.compileStatement»
 					}
 					'''
 
@@ -105,7 +105,7 @@ class RDOStatementCompiler
 
 			LocalVariableDeclaration:
 				'''
-				«st.type.compileType» «st.list.compileStatement»;
+				«statement.type.compileType» «statement.list.compileStatement»;
 				'''
 
 			VariableDeclarationList:
@@ -113,10 +113,10 @@ class RDOStatementCompiler
 				var flag = false
 				var list = ""
 
-				for(d : st.declarations)
+				for (declaration : statement.declarations)
 				{
-					list = list + (if(flag) ", " else "") + d.name +
-						(if(d.value != null) " = " + d.value.compileExpression.value else "")
+					list = list + (if (flag) ", " else "") + declaration.name +
+						(if (declaration.value != null) " = " + declaration.value.compileExpression.value else "")
 					flag = true
 				}
 
@@ -130,10 +130,10 @@ class RDOStatementCompiler
 
 				val ret =
 					'''
-					if(«st.condition.compileExpressionContext(localContext).value»)
-					«IF !(st.then instanceof NestedStatement)»	«ENDIF»«st.then.compileStatement»
-					«IF st.^else != null»else
-					«IF !(st.^else instanceof NestedStatement)»	«ENDIF»«st.^else.compileStatement»
+					if («statement.condition.compileExpressionContext(localContext).value»)
+					«IF !(statement.then instanceof NestedStatement)»	«ENDIF»«statement.then.compileStatement»
+					«IF statement.^else != null»else
+					«IF !(statement.^else instanceof NestedStatement)»	«ENDIF»«statement.^else.compileStatement»
 					«ENDIF»
 					'''
 
@@ -148,23 +148,23 @@ class RDOStatementCompiler
 
 				val ret =
 					'''
-					for(«
-						if(st.declaration != null)
-							st.declaration.compileStatement.cutLastChars(1) + ""
+					for («
+						if (statement.declaration != null)
+							statement.declaration.compileStatement.cutLastChars(1) + ""
 						else
-							if(st.init != null)
-								st.init.compileExpression.value + ";"
+							if (statement.init != null)
+								statement.init.compileExpression.value + ";"
 							else ";"
 						» «
-						if(st.condition != null)
-							st.condition.compileExpression.value
+						if (statement.condition != null)
+							statement.condition.compileExpression.value
 						else ""
 						»; «
-						if(st.update != null)
-							st.update.compileExpression.value
+						if (statement.update != null)
+							statement.update.compileExpression.value
 						else ""
-					»)«IF st.body.empty»;«ELSE»
-					«IF !(st.body instanceof NestedStatement)»	«ENDIF»«st.body.compileStatement»«ENDIF»
+					»)«IF statement.body.empty»;«ELSE»
+					«IF !(statement.body instanceof NestedStatement)»	«ENDIF»«statement.body.compileStatement»«ENDIF»
 					'''
 
 				localContext = backupContext
@@ -178,7 +178,7 @@ class RDOStatementCompiler
 
 			ReturnStatement:
 			{
-				val ret = (if(st.^return != null) st.^return.compileExpressionContext(localContext) else null)
+				val ret = (if (statement.^return != null) statement.^return.compileExpressionContext(localContext) else null)
 
 				return
 					'''
@@ -188,30 +188,30 @@ class RDOStatementCompiler
 
 			PlanStatement:
 				"Simulator.pushEvent(new " +
-					st.event.getFullyQualifiedName + "(" + RDOExpressionCompiler.compileExpression(st.value).value +
-						(if(st.parameters != null) (", " + st.parameters.compileExpression.value) else
-							(if(st.event.parameters != null && !st.event.parameters.empty)
-								(", " + compileAllDefault(st.event.parameters.size)) else "")) + "));"
+					statement.event.getFullyQualifiedName + "(" + RDOExpressionCompiler.compileExpression(statement.value).value +
+						(if (statement.parameters != null) (", " + statement.parameters.compileExpression.value) else
+							(if (statement.event.parameters != null && !statement.event.parameters.empty)
+								(", " + compileAllDefault(statement.event.parameters.size)) else "")) + "));"
 
 			ResourceCreateStatement: {
 				if (localContext != null)
-					localContext.addCreatedResource(st)
+					localContext.addCreatedResource(statement)
 
 				return
 					'''
-					«IF st.name != null»
-						«st.type.fullyQualifiedName» «st.name» = new «
-							st.type.fullyQualifiedName»(«if(st.parameters != null)
-								st.parameters.compileExpression.value else ""»);
-						«st.name».register();
+					«IF statement.name != null»
+						«statement.type.fullyQualifiedName» «statement.name» = new «
+							statement.type.fullyQualifiedName»(«if (statement.parameters != null)
+								statement.parameters.compileExpression.value else ""»);
+						«statement.name».register();
 						Simulator.getDatabase().memorizeResourceEntry(
-								«st.name».copy(),
+								«statement.name».copy(),
 								Database.ResourceEntryType.CREATED);
 
 					«ELSE»
 						Simulator.getDatabase().memorizeResourceEntry(
-								new «st.type.fullyQualifiedName»(«if(st.parameters != null)
-									st.parameters.compileExpression.value else ""»).register().copy(),
+								new «statement.type.fullyQualifiedName»(«if (statement.parameters != null)
+									statement.parameters.compileExpression.value else ""»).register().copy(),
 								Database.ResourceEntryType.CREATED);
 					«ENDIF»
 					'''
@@ -221,14 +221,14 @@ class RDOStatementCompiler
 			{
 				var ResourceType type
 				var String resourceReference
-				if (st.res instanceof RelevantResource) {
-					type = ((st.res as RelevantResource).type) as ResourceType
-					resourceReference = "resources." + st.res.name
+				if (statement.res instanceof RelevantResource) {
+					type = ((statement.res as RelevantResource).type) as ResourceType
+					resourceReference = "resources." + statement.res.name
 				}
 
-				if (st.res instanceof ResourceCreateStatement) {
-					type = ((st.res as ResourceCreateStatement).type) as ResourceType
-					resourceReference = st.res.name
+				if (statement.res instanceof ResourceCreateStatement) {
+					type = ((statement.res as ResourceCreateStatement).type) as ResourceType
+					resourceReference = statement.res.name
 				}
 
 				'''
@@ -243,69 +243,69 @@ class RDOStatementCompiler
 			}
 
 			FrameObject:
-				switch st
+				switch statement
 				{
 					FrameObjectText:
 						'''
 						context.drawText
 						(
-							«st.x.compileExpression.value», «st.y.compileExpression.value»,
-							«st.width.compileExpression.value», «st.height.compileExpression.value»,
-							«st.backcolour.compileFrameColour»,
-							«st.textcolour.compileFrameColour»,
-							AnimationContext.Alignment.«IF st.alignment != null
-								»«st.alignment.getName»«ELSE»LEFT«ENDIF»,
-							«st.text.compileExpression.value»
+							«statement.x.compileExpression.value», «statement.y.compileExpression.value»,
+							«statement.width.compileExpression.value», «statement.height.compileExpression.value»,
+							«statement.backColour.compileFrameColour»,
+							«statement.textcolour.compileFrameColour»,
+							AnimationContext.Alignment.«IF statement.alignment != null
+								»«statement.alignment.getName»«ELSE»LEFT«ENDIF»,
+							«statement.text.compileExpression.value»
 						);
 						'''
 					FrameObjectRectangle:
 						'''
 						context.drawRectangle
 						(
-							«st.x.compileExpression.value», «st.y.compileExpression.value»,
-							«st.width.compileExpression.value», «st.height.compileExpression.value»,
-							«st.backcolour.compileFrameColour»,
-							«st.bordercolour.compileFrameColour»
+							«statement.x.compileExpression.value», «statement.y.compileExpression.value»,
+							«statement.width.compileExpression.value», «statement.height.compileExpression.value»,
+							«statement.backColour.compileFrameColour»,
+							«statement.borderColour.compileFrameColour»
 						);
 						'''
 					FrameObjectLine:
 						'''
 						context.drawLine
 						(
-							«st.x1.compileExpression.value», «st.y1.compileExpression.value»,
-							«st.x2.compileExpression.value», «st.x2.compileExpression.value»,
-							«st.colour.compileFrameColour»
+							«statement.x1.compileExpression.value», «statement.y1.compileExpression.value»,
+							«statement.x2.compileExpression.value», «statement.x2.compileExpression.value»,
+							«statement.colour.compileFrameColour»
 						);
 						'''
 					FrameObjectCircle:
 						'''
 						context.drawCircle
 						(
-							«st.x.compileExpression.value», «st.y.compileExpression.value»,
-							«st.radius.compileExpression.value»,
-							«st.backcolour.compileFrameColour»,
-							«st.bordercolour.compileFrameColour»
+							«statement.x.compileExpression.value», «statement.y.compileExpression.value»,
+							«statement.radius.compileExpression.value»,
+							«statement.backColour.compileFrameColour»,
+							«statement.borderColour.compileFrameColour»
 						);
 						'''
 					FrameObjectEllipse:
 						'''
 						context.drawEllipse
 						(
-							«st.x.compileExpression.value», «st.y.compileExpression.value»,
-							«st.width.compileExpression.value», «st.height.compileExpression.value»,
-							«st.backcolour.compileFrameColour»,
-							«st.bordercolour.compileFrameColour»
+							«statement.x.compileExpression.value», «statement.y.compileExpression.value»,
+							«statement.width.compileExpression.value», «statement.height.compileExpression.value»,
+							«statement.backColour.compileFrameColour»,
+							«statement.borderColour.compileFrameColour»
 						);
 						'''
 					FrameObjectTriangle:
 						'''
 						context.drawRectangle
 						(
-							«st.x1.compileExpression.value», «st.y1.compileExpression.value»,
-							«st.x2.compileExpression.value», «st.y2.compileExpression.value»,
-							«st.x3.compileExpression.value», «st.y3.compileExpression.value»,
-							«st.backcolour.compileFrameColour»,
-							«st.bordercolour.compileFrameColour»
+							«statement.x1.compileExpression.value», «statement.y1.compileExpression.value»,
+							«statement.x2.compileExpression.value», «statement.y2.compileExpression.value»,
+							«statement.x3.compileExpression.value», «statement.y3.compileExpression.value»,
+							«statement.backColour.compileFrameColour»,
+							«statement.borderColour.compileFrameColour»
 						);
 						'''
 				}

@@ -28,9 +28,9 @@ import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
 class RDOFunctionCompiler
 {
-	def static compileFunction(Function fun, String filename)
+	def static compileFunction(Function function, String filename)
 	{
-		val type = fun.type
+		val type = function.type
 		return
 		'''
 		package «filename»;
@@ -38,7 +38,7 @@ class RDOFunctionCompiler
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «fun.type.name»
+		public class «function.type.name»
 		'''
 		 +
 		switch type
@@ -50,10 +50,10 @@ class RDOFunctionCompiler
 				'''
 				{
 					«IF type.parameters != null»«type.parameters.compileEnumsForFunction»«ENDIF»
-					public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
+					public static «function.returnType.compileType» evaluate(«IF type.parameters != null
 						»«type.parameters.compileFunctionTypeParameters»«ENDIF»)
 					{
-						if(true)
+						if (true)
 						{
 							«type.algorithm.compileStatementContext(context)»
 						}
@@ -67,18 +67,18 @@ class RDOFunctionCompiler
 			'''
 			{
 				«IF type.parameters != null»«type.parameters.compileEnumsForFunction»«ENDIF»
-				private static «fun.returntype.compileType»[] values =
+				private static «function.returnType.compileType»[] values =
 				{
 					«type.table.compileTable(
-						if(fun.returntype.compileType.endsWith("_enum"))
-							(new LocalContext).populateWithEnums(fun.returntype as RDOEnum)
+						if (function.returnType.compileType.endsWith("_enum"))
+							(new LocalContext).populateWithEnums(function.returnType as RDOEnum)
 						else
 							null,
 						type.parameters.get(0).type.resolveAllTypes.tableLength
 					)»
 				};
 
-				public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
+				public static «function.returnType.compileType» evaluate(«IF type.parameters != null
 						»«type.parameters.compileFunctionTypeParameters»«ENDIF»)
 				{
 					return values[
@@ -92,11 +92,11 @@ class RDOFunctionCompiler
 				var context = (new LocalContext).populateFromFunction(type)
 
 				var paramscontext =
-					if(type.parameters != null)
+					if (type.parameters != null)
 						type.parameters.map
-							[ p |
-								if(p.type.compileType.endsWith("_enum"))
-									(new LocalContext).populateWithEnums(p.type as RDOEnum)
+							[ parameter |
+								if (parameter.type.compileType.endsWith("_enum"))
+									(new LocalContext).populateWithEnums(parameter.type as RDOEnum)
 								else
 									null
 							]
@@ -107,7 +107,7 @@ class RDOFunctionCompiler
 				{
 					«IF type.parameters != null
 						»«type.parameters.compileEnumsForFunction»«ENDIF»
-					public static «fun.returntype.compileType» evaluate(«IF type.parameters != null
+					public static «function.returnType.compileType» evaluate(«IF type.parameters != null
 							»«type.parameters.compileFunctionTypeParameters»«ENDIF»)
 					{
 						«IF type.parameters != null»
@@ -140,17 +140,17 @@ class RDOFunctionCompiler
 		switch type
 		{
 			RDOInt:
-				if(type.range != null)
+				if (type.range != null)
 					return
-						if(type.range.hi instanceof IntConstant)
-							(type.range.hi as IntConstant).value
+						if (type.range.upperBound instanceof IntConstant)
+							(type.range.upperBound as IntConstant).value
 						else
-							((type.range.hi as DoubleConstant).value as int)
+							((type.range.upperBound as DoubleConstant).value as int)
 						-
-						if(type.range.lo instanceof IntConstant)
-							(type.range.lo as IntConstant).value
+						if (type.range.lowerBound instanceof IntConstant)
+							(type.range.lowerBound as IntConstant).value
 						else
-							((type.range.lo as DoubleConstant).value as int)
+							((type.range.lowerBound as DoubleConstant).value as int)
 				else
 					return 0
 
@@ -168,15 +168,15 @@ class RDOFunctionCompiler
 		var flag = false
 		var i = 0
 
-		for(e : table)
+		for (expression : table)
 		{
-			values = values + (if(flag) "," + if(i != cut) " " else "" else "") + (if(i == cut) "\n" else "") + (
-				if(context != null)
-					e.compileExpressionContext(context).value
+			values = values + (if (flag) "," + if (i != cut) " " else "" else "") + (if (i == cut) "\n" else "") + (
+				if (context != null)
+					expression.compileExpressionContext(context).value
 				else
-					e.compileExpression.value)
+					expression.compileExpression.value)
 			i = i + 1
-			if(i > cut)
+			if (i > cut)
 				i = 1
 			flag = true
 		}
@@ -188,7 +188,7 @@ class RDOFunctionCompiler
 	{
 		val list = newIntArrayOfSize(parameters.size)
 		var multiplier = 1;
-		for(i : 0 ..< parameters.size)
+		for (i : 0 ..< parameters.size)
 		{
 			list.set(i, multiplier)
 			multiplier = multiplier * parameters.get(i).type.resolveAllTypes.tableLength
@@ -196,10 +196,10 @@ class RDOFunctionCompiler
 
 		var compiled = ""
 		var flag = false
-		for(i : 0 ..< list.size)
+		for (i : 0 ..< list.size)
 		{
-			compiled = compiled + (if(flag) " +\n" else "") + list.get(i).toString + " * " +
-				parameters.get(i).name + (if(parameters.get(i).type.compileType.endsWith("_enum")) ".ordinal()" else "")
+			compiled = compiled + (if (flag) " +\n" else "") + list.get(i).toString + " * " +
+				parameters.get(i).name + (if (parameters.get(i).type.compileType.endsWith("_enum")) ".ordinal()" else "")
 			flag = true
 		}
 		return compiled
@@ -207,7 +207,8 @@ class RDOFunctionCompiler
 
 	def private static compileFunctionTypeParameters(List<FunctionParameter> parameters)
 	{
-		'''«IF !parameters.empty»«parameters.get(0).type.compileType» «
+		'''
+		«IF !parameters.empty»«parameters.get(0).type.compileType» «
 			parameters.get(0).name»«
 			FOR parameter : parameters.subList(1, parameters.size)», «
 				parameter.type.compileType» «
@@ -219,12 +220,11 @@ class RDOFunctionCompiler
 	def private static compileEnumsForFunction(List<FunctionParameter> parameters)
 	{
 		'''
-		«FOR p : parameters.filter[c | c.type instanceof RDOEnum]»
-		public static enum «p.name»_enum
+		«FOR parameter : parameters.filter[parameter | parameter.type instanceof RDOEnum]»
+		public static enum «parameter.name»_enum
 		{
-			«(p.type as RDOEnum).type.makeEnumBody»
+			«(parameter.type as RDOEnum).type.makeEnumBody»
 		}
-
 		«ENDFOR»
 		'''
 	}

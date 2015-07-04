@@ -12,7 +12,7 @@ import java.util.List
 
 class RDOEventCompiler
 {
-	def static compileEvent(Event evn, String filename)
+	def static compileEvent(Event event, String filename)
 	{
 		'''
 		package «filename»;
@@ -22,9 +22,9 @@ class RDOEventCompiler
 		import ru.bmstu.rk9.rdo.lib.*;
 		@SuppressWarnings("all")
 
-		public class «evn.name» implements Event
+		public class «event.name» implements Event
 		{
-			private static final String name =  "«evn.fullyQualifiedName»";
+			private static final String name =  "«event.fullyQualifiedName»";
 
 			@Override
 			public String getName()
@@ -34,15 +34,15 @@ class RDOEventCompiler
 
 			private static class Parameters
 			{
-				«IF !evn.parameters.empty»
-				«FOR p : evn.parameters»
-					public «p.compileType» «p.name»«p.getDefault»;
+				«IF !event.parameters.empty»
+				«FOR parameter : event.parameters»
+					public «parameter.compileType» «parameter.name»«parameter.getDefault»;
 				«ENDFOR»
 
-				public Parameters(«evn.parameters.compileParameterTypes»)
+				public Parameters(«event.parameters.compileParameterTypes»)
 				{
-					«FOR parameter : evn.parameters»
-						if(«parameter.name» != null)
+					«FOR parameter : event.parameters»
+						if («parameter.name» != null)
 							this.«parameter.name» = «parameter.name»;
 					«ENDFOR»
 				}
@@ -61,7 +61,7 @@ class RDOEventCompiler
 
 			private static void execute(Parameters parameters)
 			{
-				«evn.body.compileEventAction()»
+				«event.body.compileEventAction()»
 			}
 
 			@Override
@@ -73,18 +73,18 @@ class RDOEventCompiler
 				// database operations
 				db.addEventEntry(this);
 				db.addMemorizedResourceEntries(
-						"«evn.fullyQualifiedName».createdResources",
+						"«event.fullyQualifiedName».createdResources",
 						null);
 			}
 
-			public «evn.name»(double time«IF !evn.parameters.empty», «ENDIF»«evn.parameters.compileParameterTypes»)
+			public «event.name»(double time«IF !event.parameters.empty», «ENDIF»«event.parameters.compileParameterTypes»)
 			{
 				this.time = time;
-				this.parameters = new Parameters(«evn.parameters.compileParameterTypesCall»);
+				this.parameters = new Parameters(«event.parameters.compileParameterTypesCall»);
 			}
 
 			public static final JSONObject structure = new JSONObject()
-				.put("name", "«evn.fullyQualifiedName»");
+				.put("name", "«event.fullyQualifiedName»");
 		}
 		'''
 	}
