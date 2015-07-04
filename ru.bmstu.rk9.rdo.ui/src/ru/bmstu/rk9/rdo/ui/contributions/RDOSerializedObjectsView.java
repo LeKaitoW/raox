@@ -31,8 +31,6 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IViewReference;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.jfree.data.xy.XYSeries;
@@ -41,25 +39,19 @@ import org.jfree.data.xy.XYSeriesCollection;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.Index;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.IndexType;
-import ru.bmstu.rk9.rdo.lib.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceIndex;
-import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
-import ru.bmstu.rk9.rdo.lib.Database.ResultType;
 import ru.bmstu.rk9.rdo.lib.PlotDataParser;
 import ru.bmstu.rk9.rdo.lib.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
-import ru.bmstu.rk9.rdo.ui.graph.GraphControl;
-import ru.bmstu.rk9.rdo.ui.graph.GraphControl.FrameInfo;
 
 public class RDOSerializedObjectsView extends ViewPart {
 
 	static TreeViewer serializedObjectsTreeViewer;
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOSerializedObjectsView";
-	public static int secondaryID = 0;
 	private List<ConditionalMenuItem> conditionalMenuItems = new ArrayList<ConditionalMenuItem>();
 
-	abstract class ConditionalMenuItem extends MenuItem {
+	abstract static class ConditionalMenuItem extends MenuItem {
 
 		public ConditionalMenuItem(Menu parent, String name) {
 			super(parent, SWT.CASCADE);
@@ -93,99 +85,6 @@ public class RDOSerializedObjectsView extends ViewPart {
 		abstract public void show(CollectedDataNode node);
 	}
 
-	class PlotMenuItem extends ConditionalMenuItem {
-
-		public PlotMenuItem(Menu parent) {
-			super(parent, "Plot");
-		}
-
-		@Override
-		public boolean isEnable(CollectedDataNode node) {
-			Index index = node.getIndex();
-			if (index == null)
-				return false;
-
-			switch (index.getType()) {
-			case RESOURCE_PARAMETER:
-				return true;
-
-			case RESULT:
-				ResultIndex resultIndex = (ResultIndex) index;
-				ResultType resultType = resultIndex.getResultType();
-				return resultType != ResultType.GET_VALUE;
-
-			case PATTERN:
-				PatternIndex patternIndex = (PatternIndex) index;
-				String patternType = patternIndex.getStructrure().getString(
-						"type");
-				return patternType.equals("operation");
-
-			default:
-				return false;
-			}
-		}
-
-		@Override
-		public void show(CollectedDataNode node) {
-			try {
-				if (PlotView.getOpenedPlotMap().containsKey(node)) {
-					PlatformUI
-							.getWorkbench()
-							.getActiveWorkbenchWindow()
-							.getActivePage()
-							.showView(
-									PlotView.ID,
-									String.valueOf(PlotView.getOpenedPlotMap()
-											.get(node)),
-									IWorkbenchPage.VIEW_ACTIVATE);
-				} else {
-					XYSeriesCollection dataset = new XYSeriesCollection();
-					XYSeries series = new XYSeries(node.getName());
-					dataset.addSeries(series);
-					List<PlotItem> items = PlotDataParser.parseEntries(node);
-					for (int i = 0; i < items.size(); i++) {
-						PlotItem item = items.get(i);
-						series.add(item.x, item.y);
-					}
-					PlotView newView = (PlotView) PlatformUI
-							.getWorkbench()
-							.getActiveWorkbenchWindow()
-							.getActivePage()
-							.showView(PlotView.ID, String.valueOf(secondaryID),
-									IWorkbenchPage.VIEW_ACTIVATE);
-					newView.setName(String.valueOf(dataset.getSeriesKey(0)));
-					newView.setNode(node);
-					PlotView.addToOpenedPlotMap(node, secondaryID);
-
-					newView.plotXY(dataset, PlotDataParser.getEnumNames(node));
-					secondaryID++;
-				}
-			} catch (PartInitException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	class GraphMenuItem extends ConditionalMenuItem {
-
-		public GraphMenuItem(Menu parent) {
-			super(parent, "Graph");
-		}
-
-		@Override
-		public boolean isEnable(CollectedDataNode node) {
-			return node.getIndex().getType() == IndexType.SEARCH;
-		}
-
-		@Override
-		public void show(CollectedDataNode node) {
-			int dptNumber = node.getIndex().getNumber();
-			String frameName = node.getName();
-			FrameInfo frameInfo = new FrameInfo(dptNumber, frameName);
-			GraphControl.openFrameWindow(frameInfo);
-		}
-	}
-
 	@Override
 	public void createPartControl(Composite parent) {
 		serializedObjectsTreeViewer = new TreeViewer(parent);
@@ -200,8 +99,9 @@ public class RDOSerializedObjectsView extends ViewPart {
 
 		Menu popupMenu = new Menu(serializedObjectsTreeViewer.getTree());
 		serializedObjectsTree.setMenu(popupMenu);
-		conditionalMenuItems.add(new PlotMenuItem(popupMenu));
-		conditionalMenuItems.add(new GraphMenuItem(popupMenu));
+		conditionalMenuItems.add(PlotView.createConditionalMenuItem(popupMenu));
+		conditionalMenuItems
+				.add(GraphView.createConditionalMenuItem(popupMenu));
 		serializedObjectsTreeViewer.getTree().setMenu(popupMenu);
 
 		serializedObjectsTreeViewer
