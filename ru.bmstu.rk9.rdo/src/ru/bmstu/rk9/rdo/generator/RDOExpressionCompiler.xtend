@@ -609,18 +609,8 @@ class RDOExpressionCompiler
 
 			Constant: type.type.compileType
 
-			RDOInt:
-//					if (type.range != null)
-//						"RDORangedInteger"
-//					else
-						"Integer"
-
-			RDODouble:
-//					if (type.range != null)
-//						"RDORangedDouble"
-//					else
-						"Double"
-
+			RDOInt: "Integer"
+			RDODouble: "Double"
 			RDOBoolean: "Boolean"
 			RDOString: "String"
 			RDOArray: "java.util.ArrayList<" + type.arrayType.compileType + ">"

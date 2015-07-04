@@ -219,7 +219,7 @@ class RDOResourceTypeCompiler
 			@Override
 			public ByteBuffer serialize()
 			{
-				int size = «chunkstart + ru.bmstu.rk9.rdo.compilers.RDOResourceTypeCompiler.chunkNumber * basicSizes.INT»;
+				int size = «chunkstart + chunkNumber * basicSizes.INT»;
 				«resourceType.parameters.filter
 				[ parameter |
 					val type = parameter.compileType
@@ -345,7 +345,7 @@ class RDOResourceTypeCompiler
 		}
 
 		chunkstart = offset
-		ru.bmstu.rk9.rdo.compilers.RDOResourceTypeCompiler.chunkNumber = chunkIndex - 1
+		chunkNumber = chunkIndex - 1
 
 		return
 			'''
@@ -462,7 +462,7 @@ class RDOResourceTypeCompiler
 					'''
 		}
 
-		if (ru.bmstu.rk9.rdo.compilers.RDOResourceTypeCompiler.chunkNumber > 0)
+		if (chunkNumber > 0)
 			ret = ret + '''
 				int chunkstart = entry.position(); // «chunkstart»
 				int cposition = chunkstart;
@@ -471,7 +471,7 @@ class RDOResourceTypeCompiler
 				LinkedList<Integer> stack = new LinkedList<Integer>();
 				stack.add(entry.position());
 
-				entry.position(chunkstart + «basicSizes.INT * ru.bmstu.rk9.rdo.compilers.RDOResourceTypeCompiler.chunkNumber»);
+				entry.position(chunkstart + «basicSizes.INT * chunkNumber»);
 				'''
 
 		var parametersNumber = 0

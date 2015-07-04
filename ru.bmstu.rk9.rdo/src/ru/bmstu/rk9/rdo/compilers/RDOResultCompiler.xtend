@@ -473,13 +473,13 @@ class RDOResultCompiler
 				.put
 				(
 					"enums", new JSONArray()
-						«FOR enumValue : (((result.modelRoot.eAllContents.findFirst[resourceType|
-				resourceType instanceof ResourceType && (resourceType as ResourceType).fullyQualifiedName ==
-					expression.type.substring(0, expression.type.lastIndexOf('.'))] as ResourceType).parameters.findFirst[parameter|
-				parameter.name ==
-					expression.type.substring(expression.type.lastIndexOf('.') + 1, expression.type.length - 5)]
-											 as ParameterTypeBasic).
-				type as RDOEnum).type.values»
+						«FOR enumValue : (((result.modelRoot.eAllContents.findFirst[resourceType |
+									resourceType instanceof ResourceType && (resourceType as ResourceType).fullyQualifiedName ==
+									expression.type.substring(0, expression.type.lastIndexOf('.'))
+								] as ResourceType).parameters.findFirst[parameter |
+									parameter.name == expression.type.substring(
+									expression.type.lastIndexOf('.') + 1, expression.type.length - 5)
+								] as ParameterTypeBasic).type as RDOEnum).type.values»
 							.put("«enumValue»")
 						«ENDFOR»
 				);
