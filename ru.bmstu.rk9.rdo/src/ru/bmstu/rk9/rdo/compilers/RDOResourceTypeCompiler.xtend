@@ -160,10 +160,11 @@ class RDOResourceTypeCompiler
 
 				public «parameter.compileType» set_«parameter.name»(«parameter.compileType» «parameter.name»)
 				{
-					if (managerOwner != managerCurrent)
-						this.copyForNewOwner();
+					if (managerOwner == managerCurrent)
+						this.«parameter.name» = «parameter.name»;
+					else
+						this.copyForNewOwner().«parameter.name» = «parameter.name»;
 
-					this.«parameter.name» = «parameter.name»;
 
 					Simulator.getDatabase().memorizeResourceEntry(
 							this.copy(),
@@ -177,8 +178,7 @@ class RDOResourceTypeCompiler
 			{
 				«resourceType.name» copy = copy();
 
-				managerOwner.addResource(copy);
-				managerOwner = managerCurrent;
+				managerCurrent.addResource(copy);
 
 				return copy;
 			}
