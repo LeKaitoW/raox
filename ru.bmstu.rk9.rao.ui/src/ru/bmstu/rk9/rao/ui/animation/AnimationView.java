@@ -1,48 +1,35 @@
 package ru.bmstu.rk9.rao.ui.animation;
 
 import java.util.TimerTask;
-
 import java.util.ArrayList;
 
 import org.eclipse.ui.PlatformUI;
-
 import org.eclipse.ui.part.ViewPart;
-
 import org.eclipse.core.runtime.preferences.InstanceScope;
-
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.State;
-
 import org.eclipse.swt.SWT;
-
 import org.eclipse.swt.widgets.Display;
-
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
-
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.custom.ScrolledComposite;
-
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
-
 import org.eclipse.swt.graphics.Rectangle;
 
-import ru.bmstu.rk9.rao.lib.Subscriber;
-
-import ru.bmstu.rk9.rao.lib.AnimationFrame;
+import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
+import ru.bmstu.rk9.rao.lib.common.Subscriber;
 
 public class AnimationView extends ViewPart {
 

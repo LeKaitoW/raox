@@ -43,6 +43,9 @@ class PatternCompiler
 		import ru.bmstu.rk9.rao.lib.json.*;
 
 		import ru.bmstu.rk9.rao.lib.*;
+		import ru.bmstu.rk9.rao.lib.pattern.*;
+		import ru.bmstu.rk9.rao.lib.simulator.*;
+		import ru.bmstu.rk9.rao.lib.database.*;
 		@SuppressWarnings("all")
 
 		public class «rule.name» implements Rule
@@ -109,6 +112,10 @@ class PatternCompiler
 		import ru.bmstu.rk9.rao.lib.json.*;
 
 		import ru.bmstu.rk9.rao.lib.*;
+		import ru.bmstu.rk9.rao.lib.pattern.*;
+		import ru.bmstu.rk9.rao.lib.simulator.*;
+		import ru.bmstu.rk9.rao.lib.database.*;
+		import ru.bmstu.rk9.rao.lib.event.*;
 		@SuppressWarnings("all")
 
 		public class «operation.name» implements Rule, Event

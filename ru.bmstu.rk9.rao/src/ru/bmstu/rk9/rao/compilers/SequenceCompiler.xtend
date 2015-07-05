@@ -27,6 +27,7 @@ class SequenceCompiler
 		package «filename»;
 
 		import ru.bmstu.rk9.rao.lib.*;
+		import ru.bmstu.rk9.rao.lib.sequence.*;
 		import ru.bmstu.rk9.rao.lib.math.MersenneTwisterFast;
 		import ru.bmstu.rk9.rao.lib.math.Erf;
 		@SuppressWarnings("all")

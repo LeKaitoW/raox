@@ -33,10 +33,10 @@ import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
-import ru.bmstu.rk9.rao.lib.AnimationFrame;
-import ru.bmstu.rk9.rao.lib.Notifier;
-import ru.bmstu.rk9.rao.lib.Result;
-import ru.bmstu.rk9.rao.lib.Simulator;
+import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
+import ru.bmstu.rk9.rao.lib.notification.Notifier;
+import ru.bmstu.rk9.rao.lib.result.Result;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.contributions.ConsoleView;
 import ru.bmstu.rk9.rao.ui.contributions.ResultsView;

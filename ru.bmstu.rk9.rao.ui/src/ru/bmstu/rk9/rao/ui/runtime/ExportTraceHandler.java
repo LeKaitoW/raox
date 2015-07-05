@@ -13,11 +13,11 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 
-import ru.bmstu.rk9.rao.lib.Database.Entry;
-import ru.bmstu.rk9.rao.lib.LegacyTracer;
-import ru.bmstu.rk9.rao.lib.Simulator;
-import ru.bmstu.rk9.rao.lib.Tracer;
-import ru.bmstu.rk9.rao.lib.Tracer.TraceOutput;
+import ru.bmstu.rk9.rao.lib.database.Database.Entry;
+import ru.bmstu.rk9.rao.lib.moveToUI.LegacyTracer;
+import ru.bmstu.rk9.rao.lib.moveToUI.Tracer;
+import ru.bmstu.rk9.rao.lib.moveToUI.Tracer.TraceOutput;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 //TODO export to location chosen by user
 

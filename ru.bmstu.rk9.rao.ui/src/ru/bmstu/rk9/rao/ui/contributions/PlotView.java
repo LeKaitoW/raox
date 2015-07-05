@@ -39,13 +39,13 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.experimental.chart.swt.ChartComposite;
 
-import ru.bmstu.rk9.rao.lib.CollectedDataNode;
-import ru.bmstu.rk9.rao.lib.CollectedDataNode.Index;
-import ru.bmstu.rk9.rao.lib.CollectedDataNode.PatternIndex;
-import ru.bmstu.rk9.rao.lib.CollectedDataNode.ResultIndex;
-import ru.bmstu.rk9.rao.lib.Database.ResultType;
-import ru.bmstu.rk9.rao.lib.PlotDataParser;
-import ru.bmstu.rk9.rao.lib.PlotDataParser.PlotItem;
+import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
+import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode;
+import ru.bmstu.rk9.rao.lib.moveToUI.PlotDataParser;
+import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.Index;
+import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.PatternIndex;
+import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.ResultIndex;
+import ru.bmstu.rk9.rao.lib.moveToUI.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rao.ui.contributions.SerializedObjectsView.ConditionalMenuItem;
 
 public class PlotView extends ViewPart {

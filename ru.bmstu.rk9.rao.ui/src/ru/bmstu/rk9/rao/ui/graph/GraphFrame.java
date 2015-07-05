@@ -17,10 +17,10 @@ import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.ui.PlatformUI;
 
-import ru.bmstu.rk9.rao.lib.Simulator;
-import ru.bmstu.rk9.rao.lib.Subscriber;
-import ru.bmstu.rk9.rao.lib.TreeBuilder.GraphInfo;
-import ru.bmstu.rk9.rao.lib.TreeBuilder.Node;
+import ru.bmstu.rk9.rao.lib.common.Subscriber;
+import ru.bmstu.rk9.rao.lib.moveToUI.TreeBuilder.GraphInfo;
+import ru.bmstu.rk9.rao.lib.moveToUI.TreeBuilder.Node;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.model.mxCell;

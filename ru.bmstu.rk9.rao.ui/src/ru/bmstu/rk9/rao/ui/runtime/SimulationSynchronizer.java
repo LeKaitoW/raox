@@ -5,8 +5,8 @@ import java.text.DecimalFormat;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
-import ru.bmstu.rk9.rao.lib.Simulator;
-import ru.bmstu.rk9.rao.lib.Subscriber;
+import ru.bmstu.rk9.rao.lib.common.Subscriber;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.contributions.SpeedSelectionToolbar;
 import ru.bmstu.rk9.rao.ui.contributions.StatusView;
 

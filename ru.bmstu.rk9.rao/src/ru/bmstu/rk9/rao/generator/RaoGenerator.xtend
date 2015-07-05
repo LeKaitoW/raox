@@ -165,6 +165,10 @@ class RaoGenerator implements IMultipleResourceGenerator
 		package rao_model;
 
 		import ru.bmstu.rk9.rao.lib.*;
+		import ru.bmstu.rk9.rao.lib.simulator.*;
+		import ru.bmstu.rk9.rao.lib.common.*;
+		import ru.bmstu.rk9.rao.lib.animation.*;
+		import ru.bmstu.rk9.rao.lib.result.*;
 		@SuppressWarnings("all")
 
 		public class Standalone
@@ -248,6 +252,10 @@ class RaoGenerator implements IMultipleResourceGenerator
 		import java.util.List;
 
 		import ru.bmstu.rk9.rao.lib.*;
+		import ru.bmstu.rk9.rao.lib.simulator.*;
+		import ru.bmstu.rk9.rao.lib.common.*;
+		import ru.bmstu.rk9.rao.lib.animation.*;
+		import ru.bmstu.rk9.rao.lib.result.*;
 		@SuppressWarnings("all")
 
 		public class Embedded

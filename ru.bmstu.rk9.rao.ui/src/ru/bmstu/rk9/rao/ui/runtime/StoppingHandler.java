@@ -4,7 +4,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
-import ru.bmstu.rk9.rao.lib.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class StoppingHandler extends AbstractHandler {
 	@Override

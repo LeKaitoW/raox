@@ -9,64 +9,45 @@ import java.util.HashMap;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-
 import org.eclipse.jdt.ui.PreferenceConstants;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
-
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.resource.ImageDescriptor;
-
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-
 import org.eclipse.swt.SWT;
-
 import org.eclipse.swt.custom.ScrolledComposite;
-
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyleRange;
-
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-
 import org.eclipse.swt.layout.GridData;
-
 import org.eclipse.swt.widgets.Composite;
-
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
-
 import org.eclipse.ui.PlatformUI;
-
 import org.eclipse.ui.IActionBars;
-
 import org.eclipse.ui.part.ViewPart;
-
 import org.eclipse.ui.themes.ITheme;
 import org.eclipse.ui.themes.IThemeManager;
-
 import org.osgi.framework.Bundle;
 
 import com.google.common.collect.ImmutableMap;
 
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
-
-import ru.bmstu.rk9.rao.lib.Result;
+import ru.bmstu.rk9.rao.lib.result.Result;
 
 public class ResultsView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.ResultsView"; //$NON-NLS-1$

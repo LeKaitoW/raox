@@ -3,19 +3,14 @@ package ru.bmstu.rk9.rao.ui.animation;
 import java.util.HashMap;
 
 import org.eclipse.swt.SWT;
-
 import org.eclipse.swt.graphics.GC;
-
 import org.eclipse.swt.widgets.Display;
-
 import org.eclipse.swt.graphics.Image;
-
 import org.eclipse.swt.graphics.Color;
-
 import org.eclipse.swt.graphics.Rectangle;
 
-import ru.bmstu.rk9.rao.lib.AnimationFrame;
-import ru.bmstu.rk9.rao.lib.AnimationContext;
+import ru.bmstu.rk9.rao.lib.animation.AnimationContext;
+import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
 
 public class AnimationContextSWT implements AnimationContext {
 	private Display display;

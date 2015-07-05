@@ -1,6 +1,6 @@
 package ru.bmstu.rk9.rao.ui.runtime;
 
-import ru.bmstu.rk9.rao.lib.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 
 public class SimulationModeDispatcher {

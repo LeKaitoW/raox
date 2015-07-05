@@ -2,8 +2,8 @@ package ru.bmstu.rk9.rao.ui.contributions;
 
 import org.eclipse.swt.widgets.Menu;
 
-import ru.bmstu.rk9.rao.lib.CollectedDataNode;
-import ru.bmstu.rk9.rao.lib.CollectedDataNode.IndexType;
+import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode;
+import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.IndexType;
 import ru.bmstu.rk9.rao.ui.contributions.SerializedObjectsView.ConditionalMenuItem;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;

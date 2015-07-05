@@ -36,14 +36,14 @@ import org.eclipse.ui.part.ViewPart;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import ru.bmstu.rk9.rao.lib.CollectedDataNode;
-import ru.bmstu.rk9.rao.lib.CollectedDataNode.Index;
-import ru.bmstu.rk9.rao.lib.CollectedDataNode.IndexType;
-import ru.bmstu.rk9.rao.lib.CollectedDataNode.ResourceIndex;
-import ru.bmstu.rk9.rao.lib.PlotDataParser;
-import ru.bmstu.rk9.rao.lib.PlotDataParser.PlotItem;
-import ru.bmstu.rk9.rao.lib.Simulator;
-import ru.bmstu.rk9.rao.lib.Subscriber;
+import ru.bmstu.rk9.rao.lib.common.Subscriber;
+import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode;
+import ru.bmstu.rk9.rao.lib.moveToUI.PlotDataParser;
+import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.Index;
+import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.IndexType;
+import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.ResourceIndex;
+import ru.bmstu.rk9.rao.lib.moveToUI.PlotDataParser.PlotItem;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class SerializedObjectsView extends ViewPart {
 
