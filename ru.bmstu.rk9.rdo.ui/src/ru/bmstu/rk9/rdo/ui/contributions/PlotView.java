@@ -21,7 +21,10 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Slider;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.jfree.chart.ChartFactory;
@@ -32,17 +35,24 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.experimental.chart.swt.ChartComposite;
 
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.Index;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.PatternIndex;
+import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
+import ru.bmstu.rk9.rdo.lib.Database.ResultType;
 import ru.bmstu.rk9.rdo.lib.PlotDataParser;
+import ru.bmstu.rk9.rdo.lib.PlotDataParser.PlotItem;
+import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializedObjectsView.ConditionalMenuItem;
 
 public class PlotView extends ViewPart {
 
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.PlotView";
 	private final static Map<CollectedDataNode, Integer> openedPlotMap = new HashMap<CollectedDataNode, Integer>();
-
+	private static int secondaryID = 0;
 	private ChartFrame chartFrame;
 	private CollectedDataNode partNode;
 
@@ -173,6 +183,83 @@ public class PlotView extends ViewPart {
 		chartFrame.setChartMaximum(horizontalMaximum, verticalMaximum);
 
 		return chart;
+	}
+
+	static private class PlotMenuItem extends ConditionalMenuItem {
+
+		public PlotMenuItem(Menu parent) {
+			super(parent, "Plot");
+		}
+
+		@Override
+		public boolean isEnabled(CollectedDataNode node) {
+			Index index = node.getIndex();
+			if (index == null)
+				return false;
+
+			switch (index.getType()) {
+			case RESOURCE_PARAMETER:
+				return true;
+
+			case RESULT:
+				ResultIndex resultIndex = (ResultIndex) index;
+				ResultType resultType = resultIndex.getResultType();
+				return resultType != ResultType.GET_VALUE;
+
+			case PATTERN:
+				PatternIndex patternIndex = (PatternIndex) index;
+				String patternType = patternIndex.getStructrure().getString(
+						"type");
+				return patternType.equals("operation");
+
+			default:
+				return false;
+			}
+		}
+
+		@Override
+		public void show(CollectedDataNode node) {
+			try {
+				if (PlotView.getOpenedPlotMap().containsKey(node)) {
+					PlatformUI
+							.getWorkbench()
+							.getActiveWorkbenchWindow()
+							.getActivePage()
+							.showView(
+									PlotView.ID,
+									String.valueOf(PlotView.getOpenedPlotMap()
+											.get(node)),
+									IWorkbenchPage.VIEW_ACTIVATE);
+				} else {
+					XYSeriesCollection dataset = new XYSeriesCollection();
+					XYSeries series = new XYSeries(node.getName());
+					dataset.addSeries(series);
+					List<PlotItem> items = PlotDataParser.parseEntries(node);
+					for (int i = 0; i < items.size(); i++) {
+						PlotItem item = items.get(i);
+						series.add(item.x, item.y);
+					}
+					PlotView newView = (PlotView) PlatformUI
+							.getWorkbench()
+							.getActiveWorkbenchWindow()
+							.getActivePage()
+							.showView(PlotView.ID, String.valueOf(secondaryID),
+									IWorkbenchPage.VIEW_ACTIVATE);
+					newView.setName(String.valueOf(dataset.getSeriesKey(0)));
+					newView.setNode(node);
+					PlotView.addToOpenedPlotMap(node, secondaryID);
+
+					newView.plotXY(dataset, PlotDataParser.getEnumNames(node));
+					secondaryID++;
+				}
+			} catch (PartInitException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	static public ConditionalMenuItem createConditionalMenuItem(Menu parent) {
+		return new PlotMenuItem(parent);
 	}
 }
 
