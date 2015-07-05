@@ -192,7 +192,7 @@ public class PlotView extends ViewPart {
 		}
 
 		@Override
-		public boolean isEnable(CollectedDataNode node) {
+		public boolean isEnabled(CollectedDataNode node) {
 			Index index = node.getIndex();
 			if (index == null)
 				return false;

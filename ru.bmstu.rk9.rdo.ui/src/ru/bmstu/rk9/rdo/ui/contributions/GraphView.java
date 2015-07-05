@@ -17,7 +17,7 @@ public class GraphView {
 		}
 
 		@Override
-		public boolean isEnable(CollectedDataNode node) {
+		public boolean isEnabled(CollectedDataNode node) {
 			return node.getIndex().getType() == IndexType.SEARCH;
 		}
 

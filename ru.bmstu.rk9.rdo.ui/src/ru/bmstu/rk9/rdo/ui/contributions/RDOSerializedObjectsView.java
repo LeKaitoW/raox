@@ -62,7 +62,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 				public void handleEvent(Event event) {
 					CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
 							.getTree().getSelection()[0].getData();
-					setEnabled(isEnable(node));
+					setEnabled(isEnabled(node));
 				}
 			});
 
@@ -80,7 +80,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 		final protected void checkSubclass() {
 		}
 
-		abstract public boolean isEnable(CollectedDataNode node);
+		abstract public boolean isEnabled(CollectedDataNode node);
 
 		abstract public void show(CollectedDataNode node);
 	}
@@ -118,7 +118,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 						if (treeItem.getItemCount() == 0) {
 							List<ConditionalMenuItem> enabledMenuItems = new ArrayList<ConditionalMenuItem>();
 							for (ConditionalMenuItem conditionalMenuItem : conditionalMenuItems) {
-								if (conditionalMenuItem.isEnable(node))
+								if (conditionalMenuItem.isEnabled(node))
 									enabledMenuItems.add(conditionalMenuItem);
 							}
 
