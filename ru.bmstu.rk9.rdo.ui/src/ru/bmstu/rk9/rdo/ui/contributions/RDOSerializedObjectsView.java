@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rdo.ui.contributions;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
 
@@ -18,7 +19,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
@@ -29,9 +29,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IViewReference;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.jfree.data.xy.XYSeries;
@@ -40,22 +39,51 @@ import org.jfree.data.xy.XYSeriesCollection;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.Index;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.IndexType;
-import ru.bmstu.rk9.rdo.lib.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResourceIndex;
-import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
-import ru.bmstu.rk9.rdo.lib.Database.ResultType;
 import ru.bmstu.rk9.rdo.lib.PlotDataParser;
 import ru.bmstu.rk9.rdo.lib.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
-import ru.bmstu.rk9.rdo.ui.graph.GraphControl;
-import ru.bmstu.rk9.rdo.ui.graph.GraphControl.FrameInfo;
 
 public class RDOSerializedObjectsView extends ViewPart {
 
 	static TreeViewer serializedObjectsTreeViewer;
 	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOSerializedObjectsView";
-	public static int secondaryID = 0;
+	private List<ConditionalMenuItem> conditionalMenuItems = new ArrayList<ConditionalMenuItem>();
+
+	abstract static class ConditionalMenuItem extends MenuItem {
+
+		public ConditionalMenuItem(Menu parent, String name) {
+			super(parent, SWT.CASCADE);
+			setText(name);
+
+			parent.addListener(SWT.Show, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
+							.getTree().getSelection()[0].getData();
+					setEnabled(isEnabled(node));
+				}
+			});
+
+			addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent event) {
+					CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
+							.getTree().getSelection()[0].getData();
+					show(node);
+				}
+			});
+		}
+
+		@Override
+		final protected void checkSubclass() {
+		}
+
+		abstract public boolean isEnabled(CollectedDataNode node);
+
+		abstract public void show(CollectedDataNode node);
+	}
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -69,140 +97,44 @@ public class RDOSerializedObjectsView extends ViewPart {
 		serializedObjectsTreeViewer
 				.setLabelProvider(new RDOSerializedObjectsLabelProvider());
 
-		final Menu popupMenu = new Menu(serializedObjectsTreeViewer.getTree());
-		final MenuItem graphMenuItem = new MenuItem(popupMenu, SWT.CASCADE);
-		graphMenuItem.setText("Build graph");
+		Menu popupMenu = new Menu(serializedObjectsTreeViewer.getTree());
 		serializedObjectsTree.setMenu(popupMenu);
-
-		popupMenu.addListener(SWT.Show, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
-						.getTree().getSelection()[0].getData();
-				IndexType type = node.getIndex().getType();
-				graphMenuItem.setEnabled(type == IndexType.SEARCH);
-			}
-		});
-
-		graphMenuItem.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
-						.getTree().getSelection()[0].getData();
-
-				int dptNum = node.getIndex().getNumber();
-				String frameName = node.getName();
-				FrameInfo frameInfo = new FrameInfo(dptNum, frameName);
-
-				GraphControl.openFrameWindow(frameInfo);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent event) {
-			}
-		});
-
-		final MenuItem plot = new MenuItem(popupMenu, SWT.CASCADE);
-		plot.setText("Plot");
-
-		popupMenu.addListener(SWT.Show, new Listener() {
-			public void handleEvent(Event event) {
-				final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
-						.getTree().getSelection()[0].getData();
-				final Index index = node.getIndex();
-				Boolean enabled = false;
-				if (index != null) {
-					switch (index.getType()) {
-					case RESOURCE_PARAMETER:
-						enabled = true;
-						break;
-					case RESULT:
-						final ResultIndex resultIndex = (ResultIndex) index;
-						final ResultType resultType = resultIndex
-								.getResultType();
-						if (resultType != ResultType.GET_VALUE) {
-							enabled = true;
-						}
-						break;
-					case PATTERN:
-						final PatternIndex patternIndex = (PatternIndex) index;
-						final String patternType = patternIndex.getStructrure()
-								.getString("type");
-						if (patternType.equals("operation")) {
-							enabled = true;
-						}
-						break;
-					default:
-						break;
-					}
-				}
-				plot.setEnabled(enabled);
-			}
-		});
-
-		plot.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(final SelectionEvent event) {
-				try {
-					final CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
-							.getTree().getSelection()[0].getData();
-
-					if (PlotView.getOpenedPlotMap().containsKey(node)) {
-						PlatformUI
-								.getWorkbench()
-								.getActiveWorkbenchWindow()
-								.getActivePage()
-								.showView(
-										PlotView.ID,
-										String.valueOf(PlotView
-												.getOpenedPlotMap().get(node)),
-										IWorkbenchPage.VIEW_ACTIVATE);
-					} else {
-						final XYSeriesCollection dataset = new XYSeriesCollection();
-						final XYSeries series = new XYSeries(node.getName());
-						dataset.addSeries(series);
-						final List<PlotItem> items = PlotDataParser
-								.parseEntries(node);
-						for (int i = 0; i < items.size(); i++) {
-							final PlotItem item = items.get(i);
-							series.add(item.x, item.y);
-						}
-						final PlotView newView = (PlotView) PlatformUI
-								.getWorkbench()
-								.getActiveWorkbenchWindow()
-								.getActivePage()
-								.showView(PlotView.ID,
-										String.valueOf(secondaryID),
-										IWorkbenchPage.VIEW_ACTIVATE);
-						newView.setName(String.valueOf(dataset.getSeriesKey(0)));
-						newView.setNode(node);
-						PlotView.addToOpenedPlotMap(node, secondaryID);
-
-						newView.plotXY(dataset,
-								PlotDataParser.getEnumNames(node));
-						secondaryID++;
-					}
-				} catch (PartInitException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-
+		conditionalMenuItems.add(PlotView.createConditionalMenuItem(popupMenu));
+		conditionalMenuItems
+				.add(GraphView.createConditionalMenuItem(popupMenu));
 		serializedObjectsTreeViewer.getTree().setMenu(popupMenu);
 
 		serializedObjectsTreeViewer
 				.addDoubleClickListener(new IDoubleClickListener() {
 					@Override
 					public void doubleClick(DoubleClickEvent event) {
-						final Object item = serializedObjectsTreeViewer
-								.getTree().getSelection()[0].getData();
-						if (item == null)
+						final TreeItem treeItem = serializedObjectsTreeViewer
+								.getTree().getSelection()[0];
+						final CollectedDataNode node = (CollectedDataNode) treeItem
+								.getData();
+						if (node == null)
 							return;
 
-						if (serializedObjectsTreeViewer.getExpandedState(item))
-							serializedObjectsTreeViewer
-									.collapseToLevel(item, 1);
-						else
-							serializedObjectsTreeViewer.expandToLevel(item, 1);
+						if (treeItem.getItemCount() == 0) {
+							List<ConditionalMenuItem> enabledMenuItems = new ArrayList<ConditionalMenuItem>();
+							for (ConditionalMenuItem conditionalMenuItem : conditionalMenuItems) {
+								if (conditionalMenuItem.isEnabled(node))
+									enabledMenuItems.add(conditionalMenuItem);
+							}
+
+							if (enabledMenuItems.size() == 1)
+								enabledMenuItems.get(0).show(node);
+						} else {
+							if (serializedObjectsTreeViewer
+									.getExpandedState(node)) {
+								serializedObjectsTreeViewer.collapseToLevel(
+										node, 1);
+							} else {
+								serializedObjectsTreeViewer.expandToLevel(node,
+										1);
+							}
+						}
+
 					}
 				});
 
