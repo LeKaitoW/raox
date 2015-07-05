@@ -22,7 +22,7 @@ import ru.bmstu.rk9.rdo.generator.RDOExpression
 import ru.bmstu.rk9.rdo.rdo.ParameterTypeBasic
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
-class RDOResultCompiler
+class ResultCompiler
 {
 	def static compileResult(Result result, String filename)
 	{

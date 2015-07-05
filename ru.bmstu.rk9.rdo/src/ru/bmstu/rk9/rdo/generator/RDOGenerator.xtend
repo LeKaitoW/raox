@@ -9,17 +9,17 @@ import org.eclipse.xtext.generator.IFileSystemAccess
 
 import ru.bmstu.rk9.rdo.IMultipleResourceGenerator
 
-import ru.bmstu.rk9.rdo.compilers.RDOModelCompiler
-import static extension ru.bmstu.rk9.rdo.compilers.RDOConstantCompiler.*
-import static extension ru.bmstu.rk9.rdo.compilers.RDOSequenceCompiler.*
-import static extension ru.bmstu.rk9.rdo.compilers.RDOFunctionCompiler.*
-import static extension ru.bmstu.rk9.rdo.compilers.RDOResourceTypeCompiler.*
-import static extension ru.bmstu.rk9.rdo.compilers.RDOPatternCompiler.*
-import static extension ru.bmstu.rk9.rdo.compilers.RDOEventCompiler.*
-import static extension ru.bmstu.rk9.rdo.compilers.RDODecisionPointCompiler.*
-import static extension ru.bmstu.rk9.rdo.compilers.RDOFrameCompiler.*
-import static extension ru.bmstu.rk9.rdo.compilers.RDOResultCompiler.*
-import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
+import ru.bmstu.rk9.rdo.compilers.ModelCompiler
+import static extension ru.bmstu.rk9.rdo.compilers.ConstantCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.SequenceCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.FunctionCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.ResourceTypeCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.PatternCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.EventCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.DecisionPointCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.FrameCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.ResultCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.EnumCompiler.*
 
 import static extension ru.bmstu.rk9.rdo.RDOQualifiedNameProvider.*
 
@@ -123,7 +123,7 @@ class RDOGenerator implements IMultipleResourceGenerator
 			}
 
 		fsa.generateFile("rdo_model/" + RDONaming.getProjectName(resources.resources.get(0).URI) +"Model.java",
-			RDOModelCompiler.compileModel(resources, RDONaming.getProjectName(resources.resources.get(0).URI)))
+			ModelCompiler.compileModel(resources, RDONaming.getProjectName(resources.resources.get(0).URI)))
 		fsa.generateFile("rdo_model/Standalone.java", compileStandalone(resources, onInit, term))
 		fsa.generateFile("rdo_model/Embedded.java", compileEmbedded(resources, onInit, term))
 	}

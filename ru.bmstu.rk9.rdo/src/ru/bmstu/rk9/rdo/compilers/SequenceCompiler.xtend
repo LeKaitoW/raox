@@ -19,7 +19,7 @@ import ru.bmstu.rk9.rdo.rdo.ExponentialSequence
 import ru.bmstu.rk9.rdo.rdo.NormalSequence
 import ru.bmstu.rk9.rdo.rdo.TriangularSequence
 
-class RDOSequenceCompiler
+class SequenceCompiler
 {
 	def static compileSequence(Sequence sequence, String filename)
 	{

@@ -24,7 +24,7 @@ import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.RDOModel
 
-class RDOModelCompiler
+class ModelCompiler
 {
 	def static compileModel(ResourceSet resourceSet, String project)
 	{

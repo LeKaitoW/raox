@@ -3,14 +3,14 @@ package ru.bmstu.rk9.rdo.compilers
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
-import static extension ru.bmstu.rk9.rdo.compilers.RDOResourceTypeCompiler.*
-import static extension ru.bmstu.rk9.rdo.compilers.RDOPatternCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.ResourceTypeCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.PatternCompiler.*
 
 import ru.bmstu.rk9.rdo.rdo.Event
 import ru.bmstu.rk9.rdo.rdo.ParameterType
 import java.util.List
 
-class RDOEventCompiler
+class EventCompiler
 {
 	def static compileEvent(Event event, String filename)
 	{

@@ -7,7 +7,7 @@ import org.eclipse.emf.ecore.EObject
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*
-import static extension ru.bmstu.rk9.rdo.compilers.RDOResourceTypeCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.ResourceTypeCompiler.*
 
 import ru.bmstu.rk9.rdo.generator.LocalContext
 
@@ -21,7 +21,7 @@ import ru.bmstu.rk9.rdo.rdo.PatternSelectMethod
 import ru.bmstu.rk9.rdo.rdo.RelevantResource
 import ru.bmstu.rk9.rdo.rdo.PatternSelectLogic
 
-class RDOPatternCompiler
+class PatternCompiler
 {
 	def static compilePattern(Pattern pattern, String filename)
 	{

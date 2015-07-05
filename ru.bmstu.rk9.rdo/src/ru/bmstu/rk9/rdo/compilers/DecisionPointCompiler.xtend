@@ -15,7 +15,7 @@ import ru.bmstu.rk9.rdo.rdo.DptEvaluateByStatement
 import ru.bmstu.rk9.rdo.rdo.DptCompareTopsStatement
 import ru.bmstu.rk9.rdo.rdo.PatternType
 
-class RDODecisionPointCompiler
+class DecisionPointCompiler
 {
 	def static compileDecisionPoint(DecisionPointSome dpt, String filename)
 	{

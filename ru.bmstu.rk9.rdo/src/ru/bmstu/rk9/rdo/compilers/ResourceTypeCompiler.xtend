@@ -6,7 +6,7 @@ import org.eclipse.emf.ecore.EObject
 
 import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import static extension ru.bmstu.rk9.rdo.generator.RDOExpressionCompiler.*
-import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.EnumCompiler.*
 
 import ru.bmstu.rk9.rdo.rdo.ResourceType
 import ru.bmstu.rk9.rdo.rdo.ParameterType
@@ -23,7 +23,7 @@ import ru.bmstu.rk9.rdo.rdo.RDOString
 import ru.bmstu.rk9.rdo.rdo.RDOArray
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
-class RDOResourceTypeCompiler
+class ResourceTypeCompiler
 {
 	private static var chunkstart = 0;
 	private static var chunkNumber = 0;

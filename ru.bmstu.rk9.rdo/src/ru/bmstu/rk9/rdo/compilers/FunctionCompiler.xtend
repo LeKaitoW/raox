@@ -23,10 +23,10 @@ import ru.bmstu.rk9.rdo.rdo.IntConstant
 import ru.bmstu.rk9.rdo.rdo.DoubleConstant
 
 import ru.bmstu.rk9.rdo.rdo.Expression
-import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.EnumCompiler.*
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
-class RDOFunctionCompiler
+class FunctionCompiler
 {
 	def static compileFunction(Function function, String filename)
 	{

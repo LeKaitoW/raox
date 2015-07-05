@@ -5,7 +5,7 @@ import static extension ru.bmstu.rk9.rdo.generator.RDOStatementCompiler.*;
 import ru.bmstu.rk9.rdo.rdo.Frame
 import ru.bmstu.rk9.rdo.generator.RDONaming
 
-class RDOFrameCompiler
+class FrameCompiler
 {
 	def static compileFrame(Frame frame, String filename)
 	{

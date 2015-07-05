@@ -8,10 +8,10 @@ import ru.bmstu.rk9.rdo.generator.LocalContext
 
 import ru.bmstu.rk9.rdo.rdo.Constant
 
-import static extension ru.bmstu.rk9.rdo.compilers.RDOEnumCompiler.*
+import static extension ru.bmstu.rk9.rdo.compilers.EnumCompiler.*
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
-class RDOConstantCompiler
+class ConstantCompiler
 {
 	def static compileConstant(Constant constant, String filename)
 	{

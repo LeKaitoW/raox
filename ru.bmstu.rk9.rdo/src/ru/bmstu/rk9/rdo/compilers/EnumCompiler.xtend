@@ -5,7 +5,7 @@ import static extension ru.bmstu.rk9.rdo.generator.RDONaming.*
 import ru.bmstu.rk9.rdo.rdo.EnumDeclaration
 import ru.bmstu.rk9.rdo.rdo.RDOEnum
 
-class RDOEnumCompiler {
+class EnumCompiler {
 	def static compileEnum(EnumDeclaration enumDeclaration, String filename) {
 		'''
 			package «filename»;
