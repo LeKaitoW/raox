@@ -35,8 +35,8 @@ class RDOSequenceCompiler
 		{
 			«IF sequence.type instanceof RegularSequence»
 				«IF (sequence.type as RegularSequence).legacy»
-				private static RDOLegacyRandom prng =
-					new RDOLegacyRandom(«(sequence.type as RegularSequence).seed»);
+				private static LegacyRandom prng =
+					new LegacyRandom(«(sequence.type as RegularSequence).seed»);
 				«ELSE»
 				private static MersenneTwisterFast prng =
 					new MersenneTwisterFast(«(sequence.type as RegularSequence).seed»);
@@ -70,8 +70,8 @@ class RDOSequenceCompiler
 			«ENDIF»
 			«IF sequence.type instanceof HistogramSequence»
 				«IF (sequence.type as HistogramSequence).legacy»
-				private static RDOLegacyRandom prng =
-					new RDOLegacyRandom(«(sequence.type as HistogramSequence).seed»);
+				private static LegacyRandom prng =
+					new LegacyRandom(«(sequence.type as HistogramSequence).seed»);
 				«ELSE»
 				private static MersenneTwisterFast prng =
 					new MersenneTwisterFast(«(sequence.type as HistogramSequence).seed»);

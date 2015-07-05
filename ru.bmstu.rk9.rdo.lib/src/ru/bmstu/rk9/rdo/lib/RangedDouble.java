@@ -1,10 +1,10 @@
 package ru.bmstu.rk9.rdo.lib;
 
-public class RDORangedDouble {
+public class RangedDouble {
 	private double lo;
 	private double hi;
 
-	public RDORangedDouble(double lo, double hi) {
+	public RangedDouble(double lo, double hi) {
 		this.lo = lo;
 		this.hi = hi;
 	}

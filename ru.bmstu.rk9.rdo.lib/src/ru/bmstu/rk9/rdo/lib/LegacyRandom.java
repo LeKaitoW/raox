@@ -1,9 +1,9 @@
 package ru.bmstu.rk9.rdo.lib;
 
-public class RDOLegacyRandom {
+public class LegacyRandom {
 	private long seed = 0;
 
-	public RDOLegacyRandom(long seed) {
+	public LegacyRandom(long seed) {
 		this.seed = seed;
 	}
 

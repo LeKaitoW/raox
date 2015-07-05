@@ -1,10 +1,10 @@
 package ru.bmstu.rk9.rdo.lib;
 
-public class RDORangedInteger {
+public class RangedInteger {
 	private int lo;
 	private int hi;
 
-	public RDORangedInteger(int lo, int hi) {
+	public RangedInteger(int lo, int hi) {
 		this.lo = lo;
 		this.hi = hi;
 	}
