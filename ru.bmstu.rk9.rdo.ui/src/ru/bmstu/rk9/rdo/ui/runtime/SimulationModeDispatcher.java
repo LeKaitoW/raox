@@ -1,14 +1,14 @@
 package ru.bmstu.rk9.rdo.ui.runtime;
 
 import ru.bmstu.rk9.rdo.lib.Simulator;
-import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
+import ru.bmstu.rk9.rdo.ui.animation.AnimationView;
 
 public class SimulationModeDispatcher {
 	public static void setMode(String currentState) {
 
 		SimulationSynchronizer.setState(currentState);
 
-		RDOAnimationView.disableAnimation(currentState.equals("NA") ? true
+		AnimationView.disableAnimation(currentState.equals("NA") ? true
 				: false);
 
 		if (Simulator.isInitialized()) {

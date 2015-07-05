@@ -44,7 +44,7 @@ import ru.bmstu.rk9.rdo.lib.Subscriber;
 
 import ru.bmstu.rk9.rdo.lib.AnimationFrame;
 
-public class RDOAnimationView extends ViewPart {
+public class AnimationView extends ViewPart {
 
 	public static int getFrameListSize() {
 		return lastListWidth;
@@ -116,7 +116,7 @@ public class RDOAnimationView extends ViewPart {
 		animationContext = new AnimationContextSWT(PlatformUI.getWorkbench()
 				.getDisplay());
 
-		RDOAnimationView.frames = new ArrayList<AnimationFrame>(frames);
+		AnimationView.frames = new ArrayList<AnimationFrame>(frames);
 
 		if (isInitialized())
 			initializeFrames();
@@ -226,7 +226,7 @@ public class RDOAnimationView extends ViewPart {
 
 		noAnimation = state.getValue().equals("NA");
 
-		RDOAnimationView.parent = parent;
+		AnimationView.parent = parent;
 
 		GridLayoutFactory.fillDefaults().numColumns(3).spacing(0, 0)
 				.extendedMargins(1, 1, 2, 1).applyTo(parent);

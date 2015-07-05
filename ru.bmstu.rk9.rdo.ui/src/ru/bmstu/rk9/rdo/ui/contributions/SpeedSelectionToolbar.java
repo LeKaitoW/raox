@@ -24,7 +24,7 @@ import org.eclipse.swt.layout.GridData;
 
 import ru.bmstu.rk9.rdo.ui.runtime.SimulationSynchronizer;
 
-public class RDOSpeedSelectionToolbar extends
+public class SpeedSelectionToolbar extends
 		WorkbenchWindowControlContribution {
 	private static volatile int speedValue;
 

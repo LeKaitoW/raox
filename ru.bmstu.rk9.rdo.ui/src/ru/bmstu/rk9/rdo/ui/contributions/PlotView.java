@@ -46,7 +46,7 @@ import ru.bmstu.rk9.rdo.lib.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rdo.lib.Database.ResultType;
 import ru.bmstu.rk9.rdo.lib.PlotDataParser;
 import ru.bmstu.rk9.rdo.lib.PlotDataParser.PlotItem;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializedObjectsView.ConditionalMenuItem;
+import ru.bmstu.rk9.rdo.ui.contributions.SerializedObjectsView.ConditionalMenuItem;
 
 public class PlotView extends ViewPart {
 

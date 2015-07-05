@@ -18,8 +18,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.themes.ITheme;
 import org.eclipse.ui.themes.IThemeManager;
 
-public class RDOConsoleView extends ViewPart {
-	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOConsoleView"; //$NON-NLS-1$
+public class ConsoleView extends ViewPart {
+	public static final String ID = "ru.bmstu.rk9.rdo.ui.ConsoleView"; //$NON-NLS-1$
 
 	private static StyledText styledText;
 

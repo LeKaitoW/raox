@@ -26,10 +26,10 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.themes.ITheme;
 import org.eclipse.ui.themes.IThemeManager;
 
-public class RDOStatusView extends ViewPart {
-	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOStatusView"; //$NON-NLS-1$
+public class StatusView extends ViewPart {
+	public static final String ID = "ru.bmstu.rk9.rdo.ui.StatusView"; //$NON-NLS-1$
 
-	private static RDOStatusView INSTANCE;
+	private static StatusView INSTANCE;
 
 	private ScrolledComposite scrolledComposite;
 	private RowLayout scrolledCompositeLayout;

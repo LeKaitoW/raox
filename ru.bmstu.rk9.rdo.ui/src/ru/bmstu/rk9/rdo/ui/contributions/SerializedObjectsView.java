@@ -45,10 +45,10 @@ import ru.bmstu.rk9.rdo.lib.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
 
-public class RDOSerializedObjectsView extends ViewPart {
+public class SerializedObjectsView extends ViewPart {
 
 	static TreeViewer serializedObjectsTreeViewer;
-	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOSerializedObjectsView";
+	public static final String ID = "ru.bmstu.rk9.rdo.ui.SerializedObjectsView";
 	private List<ConditionalMenuItem> conditionalMenuItems = new ArrayList<ConditionalMenuItem>();
 
 	abstract static class ConditionalMenuItem extends MenuItem {
@@ -200,7 +200,7 @@ public class RDOSerializedObjectsView extends ViewPart {
 				public void run() {
 					updateAllOpenedCharts();
 					if (readyForInput()) {
-						RDOSerializedObjectsView.serializedObjectsTreeViewer
+						SerializedObjectsView.serializedObjectsTreeViewer
 								.refresh();
 					}
 				}

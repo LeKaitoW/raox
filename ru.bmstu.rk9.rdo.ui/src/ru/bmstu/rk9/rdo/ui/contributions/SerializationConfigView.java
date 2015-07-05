@@ -53,8 +53,8 @@ import ru.bmstu.rk9.rdo.rdo.RDOModel;
 import ru.bmstu.rk9.rdo.rdo.ResourceCreateStatement;
 import ru.bmstu.rk9.rdo.rdo.Result;
 
-public class RDOSerializationConfigView extends ViewPart {
-	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOSerializationConfigView";
+public class SerializationConfigView extends ViewPart {
+	public static final String ID = "ru.bmstu.rk9.rdo.ui.SerializationConfigView";
 
 	private static CheckboxTreeViewer serializationTreeViewer;
 
@@ -231,7 +231,7 @@ public class RDOSerializationConfigView extends ViewPart {
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				RDOSerializationConfigView.serializationTreeViewer.refresh();
+				SerializationConfigView.serializationTreeViewer.refresh();
 			}
 		});
 	}

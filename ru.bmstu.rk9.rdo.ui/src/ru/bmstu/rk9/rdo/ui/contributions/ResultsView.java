@@ -68,8 +68,8 @@ import ru.bmstu.rk9.rdo.lib.json.JSONObject;
 
 import ru.bmstu.rk9.rdo.lib.Result;
 
-public class RDOResultsView extends ViewPart {
-	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOResultsView"; //$NON-NLS-1$
+public class ResultsView extends ViewPart {
+	public static final String ID = "ru.bmstu.rk9.rdo.ui.ResultsView"; //$NON-NLS-1$
 
 	private static IEclipsePreferences prefs = InstanceScope.INSTANCE
 			.getNode("ru.bmstu.rk9.rdo.ui");
@@ -181,7 +181,7 @@ public class RDOResultsView extends ViewPart {
 	}
 
 	public static void setResults(List<Result> results) {
-		RDOResultsView.results = results;
+		ResultsView.results = results;
 
 		if (!isInitialized())
 			return;
@@ -221,7 +221,7 @@ public class RDOResultsView extends ViewPart {
 		public abstract void updateLook();
 	}
 
-	private static final String TREE_TEXT_SWITCH_ID = "RDOResultsView.actions.treeTextSwitch";
+	private static final String TREE_TEXT_SWITCH_ID = "ResultsView.actions.treeTextSwitch";
 	private static SwitchAction actionTreeTextSwitch = new SwitchAction() {
 		ImageDescriptor text, tree;
 		{
@@ -238,13 +238,13 @@ public class RDOResultsView extends ViewPart {
 			if (viewAsText) {
 				setText("View as tree");
 				setImageDescriptor(tree);
-				composite.setContent(RDOResultsView.text);
+				composite.setContent(ResultsView.text);
 
 				setTreeActions(false);
 			} else {
 				setText("View as text");
 				setImageDescriptor(text);
-				composite.setContent(RDOResultsView.tree);
+				composite.setContent(ResultsView.tree);
 
 				setTreeActions(true);
 			}
@@ -257,7 +257,7 @@ public class RDOResultsView extends ViewPart {
 		}
 	};
 
-	private static final String EXPAND_ALL_ID = "RDOResultsView.actions.expandAll";
+	private static final String EXPAND_ALL_ID = "ResultsView.actions.expandAll";
 	private static Action actionExpandAll = new Action() {
 		{
 			setId(EXPAND_ALL_ID);
@@ -277,7 +277,7 @@ public class RDOResultsView extends ViewPart {
 		};
 	};
 
-	private static final String COLLAPSE_ALL_ID = "RDOResultsView.actions.collapseAll";
+	private static final String COLLAPSE_ALL_ID = "ResultsView.actions.collapseAll";
 	private static Action actionCollapseAll = new Action() {
 		{
 			setId(COLLAPSE_ALL_ID);
@@ -297,7 +297,7 @@ public class RDOResultsView extends ViewPart {
 		};
 	};
 
-	private static final String COLLAPSE_MODELS_ID = "RDOResultsView.actions.collapseModels";
+	private static final String COLLAPSE_MODELS_ID = "ResultsView.actions.collapseModels";
 	private static Action actionCollapseModels = new Action() {
 		{
 			setId(COLLAPSE_MODELS_ID);

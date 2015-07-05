@@ -4,7 +4,7 @@ import org.eclipse.swt.widgets.Menu;
 
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode;
 import ru.bmstu.rk9.rdo.lib.CollectedDataNode.IndexType;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializedObjectsView.ConditionalMenuItem;
+import ru.bmstu.rk9.rdo.ui.contributions.SerializedObjectsView.ConditionalMenuItem;
 import ru.bmstu.rk9.rdo.ui.graph.GraphControl;
 import ru.bmstu.rk9.rdo.ui.graph.GraphControl.FrameInfo;
 

@@ -7,8 +7,8 @@ import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rdo.lib.Simulator;
 import ru.bmstu.rk9.rdo.lib.Subscriber;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOSpeedSelectionToolbar;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
+import ru.bmstu.rk9.rdo.ui.contributions.SpeedSelectionToolbar;
+import ru.bmstu.rk9.rdo.ui.contributions.StatusView;
 
 public class SimulationSynchronizer {
 	public static enum ExecutionMode {
@@ -25,7 +25,7 @@ public class SimulationSynchronizer {
 		INSTANCE = this;
 
 		setSimulationScale(SetSimulationScaleHandler.getSimulationScale());
-		setSimulationSpeed(RDOSpeedSelectionToolbar.getSpeed());
+		setSimulationSpeed(SpeedSelectionToolbar.getSpeed());
 	}
 
 	public static void start() {
@@ -68,9 +68,9 @@ public class SimulationSynchronizer {
 		private DecimalFormat timeFormatter = new DecimalFormat("0.0#####");
 
 		Runnable updater = () -> {
-			RDOStatusView.setValue("Simulation time".intern(), 20,
+			StatusView.setValue("Simulation time".intern(), 20,
 					timeFormatter.format(Simulator.getTime()));
-			RDOStatusView.setValue("Actual scale".intern(), 10,
+			StatusView.setValue("Actual scale".intern(), 10,
 					scaleFormatter.format(60060d / actualTimeScale));
 		};
 

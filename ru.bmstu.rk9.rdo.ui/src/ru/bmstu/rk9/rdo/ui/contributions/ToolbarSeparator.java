@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import org.eclipse.swt.widgets.Label;
 
-public class RDOToolbarSeparator extends WorkbenchWindowControlContribution {
+public class ToolbarSeparator extends WorkbenchWindowControlContribution {
 	private Label separator;
 
 	@Override

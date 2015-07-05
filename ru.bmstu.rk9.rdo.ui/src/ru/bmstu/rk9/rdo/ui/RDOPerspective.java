@@ -5,13 +5,13 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.console.IConsoleConstants;
 
-import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
+import ru.bmstu.rk9.rdo.ui.contributions.ConsoleView;
 import ru.bmstu.rk9.rdo.ui.contributions.PlotView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializedObjectsView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
+import ru.bmstu.rk9.rdo.ui.contributions.ResultsView;
+import ru.bmstu.rk9.rdo.ui.contributions.SerializationConfigView;
+import ru.bmstu.rk9.rdo.ui.contributions.SerializedObjectsView;
+import ru.bmstu.rk9.rdo.ui.contributions.TraceView;
+import ru.bmstu.rk9.rdo.ui.contributions.StatusView;
 
 public class RDOPerspective implements IPerspectiveFactory {
 	private IPageLayout factory;
@@ -40,7 +40,7 @@ public class RDOPerspective implements IPerspectiveFactory {
 	private void addAssociatedViews() {
 		IFolderLayout middleLeft = factory.createFolder("middleLeft",
 				IPageLayout.LEFT, 0.2f, factory.getEditorArea());
-		middleLeft.addView(RDOSerializedObjectsView.ID);
+		middleLeft.addView(SerializedObjectsView.ID);
 
 		IFolderLayout topLeft = factory.createFolder("topLeft",
 				IPageLayout.TOP, 0.6f, "middleLeft");
@@ -48,19 +48,19 @@ public class RDOPerspective implements IPerspectiveFactory {
 
 		IFolderLayout bottomLeft = factory.createFolder("bottomLeft",
 				IPageLayout.BOTTOM, 0.6f, "topLeft");
-		bottomLeft.addView(RDOSerializationConfigView.ID);
+		bottomLeft.addView(SerializationConfigView.ID);
 
 		IFolderLayout bottom = factory.createFolder("bottom",
 				IPageLayout.BOTTOM, 0.7f, factory.getEditorArea());
 		bottom.addView(IPageLayout.ID_PROBLEM_VIEW);
 		bottom.addView(IConsoleConstants.ID_CONSOLE_VIEW);
-		bottom.addView(RDOConsoleView.ID);
-		bottom.addView(RDOTraceView.ID);
-		bottom.addView(RDOResultsView.ID);
+		bottom.addView(ConsoleView.ID);
+		bottom.addView(TraceView.ID);
+		bottom.addView(ResultsView.ID);
 
 		IFolderLayout bottomRight = factory.createFolder("bottomRight",
 				IPageLayout.RIGHT, 0.75f, "bottom");
-		bottomRight.addView(RDOStatusView.ID);
+		bottomRight.addView(StatusView.ID);
 
 	}
 }

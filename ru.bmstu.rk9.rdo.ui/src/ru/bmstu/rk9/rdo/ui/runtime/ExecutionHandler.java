@@ -37,13 +37,13 @@ import ru.bmstu.rk9.rdo.lib.AnimationFrame;
 import ru.bmstu.rk9.rdo.lib.Notifier;
 import ru.bmstu.rk9.rdo.lib.Result;
 import ru.bmstu.rk9.rdo.lib.Simulator;
-import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializedObjectsView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView;
+import ru.bmstu.rk9.rdo.ui.animation.AnimationView;
+import ru.bmstu.rk9.rdo.ui.contributions.ConsoleView;
+import ru.bmstu.rk9.rdo.ui.contributions.ResultsView;
+import ru.bmstu.rk9.rdo.ui.contributions.SerializationConfigView;
+import ru.bmstu.rk9.rdo.ui.contributions.SerializedObjectsView;
+import ru.bmstu.rk9.rdo.ui.contributions.StatusView;
+import ru.bmstu.rk9.rdo.ui.contributions.TraceView;
 import ru.bmstu.rk9.rdo.ui.graph.GraphFrame;
 
 import com.google.inject.Inject;
@@ -109,7 +109,7 @@ public class ExecutionHandler extends AbstractHandler {
 				Timer uiRealTime = new Timer();
 				Timer traceRealTimeUpdater = new Timer();
 				Timer animationUpdater = new Timer();
-				RDOSerializationConfigView.setEnabled(false);
+				SerializationConfigView.setEnabled(false);
 
 				try {
 					String name = this.getName();
@@ -131,12 +131,12 @@ public class ExecutionHandler extends AbstractHandler {
 
 					if (build.getResult() != Status.OK_STATUS) {
 						setRunningState(display, sourceProvider, false);
-						RDOConsoleView.addLine("Build failed");
+						ConsoleView.addLine("Build failed");
 						return new Status(Status.CANCEL, "ru.bmstu.rk9.rdo.ui",
 								"Execution cancelled");
 					}
 
-					RDOConsoleView.clearConsoleText();
+					ConsoleView.clearConsoleText();
 					SimulationSynchronizer.start();
 
 					URL model = new URL("file:///"
@@ -168,7 +168,7 @@ public class ExecutionHandler extends AbstractHandler {
 					ExportTraceHandler.setCurrentProject(project);
 					ExportTraceHandler.setCurrentModel(modelFile);
 
-					RDOSerializationConfigView.initNames();
+					SerializationConfigView.initNames();
 
 					final ArrayList<AnimationFrame> frames = new ArrayList<AnimationFrame>();
 
@@ -184,7 +184,7 @@ public class ExecutionHandler extends AbstractHandler {
 
 					SimulationModeDispatcher.setMode((String) state.getValue());
 
-					display.syncExec(() -> RDOAnimationView.initialize(frames));
+					display.syncExec(() -> AnimationView.initialize(frames));
 
 					Notifier simulatorNotifier = Simulator.getNotifier();
 
@@ -202,15 +202,15 @@ public class ExecutionHandler extends AbstractHandler {
 							.getSubscription("StateChange")
 							.addSubscriber(
 									SimulationSynchronizer.getInstance().simulationManager.speedManager)
-							.addSubscriber(RDOAnimationView.updater);
+							.addSubscriber(AnimationView.updater);
 
 					simulatorNotifier
 							.getSubscription("ExecutionAborted")
 							.addSubscriber(
 									SimulationSynchronizer.getInstance().simulationStateListener);
 
-					RDOSerializedObjectsView.commonUpdater.fireChange();
-					RDOTraceView.commonUpdater.fireChange();
+					SerializedObjectsView.commonUpdater.fireChange();
+					TraceView.commonUpdater.fireChange();
 
 					databaseNotifier
 						.getSubscription("EntryAdded")
@@ -224,22 +224,22 @@ public class ExecutionHandler extends AbstractHandler {
 							.addSubscriber(Simulator.getDatabase().getIndexHelper());
 
 					Simulator.getTracer().setRealTimeSubscriber(
-							RDOTraceView.realTimeUpdater);
+							TraceView.realTimeUpdater);
 					Simulator
 							.getDatabase()
 							.getIndexHelper()
 							.setRealTimeSubscriber(
-									RDOSerializedObjectsView.realTimeUpdater);
+									SerializedObjectsView.realTimeUpdater);
 
 					Simulator.getTracer().setCommonSubscriber(
-							RDOTraceView.commonUpdater);
+							TraceView.commonUpdater);
 					Simulator
 							.getDatabase()
 							.getIndexHelper()
 							.setCommonSubscriber(
-									RDOSerializedObjectsView.commonUpdater);
+									SerializedObjectsView.commonUpdater);
 
-					RDOConsoleView
+					ConsoleView
 							.addLine("Started model " + project.getName());
 
 					final long startTime = System.currentTimeMillis();
@@ -247,7 +247,7 @@ public class ExecutionHandler extends AbstractHandler {
 						@Override
 						public void run() {
 							if (!display.isDisposed())
-								display.asyncExec(() -> RDOStatusView.setValue(
+								display.asyncExec(() -> StatusView.setValue(
 										"Time elapsed".intern(),
 										5,
 										realTimeFormatter.format((System
@@ -257,14 +257,14 @@ public class ExecutionHandler extends AbstractHandler {
 					}, 0, 100);
 
 					traceRealTimeUpdater.scheduleAtFixedRate(
-							RDOTraceView.getRealTimeUpdaterTask(), 0, 100);
+							TraceView.getRealTimeUpdaterTask(), 0, 100);
 
 					traceRealTimeUpdater.scheduleAtFixedRate(
-							RDOSerializedObjectsView.getRealTimeUpdaterTask(),
+							SerializedObjectsView.getRealTimeUpdaterTask(),
 							0, 100);
 
 					animationUpdater.scheduleAtFixedRate(
-							RDOAnimationView.getRedrawTimerTask(), 0, 20);
+							AnimationView.getRedrawTimerTask(), 0, 20);
 
 					LinkedList<Result> results = new LinkedList<Result>();
 					int result = -1;
@@ -274,28 +274,28 @@ public class ExecutionHandler extends AbstractHandler {
 
 					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.updater);
 
-					display.syncExec(() -> RDOAnimationView.deinitialize());
+					display.syncExec(() -> AnimationView.deinitialize());
 
 					setRunningState(display, sourceProvider, false);
 
 					switch (result) {
 					case 1:
-						RDOConsoleView
+						ConsoleView
 								.addLine("Stopped by terminate condition");
 						break;
 					case -1:
-						RDOConsoleView.addLine("Model terminated by user");
+						ConsoleView.addLine("Model terminated by user");
 						break;
 					default:
-						RDOConsoleView.addLine("No more events");
+						ConsoleView.addLine("No more events");
 					}
 
 					for (Result r : results)
 						r.calculate();
 
-					display.asyncExec(() -> RDOResultsView.setResults(results));
+					display.asyncExec(() -> ResultsView.setResults(results));
 
-					RDOConsoleView.addLine("Time elapsed: "
+					ConsoleView.addLine("Time elapsed: "
 							+ String.valueOf(System.currentTimeMillis()
 									- startTime) + "ms");
 
@@ -311,10 +311,10 @@ public class ExecutionHandler extends AbstractHandler {
 				} catch (Exception e) {
 					e.printStackTrace();
 					setRunningState(display, sourceProvider, false);
-					RDOConsoleView.addLine("Execution error");
+					ConsoleView.addLine("Execution error");
 					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.updater);
 
-					display.syncExec(() -> RDOAnimationView.deinitialize());
+					display.syncExec(() -> AnimationView.deinitialize());
 
 					SimulationSynchronizer.finish();
 
@@ -332,7 +332,7 @@ public class ExecutionHandler extends AbstractHandler {
 					return new Status(Status.ERROR, "ru.bmstu.rk9.rdo.ui",
 							"Execution failed");
 				} finally {
-					RDOSerializationConfigView.setEnabled(true);
+					SerializationConfigView.setEnabled(true);
 				}
 			}
 

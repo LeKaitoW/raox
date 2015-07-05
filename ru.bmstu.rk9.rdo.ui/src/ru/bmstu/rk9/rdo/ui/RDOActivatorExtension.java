@@ -22,10 +22,10 @@ import org.eclipse.ui.services.ISourceProviderService;
 
 import ru.bmstu.rk9.rdo.ui.internal.RDOActivator;
 import ru.bmstu.rk9.rdo.ui.contributions.PlotView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOSpeedSelectionToolbar;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView;
-import ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView;
+import ru.bmstu.rk9.rdo.ui.contributions.ResultsView;
+import ru.bmstu.rk9.rdo.ui.contributions.SpeedSelectionToolbar;
+import ru.bmstu.rk9.rdo.ui.contributions.SerializationConfigView;
+import ru.bmstu.rk9.rdo.ui.animation.AnimationView;
 import ru.bmstu.rk9.rdo.ui.runtime.ModelExecutionSourceProvider;
 import ru.bmstu.rk9.rdo.ui.runtime.SetSimulationScaleHandler;
 
@@ -42,7 +42,7 @@ public class RDOActivatorExtension extends RDOActivator {
 		IEclipsePreferences prefs = InstanceScope.INSTANCE
 				.getNode("ru.bmstu.rk9.rdo.ui");
 
-		RDOSpeedSelectionToolbar.setSpeed(prefs.getInt("SimulationSpeed", 100));
+		SpeedSelectionToolbar.setSpeed(prefs.getInt("SimulationSpeed", 100));
 		SetSimulationScaleHandler.setSimulationScale(prefs.getDouble(
 				"SimulationScale", 3600d));
 
@@ -54,7 +54,7 @@ public class RDOActivatorExtension extends RDOActivator {
 			@Override
 			public void preExecute(String commandId, ExecutionEvent event) {
 				if (commandId.equals("org.eclipse.ui.file.save"))
-					RDOSerializationConfigView.onModelSave();
+					SerializationConfigView.onModelSave();
 			}
 
 			@Override
@@ -124,15 +124,15 @@ public class RDOActivatorExtension extends RDOActivator {
 		IEclipsePreferences prefs = InstanceScope.INSTANCE
 				.getNode("ru.bmstu.rk9.rdo.ui");
 
-		prefs.putInt("SimulationSpeed", RDOSpeedSelectionToolbar.getSpeed());
+		prefs.putInt("SimulationSpeed", SpeedSelectionToolbar.getSpeed());
 		prefs.putDouble("SimulationScale",
 				SetSimulationScaleHandler.getSimulationScale());
 
-		int animationFrameListSize = RDOAnimationView.getFrameListSize();
+		int animationFrameListSize = AnimationView.getFrameListSize();
 		if (animationFrameListSize != SWT.DEFAULT)
 			prefs.putInt("AnimationViewFrameListSize", animationFrameListSize);
 
-		RDOResultsView.savePreferences();
+		ResultsView.savePreferences();
 
 		super.stop(context);
 	}

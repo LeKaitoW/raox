@@ -59,13 +59,13 @@ import ru.bmstu.rk9.rdo.lib.Subscriber;
 import ru.bmstu.rk9.rdo.lib.Tracer;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceOutput;
 import ru.bmstu.rk9.rdo.lib.Tracer.TraceType;
-import ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView.SearchHelper.SearchResult;
+import ru.bmstu.rk9.rdo.ui.contributions.TraceView.SearchHelper.SearchResult;
 import ru.bmstu.rk9.rdo.ui.graph.GraphControl;
 import ru.bmstu.rk9.rdo.ui.graph.GraphControl.FrameInfo;
 import ru.bmstu.rk9.rdo.ui.runtime.ExportTraceHandler;
 
-public class RDOTraceView extends ViewPart {
-	public static final String ID = "ru.bmstu.rk9.rdo.ui.RDOTraceView";
+public class TraceView extends ViewPart {
+	public static final String ID = "ru.bmstu.rk9.rdo.ui.TraceView";
 
 	static TableViewer viewer;
 
@@ -140,8 +140,8 @@ public class RDOTraceView extends ViewPart {
 			}
 		});
 
-		viewer.setContentProvider(new RDOTraceViewContentProvider());
-		viewer.setLabelProvider(new RDOTraceViewLabelProvider());
+		viewer.setContentProvider(new TraceViewContentProvider());
+		viewer.setLabelProvider(new TraceViewLabelProvider());
 		viewer.setUseHashlookup(true);
 		viewer.getTable().setFont(
 				fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
@@ -176,8 +176,8 @@ public class RDOTraceView extends ViewPart {
 		if (Simulator.isInitialized()) {
 			final List<Entry> allEntries = Simulator.getDatabase()
 					.getAllEntries();
-			RDOTraceView.viewer.setInput(allEntries);
-			RDOTraceView.viewer.setItemCount(allEntries.size());
+			TraceView.viewer.setInput(allEntries);
+			TraceView.viewer.setItemCount(allEntries.size());
 			viewer.refresh();
 		}
 	}
@@ -373,9 +373,9 @@ public class RDOTraceView extends ViewPart {
 							.getAllEntries();
 					final int size = allEntries.size();
 
-					RDOTraceView.viewer.setItemCount(size);
-					if (RDOTraceView.shouldFollowOutput())
-						RDOTraceView.viewer.getTable().setTopIndex(size - 1);
+					TraceView.viewer.setItemCount(size);
+					if (TraceView.shouldFollowOutput())
+						TraceView.viewer.getTable().setTopIndex(size - 1);
 				}
 			};
 
@@ -402,11 +402,11 @@ public class RDOTraceView extends ViewPart {
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					RDOTraceView.viewer.setInput(allEntries);
-					RDOTraceView.viewer.setItemCount(size);
+					TraceView.viewer.setInput(allEntries);
+					TraceView.viewer.setItemCount(size);
 
-					if (RDOTraceView.shouldFollowOutput())
-						RDOTraceView.viewer.getTable().setTopIndex(size - 1);
+					if (TraceView.shouldFollowOutput())
+						TraceView.viewer.getTable().setTopIndex(size - 1);
 
 					viewer.refresh();
 				}
@@ -429,7 +429,7 @@ public class RDOTraceView extends ViewPart {
 // -------------------------------- PROVIDERS ------------------------------ //
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-class RDOTraceViewContentProvider implements ILazyContentProvider {
+class TraceViewContentProvider implements ILazyContentProvider {
 	private List<Entry> allEntries;
 
 	@Override
@@ -448,17 +448,17 @@ class RDOTraceViewContentProvider implements ILazyContentProvider {
 		if (allEntries != null && index < allEntries.size()) {
 			TraceOutput output = Simulator.getTracer().parseSerializedData(
 					allEntries.get(index));
-			RDOTraceView.viewer.replace(output, index);
+			TraceView.viewer.replace(output, index);
 		}
 
 	}
 }
 
-class RDOTraceViewLabelProvider implements ILabelProvider, IColorProvider {
+class TraceViewLabelProvider implements ILabelProvider, IColorProvider {
 	private final EnumMap<TraceType, TraceColor> colorByType = new EnumMap<TraceType, TraceColor>(
 			TraceType.class);
 
-	RDOTraceViewLabelProvider() {
+	TraceViewLabelProvider() {
 		initializeColorMap();
 	}
 
@@ -613,7 +613,7 @@ class SearchDialog extends Dialog {
 	private Button searchButton;
 	private Label statusLabel;
 
-	private RDOTraceView.SearchHelper searchHelper;
+	private TraceView.SearchHelper searchHelper;
 
 	private final void saveInputString() {
 		searchString = searchText.getText();
@@ -626,7 +626,7 @@ class SearchDialog extends Dialog {
 	}
 
 	public SearchDialog(Shell parentShell,
-			RDOTraceView.SearchHelper searchHelper) {
+			TraceView.SearchHelper searchHelper) {
 		super(parentShell);
 		setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE);
 		this.searchHelper = searchHelper;

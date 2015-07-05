@@ -713,7 +713,7 @@
               </visibleWhen>
            </command>
            <control
-                 class="ru.bmstu.rk9.rdo.ui.contributions.RDOToolbarSeparator">
+                 class="ru.bmstu.rk9.rdo.ui.contributions.ToolbarSeparator">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -809,7 +809,7 @@
               </parameter>
            </command>
            <control
-                 class="ru.bmstu.rk9.rdo.ui.contributions.RDOToolbarSeparator">
+                 class="ru.bmstu.rk9.rdo.ui.contributions.ToolbarSeparator">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -821,7 +821,7 @@
               </visibleWhen>
            </control>
            <control
-                 class="ru.bmstu.rk9.rdo.ui.contributions.RDOSpeedSelectionToolbar">
+                 class="ru.bmstu.rk9.rdo.ui.contributions.SpeedSelectionToolbar">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -833,7 +833,7 @@
               </visibleWhen>
            </control>
            <control
-                 class="ru.bmstu.rk9.rdo.ui.contributions.RDOToolbarSeparator">
+                 class="ru.bmstu.rk9.rdo.ui.contributions.ToolbarSeparator">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -965,57 +965,57 @@
      </category>
      <view
            category="ru.bmstu.rk9.rdo.ui.views"
-           class="ru.bmstu.rk9.rdo.ui.contributions.RDOConsoleView"
+           class="ru.bmstu.rk9.rdo.ui.contributions.ConsoleView"
            icon="icons/rdo_old.gif"
-           id="ru.bmstu.rk9.rdo.ui.RDOConsoleView"
-           name="RDO Console"
+           id="ru.bmstu.rk9.rdo.ui.ConsoleView"
+           name="Console"
            restorable="true">
      </view>
      <view
            category="ru.bmstu.rk9.rdo.ui.views"
-           class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:ru.bmstu.rk9.rdo.ui.contributions.RDOSerializationConfigView"
+           class="ru.bmstu.rk9.rdo.ui.RDOExecutableExtensionFactory:ru.bmstu.rk9.rdo.ui.contributions.SerializationConfigView"
            icon="icons/tag.gif"
-           id="ru.bmstu.rk9.rdo.ui.RDOSerializationConfigView"
+           id="ru.bmstu.rk9.rdo.ui.SerializationConfigView"
            name="Monitoring Configuration"
            restorable="true">
      </view>
      <view
            category="ru.bmstu.rk9.rdo.ui.views"
-           class="ru.bmstu.rk9.rdo.ui.contributions.RDOTraceView"
+           class="ru.bmstu.rk9.rdo.ui.contributions.TraceView"
            icon="icons/tag.gif"
-           id="ru.bmstu.rk9.rdo.ui.RDOTraceView"
-           name="RDO Trace"
+           id="ru.bmstu.rk9.rdo.ui.TraceView"
+           name="Trace"
            restorable="true">
      </view>
      <view
            category="ru.bmstu.rk9.rdo.ui.views"
-           class="ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView"
+           class="ru.bmstu.rk9.rdo.ui.contributions.StatusView"
            icon="icons/status.png"
-           id="ru.bmstu.rk9.rdo.ui.RDOStatusView"
-           name="RDO Status"
+           id="ru.bmstu.rk9.rdo.ui.StatusView"
+           name="Status"
            restorable="true">
      </view>
      <view
            category="ru.bmstu.rk9.rdo.ui.views"
-           class="ru.bmstu.rk9.rdo.ui.animation.RDOAnimationView"
+           class="ru.bmstu.rk9.rdo.ui.animation.AnimationView"
            icon="icons/run.gif"
-           id="ru.bmstu.rk9.rdo.ui.RDOAnimationView"
+           id="ru.bmstu.rk9.rdo.ui.AnimationView"
            name="RDO Animation"
            restorable="true">
      </view>
      <view
            category="ru.bmstu.rk9.rdo.ui.views"
-           class="ru.bmstu.rk9.rdo.ui.contributions.RDOResultsView"
+           class="ru.bmstu.rk9.rdo.ui.contributions.ResultsView"
            icon="icons/clipboard-list.png"
-           id="ru.bmstu.rk9.rdo.ui.RDOResultsView"
-           name="RDO Results"
+           id="ru.bmstu.rk9.rdo.ui.ResultsView"
+           name="Results"
            restorable="true">
      </view>
      <view
            category="ru.bmstu.rk9.rdo.ui.views"
-           class="ru.bmstu.rk9.rdo.ui.contributions.RDOSerializedObjectsView"
+           class="ru.bmstu.rk9.rdo.ui.contributions.SerializedObjectsView"
            icon="icons/zones-stack.png"
-           id="ru.bmstu.rk9.rdo.ui.RDOSerializedObjectsView"
+           id="ru.bmstu.rk9.rdo.ui.SerializedObjectsView"
            name="Collected Objects"
            restorable="true">
      </view>

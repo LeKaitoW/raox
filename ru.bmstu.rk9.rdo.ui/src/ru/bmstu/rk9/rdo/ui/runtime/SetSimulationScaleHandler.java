@@ -6,7 +6,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
-import ru.bmstu.rk9.rdo.ui.contributions.RDOStatusView;
+import ru.bmstu.rk9.rdo.ui.contributions.StatusView;
 
 public class SetSimulationScaleHandler extends AbstractHandler {
 	private static volatile double simulationScale = 5400;
@@ -23,7 +23,7 @@ public class SetSimulationScaleHandler extends AbstractHandler {
 	}
 
 	private static void updateStatusView() {
-		RDOStatusView.setValue("Simulation scale".intern(), 15,
+		StatusView.setValue("Simulation scale".intern(), 15,
 				scaleFormatter.format(simulationScale));
 	}
 
