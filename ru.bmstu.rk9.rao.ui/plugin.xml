@@ -464,7 +464,7 @@
         </enabledWhen>
      </handler>
      <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.simulation.ExecutionHandler"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.run.ExecutionHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.execute">
         <enabledWhen>
            <and>
@@ -481,7 +481,7 @@
         </enabledWhen>
      </handler>
      <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.simulation.StoppingHandler"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.run.StoppingHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.stop">
         <enabledWhen>
            <with
@@ -821,7 +821,7 @@
               </visibleWhen>
            </control>
            <control
-                 class="ru.bmstu.rk9.rao.ui.toolbar.SpeedSelectionToolbar">
+                 class="ru.bmstu.rk9.rao.ui.simulation.SpeedSelectionToolbar">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -989,7 +989,7 @@
      </view>
      <view
            category="ru.bmstu.rk9.rao.ui.views"
-           class="ru.bmstu.rk9.rao.ui.status.StatusView"
+           class="ru.bmstu.rk9.rao.ui.simulation.StatusView"
            icon="icons/status.png"
            id="ru.bmstu.rk9.rao.ui.StatusView"
            name="Status"

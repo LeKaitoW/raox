@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.simulation;
+package ru.bmstu.rk9.rao.ui.run;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;

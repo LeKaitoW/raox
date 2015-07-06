@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.toolbar;
+package ru.bmstu.rk9.rao.ui.simulation;
 
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 import org.eclipse.swt.SWT;
@@ -16,8 +16,6 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
-
-import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer;
 
 public class SpeedSelectionToolbar extends
 		WorkbenchWindowControlContribution {

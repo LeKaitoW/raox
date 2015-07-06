@@ -27,7 +27,7 @@ import ru.bmstu.rk9.rao.ui.results.ResultsView;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider;
 import ru.bmstu.rk9.rao.ui.simulation.SetSimulationScaleHandler;
-import ru.bmstu.rk9.rao.ui.toolbar.SpeedSelectionToolbar;
+import ru.bmstu.rk9.rao.ui.simulation.SpeedSelectionToolbar;
 
 public class RaoActivatorExtension extends RaoActivator {
 	private MessageDialog closeDialog = new MessageDialog(Display.getDefault()

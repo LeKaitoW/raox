@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.simulation;
+package ru.bmstu.rk9.rao.ui.run;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -44,7 +44,10 @@ import ru.bmstu.rk9.rao.ui.graph.GraphFrame;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView;
-import ru.bmstu.rk9.rao.ui.status.StatusView;
+import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider;
+import ru.bmstu.rk9.rao.ui.simulation.SimulationModeDispatcher;
+import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer;
+import ru.bmstu.rk9.rao.ui.simulation.StatusView;
 import ru.bmstu.rk9.rao.ui.trace.ExportTraceHandler;
 import ru.bmstu.rk9.rao.ui.trace.TraceView;
 
@@ -274,7 +277,7 @@ public class ExecutionHandler extends AbstractHandler {
 						result = (int) simulation
 								.invoke(null, (Object) results);
 
-					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.updater);
+					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.getUpdater());
 
 					display.syncExec(() -> AnimationView.deinitialize());
 
@@ -314,7 +317,7 @@ public class ExecutionHandler extends AbstractHandler {
 					e.printStackTrace();
 					setRunningState(display, sourceProvider, false);
 					ConsoleView.addLine("Execution error");
-					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.updater);
+					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.getUpdater());
 
 					display.syncExec(() -> AnimationView.deinitialize());
 

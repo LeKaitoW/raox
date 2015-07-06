@@ -5,6 +5,8 @@ import java.util.HashMap;
 import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
 
+import ru.bmstu.rk9.rao.ui.run.ExecutionHandler;
+
 public class ModelExecutionSourceProvider extends AbstractSourceProvider {
 	public final static String ModelExecutionKey = "ru.bmstu.rk9.rao.ui.handlers.simulationRunning";
 	public final static String running = "RUNNING";

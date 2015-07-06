@@ -7,8 +7,6 @@ import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.common.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.ui.status.StatusView;
-import ru.bmstu.rk9.rao.ui.toolbar.SpeedSelectionToolbar;
 
 public class SimulationSynchronizer {
 	public static enum ExecutionMode {
@@ -67,7 +65,7 @@ public class SimulationSynchronizer {
 		private DecimalFormat scaleFormatter = new DecimalFormat("0.######");
 		private DecimalFormat timeFormatter = new DecimalFormat("0.0#####");
 
-		Runnable updater = () -> {
+		private Runnable updater = () -> {
 			StatusView.setValue("Simulation time".intern(), 20,
 					timeFormatter.format(Simulator.getTime()));
 			StatusView.setValue("Actual scale".intern(), 10,
@@ -80,8 +78,16 @@ public class SimulationSynchronizer {
 			if (currentTime - lastUpdateTime > 50) {
 				lastUpdateTime = currentTime;
 				if (!display.isDisposed())
-					display.asyncExec(updater);
+					display.asyncExec(getUpdater());
 			}
+		}
+
+		public Runnable getUpdater() {
+			return updater;
+		}
+
+		public void setUpdater(Runnable updater) {
+			this.updater = updater;
 		}
 	}
 
