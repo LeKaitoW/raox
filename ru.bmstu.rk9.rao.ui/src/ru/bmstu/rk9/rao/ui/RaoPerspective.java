@@ -5,13 +5,13 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.console.IConsoleConstants;
 
-import ru.bmstu.rk9.rao.ui.contributions.ConsoleView;
-import ru.bmstu.rk9.rao.ui.contributions.PlotView;
-import ru.bmstu.rk9.rao.ui.contributions.ResultsView;
-import ru.bmstu.rk9.rao.ui.contributions.SerializationConfigView;
-import ru.bmstu.rk9.rao.ui.contributions.SerializedObjectsView;
-import ru.bmstu.rk9.rao.ui.contributions.TraceView;
-import ru.bmstu.rk9.rao.ui.contributions.StatusView;
+import ru.bmstu.rk9.rao.ui.console.ConsoleView;
+import ru.bmstu.rk9.rao.ui.plot.PlotView;
+import ru.bmstu.rk9.rao.ui.results.ResultsView;
+import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
+import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView;
+import ru.bmstu.rk9.rao.ui.status.StatusView;
+import ru.bmstu.rk9.rao.ui.trace.TraceView;
 
 public class RaoPerspective implements IPerspectiveFactory {
 	private IPageLayout factory;

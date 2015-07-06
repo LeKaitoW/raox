@@ -1,10 +1,13 @@
-package ru.bmstu.rk9.rao.lib.moveToUI;
+package ru.bmstu.rk9.rao.lib.database;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
+
+//TODO remove references from database and move to ui
 public class SerializationConfig {
 	public static class SerializationNode {
 		public SerializationNode(final String name,
@@ -82,16 +85,16 @@ public class SerializationConfig {
 
 		public final String getName() {
 			if (!isModel)
-				return SerializationConfig.getRelativeElementName(name);
+				return NamingHelper.getRelativeElementName(name);
 			else if (!showFullName)
-				return SerializationConfig.getRelativeModelName(name);
+				return NamingHelper.getRelativeModelName(name);
 			return name;
 		}
 
 		public final String getModelName() {
 			if (isModel)
-				return SerializationConfig.getRelativeModelName(name);
-			return SerializationConfig.getNameOfElementModel(name);
+				return NamingHelper.getRelativeModelName(name);
+			return NamingHelper.getNameOfElementModel(name);
 		}
 
 		public final boolean isSerialized() {
@@ -188,8 +191,8 @@ public class SerializationConfig {
 			final String modelName) {
 		List<SerializationNode> models = new ArrayList<SerializationNode>();
 		for (SerializationNode c : root.getVisibleChildren())
-			if (getRelativeModelName(c.getFullName()).equals(
-					getRelativeModelName(modelName)))
+			if (NamingHelper.getRelativeModelName(c.getFullName()).equals(
+					NamingHelper.getRelativeModelName(modelName)))
 				models.add(c);
 		return models;
 	}
@@ -223,17 +226,5 @@ public class SerializationConfig {
 				names.add(child.getFullName());
 			fillNames(child);
 		}
-	}
-
-	private static final String getRelativeModelName(final String name) {
-		return name.substring(name.lastIndexOf('/') + 1, name.lastIndexOf('.'));
-	}
-
-	static final String getRelativeElementName(final String name) {
-		return name.substring(name.lastIndexOf('.') + 1);
-	}
-
-	private static final String getNameOfElementModel(final String name) {
-		return name.substring(0, name.indexOf('.'));
 	}
 }

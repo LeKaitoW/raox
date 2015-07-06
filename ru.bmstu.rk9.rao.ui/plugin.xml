@@ -713,7 +713,7 @@
               </visibleWhen>
            </command>
            <control
-                 class="ru.bmstu.rk9.rao.ui.contributions.ToolbarSeparator">
+                 class="ru.bmstu.rk9.rao.ui.toolbar.ToolbarSeparator">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -809,7 +809,7 @@
               </parameter>
            </command>
            <control
-                 class="ru.bmstu.rk9.rao.ui.contributions.ToolbarSeparator">
+                 class="ru.bmstu.rk9.rao.ui.toolbar.ToolbarSeparator">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -821,7 +821,7 @@
               </visibleWhen>
            </control>
            <control
-                 class="ru.bmstu.rk9.rao.ui.contributions.SpeedSelectionToolbar">
+                 class="ru.bmstu.rk9.rao.ui.toolbar.SpeedSelectionToolbar">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -833,7 +833,7 @@
               </visibleWhen>
            </control>
            <control
-                 class="ru.bmstu.rk9.rao.ui.contributions.ToolbarSeparator">
+                 class="ru.bmstu.rk9.rao.ui.toolbar.ToolbarSeparator">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -965,7 +965,7 @@
      </category>
      <view
            category="ru.bmstu.rk9.rao.ui.views"
-           class="ru.bmstu.rk9.rao.ui.contributions.ConsoleView"
+           class="ru.bmstu.rk9.rao.ui.console.ConsoleView"
            icon="icons/rao_old.gif"
            id="ru.bmstu.rk9.rao.ui.ConsoleView"
            name="Console"
@@ -973,7 +973,7 @@
      </view>
      <view
            category="ru.bmstu.rk9.rao.ui.views"
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.contributions.SerializationConfigView"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView"
            icon="icons/tag.gif"
            id="ru.bmstu.rk9.rao.ui.SerializationConfigView"
            name="Monitoring Configuration"
@@ -981,7 +981,7 @@
      </view>
      <view
            category="ru.bmstu.rk9.rao.ui.views"
-           class="ru.bmstu.rk9.rao.ui.contributions.TraceView"
+           class="ru.bmstu.rk9.rao.ui.trace.TraceView"
            icon="icons/tag.gif"
            id="ru.bmstu.rk9.rao.ui.TraceView"
            name="Trace"
@@ -989,7 +989,7 @@
      </view>
      <view
            category="ru.bmstu.rk9.rao.ui.views"
-           class="ru.bmstu.rk9.rao.ui.contributions.StatusView"
+           class="ru.bmstu.rk9.rao.ui.status.StatusView"
            icon="icons/status.png"
            id="ru.bmstu.rk9.rao.ui.StatusView"
            name="Status"
@@ -1005,7 +1005,7 @@
      </view>
      <view
            category="ru.bmstu.rk9.rao.ui.views"
-           class="ru.bmstu.rk9.rao.ui.contributions.ResultsView"
+           class="ru.bmstu.rk9.rao.ui.results.ResultsView"
            icon="icons/clipboard-list.png"
            id="ru.bmstu.rk9.rao.ui.ResultsView"
            name="Results"
@@ -1013,7 +1013,7 @@
      </view>
      <view
            category="ru.bmstu.rk9.rao.ui.views"
-           class="ru.bmstu.rk9.rao.ui.contributions.SerializedObjectsView"
+           class="ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView"
            icon="icons/zones-stack.png"
            id="ru.bmstu.rk9.rao.ui.SerializedObjectsView"
            name="Collected Objects"
@@ -1021,7 +1021,7 @@
      </view>
      <view
            category="ru.bmstu.rk9.rao.ui.views"
-           class="ru.bmstu.rk9.rao.ui.contributions.PlotView"
+           class="ru.bmstu.rk9.rao.ui.plot.PlotView"
            id="ru.bmstu.rk9.rao.ui.PlotView"
            name="Rao Plot"
            icon="icons/system-monitor.png"

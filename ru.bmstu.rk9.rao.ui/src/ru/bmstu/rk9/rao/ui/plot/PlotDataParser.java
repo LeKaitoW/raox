@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.lib.moveToUI;
+package ru.bmstu.rk9.rao.ui.plot;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -6,17 +6,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
 import ru.bmstu.rk9.rao.lib.database.Database;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.PatternIndex;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceIndex;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceParameterIndex;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.exception.PlotDataParserException;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResultCache;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.Index;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.PatternIndex;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.ResourceIndex;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.ResourceParameterIndex;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.tracer.Tracer;
 
 public class PlotDataParser {
 

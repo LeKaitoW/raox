@@ -4,8 +4,8 @@ import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.function.Function;
 
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.Database;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class Statistics {

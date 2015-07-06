@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.contributions;
+package ru.bmstu.rk9.rao.ui.trace;
 
 import java.util.List;
 import java.util.TimerTask;
@@ -55,14 +55,14 @@ import ru.bmstu.rk9.rao.lib.common.Subscriber;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
-import ru.bmstu.rk9.rao.lib.moveToUI.Tracer;
-import ru.bmstu.rk9.rao.lib.moveToUI.Tracer.TraceOutput;
-import ru.bmstu.rk9.rao.lib.moveToUI.Tracer.TraceType;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.ui.contributions.TraceView.SearchHelper.SearchResult;
+import ru.bmstu.rk9.rao.lib.tracer.Tracer;
+import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceOutput;
+import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceType;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
 import ru.bmstu.rk9.rao.ui.runtime.ExportTraceHandler;
+import ru.bmstu.rk9.rao.ui.trace.TraceView.SearchHelper.SearchResult;
 
 public class TraceView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.TraceView";

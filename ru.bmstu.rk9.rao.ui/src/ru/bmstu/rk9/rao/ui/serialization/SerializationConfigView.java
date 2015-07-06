@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.contributions;
+package ru.bmstu.rk9.rao.ui.serialization;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,10 +48,10 @@ import ru.bmstu.rk9.rao.rao.RaoModel;
 import ru.bmstu.rk9.rao.rao.ResourceCreateStatement;
 import ru.bmstu.rk9.rao.rao.Result;
 import ru.bmstu.rk9.rao.generator.RaoNaming;
+import ru.bmstu.rk9.rao.lib.database.SerializationConfig;
 import ru.bmstu.rk9.rao.lib.database.Database.SerializationCategory;
+import ru.bmstu.rk9.rao.lib.database.SerializationConfig.SerializationNode;
 import ru.bmstu.rk9.rao.lib.dpt.DecisionPointSearch.SerializationLevel;
-import ru.bmstu.rk9.rao.lib.moveToUI.SerializationConfig;
-import ru.bmstu.rk9.rao.lib.moveToUI.SerializationConfig.SerializationNode;
 
 public class SerializationConfigView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.SerializationConfigView";

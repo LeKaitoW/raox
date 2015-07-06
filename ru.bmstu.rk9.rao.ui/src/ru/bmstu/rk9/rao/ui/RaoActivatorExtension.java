@@ -21,13 +21,13 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.services.ISourceProviderService;
 
 import ru.bmstu.rk9.rao.ui.internal.RaoActivator;
-import ru.bmstu.rk9.rao.ui.contributions.PlotView;
-import ru.bmstu.rk9.rao.ui.contributions.ResultsView;
-import ru.bmstu.rk9.rao.ui.contributions.SpeedSelectionToolbar;
-import ru.bmstu.rk9.rao.ui.contributions.SerializationConfigView;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
+import ru.bmstu.rk9.rao.ui.plot.PlotView;
+import ru.bmstu.rk9.rao.ui.results.ResultsView;
 import ru.bmstu.rk9.rao.ui.runtime.ModelExecutionSourceProvider;
 import ru.bmstu.rk9.rao.ui.runtime.SetSimulationScaleHandler;
+import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
+import ru.bmstu.rk9.rao.ui.toolbar.SpeedSelectionToolbar;
 
 public class RaoActivatorExtension extends RaoActivator {
 	private MessageDialog closeDialog = new MessageDialog(Display.getDefault()

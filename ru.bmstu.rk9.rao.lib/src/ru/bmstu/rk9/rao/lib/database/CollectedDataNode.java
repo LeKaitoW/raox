@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.lib.moveToUI;
+package ru.bmstu.rk9.rao.lib.database;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
+import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 
 public class CollectedDataNode {
 	public enum IndexType {
@@ -247,7 +248,7 @@ public class CollectedDataNode {
 	}
 
 	public final String getName() {
-		return SerializationConfig.getRelativeElementName(name);
+		return NamingHelper.getRelativeElementName(name);
 	}
 
 	private Index index = null;

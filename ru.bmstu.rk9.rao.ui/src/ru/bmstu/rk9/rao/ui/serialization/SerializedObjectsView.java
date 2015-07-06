@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.contributions;
+package ru.bmstu.rk9.rao.ui.serialization;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -37,13 +37,15 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import ru.bmstu.rk9.rao.lib.common.Subscriber;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode;
-import ru.bmstu.rk9.rao.lib.moveToUI.PlotDataParser;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.Index;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.IndexType;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.ResourceIndex;
-import ru.bmstu.rk9.rao.lib.moveToUI.PlotDataParser.PlotItem;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.IndexType;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceIndex;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.ui.graph.GraphView;
+import ru.bmstu.rk9.rao.ui.plot.PlotDataParser;
+import ru.bmstu.rk9.rao.ui.plot.PlotView;
+import ru.bmstu.rk9.rao.ui.plot.PlotDataParser.PlotItem;
 
 public class SerializedObjectsView extends ViewPart {
 
@@ -51,7 +53,7 @@ public class SerializedObjectsView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.SerializedObjectsView";
 	private List<ConditionalMenuItem> conditionalMenuItems = new ArrayList<ConditionalMenuItem>();
 
-	abstract static class ConditionalMenuItem extends MenuItem {
+	public abstract static class ConditionalMenuItem extends MenuItem {
 
 		public ConditionalMenuItem(Menu parent, String name) {
 			super(parent, SWT.CASCADE);

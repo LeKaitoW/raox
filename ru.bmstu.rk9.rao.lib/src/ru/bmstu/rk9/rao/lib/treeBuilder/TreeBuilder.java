@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.lib.moveToUI;
+package ru.bmstu.rk9.rao.lib.treeBuilder;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -14,9 +14,12 @@ import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.DecisionPointSearch;
 import ru.bmstu.rk9.rao.lib.modelStructure.ActivityCache;
-import ru.bmstu.rk9.rao.lib.moveToUI.RaoLibStringJoiner.StringFormat;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.tracer.StringJoiner.StringFormat;
+import ru.bmstu.rk9.rao.lib.tracer.Tracer;
+import ru.bmstu.rk9.rao.lib.tracer.StringJoiner;
 
+//TODO make static and move to ui
 public class TreeBuilder implements Subscriber {
 
 	@Override
@@ -153,7 +156,7 @@ public class TreeBuilder implements Subscriber {
 						.getModelStructureCache().getPatternsInfo()
 						.get(patternNumber).getRelResTypes().size();
 
-				RaoLibStringJoiner relResStringJoiner = new RaoLibStringJoiner(
+				StringJoiner relResStringJoiner = new StringJoiner(
 						StringFormat.FUNCTION);
 
 				for (int num = 0; num < numberOfRelevantResources; num++) {

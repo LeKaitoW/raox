@@ -2,7 +2,6 @@ package ru.bmstu.rk9.rao.lib.database;
 
 import ru.bmstu.rk9.rao.lib.common.Subscriber;
 import ru.bmstu.rk9.rao.lib.database.Database.SerializationCategory;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode;
 
 public class DbIndexHelper implements Subscriber {
 	public final CollectedDataNode getTree() {

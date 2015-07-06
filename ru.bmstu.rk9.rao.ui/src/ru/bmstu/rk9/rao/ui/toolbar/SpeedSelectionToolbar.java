@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.contributions;
+package ru.bmstu.rk9.rao.ui.toolbar;
 
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 

@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.lib.moveToUI;
+package ru.bmstu.rk9.rao.ui.trace;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
@@ -26,9 +26,11 @@ import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResourceTypeCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResultCache;
-import ru.bmstu.rk9.rao.lib.moveToUI.Tracer.TraceOutput;
-import ru.bmstu.rk9.rao.lib.moveToUI.Tracer.TraceType;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.tracer.StringJoiner;
+import ru.bmstu.rk9.rao.lib.tracer.Tracer;
+import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceOutput;
+import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceType;
 
 public class LegacyTracer {
 	public LegacyTracer() {
@@ -156,7 +158,7 @@ public class LegacyTracer {
 			break;
 		}
 
-		final String headerLine = new RaoLibStringJoiner(delimiter)
+		final String headerLine = new StringJoiner(delimiter)
 				.add(traceType.toString()).add(realFormatter.format((time)))
 				.add(legacyCode).getString();
 
@@ -210,21 +212,21 @@ public class LegacyTracer {
 			return null;
 		}
 
-		final String headerLine = new RaoLibStringJoiner(delimiter)
+		final String headerLine = new StringJoiner(delimiter)
 				.add(traceType.toString()).add(realFormatter.format((time)))
 				.add(typeNum + 1).add(legacyId).getString();
 
 		final ResourceTypeCache typeInfo = Simulator.getModelStructureCache()
 				.getResourceTypesInfo().get(typeNum);
 
-		return new TraceOutput(traceType, new RaoLibStringJoiner(delimiter)
+		return new TraceOutput(traceType, new StringJoiner(delimiter)
 				.add(headerLine).add(parseResourceParameters(data, typeInfo))
 				.getString());
 	}
 
 	protected final String parseResourceParameters(final ByteBuffer data,
 			final ResourceTypeCache typeInfo) {
-		final RaoLibStringJoiner stringJoiner = new RaoLibStringJoiner(
+		final StringJoiner stringJoiner = new StringJoiner(
 				delimiter);
 
 		for (int paramNum = 0; paramNum < typeInfo.getNumberOfParameters(); paramNum++) {
@@ -291,14 +293,14 @@ public class LegacyTracer {
 			return null;
 		}
 
-		return new TraceOutput(traceType, new RaoLibStringJoiner(delimiter)
+		return new TraceOutput(traceType, new StringJoiner(delimiter)
 				.add(traceType.toString()).add(realFormatter.format(time))
 				.add(parsePatternData(data, traceType)).getString());
 	}
 
 	protected final String parsePatternData(final ByteBuffer data,
 			final TraceType patternType) {
-		final RaoLibStringJoiner stringJoiner = new RaoLibStringJoiner(
+		final StringJoiner stringJoiner = new StringJoiner(
 				delimiter);
 
 		int patternNumber;
@@ -389,13 +391,13 @@ public class LegacyTracer {
 		final double time = header.getDouble();
 		final TraceType traceType = TraceType.EVENT;
 
-		return new TraceOutput(traceType, new RaoLibStringJoiner(delimiter)
+		return new TraceOutput(traceType, new StringJoiner(delimiter)
 				.add(traceType.toString()).add(time).add(parseEventData(data))
 				.getString());
 	}
 
 	private String parseEventData(final ByteBuffer data) {
-		final RaoLibStringJoiner stringJoiner = new RaoLibStringJoiner(
+		final StringJoiner stringJoiner = new StringJoiner(
 				delimiter);
 
 		int eventNumber = data.getInt();
@@ -412,7 +414,7 @@ public class LegacyTracer {
 		final ByteBuffer header = Tracer.prepareBufferForReading(entry
 				.getHeader());
 
-		final RaoLibStringJoiner stringJoiner = new RaoLibStringJoiner(
+		final StringJoiner stringJoiner = new StringJoiner(
 				delimiter);
 
 		final TraceType traceType;
@@ -571,22 +573,22 @@ public class LegacyTracer {
 
 	private final void addLegacySearchEntryDecision() {
 		traceList.add(new TraceOutput(TraceType.SEARCH_DECISION,
-				new RaoLibStringJoiner(delimiter).add("SD").getString()));
+				new StringJoiner(delimiter).add("SD").getString()));
 	}
 
 	private final void addLegacySearchEntriesOnStart() {
 		traceList.add(new TraceOutput(TraceType.SEARCH_SPAWN_NEW,
-				new RaoLibStringJoiner(delimiter).add("STN").add(1).add(0)
+				new StringJoiner(delimiter).add("STN").add(1).add(0)
 						.add(0).add(0).add(-1).add(-1).add(0).add(0)
 						.getString()));
 
 		traceList.add(new TraceOutput(TraceType.SEARCH_OPEN,
-				new RaoLibStringJoiner(delimiter).add("SO").add(1).add(0)
+				new StringJoiner(delimiter).add("SO").add(1).add(0)
 						.add(0).add(0).getString()));
 	}
 
 	private final void addLegacySearchEntriesOnFinish(double time) {
-		traceList.add(new TraceOutput(TraceType.SYSTEM, new RaoLibStringJoiner(
+		traceList.add(new TraceOutput(TraceType.SYSTEM, new StringJoiner(
 				delimiter).add(TraceType.SYSTEM.toString())
 				.add(realFormatter.format(time)).add(4).getString()));
 	}
@@ -607,7 +609,7 @@ public class LegacyTracer {
 		final ResultCache resultCache = Simulator.getModelStructureCache()
 				.getResultsInfo().get(resultNum);
 
-		return new TraceOutput(TraceType.RESULT, new RaoLibStringJoiner(
+		return new TraceOutput(TraceType.RESULT, new StringJoiner(
 				delimiter).add(TraceType.RESULT.toString())
 				.add(realFormatter.format(time)).add(resultNum + 1).add("")
 				.add(parseResultParameter(data, resultCache)).getString());

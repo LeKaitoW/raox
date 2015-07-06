@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.lib.moveToUI;
+package ru.bmstu.rk9.rao.lib.tracer;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -14,9 +14,10 @@ import ru.bmstu.rk9.rao.lib.modelStructure.ActivityCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResourceTypeCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResultCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
-import ru.bmstu.rk9.rao.lib.moveToUI.RaoLibStringJoiner.StringFormat;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.tracer.StringJoiner.StringFormat;
 
+// TODO make static and move to ui
 public class Tracer implements Subscriber {
 	public static enum TraceType {
 		RESOURCE_CREATE("RC"), RESOURCE_KEEP("RK"), RESOURCE_ERASE("RE"), SYSTEM(
@@ -39,7 +40,7 @@ public class Tracer implements Subscriber {
 	}
 
 	public final static class TraceOutput {
-		TraceOutput(TraceType type, String content) {
+		public TraceOutput(TraceType type, String content) {
 			this.type = type;
 			this.content = content;
 		}
@@ -143,7 +144,7 @@ public class Tracer implements Subscriber {
 		final Database.SystemEntryType type = Database.SystemEntryType.values()[header
 				.get()];
 
-		final String headerLine = new RaoLibStringJoiner(delimiter)
+		final String headerLine = new StringJoiner(delimiter)
 				.add(traceType.toString()).add(time).add(type.getDescription())
 				.getString();
 
@@ -192,15 +193,15 @@ public class Tracer implements Subscriber {
 		final String resourceName = name != null ? name : typeInfo.getName()
 				+ encloseIndex(resNum);
 
-		return new TraceOutput(traceType, new RaoLibStringJoiner(delimiter)
+		return new TraceOutput(traceType, new StringJoiner(delimiter)
 				.add(traceType.toString()).add(time).add(resourceName).add("=")
 				.add(parseResourceParameters(data, typeInfo)).getString());
 	}
 
 	private String parseResourceParameters(final ByteBuffer data,
 			final ResourceTypeCache typeInfo) {
-		final RaoLibStringJoiner stringJoiner = new RaoLibStringJoiner(
-				RaoLibStringJoiner.StringFormat.STRUCTURE);
+		final StringJoiner stringJoiner = new StringJoiner(
+				StringJoiner.StringFormat.STRUCTURE);
 
 		for (int paramNum = 0; paramNum < typeInfo.getNumberOfParameters(); paramNum++) {
 			ValueCache valueCache = typeInfo.getParamTypes().get(paramNum);
@@ -267,13 +268,13 @@ public class Tracer implements Subscriber {
 			return null;
 		}
 
-		return new TraceOutput(traceType, new RaoLibStringJoiner(delimiter)
+		return new TraceOutput(traceType, new StringJoiner(delimiter)
 				.add(traceType.toString()).add(time)
 				.add(parsePatternData(data)).getString());
 	}
 
 	private String parsePatternData(final ByteBuffer data) {
-		final RaoLibStringJoiner stringJoiner = new RaoLibStringJoiner(
+		final StringJoiner stringJoiner = new StringJoiner(
 				delimiter);
 
 		int dptNumber = data.getInt();
@@ -284,8 +285,8 @@ public class Tracer implements Subscriber {
 		int patternNumber = activity.getPatternNumber();
 		stringJoiner.add(activity.getName() + encloseIndex(actionNumber));
 
-		final RaoLibStringJoiner relResStringJoiner = new RaoLibStringJoiner(
-				RaoLibStringJoiner.StringFormat.FUNCTION);
+		final StringJoiner relResStringJoiner = new StringJoiner(
+				StringJoiner.StringFormat.FUNCTION);
 
 		int numberOfRelevantResources = data.getInt();
 		for (int num = 0; num < numberOfRelevantResources; num++) {
@@ -318,13 +319,13 @@ public class Tracer implements Subscriber {
 		final double time = header.getDouble();
 		final TraceType traceType = TraceType.EVENT;
 
-		return new TraceOutput(traceType, new RaoLibStringJoiner(delimiter)
+		return new TraceOutput(traceType, new StringJoiner(delimiter)
 				.add(traceType.toString()).add(time).add(parseEventData(data))
 				.getString());
 	}
 
 	private String parseEventData(final ByteBuffer data) {
-		final RaoLibStringJoiner stringJoiner = new RaoLibStringJoiner(
+		final StringJoiner stringJoiner = new StringJoiner(
 				delimiter);
 
 		int eventNumber = data.getInt();
@@ -342,7 +343,7 @@ public class Tracer implements Subscriber {
 	private TraceOutput parseSearchEntry(final Entry entry) {
 		final ByteBuffer header = prepareBufferForReading(entry.getHeader());
 
-		final RaoLibStringJoiner stringJoiner = new RaoLibStringJoiner(
+		final StringJoiner stringJoiner = new StringJoiner(
 				delimiter);
 
 		final TraceType traceType;
@@ -393,7 +394,7 @@ public class Tracer implements Subscriber {
 			stringJoiner
 					.add(traceType.toString())
 					.add(time)
-					.add(new RaoLibStringJoiner(StringFormat.ENUMERATION)
+					.add(new StringJoiner(StringFormat.ENUMERATION)
 							.add("solution cost = " + finalCost)
 							.add("nodes opened = " + totalOpened)
 							.add("nodes total = " + totalNodes)
@@ -441,7 +442,7 @@ public class Tracer implements Subscriber {
 					.getModelStructureCache().getPatternsInfo()
 					.get(patternNumber).getRelResTypes().size();
 
-			RaoLibStringJoiner relResStringJoiner = new RaoLibStringJoiner(
+			StringJoiner relResStringJoiner = new StringJoiner(
 					StringFormat.FUNCTION);
 
 			for (int num = 0; num < numberOfRelevantResources; num++) {
@@ -481,7 +482,7 @@ public class Tracer implements Subscriber {
 					.getModelStructureCache().getPatternsInfo()
 					.get(patternNumber).getRelResTypes().size();
 
-			RaoLibStringJoiner relResStringJoiner = new RaoLibStringJoiner(
+			StringJoiner relResStringJoiner = new StringJoiner(
 					StringFormat.FUNCTION);
 			for (int num = 0; num < numberOfRelevantResources; num++) {
 				final int resNum = data.getInt();
@@ -525,7 +526,7 @@ public class Tracer implements Subscriber {
 		final ResultCache resultCache = Simulator.getModelStructureCache()
 				.getResultsInfo().get(resultNum);
 
-		return new TraceOutput(TraceType.RESULT, new RaoLibStringJoiner(
+		return new TraceOutput(TraceType.RESULT, new StringJoiner(
 				delimiter).add(TraceType.RESULT.toString()).add(time)
 				.add(resultCache.getName()).add("=")
 				.add(parseResultParameter(data, resultCache)).getString());
@@ -565,79 +566,12 @@ public class Tracer implements Subscriber {
 			buffer.get();
 	}
 
-	final static String encloseIndex(final int index) {
+	public final static String encloseIndex(final int index) {
 		return "[" + String.valueOf(index) + "]";
 	}
 
 	public final static ByteBuffer prepareBufferForReading(
 			final ByteBuffer buffer) {
 		return (ByteBuffer) buffer.duplicate().rewind();
-	}
-}
-
-class RaoLibStringJoiner {
-	private final String delimiter;
-	private final String prefix;
-	private final String suffix;
-
-	private String current = null;
-
-	enum StringFormat {
-		FUNCTION(", ", "(", ")"), STRUCTURE(", ", "{", "}"), ARRAY(", ", "[",
-				"]"), ENUMERATION(", ", "", "");
-
-		StringFormat(String delimiter, String prefix, String suffix) {
-			this.delimiter = delimiter;
-			this.prefix = prefix;
-			this.suffix = suffix;
-		}
-
-		private final String delimiter;
-		private final String prefix;
-		private final String suffix;
-	}
-
-	final String getString() {
-		return prefix + current + suffix;
-	}
-
-	RaoLibStringJoiner(StringFormat format) {
-		this.delimiter = format.delimiter;
-		this.prefix = format.prefix;
-		this.suffix = format.suffix;
-	}
-
-	RaoLibStringJoiner(String delimiter) {
-		this(delimiter, "", "");
-	}
-
-	RaoLibStringJoiner(String delimiter, String prefix, String postfix) {
-		this.delimiter = delimiter;
-		this.prefix = prefix;
-		this.suffix = postfix;
-	}
-
-	final RaoLibStringJoiner add(final String toAppend) {
-		if (current == null)
-			current = new String(toAppend);
-		else
-			current += delimiter + toAppend;
-		return this;
-	}
-
-	final RaoLibStringJoiner add(final int toAppend) {
-		return add(String.valueOf(toAppend));
-	}
-
-	final RaoLibStringJoiner add(final short toAppend) {
-		return add(String.valueOf(toAppend));
-	}
-
-	final RaoLibStringJoiner add(final double toAppend) {
-		return add(String.valueOf(toAppend));
-	}
-
-	final RaoLibStringJoiner add(final boolean toAppend) {
-		return add(String.valueOf(toAppend));
 	}
 }

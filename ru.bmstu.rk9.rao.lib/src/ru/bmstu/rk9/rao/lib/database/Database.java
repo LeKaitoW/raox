@@ -10,25 +10,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.DecisionPointIndex;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.EventIndex;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.PatternIndex;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceIndex;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceParameterIndex;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceTypeIndex;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.SearchIndex;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.SearchIndex.SearchInfo;
 import ru.bmstu.rk9.rao.lib.dpt.DecisionPoint;
 import ru.bmstu.rk9.rao.lib.dpt.DecisionPointSearch;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
-import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ModelStructureCache.ValueType;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode;
-import ru.bmstu.rk9.rao.lib.moveToUI.SerializationConfig;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.DecisionPointIndex;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.EventIndex;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.Index;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.PatternIndex;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.ResourceIndex;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.ResourceParameterIndex;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.ResourceTypeIndex;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.ResultIndex;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.SearchIndex;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.SearchIndex.SearchInfo;
+import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
 import ru.bmstu.rk9.rao.lib.notification.NotificationManager;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
@@ -156,6 +154,7 @@ public class Database {
 
 		addSystemEntry(SystemEntryType.TRACE_START);
 
+		//TODO this stop SerializationConfig from moving to UI
 		for (final String traceName : SerializationConfig.getNames())
 			addSensitivity(traceName);
 	}
@@ -430,7 +429,8 @@ public class Database {
 				.allocate(EntryType.RESOURCE.HEADER_SIZE);
 		header.put((byte) EntryType.RESOURCE.ordinal())
 				.putDouble(Simulator.getTime()).put((byte) status.ordinal())
-				.putInt(resourceTypeIndex.getNumber()).putInt(resourceIndex.getNumber());
+				.putInt(resourceTypeIndex.getNumber())
+				.putInt(resourceIndex.getNumber());
 
 		final ByteBuffer data = resource.serialize();
 
@@ -494,7 +494,8 @@ public class Database {
 		final ByteBuffer data = ByteBuffer
 				.allocate(EntryType.PATTERN.METADATA_SIZE
 						+ relevantResources.length * TypeSize.INTEGER);
-		data.putInt(dptIndex.getNumber()).putInt(index.getNumber()).putInt(number);
+		data.putInt(dptIndex.getNumber()).putInt(index.getNumber())
+				.putInt(number);
 
 		fillRelevantResources(data, relevantResources);
 

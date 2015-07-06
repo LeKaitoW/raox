@@ -2,7 +2,6 @@ package ru.bmstu.rk9.rao.lib.simulator;
 
 import java.util.LinkedList;
 
-import ru.bmstu.rk9.rao.lib.common.TerminateCondition;
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.SystemEntryType;
 import ru.bmstu.rk9.rao.lib.dpt.DPTManager;
@@ -11,12 +10,12 @@ import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.event.EventScheduler;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modelStructure.ModelStructureCache;
-import ru.bmstu.rk9.rao.lib.moveToUI.Tracer;
-import ru.bmstu.rk9.rao.lib.moveToUI.TreeBuilder;
 import ru.bmstu.rk9.rao.lib.notification.NotificationManager;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.result.ResultManager;
+import ru.bmstu.rk9.rao.lib.tracer.Tracer;
+import ru.bmstu.rk9.rao.lib.treeBuilder.TreeBuilder;
 
 public class Simulator {
 	private static Simulator INSTANCE = null;

@@ -1,12 +1,11 @@
-package ru.bmstu.rk9.rao.ui.contributions;
+package ru.bmstu.rk9.rao.ui.graph;
 
 import org.eclipse.swt.widgets.Menu;
 
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode;
-import ru.bmstu.rk9.rao.lib.moveToUI.CollectedDataNode.IndexType;
-import ru.bmstu.rk9.rao.ui.contributions.SerializedObjectsView.ConditionalMenuItem;
-import ru.bmstu.rk9.rao.ui.graph.GraphControl;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.IndexType;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
+import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView.ConditionalMenuItem;
 
 public class GraphView {
 

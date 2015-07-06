@@ -18,9 +18,9 @@ import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.common.Subscriber;
-import ru.bmstu.rk9.rao.lib.moveToUI.TreeBuilder.GraphInfo;
-import ru.bmstu.rk9.rao.lib.moveToUI.TreeBuilder.Node;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.treeBuilder.TreeBuilder.GraphInfo;
+import ru.bmstu.rk9.rao.lib.treeBuilder.TreeBuilder.Node;
 
 import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.model.mxCell;

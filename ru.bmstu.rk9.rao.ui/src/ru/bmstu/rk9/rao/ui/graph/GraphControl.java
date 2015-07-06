@@ -13,8 +13,8 @@ import javax.swing.JFrame;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.ui.PlatformUI;
 
-import ru.bmstu.rk9.rao.lib.moveToUI.TreeBuilder;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.treeBuilder.TreeBuilder;
 
 public class GraphControl {
 
