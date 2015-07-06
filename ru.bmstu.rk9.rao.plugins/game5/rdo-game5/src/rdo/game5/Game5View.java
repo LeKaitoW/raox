@@ -4,7 +4,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -27,12 +26,10 @@ public class Game5View extends EditorPart {
 
 	@Override
 	public void doSave(IProgressMonitor arg0) {
-
 	}
 
 	@Override
 	public void doSaveAs() {
-
 	}
 
 	@Override
@@ -40,7 +37,6 @@ public class Game5View extends EditorPart {
 			throws PartInitException {
 		setSite(site);
 		setInput(input);
-
 	}
 
 	@Override
@@ -112,7 +108,6 @@ public class Game5View extends EditorPart {
 				} else {
 					leftCost.setEnabled(false);
 				}
-
 			}
 
 			@Override
@@ -198,7 +193,7 @@ public class Game5View extends EditorPart {
 		shuffle.setText("Shuffle");
 
 		final Button downButton = new Button(ruleCost, SWT.CHECK);
-		Text downCost = new Text(ruleCost, SWT.BORDER);
+		final Text downCost = new Text(ruleCost, SWT.BORDER);
 		downCost.setEnabled(false);
 
 		downButton.addSelectionListener(new SelectionListener() {
@@ -209,12 +204,10 @@ public class Game5View extends EditorPart {
 					downCost.setEnabled(true);
 				} else
 					downCost.setEnabled(false);
-
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
-
 			}
 		});
 
@@ -257,12 +250,9 @@ public class Game5View extends EditorPart {
 		heuristicCodeData.horizontalSpan = 3;
 		heuristicCodeGroup.setLayoutData(heuristicCodeData);
 		heuristicCode.setLayoutData(heuristicCodeData);
-
 	}
 
 	@Override
 	public void setFocus() {
-
 	}
-
 }

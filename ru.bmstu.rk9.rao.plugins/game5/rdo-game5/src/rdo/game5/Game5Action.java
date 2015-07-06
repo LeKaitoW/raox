@@ -32,6 +32,9 @@ public class Game5Action implements IWorkbenchWindowActionDelegate {
 		try {
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 					.getActivePage()
+					.openEditor(new Game5EditorInput(), Game5Editor.ID);
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+					.getActivePage()
 					.openEditor(new Game5EditorInput(), Game5View.ID);
 		} catch (PartInitException e) {
 			e.printStackTrace();
