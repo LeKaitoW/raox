@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import ru.bmstu.rk9.rao.lib.database.SerializationList;
+import ru.bmstu.rk9.rao.lib.database.SerializationObjectsNames;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 
 public class SerializationConfig {
@@ -212,7 +212,7 @@ public class SerializationConfig {
 		List<String> names = new ArrayList<String>();
 		for (SerializationNode category : root.getVisibleChildren())
 			fillNames(category, names);
-		SerializationList.setNames(names);
+		SerializationObjectsNames.set(names);
 	}
 
 	private final void fillNames(final SerializationNode node,

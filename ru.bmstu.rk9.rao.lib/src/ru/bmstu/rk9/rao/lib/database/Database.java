@@ -154,7 +154,7 @@ public class Database {
 
 		addSystemEntry(SystemEntryType.TRACE_START);
 
-		for (final String traceName : SerializationList.getNames())
+		for (final String traceName : SerializationObjectsNames.get())
 			addSensitivity(traceName);
 	}
 
