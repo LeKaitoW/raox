@@ -154,8 +154,7 @@ public class Database {
 
 		addSystemEntry(SystemEntryType.TRACE_START);
 
-		//TODO this stop SerializationConfig from moving to UI
-		for (final String traceName : SerializationConfig.getNames())
+		for (final String traceName : SerializationList.getNames())
 			addSensitivity(traceName);
 	}
 

@@ -1,13 +1,13 @@
-package ru.bmstu.rk9.rao.lib.database;
+package ru.bmstu.rk9.rao.ui.serialization;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import ru.bmstu.rk9.rao.lib.database.SerializationList;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 
-//TODO remove references from database and move to ui
 public class SerializationConfig {
 	public static class SerializationNode {
 		public SerializationNode(final String name,
@@ -208,23 +208,19 @@ public class SerializationConfig {
 		root.children.remove(modelNode);
 	}
 
-	private static List<String> names = new ArrayList<String>();
-
-	public static final List<String> getNames() {
-		return Collections.unmodifiableList(names);
-	}
-
-	public final void initNames() {
-		names.clear();
+	public final void saveTreeAsNamesList() {
+		List<String> names = new ArrayList<String>();
 		for (SerializationNode category : root.getVisibleChildren())
-			fillNames(category);
+			fillNames(category, names);
+		SerializationList.setNames(names);
 	}
 
-	private final void fillNames(final SerializationNode node) {
+	private final void fillNames(final SerializationNode node,
+			List<String> names) {
 		for (SerializationNode child : node.getVisibleChildren()) {
 			if (child.isSerialized())
 				names.add(child.getFullName());
-			fillNames(child);
+			fillNames(child, names);
 		}
 	}
 }
