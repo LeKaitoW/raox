@@ -61,7 +61,6 @@ import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceOutput;
 import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceType;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
-import ru.bmstu.rk9.rao.ui.runtime.ExportTraceHandler;
 import ru.bmstu.rk9.rao.ui.trace.TraceView.SearchHelper.SearchResult;
 
 public class TraceView extends ViewPart {

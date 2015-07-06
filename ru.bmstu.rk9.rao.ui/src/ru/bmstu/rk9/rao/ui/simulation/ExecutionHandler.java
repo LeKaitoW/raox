@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.runtime;
+package ru.bmstu.rk9.rao.ui.simulation;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -38,12 +38,14 @@ import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
+import ru.bmstu.rk9.rao.ui.build.ModelBuilder;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.graph.GraphFrame;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView;
 import ru.bmstu.rk9.rao.ui.status.StatusView;
+import ru.bmstu.rk9.rao.ui.trace.ExportTraceHandler;
 import ru.bmstu.rk9.rao.ui.trace.TraceView;
 
 import com.google.inject.Inject;

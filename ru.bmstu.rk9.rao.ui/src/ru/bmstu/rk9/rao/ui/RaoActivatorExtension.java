@@ -24,9 +24,9 @@ import ru.bmstu.rk9.rao.ui.internal.RaoActivator;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.plot.PlotView;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
-import ru.bmstu.rk9.rao.ui.runtime.ModelExecutionSourceProvider;
-import ru.bmstu.rk9.rao.ui.runtime.SetSimulationScaleHandler;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
+import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider;
+import ru.bmstu.rk9.rao.ui.simulation.SetSimulationScaleHandler;
 import ru.bmstu.rk9.rao.ui.toolbar.SpeedSelectionToolbar;
 
 public class RaoActivatorExtension extends RaoActivator {

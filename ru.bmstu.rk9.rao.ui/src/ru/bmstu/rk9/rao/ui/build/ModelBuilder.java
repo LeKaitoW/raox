@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.runtime;
+package ru.bmstu.rk9.rao.ui.build;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -75,7 +75,7 @@ public class ModelBuilder {
 		}
 	}
 
-	static IProject getProject(IEditorPart activeEditor) {
+	public static IProject getProject(IEditorPart activeEditor) {
 		IFile file = (IFile) activeEditor.getEditorInput().getAdapter(
 				IFile.class);
 		if (file != null)
@@ -150,7 +150,7 @@ public class ModelBuilder {
 
 	}
 
-	static Job build(final ExecutionEvent event,
+	public static Job build(final ExecutionEvent event,
 			final EclipseResourceFileSystemAccess2 fsa,
 			final IResourceSetProvider resourceSetProvider,
 			final EclipseOutputConfigurationProvider ocp,

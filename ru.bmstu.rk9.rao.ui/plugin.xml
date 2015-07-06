@@ -455,7 +455,7 @@
   <extension
         point="org.eclipse.ui.handlers">
      <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.runtime.BuildHandler"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.build.BuildHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.build">
         <enabledWhen>
            <reference
@@ -464,7 +464,7 @@
         </enabledWhen>
      </handler>
      <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.runtime.ExecutionHandler"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.simulation.ExecutionHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.execute">
         <enabledWhen>
            <and>
@@ -481,7 +481,7 @@
         </enabledWhen>
      </handler>
      <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.runtime.StoppingHandler"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.simulation.StoppingHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.stop">
         <enabledWhen>
            <with
@@ -493,15 +493,15 @@
         </enabledWhen>
      </handler>
      <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.runtime.SetExecutionModeHandler"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.simulation.SetExecutionModeHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode">
      </handler>
      <handler
-           class="ru.bmstu.rk9.rao.ui.runtime.SetSimulationScaleHandler"
+           class="ru.bmstu.rk9.rao.ui.simulation.SetSimulationScaleHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale">
      </handler>
      <handler
-           class="ru.bmstu.rk9.rao.ui.runtime.ExportTraceHandler"
+           class="ru.bmstu.rk9.rao.ui.trace.ExportTraceHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.exportTrace">
      </handler>
   </extension>
@@ -950,7 +950,7 @@
         </variable>
      </sourceProvider>
      <sourceProvider
-           provider="ru.bmstu.rk9.rao.ui.runtime.ModelExecutionSourceProvider">
+           provider="ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider">
         <variable
               name="ru.bmstu.rk9.rao.ui.handlers.simulationRunning"
               priorityLevel="workbench">

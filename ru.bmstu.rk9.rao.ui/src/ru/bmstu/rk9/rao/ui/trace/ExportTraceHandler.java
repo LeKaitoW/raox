@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.runtime;
+package ru.bmstu.rk9.rao.ui.trace;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -17,7 +17,6 @@ import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.tracer.Tracer;
 import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceOutput;
-import ru.bmstu.rk9.rao.ui.trace.LegacyTracer;
 
 //TODO export to location chosen by user
 

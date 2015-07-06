@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.runtime;
+package ru.bmstu.rk9.rao.ui.simulation;
 
 import java.util.HashMap;
 

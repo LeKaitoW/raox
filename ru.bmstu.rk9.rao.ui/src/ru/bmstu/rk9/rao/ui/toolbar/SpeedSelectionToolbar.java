@@ -1,28 +1,23 @@
 package ru.bmstu.rk9.rao.ui.toolbar;
 
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
-
 import org.eclipse.swt.SWT;
-
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ProgressBar;
-
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
-
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
-
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
 
-import ru.bmstu.rk9.rao.ui.runtime.SimulationSynchronizer;
+import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer;
 
 public class SpeedSelectionToolbar extends
 		WorkbenchWindowControlContribution {

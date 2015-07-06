@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.runtime;
+package ru.bmstu.rk9.rao.ui.build;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
