@@ -45,11 +45,11 @@ public class PlotView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.PlotView";
 	private final static Map<CollectedDataNode, Integer> openedPlotMap = new HashMap<CollectedDataNode, Integer>();
 	private static int secondaryID = 0;
-	private ChartFrame chartFrame;
+	private PlotFrame plotFrame;
 	private CollectedDataNode partNode;
 
-	public ChartFrame getFrame() {
-		return chartFrame;
+	public PlotFrame getFrame() {
+		return plotFrame;
 	}
 
 	public static Map<CollectedDataNode, Integer> getOpenedPlotMap() {
@@ -71,7 +71,7 @@ public class PlotView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		chartFrame = new ChartFrame(parent, SWT.NONE);
+		plotFrame = new PlotFrame(parent, SWT.NONE);
 		FormLayout layout = new FormLayout();
 		parent.setLayout(layout);
 
@@ -96,16 +96,16 @@ public class PlotView extends ViewPart {
 		graphLayoutData.right = new FormAttachment(verticalSlider);
 		graphLayoutData.top = new FormAttachment(0, 0);
 		graphLayoutData.bottom = new FormAttachment(horizontalSlider);
-		chartFrame.setLayoutData(graphLayoutData);
+		plotFrame.setLayoutData(graphLayoutData);
 
 		parent.layout(true);
 		horizontalSlider.setEnabled(false);
 		horizontalSlider.setVisible(false);
 		verticalSlider.setEnabled(false);
 		verticalSlider.setVisible(false);
-		chartFrame.setSliders(horizontalSlider, verticalSlider);
+		plotFrame.setSliders(horizontalSlider, verticalSlider);
 
-		chartFrame.addDisposeListener(new DisposeListener() {
+		plotFrame.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent event) {
 				if (!openedPlotMap.isEmpty()
@@ -126,8 +126,8 @@ public class PlotView extends ViewPart {
 	public void plotXY(final XYSeriesCollection dataset,
 			List<String> axisSymbols) {
 		final JFreeChart chart = createChart(dataset, axisSymbols);
-		chartFrame.setChart(chart);
-		chartFrame.setRangeZoomable(false);
+		plotFrame.setChart(chart);
+		plotFrame.setRangeZoomable(false);
 	}
 
 	private JFreeChart createChart(final XYDataset dataset,
@@ -172,7 +172,7 @@ public class PlotView extends ViewPart {
 
 		double horizontalMaximum = domainAxis.getRange().getLength();
 		double verticalMaximum = rangeAxis.getRange().getLength();
-		chartFrame.setChartMaximum(horizontalMaximum, verticalMaximum);
+		plotFrame.setChartMaximum(horizontalMaximum, verticalMaximum);
 
 		return chart;
 	}

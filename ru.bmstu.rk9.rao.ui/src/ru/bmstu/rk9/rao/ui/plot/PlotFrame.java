@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Slider;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.experimental.chart.swt.ChartComposite;
 
-public class ChartFrame extends ChartComposite implements KeyListener {
+public class PlotFrame extends ChartComposite implements KeyListener {
 
 	private Slider horizontalSlider;
 	private Slider verticalSlider;
@@ -20,7 +20,7 @@ public class ChartFrame extends ChartComposite implements KeyListener {
 	private double horizontalRatio;
 	private double verticalRatio;
 
-	public ChartFrame(final Composite comp, final int style) {
+	public PlotFrame(final Composite comp, final int style) {
 		super(comp, style, null, ChartComposite.DEFAULT_WIDTH,
 				ChartComposite.DEFAULT_HEIGHT, 0, 0, Integer.MAX_VALUE,
 				Integer.MAX_VALUE, ChartComposite.DEFAULT_BUFFER_USED, true,
