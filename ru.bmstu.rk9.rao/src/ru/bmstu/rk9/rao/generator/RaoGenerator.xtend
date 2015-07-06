@@ -166,7 +166,6 @@ class RaoGenerator implements IMultipleResourceGenerator
 
 		import ru.bmstu.rk9.rao.lib.*;
 		import ru.bmstu.rk9.rao.lib.simulator.*;
-		import ru.bmstu.rk9.rao.lib.common.*;
 		import ru.bmstu.rk9.rao.lib.animation.*;
 		import ru.bmstu.rk9.rao.lib.result.*;
 		@SuppressWarnings("all")
@@ -253,7 +252,6 @@ class RaoGenerator implements IMultipleResourceGenerator
 
 		import ru.bmstu.rk9.rao.lib.*;
 		import ru.bmstu.rk9.rao.lib.simulator.*;
-		import ru.bmstu.rk9.rao.lib.common.*;
 		import ru.bmstu.rk9.rao.lib.animation.*;
 		import ru.bmstu.rk9.rao.lib.result.*;
 		@SuppressWarnings("all")

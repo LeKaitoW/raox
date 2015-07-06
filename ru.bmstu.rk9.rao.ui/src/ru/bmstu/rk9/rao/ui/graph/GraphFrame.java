@@ -17,7 +17,7 @@ import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.ui.PlatformUI;
 
-import ru.bmstu.rk9.rao.lib.common.Subscriber;
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.treeBuilder.TreeBuilder.GraphInfo;
 import ru.bmstu.rk9.rao.lib.treeBuilder.TreeBuilder.Node;

@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.lib.common;
+package ru.bmstu.rk9.rao.lib.database;
 
 import java.nio.ByteBuffer;
 

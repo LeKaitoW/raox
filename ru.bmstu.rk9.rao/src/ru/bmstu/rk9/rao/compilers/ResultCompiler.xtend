@@ -36,7 +36,6 @@ class ResultCompiler
 
 		import ru.bmstu.rk9.rao.lib.*;
 		import ru.bmstu.rk9.rao.lib.result.*;
-		import ru.bmstu.rk9.rao.lib.common.*;
 		import ru.bmstu.rk9.rao.lib.database.*;
 		import ru.bmstu.rk9.rao.lib.simulator.*;
 		import ru.bmstu.rk9.rao.lib.notification.*;

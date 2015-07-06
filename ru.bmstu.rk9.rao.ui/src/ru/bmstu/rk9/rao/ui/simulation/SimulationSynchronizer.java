@@ -5,7 +5,7 @@ import java.text.DecimalFormat;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
-import ru.bmstu.rk9.rao.lib.common.Subscriber;
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class SimulationSynchronizer {

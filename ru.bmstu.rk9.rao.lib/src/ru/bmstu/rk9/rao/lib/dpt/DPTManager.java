@@ -3,7 +3,7 @@ package ru.bmstu.rk9.rao.lib.dpt;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import ru.bmstu.rk9.rao.lib.common.Subscriber;
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class DPTManager implements Subscriber {

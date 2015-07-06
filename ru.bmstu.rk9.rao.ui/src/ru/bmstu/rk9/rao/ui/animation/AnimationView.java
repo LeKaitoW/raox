@@ -29,7 +29,7 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Rectangle;
 
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
-import ru.bmstu.rk9.rao.lib.common.Subscriber;
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 
 public class AnimationView extends ViewPart {
 

@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-import ru.bmstu.rk9.rao.lib.common.Subscriber;
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
@@ -14,6 +13,7 @@ import ru.bmstu.rk9.rao.lib.modelStructure.ActivityCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResourceTypeCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResultCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.tracer.StringJoiner.StringFormat;
 

@@ -6,7 +6,6 @@ Bundle-Version: 0.1
 Bundle-Vendor: Rao
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: ru.bmstu.rk9.rao.lib.animation,
- ru.bmstu.rk9.rao.lib.common,
  ru.bmstu.rk9.rao.lib.database,
  ru.bmstu.rk9.rao.lib.dpt,
  ru.bmstu.rk9.rao.lib.event,

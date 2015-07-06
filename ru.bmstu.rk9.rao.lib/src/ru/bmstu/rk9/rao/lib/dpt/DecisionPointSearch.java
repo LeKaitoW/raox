@@ -7,8 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 
-import ru.bmstu.rk9.rao.lib.common.Subscriber;
 import ru.bmstu.rk9.rao.lib.database.Database;
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.ModelState;

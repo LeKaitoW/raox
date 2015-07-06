@@ -36,11 +36,11 @@ import org.eclipse.ui.part.ViewPart;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import ru.bmstu.rk9.rao.lib.common.Subscriber;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.IndexType;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceIndex;
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.graph.GraphView;
 import ru.bmstu.rk9.rao.ui.plot.PlotDataParser;

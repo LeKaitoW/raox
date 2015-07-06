@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import ru.bmstu.rk9.rao.lib.common.Subscriber;
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.DecisionPointSearch;
 import ru.bmstu.rk9.rao.lib.modelStructure.ActivityCache;
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.tracer.StringJoiner.StringFormat;
 import ru.bmstu.rk9.rao.lib.tracer.Tracer;
