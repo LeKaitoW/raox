@@ -1,26 +1,5 @@
 package rdo.game5;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
-import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchPage;
@@ -53,89 +32,15 @@ public class Game5Action implements IWorkbenchWindowActionDelegate {
 	 */
 	public void run(IAction action) {
 		try {
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			IProject game5Project = root.getProject("new_game5_project");
-
-			if (!game5Project.exists()) {
-				try {
-					game5Project.create(null);
-					game5Project.open(null);
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-			} else if (!game5Project.isOpen()) {
-				try {
-					game5Project.open(null);
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-			}
-
-			IPath workspacePath = root.getLocation();
-			IProjectDescription description;
-			IJavaProject game5JavaProject;
-
-			try {
-				description = game5Project.getDescription();
-				description.setNatureIds(new String[] { JavaCore.NATURE_ID });
-				game5Project.setDescription(description, null);
-
-				game5JavaProject = JavaCore.create(game5Project);
-				IFolder sourceFolder = game5Project.getFolder("src-gen");
-				sourceFolder.create(false, true, null);
-
-				List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
-				IExecutionEnvironmentsManager executionEnvironmentsManager = JavaRuntime
-						.getExecutionEnvironmentsManager();
-				IExecutionEnvironment[] executionEnvironments = executionEnvironmentsManager
-						.getExecutionEnvironments();
-
-				for (IExecutionEnvironment iExecutionEnvironment : executionEnvironments) {
-					if ("JavaSE-1.8".equals(iExecutionEnvironment.getId())) {
-						entries.add(JavaCore.newContainerEntry(JavaRuntime
-								.newJREContainerPath(iExecutionEnvironment)));
-						break;
-					}
-				}
-
-				IPath sourceFolderPath = sourceFolder.getFullPath();
-				IClasspathEntry srcEntry = JavaCore
-						.newSourceEntry(sourceFolderPath);
-				entries.add(srcEntry);
-				game5JavaProject.setRawClasspath(
-						entries.toArray(new IClasspathEntry[entries.size()]),
-						null);
-			} catch (CoreException e2) {
-				e2.printStackTrace();
-			}
-
-			IPath filePath = workspacePath.append(game5Project.getFullPath())
-					.append("game5Model.rdo");
-
-			File game5Model = new File(filePath.toString());
-			try {
-				game5Model.createNewFile();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-
-			IFile game5File = game5Project.getFile("game5Model.rdo");
-			InputStream is;
-			try {
-				is = new java.io.FileInputStream(filePath.toFile());
-				game5File.create(is, true, null);
-			} catch (FileNotFoundException | CoreException e) {
-				e.printStackTrace();
-			}
+			Game5ProjectConfigurator.ProjectInitilazation();
+			Game5ProjectConfigurator.ProjectConfiguration();
+			Game5ProjectConfigurator.FileCreation();
 
 			IWorkbenchPage page = PlatformUI.getWorkbench()
 					.getActiveWorkbenchWindow().getActivePage();
+			IDE.openEditor(page, Game5ProjectConfigurator.game5File);
 
-			IDE.openEditor(page, game5File);
-
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-					.getActivePage()
-					.openEditor(new Game5EditorInput(), Game5View.ID);
+			page.openEditor(new Game5EditorInput(), Game5View.ID);
 		} catch (PartInitException e) {
 			e.printStackTrace();
 		}
