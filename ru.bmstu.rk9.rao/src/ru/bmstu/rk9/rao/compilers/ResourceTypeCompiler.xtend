@@ -36,8 +36,10 @@ class ResourceTypeCompiler
 		import java.nio.ByteBuffer;
 
 		import java.util.Collection;
+		import java.util.List;
 		import java.util.LinkedList;
 		import java.util.ArrayList;
+		import java.util.Arrays;
 		import java.util.HashMap;
 
 		import ru.bmstu.rk9.rao.lib.json.*;
@@ -136,10 +138,7 @@ class ResourceTypeCompiler
 			private static NotificationManager notificationManager =
 				new NotificationManager
 				(
-					new String[]
-					{
-						"ResourceDeleted"
-					}
+					new ArrayList<String>(Arrays.asList("ResourceDeleted"))
 				);
 
 			public static Notifier getNotifier()

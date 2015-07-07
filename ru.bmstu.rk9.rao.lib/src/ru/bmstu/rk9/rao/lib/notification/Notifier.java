@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rao.lib.notification;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public interface Notifier {
 	public static class Subscription {
@@ -22,5 +23,5 @@ public interface Notifier {
 
 	public Subscription getSubscription(String category);
 
-	public String[] getAvailableSubscriptions();
+	public List<String> getAvailableSubscriptions();
 }

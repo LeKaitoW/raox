@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rao.lib.simulator;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
@@ -26,9 +28,9 @@ public class Simulator {
 
 		INSTANCE = new Simulator();
 
-		INSTANCE.notificationManager = new NotificationManager(new String[] {
-				"StateChange", "TimeChange", "ExecutionAborted",
-				"ExecutionComplete" });
+		INSTANCE.notificationManager = new NotificationManager(
+				new ArrayList<String>(Arrays.asList("StateChange",
+						"TimeChange", "ExecutionAborted", "ExecutionComplete")));
 
 		INSTANCE.dptManager = new DPTManager();
 	}

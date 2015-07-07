@@ -1,12 +1,14 @@
 package ru.bmstu.rk9.rao.lib.notification;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class NotificationManager implements Notifier {
 	protected Map<String, Notifier.Subscription> subscribtions;
 
-	public NotificationManager(String[] categories) {
+	public NotificationManager(List<String> categories) {
 		subscribtions = new HashMap<String, Notifier.Subscription>();
 		for (String s : categories)
 			subscribtions.put(s, new Notifier.Subscription());
@@ -23,7 +25,7 @@ public class NotificationManager implements Notifier {
 	}
 
 	@Override
-	public String[] getAvailableSubscriptions() {
-		return (String[]) subscribtions.keySet().toArray();
+	public List<String> getAvailableSubscriptions() {
+		return new ArrayList<String>(subscribtions.keySet());
 	}
 }
