@@ -2,12 +2,8 @@ package rdo.game5;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
 
 /**
  * Our sample action implements workbench action delegate. The action proxy will
@@ -31,19 +27,7 @@ public class Game5Action implements IWorkbenchWindowActionDelegate {
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
 	public void run(IAction action) {
-		try {
-			Game5ProjectConfigurator.ProjectInitilazation();
-			Game5ProjectConfigurator.ProjectConfiguration();
-			Game5ProjectConfigurator.FileCreation();
-
-			IWorkbenchPage page = PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow().getActivePage();
-			IDE.openEditor(page, Game5ProjectConfigurator.game5File);
-
-			page.openEditor(new Game5EditorInput(), Game5View.ID);
-		} catch (PartInitException e) {
-			e.printStackTrace();
-		}
+			ModelNameView.modelNameView();
 	}
 
 	/**

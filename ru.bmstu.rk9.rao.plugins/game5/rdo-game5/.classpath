@@ -11,5 +11,6 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="model_template"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

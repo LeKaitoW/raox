@@ -1,7 +1,6 @@
 package rdo.game5;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -25,14 +24,14 @@ import org.eclipse.xtext.ui.XtextProjectHelper;
 
 public class Game5ProjectConfigurator {
 
-	static IProject game5Project;
-	static IWorkspaceRoot root;
-	static IFile game5File;
+	private static IProject game5Project;
+	private static IWorkspaceRoot root;
+	private static IFile game5File;
 
-	public static final void ProjectInitilazation() {
+	public static final void initializeProject() {
 
 		root = ResourcesPlugin.getWorkspace().getRoot();
-		game5Project = root.getProject("new_game5_project");
+		game5Project = root.getProject(ModelNameView.getName() + "_project");
 		try {
 			if (!game5Project.exists()) {
 				game5Project.create(null);
@@ -44,7 +43,7 @@ public class Game5ProjectConfigurator {
 		}
 	}
 
-	public static final void ProjectConfiguration() {
+	public static final void configProject() {
 
 		IProjectDescription description;
 		IJavaProject game5JavaProject;
@@ -56,16 +55,16 @@ public class Game5ProjectConfigurator {
 			game5Project.setDescription(description, null);
 
 			game5JavaProject = JavaCore.create(game5Project);
-			IFolder sourceFolder = game5Project.getFolder("src-gen");
+			final IFolder sourceFolder = game5Project.getFolder("src-gen");
 			sourceFolder.create(false, true, null);
 
-			List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
-			IExecutionEnvironmentsManager executionEnvironmentsManager = JavaRuntime
+			final List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
+			final IExecutionEnvironmentsManager executionEnvironmentsManager = JavaRuntime
 					.getExecutionEnvironmentsManager();
-			IExecutionEnvironment[] executionEnvironments = executionEnvironmentsManager
+			final IExecutionEnvironment[] executionEnvironments = executionEnvironmentsManager
 					.getExecutionEnvironments();
 
-			String JSEVersion = "JavaSE-1.8";
+			final String JSEVersion = "JavaSE-1.8";
 			for (IExecutionEnvironment iExecutionEnvironment : executionEnvironments) {
 				if (iExecutionEnvironment.getId().equals(JSEVersion)) {
 					entries.add(JavaCore.newContainerEntry(JavaRuntime
@@ -74,8 +73,8 @@ public class Game5ProjectConfigurator {
 				}
 			}
 
-			IPath sourceFolderPath = sourceFolder.getFullPath();
-			IClasspathEntry srcEntry = JavaCore
+			final IPath sourceFolderPath = sourceFolder.getFullPath();
+			final IClasspathEntry srcEntry = JavaCore
 					.newSourceEntry(sourceFolderPath);
 			entries.add(srcEntry);
 			game5JavaProject.setRawClasspath(
@@ -85,14 +84,14 @@ public class Game5ProjectConfigurator {
 		}
 	}
 
-	public static void FileCreation() {
+	public static void createFile() {
 
-		IPath workspacePath = root.getLocation();
-		String modelName = "game5Model.rdo";
-		IPath filePath = workspacePath.append(game5Project.getFullPath())
+		final IPath workspacePath = root.getLocation();
+		final String modelName = ModelNameView.getName() + ".rdo";
+		final IPath filePath = workspacePath.append(game5Project.getFullPath())
 				.append(modelName);
 
-		File game5Model = new File(filePath.toString());
+		final File game5Model = new File(filePath.toString());
 		try {
 			game5Model.createNewFile();
 		} catch (IOException e1) {
@@ -102,10 +101,15 @@ public class Game5ProjectConfigurator {
 		game5File = game5Project.getFile(modelName);
 		InputStream is;
 		try {
-			is = new java.io.FileInputStream(filePath.toFile());
+			is = Game5ProjectConfigurator.class.getClassLoader()
+					.getResourceAsStream("/model_template/game_5.rao");
 			game5File.create(is, true, null);
-		} catch (FileNotFoundException | CoreException e) {
+		} catch (CoreException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static final IFile getFile() {
+		return game5File;
 	}
 }

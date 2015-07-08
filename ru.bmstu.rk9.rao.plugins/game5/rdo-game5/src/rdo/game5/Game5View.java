@@ -224,13 +224,13 @@ public class Game5View extends EditorPart {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Display display = PlatformUI.getWorkbench().getDisplay();
-				Shell shell = new Shell(display);
+				final Display display = PlatformUI.getWorkbench().getDisplay();
+				final Shell shell = new Shell(display);
 				shell.setText("Set situation");
 				shell.setLayout(new FormLayout());
 				shell.setLayout(gridLayout);
 
-				Text setText = new Text(shell, SWT.BORDER);
+				final Text setText = new Text(shell, SWT.BORDER);
 				shell.setSize(180, 80);
 				shell.open();
 			}
