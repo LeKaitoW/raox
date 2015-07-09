@@ -36,27 +36,44 @@ public class ModelNameView {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				name = nameText.getText();
-				shell.close();
-				Game5ProjectConfigurator.initializeProject();
-				Game5ProjectConfigurator.configProject();
-				Game5ProjectConfigurator.createFile();
+				if (!name.isEmpty()) {
+					shell.close();
+					Game5ProjectConfigurator.initializeProject();
+					Game5ProjectConfigurator.configureProject();
+					Game5ProjectConfigurator.createFile();
 
-				final IWorkbenchPage page = PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getActivePage();
-				try {
-					IDE.openEditor(page, Game5ProjectConfigurator.getFile());
+					final IWorkbenchPage page = PlatformUI.getWorkbench()
+							.getActiveWorkbenchWindow().getActivePage();
+					try {
+						IDE.openEditor(page, Game5ProjectConfigurator.getFile());
 
-					page.openEditor(new Game5EditorInput(), Game5View.ID);
-				} catch (PartInitException e) {
-					e.printStackTrace();
+						page.openEditor(new Game5EditorInput(), Game5View.ID);
+					} catch (PartInitException e) {
+						e.printStackTrace();
+					}
+				} else {
+					//add dialog
+					//"input name pls"
 				}
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
-				shell.close();
 			}
 		});
+
+		cancelButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				shell.dispose();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+		});
+
 		shell.open();
 	}
 

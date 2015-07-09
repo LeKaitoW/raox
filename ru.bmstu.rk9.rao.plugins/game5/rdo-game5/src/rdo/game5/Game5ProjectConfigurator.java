@@ -43,7 +43,7 @@ public class Game5ProjectConfigurator {
 		}
 	}
 
-	public static final void configProject() {
+	public static final void configureProject() {
 
 		IProjectDescription description;
 		IJavaProject game5JavaProject;
