@@ -26,9 +26,11 @@ import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResourceTypeCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResultCache;
+import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.tracer.StringJoiner;
 import ru.bmstu.rk9.rao.lib.tracer.Tracer;
+import ru.bmstu.rk9.rao.lib.tracer.TracerException;
 import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceOutput;
 import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceType;
 
@@ -124,7 +126,7 @@ public class LegacyTracer {
 		case RESULT:
 			return parseResultEntry(entry);
 		default:
-			return null;
+			throw new TracerException("Unexpected entry type: " + type);
 		}
 	}
 
@@ -209,7 +211,8 @@ public class LegacyTracer {
 			break;
 		case SOLUTION:
 		default:
-			return null;
+			throw new TracerException("Unexpected resource entry type: "
+					+ entryType);
 		}
 
 		final String headerLine = new StringJoiner(delimiter)
@@ -230,8 +233,9 @@ public class LegacyTracer {
 				delimiter);
 
 		for (int paramNum = 0; paramNum < typeInfo.getNumberOfParameters(); paramNum++) {
+			ValueCache valueCache = typeInfo.getParamTypes().get(paramNum);
 			// TODO trace arrays when they are implemented
-			switch (typeInfo.getParamTypes().get(paramNum).getType()) {
+			switch (valueCache.getType()) {
 			case INTEGER:
 				stringJoiner.add(data.getInt());
 				break;
@@ -258,7 +262,9 @@ public class LegacyTracer {
 				stringJoiner.add(new String(rawString, StandardCharsets.UTF_8));
 				break;
 			default:
-				return null;
+				throw new TracerException(
+						"Unexpected resource parameter type: "
+								+ valueCache.getType());
 			}
 		}
 		return stringJoiner.getString();
@@ -290,7 +296,8 @@ public class LegacyTracer {
 			traceType = TraceType.OPERATION_END;
 			break;
 		default:
-			return null;
+			throw new TracerException("Unexpected pattern enrty type: "
+					+ entryType);
 		}
 
 		return new TraceOutput(traceType, new StringJoiner(delimiter)
@@ -357,7 +364,8 @@ public class LegacyTracer {
 		}
 			break;
 		default:
-			return null;
+			throw new TracerException("Unexpected pattern type: "
+					+ patternType);
 		}
 
 		int numberOfRelevantResources = data.getInt();
@@ -454,8 +462,8 @@ public class LegacyTracer {
 				traceType = TraceType.SEARCH_END_FAIL;
 				break;
 			default:
-				// TODO throw exception
-				return null;
+				throw new TracerException("Unexpected search end status: "
+						+ endStatus);
 			}
 
 			final long timeMillis = data.getLong();
@@ -500,8 +508,8 @@ public class LegacyTracer {
 				traceType = TraceType.SEARCH_SPAWN_BETTER;
 				break;
 			default:
-				// TODO throw exception
-				return null;
+				throw new TracerException("Unexpected search spawn status: "
+						+ spawnStatus);
 			}
 			final int childNumber = data.getInt();
 			final int parentNumber = data.getInt();
@@ -565,7 +573,8 @@ public class LegacyTracer {
 			break;
 		}
 		default:
-			return null;
+			throw new TracerException("Unexpected search entry type: "
+					+ entryType);
 		}
 
 		return new TraceOutput(traceType, stringJoiner.getString());
@@ -636,7 +645,8 @@ public class LegacyTracer {
 			break;
 		}
 
-		return null;
+		throw new TracerException("Unexpected result parameter type: "
+				+ resultCache.getValueType());
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
