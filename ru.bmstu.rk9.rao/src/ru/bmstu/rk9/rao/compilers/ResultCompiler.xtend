@@ -71,7 +71,7 @@ class ResultCompiler
 		switch (type)
 		{
 			ResultGetValue:       "getValue"
-			ResultWatchParameter: "watchPar"
+			ResultWatchParameter: "watchParameter"
 			ResultWatchQuant:     "watchQuant"
 			ResultWatchState:     "watchState"
 			ResultWatchValue:     "watchValue"
