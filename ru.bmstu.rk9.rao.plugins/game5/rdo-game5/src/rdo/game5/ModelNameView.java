@@ -1,9 +1,12 @@
 package rdo.game5;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -19,7 +22,7 @@ public class ModelNameView {
 
 	public static final void modelNameView() {
 		final Shell shell = new Shell(PlatformUI.getWorkbench().getDisplay());
-		shell.setLayout(new FillLayout());
+		shell.setLayout(new GridLayout(2, true));
 		shell.setText("New model");
 
 		final Label modelLabel = new Label(shell, SWT.NONE);
@@ -28,8 +31,16 @@ public class ModelNameView {
 
 		final Button okButton = new Button(shell, SWT.NONE);
 		okButton.setText("Ok");
+
 		final Button cancelButton = new Button(shell, SWT.NONE);
 		cancelButton.setText("Cancel");
+
+		final Label emptyNameLabel = new Label(shell, SWT.NONE);
+		emptyNameLabel.setText("Empty name!");
+		emptyNameLabel.setVisible(false);
+		final Color red = new Color(PlatformUI.getWorkbench().getDisplay(),
+				0x9B, 0x11, 0x1E);
+		emptyNameLabel.setForeground(red);
 
 		okButton.addSelectionListener(new SelectionListener() {
 
@@ -52,13 +63,23 @@ public class ModelNameView {
 						e.printStackTrace();
 					}
 				} else {
-					//add dialog
-					//"input name pls"
+					emptyNameLabel.setVisible(true);
 				}
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+		});
+		nameText.addFocusListener(new FocusListener() {
+
+			@Override
+			public void focusLost(FocusEvent arg0) {
+			}
+
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				emptyNameLabel.setVisible(false);
 			}
 		});
 
