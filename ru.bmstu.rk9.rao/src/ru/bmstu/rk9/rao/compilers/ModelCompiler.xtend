@@ -264,7 +264,7 @@ class ModelCompiler
 		{
 			ResultWatchParameter:
 				'''
-				.put("type", "watchPar")
+				.put("type", "watchParameter")
 				.put("value_type", "«type.parameter.compileExpression.type.backToRaoType»")
 				'''
 			ResultWatchState:
