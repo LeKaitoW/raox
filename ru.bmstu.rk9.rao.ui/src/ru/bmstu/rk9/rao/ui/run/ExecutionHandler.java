@@ -8,7 +8,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Timer;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.Command;
@@ -86,6 +85,54 @@ public class ExecutionHandler extends AbstractHandler {
 
 	private static DecimalFormat realTimeFormatter = new DecimalFormat("0.0");
 
+	private final void configureCommonSubscriptions() {
+		Notifier simulatorNotifier = Simulator.getNotifier();
+
+		simulatorNotifier
+				.getSubscription("TimeChange")
+				.addSubscriber(
+						SimulationSynchronizer.getInstance().uiTimeUpdater)
+				.addSubscriber(
+						SimulationSynchronizer.getInstance().simulationManager.scaleManager);
+
+		simulatorNotifier
+				.getSubscription("StateChange")
+				.addSubscriber(
+						SimulationSynchronizer.getInstance().simulationManager.speedManager);
+
+		simulatorNotifier.getSubscription("ExecutionAborted").addSubscriber(
+				SimulationSynchronizer.getInstance().simulationStateListener);
+
+		simulatorNotifier.getSubscription("ExecutionComplete")
+				.addSubscriber(TraceView.commonUpdater)
+				.addSubscriber(SerializedObjectsView.commonUpdater);
+
+		SerializedObjectsView.commonUpdater.fireChange();
+		TraceView.commonUpdater.fireChange();
+	}
+
+	private final void configureRealTimeSubscriptions(long startTime) {
+		final Display display = PlatformUI.getWorkbench().getDisplay();
+
+		RealTimeUpdater.addScheduledAction(new Runnable() {
+			@Override
+			public void run() {
+				if (!display.isDisposed())
+					display.asyncExec(() -> StatusView.setValue(
+							"Time elapsed".intern(),
+							5,
+							realTimeFormatter.format((System
+									.currentTimeMillis() - startTime) / 1000d)
+									+ "s"));
+			}
+		});
+		RealTimeUpdater.addScheduledAction(TraceView.realTimeUpdateRunnable);
+		RealTimeUpdater
+				.addScheduledAction(SerializedObjectsView.realTimeUpdateRunnable);
+		RealTimeUpdater
+				.addScheduledAction(AnimationView.realTimeUpdateRunnable);
+	}
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		final Display display = PlatformUI.getWorkbench().getDisplay();
@@ -112,9 +159,6 @@ public class ExecutionHandler extends AbstractHandler {
 		final Job run = new Job(project.getName() + " execution") {
 			protected IStatus run(IProgressMonitor monitor) {
 				URLClassLoader cl = null;
-				Timer uiRealTime = new Timer();
-				Timer traceRealTimeUpdater = new Timer();
-				Timer animationUpdater = new Timer();
 				SerializationConfigView.setEnabled(false);
 
 				try {
@@ -192,57 +236,15 @@ public class ExecutionHandler extends AbstractHandler {
 
 					display.syncExec(() -> AnimationView.initialize(frames));
 
-					Notifier simulatorNotifier = Simulator.getNotifier();
+					configureCommonSubscriptions();
 
-					simulatorNotifier
-							.getSubscription("TimeChange")
-							.addSubscriber(
-									SimulationSynchronizer.getInstance().uiTimeUpdater)
-							.addSubscriber(
-									SimulationSynchronizer.getInstance().simulationManager.scaleManager);
-
-					simulatorNotifier
-							.getSubscription("StateChange")
-							.addSubscriber(
-									SimulationSynchronizer.getInstance().simulationManager.speedManager);
-
-					simulatorNotifier
-							.getSubscription("ExecutionAborted")
-							.addSubscriber(
-									SimulationSynchronizer.getInstance().simulationStateListener);
-
-					simulatorNotifier.getSubscription("ExecutionComplete")
-							.addSubscriber(TraceView.commonUpdater)
-							.addSubscriber(SerializedObjectsView.commonUpdater);
-
-					SerializedObjectsView.commonUpdater.fireChange();
-					TraceView.commonUpdater.fireChange();
+					final long startTime = System.currentTimeMillis();
+					configureRealTimeSubscriptions(startTime);
 
 					Simulator.getTreeBuilder().setGUISubscriber(
 							GraphFrame.realTimeUpdater);
 
 					ConsoleView.addLine("Started model " + project.getName());
-
-					final long startTime = System.currentTimeMillis();
-
-					RealTimeUpdater.addScheduledAction(new Runnable() {
-						@Override
-						public void run() {
-							if (!display.isDisposed())
-								display.asyncExec(() -> StatusView.setValue(
-										"Time elapsed".intern(),
-										5,
-										realTimeFormatter.format((System
-												.currentTimeMillis() - startTime) / 1000d)
-												+ "s"));
-						}
-					});
-					RealTimeUpdater
-							.addScheduledAction(TraceView.realTimeUpdateRunnable);
-					RealTimeUpdater
-							.addScheduledAction(SerializedObjectsView.realTimeUpdateRunnable);
-					RealTimeUpdater
-							.addScheduledAction(AnimationView.realTimeUpdateRunnable);
 
 					RealTimeUpdater.start();
 
@@ -280,9 +282,7 @@ public class ExecutionHandler extends AbstractHandler {
 									- startTime) + "ms");
 
 					SimulationSynchronizer.finish();
-
 					RealTimeUpdater.cancel();
-
 					cl.close();
 
 					return Status.OK_STATUS;
@@ -296,10 +296,6 @@ public class ExecutionHandler extends AbstractHandler {
 					display.syncExec(() -> AnimationView.deinitialize());
 
 					SimulationSynchronizer.finish();
-
-					uiRealTime.cancel();
-					traceRealTimeUpdater.cancel();
-					animationUpdater.cancel();
 
 					if (cl != null)
 						try {
