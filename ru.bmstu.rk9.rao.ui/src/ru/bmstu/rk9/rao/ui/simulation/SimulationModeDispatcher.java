@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rao.ui.simulation;
 
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
+import ru.bmstu.rk9.rao.ui.notification.RealTimeUpdater;
 
 public class SimulationModeDispatcher {
 	public static void setMode(String currentState) {
@@ -15,13 +16,11 @@ public class SimulationModeDispatcher {
 			switch (currentState) {
 			case "P":
 			case "NA":
-				Simulator.getTracer().setPaused(true);
-				Simulator.getDatabase().getIndexHelper().setPaused(true);
+				RealTimeUpdater.setPaused(true);
 				break;
 			case "FF":
 			case "NS":
-				Simulator.getTracer().setPaused(false);
-				Simulator.getDatabase().getIndexHelper().setPaused(false);
+				RealTimeUpdater.setPaused(false);
 				break;
 			}
 		}

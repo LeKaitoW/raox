@@ -1,9 +1,8 @@
 package ru.bmstu.rk9.rao.ui.trace;
 
-import java.util.List;
-import java.util.TimerTask;
 import java.nio.ByteBuffer;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -346,48 +345,24 @@ public class TraceView extends ViewPart {
 
 	private static boolean shouldFollowOutput = true;
 
-	private static boolean haveNewRealTimeData = false;
-
 	private static boolean shouldFollowOutput() {
 		return shouldFollowOutput;
 	}
 
-	public static final Subscriber realTimeUpdater = new Subscriber() {
+	public static final Runnable realTimeUpdateRunnable = new Runnable() {
 		@Override
-		public void fireChange() {
-			haveNewRealTimeData = true;
+		public void run() {
+			if (!readyForInput())
+				return;
+			final List<Entry> allEntries = Simulator.getDatabase()
+					.getAllEntries();
+			final int size = allEntries.size();
+
+			TraceView.viewer.setItemCount(size);
+			if (TraceView.shouldFollowOutput())
+				TraceView.viewer.getTable().setTopIndex(size - 1);
 		}
 	};
-
-	public static TimerTask getRealTimeUpdaterTask() {
-		return new TimerTask() {
-			private final Display display = PlatformUI.getWorkbench()
-					.getDisplay();
-			private final Runnable updater = new Runnable() {
-				@Override
-				public void run() {
-					if (!readyForInput())
-						return;
-					final List<Entry> allEntries = Simulator.getDatabase()
-							.getAllEntries();
-					final int size = allEntries.size();
-
-					TraceView.viewer.setItemCount(size);
-					if (TraceView.shouldFollowOutput())
-						TraceView.viewer.getTable().setTopIndex(size - 1);
-				}
-			};
-
-			@Override
-			public void run() {
-				if (haveNewRealTimeData && readyForInput()
-						&& !display.isDisposed()) {
-					haveNewRealTimeData = false;
-					display.asyncExec(updater);
-				}
-			}
-		};
-	}
 
 	public static final Subscriber commonUpdater = new Subscriber() {
 		@Override

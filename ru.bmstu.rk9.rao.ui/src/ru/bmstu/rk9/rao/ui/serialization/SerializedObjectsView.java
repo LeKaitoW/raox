@@ -3,7 +3,6 @@ package ru.bmstu.rk9.rao.ui.serialization;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimerTask;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
@@ -44,8 +43,8 @@ import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.graph.GraphView;
 import ru.bmstu.rk9.rao.ui.plot.PlotDataParser;
-import ru.bmstu.rk9.rao.ui.plot.PlotView;
 import ru.bmstu.rk9.rao.ui.plot.PlotDataParser.PlotItem;
+import ru.bmstu.rk9.rao.ui.plot.PlotView;
 
 public class SerializedObjectsView extends ViewPart {
 
@@ -184,39 +183,16 @@ public class SerializedObjectsView extends ViewPart {
 				&& serializedObjectsTreeViewer.getLabelProvider() != null;
 	}
 
-	private static boolean haveNewRealTimeData = false;
-
-	public static final Subscriber realTimeUpdater = new Subscriber() {
+	public static final Runnable realTimeUpdateRunnable = new Runnable() {
 		@Override
-		public void fireChange() {
-			haveNewRealTimeData = true;
+		public void run() {
+			updateAllOpenedCharts();
+			if (readyForInput()) {
+				SerializedObjectsView.serializedObjectsTreeViewer
+						.refresh();
+			}
 		}
 	};
-
-	public static TimerTask getRealTimeUpdaterTask() {
-		return new TimerTask() {
-			private final Display display = PlatformUI.getWorkbench()
-					.getDisplay();
-			private final Runnable updater = new Runnable() {
-				@Override
-				public void run() {
-					updateAllOpenedCharts();
-					if (readyForInput()) {
-						SerializedObjectsView.serializedObjectsTreeViewer
-								.refresh();
-					}
-				}
-			};
-
-			@Override
-			public void run() {
-				if (haveNewRealTimeData && !display.isDisposed()) {
-					haveNewRealTimeData = false;
-					display.asyncExec(updater);
-				}
-			}
-		};
-	}
 
 	public static final Subscriber commonUpdater = new Subscriber() {
 		@Override

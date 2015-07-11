@@ -1,35 +1,32 @@
 package ru.bmstu.rk9.rao.ui.animation;
 
-import java.util.TimerTask;
 import java.util.ArrayList;
 
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.ViewPart;
-import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.State;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Composite;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Sash;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Sash;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
+import org.eclipse.ui.part.ViewPart;
 
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
-import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 
 public class AnimationView extends ViewPart {
 
@@ -120,45 +117,21 @@ public class AnimationView extends ViewPart {
 			frameView.redraw();
 	}
 
-	private static volatile boolean haveNewData = false;
-
 	private static volatile boolean noAnimation = false;
 
 	public static void disableAnimation(boolean state) {
 		noAnimation = state;
-
-		if (isRunning && !state)
-			haveNewData = true;
 	}
 
-	public static final Subscriber updater = new Subscriber() {
+	public static final Runnable realTimeUpdateRunnable = new Runnable() {
 		@Override
-		public void fireChange() {
-			if (!noAnimation)
-				haveNewData = true;
+		public void run() {
+			if (isInitialized() && !noAnimation) {
+				animationContext.prepareFrame(currentFrame);
+				frameView.redraw();
+			}
 		}
 	};
-
-	public static TimerTask getRedrawTimerTask() {
-		return new TimerTask() {
-			private final Display display = PlatformUI.getWorkbench()
-					.getDisplay();
-
-			private final Runnable updater = () -> {
-				if (isInitialized()) {
-					animationContext.prepareFrame(currentFrame);
-					haveNewData = false;
-					frameView.redraw();
-				}
-			};
-
-			@Override
-			public void run() {
-				if (haveNewData && !display.isDisposed())
-					display.asyncExec(updater);
-			}
-		};
-	}
 
 	private static PaintListener painter = new PaintListener() {
 		@Override

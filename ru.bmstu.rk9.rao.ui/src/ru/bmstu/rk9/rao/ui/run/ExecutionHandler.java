@@ -8,7 +8,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.Command;
@@ -41,6 +40,7 @@ import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.build.ModelBuilder;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.graph.GraphFrame;
+import ru.bmstu.rk9.rao.ui.notification.RealTimeUpdater;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView;
@@ -193,9 +193,6 @@ public class ExecutionHandler extends AbstractHandler {
 
 					Notifier simulatorNotifier = Simulator.getNotifier();
 
-					Notifier databaseNotifier = Simulator.getDatabase()
-							.getNotifier();
-
 					simulatorNotifier
 							.getSubscription("TimeChange")
 							.addSubscriber(
@@ -206,49 +203,28 @@ public class ExecutionHandler extends AbstractHandler {
 					simulatorNotifier
 							.getSubscription("StateChange")
 							.addSubscriber(
-									SimulationSynchronizer.getInstance().simulationManager.speedManager)
-							.addSubscriber(AnimationView.updater);
+									SimulationSynchronizer.getInstance().simulationManager.speedManager);
 
 					simulatorNotifier
 							.getSubscription("ExecutionAborted")
 							.addSubscriber(
 									SimulationSynchronizer.getInstance().simulationStateListener);
 
+					simulatorNotifier.getSubscription("ExecutionComplete")
+							.addSubscriber(TraceView.commonUpdater)
+							.addSubscriber(SerializedObjectsView.commonUpdater);
+
 					SerializedObjectsView.commonUpdater.fireChange();
 					TraceView.commonUpdater.fireChange();
 
-					databaseNotifier
-						.getSubscription("EntryAdded")
-							.addSubscriber(Simulator.getTreeBuilder());
+					Simulator.getTreeBuilder().setGUISubscriber(
+							GraphFrame.realTimeUpdater);
 
-					Simulator.getTreeBuilder()
-						.setGUISubscriber(GraphFrame.realTimeUpdater);
-
-					databaseNotifier.getSubscription("EntryAdded")
-							.addSubscriber(Simulator.getTracer())
-							.addSubscriber(Simulator.getDatabase().getIndexHelper());
-
-					Simulator.getTracer().setRealTimeSubscriber(
-							TraceView.realTimeUpdater);
-					Simulator
-							.getDatabase()
-							.getIndexHelper()
-							.setRealTimeSubscriber(
-									SerializedObjectsView.realTimeUpdater);
-
-					Simulator.getTracer().setCommonSubscriber(
-							TraceView.commonUpdater);
-					Simulator
-							.getDatabase()
-							.getIndexHelper()
-							.setCommonSubscriber(
-									SerializedObjectsView.commonUpdater);
-
-					ConsoleView
-							.addLine("Started model " + project.getName());
+					ConsoleView.addLine("Started model " + project.getName());
 
 					final long startTime = System.currentTimeMillis();
-					uiRealTime.scheduleAtFixedRate(new TimerTask() {
+
+					RealTimeUpdater.addScheduledAction(new Runnable() {
 						@Override
 						public void run() {
 							if (!display.isDisposed())
@@ -259,17 +235,15 @@ public class ExecutionHandler extends AbstractHandler {
 												.currentTimeMillis() - startTime) / 1000d)
 												+ "s"));
 						}
-					}, 0, 100);
+					});
+					RealTimeUpdater
+							.addScheduledAction(TraceView.realTimeUpdateRunnable);
+					RealTimeUpdater
+							.addScheduledAction(SerializedObjectsView.realTimeUpdateRunnable);
+					RealTimeUpdater
+							.addScheduledAction(AnimationView.realTimeUpdateRunnable);
 
-					traceRealTimeUpdater.scheduleAtFixedRate(
-							TraceView.getRealTimeUpdaterTask(), 0, 100);
-
-					traceRealTimeUpdater.scheduleAtFixedRate(
-							SerializedObjectsView.getRealTimeUpdaterTask(),
-							0, 100);
-
-					animationUpdater.scheduleAtFixedRate(
-							AnimationView.getRedrawTimerTask(), 0, 20);
+					RealTimeUpdater.start();
 
 					LinkedList<Result> results = new LinkedList<Result>();
 					int result = -1;
@@ -277,7 +251,8 @@ public class ExecutionHandler extends AbstractHandler {
 						result = (int) simulation
 								.invoke(null, (Object) results);
 
-					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.getUpdater());
+					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater
+							.getUpdater());
 
 					display.syncExec(() -> AnimationView.deinitialize());
 
@@ -285,8 +260,7 @@ public class ExecutionHandler extends AbstractHandler {
 
 					switch (result) {
 					case 1:
-						ConsoleView
-								.addLine("Stopped by terminate condition");
+						ConsoleView.addLine("Stopped by terminate condition");
 						break;
 					case -1:
 						ConsoleView.addLine("Model terminated by user");
@@ -306,9 +280,7 @@ public class ExecutionHandler extends AbstractHandler {
 
 					SimulationSynchronizer.finish();
 
-					uiRealTime.cancel();
-					traceRealTimeUpdater.cancel();
-					animationUpdater.cancel();
+					RealTimeUpdater.cancel();
 
 					cl.close();
 
@@ -317,7 +289,8 @@ public class ExecutionHandler extends AbstractHandler {
 					e.printStackTrace();
 					setRunningState(display, sourceProvider, false);
 					ConsoleView.addLine("Execution error");
-					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater.getUpdater());
+					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater
+							.getUpdater());
 
 					display.syncExec(() -> AnimationView.deinitialize());
 
