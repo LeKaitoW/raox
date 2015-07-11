@@ -126,7 +126,7 @@ public class Tracer implements Subscriber {
 		case RESULT:
 			return parseResultEntry(entry);
 		default:
-			return null;
+			throw new TracerException("Unexpected entry type: " + type);
 		}
 	}
 
@@ -180,7 +180,8 @@ public class Tracer implements Subscriber {
 			traceType = TraceType.SEARCH_RESOURCE_KEEP;
 			break;
 		default:
-			return null;
+			throw new TracerException("Unexpected resource entry type: "
+					+ entryType);
 		}
 
 		final int typeNum = header.getInt();
@@ -234,7 +235,9 @@ public class Tracer implements Subscriber {
 						+ new String(rawString, StandardCharsets.UTF_8) + "\"");
 				break;
 			default:
-				return null;
+				throw new TracerException(
+						"Unexpected resource parameter type: "
+								+ valueCache.getType());
 			}
 		}
 		return stringJoiner.getString();
@@ -265,7 +268,8 @@ public class Tracer implements Subscriber {
 			traceType = TraceType.OPERATION_END;
 			break;
 		default:
-			return null;
+			throw new TracerException("Unexpected pattern enrty type: "
+					+ entryType);
 		}
 
 		return new TraceOutput(traceType, new StringJoiner(delimiter)
@@ -274,8 +278,7 @@ public class Tracer implements Subscriber {
 	}
 
 	private String parsePatternData(final ByteBuffer data) {
-		final StringJoiner stringJoiner = new StringJoiner(
-				delimiter);
+		final StringJoiner stringJoiner = new StringJoiner(delimiter);
 
 		int dptNumber = data.getInt();
 		int activityNumber = data.getInt();
@@ -325,8 +328,7 @@ public class Tracer implements Subscriber {
 	}
 
 	private String parseEventData(final ByteBuffer data) {
-		final StringJoiner stringJoiner = new StringJoiner(
-				delimiter);
+		final StringJoiner stringJoiner = new StringJoiner(delimiter);
 
 		int eventNumber = data.getInt();
 		int actionNumber = data.getInt();
@@ -343,8 +345,7 @@ public class Tracer implements Subscriber {
 	private TraceOutput parseSearchEntry(final Entry entry) {
 		final ByteBuffer header = prepareBufferForReading(entry.getHeader());
 
-		final StringJoiner stringJoiner = new StringJoiner(
-				delimiter);
+		final StringJoiner stringJoiner = new StringJoiner(delimiter);
 
 		final TraceType traceType;
 		skipPart(header, TypeSize.BYTE);
@@ -381,8 +382,8 @@ public class Tracer implements Subscriber {
 				traceType = TraceType.SEARCH_END_FAIL;
 				break;
 			default:
-				// TODO throw exception
-				return null;
+				throw new TracerException("Unexpected search end status: "
+						+ endStatus);
 			}
 
 			skipPart(data, TypeSize.LONG * 2);
@@ -426,8 +427,8 @@ public class Tracer implements Subscriber {
 				traceType = TraceType.SEARCH_SPAWN_BETTER;
 				break;
 			default:
-				// TODO throw exception
-				return null;
+				throw new TracerException("Unexpected search spawn status: "
+						+ spawnStatus);
 			}
 			final int childNumber = data.getInt();
 			final int parentNumber = data.getInt();
@@ -506,7 +507,8 @@ public class Tracer implements Subscriber {
 			break;
 		}
 		default:
-			return null;
+			throw new TracerException("Unexpected search entry type: "
+					+ entryType);
 		}
 
 		return new TraceOutput(traceType, stringJoiner.getString());
@@ -526,8 +528,8 @@ public class Tracer implements Subscriber {
 		final ResultCache resultCache = Simulator.getModelStructureCache()
 				.getResultsInfo().get(resultNum);
 
-		return new TraceOutput(TraceType.RESULT, new StringJoiner(
-				delimiter).add(TraceType.RESULT.toString()).add(time)
+		return new TraceOutput(TraceType.RESULT, new StringJoiner(delimiter)
+				.add(TraceType.RESULT.toString()).add(time)
 				.add(resultCache.getName()).add("=")
 				.add(parseResultParameter(data, resultCache)).getString());
 	}
@@ -551,10 +553,9 @@ public class Tracer implements Subscriber {
 			}
 			return "\"" + rawString.toString() + "\"";
 		default:
-			break;
+			throw new TracerException("Unexpected result parameter type: "
+					+ resultCache.getValueType());
 		}
-
-		return null;
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
