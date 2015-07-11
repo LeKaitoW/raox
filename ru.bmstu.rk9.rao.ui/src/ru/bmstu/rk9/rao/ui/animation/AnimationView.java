@@ -66,7 +66,7 @@ public class AnimationView extends ViewPart {
 
 	private static AnimationContextSWT animationContext;
 
-	private static ArrayList<AnimationFrame> frames;
+	private static java.util.List<AnimationFrame> frames;
 	private static AnimationFrame currentFrame;
 
 	private static int selectedFrameIndex = 0;
@@ -93,7 +93,7 @@ public class AnimationView extends ViewPart {
 		}
 	}
 
-	public static void initialize(ArrayList<AnimationFrame> frames) {
+	public static void initialize(java.util.List<AnimationFrame> frames) {
 		isRunning = true;
 		selectedFrameIndex = 0;
 

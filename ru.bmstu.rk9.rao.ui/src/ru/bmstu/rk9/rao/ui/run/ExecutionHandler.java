@@ -7,6 +7,7 @@ import java.net.URLClassLoader;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Timer;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -175,7 +176,7 @@ public class ExecutionHandler extends AbstractHandler {
 
 					SerializationConfigView.initNames();
 
-					final ArrayList<AnimationFrame> frames = new ArrayList<AnimationFrame>();
+					final List<AnimationFrame> frames = new ArrayList<AnimationFrame>();
 
 					if (initialization != null)
 						initialization.invoke(null, (Object) frames);
