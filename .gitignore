@@ -11,9 +11,10 @@ tmp/
 *.bak
 *.swp
 *~.nib
+*.prefs
+!*org.eclipse.core.resources.prefs
 local.properties
 .loadpath
-*.prefs
 
 # External tool builders
 .externalToolBuilders/

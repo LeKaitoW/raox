@@ -34,7 +34,7 @@ public class ModelStructureCache {
 				if (t.type.equals(type))
 					return t;
 			}
-			return null;
+			throw new ModelStructureException("Unexpected value type: " + type);
 		}
 	}
 
@@ -84,7 +84,8 @@ public class ModelStructureCache {
 				.getJSONArray("patterns");
 
 		for (int num = 0; num < patterns.length(); num++)
-			getPatternsInfo().add(new PatternCache(patterns.getJSONObject(num)));
+			getPatternsInfo()
+					.add(new PatternCache(patterns.getJSONObject(num)));
 	}
 
 	final void initDecisionPointsCache() {
@@ -124,8 +125,8 @@ public class ModelStructureCache {
 			}
 		}
 
-		// TODO throw exception
-		return null;
+		throw new ModelStructureException("Enum origin " + enumOrigin
+				+ " not found in model structure");
 	}
 
 	public final static String getRelativeName(final String fullName) {
