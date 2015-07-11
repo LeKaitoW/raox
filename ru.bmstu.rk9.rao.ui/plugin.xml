@@ -1,0 +1,1033 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<plugin>
+
+    <extension
+            point="org.eclipse.ui.editors">
+        <editor
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.editor.XtextEditor"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+            default="true"
+            extensions="rao"
+            id="ru.bmstu.rk9.rao.Rao"
+            name="Rao Editor">
+        </editor>
+    </extension>
+    <extension
+        point="org.eclipse.ui.handlers">
+        <handler
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.editor.hyperlinking.OpenDeclarationHandler"
+            commandId="org.eclipse.xtext.ui.editor.hyperlinking.OpenDeclaration">
+            <activeWhen>
+                <reference
+                    definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened">
+                </reference>
+            </activeWhen>
+        </handler>
+        <handler
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.editor.handler.ValidateActionHandler"
+            commandId="ru.bmstu.rk9.rao.Rao.validate">
+         <activeWhen>
+            <reference
+                    definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened">
+            </reference>
+         </activeWhen>
+      	</handler>
+      	<!-- copy qualified name -->
+        <handler
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedNameHandler"
+            commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedName">
+            <activeWhen>
+				<reference definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened" />
+            </activeWhen>
+        </handler>
+        <handler
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.editor.copyqualifiedname.OutlineCopyQualifiedNameHandler"
+            commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.OutlineCopyQualifiedName">
+            <activeWhen>
+            	<and>
+            		<reference definitionId="ru.bmstu.rk9.rao.Rao.XtextEditor.opened" />
+	                <iterate>
+						<adapt type="org.eclipse.xtext.ui.editor.outline.IOutlineNode" />
+					</iterate>
+				</and>
+            </activeWhen>
+        </handler>
+    </extension>
+    <extension point="org.eclipse.core.expressions.definitions">
+        <definition id="ru.bmstu.rk9.rao.Rao.Editor.opened">
+            <and>
+                <reference definitionId="isActiveEditorAnInstanceOfXtextEditor"/>
+                <with variable="activeEditor">
+                    <test property="org.eclipse.xtext.ui.editor.XtextEditor.languageName" 
+                        value="ru.bmstu.rk9.rao.Rao" 
+                        forcePluginActivation="true"/>
+                </with>        
+            </and>
+        </definition>
+        <definition id="ru.bmstu.rk9.rao.Rao.XtextEditor.opened">
+            <and>
+                <reference definitionId="isXtextEditorActive"/>
+                <with variable="activeEditor">
+                    <test property="org.eclipse.xtext.ui.editor.XtextEditor.languageName" 
+                        value="ru.bmstu.rk9.rao.Rao" 
+                        forcePluginActivation="true"/>
+                </with>        
+            </and>
+        </definition>
+    </extension>
+    <extension
+            point="org.eclipse.ui.preferencePages">
+        <page
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.editor.preferences.LanguageRootPreferencePage"
+            id="ru.bmstu.rk9.rao.Rao"
+            name="Rao">
+            <keywordReference id="ru.bmstu.rk9.rao.ui.keyword_Rao"/>
+        </page>
+        <page
+            category="ru.bmstu.rk9.rao.Rao"
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.editor.syntaxcoloring.SyntaxColoringPreferencePage"
+            id="ru.bmstu.rk9.rao.Rao.coloring"
+            name="Syntax Coloring">
+            <keywordReference id="ru.bmstu.rk9.rao.ui.keyword_Rao"/>
+        </page>
+        <page
+            category="ru.bmstu.rk9.rao.Rao"
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.editor.templates.XtextTemplatePreferencePage"
+            id="ru.bmstu.rk9.rao.Rao.templates"
+            name="Templates">
+            <keywordReference id="ru.bmstu.rk9.rao.ui.keyword_Rao"/>
+        </page>
+    </extension>
+    <extension
+            point="org.eclipse.ui.propertyPages">
+        <page
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.editor.preferences.LanguageRootPreferencePage"
+            id="ru.bmstu.rk9.rao.Rao"
+            name="Rao">
+            <keywordReference id="ru.bmstu.rk9.rao.ui.keyword_Rao"/>
+            <enabledWhen>
+	            <adapt type="org.eclipse.core.resources.IProject"/>
+			</enabledWhen>
+	        <filter name="projectNature" value="org.eclipse.xtext.ui.shared.xtextNature"/>
+        </page>
+    </extension>
+    <extension
+        point="org.eclipse.ui.keywords">
+        <keyword
+            id="ru.bmstu.rk9.rao.ui.keyword_Rao"
+            label="Rao"/>
+    </extension>
+    <extension
+         point="org.eclipse.ui.commands">
+      <command
+            description="Trigger expensive validation"
+            id="ru.bmstu.rk9.rao.Rao.validate"
+            name="Validate">
+      </command>
+      <!-- copy qualified name -->
+      <command
+            id="org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedName"
+            categoryId="org.eclipse.ui.category.edit"
+            description="Copy the qualified name for the selected element"
+            name="Copy Qualified Name">
+      </command>
+      <command
+            id="org.eclipse.xtext.ui.editor.copyqualifiedname.OutlineCopyQualifiedName"
+            categoryId="org.eclipse.ui.category.edit"
+            description="Copy the qualified name for the selected element"
+            name="Copy Qualified Name">
+      </command>
+    </extension>
+    <extension point="org.eclipse.ui.menus">
+        <menuContribution
+            locationURI="popup:#TextEditorContext?after=group.edit">
+             <command
+                 commandId="ru.bmstu.rk9.rao.Rao.validate"
+                 style="push"
+                 tooltip="Trigger expensive validation">
+            <visibleWhen checkEnabled="false">
+                <reference
+                    definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened">
+                </reference>
+            </visibleWhen>
+         </command>  
+         </menuContribution>
+         <!-- copy qualified name -->
+         <menuContribution locationURI="popup:#TextEditorContext?after=copy">
+         	<command commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedName" 
+         		style="push" tooltip="Copy Qualified Name">
+            	<visibleWhen checkEnabled="false">
+                	<reference definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened" />
+            	</visibleWhen>
+         	</command>  
+         </menuContribution>
+         <menuContribution locationURI="menu:edit?after=copy">
+         	<command commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedName"
+            	style="push" tooltip="Copy Qualified Name">
+            	<visibleWhen checkEnabled="false">
+                	<reference definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened" />
+            	</visibleWhen>
+         	</command>  
+         </menuContribution>
+         <menuContribution locationURI="popup:org.eclipse.xtext.ui.outline?after=additions">
+			<command commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.OutlineCopyQualifiedName" 
+				style="push" tooltip="Copy Qualified Name">
+         		<visibleWhen checkEnabled="false">
+	            	<and>
+	            		<reference definitionId="ru.bmstu.rk9.rao.Rao.XtextEditor.opened" />
+						<iterate>
+							<adapt type="org.eclipse.xtext.ui.editor.outline.IOutlineNode" />
+						</iterate>
+					</and>
+				</visibleWhen>
+			</command>
+         </menuContribution>
+    </extension>
+    <extension point="org.eclipse.ui.menus">
+		<menuContribution locationURI="popup:#TextEditorContext?endof=group.find">
+			<command commandId="org.eclipse.xtext.ui.editor.FindReferences">
+				<visibleWhen checkEnabled="false">
+                	<reference definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened">
+                	</reference>
+            	</visibleWhen>
+			</command>
+		</menuContribution>
+	</extension>
+	<extension point="org.eclipse.ui.handlers">
+	    <handler
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.editor.findrefs.FindReferencesHandler"
+            commandId="org.eclipse.xtext.ui.editor.FindReferences">
+            <activeWhen>
+                <reference
+                    definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened">
+                </reference>
+            </activeWhen>
+        </handler>
+    </extension>   
+
+<!-- adding resource factories -->
+
+	<extension
+		point="org.eclipse.emf.ecore.extension_parser">
+		<parser
+			class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.resource.IResourceFactory"
+			type="rao">
+		</parser>
+	</extension>
+	<extension point="org.eclipse.xtext.extension_resourceServiceProvider">
+        <resourceServiceProvider
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.resource.IResourceUIServiceProvider"
+            uriExtension="rao">
+        </resourceServiceProvider>
+    </extension>
+
+
+	<!-- marker definitions for ru.bmstu.rk9.rao.Rao -->
+	<extension
+	        id="rao.check.fast"
+	        name="Rao Problem"
+	        point="org.eclipse.core.resources.markers">
+	    <super type="org.eclipse.xtext.ui.check.fast"/>
+	    <persistent value="true"/>
+	</extension>
+	<extension
+	        id="rao.check.normal"
+	        name="Rao Problem"
+	        point="org.eclipse.core.resources.markers">
+	    <super type="org.eclipse.xtext.ui.check.normal"/>
+	    <persistent value="true"/>
+	</extension>
+	<extension
+	        id="rao.check.expensive"
+	        name="Rao Problem"
+	        point="org.eclipse.core.resources.markers">
+	    <super type="org.eclipse.xtext.ui.check.expensive"/>
+	    <persistent value="true"/>
+	</extension>
+
+   <extension
+            point="org.eclipse.ui.preferencePages">
+        <page
+            category="ru.bmstu.rk9.rao.Rao"
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.builder.preferences.BuilderPreferencePage"
+            id="ru.bmstu.rk9.rao.Rao.compiler.preferencePage"
+            name="Compiler">
+            <keywordReference id="ru.bmstu.rk9.rao.ui.keyword_Rao"/>
+        </page>
+    </extension>
+    <extension
+            point="org.eclipse.ui.propertyPages">
+        <page
+            category="ru.bmstu.rk9.rao.Rao"
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.builder.preferences.BuilderPreferencePage"
+            id="ru.bmstu.rk9.rao.Rao.compiler.propertyPage"
+            name="Compiler">
+            <keywordReference id="ru.bmstu.rk9.rao.ui.keyword_Rao"/>
+            <enabledWhen>
+	            <adapt type="org.eclipse.core.resources.IProject"/>
+			</enabledWhen>
+	        <filter name="projectNature" value="org.eclipse.xtext.ui.shared.xtextNature"/>
+        </page>
+    </extension>
+
+	<!-- Quick Outline -->
+	<extension
+		point="org.eclipse.ui.handlers">
+		<handler 
+			class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.editor.outline.quickoutline.ShowQuickOutlineActionHandler"
+			commandId="org.eclipse.xtext.ui.editor.outline.QuickOutline">
+			<activeWhen>
+				<reference
+					definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened">
+				</reference>
+			</activeWhen>
+		</handler>
+	</extension>
+	<extension
+		point="org.eclipse.ui.commands">
+		<command
+			description="Open the quick outline."
+			id="org.eclipse.xtext.ui.editor.outline.QuickOutline"
+			name="Quick Outline">
+		</command>
+	</extension>
+	<extension point="org.eclipse.ui.menus">
+		<menuContribution
+			locationURI="popup:#TextEditorContext?after=group.open">
+			<command commandId="org.eclipse.xtext.ui.editor.outline.QuickOutline"
+				style="push"
+				tooltip="Open Quick Outline">
+				<visibleWhen checkEnabled="false">
+					<reference definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened"/>
+				</visibleWhen>
+			</command>
+		</menuContribution>
+	</extension>
+    <!-- quickfix marker resolution generator for ru.bmstu.rk9.rao.Rao -->
+    <extension
+            point="org.eclipse.ui.ide.markerResolution">
+        <markerResolutionGenerator
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.editor.quickfix.MarkerResolutionGenerator"
+            markerType="ru.bmstu.rk9.rao.ui.rao.check.fast">
+            <attribute
+                name="FIXABLE_KEY"
+                value="true">
+            </attribute>
+        </markerResolutionGenerator>
+        <markerResolutionGenerator
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.editor.quickfix.MarkerResolutionGenerator"
+            markerType="ru.bmstu.rk9.rao.ui.rao.check.normal">
+            <attribute
+                name="FIXABLE_KEY"
+                value="true">
+            </attribute>
+        </markerResolutionGenerator>
+        <markerResolutionGenerator
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.editor.quickfix.MarkerResolutionGenerator"
+            markerType="ru.bmstu.rk9.rao.ui.rao.check.expensive">
+            <attribute
+                name="FIXABLE_KEY"
+                value="true">
+            </attribute>
+        </markerResolutionGenerator>
+    </extension>
+   	<!-- Rename Refactoring -->
+	<extension point="org.eclipse.ui.handlers">
+		<handler 
+			class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.refactoring.ui.DefaultRenameElementHandler"
+			commandId="org.eclipse.xtext.ui.refactoring.RenameElement">
+			<activeWhen>
+				<reference
+					definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened">
+				</reference>
+			</activeWhen>
+		</handler>
+	</extension>
+    <extension point="org.eclipse.ui.menus">
+         <menuContribution
+            locationURI="popup:#TextEditorContext?after=group.edit">
+         <command commandId="org.eclipse.xtext.ui.refactoring.RenameElement"
+               style="push">
+            <visibleWhen checkEnabled="false">
+               <reference
+                     definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened">
+               </reference>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+   <extension point="org.eclipse.ui.preferencePages">
+	    <page
+	        category="ru.bmstu.rk9.rao.Rao"
+	        class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.refactoring.ui.RefactoringPreferencePage"
+	        id="ru.bmstu.rk9.rao.Rao.refactoring"
+	        name="Refactoring">
+	        <keywordReference id="ru.bmstu.rk9.rao.ui.keyword_Rao"/>
+	    </page>
+	</extension>
+
+  <extension point="org.eclipse.compare.contentViewers">
+    <viewer id="ru.bmstu.rk9.rao.Rao.compare.contentViewers"
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
+            extensions="rao">
+    </viewer>
+  </extension>
+  <extension point="org.eclipse.compare.contentMergeViewers">
+    <viewer id="ru.bmstu.rk9.rao.Rao.compare.contentMergeViewers"
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
+            extensions="rao" label="Rao Compare">
+     </viewer>
+  </extension>
+  <extension point="org.eclipse.ui.editors.documentProviders">
+    <provider id="ru.bmstu.rk9.rao.Rao.editors.documentProviders"
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.ui.editor.model.XtextDocumentProvider"
+            extensions="rao">
+    </provider>
+  </extension>
+  <extension
+        point="org.eclipse.ui.commands">
+     <category
+           id="ru.bmstu.rk9.rao.ui.runtime"
+           name="Rao runtime UI module">
+     </category>
+     <command
+           categoryId="ru.bmstu.rk9.rao.ui.runtime"
+           id="ru.bmstu.rk9.rao.ui.runtime.build"
+           name="Build Rao model">
+     </command>
+     <command
+           categoryId="ru.bmstu.rk9.rao.ui.runtime"
+           id="ru.bmstu.rk9.rao.ui.runtime.execute"
+           name="Execute Rao model">
+     </command>
+     <command
+           categoryId="ru.bmstu.rk9.rao.ui.runtime"
+           id="ru.bmstu.rk9.rao.ui.runtime.stop"
+           name="Stop Rao Model">
+     </command>
+     <command
+           categoryId="ru.bmstu.rk9.rao.ui.runtime"
+           id="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+           name="Set Execution Mode">
+        <commandParameter
+              id="org.eclipse.ui.commands.radioStateParameter"
+              name="RaoExecutionMode"
+              optional="false">
+        </commandParameter>
+        <state
+              id="org.eclipse.ui.commands.radioState">
+           <class
+                 class="org.eclipse.ui.handlers.RadioState">
+              <parameter
+                    name="default"
+                    value="NA">
+              </parameter>
+              <parameter
+                    name="persisted"
+                    value="true">
+              </parameter>
+           </class>
+        </state>
+     </command>
+     <command
+           categoryId="ru.bmstu.rk9.rao.ui.runtime"
+           id="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+           name="Set Simulation Scale">
+        <commandParameter
+              id="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+              name="Modifier"
+              optional="false">
+        </commandParameter>
+     </command>
+     <command
+           categoryId="ru.bmstu.rk9.rao.ui.runtime"
+           id="ru.bmstu.rk9.rao.ui.runtime.exportTrace"
+           name="Export Trace">
+        <commandParameter
+              id="ru.bmstu.rk9.rao.ui.runtime.exportTraceType"
+              name="Type"
+              optional="false">
+        </commandParameter>
+     </command>
+  </extension>
+  <extension
+        point="org.eclipse.ui.handlers">
+     <handler
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.build.BuildHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.build">
+        <enabledWhen>
+           <reference
+                 definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened">
+           </reference>
+        </enabledWhen>
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.run.ExecutionHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.execute">
+        <enabledWhen>
+           <and>
+              <reference
+                    definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened">
+              </reference>
+              <with
+                    variable="ru.bmstu.rk9.rao.ui.handlers.simulationRunning">
+                 <equals
+                       value="STOPPED">
+                 </equals>
+              </with>
+           </and>
+        </enabledWhen>
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.run.StoppingHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.stop">
+        <enabledWhen>
+           <with
+                 variable="ru.bmstu.rk9.rao.ui.handlers.simulationRunning">
+              <equals
+                    value="RUNNING">
+              </equals>
+           </with>
+        </enabledWhen>
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.simulation.SetExecutionModeHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode">
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rao.ui.simulation.SetSimulationScaleHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale">
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rao.ui.trace.ExportTraceHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.exportTrace">
+     </handler>
+  </extension>
+  <extension
+        point="org.eclipse.ui.menus">
+     <menuContribution
+           locationURI="menu:org.eclipse.ui.main.menu?after=project">
+        <menu
+              icon="icons/model.gif"
+              id="ru.bmstu.rk9.rao.ui.runtime.modelMenu"
+              label="Model"
+              mnemonic="M">
+           <visibleWhen
+                 checkEnabled="false">
+              <with
+                    variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                 <equals
+                       value="showActions">
+                 </equals>
+              </with>
+           </visibleWhen>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.build"
+                 id="ru.bmstu.rk9.rao.ui.runtime.menu.build"
+                 label="Build"
+                 mnemonic="B"
+                 style="push">
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.execute"
+                 icon="icons/rao_model_run.gif"
+                 id="ru.bmstu.rk9.rao.ui.runtime.menu.execute"
+                 label="Run"
+                 mnemonic="R"
+                 style="push">
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.stop"
+                 icon="icons/rao_stop.gif"
+                 id="ru.bmstu.rk9.rao.ui.runtime.menu.stop"
+                 label="Stop"
+                 mnemonic="S"
+                 style="push">
+           </command>
+           <separator
+                 name="ru.bmstu.rk9.rao.ui.runtime.menu.separator1"
+                 visible="true">
+           </separator>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 icon="icons/rao_noanimation.gif"
+                 id="ru.bmstu.rk9.rao.ui.runtime.menu.noAnimation"
+                 label="No Animation"
+                 mnemonic="A"
+                 style="radio">
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="NA">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 icon="icons/rao_fastforward.gif"
+                 id="ru.bmstu.rk9.rao.ui.runtime.menu.fastForward"
+                 label="Fast Forward"
+                 mnemonic="F"
+                 style="radio">
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="FF">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 icon="icons/rao_normalspeed.gif"
+                 id="ru.bmstu.rk9.rao.ui.runtime.menu.normalSpeed"
+                 label="Normal Speed"
+                 mnemonic="N"
+                 style="radio">
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="NS">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 icon="icons/rao_pause.gif"
+                 id="ru.bmstu.rk9.rao.ui.runtime.menu.pause"
+                 label="Pause"
+                 mnemonic="P"
+                 style="radio">
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="P">
+              </parameter>
+           </command>
+           <separator
+                 name="ru.bmstu.rk9.rao.ui.runtime.menu.separator2"
+                 visible="true">
+           </separator>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_inc.png"
+                 label="Increase Simulation Scale"
+                 mnemonic="I"
+                 style="push">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="+">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_inc_four.png"
+                 label="Multiply Simulation Scale by 4"
+                 mnemonic="M"
+                 style="push">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="*">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_dec_four.png"
+                 label="Divide Simulation Scale by 4"
+                 mnemonic="D"
+                 style="push">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="/">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_dec.png"
+                 label="Decrease Simulation Scale"
+                 mnemonic="E"
+                 style="push">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="-">
+              </parameter>
+           </command>
+           <separator
+                 name="ru.bmstu.rk9.rao.ui.runtime.menu.separator3"
+                 visible="true">
+           </separator>
+           <menu
+                 id="ru.bmstu.rk9.rao.ui.runtime.exportTraceOutputMenu"
+                 label="Export Trace Output">
+              <command
+                    commandId="ru.bmstu.rk9.rao.ui.runtime.exportTrace"
+                    id="ru.bmstu.rk9.rao.ui.runtime.menu.exportTraceRegular"
+                    label="Regular"
+                    style="push">
+                 <parameter
+                       name="ru.bmstu.rk9.rao.ui.runtime.exportTraceType"
+                       value="Regular">
+                 </parameter>
+              </command>
+              <command
+                    commandId="ru.bmstu.rk9.rao.ui.runtime.exportTrace"
+                    id="ru.bmstu.rk9.rao.ui.runtime.menu.exportTraceLegacy"
+                    label="Legacy"
+                    style="push">
+                 <parameter
+                       name="ru.bmstu.rk9.rao.ui.runtime.exportTraceType"
+                       value="Legacy">
+                 </parameter>
+              </command>
+           </menu>
+        </menu>
+     </menuContribution>
+     <menuContribution
+           allPopups="false"
+           locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+        <toolbar
+              id="ru.bmstu.rk9.rao.ui.RaoToolbar"
+              label="Rao Toolbar">
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.execute"
+                 icon="icons/rao_model_run.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoToolbar.execute"
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.stop"
+                 icon="icons/rao_stop.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoToolbar.stop"
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <control
+                 class="ru.bmstu.rk9.rao.ui.toolbar.ToolbarSeparator">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </control>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 icon="icons/rao_noanimation.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoToolbar.noAnimation"
+                 label="No Animation"
+                 style="radio"
+                 tooltip="No Animation">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="NA">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 icon="icons/rao_fastforward.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoToolbar.fastForward"
+                 label="Fast Forward"
+                 style="radio"
+                 tooltip="Fast Forward">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="FF">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 icon="icons/rao_normalspeed.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoToolbar.normalSpeed"
+                 label="Normal Speed"
+                 style="radio"
+                 tooltip="Normal Speed">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="NS">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 icon="icons/rao_pause.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoToolbar.pause"
+                 label="Pause"
+                 style="radio"
+                 tooltip="Pause">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="P">
+              </parameter>
+           </command>
+           <control
+                 class="ru.bmstu.rk9.rao.ui.toolbar.ToolbarSeparator">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </control>
+           <control
+                 class="ru.bmstu.rk9.rao.ui.simulation.SpeedSelectionToolbar">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </control>
+           <control
+                 class="ru.bmstu.rk9.rao.ui.toolbar.ToolbarSeparator">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </control>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_inc.png"
+                 label="Increase Simulation Scale"
+                 mnemonic="I"
+                 style="push"
+                 tooltip="Increase Simulation Scale">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="+">
+              </parameter>
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_inc_four.png"
+                 label="Multiply Simulation Scale by 4"
+                 mnemonic="M"
+                 style="push"
+                 tooltip="Multiply Simulation Scale by 4">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="*">
+              </parameter>
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_dec_four.png"
+                 label="Divide Simulation Scale by 4"
+                 mnemonic="D"
+                 style="push"
+                 tooltip="Divide Simulation Scale by 4">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="/">
+              </parameter>
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_dec.png"
+                 label="Decrease Simulation Scale"
+                 mnemonic="E"
+                 style="push"
+                 tooltip="Decrease Simulation Scale">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="-">
+              </parameter>
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+        </toolbar>
+     </menuContribution>
+  </extension>
+  <extension
+        point="org.eclipse.ui.perspectives">
+     <perspective
+           class="ru.bmstu.rk9.rao.ui.RaoPerspective"
+           icon="icons/rao_old.gif"
+           id="ru.bmstu.rk9.rao.ui.perspective"
+           name="Rao">
+     </perspective>
+  </extension>
+  <extension
+        point="org.eclipse.ui.services">
+     <sourceProvider
+           provider="ru.bmstu.rk9.rao.ui.RaoPerspectiveSourceProvider">
+        <variable
+              name="ru.bmstu.rk9.rao.ui.handlers.showActions"
+              priorityLevel="workbench">
+        </variable>
+     </sourceProvider>
+     <sourceProvider
+           provider="ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider">
+        <variable
+              name="ru.bmstu.rk9.rao.ui.handlers.simulationRunning"
+              priorityLevel="workbench">
+        </variable>
+     </sourceProvider>
+  </extension>
+  <extension
+        point="org.eclipse.ui.views">
+     <category
+           id="ru.bmstu.rk9.rao.ui.views"
+           name="Rao">
+     </category>
+     <view
+           category="ru.bmstu.rk9.rao.ui.views"
+           class="ru.bmstu.rk9.rao.ui.console.ConsoleView"
+           icon="icons/rao_old.gif"
+           id="ru.bmstu.rk9.rao.ui.ConsoleView"
+           name="Console"
+           restorable="true">
+     </view>
+     <view
+           category="ru.bmstu.rk9.rao.ui.views"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView"
+           icon="icons/tag.gif"
+           id="ru.bmstu.rk9.rao.ui.SerializationConfigView"
+           name="Monitoring Configuration"
+           restorable="true">
+     </view>
+     <view
+           category="ru.bmstu.rk9.rao.ui.views"
+           class="ru.bmstu.rk9.rao.ui.trace.TraceView"
+           icon="icons/tag.gif"
+           id="ru.bmstu.rk9.rao.ui.TraceView"
+           name="Trace"
+           restorable="true">
+     </view>
+     <view
+           category="ru.bmstu.rk9.rao.ui.views"
+           class="ru.bmstu.rk9.rao.ui.simulation.StatusView"
+           icon="icons/status.png"
+           id="ru.bmstu.rk9.rao.ui.StatusView"
+           name="Status"
+           restorable="true">
+     </view>
+     <view
+           category="ru.bmstu.rk9.rao.ui.views"
+           class="ru.bmstu.rk9.rao.ui.animation.AnimationView"
+           icon="icons/run.gif"
+           id="ru.bmstu.rk9.rao.ui.AnimationView"
+           name="Rao Animation"
+           restorable="true">
+     </view>
+     <view
+           category="ru.bmstu.rk9.rao.ui.views"
+           class="ru.bmstu.rk9.rao.ui.results.ResultsView"
+           icon="icons/clipboard-list.png"
+           id="ru.bmstu.rk9.rao.ui.ResultsView"
+           name="Results"
+           restorable="true">
+     </view>
+     <view
+           category="ru.bmstu.rk9.rao.ui.views"
+           class="ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView"
+           icon="icons/zones-stack.png"
+           id="ru.bmstu.rk9.rao.ui.SerializedObjectsView"
+           name="Collected Objects"
+           restorable="true">
+     </view>
+     <view
+           category="ru.bmstu.rk9.rao.ui.views"
+           class="ru.bmstu.rk9.rao.ui.plot.PlotView"
+           id="ru.bmstu.rk9.rao.ui.PlotView"
+           name="Rao Plot"
+           icon="icons/system-monitor.png"
+           restorable="true"
+           allowMultiple = "true">
+     </view>
+  </extension>
+
+</plugin>

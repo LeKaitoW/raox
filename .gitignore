@@ -11,9 +11,10 @@ tmp/
 *.bak
 *.swp
 *~.nib
+*.prefs
+!*org.eclipse.core.resources.prefs
 local.properties
 .loadpath
-*.prefs
 
 # External tool builders
 .externalToolBuilders/
@@ -31,10 +32,10 @@ local.properties
 ## xText
 #################
 
-ru.bmstu.rk9.rdo/model
+ru.bmstu.rk9.rao/model
 *.xml_gen
 
-ru.bmstu.rk9.rdo/.antlr-generator-*.jar
+ru.bmstu.rk9.rao/.antlr-generator-*.jar
 
 #############
 ## Windows detritus
@@ -54,7 +55,7 @@ $RECYCLE.BIN/
 .DS_Store
 
 #############
-## Compiled RDO Lib
+## Compiled rao Lib
 #############
 
-ru.bmstu.rk9.rdo.lib*.jar
+ru.bmstu.rk9.rao.lib*.jar
