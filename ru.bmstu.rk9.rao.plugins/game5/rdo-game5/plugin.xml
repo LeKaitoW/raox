@@ -1,47 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-
-   <extension
-         point="org.eclipse.ui.actionSets">
-      <actionSet
-            label="Game 5"
-            visible="true"
-            id="rdo-game5">
-         <menu
-               label="Game 5 Menu"
-               id="game5Menu">
-            <separator
-                  name="game5Separator">
-            </separator>
-         </menu>
-         <action
-               label="Game 5"
-               icon="icons/sample.gif"
-               class="rdo.game5.Game5Action"
-               tooltip="Game 5"
-               menubarPath="game5Menu/game5Separator"
-               toolbarPath="game5Separator"
-               id="rdo.game5.Game5Action">
-         </action>
-      </actionSet>
-   </extension>
-   <extension
-         point="org.eclipse.ui.editors">
-         <editor
-            class="rdo.game5.Game5Editor"
-            icon="icons/sample.gif"
-            id="rdo-game5.Game5Editor"
-            name="Game 5 Editor">
-         </editor>
-   </extension>
-   <extension
-         point="org.eclipse.ui.views">
-          <view
-           class="rdo.game5.Game5View"
-           id="rdo-game5.Game5View"
-           name="Game 5 View"
-           restorable="true">
-     </view>
-   </extension>
+	<extension
+		point="org.eclipse.ui.actionSets">
+		<actionSet
+			label="Game 5"
+			visible="true"
+			id="rdo-game5">
+		<menu
+			label="Game 5 Menu"
+			id="game5Menu">
+		<separator
+			name="game5Separator">
+		</separator>
+		</menu>
+			<action
+				label="Game 5"
+				icon="icons/sample.gif"
+				class="rdo.game5.Game5Action"
+				tooltip="Game 5"
+				menubarPath="game5Menu/game5Separator"
+				toolbarPath="game5Separator"
+				id="rdo.game5.Game5Action">
+			</action>
+		</actionSet>
+	</extension>
+	<extension
+		point="org.eclipse.ui.editors">
+		<editor
+			class="rdo.game5.Game5Editor"
+			icon="icons/sample.gif"
+			id="rdo-game5.Game5Editor"
+			name="Game 5 Editor">
+		</editor>
+	</extension>
+	<extension
+		point="org.eclipse.ui.editors">
+		<editor
+			class="rdo.game5.Game5View"
+			id="rdo-game5.Game5View"
+			name="Game 5 View"
+			restorable="true">
+		</editor>
+	</extension>
 </plugin>

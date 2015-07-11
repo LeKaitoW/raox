@@ -64,7 +64,7 @@ public class ModelNameView {
 							.getActiveWorkbenchWindow().getActivePage();
 					try {
 						IDE.openEditor(page, Game5ProjectConfigurator.getFile());
-						page.showView(Game5View.ID);
+						page.openEditor(new Game5EditorInput(), Game5View.ID);
 					} catch (PartInitException e) {
 						e.printStackTrace();
 					}

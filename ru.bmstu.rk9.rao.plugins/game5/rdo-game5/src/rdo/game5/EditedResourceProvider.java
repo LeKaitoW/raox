@@ -21,4 +21,3 @@ public class EditedResourceProvider implements IEditedResourceProvider {
 		return res;
 	}
 }
- 

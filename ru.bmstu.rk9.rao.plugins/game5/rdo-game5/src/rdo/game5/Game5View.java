@@ -1,5 +1,6 @@
 package rdo.game5;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -14,14 +15,18 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditor;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorFactory;
 
 import com.google.inject.Injector;
 
-public class Game5View extends ViewPart {
+public class Game5View extends EditorPart {
 
 	public static final String ID = "rdo-game5.Game5View";
 
@@ -240,5 +245,31 @@ public class Game5View extends ViewPart {
 
 	@Override
 	public void setFocus() {
+	}
+
+	@Override
+	public void doSave(IProgressMonitor arg0) {
+
+	}
+
+	@Override
+	public void doSaveAs() {
+	}
+
+	@Override
+	public void init(IEditorSite site, IEditorInput input)
+			throws PartInitException {
+		setInput(input);
+		setSite(site);
+	}
+
+	@Override
+	public boolean isDirty() {
+		return false;
+	}
+
+	@Override
+	public boolean isSaveAsAllowed() {
+		return false;
 	}
 }
