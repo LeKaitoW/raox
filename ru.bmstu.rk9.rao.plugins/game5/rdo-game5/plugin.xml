@@ -28,20 +28,20 @@
    </extension>
    <extension
          point="org.eclipse.ui.editors">
-      <editor
-            class="rdo.game5.Game5View"
-            icon="icons/sample.gif"
-            id="rdo-game5.Game5View"
-            name="Game 5">
-      </editor>
-   </extension>
-   <extension
-         point="org.eclipse.ui.editors">
          <editor
             class="rdo.game5.Game5Editor"
             icon="icons/sample.gif"
             id="rdo-game5.Game5Editor"
             name="Game 5 Editor">
          </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+          <view
+           class="rdo.game5.Game5View"
+           id="rdo-game5.Game5View"
+           name="Game 5 View"
+           restorable="true">
+     </view>
    </extension>
 </plugin>

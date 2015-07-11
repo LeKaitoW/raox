@@ -87,7 +87,7 @@ public class Game5ProjectConfigurator {
 	public static void createFile() {
 
 		final IPath workspacePath = root.getLocation();
-		final String modelName = ModelNameView.getName() + ".rdo";
+		final String modelName = ModelNameView.getName() + ".rao";
 		final IPath filePath = workspacePath.append(game5Project.getFullPath())
 				.append(modelName);
 

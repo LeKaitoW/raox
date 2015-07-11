@@ -1,6 +1,5 @@
 package rdo.game5;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -15,43 +14,20 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.EditorPart;
+import org.eclipse.ui.part.ViewPart;
+import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditor;
+import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorFactory;
 
-public class Game5View extends EditorPart {
+import com.google.inject.Injector;
+
+public class Game5View extends ViewPart {
+
 	public static final String ID = "rdo-game5.Game5View";
 
-	@Override
-	public void doSave(IProgressMonitor arg0) {
-	}
-
-	@Override
-	public void doSaveAs() {
-	}
-
-	@Override
-	public void init(IEditorSite site, IEditorInput input)
-			throws PartInitException {
-		setSite(site);
-		setInput(input);
-	}
-
-	@Override
-	public boolean isDirty() {
-		return false;
-	}
-
-	@Override
-	public boolean isSaveAsAllowed() {
-		return false;
-	}
-
+	@SuppressWarnings("restriction")
 	@Override
 	public void createPartControl(Composite parent) {
-
 		final GridLayout gridLayout = new GridLayout(3, false);
 		parent.setLayout(gridLayout);
 
@@ -240,16 +216,26 @@ public class Game5View extends EditorPart {
 			}
 		});
 
-		final Group heuristicCodeGroup = new Group(parent, SWT.SHADOW_IN);
-		heuristicCodeGroup.setText("Heuristic code:");
-		heuristicCodeGroup.setLayout(gridLayout);
-		final Text heuristicCode = new Text(heuristicCodeGroup, SWT.MULTI
-				| SWT.V_SCROLL);
-		final GridData heuristicCodeData = new GridData(SWT.FILL, SWT.FILL,
-				true, true, 1, 1);
-		heuristicCodeData.horizontalSpan = 3;
-		heuristicCodeGroup.setLayoutData(heuristicCodeData);
-		heuristicCode.setLayoutData(heuristicCodeData);
+		final Group editorGroup = new Group(parent, SWT.SHADOW_IN);
+		editorGroup.setText("Heuristic code:");
+		editorGroup.setLayout(gridLayout);
+		final GridData editorGrideData = new GridData(SWT.FILL, SWT.FILL, true,
+				true, 1, 1);
+		editorGrideData.horizontalSpan = 3;
+		editorGroup.setLayoutData(editorGrideData);
+
+		final Injector injector = ru.bmstu.rk9.rao.ui.RaoActivatorExtension
+				.getInstance()
+				.getInjector(
+						ru.bmstu.rk9.rao.ui.RaoActivatorExtension.RU_BMSTU_RK9_RAO_RAO);
+		final EmbeddedEditorFactory factory = injector
+				.getInstance(EmbeddedEditorFactory.class);
+		final EditedResourceProvider resourceProvider = injector
+				.getInstance(EditedResourceProvider.class);
+		final EmbeddedEditor embeddedEditor = factory.newEditor(
+				resourceProvider).withParent(editorGroup);
+		embeddedEditor.createPartialEditor();
+
 	}
 
 	@Override
