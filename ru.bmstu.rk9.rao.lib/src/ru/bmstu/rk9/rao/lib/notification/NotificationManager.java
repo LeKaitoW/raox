@@ -22,21 +22,21 @@ public class NotificationManager<E extends Enum<E>> {
 		}
 	}
 
-	private final Map<E, Subscription> sub;
+	private final Map<E, Subscription> subscriptions;
 
 	public NotificationManager(Class<E> enumClass) {
-		sub = new EnumMap<E, Subscription>(enumClass);
+		subscriptions = new EnumMap<E, Subscription>(enumClass);
 
-		for (E s : enumClass.getEnumConstants())
-			sub.put(s, new Subscription());
+		for (E category : enumClass.getEnumConstants())
+			subscriptions.put(category, new Subscription());
 	}
 
 	public void notifySubscribers(E category) {
-		for (Subscriber s : sub.get(category).subscribers)
-			s.fireChange();
+		for (Subscriber subscriber : subscriptions.get(category).subscribers)
+			subscriber.fireChange();
 	}
 
 	public Subscription getSubscription(E category) {
-		return sub.get(category);
+		return subscriptions.get(category);
 	}
 }
