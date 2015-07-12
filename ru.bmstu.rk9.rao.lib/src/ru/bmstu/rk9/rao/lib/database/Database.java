@@ -645,7 +645,7 @@ public class Database {
 				if (t.type.equals(type))
 					return t;
 			}
-			return null;
+			throw new DatabaseException("Unexpected result type: " + type);
 		}
 
 		public String getString() {

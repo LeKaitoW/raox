@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.lib.exception;
+package ru.bmstu.rk9.rao.ui.plot;
 
 @SuppressWarnings("serial")
 public class PlotDataParserException extends RuntimeException {

@@ -201,7 +201,8 @@ public class SerializationConfig {
 		for (SerializationNode c : root.getVisibleChildren())
 			if (c.getFullName().equals(modelName))
 				return c;
-		return null;
+		throw new SerializationException("Model name \"" + modelName
+				+ "\" not found");
 	}
 
 	public final void removeModel(final SerializationNode modelNode) {
