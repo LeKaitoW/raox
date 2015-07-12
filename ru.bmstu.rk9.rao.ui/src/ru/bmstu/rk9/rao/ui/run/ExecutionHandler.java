@@ -148,7 +148,7 @@ public class ExecutionHandler extends AbstractHandler {
 
 		final Job run = new Job(project.getName() + " execution") {
 			protected IStatus run(IProgressMonitor monitor) {
-				URLClassLoader cl = null;
+				URLClassLoader classLoader = null;
 				SerializationConfigView.setEnabled(false);
 
 				try {
@@ -157,9 +157,9 @@ public class ExecutionHandler extends AbstractHandler {
 
 					IJobManager jobMan = Job.getJobManager();
 
-					for (Job j : jobMan.find("rao_model_run"))
-						if (j != this)
-							j.join();
+					for (Job job : jobMan.find("rao_model_run"))
+						if (job != this)
+							job.join();
 
 					this.setName(name);
 
@@ -186,14 +186,15 @@ public class ExecutionHandler extends AbstractHandler {
 
 					URL[] urls = new URL[] { model };
 
-					cl = new URLClassLoader(urls,
+					classLoader = new URLClassLoader(urls,
 							Simulator.class.getClassLoader());
 
-					Class<?> cls = cl.loadClass("rao_model.Embedded");
+					Class<?> modelClass = classLoader
+							.loadClass("rao_model.Embedded");
 
 					Method simulation = null;
 					Method initialization = null;
-					for (Method method : cls.getMethods()) {
+					for (Method method : modelClass.getMethods()) {
 						if (method.getName() == "runSimulation")
 							simulation = method;
 						if (method.getName() == "initSimulation")
@@ -240,10 +241,10 @@ public class ExecutionHandler extends AbstractHandler {
 					RealTimeUpdater.start();
 
 					LinkedList<Result> results = new LinkedList<Result>();
-					int result = -1;
+					int simulationResult = -1;
 					if (simulation != null)
-						result = (int) simulation
-								.invoke(null, (Object) results);
+						simulationResult = (int) simulation.invoke(null,
+								(Object) results);
 
 					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater
 							.getUpdater());
@@ -252,7 +253,7 @@ public class ExecutionHandler extends AbstractHandler {
 
 					setRunningState(display, sourceProvider, false);
 
-					switch (result) {
+					switch (simulationResult) {
 					case 1:
 						ConsoleView.addLine("Stopped by terminate condition");
 						break;
@@ -263,8 +264,8 @@ public class ExecutionHandler extends AbstractHandler {
 						ConsoleView.addLine("No more events");
 					}
 
-					for (Result r : results)
-						r.calculate();
+					for (Result result : results)
+						result.calculate();
 
 					display.asyncExec(() -> ResultsView.setResults(results));
 
@@ -274,7 +275,7 @@ public class ExecutionHandler extends AbstractHandler {
 
 					SimulationSynchronizer.finish();
 					RealTimeUpdater.cancel();
-					cl.close();
+					classLoader.close();
 
 					return Status.OK_STATUS;
 				} catch (Exception e) {
@@ -288,9 +289,9 @@ public class ExecutionHandler extends AbstractHandler {
 
 					SimulationSynchronizer.finish();
 
-					if (cl != null)
+					if (classLoader != null)
 						try {
-							cl.close();
+							classLoader.close();
 						} catch (IOException e1) {
 							e1.printStackTrace();
 						}
