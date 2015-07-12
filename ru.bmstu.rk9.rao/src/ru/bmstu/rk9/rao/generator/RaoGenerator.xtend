@@ -176,11 +176,7 @@ class RaoGenerator implements IMultipleResourceGenerator
 			{
 				long startTime = System.currentTimeMillis();
 
-				Simulator.initSimulation();
-				Simulator.initDatabase(«project»Model.modelStructure);
-				Simulator.initModelStructureCache();
-				Simulator.initTracer();
-				Simulator.initTreeBuilder();
+				Simulator.initSimulation(«project»Model.modelStructure);
 
 				System.out.println(" === Rao-Simulator ===\n");
 				System.out.println("   Project «RaoNaming.getProjectName(resourceSet.resources.get(0).URI)»");
@@ -260,11 +256,7 @@ class RaoGenerator implements IMultipleResourceGenerator
 		{
 			public static void initSimulation(List<AnimationFrame> frames)
 			{
-				Simulator.initSimulation();
-				Simulator.initDatabase(«project»Model.modelStructure);
-				Simulator.initModelStructureCache();
-				Simulator.initTracer();
-				Simulator.initTreeBuilder();
+				Simulator.initSimulation(«project»Model.modelStructure);
 
 				«project»Model.init();
 

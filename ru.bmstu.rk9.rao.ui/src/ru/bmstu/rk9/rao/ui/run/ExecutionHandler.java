@@ -88,6 +88,12 @@ public class ExecutionHandler extends AbstractHandler {
 				.getNotificationManager();
 
 		simulatorNotifier
+				.getSubscription(
+						Simulator.NotificationCategory.EXECUTION_STARTED)
+				.addSubscriber(SerializedObjectsView.commonUpdater)
+				.addSubscriber(TraceView.commonUpdater);
+
+		simulatorNotifier
 				.getSubscription(Simulator.NotificationCategory.TIME_CHANGE)
 				.addSubscriber(
 						SimulationSynchronizer.getInstance().uiTimeUpdater)
@@ -110,9 +116,6 @@ public class ExecutionHandler extends AbstractHandler {
 						Simulator.NotificationCategory.EXECUTION_COMPLETE)
 				.addSubscriber(TraceView.commonUpdater)
 				.addSubscriber(SerializedObjectsView.commonUpdater);
-
-		SerializedObjectsView.commonUpdater.fireChange();
-		TraceView.commonUpdater.fireChange();
 	}
 
 	private final void configureRealTimeSubscriptions() {

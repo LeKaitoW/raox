@@ -19,7 +19,7 @@ import ru.bmstu.rk9.rao.lib.treeBuilder.TreeBuilder;
 public class Simulator {
 	private static Simulator INSTANCE = null;
 
-	public static synchronized void initSimulation() {
+	public static synchronized void initSimulation(JSONObject modelStructure) {
 		if (isRunning)
 			return;
 
@@ -27,8 +27,11 @@ public class Simulator {
 
 		INSTANCE.notificationManager = new NotificationManager<NotificationCategory>(
 				NotificationCategory.class);
-
 		INSTANCE.dptManager = new DPTManager();
+		INSTANCE.database = new Database(modelStructure);
+		INSTANCE.modelStructureCache = new ModelStructureCache();
+		INSTANCE.tracer = new Tracer();
+		INSTANCE.treeBuilder = new TreeBuilder();
 	}
 
 	public static boolean isInitialized() {
@@ -37,18 +40,6 @@ public class Simulator {
 
 	public static boolean isRunning() {
 		return isRunning;
-	}
-
-	public static synchronized void initDatabase(JSONObject modelStructure) {
-		INSTANCE.database = new Database(modelStructure);
-	}
-
-	public static synchronized void initTracer() {
-		INSTANCE.tracer = new Tracer();
-	}
-
-	public static synchronized void initModelStructureCache() {
-		INSTANCE.modelStructureCache = new ModelStructureCache();
 	}
 
 	private Database database;
@@ -67,10 +58,6 @@ public class Simulator {
 
 	public static TreeBuilder getTreeBuilder() {
 		return INSTANCE.treeBuilder;
-	}
-
-	public static synchronized void initTreeBuilder() {
-		INSTANCE.treeBuilder = new TreeBuilder();
 	}
 
 	private ModelStructureCache modelStructureCache;
@@ -114,7 +101,7 @@ public class Simulator {
 	}
 
 	public enum NotificationCategory {
-		STATE_CHANGE, TIME_CHANGE, EXECUTION_ABORTED, EXECUTION_COMPLETE
+		STATE_CHANGE, TIME_CHANGE, EXECUTION_ABORTED, EXECUTION_COMPLETE, EXECUTION_STARTED
 	};
 
 	private NotificationManager<NotificationCategory> notificationManager;
@@ -164,6 +151,7 @@ public class Simulator {
 
 		INSTANCE.database.addSystemEntry(Database.SystemEntryType.SIM_START);
 
+		notifyChange(NotificationCategory.EXECUTION_STARTED);
 		notifyChange(NotificationCategory.TIME_CHANGE);
 		notifyChange(NotificationCategory.STATE_CHANGE);
 
