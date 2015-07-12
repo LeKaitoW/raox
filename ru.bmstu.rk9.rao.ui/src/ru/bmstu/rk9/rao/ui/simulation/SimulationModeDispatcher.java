@@ -3,23 +3,25 @@ package ru.bmstu.rk9.rao.ui.simulation;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeUpdater;
+import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer.ExecutionMode;
 
 public class SimulationModeDispatcher {
-	public static void setMode(String currentState) {
+	public static void setMode(ExecutionMode currentMode) {
 
-		SimulationSynchronizer.setState(currentState);
+		SimulationSynchronizer.setState(currentMode);
 
-		AnimationView.disableAnimation(currentState.equals("NA") ? true
-				: false);
+		AnimationView
+				.disableAnimation(currentMode == ExecutionMode.NO_ANIMATION ? true
+						: false);
 
 		if (Simulator.isInitialized()) {
-			switch (currentState) {
-			case "P":
-			case "NA":
+			switch (currentMode) {
+			case PAUSE:
+			case NO_ANIMATION:
 				RealTimeUpdater.setPaused(true);
 				break;
-			case "FF":
-			case "NS":
+			case FAST_FORWARD:
+			case NORMAL_SPEED:
 				RealTimeUpdater.setPaused(false);
 				break;
 			}

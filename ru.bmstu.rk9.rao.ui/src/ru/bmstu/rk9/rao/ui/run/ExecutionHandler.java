@@ -46,6 +46,7 @@ import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView;
 import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider;
 import ru.bmstu.rk9.rao.ui.simulation.SimulationModeDispatcher;
 import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer;
+import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer.ExecutionMode;
 import ru.bmstu.rk9.rao.ui.simulation.StatusView;
 import ru.bmstu.rk9.rao.ui.trace.ExportTraceHandler;
 import ru.bmstu.rk9.rao.ui.trace.TraceView;
@@ -223,7 +224,8 @@ public class ExecutionHandler extends AbstractHandler {
 					State state = command
 							.getState("org.eclipse.ui.commands.radioState");
 
-					SimulationModeDispatcher.setMode((String) state.getValue());
+					SimulationModeDispatcher.setMode(ExecutionMode
+							.get((String) state.getValue()));
 
 					display.syncExec(() -> AnimationView.initialize(frames));
 

@@ -10,7 +10,26 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class SimulationSynchronizer {
 	public static enum ExecutionMode {
-		NO_ANIMATION, FAST_FORWARD, NORMAL_SPEED, PAUSE
+		PAUSE("P"), NO_ANIMATION("NA"), FAST_FORWARD("FF"), NORMAL_SPEED("NS");
+
+		ExecutionMode(final String type) {
+			this.type = type;
+		}
+
+		public static final ExecutionMode get(final String type) {
+			for (final ExecutionMode t : values()) {
+				if (t.type.equals(type))
+					return t;
+			}
+			throw new SimulationSynchronizerException(
+					"Unknown simulation mode: " + type);
+		}
+
+		public String getString() {
+			return type;
+		}
+
+		final private String type;
 	}
 
 	private static SimulationSynchronizer INSTANCE;
@@ -36,24 +55,11 @@ public class SimulationSynchronizer {
 
 	private volatile ExecutionMode executionMode = null;
 
-	public static void setState(String state) {
+	public static void setState(ExecutionMode executionMode) {
 		if (INSTANCE == null)
 			return;
 
-		switch (state) {
-		case "NA":
-			INSTANCE.executionMode = ExecutionMode.NO_ANIMATION;
-			break;
-		case "FF":
-			INSTANCE.executionMode = ExecutionMode.FAST_FORWARD;
-			break;
-		case "NS":
-			INSTANCE.executionMode = ExecutionMode.NORMAL_SPEED;
-			break;
-		case "P":
-			INSTANCE.executionMode = ExecutionMode.PAUSE;
-			break;
-		}
+		INSTANCE.executionMode = executionMode;
 	}
 
 	public class UITimeUpdater implements Subscriber {

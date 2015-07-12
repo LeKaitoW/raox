@@ -21,18 +21,40 @@ import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceOutput;
 //TODO export to location chosen by user
 
 public class ExportTraceHandler extends AbstractHandler {
+	public static enum ExportType {
+		REGULAR("Regular"), LEGACY("Legacy");
+
+		ExportType(final String type) {
+			this.type = type;
+		}
+
+		static final ExportType get(final String type) {
+			for (final ExportType t : values()) {
+				if (t.type.equals(type))
+					return t;
+			}
+			throw new ExportTraceException("Unexpected export type: " + type);
+		}
+
+		public String getString() {
+			return type;
+		}
+
+		final private String type;
+	}
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		if (!ready())
 			return null;
 
-		String type = event
-				.getParameter("ru.bmstu.rk9.rao.ui.runtime.exportTraceType");
+		ExportType type = ExportType.get(event
+				.getParameter("ru.bmstu.rk9.rao.ui.runtime.exportTraceType"));
 		switch (type) {
-		case "Regular":
+		case REGULAR:
 			exportTraceRegular();
 			break;
-		case "Legacy":
+		case LEGACY:
 			exportTraceLegacy();
 			break;
 		}
