@@ -8,6 +8,7 @@ import java.util.TimerTask;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
+import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
@@ -15,7 +16,7 @@ public class RealTimeUpdater {
 	public final static void start() {
 		display = PlatformUI.getWorkbench().getDisplay();
 		Simulator.getDatabase().getNotificationManager()
-				.getSubscription("EntryAdded")
+				.getSubscription(Database.NotificationCategory.ENTRY_ADDED)
 				.addSubscriber(databaseSubscriber);
 
 		timer = new Timer();

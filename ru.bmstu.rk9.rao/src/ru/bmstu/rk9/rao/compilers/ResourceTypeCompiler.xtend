@@ -125,7 +125,7 @@ class ResourceTypeCompiler
 			{
 				managerCurrent.eraseResource(res);
 				lastDeleted = res;
-				notificationManager.notifySubscribers("ResourceDeleted");
+				notificationManager.notifySubscribers(ResourceNotificationCategory.RESOURCE_DELETED);
 			}
 
 			private static «resourceType.name» lastDeleted;
@@ -135,13 +135,13 @@ class ResourceTypeCompiler
 				return lastDeleted;
 			}
 
-			private static NotificationManager notificationManager =
-				new NotificationManager
+			private static NotificationManager<ResourceNotificationCategory> notificationManager =
+				new NotificationManager<ResourceNotificationCategory>
 				(
-					new ArrayList<String>(Arrays.asList("ResourceDeleted"))
+					ResourceNotificationCategory.class
 				);
 
-			public static NotificationManager getNotificationManager()
+			public static NotificationManager<ResourceNotificationCategory> getNotificationManager()
 			{
 				return notificationManager;
 			}

@@ -2,7 +2,6 @@ package ru.bmstu.rk9.rao.lib.database;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -222,17 +221,21 @@ public class Database {
 
 	private final void addEntry(final Entry entry) {
 		allEntries.add(entry);
-		notifyChange("EntryAdded");
+		notifyChange(NotificationCategory.ENTRY_ADDED);
 	}
 
-	private final NotificationManager notificationManager = new NotificationManager(
-			new ArrayList<String>(Arrays.asList("EntryAdded")));
+	public enum NotificationCategory {
+		ENTRY_ADDED
+	};
 
-	public final NotificationManager getNotificationManager() {
+	private final NotificationManager<NotificationCategory> notificationManager = new NotificationManager<NotificationCategory>(
+			NotificationCategory.class);
+
+	public final NotificationManager<NotificationCategory> getNotificationManager() {
 		return notificationManager;
 	}
 
-	private final void notifyChange(final String category) {
+	private final void notifyChange(final NotificationCategory category) {
 		notificationManager.notifySubscribers(category);
 	}
 

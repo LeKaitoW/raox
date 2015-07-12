@@ -86,25 +86,30 @@ public class ExecutionHandler extends AbstractHandler {
 	private static DecimalFormat realTimeFormatter = new DecimalFormat("0.0");
 
 	private final void configureCommonSubscriptions() {
-		NotificationManager simulatorNotifier = Simulator
+		NotificationManager<Simulator.NotificationCategory> simulatorNotifier = Simulator
 				.getNotificationManager();
 
 		simulatorNotifier
-				.getSubscription("TimeChange")
+				.getSubscription(Simulator.NotificationCategory.TIME_CHANGE)
 				.addSubscriber(
 						SimulationSynchronizer.getInstance().uiTimeUpdater)
 				.addSubscriber(
 						SimulationSynchronizer.getInstance().simulationManager.scaleManager);
 
 		simulatorNotifier
-				.getSubscription("StateChange")
+				.getSubscription(Simulator.NotificationCategory.STATE_CHANGE)
 				.addSubscriber(
 						SimulationSynchronizer.getInstance().simulationManager.speedManager);
 
-		simulatorNotifier.getSubscription("ExecutionAborted").addSubscriber(
-				SimulationSynchronizer.getInstance().simulationStateListener);
+		simulatorNotifier
+				.getSubscription(
+						Simulator.NotificationCategory.EXECUTION_ABORTED)
+				.addSubscriber(
+						SimulationSynchronizer.getInstance().simulationStateListener);
 
-		simulatorNotifier.getSubscription("ExecutionComplete")
+		simulatorNotifier
+				.getSubscription(
+						Simulator.NotificationCategory.EXECUTION_COMPLETE)
 				.addSubscriber(TraceView.commonUpdater)
 				.addSubscriber(SerializedObjectsView.commonUpdater);
 

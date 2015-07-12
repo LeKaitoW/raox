@@ -1,12 +1,10 @@
 package ru.bmstu.rk9.rao.lib.notification;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-public class NotificationManager {
+public class NotificationManager<E extends Enum<E>> {
 	public static class Subscription {
 		protected LinkedList<Subscriber> subscribers;
 
@@ -24,24 +22,21 @@ public class NotificationManager {
 		}
 	}
 
-	protected Map<String, Subscription> subscribtions;
+	private final Map<E, Subscription> sub;
 
-	public NotificationManager(List<String> categories) {
-		subscribtions = new HashMap<String, Subscription>();
-		for (String s : categories)
-			subscribtions.put(s, new Subscription());
+	public NotificationManager(Class<E> enumClass) {
+		sub = new EnumMap<E, Subscription>(enumClass);
+
+		for (E s : enumClass.getEnumConstants())
+			sub.put(s, new Subscription());
 	}
 
-	public void notifySubscribers(String category) {
-		for (Subscriber s : subscribtions.get(category).subscribers)
+	public void notifySubscribers(E category) {
+		for (Subscriber s : sub.get(category).subscribers)
 			s.fireChange();
 	}
 
-	public Subscription getSubscription(String category) {
-		return subscribtions.get(category);
-	}
-
-	public List<String> getAvailableSubscriptions() {
-		return new ArrayList<String>(subscribtions.keySet());
+	public Subscription getSubscription(E category) {
+		return sub.get(category);
 	}
 }

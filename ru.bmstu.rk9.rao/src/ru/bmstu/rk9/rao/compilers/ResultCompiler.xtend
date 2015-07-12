@@ -126,13 +126,13 @@ class ResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 
-					NotificationManager notificationManager = Simulator.getNotificationManager();
+					NotificationManager<Simulator.NotificationCategory> notificationManager = Simulator.getNotificationManager();
 
-					notificationManager.getSubscription("StateChange")
+					notificationManager.getSubscription(Simulator.NotificationCategory.STATE_CHANGE)
 						.addSubscriber(INSTANCE);
-					notificationManager.getSubscription("ExecutionAborted")
+					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_ABORTED)
 						.addSubscriber(INSTANCE.finalizer);
-					notificationManager.getSubscription("ExecutionComplete")
+					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_COMPLETE)
 						.addSubscriber(INSTANCE.finalizer);
 
 					«type.compileValueType(expression)»
@@ -157,8 +157,8 @@ class ResultCompiler
 				public static void init()
 				{
 					Simulator.addResult(INSTANCE);
-					«type.resource.fullyQualifiedName».getNotificationManager().getSubscription(«""
-						»"ResourceDeleted").addSubscriber(INSTANCE);
+					«type.resource.fullyQualifiedName».getNotificationManager().getSubscription(«
+						»ResourceNotificationCategory.RESOURCE_DELETED).addSubscriber(INSTANCE);
 
 					«type.compileValueType(expression)»
 				}
@@ -231,11 +231,11 @@ class ResultCompiler
 
 					NotificationManager notificationManager = Simulator.getNotificationManager();
 
-					notificationManager.getSubscription("StateChange")
+					notificationManager.getSubscription(Simulator.NotificationCategory.STATE_CHANGE)
 						.addSubscriber(INSTANCE);
-					notificationManager.getSubscription("ExecutionAborted")
+					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_ABORTED)
 						.addSubscriber(INSTANCE.finalizer);
-					notificationManager.getSubscription("ExecutionComplete")
+					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_COMPLETE)
 						.addSubscriber(INSTANCE.finalizer);
 
 					INSTANCE.data.put("valueType", "bool");
@@ -350,13 +350,13 @@ class ResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 
-					NotificationManager notificationManager = Simulator.getNotificationManager();
+					NotificationManager<Simulator.NotificationCategory> notificationManager = Simulator.getNotificationManager();
 
-					notificationManager.getSubscription("StateChange")
+					notificationManager.getSubscription(Simulator.NotificationCategory.STATE_CHANGE)
 						.addSubscriber(INSTANCE);
-					notificationManager.getSubscription("ExecutionAborted")
+					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_ABORTED)
 						.addSubscriber(INSTANCE.finalizer);
-					notificationManager.getSubscription("ExecutionComplete")
+					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_COMPLETE)
 						.addSubscriber(INSTANCE.finalizer);
 
 					INSTANCE.data.put("valueType", "«expression.type.backToRaoType»");

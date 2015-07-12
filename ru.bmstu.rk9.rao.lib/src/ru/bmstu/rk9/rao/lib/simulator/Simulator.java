@@ -1,7 +1,5 @@
 package ru.bmstu.rk9.rao.lib.simulator;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
@@ -27,9 +25,8 @@ public class Simulator {
 
 		INSTANCE = new Simulator();
 
-		INSTANCE.notificationManager = new NotificationManager(
-				new ArrayList<String>(Arrays.asList("StateChange",
-						"TimeChange", "ExecutionAborted", "ExecutionComplete")));
+		INSTANCE.notificationManager = new NotificationManager<NotificationCategory>(
+				NotificationCategory.class);
 
 		INSTANCE.dptManager = new DPTManager();
 	}
@@ -116,13 +113,17 @@ public class Simulator {
 		return INSTANCE.resultManager.getResults();
 	}
 
-	private NotificationManager notificationManager;
+	public enum NotificationCategory {
+		STATE_CHANGE, TIME_CHANGE, EXECUTION_ABORTED, EXECUTION_COMPLETE
+	};
 
-	public static NotificationManager getNotificationManager() {
+	private NotificationManager<NotificationCategory> notificationManager;
+
+	public static NotificationManager<NotificationCategory> getNotificationManager() {
 		return INSTANCE.notificationManager;
 	}
 
-	private static void notifyChange(String category) {
+	private static void notifyChange(NotificationCategory category) {
 		INSTANCE.notificationManager.notifySubscribers(category);
 	}
 
@@ -142,12 +143,12 @@ public class Simulator {
 			return;
 
 		INSTANCE.executionAborted = true;
-		notifyChange("ExecutionAborted");
+		notifyChange(NotificationCategory.EXECUTION_ABORTED);
 	}
 
 	private int checkDPT() {
 		while (dptManager.checkDPT() && !executionAborted) {
-			notifyChange("StateChange");
+			notifyChange(NotificationCategory.STATE_CHANGE);
 
 			if (checkTerminate())
 				return 1;
@@ -163,8 +164,8 @@ public class Simulator {
 
 		INSTANCE.database.addSystemEntry(Database.SystemEntryType.SIM_START);
 
-		notifyChange("TimeChange");
-		notifyChange("StateChange");
+		notifyChange(NotificationCategory.TIME_CHANGE);
+		notifyChange(NotificationCategory.STATE_CHANGE);
 
 		int dptCheck = INSTANCE.checkDPT();
 		if (dptCheck != 0)
@@ -175,11 +176,11 @@ public class Simulator {
 
 			INSTANCE.time = current.getTime();
 
-			notifyChange("TimeChange");
+			notifyChange(NotificationCategory.TIME_CHANGE);
 
 			current.run();
 
-			notifyChange("StateChange");
+			notifyChange(NotificationCategory.STATE_CHANGE);
 
 			if (INSTANCE.checkTerminate())
 				return stop(1);
@@ -208,7 +209,7 @@ public class Simulator {
 			break;
 		}
 		INSTANCE.database.addSystemEntry(simFinishType);
-		notifyChange("ExecutionComplete");
+		notifyChange(NotificationCategory.EXECUTION_COMPLETE);
 		isRunning = false;
 		return code;
 	}
