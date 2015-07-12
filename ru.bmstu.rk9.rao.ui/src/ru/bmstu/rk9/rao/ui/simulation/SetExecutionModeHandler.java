@@ -18,7 +18,7 @@ public class SetExecutionModeHandler extends AbstractHandler {
 
 		HandlerUtil.updateRadioState(event.getCommand(), executionMode);
 
-		SimulationModeDispatcher.setMode(ExecutionMode.get(executionMode));
+		SimulationModeDispatcher.setMode(ExecutionMode.getByString(executionMode));
 
 		return null;
 	}

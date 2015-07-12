@@ -4,7 +4,7 @@ import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-public class NotificationManager<E extends Enum<E>> {
+public class NotificationManager<Category extends Enum<Category>> {
 	public static class Subscription {
 		protected LinkedList<Subscriber> subscribers;
 
@@ -12,31 +12,27 @@ public class NotificationManager<E extends Enum<E>> {
 			subscribers = new LinkedList<Subscriber>();
 		}
 
-		public Subscription addSubscriber(Subscriber object) {
-			subscribers.add(object);
+		public Subscription addSubscriber(Subscriber subscriber) {
+			subscribers.add(subscriber);
 			return this;
-		}
-
-		public boolean removeSubscriber(Subscriber object) {
-			return subscribers.remove(object);
 		}
 	}
 
-	private final Map<E, Subscription> subscriptions;
+	private final Map<Category, Subscription> subscriptions;
 
-	public NotificationManager(Class<E> enumClass) {
-		subscriptions = new EnumMap<E, Subscription>(enumClass);
+	public NotificationManager(Class<Category> enumClass) {
+		subscriptions = new EnumMap<Category, Subscription>(enumClass);
 
-		for (E category : enumClass.getEnumConstants())
+		for (Category category : enumClass.getEnumConstants())
 			subscriptions.put(category, new Subscription());
 	}
 
-	public void notifySubscribers(E category) {
+	public void notifySubscribers(Category category) {
 		for (Subscriber subscriber : subscriptions.get(category).subscribers)
 			subscriber.fireChange();
 	}
 
-	public Subscription getSubscription(E category) {
+	public Subscription getSubscription(Category category) {
 		return subscriptions.get(category);
 	}
 }

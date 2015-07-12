@@ -28,10 +28,10 @@ public class ExportTraceHandler extends AbstractHandler {
 			this.type = type;
 		}
 
-		static final ExportType get(final String type) {
-			for (final ExportType t : values()) {
-				if (t.type.equals(type))
-					return t;
+		static final ExportType getByString(final String type) {
+			for (final ExportType exportType : values()) {
+				if (exportType.type.equals(type))
+					return exportType;
 			}
 			throw new ExportTraceException("Unexpected export type: " + type);
 		}
@@ -48,7 +48,7 @@ public class ExportTraceHandler extends AbstractHandler {
 		if (!ready())
 			return null;
 
-		ExportType type = ExportType.get(event
+		ExportType type = ExportType.getByString(event
 				.getParameter("ru.bmstu.rk9.rao.ui.runtime.exportTraceType"));
 		switch (type) {
 		case REGULAR:

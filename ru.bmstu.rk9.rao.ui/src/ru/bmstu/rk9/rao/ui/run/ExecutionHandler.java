@@ -225,7 +225,7 @@ public class ExecutionHandler extends AbstractHandler {
 							.getState("org.eclipse.ui.commands.radioState");
 
 					SimulationModeDispatcher.setMode(ExecutionMode
-							.get((String) state.getValue()));
+							.getByString((String) state.getValue()));
 
 					display.syncExec(() -> AnimationView.initialize(frames));
 

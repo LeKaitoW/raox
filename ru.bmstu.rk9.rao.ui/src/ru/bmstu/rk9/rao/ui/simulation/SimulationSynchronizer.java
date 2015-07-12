@@ -16,10 +16,10 @@ public class SimulationSynchronizer {
 			this.type = type;
 		}
 
-		public static final ExecutionMode get(final String type) {
-			for (final ExecutionMode t : values()) {
-				if (t.type.equals(type))
-					return t;
+		public static final ExecutionMode getByString(final String type) {
+			for (final ExecutionMode executionMode : values()) {
+				if (executionMode.type.equals(type))
+					return executionMode;
 			}
 			throw new SimulationSynchronizerException(
 					"Unknown simulation mode: " + type);

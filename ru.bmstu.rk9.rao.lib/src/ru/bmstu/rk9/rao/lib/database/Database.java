@@ -101,7 +101,8 @@ public class Database {
 		final JSONArray results = modelStructure.getJSONArray("results");
 		for (int i = 0; i < results.length(); i++) {
 			final JSONObject result = results.getJSONObject(i);
-			final ResultType type = ResultType.get(result.getString("type"));
+			final ResultType type = ResultType.getByString(result
+					.getString("type"));
 			indexHelper.addResult(result.getString("name")).setIndex(
 					new ResultIndex(i, type));
 		}
@@ -643,7 +644,7 @@ public class Database {
 			this.type = type;
 		}
 
-		static final ResultType get(final String type) {
+		static final ResultType getByString(final String type) {
 			for (final ResultType t : values()) {
 				if (t.type.equals(type))
 					return t;

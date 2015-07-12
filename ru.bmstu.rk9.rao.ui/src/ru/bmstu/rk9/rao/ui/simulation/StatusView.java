@@ -224,12 +224,13 @@ public class StatusView extends ViewPart {
 	public static final Runnable realTimeUpdateRunnable = new Runnable() {
 		@Override
 		public void run() {
-			StatusView.setValue(
-					"Time elapsed".intern(),
-					5,
-					realTimeFormatter.format((System
-							.currentTimeMillis() - startTime) / 1000d)
-							+ "s");
+			StatusView
+					.setValue(
+							"Time elapsed".intern(),
+							5,
+							realTimeFormatter.format((System
+									.currentTimeMillis() - startTime) / 1000d)
+									+ "s");
 		}
 	};
 
