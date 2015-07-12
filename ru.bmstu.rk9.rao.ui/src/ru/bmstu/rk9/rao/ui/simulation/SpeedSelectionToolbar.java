@@ -116,17 +116,25 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 
 		@Override
 		public void setSelection(int value) {
-			setRedraw(false);
-			setState(SWT.PAUSED);
+			disableAnimation();
 			super.setSelection(value);
 			speedValue = value;
 			SimulationSynchronizer.setSimulationSpeed(value);
-			setState(SWT.NORMAL);
-			setRedraw(true);
+			enableAnimation();
 		}
 
 		@Override
 		protected void checkSubclass() {
+		}
+
+		private final void disableAnimation() {
+			setRedraw(false);
+			setState(SWT.PAUSED);
+		}
+
+		private final void enableAnimation() {
+			setState(SWT.NORMAL);
+			setRedraw(true);
 		}
 	}
 
