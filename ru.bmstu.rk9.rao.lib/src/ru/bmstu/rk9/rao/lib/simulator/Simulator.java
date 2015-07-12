@@ -13,7 +13,6 @@ import ru.bmstu.rk9.rao.lib.event.EventScheduler;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modelStructure.ModelStructureCache;
 import ru.bmstu.rk9.rao.lib.notification.NotificationManager;
-import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.result.ResultManager;
 import ru.bmstu.rk9.rao.lib.tracer.Tracer;
@@ -119,7 +118,7 @@ public class Simulator {
 
 	private NotificationManager notificationManager;
 
-	public static Notifier getNotifier() {
+	public static NotificationManager getNotificationManager() {
 		return INSTANCE.notificationManager;
 	}
 

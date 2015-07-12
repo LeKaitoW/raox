@@ -33,7 +33,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 		this.retriever = retriever;
 		this.compareTops = compareTops;
 
-		Simulator.getNotifier().getSubscription("ExecutionAborted")
+		Simulator.getNotificationManager().getSubscription("ExecutionAborted")
 				.addSubscriber(this);
 	}
 

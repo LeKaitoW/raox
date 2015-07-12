@@ -14,7 +14,8 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 public class RealTimeUpdater {
 	public final static void start() {
 		display = PlatformUI.getWorkbench().getDisplay();
-		Simulator.getDatabase().getNotifier().getSubscription("EntryAdded")
+		Simulator.getDatabase().getNotificationManager()
+				.getSubscription("EntryAdded")
 				.addSubscriber(databaseSubscriber);
 
 		timer = new Timer();

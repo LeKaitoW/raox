@@ -141,7 +141,7 @@ class ResourceTypeCompiler
 					new ArrayList<String>(Arrays.asList("ResourceDeleted"))
 				);
 
-			public static Notifier getNotifier()
+			public static NotificationManager getNotificationManager()
 			{
 				return notificationManager;
 			}

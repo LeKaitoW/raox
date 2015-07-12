@@ -8,7 +8,7 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class DPTManager implements Subscriber {
 	public DPTManager() {
-		Simulator.getNotifier().getSubscription("ExecutionAborted")
+		Simulator.getNotificationManager().getSubscription("ExecutionAborted")
 				.addSubscriber(this);
 	}
 

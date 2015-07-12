@@ -33,7 +33,7 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
-import ru.bmstu.rk9.rao.lib.notification.Notifier;
+import ru.bmstu.rk9.rao.lib.notification.NotificationManager;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
@@ -86,7 +86,8 @@ public class ExecutionHandler extends AbstractHandler {
 	private static DecimalFormat realTimeFormatter = new DecimalFormat("0.0");
 
 	private final void configureCommonSubscriptions() {
-		Notifier simulatorNotifier = Simulator.getNotifier();
+		NotificationManager simulatorNotifier = Simulator
+				.getNotificationManager();
 
 		simulatorNotifier
 				.getSubscription("TimeChange")

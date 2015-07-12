@@ -2,16 +2,34 @@ package ru.bmstu.rk9.rao.lib.notification;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class NotificationManager implements Notifier {
-	protected Map<String, Notifier.Subscription> subscribtions;
+public class NotificationManager {
+	public static class Subscription {
+		protected LinkedList<Subscriber> subscribers;
+
+		Subscription() {
+			subscribers = new LinkedList<Subscriber>();
+		}
+
+		public Subscription addSubscriber(Subscriber object) {
+			subscribers.add(object);
+			return this;
+		}
+
+		public boolean removeSubscriber(Subscriber object) {
+			return subscribers.remove(object);
+		}
+	}
+
+	protected Map<String, Subscription> subscribtions;
 
 	public NotificationManager(List<String> categories) {
-		subscribtions = new HashMap<String, Notifier.Subscription>();
+		subscribtions = new HashMap<String, Subscription>();
 		for (String s : categories)
-			subscribtions.put(s, new Notifier.Subscription());
+			subscribtions.put(s, new Subscription());
 	}
 
 	public void notifySubscribers(String category) {
@@ -19,12 +37,10 @@ public class NotificationManager implements Notifier {
 			s.fireChange();
 	}
 
-	@Override
-	public Notifier.Subscription getSubscription(String category) {
+	public Subscription getSubscription(String category) {
 		return subscribtions.get(category);
 	}
 
-	@Override
 	public List<String> getAvailableSubscriptions() {
 		return new ArrayList<String>(subscribtions.keySet());
 	}
