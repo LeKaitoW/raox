@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rao.ui.graph;
 import org.eclipse.swt.widgets.Menu;
 
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.IndexType;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView.ConditionalMenuItem;
@@ -17,7 +18,11 @@ public class GraphView {
 
 		@Override
 		public boolean isEnabled(CollectedDataNode node) {
-			return node.getIndex().getType() == IndexType.SEARCH;
+			Index index = node.getIndex();
+			if (index == null)
+				return false;
+
+			return index.getType() == IndexType.SEARCH;
 		}
 
 		@Override
