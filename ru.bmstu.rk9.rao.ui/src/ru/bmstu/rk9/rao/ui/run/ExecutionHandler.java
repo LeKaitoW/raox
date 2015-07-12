@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -83,8 +82,6 @@ public class ExecutionHandler extends AbstractHandler {
 		});
 	}
 
-	private static DecimalFormat realTimeFormatter = new DecimalFormat("0.0");
-
 	private final void configureCommonSubscriptions() {
 		NotificationManager<Simulator.NotificationCategory> simulatorNotifier = Simulator
 				.getNotificationManager();
@@ -117,21 +114,8 @@ public class ExecutionHandler extends AbstractHandler {
 		TraceView.commonUpdater.fireChange();
 	}
 
-	private final void configureRealTimeSubscriptions(long startTime) {
-		final Display display = PlatformUI.getWorkbench().getDisplay();
-
-		RealTimeUpdater.addScheduledAction(new Runnable() {
-			@Override
-			public void run() {
-				if (!display.isDisposed())
-					display.asyncExec(() -> StatusView.setValue(
-							"Time elapsed".intern(),
-							5,
-							realTimeFormatter.format((System
-									.currentTimeMillis() - startTime) / 1000d)
-									+ "s"));
-			}
-		});
+	private final void configureRealTimeSubscriptions() {
+		RealTimeUpdater.addScheduledAction(StatusView.realTimeUpdateRunnable);
 		RealTimeUpdater.addScheduledAction(TraceView.realTimeUpdateRunnable);
 		RealTimeUpdater
 				.addScheduledAction(SerializedObjectsView.realTimeUpdateRunnable);
@@ -245,7 +229,8 @@ public class ExecutionHandler extends AbstractHandler {
 					configureCommonSubscriptions();
 
 					final long startTime = System.currentTimeMillis();
-					configureRealTimeSubscriptions(startTime);
+					StatusView.setStartTime(startTime);
+					configureRealTimeSubscriptions();
 
 					Simulator.getTreeBuilder().setGUISubscriber(
 							GraphFrame.realTimeUpdater);

@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.ui.simulation;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -217,6 +218,26 @@ public class StatusView extends ViewPart {
 	private static boolean isInitialized() {
 		return INSTANCE != null && !INSTANCE.composite.isDisposed();
 	}
+
+	private static DecimalFormat realTimeFormatter = new DecimalFormat("0.0");
+
+	public static final Runnable realTimeUpdateRunnable = new Runnable() {
+		@Override
+		public void run() {
+			StatusView.setValue(
+					"Time elapsed".intern(),
+					5,
+					realTimeFormatter.format((System
+							.currentTimeMillis() - startTime) / 1000d)
+							+ "s");
+		}
+	};
+
+	public static final void setStartTime(long time) {
+		startTime = time;
+	}
+
+	private static long startTime;
 
 	@Override
 	public void setFocus() {
