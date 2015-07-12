@@ -305,14 +305,20 @@ class ResultCompiler
 				@Override
 				public void calculate()
 				{
+					double minTrue = storelessStats.getMinTrue();
+					double maxTrue = storelessStats.getMaxTrue();
+					double minFalse = storelessStats.getMinFalse();
+					double maxFalse = storelessStats.getMaxFalse();
+					double percent = storelessStats.getPercent();
+
 					data
 						.put("last", value)
 						.put("counter", watchCounter)
-						.put("minTrue", storelessStats.getMinTrue())
-						.put("maxTrue", storelessStats.getMaxTrue())
-						.put("minFalse", storelessStats.getMinFalse())
-						.put("maxFalse", storelessStats.getMaxFalse())
-						.put("percent", storelessStats.getPercent());
+						.put("minTrue", Double.isFinite(minTrue) ? minTrue : "N/A")
+						.put("maxTrue", Double.isFinite(maxTrue) ? maxTrue : "N/A")
+						.put("minFalse", Double.isFinite(minFalse) ? minFalse : "N/A")
+						.put("maxFalse", Double.isFinite(maxFalse) ? maxFalse : "N/A")
+						.put("percent", Double.isFinite(percent) ? percent : "N/A");
 				}
 				'''
 			}
