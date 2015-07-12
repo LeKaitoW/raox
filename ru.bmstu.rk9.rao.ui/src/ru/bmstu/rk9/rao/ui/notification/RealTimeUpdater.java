@@ -58,7 +58,7 @@ public class RealTimeUpdater {
 	private static TimerTask timerTask = null;
 
 	private static final long delay = 0;
-	private static final long period = 100;
+	private static final long period = 40;
 
 	private static boolean paused = true;
 
