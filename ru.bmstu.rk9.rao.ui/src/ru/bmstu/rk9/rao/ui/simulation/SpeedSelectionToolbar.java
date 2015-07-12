@@ -1,10 +1,6 @@
 package ru.bmstu.rk9.rao.ui.simulation;
 
-import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
@@ -14,11 +10,14 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 
-public class SpeedSelectionToolbar extends
-		WorkbenchWindowControlContribution {
+public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 	private static volatile int speedValue;
 
 	public static int getSpeed() {
@@ -40,13 +39,9 @@ public class SpeedSelectionToolbar extends
 			this.setMinimum(0);
 			this.setMaximum(MAX);
 
-			// this is a Windows' progress bar animation issue workaround
-			// fancy yellowish color on windows and no effect on Linux and OSX
-			this.setState(SWT.PAUSED);
-
-			FontData[] fD = this.getFont().getFontData();
-			fD[0].setHeight(8);
-			this.setFont(new Font(this.getDisplay(), fD[0]));
+			FontData[] fontData = this.getFont().getFontData();
+			fontData[0].setHeight(8);
+			this.setFont(new Font(this.getDisplay(), fontData[0]));
 
 			this.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
 
@@ -67,7 +62,6 @@ public class SpeedSelectionToolbar extends
 							textSize.y, 4, 4);
 
 					e.gc.setAlpha(alpha);
-
 					e.gc.drawString(text, (widgetSize.x - textSize.x) / 2,
 							(widgetSize.y - textSize.y) / 2, true);
 				}
@@ -80,9 +74,10 @@ public class SpeedSelectionToolbar extends
 
 				@Override
 				public void mouseDown(MouseEvent e) {
-					if (e.button == 1)
+					if (e.button == 1) {
 						RaoSpeedSelector.this.setSpeed(e.x,
 								RaoSpeedSelector.this.getSize().x);
+					}
 				}
 
 				@Override
@@ -93,8 +88,9 @@ public class SpeedSelectionToolbar extends
 			addMouseMoveListener(new MouseMoveListener() {
 				@Override
 				public void mouseMove(MouseEvent e) {
-					if ((e.stateMask & SWT.BUTTON1) != 0)
+					if ((e.stateMask & SWT.BUTTON1) != 0) {
 						RaoSpeedSelector.this.setSpeed(e.x, speed.getSize().x);
+					}
 				}
 			});
 
@@ -120,9 +116,13 @@ public class SpeedSelectionToolbar extends
 
 		@Override
 		public void setSelection(int value) {
+			setRedraw(false);
+			setState(SWT.PAUSED);
 			super.setSelection(value);
 			speedValue = value;
 			SimulationSynchronizer.setSimulationSpeed(value);
+			setState(SWT.NORMAL);
+			setRedraw(true);
 		}
 
 		@Override
