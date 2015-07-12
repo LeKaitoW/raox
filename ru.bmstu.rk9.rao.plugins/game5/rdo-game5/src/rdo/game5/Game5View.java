@@ -20,17 +20,16 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
-import org.eclipse.ui.part.ViewPart;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditor;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorFactory;
 
 import com.google.inject.Injector;
 
+@SuppressWarnings("restriction")
 public class Game5View extends EditorPart {
 
 	public static final String ID = "rdo-game5.Game5View";
 
-	@SuppressWarnings("restriction")
 	@Override
 	public void createPartControl(Composite parent) {
 		final GridLayout gridLayout = new GridLayout(3, false);
@@ -237,8 +236,9 @@ public class Game5View extends EditorPart {
 				.getInstance(EmbeddedEditorFactory.class);
 		final EditedResourceProvider resourceProvider = injector
 				.getInstance(EditedResourceProvider.class);
-		final EmbeddedEditor embeddedEditor = factory.newEditor(
-				resourceProvider).withParent(editorGroup);
+		final EmbeddedEditor embeddedEditor = factory
+				.newEditor(resourceProvider).showErrorAndWarningAnnotations()
+				.withParent(editorGroup);
 		embeddedEditor.createPartialEditor();
 
 	}

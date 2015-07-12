@@ -45,6 +45,7 @@ public class ModelNameView {
 
 		final Button okButton = new Button(shell, SWT.NONE);
 		okButton.setText("Ok");
+		shell.setDefaultButton(okButton);
 
 		final Button cancelButton = new Button(shell, SWT.NONE);
 		cancelButton.setText("Cancel");
