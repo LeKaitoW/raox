@@ -33,7 +33,7 @@ public class RealTimeUpdater {
 		timer.scheduleAtFixedRate(timerTask, delay, period);
 	}
 
-	public final static void cancel() {
+	public final static void stop() {
 		timer.cancel();
 		timer = null;
 		timerTask = null;

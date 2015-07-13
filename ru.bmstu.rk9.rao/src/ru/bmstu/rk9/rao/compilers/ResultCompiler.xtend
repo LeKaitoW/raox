@@ -128,11 +128,11 @@ class ResultCompiler
 
 					NotificationManager<Simulator.NotificationCategory> notificationManager = Simulator.getNotificationManager();
 
-					notificationManager.getSubscription(Simulator.NotificationCategory.STATE_CHANGE)
+					notificationManager.getSubscription(Simulator.NotificationCategory.STATE_CHANGED)
 						.addSubscriber(INSTANCE);
 					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_ABORTED)
 						.addSubscriber(INSTANCE.finalizer);
-					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_COMPLETE)
+					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_COMPLETED)
 						.addSubscriber(INSTANCE.finalizer);
 
 					«type.compileValueType(expression)»
@@ -231,11 +231,11 @@ class ResultCompiler
 
 					NotificationManager notificationManager = Simulator.getNotificationManager();
 
-					notificationManager.getSubscription(Simulator.NotificationCategory.STATE_CHANGE)
+					notificationManager.getSubscription(Simulator.NotificationCategory.STATE_CHANGED)
 						.addSubscriber(INSTANCE);
 					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_ABORTED)
 						.addSubscriber(INSTANCE.finalizer);
-					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_COMPLETE)
+					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_COMPLETED)
 						.addSubscriber(INSTANCE.finalizer);
 
 					INSTANCE.data.put("valueType", "bool");
@@ -352,11 +352,11 @@ class ResultCompiler
 
 					NotificationManager<Simulator.NotificationCategory> notificationManager = Simulator.getNotificationManager();
 
-					notificationManager.getSubscription(Simulator.NotificationCategory.STATE_CHANGE)
+					notificationManager.getSubscription(Simulator.NotificationCategory.STATE_CHANGED)
 						.addSubscriber(INSTANCE);
 					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_ABORTED)
 						.addSubscriber(INSTANCE.finalizer);
-					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_COMPLETE)
+					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_COMPLETED)
 						.addSubscriber(INSTANCE.finalizer);
 
 					INSTANCE.data.put("valueType", "«expression.type.backToRaoType»");

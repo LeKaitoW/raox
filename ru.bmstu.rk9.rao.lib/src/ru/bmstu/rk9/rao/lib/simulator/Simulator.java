@@ -101,7 +101,7 @@ public class Simulator {
 	}
 
 	public enum NotificationCategory {
-		STATE_CHANGE, TIME_CHANGE, EXECUTION_ABORTED, EXECUTION_COMPLETE, EXECUTION_STARTED
+		EXECUTION_STARTED, EXECUTION_COMPLETED, EXECUTION_ABORTED, STATE_CHANGED, TIME_CHANGED
 	};
 
 	private NotificationManager<NotificationCategory> notificationManager;
@@ -135,7 +135,7 @@ public class Simulator {
 
 	private int checkDPT() {
 		while (dptManager.checkDPT() && !executionAborted) {
-			notifyChange(NotificationCategory.STATE_CHANGE);
+			notifyChange(NotificationCategory.STATE_CHANGED);
 
 			if (checkTerminate())
 				return 1;
@@ -152,8 +152,8 @@ public class Simulator {
 		INSTANCE.database.addSystemEntry(Database.SystemEntryType.SIM_START);
 
 		notifyChange(NotificationCategory.EXECUTION_STARTED);
-		notifyChange(NotificationCategory.TIME_CHANGE);
-		notifyChange(NotificationCategory.STATE_CHANGE);
+		notifyChange(NotificationCategory.TIME_CHANGED);
+		notifyChange(NotificationCategory.STATE_CHANGED);
 
 		int dptCheck = INSTANCE.checkDPT();
 		if (dptCheck != 0)
@@ -164,11 +164,11 @@ public class Simulator {
 
 			INSTANCE.time = current.getTime();
 
-			notifyChange(NotificationCategory.TIME_CHANGE);
+			notifyChange(NotificationCategory.TIME_CHANGED);
 
 			current.run();
 
-			notifyChange(NotificationCategory.STATE_CHANGE);
+			notifyChange(NotificationCategory.STATE_CHANGED);
 
 			if (INSTANCE.checkTerminate())
 				return stop(1);
@@ -197,7 +197,7 @@ public class Simulator {
 			break;
 		}
 		INSTANCE.database.addSystemEntry(simFinishType);
-		notifyChange(NotificationCategory.EXECUTION_COMPLETE);
+		notifyChange(NotificationCategory.EXECUTION_COMPLETED);
 		isRunning = false;
 		return code;
 	}
