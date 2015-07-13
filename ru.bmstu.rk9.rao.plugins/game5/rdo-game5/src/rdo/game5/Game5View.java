@@ -22,6 +22,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditor;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorFactory;
+import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorModelAccess;
 
 import com.google.inject.Injector;
 
@@ -29,6 +30,7 @@ import com.google.inject.Injector;
 public class Game5View extends EditorPart {
 
 	public static final String ID = "rdo-game5.Game5View";
+	private static EmbeddedEditorModelAccess editor;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -220,6 +222,9 @@ public class Game5View extends EditorPart {
 			}
 		});
 
+		final Button simulationButton = new Button(parent, SWT.PUSH);
+		simulationButton.setText("Simulation");
+
 		final Group editorGroup = new Group(parent, SWT.SHADOW_IN);
 		editorGroup.setText("Heuristic code:");
 		editorGroup.setLayout(gridLayout);
@@ -239,8 +244,19 @@ public class Game5View extends EditorPart {
 		final EmbeddedEditor embeddedEditor = factory
 				.newEditor(resourceProvider).showErrorAndWarningAnnotations()
 				.withParent(editorGroup);
-		embeddedEditor.createPartialEditor();
+		editor = embeddedEditor.createPartialEditor();
 
+		simulationButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				Game5ProjectConfigurator.addHeuristicCode();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent event) {
+			}
+		});
 	}
 
 	@Override
@@ -249,7 +265,6 @@ public class Game5View extends EditorPart {
 
 	@Override
 	public void doSave(IProgressMonitor arg0) {
-
 	}
 
 	@Override
@@ -271,5 +286,9 @@ public class Game5View extends EditorPart {
 	@Override
 	public boolean isSaveAsAllowed() {
 		return false;
+	}
+
+	public static final EmbeddedEditorModelAccess getEditor() {
+		return editor;
 	}
 }

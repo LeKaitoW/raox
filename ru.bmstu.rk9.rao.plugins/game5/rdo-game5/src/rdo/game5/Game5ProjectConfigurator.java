@@ -1,8 +1,12 @@
 package rdo.game5;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +14,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -27,6 +32,8 @@ public class Game5ProjectConfigurator {
 	private static IProject game5Project;
 	private static IWorkspaceRoot root;
 	private static IFile game5File;
+	private static IPath filePath;
+	private static InputStream inputStream;
 
 	public static final void initializeProject() {
 
@@ -88,8 +95,8 @@ public class Game5ProjectConfigurator {
 
 		final IPath workspacePath = root.getLocation();
 		final String modelName = ModelNameView.getName() + ".rao";
-		final IPath filePath = workspacePath.append(game5Project.getFullPath())
-				.append(modelName);
+		filePath = workspacePath.append(game5Project.getFullPath()).append(
+				modelName);
 
 		final File game5Model = new File(filePath.toString());
 		try {
@@ -99,11 +106,10 @@ public class Game5ProjectConfigurator {
 		}
 
 		game5File = game5Project.getFile(modelName);
-		InputStream is;
 		try {
-			is = Game5ProjectConfigurator.class.getClassLoader()
+			inputStream = Game5ProjectConfigurator.class.getClassLoader()
 					.getResourceAsStream("/model_template/game_5.rao");
-			game5File.create(is, true, null);
+			game5File.create(inputStream, true, null);
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
@@ -111,5 +117,51 @@ public class Game5ProjectConfigurator {
 
 	public static final IFile getFile() {
 		return game5File;
+	}
+
+	public static final IPath getFilePath() {
+		return filePath;
+	}
+
+	public static final IProject getProject() {
+		return game5Project;
+	}
+
+	@SuppressWarnings("restriction")
+	public static final void addHeuristicCode() {
+
+		inputStream = Game5ProjectConfigurator.class.getClassLoader()
+				.getResourceAsStream("/model_template/game_5.rao");
+		final File game5Model = new File(Game5ProjectConfigurator.getFilePath()
+				.toString());
+
+		try {
+			OutputStream outputStream = new FileOutputStream(game5Model);
+			byte[] bytes = new byte[1024];
+
+			int read = inputStream.read(bytes);
+			while (read != -1) {
+				outputStream.write(bytes, 0, read);
+				read = inputStream.read(bytes);
+			}
+
+			final String newLine = "\n";
+			outputStream.write(newLine.getBytes(Charset.forName("UTF-8")));
+			outputStream.write(Game5View.getEditor().getEditablePart()
+					.getBytes(Charset.forName("UTF-8")));
+			outputStream.write(newLine.getBytes(Charset.forName("UTF-8")));
+
+			inputStream.close();
+			outputStream.flush();
+			outputStream.close();
+			Game5ProjectConfigurator.getProject().refreshLocal(
+					IResource.DEPTH_INFINITE, null);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
 	}
 }
