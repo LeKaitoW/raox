@@ -119,6 +119,17 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 			super.setSelection(value);
 			speedValue = value;
 			SimulationSynchronizer.setSimulationSpeed(value);
+			updateState(value);
+		}
+
+		private final void updateState(int value) {
+			if (getSelection() <= MAX / 5.0) {
+				setState(SWT.ERROR);
+			} else if (getSelection() < MAX) {
+				setState(SWT.PAUSED);
+			} else {
+				setState(SWT.NORMAL);
+			}
 		}
 
 		@Override
