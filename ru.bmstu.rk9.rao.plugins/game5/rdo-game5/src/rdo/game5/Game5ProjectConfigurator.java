@@ -1,12 +1,14 @@
 package rdo.game5;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +36,7 @@ public class Game5ProjectConfigurator {
 	private static IFile game5File;
 	private static IPath filePath;
 	private static InputStream inputStream;
+	private static final String modelTemplatePath = "/model_template/game_5.rao";
 
 	public static final void initializeProject() {
 
@@ -108,7 +111,7 @@ public class Game5ProjectConfigurator {
 		game5File = game5Project.getFile(modelName);
 		try {
 			inputStream = Game5ProjectConfigurator.class.getClassLoader()
-					.getResourceAsStream("/model_template/game_5.rao");
+					.getResourceAsStream(modelTemplatePath);
 			game5File.create(inputStream, true, null);
 		} catch (CoreException e) {
 			e.printStackTrace();
@@ -128,40 +131,43 @@ public class Game5ProjectConfigurator {
 	}
 
 	@SuppressWarnings("restriction")
-	public static final void addHeuristicCode() {
+	public static final void addHeuristicCode() throws IOException {
 
 		inputStream = Game5ProjectConfigurator.class.getClassLoader()
-				.getResourceAsStream("/model_template/game_5.rao");
+				.getResourceAsStream(modelTemplatePath);
+		OutputStream outputStream = null;
 		final File game5Model = new File(Game5ProjectConfigurator.getFilePath()
 				.toString());
 
 		try {
-			OutputStream outputStream = new FileOutputStream(game5Model);
-			byte[] bytes = new byte[1024];
+			InputStreamReader inputStreamReader = new InputStreamReader(
+					inputStream, "UTF-8");
+			BufferedReader bufferedReader = new BufferedReader(
+					inputStreamReader);
+			outputStream = new FileOutputStream(game5Model);
+			PrintStream printStream = new PrintStream(outputStream);
 
-			int read = inputStream.read(bytes);
-			while (read != -1) {
-				outputStream.write(bytes, 0, read);
-				read = inputStream.read(bytes);
+			String modelTemplateCode = bufferedReader.readLine();
+			while (modelTemplateCode != null) {
+				printStream.println(modelTemplateCode);
+				modelTemplateCode = bufferedReader.readLine();
 			}
 
-			final String newLine = "\n";
-			outputStream.write(newLine.getBytes(Charset.forName("UTF-8")));
-			outputStream.write(Game5View.getEditor().getEditablePart()
-					.getBytes(Charset.forName("UTF-8")));
-			outputStream.write(newLine.getBytes(Charset.forName("UTF-8")));
+			printStream.println();
+			printStream.println(Game5View.getEditor().getEditablePart());
+			printStream.flush();
+			printStream.close();
 
-			inputStream.close();
-			outputStream.flush();
-			outputStream.close();
 			Game5ProjectConfigurator.getProject().refreshLocal(
 					IResource.DEPTH_INFINITE, null);
-		} catch (FileNotFoundException e) {
+		} catch (FileNotFoundException | CoreException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (CoreException e) {
-			e.printStackTrace();
+		} finally {
+			inputStream.close();
+			if (outputStream != null) {
+				outputStream.flush();
+				outputStream.close();
+			}
 		}
 	}
 }

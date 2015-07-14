@@ -1,5 +1,7 @@
 package rdo.game5;
 
+import java.io.IOException;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -250,7 +252,11 @@ public class Game5View extends EditorPart {
 
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				Game5ProjectConfigurator.addHeuristicCode();
+				try {
+					Game5ProjectConfigurator.addHeuristicCode();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 
 			@Override

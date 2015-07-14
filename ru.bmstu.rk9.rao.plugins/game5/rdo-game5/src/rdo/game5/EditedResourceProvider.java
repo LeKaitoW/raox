@@ -12,12 +12,12 @@ import com.google.inject.Provider;
 public class EditedResourceProvider implements IEditedResourceProvider {
 
 	@Inject
-	Provider<ResourceSet> rsp;
+	Provider<ResourceSet> resourceSetProvider;
 
 	@Override
 	public XtextResource createResource() {
-		XtextResource res = (XtextResource) rsp.get().createResource(
-				URI.createURI("test.rao"));
-		return res;
+		XtextResource resource = (XtextResource) resourceSetProvider.get()
+				.createResource(URI.createURI("test.rao"));
+		return resource;
 	}
 }
