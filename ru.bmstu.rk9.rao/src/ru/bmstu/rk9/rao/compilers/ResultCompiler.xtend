@@ -208,16 +208,16 @@ class ResultCompiler
 					double varcoef = storelessStats.getCoefficientOfVariation();
 
 					data
-						.put("mean", Double.isFinite(mean) ? mean : "N/A")
-						.put("deviation", Double.isFinite(deviation) ? deviation : "N/A")
-						.put("varcoef", Double.isFinite(varcoef) ? varcoef : "N/A")
-						.put("last", value)
-						.put("min", minValue)
-						.put("max", maxValue)
-						.put("counter", watchCounter);
+						.put("mean", Double.toString(mean))
+						.put("deviation", Double.toString(deviation))
+						.put("varcoef", Double.toString(varcoef))
+						.put("last", «expression.type».toString(value))
+						.put("min", «expression.type».toString(minValue))
+						.put("max", «expression.type».toString(maxValue))
+						.put("counter", Integer.toString(watchCounter));
 
 					if (storelessStats.initFromDatabase(this))
-						data.put("median", storelessStats.getMedian());
+						data.put("median", Double.toString(storelessStats.getMedian()));
 				}
 				'''
 			}
@@ -312,13 +312,13 @@ class ResultCompiler
 					double percent = storelessStats.getPercent();
 
 					data
-						.put("last", value)
-						.put("counter", watchCounter)
-						.put("minTrue", Double.isFinite(minTrue) ? minTrue : "N/A")
-						.put("maxTrue", Double.isFinite(maxTrue) ? maxTrue : "N/A")
-						.put("minFalse", Double.isFinite(minFalse) ? minFalse : "N/A")
-						.put("maxFalse", Double.isFinite(maxFalse) ? maxFalse : "N/A")
-						.put("percent", Double.isFinite(percent) ? percent : "N/A");
+						.put("last", Boolean.toString(value))
+						.put("counter", Integer.toString(watchCounter))
+						.put("minTrue", Double.toString(minTrue))
+						.put("maxTrue", Double.toString(maxTrue))
+						.put("minFalse", Double.toString(minFalse))
+						.put("maxFalse", Double.toString(maxFalse))
+						.put("percent", Double.toString(percent));
 				}
 				'''
 			}
@@ -441,16 +441,16 @@ class ResultCompiler
 			double varcoef = storelessStats.getCoefficientOfVariation();
 
 			data
-				.put("mean", Double.isFinite(mean) ? mean : "N/A")
-				.put("deviation", Double.isFinite(deviation) ? deviation : "N/A")
-				.put("varcoef", Double.isFinite(varcoef) ? varcoef : "N/A")
-				.put("last", value)
-				.put("min", minValue)
-				.put("max", maxValue)
-				.put("counter", watchCounter);
+				.put("mean", Double.toString(mean))
+				.put("deviation", Double.toString(deviation))
+				.put("varcoef", Double.toString(varcoef))
+				.put("last", «expression.type».toString(value))
+				.put("min", «expression.type».toString(minValue))
+				.put("max", «expression.type».toString(maxValue))
+				.put("counter", Integer.toString(watchCounter));
 
 			if (storelessStats.initFromDatabase(this))
-				data.put("median", storelessStats.getMedian());
+				data.put("median", Double.toString(storelessStats.getMedian()));
 		}
 		'''
 	}
