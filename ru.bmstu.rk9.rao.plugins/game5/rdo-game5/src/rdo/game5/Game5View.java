@@ -25,6 +25,8 @@ import org.eclipse.ui.part.EditorPart;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditor;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorFactory;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorModelAccess;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.inject.Injector;
 
@@ -33,6 +35,7 @@ public class Game5View extends EditorPart {
 
 	public static final String ID = "rdo-game5.Game5View";
 	private static EmbeddedEditorModelAccess editor;
+	private static JSONObject object;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -173,7 +176,7 @@ public class Game5View extends EditorPart {
 		final Button compareTops = new Button(traverseGraph, SWT.CHECK);
 		compareTops.setText("Compare tops");
 
-		final Button shuffle = new Button(parent, SWT.PUSH);
+		final Button shuffle = new Button(solvableGroup, SWT.PUSH);
 		shuffle.setText("Shuffle");
 
 		final Button downButton = new Button(ruleCost, SWT.CHECK);
@@ -248,10 +251,56 @@ public class Game5View extends EditorPart {
 				.withParent(editorGroup);
 		editor = embeddedEditor.createPartialEditor();
 
+		object = new JSONObject();
+		solvable.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				final String paramName = "solvable";
+				try {
+					if (solvable.getSelection()) {
+						object.put(paramName, true);
+					} else {
+						object.put(paramName, false);
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+
+			}
+		});
+
+		compareTops.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				try {
+					if (compareTops.getSelection()) {
+						object.put("compare", true);
+					} else {
+						object.put("compare", false);
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+		});
+		
+		
+		
 		simulationButton.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent event) {
+				System.out.println(object);
 				try {
 					Game5ProjectConfigurator.addHeuristicCode();
 				} catch (IOException e) {
