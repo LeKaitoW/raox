@@ -4,21 +4,21 @@ import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
 
-public class SpeedSelectionToolbar extends
-		WorkbenchWindowControlContribution {
+public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 	private static volatile int speedValue;
 
 	public static int getSpeed() {
@@ -26,25 +26,30 @@ public class SpeedSelectionToolbar extends
 	}
 
 	public static void setSpeed(int val) {
-		speedValue = val < RaoSpeedSelector.MIN ? RaoSpeedSelector.MIN
+		speedValue = val < RaoSpeedSelector.MIN_VALUE ? RaoSpeedSelector.MIN_VALUE
 				: val > RaoSpeedSelector.MAX ? RaoSpeedSelector.MAX : val;
 	}
 
-	public class RaoSpeedSelector extends ProgressBar {
-		private static final int MIN = 1;
+	public class RaoSpeedSelector extends Composite {
+		private static final int MIN = 0;
+		private static final int MIN_VALUE = 1;
 		private static final int MAX = 100;
+
+		private final Color borderColor;
+		private final Color mainColor1;
+		private final Color mainColor2;
+		private final Color labelColor;
 
 		public RaoSpeedSelector(Composite parent, int style) {
 			super(parent, style);
 
-			this.setMinimum(0);
-			this.setMaximum(MAX);
+			final Display display = getDisplay();
+			borderColor = new Color(display, 0x40, 0x40, 0x40);
+			labelColor = new Color(display, 0xFF, 0xFF, 0xFF);
+			mainColor1 = new Color(display, 0x64, 0x64, 0xD0);
+			mainColor2 = new Color(display, 0x58, 0x58, 0xD0);
 
-			// this is a Windows' progress bar animation issue workaround
-			// fancy yellowish color on windows and no effect on Linux and OSX
-			this.setState(SWT.PAUSED);
-
-			FontData[] fD = this.getFont().getFontData();
+			final FontData[] fD = this.getFont().getFontData();
 			fD[0].setHeight(8);
 			this.setFont(new Font(this.getDisplay(), fD[0]));
 
@@ -54,20 +59,47 @@ public class SpeedSelectionToolbar extends
 				@Override
 				public void paintControl(final PaintEvent e) {
 					final Point widgetSize = getSize();
-					final int percentage = (int) (100f * getSelection() / (getMaximum() - getMinimum()));
+					final int percentage = (int) (100f * speedValue / (MAX - MIN));
 					final String text = percentage + "%";
 					final Point textSize = e.gc.stringExtent(text);
+					final Color originalBackground = e.gc.getBackground();
+					final Color originalForeground = e.gc.getForeground();
 
-					int alpha = e.gc.getAlpha();
+					e.gc.setBackground(mainColor1);
+					e.gc.fillRoundRectangle(1, 1, widgetSize.x - 2,
+							widgetSize.y / 2 + 1, 4, 4);
+					e.gc.setBackground(mainColor2);
+					e.gc.fillRoundRectangle(1, widgetSize.y / 2,
+							widgetSize.x - 2, widgetSize.y / 2 - 1, 4, 4);
+
+					e.gc.setBackground(originalBackground);
+					e.gc.fillRectangle((int) (2 + percentage / 100d
+							* (widgetSize.x - 4)), 0,
+							(int) (2 + (100 - percentage) / 100d
+									* (widgetSize.x - 4)), widgetSize.y);
+
+					e.gc.setForeground(borderColor);
+					e.gc.setLineWidth(1);
+					e.gc.drawRoundRectangle(1, 1, widgetSize.x - 3,
+							widgetSize.y - 3, 4, 4);
+
+					e.gc.setAlpha(50);
+					e.gc.drawRoundRectangle(0, 0, widgetSize.x - 1,
+							widgetSize.y - 1, 6, 6);
+					e.gc.setAlpha(25);
+					e.gc.drawRoundRectangle(2, 2, widgetSize.x - 5,
+							widgetSize.y - 5, 2, 2);
+
 					e.gc.setAlpha(150);
+					e.gc.setBackground(labelColor);
 
 					e.gc.fillRoundRectangle(
 							(widgetSize.x - textSize.x) / 2 - 4,
 							(widgetSize.y - textSize.y) / 2, textSize.x + 8,
 							textSize.y, 4, 4);
 
-					e.gc.setAlpha(alpha);
-
+					e.gc.setAlpha(255);
+					e.gc.setForeground(originalForeground);
 					e.gc.drawString(text, (widgetSize.x - textSize.x) / 2,
 							(widgetSize.y - textSize.y) / 2, true);
 				}
@@ -110,19 +142,20 @@ public class SpeedSelectionToolbar extends
 
 		public void setSpeed(int part, int all) {
 			int val = part * MAX / all;
-			speed.setSelection(val < MIN ? MIN : val > MAX ? MAX : val);
+			speed.setSelection(val < MIN_VALUE ? MIN_VALUE : val > MAX ? MAX
+					: val);
 		}
 
 		public void modifySpeed(int value) {
-			int val = this.getSelection() + value;
-			speed.setSelection(val < MIN ? MIN : val > MAX ? MAX : val);
+			int val = speedValue + value;
+			speed.setSelection(val < MIN_VALUE ? MIN_VALUE : val > MAX ? MAX
+					: val);
 		}
 
-		@Override
 		public void setSelection(int value) {
-			super.setSelection(value);
 			speedValue = value;
 			SimulationSynchronizer.setSimulationSpeed(value);
+			redraw();
 		}
 
 		@Override
