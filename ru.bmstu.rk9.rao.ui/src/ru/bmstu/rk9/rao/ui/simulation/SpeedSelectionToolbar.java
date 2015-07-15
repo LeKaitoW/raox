@@ -66,7 +66,6 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 					new Color(display, 0xD0, 0xD0, 0x00),
 					new Color(display, 0xC0, 0x00, 0x00)
 			};
-			//new Color(display, 0x58, 0x58, 0xD0);
 
 			final FontData[] fontData = this.getFont().getFontData();
 			fontData[0].setHeight(8);
