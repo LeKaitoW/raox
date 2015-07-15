@@ -27,7 +27,11 @@ public class GraphView {
 
 		@Override
 		public void show(CollectedDataNode node) {
-			int dptNumber = node.getIndex().getNumber();
+			Index index = node.getIndex();
+			if (index == null)
+				return;
+
+			int dptNumber = index.getNumber();
 			String frameName = node.getName();
 			FrameInfo frameInfo = new FrameInfo(dptNumber, frameName);
 			GraphControl.openFrameWindow(frameInfo);
