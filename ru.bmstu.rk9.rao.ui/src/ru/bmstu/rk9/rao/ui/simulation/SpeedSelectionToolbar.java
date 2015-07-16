@@ -8,6 +8,7 @@ import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
@@ -41,8 +42,8 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 		private static final int LABEL_OFFSET = 1;
 		private static final int SHADOW_ALPHA = 60;
 
-		private static final int MEDIUM_COLOR_THRESHOLD = 80;
-		private static final int LOW_COLOR_THRESHOLD = 10;
+		private static final double YELLOW_SINCE = .15;
+		private static final double YELLOW_UNTIL = .95;
 
 		private final Color borderColor;
 		private final Color[] progressColorTop;
@@ -57,10 +58,16 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 			borderColor = new Color(display, 0x40, 0x40, 0x40);
 			labelBackgroundColor = display.getSystemColor(SWT.COLOR_WHITE);
 			labelForegroundColor = display.getSystemColor(SWT.COLOR_BLACK);
-			progressColorTop = new Color[] { new Color(display, 0x00, 0xB5, 0x00), new Color(display, 0xF0, 0xF0, 0x00),
-					new Color(display, 0xD0, 0x00, 0x00) };
-			progressColorBottom = new Color[] { new Color(display, 0x00, 0xA6, 0x00),
-					new Color(display, 0xD0, 0xD0, 0x00), new Color(display, 0xC0, 0x00, 0x00) };
+			progressColorTop = new Color[] {
+					new Color(display, 0xD0, 0x00, 0x00),
+					new Color(display, 0xEB, 0xCA, 0x00),
+					new Color(display, 0xF0, 0xF0, 0x00),
+					new Color(display, 0x00, 0xB5, 0x00)};
+			progressColorBottom = new Color[] {
+					new Color(display, 0xC0, 0x00, 0x00),
+					new Color(display, 0xCD, 0xAF, 0x00),
+					new Color(display, 0xD0, 0xD0, 0x00),
+					new Color(display, 0x00, 0xA6, 0x00)};
 
 			final FontData[] fontData = getFont().getFontData().clone();
 			fontData[0].setHeight(8);
@@ -77,36 +84,11 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 					final Point textSize = gc.stringExtent(text);
 					final Color originalBackground = gc.getBackground();
 
-					if (percentage == MAX_VALUE) {
-						gc.setBackground(progressColorTop[0]);
-						drawProgress(gc, widgetArea, ProgressPaintMode.TOP, 0);
-						gc.setBackground(progressColorBottom[0]);
-						drawProgress(gc, widgetArea, ProgressPaintMode.BOTTOM, 0);
-					} else {
-						final int alphaRatio;
-						if (MEDIUM_COLOR_THRESHOLD < percentage)
-							alphaRatio = 255;
-						else if (percentage < LOW_COLOR_THRESHOLD)
-							alphaRatio = 0;
-						else
-							alphaRatio = (int) (255f * (percentage - LOW_COLOR_THRESHOLD)
-									/ (MEDIUM_COLOR_THRESHOLD - LOW_COLOR_THRESHOLD));
-
-						gc.setBackground(progressColorTop[2]);
-						drawProgress(gc, widgetArea, ProgressPaintMode.TOP, 0);
-						gc.setAlpha(alphaRatio);
-						gc.setBackground(progressColorTop[1]);
-						drawProgress(gc, widgetArea, ProgressPaintMode.TOP, 0);
-
-						gc.setAlpha(255);
-						gc.setBackground(progressColorBottom[2]);
-						drawProgress(gc, widgetArea, ProgressPaintMode.BOTTOM, 0);
-						gc.setAlpha(alphaRatio);
-						gc.setBackground(progressColorBottom[1]);
-						drawProgress(gc, widgetArea, ProgressPaintMode.BOTTOM, 0);
-
-						gc.setAlpha(255);
-					}
+					final double percent = percentage / 100.;
+					gc.setBackground(getBackgroundColor(display, percent, progressColorTop));
+					drawProgress(gc, widgetArea, ProgressPaintMode.TOP, 0);
+					gc.setBackground(getBackgroundColor(display, percent, progressColorBottom));
+					drawProgress(gc, widgetArea, ProgressPaintMode.BOTTOM, 0);
 
 					gc.setBackground(originalBackground);
 					int progressOffset = BORDER_SIZE + (int) (percentage / 100d * (widgetArea.width - 4 * BORDER_SIZE));
@@ -160,6 +142,42 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 			});
 
 			setToolTipText("Simulation Speed");
+		}
+
+		private final Color getBackgroundColor(Device device, double percent, Color[] colors) {
+			double k0;
+			final double k1;
+			final double k2;
+			final double k3;
+
+			if (percent < YELLOW_SINCE) {
+				k0 = 1 - percent;
+				k1 = percent;
+				k2 = 0;
+				k3 = 0;
+			} else if (YELLOW_SINCE <= percent && percent <= YELLOW_UNTIL) {
+				k0 = 1 - YELLOW_SINCE - (percent - YELLOW_SINCE) * 1./YELLOW_SINCE;
+				if (k0 < 0)
+					k0 = 0;
+				k1 = (1 - k0) - (percent - YELLOW_SINCE) * 1./(YELLOW_UNTIL - YELLOW_SINCE);
+				k2 = 1 - k0 - k1;
+				k3 = 0;
+			} else if (YELLOW_UNTIL < percent) {
+				k0 = 0;
+				k1 = 0;
+				k2 = 1 - (percent - YELLOW_UNTIL) * 1./(1. - YELLOW_UNTIL);
+				k3 = 1 - k2;
+			} else {
+				k0 = 0;
+				k1 = 0;
+				k2 = 0;
+				k3 = 1;
+			}
+
+			return new Color(device,
+					(int)(colors[0].getRed() * k0 + colors[1].getRed() * k1 + colors[2].getRed() * k2 + colors[3].getRed() * k3),
+					(int)(colors[0].getGreen() * k0 + colors[1].getGreen() * k1 + colors[2].getGreen() * k2 + colors[3].getGreen() * k3),
+					(int)(colors[0].getBlue() * k0 + colors[1].getBlue() * k1 + colors[2].getBlue() * k2 + colors[3].getBlue() * k3));
 		}
 
 		public static enum ProgressPaintMode {
