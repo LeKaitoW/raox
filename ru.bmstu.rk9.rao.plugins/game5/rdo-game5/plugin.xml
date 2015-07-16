@@ -31,6 +31,7 @@
 			class="rdo.game5.Game5View"
 			id="rdo-game5.Game5View"
 			name="Game 5 View"
+			extensions="json"
 			restorable="true">
 		</editor>
 	</extension>

@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormLayout;
@@ -87,7 +89,6 @@ public class Game5View extends EditorPart {
 		leftCost.setEnabled(false);
 
 		leftButton.addSelectionListener(new SelectionListener() {
-
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				if (leftButton.getSelection()) {
@@ -116,7 +117,6 @@ public class Game5View extends EditorPart {
 		rightCost.setEnabled(false);
 
 		rightButton.addSelectionListener(new SelectionListener() {
-
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				if (rightButton.getSelection()) {
@@ -145,7 +145,6 @@ public class Game5View extends EditorPart {
 		upCost.setEnabled(false);
 
 		upButton.addSelectionListener(new SelectionListener() {
-
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				if (upButton.getSelection()) {
@@ -184,7 +183,6 @@ public class Game5View extends EditorPart {
 		downCost.setEnabled(false);
 
 		downButton.addSelectionListener(new SelectionListener() {
-
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				if (downButton.getSelection()) {
@@ -208,7 +206,6 @@ public class Game5View extends EditorPart {
 		setSituation.setText("Set...");
 
 		setSituation.addSelectionListener(new SelectionListener() {
-
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				final Display display = PlatformUI.getWorkbench().getDisplay();
@@ -252,16 +249,105 @@ public class Game5View extends EditorPart {
 		editor = embeddedEditor.createPartialEditor();
 
 		object = new JSONObject();
-		solvable.addSelectionListener(new SelectionListener() {
+
+		leftCost.addKeyListener(new KeyListener() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				try {
+					object.put("costLeft", leftCost.getText());
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
 
 			@Override
+			public void keyPressed(KeyEvent arg0) {
+			}
+		});
+
+		leftCombo.addSelectionListener(new SelectionListener() {
+			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				final String paramName = "solvable";
+				try {
+					object.put("computeLeft", leftCombo.getSelectionIndex());
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+		});
+
+		rightCost.addKeyListener(new KeyListener() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				try {
+					object.put("costRight", rightCost.getText());
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+			}
+		});
+
+		rightCombo.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				try {
+					object.put("computeRight", rightCombo.getSelectionIndex());
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+		});
+
+		upCost.addKeyListener(new KeyListener() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				try {
+					object.put("costUp", upCost.getText());
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+			}
+		});
+
+		downCost.addKeyListener(new KeyListener() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				try {
+					object.put("costDown", downCost.getText());
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+			}
+		});
+
+		solvable.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
 				try {
 					if (solvable.getSelection()) {
-						object.put(paramName, true);
+						object.put("solvable", true);
 					} else {
-						object.put(paramName, false);
+						object.put("solvable", false);
 					}
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -270,12 +356,10 @@ public class Game5View extends EditorPart {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
-
 			}
 		});
 
 		compareTops.addSelectionListener(new SelectionListener() {
-			
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				try {
@@ -288,19 +372,15 @@ public class Game5View extends EditorPart {
 					e.printStackTrace();
 				}
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
-		
-		
-		
-		simulationButton.addSelectionListener(new SelectionListener() {
 
+		simulationButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				System.out.println(object);
 				try {
 					Game5ProjectConfigurator.addHeuristicCode();
 				} catch (IOException e) {

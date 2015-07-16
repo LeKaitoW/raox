@@ -28,19 +28,23 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
 import org.eclipse.xtext.ui.XtextProjectHelper;
+import org.json.JSONObject;
 
 public class Game5ProjectConfigurator {
 
 	private static IProject game5Project;
-	private static IWorkspaceRoot root;
 	private static IFile game5File;
 	private static IPath filePath;
+	private static JSONObject object;
 	private static InputStream inputStream;
 	private static final String modelTemplatePath = "/model_template/game_5.rao";
+	private static final String configFilePath = "/model_template/cofig.json";
+	private static final IWorkspaceRoot root = ResourcesPlugin.getWorkspace()
+			.getRoot();
+	private static final IPath workspacePath = root.getLocation();
 
 	public static final void initializeProject() {
 
-		root = ResourcesPlugin.getWorkspace().getRoot();
 		game5Project = root.getProject(ModelNameView.getName() + "_project");
 		try {
 			if (!game5Project.exists()) {
@@ -94,9 +98,8 @@ public class Game5ProjectConfigurator {
 		}
 	}
 
-	public static void createFile() {
+	public static void createModelFile() {
 
-		final IPath workspacePath = root.getLocation();
 		final String modelName = ModelNameView.getName() + ".rao";
 		filePath = workspacePath.append(game5Project.getFullPath()).append(
 				modelName);
@@ -113,6 +116,29 @@ public class Game5ProjectConfigurator {
 			inputStream = Game5ProjectConfigurator.class.getClassLoader()
 					.getResourceAsStream(modelTemplatePath);
 			game5File.create(inputStream, true, null);
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static final void createConfigFile() {
+
+		final String configName = ModelNameView.getName() + "_config.json";
+		final IPath configPath = workspacePath.append(game5Project
+				.getFullPath().append(configName));
+
+		final File configFile = new File(configPath.toString());
+		try {
+			configFile.createNewFile();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		final IFile configIFile = game5Project.getFile(configName);
+		try {
+			inputStream = Game5ProjectConfigurator.class.getClassLoader()
+					.getResourceAsStream(configFilePath);
+			configIFile.create(inputStream, true, null);
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}

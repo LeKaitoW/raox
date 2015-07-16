@@ -59,7 +59,8 @@ public class ModelNameView {
 					shell.close();
 					Game5ProjectConfigurator.initializeProject();
 					Game5ProjectConfigurator.configureProject();
-					Game5ProjectConfigurator.createFile();
+					Game5ProjectConfigurator.createModelFile();
+					Game5ProjectConfigurator.createConfigFile();
 
 					final IWorkbenchPage page = PlatformUI.getWorkbench()
 							.getActiveWorkbenchWindow().getActivePage();
