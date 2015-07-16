@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rao.ui.simulation;
 
+import java.util.Arrays;
+
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -16,6 +18,8 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
@@ -55,6 +59,9 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 
 		private final Font labelFont;
 
+		private static final PaletteData framebufferPalette = new PaletteData(
+				0xff0000, 0x00ff00, 0x0000ff);
+
 		public RaoSpeedSelector(Composite parent, int style) {
 			super(parent, style);
 
@@ -83,15 +90,17 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 					final String text = percentage + "%";
 					final Color originalBackground = event.gc.getBackground();
 
-					Image framebuffer = new Image(display, widgetArea);
+					ImageData framebufferData = new ImageData(widgetArea.width,
+							widgetArea.height, 24, framebufferPalette);
+					framebufferData.setAlpha(0, 0, 0);
+					Arrays.fill(framebufferData.alphaData, (byte) 0);
+
+					Image framebuffer = new Image(display, framebufferData);
 					GC gc = new GC(framebuffer);
 					gc.setAntialias(SWT.ON);
 					gc.setFont(labelFont);
 
 					final Point textSize = gc.stringExtent(text);
-
-					gc.setBackground(originalBackground);
-					gc.fillRectangle(widgetArea);
 
 					if (percentage == MAX) {
 						gc.setBackground(progressColorTop[0]);
