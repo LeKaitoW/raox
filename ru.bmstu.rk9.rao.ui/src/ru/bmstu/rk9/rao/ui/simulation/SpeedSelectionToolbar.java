@@ -38,7 +38,7 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 
 		private static final int BORDER_SIZE = 1;
 		private static final int MAIN_BORDER_OFFSET = 1;
-		private static final int CORNER_ROUNDING = 4;
+		private static final int CORNER_ROUNDING = 6;
 		private static final int LABEL_OFFSET = 1;
 		private static final int SHADOW_ALPHA = 60;
 
@@ -71,6 +71,7 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 				@Override
 				public void paintControl(final PaintEvent event) {
 					GC gc = event.gc;
+					gc.setAntialias(SWT.ON);
 					final Rectangle widgetArea = getClientArea();
 					final int percentage = (int) (100f * speedValue / (MAX_VALUE - 0));
 					final String text = percentage + "%";
