@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class Game5ProjectConfigurator {
 	private static JSONObject object;
 	private static InputStream inputStream;
 	private static final String modelTemplatePath = "/model_template/game_5.rao";
-	private static final String configFilePath = "/model_template/cofig.json";
+	private static final String configFilePath = "/model_template/config.json";
 	private static final IWorkspaceRoot root = ResourcesPlugin.getWorkspace()
 			.getRoot();
 	private static final IPath workspacePath = root.getLocation();
@@ -167,11 +168,12 @@ public class Game5ProjectConfigurator {
 
 		try {
 			InputStreamReader inputStreamReader = new InputStreamReader(
-					inputStream, "UTF-8");
+					inputStream, StandardCharsets.UTF_8.name());
 			BufferedReader bufferedReader = new BufferedReader(
 					inputStreamReader);
 			outputStream = new FileOutputStream(game5Model);
-			PrintStream printStream = new PrintStream(outputStream);
+			PrintStream printStream = new PrintStream(outputStream, true,
+					StandardCharsets.UTF_8.name());
 
 			String modelTemplateCode = bufferedReader.readLine();
 			while (modelTemplateCode != null) {
@@ -181,7 +183,6 @@ public class Game5ProjectConfigurator {
 
 			printStream.println();
 			printStream.println(Game5View.getEditor().getEditablePart());
-			printStream.flush();
 			printStream.close();
 
 			Game5ProjectConfigurator.getProject().refreshLocal(
