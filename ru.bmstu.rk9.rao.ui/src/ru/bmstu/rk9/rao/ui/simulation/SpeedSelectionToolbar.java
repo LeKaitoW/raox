@@ -43,7 +43,7 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 		private static final int SHADOW_ALPHA = 60;
 
 		private static final int MEDIUM_COLOR_THRESHOLD = 80;
-		private static final int LOW_COLOR_THRESHOLD = 20;
+		private static final int LOW_COLOR_THRESHOLD = 10;
 
 		private final Color borderColor;
 		private final Color[] progressColorTop;
@@ -98,11 +98,11 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 						e.gc.setAlpha(alphaRatio);
 						e.gc.setBackground(progressColorTop[1]);
 						drawProgress(e.gc, widgetSize,
-								ProgressPaintMode.BOTTOM, 0);
+								ProgressPaintMode.TOP, 0);
 
 						e.gc.setAlpha(255);
 						e.gc.setBackground(progressColorBottom[2]);
-						drawProgress(e.gc, widgetSize, ProgressPaintMode.TOP, 0);
+						drawProgress(e.gc, widgetSize, ProgressPaintMode.BOTTOM, 0);
 						e.gc.setAlpha(alphaRatio);
 						e.gc.setBackground(progressColorBottom[1]);
 						drawProgress(e.gc, widgetSize,
@@ -199,7 +199,7 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 						+ BORDER_SIZE / 2 + i * widgetSize.y / 2;
 				int width = widgetSize.x - 2 * MAIN_BORDER_OFFSET * BORDER_SIZE
 						- startOffset;
-				int height = widgetSize.y / 2 + (1 - 3 * i)
+				int height = widgetSize.y / 2 + (1 - 2 * i)
 						* MAIN_BORDER_OFFSET * BORDER_SIZE;
 				int cornerRadius = paintMode == ProgressPaintMode.ALL_NO_CORNERS ? 0
 						: CORNER_ROUNDING + BORDER_SIZE * MAIN_BORDER_OFFSET;
