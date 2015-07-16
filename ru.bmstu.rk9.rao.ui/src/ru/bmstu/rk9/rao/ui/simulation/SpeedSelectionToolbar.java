@@ -83,8 +83,8 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 						gc.setBackground(progressColorBottom[0]);
 						drawProgress(gc, widgetArea, ProgressPaintMode.BOTTOM, 0);
 					} else {
-						int alphaRatio;
-						if (percentage > MEDIUM_COLOR_THRESHOLD)
+						final int alphaRatio;
+						if (MEDIUM_COLOR_THRESHOLD < percentage)
 							alphaRatio = 255;
 						else if (percentage < LOW_COLOR_THRESHOLD)
 							alphaRatio = 0;
