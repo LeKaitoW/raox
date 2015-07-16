@@ -38,7 +38,6 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 
 		private static final int BORDER_SIZE = 1;
 		private static final int MAIN_BORDER_OFFSET = 1;
-		private static final int CORNER_ROUNDING = 6;
 		private static final int LABEL_OFFSET = 1;
 		private static final int SHADOW_ALPHA = 60;
 
@@ -111,7 +110,7 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 
 					gc.setBackground(originalBackground);
 					int progressOffset = BORDER_SIZE + (int) (percentage / 100d * (widgetArea.width - 4 * BORDER_SIZE));
-					drawProgress(gc, widgetArea, ProgressPaintMode.ALL_NO_CORNERS, progressOffset);
+					drawProgress(gc, widgetArea, ProgressPaintMode.ALL, progressOffset);
 
 					gc.setLineWidth(BORDER_SIZE);
 					gc.setForeground(borderColor);
@@ -164,7 +163,7 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 		}
 
 		public static enum ProgressPaintMode {
-			TOP, BOTTOM, ALL_NO_CORNERS
+			TOP, BOTTOM, ALL
 		}
 
 		private void setSpeedWithBordersCorrected(int x, int width) {
@@ -179,38 +178,12 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 			int stop = paintMode != ProgressPaintMode.TOP ? 2 : 1;
 
 			int x = MAIN_BORDER_OFFSET * BORDER_SIZE + startOffset;
-			int width = widgetArea.width - 2 * MAIN_BORDER_OFFSET * BORDER_SIZE - startOffset;
-			int cornerRadius = CORNER_ROUNDING + BORDER_SIZE * MAIN_BORDER_OFFSET;
+			int width = widgetArea.width - MAIN_BORDER_OFFSET * BORDER_SIZE - startOffset;
 			for (int i = start; i < stop; i++) {
 				int y = MAIN_BORDER_OFFSET * BORDER_SIZE * (1 - i) + BORDER_SIZE / 2 + i * widgetArea.height / 2;
 				int height = widgetArea.height / (1 + i) - MAIN_BORDER_OFFSET * 3 * BORDER_SIZE;
-				gc.fillRoundRectangle(x, y, width, height, cornerRadius, cornerRadius);
+				gc.fillRectangle(x, y, width, height);
 			}
-
-			if (paintMode == ProgressPaintMode.ALL_NO_CORNERS)
-				correctCappingCorners(gc, widgetArea, cornerRadius, startOffset, x, width);
-		}
-
-		private void correctCappingCorners(GC gc, Rectangle widgetArea, int cornerRadius, int startOffset, int x,
-				int width) {
-			int y = MAIN_BORDER_OFFSET * BORDER_SIZE + BORDER_SIZE / 2;
-			int height = widgetArea.height - MAIN_BORDER_OFFSET * 3 * BORDER_SIZE;
-			gc.setForeground(gc.getBackground());
-			for (int i = 0; i < cornerRadius && i < width; i++) {
-				int offset;
-				if (startOffset < cornerRadius && i + startOffset < cornerRadius)
-					offset = calculateRoundingCorrection(i + startOffset, cornerRadius);
-				else if (width < cornerRadius + MAIN_BORDER_OFFSET * BORDER_SIZE + BORDER_SIZE && i < width)
-					offset = calculateRoundingCorrection(width - i, cornerRadius);
-				else
-					offset = 0;
-				gc.drawLine(x + i, y + offset, x + i, y + height - offset);
-			}
-		}
-
-		private int calculateRoundingCorrection(int position, int cornerRadius) {
-			return Math.max((int) Math.round(cornerRadius * (1 - Math.sin(Math.acos(1 - position * 1f / cornerRadius)))
-					- (1 + MAIN_BORDER_OFFSET) * BORDER_SIZE), 0);
 		}
 
 		private void drawBorder(final GC gc, final Rectangle widgetArea, final int offset) {
@@ -218,8 +191,7 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 			int y = offset * BORDER_SIZE + BORDER_SIZE / 2;
 			int width = widgetArea.width - (2 * offset + 1) * BORDER_SIZE;
 			int height = widgetArea.height - (2 * offset + 1) * BORDER_SIZE;
-			int cornerRadius = Math.max(CORNER_ROUNDING + BORDER_SIZE * 2 * (MAIN_BORDER_OFFSET - offset), 0);
-			gc.drawRoundRectangle(x, y, width, height, cornerRadius, cornerRadius);
+			gc.drawRectangle(x, y, width, height);
 		}
 
 		private void drawLabel(final GC gc, final Rectangle widgetArea, final String text, final Point textSize) {
@@ -230,7 +202,7 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 			int y = widgetArea.height / 2 - textSize.y / 2;
 			int width = textSize.x + 8 * LABEL_OFFSET;
 			int height = textSize.y;
-			gc.fillRoundRectangle(x, y, width, height, CORNER_ROUNDING, CORNER_ROUNDING);
+			gc.fillRectangle(x, y, width, height);
 
 			gc.setAlpha(255);
 			gc.setForeground(labelForegroundColor);
