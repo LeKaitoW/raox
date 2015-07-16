@@ -178,15 +178,39 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 			int start = paintMode != ProgressPaintMode.BOTTOM ? 0 : 1;
 			int stop = paintMode != ProgressPaintMode.TOP ? 2 : 1;
 
+			int x = MAIN_BORDER_OFFSET * BORDER_SIZE + startOffset;
+			int width = widgetArea.width - 2 * MAIN_BORDER_OFFSET * BORDER_SIZE - startOffset;
+			int cornerRadius = CORNER_ROUNDING + BORDER_SIZE * MAIN_BORDER_OFFSET;
 			for (int i = start; i < stop; i++) {
-				int x = MAIN_BORDER_OFFSET * BORDER_SIZE + startOffset;
 				int y = MAIN_BORDER_OFFSET * BORDER_SIZE * (1 - i) + BORDER_SIZE / 2 + i * widgetArea.height / 2;
-				int width = widgetArea.width - 2 * MAIN_BORDER_OFFSET * BORDER_SIZE - startOffset;
-				int height = widgetArea.height / 2 + (1 - 2 * i) * MAIN_BORDER_OFFSET * BORDER_SIZE;
-				int cornerRadius = paintMode == ProgressPaintMode.ALL_NO_CORNERS ? 0
-						: CORNER_ROUNDING + BORDER_SIZE * MAIN_BORDER_OFFSET;
+				int height = widgetArea.height / (1 + i) - MAIN_BORDER_OFFSET * 3 * BORDER_SIZE;
 				gc.fillRoundRectangle(x, y, width, height, cornerRadius, cornerRadius);
 			}
+
+			if (paintMode == ProgressPaintMode.ALL_NO_CORNERS)
+				correctCappingCorners(gc, widgetArea, cornerRadius, startOffset, x, width);
+		}
+
+		private void correctCappingCorners(GC gc, Rectangle widgetArea, int cornerRadius, int startOffset, int x,
+				int width) {
+			int y = MAIN_BORDER_OFFSET * BORDER_SIZE + BORDER_SIZE / 2;
+			int height = widgetArea.height - MAIN_BORDER_OFFSET * 3 * BORDER_SIZE;
+			gc.setForeground(gc.getBackground());
+			for (int i = 0; i < cornerRadius && i < width; i++) {
+				int offset;
+				if (startOffset < cornerRadius && i + startOffset < cornerRadius)
+					offset = calculateRoundingCorrection(i + startOffset, cornerRadius);
+				else if (width < cornerRadius + MAIN_BORDER_OFFSET * BORDER_SIZE + BORDER_SIZE && i < width)
+					offset = calculateRoundingCorrection(width - i, cornerRadius);
+				else
+					offset = 0;
+				gc.drawLine(x + i, y + offset, x + i, y + height - offset);
+			}
+		}
+
+		private int calculateRoundingCorrection(int position, int cornerRadius) {
+			return Math.max((int) Math.round(cornerRadius * (1 - Math.sin(Math.acos(1 - position * 1f / cornerRadius)))
+					- (1 + MAIN_BORDER_OFFSET) * BORDER_SIZE), 0);
 		}
 
 		private void drawBorder(final GC gc, final Rectangle widgetArea, final int offset) {
