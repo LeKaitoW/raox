@@ -15,7 +15,9 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
 
@@ -48,14 +50,18 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 		private final Color borderColor;
 		private final Color[] progressColorTop;
 		private final Color[] progressColorBottom;
-		private final Color labelColor;
+		private final Color labelBackgroundColor;
+		private final Color labelForegroundColor;
+
+		private final Font labelFont;
 
 		public RaoSpeedSelector(Composite parent, int style) {
 			super(parent, style);
 
 			final Display display = getDisplay();
 			borderColor = new Color(display, 0x40, 0x40, 0x40);
-			labelColor = new Color(display, 0xFF, 0xFF, 0xFF);
+			labelBackgroundColor = display.getSystemColor(SWT.COLOR_WHITE);
+			labelForegroundColor = display.getSystemColor(SWT.COLOR_BLACK);
 			progressColorTop = new Color[] {
 					new Color(display, 0x00, 0xB5, 0x00),
 					new Color(display, 0xF0, 0xF0, 0x00),
@@ -65,82 +71,94 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 					new Color(display, 0xD0, 0xD0, 0x00),
 					new Color(display, 0xC0, 0x00, 0x00) };
 
-			final FontData[] fontData = this.getFont().getFontData();
+			final FontData[] fontData = getFont().getFontData().clone();
 			fontData[0].setHeight(8);
-			this.setFont(new Font(this.getDisplay(), fontData[0]));
-
-			this.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+			labelFont = new Font(display, fontData[0]);
 
 			addPaintListener(new PaintListener() {
 				@Override
-				public void paintControl(final PaintEvent e) {
-					final Point widgetSize = getSize();
+				public void paintControl(final PaintEvent event) {
+					final Rectangle widgetArea = getClientArea();
 					final int percentage = (int) (100f * speedValue / (MAX - MIN));
 					final String text = percentage + "%";
-					final Point textSize = e.gc.stringExtent(text);
-					final Color originalBackground = e.gc.getBackground();
-					final Color originalForeground = e.gc.getForeground();
+					final Color originalBackground = event.gc.getBackground();
+
+					Image framebuffer = new Image(display, widgetArea);
+					GC gc = new GC(framebuffer);
+					gc.setAntialias(SWT.ON);
+					gc.setFont(labelFont);
+
+					final Point textSize = gc.stringExtent(text);
+
+					gc.setBackground(originalBackground);
+					gc.fillRectangle(widgetArea);
 
 					if (percentage == MAX) {
-						e.gc.setBackground(progressColorTop[0]);
-						drawProgress(e.gc, widgetSize, ProgressPaintMode.TOP, 0);
-						e.gc.setBackground(progressColorBottom[0]);
-						drawProgress(e.gc, widgetSize,
-								ProgressPaintMode.BOTTOM, 0);
+						gc.setBackground(progressColorTop[0]);
+						drawProgress(gc, widgetArea, ProgressPaintMode.TOP, 0);
+						gc.setBackground(progressColorBottom[0]);
+						drawProgress(gc, widgetArea, ProgressPaintMode.BOTTOM,
+								0);
 					} else {
 						int alphaRatio = percentage > MEDIUM_COLOR_THRESHOLD ? 255
 								: percentage < LOW_COLOR_THRESHOLD ? 0
 										: (int) (255f * (percentage - LOW_COLOR_THRESHOLD)//
 										/ (MEDIUM_COLOR_THRESHOLD - LOW_COLOR_THRESHOLD));
 
-						e.gc.setBackground(progressColorTop[2]);
-						drawProgress(e.gc, widgetSize, ProgressPaintMode.TOP, 0);
-						e.gc.setAlpha(alphaRatio);
-						e.gc.setBackground(progressColorTop[1]);
-						drawProgress(e.gc, widgetSize,
-								ProgressPaintMode.TOP, 0);
+						gc.setBackground(progressColorTop[2]);
+						drawProgress(gc, widgetArea, ProgressPaintMode.TOP, 0);
+						gc.setAlpha(alphaRatio);
+						gc.setBackground(progressColorTop[1]);
+						drawProgress(gc, widgetArea, ProgressPaintMode.TOP, 0);
 
-						e.gc.setAlpha(255);
-						e.gc.setBackground(progressColorBottom[2]);
-						drawProgress(e.gc, widgetSize, ProgressPaintMode.BOTTOM, 0);
-						e.gc.setAlpha(alphaRatio);
-						e.gc.setBackground(progressColorBottom[1]);
-						drawProgress(e.gc, widgetSize,
-								ProgressPaintMode.BOTTOM, 0);
+						gc.setAlpha(255);
+						gc.setBackground(progressColorBottom[2]);
+						drawProgress(gc, widgetArea, ProgressPaintMode.BOTTOM,
+								0);
+						gc.setAlpha(alphaRatio);
+						gc.setBackground(progressColorBottom[1]);
+						drawProgress(gc, widgetArea, ProgressPaintMode.BOTTOM,
+								0);
 
-						e.gc.setAlpha(255);
+						gc.setAlpha(255);
 					}
 
-					e.gc.setBackground(originalBackground);
+					gc.setBackground(originalBackground);
 					int progressOffset = BORDER_SIZE
-							+ (int) (percentage / 100d * (widgetSize.x - 4 * BORDER_SIZE));
-					drawProgress(e.gc, widgetSize,
+							+ (int) (percentage / 100d * (widgetArea.width - 4 * BORDER_SIZE));
+					drawProgress(gc, widgetArea,
 							ProgressPaintMode.ALL_NO_CORNERS, progressOffset);
 
-					e.gc.setLineWidth(BORDER_SIZE);
-					e.gc.setForeground(borderColor);
+					gc.setLineWidth(BORDER_SIZE);
+					gc.setForeground(borderColor);
 
-					e.gc.setAlpha(SHADOW_ALPHA);
-					drawBorder(e.gc, widgetSize, 0);
+					gc.setAlpha(SHADOW_ALPHA);
+					drawBorder(gc, widgetArea, 0);
 
-					e.gc.setAlpha(SHADOW_ALPHA / 2);
-					drawBorder(e.gc, widgetSize, 2);
+					gc.setAlpha(SHADOW_ALPHA / 2);
+					drawBorder(gc, widgetArea, 2);
 
-					e.gc.setAlpha(255);
-					drawBorder(e.gc, widgetSize, 1);
+					gc.setAlpha(255);
+					drawBorder(gc, widgetArea, 1);
 
-					e.gc.setAlpha(150);
-					e.gc.setBackground(labelColor);
+					gc.setAlpha(150);
+					gc.setBackground(labelBackgroundColor);
 
-					e.gc.fillRoundRectangle((widgetSize.x - textSize.x) / 2 - 4
-							* LABEL_OFFSET, (widgetSize.y - textSize.y) / 2,
-							textSize.x + 8 * LABEL_OFFSET, textSize.y,
+					gc.fillRoundRectangle((widgetArea.width - textSize.x) / 2
+							- 4 * LABEL_OFFSET,
+							(widgetArea.height - textSize.y) / 2, textSize.x
+									+ 8 * LABEL_OFFSET, textSize.y,
 							CORNER_ROUNDING, CORNER_ROUNDING);
 
-					e.gc.setAlpha(255);
-					e.gc.setForeground(originalForeground);
-					e.gc.drawString(text, (widgetSize.x - textSize.x) / 2,
-							(widgetSize.y - textSize.y) / 2, true);
+					gc.setAlpha(255);
+					gc.setForeground(labelForegroundColor);
+					gc.drawString(text, (widgetArea.width - textSize.x) / 2,
+							(widgetArea.height - textSize.y) / 2, true);
+
+					event.gc.drawImage(framebuffer, 0, 0);
+
+					gc.dispose();
+					framebuffer.dispose();
 				}
 			});
 
@@ -188,7 +206,7 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 			RaoSpeedSelector.this.setSpeed(x - offset, reducedSize);
 		}
 
-		private void drawProgress(final GC gc, final Point widgetSize,
+		private void drawProgress(final GC gc, final Rectangle widgetArea,
 				ProgressPaintMode paintMode, final int startOffset) {
 			int start = paintMode != ProgressPaintMode.BOTTOM ? 0 : 1;
 			int stop = paintMode != ProgressPaintMode.TOP ? 2 : 1;
@@ -196,10 +214,10 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 			for (int i = start; i < stop; i++) {
 				int x = MAIN_BORDER_OFFSET * BORDER_SIZE + startOffset;
 				int y = MAIN_BORDER_OFFSET * BORDER_SIZE * (1 - i)
-						+ BORDER_SIZE / 2 + i * widgetSize.y / 2;
-				int width = widgetSize.x - 2 * MAIN_BORDER_OFFSET * BORDER_SIZE
-						- startOffset;
-				int height = widgetSize.y / 2 + (1 - 2 * i)
+						+ BORDER_SIZE / 2 + i * widgetArea.height / 2;
+				int width = widgetArea.width - 2 * MAIN_BORDER_OFFSET
+						* BORDER_SIZE - startOffset;
+				int height = widgetArea.height / 2 + (1 - 2 * i)
 						* MAIN_BORDER_OFFSET * BORDER_SIZE;
 				int cornerRadius = paintMode == ProgressPaintMode.ALL_NO_CORNERS ? 0
 						: CORNER_ROUNDING + BORDER_SIZE * MAIN_BORDER_OFFSET;
@@ -208,12 +226,12 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 			}
 		}
 
-		private void drawBorder(final GC gc, final Point widgetSize,
+		private void drawBorder(final GC gc, final Rectangle widgetArea,
 				final int offset) {
 			int x = offset * BORDER_SIZE + BORDER_SIZE / 2;
 			int y = offset * BORDER_SIZE + BORDER_SIZE / 2;
-			int width = widgetSize.x - (2 * offset + 1) * BORDER_SIZE;
-			int height = widgetSize.y - (2 * offset + 1) * BORDER_SIZE;
+			int width = widgetArea.width - (2 * offset + 1) * BORDER_SIZE;
+			int height = widgetArea.height - (2 * offset + 1) * BORDER_SIZE;
 			int cornerRadius = Math.max(CORNER_ROUNDING + BORDER_SIZE * 2
 					* (MAIN_BORDER_OFFSET - offset), 0);
 			gc.drawRoundRectangle(x, y, width, height, cornerRadius,
