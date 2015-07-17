@@ -62,12 +62,14 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 					new Color(display, 0xD0, 0x00, 0x00),
 					new Color(display, 0xEB, 0xCA, 0x00),
 					new Color(display, 0xF0, 0xF0, 0x00),
-					new Color(display, 0x00, 0xB5, 0x00)};
+					new Color(display, 0x00, 0xB5, 0x00),
+					new Color(display, 0x00, 0x00, 0x00)};
 			progressColorBottom = new Color[] {
 					new Color(display, 0xC0, 0x00, 0x00),
 					new Color(display, 0xCD, 0xAF, 0x00),
 					new Color(display, 0xD0, 0xD0, 0x00),
-					new Color(display, 0x00, 0xA6, 0x00)};
+					new Color(display, 0x00, 0xA6, 0x00),
+					new Color(display, 0x00, 0x00, 0x00)};
 
 			final FontData[] fontData = getFont().getFontData().clone();
 			fontData[0].setHeight(8);
@@ -174,10 +176,14 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 				k3 = 1;
 			}
 
-			return new Color(device,
+			if (!colors[4].isDisposed())
+				colors[4].dispose();
+
+			colors[4] = new Color(device,
 					(int)(colors[0].getRed() * k0 + colors[1].getRed() * k1 + colors[2].getRed() * k2 + colors[3].getRed() * k3),
 					(int)(colors[0].getGreen() * k0 + colors[1].getGreen() * k1 + colors[2].getGreen() * k2 + colors[3].getGreen() * k3),
 					(int)(colors[0].getBlue() * k0 + colors[1].getBlue() * k1 + colors[2].getBlue() * k2 + colors[3].getBlue() * k3));
+			return colors[4];
 		}
 
 		public static enum ProgressPaintMode {
