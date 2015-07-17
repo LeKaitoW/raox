@@ -147,10 +147,7 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 		}
 
 		private final Color getBackgroundColor(Device device, double percent, Color[] colors) {
-			double k0;
-			final double k1;
-			final double k2;
-			final double k3;
+			final double k0, k1, k2, k3;
 
 			if (percent < YELLOW_SINCE) {
 				k0 = 1 - percent;
@@ -158,9 +155,7 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 				k2 = 0;
 				k3 = 0;
 			} else if (YELLOW_SINCE <= percent && percent <= YELLOW_UNTIL) {
-				k0 = 1 - YELLOW_SINCE - (percent - YELLOW_SINCE) * 1./YELLOW_SINCE;
-				if (k0 < 0)
-					k0 = 0;
+				k0 = Math.max(0, 1 - YELLOW_SINCE - (percent - YELLOW_SINCE) * 1./YELLOW_SINCE);
 				k1 = (1 - k0) - (percent - YELLOW_SINCE) * 1./(YELLOW_UNTIL - YELLOW_SINCE);
 				k2 = 1 - k0 - k1;
 				k3 = 0;
