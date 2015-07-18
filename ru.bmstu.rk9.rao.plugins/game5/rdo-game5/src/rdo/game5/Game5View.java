@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -29,12 +30,12 @@ import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorFactory;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorModelAccess;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import com.google.inject.Injector;
 
 @SuppressWarnings("restriction")
 public class Game5View extends EditorPart {
 
+	protected static boolean dirty = false;
 	public static final String ID = "rdo-game5.Game5View";
 	private static EmbeddedEditorModelAccess editor;
 	private static JSONObject object;
@@ -91,6 +92,7 @@ public class Game5View extends EditorPart {
 		leftButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
+				setDirty(true);
 				if (leftButton.getSelection()) {
 					leftCost.setEnabled(true);
 				} else {
@@ -119,6 +121,7 @@ public class Game5View extends EditorPart {
 		rightButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
+				setDirty(true);
 				if (rightButton.getSelection()) {
 					rightCost.setEnabled(true);
 				} else {
@@ -147,6 +150,7 @@ public class Game5View extends EditorPart {
 		upButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
+				setDirty(true);
 				if (upButton.getSelection()) {
 					upCost.setEnabled(true);
 				} else {
@@ -185,6 +189,7 @@ public class Game5View extends EditorPart {
 		downButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
+				setDirty(true);
 				if (downButton.getSelection()) {
 					downCost.setEnabled(true);
 				} else
@@ -208,6 +213,7 @@ public class Game5View extends EditorPart {
 		setSituation.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				setDirty(true);
 				final Display display = PlatformUI.getWorkbench().getDisplay();
 				final Shell shell = new Shell(display);
 				shell.setText("Set situation");
@@ -250,6 +256,21 @@ public class Game5View extends EditorPart {
 
 		object = new JSONObject();
 
+		heuristicList.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				try {
+					object.put("heuristic", heuristicList.getSelectionIndex());
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				setDirty(true);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+		});
 		leftCost.addKeyListener(new KeyListener() {
 			@Override
 			public void keyReleased(KeyEvent arg0) {
@@ -258,6 +279,7 @@ public class Game5View extends EditorPart {
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
+				setDirty(true);
 			}
 
 			@Override
@@ -269,10 +291,11 @@ public class Game5View extends EditorPart {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				try {
-					object.put("computeLeft", leftCombo.getSelectionIndex());
+					object.put("computeLeft", leftCombo.getText());
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
+				setDirty(true);
 			}
 
 			@Override
@@ -288,6 +311,7 @@ public class Game5View extends EditorPart {
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
+				setDirty(true);
 			}
 
 			@Override
@@ -299,10 +323,11 @@ public class Game5View extends EditorPart {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				try {
-					object.put("computeRight", rightCombo.getSelectionIndex());
+					object.put("computeRight", rightCombo.getText());
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
+				setDirty(true);
 			}
 
 			@Override
@@ -318,10 +343,28 @@ public class Game5View extends EditorPart {
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
+				setDirty(true);
 			}
 
 			@Override
 			public void keyPressed(KeyEvent arg0) {
+			}
+		});
+
+		upCombo.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				try {
+					object.put("computeUp", upCombo.getText());
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				setDirty(true);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
 
@@ -333,10 +376,28 @@ public class Game5View extends EditorPart {
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
+				setDirty(true);
 			}
 
 			@Override
 			public void keyPressed(KeyEvent arg0) {
+			}
+		});
+
+		downCombo.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				try {
+					object.put("computeDown", downCombo.getText());
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				setDirty(true);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
 
@@ -352,6 +413,7 @@ public class Game5View extends EditorPart {
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
+				setDirty(true);
 			}
 
 			@Override
@@ -371,6 +433,7 @@ public class Game5View extends EditorPart {
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
+				setDirty(true);
 			}
 
 			@Override
@@ -400,6 +463,7 @@ public class Game5View extends EditorPart {
 
 	@Override
 	public void doSave(IProgressMonitor arg0) {
+		setDirty(false);
 	}
 
 	@Override
@@ -415,7 +479,7 @@ public class Game5View extends EditorPart {
 
 	@Override
 	public boolean isDirty() {
-		return false;
+		return dirty;
 	}
 
 	@Override
@@ -425,5 +489,14 @@ public class Game5View extends EditorPart {
 
 	public static final EmbeddedEditorModelAccess getEditor() {
 		return editor;
+	}
+
+	public static final JSONObject getConfigurations() {
+		return object;
+	}
+
+	protected void setDirty(boolean value) {
+		dirty = value;
+		firePropertyChange(IEditorPart.PROP_DIRTY);
 	}
 }

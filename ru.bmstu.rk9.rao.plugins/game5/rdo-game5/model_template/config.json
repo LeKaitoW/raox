@@ -1,1 +1,14 @@
-{"compare":true,"costRight":1,"code":"","costDown":1,"heuristic":0,"costUp":1,"computeLeft":0,"solvable":false,"computeDown":0,"computeUp":0,"costLeft":1,"computeRight":0,"order":"1 2 3 4 5 6"}
+{	"order":"1 2 3 4 5 6",
+	"solvable":false,
+	"compare":true,
+	"heuristic":0,
+	"computeLeft":"after",
+	"computeRight":"after",
+	"computeUp":"after",
+	"computeDown":"after",
+	"costLeft":1,
+	"costRight":1,
+	"costDown":1,
+	"costUp":1,
+	"code":"",
+	}

@@ -1,5 +1,8 @@
 package rdo.game5;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -15,9 +18,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.ide.FileStoreEditorInput;
 
 public class ModelNameView {
 
@@ -59,15 +61,21 @@ public class ModelNameView {
 					shell.close();
 					Game5ProjectConfigurator.initializeProject();
 					Game5ProjectConfigurator.configureProject();
-					Game5ProjectConfigurator.createModelFile();
 					Game5ProjectConfigurator.createConfigFile();
-
+					Game5ProjectConfigurator.createModelFile();
 					final IWorkbenchPage page = PlatformUI.getWorkbench()
 							.getActiveWorkbenchWindow().getActivePage();
+
+					IFileStore fileStore;
 					try {
-						IDE.openEditor(page, Game5ProjectConfigurator.getFile());
-						page.openEditor(new Game5EditorInput(), Game5View.ID);
-					} catch (PartInitException e) {
+						fileStore = EFS.getStore(Game5ProjectConfigurator
+								.getConfigFile().getLocationURI());
+						// need fix
+
+						FileStoreEditorInput editorInput = new FileStoreEditorInput(
+								fileStore);
+						page.openEditor(editorInput, Game5View.ID);
+					} catch (CoreException e) {
 						e.printStackTrace();
 					}
 				} else {
