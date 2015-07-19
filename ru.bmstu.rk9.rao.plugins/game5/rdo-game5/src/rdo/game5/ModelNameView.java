@@ -1,8 +1,5 @@
 package rdo.game5;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -18,8 +15,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.FileStoreEditorInput;
+import org.eclipse.ui.part.FileEditorInput;
 
 public class ModelNameView {
 
@@ -66,16 +64,11 @@ public class ModelNameView {
 					final IWorkbenchPage page = PlatformUI.getWorkbench()
 							.getActiveWorkbenchWindow().getActivePage();
 
-					IFileStore fileStore;
 					try {
-						fileStore = EFS.getStore(Game5ProjectConfigurator
-								.getConfigFile().getLocationURI());
-						// need fix
-
-						FileStoreEditorInput editorInput = new FileStoreEditorInput(
-								fileStore);
-						page.openEditor(editorInput, Game5View.ID);
-					} catch (CoreException e) {
+						page.openEditor(new FileEditorInput(
+								Game5ProjectConfigurator.getConfigFile()),
+								Game5View.ID);
+					} catch (PartInitException e) {
 						e.printStackTrace();
 					}
 				} else {
