@@ -265,12 +265,12 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 
 		GridData gd = new GridData(SWT.CENTER, SWT.CENTER, false, true);
 		gd.widthHint = 100 + 4 * RaoSpeedSelector.BORDER_SIZE;
+		gd.heightHint = 24;
 
 		speed = new RaoSpeedSelector(parent, SWT.DOUBLE_BUFFERED);
 		speed.setLayoutData(gd);
 		speed.setSpeed(speedValue, 100);
 		speed.setEnabled(true);
-		speed.pack();
 
 		return speed;
 	}
