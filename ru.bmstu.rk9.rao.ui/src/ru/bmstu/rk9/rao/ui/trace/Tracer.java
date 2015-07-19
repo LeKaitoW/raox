@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.lib.tracer;
+package ru.bmstu.rk9.rao.ui.trace;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -14,9 +14,8 @@ import ru.bmstu.rk9.rao.lib.modelStructure.ResourceTypeCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResultCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.tracer.StringJoiner.StringFormat;
+import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
 
-// TODO make static and move to ui
 public class Tracer {
 	public static enum TraceType {
 		RESOURCE_CREATE("RC"), RESOURCE_KEEP("RK"), RESOURCE_ERASE("RE"), SYSTEM(

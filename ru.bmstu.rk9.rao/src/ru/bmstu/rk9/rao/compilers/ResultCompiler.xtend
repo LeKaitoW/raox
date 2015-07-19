@@ -35,6 +35,7 @@ class ResultCompiler
 		import ru.bmstu.rk9.rao.lib.json.*;
 
 		import ru.bmstu.rk9.rao.lib.*;
+		import ru.bmstu.rk9.rao.lib.resource.*;
 		import ru.bmstu.rk9.rao.lib.result.*;
 		import ru.bmstu.rk9.rao.lib.database.*;
 		import ru.bmstu.rk9.rao.lib.simulator.*;
@@ -126,14 +127,11 @@ class ResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 
-					NotificationManager<Simulator.NotificationCategory> notificationManager = Simulator.getNotificationManager();
+					Notifier<Simulator.ExecutionState> notifier = Simulator.getExecutionStateNotifier();
 
-					notificationManager.getSubscription(Simulator.NotificationCategory.STATE_CHANGED)
-						.addSubscriber(INSTANCE);
-					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_ABORTED)
-						.addSubscriber(INSTANCE.finalizer);
-					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_COMPLETED)
-						.addSubscriber(INSTANCE.finalizer);
+					notifier.addSubscriber(INSTANCE, Simulator.ExecutionState.STATE_CHANGED);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED);
 
 					«type.compileValueType(expression)»
 				}
@@ -157,8 +155,8 @@ class ResultCompiler
 				public static void init()
 				{
 					Simulator.addResult(INSTANCE);
-					«type.resource.fullyQualifiedName».getNotificationManager().getSubscription(«
-						»ResourceNotificationCategory.RESOURCE_DELETED).addSubscriber(INSTANCE);
+					«type.resource.fullyQualifiedName».getNotifier().addSubscriber(«
+						»INSTANCE, ResourceNotificationCategory.RESOURCE_DELETED);
 
 					«type.compileValueType(expression)»
 				}
@@ -229,14 +227,11 @@ class ResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 
-					NotificationManager notificationManager = Simulator.getNotificationManager();
+					Notifier notifier = Simulator.getExecutionStateNotifier();
 
-					notificationManager.getSubscription(Simulator.NotificationCategory.STATE_CHANGED)
-						.addSubscriber(INSTANCE);
-					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_ABORTED)
-						.addSubscriber(INSTANCE.finalizer);
-					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_COMPLETED)
-						.addSubscriber(INSTANCE.finalizer);
+					notifier.addSubscriber(INSTANCE, Simulator.ExecutionState.STATE_CHANGED);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED);
 
 					INSTANCE.data.put("valueType", "bool");
 				}
@@ -356,14 +351,11 @@ class ResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 
-					NotificationManager<Simulator.NotificationCategory> notificationManager = Simulator.getNotificationManager();
+					Notifier<Simulator.ExecutionState> notifier = Simulator.getExecutionStateNotifier();
 
-					notificationManager.getSubscription(Simulator.NotificationCategory.STATE_CHANGED)
-						.addSubscriber(INSTANCE);
-					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_ABORTED)
-						.addSubscriber(INSTANCE.finalizer);
-					notificationManager.getSubscription(Simulator.NotificationCategory.EXECUTION_COMPLETED)
-						.addSubscriber(INSTANCE.finalizer);
+					notifier.addSubscriber(INSTANCE, Simulator.ExecutionState.STATE_CHANGED);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED);
 
 					INSTANCE.data.put("valueType", "«expression.type.backToRaoType»");
 				}

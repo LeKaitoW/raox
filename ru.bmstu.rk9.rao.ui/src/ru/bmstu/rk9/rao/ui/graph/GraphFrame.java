@@ -18,9 +18,8 @@ import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.treeBuilder.TreeBuilder.GraphInfo;
-import ru.bmstu.rk9.rao.lib.treeBuilder.TreeBuilder.Node;
+import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.GraphInfo;
+import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.Node;
 
 import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.model.mxCell;
@@ -90,9 +89,9 @@ public class GraphFrame extends JFrame {
 	private int lastAddedVertexIndex = 0;
 
 	private void drawNewVertex(mxGraph graph, List<Node> nodeList, int dptNum) {
-		Simulator.getTreeBuilder().rwLock.readLock().lock();
+		GraphControl.treeBuilder.rwLock.readLock().lock();
 		try {
-			int lastAddedNodeIndex = Simulator.getTreeBuilder()
+			int lastAddedNodeIndex = GraphControl.treeBuilder
 					.getLastAddedNodeIndexMap().get(dptNum);
 			for (int i = lastAddedVertexIndex; i <= lastAddedNodeIndex; i++) {
 				Node node = nodeList.get(i);
@@ -111,7 +110,7 @@ public class GraphFrame extends JFrame {
 				}
 			}
 		} finally {
-			Simulator.getTreeBuilder().rwLock.readLock().unlock();
+			GraphControl.treeBuilder.rwLock.readLock().unlock();
 		}
 	}
 
@@ -383,11 +382,11 @@ public class GraphFrame extends JFrame {
 		setProportions(frameDimension);
 
 		List<Node> nodeList;
-		Simulator.getTreeBuilder().rwLock.readLock().lock();
+		GraphControl.treeBuilder.rwLock.readLock().lock();
 		try {
-			nodeList = Simulator.getTreeBuilder().listMap.get(dptNum);
+			nodeList = GraphControl.treeBuilder.listMap.get(dptNum);
 		} finally {
-			Simulator.getTreeBuilder().rwLock.readLock().unlock();
+			GraphControl.treeBuilder.rwLock.readLock().unlock();
 		}
 
 		final mxGraph graph = new mxGraph();
@@ -396,16 +395,16 @@ public class GraphFrame extends JFrame {
 			drawGraph(graph, nodeList, nodeList.get(0));
 
 			boolean isFinished;
-			Simulator.getTreeBuilder().rwLock.readLock().lock();
+			GraphControl.treeBuilder.rwLock.readLock().lock();
 			try {
-				isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap
+				isFinished = GraphControl.treeBuilder.dptSimulationInfoMap
 						.get(dptNum).isFinished;
 			} finally {
-				Simulator.getTreeBuilder().rwLock.readLock().unlock();
+				GraphControl.treeBuilder.rwLock.readLock().unlock();
 			}
 			if (isFinished) {
-				GraphInfo info = Simulator.getTreeBuilder().infoMap.get(dptNum);
-				List<Node> solution = Simulator.getTreeBuilder().solutionMap
+				GraphInfo info = GraphControl.treeBuilder.infoMap.get(dptNum);
+				List<Node> solution = GraphControl.treeBuilder.solutionMap
 						.get(dptNum);
 				colorNodes(vertexMap, nodeList, solution);
 				insertInfo(graph, info);
@@ -451,12 +450,12 @@ public class GraphFrame extends JFrame {
 				}
 				boolean isFinished;
 
-				Simulator.getTreeBuilder().rwLock.readLock().lock();
+				GraphControl.treeBuilder.rwLock.readLock().lock();
 				try {
-					isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap
+					isFinished = GraphControl.treeBuilder.dptSimulationInfoMap
 							.get(dptNum).isFinished;
 				} finally {
-					Simulator.getTreeBuilder().rwLock.readLock().unlock();
+					GraphControl.treeBuilder.rwLock.readLock().unlock();
 				}
 
 				if (isFinished)
@@ -467,16 +466,16 @@ public class GraphFrame extends JFrame {
 		graphFrameFinTimerTask = new TimerTask() {
 			@Override
 			public void run() {
-				Simulator.getTreeBuilder().rwLock.readLock().lock();
+				GraphControl.treeBuilder.rwLock.readLock().lock();
 				try {
-					isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap
+					isFinished = GraphControl.treeBuilder.dptSimulationInfoMap
 							.get(dptNum).isFinished;
 					if (isFinished) {
 						graph.getModel().beginUpdate();
 						try {
-							GraphInfo info = Simulator.getTreeBuilder().infoMap
+							GraphInfo info = GraphControl.treeBuilder.infoMap
 									.get(dptNum);
-							List<Node> solution = Simulator.getTreeBuilder().solutionMap
+							List<Node> solution = GraphControl.treeBuilder.solutionMap
 									.get(dptNum);
 							colorNodes(vertexMap, nodeList, solution);
 							insertInfo(graph, info);
@@ -487,7 +486,7 @@ public class GraphFrame extends JFrame {
 						cancel();
 					}
 				} finally {
-					Simulator.getTreeBuilder().rwLock.readLock().unlock();
+					GraphControl.treeBuilder.rwLock.readLock().unlock();
 				}
 			}
 		};

@@ -15,8 +15,7 @@ import org.eclipse.core.runtime.IPath;
 
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.tracer.Tracer;
-import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceOutput;
+import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceOutput;
 
 //TODO export to location chosen by user
 
@@ -66,7 +65,7 @@ public class ExportTraceHandler extends AbstractHandler {
 		if (!Simulator.isInitialized() || !ready())
 			return;
 
-		Tracer tracer = Simulator.getTracer();
+		Tracer tracer = new Tracer();
 
 		PrintWriter writer = initializeWriter(".trc");
 		for (Entry entry : Simulator.getDatabase().getAllEntries()) {

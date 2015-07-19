@@ -29,11 +29,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
@@ -41,9 +38,9 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.IndexType;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceIndex;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.ui.graph.GraphView;
-import ru.bmstu.rk9.rao.ui.plot.PlotDataParser;
-import ru.bmstu.rk9.rao.ui.plot.PlotDataParser.PlotItem;
+import ru.bmstu.rk9.rao.ui.notification.SubscriberRegistrationManager;
 import ru.bmstu.rk9.rao.ui.plot.PlotView;
 
 public class SerializedObjectsView extends ViewPart {
@@ -135,41 +132,15 @@ public class SerializedObjectsView extends ViewPart {
 										1);
 							}
 						}
-
 					}
 				});
 
-		if (Simulator.isInitialized()) {
-			commonUpdater.fireChange();
-		}
-	}
-
-	private static final void updateAllOpenedCharts() {
-		for (CollectedDataNode node : PlotView.getOpenedPlotMap().keySet()) {
-			final int currentSecondaryID = PlotView.getOpenedPlotMap()
-					.get(node);
-			final IViewReference viewReference = PlatformUI
-					.getWorkbench()
-					.getActiveWorkbenchWindow()
-					.getActivePage()
-					.findViewReference(PlotView.ID,
-							String.valueOf(currentSecondaryID));
-			final PlotView viewPart = (PlotView) viewReference.getView(false);
-			final List<PlotItem> items = PlotDataParser.parseEntries(node);
-
-			if (!items.isEmpty()) {
-				final XYSeriesCollection newDataset = (XYSeriesCollection) viewPart
-						.getFrame().getChart().getXYPlot().getDataset();
-				final XYSeries newSeries = newDataset.getSeries(0);
-				for (int i = 0; i < items.size(); i++) {
-					final PlotItem item = items.get(i);
-					newSeries.add(item.x, item.y);
-				}
-				viewPart.getFrame().setChartMaximum(newSeries.getMaxX(),
-						newSeries.getMaxY());
-				viewPart.getFrame().updateSliders();
-			}
-		}
+		subscriberRegistrationManager.enlistCommonSubscriber(commonUpdater,
+				ExecutionState.EXECUTION_STARTED).enlistCommonSubscriber(
+				commonUpdater, ExecutionState.EXECUTION_COMPLETED);
+		subscriberRegistrationManager
+				.enlistRealTimeSubscriber(realTimeUpdateRunnable);
+		subscriberRegistrationManager.initialize();
 	}
 
 	@Override
@@ -186,10 +157,8 @@ public class SerializedObjectsView extends ViewPart {
 	public static final Runnable realTimeUpdateRunnable = new Runnable() {
 		@Override
 		public void run() {
-			updateAllOpenedCharts();
 			if (readyForInput()) {
-				SerializedObjectsView.serializedObjectsTreeViewer
-						.refresh();
+				SerializedObjectsView.serializedObjectsTreeViewer.refresh();
 			}
 		}
 	};
@@ -215,11 +184,18 @@ public class SerializedObjectsView extends ViewPart {
 							.asyncExec(
 									() -> serializedObjectsTreeViewer
 											.setInput(root));
-					updateAllOpenedCharts();
 				}
 			});
 		}
 	};
+
+	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
+
+	@Override
+	public void dispose() {
+		subscriberRegistrationManager.deinitialize();
+		super.dispose();
+	}
 }
 
 class RaoSerializedObjectsContentProvider implements ITreeContentProvider {

@@ -28,11 +28,8 @@ import ru.bmstu.rk9.rao.lib.modelStructure.ResourceTypeCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResultCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.tracer.StringJoiner;
-import ru.bmstu.rk9.rao.lib.tracer.Tracer;
-import ru.bmstu.rk9.rao.lib.tracer.TracerException;
-import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceOutput;
-import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceType;
+import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceOutput;
+import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceType;
 
 public class LegacyTracer {
 	public LegacyTracer() {

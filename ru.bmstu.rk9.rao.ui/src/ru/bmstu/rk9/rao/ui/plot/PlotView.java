@@ -37,6 +37,9 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.ui.notification.SubscriberRegistrationManager;
 import ru.bmstu.rk9.rao.ui.plot.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView.ConditionalMenuItem;
 
@@ -117,10 +120,59 @@ public class PlotView extends ViewPart {
 				}
 			}
 		});
+
+		subscriberRegistrationManager.enlistCommonSubscriber(commonSubcriber,
+				ExecutionState.EXECUTION_STARTED).enlistCommonSubscriber(
+				commonSubcriber, ExecutionState.EXECUTION_COMPLETED);
+		subscriberRegistrationManager
+				.enlistRealTimeSubscriber(realTimeUpdateRunnable);
+		subscriberRegistrationManager.initialize();
 	}
+
+	private final boolean readyForInput() {
+		return plotFrame != null && !plotFrame.isDisposed();
+	}
+
+	private final Runnable realTimeUpdateRunnable = new Runnable() {
+		@Override
+		public void run() {
+			if (!readyForInput())
+				return;
+
+			final List<PlotItem> items = PlotDataParser.parseEntries(partNode);
+			if (!items.isEmpty()) {
+				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame
+						.getChart().getXYPlot().getDataset();
+				final XYSeries newSeries = newDataset.getSeries(0);
+				for (int i = 0; i < items.size(); i++) {
+					final PlotItem item = items.get(i);
+					newSeries.add(item.x, item.y);
+				}
+				plotFrame.setChartMaximum(newSeries.getMaxX(),
+						newSeries.getMaxY());
+				plotFrame.updateSliders();
+			}
+		}
+	};
+
+	private final Subscriber commonSubcriber = new Subscriber() {
+		@Override
+		public void fireChange() {
+			PlatformUI.getWorkbench().getDisplay()
+					.asyncExec(realTimeUpdateRunnable);
+		}
+	};
+
+	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
 
 	@Override
 	public void setFocus() {
+	}
+
+	@Override
+	public void dispose() {
+		subscriberRegistrationManager.deinitialize();
+		super.dispose();
 	}
 
 	public void plotXY(final XYSeriesCollection dataset,

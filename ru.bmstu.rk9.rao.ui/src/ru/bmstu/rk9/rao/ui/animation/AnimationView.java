@@ -27,6 +27,9 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.part.ViewPart;
 
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
+import ru.bmstu.rk9.rao.ui.notification.SubscriberRegistrationManager;
+import ru.bmstu.rk9.rao.ui.simulation.SimulationModeDispatcher;
+import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer.ExecutionMode;
 
 public class AnimationView extends ViewPart {
 
@@ -104,6 +107,10 @@ public class AnimationView extends ViewPart {
 
 		if (isInitialized())
 			initializeFrames();
+
+		ExecutionMode currentMode = SimulationModeDispatcher.getMode();
+		disableAnimation(currentMode == ExecutionMode.NO_ANIMATION ? true
+				: false);
 	}
 
 	public static void deinitialize() {
@@ -242,6 +249,10 @@ public class AnimationView extends ViewPart {
 
 		if (frames != null)
 			initializeFrames();
+
+		subscriberRegistrationManager
+				.enlistRealTimeSubscriber(realTimeUpdateRunnable);
+		subscriberRegistrationManager.initialize();
 	}
 
 	@Override
@@ -258,5 +269,13 @@ public class AnimationView extends ViewPart {
 	private static boolean canDraw() {
 		return isInitialized() && animationContext != null
 				&& currentFrame != null;
+	}
+
+	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
+
+	@Override
+	public void dispose() {
+		subscriberRegistrationManager.deinitialize();
+		super.dispose();
 	}
 }

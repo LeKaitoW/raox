@@ -9,10 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.State;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -23,7 +21,6 @@ import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.services.ISourceProviderService;
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
@@ -32,24 +29,18 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
-import ru.bmstu.rk9.rao.lib.notification.NotificationManager;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.build.ModelBuilder;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
+import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphFrame;
-import ru.bmstu.rk9.rao.ui.notification.RealTimeUpdater;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
-import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView;
 import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider;
-import ru.bmstu.rk9.rao.ui.simulation.SimulationModeDispatcher;
-import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer;
-import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer.ExecutionMode;
 import ru.bmstu.rk9.rao.ui.simulation.StatusView;
 import ru.bmstu.rk9.rao.ui.trace.ExportTraceHandler;
-import ru.bmstu.rk9.rao.ui.trace.TraceView;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -83,50 +74,6 @@ public class ExecutionHandler extends AbstractHandler {
 		});
 	}
 
-	private final void configureCommonSubscriptions() {
-		NotificationManager<Simulator.NotificationCategory> simulatorNotifier = Simulator
-				.getNotificationManager();
-
-		simulatorNotifier
-				.getSubscription(
-						Simulator.NotificationCategory.EXECUTION_STARTED)
-				.addSubscriber(SerializedObjectsView.commonUpdater)
-				.addSubscriber(TraceView.commonUpdater);
-
-		simulatorNotifier
-				.getSubscription(Simulator.NotificationCategory.TIME_CHANGED)
-				.addSubscriber(
-						SimulationSynchronizer.getInstance().uiTimeUpdater)
-				.addSubscriber(
-						SimulationSynchronizer.getInstance().simulationManager.scaleManager);
-
-		simulatorNotifier
-				.getSubscription(Simulator.NotificationCategory.STATE_CHANGED)
-				.addSubscriber(
-						SimulationSynchronizer.getInstance().simulationManager.speedManager);
-
-		simulatorNotifier
-				.getSubscription(
-						Simulator.NotificationCategory.EXECUTION_ABORTED)
-				.addSubscriber(
-						SimulationSynchronizer.getInstance().simulationStateListener);
-
-		simulatorNotifier
-				.getSubscription(
-						Simulator.NotificationCategory.EXECUTION_COMPLETED)
-				.addSubscriber(TraceView.commonUpdater)
-				.addSubscriber(SerializedObjectsView.commonUpdater);
-	}
-
-	private final void configureRealTimeSubscriptions() {
-		RealTimeUpdater.addScheduledAction(StatusView.realTimeUpdateRunnable);
-		RealTimeUpdater.addScheduledAction(TraceView.realTimeUpdateRunnable);
-		RealTimeUpdater
-				.addScheduledAction(SerializedObjectsView.realTimeUpdateRunnable);
-		RealTimeUpdater
-				.addScheduledAction(AnimationView.realTimeUpdateRunnable);
-	}
-
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		final Display display = PlatformUI.getWorkbench().getDisplay();
@@ -153,7 +100,6 @@ public class ExecutionHandler extends AbstractHandler {
 		final Job run = new Job(project.getName() + " execution") {
 			protected IStatus run(IProgressMonitor monitor) {
 				URLClassLoader classLoader = null;
-				SerializationConfigView.setEnabled(false);
 
 				try {
 					String name = this.getName();
@@ -181,7 +127,6 @@ public class ExecutionHandler extends AbstractHandler {
 					}
 
 					ConsoleView.clearConsoleText();
-					SimulationSynchronizer.start();
 
 					URL model = new URL("file:///"
 							+ ResourcesPlugin.getWorkspace().getRoot()
@@ -220,39 +165,21 @@ public class ExecutionHandler extends AbstractHandler {
 					if (initialization != null)
 						initialization.invoke(null, (Object) frames);
 
-					ICommandService service = (ICommandService) PlatformUI
-							.getWorkbench().getService(ICommandService.class);
-					Command command = service
-							.getCommand("ru.bmstu.rk9.rao.ui.runtime.setExecutionMode");
-					State state = command
-							.getState("org.eclipse.ui.commands.radioState");
-
-					SimulationModeDispatcher.setMode(ExecutionMode
-							.getByString((String) state.getValue()));
-
 					display.syncExec(() -> AnimationView.initialize(frames));
-
-					configureCommonSubscriptions();
 
 					final long startTime = System.currentTimeMillis();
 					StatusView.setStartTime(startTime);
-					configureRealTimeSubscriptions();
 
-					Simulator.getTreeBuilder().setGUISubscriber(
-							GraphFrame.realTimeUpdater);
+					GraphControl.treeBuilder
+							.setGUISubscriber(GraphFrame.realTimeUpdater);
 
 					ConsoleView.addLine("Started model " + project.getName());
-
-					RealTimeUpdater.start();
 
 					LinkedList<Result> results = new LinkedList<Result>();
 					int simulationResult = -1;
 					if (simulation != null)
 						simulationResult = (int) simulation.invoke(null,
 								(Object) results);
-
-					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater
-							.getUpdater());
 
 					display.syncExec(() -> AnimationView.deinitialize());
 
@@ -278,8 +205,6 @@ public class ExecutionHandler extends AbstractHandler {
 							+ String.valueOf(System.currentTimeMillis()
 									- startTime) + "ms");
 
-					SimulationSynchronizer.finish();
-					RealTimeUpdater.stop();
 					classLoader.close();
 
 					return Status.OK_STATUS;
@@ -287,12 +212,8 @@ public class ExecutionHandler extends AbstractHandler {
 					e.printStackTrace();
 					setRunningState(display, sourceProvider, false);
 					ConsoleView.addLine("Execution error");
-					display.asyncExec(SimulationSynchronizer.getInstance().uiTimeUpdater
-							.getUpdater());
 
 					display.syncExec(() -> AnimationView.deinitialize());
-
-					SimulationSynchronizer.finish();
 
 					if (classLoader != null)
 						try {
@@ -301,10 +222,10 @@ public class ExecutionHandler extends AbstractHandler {
 							e1.printStackTrace();
 						}
 
+					Simulator.notifyError();
+
 					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
 							"Execution failed");
-				} finally {
-					SerializationConfigView.setEnabled(true);
 				}
 			}
 

@@ -27,6 +27,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.themes.ITheme;
 import org.eclipse.ui.themes.IThemeManager;
 
+import ru.bmstu.rk9.rao.ui.notification.SubscriberRegistrationManager;
+
 public class StatusView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.StatusView"; //$NON-NLS-1$
 
@@ -188,6 +190,10 @@ public class StatusView extends ViewPart {
 			reorderElements();
 			updateScrolledCompositeSize();
 		});
+
+		subscriberRegistrationManager
+				.enlistRealTimeSubscriber(realTimeUpdateRunnable);
+		subscriberRegistrationManager.initialize();
 	}
 
 	private void updateScrolledCompositeSize() {
@@ -207,12 +213,6 @@ public class StatusView extends ViewPart {
 
 		scrolledComposite.setMinSize(h, v);
 		scrolledComposite.layout(true, true);
-	}
-
-	@Override
-	public void dispose() {
-		themeManager.removePropertyChangeListener(fontListener);
-		super.dispose();
 	}
 
 	private static boolean isInitialized() {
@@ -242,5 +242,13 @@ public class StatusView extends ViewPart {
 
 	@Override
 	public void setFocus() {
+	}
+
+	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
+
+	@Override
+	public void dispose() {
+		subscriberRegistrationManager.deinitialize();
+		super.dispose();
 	}
 }

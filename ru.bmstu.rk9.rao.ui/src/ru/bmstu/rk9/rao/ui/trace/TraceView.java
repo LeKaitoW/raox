@@ -55,12 +55,13 @@ import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.tracer.Tracer;
-import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceOutput;
-import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceType;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
+import ru.bmstu.rk9.rao.ui.notification.SubscriberRegistrationManager;
 import ru.bmstu.rk9.rao.ui.trace.TraceView.SearchHelper.SearchResult;
+import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceOutput;
+import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceType;
 
 public class TraceView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.TraceView";
@@ -171,13 +172,12 @@ public class TraceView extends ViewPart {
 
 		configureToolbar();
 
-		if (Simulator.isInitialized()) {
-			final List<Entry> allEntries = Simulator.getDatabase()
-					.getAllEntries();
-			TraceView.viewer.setInput(allEntries);
-			TraceView.viewer.setItemCount(allEntries.size());
-			viewer.refresh();
-		}
+		subscriberRegistrationManager.enlistCommonSubscriber(commonUpdater,
+				ExecutionState.EXECUTION_STARTED).enlistCommonSubscriber(
+				commonUpdater, ExecutionState.EXECUTION_COMPLETED);
+		subscriberRegistrationManager
+				.enlistRealTimeSubscriber(realTimeUpdateRunnable);
+		subscriberRegistrationManager.initialize();
 	}
 
 	private final void configureToolbar() {
@@ -219,6 +219,8 @@ public class TraceView extends ViewPart {
 			}
 		});
 	}
+
+	static final Tracer tracer = new Tracer();
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 	// -------------------------- SEARCH AND COPY -------------------------- //
@@ -275,7 +277,7 @@ public class TraceView extends ViewPart {
 			}
 			while (currentIndex < viewer.getTable().getItemCount()
 					&& !lineFound) {
-				String traceLine = Simulator.getTracer()
+				String traceLine = tracer
 						.parseSerializedData(allEntries.get(currentIndex))
 						.content();
 				if (caseSensitive) {
@@ -397,6 +399,14 @@ public class TraceView extends ViewPart {
 	@Override
 	public void setFocus() {
 	}
+
+	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
+
+	@Override
+	public void dispose() {
+		subscriberRegistrationManager.deinitialize();
+		super.dispose();
+	}
 }
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -420,7 +430,7 @@ class TraceViewContentProvider implements ILazyContentProvider {
 	public void updateElement(int index) {
 		// TODO completely avoid that situation
 		if (allEntries != null && index < allEntries.size()) {
-			TraceOutput output = Simulator.getTracer().parseSerializedData(
+			TraceOutput output = TraceView.tracer.parseSerializedData(
 					allEntries.get(index));
 			TraceView.viewer.replace(output, index);
 		}
@@ -599,8 +609,7 @@ class SearchDialog extends Dialog {
 		return searchString;
 	}
 
-	public SearchDialog(Shell parentShell,
-			TraceView.SearchHelper searchHelper) {
+	public SearchDialog(Shell parentShell, TraceView.SearchHelper searchHelper) {
 		super(parentShell);
 		setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE);
 		this.searchHelper = searchHelper;

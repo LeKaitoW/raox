@@ -33,11 +33,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 		this.retriever = retriever;
 		this.compareTops = compareTops;
 
-		Simulator
-				.getNotificationManager()
-				.getSubscription(
-						Simulator.NotificationCategory.EXECUTION_ABORTED)
-				.addSubscriber(this);
+		Simulator.getSimulatorStateNotifier().addSubscriber(this,
+				Simulator.SimulatorState.INITIALIZED);
 	}
 
 	public static interface EvaluateBy {
@@ -113,11 +110,19 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 			1, nodeComparator);
 	private LinkedList<GraphNode> nodesClosed = new LinkedList<GraphNode>();
 
+	private final Subscriber executionAbortedListener = new Subscriber() {
+		@Override
+		public void fireChange() {
+			allowSearch = false;
+		}
+	};
+
 	private volatile boolean allowSearch = true;
 
 	@Override
 	public void fireChange() {
-		this.allowSearch = false;
+		Simulator.getExecutionStateNotifier().addSubscriber(executionAbortedListener,
+				Simulator.ExecutionState.EXECUTION_ABORTED);
 	}
 
 	private GraphNode head;

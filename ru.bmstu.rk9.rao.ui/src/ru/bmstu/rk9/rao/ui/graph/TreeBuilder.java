@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.lib.treeBuilder;
+package ru.bmstu.rk9.rao.ui.graph;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -15,11 +15,10 @@ import ru.bmstu.rk9.rao.lib.dpt.DecisionPointSearch;
 import ru.bmstu.rk9.rao.lib.modelStructure.ActivityCache;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.tracer.StringJoiner.StringFormat;
-import ru.bmstu.rk9.rao.lib.tracer.Tracer;
-import ru.bmstu.rk9.rao.lib.tracer.StringJoiner;
+import ru.bmstu.rk9.rao.ui.trace.StringJoiner;
+import ru.bmstu.rk9.rao.ui.trace.Tracer;
+import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
 
-//TODO make static and move to ui
 public class TreeBuilder implements Subscriber {
 
 	@Override

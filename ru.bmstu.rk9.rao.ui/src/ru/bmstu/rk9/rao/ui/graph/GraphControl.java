@@ -13,13 +13,9 @@ import javax.swing.JFrame;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.ui.PlatformUI;
 
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.treeBuilder.TreeBuilder;
-
 public class GraphControl {
 
-	final static Rectangle monitorBounds = PlatformUI.getWorkbench()
-			.getDisplay().getBounds();
+	private static Rectangle monitorBounds;
 
 	public static class FrameInfo {
 		public int dptNumber;
@@ -31,11 +27,16 @@ public class GraphControl {
 		}
 	}
 
+	public static final TreeBuilder treeBuilder = new TreeBuilder();
+
 	private static void createFrameWindow(FrameInfo frameInfo) {
+		monitorBounds = PlatformUI.getWorkbench().getDisplay().getBounds();
+		monitorAspectRatio = (double) monitorBounds.width
+				/ monitorBounds.height;
+
 		int dptNum = frameInfo.dptNumber;
 		String frameName = frameInfo.frameName;
 
-		TreeBuilder treeBuilder = Simulator.getTreeBuilder();
 		treeBuilder.buildTree();
 
 		int frameWidth = setWidth(monitorBounds, 1.2);
@@ -51,12 +52,11 @@ public class GraphControl {
 
 		boolean isFinished;
 
-		Simulator.getTreeBuilder().rwLock.readLock().lock();
+		treeBuilder.rwLock.readLock().lock();
 		try {
-			isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap
-					.get(dptNum).isFinished;
+			isFinished = treeBuilder.dptSimulationInfoMap.get(dptNum).isFinished;
 		} finally {
-			Simulator.getTreeBuilder().rwLock.readLock().unlock();
+			treeBuilder.rwLock.readLock().unlock();
 		}
 
 		if (!isFinished) {
@@ -117,8 +117,7 @@ public class GraphControl {
 
 	public static final Map<Integer, GraphFrame> openedGraphMap = new HashMap<Integer, GraphFrame>();
 
-	public static final double monitorAspectRatio = (double) monitorBounds.width
-			/ monitorBounds.height;
+	private static double monitorAspectRatio;
 
 	public static int setWidth(Rectangle r, double relativeWidth) {
 		return (int) (r.width * relativeWidth / GraphControl.monitorAspectRatio);

@@ -7,6 +7,8 @@ import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.ui.notification.SubscriberRegistrationManager;
 
 public class SimulationSynchronizer {
 	public static enum ExecutionMode {
@@ -32,34 +34,27 @@ public class SimulationSynchronizer {
 		final private String type;
 	}
 
-	private static SimulationSynchronizer INSTANCE;
-
-	public static SimulationSynchronizer getInstance() {
-		return INSTANCE;
-	}
-
-	private SimulationSynchronizer() {
-		INSTANCE = this;
-
+	public SimulationSynchronizer() {
 		setSimulationScale(SetSimulationScaleHandler.getSimulationScale());
 		setSimulationSpeed(SpeedSelectionToolbar.getSpeed());
+		setExecutionMode(SimulationModeDispatcher.getMode());
+		simulationAborted = false;
+		subscriberRegistrationManager
+				.enlistCommonSubscriber(uiTimeUpdater,
+						ExecutionState.TIME_CHANGED)
+				.enlistCommonSubscriber(simulationManager.scaleManager,
+						ExecutionState.TIME_CHANGED)
+				.enlistCommonSubscriber(simulationManager.speedManager,
+						ExecutionState.STATE_CHANGED)
+				.enlistCommonSubscriber(simulationStateListener,
+						ExecutionState.EXECUTION_ABORTED);
+		subscriberRegistrationManager.initialize();
 	}
 
-	public static void start() {
-		new SimulationSynchronizer();
-	}
+	private volatile ExecutionMode executionMode;
 
-	public static void finish() {
-		INSTANCE = null;
-	}
-
-	private volatile ExecutionMode executionMode = null;
-
-	public static void setState(ExecutionMode executionMode) {
-		if (INSTANCE == null)
-			return;
-
-		INSTANCE.executionMode = executionMode;
+	public void setExecutionMode(ExecutionMode executionMode) {
+		this.executionMode = executionMode;
 	}
 
 	public class UITimeUpdater implements Subscriber {
@@ -97,7 +92,9 @@ public class SimulationSynchronizer {
 		}
 	}
 
-	private volatile boolean simulationAborted = false;
+	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
+
+	private volatile boolean simulationAborted;
 
 	public class SimulationStateListener implements Subscriber {
 		@Override
@@ -106,24 +103,17 @@ public class SimulationSynchronizer {
 		}
 	}
 
-	public static void setSimulationSpeed(int value) {
-		if (INSTANCE == null)
-			return;
-
+	public void setSimulationSpeed(int value) {
 		if (value < 1 || value > 100)
 			return;
 
-		INSTANCE.simulationManager.speedDelayMillis = (long) (-Math
-				.log10(value / 100d) * 1000d);
+		simulationManager.speedDelayMillis = (long) (-Math.log10(value / 100d) * 1000d);
 	}
 
-	public static void setSimulationScale(double value) {
-		if (INSTANCE == null)
-			return;
-
-		INSTANCE.simulationManager.timeScale = 60060d / value;
-		INSTANCE.simulationManager.startRealTime = System.currentTimeMillis();
-		INSTANCE.simulationManager.startSimulationTime = Simulator.isRunning() ? Simulator
+	public void setSimulationScale(double value) {
+		simulationManager.timeScale = 60060d / value;
+		simulationManager.startRealTime = System.currentTimeMillis();
+		simulationManager.startSimulationTime = Simulator.isRunning() ? Simulator
 				.getTime() : 0;
 	}
 
@@ -148,7 +138,6 @@ public class SimulationSynchronizer {
 						break;
 
 					case NORMAL_SPEED:
-
 						long waitTime = (long) ((currentSimulationTime - startSimulationTime) * timeScale)
 								- (currentRealTime - startRealTime);
 
@@ -203,9 +192,8 @@ public class SimulationSynchronizer {
 					}
 
 					break;
-
 				default:
-					// Do nothing
+					break;
 				}
 			}
 		}
@@ -225,7 +213,7 @@ public class SimulationSynchronizer {
 		}
 	}
 
-	private static void delay(long milliseconds) {
+	private void delay(long milliseconds) {
 		try {
 			Thread.sleep(milliseconds);
 		} catch (InterruptedException e) {

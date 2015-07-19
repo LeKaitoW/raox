@@ -27,7 +27,7 @@ import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modelStructure.ModelStructureCache.ValueType;
 import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
-import ru.bmstu.rk9.rao.lib.notification.NotificationManager;
+import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.result.Result;
@@ -229,15 +229,15 @@ public class Database {
 		ENTRY_ADDED
 	};
 
-	private final NotificationManager<NotificationCategory> notificationManager = new NotificationManager<NotificationCategory>(
+	private final Notifier<NotificationCategory> notifier = new Notifier<NotificationCategory>(
 			NotificationCategory.class);
 
-	public final NotificationManager<NotificationCategory> getNotificationManager() {
-		return notificationManager;
+	public final Notifier<NotificationCategory> getNotifier() {
+		return notifier;
 	}
 
 	private final void notifyChange(final NotificationCategory category) {
-		notificationManager.notifySubscribers(category);
+		notifier.notifySubscribers(category);
 	}
 
 	private final DbIndexHelper indexHelper = new DbIndexHelper();

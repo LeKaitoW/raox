@@ -33,7 +33,10 @@ import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
 import org.eclipse.xtext.util.concurrent.IUnitOfWork;
 
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.rao.RaoModel;
+import ru.bmstu.rk9.rao.ui.notification.SubscriberRegistrationManager;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfig.SerializationNode;
 
 public class SerializationConfigView extends ViewPart {
@@ -184,10 +187,30 @@ public class SerializationConfigView extends ViewPart {
 			private final Map<IWorkbenchPartReference, SerializationNode> modelNodes = new HashMap<IWorkbenchPartReference, SerializationNode>();
 		});
 
+		subscriberRegistrationManager.enlistCommonSubscriber(enableSubscriber,
+				ExecutionState.EXECUTION_COMPLETED).enlistCommonSubscriber(
+						disableSubscriber, ExecutionState.EXECUTION_STARTED);
+		subscriberRegistrationManager.initialize();
 		setEnabled(true);
 	}
 
-	public static void setEnabled(boolean state) {
+	private final static SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
+
+	private final static Subscriber enableSubscriber = new Subscriber() {
+		@Override
+		public void fireChange() {
+			setEnabled(true);
+		}
+	};
+
+	private final static Subscriber disableSubscriber = new Subscriber() {
+		@Override
+		public void fireChange() {
+			setEnabled(false);
+		}
+	};
+
+	private static void setEnabled(boolean state) {
 		if (!readyForInput())
 			return;
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
