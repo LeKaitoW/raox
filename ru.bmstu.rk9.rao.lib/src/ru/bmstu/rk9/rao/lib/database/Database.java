@@ -636,9 +636,9 @@ public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	public static enum ResultType {
-		GET_VALUE("get_value"), WATCH_PAR("watch_par"), WATCH_QUANT(
-				"watch_quant"), WATCH_STATE("watch_state"), WATCH_VALUE(
-				"watch_value");
+		GET_VALUE("getValue"), WATCH_PAR("watchParameter"), WATCH_QUANT(
+				"watchQuant"), WATCH_STATE("watchState"), WATCH_VALUE(
+				"watchValue");
 
 		ResultType(final String type) {
 			this.type = type;
