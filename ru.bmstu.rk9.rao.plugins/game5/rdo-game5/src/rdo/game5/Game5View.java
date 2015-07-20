@@ -405,11 +405,7 @@ public class Game5View extends EditorPart {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				try {
-					if (solvable.getSelection()) {
-						object.put("solvable", true);
-					} else {
-						object.put("solvable", false);
-					}
+					object.put("solvable", solvable.getSelection());
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -425,11 +421,7 @@ public class Game5View extends EditorPart {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				try {
-					if (compareTops.getSelection()) {
-						object.put("compare", true);
-					} else {
-						object.put("compare", false);
-					}
+					object.put("compare", compareTops.getSelection());
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}

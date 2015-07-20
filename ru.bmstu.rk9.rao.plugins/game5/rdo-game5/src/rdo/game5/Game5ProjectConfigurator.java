@@ -37,10 +37,10 @@ import org.json.simple.parser.ParseException;
 public class Game5ProjectConfigurator {
 
 	private static IProject game5Project;
-	private static IFile game5File;
-	private static IPath filePath;
+	private static IFile modelIFile;
+	private static IPath modelIPath;
 	private static IFile configIFile;
-	private static IPath configPath;
+	private static IPath configIPath;
 	private static InputStream inputStream;
 	private static final String modelTemplatePath = "/model_template/game_5.rao";
 	private static final String configFilePath = "/model_template/config.json";
@@ -106,28 +106,28 @@ public class Game5ProjectConfigurator {
 	public static void createModelFile() {
 
 		final String modelName = ModelNameView.getName() + ".rao";
-		filePath = workspacePath.append(game5Project.getFullPath()).append(
+		modelIPath = workspacePath.append(game5Project.getFullPath()).append(
 				modelName);
-		final File game5Model = new File(filePath.toString());
+		final File modelFile = new File(modelIPath.toString());
 		try {
-			game5Model.createNewFile();
+			modelFile.createNewFile();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-		game5File = game5Project.getFile(modelName);
+		modelIFile = game5Project.getFile(modelName);
 		try {
 			inputStream = Game5ProjectConfigurator.class.getClassLoader()
 					.getResourceAsStream(modelTemplatePath);
-			game5File.create(inputStream, true, null);
+			modelIFile.create(inputStream, true, null);
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
 
 		JSONParser parser = new JSONParser();
 		try {
-			Object obj = parser.parse(new FileReader(workspacePath.append(
-					configIFile.getFullPath()).toString()));
-			JSONObject object = (JSONObject) obj;
+			JSONObject object = (JSONObject) parser
+					.parse(new FileReader(workspacePath.append(
+							configIFile.getFullPath()).toString()));
 			// parse here
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();
@@ -137,9 +137,9 @@ public class Game5ProjectConfigurator {
 	public static final void createConfigFile() {
 
 		final String configName = ModelNameView.getName() + "_config.json";
-		configPath = workspacePath.append(game5Project.getFullPath().append(
+		configIPath = workspacePath.append(game5Project.getFullPath().append(
 				configName));
-		final File configFile = new File(configPath.toString());
+		final File configFile = new File(configIPath.toString());
 
 		try {
 			configFile.createNewFile();
@@ -158,19 +158,19 @@ public class Game5ProjectConfigurator {
 	}
 
 	public static final IFile getModelFile() {
-		return game5File;
+		return modelIFile;
 	}
 
 	public static final IPath getModelFilePath() {
-		return filePath;
+		return modelIPath;
 	}
 
 	public static final IFile getConfigFile() {
 		return configIFile;
 	}
 
-	public static final IPath getConfigPath() {
-		return configPath;
+	public static final IPath getConfigFilePath() {
+		return configIPath;
 	}
 
 	public static final IProject getProject() {
@@ -183,7 +183,7 @@ public class Game5ProjectConfigurator {
 		inputStream = Game5ProjectConfigurator.class.getClassLoader()
 				.getResourceAsStream(modelTemplatePath);
 		OutputStream outputStream = null;
-		final File game5Model = new File(filePath.toString());
+		final File game5Model = new File(modelIPath.toString());
 
 		try {
 			InputStreamReader inputStreamReader = new InputStreamReader(
