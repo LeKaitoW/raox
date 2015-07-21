@@ -13,6 +13,7 @@ import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.ModelState;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 
 public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 		implements Subscriber {
@@ -287,6 +288,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 				if (enoughSensitivity(SerializationLevel.ALL)) {
 					executed.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SEARCH);
 				}
+
+				Simulator.getExecutionStateNotifier().notifySubscribers(ExecutionState.SEARCH_STEP);
 
 				parent.state.deploy();
 

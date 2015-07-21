@@ -46,6 +46,8 @@ public class SimulationSynchronizer {
 						ExecutionState.TIME_CHANGED)
 				.enlistCommonSubscriber(simulationManager.speedManager,
 						ExecutionState.STATE_CHANGED)
+				.enlistCommonSubscriber(simulationManager.speedManager,
+						ExecutionState.SEARCH_STEP)
 				.enlistCommonSubscriber(simulationStateListener,
 						ExecutionState.EXECUTION_ABORTED);
 		subscriberRegistrationManager.initialize();
