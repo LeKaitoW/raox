@@ -13,32 +13,20 @@ import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.DecisionPointSearch;
 import ru.bmstu.rk9.rao.lib.modelStructure.ActivityCache;
-import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.trace.StringJoiner;
 import ru.bmstu.rk9.rao.ui.trace.Tracer;
 import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
 
-public class TreeBuilder implements Subscriber {
+public class TreeBuilder {
 
-	@Override
-	public void fireChange() {
-		final Database.Entry entry = Simulator.getDatabase().getAllEntries()
-				.get(entryNumber);
-		boolean isSearchEntry = parseEntry(entry);
-		entryNumber++;
-		if (isSearchEntry)
-			notifyGUIPart();
-	}
-
-	private Subscriber subscriber;
-
-	public final void notifyGUIPart() {
-		subscriber.fireChange();
-	}
-
-	public final void setGUISubscriber(Subscriber subscriber) {
-		this.subscriber = subscriber;
+	public final void updateTree() {
+		List<Entry> entries = Simulator.getDatabase().getAllEntries();
+		while (entryNumber < entries.size()) {
+			final Database.Entry entry = entries.get(entryNumber);
+			parseEntry(entry);
+			entryNumber++;
+		}
 	}
 
 	public ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock(true);
@@ -61,16 +49,6 @@ public class TreeBuilder implements Subscriber {
 	}
 
 	public final Map<Integer, List<Node>> listMap = new HashMap<Integer, List<Node>>();
-
-	public final void buildTree() {
-		final List<Database.Entry> entries = Simulator.getDatabase()
-				.getAllEntries();
-
-		int size = entries.size();
-		while (entryNumber < size) {
-			parseEntry(entries.get(entryNumber++));
-		}
-	}
 
 	private boolean parseEntry(Entry entry) {
 		final EntryType entryType = EntryType.values()[entry.getHeader().get(

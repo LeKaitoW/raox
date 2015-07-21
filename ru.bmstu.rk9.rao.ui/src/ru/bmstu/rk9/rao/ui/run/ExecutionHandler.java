@@ -34,8 +34,6 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.build.ModelBuilder;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
-import ru.bmstu.rk9.rao.ui.graph.GraphControl;
-import ru.bmstu.rk9.rao.ui.graph.GraphFrame;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider;
@@ -169,9 +167,6 @@ public class ExecutionHandler extends AbstractHandler {
 
 					final long startTime = System.currentTimeMillis();
 					StatusView.setStartTime(startTime);
-
-					GraphControl.treeBuilder
-							.setGUISubscriber(GraphFrame.realTimeUpdater);
 
 					ConsoleView.addLine("Started model " + project.getName());
 

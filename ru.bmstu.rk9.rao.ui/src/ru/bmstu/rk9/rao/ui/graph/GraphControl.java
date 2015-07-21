@@ -5,9 +5,6 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import javax.swing.JFrame;
 
 import org.eclipse.swt.graphics.Rectangle;
@@ -37,38 +34,18 @@ public class GraphControl {
 		int dptNum = frameInfo.dptNumber;
 		String frameName = frameInfo.frameName;
 
-		treeBuilder.buildTree();
+		treeBuilder.updateTree();
 
 		int frameWidth = setWidth(monitorBounds, 1.2);
 		int frameHeight = setHeight(monitorBounds, 0.8);
 
-		GraphFrame graphFrame = new GraphFrame(dptNum, frameWidth, frameHeight);
+		GraphView graphFrame = new GraphView(dptNum, frameWidth, frameHeight);
 
 		GraphControl.openedGraphMap.put(dptNum, graphFrame);
 		graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		graphFrame.setTitle(frameName);
 		graphFrame.setLocationRelativeTo(null);
 		graphFrame.setVisible(true);
-
-		boolean isFinished;
-
-		treeBuilder.rwLock.readLock().lock();
-		try {
-			isFinished = treeBuilder.dptSimulationInfoMap.get(dptNum).isFinished;
-		} finally {
-			treeBuilder.rwLock.readLock().unlock();
-		}
-
-		if (!isFinished) {
-			TimerTask graphUpdateTask = graphFrame
-					.getGraphFrameUpdateTimerTask();
-			Timer graphUpdateTimer = new Timer();
-			graphUpdateTimer.scheduleAtFixedRate(graphUpdateTask, 0, 10);
-
-			TimerTask graphFinTask = graphFrame.getGraphFrameFinTimerTask();
-			Timer graphFinTimer = new Timer();
-			graphFinTimer.scheduleAtFixedRate(graphFinTask, 0, 10);
-		}
 
 		graphFrame.addWindowListener(new WindowListener() {
 			@Override
@@ -93,6 +70,7 @@ public class GraphControl {
 
 			@Override
 			public void windowClosed(WindowEvent e) {
+				GraphControl.openedGraphMap.get(dptNum).deinitialize();
 				GraphControl.openedGraphMap.remove(dptNum);
 			}
 
@@ -106,7 +84,7 @@ public class GraphControl {
 		if (!GraphControl.openedGraphMap.containsKey(frameInfo.dptNumber)) {
 			GraphControl.createFrameWindow(frameInfo);
 		} else {
-			GraphFrame currentFrame = GraphControl.openedGraphMap
+			GraphView currentFrame = GraphControl.openedGraphMap
 					.get(frameInfo.dptNumber);
 			if (currentFrame.getState() == Frame.ICONIFIED)
 				currentFrame.setState(Frame.NORMAL);
@@ -115,7 +93,7 @@ public class GraphControl {
 		}
 	}
 
-	public static final Map<Integer, GraphFrame> openedGraphMap = new HashMap<Integer, GraphFrame>();
+	public static final Map<Integer, GraphView> openedGraphMap = new HashMap<Integer, GraphView>();
 
 	private static double monitorAspectRatio;
 
