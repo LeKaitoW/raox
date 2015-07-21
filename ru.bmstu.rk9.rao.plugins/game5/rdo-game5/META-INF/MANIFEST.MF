@@ -18,6 +18,9 @@ Require-Bundle: org.eclipse.ui,
  ru.bmstu.rk9.rao;bundle-version="1.0.0",
  ru.bmstu.rk9.rao.lib;bundle-version="0.1.0",
  ru.bmstu.rk9.rao.tests;bundle-version="1.0.0",
- ru.bmstu.rk9.rao.ui;bundle-version="1.0.0"
+ ru.bmstu.rk9.rao.ui;bundle-version="1.0.0",
+ org.eclipse.core.filesystem;bundle-version="1.4.100"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .,
+ model_template/json-simple-1.1.1.jar

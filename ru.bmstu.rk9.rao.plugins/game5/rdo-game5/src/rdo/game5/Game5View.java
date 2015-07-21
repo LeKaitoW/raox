@@ -28,8 +28,8 @@ import org.eclipse.ui.part.EditorPart;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditor;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorFactory;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorModelAccess;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
+
 import com.google.inject.Injector;
 
 @SuppressWarnings("restriction")
@@ -40,6 +40,7 @@ public class Game5View extends EditorPart {
 	private static EmbeddedEditorModelAccess editor;
 	private static JSONObject object;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void createPartControl(Composite parent) {
 		final GridLayout gridLayout = new GridLayout(3, false);
@@ -259,11 +260,7 @@ public class Game5View extends EditorPart {
 		heuristicList.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				try {
-					object.put("heuristic", heuristicList.getSelectionIndex());
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+				object.put("heuristic", heuristicList.getSelectionIndex());
 				setDirty(true);
 			}
 
@@ -274,11 +271,7 @@ public class Game5View extends EditorPart {
 		leftCost.addKeyListener(new KeyListener() {
 			@Override
 			public void keyReleased(KeyEvent arg0) {
-				try {
-					object.put("costLeft", leftCost.getText());
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+				object.put("costLeft", leftCost.getText());
 				setDirty(true);
 			}
 
@@ -290,11 +283,7 @@ public class Game5View extends EditorPart {
 		leftCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				try {
-					object.put("computeLeft", leftCombo.getText());
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+				object.put("computeLeft", leftCombo.getText());
 				setDirty(true);
 			}
 
@@ -306,11 +295,7 @@ public class Game5View extends EditorPart {
 		rightCost.addKeyListener(new KeyListener() {
 			@Override
 			public void keyReleased(KeyEvent arg0) {
-				try {
-					object.put("costRight", rightCost.getText());
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+				object.put("costRight", rightCost.getText());
 				setDirty(true);
 			}
 
@@ -322,11 +307,7 @@ public class Game5View extends EditorPart {
 		rightCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				try {
-					object.put("computeRight", rightCombo.getText());
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+				object.put("computeRight", rightCombo.getText());
 				setDirty(true);
 			}
 
@@ -338,11 +319,7 @@ public class Game5View extends EditorPart {
 		upCost.addKeyListener(new KeyListener() {
 			@Override
 			public void keyReleased(KeyEvent arg0) {
-				try {
-					object.put("costUp", upCost.getText());
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+				object.put("costUp", upCost.getText());
 				setDirty(true);
 			}
 
@@ -355,11 +332,7 @@ public class Game5View extends EditorPart {
 
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				try {
-					object.put("computeUp", upCombo.getText());
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+				object.put("computeUp", upCombo.getText());
 				setDirty(true);
 			}
 
@@ -371,11 +344,7 @@ public class Game5View extends EditorPart {
 		downCost.addKeyListener(new KeyListener() {
 			@Override
 			public void keyReleased(KeyEvent arg0) {
-				try {
-					object.put("costDown", downCost.getText());
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+				object.put("costDown", downCost.getText());
 				setDirty(true);
 			}
 
@@ -388,11 +357,7 @@ public class Game5View extends EditorPart {
 
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				try {
-					object.put("computeDown", downCombo.getText());
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+				object.put("computeDown", downCombo.getText());
 				setDirty(true);
 			}
 
@@ -404,11 +369,7 @@ public class Game5View extends EditorPart {
 		solvable.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				try {
-					object.put("solvable", solvable.getSelection());
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+				object.put("solvable", solvable.getSelection());
 				setDirty(true);
 			}
 
@@ -420,11 +381,7 @@ public class Game5View extends EditorPart {
 		compareTops.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				try {
-					object.put("compare", compareTops.getSelection());
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+				object.put("compare", compareTops.getSelection());
 				setDirty(true);
 			}
 
