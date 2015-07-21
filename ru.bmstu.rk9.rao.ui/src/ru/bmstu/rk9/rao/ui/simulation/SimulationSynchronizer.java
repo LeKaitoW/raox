@@ -53,6 +53,10 @@ public class SimulationSynchronizer {
 		subscriberRegistrationManager.initialize();
 	}
 
+	public final void deinitialize() {
+		subscriberRegistrationManager.deinitialize();
+	}
+
 	private volatile ExecutionMode executionMode;
 
 	public void setExecutionMode(ExecutionMode executionMode) {

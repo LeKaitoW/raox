@@ -25,6 +25,10 @@ public class RealTimeUpdater {
 		subscriberRegistrationManager.initialize();
 	}
 
+	public final void deinitialize() {
+		subscriberRegistrationManager.deinitialize();
+	}
+
 	public final void addScheduledAction(Runnable runnable) {
 		scheduledActions.add(runnable);
 	}

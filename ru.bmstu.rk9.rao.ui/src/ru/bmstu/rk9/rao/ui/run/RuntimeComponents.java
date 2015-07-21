@@ -21,5 +21,7 @@ public class RuntimeComponents {
 
 	public static final void deinitialize() {
 		isInitialized = false;
+		realTimeUpdater.deinitialize();
+		simulationSynchronizer.deinitialize();
 	}
 }
