@@ -82,8 +82,8 @@ public class Game5View extends EditorPart {
 
 		final Combo leftCombo = new Combo(ruleCost, SWT.BORDER | SWT.DROP_DOWN
 				| SWT.V_SCROLL | SWT.READ_ONLY);
-		leftCombo.add("after");
-		leftCombo.add("before");
+		leftCombo.add("After");
+		leftCombo.add("Before");
 		leftCombo.select(0);
 
 		final Button leftButton = new Button(ruleCost, SWT.CHECK);
@@ -111,8 +111,8 @@ public class Game5View extends EditorPart {
 
 		final Combo rightCombo = new Combo(ruleCost, SWT.BORDER | SWT.DROP_DOWN
 				| SWT.V_SCROLL | SWT.READ_ONLY);
-		rightCombo.add("after");
-		rightCombo.add("before");
+		rightCombo.add("After");
+		rightCombo.add("Before");
 		rightCombo.select(0);
 
 		final Button rightButton = new Button(ruleCost, SWT.CHECK);
@@ -140,8 +140,8 @@ public class Game5View extends EditorPart {
 
 		final Combo upCombo = new Combo(ruleCost, SWT.BORDER | SWT.DROP_DOWN
 				| SWT.V_SCROLL | SWT.READ_ONLY);
-		upCombo.add("after");
-		upCombo.add("before");
+		upCombo.add("After");
+		upCombo.add("Before");
 		upCombo.select(0);
 
 		final Button upButton = new Button(ruleCost, SWT.CHECK);
@@ -169,8 +169,8 @@ public class Game5View extends EditorPart {
 
 		final Combo downCombo = new Combo(ruleCost, SWT.BORDER | SWT.DROP_DOWN
 				| SWT.V_SCROLL | SWT.READ_ONLY);
-		downCombo.add("after");
-		downCombo.add("before");
+		downCombo.add("After");
+		downCombo.add("Before");
 		downCombo.select(0);
 
 		final Group traverseGraph = new Group(parent, SWT.SHADOW_IN);

@@ -30,6 +30,7 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
 import org.eclipse.xtext.ui.XtextProjectHelper;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -41,6 +42,7 @@ public class Game5ProjectConfigurator {
 	private static IPath modelIPath;
 	private static IFile configIFile;
 	private static IPath configIPath;
+	private static File modelFile;
 	private static InputStream inputStream;
 	private static final String modelTemplatePath = "/model_template/game_5.rao";
 	private static final String configFilePath = "/model_template/config.json";
@@ -108,7 +110,7 @@ public class Game5ProjectConfigurator {
 		final String modelName = ModelNameView.getName() + ".rao";
 		modelIPath = workspacePath.append(game5Project.getFullPath()).append(
 				modelName);
-		final File modelFile = new File(modelIPath.toString());
+		modelFile = new File(modelIPath.toString());
 		try {
 			modelFile.createNewFile();
 		} catch (IOException e1) {
@@ -123,15 +125,7 @@ public class Game5ProjectConfigurator {
 			e.printStackTrace();
 		}
 
-		JSONParser parser = new JSONParser();
-		try {
-			JSONObject object = (JSONObject) parser
-					.parse(new FileReader(workspacePath.append(
-							configIFile.getFullPath()).toString()));
-			// parse here
-		} catch (IOException | ParseException e) {
-			e.printStackTrace();
-		}
+		parseConfig();
 	}
 
 	public static final void createConfigFile() {
@@ -214,6 +208,57 @@ public class Game5ProjectConfigurator {
 				outputStream.flush();
 				outputStream.close();
 			}
+		}
+	}
+
+	public static void parseConfig() {
+		JSONParser parser = new JSONParser();
+		JSONObject object;
+		try {
+			object = (JSONObject) parser.parse(new FileReader(workspacePath
+					.append(configIFile.getFullPath()).toString()));
+			OutputStream outputStream = new FileOutputStream(modelFile, true);
+			PrintStream printStream = new PrintStream(outputStream, true,
+					StandardCharsets.UTF_8.name());
+			JSONArray places = (JSONArray) object.get("places");
+
+			printStream
+					.print(String.format(
+							"resource Фишка1 = Фишка.create(1, %1$s);\n"
+									+ "resource Фишка2 = Фишка.create(2, %2$s);\n"
+									+ "resource Фишка3 = Фишка.create(3, %3$s);\n"
+									+ "resource Фишка4 = Фишка.create(4, %4$s);\n"
+									+ "resource Фишка5 = Фишка.create(5, %5$s);\n"
+									+ "resource Дырка = Дырка_t.create(%6$s);\n"
+									+ "\n"
+									+ "search Расстановка_фишек {\n"
+									+ "	set init() {\n"
+									+ "		setCondition(exist(Фишка: Фишка.Номер != Фишка.Местоположение));\n"
+									+ "		setTerminateCondition(forAll(Фишка: Фишка.Номер == Фишка.Местоположение));\n"
+									+ "		compareTops(%7$s);\n"
+									+ "		evaluateBy(%8$s);\n"
+									+ "	}\n"
+									+ "	activity Перемещение_вправо checks Перемещение_фишки(Место_дырки.справа,  1).setValue%9$s(%10$s);\n"
+									+ "	activity Перемещение_влево checks Перемещение_фишки(Место_дырки.слева,  -1).setValue%11$s(%12$s);\n"
+									+ "	activity Перемещение_вверх checks Перемещение_фишки(Место_дырки.сверху,  -3).setValue%13$s(%14$s);\n"
+									+ "	activity Перемещение_вниз checks Перемещение_фишки(Место_дырки.снизу,  3).setValue%15$s(%16$s);\n"
+									+ "}\n", places.get(0), places.get(1),
+							places.get(2),
+							places.get(3),
+							places.get(4),
+							places.get(5),
+							object.get("compare"),
+							0, // need fix - heuristic number
+							object.get("computeRight"),
+							object.get("costRight"), object.get("computeLeft"),
+							object.get("costLeft"), object.get("computeUp"),
+							object.get("costUp"), object.get("computeDown"),
+							object.get("costDown")));
+			printStream.close();
+
+		} catch (IOException | ParseException e) {
+
+			e.printStackTrace();
 		}
 	}
 }
