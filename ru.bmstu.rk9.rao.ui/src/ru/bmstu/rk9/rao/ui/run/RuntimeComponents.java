@@ -14,9 +14,9 @@ public class RuntimeComponents {
 	}
 
 	public static final void initialize() {
-		isInitialized = true;
 		realTimeUpdater = new RealTimeUpdater();
 		simulationSynchronizer = new SimulationSynchronizer();
+		isInitialized = true;
 	}
 
 	public static final void deinitialize() {
