@@ -48,28 +48,21 @@ public class PlotView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.PlotView";
 	private final static Map<CollectedDataNode, Integer> openedPlotMap = new HashMap<CollectedDataNode, Integer>();
 	private static int secondaryID = 0;
-	private PlotFrame plotFrame;
-	private CollectedDataNode partNode;
-
-	public PlotFrame getFrame() {
-		return plotFrame;
-	}
 
 	public static Map<CollectedDataNode, Integer> getOpenedPlotMap() {
 		return openedPlotMap;
 	}
 
-	public void setName(final String name) {
-		setPartName(name);
-	}
-
-	public void setNode(final CollectedDataNode node) {
-		partNode = node;
-	}
-
 	public static void addToOpenedPlotMap(final CollectedDataNode node,
 			final int secondaryID) {
 		openedPlotMap.put(node, secondaryID);
+	}
+
+	private PlotFrame plotFrame;
+	private CollectedDataNode partNode;
+
+	public PlotFrame getFrame() {
+		return plotFrame;
 	}
 
 	@Override
@@ -115,11 +108,21 @@ public class PlotView extends ViewPart {
 						&& openedPlotMap.containsKey(partNode)) {
 					openedPlotMap.remove(partNode);
 				}
-				if (partNode != null) {
-					PlotDataParser.removeIndexFromMaps(partNode.getIndex());
-				}
+				deinitialize();
 			}
 		});
+	}
+
+	private final void initialize(CollectedDataNode node) {
+		partNode = node;
+		setPartName(partNode.getName());
+		plotDataParser = new PlotDataParser(partNode);
+
+		XYSeriesCollection dataset = new XYSeriesCollection();
+		XYSeries series = new XYSeries(partNode.getName());
+		dataset.addSeries(series);
+
+		plotXY(dataset, PlotDataParser.getEnumNames(partNode));
 
 		subscriberRegistrationManager.enlistCommonSubscriber(commonSubcriber,
 				ExecutionState.EXECUTION_STARTED).enlistCommonSubscriber(
@@ -128,6 +131,12 @@ public class PlotView extends ViewPart {
 				.enlistRealTimeSubscriber(realTimeUpdateRunnable);
 		subscriberRegistrationManager.initialize();
 	}
+
+	private final void deinitialize() {
+		subscriberRegistrationManager.deinitialize();
+	}
+
+	private PlotDataParser plotDataParser;
 
 	private final boolean readyForInput() {
 		return plotFrame != null && !plotFrame.isDisposed();
@@ -139,7 +148,7 @@ public class PlotView extends ViewPart {
 			if (!readyForInput())
 				return;
 
-			final List<PlotItem> items = PlotDataParser.parseEntries(partNode);
+			final List<PlotItem> items = plotDataParser.parseEntries();
 			if (!items.isEmpty()) {
 				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame
 						.getChart().getXYPlot().getDataset();
@@ -275,26 +284,16 @@ public class PlotView extends ViewPart {
 											.get(node)),
 									IWorkbenchPage.VIEW_ACTIVATE);
 				} else {
-					XYSeriesCollection dataset = new XYSeriesCollection();
-					XYSeries series = new XYSeries(node.getName());
-					dataset.addSeries(series);
-					List<PlotItem> items = PlotDataParser.parseEntries(node);
-					for (int i = 0; i < items.size(); i++) {
-						PlotItem item = items.get(i);
-						series.add(item.x, item.y);
-					}
 					PlotView newView = (PlotView) PlatformUI
 							.getWorkbench()
 							.getActiveWorkbenchWindow()
 							.getActivePage()
 							.showView(PlotView.ID, String.valueOf(secondaryID),
 									IWorkbenchPage.VIEW_ACTIVATE);
-					newView.setName(String.valueOf(dataset.getSeriesKey(0)));
-					newView.setNode(node);
 					PlotView.addToOpenedPlotMap(node, secondaryID);
-
-					newView.plotXY(dataset, PlotDataParser.getEnumNames(node));
 					secondaryID++;
+
+					newView.initialize(node);
 				}
 			} catch (PartInitException e) {
 				e.printStackTrace();
