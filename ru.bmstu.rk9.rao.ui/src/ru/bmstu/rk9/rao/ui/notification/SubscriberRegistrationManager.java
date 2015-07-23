@@ -38,9 +38,12 @@ public class SubscriberRegistrationManager {
 
 	public final void initialize() {
 		Simulator.getSimulatorStateNotifier().addSubscriber(
-				initializationSubscriber, SimulatorState.INITIALIZED);
+				initializationSubscriber, SimulatorState.INITIALIZED, false);
 		Simulator.getSimulatorStateNotifier().addSubscriber(
-				deinitializationSubscriber, SimulatorState.DEINITIALIZED);
+				deinitializationSubscriber, SimulatorState.DEINITIALIZED, false);
+
+		if (Simulator.isInitialized())
+			initializationSubscriber.fireChange();
 	}
 
 	public final void deinitialize() {
