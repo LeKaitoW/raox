@@ -213,10 +213,10 @@ public class Game5ProjectConfigurator {
 
 	public static void parseConfig() {
 		JSONParser parser = new JSONParser();
-		JSONObject object;
 		try {
-			object = (JSONObject) parser.parse(new FileReader(workspacePath
-					.append(configIFile.getFullPath()).toString()));
+			JSONObject object = (JSONObject) parser
+					.parse(new FileReader(workspacePath.append(
+							configIFile.getFullPath()).toString()));
 			OutputStream outputStream = new FileOutputStream(modelFile, true);
 			PrintStream printStream = new PrintStream(outputStream, true,
 					StandardCharsets.UTF_8.name());
@@ -243,12 +243,9 @@ public class Game5ProjectConfigurator {
 									+ "	activity Перемещение_вверх checks Перемещение_фишки(Место_дырки.сверху,  -3).setValue%13$s(%14$s);\n"
 									+ "	activity Перемещение_вниз checks Перемещение_фишки(Место_дырки.снизу,  3).setValue%15$s(%16$s);\n"
 									+ "}\n", places.get(0), places.get(1),
-							places.get(2),
-							places.get(3),
-							places.get(4),
-							places.get(5),
-							object.get("compare"),
-							0, // need fix - heuristic number
+							places.get(2), places.get(3), places.get(4),
+							places.get(5), object.get("compare"),
+							object.get("heuristic"),
 							object.get("computeRight"),
 							object.get("costRight"), object.get("computeLeft"),
 							object.get("costLeft"), object.get("computeUp"),
@@ -257,7 +254,6 @@ public class Game5ProjectConfigurator {
 			printStream.close();
 
 		} catch (IOException | ParseException e) {
-
 			e.printStackTrace();
 		}
 	}

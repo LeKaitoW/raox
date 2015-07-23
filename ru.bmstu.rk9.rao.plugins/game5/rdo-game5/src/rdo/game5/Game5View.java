@@ -1,6 +1,14 @@
 package rdo.game5;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
@@ -29,6 +37,8 @@ import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditor;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorFactory;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorModelAccess;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import com.google.inject.Injector;
 
@@ -43,6 +53,15 @@ public class Game5View extends EditorPart {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void createPartControl(Composite parent) {
+		try {
+			JSONParser parser = new JSONParser();
+			object = (JSONObject) parser.parse(new FileReader(
+					Game5ProjectConfigurator.getConfigFilePath().toString()));
+
+		} catch (IOException | ParseException e1) {
+			e1.printStackTrace();
+		}
+
 		final GridLayout gridLayout = new GridLayout(3, false);
 		parent.setLayout(gridLayout);
 
@@ -52,6 +71,7 @@ public class Game5View extends EditorPart {
 
 		final Button solvable = new Button(solvableGroup, SWT.CHECK);
 		solvable.setText("Solvable only");
+		solvable.setSelection((boolean) object.get("solvable"));
 
 		final Button inOrder = new Button(parent, SWT.PUSH);
 		inOrder.setText("In order");
@@ -179,6 +199,7 @@ public class Game5View extends EditorPart {
 
 		final Button compareTops = new Button(traverseGraph, SWT.CHECK);
 		compareTops.setText("Compare tops");
+		compareTops.setSelection((boolean) object.get("compare"));
 
 		final Button shuffle = new Button(solvableGroup, SWT.PUSH);
 		shuffle.setText("Shuffle");
@@ -254,8 +275,6 @@ public class Game5View extends EditorPart {
 				.newEditor(resourceProvider).showErrorAndWarningAnnotations()
 				.withParent(editorGroup);
 		editor = embeddedEditor.createPartialEditor();
-
-		object = new JSONObject();
 
 		heuristicList.addSelectionListener(new SelectionListener() {
 			@Override
@@ -413,6 +432,16 @@ public class Game5View extends EditorPart {
 	@Override
 	public void doSave(IProgressMonitor arg0) {
 		setDirty(false);
+		try {
+			OutputStream outputStream = new FileOutputStream(new File(
+					Game5ProjectConfigurator.getConfigFilePath().toString()));
+			PrintStream printStream = new PrintStream(outputStream, true,
+					StandardCharsets.UTF_8.name());
+			printStream.print(object.toString());
+			printStream.close();
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
