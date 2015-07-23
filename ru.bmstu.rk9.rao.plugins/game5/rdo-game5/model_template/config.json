@@ -11,5 +11,9 @@
 	"costRight":1,
 	"costDown":1,
 	"costUp":1,
+	"enableLeft":false,
+	"enableRight":false,
+	"enableUp":false,
+	"enableDown":false,
 	"code":"",
 	}

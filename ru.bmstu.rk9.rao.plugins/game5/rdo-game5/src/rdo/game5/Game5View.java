@@ -108,7 +108,9 @@ public class Game5View extends EditorPart {
 
 		final Button leftButton = new Button(ruleCost, SWT.CHECK);
 		final Text leftCost = new Text(ruleCost, SWT.BORDER);
-		leftCost.setEnabled(false);
+		leftCost.setText(object.get("costLeft").toString());
+		leftCost.setEnabled((boolean) object.get("enableLeft"));
+		leftButton.setSelection((boolean) object.get("enableLeft"));
 
 		leftButton.addSelectionListener(new SelectionListener() {
 			@Override
@@ -137,7 +139,9 @@ public class Game5View extends EditorPart {
 
 		final Button rightButton = new Button(ruleCost, SWT.CHECK);
 		final Text rightCost = new Text(ruleCost, SWT.BORDER);
-		rightCost.setEnabled(false);
+		rightCost.setText(object.get("costRight").toString());
+		rightCost.setEnabled((boolean) object.get("enableRight"));
+		rightButton.setSelection((boolean) object.get("enableRight"));
 
 		rightButton.addSelectionListener(new SelectionListener() {
 			@Override
@@ -166,7 +170,9 @@ public class Game5View extends EditorPart {
 
 		final Button upButton = new Button(ruleCost, SWT.CHECK);
 		final Text upCost = new Text(ruleCost, SWT.BORDER);
-		upCost.setEnabled(false);
+		upCost.setText(object.get("costUp").toString());
+		upCost.setEnabled((boolean) object.get("enableUp"));
+		upButton.setSelection((boolean) object.get("enableUp"));
 
 		upButton.addSelectionListener(new SelectionListener() {
 			@Override
@@ -206,7 +212,9 @@ public class Game5View extends EditorPart {
 
 		final Button downButton = new Button(ruleCost, SWT.CHECK);
 		final Text downCost = new Text(ruleCost, SWT.BORDER);
-		downCost.setEnabled(false);
+		downCost.setText(object.get("costDown").toString());
+		downCost.setEnabled((boolean) object.get("enableDown"));
+		downButton.setSelection((boolean) object.get("enableDown"));
 
 		downButton.addSelectionListener(new SelectionListener() {
 			@Override
