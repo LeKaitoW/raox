@@ -77,7 +77,181 @@ public class GraphView extends JFrame {
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-	// ------------------------- REAL TIME OUTPUT -------------------------- //
+	// -------------------------- INITIALIZATION --------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+	public GraphView(int dptNum, int width, int height) {
+		this.setSize(width, height);
+		setAspectRatio();
+
+		this.dptNum = dptNum;
+
+		final FontRegistry fontRegistry = PlatformUI.getWorkbench()
+				.getThemeManager().getCurrentTheme().getFontRegistry();
+		final String fontName = fontRegistry.get(
+				PreferenceConstants.EDITOR_TEXT_FONT).getFontData()[0]
+				.getName();
+		font = new Font(fontName, Font.PLAIN, mxConstants.DEFAULT_FONTSIZE);
+
+		frameDimension = this.getSize();
+		setProportions(frameDimension);
+
+		treeBuilder.updateTree();
+		nodeList = treeBuilder.nodeList;
+
+		graph = new mxGraph();
+		graph.getModel().beginUpdate();
+		try {
+			drawGraph(graph, nodeList, nodeList.get(0));
+		} finally {
+			graph.getModel().endUpdate();
+		}
+
+		graphComponent = new mxGraphComponent(graph);
+		graphComponent.setConnectable(false);
+		graphComponent.zoomAndCenter();
+		getContentPane().add(graphComponent);
+
+		layout = new mxCompactTreeLayout(graph, false);
+		layout.setLevelDistance(levelDistance);
+		layout.setNodeDistance(nodeDistance);
+		layout.setEdgeRouting(false);
+		layout.execute(graph.getDefaultParent());
+
+		graph.setCellsEditable(false);
+		graph.setCellsDisconnectable(false);
+		graph.setDisconnectOnMove(false);
+		graph.setDropEnabled(false);
+		graph.setCellsResizable(false);
+		graph.setAllowDanglingEdges(false);
+
+		graph.getSelectionModel().addListener(mxEvent.CHANGE,
+				new mxIEventListener() {
+
+					private mxCell cellInfo;
+
+					@Override
+					public void invoke(Object sender, mxEventObject evt) {
+						mxGraphSelectionModel selectionModel = (mxGraphSelectionModel) sender;
+						mxCell cell = (mxCell) selectionModel.getCell();
+						if (cell != null && cell.isVertex() && cell != cellInfo) {
+							graph.getModel().beginUpdate();
+							try {
+								if (cellInfo != null)
+									cellInfo.removeFromParent();
+								cellInfo = showCellInfo(graph, cell);
+							} finally {
+								graph.getModel().endUpdate();
+							}
+						}
+					}
+				});
+
+		this.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.isControlDown() && e.getKeyChar() == '+') {
+					zoomIn(graph, layout);
+				}
+				if (e.isControlDown() && e.getKeyChar() == '-') {
+					zoomOut(graph, layout);
+				}
+				if (e.isControlDown() && e.getKeyChar() != 'z'
+						&& e.getKeyCode() == 90) {
+					Dimension frameDimension = getSize();
+					Object[] cells = vertexMap.values().toArray();
+					mxRectangle graphBounds = graph.getBoundsForCells(cells,
+							false, false, false);
+					while ((graphBounds.getWidth() >= frameDimension.getWidth())
+							&& (nodeWidth > minNodeWidth)) {
+						zoomToFit(graph, layout, graphComponent);
+					}
+				}
+			}
+		});
+
+		subscriberRegistrationManager.enlistCommonSubscriber(commonSubscriber,
+				ExecutionState.EXECUTION_STARTED).enlistCommonSubscriber(
+				commonSubscriber, ExecutionState.EXECUTION_COMPLETED);
+		subscriberRegistrationManager
+				.enlistRealTimeSubscriber(realTimeUpdaterRunnable);
+		subscriberRegistrationManager.initialize();
+	}
+
+	private final TreeBuilder treeBuilder = new TreeBuilder();
+
+	public final void deinitialize() {
+		subscriberRegistrationManager.deinitialize();
+	}
+
+	final mxGraph graph;
+	List<Node> nodeList;
+	final int dptNum;
+	final mxCompactTreeLayout layout;
+	final mxGraphComponent graphComponent;
+
+	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
+
+	private final Subscriber commonSubscriber = new Subscriber() {
+		@Override
+		public void fireChange() {
+			treeBuilder.updateTree();
+			graph.getModel().beginUpdate();
+			try {
+				isFinished = treeBuilder.dptSimulationInfo.isFinished;
+				if (isFinished) {
+					graph.getModel().beginUpdate();
+					try {
+						GraphInfo info = treeBuilder.graphInfo;
+						List<Node> solution = treeBuilder.solutionList;
+						colorNodes(vertexMap, nodeList, solution);
+						insertInfo(graph, info);
+					} finally {
+						graph.getModel().endUpdate();
+					}
+					graph.refresh();
+				}
+			} finally {
+				graph.getModel().endUpdate();
+			}
+		}
+	};
+
+	private final Runnable realTimeUpdaterRunnable = new Runnable() {
+		@Override
+		public void run() {
+			graph.getModel().beginUpdate();
+			treeBuilder.updateTree();
+			try {
+				drawNewVertex(graph, nodeList, dptNum);
+
+				Dimension frameDimension = getSize();
+				Object[] cells = vertexMap.values().toArray();
+				mxRectangle graphBounds = graph.getBoundsForCells(cells, false,
+						false, false);
+				if (graphBounds.getWidth() > frameDimension.getWidth()) {
+					layout.setMoveTree(true);
+					zoomToFit(graph, layout, graphComponent);
+					graph.refresh();
+				} else {
+					layout.execute(graph.getDefaultParent());
+				}
+			} finally {
+				graph.getModel().endUpdate();
+			}
+		}
+	};
+
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// --------------------------- VISUALISATION --------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	final Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
@@ -381,175 +555,6 @@ public class GraphView extends JFrame {
 		resizeGraph(graph, layout);
 	}
 
-	public GraphView(int dptNum, int width, int height) {
-		this.setSize(width, height);
-		setAspectRatio();
-
-		this.dptNum = dptNum;
-
-		final FontRegistry fontRegistry = PlatformUI.getWorkbench()
-				.getThemeManager().getCurrentTheme().getFontRegistry();
-		final String fontName = fontRegistry.get(
-				PreferenceConstants.EDITOR_TEXT_FONT).getFontData()[0]
-				.getName();
-		font = new Font(fontName, Font.PLAIN, mxConstants.DEFAULT_FONTSIZE);
-
-		frameDimension = this.getSize();
-		setProportions(frameDimension);
-
-		treeBuilder.updateTree();
-		nodeList = treeBuilder.nodeList;
-
-		graph = new mxGraph();
-		graph.getModel().beginUpdate();
-		try {
-			drawGraph(graph, nodeList, nodeList.get(0));
-		} finally {
-			graph.getModel().endUpdate();
-		}
-
-		graphComponent = new mxGraphComponent(graph);
-		graphComponent.setConnectable(false);
-		graphComponent.zoomAndCenter();
-		getContentPane().add(graphComponent);
-
-		layout = new mxCompactTreeLayout(graph, false);
-		layout.setLevelDistance(levelDistance);
-		layout.setNodeDistance(nodeDistance);
-		layout.setEdgeRouting(false);
-		layout.execute(graph.getDefaultParent());
-
-		graph.setCellsEditable(false);
-		graph.setCellsDisconnectable(false);
-		graph.setDisconnectOnMove(false);
-		graph.setDropEnabled(false);
-		graph.setCellsResizable(false);
-		graph.setAllowDanglingEdges(false);
-
-		graph.getSelectionModel().addListener(mxEvent.CHANGE,
-				new mxIEventListener() {
-
-					private mxCell cellInfo;
-
-					@Override
-					public void invoke(Object sender, mxEventObject evt) {
-						mxGraphSelectionModel selectionModel = (mxGraphSelectionModel) sender;
-						mxCell cell = (mxCell) selectionModel.getCell();
-						if (cell != null && cell.isVertex() && cell != cellInfo) {
-							graph.getModel().beginUpdate();
-							try {
-								if (cellInfo != null)
-									cellInfo.removeFromParent();
-								cellInfo = showCellInfo(graph, cell);
-							} finally {
-								graph.getModel().endUpdate();
-							}
-						}
-					}
-				});
-
-		this.addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.isControlDown() && e.getKeyChar() == '+') {
-					zoomIn(graph, layout);
-				}
-				if (e.isControlDown() && e.getKeyChar() == '-') {
-					zoomOut(graph, layout);
-				}
-				if (e.isControlDown() && e.getKeyChar() != 'z'
-						&& e.getKeyCode() == 90) {
-					Dimension frameDimension = getSize();
-					Object[] cells = vertexMap.values().toArray();
-					mxRectangle graphBounds = graph.getBoundsForCells(cells,
-							false, false, false);
-					while ((graphBounds.getWidth() >= frameDimension.getWidth())
-							&& (nodeWidth > minNodeWidth)) {
-						zoomToFit(graph, layout, graphComponent);
-					}
-				}
-			}
-		});
-
-		subscriberRegistrationManager.enlistCommonSubscriber(commonSubscriber,
-				ExecutionState.EXECUTION_STARTED).enlistCommonSubscriber(
-				commonSubscriber, ExecutionState.EXECUTION_COMPLETED);
-		subscriberRegistrationManager
-				.enlistRealTimeSubscriber(realTimeUpdaterRunnable);
-		subscriberRegistrationManager.initialize();
-	}
-
-	private final TreeBuilder treeBuilder = new TreeBuilder();
-
-	public final void deinitialize() {
-		subscriberRegistrationManager.deinitialize();
-	}
-
-	final mxGraph graph;
-	List<Node> nodeList;
-	final int dptNum;
-	final mxCompactTreeLayout layout;
-	final mxGraphComponent graphComponent;
-
-	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
-
-	private final Subscriber commonSubscriber = new Subscriber() {
-		@Override
-		public void fireChange() {
-			treeBuilder.updateTree();
-			graph.getModel().beginUpdate();
-			try {
-				isFinished = treeBuilder.dptSimulationInfo.isFinished;
-				if (isFinished) {
-					graph.getModel().beginUpdate();
-					try {
-						GraphInfo info = treeBuilder.graphInfo;
-						List<Node> solution = treeBuilder.solutionList;
-						colorNodes(vertexMap, nodeList, solution);
-						insertInfo(graph, info);
-					} finally {
-						graph.getModel().endUpdate();
-					}
-					graph.refresh();
-				}
-			} finally {
-				graph.getModel().endUpdate();
-			}
-		}
-	};
-
-	private final Runnable realTimeUpdaterRunnable = new Runnable() {
-		@Override
-		public void run() {
-			graph.getModel().beginUpdate();
-			treeBuilder.updateTree();
-			try {
-				drawNewVertex(graph, nodeList, dptNum);
-
-				Dimension frameDimension = getSize();
-				Object[] cells = vertexMap.values().toArray();
-				mxRectangle graphBounds = graph.getBoundsForCells(cells, false,
-						false, false);
-				if (graphBounds.getWidth() > frameDimension.getWidth()) {
-					layout.setMoveTree(true);
-					zoomToFit(graph, layout, graphComponent);
-					graph.refresh();
-				} else {
-					layout.execute(graph.getDefaultParent());
-				}
-			} finally {
-				graph.getModel().endUpdate();
-			}
-		}
-	};
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 	// ----------------------- RELATIVE COORINATES ------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
