@@ -24,8 +24,6 @@ public class GraphControl {
 		}
 	}
 
-	public static final TreeBuilder treeBuilder = new TreeBuilder();
-
 	private static void createFrameWindow(FrameInfo frameInfo) {
 		monitorBounds = PlatformUI.getWorkbench().getDisplay().getBounds();
 		monitorAspectRatio = (double) monitorBounds.width
@@ -33,8 +31,6 @@ public class GraphControl {
 
 		int dptNum = frameInfo.dptNumber;
 		String frameName = frameInfo.frameName;
-
-		treeBuilder.updateTree();
 
 		int frameWidth = setWidth(monitorBounds, 1.2);
 		int frameHeight = setHeight(monitorBounds, 0.8);

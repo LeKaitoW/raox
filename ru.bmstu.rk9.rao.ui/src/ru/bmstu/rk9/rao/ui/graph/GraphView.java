@@ -9,7 +9,6 @@ import java.awt.event.KeyListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimerTask;
 
 import javax.swing.JFrame;
 
@@ -120,29 +119,25 @@ public class GraphView extends JFrame {
 	private int lastAddedVertexIndex = 0;
 
 	private void drawNewVertex(mxGraph graph, List<Node> nodeList, int dptNum) {
-		GraphControl.treeBuilder.rwLock.readLock().lock();
-		try {
-			int lastAddedNodeIndex = GraphControl.treeBuilder
-					.getLastAddedNodeIndexMap().get(dptNum);
-			for (int i = lastAddedVertexIndex; i <= lastAddedNodeIndex; i++) {
-				Node node = nodeList.get(i);
-				if (!vertexMap.containsKey(node)) {
-					mxCell vertex = (mxCell) graph.insertVertex(
-							graph.getDefaultParent(), null, node,
-							getAbsoluteX(0.5), getAbsoluteY(0.05), nodeWidth,
-							nodeHeight, fontColor + strokeColor);
-					vertexMap.put(node, vertex);
-					lastAddedVertexIndex = node.index;
-					updateTypicalDimensions(node);
-					if (node.parent != null)
-						graph.insertEdge(graph.getDefaultParent(), null, null,
-								vertexMap.get(node.parent),
-								vertexMap.get(node), strokeColor);
-				}
+
+		int lastAddedNodeIndex = treeBuilder.lastAddedNodeIndex;
+		for (int i = lastAddedVertexIndex; i <= lastAddedNodeIndex; i++) {
+			Node node = nodeList.get(i);
+			if (!vertexMap.containsKey(node)) {
+				mxCell vertex = (mxCell) graph.insertVertex(
+						graph.getDefaultParent(), null, node,
+						getAbsoluteX(0.5), getAbsoluteY(0.05), nodeWidth,
+						nodeHeight, fontColor + strokeColor);
+				vertexMap.put(node, vertex);
+				lastAddedVertexIndex = node.index;
+				updateTypicalDimensions(node);
+				if (node.parent != null)
+					graph.insertEdge(graph.getDefaultParent(), null, null,
+							vertexMap.get(node.parent), vertexMap.get(node),
+							strokeColor);
 			}
-		} finally {
-			GraphControl.treeBuilder.rwLock.readLock().unlock();
 		}
+
 	}
 
 	final Font font;
@@ -197,18 +192,6 @@ public class GraphView extends JFrame {
 		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null,
 				text, setWidth(frameDimension, 1) - width - (delta), delta,
 				width, height);
-	}
-
-	private TimerTask graphFrameUpdateTimerTask;
-
-	public TimerTask getGraphFrameUpdateTimerTask() {
-		return graphFrameUpdateTimerTask;
-	}
-
-	private TimerTask graphFrameFinTimerTask;
-
-	public TimerTask getGraphFrameFinTimerTask() {
-		return graphFrameFinTimerTask;
 	}
 
 	boolean isFinished = false;
@@ -414,12 +397,8 @@ public class GraphView extends JFrame {
 		frameDimension = this.getSize();
 		setProportions(frameDimension);
 
-		GraphControl.treeBuilder.rwLock.readLock().lock();
-		try {
-			nodeList = GraphControl.treeBuilder.listMap.get(dptNum);
-		} finally {
-			GraphControl.treeBuilder.rwLock.readLock().unlock();
-		}
+		treeBuilder.updateTree();
+		nodeList = treeBuilder.nodeList;
 
 		graph = new mxGraph();
 		graph.getModel().beginUpdate();
@@ -508,6 +487,8 @@ public class GraphView extends JFrame {
 		subscriberRegistrationManager.initialize();
 	}
 
+	private final TreeBuilder treeBuilder = new TreeBuilder();
+
 	public final void deinitialize() {
 		subscriberRegistrationManager.deinitialize();
 	}
@@ -523,19 +504,15 @@ public class GraphView extends JFrame {
 	private final Subscriber commonSubscriber = new Subscriber() {
 		@Override
 		public void fireChange() {
-			GraphControl.treeBuilder.updateTree();
+			treeBuilder.updateTree();
 			graph.getModel().beginUpdate();
-			GraphControl.treeBuilder.rwLock.readLock().lock();
 			try {
-				isFinished = GraphControl.treeBuilder.dptSimulationInfoMap
-						.get(dptNum).isFinished;
+				isFinished = treeBuilder.dptSimulationInfo.isFinished;
 				if (isFinished) {
 					graph.getModel().beginUpdate();
 					try {
-						GraphInfo info = GraphControl.treeBuilder.infoMap
-								.get(dptNum);
-						List<Node> solution = GraphControl.treeBuilder.solutionMap
-								.get(dptNum);
+						GraphInfo info = treeBuilder.graphInfo;
+						List<Node> solution = treeBuilder.solutionList;
 						colorNodes(vertexMap, nodeList, solution);
 						insertInfo(graph, info);
 					} finally {
@@ -544,7 +521,6 @@ public class GraphView extends JFrame {
 					graph.refresh();
 				}
 			} finally {
-				GraphControl.treeBuilder.rwLock.readLock().unlock();
 				graph.getModel().endUpdate();
 			}
 		}
@@ -554,7 +530,7 @@ public class GraphView extends JFrame {
 		@Override
 		public void run() {
 			graph.getModel().beginUpdate();
-			GraphControl.treeBuilder.updateTree();
+			treeBuilder.updateTree();
 			try {
 				drawNewVertex(graph, nodeList, dptNum);
 
