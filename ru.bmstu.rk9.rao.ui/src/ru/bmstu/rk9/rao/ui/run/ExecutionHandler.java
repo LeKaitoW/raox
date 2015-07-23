@@ -109,8 +109,6 @@ public class ExecutionHandler extends AbstractHandler {
 						if (job != this)
 							job.join();
 
-					this.setName(name);
-
 					this.setName(name + " (waiting for build to complete)");
 
 					build.join();

@@ -85,16 +85,8 @@ public class SimulationSynchronizer {
 			if (currentTime - lastUpdateTime > 50) {
 				lastUpdateTime = currentTime;
 				if (!display.isDisposed())
-					display.asyncExec(getUpdater());
+					display.asyncExec(updater);
 			}
-		}
-
-		public Runnable getUpdater() {
-			return updater;
-		}
-
-		public void setUpdater(Runnable updater) {
-			this.updater = updater;
 		}
 	}
 
@@ -138,9 +130,7 @@ public class SimulationSynchronizer {
 				if (currentSimulationTime != 0) {
 					switch (executionMode) {
 					case PAUSE:
-
 						processPause();
-
 						break;
 
 					case NORMAL_SPEED:
@@ -158,7 +148,6 @@ public class SimulationSynchronizer {
 						} else
 							uiTimeUpdater.actualTimeScale = ((double) (currentRealTime - startRealTime))
 									/ currentSimulationTime;
-
 						break;
 
 					default:
