@@ -8,7 +8,12 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -52,9 +57,21 @@ public class Game5View extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		try {
-			JSONParser parser = new JSONParser();
-			object = (JSONObject) parser.parse(new FileReader(
-					Game5ProjectConfigurator.getConfigFilePath().toString()));
+			final IStructuredSelection selection = (IStructuredSelection) PlatformUI
+					.getWorkbench().getActiveWorkbenchWindow()
+					.getSelectionService().getSelection();
+			final Object element = selection.getFirstElement();
+			IFile configIFile = null;
+
+			if (element instanceof IAdaptable)
+				configIFile = (IFile) ((IAdaptable) element)
+						.getAdapter(IFile.class);
+
+			final JSONParser parser = new JSONParser();
+			final IPath workspacePath = ResourcesPlugin.getWorkspace()
+					.getRoot().getLocation();
+			object = (JSONObject) parser.parse(new FileReader(workspacePath
+					.append(configIFile.getFullPath()).toString()));
 
 		} catch (IOException | ParseException e1) {
 			e1.printStackTrace();
