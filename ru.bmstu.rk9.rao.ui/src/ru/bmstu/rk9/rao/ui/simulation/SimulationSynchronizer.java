@@ -48,8 +48,10 @@ public class SimulationSynchronizer {
 						ExecutionState.STATE_CHANGED)
 				.enlistCommonSubscriber(simulationManager.speedManager,
 						ExecutionState.SEARCH_STEP)
-				.enlistCommonSubscriber(simulationStateListener,
-						ExecutionState.EXECUTION_ABORTED);
+				.enlistCommonSubscriber(executionAbortedListener,
+						ExecutionState.EXECUTION_ABORTED)
+				.enlistCommonSubscriber(executionStartedListener,
+						ExecutionState.EXECUTION_STARTED);
 		subscriberRegistrationManager.initialize();
 	}
 
@@ -94,10 +96,17 @@ public class SimulationSynchronizer {
 
 	private volatile boolean simulationAborted;
 
-	public class SimulationStateListener implements Subscriber {
+	public class ExecutionAbortedListener implements Subscriber {
 		@Override
 		public void fireChange() {
 			SimulationSynchronizer.this.simulationAborted = true;
+		}
+	}
+
+	public class ExecutionStartedListener implements Subscriber {
+		@Override
+		public void fireChange() {
+			SimulationSynchronizer.this.simulationAborted = false;
 		}
 	}
 
@@ -218,5 +227,6 @@ public class SimulationSynchronizer {
 
 	public final UITimeUpdater uiTimeUpdater = new UITimeUpdater();
 	public final SimulationManager simulationManager = new SimulationManager();
-	public final SimulationStateListener simulationStateListener = new SimulationStateListener();
+	public final ExecutionAbortedListener executionAbortedListener = new ExecutionAbortedListener();
+	public final ExecutionStartedListener executionStartedListener = new ExecutionStartedListener();
 }
