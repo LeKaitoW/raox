@@ -121,6 +121,7 @@ public class Game5View extends EditorPart {
 				} else {
 					leftCost.setEnabled(false);
 				}
+				object.put("enableLeft", leftButton.getSelection());
 			}
 
 			@Override
@@ -152,6 +153,7 @@ public class Game5View extends EditorPart {
 				} else {
 					rightCost.setEnabled(false);
 				}
+				object.put("enableRight", rightButton.getSelection());
 			}
 
 			@Override
@@ -183,6 +185,7 @@ public class Game5View extends EditorPart {
 				} else {
 					upCost.setEnabled(false);
 				}
+				object.put("enableUp", upButton.getSelection());
 			}
 
 			@Override
@@ -224,6 +227,7 @@ public class Game5View extends EditorPart {
 					downCost.setEnabled(true);
 				} else
 					downCost.setEnabled(false);
+				object.put("enableDown", downButton.getSelection());
 			}
 
 			@Override
@@ -282,7 +286,8 @@ public class Game5View extends EditorPart {
 		final EmbeddedEditor embeddedEditor = factory
 				.newEditor(resourceProvider).showErrorAndWarningAnnotations()
 				.withParent(editorGroup);
-		editor = embeddedEditor.createPartialEditor();
+		editor = embeddedEditor.createPartialEditor("", object.get("code")
+				.toString(), "", false);
 
 		heuristicList.addSelectionListener(new SelectionListener() {
 			@Override
@@ -437,9 +442,11 @@ public class Game5View extends EditorPart {
 	public void setFocus() {
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void doSave(IProgressMonitor arg0) {
 		setDirty(false);
+		object.put("code", editor.getEditablePart());
 		try {
 			OutputStream outputStream = new FileOutputStream(new File(
 					Game5ProjectConfigurator.getConfigFilePath().toString()));
