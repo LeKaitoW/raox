@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,7 @@ public class Game5ProjectConfigurator {
 	private static IFile configIFile;
 	private static IPath configIPath;
 	private static File modelFile;
+	private static String modelName;
 	private static InputStream inputStream;
 	private static final String modelTemplatePath = "/model_template/game_5.rao";
 	private static final String configFilePath = "/model_template/config.json";
@@ -107,7 +109,7 @@ public class Game5ProjectConfigurator {
 
 	public static void createModelFile() {
 
-		final String modelName = ModelNameView.getName() + ".rao";
+		modelName = ModelNameView.getName() + ".rao";
 		modelIPath = workspacePath.append(game5Project.getFullPath()).append(
 				modelName);
 		modelFile = new File(modelIPath.toString());
@@ -116,6 +118,7 @@ public class Game5ProjectConfigurator {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+
 		modelIFile = game5Project.getFile(modelName);
 		try {
 			inputStream = Game5ProjectConfigurator.class.getClassLoader()
@@ -171,9 +174,7 @@ public class Game5ProjectConfigurator {
 		return game5Project;
 	}
 
-	@SuppressWarnings("restriction")
-	public static final void addHeuristicCode() throws IOException {
-
+	public static final void fillModelFile() throws IOException {
 		inputStream = Game5ProjectConfigurator.class.getClassLoader()
 				.getResourceAsStream(modelTemplatePath);
 		OutputStream outputStream = null;
@@ -194,13 +195,12 @@ public class Game5ProjectConfigurator {
 				modelTemplateCode = bufferedReader.readLine();
 			}
 
-			printStream.println();
-			printStream.println(Game5View.getEditor().getEditablePart());
 			printStream.close();
 
 			Game5ProjectConfigurator.getProject().refreshLocal(
 					IResource.DEPTH_INFINITE, null);
-		} catch (FileNotFoundException | CoreException e) {
+		} catch (FileNotFoundException | CoreException
+				| UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} finally {
 			inputStream.close();
@@ -209,6 +209,7 @@ public class Game5ProjectConfigurator {
 				outputStream.close();
 			}
 		}
+		parseConfig();
 	}
 
 	public static void parseConfig() {
@@ -242,15 +243,15 @@ public class Game5ProjectConfigurator {
 									+ "	activity Перемещение_влево checks Перемещение_фишки(Место_дырки.слева,  -1).setValue%11$s(%12$s);\n"
 									+ "	activity Перемещение_вверх checks Перемещение_фишки(Место_дырки.сверху,  -3).setValue%13$s(%14$s);\n"
 									+ "	activity Перемещение_вниз checks Перемещение_фишки(Место_дырки.снизу,  3).setValue%15$s(%16$s);\n"
-									+ "}\n", places.get(0), places.get(1),
-							places.get(2), places.get(3), places.get(4),
-							places.get(5), object.get("compare"),
-							object.get("heuristic"),
+									+ "}\n" + "\n" + "%17$s\n", places.get(0),
+							places.get(1), places.get(2), places.get(3),
+							places.get(4), places.get(5),
+							object.get("compare"), object.get("heuristic"),
 							object.get("computeRight"),
 							object.get("costRight"), object.get("computeLeft"),
 							object.get("costLeft"), object.get("computeUp"),
 							object.get("costUp"), object.get("computeDown"),
-							object.get("costDown")));
+							object.get("costDown"), object.get("code")));
 			printStream.close();
 
 		} catch (IOException | ParseException e) {

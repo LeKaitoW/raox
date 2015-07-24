@@ -23,4 +23,4 @@ Require-Bundle: org.eclipse.ui,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
- model_template/json-simple-1.1.1.jar
+ third-party/json-simple-1.1.1.jar

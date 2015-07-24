@@ -1,13 +1,11 @@
 package rdo.game5;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -425,11 +423,6 @@ public class Game5View extends EditorPart {
 		simulationButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				try {
-					Game5ProjectConfigurator.addHeuristicCode();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
 			}
 
 			@Override
@@ -454,7 +447,8 @@ public class Game5View extends EditorPart {
 					StandardCharsets.UTF_8.name());
 			printStream.print(object.toString());
 			printStream.close();
-		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			Game5ProjectConfigurator.fillModelFile();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
