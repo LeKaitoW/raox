@@ -207,13 +207,4 @@ public class Simulator {
 		isRunning = false;
 		return code;
 	}
-
-	public static final void notifyError() {
-		simulatorStateNotifier.notifySubscribers(SimulatorState.DEINITIALIZED);
-		if (INSTANCE != null) {
-			INSTANCE.executionStateNotifier
-					.notifySubscribers(ExecutionState.EXECUTION_COMPLETED);
-			INSTANCE = null;
-		}
-	}
 }

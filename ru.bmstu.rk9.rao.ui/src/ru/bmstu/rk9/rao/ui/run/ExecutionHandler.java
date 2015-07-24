@@ -215,8 +215,6 @@ public class ExecutionHandler extends AbstractHandler {
 							e1.printStackTrace();
 						}
 
-					Simulator.notifyError();
-
 					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
 							"Execution failed");
 				}
