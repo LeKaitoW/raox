@@ -19,13 +19,10 @@ public class Simulator {
 
 	public static synchronized void initSimulation(JSONObject modelStructure) {
 		if (isRunning)
-			return;
+			throw new SimulatorException("Simulation is already initialized");
 
-		if (INSTANCE != null) {
-			simulatorState = SimulatorState.DEINITIALIZED;
-			simulatorStateNotifier
-					.notifySubscribers(SimulatorState.DEINITIALIZED);
-		}
+		if (INSTANCE != null)
+			setSimulationState(SimulatorState.DEINITIALIZED);
 
 		INSTANCE = new Simulator();
 
@@ -35,8 +32,7 @@ public class Simulator {
 		INSTANCE.database = new Database(modelStructure);
 		INSTANCE.modelStructureCache = new ModelStructureCache();
 
-		simulatorState = SimulatorState.INITIALIZED;
-		simulatorStateNotifier.notifySubscribers(SimulatorState.INITIALIZED);
+		setSimulationState(SimulatorState.INITIALIZED);
 	}
 
 	private static SimulatorState simulatorState = SimulatorState.DEINITIALIZED;
@@ -44,6 +40,11 @@ public class Simulator {
 	public enum SimulatorState {
 		INITIALIZED, DEINITIALIZED
 	};
+
+	private static final void setSimulationState(SimulatorState simulationState) {
+		Simulator.simulatorState = simulationState;
+		simulatorStateNotifier.notifySubscribers(simulationState);
+	}
 
 	private static final Notifier<SimulatorState> simulatorStateNotifier = new Notifier<SimulatorState>(
 			SimulatorState.class);

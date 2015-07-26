@@ -144,6 +144,12 @@ public class SerializedObjectsView extends ViewPart {
 	}
 
 	@Override
+	public void dispose() {
+		subscriberRegistrationManager.deinitialize();
+		super.dispose();
+	}
+
+	@Override
 	public void setFocus() {
 	}
 
@@ -190,12 +196,6 @@ public class SerializedObjectsView extends ViewPart {
 	};
 
 	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
-
-	@Override
-	public void dispose() {
-		subscriberRegistrationManager.deinitialize();
-		super.dispose();
-	}
 }
 
 class RaoSerializedObjectsContentProvider implements ITreeContentProvider {

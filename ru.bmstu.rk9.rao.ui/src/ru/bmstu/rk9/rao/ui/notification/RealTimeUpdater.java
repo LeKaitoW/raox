@@ -56,8 +56,8 @@ public class RealTimeUpdater {
 					display.asyncExec(action);
 			}
 		};
-		timer.scheduleAtFixedRate(timerTask, delay, period);
-		this.paused = (SimulationModeDispatcher.getMode() == ExecutionMode.PAUSE);
+		timer.scheduleAtFixedRate(timerTask, delayMsec, periodMsec);
+		paused = (SimulationModeDispatcher.getMode() == ExecutionMode.PAUSE);
 	}
 
 	private final void stop() {
@@ -97,8 +97,8 @@ public class RealTimeUpdater {
 	private Timer timer = null;
 	private TimerTask timerTask = null;
 
-	private final long delay = 0;
-	private final long period = 40;
+	private final long delayMsec = 0;
+	private final long periodMsec = 1000 / 25;
 
 	private boolean paused = true;
 

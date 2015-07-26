@@ -23,8 +23,8 @@ public class SimulationSynchronizer {
 				if (executionMode.type.equals(type))
 					return executionMode;
 			}
-			throw new SimulationSynchronizerException(
-					"Unknown simulation mode: " + type);
+			throw new SimulationComponentsException("Unknown simulation mode: "
+					+ type);
 		}
 
 		public String getString() {
@@ -39,6 +39,10 @@ public class SimulationSynchronizer {
 		setSimulationSpeed(SpeedSelectionToolbar.getSpeed());
 		setExecutionMode(SimulationModeDispatcher.getMode());
 		simulationAborted = false;
+		initialize();
+	}
+
+	private final void initialize() {
 		subscriberRegistrationManager
 				.enlistCommonSubscriber(uiTimeUpdater,
 						ExecutionState.TIME_CHANGED)

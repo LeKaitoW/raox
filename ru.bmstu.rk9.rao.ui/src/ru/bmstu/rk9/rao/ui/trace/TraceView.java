@@ -180,6 +180,12 @@ public class TraceView extends ViewPart {
 		subscriberRegistrationManager.initialize();
 	}
 
+	@Override
+	public void dispose() {
+		subscriberRegistrationManager.deinitialize();
+		super.dispose();
+	}
+
 	private final void configureToolbar() {
 		IToolBarManager toolbarMgr = getViewSite().getActionBars()
 				.getToolBarManager();
@@ -401,12 +407,6 @@ public class TraceView extends ViewPart {
 	}
 
 	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
-
-	@Override
-	public void dispose() {
-		subscriberRegistrationManager.deinitialize();
-		super.dispose();
-	}
 }
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

@@ -15,8 +15,7 @@ import ru.bmstu.rk9.rao.lib.resource.ModelState;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 
-public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
-		implements Subscriber {
+public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint {
 	private DecisionPoint.Condition terminate;
 
 	private DatabaseRetriever<T> retriever;
@@ -34,7 +33,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 		this.retriever = retriever;
 		this.compareTops = compareTops;
 
-		Simulator.getSimulatorStateNotifier().addSubscriber(this,
+		Simulator.getSimulatorStateNotifier().addSubscriber(simulatorInitializedSubscriber,
 				Simulator.SimulatorState.INITIALIZED);
 	}
 
@@ -118,13 +117,16 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 		}
 	};
 
-	private volatile boolean allowSearch = true;
+	private final Subscriber simulatorInitializedSubscriber = new Subscriber() {
+		@Override
+		public void fireChange() {
+			allowSearch = true;
+			Simulator.getExecutionStateNotifier().addSubscriber(executionAbortedListener,
+					Simulator.ExecutionState.EXECUTION_ABORTED);
+		}
+	};
 
-	@Override
-	public void fireChange() {
-		Simulator.getExecutionStateNotifier().addSubscriber(executionAbortedListener,
-				Simulator.ExecutionState.EXECUTION_ABORTED);
-	}
+	private volatile boolean allowSearch = false;
 
 	private GraphNode head;
 	private GraphNode current;

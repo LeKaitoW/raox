@@ -196,6 +196,12 @@ public class StatusView extends ViewPart {
 		subscriberRegistrationManager.initialize();
 	}
 
+	@Override
+	public void dispose() {
+		subscriberRegistrationManager.deinitialize();
+		super.dispose();
+	}
+
 	private void updateScrolledCompositeSize() {
 		int h = 0, v = 0;
 		for (Element e : controls.values()) {
@@ -245,10 +251,4 @@ public class StatusView extends ViewPart {
 	}
 
 	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
-
-	@Override
-	public void dispose() {
-		subscriberRegistrationManager.deinitialize();
-		super.dispose();
-	}
 }

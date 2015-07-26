@@ -4,23 +4,27 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Notifier<Category extends Enum<Category>> {
-	private final Map<Category, Subscription> subscriptions;
-	private final Map<Category, Boolean> hadNotifications;
+
+	private class SubscriptionState {
+		private final Subscription subscription = new Subscription();
+		private boolean hadNotifications = false;
+	}
+	private final Map<Category, SubscriptionState> subscriptionStates;
 
 	public Notifier(Class<Category> enumClass) {
-		subscriptions = new ConcurrentHashMap<Category, Subscription>();
-		hadNotifications = new ConcurrentHashMap<Category, Boolean>();
+		subscriptionStates = new ConcurrentHashMap<Category, SubscriptionState>();
 
 		for (Category category : enumClass.getEnumConstants()) {
-			subscriptions.put(category, new Subscription());
-			hadNotifications.put(category, false);
+			subscriptionStates.put(category, new SubscriptionState());
 		}
 	}
 
 	public void notifySubscribers(Category category) {
-		for (Subscriber subscriber : subscriptions.get(category).subscribers)
+		SubscriptionState subscriptionState = subscriptionStates.get(category);
+
+		for (Subscriber subscriber : subscriptionState.subscription.subscribers)
 			subscriber.fireChange();
-		hadNotifications.put(category, true);
+		subscriptionState.hadNotifications = true;
 	}
 
 	public void addSubscriber(Subscriber subscriber, Category category) {
@@ -28,13 +32,15 @@ public class Notifier<Category extends Enum<Category>> {
 	}
 
 	public void addSubscriber(Subscriber subscriber, Category category,
-			boolean notifeAboutOldData) {
-		subscriptions.get(category).addSubscriber(subscriber);
-		if (notifeAboutOldData && hadNotifications.get(category))
+			boolean notifeAboutAccumulatedData) {
+		SubscriptionState subscriptionState = subscriptionStates.get(category);
+
+		subscriptionState.subscription.addSubscriber(subscriber);
+		if (notifeAboutAccumulatedData && subscriptionState.hadNotifications)
 			subscriber.fireChange();
 	}
 
 	public void removeSubscriber(Subscriber subscriber, Category category) {
-		subscriptions.get(category).removeSubscriber(subscriber);
+		subscriptionStates.get(category).subscription.removeSubscriber(subscriber);
 	}
 }

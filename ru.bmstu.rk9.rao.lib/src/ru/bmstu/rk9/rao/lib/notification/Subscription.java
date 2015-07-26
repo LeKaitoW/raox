@@ -9,11 +9,15 @@ class Subscription {
 			.newSetFromMap(new ConcurrentHashMap<Subscriber, Boolean>());
 
 	Subscription addSubscriber(Subscriber subscriber) {
-		subscribers.add(subscriber);
+		if (!subscribers.add(subscriber))
+			throw new NotifierException("Cannot add subscriber" + subscriber
+					+ ", it is already present in subscription");
 		return this;
 	}
 
 	void removeSubscriber(Subscriber subscriber) {
-		subscribers.remove(subscriber);
+		if (!subscribers.remove(subscriber))
+			throw new NotifierException("Cannot remove subscriber" + subscriber
+					+ ", it is not present in subscription");
 	}
 }

@@ -97,7 +97,7 @@ public class AnimationView extends ViewPart {
 	}
 
 	public static void initialize(java.util.List<AnimationFrame> frames) {
-		isRunning = true;
+		isInitialized = true;
 		selectedFrameIndex = 0;
 
 		animationContext = new AnimationContextSWT(PlatformUI.getWorkbench()
@@ -109,8 +109,8 @@ public class AnimationView extends ViewPart {
 			initializeFrames();
 
 		ExecutionMode currentMode = SimulationModeDispatcher.getMode();
-		disableAnimation(currentMode == ExecutionMode.NO_ANIMATION ? true
-				: false);
+		enableAnimation(currentMode == ExecutionMode.NO_ANIMATION ? false
+				: true);
 	}
 
 	public static void deinitialize() {
@@ -118,22 +118,22 @@ public class AnimationView extends ViewPart {
 			for (AnimationFrame frame : frames)
 				animationContext.prepareFrame(frame);
 
-		isRunning = false;
+		isInitialized = false;
 
 		if (isInitialized())
 			frameView.redraw();
 	}
 
-	private static volatile boolean noAnimation = false;
+	private static volatile boolean animationEnabled = true;
 
-	public static void disableAnimation(boolean state) {
-		noAnimation = state;
+	public static void enableAnimation(boolean state) {
+		animationEnabled = !state;
 	}
 
 	public static final Runnable realTimeUpdateRunnable = new Runnable() {
 		@Override
 		public void run() {
-			if (isInitialized() && !noAnimation) {
+			if (isInitialized() && animationEnabled) {
 				animationContext.prepareFrame(currentFrame);
 				frameView.redraw();
 			}
@@ -144,7 +144,7 @@ public class AnimationView extends ViewPart {
 		@Override
 		public void paintControl(PaintEvent e) {
 			if (canDraw()) {
-				if (!(noAnimation && isRunning))
+				if (animationEnabled || !isInitialized)
 					animationContext.drawFrame(e.gc, currentFrame);
 			}
 		}
@@ -191,7 +191,7 @@ public class AnimationView extends ViewPart {
 				.getCommand("ru.bmstu.rk9.rao.ui.runtime.setExecutionMode");
 		State state = command.getState("org.eclipse.ui.commands.radioState");
 
-		noAnimation = state.getValue().equals("NA");
+		animationEnabled = !state.getValue().equals("NA");
 
 		AnimationView.parent = parent;
 
@@ -259,7 +259,7 @@ public class AnimationView extends ViewPart {
 	public void setFocus() {
 	}
 
-	private static boolean isRunning = false;
+	private static boolean isInitialized = false;
 
 	private static boolean isInitialized() {
 		return frameList != null && !frameList.isDisposed()

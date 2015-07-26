@@ -178,12 +178,6 @@ public class PlotView extends ViewPart {
 	public void setFocus() {
 	}
 
-	@Override
-	public void dispose() {
-		subscriberRegistrationManager.deinitialize();
-		super.dispose();
-	}
-
 	public void plotXY(final XYSeriesCollection dataset,
 			List<String> axisSymbols) {
 		final JFreeChart chart = createChart(dataset, axisSymbols);

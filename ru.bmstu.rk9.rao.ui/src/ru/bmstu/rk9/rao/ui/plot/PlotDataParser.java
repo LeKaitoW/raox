@@ -25,7 +25,7 @@ public class PlotDataParser {
 
 	private final CollectedDataNode node;
 	private int currentItemNumber = 0;
-	private int lastPatternCount = 0;
+	private int patternCount = 0;
 
 	public final static class PlotItem {
 		PlotItem(final double x, final double y) {
@@ -83,8 +83,8 @@ public class PlotDataParser {
 		final List<Integer> entriesNumbers = patternIndex.getEntryNumbers();
 		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
 
-		if (lastPatternCount == 0) {
-			dataset.add(new PlotItem(0, lastPatternCount));
+		if (patternCount == 0) {
+			dataset.add(new PlotItem(0, patternCount));
 		}
 
 		while (currentItemNumber < entriesNumbers.size()) {
@@ -101,16 +101,16 @@ public class PlotDataParser {
 
 			switch (entryType) {
 			case OPERATION_BEGIN:
-				lastPatternCount++;
+				patternCount++;
 				break;
 			case OPERATION_END:
-				lastPatternCount--;
+				patternCount--;
 				break;
 			default:
 				throw new PlotDataParserException("Unexpected entry type: "
 						+ entryType);
 			}
-			dataset.add(new PlotItem(time, lastPatternCount));
+			dataset.add(new PlotItem(time, patternCount));
 			currentItemNumber++;
 		}
 

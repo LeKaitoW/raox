@@ -13,13 +13,14 @@ import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer.ExecutionMode;
 public class SimulationModeDispatcher {
 	public static void setMode(ExecutionMode currentMode) {
 		if (!RuntimeComponents.isInitialized())
-			return;
+			throw new SimulationComponentsException(
+					"Runtime components are not initialized");
 
 		RuntimeComponents.simulationSynchronizer.setExecutionMode(currentMode);
 
 		AnimationView
-				.disableAnimation(currentMode == ExecutionMode.NO_ANIMATION ? true
-						: false);
+				.enableAnimation(currentMode == ExecutionMode.NO_ANIMATION ? false
+						: true);
 
 		RealTimeUpdater realTimeUpdater = RuntimeComponents.realTimeUpdater;
 		switch (currentMode) {

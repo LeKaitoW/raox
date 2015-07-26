@@ -11,9 +11,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.ui.PlatformUI;
 
 public class GraphControl {
-
-	private static Rectangle monitorBounds;
-
 	public static class FrameInfo {
 		public int dptNumber;
 		public String frameName;
@@ -25,7 +22,7 @@ public class GraphControl {
 	}
 
 	private static void createFrameWindow(FrameInfo frameInfo) {
-		monitorBounds = PlatformUI.getWorkbench().getDisplay().getBounds();
+		Rectangle monitorBounds = PlatformUI.getWorkbench().getDisplay().getBounds();
 		monitorAspectRatio = (double) monitorBounds.width
 				/ monitorBounds.height;
 

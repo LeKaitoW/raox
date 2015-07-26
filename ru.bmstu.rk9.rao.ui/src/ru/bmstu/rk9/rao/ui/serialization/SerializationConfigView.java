@@ -194,6 +194,12 @@ public class SerializationConfigView extends ViewPart {
 		setEnabled(true);
 	}
 
+	@Override
+	public void dispose() {
+		subscriberRegistrationManager.deinitialize();
+		super.dispose();
+	}
+
 	private final static SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
 
 	private final static Subscriber enableSubscriber = new Subscriber() {
