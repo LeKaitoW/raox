@@ -6,7 +6,9 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +27,9 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
 import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.GraphInfo;
 import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.Node;
-import ru.bmstu.rk9.rao.ui.notification.SubscriberRegistrationManager;
+import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView.ConditionalMenuItem;
 
 import com.mxgraph.layout.mxCompactTreeLayout;
@@ -178,27 +182,34 @@ public class GraphView extends JFrame {
 			}
 		});
 
-		subscriberRegistrationManager.enlistCommonSubscriber(commonSubscriber,
-				ExecutionState.EXECUTION_STARTED).enlistCommonSubscriber(
-				commonSubscriber, ExecutionState.EXECUTION_COMPLETED);
-		subscriberRegistrationManager
-				.enlistRealTimeSubscriber(realTimeUpdaterRunnable);
-		subscriberRegistrationManager.initialize();
+		initializeSubscribers();
 	}
 
 	private final TreeBuilder treeBuilder = new TreeBuilder();
 
-	public final void deinitialize() {
-		subscriberRegistrationManager.deinitialize();
+	private final void initializeSubscribers() {
+		simulationSubscriberManager.initialize(new HashSet<>(Arrays.asList(
+				new SimulatorSubscriberInfo(commonSubscriber,
+						ExecutionState.EXECUTION_STARTED),
+				new SimulatorSubscriberInfo(commonSubscriber,
+						ExecutionState.EXECUTION_COMPLETED))));
+		realTimeSubscriberManager.initialize(new HashSet<>(Arrays
+				.asList(realTimeUpdateRunnable)));
 	}
+
+	final void deinitializeSubscribers() {
+		simulationSubscriberManager.deinitialize();
+		realTimeSubscriberManager.deinitialize();
+	}
+
+	private final SimulatorSubscriberManager simulationSubscriberManager = new SimulatorSubscriberManager();
+	private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
 
 	final mxGraph graph;
 	List<Node> nodeList;
 	final int dptNum;
 	final mxCompactTreeLayout layout;
 	final mxGraphComponent graphComponent;
-
-	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
 
 	private final Subscriber commonSubscriber = new Subscriber() {
 		@Override
@@ -225,7 +236,7 @@ public class GraphView extends JFrame {
 		}
 	};
 
-	private final Runnable realTimeUpdaterRunnable = new Runnable() {
+	private final Runnable realTimeUpdateRunnable = new Runnable() {
 		@Override
 		public void run() {
 			graph.getModel().beginUpdate();

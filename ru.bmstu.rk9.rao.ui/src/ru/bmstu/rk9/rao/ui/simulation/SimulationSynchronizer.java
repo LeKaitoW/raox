@@ -1,6 +1,8 @@
 package ru.bmstu.rk9.rao.ui.simulation;
 
 import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
@@ -8,7 +10,8 @@ import org.eclipse.ui.PlatformUI;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
-import ru.bmstu.rk9.rao.ui.notification.SubscriberRegistrationManager;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 
 public class SimulationSynchronizer {
 	public static enum ExecutionMode {
@@ -39,28 +42,27 @@ public class SimulationSynchronizer {
 		setSimulationSpeed(SpeedSelectionToolbar.getSpeed());
 		setExecutionMode(SimulationModeDispatcher.getMode());
 		simulationAborted = false;
-		initialize();
+		initializeSubscribers();
 	}
 
-	private final void initialize() {
-		subscriberRegistrationManager
-				.enlistCommonSubscriber(uiTimeUpdater,
-						ExecutionState.TIME_CHANGED)
-				.enlistCommonSubscriber(simulationManager.scaleManager,
-						ExecutionState.TIME_CHANGED)
-				.enlistCommonSubscriber(simulationManager.speedManager,
-						ExecutionState.STATE_CHANGED)
-				.enlistCommonSubscriber(simulationManager.speedManager,
-						ExecutionState.SEARCH_STEP)
-				.enlistCommonSubscriber(executionAbortedListener,
-						ExecutionState.EXECUTION_ABORTED)
-				.enlistCommonSubscriber(executionStartedListener,
-						ExecutionState.EXECUTION_STARTED);
-		subscriberRegistrationManager.initialize();
+	private final void initializeSubscribers() {
+		simulationSubscriberManager.initialize(new HashSet<>(Arrays.asList(
+				new SimulatorSubscriberInfo(uiTimeUpdater,
+						ExecutionState.TIME_CHANGED),
+				new SimulatorSubscriberInfo(simulationManager.scaleManager,
+						ExecutionState.TIME_CHANGED),
+				new SimulatorSubscriberInfo(simulationManager.speedManager,
+						ExecutionState.STATE_CHANGED),
+				new SimulatorSubscriberInfo(simulationManager.speedManager,
+						ExecutionState.SEARCH_STEP),
+				new SimulatorSubscriberInfo(executionAbortedListener,
+						ExecutionState.EXECUTION_ABORTED),
+				new SimulatorSubscriberInfo(executionStartedListener,
+						ExecutionState.EXECUTION_STARTED))));
 	}
 
-	public final void deinitialize() {
-		subscriberRegistrationManager.deinitialize();
+	public final void deinitializeSubscribers() {
+		simulationSubscriberManager.deinitialize();
 	}
 
 	private volatile ExecutionMode executionMode;
@@ -96,7 +98,7 @@ public class SimulationSynchronizer {
 		}
 	}
 
-	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
+	private final SimulatorSubscriberManager simulationSubscriberManager = new SimulatorSubscriberManager();
 
 	private volatile boolean simulationAborted;
 

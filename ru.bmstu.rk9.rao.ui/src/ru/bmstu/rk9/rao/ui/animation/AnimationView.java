@@ -1,6 +1,8 @@
 package ru.bmstu.rk9.rao.ui.animation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.State;
@@ -27,7 +29,7 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.part.ViewPart;
 
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
-import ru.bmstu.rk9.rao.ui.notification.SubscriberRegistrationManager;
+import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 import ru.bmstu.rk9.rao.ui.simulation.SimulationModeDispatcher;
 import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer.ExecutionMode;
 
@@ -109,8 +111,7 @@ public class AnimationView extends ViewPart {
 			initializeFrames();
 
 		ExecutionMode currentMode = SimulationModeDispatcher.getMode();
-		enableAnimation(currentMode == ExecutionMode.NO_ANIMATION ? false
-				: true);
+		setAnimationEnabled(currentMode != ExecutionMode.NO_ANIMATION);
 	}
 
 	public static void deinitialize() {
@@ -126,8 +127,8 @@ public class AnimationView extends ViewPart {
 
 	private static volatile boolean animationEnabled = true;
 
-	public static void enableAnimation(boolean state) {
-		animationEnabled = !state;
+	public static void setAnimationEnabled(boolean state) {
+		animationEnabled = state;
 	}
 
 	public static final Runnable realTimeUpdateRunnable = new Runnable() {
@@ -250,9 +251,8 @@ public class AnimationView extends ViewPart {
 		if (frames != null)
 			initializeFrames();
 
-		subscriberRegistrationManager
-				.enlistRealTimeSubscriber(realTimeUpdateRunnable);
-		subscriberRegistrationManager.initialize();
+		realTimeSubscriberManager.initialize(new HashSet<Runnable>(Arrays
+				.asList(realTimeUpdateRunnable)));
 	}
 
 	@Override
@@ -271,11 +271,11 @@ public class AnimationView extends ViewPart {
 				&& currentFrame != null;
 	}
 
-	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
+	private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
 
 	@Override
 	public void dispose() {
-		subscriberRegistrationManager.deinitialize();
+		realTimeSubscriberManager.deinitialize();
 		super.dispose();
 	}
 }

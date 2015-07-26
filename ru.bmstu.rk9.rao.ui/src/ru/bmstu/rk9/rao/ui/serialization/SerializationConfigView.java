@@ -1,6 +1,8 @@
 package ru.bmstu.rk9.rao.ui.serialization;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -36,8 +38,9 @@ import org.eclipse.xtext.util.concurrent.IUnitOfWork;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.rao.RaoModel;
-import ru.bmstu.rk9.rao.ui.notification.SubscriberRegistrationManager;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfig.SerializationNode;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 
 public class SerializationConfigView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.SerializationConfigView";
@@ -187,20 +190,29 @@ public class SerializationConfigView extends ViewPart {
 			private final Map<IWorkbenchPartReference, SerializationNode> modelNodes = new HashMap<IWorkbenchPartReference, SerializationNode>();
 		});
 
-		subscriberRegistrationManager.enlistCommonSubscriber(enableSubscriber,
-				ExecutionState.EXECUTION_COMPLETED).enlistCommonSubscriber(
-						disableSubscriber, ExecutionState.EXECUTION_STARTED);
-		subscriberRegistrationManager.initialize();
+		initializeSubscribers();
 		setEnabled(true);
 	}
 
 	@Override
 	public void dispose() {
-		subscriberRegistrationManager.deinitialize();
+		deinitializeSubscribers();
 		super.dispose();
 	}
 
-	private final static SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
+	private final void initializeSubscribers() {
+		subscriberRegistrationManager.initialize(new HashSet<>(Arrays.asList(
+				new SimulatorSubscriberInfo(enableSubscriber,
+						ExecutionState.EXECUTION_COMPLETED),
+				new SimulatorSubscriberInfo(disableSubscriber,
+						ExecutionState.EXECUTION_STARTED))));
+	}
+
+	private final void deinitializeSubscribers() {
+		subscriberRegistrationManager.deinitialize();
+	}
+
+	private final static SimulatorSubscriberManager subscriberRegistrationManager = new SimulatorSubscriberManager();
 
 	private final static Subscriber enableSubscriber = new Subscriber() {
 		@Override

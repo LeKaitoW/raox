@@ -1,7 +1,9 @@
 package ru.bmstu.rk9.rao.ui.trace;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -58,7 +60,9 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
-import ru.bmstu.rk9.rao.ui.notification.SubscriberRegistrationManager;
+import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.trace.TraceView.SearchHelper.SearchResult;
 import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceOutput;
 import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceType;
@@ -172,19 +176,32 @@ public class TraceView extends ViewPart {
 
 		configureToolbar();
 
-		subscriberRegistrationManager.enlistCommonSubscriber(commonUpdater,
-				ExecutionState.EXECUTION_STARTED).enlistCommonSubscriber(
-				commonUpdater, ExecutionState.EXECUTION_COMPLETED);
-		subscriberRegistrationManager
-				.enlistRealTimeSubscriber(realTimeUpdateRunnable);
-		subscriberRegistrationManager.initialize();
+		initializeSubscribers();
 	}
 
 	@Override
 	public void dispose() {
-		subscriberRegistrationManager.deinitialize();
+		deinitializeSubscribers();
 		super.dispose();
 	}
+
+	private final void initializeSubscribers() {
+		simulatorSubscriberManager.initialize(new HashSet<>(Arrays.asList(
+				new SimulatorSubscriberInfo(commonUpdater,
+						ExecutionState.EXECUTION_STARTED),
+				new SimulatorSubscriberInfo(commonUpdater,
+						ExecutionState.EXECUTION_COMPLETED))));
+		realTimeSubscriberManager.initialize(new HashSet<>(Arrays
+				.asList(realTimeUpdateRunnable)));
+	}
+
+	private final void deinitializeSubscribers() {
+		simulatorSubscriberManager.deinitialize();
+		realTimeSubscriberManager.deinitialize();
+	}
+
+	private final SimulatorSubscriberManager simulatorSubscriberManager = new SimulatorSubscriberManager();
+	private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
 
 	private final void configureToolbar() {
 		IToolBarManager toolbarMgr = getViewSite().getActionBars()
@@ -283,9 +300,8 @@ public class TraceView extends ViewPart {
 			}
 			while (currentIndex < viewer.getTable().getItemCount()
 					&& !lineFound) {
-				String traceLine = tracer
-						.parseSerializedData(allEntries.get(currentIndex))
-						.content();
+				String traceLine = tracer.parseSerializedData(
+						allEntries.get(currentIndex)).content();
 				if (caseSensitive) {
 					traceLine = traceLine.toLowerCase();
 				}
@@ -405,8 +421,6 @@ public class TraceView extends ViewPart {
 	@Override
 	public void setFocus() {
 	}
-
-	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
 }
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -430,8 +444,8 @@ class TraceViewContentProvider implements ILazyContentProvider {
 	public void updateElement(int index) {
 		// TODO completely avoid that situation
 		if (allEntries != null && index < allEntries.size()) {
-			TraceOutput output = TraceView.tracer.parseSerializedData(
-					allEntries.get(index));
+			TraceOutput output = TraceView.tracer
+					.parseSerializedData(allEntries.get(index));
 			TraceView.viewer.replace(output, index);
 		}
 

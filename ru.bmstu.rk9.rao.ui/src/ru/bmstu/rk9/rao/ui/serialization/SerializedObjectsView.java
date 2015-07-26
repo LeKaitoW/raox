@@ -2,6 +2,8 @@ package ru.bmstu.rk9.rao.ui.serialization;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -40,7 +42,9 @@ import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.ui.graph.GraphView;
-import ru.bmstu.rk9.rao.ui.notification.SubscriberRegistrationManager;
+import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.plot.PlotView;
 
 public class SerializedObjectsView extends ViewPart {
@@ -135,19 +139,32 @@ public class SerializedObjectsView extends ViewPart {
 					}
 				});
 
-		subscriberRegistrationManager.enlistCommonSubscriber(commonUpdater,
-				ExecutionState.EXECUTION_STARTED).enlistCommonSubscriber(
-				commonUpdater, ExecutionState.EXECUTION_COMPLETED);
-		subscriberRegistrationManager
-				.enlistRealTimeSubscriber(realTimeUpdateRunnable);
-		subscriberRegistrationManager.initialize();
+		initializeSubscribers();
 	}
 
 	@Override
 	public void dispose() {
-		subscriberRegistrationManager.deinitialize();
+		deinitializeSubscribers();
 		super.dispose();
 	}
+
+	private final void initializeSubscribers() {
+		subscriberSubscriberManager.initialize(new HashSet<>(Arrays.asList(
+				new SimulatorSubscriberInfo(commonSubscriber,
+						ExecutionState.EXECUTION_STARTED),
+				new SimulatorSubscriberInfo(commonSubscriber,
+						ExecutionState.EXECUTION_COMPLETED))));
+		realTimeSubscriberManager.initialize(new HashSet<>(Arrays
+				.asList(realTimeUpdateRunnable)));
+	}
+
+	private final void deinitializeSubscribers() {
+		subscriberSubscriberManager.deinitialize();
+		realTimeSubscriberManager.deinitialize();
+	}
+
+	private final SimulatorSubscriberManager subscriberSubscriberManager = new SimulatorSubscriberManager();
+	private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
 
 	@Override
 	public void setFocus() {
@@ -169,7 +186,7 @@ public class SerializedObjectsView extends ViewPart {
 		}
 	};
 
-	public static final Subscriber commonUpdater = new Subscriber() {
+	public static final Subscriber commonSubscriber = new Subscriber() {
 		@Override
 		public void fireChange() {
 			if (!readyForInput())
@@ -194,8 +211,6 @@ public class SerializedObjectsView extends ViewPart {
 			});
 		}
 	};
-
-	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
 }
 
 class RaoSerializedObjectsContentProvider implements ITreeContentProvider {

@@ -2,7 +2,9 @@ package ru.bmstu.rk9.rao.ui.simulation;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -27,7 +29,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.themes.ITheme;
 import org.eclipse.ui.themes.IThemeManager;
 
-import ru.bmstu.rk9.rao.ui.notification.SubscriberRegistrationManager;
+import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 
 public class StatusView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.StatusView"; //$NON-NLS-1$
@@ -191,16 +193,25 @@ public class StatusView extends ViewPart {
 			updateScrolledCompositeSize();
 		});
 
-		subscriberRegistrationManager
-				.enlistRealTimeSubscriber(realTimeUpdateRunnable);
-		subscriberRegistrationManager.initialize();
+		initializeSubscribers();
 	}
 
 	@Override
 	public void dispose() {
-		subscriberRegistrationManager.deinitialize();
+		deinitializeSubscribers();
 		super.dispose();
 	}
+
+	private final void initializeSubscribers() {
+		realTimeSubscriberManager.initialize(new HashSet<>(Arrays
+				.asList(realTimeUpdateRunnable)));
+	}
+
+	private final void deinitializeSubscribers() {
+		realTimeSubscriberManager.deinitialize();
+	}
+
+	private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
 
 	private void updateScrolledCompositeSize() {
 		int h = 0, v = 0;
@@ -249,6 +260,4 @@ public class StatusView extends ViewPart {
 	@Override
 	public void setFocus() {
 	}
-
-	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
 }

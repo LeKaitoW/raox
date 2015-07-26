@@ -63,7 +63,7 @@ public class GraphControl {
 
 			@Override
 			public void windowClosed(WindowEvent e) {
-				GraphControl.openedGraphMap.get(dptNum).deinitialize();
+				GraphControl.openedGraphMap.get(dptNum).deinitializeSubscribers();
 				GraphControl.openedGraphMap.remove(dptNum);
 			}
 

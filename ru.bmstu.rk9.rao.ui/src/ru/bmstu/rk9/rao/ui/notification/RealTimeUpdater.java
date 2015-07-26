@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.ui.notification;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
@@ -14,15 +15,17 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.ui.simulation.SimulationModeDispatcher;
 import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer.ExecutionMode;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 
 public class RealTimeUpdater {
 
 	public RealTimeUpdater() {
-		subscriberRegistrationManager.enlistCommonSubscriber(
-				simulationStartSubscriber, ExecutionState.EXECUTION_STARTED);
-		subscriberRegistrationManager.enlistCommonSubscriber(
-				simulationStopSubscriber, ExecutionState.EXECUTION_COMPLETED);
-		subscriberRegistrationManager.initialize();
+		subscriberRegistrationManager
+				.initialize(new HashSet<SimulatorSubscriberInfo>(Arrays.asList(
+						new SimulatorSubscriberInfo(simulationStartSubscriber,
+								ExecutionState.EXECUTION_STARTED),
+						new SimulatorSubscriberInfo(simulationStopSubscriber,
+								ExecutionState.EXECUTION_COMPLETED))));
 	}
 
 	public final void deinitialize() {
@@ -70,7 +73,7 @@ public class RealTimeUpdater {
 
 	private boolean haveNewData = false;
 
-	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
+	private final SimulatorSubscriberManager subscriberRegistrationManager = new SimulatorSubscriberManager();
 
 	private final Subscriber databaseSubscriber = new Subscriber() {
 		@Override

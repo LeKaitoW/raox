@@ -3,7 +3,9 @@ package ru.bmstu.rk9.rao.ui.plot;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -39,9 +41,11 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
-import ru.bmstu.rk9.rao.ui.notification.SubscriberRegistrationManager;
+import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.ui.plot.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView.ConditionalMenuItem;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 
 public class PlotView extends ViewPart {
 
@@ -108,7 +112,7 @@ public class PlotView extends ViewPart {
 						&& openedPlotMap.containsKey(partNode)) {
 					openedPlotMap.remove(partNode);
 				}
-				deinitialize();
+				deinitializeSubscribers();
 			}
 		});
 	}
@@ -124,17 +128,26 @@ public class PlotView extends ViewPart {
 
 		plotXY(dataset, PlotDataParser.getEnumNames(partNode));
 
-		subscriberRegistrationManager.enlistCommonSubscriber(commonSubcriber,
-				ExecutionState.EXECUTION_STARTED).enlistCommonSubscriber(
-				commonSubcriber, ExecutionState.EXECUTION_COMPLETED);
-		subscriberRegistrationManager
-				.enlistRealTimeSubscriber(realTimeUpdateRunnable);
-		subscriberRegistrationManager.initialize();
+		initializeSubscribers();
 	}
 
-	private final void deinitialize() {
-		subscriberRegistrationManager.deinitialize();
+	private final void initializeSubscribers() {
+		simulatorSubscriberManager.initialize(new HashSet<>(Arrays.asList(
+				new SimulatorSubscriberInfo(commonSubcriber,
+						ExecutionState.EXECUTION_STARTED),
+				new SimulatorSubscriberInfo(commonSubcriber,
+						ExecutionState.EXECUTION_COMPLETED))));
+		realTimeSubscriberManager.initialize(new HashSet<>(Arrays
+				.asList(realTimeUpdateRunnable)));
 	}
+
+	private final void deinitializeSubscribers() {
+		simulatorSubscriberManager.deinitialize();
+		realTimeSubscriberManager.deinitialize();
+	}
+
+	private final SimulatorSubscriberManager simulatorSubscriberManager = new SimulatorSubscriberManager();
+	private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
 
 	private PlotDataParser plotDataParser;
 
@@ -171,8 +184,6 @@ public class PlotView extends ViewPart {
 					.asyncExec(realTimeUpdateRunnable);
 		}
 	};
-
-	private final SubscriberRegistrationManager subscriberRegistrationManager = new SubscriberRegistrationManager();
 
 	@Override
 	public void setFocus() {

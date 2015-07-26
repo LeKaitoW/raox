@@ -19,8 +19,7 @@ public class SimulationModeDispatcher {
 		RuntimeComponents.simulationSynchronizer.setExecutionMode(currentMode);
 
 		AnimationView
-				.enableAnimation(currentMode == ExecutionMode.NO_ANIMATION ? false
-						: true);
+				.setAnimationEnabled(currentMode != ExecutionMode.NO_ANIMATION);
 
 		RealTimeUpdater realTimeUpdater = RuntimeComponents.realTimeUpdater;
 		switch (currentMode) {
