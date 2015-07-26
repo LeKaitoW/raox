@@ -9,7 +9,9 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -70,8 +72,14 @@ public class Game5View extends EditorPart {
 			final JSONParser parser = new JSONParser();
 			final IPath workspacePath = ResourcesPlugin.getWorkspace()
 					.getRoot().getLocation();
-			object = (JSONObject) parser.parse(new FileReader(workspacePath
-					.append(configIFile.getFullPath()).toString()));
+			if (configIFile != null) {
+				object = (JSONObject) parser.parse(new FileReader(workspacePath
+						.append(configIFile.getFullPath()).toString()));
+			} else {
+				object = (JSONObject) parser
+						.parse(new FileReader(Game5ProjectConfigurator
+								.getConfigFilePath().toString()));
+			}
 
 		} catch (IOException | ParseException e1) {
 			e1.printStackTrace();
@@ -119,7 +127,11 @@ public class Game5View extends EditorPart {
 				| SWT.V_SCROLL | SWT.READ_ONLY);
 		leftCombo.add("After");
 		leftCombo.add("Before");
-		leftCombo.select(0);
+		if (object.get("computeLeft").equals("After")) {
+			leftCombo.select(0);
+		} else {
+			leftCombo.select(1);
+		}
 
 		final Button leftButton = new Button(ruleCost, SWT.CHECK);
 		final Text leftCost = new Text(ruleCost, SWT.BORDER);
@@ -151,7 +163,11 @@ public class Game5View extends EditorPart {
 				| SWT.V_SCROLL | SWT.READ_ONLY);
 		rightCombo.add("After");
 		rightCombo.add("Before");
-		rightCombo.select(0);
+		if (object.get("computeRight").equals("After")) {
+			rightCombo.select(0);
+		} else {
+			rightCombo.select(1);
+		}
 
 		final Button rightButton = new Button(ruleCost, SWT.CHECK);
 		final Text rightCost = new Text(ruleCost, SWT.BORDER);
@@ -183,7 +199,11 @@ public class Game5View extends EditorPart {
 				| SWT.V_SCROLL | SWT.READ_ONLY);
 		upCombo.add("After");
 		upCombo.add("Before");
-		upCombo.select(0);
+		if (object.get("computeUp").equals("After")) {
+			upCombo.select(0);
+		} else {
+			upCombo.select(1);
+		}
 
 		final Button upButton = new Button(ruleCost, SWT.CHECK);
 		final Text upCost = new Text(ruleCost, SWT.BORDER);
@@ -215,7 +235,11 @@ public class Game5View extends EditorPart {
 				| SWT.V_SCROLL | SWT.READ_ONLY);
 		downCombo.add("After");
 		downCombo.add("Before");
-		downCombo.select(0);
+		if (object.get("computeDown").equals("After")) {
+			downCombo.select(0);
+		} else {
+			downCombo.select(1);
+		}
 
 		final Group traverseGraph = new Group(parent, SWT.SHADOW_IN);
 		traverseGraph.setText("Traverse graph:");
@@ -458,14 +482,18 @@ public class Game5View extends EditorPart {
 		setDirty(false);
 		object.put("code", editor.getEditablePart());
 		try {
-			OutputStream outputStream = new FileOutputStream(new File(
-					Game5ProjectConfigurator.getConfigFilePath().toString()));
+			IFile configIFile = (IFile) PlatformUI.getWorkbench()
+					.getActiveWorkbenchWindow().getActivePage()
+					.getActiveEditor().getEditorInput().getAdapter(IFile.class);
+			OutputStream outputStream = new FileOutputStream(configIFile
+					.getRawLocation().toString());
 			PrintStream printStream = new PrintStream(outputStream, true,
 					StandardCharsets.UTF_8.name());
 			printStream.print(object.toString());
 			printStream.close();
-			Game5ProjectConfigurator.fillModelFile();
-		} catch (IOException e) {
+			Game5ProjectConfigurator.fillModelFile(configIFile);
+			configIFile.refreshLocal(IResource.DEPTH_INFINITE, null);
+		} catch (IOException | CoreException e) {
 			e.printStackTrace();
 		}
 	}

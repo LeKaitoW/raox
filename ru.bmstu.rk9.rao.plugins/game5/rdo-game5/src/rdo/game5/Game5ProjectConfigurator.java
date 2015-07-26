@@ -54,7 +54,7 @@ public class Game5ProjectConfigurator {
 
 	public static final void initializeProject() {
 
-		game5Project = root.getProject(ModelNameView.getName() + "_project");
+		game5Project = root.getProject(ModelNameView.getName());
 		try {
 			if (!game5Project.exists()) {
 				game5Project.create(null);
@@ -109,7 +109,7 @@ public class Game5ProjectConfigurator {
 
 	public static void createModelFile() {
 
-		modelName = ModelNameView.getName() + ".rao";
+		modelName = "game5.rao";
 		modelIPath = workspacePath.append(game5Project.getFullPath()).append(
 				modelName);
 		modelFile = new File(modelIPath.toString());
@@ -128,12 +128,12 @@ public class Game5ProjectConfigurator {
 			e.printStackTrace();
 		}
 
-		parseConfig();
+		parseConfig(configIFile);
 	}
 
 	public static final void createConfigFile() {
 
-		final String configName = ModelNameView.getName() + "_config.json";
+		final String configName = "game5.json";
 		configIPath = workspacePath.append(game5Project.getFullPath().append(
 				configName));
 		final File configFile = new File(configIPath.toString());
@@ -174,18 +174,19 @@ public class Game5ProjectConfigurator {
 		return game5Project;
 	}
 
-	public static final void fillModelFile() throws IOException {
+	public static final void fillModelFile(IFile configIFile)
+			throws IOException {
 		inputStream = Game5ProjectConfigurator.class.getClassLoader()
 				.getResourceAsStream(modelTemplatePath);
 		OutputStream outputStream = null;
-		final File game5Model = new File(modelIPath.toString());
 
 		try {
 			InputStreamReader inputStreamReader = new InputStreamReader(
 					inputStream, StandardCharsets.UTF_8.name());
 			BufferedReader bufferedReader = new BufferedReader(
 					inputStreamReader);
-			outputStream = new FileOutputStream(game5Model);
+			outputStream = new FileOutputStream(configIFile.getLocation()
+					.removeLastSegments(1).append("/game5.rao").toString());
 			PrintStream printStream = new PrintStream(outputStream, true,
 					StandardCharsets.UTF_8.name());
 
@@ -197,10 +198,7 @@ public class Game5ProjectConfigurator {
 
 			printStream.close();
 
-			Game5ProjectConfigurator.getProject().refreshLocal(
-					IResource.DEPTH_INFINITE, null);
-		} catch (FileNotFoundException | CoreException
-				| UnsupportedEncodingException e) {
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} finally {
 			inputStream.close();
@@ -209,16 +207,18 @@ public class Game5ProjectConfigurator {
 				outputStream.close();
 			}
 		}
-		parseConfig();
+		parseConfig(configIFile);
 	}
 
-	public static void parseConfig() {
+	public static void parseConfig(IFile configIFile) {
 		JSONParser parser = new JSONParser();
 		try {
 			JSONObject object = (JSONObject) parser
 					.parse(new FileReader(workspacePath.append(
 							configIFile.getFullPath()).toString()));
-			OutputStream outputStream = new FileOutputStream(modelFile, true);
+			OutputStream outputStream = new FileOutputStream(configIFile
+					.getLocation().removeLastSegments(1).append("/game5.rao")
+					.toString(), true);
 			PrintStream printStream = new PrintStream(outputStream, true,
 					StandardCharsets.UTF_8.name());
 			JSONArray places = (JSONArray) object.get("places");
