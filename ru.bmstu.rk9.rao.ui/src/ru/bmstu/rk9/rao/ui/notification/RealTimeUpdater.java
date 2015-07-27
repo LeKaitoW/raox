@@ -28,6 +28,8 @@ public class RealTimeUpdater {
 								ExecutionState.EXECUTION_COMPLETED))));
 	}
 
+	private final SimulatorSubscriberManager subscriberRegistrationManager = new SimulatorSubscriberManager();
+
 	public final void deinitialize() {
 		subscriberRegistrationManager.deinitialize();
 	}
@@ -72,8 +74,6 @@ public class RealTimeUpdater {
 	}
 
 	private boolean haveNewData = false;
-
-	private final SimulatorSubscriberManager subscriberRegistrationManager = new SimulatorSubscriberManager();
 
 	private final Subscriber databaseSubscriber = new Subscriber() {
 		@Override

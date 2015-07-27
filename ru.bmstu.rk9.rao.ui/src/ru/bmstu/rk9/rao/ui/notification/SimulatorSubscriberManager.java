@@ -1,12 +1,11 @@
 package ru.bmstu.rk9.rao.ui.notification;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 
-public class SimulatorSubscriberManager extends DefferedSubscriberManager {
+public class SimulatorSubscriberManager extends
+		DefferedSubscriberManager<SimulatorSubscriberInfo> {
 	public static class SimulatorSubscriberInfo {
 		public SimulatorSubscriberInfo(Subscriber subscriber,
 				Simulator.ExecutionState notificationCategory) {
@@ -18,22 +17,9 @@ public class SimulatorSubscriberManager extends DefferedSubscriberManager {
 		final Simulator.ExecutionState notificationCategory;
 	}
 
-	public final void initialize(
-			Set<SimulatorSubscriberInfo> simulatorSubscribersInfo) {
-		this.simulatorSubscribersInfo.addAll(simulatorSubscribersInfo);
-		super.initializeInternals();
-	}
-
-	public final void deinitialize() {
-		simulatorSubscribersInfo.clear();
-		super.deinitializeInternals();
-	}
-
-	private final Set<SimulatorSubscriberInfo> simulatorSubscribersInfo = new HashSet<SimulatorSubscriberInfo>();
-
 	@Override
 	protected void registerExecutionSubscribers() {
-		for (SimulatorSubscriberInfo subscriberInfo : simulatorSubscribersInfo)
+		for (SimulatorSubscriberInfo subscriberInfo : subscribersInfo)
 			Simulator.getExecutionStateNotifier().addSubscriber(
 					subscriberInfo.subscriber,
 					subscriberInfo.notificationCategory);
@@ -41,7 +27,7 @@ public class SimulatorSubscriberManager extends DefferedSubscriberManager {
 
 	@Override
 	protected void unregisterExecutionSubscribers() {
-		for (SimulatorSubscriberInfo subscriberInfo : simulatorSubscribersInfo)
+		for (SimulatorSubscriberInfo subscriberInfo : subscribersInfo)
 			Simulator.getExecutionStateNotifier().removeSubscriber(
 					subscriberInfo.subscriber,
 					subscriberInfo.notificationCategory);
