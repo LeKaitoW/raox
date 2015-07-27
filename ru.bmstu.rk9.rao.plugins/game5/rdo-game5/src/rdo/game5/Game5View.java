@@ -41,9 +41,12 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
+import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditor;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorFactory;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorModelAccess;
+import org.eclipse.xtext.ui.editor.model.IXtextDocument;
+import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -68,12 +71,12 @@ public class Game5View extends EditorPart {
 			final IFileEditorInput input = (IFileEditorInput) this
 					.getEditorInput();
 			final IFile configIFile = input.getFile();
+			setPartName(configIFile.getProject().getName());
 			object = (JSONObject) parser.parse(new FileReader(workspacePath
 					.append(configIFile.getFullPath()).toString()));
 		} catch (IOException | ParseException e1) {
 			e1.printStackTrace();
 		}
-
 		final GridLayout gridLayout = new GridLayout(3, false);
 		parent.setLayout(gridLayout);
 
@@ -300,6 +303,14 @@ public class Game5View extends EditorPart {
 				.withParent(editorGroup);
 		editor = embeddedEditor.createPartialEditor("", object.get("code")
 				.toString(), "", false);
+
+		IXtextDocument document = embeddedEditor.getDocument();
+		document.addModelListener(new IXtextModelListener() {
+			@Override
+			public void modelChanged(XtextResource resource) {
+				setDirty(true);
+			}
+		});
 
 		heuristicList.addSelectionListener(new SelectionListener() {
 			@Override

@@ -14,10 +14,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.FileEditorInput;
 
 public class ModelNameView {
 
@@ -58,16 +55,6 @@ public class ModelNameView {
 				if (!name.isEmpty()) {
 					shell.close();
 					Game5ProjectConfigurator.initializeProject();
-					final IWorkbenchPage page = PlatformUI.getWorkbench()
-							.getActiveWorkbenchWindow().getActivePage();
-
-					try {
-						page.openEditor(new FileEditorInput(
-								Game5ProjectConfigurator.getConfigFile()),
-								Game5View.ID);
-					} catch (PartInitException e) {
-						e.printStackTrace();
-					}
 				} else {
 					emptyNameLabel.setVisible(true);
 				}

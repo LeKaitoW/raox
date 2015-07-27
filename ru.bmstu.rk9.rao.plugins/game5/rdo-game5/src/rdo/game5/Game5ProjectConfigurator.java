@@ -20,13 +20,14 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 
 public class Game5ProjectConfigurator {
 
 	private static IProject game5Project;
-	private static IFile configIFile;
-	private static InputStream inputStream;
 	private static final IWorkspaceRoot root = ResourcesPlugin.getWorkspace()
 			.getRoot();
 
@@ -84,59 +85,49 @@ public class Game5ProjectConfigurator {
 		} catch (CoreException e2) {
 			e2.printStackTrace();
 		}
-		createConfigFile();
-		createModelFile();
+
+		createModelFile(createConfigFile());
 	}
 
-	private static void createModelFile() {
+	private static void createModelFile(IFile configIFile) {
 
 		final String modelName = "game5.rao";
 		IPath modelIPath = root.getLocation()
 				.append(game5Project.getFullPath()).append(modelName);
 		File modelFile = new File(modelIPath.toString());
-		try {
-			modelFile.createNewFile();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
 		IFile modelIFile = game5Project.getFile(modelName);
 		final String modelTemplatePath = "/model_template/game_5.rao";
 		try {
-			inputStream = Game5ProjectConfigurator.class.getClassLoader()
-					.getResourceAsStream(modelTemplatePath);
+			modelFile.createNewFile();
+			InputStream inputStream = Game5ProjectConfigurator.class
+					.getClassLoader().getResourceAsStream(modelTemplatePath);
 			modelIFile.create(inputStream, true, null);
-		} catch (CoreException e) {
+		} catch (CoreException | IOException e) {
 			e.printStackTrace();
 		}
 		ConfigurationParser.parseConfig(configIFile);
 	}
 
-	private static final void createConfigFile() {
+	private static final IFile createConfigFile() {
 
 		final String configName = "game5.json";
 		IPath configIPath = root.getLocation().append(
 				game5Project.getFullPath().append(configName));
 		final File configFile = new File(configIPath.toString());
-
+		final String configFilePath = "/model_template/config.json";
+		final IWorkbenchPage page = PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow().getActivePage();
+		IFile configIFile = null; // exception pls?
 		try {
 			configFile.createNewFile();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		configIFile = game5Project.getFile(configName);
-		final String configFilePath = "/model_template/config.json";
-		try {
-			inputStream = Game5ProjectConfigurator.class.getClassLoader()
-					.getResourceAsStream(configFilePath);
+			configIFile = game5Project.getFile(configName);
+			InputStream inputStream = Game5ProjectConfigurator.class
+					.getClassLoader().getResourceAsStream(configFilePath);
 			configIFile.create(inputStream, true, null);
-		} catch (CoreException e) {
+			page.openEditor(new FileEditorInput(configIFile), Game5View.ID);
+		} catch (CoreException | IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public static final IFile getConfigFile() {
 		return configIFile;
 	}
 }
