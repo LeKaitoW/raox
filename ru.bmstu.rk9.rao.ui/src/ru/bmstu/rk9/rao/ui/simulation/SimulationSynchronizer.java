@@ -2,7 +2,6 @@ package ru.bmstu.rk9.rao.ui.simulation;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
-import java.util.HashSet;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
@@ -46,7 +45,7 @@ public class SimulationSynchronizer {
 	}
 
 	private final void initializeSubscribers() {
-		simulationSubscriberManager.initialize(new HashSet<>(Arrays.asList(
+		simulationSubscriberManager.initialize(Arrays.asList(
 				new SimulatorSubscriberInfo(uiTimeUpdater,
 						ExecutionState.TIME_CHANGED),
 				new SimulatorSubscriberInfo(simulationManager.scaleManager,
@@ -58,7 +57,7 @@ public class SimulationSynchronizer {
 				new SimulatorSubscriberInfo(executionAbortedListener,
 						ExecutionState.EXECUTION_ABORTED),
 				new SimulatorSubscriberInfo(executionStartedListener,
-						ExecutionState.EXECUTION_STARTED))));
+						ExecutionState.EXECUTION_STARTED)));
 	}
 
 	public final void deinitializeSubscribers() {

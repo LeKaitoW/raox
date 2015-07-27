@@ -2,7 +2,6 @@ package ru.bmstu.rk9.rao.ui.animation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.State;
@@ -251,8 +250,8 @@ public class AnimationView extends ViewPart {
 		if (frames != null)
 			initializeFrames();
 
-		realTimeSubscriberManager.initialize(new HashSet<Runnable>(Arrays
-				.asList(realTimeUpdateRunnable)));
+		realTimeSubscriberManager.initialize(Arrays
+				.asList(realTimeUpdateRunnable));
 	}
 
 	@Override

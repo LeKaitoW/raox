@@ -20,12 +20,11 @@ import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager.SimulatorSubs
 public class RealTimeUpdater {
 
 	public RealTimeUpdater() {
-		subscriberRegistrationManager
-				.initialize(new HashSet<SimulatorSubscriberInfo>(Arrays.asList(
-						new SimulatorSubscriberInfo(simulationStartSubscriber,
-								ExecutionState.EXECUTION_STARTED),
-						new SimulatorSubscriberInfo(simulationStopSubscriber,
-								ExecutionState.EXECUTION_COMPLETED))));
+		subscriberRegistrationManager.initialize(Arrays.asList(
+				new SimulatorSubscriberInfo(simulationStartSubscriber,
+						ExecutionState.EXECUTION_STARTED),
+				new SimulatorSubscriberInfo(simulationStopSubscriber,
+						ExecutionState.EXECUTION_COMPLETED)));
 	}
 
 	private final SimulatorSubscriberManager subscriberRegistrationManager = new SimulatorSubscriberManager();

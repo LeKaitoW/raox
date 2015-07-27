@@ -3,7 +3,6 @@ package ru.bmstu.rk9.rao.ui.trace;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -186,13 +185,13 @@ public class TraceView extends ViewPart {
 	}
 
 	private final void initializeSubscribers() {
-		simulatorSubscriberManager.initialize(new HashSet<>(Arrays.asList(
+		simulatorSubscriberManager.initialize(Arrays.asList(
 				new SimulatorSubscriberInfo(commonUpdater,
 						ExecutionState.EXECUTION_STARTED),
 				new SimulatorSubscriberInfo(commonUpdater,
-						ExecutionState.EXECUTION_COMPLETED))));
-		realTimeSubscriberManager.initialize(new HashSet<>(Arrays
-				.asList(realTimeUpdateRunnable)));
+						ExecutionState.EXECUTION_COMPLETED)));
+		realTimeSubscriberManager.initialize(Arrays
+				.asList(realTimeUpdateRunnable));
 	}
 
 	private final void deinitializeSubscribers() {

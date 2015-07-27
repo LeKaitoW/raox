@@ -2,7 +2,6 @@ package ru.bmstu.rk9.rao.ui.serialization;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -201,11 +200,11 @@ public class SerializationConfigView extends ViewPart {
 	}
 
 	private final void initializeSubscribers() {
-		subscriberRegistrationManager.initialize(new HashSet<>(Arrays.asList(
+		subscriberRegistrationManager.initialize(Arrays.asList(
 				new SimulatorSubscriberInfo(enableSubscriber,
 						ExecutionState.EXECUTION_COMPLETED),
 				new SimulatorSubscriberInfo(disableSubscriber,
-						ExecutionState.EXECUTION_STARTED))));
+						ExecutionState.EXECUTION_STARTED)));
 	}
 
 	private final void deinitializeSubscribers() {

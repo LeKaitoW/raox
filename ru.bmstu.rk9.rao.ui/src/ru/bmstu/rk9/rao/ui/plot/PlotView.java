@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -132,13 +131,13 @@ public class PlotView extends ViewPart {
 	}
 
 	private final void initializeSubscribers() {
-		simulatorSubscriberManager.initialize(new HashSet<>(Arrays.asList(
+		simulatorSubscriberManager.initialize(Arrays.asList(
 				new SimulatorSubscriberInfo(commonSubcriber,
 						ExecutionState.EXECUTION_STARTED),
 				new SimulatorSubscriberInfo(commonSubcriber,
-						ExecutionState.EXECUTION_COMPLETED))));
-		realTimeSubscriberManager.initialize(new HashSet<>(Arrays
-				.asList(realTimeUpdateRunnable)));
+						ExecutionState.EXECUTION_COMPLETED)));
+		realTimeSubscriberManager.initialize(Arrays
+				.asList(realTimeUpdateRunnable));
 	}
 
 	private final void deinitializeSubscribers() {

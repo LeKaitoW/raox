@@ -4,7 +4,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -203,8 +202,8 @@ public class StatusView extends ViewPart {
 	}
 
 	private final void initializeSubscribers() {
-		realTimeSubscriberManager.initialize(new HashSet<>(Arrays
-				.asList(realTimeUpdateRunnable)));
+		realTimeSubscriberManager.initialize(Arrays
+				.asList(realTimeUpdateRunnable));
 	}
 
 	private final void deinitializeSubscribers() {

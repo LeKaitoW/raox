@@ -3,7 +3,6 @@ package ru.bmstu.rk9.rao.ui.serialization;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -149,13 +148,13 @@ public class SerializedObjectsView extends ViewPart {
 	}
 
 	private final void initializeSubscribers() {
-		subscriberSubscriberManager.initialize(new HashSet<>(Arrays.asList(
+		subscriberSubscriberManager.initialize(Arrays.asList(
 				new SimulatorSubscriberInfo(commonSubscriber,
 						ExecutionState.EXECUTION_STARTED),
 				new SimulatorSubscriberInfo(commonSubscriber,
-						ExecutionState.EXECUTION_COMPLETED))));
-		realTimeSubscriberManager.initialize(new HashSet<>(Arrays
-				.asList(realTimeUpdateRunnable)));
+						ExecutionState.EXECUTION_COMPLETED)));
+		realTimeSubscriberManager.initialize(Arrays
+				.asList(realTimeUpdateRunnable));
 	}
 
 	private final void deinitializeSubscribers() {

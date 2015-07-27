@@ -8,7 +8,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -188,13 +187,13 @@ public class GraphView extends JFrame {
 	private final TreeBuilder treeBuilder = new TreeBuilder();
 
 	private final void initializeSubscribers() {
-		simulationSubscriberManager.initialize(new HashSet<>(Arrays.asList(
+		simulationSubscriberManager.initialize(Arrays.asList(
 				new SimulatorSubscriberInfo(commonSubscriber,
 						ExecutionState.EXECUTION_STARTED),
 				new SimulatorSubscriberInfo(commonSubscriber,
-						ExecutionState.EXECUTION_COMPLETED))));
-		realTimeSubscriberManager.initialize(new HashSet<>(Arrays
-				.asList(realTimeUpdateRunnable)));
+						ExecutionState.EXECUTION_COMPLETED)));
+		realTimeSubscriberManager.initialize(Arrays
+				.asList(realTimeUpdateRunnable));
 	}
 
 	final void deinitializeSubscribers() {
