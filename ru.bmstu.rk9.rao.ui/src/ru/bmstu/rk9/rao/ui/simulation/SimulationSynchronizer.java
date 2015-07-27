@@ -37,10 +37,6 @@ public class SimulationSynchronizer {
 	}
 
 	public SimulationSynchronizer() {
-		setSimulationScale(SetSimulationScaleHandler.getSimulationScale());
-		setSimulationSpeed(SpeedSelectionToolbar.getSpeed());
-		setExecutionMode(SimulationModeDispatcher.getMode());
-		simulationAborted = false;
 		initializeSubscribers();
 	}
 
@@ -99,7 +95,7 @@ public class SimulationSynchronizer {
 
 	private final SimulatorSubscriberManager simulationSubscriberManager = new SimulatorSubscriberManager();
 
-	private volatile boolean simulationAborted;
+	private volatile boolean simulationAborted = false;
 
 	public class ExecutionAbortedListener implements Subscriber {
 		@Override
@@ -112,12 +108,16 @@ public class SimulationSynchronizer {
 		@Override
 		public void fireChange() {
 			SimulationSynchronizer.this.simulationAborted = false;
+			setSimulationScale(SetSimulationScaleHandler.getSimulationScale());
+			setSimulationSpeed(SpeedSelectionToolbar.getSpeed());
+			setExecutionMode(SimulationModeDispatcher.getMode());
 		}
 	}
 
 	public void setSimulationSpeed(int value) {
 		if (value < 1 || value > 100)
-			return;
+			throw new SimulationComponentsException(
+					"Incorrect simulation speed value " + value);
 
 		simulationManager.speedDelayMillis = (long) (-Math.log10(value / 100d) * 1000d);
 	}
