@@ -1,17 +1,8 @@
 package rdo.game5;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +10,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -31,26 +21,14 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
 import org.eclipse.xtext.ui.XtextProjectHelper;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 public class Game5ProjectConfigurator {
 
 	private static IProject game5Project;
-	private static IFile modelIFile;
-	private static IPath modelIPath;
 	private static IFile configIFile;
-	private static IPath configIPath;
-	private static File modelFile;
-	private static String modelName;
 	private static InputStream inputStream;
-	private static final String modelTemplatePath = "/model_template/game_5.rao";
-	private static final String configFilePath = "/model_template/config.json";
 	private static final IWorkspaceRoot root = ResourcesPlugin.getWorkspace()
 			.getRoot();
-	private static final IPath workspacePath = root.getLocation();
 
 	public static final void initializeProject() {
 
@@ -64,9 +42,10 @@ public class Game5ProjectConfigurator {
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
+		configureProject();
 	}
 
-	public static final void configureProject() {
+	private static final void configureProject() {
 
 		IProjectDescription description;
 		IJavaProject game5JavaProject;
@@ -105,21 +84,24 @@ public class Game5ProjectConfigurator {
 		} catch (CoreException e2) {
 			e2.printStackTrace();
 		}
+		createConfigFile();
+		createModelFile();
 	}
 
-	public static void createModelFile() {
+	private static void createModelFile() {
 
-		modelName = "game5.rao";
-		modelIPath = workspacePath.append(game5Project.getFullPath()).append(
-				modelName);
-		modelFile = new File(modelIPath.toString());
+		final String modelName = "game5.rao";
+		IPath modelIPath = root.getLocation()
+				.append(game5Project.getFullPath()).append(modelName);
+		File modelFile = new File(modelIPath.toString());
 		try {
 			modelFile.createNewFile();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 
-		modelIFile = game5Project.getFile(modelName);
+		IFile modelIFile = game5Project.getFile(modelName);
+		final String modelTemplatePath = "/model_template/game_5.rao";
 		try {
 			inputStream = Game5ProjectConfigurator.class.getClassLoader()
 					.getResourceAsStream(modelTemplatePath);
@@ -127,15 +109,14 @@ public class Game5ProjectConfigurator {
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
-
-		parseConfig(configIFile);
+		ConfigurationParser.parseConfig(configIFile);
 	}
 
-	public static final void createConfigFile() {
+	private static final void createConfigFile() {
 
 		final String configName = "game5.json";
-		configIPath = workspacePath.append(game5Project.getFullPath().append(
-				configName));
+		IPath configIPath = root.getLocation().append(
+				game5Project.getFullPath().append(configName));
 		final File configFile = new File(configIPath.toString());
 
 		try {
@@ -145,6 +126,7 @@ public class Game5ProjectConfigurator {
 		}
 
 		configIFile = game5Project.getFile(configName);
+		final String configFilePath = "/model_template/config.json";
 		try {
 			inputStream = Game5ProjectConfigurator.class.getClassLoader()
 					.getResourceAsStream(configFilePath);
@@ -154,108 +136,7 @@ public class Game5ProjectConfigurator {
 		}
 	}
 
-	public static final IFile getModelFile() {
-		return modelIFile;
-	}
-
-	public static final IPath getModelFilePath() {
-		return modelIPath;
-	}
-
 	public static final IFile getConfigFile() {
 		return configIFile;
-	}
-
-	public static final IPath getConfigFilePath() {
-		return configIPath;
-	}
-
-	public static final IProject getProject() {
-		return game5Project;
-	}
-
-	public static final void fillModelFile(IFile configIFile)
-			throws IOException {
-		inputStream = Game5ProjectConfigurator.class.getClassLoader()
-				.getResourceAsStream(modelTemplatePath);
-		OutputStream outputStream = null;
-
-		try {
-			InputStreamReader inputStreamReader = new InputStreamReader(
-					inputStream, StandardCharsets.UTF_8.name());
-			BufferedReader bufferedReader = new BufferedReader(
-					inputStreamReader);
-			outputStream = new FileOutputStream(configIFile.getLocation()
-					.removeLastSegments(1).append("/game5.rao").toString());
-			PrintStream printStream = new PrintStream(outputStream, true,
-					StandardCharsets.UTF_8.name());
-
-			String modelTemplateCode = bufferedReader.readLine();
-			while (modelTemplateCode != null) {
-				printStream.println(modelTemplateCode);
-				modelTemplateCode = bufferedReader.readLine();
-			}
-
-			printStream.close();
-
-		} catch (FileNotFoundException | UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} finally {
-			inputStream.close();
-			if (outputStream != null) {
-				outputStream.flush();
-				outputStream.close();
-			}
-		}
-		parseConfig(configIFile);
-	}
-
-	public static void parseConfig(IFile configIFile) {
-		JSONParser parser = new JSONParser();
-		try {
-			JSONObject object = (JSONObject) parser
-					.parse(new FileReader(workspacePath.append(
-							configIFile.getFullPath()).toString()));
-			OutputStream outputStream = new FileOutputStream(configIFile
-					.getLocation().removeLastSegments(1).append("/game5.rao")
-					.toString(), true);
-			PrintStream printStream = new PrintStream(outputStream, true,
-					StandardCharsets.UTF_8.name());
-			JSONArray places = (JSONArray) object.get("places");
-
-			printStream
-					.print(String.format(
-							"resource Фишка1 = Фишка.create(1, %1$s);\n"
-									+ "resource Фишка2 = Фишка.create(2, %2$s);\n"
-									+ "resource Фишка3 = Фишка.create(3, %3$s);\n"
-									+ "resource Фишка4 = Фишка.create(4, %4$s);\n"
-									+ "resource Фишка5 = Фишка.create(5, %5$s);\n"
-									+ "resource Дырка = Дырка_t.create(%6$s);\n"
-									+ "\n"
-									+ "search Расстановка_фишек {\n"
-									+ "	set init() {\n"
-									+ "		setCondition(exist(Фишка: Фишка.Номер != Фишка.Местоположение));\n"
-									+ "		setTerminateCondition(forAll(Фишка: Фишка.Номер == Фишка.Местоположение));\n"
-									+ "		compareTops(%7$s);\n"
-									+ "		evaluateBy(%8$s);\n"
-									+ "	}\n"
-									+ "	activity Перемещение_вправо checks Перемещение_фишки(Место_дырки.справа,  1).setValue%9$s(%10$s);\n"
-									+ "	activity Перемещение_влево checks Перемещение_фишки(Место_дырки.слева,  -1).setValue%11$s(%12$s);\n"
-									+ "	activity Перемещение_вверх checks Перемещение_фишки(Место_дырки.сверху,  -3).setValue%13$s(%14$s);\n"
-									+ "	activity Перемещение_вниз checks Перемещение_фишки(Место_дырки.снизу,  3).setValue%15$s(%16$s);\n"
-									+ "}\n" + "\n" + "%17$s\n", places.get(0),
-							places.get(1), places.get(2), places.get(3),
-							places.get(4), places.get(5),
-							object.get("compare"), object.get("heuristic"),
-							object.get("computeRight"),
-							object.get("costRight"), object.get("computeLeft"),
-							object.get("costLeft"), object.get("computeUp"),
-							object.get("costUp"), object.get("computeDown"),
-							object.get("costDown"), object.get("code")));
-			printStream.close();
-
-		} catch (IOException | ParseException e) {
-			e.printStackTrace();
-		}
 	}
 }

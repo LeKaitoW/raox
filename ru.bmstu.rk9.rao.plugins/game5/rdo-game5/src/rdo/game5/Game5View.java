@@ -1,21 +1,23 @@
 package rdo.game5;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -35,6 +37,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
@@ -59,28 +62,14 @@ public class Game5View extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		try {
-			final IStructuredSelection selection = (IStructuredSelection) PlatformUI
-					.getWorkbench().getActiveWorkbenchWindow()
-					.getSelectionService().getSelection();
-			final Object element = selection.getFirstElement();
-			IFile configIFile = null;
-
-			if (element instanceof IAdaptable)
-				configIFile = (IFile) ((IAdaptable) element)
-						.getAdapter(IFile.class);
-
 			final JSONParser parser = new JSONParser();
 			final IPath workspacePath = ResourcesPlugin.getWorkspace()
 					.getRoot().getLocation();
-			if (configIFile != null) {
-				object = (JSONObject) parser.parse(new FileReader(workspacePath
-						.append(configIFile.getFullPath()).toString()));
-			} else {
-				object = (JSONObject) parser
-						.parse(new FileReader(Game5ProjectConfigurator
-								.getConfigFilePath().toString()));
-			}
-
+			final IFileEditorInput input = (IFileEditorInput) this
+					.getEditorInput();
+			final IFile configIFile = input.getFile();
+			object = (JSONObject) parser.parse(new FileReader(workspacePath
+					.append(configIFile.getFullPath()).toString()));
 		} catch (IOException | ParseException e1) {
 			e1.printStackTrace();
 		}
@@ -127,11 +116,7 @@ public class Game5View extends EditorPart {
 				| SWT.V_SCROLL | SWT.READ_ONLY);
 		leftCombo.add("After");
 		leftCombo.add("Before");
-		if (object.get("computeLeft").equals("After")) {
-			leftCombo.select(0);
-		} else {
-			leftCombo.select(1);
-		}
+		leftCombo.select(object.get("computeLeft").equals("After") ? 0 : 1);
 
 		final Button leftButton = new Button(ruleCost, SWT.CHECK);
 		final Text leftCost = new Text(ruleCost, SWT.BORDER);
@@ -163,11 +148,7 @@ public class Game5View extends EditorPart {
 				| SWT.V_SCROLL | SWT.READ_ONLY);
 		rightCombo.add("After");
 		rightCombo.add("Before");
-		if (object.get("computeRight").equals("After")) {
-			rightCombo.select(0);
-		} else {
-			rightCombo.select(1);
-		}
+		rightCombo.select(object.get("computeRight").equals("After") ? 0 : 1);
 
 		final Button rightButton = new Button(ruleCost, SWT.CHECK);
 		final Text rightCost = new Text(ruleCost, SWT.BORDER);
@@ -199,11 +180,7 @@ public class Game5View extends EditorPart {
 				| SWT.V_SCROLL | SWT.READ_ONLY);
 		upCombo.add("After");
 		upCombo.add("Before");
-		if (object.get("computeUp").equals("After")) {
-			upCombo.select(0);
-		} else {
-			upCombo.select(1);
-		}
+		upCombo.select(object.get("computeUp").equals("After") ? 0 : 1);
 
 		final Button upButton = new Button(ruleCost, SWT.CHECK);
 		final Text upCost = new Text(ruleCost, SWT.BORDER);
@@ -235,11 +212,7 @@ public class Game5View extends EditorPart {
 				| SWT.V_SCROLL | SWT.READ_ONLY);
 		downCombo.add("After");
 		downCombo.add("Before");
-		if (object.get("computeDown").equals("After")) {
-			downCombo.select(0);
-		} else {
-			downCombo.select(1);
-		}
+		downCombo.select(object.get("computeDown").equals("After") ? 0 : 1);
 
 		final Group traverseGraph = new Group(parent, SWT.SHADOW_IN);
 		traverseGraph.setText("Traverse graph:");
@@ -491,8 +464,9 @@ public class Game5View extends EditorPart {
 					StandardCharsets.UTF_8.name());
 			printStream.print(object.toString());
 			printStream.close();
-			Game5ProjectConfigurator.fillModelFile(configIFile);
-			configIFile.refreshLocal(IResource.DEPTH_INFINITE, null);
+			fillModelFile(configIFile);
+			configIFile.getProject().refreshLocal(IResource.DEPTH_INFINITE,
+					null);
 		} catch (IOException | CoreException e) {
 			e.printStackTrace();
 		}
@@ -530,5 +504,42 @@ public class Game5View extends EditorPart {
 	protected void setDirty(boolean value) {
 		dirty = value;
 		firePropertyChange(IEditorPart.PROP_DIRTY);
+	}
+
+	private static final void fillModelFile(IFile configIFile)
+			throws IOException {
+		final String modelTemplatePath = "/model_template/game_5.rao";
+		final InputStream inputStream = Game5ProjectConfigurator.class
+				.getClassLoader().getResourceAsStream(modelTemplatePath);
+		OutputStream outputStream = null;
+
+		try {
+			InputStreamReader inputStreamReader = new InputStreamReader(
+					inputStream, StandardCharsets.UTF_8.name());
+			BufferedReader bufferedReader = new BufferedReader(
+					inputStreamReader);
+			outputStream = new FileOutputStream(configIFile.getLocation()
+					.removeLastSegments(1).append("/game5.rao").toString());
+			PrintStream printStream = new PrintStream(outputStream, true,
+					StandardCharsets.UTF_8.name());
+
+			String modelTemplateCode = bufferedReader.readLine();
+			while (modelTemplateCode != null) {
+				printStream.println(modelTemplateCode);
+				modelTemplateCode = bufferedReader.readLine();
+			}
+
+			printStream.close();
+
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} finally {
+			inputStream.close();
+			if (outputStream != null) {
+				outputStream.flush();
+				outputStream.close();
+			}
+		}
+		ConfigurationParser.parseConfig(configIFile);
 	}
 }
