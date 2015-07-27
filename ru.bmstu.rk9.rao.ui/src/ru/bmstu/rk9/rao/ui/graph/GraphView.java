@@ -105,7 +105,8 @@ public class GraphView extends JFrame {
 		graph = new mxGraph();
 		graph.getModel().beginUpdate();
 		try {
-			drawGraph(graph, nodeList, nodeList.get(0));
+			if (!nodeList.isEmpty())
+				drawGraph(graph, nodeList, nodeList.get(0));
 		} finally {
 			graph.getModel().endUpdate();
 		}
