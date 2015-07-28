@@ -1,8 +1,12 @@
 package rdo.game5;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,10 +89,11 @@ public class Game5ProjectConfigurator {
 		} catch (CoreException e2) {
 			e2.printStackTrace();
 		}
-
-		createModelFile(createConfigFile());
+		final IFile configIFile = createConfigFile();
+		createModelFile(configIFile);
 	}
 
+	@SuppressWarnings("resource")
 	private static void createModelFile(IFile configIFile) {
 
 		final String modelName = "game5.rao";
@@ -102,10 +107,17 @@ public class Game5ProjectConfigurator {
 			InputStream inputStream = Game5ProjectConfigurator.class
 					.getClassLoader().getResourceAsStream(modelTemplatePath);
 			modelIFile.create(inputStream, true, null);
+			OutputStream outputStream = new FileOutputStream(configIFile
+					.getLocation().removeLastSegments(1).append("/game5.rao")
+					.toString(), true);
+			PrintStream printStream = new PrintStream(outputStream, true,
+					StandardCharsets.UTF_8.name());
+			final String configuration = ConfigurationParser
+					.parseConfig(configIFile);
+			printStream.print(configuration);
 		} catch (CoreException | IOException e) {
 			e.printStackTrace();
 		}
-		ConfigurationParser.parseConfig(configIFile);
 	}
 
 	private static final IFile createConfigFile() {

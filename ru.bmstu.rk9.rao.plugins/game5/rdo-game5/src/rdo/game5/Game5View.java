@@ -540,8 +540,10 @@ public class Game5View extends EditorPart {
 				modelTemplateCode = bufferedReader.readLine();
 			}
 
+			final String configuration = ConfigurationParser
+					.parseConfig(configIFile);
+			printStream.print(configuration);
 			printStream.close();
-
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} finally {
@@ -551,6 +553,5 @@ public class Game5View extends EditorPart {
 				outputStream.close();
 			}
 		}
-		ConfigurationParser.parseConfig(configIFile);
 	}
 }
