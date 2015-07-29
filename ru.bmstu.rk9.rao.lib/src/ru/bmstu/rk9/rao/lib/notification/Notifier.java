@@ -1,26 +1,46 @@
 package ru.bmstu.rk9.rao.lib.notification;
 
-import java.util.LinkedList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public interface Notifier {
-	public static class Subscription {
-		protected LinkedList<Subscriber> subscribers;
+public class Notifier<Category extends Enum<Category>> {
 
-		Subscription() {
-			subscribers = new LinkedList<Subscriber>();
-		}
+	private class SubscriptionState {
+		private final Subscription subscription = new Subscription();
+		private boolean hadNotifications = false;
+	}
+	private final Map<Category, SubscriptionState> subscriptionStates;
 
-		public Subscription addSubscriber(Subscriber object) {
-			subscribers.add(object);
-			return this;
-		}
+	public Notifier(Class<Category> enumClass) {
+		subscriptionStates = new ConcurrentHashMap<Category, SubscriptionState>();
 
-		public boolean removeSubscriber(Subscriber object) {
-			return subscribers.remove(object);
+		for (Category category : enumClass.getEnumConstants()) {
+			subscriptionStates.put(category, new SubscriptionState());
 		}
 	}
 
-	public Subscription getSubscription(String category);
+	public void notifySubscribers(Category category) {
+		SubscriptionState subscriptionState = subscriptionStates.get(category);
 
-	public String[] getAvailableSubscriptions();
+		for (Subscriber subscriber : subscriptionState.subscription.subscribers)
+			subscriber.fireChange();
+		subscriptionState.hadNotifications = true;
+	}
+
+	public void addSubscriber(Subscriber subscriber, Category category) {
+		addSubscriber(subscriber, category, true);
+	}
+
+	public void addSubscriber(Subscriber subscriber, Category category,
+			boolean notifeAboutAccumulatedData) {
+		SubscriptionState subscriptionState = subscriptionStates.get(category);
+
+		subscriptionState.subscription.addSubscriber(subscriber);
+		if (notifeAboutAccumulatedData && subscriptionState.hadNotifications)
+			subscriber.fireChange();
+	}
+
+	public void removeSubscriber(Subscriber subscriber, Category category) {
+		subscriptionStates.get(category).subscription.removeSubscriber(subscriber);
+	}
 }

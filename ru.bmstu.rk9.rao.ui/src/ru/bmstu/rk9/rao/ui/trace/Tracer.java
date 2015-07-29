@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.lib.tracer;
+package ru.bmstu.rk9.rao.ui.trace;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -13,12 +13,10 @@ import ru.bmstu.rk9.rao.lib.modelStructure.ActivityCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResourceTypeCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResultCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
-import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.tracer.StringJoiner.StringFormat;
+import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
 
-// TODO make static and move to ui
-public class Tracer implements Subscriber {
+public class Tracer {
 	public static enum TraceType {
 		RESOURCE_CREATE("RC"), RESOURCE_KEEP("RK"), RESOURCE_ERASE("RE"), SYSTEM(
 				"ES"), OPERATION_BEGIN("EB"), OPERATION_END("EF"), EVENT("EI"), RULE(
@@ -55,52 +53,6 @@ public class Tracer implements Subscriber {
 		public final String content() {
 			return content;
 		}
-	}
-
-	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-	// -----------------------NOTIFICATION SYSTEM -------------------------- //
-	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-
-	// TODO unify with DbIndexHelper notification System
-
-	private boolean paused = true;
-
-	public final synchronized void setPaused(boolean paused) {
-		if (this.paused == paused)
-			return;
-
-		this.paused = paused;
-		fireChange();
-	}
-
-	private Subscriber realTimeSubscriber = null;
-
-	public final void setRealTimeSubscriber(Subscriber subscriber) {
-		this.realTimeSubscriber = subscriber;
-	}
-
-	private final void notifyRealTimeSubscriber() {
-		if (realTimeSubscriber != null)
-			realTimeSubscriber.fireChange();
-	}
-
-	private Subscriber commonSubscriber = null;
-
-	public final void setCommonSubscriber(Subscriber subscriber) {
-		this.commonSubscriber = subscriber;
-	}
-
-	public final void notifyCommonSubscriber() {
-		if (commonSubscriber != null)
-			commonSubscriber.fireChange();
-	}
-
-	@Override
-	public void fireChange() {
-		if (paused)
-			return;
-
-		notifyRealTimeSubscriber();
 	}
 
 	static private final String delimiter = " ";

@@ -5,22 +5,12 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import javax.swing.JFrame;
 
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.ui.PlatformUI;
 
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.treeBuilder.TreeBuilder;
-
 public class GraphControl {
-
-	final static Rectangle monitorBounds = PlatformUI.getWorkbench()
-			.getDisplay().getBounds();
-
 	public static class FrameInfo {
 		public int dptNumber;
 		public String frameName;
@@ -32,43 +22,23 @@ public class GraphControl {
 	}
 
 	private static void createFrameWindow(FrameInfo frameInfo) {
+		Rectangle monitorBounds = PlatformUI.getWorkbench().getDisplay().getBounds();
+		monitorAspectRatio = (double) monitorBounds.width
+				/ monitorBounds.height;
+
 		int dptNum = frameInfo.dptNumber;
 		String frameName = frameInfo.frameName;
-
-		TreeBuilder treeBuilder = Simulator.getTreeBuilder();
-		treeBuilder.buildTree();
 
 		int frameWidth = setWidth(monitorBounds, 1.2);
 		int frameHeight = setHeight(monitorBounds, 0.8);
 
-		GraphFrame graphFrame = new GraphFrame(dptNum, frameWidth, frameHeight);
+		GraphView graphFrame = new GraphView(dptNum, frameWidth, frameHeight);
 
 		GraphControl.openedGraphMap.put(dptNum, graphFrame);
 		graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		graphFrame.setTitle(frameName);
 		graphFrame.setLocationRelativeTo(null);
 		graphFrame.setVisible(true);
-
-		boolean isFinished;
-
-		Simulator.getTreeBuilder().rwLock.readLock().lock();
-		try {
-			isFinished = Simulator.getTreeBuilder().dptSimulationInfoMap
-					.get(dptNum).isFinished;
-		} finally {
-			Simulator.getTreeBuilder().rwLock.readLock().unlock();
-		}
-
-		if (!isFinished) {
-			TimerTask graphUpdateTask = graphFrame
-					.getGraphFrameUpdateTimerTask();
-			Timer graphUpdateTimer = new Timer();
-			graphUpdateTimer.scheduleAtFixedRate(graphUpdateTask, 0, 10);
-
-			TimerTask graphFinTask = graphFrame.getGraphFrameFinTimerTask();
-			Timer graphFinTimer = new Timer();
-			graphFinTimer.scheduleAtFixedRate(graphFinTask, 0, 10);
-		}
 
 		graphFrame.addWindowListener(new WindowListener() {
 			@Override
@@ -93,6 +63,7 @@ public class GraphControl {
 
 			@Override
 			public void windowClosed(WindowEvent e) {
+				GraphControl.openedGraphMap.get(dptNum).deinitializeSubscribers();
 				GraphControl.openedGraphMap.remove(dptNum);
 			}
 
@@ -106,7 +77,7 @@ public class GraphControl {
 		if (!GraphControl.openedGraphMap.containsKey(frameInfo.dptNumber)) {
 			GraphControl.createFrameWindow(frameInfo);
 		} else {
-			GraphFrame currentFrame = GraphControl.openedGraphMap
+			GraphView currentFrame = GraphControl.openedGraphMap
 					.get(frameInfo.dptNumber);
 			if (currentFrame.getState() == Frame.ICONIFIED)
 				currentFrame.setState(Frame.NORMAL);
@@ -115,10 +86,9 @@ public class GraphControl {
 		}
 	}
 
-	public static final Map<Integer, GraphFrame> openedGraphMap = new HashMap<Integer, GraphFrame>();
+	public static final Map<Integer, GraphView> openedGraphMap = new HashMap<Integer, GraphView>();
 
-	public static final double monitorAspectRatio = (double) monitorBounds.width
-			/ monitorBounds.height;
+	private static double monitorAspectRatio;
 
 	public static int setWidth(Rectangle r, double relativeWidth) {
 		return (int) (r.width * relativeWidth / GraphControl.monitorAspectRatio);

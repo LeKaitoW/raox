@@ -24,6 +24,7 @@ import ru.bmstu.rk9.rao.ui.internal.RaoActivator;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.plot.PlotView;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
+import ru.bmstu.rk9.rao.ui.run.RuntimeComponents;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider;
 import ru.bmstu.rk9.rao.ui.simulation.SetSimulationScaleHandler;
@@ -39,12 +40,7 @@ public class RaoActivatorExtension extends RaoActivator {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 
-		IEclipsePreferences prefs = InstanceScope.INSTANCE
-				.getNode("ru.bmstu.rk9.rao.ui");
-
-		SpeedSelectionToolbar.setSpeed(prefs.getInt("SimulationSpeed", 100));
-		SetSimulationScaleHandler.setSimulationScale(prefs.getDouble(
-				"SimulationScale", 3600d));
+		preinitializeUiComponents();
 
 		IWorkbench workbench = PlatformUI.getWorkbench();
 
@@ -119,8 +115,23 @@ public class RaoActivatorExtension extends RaoActivator {
 		});
 	}
 
+	private void preinitializeUiComponents() {
+		IEclipsePreferences prefs = InstanceScope.INSTANCE
+				.getNode("ru.bmstu.rk9.rao.ui");
+		RuntimeComponents.initialize();
+		SpeedSelectionToolbar.setSpeed(prefs.getInt("SimulationSpeed", 100));
+		SetSimulationScaleHandler.setSimulationScale(prefs.getDouble(
+				"SimulationScale", 3600d));
+	}
+
 	@Override
 	public void stop(BundleContext context) throws Exception {
+		deinitializeUiComponents();
+
+		super.stop(context);
+	}
+
+	private void deinitializeUiComponents() {
 		IEclipsePreferences prefs = InstanceScope.INSTANCE
 				.getNode("ru.bmstu.rk9.rao.ui");
 
@@ -134,6 +145,6 @@ public class RaoActivatorExtension extends RaoActivator {
 
 		ResultsView.savePreferences();
 
-		super.stop(context);
+		RuntimeComponents.deinitialize();
 	}
 }

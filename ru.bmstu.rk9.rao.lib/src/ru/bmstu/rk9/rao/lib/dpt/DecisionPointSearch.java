@@ -13,9 +13,9 @@ import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.ModelState;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 
-public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
-		implements Subscriber {
+public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint {
 	private DecisionPoint.Condition terminate;
 
 	private DatabaseRetriever<T> retriever;
@@ -33,8 +33,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 		this.retriever = retriever;
 		this.compareTops = compareTops;
 
-		Simulator.getNotifier().getSubscription("ExecutionAborted")
-				.addSubscriber(this);
+		Simulator.getSimulatorStateNotifier().addSubscriber(simulatorInitializedSubscriber,
+				Simulator.SimulatorState.INITIALIZED);
 	}
 
 	public static interface EvaluateBy {
@@ -110,12 +110,23 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 			1, nodeComparator);
 	private LinkedList<GraphNode> nodesClosed = new LinkedList<GraphNode>();
 
-	private volatile boolean allowSearch = true;
+	private final Subscriber executionAbortedListener = new Subscriber() {
+		@Override
+		public void fireChange() {
+			allowSearch = false;
+		}
+	};
 
-	@Override
-	public void fireChange() {
-		this.allowSearch = false;
-	}
+	private final Subscriber simulatorInitializedSubscriber = new Subscriber() {
+		@Override
+		public void fireChange() {
+			allowSearch = true;
+			Simulator.getExecutionStateNotifier().addSubscriber(executionAbortedListener,
+					Simulator.ExecutionState.EXECUTION_ABORTED);
+		}
+	};
+
+	private volatile boolean allowSearch = false;
 
 	private GraphNode head;
 	private GraphNode current;
@@ -279,6 +290,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint
 				if (enoughSensitivity(SerializationLevel.ALL)) {
 					executed.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SEARCH);
 				}
+
+				Simulator.getExecutionStateNotifier().notifySubscribers(ExecutionState.SEARCH_STEP);
 
 				parent.state.deploy();
 

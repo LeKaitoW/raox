@@ -1,59 +1,69 @@
 package ru.bmstu.rk9.rao.ui.simulation;
 
 import java.text.DecimalFormat;
+import java.util.Arrays;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager;
+import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 
 public class SimulationSynchronizer {
 	public static enum ExecutionMode {
-		NO_ANIMATION, FAST_FORWARD, NORMAL_SPEED, PAUSE
-	}
+		PAUSE("P"), NO_ANIMATION("NA"), FAST_FORWARD("FF"), NORMAL_SPEED("NS");
 
-	private static SimulationSynchronizer INSTANCE;
-
-	public static SimulationSynchronizer getInstance() {
-		return INSTANCE;
-	}
-
-	private SimulationSynchronizer() {
-		INSTANCE = this;
-
-		setSimulationScale(SetSimulationScaleHandler.getSimulationScale());
-		setSimulationSpeed(SpeedSelectionToolbar.getSpeed());
-	}
-
-	public static void start() {
-		new SimulationSynchronizer();
-	}
-
-	public static void finish() {
-		INSTANCE = null;
-	}
-
-	private volatile ExecutionMode executionMode = null;
-
-	public static void setState(String state) {
-		if (INSTANCE == null)
-			return;
-
-		switch (state) {
-		case "NA":
-			INSTANCE.executionMode = ExecutionMode.NO_ANIMATION;
-			break;
-		case "FF":
-			INSTANCE.executionMode = ExecutionMode.FAST_FORWARD;
-			break;
-		case "NS":
-			INSTANCE.executionMode = ExecutionMode.NORMAL_SPEED;
-			break;
-		case "P":
-			INSTANCE.executionMode = ExecutionMode.PAUSE;
-			break;
+		ExecutionMode(final String type) {
+			this.type = type;
 		}
+
+		public static final ExecutionMode getByString(final String type) {
+			for (final ExecutionMode executionMode : values()) {
+				if (executionMode.type.equals(type))
+					return executionMode;
+			}
+			throw new SimulationComponentsException("Unknown simulation mode: "
+					+ type);
+		}
+
+		public String getString() {
+			return type;
+		}
+
+		final private String type;
+	}
+
+	public SimulationSynchronizer() {
+		initializeSubscribers();
+	}
+
+	private final void initializeSubscribers() {
+		simulationSubscriberManager.initialize(Arrays.asList(
+				new SimulatorSubscriberInfo(uiTimeUpdater,
+						ExecutionState.TIME_CHANGED),
+				new SimulatorSubscriberInfo(simulationManager.scaleManager,
+						ExecutionState.TIME_CHANGED),
+				new SimulatorSubscriberInfo(simulationManager.speedManager,
+						ExecutionState.STATE_CHANGED),
+				new SimulatorSubscriberInfo(simulationManager.speedManager,
+						ExecutionState.SEARCH_STEP),
+				new SimulatorSubscriberInfo(executionAbortedListener,
+						ExecutionState.EXECUTION_ABORTED),
+				new SimulatorSubscriberInfo(executionStartedListener,
+						ExecutionState.EXECUTION_STARTED)));
+	}
+
+	public final void deinitializeSubscribers() {
+		simulationSubscriberManager.deinitialize();
+	}
+
+	private volatile ExecutionMode executionMode;
+
+	public void setExecutionMode(ExecutionMode executionMode) {
+		this.executionMode = executionMode;
 	}
 
 	public class UITimeUpdater implements Subscriber {
@@ -78,46 +88,44 @@ public class SimulationSynchronizer {
 			if (currentTime - lastUpdateTime > 50) {
 				lastUpdateTime = currentTime;
 				if (!display.isDisposed())
-					display.asyncExec(getUpdater());
+					display.asyncExec(updater);
 			}
-		}
-
-		public Runnable getUpdater() {
-			return updater;
-		}
-
-		public void setUpdater(Runnable updater) {
-			this.updater = updater;
 		}
 	}
 
+	private final SimulatorSubscriberManager simulationSubscriberManager = new SimulatorSubscriberManager();
+
 	private volatile boolean simulationAborted = false;
 
-	public class SimulationStateListener implements Subscriber {
+	public class ExecutionAbortedListener implements Subscriber {
 		@Override
 		public void fireChange() {
 			SimulationSynchronizer.this.simulationAborted = true;
 		}
 	}
 
-	public static void setSimulationSpeed(int value) {
-		if (INSTANCE == null)
-			return;
-
-		if (value < 1 || value > 100)
-			return;
-
-		INSTANCE.simulationManager.speedDelayMillis = (long) (-Math
-				.log10(value / 100d) * 1000d);
+	public class ExecutionStartedListener implements Subscriber {
+		@Override
+		public void fireChange() {
+			SimulationSynchronizer.this.simulationAborted = false;
+			setSimulationScale(SetSimulationScaleHandler.getSimulationScale());
+			setSimulationSpeed(SpeedSelectionToolbar.getSpeed());
+			setExecutionMode(SimulationModeDispatcher.getMode());
+		}
 	}
 
-	public static void setSimulationScale(double value) {
-		if (INSTANCE == null)
-			return;
+	public void setSimulationSpeed(int value) {
+		if (value < 1 || value > 100)
+			throw new SimulationComponentsException(
+					"Incorrect simulation speed value " + value);
 
-		INSTANCE.simulationManager.timeScale = 60060d / value;
-		INSTANCE.simulationManager.startRealTime = System.currentTimeMillis();
-		INSTANCE.simulationManager.startSimulationTime = Simulator.isRunning() ? Simulator
+		simulationManager.speedDelayMillis = (long) (-Math.log10(value / 100d) * 1000d);
+	}
+
+	public void setSimulationScale(double value) {
+		simulationManager.timeScale = 60060d / value;
+		simulationManager.startRealTime = System.currentTimeMillis();
+		simulationManager.startSimulationTime = Simulator.isRunning() ? Simulator
 				.getTime() : 0;
 	}
 
@@ -136,13 +144,10 @@ public class SimulationSynchronizer {
 				if (currentSimulationTime != 0) {
 					switch (executionMode) {
 					case PAUSE:
-
 						processPause();
-
 						break;
 
 					case NORMAL_SPEED:
-
 						long waitTime = (long) ((currentSimulationTime - startSimulationTime) * timeScale)
 								- (currentRealTime - startRealTime);
 
@@ -157,7 +162,6 @@ public class SimulationSynchronizer {
 						} else
 							uiTimeUpdater.actualTimeScale = ((double) (currentRealTime - startRealTime))
 									/ currentSimulationTime;
-
 						break;
 
 					default:
@@ -197,9 +201,8 @@ public class SimulationSynchronizer {
 					}
 
 					break;
-
 				default:
-					// Do nothing
+					break;
 				}
 			}
 		}
@@ -219,7 +222,7 @@ public class SimulationSynchronizer {
 		}
 	}
 
-	private static void delay(long milliseconds) {
+	private void delay(long milliseconds) {
 		try {
 			Thread.sleep(milliseconds);
 		} catch (InterruptedException e) {
@@ -229,5 +232,6 @@ public class SimulationSynchronizer {
 
 	public final UITimeUpdater uiTimeUpdater = new UITimeUpdater();
 	public final SimulationManager simulationManager = new SimulationManager();
-	public final SimulationStateListener simulationStateListener = new SimulationStateListener();
+	public final ExecutionAbortedListener executionAbortedListener = new ExecutionAbortedListener();
+	public final ExecutionStartedListener executionStartedListener = new ExecutionStartedListener();
 }

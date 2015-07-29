@@ -10,69 +10,61 @@ import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.event.EventScheduler;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modelStructure.ModelStructureCache;
-import ru.bmstu.rk9.rao.lib.notification.NotificationManager;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.result.ResultManager;
-import ru.bmstu.rk9.rao.lib.tracer.Tracer;
-import ru.bmstu.rk9.rao.lib.treeBuilder.TreeBuilder;
 
 public class Simulator {
 	private static Simulator INSTANCE = null;
 
-	public static synchronized void initSimulation() {
+	public static synchronized void initSimulation(JSONObject modelStructure) {
 		if (isRunning)
-			return;
+			throw new SimulatorException("Simulation is already initialized");
+
+		if (INSTANCE != null)
+			setSimulationState(SimulatorState.DEINITIALIZED);
 
 		INSTANCE = new Simulator();
 
-		INSTANCE.notificationManager = new NotificationManager(new String[] {
-				"StateChange", "TimeChange", "ExecutionAborted",
-				"ExecutionComplete" });
-
+		INSTANCE.executionStateNotifier = new Notifier<ExecutionState>(
+				ExecutionState.class);
 		INSTANCE.dptManager = new DPTManager();
+		INSTANCE.database = new Database(modelStructure);
+		INSTANCE.modelStructureCache = new ModelStructureCache();
+
+		setSimulationState(SimulatorState.INITIALIZED);
+	}
+
+	private static SimulatorState simulatorState = SimulatorState.DEINITIALIZED;
+
+	public enum SimulatorState {
+		INITIALIZED, DEINITIALIZED
+	};
+
+	private static final void setSimulationState(SimulatorState simulationState) {
+		Simulator.simulatorState = simulationState;
+		simulatorStateNotifier.notifySubscribers(simulationState);
+	}
+
+	private static final Notifier<SimulatorState> simulatorStateNotifier = new Notifier<SimulatorState>(
+			SimulatorState.class);
+
+	public static final Notifier<SimulatorState> getSimulatorStateNotifier() {
+		return simulatorStateNotifier;
 	}
 
 	public static boolean isInitialized() {
-		return INSTANCE != null;
+		return simulatorState == SimulatorState.INITIALIZED;
 	}
 
 	public static boolean isRunning() {
 		return isRunning;
 	}
 
-	public static synchronized void initDatabase(JSONObject modelStructure) {
-		INSTANCE.database = new Database(modelStructure);
-	}
-
-	public static synchronized void initTracer() {
-		INSTANCE.tracer = new Tracer();
-	}
-
-	public static synchronized void initModelStructureCache() {
-		INSTANCE.modelStructureCache = new ModelStructureCache();
-	}
-
 	private Database database;
 
 	public static Database getDatabase() {
 		return INSTANCE.database;
-	}
-
-	private Tracer tracer;
-
-	public static Tracer getTracer() {
-		return INSTANCE.tracer;
-	}
-
-	private TreeBuilder treeBuilder;
-
-	public static TreeBuilder getTreeBuilder() {
-		return INSTANCE.treeBuilder;
-	}
-
-	public static synchronized void initTreeBuilder() {
-		INSTANCE.treeBuilder = new TreeBuilder();
 	}
 
 	private ModelStructureCache modelStructureCache;
@@ -115,14 +107,18 @@ public class Simulator {
 		return INSTANCE.resultManager.getResults();
 	}
 
-	private NotificationManager notificationManager;
+	public enum ExecutionState {
+		EXECUTION_STARTED, EXECUTION_COMPLETED, EXECUTION_ABORTED, STATE_CHANGED, TIME_CHANGED, SEARCH_STEP
+	};
 
-	public static Notifier getNotifier() {
-		return INSTANCE.notificationManager;
+	private Notifier<ExecutionState> executionStateNotifier;
+
+	public static Notifier<ExecutionState> getExecutionStateNotifier() {
+		return INSTANCE.executionStateNotifier;
 	}
 
-	private static void notifyChange(String category) {
-		INSTANCE.notificationManager.notifySubscribers(category);
+	private static void notifyChange(ExecutionState category) {
+		INSTANCE.executionStateNotifier.notifySubscribers(category);
 	}
 
 	private boolean checkTerminate() {
@@ -137,16 +133,16 @@ public class Simulator {
 	private volatile boolean executionAborted = false;
 
 	public static synchronized void stopExecution() {
-		if (INSTANCE == null)
+		if (simulatorState != SimulatorState.INITIALIZED)
 			return;
 
 		INSTANCE.executionAborted = true;
-		notifyChange("ExecutionAborted");
+		notifyChange(ExecutionState.EXECUTION_ABORTED);
 	}
 
 	private int checkDPT() {
 		while (dptManager.checkDPT() && !executionAborted) {
-			notifyChange("StateChange");
+			notifyChange(ExecutionState.STATE_CHANGED);
 
 			if (checkTerminate())
 				return 1;
@@ -162,8 +158,9 @@ public class Simulator {
 
 		INSTANCE.database.addSystemEntry(Database.SystemEntryType.SIM_START);
 
-		notifyChange("TimeChange");
-		notifyChange("StateChange");
+		notifyChange(ExecutionState.EXECUTION_STARTED);
+		notifyChange(ExecutionState.TIME_CHANGED);
+		notifyChange(ExecutionState.STATE_CHANGED);
 
 		int dptCheck = INSTANCE.checkDPT();
 		if (dptCheck != 0)
@@ -174,11 +171,11 @@ public class Simulator {
 
 			INSTANCE.time = current.getTime();
 
-			notifyChange("TimeChange");
+			notifyChange(ExecutionState.TIME_CHANGED);
 
 			current.run();
 
-			notifyChange("StateChange");
+			notifyChange(ExecutionState.STATE_CHANGED);
 
 			if (INSTANCE.checkTerminate())
 				return stop(1);
@@ -207,9 +204,7 @@ public class Simulator {
 			break;
 		}
 		INSTANCE.database.addSystemEntry(simFinishType);
-		INSTANCE.tracer.notifyCommonSubscriber();
-		INSTANCE.database.getIndexHelper().notifyCommonSubscriber();
-		notifyChange("ExecutionComplete");
+		notifyChange(ExecutionState.EXECUTION_COMPLETED);
 		isRunning = false;
 		return code;
 	}

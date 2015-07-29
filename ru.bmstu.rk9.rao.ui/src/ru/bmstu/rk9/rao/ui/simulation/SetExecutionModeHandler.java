@@ -6,17 +6,19 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.handlers.RadioState;
 
+import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer.ExecutionMode;
+
 public class SetExecutionModeHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		if (HandlerUtil.matchesRadioState(event))
 			return null;
 
-		String currentState = event.getParameter(RadioState.PARAMETER_ID);
+		String executionMode = event.getParameter(RadioState.PARAMETER_ID);
 
-		HandlerUtil.updateRadioState(event.getCommand(), currentState);
+		HandlerUtil.updateRadioState(event.getCommand(), executionMode);
 
-		SimulationModeDispatcher.setMode(currentState);
+		SimulationModeDispatcher.setMode(ExecutionMode.getByString(executionMode));
 
 		return null;
 	}

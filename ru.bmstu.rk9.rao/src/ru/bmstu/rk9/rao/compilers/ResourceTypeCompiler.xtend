@@ -36,8 +36,10 @@ class ResourceTypeCompiler
 		import java.nio.ByteBuffer;
 
 		import java.util.Collection;
+		import java.util.List;
 		import java.util.LinkedList;
 		import java.util.ArrayList;
+		import java.util.Arrays;
 		import java.util.HashMap;
 
 		import ru.bmstu.rk9.rao.lib.json.*;
@@ -123,7 +125,7 @@ class ResourceTypeCompiler
 			{
 				managerCurrent.eraseResource(res);
 				lastDeleted = res;
-				notificationManager.notifySubscribers("ResourceDeleted");
+				notifier.notifySubscribers(ResourceNotificationCategory.RESOURCE_DELETED);
 			}
 
 			private static «resourceType.name» lastDeleted;
@@ -133,18 +135,15 @@ class ResourceTypeCompiler
 				return lastDeleted;
 			}
 
-			private static NotificationManager notificationManager =
-				new NotificationManager
+			private static Notifier<ResourceNotificationCategory> notifier =
+				new Notifier<ResourceNotificationCategory>
 				(
-					new String[]
-					{
-						"ResourceDeleted"
-					}
+					ResourceNotificationCategory.class
 				);
 
-			public static Notifier getNotifier()
+			public static Notifier<ResourceNotificationCategory> getNotifier()
 			{
-				return notificationManager;
+				return notifier;
 			}
 
 			private ResourceManager<«resourceType.name»> managerOwner = managerCurrent;

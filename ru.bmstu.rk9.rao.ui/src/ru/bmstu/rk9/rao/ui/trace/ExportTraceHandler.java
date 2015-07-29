@@ -15,24 +15,45 @@ import org.eclipse.core.runtime.IPath;
 
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.tracer.Tracer;
-import ru.bmstu.rk9.rao.lib.tracer.Tracer.TraceOutput;
+import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceOutput;
 
 //TODO export to location chosen by user
 
 public class ExportTraceHandler extends AbstractHandler {
+	public static enum ExportType {
+		REGULAR("Regular"), LEGACY("Legacy");
+
+		ExportType(final String type) {
+			this.type = type;
+		}
+
+		static final ExportType getByString(final String type) {
+			for (final ExportType exportType : values()) {
+				if (exportType.type.equals(type))
+					return exportType;
+			}
+			throw new ExportTraceException("Unexpected export type: " + type);
+		}
+
+		public String getString() {
+			return type;
+		}
+
+		final private String type;
+	}
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		if (!ready())
 			return null;
 
-		String type = event
-				.getParameter("ru.bmstu.rk9.rao.ui.runtime.exportTraceType");
+		ExportType type = ExportType.getByString(event
+				.getParameter("ru.bmstu.rk9.rao.ui.runtime.exportTraceType"));
 		switch (type) {
-		case "Regular":
+		case REGULAR:
 			exportTraceRegular();
 			break;
-		case "Legacy":
+		case LEGACY:
 			exportTraceLegacy();
 			break;
 		}
@@ -44,7 +65,7 @@ public class ExportTraceHandler extends AbstractHandler {
 		if (!Simulator.isInitialized() || !ready())
 			return;
 
-		Tracer tracer = Simulator.getTracer();
+		Tracer tracer = new Tracer();
 
 		PrintWriter writer = initializeWriter(".trc");
 		for (Entry entry : Simulator.getDatabase().getAllEntries()) {
