@@ -42,9 +42,9 @@ set terminateCondition() {
     return currentTime >= 480;
 }
 
-sequence newCallInterval is double exponential(123456789, 1/30.0);
+sequence newCallInterval = double exponential(123456789, 1/30.0);
 
-result totalCallCount is getValue(techSupport.callCount);
+result totalCallCount = getValue(techSupport.callCount);
 </code></pre>
 <h3>Описание ресурсов</h3>
 <p>База данных модели будет представлена единственным ресурсом - службой технической поддержки. Для него в простейшей модели необходимо задать только один параметр: число поступивших заявок. Определение нового типа ресурса осуществляется с помощью ключевого слова <code>type</code>. После чего следует список параметров ресурса. Параметры разделяются точками с запятыми.</p>
