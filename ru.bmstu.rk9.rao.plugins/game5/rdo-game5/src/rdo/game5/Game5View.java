@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -18,21 +19,19 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -47,6 +46,7 @@ import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorFactory;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorModelAccess;
 import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -256,26 +256,41 @@ public class Game5View extends EditorPart {
 		final Combo heuristicList = new Combo(heuristicSelection, SWT.BORDER
 				| SWT.DROP_DOWN | SWT.V_SCROLL);
 
-		final Button setSituation = new Button(parent, SWT.PUSH);
+		final Group setGroup = new Group(parent, SWT.NONE);
+		setGroup.setText("Set order:");
+		setGroup.setLayout(gridLayout);
+		final Button setSituation = new Button(setGroup, SWT.TOGGLE);
 		setSituation.setText("Set...");
+		final Text setText = new Text(setGroup, SWT.BORDER);
+		setText.setVisible(false);
 
 		setSituation.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setDirty(true);
-				final Display display = PlatformUI.getWorkbench().getDisplay();
-				final Shell shell = new Shell(display);
-				shell.setText("Set situation");
-				shell.setLayout(new FormLayout());
-				shell.setLayout(gridLayout);
-
-				final Text setText = new Text(shell, SWT.BORDER);
-				shell.setSize(180, 80);
-				shell.open();
+				if (setSituation.getSelection()) {
+					setText.setVisible(true);
+					JSONArray places = (JSONArray) object.get("places");
+					String order = ConfigurationParser.convertOrder(places);
+					setText.setText(order);
+				} else {
+					setText.setVisible(false);
+				}
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
+		setText.addKeyListener(new KeyListener() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				object.put("order", setText.getText());
+				setDirty(true);
+			}
+
+			@Override
+			public void keyPressed(KeyEvent arg0) {
 			}
 		});
 
@@ -448,10 +463,61 @@ public class Game5View extends EditorPart {
 		simulationButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
+				String orderString = setText.getText();
+				String[] order = orderString.split(" ");
+				JSONArray array = new JSONArray();
+				for (int i = 0; i < 6; i++) {
+					array.add(order[i]);
+				}
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent event) {
+			}
+		});
+
+		shuffle.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				setDirty(true);
+				setSituation.setSelection(false);
+				setText.setVisible(false);
+				JSONArray places = (JSONArray) object.get("places");
+				Collections.shuffle(places);
+				// add condition
+				object.put("places", places);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+		});
+
+		inOrder.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				setDirty(true);
+				setSituation.setSelection(false);
+				setText.setVisible(false);
+				JSONParser parser = new JSONParser();
+				try {
+					InputStream inputStream = Game5View.class.getClassLoader()
+							.getResourceAsStream("/model_template/config.json");
+					InputStreamReader reader = new InputStreamReader(
+							inputStream);
+					JSONObject templateObject = (JSONObject) parser
+							.parse(reader);
+					JSONArray templateOrder = (JSONArray) templateObject
+							.get("places");
+					object.put("places", templateOrder);
+				} catch (IOException | ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
 	}

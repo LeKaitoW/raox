@@ -2,6 +2,7 @@ package rdo.game5;
 
 import java.io.FileReader;
 import java.io.IOException;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.json.simple.JSONArray;
@@ -61,5 +62,16 @@ public class ConfigurationParser {
 			e.printStackTrace();
 		}
 		return configuration;
+	}
+
+	public static String convertOrder(JSONArray places) {
+		String order = Integer.toString(places.indexOf(String.valueOf(1)) + 1);
+		for (int i = 1; i < places.size(); i++) {
+			order = order
+					+ " "
+					+ Integer
+							.toString(places.indexOf(String.valueOf(i + 1)) + 1);
+		}
+		return order;
 	}
 }
