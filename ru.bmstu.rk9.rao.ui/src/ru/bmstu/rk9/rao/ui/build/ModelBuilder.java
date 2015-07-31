@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.osgi.framework.Bundle;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -48,15 +50,15 @@ public class ModelBuilder {
 				+ res.getProjectRelativePath(), true);
 	}
 
-	public static ArrayList<IResource> getAllRaoFilesInProject(IProject project) {
-		ArrayList<IResource> allRaoFiles = new ArrayList<IResource>();
+	public static List<IResource> getAllRaoFilesInProject(IProject project) {
+		List<IResource> allRaoFiles = new ArrayList<IResource>();
 		IPath path = project.getLocation();
 		recursiveFindRaoFiles(allRaoFiles, path, ResourcesPlugin.getWorkspace()
 				.getRoot());
 		return allRaoFiles;
 	}
 
-	private static void recursiveFindRaoFiles(ArrayList<IResource> allRaoFiles,
+	private static void recursiveFindRaoFiles(List<IResource> allRaoFiles,
 			IPath path, IWorkspaceRoot workspaceRoot) {
 		IContainer container = workspaceRoot.getContainerForLocation(path);
 		try {
@@ -76,12 +78,15 @@ public class ModelBuilder {
 	}
 
 	public static IProject getProject(IEditorPart activeEditor) {
+		if (activeEditor == null)
+			return null;
+
 		IFile file = (IFile) activeEditor.getEditorInput().getAdapter(
 				IFile.class);
-		if (file != null)
-			return file.getProject();
-		else
+		if (file == null)
 			return null;
+
+		return file.getProject();
 	}
 
 	public static IMarker[] calculateCompilationErrorMarkers(IProject project) {
@@ -132,7 +137,7 @@ public class ModelBuilder {
 						jProject.setRawClasspath(projectClassPathArray, monitor);
 					}
 				} else {
-					ArrayList<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
+					List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
 							Arrays.asList(projectClassPathArray));
 					IClasspathEntry libEntry = JavaCore.newLibraryEntry(
 							libPathBinary, null, null);
@@ -158,87 +163,98 @@ public class ModelBuilder {
 		Job job = new Job("Building Rao model") {
 			protected IStatus run(IProgressMonitor monitor) {
 				IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
+				if (activeEditor == null)
+					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+							"No editor opened.");
+
 				final IProject project = getProject(activeEditor);
-
-				if (project != null) {
-					checkProjectClassPath(project, monitor);
-
-					IJobManager jobMan = Job.getJobManager();
-					try {
-						for (Job j : jobMan.find(project.getName()))
-							j.join();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-
-					final ArrayList<IResource> projectFiles = ModelBuilder
-							.getAllRaoFilesInProject(project);
-					IFolder srcGenFolder = project.getFolder("src-gen");
-					if (!srcGenFolder.exists()) {
-						try {
-							srcGenFolder.create(true, true,
-									new NullProgressMonitor());
-						} catch (CoreException e) {
-							return new Status(Status.ERROR,
-									"ru.bmstu.rk9.rao.ui", "Build failed", e);
-						}
-					}
-
-					fsa.setOutputPath(srcGenFolder.getFullPath().toString());
-
-					fsa.setMonitor(monitor);
-					fsa.setProject(project);
-
-					HashMap<String, OutputConfiguration> outputConfigurations = new HashMap<String, OutputConfiguration>();
-
-					for (OutputConfiguration oc : ocp
-							.getOutputConfigurations(project))
-						outputConfigurations.put(oc.getName(), oc);
-
-					fsa.setOutputConfigurations(outputConfigurations);
-
-					final ResourceSet resourceSet = resourceSetProvider
-							.get(project);
-
-					boolean projectHasErrors = false;
-
-					for (IResource res : projectFiles) {
-						Resource loadedResource = resourceSet.getResource(
-								getURI(res), true);
-						if (!loadedResource.getErrors().isEmpty())
-							projectHasErrors = true;
-					}
-
-					if (calculateCompilationErrorMarkers(project).length > 0)
-						projectHasErrors = true;
-
-					if (projectHasErrors) {
-						try {
-							srcGenFolder
-									.delete(true, new NullProgressMonitor());
-						} catch (CoreException e) {
-							e.printStackTrace();
-						}
-						return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
-								"Model has errors");
-					}
-
-					generator.doGenerate(resourceSet, fsa);
-
-					try {
-						project.build(
-								IncrementalProjectBuilder.INCREMENTAL_BUILD,
-								monitor);
-					} catch (CoreException e) {
-						e.printStackTrace();
-					}
-				} else
+				if (project == null)
 					return new Status(
 							Status.ERROR,
 							"ru.bmstu.rk9.rao.ui",
 							"File '"
 									+ activeEditor.getTitle()
 									+ "' is not a part of any project in workspace.");
+
+				checkProjectClassPath(project, monitor);
+
+				IJobManager jobMan = Job.getJobManager();
+				try {
+					for (Job j : jobMan.find(project.getName()))
+						j.join();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				final List<IResource> projectFiles = ModelBuilder
+						.getAllRaoFilesInProject(project);
+				if (projectFiles.isEmpty()) {
+					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+							"Build failed: project contains no rao files");
+				}
+
+				IFolder srcGenFolder = project.getFolder("src-gen");
+				if (!srcGenFolder.exists()) {
+					try {
+						srcGenFolder.create(true, true,
+								new NullProgressMonitor());
+					} catch (CoreException e) {
+						return new Status(
+								Status.ERROR,
+								"ru.bmstu.rk9.rao.ui",
+								"Build failed: could not create src-gen folder",
+								e);
+					}
+				}
+
+				fsa.setOutputPath(srcGenFolder.getFullPath().toString());
+
+				fsa.setMonitor(monitor);
+				fsa.setProject(project);
+
+				Map<String, OutputConfiguration> outputConfigurations = new HashMap<String, OutputConfiguration>();
+
+				for (OutputConfiguration oc : ocp
+						.getOutputConfigurations(project))
+					outputConfigurations.put(oc.getName(), oc);
+
+				fsa.setOutputConfigurations(outputConfigurations);
+
+				final ResourceSet resourceSet = resourceSetProvider
+						.get(project);
+
+				boolean projectHasErrors = false;
+
+				for (IResource res : projectFiles) {
+					Resource loadedResource = resourceSet.getResource(
+							getURI(res), true);
+					if (!loadedResource.getErrors().isEmpty())
+						projectHasErrors = true;
+				}
+
+				if (calculateCompilationErrorMarkers(project).length > 0)
+					projectHasErrors = true;
+
+				if (projectHasErrors) {
+					try {
+						srcGenFolder.delete(true, new NullProgressMonitor());
+					} catch (CoreException e) {
+						e.printStackTrace();
+					}
+					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+							"Model has errors");
+				}
+
+				generator.doGenerate(resourceSet, fsa);
+
+				try {
+					project.build(IncrementalProjectBuilder.INCREMENTAL_BUILD,
+							monitor);
+				} catch (CoreException e) {
+					e.printStackTrace();
+					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+							"Error while building project", e);
+				}
 
 				return Status.OK_STATUS;
 			}
