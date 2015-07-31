@@ -21,8 +21,7 @@ public class Simulator {
 		if (isRunning)
 			throw new SimulatorException("Simulation is already initialized");
 
-		if (INSTANCE != null)
-			setSimulationState(SimulatorState.DEINITIALIZED);
+		setSimulationState(SimulatorState.DEINITIALIZED);
 
 		INSTANCE = new Simulator();
 
@@ -41,9 +40,16 @@ public class Simulator {
 		INITIALIZED, DEINITIALIZED
 	};
 
-	private static final void setSimulationState(SimulatorState simulationState) {
-		Simulator.simulatorState = simulationState;
-		simulatorStateNotifier.notifySubscribers(simulationState);
+	private static final void setSimulationState(SimulatorState simulatorState) {
+		if (simulatorState == Simulator.simulatorState)
+			return;
+
+		Simulator.simulatorState = simulatorState;
+		simulatorStateNotifier.notifySubscribers(simulatorState);
+	}
+
+	public static final void notifyError() {
+		setSimulationState(SimulatorState.DEINITIALIZED);
 	}
 
 	private static final Notifier<SimulatorState> simulatorStateNotifier = new Notifier<SimulatorState>(

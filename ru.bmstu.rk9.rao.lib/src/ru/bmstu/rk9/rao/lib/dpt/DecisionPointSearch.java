@@ -33,8 +33,9 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		this.retriever = retriever;
 		this.compareTops = compareTops;
 
-		Simulator.getSimulatorStateNotifier().addSubscriber(simulatorInitializedSubscriber,
-				Simulator.SimulatorState.INITIALIZED);
+		Simulator.getSimulatorStateNotifier().addSubscriber(
+				simulatorInitializedSubscriber,
+				Simulator.SimulatorState.INITIALIZED, false);
 	}
 
 	public static interface EvaluateBy {
@@ -121,7 +122,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		@Override
 		public void fireChange() {
 			allowSearch = true;
-			Simulator.getExecutionStateNotifier().addSubscriber(executionAbortedListener,
+			Simulator.getExecutionStateNotifier().addSubscriber(
+					executionAbortedListener,
 					Simulator.ExecutionState.EXECUTION_ABORTED);
 		}
 	};
@@ -291,7 +293,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 					executed.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SEARCH);
 				}
 
-				Simulator.getExecutionStateNotifier().notifySubscribers(ExecutionState.SEARCH_STEP);
+				Simulator.getExecutionStateNotifier().notifySubscribers(
+						ExecutionState.SEARCH_STEP);
 
 				parent.state.deploy();
 
