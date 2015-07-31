@@ -204,7 +204,9 @@ public class ExecutionHandler extends AbstractHandler {
 				} catch (Exception e) {
 					e.printStackTrace();
 					setRunningState(display, sourceProvider, false);
-					ConsoleView.addLine("Execution error");
+					ConsoleView.addLine("Execution error\n");
+					ConsoleView.addLine("Call stack:");
+					ConsoleView.printStackTrace(e);
 					Simulator.notifyError();
 
 					display.syncExec(() -> AnimationView.deinitialize());

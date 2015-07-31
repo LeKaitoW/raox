@@ -1,5 +1,8 @@
 package ru.bmstu.rk9.rao.ui.console;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -72,6 +75,13 @@ public class ConsoleView extends ViewPart {
 	public static void appendText(String add) {
 		text = text + add;
 		redrawText();
+	}
+
+	public static void printStackTrace(Exception e) {
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+		e.printStackTrace(printWriter);
+		appendText(stringWriter.toString());
 	}
 
 	public static void redrawText() {
