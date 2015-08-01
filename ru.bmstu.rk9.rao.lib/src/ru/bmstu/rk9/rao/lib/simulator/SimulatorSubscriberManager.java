@@ -1,8 +1,8 @@
-package ru.bmstu.rk9.rao.ui.notification;
+package ru.bmstu.rk9.rao.lib.simulator;
 
+import ru.bmstu.rk9.rao.lib.notification.DefferedSubscriberManager;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager.SimulatorSubscriberInfo;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 
 public class SimulatorSubscriberManager extends
 		DefferedSubscriberManager<SimulatorSubscriberInfo> {

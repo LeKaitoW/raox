@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rao.lib.dpt;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -14,6 +15,8 @@ import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.ModelState;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 
 public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint {
 	private DecisionPoint.Condition terminate;
@@ -33,10 +36,34 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		this.retriever = retriever;
 		this.compareTops = compareTops;
 
-		Simulator.getSimulatorStateNotifier().addSubscriber(
-				simulatorInitializedSubscriber,
-				Simulator.SimulatorState.INITIALIZED, false);
+		initializeSubscribers();
 	}
+
+	private final void initializeSubscribers() {
+		simulatorSubscriberManager.initialize(Arrays.asList(
+				new SimulatorSubscriberInfo(executionAbortedListener,
+						ExecutionState.EXECUTION_ABORTED),
+				new SimulatorSubscriberInfo(executionStartedListener,
+						ExecutionState.EXECUTION_STARTED)));
+	}
+
+	private final SimulatorSubscriberManager simulatorSubscriberManager = new SimulatorSubscriberManager();
+
+	private final Subscriber executionStartedListener = new Subscriber() {
+		@Override
+		public void fireChange() {
+			allowSearch = true;
+		}
+	};
+
+	private final Subscriber executionAbortedListener = new Subscriber() {
+		@Override
+		public void fireChange() {
+			allowSearch = false;
+		}
+	};
+
+	private volatile boolean allowSearch = false;
 
 	public static interface EvaluateBy {
 		public double get();
@@ -110,25 +137,6 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 	private PriorityQueue<GraphNode> nodesOpen = new PriorityQueue<GraphNode>(
 			1, nodeComparator);
 	private LinkedList<GraphNode> nodesClosed = new LinkedList<GraphNode>();
-
-	private final Subscriber executionAbortedListener = new Subscriber() {
-		@Override
-		public void fireChange() {
-			allowSearch = false;
-		}
-	};
-
-	private final Subscriber simulatorInitializedSubscriber = new Subscriber() {
-		@Override
-		public void fireChange() {
-			allowSearch = true;
-			Simulator.getExecutionStateNotifier().addSubscriber(
-					executionAbortedListener,
-					Simulator.ExecutionState.EXECUTION_ABORTED);
-		}
-	};
-
-	private volatile boolean allowSearch = false;
 
 	private GraphNode head;
 	private GraphNode current;

@@ -1,10 +1,9 @@
-package ru.bmstu.rk9.rao.ui.notification;
+package ru.bmstu.rk9.rao.lib.notification;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulatorState;
 
