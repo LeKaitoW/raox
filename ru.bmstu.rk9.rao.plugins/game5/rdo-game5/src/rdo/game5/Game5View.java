@@ -25,6 +25,10 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -258,22 +262,49 @@ public class Game5View extends EditorPart {
 
 		final Group setGroup = new Group(parent, SWT.NONE);
 		setGroup.setText("Set order:");
-		setGroup.setLayout(gridLayout);
+		setGroup.setLayout(new FormLayout());
 		final Button setSituation = new Button(setGroup, SWT.TOGGLE);
 		setSituation.setText("Set...");
+		final Label setError = new Label(setGroup, SWT.NONE);
+		setError.setText("Invalid order");
+		final Color red = new Color(PlatformUI.getWorkbench().getDisplay(),
+				0x9B, 0x11, 0x1E);
+		setError.setForeground(red);
+		setError.setVisible(false);
 		final Text setText = new Text(setGroup, SWT.BORDER);
-		setText.setVisible(false);
+		setText.setText("1 2 3 4 5 6");
+		setText.setEnabled(false);
+		final Button setButton = new Button(setGroup, SWT.PUSH);
+		setButton.setText("Ok");
+		setButton.setEnabled(false);
+
+		FormData dataError = new FormData();
+		dataError.left = new FormAttachment(setSituation, 2);
+		dataError.top = new FormAttachment(0, 5);
+		setError.setLayoutData(dataError);
+
+		FormData orderData = new FormData();
+		orderData.top = new FormAttachment(setSituation, 2);
+		setText.setLayoutData(orderData);
+
+		FormData dataButton = new FormData();
+		dataButton.left = new FormAttachment(setText, 2);
+		dataButton.right = new FormAttachment(100, -2);
+		dataButton.top = new FormAttachment(setSituation, 1);
+		setButton.setLayoutData(dataButton);
 
 		setSituation.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (setSituation.getSelection()) {
-					setText.setVisible(true);
+					setText.setEnabled(true);
+					setButton.setEnabled(true);
 					JSONArray places = (JSONArray) object.get("places");
 					String order = ConfigurationParser.convertOrder(places);
 					setText.setText(order);
 				} else {
-					setText.setVisible(false);
+					setText.setEnabled(false);
+					setButton.setEnabled(false);
 				}
 			}
 
@@ -481,7 +512,8 @@ public class Game5View extends EditorPart {
 			public void widgetSelected(SelectionEvent arg0) {
 				setDirty(true);
 				setSituation.setSelection(false);
-				setText.setVisible(false);
+				setText.setEnabled(false);
+				setButton.setEnabled(false);
 				JSONArray places = (JSONArray) object.get("places");
 				Collections.shuffle(places);
 				// add condition
@@ -498,7 +530,8 @@ public class Game5View extends EditorPart {
 			public void widgetSelected(SelectionEvent arg0) {
 				setDirty(true);
 				setSituation.setSelection(false);
-				setText.setVisible(false);
+				setText.setEnabled(false);
+				setButton.setEnabled(false);
 				JSONParser parser = new JSONParser();
 				try {
 					InputStream inputStream = Game5View.class.getClassLoader()
