@@ -11,15 +11,12 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -515,9 +512,12 @@ public class Game5View extends EditorPart {
 				setText.setEnabled(false);
 				setButton.setEnabled(false);
 				JSONArray places = (JSONArray) object.get("places");
-				Collections.shuffle(places);
-				// add condition
-				object.put("places", places);
+				if ((boolean) object.get("solvable")) {
+					object.put("places",
+							OrderConfigurator.shuffleSolvable(places));
+				} else {
+					object.put("places", OrderConfigurator.shuffle(places));
+				}
 			}
 
 			@Override
@@ -532,21 +532,7 @@ public class Game5View extends EditorPart {
 				setSituation.setSelection(false);
 				setText.setEnabled(false);
 				setButton.setEnabled(false);
-				JSONParser parser = new JSONParser();
-				try {
-					InputStream inputStream = Game5View.class.getClassLoader()
-							.getResourceAsStream("/model_template/config.json");
-					InputStreamReader reader = new InputStreamReader(
-							inputStream);
-					JSONObject templateObject = (JSONObject) parser
-							.parse(reader);
-					JSONArray templateOrder = (JSONArray) templateObject
-							.get("places");
-					object.put("places", templateOrder);
-				} catch (IOException | ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				OrderConfigurator.setInOrder(object);
 			}
 
 			@Override
