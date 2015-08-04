@@ -22,12 +22,15 @@ public abstract class DefferedSubscriberManager<T> {
 	}
 
 	public final void deinitialize() {
-		subscribersInfo.clear();
+		if (Simulator.isInitialized())
+			deinitializationSubscriber.fireChange();
 
 		Simulator.getSimulatorStateNotifier().removeSubscriber(
 				initializationSubscriber, SimulatorState.INITIALIZED);
 		Simulator.getSimulatorStateNotifier().removeSubscriber(
 				deinitializationSubscriber, SimulatorState.DEINITIALIZED);
+
+		subscribersInfo.clear();
 	}
 
 	private final Subscriber initializationSubscriber = new Subscriber() {
