@@ -11,6 +11,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 public class OrderConfigurator {
+	private static final int tilesCountX = 3;
+	private static final int tilesCountY = 2;
 
 	@SuppressWarnings("unchecked")
 	public static void setInOrder(JSONObject object) {
@@ -28,20 +30,16 @@ public class OrderConfigurator {
 		}
 	}
 
-	public static JSONArray shuffleSolvable(JSONArray places) {
-		Collections.shuffle(places);
-		final int tilesCountX = 3;
-		final int tilesCountY = 2;
-
-		while (!isSolvable(tilesCountX, tilesCountY, places)) {
+	public static JSONArray shuffle(JSONArray places, boolean solvableOnly) {
+		if (solvableOnly) {
+			do {
+				Collections.shuffle(places);
+			} while (!isSolvable(tilesCountX, tilesCountY, places));
+			return places;
+		} else {
 			Collections.shuffle(places);
+			return places;
 		}
-		return places;
-	}
-
-	public static JSONArray shuffle(JSONArray places) {
-		Collections.shuffle(places);
-		return places;
 	}
 
 	private static boolean isSolvable(int tilesCountX, int tilesCountY,
@@ -58,25 +56,35 @@ public class OrderConfigurator {
 			}
 		}
 
-		boolean solvable = false;
 		if (tilesCountX % 2 != 0) {
-			if (sum % 2 == 0)
-				solvable = true;
-			else
-				solvable = false;
+			return sum % 2 == 0;
 		} else {
-			if (tilesCountY % 2 != 0) {
-				if ((sum + freePlaceRow) % 2 != 0)
-					solvable = true;
-				else
-					solvable = false;
-			} else {
-				if ((sum + freePlaceRow) % 2 == 0)
-					solvable = true;
-				else
-					solvable = false;
-			}
+			return (tilesCountY % 2) == ((sum + freePlaceRow) % 2);
 		}
-		return solvable;
+	}
+
+	public static String convertOrderToString(JSONArray places) {
+		String order = Integer.toString(places.indexOf(String.valueOf(1)) + 1);
+		for (int i = 1; i < places.size(); i++) {
+			order = order
+					+ " "
+					+ Integer
+							.toString(places.indexOf(String.valueOf(i + 1)) + 1);
+		}
+		return order;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static JSONArray convertOrderToJSONArray(String order) {
+		String[] orderList = order.split(" ");
+		JSONArray orderArray = new JSONArray();
+		if (orderList.length != tilesCountX * tilesCountY) {
+			return null;
+		} else {
+			for (int i = 0; i < orderList.length; i++) {
+				orderArray.add(orderList[i]);
+			}
+			return orderArray;
+		}
 	}
 }

@@ -63,15 +63,4 @@ public class ConfigurationParser {
 		}
 		return configuration;
 	}
-
-	public static String convertOrder(JSONArray places) {
-		String order = Integer.toString(places.indexOf(String.valueOf(1)) + 1);
-		for (int i = 1; i < places.size(); i++) {
-			order = order
-					+ " "
-					+ Integer
-							.toString(places.indexOf(String.valueOf(i + 1)) + 1);
-		}
-		return order;
-	}
 }
