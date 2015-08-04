@@ -78,9 +78,6 @@ public class ModelBuilder {
 	}
 
 	public static IProject getProject(IEditorPart activeEditor) {
-		if (activeEditor == null)
-			return null;
-
 		IFile file = (IFile) activeEditor.getEditorInput().getAdapter(
 				IFile.class);
 		if (file == null)
@@ -160,7 +157,7 @@ public class ModelBuilder {
 			final IResourceSetProvider resourceSetProvider,
 			final EclipseOutputConfigurationProvider ocp,
 			final IMultipleResourceGenerator generator) {
-		Job job = new Job("Building Rao model") {
+		Job buildJob = new Job("Building Rao model") {
 			protected IStatus run(IProgressMonitor monitor) {
 				IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
 				if (activeEditor == null)
@@ -178,10 +175,10 @@ public class ModelBuilder {
 
 				checkProjectClassPath(project, monitor);
 
-				IJobManager jobMan = Job.getJobManager();
+				IJobManager jobManager = Job.getJobManager();
 				try {
-					for (Job j : jobMan.find(project.getName()))
-						j.join();
+					for (Job projectJob : jobManager.find(project.getName()))
+						projectJob.join();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -225,11 +222,13 @@ public class ModelBuilder {
 
 				boolean projectHasErrors = false;
 
-				for (IResource res : projectFiles) {
+				for (IResource resource : projectFiles) {
 					Resource loadedResource = resourceSet.getResource(
-							getURI(res), true);
-					if (!loadedResource.getErrors().isEmpty())
+							getURI(resource), true);
+					if (!loadedResource.getErrors().isEmpty()) {
 						projectHasErrors = true;
+						break;
+					}
 				}
 
 				if (calculateCompilationErrorMarkers(project).length > 0)
@@ -260,7 +259,7 @@ public class ModelBuilder {
 			}
 		};
 
-		job.setPriority(Job.BUILD);
-		return job;
+		buildJob.setPriority(Job.BUILD);
+		return buildJob;
 	}
 }
