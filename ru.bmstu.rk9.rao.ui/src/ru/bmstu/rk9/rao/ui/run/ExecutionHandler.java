@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.services.ISourceProviderService;
@@ -87,8 +88,14 @@ public class ExecutionHandler extends AbstractHandler {
 				resourceSetProvider, outputConfigurationProvider, generator);
 		build.schedule();
 
-		final IProject project = ModelBuilder.getProject(HandlerUtil
-				.getActiveEditor(event));
+		IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
+
+		if (activeEditor == null) {
+			setRunningState(display, sourceProvider, false);
+			return null;
+		}
+
+		final IProject project = ModelBuilder.getProject(activeEditor);
 
 		if (project == null) {
 			setRunningState(display, sourceProvider, false);

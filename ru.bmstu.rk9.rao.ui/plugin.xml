@@ -457,27 +457,17 @@
      <handler
            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.build.BuildHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.build">
-        <enabledWhen>
-           <reference
-                 definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened">
-           </reference>
-        </enabledWhen>
      </handler>
      <handler
            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.run.ExecutionHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.execute">
         <enabledWhen>
-           <and>
-              <reference
-                    definitionId="ru.bmstu.rk9.rao.Rao.Editor.opened">
-              </reference>
-              <with
-                    variable="ru.bmstu.rk9.rao.ui.handlers.simulationRunning">
-                 <equals
-                       value="STOPPED">
-                 </equals>
-              </with>
-           </and>
+           <with
+                 variable="ru.bmstu.rk9.rao.ui.handlers.simulationRunning">
+              <equals
+                    value="STOPPED">
+              </equals>
+           </with>
         </enabledWhen>
      </handler>
      <handler
