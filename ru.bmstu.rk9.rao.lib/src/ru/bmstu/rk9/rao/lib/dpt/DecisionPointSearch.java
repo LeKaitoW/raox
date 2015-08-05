@@ -1,7 +1,6 @@
 package ru.bmstu.rk9.rao.lib.dpt;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -10,13 +9,13 @@ import java.util.PriorityQueue;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
 import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.ModelState;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
-import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
-import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulatorState;
 
 public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint {
 	private DecisionPoint.Condition terminate;
@@ -36,18 +35,22 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		this.retriever = retriever;
 		this.compareTops = compareTops;
 
-		initializeSubscribers();
+		Simulator.getSimulatorStateNotifier().addSubscriber(
+				simulatorInitializedListener, SimulatorState.INITIALIZED,
+				SubscriptionType.IGNORE_ACCUMULATED);
 	}
 
-	private final void initializeSubscribers() {
-		simulatorSubscriberManager.initialize(Arrays.asList(
-				new SimulatorSubscriberInfo(executionAbortedListener,
-						ExecutionState.EXECUTION_ABORTED),
-				new SimulatorSubscriberInfo(executionStartedListener,
-						ExecutionState.EXECUTION_STARTED)));
-	}
-
-	private final SimulatorSubscriberManager simulatorSubscriberManager = new SimulatorSubscriberManager();
+	private final Subscriber simulatorInitializedListener = new Subscriber() {
+		@Override
+		public void fireChange() {
+			Simulator.getExecutionStateNotifier().addSubscriber(
+					executionAbortedListener, ExecutionState.EXECUTION_ABORTED,
+					SubscriptionType.ONE_SHOT);
+			Simulator.getExecutionStateNotifier().addSubscriber(
+					executionStartedListener, ExecutionState.EXECUTION_STARTED,
+					SubscriptionType.ONE_SHOT);
+		}
+	};
 
 	private final Subscriber executionStartedListener = new Subscriber() {
 		@Override

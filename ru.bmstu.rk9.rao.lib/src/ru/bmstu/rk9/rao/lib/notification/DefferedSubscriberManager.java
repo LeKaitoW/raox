@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulatorState;
 
@@ -12,10 +13,10 @@ public abstract class DefferedSubscriberManager<T> {
 		this.subscribersInfo.addAll(subscribersInfo);
 
 		Simulator.getSimulatorStateNotifier().addSubscriber(
-				initializationSubscriber, SimulatorState.INITIALIZED, false);
+				initializationSubscriber, SimulatorState.INITIALIZED, SubscriptionType.IGNORE_ACCUMULATED);
 		Simulator.getSimulatorStateNotifier()
 				.addSubscriber(deinitializationSubscriber,
-						SimulatorState.DEINITIALIZED, false);
+						SimulatorState.DEINITIALIZED, SubscriptionType.IGNORE_ACCUMULATED);
 
 		if (Simulator.isInitialized())
 			initializationSubscriber.fireChange();

@@ -1,22 +1,24 @@
 package ru.bmstu.rk9.rao.lib.notification;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-class Subscription {
-	protected final Set<Subscriber> subscribers = Collections
-			.newSetFromMap(new ConcurrentHashMap<Subscriber, Boolean>());
+public class Subscription {
+	public enum SubscriptionType {
+		REGULAR, ONE_SHOT, IGNORE_ACCUMULATED
+	};
 
-	Subscription addSubscriber(Subscriber subscriber) {
-		if (!subscribers.add(subscriber))
+	protected final Map<Subscriber, SubscriptionType> subscribers = new ConcurrentHashMap<>();
+
+	Subscription addSubscriber(Subscriber subscriber, SubscriptionType type) {
+		if (subscribers.put(subscriber, type) != null)
 			throw new NotifierException("Cannot add subscriber" + subscriber
 					+ ", it is already present in subscription");
 		return this;
 	}
 
 	void removeSubscriber(Subscriber subscriber) {
-		if (!subscribers.remove(subscriber))
+		if (subscribers.remove(subscriber) == null)
 			throw new NotifierException("Cannot remove subscriber" + subscriber
 					+ ", it is not present in subscription");
 	}

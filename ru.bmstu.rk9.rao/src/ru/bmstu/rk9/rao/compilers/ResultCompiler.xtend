@@ -130,8 +130,10 @@ class ResultCompiler
 					Notifier<Simulator.ExecutionState> notifier = Simulator.getExecutionStateNotifier();
 
 					notifier.addSubscriber(INSTANCE, Simulator.ExecutionState.STATE_CHANGED);
-					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED);
-					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED,
+							Subscription.SubscriptionType.ONE_SHOT);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED,
+							Subscription.SubscriptionType.ONE_SHOT);
 
 					«type.compileValueType(expression)»
 				}
@@ -230,8 +232,10 @@ class ResultCompiler
 					Notifier notifier = Simulator.getExecutionStateNotifier();
 
 					notifier.addSubscriber(INSTANCE, Simulator.ExecutionState.STATE_CHANGED);
-					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED);
-					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED,
+							Subscription.SubscriptionType.ONE_SHOT);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED,
+							Subscription.SubscriptionType.ONE_SHOT);
 
 					INSTANCE.data.put("valueType", "bool");
 				}
@@ -354,8 +358,10 @@ class ResultCompiler
 					Notifier<Simulator.ExecutionState> notifier = Simulator.getExecutionStateNotifier();
 
 					notifier.addSubscriber(INSTANCE, Simulator.ExecutionState.STATE_CHANGED);
-					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED);
-					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED,
+							Subscription.SubscriptionType.ONE_SHOT);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED,
+							Subscription.SubscriptionType.ONE_SHOT);
 
 					INSTANCE.data.put("valueType", "«expression.type.backToRaoType»");
 				}
