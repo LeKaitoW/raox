@@ -61,6 +61,7 @@ public class OrderConfigurator {
 		} else {
 			return (tilesCountY % 2) == ((sum + freePlaceRow) % 2);
 		}
+		// См. Перельман. Живая математика.
 	}
 
 	public static String convertOrderToString(JSONArray places) {

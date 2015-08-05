@@ -131,13 +131,13 @@ public class Game5View extends EditorPart {
 		leftButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				setDirty(true);
 				if (leftButton.getSelection()) {
 					leftCost.setEnabled(true);
 				} else {
 					leftCost.setEnabled(false);
 				}
 				object.put("enableLeft", leftButton.getSelection());
+				setDirty(true);
 			}
 
 			@Override
@@ -163,13 +163,13 @@ public class Game5View extends EditorPart {
 		rightButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				setDirty(true);
 				if (rightButton.getSelection()) {
 					rightCost.setEnabled(true);
 				} else {
 					rightCost.setEnabled(false);
 				}
 				object.put("enableRight", rightButton.getSelection());
+				setDirty(true);
 			}
 
 			@Override
@@ -195,13 +195,13 @@ public class Game5View extends EditorPart {
 		upButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				setDirty(true);
 				if (upButton.getSelection()) {
 					upCost.setEnabled(true);
 				} else {
 					upCost.setEnabled(false);
 				}
 				object.put("enableUp", upButton.getSelection());
+				setDirty(true);
 			}
 
 			@Override
@@ -238,12 +238,12 @@ public class Game5View extends EditorPart {
 		downButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				setDirty(true);
 				if (downButton.getSelection()) {
 					downCost.setEnabled(true);
 				} else
 					downCost.setEnabled(false);
 				object.put("enableDown", downButton.getSelection());
+				setDirty(true);
 			}
 
 			@Override
@@ -507,7 +507,6 @@ public class Game5View extends EditorPart {
 		shuffle.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				setDirty(true);
 				setOrderButton.setSelection(false);
 				setOrderText.setEnabled(false);
 				setOrderOkButton.setEnabled(false);
@@ -516,6 +515,7 @@ public class Game5View extends EditorPart {
 						"places",
 						OrderConfigurator.shuffle(places,
 								(boolean) object.get("solvable")));
+				setDirty(true);
 
 			}
 
@@ -527,11 +527,11 @@ public class Game5View extends EditorPart {
 		inOrder.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				setDirty(true);
 				setOrderButton.setSelection(false);
 				setOrderText.setEnabled(false);
 				setOrderOkButton.setEnabled(false);
 				OrderConfigurator.setInOrder(object);
+				setDirty(true);
 			}
 
 			@Override
@@ -547,7 +547,6 @@ public class Game5View extends EditorPart {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void doSave(IProgressMonitor arg0) {
-		setDirty(false);
 		object.put("code", editor.getEditablePart());
 		try {
 			IFile configIFile = (IFile) PlatformUI.getWorkbench()
@@ -565,6 +564,7 @@ public class Game5View extends EditorPart {
 		} catch (IOException | CoreException e) {
 			e.printStackTrace();
 		}
+		setDirty(false);
 	}
 
 	@Override
