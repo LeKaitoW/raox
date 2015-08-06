@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rao.lib.dpt;
 
 import java.nio.ByteBuffer;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,8 +37,10 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		this.compareTops = compareTops;
 
 		Simulator.getSimulatorStateNotifier().addSubscriber(
-				simulatorInitializedListener, SimulatorState.INITIALIZED,
-				SubscriptionType.IGNORE_ACCUMULATED);
+				simulatorInitializedListener,
+				SimulatorState.INITIALIZED,
+				EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED,
+						SubscriptionType.ONE_SHOT));
 	}
 
 	private final Subscriber simulatorInitializedListener = new Subscriber() {
@@ -45,10 +48,10 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		public void fireChange() {
 			Simulator.getExecutionStateNotifier().addSubscriber(
 					executionAbortedListener, ExecutionState.EXECUTION_ABORTED,
-					SubscriptionType.ONE_SHOT);
+					EnumSet.of(SubscriptionType.ONE_SHOT));
 			Simulator.getExecutionStateNotifier().addSubscriber(
 					executionStartedListener, ExecutionState.EXECUTION_STARTED,
-					SubscriptionType.ONE_SHOT);
+					EnumSet.of(SubscriptionType.ONE_SHOT));
 		}
 	};
 

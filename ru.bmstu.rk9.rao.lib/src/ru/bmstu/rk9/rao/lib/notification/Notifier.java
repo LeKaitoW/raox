@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.lib.notification;
 
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,7 +28,7 @@ public class Notifier<Category extends Enum<Category>> {
 		Subscription subscription = subscriptionState.subscription;
 
 		for (Subscriber subscriber : subscription.subscribers.keySet()) {
-			if (subscription.subscribers.get(subscriber) == SubscriptionType.ONE_SHOT)
+			if (subscription.subscribers.get(subscriber).contains(SubscriptionType.ONE_SHOT))
 				subscription.removeSubscriber(subscriber);
 			subscriber.fireChange();
 		}
@@ -36,17 +37,17 @@ public class Notifier<Category extends Enum<Category>> {
 	}
 
 	public void addSubscriber(Subscriber subscriber, Category category) {
-		addSubscriber(subscriber, category, SubscriptionType.REGULAR);
+		addSubscriber(subscriber, category, EnumSet.noneOf(SubscriptionType.class));
 	}
 
 	public void addSubscriber(Subscriber subscriber, Category category,
-			SubscriptionType subscriptionType) {
+			EnumSet<SubscriptionType> subscriptionFlags) {
 		SubscriptionState subscriptionState = subscriptionStates.get(category);
 
 		subscriptionState.subscription.addSubscriber(subscriber,
-				subscriptionType);
+				subscriptionFlags);
 
-		if (subscriptionType != SubscriptionType.IGNORE_ACCUMULATED
+		if (!subscriptionFlags.contains(SubscriptionType.IGNORE_ACCUMULATED)
 				&& subscriptionState.hadNotifications)
 			subscriber.fireChange();
 	}

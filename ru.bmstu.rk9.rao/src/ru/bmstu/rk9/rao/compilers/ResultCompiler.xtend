@@ -31,6 +31,7 @@ class ResultCompiler
 		package «filename»;
 
 		import java.nio.ByteBuffer;
+		import java.util.EnumSet;
 
 		import ru.bmstu.rk9.rao.lib.json.*;
 
@@ -131,9 +132,9 @@ class ResultCompiler
 
 					notifier.addSubscriber(INSTANCE, Simulator.ExecutionState.STATE_CHANGED);
 					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED,
-							Subscription.SubscriptionType.ONE_SHOT);
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
 					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED,
-							Subscription.SubscriptionType.ONE_SHOT);
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
 
 					«type.compileValueType(expression)»
 				}
@@ -233,9 +234,9 @@ class ResultCompiler
 
 					notifier.addSubscriber(INSTANCE, Simulator.ExecutionState.STATE_CHANGED);
 					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED,
-							Subscription.SubscriptionType.ONE_SHOT);
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
 					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED,
-							Subscription.SubscriptionType.ONE_SHOT);
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
 
 					INSTANCE.data.put("valueType", "bool");
 				}
@@ -359,9 +360,9 @@ class ResultCompiler
 
 					notifier.addSubscriber(INSTANCE, Simulator.ExecutionState.STATE_CHANGED);
 					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED,
-							Subscription.SubscriptionType.ONE_SHOT);
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
 					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED,
-							Subscription.SubscriptionType.ONE_SHOT);
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
 
 					INSTANCE.data.put("valueType", "«expression.type.backToRaoType»");
 				}

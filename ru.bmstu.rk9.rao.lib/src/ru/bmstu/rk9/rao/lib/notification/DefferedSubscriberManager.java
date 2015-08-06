@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.lib.notification;
 
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,10 +14,11 @@ public abstract class DefferedSubscriberManager<T> {
 		this.subscribersInfo.addAll(subscribersInfo);
 
 		Simulator.getSimulatorStateNotifier().addSubscriber(
-				initializationSubscriber, SimulatorState.INITIALIZED, SubscriptionType.IGNORE_ACCUMULATED);
-		Simulator.getSimulatorStateNotifier()
-				.addSubscriber(deinitializationSubscriber,
-						SimulatorState.DEINITIALIZED, SubscriptionType.IGNORE_ACCUMULATED);
+				initializationSubscriber, SimulatorState.INITIALIZED,
+				EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED));
+		Simulator.getSimulatorStateNotifier().addSubscriber(
+				deinitializationSubscriber, SimulatorState.DEINITIALIZED,
+				EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED));
 
 		if (Simulator.isInitialized())
 			initializationSubscriber.fireChange();
