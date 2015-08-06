@@ -10,20 +10,28 @@ import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.DecisionPointSearch;
 import ru.bmstu.rk9.rao.lib.modelStructure.ActivityCache;
+import ru.bmstu.rk9.rao.lib.modelStructure.DecisionPointCache;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.trace.StringJoiner;
 import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
 import ru.bmstu.rk9.rao.ui.trace.Tracer;
 
 public class TreeBuilder {
+	TreeBuilder(int dptNumber) {
+		this.dptNumber = dptNumber;
+		this.decisionPointCache = Simulator.getModelStructureCache()
+				.getDecisionPointsInfo().get(dptNumber);
+	}
 
-	public final void updateTree() {
+	public final boolean updateTree() {
 		List<Entry> entries = Simulator.getDatabase().getAllEntries();
 		while (entryNumber < entries.size()) {
 			final Database.Entry entry = entries.get(entryNumber);
-			parseEntry(entry);
+			if (parseEntry(entry))
+				return true;
 			entryNumber++;
 		}
+		return false;
 	}
 
 	public class Node {
@@ -44,6 +52,8 @@ public class TreeBuilder {
 	}
 
 	private boolean parseEntry(Entry entry) {
+		boolean isFinished = false;
+
 		final EntryType entryType = EntryType.values()[entry.getHeader().get(
 				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 		if (entryType != EntryType.SEARCH)
@@ -57,6 +67,9 @@ public class TreeBuilder {
 				.values()[header.get()];
 		Tracer.skipPart(header, TypeSize.DOUBLE);
 		final int dptNumber = header.getInt();
+
+		if (dptNumber != this.dptNumber)
+			return false;
 
 		switch (searchEntryType) {
 		case BEGIN: {
@@ -81,7 +94,7 @@ public class TreeBuilder {
 			graphInfo.solutionCost = finalCost;
 			graphInfo.numOpened = totalOpened;
 			graphInfo.numNodes = totalNodes;
-			dptSimulationInfo.isFinished = true;
+			isFinished = true;
 			break;
 		}
 		case OPEN:
@@ -101,9 +114,8 @@ public class TreeBuilder {
 				final double g = data.getDouble();
 				final double h = data.getDouble();
 				final int ruleNum = data.getInt();
-				ActivityCache activity = Simulator.getModelStructureCache()
-						.getDecisionPointsInfo().get(dptNumber)
-						.getActivitiesInfo().get(ruleNum);
+				ActivityCache activity = decisionPointCache.getActivitiesInfo()
+						.get(ruleNum);
 				final int patternNumber = activity.getPatternNumber();
 				final double ruleCost = data.getDouble();
 				treeNode.parent = nodeList.get(parentNumber);
@@ -157,24 +169,22 @@ public class TreeBuilder {
 			break;
 		}
 		}
-		return true;
+
+		return isFinished;
 	}
 
 	public final List<Node> nodeList = new ArrayList<Node>();
 	List<Node> solutionList = new ArrayList<Node>();
 	GraphInfo graphInfo = new GraphInfo();
-	DPTSimulationInfo dptSimulationInfo = new DPTSimulationInfo();
 	int lastAddedNodeIndex = 0;
 	private int entryNumber = 0;
+	private final int dptNumber;
+	private final DecisionPointCache decisionPointCache;
 
 	public class GraphInfo {
 		public double solutionCost;
 		public int numOpened;
 		public int numNodes;
-	}
-
-	public class DPTSimulationInfo {
-		public boolean isFinished = false;
 	}
 
 	public int getEntryNumber() {

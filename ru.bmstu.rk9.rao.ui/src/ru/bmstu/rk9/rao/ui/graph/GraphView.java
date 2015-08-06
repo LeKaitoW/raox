@@ -99,7 +99,8 @@ public class GraphView extends JFrame {
 		frameDimension = this.getSize();
 		setProportions(frameDimension);
 
-		treeBuilder.updateTree();
+		treeBuilder = new TreeBuilder(dptNum);
+		isFinished = treeBuilder.updateTree();
 		nodeList = treeBuilder.nodeList;
 
 		graph = new mxGraph();
@@ -107,6 +108,8 @@ public class GraphView extends JFrame {
 		try {
 			if (!nodeList.isEmpty())
 				drawGraph(graph, nodeList, nodeList.get(0));
+			if (isFinished)
+				onFinish();
 		} finally {
 			graph.getModel().endUpdate();
 		}
@@ -182,10 +185,18 @@ public class GraphView extends JFrame {
 			}
 		});
 
-		initializeSubscribers();
+		if (!isFinished)
+			initializeSubscribers();
 	}
 
-	private final TreeBuilder treeBuilder = new TreeBuilder();
+	@Override
+	public void dispose() {
+		if (!isFinished)
+			deinitializeSubscribers();
+		super.dispose();
+	}
+
+	private final TreeBuilder treeBuilder;
 
 	private final void initializeSubscribers() {
 		simulationSubscriberManager.initialize(Arrays.asList(
@@ -214,35 +225,20 @@ public class GraphView extends JFrame {
 	private final Subscriber commonSubscriber = new Subscriber() {
 		@Override
 		public void fireChange() {
-			treeBuilder.updateTree();
-			graph.getModel().beginUpdate();
-			try {
-				isFinished = treeBuilder.dptSimulationInfo.isFinished;
-				if (isFinished) {
-					graph.getModel().beginUpdate();
-					try {
-						GraphInfo info = treeBuilder.graphInfo;
-						List<Node> solution = treeBuilder.solutionList;
-						colorNodes(vertexMap, nodeList, solution);
-						insertInfo(graph, info);
-					} finally {
-						graph.getModel().endUpdate();
-					}
-					graph.refresh();
-				}
-			} finally {
-				graph.getModel().endUpdate();
-			}
+			PlatformUI.getWorkbench().getDisplay()
+					.asyncExec(realTimeUpdateRunnable);
 		}
 	};
 
 	private final Runnable realTimeUpdateRunnable = new Runnable() {
 		@Override
 		public void run() {
+			if (isFinished)
+				return;
 			graph.getModel().beginUpdate();
-			treeBuilder.updateTree();
+			isFinished = treeBuilder.updateTree();
 			try {
-				drawNewVertex(graph, nodeList, dptNum);
+				drawNewVertex(graph, nodeList);
 
 				Dimension frameDimension = getSize();
 				Object[] cells = vertexMap.values().toArray();
@@ -255,18 +251,36 @@ public class GraphView extends JFrame {
 				} else {
 					layout.execute(graph.getDefaultParent());
 				}
+
+				if (isFinished)
+					onFinish();
 			} finally {
+				if (isFinished)
+					deinitializeSubscribers();
 				graph.getModel().endUpdate();
 			}
 		}
 	};
+
+	private final void onFinish() {
+		GraphInfo info = treeBuilder.graphInfo;
+		List<Node> solution = treeBuilder.solutionList;
+		colorNodes(vertexMap, nodeList, solution);
+		insertInfo(graph, info);
+
+		graph.refresh();
+	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 	// --------------------------- VISUALISATION --------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	final Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
+	private int lastAddedVertexIndex = 0;
 
+	/* TODO: two methods below looks the same, but are magically not
+	 * interchangeable. They should be merged in one.
+	 */
 	private void drawGraph(mxGraph graph, List<Node> nodeList, Node parentNode) {
 		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(),
 				null, parentNode, getAbsoluteX(0.5), getAbsoluteY(0.05),
@@ -284,27 +298,7 @@ public class GraphView extends JFrame {
 						nodeList.get(parentNode.children.get(i).index));
 	}
 
-	final String solutionColor = "fillColor=32CD32;";
-	final String strokeColor = "strokeColor=000000;";
-	final String fontColor = "fontColor=000000;";
-
-	public void colorNodes(Map<Node, mxCell> vertexMap, List<Node> nodeList,
-			List<Node> solution) {
-		if (!solution.isEmpty()) {
-			Node rootNode = nodeList.get(0);
-			vertexMap.get(rootNode).setStyle(
-					solutionColor + fontColor + strokeColor);
-			for (int i = 0; i < solution.size(); i++) {
-				vertexMap.get(solution.get(i)).setStyle(
-						solutionColor + fontColor + strokeColor);
-			}
-		}
-	}
-
-	private int lastAddedVertexIndex = 0;
-
-	private void drawNewVertex(mxGraph graph, List<Node> nodeList, int dptNum) {
-
+	private void drawNewVertex(mxGraph graph, List<Node> nodeList) {
 		int lastAddedNodeIndex = treeBuilder.lastAddedNodeIndex;
 		for (int i = lastAddedVertexIndex; i <= lastAddedNodeIndex; i++) {
 			Node node = nodeList.get(i);
@@ -322,7 +316,23 @@ public class GraphView extends JFrame {
 							strokeColor);
 			}
 		}
+	}
 
+	final String solutionColor = "fillColor=32CD32;";
+	final String strokeColor = "strokeColor=000000;";
+	final String fontColor = "fontColor=000000;";
+
+	public void colorNodes(Map<Node, mxCell> vertexMap, List<Node> nodeList,
+			List<Node> solution) {
+		if (!solution.isEmpty()) {
+			Node rootNode = nodeList.get(0);
+			vertexMap.get(rootNode).setStyle(
+					solutionColor + fontColor + strokeColor);
+			for (int i = 0; i < solution.size(); i++) {
+				vertexMap.get(solution.get(i)).setStyle(
+						solutionColor + fontColor + strokeColor);
+			}
+		}
 	}
 
 	final Font font;
