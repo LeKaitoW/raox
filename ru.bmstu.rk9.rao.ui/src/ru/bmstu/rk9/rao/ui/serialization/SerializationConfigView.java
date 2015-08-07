@@ -35,11 +35,11 @@ import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
 import org.eclipse.xtext.util.concurrent.IUnitOfWork;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.rao.RaoModel;
-import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfig.SerializationNode;
-import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 
 public class SerializationConfigView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.SerializationConfigView";

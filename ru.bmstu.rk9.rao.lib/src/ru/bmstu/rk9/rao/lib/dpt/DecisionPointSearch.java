@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rao.lib.dpt;
 
 import java.nio.ByteBuffer;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,11 +10,13 @@ import java.util.PriorityQueue;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
 import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.ModelState;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulatorState;
 
 public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint {
 	private DecisionPoint.Condition terminate;
@@ -33,9 +36,40 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		this.retriever = retriever;
 		this.compareTops = compareTops;
 
-		Simulator.getSimulatorStateNotifier().addSubscriber(simulatorInitializedSubscriber,
-				Simulator.SimulatorState.INITIALIZED);
+		Simulator.getSimulatorStateNotifier().addSubscriber(
+				simulatorInitializedListener,
+				SimulatorState.INITIALIZED,
+				EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED,
+						SubscriptionType.ONE_SHOT));
 	}
+
+	private final Subscriber simulatorInitializedListener = new Subscriber() {
+		@Override
+		public void fireChange() {
+			Simulator.getExecutionStateNotifier().addSubscriber(
+					executionAbortedListener, ExecutionState.EXECUTION_ABORTED,
+					EnumSet.of(SubscriptionType.ONE_SHOT));
+			Simulator.getExecutionStateNotifier().addSubscriber(
+					executionStartedListener, ExecutionState.EXECUTION_STARTED,
+					EnumSet.of(SubscriptionType.ONE_SHOT));
+		}
+	};
+
+	private final Subscriber executionStartedListener = new Subscriber() {
+		@Override
+		public void fireChange() {
+			allowSearch = true;
+		}
+	};
+
+	private final Subscriber executionAbortedListener = new Subscriber() {
+		@Override
+		public void fireChange() {
+			allowSearch = false;
+		}
+	};
+
+	private volatile boolean allowSearch = false;
 
 	public static interface EvaluateBy {
 		public double get();
@@ -109,24 +143,6 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 	private PriorityQueue<GraphNode> nodesOpen = new PriorityQueue<GraphNode>(
 			1, nodeComparator);
 	private LinkedList<GraphNode> nodesClosed = new LinkedList<GraphNode>();
-
-	private final Subscriber executionAbortedListener = new Subscriber() {
-		@Override
-		public void fireChange() {
-			allowSearch = false;
-		}
-	};
-
-	private final Subscriber simulatorInitializedSubscriber = new Subscriber() {
-		@Override
-		public void fireChange() {
-			allowSearch = true;
-			Simulator.getExecutionStateNotifier().addSubscriber(executionAbortedListener,
-					Simulator.ExecutionState.EXECUTION_ABORTED);
-		}
-	};
-
-	private volatile boolean allowSearch = false;
 
 	private GraphNode head;
 	private GraphNode current;
@@ -291,7 +307,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 					executed.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SEARCH);
 				}
 
-				Simulator.getExecutionStateNotifier().notifySubscribers(ExecutionState.SEARCH_STEP);
+				Simulator.getExecutionStateNotifier().notifySubscribers(
+						ExecutionState.SEARCH_STEP);
 
 				parent.state.deploy();
 

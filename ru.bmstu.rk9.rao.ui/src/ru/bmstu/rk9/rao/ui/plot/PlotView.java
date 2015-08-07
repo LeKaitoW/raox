@@ -39,12 +39,12 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
-import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.ui.plot.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView.ConditionalMenuItem;
-import ru.bmstu.rk9.rao.ui.notification.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 
 public class PlotView extends ViewPart {
 

@@ -175,7 +175,7 @@ public class ExecutionHandler extends AbstractHandler {
 
 					ConsoleView.addLine("Started model " + project.getName());
 
-					LinkedList<Result> results = new LinkedList<Result>();
+					List<Result> results = new LinkedList<Result>();
 					int simulationResult = -1;
 					if (simulation != null)
 						simulationResult = (int) simulation.invoke(null,
@@ -211,7 +211,10 @@ public class ExecutionHandler extends AbstractHandler {
 				} catch (Exception e) {
 					e.printStackTrace();
 					setRunningState(display, sourceProvider, false);
-					ConsoleView.addLine("Execution error");
+					ConsoleView.addLine("Execution error\n");
+					ConsoleView.addLine("Call stack:");
+					ConsoleView.printStackTrace(e);
+					Simulator.notifyError();
 
 					display.syncExec(() -> AnimationView.deinitialize());
 
@@ -223,7 +226,7 @@ public class ExecutionHandler extends AbstractHandler {
 						}
 
 					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
-							"Execution failed");
+							"Execution failed", e);
 				}
 			}
 
