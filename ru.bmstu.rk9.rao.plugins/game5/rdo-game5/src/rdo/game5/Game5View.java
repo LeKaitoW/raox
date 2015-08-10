@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -18,6 +19,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -78,19 +81,49 @@ public class Game5View extends EditorPart {
 		} catch (IOException | ParseException e1) {
 			e1.printStackTrace();
 		}
-		final GridLayout gridLayout = new GridLayout(3, false);
+
+		final GridLayout gridLayout = new GridLayout(5, false);
 		parent.setLayout(gridLayout);
+
+		final Group boardGroup = new Group(parent, SWT.NONE);
+		final GridLayout boardLayout = new GridLayout(3, false);
+		final GridData boardData = new GridData();
+		boardData.verticalSpan = 2;
+		boardGroup.setLayoutData(boardData);
+		boardGroup.setLayout(boardLayout);
+		boardGroup.setText("Board:");
+		JSONArray places = (JSONArray) object.get("places");
+		final TileButton tile1 = new TileButton(boardGroup, SWT.NONE,
+				String.valueOf(places.indexOf("1") + 1));
+		final TileButton tile2 = new TileButton(boardGroup, SWT.NONE,
+				String.valueOf(places.indexOf("2") + 1));
+		final TileButton tile3 = new TileButton(boardGroup, SWT.NONE,
+				String.valueOf(places.indexOf("3") + 1));
+		final TileButton tile4 = new TileButton(boardGroup, SWT.NONE,
+				String.valueOf(places.indexOf("4") + 1));
+		final TileButton tile5 = new TileButton(boardGroup, SWT.NONE,
+				String.valueOf(places.indexOf("5") + 1));
+		final TileButton tile6 = new TileButton(boardGroup, SWT.NONE,
+				String.valueOf(places.indexOf("6") + 1));
 
 		final Group solvableGroup = new Group(parent, SWT.SHADOW_IN);
 		solvableGroup.setText("Solvable:");
 		solvableGroup.setLayout(gridLayout);
-
 		final Button solvable = new Button(solvableGroup, SWT.CHECK);
 		solvable.setText("Solvable only");
 		solvable.setSelection((boolean) object.get("solvable"));
+		final Button shuffle = new Button(solvableGroup, SWT.PUSH);
+		shuffle.setText("Shuffle");
 
 		final Button inOrder = new Button(parent, SWT.PUSH);
 		inOrder.setText("In order");
+
+		final Group traverseGraph = new Group(parent, SWT.SHADOW_IN);
+		traverseGraph.setText("Traverse graph:");
+		traverseGraph.setLayout(gridLayout);
+		final Button compareTops = new Button(traverseGraph, SWT.CHECK);
+		compareTops.setText("Compare tops");
+		compareTops.setSelection((boolean) object.get("compare"));
 
 		final Group ruleCost = new Group(parent, SWT.SHADOW_IN);
 		ruleCost.setText("Rule cost:");
@@ -99,6 +132,51 @@ public class Game5View extends EditorPart {
 		final GridData ruleCostData = new GridData();
 		ruleCostData.verticalSpan = 3;
 		ruleCost.setLayoutData(ruleCostData);
+
+		final Group setOrderGroup = new Group(parent, SWT.NONE);
+		setOrderGroup.setText("Set order:");
+		setOrderGroup.setLayout(new FormLayout());
+		final Button setOrderButton = new Button(setOrderGroup, SWT.TOGGLE);
+		setOrderButton.setText("Set...");
+		final Label setOrderError = new Label(setOrderGroup, SWT.NONE);
+		setOrderError.setText("Invalid order");
+		final Color red = new Color(PlatformUI.getWorkbench().getDisplay(),
+				0x9B, 0x11, 0x1E);
+		setOrderError.setForeground(red);
+		setOrderError.setVisible(false);
+		final Text setOrderText = new Text(setOrderGroup, SWT.BORDER);
+		setOrderText.setText("1 2 3 4 5 6");
+		setOrderText.setEnabled(false);
+		final Button setOrderOkButton = new Button(setOrderGroup, SWT.PUSH);
+		setOrderOkButton.setText("Ok");
+		setOrderOkButton.setEnabled(false);
+		FormData setOrderErrorData = new FormData();
+		setOrderErrorData.left = new FormAttachment(setOrderButton, 2);
+		setOrderErrorData.top = new FormAttachment(0, 5);
+		setOrderError.setLayoutData(setOrderErrorData);
+		FormData setOrderTextData = new FormData();
+		setOrderTextData.top = new FormAttachment(setOrderButton, 2);
+		setOrderText.setLayoutData(setOrderTextData);
+		FormData setOrderOkButtonData = new FormData();
+		setOrderOkButtonData.left = new FormAttachment(setOrderText, 2);
+		setOrderOkButtonData.right = new FormAttachment(100, -2);
+		setOrderOkButtonData.top = new FormAttachment(setOrderButton, 1);
+		setOrderOkButton.setLayoutData(setOrderOkButtonData);
+
+		final Button simulationButton = new Button(parent, SWT.PUSH);
+		simulationButton.setText("Simulation");
+
+		final Group heuristicSelection = new Group(parent, SWT.SHADOW_IN);
+		heuristicSelection.setText("Select heuristic:");
+		heuristicSelection.setLayout(gridLayout);
+		final Combo heuristicList = new Combo(heuristicSelection, SWT.BORDER
+				| SWT.DROP_DOWN | SWT.V_SCROLL);
+		final String zeroHeuristic = "Поиск_в_ширину()";
+		heuristicList.add(zeroHeuristic);
+		final String tilesHeuristic = "Кол_во_фишек_не_на_месте()";
+		heuristicList.add(tilesHeuristic);
+		final String manhattanDistance = "Расстояния_фишек_до_мест()";
+		heuristicList.add(manhattanDistance);
 
 		final Label moveLabel = new Label(ruleCost, SWT.NONE);
 		moveLabel.setText("Move");
@@ -218,17 +296,6 @@ public class Game5View extends EditorPart {
 		downCombo.add("Before");
 		downCombo.select(object.get("computeDown").equals("After") ? 0 : 1);
 
-		final Group traverseGraph = new Group(parent, SWT.SHADOW_IN);
-		traverseGraph.setText("Traverse graph:");
-		traverseGraph.setLayout(gridLayout);
-
-		final Button compareTops = new Button(traverseGraph, SWT.CHECK);
-		compareTops.setText("Compare tops");
-		compareTops.setSelection((boolean) object.get("compare"));
-
-		final Button shuffle = new Button(solvableGroup, SWT.PUSH);
-		shuffle.setText("Shuffle");
-
 		final Button downButton = new Button(ruleCost, SWT.CHECK);
 		final Text downCost = new Text(ruleCost, SWT.BORDER);
 		downCost.setText(object.get("costDown").toString());
@@ -251,45 +318,6 @@ public class Game5View extends EditorPart {
 			}
 		});
 
-		final Group heuristicSelection = new Group(parent, SWT.SHADOW_IN);
-		heuristicSelection.setText("Select heuristic:");
-		heuristicSelection.setLayout(gridLayout);
-		final Combo heuristicList = new Combo(heuristicSelection, SWT.BORDER
-				| SWT.DROP_DOWN | SWT.V_SCROLL);
-
-		final Group setOrderGroup = new Group(parent, SWT.NONE);
-		setOrderGroup.setText("Set order:");
-		setOrderGroup.setLayout(new FormLayout());
-		final Button setOrderButton = new Button(setOrderGroup, SWT.TOGGLE);
-		setOrderButton.setText("Set...");
-		final Label setOrderError = new Label(setOrderGroup, SWT.NONE);
-		setOrderError.setText("Invalid order");
-		final Color red = new Color(PlatformUI.getWorkbench().getDisplay(),
-				0x9B, 0x11, 0x1E);
-		setOrderError.setForeground(red);
-		setOrderError.setVisible(false);
-		final Text setOrderText = new Text(setOrderGroup, SWT.BORDER);
-		setOrderText.setText("1 2 3 4 5 6");
-		setOrderText.setEnabled(false);
-		final Button setOrderOkButton = new Button(setOrderGroup, SWT.PUSH);
-		setOrderOkButton.setText("Ok");
-		setOrderOkButton.setEnabled(false);
-
-		FormData setOrderErrorData = new FormData();
-		setOrderErrorData.left = new FormAttachment(setOrderButton, 2);
-		setOrderErrorData.top = new FormAttachment(0, 5);
-		setOrderError.setLayoutData(setOrderErrorData);
-
-		FormData setOrderTextData = new FormData();
-		setOrderTextData.top = new FormAttachment(setOrderButton, 2);
-		setOrderText.setLayoutData(setOrderTextData);
-
-		FormData setOrderOkButtonData = new FormData();
-		setOrderOkButtonData.left = new FormAttachment(setOrderText, 2);
-		setOrderOkButtonData.right = new FormAttachment(100, -2);
-		setOrderOkButtonData.top = new FormAttachment(setOrderButton, 1);
-		setOrderOkButton.setLayoutData(setOrderOkButtonData);
-
 		setOrderButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -303,11 +331,23 @@ public class Game5View extends EditorPart {
 				} else {
 					setOrderText.setEnabled(false);
 					setOrderOkButton.setEnabled(false);
+					setOrderError.setVisible(false);
 				}
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
+		setOrderText.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent arg0) {
+			}
+
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				setOrderError.setVisible(false);
 			}
 		});
 
@@ -328,15 +368,12 @@ public class Game5View extends EditorPart {
 			}
 		});
 
-		final Button simulationButton = new Button(parent, SWT.PUSH);
-		simulationButton.setText("Simulation");
-
 		final Group editorGroup = new Group(parent, SWT.SHADOW_IN);
 		editorGroup.setText("Heuristic code:");
 		editorGroup.setLayout(gridLayout);
 		final GridData editorGrideData = new GridData(SWT.FILL, SWT.FILL, true,
 				true, 1, 1);
-		editorGrideData.horizontalSpan = 3;
+		editorGrideData.horizontalSpan = 5;
 		editorGroup.setLayoutData(editorGrideData);
 
 		final Injector injector = ru.bmstu.rk9.rao.ui.RaoActivatorExtension
