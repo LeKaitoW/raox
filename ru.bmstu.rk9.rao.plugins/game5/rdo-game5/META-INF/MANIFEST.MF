@@ -15,11 +15,11 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.core,
  org.eclipse.jdt.ui,
  org.eclipse.jdt.launching,
+ org.eclipse.core.filesystem,
  ru.bmstu.rk9.rao,
  ru.bmstu.rk9.rao.lib,
  ru.bmstu.rk9.rao.tests,
- ru.bmstu.rk9.rao.ui,
- org.eclipse.core.filesystem
+ ru.bmstu.rk9.rao.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,

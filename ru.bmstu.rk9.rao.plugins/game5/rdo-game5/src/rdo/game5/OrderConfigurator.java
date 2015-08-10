@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
-
+import java.util.HashSet;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -79,13 +79,31 @@ public class OrderConfigurator {
 	public static JSONArray convertOrderToJSONArray(String order) {
 		String[] orderList = order.split(" ");
 		JSONArray orderArray = new JSONArray();
-		if (orderList.length != tilesCountX * tilesCountY) {
-			return null;
-		} else {
+		if (orderValidation(orderList)) {
 			for (int i = 0; i < orderList.length; i++) {
 				orderArray.add(orderList[i]);
 			}
 			return orderArray;
+		} else {
+			return null;
 		}
+	}
+
+	private static boolean orderValidation(String[] orderList) {
+		HashSet<Integer> orderSet = new HashSet<>();
+
+		for (int i = 0; i < tilesCountX * tilesCountY; i++) {
+			orderSet.add(i + 1);
+		}
+		for (int i = 0; i < orderList.length; i++) {
+			try {
+				if (!orderSet.remove(Integer.valueOf(orderList[i]))) {
+					return false;
+				}
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		}
+		return orderSet.size() == 0;
 	}
 }
