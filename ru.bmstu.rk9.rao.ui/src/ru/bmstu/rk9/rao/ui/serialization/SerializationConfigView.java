@@ -57,6 +57,55 @@ public class SerializationConfigView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.SerializationConfigView";
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ---------------------------------- API ------------------------------ //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+	/**
+	 * Set all elements of tree to checked state.
+	 *
+	 * @return true on success, false if failed to check all elements (tree is
+	 *         not yet initialized)
+	 */
+	public final boolean checkAll() {
+		return setStateForAll(true);
+	}
+
+	/**
+	 * Set all elements of tree to unchecked state.
+	 *
+	 * @return true on success, false if failed to uncheck all elements (tree is
+	 *         not yet initialized)
+	 */
+	public final boolean uncheckAll() {
+		return setStateForAll(false);
+	}
+
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ----------------------------- API HELPERS --------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+	private final boolean setStateForAll(boolean state) {
+		if (!readyForInput())
+			return false;
+
+		SerializationConfig serializationConfig = (SerializationConfig) serializationTreeViewer
+				.getInput();
+		if (serializationConfig == null)
+			return false;
+
+		SerializationNode root = serializationConfig.getRoot();
+
+		for (SerializationNode node : root.getVisibleChildren()) {
+			node.setSerializationState(state);
+			serializationTreeViewer.setSubtreeChecked(node, state);
+			node.setSerializeVisibleChildren(state);
+		}
+
+		serializationTreeViewer.refresh();
+		return true;
+	}
+
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 	// ------------------------------ VIEW SETUP --------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
@@ -90,8 +139,8 @@ public class SerializationConfigView extends ViewPart {
 								.getElement();
 
 						node.setSerializationState(serializationState);
-						serializationTreeViewer.setSubtreeChecked(
-								event.getElement(), serializationState);
+						serializationTreeViewer.setSubtreeChecked(node,
+								serializationState);
 						node.setSerializeVisibleChildren(serializationState);
 					}
 				});
