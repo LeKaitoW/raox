@@ -3,7 +3,6 @@ package ru.bmstu.rk9.rao.ui.simulation;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
@@ -87,8 +86,6 @@ public class SimulationSynchronizer {
 
 		private double actualTimeScale = 0;
 
-		private Display display = PlatformUI.getWorkbench().getDisplay();
-
 		private DecimalFormat scaleFormatter = new DecimalFormat("0.######");
 		private DecimalFormat timeFormatter = new DecimalFormat("0.0#####");
 
@@ -105,7 +102,7 @@ public class SimulationSynchronizer {
 		Subscriber commonSubscriber = new Subscriber() {
 			@Override
 			public void fireChange() {
-				display.asyncExec(updater);
+				PlatformUI.getWorkbench().getDisplay().asyncExec(updater);
 			}
 		};
 	}
