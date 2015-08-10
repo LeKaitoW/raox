@@ -2,12 +2,20 @@ package ru.bmstu.rk9.rao.ui.serialization;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -22,36 +30,40 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener2;
-import org.eclipse.ui.IPartService;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.ResourceUtil;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.ui.editor.XtextEditor;
-import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
-import org.eclipse.xtext.util.concurrent.IUnitOfWork;
+import org.eclipse.xtext.ui.resource.IResourceSetProvider;
+
+import com.google.inject.Inject;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.rao.RaoModel;
+import ru.bmstu.rk9.rao.ui.build.ModelBuilder;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfig.SerializationNode;
 
 public class SerializationConfigView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.SerializationConfigView";
 
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ------------------------------ VIEW SETUP --------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
 	private static CheckboxTreeViewer serializationTreeViewer;
 
 	private static SerializationConfig serializationConfig = new SerializationConfig();
 	private static SerializationConfigurator serializationConfigurator = new SerializationConfigurator();
-
-	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-	// ---------------------------- VIEW SETUP ----------------------------- //
-	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -100,94 +112,8 @@ public class SerializationConfigView extends ViewPart {
 					}
 				});
 
-		IPartService service = PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getPartService();
-
-		service.addPartListener(new IPartListener2() {
-			@Override
-			public void partVisible(IWorkbenchPartReference partRef) {
-			}
-
-			@Override
-			public void partOpened(IWorkbenchPartReference partRef) {
-			}
-
-			@Override
-			public void partInputChanged(IWorkbenchPartReference partRef) {
-			}
-
-			@Override
-			public void partHidden(IWorkbenchPartReference partRef) {
-			}
-
-			@Override
-			public void partDeactivated(IWorkbenchPartReference partRef) {
-			}
-
-			@Override
-			public void partClosed(IWorkbenchPartReference partRef) {
-				String partId = partRef.getId();
-				if (partId.substring(partId.lastIndexOf('.') + 1).equals("Rao")) {
-					SerializationNode modelNode = modelNodes.get(partRef);
-					serializationConfig.removeModel(modelNode);
-					modelNodes.remove(partRef);
-					List<SerializationNode> modelsWithSameName = serializationConfig
-							.findModelsWithSameName(modelNode.getFullName());
-					if (modelsWithSameName.size() == 1)
-						modelsWithSameName.get(0).mustShowFullName(false);
-					if (!serializationTreeViewer.getControl().isDisposed())
-						serializationTreeViewer.refresh();
-				}
-			}
-
-			@Override
-			public void partBroughtToTop(IWorkbenchPartReference partRef) {
-			}
-
-			@Override
-			public void partActivated(IWorkbenchPartReference partRef) {
-				if (partRef.getId().equals("ru.bmstu.rk9.rao.Rao")) {
-					if (modelNodes.containsKey(partRef))
-						return;
-
-					IEditorPart editor = partRef.getPage().getActiveEditor();
-					IXtextDocument document = ((XtextEditor) editor)
-							.getDocument();
-
-					EList<EObject> contents = document.readOnly(
-							new IUnitOfWork<XtextResource, XtextResource>() {
-								public XtextResource exec(XtextResource state) {
-									return state;
-								}
-							}).getContents();
-
-					if (contents.isEmpty())
-						return;
-
-					RaoModel model = (RaoModel) contents.get(0);
-					SerializationNode newModel = addModel(model.eResource());
-					modelNodes.put(partRef, newModel);
-
-					List<SerializationNode> modelsWithSameName = serializationConfig
-							.findModelsWithSameName(newModel.getFullName());
-					if (modelsWithSameName.size() > 1)
-						for (SerializationNode node : modelsWithSameName)
-							node.mustShowFullName(true);
-
-					if (serializationTreeViewer.getInput() == null)
-						serializationTreeViewer.setInput(serializationConfig);
-
-					document.addModelListener(new IXtextModelListener() {
-						@Override
-						public void modelChanged(XtextResource resource) {
-							updateInput(resource);
-						}
-					});
-				}
-			}
-
-			private final Map<IWorkbenchPartReference, SerializationNode> modelNodes = new HashMap<IWorkbenchPartReference, SerializationNode>();
-		});
+		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getPartService()
+				.addPartListener(partListener);
 
 		initializeSubscribers();
 		setEnabled(true);
@@ -198,6 +124,215 @@ public class SerializationConfigView extends ViewPart {
 		deinitializeSubscribers();
 		super.dispose();
 	}
+
+	@Override
+	public void setFocus() {
+	}
+
+	public final static boolean readyForInput() {
+		return serializationTreeViewer != null
+				&& !serializationTreeViewer.getTree().isDisposed()
+				&& serializationTreeViewer.getContentProvider() != null
+				&& serializationTreeViewer.getLabelProvider() != null;
+	}
+
+	// ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ---------------------------- TREE UPDATES ---------------------------- //
+	// ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+	@Inject
+	IResourceSetProvider resourceSetProvider;
+
+	private final IPartListener2 partListener = new IPartListener2() {
+		@Override
+		public void partVisible(IWorkbenchPartReference partRef) {
+		}
+
+		@Override
+		public void partOpened(IWorkbenchPartReference partRef) {
+			IWorkbenchPart part = partRef.getPart(false);
+			if (part == null)
+				return;
+			if (!(part instanceof IEditorPart))
+				return;
+
+			IEditorPart editor = (IEditorPart) part;
+			registerModel(editor);
+		}
+
+		@Override
+		public void partInputChanged(IWorkbenchPartReference partRef) {
+		}
+
+		@Override
+		public void partHidden(IWorkbenchPartReference partRef) {
+		}
+
+		@Override
+		public void partDeactivated(IWorkbenchPartReference partRef) {
+		}
+
+		@Override
+		public void partClosed(IWorkbenchPartReference partRef) {
+			IWorkbenchPart part = partRef.getPart(false);
+			if (part == null)
+				return;
+			if (!(part instanceof IEditorPart))
+				return;
+
+			IEditorPart editor = (IEditorPart) part;
+			unregisterModel(editor);
+		}
+
+		@Override
+		public void partBroughtToTop(IWorkbenchPartReference partRef) {
+		}
+
+		@Override
+		public void partActivated(IWorkbenchPartReference partRef) {
+		}
+	};
+
+	private final Map<IResource, SerializationNode> modelNodes = new HashMap<>();
+	private final Map<IProject, Set<IEditorPart>> projectReferences = new HashMap<>();
+
+	private final void registerModel(IEditorPart editor) {
+		IEditorInput input = editor.getEditorInput();
+		if (input == null)
+			return;
+
+		IResource resource = ResourceUtil.getFile(editor.getEditorInput());
+		IProject project = resource.getProject();
+
+		if (!projectReferences.containsKey(project))
+			projectReferences.put(project, new HashSet<IEditorPart>());
+
+		final List<IResource> projectFiles = ModelBuilder
+				.getAllRaoFilesInProject(project);
+
+		for (IResource raoFile : projectFiles) {
+			URI uri = ModelBuilder.getURI(raoFile);
+			if (modelNodes.containsKey(raoFile))
+				continue;
+
+			final ResourceSet resourceSet = resourceSetProvider.get(project);
+			Resource loadedResource = resourceSet.getResource(uri, true);
+			EList<EObject> contents = loadedResource.getContents();
+
+			if (contents.isEmpty())
+				continue;
+
+			RaoModel model = (RaoModel) contents.get(0);
+			SerializationNode newModel = addModel(model.eResource());
+			modelNodes.put(raoFile, newModel);
+
+			List<SerializationNode> modelsWithSameName = serializationConfig
+					.findModelsWithSameName(newModel.getFullName());
+			if (modelsWithSameName.size() > 1)
+				for (SerializationNode node : modelsWithSameName)
+					node.mustShowFullName(true);
+
+			if (serializationTreeViewer.getInput() == null)
+				serializationTreeViewer.setInput(serializationConfig);
+		}
+
+		Set<IEditorPart> projectSites = projectReferences.get(project);
+		if (projectSites.contains(editor))
+			return;
+
+		projectSites.add(editor);
+
+		if (!(editor instanceof XtextEditor))
+			return;
+
+		((XtextEditor) editor).getDocument().addModelListener(
+				new IXtextModelListener() {
+					@Override
+					public void modelChanged(XtextResource resource) {
+						updateInput(resource);
+					}
+				});
+
+		return;
+	}
+
+	private final IProject removeEditorReference(IEditorPart site) {
+		Iterator<Entry<IProject, Set<IEditorPart>>> iterator = projectReferences
+				.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Entry<IProject, Set<IEditorPart>> entry = iterator.next();
+			Set<IEditorPart> projectSites = entry.getValue();
+			if (!projectSites.contains(site))
+				continue;
+
+			projectSites.remove(site);
+			if (projectSites.isEmpty()) {
+				IProject project = entry.getKey();
+				iterator.remove();
+				return project;
+			}
+		}
+		return null;
+	}
+
+	private final void unregisterModel(IEditorPart editor) {
+		IProject unregisteredProject = removeEditorReference(editor);
+		if (unregisteredProject == null)
+			return;
+
+		final List<IResource> projectFiles = ModelBuilder
+				.getAllRaoFilesInProject(unregisteredProject);
+
+		for (IResource raoFile : projectFiles) {
+			if (!modelNodes.containsKey(raoFile))
+				continue;
+
+			SerializationNode modelNode = modelNodes.get(raoFile);
+			serializationConfig.removeModel(modelNode);
+			modelNodes.remove(raoFile);
+
+			List<SerializationNode> modelsWithSameName = serializationConfig
+					.findModelsWithSameName(modelNode.getFullName());
+			if (modelsWithSameName.size() == 1)
+				modelsWithSameName.get(0).mustShowFullName(false);
+		}
+
+		if (!serializationTreeViewer.getControl().isDisposed())
+			serializationTreeViewer.refresh();
+	}
+
+	private static SerializationNode addModel(Resource model) {
+		SerializationNode modelNode = serializationConfigurator.initModel(
+				serializationConfig.getRoot(), model);
+		updateInput(model);
+		return modelNode;
+	}
+
+	private static void updateInput(Resource model) {
+		if (!readyForInput())
+			return;
+		SerializationNode modelNode = serializationConfig.findModel(model
+				.getURI().toPlatformString(false));
+		serializationConfigurator.fillCategories(model, modelNode);
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				SerializationConfigView.serializationTreeViewer.refresh();
+			}
+		});
+	}
+
+	public static void onModelSave() {
+		serializationConfig.getRoot().removeHiddenChildren();
+	}
+
+	public static final void initNames() {
+		serializationConfig.saveTreeAsNamesList();
+	}
+
+	// ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// --------------------------- SUBSCRIPTIONS ---------------------------- //
+	// ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private final void initializeSubscribers() {
 		subscriberRegistrationManager.initialize(Arrays.asList(
@@ -236,50 +371,6 @@ public class SerializationConfigView extends ViewPart {
 				serializationTreeViewer.getTree().setEnabled(state);
 			}
 		});
-	}
-
-	public static SerializationNode addModel(Resource model) {
-		SerializationNode modelNode = serializationConfigurator.initModel(
-				serializationConfig.getRoot(), model);
-		updateInput(model);
-		return modelNode;
-	}
-
-	public static void updateInput(Resource model) {
-		if (!readyForInput())
-			return;
-		SerializationNode modelNode = serializationConfig.findModel(model
-				.getURI().toPlatformString(false));
-		serializationConfigurator.fillCategories(model, modelNode);
-		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				SerializationConfigView.serializationTreeViewer.refresh();
-			}
-		});
-	}
-
-	public static void onModelSave() {
-		serializationConfig.getRoot().removeHiddenChildren();
-	}
-
-	public static final void initNames() {
-		serializationConfig.saveTreeAsNamesList();
-	}
-
-	public static final SerializationConfig getConfig() {
-		return serializationConfig;
-	}
-
-	@Override
-	public void setFocus() {
-	}
-
-	public final static boolean readyForInput() {
-		return serializationTreeViewer != null
-				&& !serializationTreeViewer.getTree().isDisposed()
-				&& serializationTreeViewer.getContentProvider() != null
-				&& serializationTreeViewer.getLabelProvider() != null;
 	}
 }
 
