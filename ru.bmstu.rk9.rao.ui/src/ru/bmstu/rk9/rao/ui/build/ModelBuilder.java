@@ -12,7 +12,6 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -35,11 +34,18 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.ISaveableFilter;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.Saveable;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.generator.OutputConfiguration;
+import org.eclipse.xtext.ui.editor.XtextEditor;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
@@ -84,27 +90,6 @@ public class ModelBuilder {
 			return null;
 
 		return file.getProject();
-	}
-
-	public static IMarker[] calculateCompilationErrorMarkers(IProject project) {
-		ArrayList<IMarker> result = new ArrayList<IMarker>();
-		IMarker[] markers = null;
-
-		try {
-			markers = project.findMarkers(null, true, IResource.DEPTH_INFINITE);
-			for (IMarker marker : markers) {
-				Integer severityType;
-				severityType = (Integer) marker.getAttribute(IMarker.SEVERITY);
-				if (severityType != null
-						&& severityType.intValue() == IMarker.SEVERITY_ERROR
-						&& marker.getType().startsWith("ru.bmstu.rk9.rao"))
-					result.add(marker);
-			}
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-
-		return result.toArray(new IMarker[result.size()]);
 	}
 
 	private static void checkProjectClassPath(IProject project,
@@ -173,6 +158,35 @@ public class ModelBuilder {
 									+ activeEditor.getTitle()
 									+ "' is not a part of any project in workspace.");
 
+				final Display display = PlatformUI.getWorkbench().getDisplay();
+				IWorkbenchWindow workbenchWindow = HandlerUtil
+						.getActiveWorkbenchWindow(event);
+
+				ISaveableFilter filter = new ISaveableFilter() {
+					@Override
+					public boolean select(Saveable saveable,
+							IWorkbenchPart[] containingParts) {
+						if (!saveable.getName().endsWith(".rao"))
+							return false;
+
+						if (containingParts.length < 1)
+							return false;
+
+						IWorkbenchPart part = containingParts[0];
+						if (!(part instanceof XtextEditor))
+							return false;
+
+						XtextEditor editor = (XtextEditor) part;
+						if (editor.getResource().getProject().equals(project))
+							return true;
+
+						return false;
+					}
+				};
+
+				display.syncExec(() -> PlatformUI.getWorkbench().saveAll(
+						workbenchWindow, workbenchWindow, filter, true));
+
 				checkProjectClassPath(project, monitor);
 
 				IJobManager jobManager = Job.getJobManager();
@@ -230,9 +244,6 @@ public class ModelBuilder {
 						break;
 					}
 				}
-
-				if (calculateCompilationErrorMarkers(project).length > 0)
-					projectHasErrors = true;
 
 				if (projectHasErrors) {
 					try {
