@@ -72,9 +72,11 @@ public class SimulationSynchronizer {
 		}
 
 		private final void initializeSubscribers() {
-			simulatorSubscriberManager.initialize(Arrays
-					.asList(new SimulatorSubscriberInfo(commonSubscriber,
-							ExecutionState.TIME_CHANGED)));
+			simulatorSubscriberManager.initialize(Arrays.asList(
+					new SimulatorSubscriberInfo(commonSubscriber,
+							ExecutionState.EXECUTION_STARTED),
+					new SimulatorSubscriberInfo(commonSubscriber,
+							ExecutionState.EXECUTION_COMPLETED)));
 			realTimeSubscriberManager.initialize(Arrays.asList(updater));
 		}
 
