@@ -176,11 +176,9 @@ public class Simulator {
 			Event current = INSTANCE.eventScheduler.popEvent();
 
 			INSTANCE.time = current.getTime();
-
-			notifyChange(ExecutionState.TIME_CHANGED);
-
 			current.run();
 
+			notifyChange(ExecutionState.TIME_CHANGED);
 			notifyChange(ExecutionState.STATE_CHANGED);
 
 			if (INSTANCE.checkTerminate())

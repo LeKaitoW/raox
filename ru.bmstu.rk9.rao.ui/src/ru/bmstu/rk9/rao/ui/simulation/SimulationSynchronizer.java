@@ -3,7 +3,6 @@ package ru.bmstu.rk9.rao.ui.simulation;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
@@ -11,6 +10,7 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
+import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 
 public class SimulationSynchronizer {
 	public static enum ExecutionMode {
@@ -42,8 +42,6 @@ public class SimulationSynchronizer {
 
 	private final void initializeSubscribers() {
 		simulationSubscriberManager.initialize(Arrays.asList(
-				new SimulatorSubscriberInfo(uiTimeUpdater,
-						ExecutionState.TIME_CHANGED),
 				new SimulatorSubscriberInfo(simulationManager.scaleManager,
 						ExecutionState.TIME_CHANGED),
 				new SimulatorSubscriberInfo(simulationManager.speedManager,
@@ -58,6 +56,7 @@ public class SimulationSynchronizer {
 
 	public final void deinitializeSubscribers() {
 		simulationSubscriberManager.deinitialize();
+		uiTimeUpdater.deinitializeSubscribers();
 	}
 
 	private volatile ExecutionMode executionMode;
@@ -66,14 +65,32 @@ public class SimulationSynchronizer {
 		this.executionMode = executionMode;
 	}
 
-	public class UITimeUpdater implements Subscriber {
-		private long lastUpdateTime = System.currentTimeMillis();
-		private double actualTimeScale = 0;
+	public class UITimeUpdater {
+		UITimeUpdater() {
+			initializeSubscribers();
+		}
 
-		private Display display = PlatformUI.getWorkbench().getDisplay();
+		private final void initializeSubscribers() {
+			simulatorSubscriberManager.initialize(Arrays.asList(
+					new SimulatorSubscriberInfo(commonSubscriber,
+							ExecutionState.EXECUTION_STARTED),
+					new SimulatorSubscriberInfo(commonSubscriber,
+							ExecutionState.EXECUTION_COMPLETED)));
+			realTimeSubscriberManager.initialize(Arrays.asList(updater));
+		}
+
+		private final void deinitializeSubscribers() {
+			simulatorSubscriberManager.deinitialize();
+			realTimeSubscriberManager.deinitialize();
+		}
+
+		private double actualTimeScale = 0;
 
 		private DecimalFormat scaleFormatter = new DecimalFormat("0.######");
 		private DecimalFormat timeFormatter = new DecimalFormat("0.0#####");
+
+		private final SimulatorSubscriberManager simulatorSubscriberManager = new SimulatorSubscriberManager();
+		private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
 
 		private Runnable updater = () -> {
 			StatusView.setValue("Simulation time".intern(), 20,
@@ -82,15 +99,12 @@ public class SimulationSynchronizer {
 					scaleFormatter.format(60060d / actualTimeScale));
 		};
 
-		@Override
-		public void fireChange() {
-			long currentTime = System.currentTimeMillis();
-			if (currentTime - lastUpdateTime > 50) {
-				lastUpdateTime = currentTime;
-				if (!display.isDisposed())
-					display.asyncExec(updater);
+		Subscriber commonSubscriber = new Subscriber() {
+			@Override
+			public void fireChange() {
+				PlatformUI.getWorkbench().getDisplay().asyncExec(updater);
 			}
-		}
+		};
 	}
 
 	private final SimulatorSubscriberManager simulationSubscriberManager = new SimulatorSubscriberManager();
