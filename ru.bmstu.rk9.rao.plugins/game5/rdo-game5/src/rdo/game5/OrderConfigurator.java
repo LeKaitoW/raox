@@ -30,14 +30,15 @@ public class OrderConfigurator {
 		}
 	}
 
-	public static JSONArray shuffle(JSONArray places, boolean solvableOnly) {
-		if (solvableOnly) {
-			do {
-				Collections.shuffle(places);
-			} while (!isSolvable(tilesCountX, tilesCountY, places));
+	public static JSONArray shuffle(JSONArray places, String solvable) {
+		if (solvable.equals("all")) {
+			Collections.shuffle(places);
 			return places;
 		} else {
-			Collections.shuffle(places);
+			do {
+				Collections.shuffle(places);
+			} while (!solvable.equals(String.valueOf(isSolvable(tilesCountX,
+					tilesCountY, places))));
 			return places;
 		}
 	}
@@ -79,31 +80,31 @@ public class OrderConfigurator {
 	public static JSONArray convertOrderToJSONArray(String order) {
 		String[] orderList = order.split(" ");
 		JSONArray orderArray = new JSONArray();
-		if (orderValidation(orderList)) {
+		if (!orderIsValid(orderList)) {
+			return null;
+		} else {
 			for (int i = 0; i < orderList.length; i++) {
 				orderArray.add(orderList[i]);
 			}
 			return orderArray;
-		} else {
-			return null;
 		}
 	}
 
-	private static boolean orderValidation(String[] orderList) {
-		HashSet<Integer> orderSet = new HashSet<>();
+	private static boolean orderIsValid(String[] orderList) {
+		HashSet<Integer> standartOrder = new HashSet<>();
 
 		for (int i = 0; i < tilesCountX * tilesCountY; i++) {
-			orderSet.add(i + 1);
+			standartOrder.add(i + 1);
 		}
 		for (int i = 0; i < orderList.length; i++) {
 			try {
-				if (!orderSet.remove(Integer.valueOf(orderList[i]))) {
+				if (!standartOrder.remove(Integer.valueOf(orderList[i]))) {
 					return false;
 				}
 			} catch (NumberFormatException e) {
 				return false;
 			}
 		}
-		return orderSet.size() == 0;
+		return standartOrder.size() == 0;
 	}
 }

@@ -109,9 +109,12 @@ public class Game5View extends EditorPart {
 		final Group solvableGroup = new Group(parent, SWT.SHADOW_IN);
 		solvableGroup.setText("Solvable:");
 		solvableGroup.setLayout(gridLayout);
-		final Button solvable = new Button(solvableGroup, SWT.CHECK);
-		solvable.setText("Solvable only");
-		solvable.setSelection((boolean) object.get("solvable"));
+		final Button solvableOnly = new Button(solvableGroup, SWT.RADIO);
+		solvableOnly.setText("Solvable only");
+		final Button unsolvableOnly = new Button(solvableGroup, SWT.RADIO);
+		unsolvableOnly.setText("Unsolvable only");
+		final Button allSituations = new Button(solvableGroup, SWT.RADIO);
+		allSituations.setText("All situations");
 		final Button shuffle = new Button(solvableGroup, SWT.PUSH);
 		shuffle.setText("Shuffle");
 
@@ -175,8 +178,9 @@ public class Game5View extends EditorPart {
 		heuristicList.add(zeroHeuristic);
 		final String tilesHeuristic = "Кол_во_фишек_не_на_месте()";
 		heuristicList.add(tilesHeuristic);
-		final String manhattanDistance = "Расстояния_фишек_до_мест()";
-		heuristicList.add(manhattanDistance);
+		final String manhattanDistanceHeuristic = "Расстояния_фишек_до_мест()";
+		heuristicList.add(manhattanDistanceHeuristic);
+		heuristicList.setText((String) object.get("heuristic"));
 
 		final Label moveLabel = new Label(ruleCost, SWT.NONE);
 		moveLabel.setText("Move");
@@ -371,10 +375,10 @@ public class Game5View extends EditorPart {
 		final Group editorGroup = new Group(parent, SWT.SHADOW_IN);
 		editorGroup.setText("Heuristic code:");
 		editorGroup.setLayout(gridLayout);
-		final GridData editorGrideData = new GridData(SWT.FILL, SWT.FILL, true,
+		final GridData editorGridData = new GridData(SWT.FILL, SWT.FILL, true,
 				true, 1, 1);
-		editorGrideData.horizontalSpan = 5;
-		editorGroup.setLayoutData(editorGrideData);
+		editorGridData.horizontalSpan = 5;
+		editorGroup.setLayoutData(editorGridData);
 
 		final Injector injector = ru.bmstu.rk9.rao.ui.RaoActivatorExtension
 				.getInstance()
@@ -401,7 +405,7 @@ public class Game5View extends EditorPart {
 		heuristicList.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				object.put("heuristic", heuristicList.getSelectionIndex());
+				object.put("heuristic", heuristicList.getText());
 				setDirty(true);
 			}
 
@@ -507,11 +511,32 @@ public class Game5View extends EditorPart {
 			}
 		});
 
-		solvable.addSelectionListener(new SelectionListener() {
+		solvableOnly.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				object.put("solvable", solvable.getSelection());
-				setDirty(true);
+				object.put("solvable", "true");
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+		});
+
+		unsolvableOnly.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				object.put("solvable", "false");
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+		});
+
+		allSituations.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				object.put("solvable", "all");
 			}
 
 			@Override
@@ -551,9 +576,8 @@ public class Game5View extends EditorPart {
 				object.put(
 						"places",
 						OrderConfigurator.shuffle(places,
-								(boolean) object.get("solvable")));
+								(String) object.get("solvable")));
 				setDirty(true);
-
 			}
 
 			@Override
