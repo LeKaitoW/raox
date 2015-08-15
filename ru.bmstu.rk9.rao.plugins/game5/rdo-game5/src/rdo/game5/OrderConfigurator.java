@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.HashSet;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -34,25 +35,28 @@ public class OrderConfigurator {
 		if (solvable.equals("all")) {
 			Collections.shuffle(places);
 			return places;
-		} else {
-			do {
-				Collections.shuffle(places);
-			} while (!solvable.equals(String.valueOf(isSolvable(tilesCountX,
-					tilesCountY, places))));
-			return places;
 		}
+		JSONArray order = inverseOrderPlaces(places);
+		do {
+			Collections.shuffle(order);
+		} while (!solvable.equals(String.valueOf(isSolvable(tilesCountX,
+				tilesCountY, order))));
+		return inverseOrderPlaces(order);
 	}
 
 	private static boolean isSolvable(int tilesCountX, int tilesCountY,
-			JSONArray places) {
+			JSONArray order) {
 
-		final int freePlaceRow = places.indexOf(String.valueOf(6))
+		final int freePlaceRow = order.indexOf(String.valueOf(tilesCountX
+				* tilesCountY))
 				/ tilesCountX + 1;
 		int sum = 0;
-		for (int i = 1; i < tilesCountX * tilesCountY; i++) {
+		for (int i = 0; i < tilesCountX * tilesCountY; i++) {
+			int tileIndex = Integer.valueOf(order.get(i).toString());
+			if (tileIndex == tilesCountX * tilesCountY)
+				continue;
 			for (int j = i + 1; j < tilesCountX * tilesCountY; j++) {
-				if (Integer.valueOf(places.get(i).toString()) > Integer
-						.valueOf(places.get(j).toString()))
+				if (tileIndex > Integer.valueOf(order.get(j).toString()))
 					sum++;
 			}
 		}
@@ -65,7 +69,7 @@ public class OrderConfigurator {
 		// См. Перельман. Живая математика.
 	}
 
-	public static String convertOrderToString(JSONArray places) {
+	public static String convertPlacesToString(JSONArray places) {
 		String order = Integer.toString(places.indexOf(String.valueOf(1)) + 1);
 		for (int i = 1; i < places.size(); i++) {
 			order = order
@@ -77,17 +81,25 @@ public class OrderConfigurator {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static JSONArray convertOrderToJSONArray(String order) {
+	public static JSONArray convertStringToPlaces(String order) {
 		String[] orderList = order.split(" ");
 		JSONArray orderArray = new JSONArray();
 		if (!orderIsValid(orderList)) {
 			return null;
-		} else {
-			for (int i = 0; i < orderList.length; i++) {
-				orderArray.add(orderList[i]);
-			}
-			return orderArray;
 		}
+		for (int i = 0; i < orderList.length; i++) {
+			orderArray.add(orderList[i]);
+		}
+		return inverseOrderPlaces(orderArray);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static JSONArray inverseOrderPlaces(JSONArray position) {
+		JSONArray inversePosition = new JSONArray();
+		for (int i = 1; i < position.size() + 1; i++)
+			inversePosition.add(String.valueOf(position.indexOf(String
+					.valueOf(i)) + 1));
+		return inversePosition;
 	}
 
 	private static boolean orderIsValid(String[] orderList) {

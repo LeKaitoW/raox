@@ -330,7 +330,7 @@ public class Game5View extends EditorPart {
 					setOrderOkButton.setEnabled(true);
 					JSONArray places = (JSONArray) object.get("places");
 					String order = OrderConfigurator
-							.convertOrderToString(places);
+							.convertPlacesToString(places);
 					setOrderText.setText(order);
 				} else {
 					setOrderText.setEnabled(false);
@@ -359,7 +359,7 @@ public class Game5View extends EditorPart {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				JSONArray places = OrderConfigurator
-						.convertOrderToJSONArray(setOrderText.getText());
+						.convertStringToPlaces(setOrderText.getText());
 				if (places != null) {
 					object.put("places", places);
 				} else {
@@ -402,17 +402,9 @@ public class Game5View extends EditorPart {
 			}
 		});
 
-		heuristicList.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				object.put("heuristic", heuristicList.getText());
-				setDirty(true);
-			}
+		heuristicList.addSelectionListener(new ComboConfigurationListener(
+				"heuristic", heuristicList));
 
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
 		leftCost.addKeyListener(new KeyListener() {
 			@Override
 			public void keyReleased(KeyEvent arg0) {
@@ -424,18 +416,8 @@ public class Game5View extends EditorPart {
 			public void keyPressed(KeyEvent arg0) {
 			}
 		});
-
-		leftCombo.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				object.put("computeLeft", leftCombo.getText());
-				setDirty(true);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
+		leftCombo.addSelectionListener(new ComboConfigurationListener(
+				"computeLeft", leftCombo));
 
 		rightCost.addKeyListener(new KeyListener() {
 			@Override
@@ -448,18 +430,8 @@ public class Game5View extends EditorPart {
 			public void keyPressed(KeyEvent arg0) {
 			}
 		});
-
-		rightCombo.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				object.put("computeRight", rightCombo.getText());
-				setDirty(true);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
+		rightCombo.addSelectionListener(new ComboConfigurationListener(
+				"computeRight", rightCombo));
 
 		upCost.addKeyListener(new KeyListener() {
 			@Override
@@ -472,19 +444,8 @@ public class Game5View extends EditorPart {
 			public void keyPressed(KeyEvent arg0) {
 			}
 		});
-
-		upCombo.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				object.put("computeUp", upCombo.getText());
-				setDirty(true);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
+		upCombo.addSelectionListener(new ComboConfigurationListener(
+				"computeUp", upCombo));
 
 		downCost.addKeyListener(new KeyListener() {
 			@Override
@@ -497,52 +458,15 @@ public class Game5View extends EditorPart {
 			public void keyPressed(KeyEvent arg0) {
 			}
 		});
+		downCombo.addSelectionListener(new ComboConfigurationListener(
+				"computeDown", downCombo));
 
-		downCombo.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				object.put("computeDown", downCombo.getText());
-				setDirty(true);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
-
-		solvableOnly.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				object.put("solvable", "true");
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
-
-		unsolvableOnly.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				object.put("solvable", "false");
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
-
-		allSituations.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				object.put("solvable", "all");
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
+		solvableOnly.addSelectionListener(new RadioConfigurationListener(
+				"solvable", "true"));
+		unsolvableOnly.addSelectionListener(new RadioConfigurationListener(
+				"solvable", "false"));
+		allSituations.addSelectionListener(new RadioConfigurationListener(
+				"solvable", "all"));
 
 		compareTops.addSelectionListener(new SelectionListener() {
 			@Override
@@ -697,6 +621,48 @@ public class Game5View extends EditorPart {
 				outputStream.flush();
 				outputStream.close();
 			}
+		}
+	}
+
+	public class ComboConfigurationListener implements SelectionListener {
+		public ComboConfigurationListener(String key, Combo combo) {
+			this.key = key;
+			this.combo = combo;
+		}
+
+		private final String key;
+		private final Combo combo;
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			object.put(key, combo.getText());
+			setDirty(true);
+		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+		}
+	}
+
+	public class RadioConfigurationListener implements SelectionListener {
+		public RadioConfigurationListener(String key, String value) {
+			this.key = key;
+			this.value = value;
+		}
+
+		private final String key;
+		private final String value;
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			object.put(key, value);
+			setDirty(true);
+		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
 		}
 	}
 }
