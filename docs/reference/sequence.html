@@ -26,39 +26,83 @@
 <p>Определены последовательности шести типов:</p>
 <table style="width:100%">
     <tr>
-        <th width="30%">Сигнатура</th>
+        <th width="20%">Сигнатура</th>
         <th width="40%">Описание</th>
-        <th width="30%">Параметры</th>
+        <th width="40%">Параметры</th>
     </tr>
     <tr>
         <td><pre><code class="rao">uniform(double a, double b)</code></pre></td>
         <td>Равномерный закон распределения</td>
-        <td><code class="rao">a</code> - левая граница интервала распределения,<br><code class="rao">b</code> - правая граница интервала распределения.</td>
+        <td>
+            <table width="100%">
+                <tr>
+                    <td width="25%"><code class="rao">a</code></td>
+                    <td>левая граница интервала распределения</td>
+                </tr>
+                <tr>
+                    <td><code class="rao">b</code></td>
+                    <td>правая граница интервала распределения</td>
+                </tr>
+            </table>
+        </td>
     </tr>
     <tr>
         <td><pre><code class="rao">exponential(double rate)</code></pre></td>
         <td>Экспоненциальный закон распределения</td>
-        <td><code class="rao">rate</code> - интенсивность.</td>
+        <td>
+            <table width="100%">
+                <tr>
+                    <td width="25%"><code class="rao">rate</code></td>
+                    <td>интенсивность</td>
+                </tr>
+            </table>
+        </td>
     </tr>
     <tr>
         <td><pre><code class="rao">normal(double mean, double variance)</code></pre></td>
         <td>Нормальный закон распределения</td>
-        <td><code class="rao">mean</code> - математическое ожидание,<br><code class="rao">variance</code> - средневадратическое отклонение.</td>
+        <td>
+            <table width="100%">
+                <tr>
+                    <td width="25%"><code class="rao">mean</code></td>
+                    <td>математическое ожидание</td>
+                </tr>
+                <tr>
+                    <td><code class="rao">variance</code></td>
+                    <td>средневадратическое отклонение</td>
+                </tr>
+            </table>
+        </td>
     </tr>
     <tr>
         <td><pre><code class="rao">triangular(double a, double b, double c)</code></pre></td>
         <td>Треугольный закон распределения</td>
-        <td><code class="rao">a</code> - левая граница интервала распределения,<br><code class="rao">b</code> - правая граница интервала распределения,<br><code class="rao">с</code> - мода.</td>
+        <td>
+            <table width="100%">
+                <tr>
+                    <td width="25%"><code class="rao">a</code></td>
+                    <td>левая граница интервала распределения</td>
+                </tr>
+                <tr>
+                    <td><code class="rao">b</code></td>
+                    <td>правая граница интервала распределения</td>
+                </tr>
+                <tr>
+                    <td><code class="rao">c</code></td>
+                    <td>мода</td>
+                </tr>
+            </table>
+        </td>
     </tr>
     <tr>
         <td><pre><code class="rao">histogram()</code></pre></td>
         <td>Закон распределения, заданный гистограммой</td>
-        <td>-</td>
+        <td>&nbsp;</td>
     </tr>
     <tr>
         <td><pre><code class="rao">enumerative()</code></pre></td>
         <td>Закон распределения, заданный перечислением</td>
-        <td>-</td>
+        <td>&nbsp;</td>
     </tr>
 </table>
 <p>Описание последовательностей осуществляется с помощью ключевого слова <code class="rao">sequence</code>.<br>При задании одного из стандартных распределений (<code class="rao">uniform</code>, <code class="rao">exponential</code>, <code class="rao">normal</code>, <code class="rao">triangular</code>) тело последовательности, не указывается.</p>
