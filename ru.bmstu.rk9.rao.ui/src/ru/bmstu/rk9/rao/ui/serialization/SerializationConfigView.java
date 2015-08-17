@@ -1,13 +1,11 @@
 package ru.bmstu.rk9.rao.ui.serialization;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -43,7 +41,6 @@ import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.ResourceUtil;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.ui.editor.XtextEditor;
@@ -174,6 +171,7 @@ public class SerializationConfigView extends ViewPart {
 				resourceChangeListener);
 
 		initializeSubscribers();
+		initializeTree();
 		setEnabled(true);
 	}
 
@@ -195,11 +193,19 @@ public class SerializationConfigView extends ViewPart {
 	}
 
 	// ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-	// ---------------------------- TREE UPDATES ---------------------------- //
+	// ---------------------- TREE STRUCTURE UPDATE ------------------------- //
 	// ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	@Inject
 	IResourceSetProvider resourceSetProvider;
+
+	private final Map<IProject, Map<IResource, SerializationNode>> openedProjectsContents = new ConcurrentHashMap<>();
+
+	private final void initializeTree() {
+		for (IProject project : ResourcesPlugin.getWorkspace().getRoot()
+				.getProjects())
+			addProjectToTree(project);
+	}
 
 	IResourceChangeListener resourceChangeListener = new IResourceChangeListener() {
 		@Override
@@ -207,65 +213,7 @@ public class SerializationConfigView extends ViewPart {
 			switch (event.getType()) {
 			case IResourceChangeEvent.POST_CHANGE:
 				try {
-					event.getDelta().accept(new IResourceDeltaVisitor() {
-						@Override
-						public boolean visit(IResourceDelta delta)
-								throws CoreException {
-							IResource resource = delta.getResource();
-							switch (resource.getType()) {
-							case IResource.ROOT:
-							case IResource.PROJECT:
-							case IResource.FOLDER:
-								return true;
-							case IResource.FILE:
-								handleFileChanges(delta);
-								break;
-							}
-							return false;
-						}
-
-						private final void handleFileChanges(IResourceDelta delta) {
-							if (!(delta.getResource() instanceof IFile))
-								return;
-							switch (delta.getKind()) {
-							case IResourceDelta.ADDED: {
-								IProject project = delta.getResource()
-										.getProject();
-								if (!project.isAccessible())
-									return;
-
-								updateProjectContents(project);
-								break;
-							}
-							case IResourceDelta.CHANGED: {
-								IFile file = (IFile) delta.getResource();
-								if (!file.isAccessible())
-									return;
-
-								if (!("rao".equalsIgnoreCase(file
-										.getFileExtension())))
-									return;
-
-								updateFileContents(file);
-								break;
-							}
-							case IResourceDelta.REMOVED: {
-								IFile file = (IFile) delta.getResource();
-								if (!file.isAccessible())
-									return;
-
-								if (!("rao".equalsIgnoreCase(file
-										.getFileExtension())))
-									return;
-
-								removeFileFromTree(file);
-								break;
-							}
-							default:
-								break;
-							}
-						}
-					});
+					event.getDelta().accept(serializationTreeDeltaVisitor);
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
@@ -275,6 +223,168 @@ public class SerializationConfigView extends ViewPart {
 			}
 		}
 	};
+
+	private final IResourceDeltaVisitor serializationTreeDeltaVisitor = new IResourceDeltaVisitor() {
+		@Override
+		public boolean visit(IResourceDelta delta) throws CoreException {
+			IResource resource = delta.getResource();
+			switch (resource.getType()) {
+			case IResource.ROOT:
+			case IResource.FOLDER:
+				return true;
+			case IResource.PROJECT:
+				handleProjectChanges(delta);
+				return true;
+			case IResource.FILE:
+				handleFileChanges(delta);
+				break;
+			}
+			return false;
+		}
+
+		private final void handleProjectChanges(IResourceDelta delta) {
+			if (!(delta.getResource() instanceof IProject)) {
+				throw new SerializationException("Expected resource "
+						+ delta.getResource() + " to be instance of IProject");
+			}
+
+			switch (delta.getKind()) {
+			case IResourceDelta.ADDED:
+				addProjectToTree((IProject) delta.getResource());
+				break;
+			case IResourceDelta.REMOVED:
+				removeProjectFromTree((IProject) delta.getResource());
+				break;
+			}
+			return;
+		}
+
+		private final void handleFileChanges(IResourceDelta delta) {
+			if (!(delta.getResource() instanceof IFile)) {
+				throw new SerializationException("Expected resource "
+						+ delta.getResource() + " to be instance of IFile");
+			}
+
+			switch (delta.getKind()) {
+			case IResourceDelta.ADDED:
+			case IResourceDelta.CHANGED: {
+				IFile file = (IFile) delta.getResource();
+				if (!file.isAccessible()) {
+					return;
+				}
+
+				if (!("rao".equalsIgnoreCase(file.getFileExtension()))) {
+					return;
+				}
+
+				updateFileContents(file);
+				break;
+			}
+			case IResourceDelta.REMOVED: {
+				IFile file = (IFile) delta.getResource();
+
+				if (!("rao".equalsIgnoreCase(file.getFileExtension())))
+					return;
+
+				removeFileFromTree(file);
+				break;
+			}
+			default:
+				break;
+			}
+		}
+	};
+
+	private final void addProjectToTree(IProject project) {
+		openedProjectsContents.put(project,
+				new ConcurrentHashMap<IResource, SerializationNode>());
+
+		final List<IResource> projectFiles = ModelBuilder
+				.getAllRaoFilesInProject(project);
+
+		for (IResource raoFile : projectFiles) {
+			updateFileContents((IFile) raoFile);
+		}
+	}
+
+	private final void updateFileContents(IFile raoFile) {
+		URI uri = ModelBuilder.getURI(raoFile);
+		IProject project = raoFile.getProject();
+
+		final ResourceSet resourceSet = resourceSetProvider.get(project);
+		if (resourceSet == null)
+			return;
+
+		Resource loadedResource = resourceSet.getResource(uri, true);
+		if (loadedResource == null)
+			return;
+
+		EList<EObject> contents = loadedResource.getContents();
+		if (contents.isEmpty())
+			return;
+
+		RaoModel model = (RaoModel) contents.get(0);
+
+		if (openedProjectsContents.get(project).containsKey(raoFile)) {
+			updateInput(model.eResource());
+			return;
+		}
+
+		SerializationNode newModel = addModel(model.eResource());
+		openedProjectsContents.get(project).put(raoFile, newModel);
+
+		List<SerializationNode> modelsWithSameName = serializationConfig
+				.findModelsWithSameName(newModel.getFullName());
+		if (modelsWithSameName.size() > 1)
+			for (SerializationNode node : modelsWithSameName)
+				node.mustShowFullName(true);
+
+		if (serializationTreeViewer.getInput() == null)
+			serializationTreeViewer.setInput(serializationConfig);
+
+		PlatformUI
+				.getWorkbench()
+				.getDisplay()
+				.asyncExec(
+						() -> SerializationConfigView.serializationTreeViewer
+								.refresh());
+	}
+
+	private final void removeProjectFromTree(IProject project) {
+		for (IResource raoFile : openedProjectsContents.get(project).keySet()) {
+			removeFileFromTree((IFile) raoFile);
+		}
+
+		openedProjectsContents.remove(project);
+	}
+
+	private final void removeFileFromTree(IFile raoFile) {
+		IProject project = raoFile.getProject();
+
+		if (!openedProjectsContents.containsKey(project))
+			return;
+
+		SerializationNode modelNode = openedProjectsContents.get(project).get(
+				raoFile);
+		serializationConfig.removeModel(modelNode);
+		openedProjectsContents.get(project).remove(raoFile);
+
+		List<SerializationNode> modelsWithSameName = serializationConfig
+				.findModelsWithSameName(modelNode.getFullName());
+		if (modelsWithSameName.size() == 1)
+			modelsWithSameName.get(0).mustShowFullName(false);
+
+		PlatformUI
+				.getWorkbench()
+				.getDisplay()
+				.asyncExec(
+						() -> SerializationConfigView.serializationTreeViewer
+								.refresh());
+	}
+
+	// ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ----------------- REAL TIME MODEL CONTENTS UPDATE -------------------- //
+	// ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private final IPartListener2 partListener = new IPartListener2() {
 		@Override
@@ -326,27 +436,20 @@ public class SerializationConfigView extends ViewPart {
 		}
 	};
 
-	private final Map<IResource, SerializationNode> modelNodes = new HashMap<>();
-	private final Map<IProject, Set<IEditorPart>> projectReferences = new HashMap<>();
+	private final Set<IEditorPart> registeredEditors = new HashSet<>();
 
 	private final void registerEditor(IEditorPart editor) {
 		IEditorInput input = editor.getEditorInput();
 		if (input == null)
 			return;
 
-		IResource resource = ResourceUtil.getFile(editor.getEditorInput());
-		IProject project = resource.getProject();
-
-		updateProjectContents(project);
-
-		Set<IEditorPart> projectEditors = projectReferences.get(project);
-		if (projectEditors.contains(editor))
+		if (registeredEditors.contains(editor))
 			return;
-
-		projectEditors.add(editor);
 
 		if (!(editor instanceof XtextEditor))
 			return;
+
+		registeredEditors.add(editor);
 
 		((XtextEditor) editor).getDocument().addModelListener(
 				new IXtextModelListener() {
@@ -359,95 +462,11 @@ public class SerializationConfigView extends ViewPart {
 		return;
 	}
 
-	private final void updateProjectContents(IProject project) {
-		if (!projectReferences.containsKey(project))
-			projectReferences.put(project, new HashSet<IEditorPart>());
-
-		final List<IResource> projectFiles = ModelBuilder
-				.getAllRaoFilesInProject(project);
-
-		for (IResource raoFile : projectFiles) {
-			updateFileContents((IFile) raoFile);
-		}
-	}
-
-	private final void updateFileContents(IFile raoFile) {
-		URI uri = ModelBuilder.getURI(raoFile);
-
-		final ResourceSet resourceSet = resourceSetProvider.get(raoFile
-				.getProject());
-		Resource loadedResource = resourceSet.getResource(uri, true);
-		EList<EObject> contents = loadedResource.getContents();
-
-		if (contents.isEmpty())
-			return;
-
-		RaoModel model = (RaoModel) contents.get(0);
-
-		if (modelNodes.containsKey(raoFile)) {
-			updateInput(model.eResource());
-			return;
-		}
-
-		SerializationNode newModel = addModel(model.eResource());
-		modelNodes.put(raoFile, newModel);
-
-		List<SerializationNode> modelsWithSameName = serializationConfig
-				.findModelsWithSameName(newModel.getFullName());
-		if (modelsWithSameName.size() > 1)
-			for (SerializationNode node : modelsWithSameName)
-				node.mustShowFullName(true);
-
-		if (serializationTreeViewer.getInput() == null)
-			serializationTreeViewer.setInput(serializationConfig);
-	}
-
 	private final void unregisterEditor(IEditorPart editor) {
-		IProject unregisteredProject = removeEditorReference(editor);
-		if (unregisteredProject == null)
-			return;
-
-		final List<IResource> projectFiles = ModelBuilder
-				.getAllRaoFilesInProject(unregisteredProject);
-
-		for (IResource raoFile : projectFiles)
-			removeFileFromTree((IFile) raoFile);
+		registeredEditors.remove(editor);
 
 		if (!serializationTreeViewer.getControl().isDisposed())
 			serializationTreeViewer.refresh();
-	}
-
-	private final IProject removeEditorReference(IEditorPart editor) {
-		Iterator<Entry<IProject, Set<IEditorPart>>> iterator = projectReferences
-				.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Entry<IProject, Set<IEditorPart>> entry = iterator.next();
-			Set<IEditorPart> projectEditors = entry.getValue();
-			if (!projectEditors.contains(editor))
-				continue;
-
-			projectEditors.remove(editor);
-			if (projectEditors.isEmpty()) {
-				IProject project = entry.getKey();
-				iterator.remove();
-				return project;
-			}
-		}
-		return null;
-	}
-
-	private final void removeFileFromTree(IFile raoFile) {
-		if (!modelNodes.containsKey(raoFile))
-			return;
-
-		SerializationNode modelNode = modelNodes.get(raoFile);
-		serializationConfig.removeModel(modelNode);
-		modelNodes.remove(raoFile);
-
-		List<SerializationNode> modelsWithSameName = serializationConfig
-				.findModelsWithSameName(modelNode.getFullName());
-		if (modelsWithSameName.size() == 1)
-			modelsWithSameName.get(0).mustShowFullName(false);
 	}
 
 	private static SerializationNode addModel(Resource model) {
