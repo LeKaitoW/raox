@@ -66,36 +66,30 @@ public class SerializationConfigView extends ViewPart {
 
 	/**
 	 * Set all elements of tree to checked state.
-	 *
-	 * @return true on success, false if failed to check all elements (tree is
-	 *         not yet initialized)
 	 */
-	public final boolean checkAll() {
-		return setStateForAll(true);
+	public final void checkAll() {
+		setStateForAll(true);
 	}
 
 	/**
 	 * Set all elements of tree to unchecked state.
-	 *
-	 * @return true on success, false if failed to uncheck all elements (tree is
-	 *         not yet initialized)
 	 */
-	public final boolean uncheckAll() {
-		return setStateForAll(false);
+	public final void uncheckAll() {
+		setStateForAll(false);
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 	// ----------------------------- API HELPERS --------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	private final boolean setStateForAll(boolean state) {
+	private final void setStateForAll(boolean state) {
 		if (!readyForInput())
-			return false;
+			return;
 
 		SerializationConfig serializationConfig = (SerializationConfig) serializationTreeViewer
 				.getInput();
 		if (serializationConfig == null)
-			return false;
+			return;
 
 		SerializationNode root = serializationConfig.getRoot();
 
@@ -106,7 +100,7 @@ public class SerializationConfigView extends ViewPart {
 		}
 
 		serializationTreeViewer.refresh();
-		return true;
+		return;
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
