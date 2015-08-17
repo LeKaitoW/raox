@@ -3,6 +3,8 @@ package rdo.game5;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
@@ -64,6 +66,7 @@ public class ModelNameView {
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
+
 		nameText.addFocusListener(new FocusListener() {
 
 			@Override
@@ -85,6 +88,20 @@ public class ModelNameView {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+		});
+
+		nameText.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.keyCode == SWT.ESC) {
+					shell.dispose();
+				}
 			}
 		});
 

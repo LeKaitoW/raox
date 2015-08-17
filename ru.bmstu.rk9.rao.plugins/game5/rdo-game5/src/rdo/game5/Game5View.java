@@ -11,7 +11,16 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import org.eclipse.core.commands.Command;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.NotEnabledException;
+import org.eclipse.core.commands.NotHandledException;
+import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -43,7 +52,9 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.part.EditorPart;
+import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditor;
 import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorFactory;
@@ -55,6 +66,12 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
+import ru.bmstu.rk9.rao.ui.graph.GraphControl;
+import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
 import com.google.inject.Injector;
 
 @SuppressWarnings("restriction")
@@ -64,6 +81,8 @@ public class Game5View extends EditorPart {
 	public static final String ID = "rdo-game5.Game5View";
 	private static EmbeddedEditorModelAccess editor;
 	private static JSONObject object;
+	private final List<TileButton> tiles = new ArrayList<>();
+	private final SimulatorSubscriberManager simulatorSubscriberManager = new SimulatorSubscriberManager();
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -93,48 +112,34 @@ public class Game5View extends EditorPart {
 		boardGroup.setLayout(boardLayout);
 		boardGroup.setText("Board:");
 		JSONArray places = (JSONArray) object.get("places");
-		final TileButton tile1 = new TileButton(boardGroup, SWT.NONE,
-				String.valueOf(places.indexOf("1") + 1));
-		final TileButton tile2 = new TileButton(boardGroup, SWT.NONE,
-				String.valueOf(places.indexOf("2") + 1));
-		final TileButton tile3 = new TileButton(boardGroup, SWT.NONE,
-				String.valueOf(places.indexOf("3") + 1));
-		final TileButton tile4 = new TileButton(boardGroup, SWT.NONE,
-				String.valueOf(places.indexOf("4") + 1));
-		final TileButton tile5 = new TileButton(boardGroup, SWT.NONE,
-				String.valueOf(places.indexOf("5") + 1));
-		final TileButton tile6 = new TileButton(boardGroup, SWT.NONE,
-				String.valueOf(places.indexOf("6") + 1));
+		for (int i = 1; i < 7; i++) {
+			tiles.add(new TileButton(boardGroup, SWT.NONE, String
+					.valueOf(places.indexOf(String.valueOf(i)) + 1)));
+		}
 
 		final Group solvableGroup = new Group(parent, SWT.SHADOW_IN);
 		solvableGroup.setText("Solvable:");
-		solvableGroup.setLayout(gridLayout);
+		final GridData solvableData = new GridData();
+		solvableData.verticalSpan = 2;
+		solvableGroup.setLayoutData(solvableData);
+		solvableGroup.setLayout(new GridLayout(1, false));
 		final Button solvableOnly = new Button(solvableGroup, SWT.RADIO);
 		solvableOnly.setText("Solvable only");
 		final Button unsolvableOnly = new Button(solvableGroup, SWT.RADIO);
 		unsolvableOnly.setText("Unsolvable only");
 		final Button allSituations = new Button(solvableGroup, SWT.RADIO);
 		allSituations.setText("All situations");
+
+		if (object.get("solvable").equals("true")) {
+			solvableOnly.setSelection(true);
+		} else if (object.get("solvable").equals("false")) {
+			unsolvableOnly.setSelection(true);
+		} else {
+			allSituations.setSelection(true);
+		}
+
 		final Button shuffle = new Button(solvableGroup, SWT.PUSH);
 		shuffle.setText("Shuffle");
-
-		final Button inOrder = new Button(parent, SWT.PUSH);
-		inOrder.setText("In order");
-
-		final Group traverseGraph = new Group(parent, SWT.SHADOW_IN);
-		traverseGraph.setText("Traverse graph:");
-		traverseGraph.setLayout(gridLayout);
-		final Button compareTops = new Button(traverseGraph, SWT.CHECK);
-		compareTops.setText("Compare tops");
-		compareTops.setSelection((boolean) object.get("compare"));
-
-		final Group ruleCost = new Group(parent, SWT.SHADOW_IN);
-		ruleCost.setText("Rule cost:");
-		final GridLayout ruleCostLayout = new GridLayout(4, false);
-		ruleCost.setLayout(ruleCostLayout);
-		final GridData ruleCostData = new GridData();
-		ruleCostData.verticalSpan = 3;
-		ruleCost.setLayoutData(ruleCostData);
 
 		final Group setOrderGroup = new Group(parent, SWT.NONE);
 		setOrderGroup.setText("Set order:");
@@ -166,8 +171,23 @@ public class Game5View extends EditorPart {
 		setOrderOkButtonData.top = new FormAttachment(setOrderButton, 1);
 		setOrderOkButton.setLayoutData(setOrderOkButtonData);
 
-		final Button simulationButton = new Button(parent, SWT.PUSH);
-		simulationButton.setText("Simulation");
+		final Group traverseGraph = new Group(parent, SWT.SHADOW_IN);
+		traverseGraph.setText("Traverse graph:");
+		traverseGraph.setLayout(gridLayout);
+		final Button compareTops = new Button(traverseGraph, SWT.CHECK);
+		compareTops.setText("Compare tops");
+		compareTops.setSelection((boolean) object.get("compare"));
+
+		final Group ruleCost = new Group(parent, SWT.SHADOW_IN);
+		ruleCost.setText("Rule cost:");
+		final GridLayout ruleCostLayout = new GridLayout(4, false);
+		ruleCost.setLayout(ruleCostLayout);
+		final GridData ruleCostData = new GridData();
+		ruleCostData.verticalSpan = 2;
+		ruleCost.setLayoutData(ruleCostData);
+
+		final Button inOrder = new Button(parent, SWT.PUSH);
+		inOrder.setText("In order");
 
 		final Group heuristicSelection = new Group(parent, SWT.SHADOW_IN);
 		heuristicSelection.setText("Select heuristic:");
@@ -209,23 +229,8 @@ public class Game5View extends EditorPart {
 		leftCost.setText(object.get("costLeft").toString());
 		leftCost.setEnabled((boolean) object.get("enableLeft"));
 		leftButton.setSelection((boolean) object.get("enableLeft"));
-
-		leftButton.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				if (leftButton.getSelection()) {
-					leftCost.setEnabled(true);
-				} else {
-					leftCost.setEnabled(false);
-				}
-				object.put("enableLeft", leftButton.getSelection());
-				setDirty(true);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
+		leftButton.addSelectionListener(new CostButtonListener("enableLeft",
+				leftButton, leftCost));
 
 		final Label rightLabel = new Label(ruleCost, SWT.NONE);
 		rightLabel.setText("Right");
@@ -241,23 +246,8 @@ public class Game5View extends EditorPart {
 		rightCost.setText(object.get("costRight").toString());
 		rightCost.setEnabled((boolean) object.get("enableRight"));
 		rightButton.setSelection((boolean) object.get("enableRight"));
-
-		rightButton.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				if (rightButton.getSelection()) {
-					rightCost.setEnabled(true);
-				} else {
-					rightCost.setEnabled(false);
-				}
-				object.put("enableRight", rightButton.getSelection());
-				setDirty(true);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
+		rightButton.addSelectionListener(new CostButtonListener("enableRight",
+				rightButton, rightCost));
 
 		final Label upLabel = new Label(ruleCost, SWT.NONE);
 		upLabel.setText("Up");
@@ -273,23 +263,8 @@ public class Game5View extends EditorPart {
 		upCost.setText(object.get("costUp").toString());
 		upCost.setEnabled((boolean) object.get("enableUp"));
 		upButton.setSelection((boolean) object.get("enableUp"));
-
-		upButton.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				if (upButton.getSelection()) {
-					upCost.setEnabled(true);
-				} else {
-					upCost.setEnabled(false);
-				}
-				object.put("enableUp", upButton.getSelection());
-				setDirty(true);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
+		upButton.addSelectionListener(new CostButtonListener("enableUp",
+				upButton, upCost));
 
 		final Label downLabel = new Label(ruleCost, SWT.NONE);
 		downLabel.setText("Down");
@@ -305,22 +280,8 @@ public class Game5View extends EditorPart {
 		downCost.setText(object.get("costDown").toString());
 		downCost.setEnabled((boolean) object.get("enableDown"));
 		downButton.setSelection((boolean) object.get("enableDown"));
-
-		downButton.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				if (downButton.getSelection()) {
-					downCost.setEnabled(true);
-				} else
-					downCost.setEnabled(false);
-				object.put("enableDown", downButton.getSelection());
-				setDirty(true);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-			}
-		});
+		downButton.addSelectionListener(new CostButtonListener("enableDown",
+				downButton, downCost));
 
 		setOrderButton.addSelectionListener(new SelectionListener() {
 			@Override
@@ -362,6 +323,8 @@ public class Game5View extends EditorPart {
 						.convertStringToPlaces(setOrderText.getText());
 				if (places != null) {
 					object.put("places", places);
+					updateTiles();
+					setDirty(true);
 				} else {
 					setOrderError.setVisible(true);
 				}
@@ -394,6 +357,11 @@ public class Game5View extends EditorPart {
 		editor = embeddedEditor.createPartialEditor("", object.get("code")
 				.toString(), "", false);
 
+		final Button simulationButton = new Button(parent, SWT.PUSH);
+		simulationButton.setText("Simulation");
+		final Button graphButton = new Button(parent, SWT.PUSH);
+		graphButton.setText("Show graph");
+
 		IXtextDocument document = embeddedEditor.getDocument();
 		document.addModelListener(new IXtextModelListener() {
 			@Override
@@ -405,59 +373,19 @@ public class Game5View extends EditorPart {
 		heuristicList.addSelectionListener(new ComboConfigurationListener(
 				"heuristic", heuristicList));
 
-		leftCost.addKeyListener(new KeyListener() {
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				object.put("costLeft", leftCost.getText());
-				setDirty(true);
-			}
-
-			@Override
-			public void keyPressed(KeyEvent arg0) {
-			}
-		});
+		leftCost.addKeyListener(new CostKeyListener("costLeft", leftCost));
 		leftCombo.addSelectionListener(new ComboConfigurationListener(
 				"computeLeft", leftCombo));
 
-		rightCost.addKeyListener(new KeyListener() {
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				object.put("costRight", rightCost.getText());
-				setDirty(true);
-			}
-
-			@Override
-			public void keyPressed(KeyEvent arg0) {
-			}
-		});
+		rightCost.addKeyListener(new CostKeyListener("costRight", rightCost));
 		rightCombo.addSelectionListener(new ComboConfigurationListener(
 				"computeRight", rightCombo));
 
-		upCost.addKeyListener(new KeyListener() {
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				object.put("costUp", upCost.getText());
-				setDirty(true);
-			}
-
-			@Override
-			public void keyPressed(KeyEvent arg0) {
-			}
-		});
+		upCost.addKeyListener(new CostKeyListener("costUp", upCost));
 		upCombo.addSelectionListener(new ComboConfigurationListener(
 				"computeUp", upCombo));
 
-		downCost.addKeyListener(new KeyListener() {
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				object.put("costDown", downCost.getText());
-				setDirty(true);
-			}
-
-			@Override
-			public void keyPressed(KeyEvent arg0) {
-			}
-		});
+		downCost.addKeyListener(new CostKeyListener("costDown", downCost));
 		downCombo.addSelectionListener(new ComboConfigurationListener(
 				"computeDown", downCombo));
 
@@ -483,10 +411,39 @@ public class Game5View extends EditorPart {
 		simulationButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
+				// need to check serialization objects tree
+				IServiceLocator serviceLocator = PlatformUI.getWorkbench();
+				doSave((IProgressMonitor) serviceLocator
+						.getService(IProgressMonitor.class));
+				ICommandService commandService = (ICommandService) serviceLocator
+						.getService(ICommandService.class);
+				Command command = commandService
+						.getCommand("ru.bmstu.rk9.rao.ui.runtime.execute");
+				try {
+					command.executeWithChecks(new ExecutionEvent());
+				} catch (ExecutionException | NotDefinedException
+						| NotEnabledException | NotHandledException e) {
+					e.printStackTrace();
+				}
+				simulatorSubscriberManager.initialize(Arrays
+						.asList(new SimulatorSubscriberInfo(
+								showGraphSubscriber,
+								ExecutionState.EXECUTION_COMPLETED)));
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent event) {
+			}
+		});
+
+		graphButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				GraphControl.openFrameWindow(new FrameInfo(0, "game5"));
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
 
@@ -501,6 +458,7 @@ public class Game5View extends EditorPart {
 						"places",
 						OrderConfigurator.shuffle(places,
 								(String) object.get("solvable")));
+				updateTiles();
 				setDirty(true);
 			}
 
@@ -516,6 +474,7 @@ public class Game5View extends EditorPart {
 				setOrderText.setEnabled(false);
 				setOrderOkButton.setEnabled(false);
 				OrderConfigurator.setInOrder(object);
+				updateTiles();
 				setDirty(true);
 			}
 
@@ -665,4 +624,70 @@ public class Game5View extends EditorPart {
 		public void widgetDefaultSelected(SelectionEvent e) {
 		}
 	}
+
+	public class CostButtonListener implements SelectionListener {
+		public CostButtonListener(String key, Button button, Text text) {
+			this.key = key;
+			this.button = button;
+			this.text = text;
+		}
+
+		private final String key;
+		private final Button button;
+		private final Text text;
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			text.setEnabled(button.getSelection());
+			object.put(key, button.getSelection());
+			setDirty(true);
+		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+		}
+	}
+
+	public class CostKeyListener implements KeyListener {
+		public CostKeyListener(String key, Text text) {
+			this.key = key;
+			this.text = text;
+		}
+
+		private final String key;
+		private final Text text;
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void keyReleased(KeyEvent e) {
+			object.put(key, text.getText());
+			setDirty(true);
+		}
+	}
+
+	private final void updateTiles() {
+		JSONArray places = (JSONArray) object.get("places");
+		for (int i = 0; i < 6; i++) {
+			tiles.get(i).updateTile(
+					String.valueOf(places.indexOf(String.valueOf(i + 1)) + 1));
+		}
+	}
+
+	private final Subscriber showGraphSubscriber = new Subscriber() {
+		@Override
+		public void fireChange() {
+			PlatformUI
+					.getWorkbench()
+					.getDisplay()
+					.asyncExec(
+							() -> GraphControl.openFrameWindow(new FrameInfo(0,
+									"Расстановка_фишек")));
+			simulatorSubscriberManager.deinitialize();
+		}
+	};
 }
