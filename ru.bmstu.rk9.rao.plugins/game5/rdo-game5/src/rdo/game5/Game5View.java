@@ -112,9 +112,9 @@ public class Game5View extends EditorPart {
 		boardGroup.setLayout(boardLayout);
 		boardGroup.setText("Board:");
 		JSONArray places = (JSONArray) object.get("places");
-		for (int i = 1; i < 7; i++) {
+		for (int i = 0; i < 6; i++) {
 			tiles.add(new TileButton(boardGroup, SWT.NONE, String
-					.valueOf(places.indexOf(String.valueOf(i)) + 1)));
+					.valueOf(places.indexOf(String.valueOf(i + 1)) + 1)));
 		}
 
 		final Group solvableGroup = new Group(parent, SWT.SHADOW_IN);
@@ -230,7 +230,7 @@ public class Game5View extends EditorPart {
 		leftCost.setEnabled((boolean) object.get("enableLeft"));
 		leftButton.setSelection((boolean) object.get("enableLeft"));
 		leftButton.addSelectionListener(new CostButtonListener("enableLeft",
-				leftButton, leftCost));
+				leftCost));
 
 		final Label rightLabel = new Label(ruleCost, SWT.NONE);
 		rightLabel.setText("Right");
@@ -247,7 +247,7 @@ public class Game5View extends EditorPart {
 		rightCost.setEnabled((boolean) object.get("enableRight"));
 		rightButton.setSelection((boolean) object.get("enableRight"));
 		rightButton.addSelectionListener(new CostButtonListener("enableRight",
-				rightButton, rightCost));
+				rightCost));
 
 		final Label upLabel = new Label(ruleCost, SWT.NONE);
 		upLabel.setText("Up");
@@ -263,8 +263,7 @@ public class Game5View extends EditorPart {
 		upCost.setText(object.get("costUp").toString());
 		upCost.setEnabled((boolean) object.get("enableUp"));
 		upButton.setSelection((boolean) object.get("enableUp"));
-		upButton.addSelectionListener(new CostButtonListener("enableUp",
-				upButton, upCost));
+		upButton.addSelectionListener(new CostButtonListener("enableUp", upCost));
 
 		final Label downLabel = new Label(ruleCost, SWT.NONE);
 		downLabel.setText("Down");
@@ -281,7 +280,7 @@ public class Game5View extends EditorPart {
 		downCost.setEnabled((boolean) object.get("enableDown"));
 		downButton.setSelection((boolean) object.get("enableDown"));
 		downButton.addSelectionListener(new CostButtonListener("enableDown",
-				downButton, downCost));
+				downCost));
 
 		setOrderButton.addSelectionListener(new SelectionListener() {
 			@Override
@@ -371,23 +370,22 @@ public class Game5View extends EditorPart {
 		});
 
 		heuristicList.addSelectionListener(new ComboConfigurationListener(
-				"heuristic", heuristicList));
+				"heuristic"));
 
-		leftCost.addKeyListener(new CostKeyListener("costLeft", leftCost));
+		leftCost.addKeyListener(new CostKeyListener("costLeft"));
 		leftCombo.addSelectionListener(new ComboConfigurationListener(
-				"computeLeft", leftCombo));
+				"computeLeft"));
 
-		rightCost.addKeyListener(new CostKeyListener("costRight", rightCost));
+		rightCost.addKeyListener(new CostKeyListener("costRight"));
 		rightCombo.addSelectionListener(new ComboConfigurationListener(
-				"computeRight", rightCombo));
+				"computeRight"));
 
-		upCost.addKeyListener(new CostKeyListener("costUp", upCost));
-		upCombo.addSelectionListener(new ComboConfigurationListener(
-				"computeUp", upCombo));
+		upCost.addKeyListener(new CostKeyListener("costUp"));
+		upCombo.addSelectionListener(new ComboConfigurationListener("computeUp"));
 
-		downCost.addKeyListener(new CostKeyListener("costDown", downCost));
+		downCost.addKeyListener(new CostKeyListener("costDown"));
 		downCombo.addSelectionListener(new ComboConfigurationListener(
-				"computeDown", downCombo));
+				"computeDown"));
 
 		solvableOnly.addSelectionListener(new RadioConfigurationListener(
 				"solvable", "true"));
@@ -584,18 +582,16 @@ public class Game5View extends EditorPart {
 	}
 
 	public class ComboConfigurationListener implements SelectionListener {
-		public ComboConfigurationListener(String key, Combo combo) {
+		public ComboConfigurationListener(String key) {
 			this.key = key;
-			this.combo = combo;
 		}
 
 		private final String key;
-		private final Combo combo;
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			object.put(key, combo.getText());
+			object.put(key, ((Combo) e.getSource()).getText());
 			setDirty(true);
 		}
 
@@ -626,21 +622,19 @@ public class Game5View extends EditorPart {
 	}
 
 	public class CostButtonListener implements SelectionListener {
-		public CostButtonListener(String key, Button button, Text text) {
+		public CostButtonListener(String key, Text text) {
 			this.key = key;
-			this.button = button;
 			this.text = text;
 		}
 
 		private final String key;
-		private final Button button;
 		private final Text text;
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			text.setEnabled(button.getSelection());
-			object.put(key, button.getSelection());
+			text.setEnabled(((Button) e.getSource()).getSelection());
+			object.put(key, ((Button) e.getSource()).getSelection());
 			setDirty(true);
 		}
 
@@ -650,13 +644,11 @@ public class Game5View extends EditorPart {
 	}
 
 	public class CostKeyListener implements KeyListener {
-		public CostKeyListener(String key, Text text) {
+		public CostKeyListener(String key) {
 			this.key = key;
-			this.text = text;
 		}
 
 		private final String key;
-		private final Text text;
 
 		@Override
 		public void keyPressed(KeyEvent e) {
@@ -665,7 +657,7 @@ public class Game5View extends EditorPart {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void keyReleased(KeyEvent e) {
-			object.put(key, text.getText());
+			object.put(key, ((Text) e.getSource()).getText());
 			setDirty(true);
 		}
 	}
