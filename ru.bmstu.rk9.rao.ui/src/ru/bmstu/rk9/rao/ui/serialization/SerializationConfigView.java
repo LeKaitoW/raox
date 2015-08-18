@@ -64,17 +64,11 @@ public class SerializationConfigView extends ViewPart {
 	// ---------------------------------- API ------------------------------ //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	/**
-	 * Set all elements of tree to checked state.
-	 */
-	public final void checkAll() {
+	public final void setCheckedStateForAll() {
 		setStateForAll(true);
 	}
 
-	/**
-	 * Set all elements of tree to unchecked state.
-	 */
-	public final void uncheckAll() {
+	public final void setUncheckedStateForAll() {
 		setStateForAll(false);
 	}
 
