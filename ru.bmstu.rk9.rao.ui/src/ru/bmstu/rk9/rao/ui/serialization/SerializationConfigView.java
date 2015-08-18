@@ -227,42 +227,32 @@ public class SerializationConfigView extends ViewPart {
 			case IResource.FOLDER:
 				return true;
 			case IResource.PROJECT:
-				handleProjectChanges(delta);
+				handleProjectChanges((IProject) delta.getResource(),
+						delta.getKind());
 				return true;
 			case IResource.FILE:
-				handleFileChanges(delta);
+				handleFileChanges((IFile) delta.getResource(), delta.getKind());
 				break;
 			}
 			return false;
 		}
 
-		private final void handleProjectChanges(IResourceDelta delta) {
-			if (!(delta.getResource() instanceof IProject)) {
-				throw new SerializationException("Expected resource "
-						+ delta.getResource() + " to be instance of IProject");
-			}
-
-			switch (delta.getKind()) {
+		private final void handleProjectChanges(IProject project, int deltaKind) {
+			switch (deltaKind) {
 			case IResourceDelta.ADDED:
-				addProjectToTree((IProject) delta.getResource());
+				addProjectToTree(project);
 				break;
 			case IResourceDelta.REMOVED:
-				removeProjectFromTree((IProject) delta.getResource());
+				removeProjectFromTree(project);
 				break;
 			}
 			return;
 		}
 
-		private final void handleFileChanges(IResourceDelta delta) {
-			if (!(delta.getResource() instanceof IFile)) {
-				throw new SerializationException("Expected resource "
-						+ delta.getResource() + " to be instance of IFile");
-			}
-
-			switch (delta.getKind()) {
+		private final void handleFileChanges(IFile file, int deltaKind) {
+			switch (deltaKind) {
 			case IResourceDelta.ADDED:
 			case IResourceDelta.CHANGED: {
-				IFile file = (IFile) delta.getResource();
 				if (!file.isAccessible()) {
 					return;
 				}
@@ -275,8 +265,6 @@ public class SerializationConfigView extends ViewPart {
 				break;
 			}
 			case IResourceDelta.REMOVED: {
-				IFile file = (IFile) delta.getResource();
-
 				if (!("rao".equalsIgnoreCase(file.getFileExtension())))
 					return;
 
