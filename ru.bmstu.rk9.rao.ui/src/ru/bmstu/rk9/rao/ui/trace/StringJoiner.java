@@ -5,7 +5,7 @@ public class StringJoiner {
 	private final String prefix;
 	private final String suffix;
 
-	private String current = null;
+	private String current = "";
 
 	public enum StringFormat {
 		FUNCTION(", ", "(", ")"), STRUCTURE(", ", "{", "}"), ARRAY(", ", "[",

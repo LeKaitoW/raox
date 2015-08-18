@@ -389,7 +389,8 @@ ProjectFilePath:
 ;
 
 FrameStatementList returns StatementList:
-	(statements += FrameStatement)+
+	{StatementList}
+	(statements += FrameStatement)*
 ;
 
 FrameStatement returns Statement
@@ -405,7 +406,7 @@ FrameStatement returns Statement
 ;
 
 FrameNestedStatement returns NestedStatement:
-	invoke = '{' statements = FrameStatementList?  '}'
+	invoke = '{' statements = FrameStatementList '}'
 ;
 
 FrameIfStatement returns IfStatement:
@@ -580,7 +581,8 @@ RaoArray:
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 StatementList:
-	(statements += Statement)+
+	{StatementList}
+	(statements += Statement)*
 ;
 
 Statement
@@ -603,7 +605,7 @@ ExpressionStatement:
 ;
 
 NestedStatement:
-	invoke = '{' statements = StatementList?  '}'
+	invoke = '{' statements = StatementList '}'
 ;
 
 LocalVariableDeclaration:
