@@ -28,9 +28,9 @@ public class DefaultMethodsHelper {
 	}
 
 	public static enum OperationMethodInfo {
-		BEGIN("begin", ValidatorAction.WARNING), END("end",
-				ValidatorAction.WARNING), DURATION("duration",
-				ValidatorAction.ERROR);
+		BEGIN("begin", ValidatorAction.NOTHING), END("end",
+				ValidatorAction.NOTHING), DURATION("duration",
+				ValidatorAction.NOTHING);
 
 		OperationMethodInfo(String name, ValidatorAction validatorAction) {
 			this.name = name;
@@ -42,7 +42,7 @@ public class DefaultMethodsHelper {
 	}
 
 	public static enum RuleMethodInfo {
-		EXECUTE("execute", ValidatorAction.ERROR);
+		EXECUTE("execute", ValidatorAction.NOTHING);
 
 		RuleMethodInfo(String name, ValidatorAction validatorAction) {
 			this.name = name;
