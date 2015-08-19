@@ -24,6 +24,8 @@ public class TileButton extends Composite {
 	}
 
 	private String number;
+	private final int tilesCountX = 3;
+	private final int tilesCountY = 2;
 
 	private final PaintListener tilePaintListener = new PaintListener() {
 		@Override
@@ -44,7 +46,7 @@ public class TileButton extends Composite {
 			gc.setFont(font);
 			final Point textSize = gc.stringExtent(number);
 
-			if (!number.equals(String.valueOf(6))) {
+			if (!number.equals(String.valueOf(tilesCountX * tilesCountY))) {
 				gc.setForeground(black);
 				gc.drawRoundRectangle(2, 2, 60, 60, 5, 5);
 				gc.setBackground(red);

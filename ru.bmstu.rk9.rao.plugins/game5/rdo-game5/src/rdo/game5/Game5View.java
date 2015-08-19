@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -72,6 +73,7 @@ import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
+
 import com.google.inject.Injector;
 
 @SuppressWarnings("restriction")
@@ -83,6 +85,8 @@ public class Game5View extends EditorPart {
 	private static JSONObject object;
 	private final List<TileButton> tiles = new ArrayList<>();
 	private final SimulatorSubscriberManager simulatorSubscriberManager = new SimulatorSubscriberManager();
+	private final int tilesCountX = 3;
+	private final int tilesCountY = 2;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -112,7 +116,7 @@ public class Game5View extends EditorPart {
 		boardGroup.setLayout(boardLayout);
 		boardGroup.setText("Board:");
 		JSONArray places = (JSONArray) object.get("places");
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < tilesCountX * tilesCountY; i++) {
 			tiles.add(new TileButton(boardGroup, SWT.NONE, String
 					.valueOf(places.indexOf(String.valueOf(i + 1)) + 1)));
 		}
@@ -153,7 +157,9 @@ public class Game5View extends EditorPart {
 		setOrderError.setForeground(red);
 		setOrderError.setVisible(false);
 		final Text setOrderText = new Text(setOrderGroup, SWT.BORDER);
-		setOrderText.setText("1 2 3 4 5 6");
+		final String order = OrderConfigurator
+				.convertPlacesToString((JSONArray) object.get("places"));
+		setOrderText.setText(order);
 		setOrderText.setEnabled(false);
 		final Button setOrderOkButton = new Button(setOrderGroup, SWT.PUSH);
 		setOrderOkButton.setText("Ok");
@@ -369,30 +375,31 @@ public class Game5View extends EditorPart {
 			}
 		});
 
-		heuristicList.addSelectionListener(new ComboConfigurationListener(
-				"heuristic"));
+		heuristicList.addSelectionListener(new ConfigurationListener(
+				"heuristic", () -> heuristicList.getText()));
 
 		leftCost.addKeyListener(new CostKeyListener("costLeft"));
-		leftCombo.addSelectionListener(new ComboConfigurationListener(
-				"computeLeft"));
+		leftCombo.addSelectionListener(new ConfigurationListener("computeLeft",
+				() -> leftCombo.getText()));
 
 		rightCost.addKeyListener(new CostKeyListener("costRight"));
-		rightCombo.addSelectionListener(new ComboConfigurationListener(
-				"computeRight"));
+		rightCombo.addSelectionListener(new ConfigurationListener(
+				"computeRight", () -> rightCombo.getText()));
 
 		upCost.addKeyListener(new CostKeyListener("costUp"));
-		upCombo.addSelectionListener(new ComboConfigurationListener("computeUp"));
+		upCombo.addSelectionListener(new ConfigurationListener("computeUp",
+				() -> upCombo.getText()));
 
 		downCost.addKeyListener(new CostKeyListener("costDown"));
-		downCombo.addSelectionListener(new ComboConfigurationListener(
-				"computeDown"));
+		downCombo.addSelectionListener(new ConfigurationListener("computeDown",
+				() -> downCombo.getText()));
 
-		solvableOnly.addSelectionListener(new RadioConfigurationListener(
-				"solvable", "true"));
-		unsolvableOnly.addSelectionListener(new RadioConfigurationListener(
-				"solvable", "false"));
-		allSituations.addSelectionListener(new RadioConfigurationListener(
-				"solvable", "all"));
+		solvableOnly.addSelectionListener(new ConfigurationListener("solvable",
+				() -> "true"));
+		unsolvableOnly.addSelectionListener(new ConfigurationListener(
+				"solvable", () -> "false"));
+		allSituations.addSelectionListener(new ConfigurationListener(
+				"solvable", () -> "all"));
 
 		compareTops.addSelectionListener(new SelectionListener() {
 			@Override
@@ -452,11 +459,12 @@ public class Game5View extends EditorPart {
 				setOrderText.setEnabled(false);
 				setOrderOkButton.setEnabled(false);
 				JSONArray places = (JSONArray) object.get("places");
-				object.put(
-						"places",
-						OrderConfigurator.shuffle(places,
-								(String) object.get("solvable")));
+				JSONArray newPlaces = OrderConfigurator.shuffle(places,
+						(String) object.get("solvable"));
+				object.put("places", newPlaces);
 				updateTiles();
+				setOrderText.setText(OrderConfigurator
+						.convertPlacesToString(newPlaces));
 				setDirty(true);
 			}
 
@@ -473,6 +481,8 @@ public class Game5View extends EditorPart {
 				setOrderOkButton.setEnabled(false);
 				OrderConfigurator.setInOrder(object);
 				updateTiles();
+				setOrderText.setText(OrderConfigurator
+						.convertPlacesToString((JSONArray) object.get("places")));
 				setDirty(true);
 			}
 
@@ -581,38 +591,19 @@ public class Game5View extends EditorPart {
 		}
 	}
 
-	public class ComboConfigurationListener implements SelectionListener {
-		public ComboConfigurationListener(String key) {
-			this.key = key;
-		}
-
-		private final String key;
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void widgetSelected(SelectionEvent e) {
-			object.put(key, ((Combo) e.getSource()).getText());
-			setDirty(true);
-		}
-
-		@Override
-		public void widgetDefaultSelected(SelectionEvent e) {
-		}
-	}
-
-	public class RadioConfigurationListener implements SelectionListener {
-		public RadioConfigurationListener(String key, String value) {
+	public class ConfigurationListener implements SelectionListener {
+		public ConfigurationListener(String key, Supplier<String> value) {
 			this.key = key;
 			this.value = value;
 		}
 
 		private final String key;
-		private final String value;
+		private final Supplier<String> value;
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			object.put(key, value);
+			object.put(key, value.get());
 			setDirty(true);
 		}
 
@@ -664,7 +655,7 @@ public class Game5View extends EditorPart {
 
 	private final void updateTiles() {
 		JSONArray places = (JSONArray) object.get("places");
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < tilesCountX * tilesCountY; i++) {
 			tiles.get(i).updateTile(
 					String.valueOf(places.indexOf(String.valueOf(i + 1)) + 1));
 		}
