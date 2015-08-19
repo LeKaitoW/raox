@@ -17,15 +17,17 @@ import org.eclipse.ui.PlatformUI;
 
 public class TileButton extends Composite {
 
-	public TileButton(Composite parent, int style, String number) {
+	public TileButton(Composite parent, int style, String number, int place) {
 		super(parent, style);
 		this.number = number;
+		this.place = place;
 		addPaintListener(tilePaintListener);
 	}
 
 	private String number;
-	private final int tilesCountX = 3;
-	private final int tilesCountY = 2;
+	private int place;
+	private final static int tilesCountX = 3;
+	private final static int tilesCountY = 2;
 
 	private final PaintListener tilePaintListener = new PaintListener() {
 		@Override
@@ -62,5 +64,25 @@ public class TileButton extends Composite {
 		this.number = number;
 		this.redraw();
 		this.update();
+	}
+
+	public final int getTileNumber() {
+		return Integer.valueOf(number);
+	}
+
+	public final int getTilePlace() {
+		return place;
+	}
+
+	public final static boolean isFreePlaceNearby(int tilePlace, int freePlace) {
+		final int tileColumn = (tilePlace - 1) % tilesCountX;
+		final int tileRow = (tilePlace - 1) / tilesCountX;
+		final int freePlaceColumn = (freePlace - 1) % tilesCountX;
+		final int freePlaceRow = (freePlace - 1) / tilesCountX;
+
+		return ((tileColumn == freePlaceColumn + 1) && (tileRow == freePlaceRow))
+				|| ((tileColumn == freePlaceColumn - 1) && (tileRow == freePlaceRow))
+				|| ((tileRow == freePlaceRow + 1) && (tileColumn == freePlaceColumn))
+				|| ((tileRow == freePlaceRow - 1) && (tileColumn == freePlaceColumn));
 	}
 }

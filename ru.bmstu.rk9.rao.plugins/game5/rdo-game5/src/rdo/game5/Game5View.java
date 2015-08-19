@@ -33,6 +33,8 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
@@ -118,7 +120,7 @@ public class Game5View extends EditorPart {
 		JSONArray places = (JSONArray) object.get("places");
 		for (int i = 0; i < tilesCountX * tilesCountY; i++) {
 			tiles.add(new TileButton(boardGroup, SWT.NONE, String
-					.valueOf(places.indexOf(String.valueOf(i + 1)) + 1)));
+					.valueOf(places.indexOf(String.valueOf(i + 1)) + 1), i + 1));
 		}
 
 		final Group solvableGroup = new Group(parent, SWT.SHADOW_IN);
@@ -490,6 +492,43 @@ public class Game5View extends EditorPart {
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
+
+		for (int i = 0; i < tiles.size(); i++) {
+			tiles.get(i).addMouseListener(new MouseListener() {
+				@Override
+				public void mouseUp(MouseEvent arg0) {
+					setOrderButton.setSelection(false);
+					setOrderText.setEnabled(false);
+					setOrderOkButton.setEnabled(false);
+					final TileButton tile = (TileButton) arg0.getSource();
+					final JSONArray places = (JSONArray) object.get("places");
+					final int tileNumber = tile.getTileNumber();
+					final int tilePlace = tile.getTilePlace();
+					final int freePlace = Integer.valueOf((String) places
+							.get(tilesCountX * tilesCountY - 1));
+					if (TileButton.isFreePlaceNearby(tilePlace, freePlace)) {
+						tiles.get(freePlace - 1).updateTile(
+								String.valueOf(tileNumber));
+						tile.updateTile(String.valueOf(tilesCountX
+								* tilesCountY));
+						places.set(tileNumber - 1, String.valueOf(freePlace));
+						places.set(tilesCountX * tilesCountY - 1,
+								String.valueOf(tilePlace));
+						setOrderText.setText(OrderConfigurator
+								.convertPlacesToString(places));
+						setDirty(true);
+					}
+				}
+
+				@Override
+				public void mouseDown(MouseEvent arg0) {
+				}
+
+				@Override
+				public void mouseDoubleClick(MouseEvent arg0) {
+				}
+			});
+		}
 	}
 
 	@Override
