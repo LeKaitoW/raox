@@ -222,7 +222,7 @@ SequenceType
 EnumerativeSequence:
 	'enumerative' '(' ')'
 	'{'
-		values += Primary+
+		values += ExpressionList
 	'}'
 ;
 
