@@ -155,11 +155,20 @@ class PatternCompiler
 
 			private static double duration(RelevantResources resources, Parameters parameters)
 			{
-				«FOR defaultMethod: operation.defaultMethods.filter[defaultMethod | defaultMethod.name == "duration"]»
-					«defaultMethod.body.compileStatementContext(
-						(new LocalContext).populateFromPattern(operation)
-					)»
-				«ENDFOR»
+				«val durationMethods = operation.defaultMethods.filter[defaultMethod | defaultMethod.name == "duration"]»
+				«IF durationMethods.size > 0»
+					«FOR durationMethod: durationMethods»
+						«IF durationMethod.body.statements.size > 0»
+							«durationMethod.body.compileStatementContext(
+								(new LocalContext).populateFromPattern(operation)
+							)»
+						«ELSE»
+							return 0;
+						«ENDIF»
+					«ENDFOR»
+				«ELSE»
+					return 0;
+				«ENDIF»
 			}
 
 			public static «operation.name» executeRule(Parameters parameters)

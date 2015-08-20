@@ -1,11 +1,8 @@
-package ru.bmstu.rk9.rao.lib.treeBuilder;
+package ru.bmstu.rk9.rao.ui.graph;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
@@ -13,36 +10,29 @@ import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.DecisionPointSearch;
 import ru.bmstu.rk9.rao.lib.modelStructure.ActivityCache;
-import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.lib.modelStructure.DecisionPointCache;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.tracer.StringJoiner.StringFormat;
-import ru.bmstu.rk9.rao.lib.tracer.Tracer;
-import ru.bmstu.rk9.rao.lib.tracer.StringJoiner;
+import ru.bmstu.rk9.rao.ui.trace.StringJoiner;
+import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
+import ru.bmstu.rk9.rao.ui.trace.Tracer;
 
-//TODO make static and move to ui
-public class TreeBuilder implements Subscriber {
-
-	@Override
-	public void fireChange() {
-		final Database.Entry entry = Simulator.getDatabase().getAllEntries()
-				.get(entryNumber);
-		boolean isSearchEntry = parseEntry(entry);
-		entryNumber++;
-		if (isSearchEntry)
-			notifyGUIPart();
+public class TreeBuilder {
+	TreeBuilder(int dptNumber) {
+		this.dptNumber = dptNumber;
+		this.decisionPointCache = Simulator.getModelStructureCache()
+				.getDecisionPointsInfo().get(dptNumber);
 	}
 
-	private Subscriber subscriber;
-
-	public final void notifyGUIPart() {
-		subscriber.fireChange();
+	public final boolean updateTree() {
+		List<Entry> entries = Simulator.getDatabase().getAllEntries();
+		while (entryNumber < entries.size()) {
+			final Database.Entry entry = entries.get(entryNumber);
+			if (parseEntry(entry))
+				return true;
+			entryNumber++;
+		}
+		return false;
 	}
-
-	public final void setGUISubscriber(Subscriber subscriber) {
-		this.subscriber = subscriber;
-	}
-
-	public ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock(true);
 
 	public class Node {
 		public Node parent;
@@ -61,19 +51,9 @@ public class TreeBuilder implements Subscriber {
 		}
 	}
 
-	public final Map<Integer, List<Node>> listMap = new HashMap<Integer, List<Node>>();
-
-	public final void buildTree() {
-		final List<Database.Entry> entries = Simulator.getDatabase()
-				.getAllEntries();
-
-		int size = entries.size();
-		while (entryNumber < size) {
-			parseEntry(entries.get(entryNumber++));
-		}
-	}
-
 	private boolean parseEntry(Entry entry) {
+		boolean isFinished = false;
+
 		final EntryType entryType = EntryType.values()[entry.getHeader().get(
 				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 		if (entryType != EntryType.SEARCH)
@@ -88,43 +68,33 @@ public class TreeBuilder implements Subscriber {
 		Tracer.skipPart(header, TypeSize.DOUBLE);
 		final int dptNumber = header.getInt();
 
+		if (dptNumber != this.dptNumber)
+			return false;
+
 		switch (searchEntryType) {
 		case BEGIN: {
 			Node treeNode = new Node();
-			solutionMap.put(dptNumber, new ArrayList<Node>());
-			listMap.put(dptNumber, new ArrayList<Node>());
-			dptSimulationInfoMap.put(dptNumber, new DPTSimulationInfo());
 			treeNode.parent = null;
 			treeNode.index = 0;
 			treeNode.label = Integer.toString(treeNode.index);
-			rwLock.writeLock().lock();
-			try {
-				listMap.get(dptNumber).add(treeNode);
-				lastAddedNodeIndexMap.put(dptNumber, treeNode.index);
-			} finally {
-				rwLock.writeLock().unlock();
-			}
+			nodeList.add(treeNode);
+			lastAddedNodeIndex = treeNode.index;
 			break;
 		}
 		case END: {
 			final ByteBuffer data = Tracer.prepareBufferForReading(entry
 					.getData());
-			infoMap.put(dptNumber, new GraphInfo());
+			graphInfo = new GraphInfo();
 			Tracer.skipPart(data, TypeSize.BYTE + TypeSize.LONG * 2);
 
 			final double finalCost = data.getDouble();
 			final int totalOpened = data.getInt();
 			final int totalNodes = data.getInt();
 
-			rwLock.writeLock().lock();
-			try {
-				infoMap.get(dptNumber).solutionCost = finalCost;
-				infoMap.get(dptNumber).numOpened = totalOpened;
-				infoMap.get(dptNumber).numNodes = totalNodes;
-				dptSimulationInfoMap.get(dptNumber).isFinished = true;
-			} finally {
-				rwLock.writeLock().unlock();
-			}
+			graphInfo.solutionCost = finalCost;
+			graphInfo.numOpened = totalOpened;
+			graphInfo.numNodes = totalNodes;
+			isFinished = true;
 			break;
 		}
 		case OPEN:
@@ -144,13 +114,12 @@ public class TreeBuilder implements Subscriber {
 				final double g = data.getDouble();
 				final double h = data.getDouble();
 				final int ruleNum = data.getInt();
-				ActivityCache activity = Simulator.getModelStructureCache()
-						.getDecisionPointsInfo().get(dptNumber)
-						.getActivitiesInfo().get(ruleNum);
+				ActivityCache activity = decisionPointCache.getActivitiesInfo()
+						.get(ruleNum);
 				final int patternNumber = activity.getPatternNumber();
 				final double ruleCost = data.getDouble();
-				treeNode.parent = listMap.get(dptNumber).get(parentNumber);
-				listMap.get(dptNumber).get(parentNumber).children.add(treeNode);
+				treeNode.parent = nodeList.get(parentNumber);
+				nodeList.get(parentNumber).children.add(treeNode);
 
 				final int numberOfRelevantResources = Simulator
 						.getModelStructureCache().getPatternsInfo()
@@ -183,13 +152,8 @@ public class TreeBuilder implements Subscriber {
 				treeNode.ruleCost = ruleCost;
 				treeNode.index = nodeNumber;
 				treeNode.label = Integer.toString(treeNode.index);
-				rwLock.writeLock().lock();
-				try {
-					listMap.get(dptNumber).add(treeNode);
-					lastAddedNodeIndexMap.put(dptNumber, treeNode.index);
-				} finally {
-					rwLock.writeLock().unlock();
-				}
+				nodeList.add(treeNode);
+				lastAddedNodeIndex = treeNode.index;
 				break;
 			case WORSE:
 				break;
@@ -200,36 +164,27 @@ public class TreeBuilder implements Subscriber {
 			final ByteBuffer data = Tracer.prepareBufferForReading(entry
 					.getData());
 			final int number = data.getInt();
-			List<Node> currentSolutionList = solutionMap.get(dptNumber);
-			List<Node> currentNodeList = listMap.get(dptNumber);
-			Node solutionNode = currentNodeList.get(number);
-			currentSolutionList.add(solutionNode);
+			Node solutionNode = nodeList.get(number);
+			solutionList.add(solutionNode);
 			break;
 		}
 		}
-		return true;
+
+		return isFinished;
 	}
 
-	public final Map<Integer, List<Node>> solutionMap = new HashMap<Integer, List<Node>>();
+	public final List<Node> nodeList = new ArrayList<Node>();
+	List<Node> solutionList = new ArrayList<Node>();
+	GraphInfo graphInfo = new GraphInfo();
+	int lastAddedNodeIndex = 0;
+	private int entryNumber = 0;
+	private final int dptNumber;
+	private final DecisionPointCache decisionPointCache;
 
 	public class GraphInfo {
 		public double solutionCost;
 		public int numOpened;
 		public int numNodes;
-	}
-
-	public final Map<Integer, GraphInfo> infoMap = new HashMap<Integer, GraphInfo>();
-
-	public class DPTSimulationInfo {
-		public boolean isFinished = false;
-	}
-
-	public final Map<Integer, DPTSimulationInfo> dptSimulationInfoMap = new HashMap<Integer, DPTSimulationInfo>();
-	private int entryNumber = 0;
-	private final Map<Integer, Integer> lastAddedNodeIndexMap = new HashMap<Integer, Integer>();
-
-	public Map<Integer, Integer> getLastAddedNodeIndexMap() {
-		return lastAddedNodeIndexMap;
 	}
 
 	public int getEntryNumber() {

@@ -1,15 +1,18 @@
 package ru.bmstu.rk9.rao.lib.dpt;
 
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class DPTManager implements Subscriber {
 	public DPTManager() {
-		Simulator.getNotifier().getSubscription("ExecutionAborted")
-				.addSubscriber(this);
+		Simulator.getExecutionStateNotifier().addSubscriber(this,
+				Simulator.ExecutionState.EXECUTION_ABORTED,
+				EnumSet.of(SubscriptionType.ONE_SHOT));
 	}
 
 	private LinkedList<DecisionPoint> dptList = new LinkedList<DecisionPoint>();

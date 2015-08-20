@@ -31,10 +31,12 @@ class ResultCompiler
 		package «filename»;
 
 		import java.nio.ByteBuffer;
+		import java.util.EnumSet;
 
 		import ru.bmstu.rk9.rao.lib.json.*;
 
 		import ru.bmstu.rk9.rao.lib.*;
+		import ru.bmstu.rk9.rao.lib.resource.*;
 		import ru.bmstu.rk9.rao.lib.result.*;
 		import ru.bmstu.rk9.rao.lib.database.*;
 		import ru.bmstu.rk9.rao.lib.simulator.*;
@@ -126,14 +128,13 @@ class ResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 
-					Notifier notifier = Simulator.getNotifier();
+					Notifier<Simulator.ExecutionState> notifier = Simulator.getExecutionStateNotifier();
 
-					notifier.getSubscription("StateChange")
-						.addSubscriber(INSTANCE);
-					notifier.getSubscription("ExecutionAborted")
-						.addSubscriber(INSTANCE.finalizer);
-					notifier.getSubscription("ExecutionComplete")
-						.addSubscriber(INSTANCE.finalizer);
+					notifier.addSubscriber(INSTANCE, Simulator.ExecutionState.STATE_CHANGED);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED,
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED,
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
 
 					«type.compileValueType(expression)»
 				}
@@ -157,8 +158,8 @@ class ResultCompiler
 				public static void init()
 				{
 					Simulator.addResult(INSTANCE);
-					«type.resource.fullyQualifiedName».getNotifier().getSubscription(«""
-						»"ResourceDeleted").addSubscriber(INSTANCE);
+					«type.resource.fullyQualifiedName».getNotifier().addSubscriber(«
+						»INSTANCE, ResourceNotificationCategory.RESOURCE_DELETED);
 
 					«type.compileValueType(expression)»
 				}
@@ -229,14 +230,13 @@ class ResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 
-					Notifier notifier = Simulator.getNotifier();
+					Notifier notifier = Simulator.getExecutionStateNotifier();
 
-					notifier.getSubscription("StateChange")
-						.addSubscriber(INSTANCE);
-					notifier.getSubscription("ExecutionAborted")
-						.addSubscriber(INSTANCE.finalizer);
-					notifier.getSubscription("ExecutionComplete")
-						.addSubscriber(INSTANCE.finalizer);
+					notifier.addSubscriber(INSTANCE, Simulator.ExecutionState.STATE_CHANGED);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED,
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED,
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
 
 					INSTANCE.data.put("valueType", "bool");
 				}
@@ -356,14 +356,13 @@ class ResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 
-					Notifier notifier = Simulator.getNotifier();
+					Notifier<Simulator.ExecutionState> notifier = Simulator.getExecutionStateNotifier();
 
-					notifier.getSubscription("StateChange")
-						.addSubscriber(INSTANCE);
-					notifier.getSubscription("ExecutionAborted")
-						.addSubscriber(INSTANCE.finalizer);
-					notifier.getSubscription("ExecutionComplete")
-						.addSubscriber(INSTANCE.finalizer);
+					notifier.addSubscriber(INSTANCE, Simulator.ExecutionState.STATE_CHANGED);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED,
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED,
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
 
 					INSTANCE.data.put("valueType", "«expression.type.backToRaoType»");
 				}

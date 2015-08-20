@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rao.ui.plot;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,11 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
+import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 import ru.bmstu.rk9.rao.ui.plot.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView.ConditionalMenuItem;
 
@@ -45,28 +51,21 @@ public class PlotView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.PlotView";
 	private final static Map<CollectedDataNode, Integer> openedPlotMap = new HashMap<CollectedDataNode, Integer>();
 	private static int secondaryID = 0;
-	private PlotFrame plotFrame;
-	private CollectedDataNode partNode;
-
-	public PlotFrame getFrame() {
-		return plotFrame;
-	}
 
 	public static Map<CollectedDataNode, Integer> getOpenedPlotMap() {
 		return openedPlotMap;
 	}
 
-	public void setName(final String name) {
-		setPartName(name);
-	}
-
-	public void setNode(final CollectedDataNode node) {
-		partNode = node;
-	}
-
 	public static void addToOpenedPlotMap(final CollectedDataNode node,
 			final int secondaryID) {
 		openedPlotMap.put(node, secondaryID);
+	}
+
+	private PlotFrame plotFrame;
+	private CollectedDataNode partNode;
+
+	public PlotFrame getFrame() {
+		return plotFrame;
 	}
 
 	@Override
@@ -112,12 +111,78 @@ public class PlotView extends ViewPart {
 						&& openedPlotMap.containsKey(partNode)) {
 					openedPlotMap.remove(partNode);
 				}
-				if (partNode != null) {
-					PlotDataParser.removeIndexFromMaps(partNode.getIndex());
-				}
+				deinitializeSubscribers();
 			}
 		});
 	}
+
+	private final void initialize(CollectedDataNode node) {
+		partNode = node;
+		setPartName(partNode.getName());
+		plotDataParser = new PlotDataParser(partNode);
+
+		XYSeriesCollection dataset = new XYSeriesCollection();
+		XYSeries series = new XYSeries(partNode.getName());
+		dataset.addSeries(series);
+
+		plotXY(dataset, PlotDataParser.getEnumNames(partNode));
+
+		initializeSubscribers();
+	}
+
+	private final void initializeSubscribers() {
+		simulatorSubscriberManager.initialize(Arrays.asList(
+				new SimulatorSubscriberInfo(commonSubcriber,
+						ExecutionState.EXECUTION_STARTED),
+				new SimulatorSubscriberInfo(commonSubcriber,
+						ExecutionState.EXECUTION_COMPLETED)));
+		realTimeSubscriberManager.initialize(Arrays
+				.asList(realTimeUpdateRunnable));
+	}
+
+	private final void deinitializeSubscribers() {
+		simulatorSubscriberManager.deinitialize();
+		realTimeSubscriberManager.deinitialize();
+	}
+
+	private final SimulatorSubscriberManager simulatorSubscriberManager = new SimulatorSubscriberManager();
+	private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
+
+	private PlotDataParser plotDataParser;
+
+	private final boolean readyForInput() {
+		return plotFrame != null && !plotFrame.isDisposed();
+	}
+
+	private final Runnable realTimeUpdateRunnable = new Runnable() {
+		@Override
+		public void run() {
+			if (!readyForInput())
+				return;
+
+			final List<PlotItem> items = plotDataParser.parseEntries();
+			if (!items.isEmpty()) {
+				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame
+						.getChart().getXYPlot().getDataset();
+				final XYSeries newSeries = newDataset.getSeries(0);
+				for (int i = 0; i < items.size(); i++) {
+					final PlotItem item = items.get(i);
+					newSeries.add(item.x, item.y);
+				}
+				plotFrame.setChartMaximum(newSeries.getMaxX(),
+						newSeries.getMaxY());
+				plotFrame.updateSliders();
+			}
+		}
+	};
+
+	private final Subscriber commonSubcriber = new Subscriber() {
+		@Override
+		public void fireChange() {
+			PlatformUI.getWorkbench().getDisplay()
+					.asyncExec(realTimeUpdateRunnable);
+		}
+	};
 
 	@Override
 	public void setFocus() {
@@ -223,26 +288,16 @@ public class PlotView extends ViewPart {
 											.get(node)),
 									IWorkbenchPage.VIEW_ACTIVATE);
 				} else {
-					XYSeriesCollection dataset = new XYSeriesCollection();
-					XYSeries series = new XYSeries(node.getName());
-					dataset.addSeries(series);
-					List<PlotItem> items = PlotDataParser.parseEntries(node);
-					for (int i = 0; i < items.size(); i++) {
-						PlotItem item = items.get(i);
-						series.add(item.x, item.y);
-					}
 					PlotView newView = (PlotView) PlatformUI
 							.getWorkbench()
 							.getActiveWorkbenchWindow()
 							.getActivePage()
 							.showView(PlotView.ID, String.valueOf(secondaryID),
 									IWorkbenchPage.VIEW_ACTIVATE);
-					newView.setName(String.valueOf(dataset.getSeriesKey(0)));
-					newView.setNode(node);
 					PlotView.addToOpenedPlotMap(node, secondaryID);
-
-					newView.plotXY(dataset, PlotDataParser.getEnumNames(node));
 					secondaryID++;
+
+					newView.initialize(node);
 				}
 			} catch (PartInitException e) {
 				e.printStackTrace();

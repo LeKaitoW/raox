@@ -2,8 +2,8 @@ package ru.bmstu.rk9.rao.ui.serialization;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.TimerTask;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
@@ -30,11 +30,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
@@ -42,10 +39,12 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.IndexType;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceIndex;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.graph.GraphView;
-import ru.bmstu.rk9.rao.ui.plot.PlotDataParser;
+import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 import ru.bmstu.rk9.rao.ui.plot.PlotView;
-import ru.bmstu.rk9.rao.ui.plot.PlotDataParser.PlotItem;
 
 public class SerializedObjectsView extends ViewPart {
 
@@ -136,42 +135,35 @@ public class SerializedObjectsView extends ViewPart {
 										1);
 							}
 						}
-
 					}
 				});
 
-		if (Simulator.isInitialized()) {
-			commonUpdater.fireChange();
-		}
+		initializeSubscribers();
 	}
 
-	private static final void updateAllOpenedCharts() {
-		for (CollectedDataNode node : PlotView.getOpenedPlotMap().keySet()) {
-			final int currentSecondaryID = PlotView.getOpenedPlotMap()
-					.get(node);
-			final IViewReference viewReference = PlatformUI
-					.getWorkbench()
-					.getActiveWorkbenchWindow()
-					.getActivePage()
-					.findViewReference(PlotView.ID,
-							String.valueOf(currentSecondaryID));
-			final PlotView viewPart = (PlotView) viewReference.getView(false);
-			final List<PlotItem> items = PlotDataParser.parseEntries(node);
-
-			if (!items.isEmpty()) {
-				final XYSeriesCollection newDataset = (XYSeriesCollection) viewPart
-						.getFrame().getChart().getXYPlot().getDataset();
-				final XYSeries newSeries = newDataset.getSeries(0);
-				for (int i = 0; i < items.size(); i++) {
-					final PlotItem item = items.get(i);
-					newSeries.add(item.x, item.y);
-				}
-				viewPart.getFrame().setChartMaximum(newSeries.getMaxX(),
-						newSeries.getMaxY());
-				viewPart.getFrame().updateSliders();
-			}
-		}
+	@Override
+	public void dispose() {
+		deinitializeSubscribers();
+		super.dispose();
 	}
+
+	private final void initializeSubscribers() {
+		subscriberSubscriberManager.initialize(Arrays.asList(
+				new SimulatorSubscriberInfo(commonSubscriber,
+						ExecutionState.EXECUTION_STARTED),
+				new SimulatorSubscriberInfo(commonSubscriber,
+						ExecutionState.EXECUTION_COMPLETED)));
+		realTimeSubscriberManager.initialize(Arrays
+				.asList(realTimeUpdateRunnable));
+	}
+
+	private final void deinitializeSubscribers() {
+		subscriberSubscriberManager.deinitialize();
+		realTimeSubscriberManager.deinitialize();
+	}
+
+	private final SimulatorSubscriberManager subscriberSubscriberManager = new SimulatorSubscriberManager();
+	private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
 
 	@Override
 	public void setFocus() {
@@ -184,41 +176,16 @@ public class SerializedObjectsView extends ViewPart {
 				&& serializedObjectsTreeViewer.getLabelProvider() != null;
 	}
 
-	private static boolean haveNewRealTimeData = false;
-
-	public static final Subscriber realTimeUpdater = new Subscriber() {
+	public static final Runnable realTimeUpdateRunnable = new Runnable() {
 		@Override
-		public void fireChange() {
-			haveNewRealTimeData = true;
+		public void run() {
+			if (readyForInput()) {
+				SerializedObjectsView.serializedObjectsTreeViewer.refresh();
+			}
 		}
 	};
 
-	public static TimerTask getRealTimeUpdaterTask() {
-		return new TimerTask() {
-			private final Display display = PlatformUI.getWorkbench()
-					.getDisplay();
-			private final Runnable updater = new Runnable() {
-				@Override
-				public void run() {
-					updateAllOpenedCharts();
-					if (readyForInput()) {
-						SerializedObjectsView.serializedObjectsTreeViewer
-								.refresh();
-					}
-				}
-			};
-
-			@Override
-			public void run() {
-				if (haveNewRealTimeData && !display.isDisposed()) {
-					haveNewRealTimeData = false;
-					display.asyncExec(updater);
-				}
-			}
-		};
-	}
-
-	public static final Subscriber commonUpdater = new Subscriber() {
+	public static final Subscriber commonSubscriber = new Subscriber() {
 		@Override
 		public void fireChange() {
 			if (!readyForInput())
@@ -239,7 +206,6 @@ public class SerializedObjectsView extends ViewPart {
 							.asyncExec(
 									() -> serializedObjectsTreeViewer
 											.setInput(root));
-					updateAllOpenedCharts();
 				}
 			});
 		}

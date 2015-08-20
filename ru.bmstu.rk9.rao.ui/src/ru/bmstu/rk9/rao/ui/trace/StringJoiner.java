@@ -1,11 +1,11 @@
-package ru.bmstu.rk9.rao.lib.tracer;
+package ru.bmstu.rk9.rao.ui.trace;
 
 public class StringJoiner {
 	private final String delimiter;
 	private final String prefix;
 	private final String suffix;
 
-	private String current = null;
+	private String current = "";
 
 	public enum StringFormat {
 		FUNCTION(", ", "(", ")"), STRUCTURE(", ", "{", "}"), ARRAY(", ", "[",

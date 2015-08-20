@@ -21,6 +21,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 
+import ru.bmstu.rk9.rao.ui.run.RuntimeComponents;
+
 public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 	private static volatile int speedValue;
 
@@ -243,7 +245,9 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 
 		private void setSelection(int value) {
 			speedValue = value;
-			SimulationSynchronizer.setSimulationSpeed(value);
+			if (RuntimeComponents.isInitialized())
+				RuntimeComponents.simulationSynchronizer
+						.setSimulationSpeed(value);
 			redraw();
 		}
 

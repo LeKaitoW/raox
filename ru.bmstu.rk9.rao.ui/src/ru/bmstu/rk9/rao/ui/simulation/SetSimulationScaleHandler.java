@@ -6,6 +6,8 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
+import ru.bmstu.rk9.rao.ui.run.RuntimeComponents;
+
 public class SetSimulationScaleHandler extends AbstractHandler {
 	private static volatile double simulationScale = 5400;
 
@@ -46,7 +48,9 @@ public class SetSimulationScaleHandler extends AbstractHandler {
 			break;
 		}
 
-		SimulationSynchronizer.setSimulationScale(simulationScale);
+		if (RuntimeComponents.isInitialized()) {
+			RuntimeComponents.simulationSynchronizer.setSimulationScale(simulationScale);
+		}
 
 		updateStatusView();
 

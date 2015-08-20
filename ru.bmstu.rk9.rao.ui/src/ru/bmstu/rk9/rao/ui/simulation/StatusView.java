@@ -1,6 +1,8 @@
 package ru.bmstu.rk9.rao.ui.simulation;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,6 +27,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.themes.ITheme;
 import org.eclipse.ui.themes.IThemeManager;
+
+import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 
 public class StatusView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.StatusView"; //$NON-NLS-1$
@@ -187,7 +191,26 @@ public class StatusView extends ViewPart {
 			reorderElements();
 			updateScrolledCompositeSize();
 		});
+
+		initializeSubscribers();
 	}
+
+	@Override
+	public void dispose() {
+		deinitializeSubscribers();
+		super.dispose();
+	}
+
+	private final void initializeSubscribers() {
+		realTimeSubscriberManager.initialize(Arrays
+				.asList(realTimeUpdateRunnable));
+	}
+
+	private final void deinitializeSubscribers() {
+		realTimeSubscriberManager.deinitialize();
+	}
+
+	private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
 
 	private void updateScrolledCompositeSize() {
 		int h = 0, v = 0;
@@ -208,15 +231,30 @@ public class StatusView extends ViewPart {
 		scrolledComposite.layout(true, true);
 	}
 
-	@Override
-	public void dispose() {
-		themeManager.removePropertyChangeListener(fontListener);
-		super.dispose();
-	}
-
 	private static boolean isInitialized() {
 		return INSTANCE != null && !INSTANCE.composite.isDisposed();
 	}
+
+	private static DecimalFormat realTimeFormatter = new DecimalFormat("0.0");
+
+	public static final Runnable realTimeUpdateRunnable = new Runnable() {
+		@Override
+		public void run() {
+			StatusView
+					.setValue(
+							"Time elapsed".intern(),
+							5,
+							realTimeFormatter.format((System
+									.currentTimeMillis() - startTime) / 1000d)
+									+ "s");
+		}
+	};
+
+	public static final void setStartTime(long time) {
+		startTime = time;
+	}
+
+	private static long startTime;
 
 	@Override
 	public void setFocus() {

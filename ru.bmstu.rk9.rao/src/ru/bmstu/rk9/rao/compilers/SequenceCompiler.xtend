@@ -51,7 +51,7 @@ class SequenceCompiler
 				«(sequence.type as RegularSequence).compileRegularSequence(sequence.returnType, (sequence.type as RegularSequence).legacy)»
 			«ENDIF»
 			«IF sequence.type instanceof EnumerativeSequence»
-				private «sequence.returnType.compileTypePrimitive»[] values = new «sequence.returnType.compileTypePrimitive»[]
+				private static «sequence.returnType.compileTypePrimitive»[] values = new «sequence.returnType.compileTypePrimitive»[]
 					{
 						«FOR i : 0 ..< (sequence.type as EnumerativeSequence).values.size»
 							«(sequence.type as EnumerativeSequence).values.get(i).compileExpression.value»«
@@ -59,9 +59,9 @@ class SequenceCompiler
 						«ENDFOR»
 					};
 
-				private int current = 0;
+				private static int current = 0;
 
-				public «sequence.returnType.compileTypePrimitive» next()
+				public static «sequence.returnType.compileTypePrimitive» next()
 				{
 					if (current == values.length)
 						current = 0;
