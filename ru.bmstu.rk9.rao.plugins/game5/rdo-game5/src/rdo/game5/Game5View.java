@@ -38,6 +38,7 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -112,8 +113,9 @@ public class Game5View extends EditorPart {
 
 		final Group boardGroup = new Group(parent, SWT.NONE);
 		final GridLayout boardLayout = new GridLayout(3, false);
-		final GridData boardData = new GridData();
-		boardData.verticalSpan = 2;
+		final GridData boardData = new GridData(SWT.FILL, SWT.FILL, false,
+				false);
+		boardData.verticalSpan = 3;
 		boardGroup.setLayoutData(boardData);
 		boardGroup.setLayout(boardLayout);
 		boardGroup.setText("Board:");
@@ -123,17 +125,18 @@ public class Game5View extends EditorPart {
 					.valueOf(places.indexOf(String.valueOf(i + 1)) + 1), i + 1));
 		}
 
-		final Group solvableGroup = new Group(parent, SWT.SHADOW_IN);
-		solvableGroup.setText("Solvable:");
-		final GridData solvableData = new GridData();
-		solvableData.verticalSpan = 2;
-		solvableGroup.setLayoutData(solvableData);
-		solvableGroup.setLayout(new GridLayout(1, false));
-		final Button solvableOnly = new Button(solvableGroup, SWT.RADIO);
+		final Group shuffleGroup = new Group(parent, SWT.SHADOW_IN);
+		shuffleGroup.setText("Shuffle:");
+		final GridData shuffleData = new GridData(SWT.FILL, SWT.FILL, false,
+				false);
+		shuffleData.verticalSpan = 2;
+		shuffleGroup.setLayoutData(shuffleData);
+		shuffleGroup.setLayout(new GridLayout(1, false));
+		final Button solvableOnly = new Button(shuffleGroup, SWT.RADIO);
 		solvableOnly.setText("Solvable only");
-		final Button unsolvableOnly = new Button(solvableGroup, SWT.RADIO);
+		final Button unsolvableOnly = new Button(shuffleGroup, SWT.RADIO);
 		unsolvableOnly.setText("Unsolvable only");
-		final Button allSituations = new Button(solvableGroup, SWT.RADIO);
+		final Button allSituations = new Button(shuffleGroup, SWT.RADIO);
 		allSituations.setText("All situations");
 
 		if (object.get("solvable").equals("true")) {
@@ -144,12 +147,15 @@ public class Game5View extends EditorPart {
 			allSituations.setSelection(true);
 		}
 
-		final Button shuffle = new Button(solvableGroup, SWT.PUSH);
+		final Button shuffle = new Button(shuffleGroup, SWT.PUSH);
 		shuffle.setText("Shuffle");
 
 		final Group setOrderGroup = new Group(parent, SWT.NONE);
 		setOrderGroup.setText("Set order:");
 		setOrderGroup.setLayout(new FormLayout());
+		final GridData setOrderData = new GridData(SWT.FILL, SWT.FILL, false,
+				false);
+		setOrderGroup.setLayoutData(setOrderData);
 		final Button setOrderButton = new Button(setOrderGroup, SWT.TOGGLE);
 		setOrderButton.setText("Set...");
 		final Label setOrderError = new Label(setOrderGroup, SWT.NONE);
@@ -167,17 +173,27 @@ public class Game5View extends EditorPart {
 		setOrderOkButton.setText("Ok");
 		setOrderOkButton.setEnabled(false);
 		FormData setOrderErrorData = new FormData();
-		setOrderErrorData.left = new FormAttachment(setOrderButton, 2);
+		setOrderErrorData.left = new FormAttachment(setOrderButton, 5);
 		setOrderErrorData.top = new FormAttachment(0, 5);
 		setOrderError.setLayoutData(setOrderErrorData);
 		FormData setOrderTextData = new FormData();
-		setOrderTextData.top = new FormAttachment(setOrderButton, 2);
+		setOrderTextData.top = new FormAttachment(setOrderButton, 1);
 		setOrderText.setLayoutData(setOrderTextData);
+		setOrderText.setTextLimit(2 * tilesCountX * tilesCountY - 1);
 		FormData setOrderOkButtonData = new FormData();
 		setOrderOkButtonData.left = new FormAttachment(setOrderText, 2);
 		setOrderOkButtonData.right = new FormAttachment(100, -2);
 		setOrderOkButtonData.top = new FormAttachment(setOrderButton, 1);
 		setOrderOkButton.setLayoutData(setOrderOkButtonData);
+
+		final Group ruleCost = new Group(parent, SWT.SHADOW_IN);
+		ruleCost.setText("Rules cost:");
+		final GridLayout ruleCostLayout = new GridLayout(4, false);
+		ruleCost.setLayout(ruleCostLayout);
+		final GridData ruleCostData = new GridData(SWT.BEGINNING, SWT.FILL,
+				false, false);
+		ruleCostData.verticalSpan = 3;
+		ruleCost.setLayoutData(ruleCostData);
 
 		final Group traverseGraph = new Group(parent, SWT.SHADOW_IN);
 		traverseGraph.setText("Traverse graph:");
@@ -186,20 +202,32 @@ public class Game5View extends EditorPart {
 		compareTops.setText("Compare tops");
 		compareTops.setSelection((boolean) object.get("compare"));
 
-		final Group ruleCost = new Group(parent, SWT.SHADOW_IN);
-		ruleCost.setText("Rule cost:");
-		final GridLayout ruleCostLayout = new GridLayout(4, false);
-		ruleCost.setLayout(ruleCostLayout);
-		final GridData ruleCostData = new GridData();
-		ruleCostData.verticalSpan = 2;
-		ruleCost.setLayoutData(ruleCostData);
-
-		final Button inOrder = new Button(parent, SWT.PUSH);
+		final Group inOrderGroup = new Group(parent, SWT.SHADOW_IN);
+		inOrderGroup.setText("Set in order:");
+		inOrderGroup.setLayout(gridLayout);
+		final Button inOrder = new Button(inOrderGroup, SWT.PUSH);
 		inOrder.setText("In order");
+		final GridData inOrderData = new GridData(SWT.FILL, SWT.FILL, false,
+				false);
+		inOrderGroup.setLayoutData(inOrderData);
+
+		final Group simulationGroup = new Group(parent, SWT.SHADOW_IN);
+		simulationGroup.setText("Simulation:");
+		simulationGroup.setLayout(new GridLayout());
+		final GridData simulationData = new GridData(SWT.BEGINNING, SWT.FILL,
+				true, false);
+		simulationData.verticalSpan = 2;
+		simulationGroup.setLayoutData(simulationData);
 
 		final Group heuristicSelection = new Group(parent, SWT.SHADOW_IN);
 		heuristicSelection.setText("Select heuristic:");
 		heuristicSelection.setLayout(gridLayout);
+		final GridData heuristicGridData = new GridData(SWT.FILL, SWT.FILL,
+				false, false);
+		heuristicGridData.horizontalSpan = 2;
+		heuristicGridData.widthHint = setOrderGroup.getBorderWidth()
+				+ shuffleGroup.getBorderWidth();
+		heuristicSelection.setLayoutData(heuristicGridData);
 		final Combo heuristicList = new Combo(heuristicSelection, SWT.BORDER
 				| SWT.DROP_DOWN | SWT.V_SCROLL);
 		final String zeroHeuristic = "Поиск_в_ширину()";
@@ -209,6 +237,11 @@ public class Game5View extends EditorPart {
 		final String manhattanDistanceHeuristic = "Расстояния_фишек_до_мест()";
 		heuristicList.add(manhattanDistanceHeuristic);
 		heuristicList.setText((String) object.get("heuristic"));
+
+		final Button simulationButton = new Button(simulationGroup, SWT.PUSH);
+		simulationButton.setText("Simulation");
+		final Button graphButton = new Button(simulationGroup, SWT.PUSH);
+		graphButton.setText("Show graph");
 
 		final Label moveLabel = new Label(ruleCost, SWT.NONE);
 		moveLabel.setText("Move");
@@ -363,11 +396,6 @@ public class Game5View extends EditorPart {
 				.withParent(editorGroup);
 		editor = embeddedEditor.createPartialEditor("", object.get("code")
 				.toString(), "", false);
-
-		final Button simulationButton = new Button(parent, SWT.PUSH);
-		simulationButton.setText("Simulation");
-		final Button graphButton = new Button(parent, SWT.PUSH);
-		graphButton.setText("Show graph");
 
 		IXtextDocument document = embeddedEditor.getDocument();
 		document.addModelListener(new IXtextModelListener() {
