@@ -10,7 +10,7 @@ import ru.bmstu.rk9.rao.rao.FunctionAlgorithmic;
 import ru.bmstu.rk9.rao.rao.FunctionList;
 import ru.bmstu.rk9.rao.rao.FunctionParameter;
 import ru.bmstu.rk9.rao.rao.GroupBy;
-import ru.bmstu.rk9.rao.rao.ParameterType;
+import ru.bmstu.rk9.rao.rao.Parameter;
 import ru.bmstu.rk9.rao.rao.Pattern;
 import ru.bmstu.rk9.rao.rao.RaoEnum;
 import ru.bmstu.rk9.rao.rao.RelevantResource;
@@ -112,7 +112,7 @@ public class LocalContext {
 
 	public LocalContext populateWithResourceRename(ResourceType resourceType,
 			String newName) {
-		for (ParameterType parameter : resourceType.getParameters()) {
+		for (Parameter parameter : resourceType.getParameters()) {
 			this.addRawEntry(
 					resourceType.getName() + "." + parameter.getName(),
 					RaoExpressionCompiler.compileType(parameter), newName
@@ -125,7 +125,7 @@ public class LocalContext {
 	}
 
 	public LocalContext populateFromEvent(Event event) {
-		for (ParameterType parameter : event.getParameters())
+		for (Parameter parameter : event.getParameters())
 			this.addRawEntry(parameter.getName(),
 					RaoExpressionCompiler.compileType(parameter), "parameters."
 							+ parameter.getName());
@@ -134,7 +134,7 @@ public class LocalContext {
 	}
 
 	public LocalContext populateFromPattern(Pattern pattern) {
-		for (ParameterType parameter : pattern.getParameters())
+		for (Parameter parameter : pattern.getParameters())
 			this.addRawEntry(parameter.getName(),
 					RaoExpressionCompiler.compileType(parameter), "parameters."
 							+ parameter.getName());
@@ -147,7 +147,7 @@ public class LocalContext {
 				type = ((ResourceCreateStatement) relevantResource.getType())
 						.getType();
 
-			for (ParameterType parameter : type.getParameters())
+			for (Parameter parameter : type.getParameters())
 				this.addRawEntry(
 						relevantResource.getName() + "." + parameter.getName(),
 						RaoExpressionCompiler.compileType(parameter),
@@ -160,7 +160,7 @@ public class LocalContext {
 
 	public void addCreatedResource(
 			ResourceCreateStatement resourceCreateStatement) {
-		for (ParameterType parameter : resourceCreateStatement.getType()
+		for (Parameter parameter : resourceCreateStatement.getType()
 				.getParameters())
 			this.addRawEntry(
 					resourceCreateStatement.getName() + "."

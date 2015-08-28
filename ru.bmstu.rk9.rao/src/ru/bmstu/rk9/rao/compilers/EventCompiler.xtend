@@ -3,11 +3,10 @@ package ru.bmstu.rk9.rao.compilers
 import static extension ru.bmstu.rk9.rao.generator.RaoNaming.*
 import static extension ru.bmstu.rk9.rao.generator.RaoExpressionCompiler.*
 import static extension ru.bmstu.rk9.rao.generator.RaoStatementCompiler.*
-import static extension ru.bmstu.rk9.rao.compilers.ResourceTypeCompiler.*
 import static extension ru.bmstu.rk9.rao.compilers.PatternCompiler.*
 
 import ru.bmstu.rk9.rao.rao.Event
-import ru.bmstu.rk9.rao.rao.ParameterType
+import ru.bmstu.rk9.rao.rao.Parameter
 import java.util.List
 
 class EventCompiler
@@ -92,7 +91,7 @@ class EventCompiler
 		'''
 	}
 
-	def private static compileParameterTypesCall(List<ParameterType> parameters)
+	def private static compileParameterTypesCall(List<Parameter> parameters)
 	{
 		'''«IF !parameters.empty»«
 			parameters.get(0).name»«

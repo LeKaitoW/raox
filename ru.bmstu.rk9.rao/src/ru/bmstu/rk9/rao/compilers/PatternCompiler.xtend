@@ -7,7 +7,6 @@ import org.eclipse.emf.ecore.EObject
 import static extension ru.bmstu.rk9.rao.generator.RaoNaming.*
 import static extension ru.bmstu.rk9.rao.generator.RaoExpressionCompiler.*
 import static extension ru.bmstu.rk9.rao.generator.RaoStatementCompiler.*
-import static extension ru.bmstu.rk9.rao.compilers.ResourceTypeCompiler.*
 
 import ru.bmstu.rk9.rao.generator.LocalContext
 
@@ -16,7 +15,7 @@ import ru.bmstu.rk9.rao.rao.ResourceType
 import ru.bmstu.rk9.rao.rao.ResourceCreateStatement
 
 import ru.bmstu.rk9.rao.rao.Pattern
-import ru.bmstu.rk9.rao.rao.ParameterType
+import ru.bmstu.rk9.rao.rao.Parameter
 import ru.bmstu.rk9.rao.rao.PatternSelectMethod
 import ru.bmstu.rk9.rao.rao.RelevantResource
 import ru.bmstu.rk9.rao.rao.PatternSelectLogic
@@ -525,7 +524,7 @@ class PatternCompiler
 		}
 	}
 
-	def static compileParameterTypes(List<ParameterType> parameters)
+	def static compileParameterTypes(List<Parameter> parameters)
 	{
 		'''«IF !parameters.empty»«parameters.get(0).compileType» «
 			parameters.get(0).name»«

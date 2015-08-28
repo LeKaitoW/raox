@@ -9,7 +9,7 @@ import static extension ru.bmstu.rk9.rao.generator.RaoNaming.*
 import ru.bmstu.rk9.rao.rao.RaoModel
 
 import ru.bmstu.rk9.rao.rao.ResourceType
-import ru.bmstu.rk9.rao.rao.ParameterType
+import ru.bmstu.rk9.rao.rao.Parameter
 
 import ru.bmstu.rk9.rao.rao.ResourceCreateStatement
 
@@ -60,8 +60,8 @@ class RaoLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 	def image(ResourceType rtp) { "puzzle_plus.gif" }
 
 	// Parameter types
-	def  text(ParameterType p) { p.name + p.typeGenericLabel }
-	def image(ParameterType p) { "parameter.gif" }
+	def  text(Parameter p) { p.name + p.typeGenericLabel }
+	def image(Parameter p) { "parameter.gif" }
 
 	// Resource declaration
 	def  text(ResourceCreateStatement rss) { "rss : " + rss.name }

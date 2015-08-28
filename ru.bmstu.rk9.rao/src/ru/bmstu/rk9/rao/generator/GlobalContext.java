@@ -10,7 +10,7 @@ import ru.bmstu.rk9.rao.rao.EnumerativeSequence;
 import ru.bmstu.rk9.rao.rao.Function;
 import ru.bmstu.rk9.rao.rao.FunctionParameter;
 import ru.bmstu.rk9.rao.rao.HistogramSequence;
-import ru.bmstu.rk9.rao.rao.ParameterType;
+import ru.bmstu.rk9.rao.rao.Parameter;
 import ru.bmstu.rk9.rao.rao.RegularSequence;
 import ru.bmstu.rk9.rao.rao.ResourceCreateStatement;
 import ru.bmstu.rk9.rao.rao.ResourceType;
@@ -27,7 +27,7 @@ public class GlobalContext {
 		public ResourceTypeGlobalReference(ResourceType resourceType) {
 			origin = resourceType;
 			parameters = new HashMap<String, String>();
-			for (ParameterType p : resourceType.getParameters())
+			for (Parameter p : resourceType.getParameters())
 				parameters.put(p.getName(),
 						RaoExpressionCompiler.compileType(p));
 		}
