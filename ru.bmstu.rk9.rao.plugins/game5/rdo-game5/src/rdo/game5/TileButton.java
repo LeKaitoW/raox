@@ -36,7 +36,7 @@ public class TileButton extends Composite {
 			final Display display = getDisplay();
 			final Rectangle tile = getClientArea();
 			final Color black = new Color(display, 0x00, 0x00, 0x00);
-			final Color red = new Color(display, 0xff, 0x19, 0x19);
+			final Color red = new Color(display, 0x6b, 0xbc, 0xcd);
 			final FontRegistry fontRegistry = PlatformUI.getWorkbench()
 					.getThemeManager().getCurrentTheme().getFontRegistry();
 			final String fontName = fontRegistry.get(
