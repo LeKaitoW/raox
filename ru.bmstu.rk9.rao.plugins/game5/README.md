@@ -8,8 +8,8 @@ gunzip -c eclipse-dsl-luna-SR2-linux-gtk-x86_64.tar.gz  | tar xvf -
 cd eclipse
 ./eclipse
 ```
- * Download [rdo-xtext] (https://www.dropbox.com/sh/g41180l0ffkq88z/AACqDeOiqBz7tNK_xRCBeTbba?dl=0)
- * Put `rdo-xtext` jars into `.../eclipse/dropins`
+ * Download `rdo-xtext` [libraries] (https://www.dropbox.com/sh/g41180l0ffkq88z/AACqDeOiqBz7tNK_xRCBeTbba?dl=0)
+ * Put `ru.bmstu.rk9.rao*.jar` into `.../eclipse/dropins`
  * Git clone `rdo-game5` repository
 ```bash
 ssh-add ~/.ssh/github.openssh.private.key
