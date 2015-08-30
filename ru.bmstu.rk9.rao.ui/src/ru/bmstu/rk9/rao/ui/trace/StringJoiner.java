@@ -43,7 +43,7 @@ public class StringJoiner {
 	}
 
 	public final StringJoiner add(final String toAppend) {
-		if (current == null)
+		if (current == "")
 			current = new String(toAppend);
 		else
 			current += delimiter + toAppend;
