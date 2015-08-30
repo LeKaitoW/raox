@@ -26,13 +26,22 @@ Require-Bundle: ru.bmstu.rk9.rao;visibility:=reexport,
 Import-Package: org.apache.log4j,
  org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: ru.bmstu.rk9.rao.ui.contentassist;uses:="org.eclipse.xtext,org.eclipse.emf.ecore,org.eclipse.xtext.ui.editor.contentassist",
- ru.bmstu.rk9.rao.ui.contentassist.antlr; uses:="org.eclipse.xtext,  ru.bmstu.rk9.rao.ui.contentassist.antlr.internal,  org.eclipse.xtext.ui.editor.contentassist.antlr.internal,  org.eclipse.xtext.ui.codetemplates.ui.partialEditing,  org.eclipse.xtext.ui.editor.contentassist.antlr,  ru.bmstu.rk9.rao.services",
- ru.bmstu.rk9.rao.ui.internal;uses:="org.eclipse.ui.plugin,org.osgi.framework,com.google.inject",
- ru.bmstu.rk9.rao.ui.quickfix;uses:="org.eclipse.xtext.ui.editor.quickfix",
- ru.bmstu.rk9.rao.ui.quickfix,
+Export-Package: ru.bmstu.rk9.rao.ui,
+ ru.bmstu.rk9.rao.ui.animation,
+ ru.bmstu.rk9.rao.ui.build,
+ ru.bmstu.rk9.rao.ui.console,
  ru.bmstu.rk9.rao.ui.contentassist,
  ru.bmstu.rk9.rao.ui.contentassist.antlr,
- ru.bmstu.rk9.rao.ui.internal
+ ru.bmstu.rk9.rao.ui.graph,
+ ru.bmstu.rk9.rao.ui.internal,
+ ru.bmstu.rk9.rao.ui.notification,
+ ru.bmstu.rk9.rao.ui.plot,
+ ru.bmstu.rk9.rao.ui.quickfix,
+ ru.bmstu.rk9.rao.ui.results,
+ ru.bmstu.rk9.rao.ui.run,
+ ru.bmstu.rk9.rao.ui.serialization,
+ ru.bmstu.rk9.rao.ui.simulation,
+ ru.bmstu.rk9.rao.ui.toolbar,
+ ru.bmstu.rk9.rao.ui.trace
 Bundle-ClassPath: .,thirdparty/jgraphx/lib/jgraphx.jar,thirdparty/jfreechart/lib/jcommon-1.0.23.jar,thirdparty/jfreechart/lib/jfreechart-1.0.19-experimental.jar,thirdparty/jfreechart/lib/jfreechart-1.0.19-swt.jar,thirdparty/jfreechart/lib/jfreechart-1.0.19.jar
 Bundle-Activator: ru.bmstu.rk9.rao.ui.RaoActivatorExtension
