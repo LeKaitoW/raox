@@ -77,6 +77,7 @@ import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
+import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 
 @SuppressWarnings("restriction")
 public class Game5View extends EditorPart {
@@ -445,18 +446,22 @@ public class Game5View extends EditorPart {
 		simulationButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				// need to check serialization objects tree
-				IServiceLocator serviceLocator = PlatformUI.getWorkbench();
-				doSave((IProgressMonitor) serviceLocator
-						.getService(IProgressMonitor.class));
-				ICommandService commandService = (ICommandService) serviceLocator
-						.getService(ICommandService.class);
-				Command command = commandService
-						.getCommand("ru.bmstu.rk9.rao.ui.runtime.execute");
 				try {
+					((SerializationConfigView) PlatformUI.getWorkbench()
+							.getActiveWorkbenchWindow().getActivePage()
+							.showView(SerializationConfigView.ID))
+							.setCheckedStateForAll();
+					IServiceLocator serviceLocator = PlatformUI.getWorkbench();
+					doSave((IProgressMonitor) serviceLocator
+							.getService(IProgressMonitor.class));
+					ICommandService commandService = (ICommandService) serviceLocator
+							.getService(ICommandService.class);
+					Command command = commandService
+							.getCommand("ru.bmstu.rk9.rao.ui.runtime.execute");
 					command.executeWithChecks(new ExecutionEvent());
-				} catch (ExecutionException | NotDefinedException
-						| NotEnabledException | NotHandledException e) {
+				} catch (PartInitException | ExecutionException
+						| NotDefinedException | NotEnabledException
+						| NotHandledException e) {
 					e.printStackTrace();
 				}
 				simulatorSubscriberManager.initialize(Arrays
