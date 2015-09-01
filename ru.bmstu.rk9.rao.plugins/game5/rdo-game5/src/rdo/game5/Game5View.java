@@ -212,7 +212,7 @@ public class Game5View extends EditorPart {
 		inOrderGroup.setLayoutData(inOrderData);
 
 		final Group simulationGroup = new Group(parent, SWT.SHADOW_IN);
-		simulationGroup.setText("Simulation:");
+		simulationGroup.setText("Experiment:");
 		simulationGroup.setLayout(new GridLayout());
 		final GridData simulationData = new GridData(SWT.BEGINNING, SWT.FILL,
 				true, false);
@@ -239,9 +239,7 @@ public class Game5View extends EditorPart {
 		heuristicList.setText((String) object.get("heuristic"));
 
 		final Button simulationButton = new Button(simulationGroup, SWT.PUSH);
-		simulationButton.setText("Simulation");
-		final Button graphButton = new Button(simulationGroup, SWT.PUSH);
-		graphButton.setText("Show graph");
+		simulationButton.setText("Run experiment");
 
 		final Label moveLabel = new Label(ruleCost, SWT.NONE);
 		moveLabel.setText("Move");
@@ -472,17 +470,6 @@ public class Game5View extends EditorPart {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent event) {
-			}
-		});
-
-		graphButton.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				GraphControl.openFrameWindow(new FrameInfo(0, "game5"));
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
 
