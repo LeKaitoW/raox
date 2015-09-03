@@ -11,5 +11,4 @@ public class Game5Handler extends AbstractHandler {
 		ModelNameView.modelNameView();
 		return null;
 	}
-
 }

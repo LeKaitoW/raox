@@ -9,6 +9,15 @@
 				id="rdo.game5.menu"
 				label="Plugins"
 				mnemonic="P">
+				<visibleWhen
+					checkEnabled="false">
+					<with
+						variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+						<equals
+							value="showActions">
+						</equals>
+					</with>
+				</visibleWhen>
 				<command
 					commandId="rdo.game5"
 					id="rdo.game5"
