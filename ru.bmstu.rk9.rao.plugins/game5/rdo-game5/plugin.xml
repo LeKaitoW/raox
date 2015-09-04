@@ -7,8 +7,7 @@
 			locationURI="menu:org.eclipse.ui.main.menu?after=additions">
 			<menu
 				id="rdo.game5.menu"
-				label="Plugins"
-				mnemonic="P">
+				label="Plugins">
 				<visibleWhen
 					checkEnabled="false">
 					<with
@@ -22,8 +21,7 @@
 					commandId="rdo.game5"
 					id="rdo.game5"
 					label="Game 5"
-					style="push"
-					mnemonic="R">
+					style="push">
 				</command>
 			</menu>
 		</menuContribution>
