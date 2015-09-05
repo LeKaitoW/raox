@@ -101,7 +101,7 @@ public class RDOResultsView extends ViewPart {
 			.put("percent", format("Percent true"))
 			.put("min", format("Minimum value"))
 			.put("max", format("Maximum value")).put("mean", format("Mean"))
-			.put("deviation", format("Standart deviation"))
+			.put("deviation", format("Standard deviation"))
 			.put("varcoef", format("Coefficient of variation"))
 			.put("median", format("Median")).build();
 
