@@ -406,19 +406,23 @@ public class Game5View extends EditorPart {
 		heuristicList.addSelectionListener(new ConfigurationListener(
 				"heuristic", () -> heuristicList.getText()));
 
-		leftCost.addKeyListener(new CostKeyListener("costLeft"));
+		leftCost.addKeyListener(new ConfigurationKeyListener("costLeft",
+				() -> leftCost.getText()));
 		leftCombo.addSelectionListener(new ConfigurationListener("computeLeft",
 				() -> leftCombo.getText()));
 
-		rightCost.addKeyListener(new CostKeyListener("costRight"));
+		rightCost.addKeyListener(new ConfigurationKeyListener("costRight",
+				() -> rightCost.getText()));
 		rightCombo.addSelectionListener(new ConfigurationListener(
 				"computeRight", () -> rightCombo.getText()));
 
-		upCost.addKeyListener(new CostKeyListener("costUp"));
+		upCost.addKeyListener(new ConfigurationKeyListener("costUp",
+				() -> upCost.getText()));
 		upCombo.addSelectionListener(new ConfigurationListener("computeUp",
 				() -> upCombo.getText()));
 
-		downCost.addKeyListener(new CostKeyListener("costDown"));
+		downCost.addKeyListener(new ConfigurationKeyListener("costDown",
+				() -> downCost.getText()));
 		downCombo.addSelectionListener(new ConfigurationListener("computeDown",
 				() -> downCombo.getText()));
 
@@ -548,6 +552,9 @@ public class Game5View extends EditorPart {
 				}
 			});
 		}
+
+		heuristicList.addKeyListener(new ConfigurationKeyListener("heuristic",
+				() -> heuristicList.getText()));
 	}
 
 	@Override
@@ -692,12 +699,14 @@ public class Game5View extends EditorPart {
 		}
 	}
 
-	public class CostKeyListener implements KeyListener {
-		public CostKeyListener(String key) {
+	public class ConfigurationKeyListener implements KeyListener {
+		public ConfigurationKeyListener(String key, Supplier<String> value) {
 			this.key = key;
+			this.value = value;
 		}
 
 		private final String key;
+		private final Supplier<String> value;
 
 		@Override
 		public void keyPressed(KeyEvent e) {
@@ -706,7 +715,7 @@ public class Game5View extends EditorPart {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void keyReleased(KeyEvent e) {
-			object.put(key, ((Text) e.getSource()).getText());
+			object.put(key, value.get());
 			setDirty(true);
 		}
 	}
