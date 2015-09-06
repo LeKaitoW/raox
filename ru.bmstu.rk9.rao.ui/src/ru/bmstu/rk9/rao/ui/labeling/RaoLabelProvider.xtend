@@ -9,7 +9,7 @@ import static extension ru.bmstu.rk9.rao.generator.RaoNaming.*
 import ru.bmstu.rk9.rao.rao.RaoModel
 
 import ru.bmstu.rk9.rao.rao.ResourceType
-import ru.bmstu.rk9.rao.rao.ParameterType
+import ru.bmstu.rk9.rao.rao.Parameter
 
 import ru.bmstu.rk9.rao.rao.ResourceCreateStatement
 
@@ -48,57 +48,63 @@ class RaoLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 		super(delegate);
 	}
 
-	// Model
-	def image(RaoModel m) { "model.gif" }
+	def image(RaoModel model) { "model.gif" }
 
-	// Default methods
-	def text(DefaultMethod dm) { "set : " + dm.name }
-	def image(DefaultMethod dm) { "run.gif" }
+	def text(DefaultMethod defaultMethod) { "set : " + defaultMethod.name }
 
-	// Resource types
-	def  text(ResourceType rtp) { "RTP : " + rtp.name }
-	def image(ResourceType rtp) { "puzzle_plus.gif" }
+	def image(DefaultMethod defaultMethod) { "run.gif" }
 
-	// Parameter types
-	def  text(ParameterType p) { p.name + p.typeGenericLabel }
-	def image(ParameterType p) { "parameter.gif" }
+	def text(ResourceType resourceType) { "resource type : " + resourceType.name }
 
-	// Resource declaration
-	def  text(ResourceCreateStatement rss) { "rss : " + rss.name }
-	def image(ResourceCreateStatement rss) { "plus.gif" }
+	def image(ResourceType resourceType) { "puzzle_plus.gif" }
 
-	// Constants
-	def image(Constant c) { "constant2.gif" }
-	def  text(Constant c) { c.name + c.type.typeGenericLabel }
+	def text(Parameter parameter) { parameter.name + parameter.typeGenericLabel }
 
-	// Sequence
-	def  text(Sequence seq) { "SEQ : " + seq.name + " : " + (
-		if(seq.type instanceof EnumerativeSequence) "enumerative" else "" +
-		if(seq.type instanceof RegularSequence) (seq.type as RegularSequence).type else "" +
-		if(seq.type instanceof HistogramSequence) "histogram" else "" ) + seq.returnType.typeGenericLabel }
-	def image(Sequence seq) { "chart.gif" }
+	def image(Parameter parameter) { "parameter.gif" }
 
-	// Function
-	def  text(Function fun) { "FUN : " + fun.type.name + fun.returnType.typeGenericLabel }
-	def image(Function fun) { "calc_arrow.gif" }
+	def text(ResourceCreateStatement resource) { "resource : " + resource.name }
 
-	def image(FunctionParameter p) { "parameter.gif" }
-	def  text(FunctionParameter p) { p.name + p.type.typeGenericLabel }
+	def image(ResourceCreateStatement resource) { "plus.gif" }
 
-	// Event
-	def  text(Event evn) { "EVN : " + evn.name + " : event"}
-	def image(Event evn) { "event.gif" }
+	def text(Constant constant) { constant.name + constant.type.typeGenericLabel }
 
-	// Operation
-	def  text(Pattern pat) { "PAT : " + pat.name + " : " + pat.type.literal}
-	def image(Pattern pat) { "script_block.gif" }
+	def image(Constant constant) { "constant2.gif" }
 
-	// Common for patterns
+	def text(Sequence sequence) {
+		"sequence : " + sequence.name + " : " + (
+		if (sequence.type instanceof EnumerativeSequence)
+			"enumerative"
+		else
+			"" + if (sequence.type instanceof RegularSequence)
+				(sequence.type as RegularSequence).type
+			else
+				"" + if(sequence.type instanceof HistogramSequence) "histogram" else "" ) +
+			sequence.returnType.typeGenericLabel
+	}
 
-	def image(RelevantResource r) { "parameter.gif" }
-	def  text(RelevantResource r) { r.name + r.type.relResName }
+	def image(Sequence sequence) { "chart.gif" }
 
-	def getRelResName(EObject object) {
+	def text(Function function) { "function : " + function.type.name + function.returnType.typeGenericLabel }
+
+	def image(Function function) { "calc_arrow.gif" }
+
+	def image(FunctionParameter parameter) { "parameter.gif" }
+
+	def text(FunctionParameter parameter) { parameter.name + parameter.type.typeGenericLabel }
+
+	def text(Event event) { "event : " + event.name + " : event" }
+
+	def image(Event event) { "event.gif" }
+
+	def text(Pattern pattern) { "pattern : " + pattern.name + " : " + pattern.type.literal }
+
+	def image(Pattern pattern) { "script_block.gif" }
+
+	def image(RelevantResource relevantResource) { "parameter.gif" }
+
+	def text(RelevantResource relevantResource) { relevantResource.name + relevantResource.type.relevantResourceName }
+
+	def getRelevantResourceName(EObject object) {
 		switch object {
 			ResourceType: " : RTP : " + object.name
 			ResourceCreateStatement: " : RSS : " + object.name
@@ -106,28 +112,29 @@ class RaoLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 		}
 	}
 
-	// Decision points
-	def image(DecisionPointSearchActivity d) { "script_block.gif" }
-	def image(DecisionPointActivity d) { "script_block.gif" }
+	def image(DecisionPointSearchActivity activity) { "script_block.gif" }
 
-	// DecisionPointSome
-	def  text(DecisionPointSome dpt) { "DPT : " + dpt.name + " : some" }
-	def image(DecisionPointSome dpt) { "block.gif" }
+	def image(DecisionPointActivity activity) { "script_block.gif" }
 
-	// DecisionPointSearch
-	def  text(DecisionPointSearch dpt) {"DPT : " + dpt.name + " : search" }
-	def image(DecisionPointSearch dpt) { "search.gif" }
+	def text(DecisionPointSome decisionPoint) { "decision point : " + decisionPoint.name + " : some" }
 
-	// Results
-	def  text(Result d) { d.name + " : " + resultype(d)}
+	def image(DecisionPointSome decisionPoint) { "block.gif" }
+
+	def text(DecisionPointSearch search) { "search : " + search.name + " : search" }
+
+	def image(DecisionPointSearch search) { "search.gif" }
+
+	def text(Result result) { result.name + " : " + resultype(result) }
+
 	def resultype(Result declaration) {
 		switch declaration.type {
-			ResultWatchParameter: "watchPar"
-			ResultWatchState    : "watchState"
-			ResultWatchQuant    : "watchQuant"
-			ResultWatchValue    : "watchValue"
-			ResultGetValue      : "getValue"
+			ResultWatchParameter: "watchParameter"
+			ResultWatchState: "watchState"
+			ResultWatchQuant: "watchQuant"
+			ResultWatchValue: "watchValue"
+			ResultGetValue: "getValue"
 		}
 	}
-	def image(Result d) { "parameter.gif" }
+
+	def image(Result result) { "parameter.gif" }
 }

@@ -9,11 +9,7 @@ import org.eclipse.emf.ecore.EObject
 import ru.bmstu.rk9.rao.rao.RaoModel
 
 import ru.bmstu.rk9.rao.rao.ResourceType
-import ru.bmstu.rk9.rao.rao.ParameterType
-import ru.bmstu.rk9.rao.rao.ParameterTypeBasic
-import ru.bmstu.rk9.rao.rao.ParameterTypeString
-import ru.bmstu.rk9.rao.rao.ParameterTypeArray
-
+import ru.bmstu.rk9.rao.rao.Parameter
 import ru.bmstu.rk9.rao.rao.ResourceCreateStatement
 
 
@@ -78,7 +74,7 @@ class RaoNaming
 			ResourceType:
 				return object.name
 
-			ParameterType:
+			Parameter:
 				return object.name
 
 			ResourceCreateStatement:
@@ -129,7 +125,7 @@ class RaoNaming
 			ResourceType:
 				return object.eContainer.nameGeneric + "." + object.name
 
-			ParameterType:
+			Parameter:
 				return object.eContainer.eContainer.nameGeneric +
 					"." + object.eContainer.nameGeneric + "." + object.name
 
@@ -197,10 +193,6 @@ class RaoNaming
 	{
 		switch type
 		{
-			ParameterTypeBasic : getTypeGenericLabel(type.type)
-			ParameterTypeString: getTypeGenericLabel(type.type)
-			ParameterTypeArray : getTypeGenericLabel(type.type)
-
 			RaoInt: " : " + type.type
 			RaoDouble   : " : " + type.type
 			RaoBoolean: " : " + type.type

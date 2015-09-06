@@ -6,7 +6,7 @@ import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.diagnostics.DiagnosticMessage;
 import org.eclipse.xtext.linking.impl.LinkingDiagnosticMessageProvider;
 
-import ru.bmstu.rk9.rao.rao.ParameterType;
+import ru.bmstu.rk9.rao.rao.Parameter;
 import ru.bmstu.rk9.rao.rao.ResourceType;
 
 public class RaoLinkingDiagnosticMessageProvider extends
@@ -36,7 +36,7 @@ public class RaoLinkingDiagnosticMessageProvider extends
 			break;
 
 		case "EnumID":
-			ParameterType parent = (ParameterType) context
+			Parameter parent = (Parameter) context
 					.getContext().eContainer();
 			ResourceType grandparent = (ResourceType) parent.eContainer();
 			msg = "Value '" + context.getLinkText()
