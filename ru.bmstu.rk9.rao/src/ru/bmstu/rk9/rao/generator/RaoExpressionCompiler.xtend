@@ -379,18 +379,20 @@ class RaoExpressionCompiler
 				if (next.type == "unknown" && checkValidEnumID(left.type, next.value))
 					next.value = compileEnumValue(left.type, next.value)
 
+				var value = next.value
+				if (left.type.isStandardCompiledType)
+					value = left.type + ".valueOf(" + value + ")"
+
 				if (expression.left instanceof VariableIncDecExpression)
 				{
 					val idex = expression.left as VariableIncDecExpression
 					if (left.value.contains(".get_") && left.value.endsWith("()"))
 					{
 						var operation = (if (idex.operation.length > 1) idex.operation.substring(0, 1) else null)
-						var String value = next.value
+
 						if (operation != null) {
 							value = left.value + " " + operation + " " + value
 						}
-						if (left.type == "Double")
-							value = "Double.valueOf(" + value + ")"
 
 						return new RaoExpression(cutLastChars(left.value, 2).replace(".get_", ".set_")
 								+ "(" + value + ")", left.type)
@@ -443,9 +445,9 @@ class RaoExpressionCompiler
 						if (parameter != null && compiled.type == "unknown"
 								&& checkValidEnumID(parameter.compileType, compiled.value))
 							compiled.value = parameter + "."
-									 + compiled.value.substring(compiled.value.lastIndexOf('.') + 1)
+									+ compiled.value.substring(compiled.value.lastIndexOf('.') + 1)
 
-						if (parameter != null && parameter.type instanceof RaoDouble)
+						if (parameter != null && parameter.type.isStandardType)
 							compiled.value = parameter.compileType + ".valueOf(" + compiled.value + ")"
 
 						list = list + ( if (flag) ", " else "" ) + compiled.value
@@ -502,8 +504,8 @@ class RaoExpressionCompiler
 					compiled.value)
 			}
 
-			if (parameter != null && parameter.type instanceof RaoDouble)
-					compiled.value = parameter.compileType + ".valueOf(" + compiled.value + ")"
+			if (parameter != null && parameter.type.isStandardType)
+				compiled.value = parameter.compileType + ".valueOf(" + compiled.value + ")"
 
 			list = list + ( if (flag) ", " else "" ) + compiled.value
 			flag = true
@@ -596,7 +598,7 @@ class RaoExpressionCompiler
 						if (paramType.compileType.endsWith("_enum"))
 							value.compileExpressionContext((new LocalContext(localContext)).
 								populateWithEnums(params.get(i).type as RaoEnum)).value
-						else if (paramType instanceof RaoDouble)
+						else if (paramType.isStandardType)
 							paramType.compileType + ".valueOf(" + value.compileExpression.value + ")"
 						else
 							value.compileExpression.value
@@ -609,6 +611,34 @@ class RaoExpressionCompiler
 		}
 
 		return null
+	}
+
+	def static boolean isStandardType(EObject type)
+	{
+		switch type
+		{
+			RaoInt,
+			RaoDouble,
+			RaoString,
+			RaoBoolean:
+				return true
+			default:
+				return false
+		}
+	}
+
+	def static boolean isStandardCompiledType(String type)
+	{
+		switch type
+		{
+			case "Integer",
+			case "Double",
+			case "Boolean",
+			case "String":
+				return true
+			default:
+				return false
+		}
 	}
 
 	def static String compileType(EObject type)
