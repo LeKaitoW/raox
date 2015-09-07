@@ -1,5 +1,14 @@
-function generateTableOfContents(contents) {
-    var contentsList = $("ul#table_of_contents");
+function generateSidebar(contents) {
+    var sidebarWrapper = $("div#sidebar-wrapper");
+
+    var sidebarNav = $("<div>");
+    sidebarNav.attr("class", "sidebar-nav");
+
+    var header = $("<h2>");
+    header.attr("align", "center");
+    header.html("Содержание");
+
+    var ul = $("<ul>");
 
     for (var i = 0; i < contents.length; i++) {
         var li = $("<li>");
@@ -9,8 +18,12 @@ function generateTableOfContents(contents) {
         a.html(contents[i].title);
 
         a.appendTo(li);
-        li.appendTo(contentsList);
+        li.appendTo(ul);
     }
+
+    header.appendTo(sidebarNav);
+    ul.appendTo(sidebarNav);
+    sidebarNav.appendTo(sidebarWrapper);
 }
 
 function getContents() {
@@ -65,5 +78,5 @@ function getContents() {
 }
 
 $(document).ready(function() {
-    generateTableOfContents(getContents());
+    generateSidebar(getContents());
 });
