@@ -10,16 +10,23 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulatorState;
 
 public abstract class DefferedSubscriberManager<T> {
+	private enum InitializationState {
+		INITIALIZED, NOT_INITIALIZED, UNDEFINED
+	};
+
+	private InitializationState initializationState = InitializationState.NOT_INITIALIZED;
+
 	public final void initialize(List<T> subscribersInfo) {
 		initialize(subscribersInfo, EnumSet.noneOf(SubscriptionType.class));
 	}
 
 	public final void initialize(List<T> subscribersInfo,
 			EnumSet<SubscriptionType> flags) {
-		if (isInitialized)
+		if (initializationState != InitializationState.NOT_INITIALIZED)
 			throw new NotifierException(
-					"Attempting to initialize already initialized DefferedSubscriberManager");
-		isInitialized = true;
+					"DefferedSubscriberManager should not be initialized, but "
+							+ "it's state is " + initializationState);
+		initializationState = InitializationState.UNDEFINED;
 
 		this.subscribersInfo.addAll(subscribersInfo);
 		this.subscriptionFlags.addAll(flags);
@@ -31,16 +38,19 @@ public abstract class DefferedSubscriberManager<T> {
 				deinitializationSubscriber, SimulatorState.DEINITIALIZED,
 				EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED));
 
+		initializationState = InitializationState.INITIALIZED;
+
 		if (!subscriptionFlags.contains(SubscriptionType.IGNORE_ACCUMULATED)
 				&& Simulator.isInitialized())
 			initializationSubscriber.fireChange();
 	}
 
 	public final void deinitialize() {
-		if (!isInitialized)
+		if (initializationState != InitializationState.INITIALIZED)
 			throw new NotifierException(
-					"Attempting to deinitialize not initialized DefferedSubscriberManager");
-		isInitialized = false;
+					"DefferedSubscriberManager should be initialized, but "
+							+ "it's state is " + initializationState);
+		initializationState = InitializationState.UNDEFINED;
 
 		if (Simulator.isInitialized() && needFire)
 			deinitializationSubscriber.fireChange();
@@ -51,6 +61,7 @@ public abstract class DefferedSubscriberManager<T> {
 				deinitializationSubscriber, SimulatorState.DEINITIALIZED);
 
 		subscribersInfo.clear();
+		initializationState = InitializationState.NOT_INITIALIZED;
 	}
 
 	private final Subscriber initializationSubscriber = new Subscriber() {
@@ -92,5 +103,4 @@ public abstract class DefferedSubscriberManager<T> {
 	protected final Set<T> subscribersInfo = new HashSet<T>();
 	private boolean initializationFired = false;
 	private boolean needFire = true;
-	private boolean isInitialized = false;
 }
