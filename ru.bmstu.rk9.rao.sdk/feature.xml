@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature id="ru.bmstu.rk9.rao.sdk"
+	label="Rao SDK Feature "
+	version="2.3.1">
+	<plugin
+			id="ru.bmstu.rk9.rao"
+			download-size="0"
+			install-size="0"
+			version="0.0.0"
+			unpack="false"/>
+	<plugin
+			id="ru.bmstu.rk9.rao.ui"
+			download-size="0"
+			install-size="0"
+			version="0.0.0"
+			unpack="false"/>
+</feature>
