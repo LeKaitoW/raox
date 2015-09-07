@@ -1,5 +1,17 @@
 function generateSidebar(contents) {
-    var sidebarWrapper = $("div#sidebar-wrapper");
+    var body = $("body");
+
+    var wrapper = $("<div>");
+    wrapper.attr("id", "wrapper");
+
+    var sidebarWrapper = $("<div>");
+    sidebarWrapper.attr("id", "sidebar-wrapper");
+
+    var pageContentWrapper = $("<div>");
+    pageContentWrapper.attr("id", "page-content-wrapper");
+
+    var pageContent = $("<div>");
+    pageContent.attr("class", "page-content");
 
     var sidebarNav = $("<div>");
     sidebarNav.attr("class", "sidebar-nav");
@@ -23,7 +35,12 @@ function generateSidebar(contents) {
 
     header.appendTo(sidebarNav);
     ul.appendTo(sidebarNav);
-    sidebarNav.appendTo(sidebarWrapper);
+
+    body.wrapInner(pageContent);
+    body.wrapInner(pageContentWrapper);
+    sidebarWrapper.wrapInner(sidebarNav);
+    sidebarWrapper.prependTo(body);
+    body.wrapInner(wrapper);
 }
 
 function getContents() {
