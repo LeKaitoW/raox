@@ -11,7 +11,6 @@ import ru.bmstu.rk9.rao.rao.StatementList
 import ru.bmstu.rk9.rao.rao.ExpressionStatement
 import ru.bmstu.rk9.rao.rao.NestedStatement
 import ru.bmstu.rk9.rao.rao.LocalVariableDeclaration
-import ru.bmstu.rk9.rao.rao.VariableDeclarationList
 import ru.bmstu.rk9.rao.rao.IfStatement
 import ru.bmstu.rk9.rao.rao.ForStatement
 import ru.bmstu.rk9.rao.rao.BreakStatement
