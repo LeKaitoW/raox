@@ -16,7 +16,7 @@ function generateTableOfContents(contents) {
 function getContents() {
     var contents = [
         {
-            "href":"../reference/base.html",
+            "href":"../reference/base_types_and_functions.html",
             "title":"Базовые возможности языка"
         },
         {
