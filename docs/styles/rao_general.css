@@ -1,11 +1,11 @@
 #wrapper {
-  padding-left: 220px;
+  padding-left: 270px;
 }
 
 #sidebar-wrapper {
-  margin-left: -220px;
-  left: 220px;
-  width: 220px;
+  margin-left: -270px;
+  left: 270px;
+  width: 270px;
   background: #fff;
   position: fixed;
   height: 100%;
@@ -21,7 +21,7 @@
 
 .sidebar-nav {
   position: absolute;
-  width: 200px;
+  width: 250px;
   margin-left: 10px;
   margin-right: 10px;
 }

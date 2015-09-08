@@ -1,4 +1,17 @@
-function generateSidebar(contents) {
+function fillContents(ul, contents) {
+    for (var i = 0; i < contents.length; i++) {
+        var li = $("<li>");
+        var a = $("<a>");
+
+        a.attr("href", contents[i].href);
+        a.html(contents[i].title);
+
+        a.appendTo(li);
+        li.appendTo(ul);
+    }
+}
+
+function generateSidebar(referenceContents, tutorialContents) {
     var body = $("body");
 
     var wrapper = $("<div>");
@@ -20,21 +33,26 @@ function generateSidebar(contents) {
     header.attr("align", "center");
     header.html("Содержание");
 
-    var ul = $("<ul>");
+    var commonList = $("<ul>");
 
-    for (var i = 0; i < contents.length; i++) {
-        var li = $("<li>");
-        var a = $("<a>");
+    var referenceList = $("<li>");
+    referenceList.html("Справка по грамматике");
+    var referenceNestedList = $("<ul>");
 
-        a.attr("href", contents[i].href);
-        a.html(contents[i].title);
+    var tutorialList = $("<li>");
+    tutorialList.html("Руководство по изучению языка");
+    var tutorialNestedList = $("<ul>");
 
-        a.appendTo(li);
-        li.appendTo(ul);
-    }
+    fillContents(referenceNestedList, referenceContents);
+    referenceNestedList.appendTo(referenceList);
+    referenceList.appendTo(commonList);
+
+    fillContents(tutorialNestedList, tutorialContents);
+    tutorialNestedList.appendTo(tutorialList);
+    tutorialList.appendTo(commonList);
 
     header.appendTo(sidebarNav);
-    ul.appendTo(sidebarNav);
+    commonList.appendTo(sidebarNav);
 
     body.wrapInner(pageContent);
     body.wrapInner(pageContentWrapper);
@@ -43,7 +61,7 @@ function generateSidebar(contents) {
     body.wrapInner(wrapper);
 }
 
-function getContents() {
+function getReferenceContents() {
     var contents = [
         {
             "href":"../reference/base_types_and_functions.html",
@@ -94,6 +112,21 @@ function getContents() {
     return contents;
 }
 
+function getTutorialContents() {
+    var contents = [
+        {
+            "href":"../tutorial/model_1_call_count.html",
+            "title":"Модель подсчета количества звонков в службу технической поддержки"
+        },
+        {
+            "href":"../tutorial/model_2_single_operator.html",
+            "title":"Модель службы технической поддержки с одним оператором"
+        }
+    ];
+
+    return contents;
+}
+
 $(document).ready(function() {
-    generateSidebar(getContents());
+    generateSidebar(getReferenceContents(), getTutorialContents());
 });
