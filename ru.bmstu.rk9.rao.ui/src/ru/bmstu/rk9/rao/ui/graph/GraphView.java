@@ -154,40 +154,43 @@ public class GraphView extends JFrame {
 					}
 				});
 
-		this.addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.isControlDown() && e.getKeyChar() == '+') {
-					zoomIn(graph, layout);
-				}
-				if (e.isControlDown() && e.getKeyChar() == '-') {
-					zoomOut(graph, layout);
-				}
-				if (e.isControlDown() && e.getKeyChar() != 'z'
-						&& e.getKeyCode() == 90) {
-					Dimension frameDimension = getSize();
-					Object[] cells = vertexMap.values().toArray();
-					mxRectangle graphBounds = graph.getBoundsForCells(cells,
-							false, false, false);
-					while ((graphBounds.getWidth() >= frameDimension.getWidth())
-							&& (nodeWidth > minNodeWidth)) {
-						zoomToFit(graph, layout, graphComponent);
-					}
-				}
-			}
-		});
+		this.addKeyListener(keyListener);
+		graphComponent.addKeyListener(keyListener);
 
 		if (!isFinished)
 			initializeSubscribers();
 	}
+
+	private final KeyListener keyListener = new KeyListener() {
+		@Override
+		public void keyTyped(KeyEvent e) {
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e) {
+		}
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+			char keyChar = e.getKeyChar();
+			if (e.isControlDown() && (keyChar == '+' || keyChar == '=')) {
+				zoomIn(graph, layout);
+			}
+			if (e.isControlDown() && (keyChar == '-' || keyChar == '_')) {
+				zoomOut(graph, layout);
+			}
+			if (e.isControlDown() && (keyChar == '0' || keyChar == ')')) {
+				Dimension frameDimension = getSize();
+				Object[] cells = vertexMap.values().toArray();
+				mxRectangle graphBounds = graph.getBoundsForCells(cells, false,
+						false, false);
+				while ((graphBounds.getWidth() >= frameDimension.getWidth())
+						&& (nodeWidth > minNodeWidth)) {
+					zoomToFit(graph, layout, graphComponent);
+				}
+			}
+		}
+	};
 
 	@Override
 	public void dispose() {
