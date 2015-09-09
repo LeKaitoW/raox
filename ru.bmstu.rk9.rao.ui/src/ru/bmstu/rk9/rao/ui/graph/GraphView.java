@@ -83,6 +83,19 @@ public class GraphView extends JFrame {
 	// -------------------------- INITIALIZATION --------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
+	private final static int minNodeSize = 20;
+	private final static int sizeToNodeDistanceRatio = 10;
+	private final static int sizeToLevelDistanceRatio = 4;
+	private final static int minNodeDistance = minNodeSize
+			/ sizeToNodeDistanceRatio;
+	private final static int minLevelDistance = minNodeSize
+			/ sizeToLevelDistanceRatio;
+	private final static int fontSize = mxConstants.DEFAULT_FONTSIZE;
+
+	private final static String solutionColor = "fillColor=32CD32;";
+	private final static String strokeColor = "strokeColor=000000;";
+	private final static String fontColor = "fontColor=000000;";
+
 	public GraphView(int dptNum, int width, int height) {
 		this.setSize(width, height);
 		setAspectRatio();
@@ -94,7 +107,7 @@ public class GraphView extends JFrame {
 		final String fontName = fontRegistry.get(
 				PreferenceConstants.EDITOR_TEXT_FONT).getFontData()[0]
 				.getName();
-		font = new Font(fontName, Font.PLAIN, mxConstants.DEFAULT_FONTSIZE);
+		font = new Font(fontName, Font.PLAIN, fontSize);
 
 		frameDimension = this.getSize();
 		setProportions(frameDimension);
@@ -116,6 +129,7 @@ public class GraphView extends JFrame {
 
 		graphComponent = new mxGraphComponent(graph);
 		graphComponent.setConnectable(false);
+		graphComponent.setFont(font);
 		graphComponent.zoomAndCenter();
 		getContentPane().add(graphComponent);
 
@@ -185,7 +199,7 @@ public class GraphView extends JFrame {
 				mxRectangle graphBounds = graph.getBoundsForCells(cells, false,
 						false, false);
 				while ((graphBounds.getWidth() >= frameDimension.getWidth())
-						&& (nodeWidth > minNodeWidth)) {
+						&& (nodeWidth > minNodeSize)) {
 					zoomToFit(graph, layout, graphComponent);
 				}
 			}
@@ -281,7 +295,8 @@ public class GraphView extends JFrame {
 	final Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
 	private int lastAddedVertexIndex = 0;
 
-	/* TODO: two methods below looks the same, but are magically not
+	/*
+	 * TODO: two methods below looks the same, but are magically not
 	 * interchangeable. They should be merged in one.
 	 */
 	private void drawGraph(mxGraph graph, List<Node> nodeList, Node parentNode) {
@@ -321,10 +336,6 @@ public class GraphView extends JFrame {
 		}
 	}
 
-	final String solutionColor = "fillColor=32CD32;";
-	final String strokeColor = "strokeColor=000000;";
-	final String fontColor = "fontColor=000000;";
-
 	public void colorNodes(Map<Node, mxCell> vertexMap, List<Node> nodeList,
 			List<Node> solution) {
 		if (!solution.isEmpty()) {
@@ -352,7 +363,7 @@ public class GraphView extends JFrame {
 
 		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
 
-		final double delta = setWidth(frameDimension, 0.01);
+		final double delta = getRelativeWidth(frameDimension, 0.01);
 
 		double width = bounds.getWidth() + delta;
 		double height = bounds.getHeight() + delta;
@@ -385,37 +396,49 @@ public class GraphView extends JFrame {
 
 		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
 
-		final double delta = setWidth(frameDimension, 0.01);
+		final double delta = getRelativeWidth(frameDimension, 0.01);
 
 		double width = bounds.getWidth() + delta;
 		double height = bounds.getHeight() + delta;
 
 		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null,
-				text, setWidth(frameDimension, 1) - width - (delta), delta,
-				width, height);
-	}
-
-	boolean isFinished = false;
-	Dimension frameDimension;
-	int nodeWidth;
-	int nodeHeight;
-	int minNodeWidth;
-	int nodeDistance;
-	int levelDistance;
-
-	private void setProportions(Dimension d) {
-		nodeWidth = setWidth(d, 0.05);
-		nodeHeight = setHeight(d, 0.05);
-		minNodeWidth = setWidth(d, 0.01);
-		nodeDistance = (int) (d.width * 0.01);
-		levelDistance = (int) (d.height * 0.1);
+				text, getRelativeWidth(frameDimension, 1) - width - (delta),
+				delta, width, height);
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 	// ------------------------------ ZOOM --------------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	int maxNumOfNodesInWidth;
+	private boolean isFinished = false;
+	private Dimension frameDimension;
+	private int nodeWidth;
+	private int nodeHeight;
+	private int nodeDistance;
+	private int levelDistance;
+
+	private int maxNumOfNodesInWidth;
+
+	private final static double zoomScale = 1.2;
+
+	private void setProportions(Dimension d) {
+		setNodesSize(getRelativeWidth(d, 0.05), d.width * 0.01, d.height * 0.1);
+	}
+
+	private final void setNodesSize(double size, double nodeDistance,
+			double levelDistance) {
+		setNodesSize((int) size, (int) nodeDistance, (int) levelDistance);
+	}
+
+	private final void setNodesSize(int size, int nodeDistance,
+			int levelDistance) {
+		this.levelDistance = levelDistance > minLevelDistance ? levelDistance
+				: minLevelDistance;
+		this.nodeWidth = size > minNodeSize ? size : minNodeSize;
+		this.nodeHeight = this.nodeWidth;
+		this.nodeDistance = nodeDistance > minNodeDistance ? nodeDistance
+				: minNodeDistance;
+	}
 
 	private void zoomToFit(mxGraph graph, mxCompactTreeLayout layout,
 			mxGraphComponent graphComponent) {
@@ -425,18 +448,21 @@ public class GraphView extends JFrame {
 		mxRectangle graphBounds = graph.getBoundsForCells(cells, false, false,
 				false);
 
+		/*
+		 * TODO: change zoom to fit algorithm
+		 * 1. Calculate tree width (in nodes)
+		 * 2. Calculate tree depth (in nodes)
+		 * 3. Find maximum width to fit tree width and height
+		 *    int graph width and height. If not found, set minimum values.
+		 */
 		maxNumOfNodesInWidth = (int) ((graphBounds.getWidth() + 2 * nodeDistance) / (nodeWidth + 2 * nodeDistance));
-		double period = frameDimension.getWidth() / maxNumOfNodesInWidth;
+		double periodWidth = frameDimension.getWidth() / maxNumOfNodesInWidth;
 
-		if (nodeWidth < minNodeWidth) {
-			nodeWidth = minNodeWidth;
-			nodeHeight = nodeWidth;
-			nodeDistance = nodeWidth;
-		} else {
-			nodeWidth = (int) (0.8 * period);
-			nodeHeight = nodeWidth;
-			nodeDistance = (int) (0.1 * period);
-		}
+		double nodeWidthToFit = 0.8 * periodWidth;
+		double nodeDistanceToFit = nodeWidthToFit / sizeToNodeDistanceRatio;
+		double levelDistanceToFit = nodeWidthToFit / sizeToLevelDistanceRatio;
+
+		setNodesSize(nodeWidthToFit, nodeDistanceToFit, levelDistanceToFit);
 
 		resizeGraph(graph, layout);
 		setScrollsToCenter(graphComponent);
@@ -483,30 +509,22 @@ public class GraphView extends JFrame {
 			large.setSize(largeBounds.getWidth(), largeBounds.getHeight());
 	}
 
-	enum SizeType {
-		NOTEXT, BRIEF, NORMAL, FULL
+	private enum SizeType {
+		BRIEF, NORMAL, FULL
 	}
 
-	private SizeType checkSize() {
-		if (nodeWidth <= minNodeWidth)
-			return SizeType.NOTEXT;
+	private final SizeType checkSize() {
 		if (nodeWidth > medium.width && nodeWidth < large.width)
 			return SizeType.NORMAL;
 		if (nodeWidth > large.width)
 			return SizeType.FULL;
+
 		return SizeType.BRIEF;
 	}
 
 	private void setTextForVertexes() {
 		SizeType type = checkSize();
 		switch (type) {
-		case NOTEXT:
-			for (mxCell cell : vertexMap.values()) {
-				Node node = (Node) cell.getValue();
-				node.label = "";
-				cell.setValue(node);
-			}
-			break;
 		case BRIEF:
 			for (mxCell cell : vertexMap.values()) {
 				Node node = (Node) cell.getValue();
@@ -558,6 +576,7 @@ public class GraphView extends JFrame {
 		try {
 			graph.resizeCells(cells, bounds);
 			setTextForVertexes();
+			layout.setLevelDistance(levelDistance);
 			layout.setNodeDistance(nodeDistance);
 			layout.execute(graph.getDefaultParent());
 		} finally {
@@ -566,19 +585,15 @@ public class GraphView extends JFrame {
 		graph.refresh();
 	}
 
-	final double zoomScale = 1.1;
-
 	private void zoomIn(mxGraph graph, mxCompactTreeLayout layout) {
-		nodeWidth *= zoomScale;
-		nodeDistance *= zoomScale;
-		levelDistance *= zoomScale;
+		setNodesSize(nodeWidth * zoomScale, nodeDistance * zoomScale,
+				levelDistance * zoomScale);
 		resizeGraph(graph, layout);
 	}
 
 	private void zoomOut(mxGraph graph, mxCompactTreeLayout layout) {
-		nodeWidth /= zoomScale;
-		nodeDistance /= zoomScale;
-		levelDistance /= zoomScale;
+		setNodesSize(nodeWidth / zoomScale, nodeDistance / zoomScale,
+				levelDistance / zoomScale);
 		resizeGraph(graph, layout);
 	}
 
@@ -592,19 +607,19 @@ public class GraphView extends JFrame {
 		frameAspectRatio = (double) this.getWidth() / this.getHeight();
 	}
 
-	public int getAbsoluteX(double relativeX) {
-		return (int) (this.getSize().width * relativeX);
+	public int getAbsoluteX(double ratio) {
+		return (int) (this.getSize().width * ratio);
 	}
 
-	public int getAbsoluteY(double relativeY) {
-		return (int) (this.getSize().height * relativeY);
+	public int getAbsoluteY(double ratio) {
+		return (int) (this.getSize().height * ratio);
 	}
 
-	public int setWidth(Dimension d, double relativeWidth) {
-		return (int) (d.width * relativeWidth / frameAspectRatio);
+	public int getRelativeWidth(Dimension d, double ratio) {
+		return (int) (d.width * ratio / frameAspectRatio);
 	}
 
-	public int setHeight(Dimension d, double relativeHeight) {
-		return (int) (d.height * relativeHeight);
+	public int getRelativeHeight(Dimension d, double ratio) {
+		return (int) (d.height * ratio);
 	}
 }
