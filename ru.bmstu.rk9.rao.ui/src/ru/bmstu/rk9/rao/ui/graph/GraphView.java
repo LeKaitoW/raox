@@ -362,6 +362,9 @@ public class GraphView extends JFrame {
 	}
 
 	public mxCell showCellInfo(mxGraph graph, mxCell cell) {
+		if (!(cell.getValue() instanceof Node))
+			return null;
+
 		Node cellNode = (Node) cell.getValue();
 		final String nodeIndex = "Номер вершины: "
 				+ Integer.toString(cellNode.index) + "\n";
