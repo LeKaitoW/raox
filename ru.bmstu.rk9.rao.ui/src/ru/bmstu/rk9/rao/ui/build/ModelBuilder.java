@@ -150,14 +150,14 @@ public class ModelBuilder {
 				IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
 				if (activeEditor == null)
 					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
-							"No editor opened.");
+							"Build failed: no editor opened.");
 
 				final IProject project = getProject(activeEditor);
 				if (project == null)
 					return new Status(
 							Status.ERROR,
 							"ru.bmstu.rk9.rao.ui",
-							"File '"
+							"Build failed: file '"
 									+ activeEditor.getTitle()
 									+ "' is not a part of any project in workspace.");
 
@@ -208,16 +208,26 @@ public class ModelBuilder {
 				}
 
 				IFolder srcGenFolder = project.getFolder("src-gen");
-				if (!srcGenFolder.exists()) {
+				if (srcGenFolder.exists()) {
 					try {
-						srcGenFolder.create(true, true,
-								new NullProgressMonitor());
+						for (IResource resource : srcGenFolder.members(true)) {
+							resource.delete(true, new NullProgressMonitor());
+						}
 					} catch (CoreException e) {
+						e.printStackTrace();
 						return new Status(
 								Status.ERROR,
 								"ru.bmstu.rk9.rao.ui",
-								"Build failed: could not create src-gen folder",
+								"Build failed: could not delete src-gen folder",
 								e);
+					}
+				} else {
+					try {
+						srcGenFolder.create(true, true, new NullProgressMonitor());
+					} catch (CoreException e) {
+						e.printStackTrace();
+						return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+								"Build failed: could not create src-gen folder", e);
 					}
 				}
 
@@ -255,7 +265,7 @@ public class ModelBuilder {
 						e.printStackTrace();
 					}
 					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
-							"Model has errors");
+							"Build failed: model has errors");
 				}
 
 				generator.doGenerate(resourceSet, fsa);
@@ -266,7 +276,7 @@ public class ModelBuilder {
 				} catch (CoreException e) {
 					e.printStackTrace();
 					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
-							"Error while building project", e);
+							"Build failed: could not build project", e);
 				}
 
 				try {
@@ -277,7 +287,8 @@ public class ModelBuilder {
 					if (markers.length > 0) {
 						String errorsDetails = "Project contains errors:";
 						for (IMarker marker : markers) {
-							errorsDetails += "\n\nfile " + marker.getResource().getName()
+							errorsDetails += "\n\nfile "
+									+ marker.getResource().getName()
 									+ " at line "
 									+ MarkerUtilities.getLineNumber(marker)
 									+ ": " + MarkerUtilities.getMessage(marker);
@@ -286,8 +297,11 @@ public class ModelBuilder {
 								errorsDetails);
 					}
 				} catch (CoreException e) {
-					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
-							"Internal error whule calculating error markers", e);
+					return new Status(
+							Status.ERROR,
+							"ru.bmstu.rk9.rao.ui",
+							"Build failed: internal error whule calculating error markers",
+							e);
 				}
 
 				return Status.OK_STATUS;
