@@ -12,6 +12,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -32,6 +33,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.swt.widgets.Display;
@@ -42,6 +44,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.Saveable;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.generator.OutputConfiguration;
@@ -197,9 +200,9 @@ public class ModelBuilder {
 					e.printStackTrace();
 				}
 
-				final List<IResource> projectFiles = ModelBuilder
+				final List<IResource> raoFiles = ModelBuilder
 						.getAllRaoFilesInProject(project);
-				if (projectFiles.isEmpty()) {
+				if (raoFiles.isEmpty()) {
 					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
 							"Build failed: project contains no rao files");
 				}
@@ -236,7 +239,7 @@ public class ModelBuilder {
 
 				boolean projectHasErrors = false;
 
-				for (IResource resource : projectFiles) {
+				for (IResource resource : raoFiles) {
 					Resource loadedResource = resourceSet.getResource(
 							getURI(resource), true);
 					if (!loadedResource.getErrors().isEmpty()) {
@@ -264,6 +267,27 @@ public class ModelBuilder {
 					e.printStackTrace();
 					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
 							"Error while building project", e);
+				}
+
+				try {
+					IMarker[] markers = project.findMarkers(
+							IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true,
+							IResource.DEPTH_INFINITE);
+
+					if (markers.length > 0) {
+						String errorsDetails = "Project contains errors:";
+						for (IMarker marker : markers) {
+							errorsDetails += "\n\nfile " + marker.getResource().getName()
+									+ " at line "
+									+ MarkerUtilities.getLineNumber(marker)
+									+ ": " + MarkerUtilities.getMessage(marker);
+						}
+						return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+								errorsDetails);
+					}
+				} catch (CoreException e) {
+					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+							"Internal error whule calculating error markers", e);
 				}
 
 				return Status.OK_STATUS;
