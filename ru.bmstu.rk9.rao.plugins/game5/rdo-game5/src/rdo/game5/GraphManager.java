@@ -22,8 +22,8 @@ public class GraphManager {
 		this.order = order;
 	}
 
-	private mxGraph graph;
-	private JSONArray order;
+	private final mxGraph graph;
+	private final JSONArray order;
 
 	private final mxIEventListener selectionListener = new mxIEventListener() {
 
@@ -31,6 +31,9 @@ public class GraphManager {
 		public void invoke(Object sender, mxEventObject evt) {
 			final mxGraphSelectionModel mxGraphSelectionModel = (mxGraphSelectionModel) sender;
 			final mxCell mxCell = (mxCell) mxGraphSelectionModel.getCell();
+			if (!(mxCell.getValue() instanceof Node)) {
+				return;
+			}
 			final Node node = (Node) mxCell.getValue();
 			drawBoard(node);
 		}
@@ -42,11 +45,18 @@ public class GraphManager {
 		final JSONArray nodeOrder = useRules(rules);
 		nodeOrder.set(nodeOrder.indexOf("6"), null);
 		for (int i = 0; i < nodeOrder.size(); i++) {
-			if (i < 3)
-				graph.insertVertex(graph.getDefaultParent(), null, nodeOrder.get(i), 10 + i * 20, 70, 20, 20);
-			else
-				graph.insertVertex(graph.getDefaultParent(), null, nodeOrder.get(i), 10 + (i - 3) * 20, 90, 20, 20);
+			int xPosition;
+			int yPosition;
+			if (i < 3) {
+				xPosition = 10 + i * 20;
+				yPosition = 70;
+			} else {
+				xPosition = 10 + (i - 3) * 20;
+				yPosition = 90;
+			}
+			graph.insertVertex(graph.getDefaultParent(), null, nodeOrder.get(i), xPosition, yPosition, 20, 20);
 		}
+
 	}
 
 	private final List<String> createRulesList(final Node node) {

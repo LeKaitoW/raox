@@ -77,7 +77,6 @@ import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
-import ru.bmstu.rk9.rao.ui.graph.GraphView;
 
 @SuppressWarnings("restriction")
 public class Game5View extends EditorPart {
@@ -90,7 +89,6 @@ public class Game5View extends EditorPart {
 	private final SimulatorSubscriberManager simulatorSubscriberManager = new SimulatorSubscriberManager();
 	private final int tilesCountX = 3;
 	private final int tilesCountY = 2;
-	private GraphManager graphManager;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -677,7 +675,7 @@ public class Game5View extends EditorPart {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			graphManager = new GraphManager(GraphControl.openedGraphMap.get(0).getGraph(),
+			new GraphManager(GraphControl.openedGraphMap.get(0).getGraph(),
 					OrderConfigurator.inverseOrderPlaces((JSONArray) object.get("places")));
 			simulatorSubscriberManager.deinitialize();
 		}
