@@ -1,6 +1,6 @@
 # RAO-XT
 ## Summary
-<img src=https://raw.githubusercontent.com/k-alexandrovsky/k-alexandrovsky.github.io/master/rdo-xtext.png><img>
+<img src=docs/rdo-xtext.png><img>
 This project is an implementation of RDO modelling language in Eclipse, using xtext.
 * [About RAO modelling language (rus)](http://rdo.rk9.bmstu.ru/help/help/rdo_lang_rus/html/rdo_intro.htm)
 
