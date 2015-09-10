@@ -265,7 +265,6 @@ public class GraphView extends JFrame {
 				if (graphBounds.getWidth() > frameDimension.getWidth()) {
 					layout.setMoveTree(true);
 					zoomToFit();
-					graph.refresh();
 				} else {
 					layout.execute(graph.getDefaultParent());
 				}
@@ -461,7 +460,6 @@ public class GraphView extends JFrame {
 
 		resizeGraph();
 		setScrollsToCenter();
-		graph.refresh();
 	}
 
 	private void setScrollsToCenter() {
@@ -577,7 +575,6 @@ public class GraphView extends JFrame {
 		} finally {
 			graph.getModel().endUpdate();
 		}
-		graph.refresh();
 	}
 
 	private void zoomIn() {
