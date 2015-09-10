@@ -103,8 +103,6 @@ public class GraphView extends JFrame {
 		this.setSize(width, height);
 		setAspectRatio();
 
-		this.dptNum = dptNum;
-
 		final FontRegistry fontRegistry = PlatformUI.getWorkbench()
 				.getThemeManager().getCurrentTheme().getFontRegistry();
 		final String fontName = fontRegistry.get(
@@ -123,7 +121,7 @@ public class GraphView extends JFrame {
 		graph.getModel().beginUpdate();
 		try {
 			if (!nodeList.isEmpty())
-				drawGraph(graph, nodeList, nodeList.get(0));
+				drawGraph(nodeList.get(0));
 			if (isFinished)
 				onFinish();
 		} finally {
@@ -177,7 +175,7 @@ public class GraphView extends JFrame {
 		if (!isFinished)
 			initializeSubscribers();
 		else if (!nodeList.isEmpty())
-			zoomToFit(graph, layout, graphComponent);
+			zoomToFit();
 	}
 
 	private final KeyListener keyListener = new KeyListener() {
@@ -193,10 +191,10 @@ public class GraphView extends JFrame {
 		public void keyPressed(KeyEvent e) {
 			char keyChar = e.getKeyChar();
 			if (e.isControlDown() && (keyChar == '+' || keyChar == '=')) {
-				zoomIn(graph, layout);
+				zoomIn();
 			}
 			if (e.isControlDown() && (keyChar == '-' || keyChar == '_')) {
-				zoomOut(graph, layout);
+				zoomOut();
 			}
 			if (e.isControlDown() && (keyChar == '0' || keyChar == ')')) {
 				Dimension frameDimension = getSize();
@@ -205,7 +203,7 @@ public class GraphView extends JFrame {
 						false, false);
 				while ((graphBounds.getWidth() >= frameDimension.getWidth())
 						&& (nodeWidth > minNodeSize)) {
-					zoomToFit(graph, layout, graphComponent);
+					zoomToFit();
 				}
 			}
 		}
@@ -240,7 +238,6 @@ public class GraphView extends JFrame {
 
 	private final mxGraph graph;
 	private List<Node> nodeList;
-	final int dptNum;
 	private final mxCompactTreeLayout layout;
 	private final mxGraphComponent graphComponent;
 
@@ -261,14 +258,13 @@ public class GraphView extends JFrame {
 			isFinished = treeBuilder.updateTree();
 			try {
 				drawNewVertex(graph, nodeList);
-
 				Dimension frameDimension = getSize();
 				Object[] cells = vertexMap.values().toArray();
 				mxRectangle graphBounds = graph.getBoundsForCells(cells, false,
 						false, false);
 				if (graphBounds.getWidth() > frameDimension.getWidth()) {
 					layout.setMoveTree(true);
-					zoomToFit(graph, layout, graphComponent);
+					zoomToFit();
 					graph.refresh();
 				} else {
 					layout.execute(graph.getDefaultParent());
@@ -287,8 +283,8 @@ public class GraphView extends JFrame {
 	private final void onFinish() {
 		GraphInfo info = treeBuilder.graphInfo;
 		List<Node> solution = treeBuilder.solutionList;
-		colorNodes(vertexMap, nodeList, solution);
-		insertInfo(graph, info);
+		colorNodes(solution);
+		insertInfo(info);
 
 		graph.refresh();
 	}
@@ -304,7 +300,7 @@ public class GraphView extends JFrame {
 	 * TODO: two methods below looks the same, but are magically not
 	 * interchangeable. They should be merged in one.
 	 */
-	private void drawGraph(mxGraph graph, List<Node> nodeList, Node parentNode) {
+	private void drawGraph(Node parentNode) {
 		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(),
 				null, parentNode, getAbsoluteX(0.5), getAbsoluteY(0.05),
 				nodeWidth, nodeHeight, fontColor + strokeColor);
@@ -317,8 +313,7 @@ public class GraphView extends JFrame {
 					vertexMap.get(parentNode), strokeColor);
 		if (parentNode.children.size() != 0)
 			for (int i = 0; i < parentNode.children.size(); i++)
-				drawGraph(graph, nodeList,
-						nodeList.get(parentNode.children.get(i).index));
+				drawGraph(nodeList.get(parentNode.children.get(i).index));
 	}
 
 	private void drawNewVertex(mxGraph graph, List<Node> nodeList) {
@@ -341,8 +336,7 @@ public class GraphView extends JFrame {
 		}
 	}
 
-	public void colorNodes(Map<Node, mxCell> vertexMap, List<Node> nodeList,
-			List<Node> solution) {
+	public void colorNodes(List<Node> solution) {
 		if (!solution.isEmpty()) {
 			Node rootNode = nodeList.get(0);
 			vertexMap.get(rootNode).setStyle(
@@ -354,7 +348,7 @@ public class GraphView extends JFrame {
 		}
 	}
 
-	public mxCell insertInfo(mxGraph graph, GraphInfo info) {
+	public mxCell insertInfo(GraphInfo info) {
 		final String solutionCost = "Стоимость решения: "
 				+ Double.toString(info.solutionCost) + "\n";
 		final String numOpened = "Количество раскрытых вершин: "
@@ -442,8 +436,7 @@ public class GraphView extends JFrame {
 				: minNodeDistance;
 	}
 
-	private void zoomToFit(mxGraph graph, mxCompactTreeLayout layout,
-			mxGraphComponent graphComponent) {
+	private void zoomToFit() {
 		Dimension frameDimension = this.getSize();
 
 		Object[] cells = vertexMap.values().toArray();
@@ -466,12 +459,12 @@ public class GraphView extends JFrame {
 
 		setNodesSize(nodeWidthToFit, nodeDistanceToFit, levelDistanceToFit);
 
-		resizeGraph(graph, layout);
-		setScrollsToCenter(graphComponent);
+		resizeGraph();
+		setScrollsToCenter();
 		graph.refresh();
 	}
 
-	private void setScrollsToCenter(mxGraphComponent graphComponent) {
+	private void setScrollsToCenter() {
 		Rectangle paneBounds = graphComponent.getViewport().getViewRect();
 		Dimension paneSize = graphComponent.getViewport().getViewSize();
 
@@ -566,7 +559,7 @@ public class GraphView extends JFrame {
 		}
 	}
 
-	private void resizeGraph(mxGraph graph, mxCompactTreeLayout layout) {
+	private void resizeGraph() {
 		final mxRectangle bound = new mxRectangle(0, 0, nodeWidth, nodeWidth);
 		final mxRectangle[] bounds = new mxRectangle[vertexMap.size()];
 		for (int i = 0; i < vertexMap.size(); i++) {
@@ -587,16 +580,16 @@ public class GraphView extends JFrame {
 		graph.refresh();
 	}
 
-	private void zoomIn(mxGraph graph, mxCompactTreeLayout layout) {
+	private void zoomIn() {
 		setNodesSize(nodeWidth * zoomScale, nodeDistance * zoomScale,
 				levelDistance * zoomScale);
-		resizeGraph(graph, layout);
+		resizeGraph();
 	}
 
-	private void zoomOut(mxGraph graph, mxCompactTreeLayout layout) {
+	private void zoomOut() {
 		setNodesSize(nodeWidth / zoomScale, nodeDistance / zoomScale,
 				levelDistance / zoomScale);
-		resizeGraph(graph, layout);
+		resizeGraph();
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
