@@ -92,6 +92,9 @@ public class GraphView extends JFrame {
 			/ sizeToLevelDistanceRatio;
 	private final static int fontSize = mxConstants.DEFAULT_FONTSIZE;
 
+	private final Font font;
+	private final double scale = 1.0;
+
 	private final static String solutionColor = "fillColor=32CD32;";
 	private final static String strokeColor = "strokeColor=000000;";
 	private final static String fontColor = "fontColor=000000;";
@@ -173,6 +176,8 @@ public class GraphView extends JFrame {
 
 		if (!isFinished)
 			initializeSubscribers();
+		else if (!nodeList.isEmpty())
+			zoomToFit(graph, layout, graphComponent);
 	}
 
 	private final KeyListener keyListener = new KeyListener() {
@@ -233,11 +238,11 @@ public class GraphView extends JFrame {
 	private final SimulatorSubscriberManager simulationSubscriberManager = new SimulatorSubscriberManager();
 	private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
 
-	final mxGraph graph;
-	List<Node> nodeList;
+	private final mxGraph graph;
+	private List<Node> nodeList;
 	final int dptNum;
-	final mxCompactTreeLayout layout;
-	final mxGraphComponent graphComponent;
+	private final mxCompactTreeLayout layout;
+	private final mxGraphComponent graphComponent;
 
 	private final Subscriber commonSubscriber = new Subscriber() {
 		@Override
@@ -348,9 +353,6 @@ public class GraphView extends JFrame {
 			}
 		}
 	}
-
-	final Font font;
-	double scale = 1.0;
 
 	public mxCell insertInfo(mxGraph graph, GraphInfo info) {
 		final String solutionCost = "Стоимость решения: "
