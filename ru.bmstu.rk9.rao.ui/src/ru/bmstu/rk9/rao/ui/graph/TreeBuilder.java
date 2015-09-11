@@ -44,6 +44,7 @@ public class TreeBuilder {
 		public String ruleDesсription;
 		public double ruleCost;
 		public String label;
+		public int depthLevel;
 
 		@Override
 		public String toString() {
@@ -77,6 +78,8 @@ public class TreeBuilder {
 			treeNode.parent = null;
 			treeNode.index = 0;
 			treeNode.label = Integer.toString(treeNode.index);
+			treeNode.depthLevel = 1;
+			graphInfo.depth = 1;
 			nodeList.add(treeNode);
 			lastAddedNodeIndex = treeNode.index;
 			break;
@@ -84,7 +87,6 @@ public class TreeBuilder {
 		case END: {
 			final ByteBuffer data = Tracer.prepareBufferForReading(entry
 					.getData());
-			graphInfo = new GraphInfo();
 			Tracer.skipPart(data, TypeSize.BYTE + TypeSize.LONG * 2);
 
 			final double finalCost = data.getDouble();
@@ -104,7 +106,6 @@ public class TreeBuilder {
 					.getData());
 			final DecisionPointSearch.SpawnStatus spawnStatus = DecisionPointSearch.SpawnStatus
 					.values()[data.get()];
-			// TODO delete spawn
 			switch (spawnStatus) {
 			case NEW:
 			case BETTER:
@@ -152,6 +153,9 @@ public class TreeBuilder {
 				treeNode.ruleCost = ruleCost;
 				treeNode.index = nodeNumber;
 				treeNode.label = Integer.toString(treeNode.index);
+				treeNode.depthLevel = treeNode.parent.depthLevel + 1;
+				if (treeNode.depthLevel > graphInfo.depth)
+					graphInfo.depth = treeNode.depthLevel;
 				nodeList.add(treeNode);
 				lastAddedNodeIndex = treeNode.index;
 				break;
@@ -185,6 +189,7 @@ public class TreeBuilder {
 		public double solutionCost;
 		public int numOpened;
 		public int numNodes;
+		public int depth;
 	}
 
 	public int getEntryNumber() {

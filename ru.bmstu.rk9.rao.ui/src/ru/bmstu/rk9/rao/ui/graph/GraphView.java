@@ -1,9 +1,12 @@
 package ru.bmstu.rk9.rao.ui.graph;
 
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Arrays;
@@ -22,8 +25,8 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.IndexType;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
-import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
 import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.GraphInfo;
@@ -90,6 +93,8 @@ public class GraphView extends JFrame {
 			/ sizeToNodeDistanceRatio;
 	private final static int minLevelDistance = minNodeSize
 			/ sizeToLevelDistanceRatio;
+	private final static int minLevelOffset = 20;
+
 	private final static int fontSize = mxConstants.DEFAULT_FONTSIZE;
 
 	private final Font font;
@@ -101,7 +106,6 @@ public class GraphView extends JFrame {
 
 	public GraphView(int dptNum, int width, int height) {
 		this.setSize(width, height);
-		setAspectRatio();
 
 		final FontRegistry fontRegistry = PlatformUI.getWorkbench()
 				.getThemeManager().getCurrentTheme().getFontRegistry();
@@ -110,8 +114,7 @@ public class GraphView extends JFrame {
 				.getName();
 		font = new Font(fontName, Font.PLAIN, fontSize);
 
-		frameDimension = this.getSize();
-		setProportions(frameDimension);
+		setProportions();
 
 		treeBuilder = new TreeBuilder(dptNum);
 		isFinished = treeBuilder.updateTree();
@@ -132,7 +135,9 @@ public class GraphView extends JFrame {
 		graphComponent.setConnectable(false);
 		graphComponent.setFont(font);
 		graphComponent.zoomAndCenter();
-		getContentPane().add(graphComponent);
+
+		Container pane = getContentPane();
+		pane.add(graphComponent);
 
 		layout = new mxCompactTreeLayout(graph, false);
 		layout.setLevelDistance(levelDistance);
@@ -169,14 +174,33 @@ public class GraphView extends JFrame {
 					}
 				});
 
+		this.addComponentListener(componentListener);
 		this.addKeyListener(keyListener);
 		graphComponent.addKeyListener(keyListener);
 
 		if (!isFinished)
 			initializeSubscribers();
-		else if (!nodeList.isEmpty())
-			zoomToFit();
 	}
+
+	private final ComponentListener componentListener = new ComponentListener() {
+		@Override
+		public void componentShown(ComponentEvent e) {
+			if (!nodeList.isEmpty())
+				zoomToFit();
+		}
+
+		@Override
+		public void componentResized(ComponentEvent e) {
+		}
+
+		@Override
+		public void componentMoved(ComponentEvent e) {
+		}
+
+		@Override
+		public void componentHidden(ComponentEvent e) {
+		}
+	};
 
 	private final KeyListener keyListener = new KeyListener() {
 		@Override
@@ -197,14 +221,7 @@ public class GraphView extends JFrame {
 				zoomOut();
 			}
 			if (e.isControlDown() && (keyChar == '0' || keyChar == ')')) {
-				Dimension frameDimension = getSize();
-				Object[] cells = vertexMap.values().toArray();
-				mxRectangle graphBounds = graph.getBoundsForCells(cells, false,
-						false, false);
-				while ((graphBounds.getWidth() >= frameDimension.getWidth())
-						&& (nodeWidth > minNodeSize)) {
-					zoomToFit();
-				}
+				zoomToFit();
 			}
 		}
 	};
@@ -358,7 +375,7 @@ public class GraphView extends JFrame {
 
 		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
 
-		final double delta = getRelativeWidth(frameDimension, 0.01);
+		final double delta = getRelativeWidth(0.01);
 
 		double width = bounds.getWidth() + delta;
 		double height = bounds.getHeight() + delta;
@@ -391,14 +408,14 @@ public class GraphView extends JFrame {
 
 		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
 
-		final double delta = getRelativeWidth(frameDimension, 0.01);
+		final double delta = getRelativeWidth(0.01);
 
 		double width = bounds.getWidth() + delta;
 		double height = bounds.getHeight() + delta;
 
 		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null,
-				text, getRelativeWidth(frameDimension, 1) - width - (delta),
-				delta, width, height);
+				text, getRelativeWidth(1) - width - (delta), delta, width,
+				height);
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -406,18 +423,16 @@ public class GraphView extends JFrame {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private boolean isFinished = false;
-	private Dimension frameDimension;
 	private int nodeWidth;
 	private int nodeHeight;
 	private int nodeDistance;
 	private int levelDistance;
 
-	private int maxNumOfNodesInWidth;
-
 	private final static double zoomScale = 1.2;
 
-	private void setProportions(Dimension d) {
-		setNodesSize(getRelativeWidth(d, 0.05), d.width * 0.01, d.height * 0.1);
+	private void setProportions() {
+		setNodesSize(getRelativeWidth(0.05), getWidth() * 0.01,
+				getHeight() * 0.1);
 	}
 
 	private final void setNodesSize(double size, double nodeDistance,
@@ -436,27 +451,26 @@ public class GraphView extends JFrame {
 	}
 
 	private void zoomToFit() {
-		Dimension frameDimension = this.getSize();
+		// TODO implement fitInWidth() algorithm and choose
+		// appropriate strategy depending on graph width a
+		fitInDepth();
+	}
 
-		Object[] cells = vertexMap.values().toArray();
-		mxRectangle graphBounds = graph.getBoundsForCells(cells, false, false,
-				false);
+	private void fitInDepth() {
+		int height = getContentPane().getHeight();
+		int depth = treeBuilder.graphInfo.depth;
 
-		/*
-		 * TODO: change zoom to fit algorithm
-		 * 1. Calculate tree width (in nodes)
-		 * 2. Calculate tree depth (in nodes)
-		 * 3. Find maximum width to fit tree width and height
-		 *    int graph width and height. If not found, set minimum values.
-		 */
-		maxNumOfNodesInWidth = (int) ((graphBounds.getWidth() + 2 * nodeDistance) / (nodeWidth + 2 * nodeDistance));
-		double periodWidth = frameDimension.getWidth() / maxNumOfNodesInWidth;
+		double levelDistanceCoef = (sizeToLevelDistanceRatio + 1.0)
+				/ sizeToLevelDistanceRatio;
+		double prefferredHeight = (height - minLevelOffset)
+				/ (depth * levelDistanceCoef);
+		double prefferredNodeDistance = prefferredHeight
+				/ sizeToNodeDistanceRatio;
+		double prefferredLevelDistance = prefferredHeight
+				/ sizeToLevelDistanceRatio;
 
-		double nodeWidthToFit = 0.8 * periodWidth;
-		double nodeDistanceToFit = nodeWidthToFit / sizeToNodeDistanceRatio;
-		double levelDistanceToFit = nodeWidthToFit / sizeToLevelDistanceRatio;
-
-		setNodesSize(nodeWidthToFit, nodeDistanceToFit, levelDistanceToFit);
+		setNodesSize(prefferredHeight, prefferredNodeDistance,
+				prefferredLevelDistance);
 
 		resizeGraph();
 		setScrollsToCenter();
@@ -593,25 +607,23 @@ public class GraphView extends JFrame {
 	// ----------------------- RELATIVE COORINATES ------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	private double frameAspectRatio;
-
-	private void setAspectRatio() {
-		frameAspectRatio = (double) this.getWidth() / this.getHeight();
+	private double getAspectRatio() {
+		return ((double) this.getWidth()) / this.getHeight();
 	}
 
 	public int getAbsoluteX(double ratio) {
-		return (int) (this.getSize().width * ratio);
+		return (int) (getWidth() * ratio);
 	}
 
 	public int getAbsoluteY(double ratio) {
-		return (int) (this.getSize().height * ratio);
+		return (int) (getHeight() * ratio);
 	}
 
-	public int getRelativeWidth(Dimension d, double ratio) {
-		return (int) (d.width * ratio / frameAspectRatio);
+	public int getRelativeWidth(double ratio) {
+		return (int) (getWidth() * ratio / getAspectRatio());
 	}
 
-	public int getRelativeHeight(Dimension d, double ratio) {
-		return (int) (d.height * ratio);
+	public int getRelativeHeight(double ratio) {
+		return (int) (getHeight() * ratio);
 	}
 }
