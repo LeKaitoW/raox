@@ -15,9 +15,11 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -28,6 +30,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.xtext.ui.XtextProjectHelper;
+import org.osgi.service.prefs.BackingStoreException;
 
 public class Game5ProjectConfigurator {
 
@@ -54,8 +57,15 @@ public class Game5ProjectConfigurator {
 
 		IProjectDescription description;
 		IJavaProject game5JavaProject;
+		ProjectScope projectScope;
+		IEclipsePreferences projectNode;
 
 		try {
+			projectScope = new ProjectScope(game5Project);
+			projectNode = projectScope.getNode("org.eclipse.core.resources");
+			projectNode.node("encoding").put("<project>", "UTF-8");
+			projectNode.flush();
+			
 			description = game5Project.getDescription();
 			description.setNatureIds(new String[] { JavaCore.NATURE_ID,
 					XtextProjectHelper.NATURE_ID });
@@ -86,7 +96,7 @@ public class Game5ProjectConfigurator {
 			entries.add(srcEntry);
 			game5JavaProject.setRawClasspath(
 					entries.toArray(new IClasspathEntry[entries.size()]), null);
-		} catch (CoreException e2) {
+		} catch (CoreException | BackingStoreException e2) {
 			e2.printStackTrace();
 		}
 		final IFile configIFile = createConfigFile();
