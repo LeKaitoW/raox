@@ -100,9 +100,17 @@ public class GraphView extends JFrame {
 	private final Font font;
 	private final double scale = 1.0;
 
-	private final static String solutionColor = "fillColor=32CD32;";
-	private final static String strokeColor = "strokeColor=000000;";
-	private final static String fontColor = "fontColor=000000;";
+	private final static String solutionFillColor = mxConstants.STYLE_FILLCOLOR
+			+ "=32CD32;";
+	private final static String strokeColor = mxConstants.STYLE_STROKECOLOR
+			+ "=000000;";
+	private final static String fontColor = mxConstants.STYLE_FONTCOLOR
+			+ "=000000;";
+
+	private final static String regularCellStyle = strokeColor + fontColor;
+	private final static String solutionCellStyle = solutionFillColor
+			+ strokeColor + fontColor;
+	private final static String edgeStyle = strokeColor;
 
 	public GraphView(int dptNum, int width, int height) {
 		this.setSize(width, height);
@@ -319,14 +327,14 @@ public class GraphView extends JFrame {
 	private void drawGraph(Node parentNode) {
 		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(),
 				null, parentNode, getAbsoluteX(0.5), getAbsoluteY(0.05),
-				nodeSize, nodeSize, fontColor + strokeColor);
+				nodeSize, nodeSize, regularCellStyle);
 		vertexMap.put(parentNode, vertex);
 		lastAddedVertexIndex = parentNode.index;
 		updateTypicalDimensions(parentNode);
 		if (parentNode.parent != null)
 			graph.insertEdge(graph.getDefaultParent(), null, null,
 					vertexMap.get(parentNode.parent),
-					vertexMap.get(parentNode), strokeColor);
+					vertexMap.get(parentNode), regularCellStyle);
 		if (parentNode.children.size() != 0)
 			for (int i = 0; i < parentNode.children.size(); i++)
 				drawGraph(nodeList.get(parentNode.children.get(i).index));
@@ -340,14 +348,14 @@ public class GraphView extends JFrame {
 				mxCell vertex = (mxCell) graph.insertVertex(
 						graph.getDefaultParent(), null, node,
 						getAbsoluteX(0.5), getAbsoluteY(0.05), nodeSize,
-						nodeSize, fontColor + strokeColor);
+						nodeSize, regularCellStyle);
 				vertexMap.put(node, vertex);
 				lastAddedVertexIndex = node.index;
 				updateTypicalDimensions(node);
 				if (node.parent != null)
 					graph.insertEdge(graph.getDefaultParent(), null, null,
 							vertexMap.get(node.parent), vertexMap.get(node),
-							strokeColor);
+							edgeStyle);
 			}
 		}
 	}
@@ -355,11 +363,9 @@ public class GraphView extends JFrame {
 	public void colorNodes(List<Node> solution) {
 		if (!solution.isEmpty()) {
 			Node rootNode = nodeList.get(0);
-			vertexMap.get(rootNode).setStyle(
-					solutionColor + fontColor + strokeColor);
+			vertexMap.get(rootNode).setStyle(solutionCellStyle);
 			for (int i = 0; i < solution.size(); i++) {
-				vertexMap.get(solution.get(i)).setStyle(
-						solutionColor + fontColor + strokeColor);
+				vertexMap.get(solution.get(i)).setStyle(solutionCellStyle);
 			}
 		}
 	}
@@ -381,7 +387,7 @@ public class GraphView extends JFrame {
 		double height = bounds.getHeight() + delta;
 
 		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null,
-				text, delta, delta, width, height);
+				text, delta, delta, width, height, regularCellStyle);
 	}
 
 	public mxCell showCellInfo(mxGraph graph, mxCell cell) {
@@ -415,7 +421,7 @@ public class GraphView extends JFrame {
 
 		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null,
 				text, getRelativeWidth(1) - width - (delta), delta, width,
-				height);
+				height, regularCellStyle);
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
