@@ -319,7 +319,7 @@ public class GraphView extends JFrame {
 	private void drawGraph(Node parentNode) {
 		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(),
 				null, parentNode, getAbsoluteX(0.5), getAbsoluteY(0.05),
-				nodeWidth, nodeHeight, fontColor + strokeColor);
+				nodeSize, nodeSize, fontColor + strokeColor);
 		vertexMap.put(parentNode, vertex);
 		lastAddedVertexIndex = parentNode.index;
 		updateTypicalDimensions(parentNode);
@@ -339,8 +339,8 @@ public class GraphView extends JFrame {
 			if (!vertexMap.containsKey(node)) {
 				mxCell vertex = (mxCell) graph.insertVertex(
 						graph.getDefaultParent(), null, node,
-						getAbsoluteX(0.5), getAbsoluteY(0.05), nodeWidth,
-						nodeHeight, fontColor + strokeColor);
+						getAbsoluteX(0.5), getAbsoluteY(0.05), nodeSize,
+						nodeSize, fontColor + strokeColor);
 				vertexMap.put(node, vertex);
 				lastAddedVertexIndex = node.index;
 				updateTypicalDimensions(node);
@@ -423,8 +423,7 @@ public class GraphView extends JFrame {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private boolean isFinished = false;
-	private int nodeWidth;
-	private int nodeHeight;
+	private int nodeSize;
 	private int nodeDistance;
 	private int levelDistance;
 
@@ -444,8 +443,7 @@ public class GraphView extends JFrame {
 			int levelDistance) {
 		this.levelDistance = levelDistance > minLevelDistance ? levelDistance
 				: minLevelDistance;
-		this.nodeWidth = size > minNodeSize ? size : minNodeSize;
-		this.nodeHeight = this.nodeWidth;
+		this.nodeSize = size > minNodeSize ? size : minNodeSize;
 		this.nodeDistance = nodeDistance > minNodeDistance ? nodeDistance
 				: minNodeDistance;
 	}
@@ -521,9 +519,9 @@ public class GraphView extends JFrame {
 	}
 
 	private final SizeType checkSize() {
-		if (nodeWidth > medium.width && nodeWidth < large.width)
+		if (nodeSize > medium.width && nodeSize < large.width)
 			return SizeType.NORMAL;
-		if (nodeWidth > large.width)
+		if (nodeSize > large.width)
 			return SizeType.FULL;
 
 		return SizeType.BRIEF;
@@ -572,7 +570,7 @@ public class GraphView extends JFrame {
 	}
 
 	private void resizeGraph() {
-		final mxRectangle bound = new mxRectangle(0, 0, nodeWidth, nodeWidth);
+		final mxRectangle bound = new mxRectangle(0, 0, nodeSize, nodeSize);
 		final mxRectangle[] bounds = new mxRectangle[vertexMap.size()];
 		for (int i = 0; i < vertexMap.size(); i++) {
 			bounds[i] = bound;
@@ -592,13 +590,13 @@ public class GraphView extends JFrame {
 	}
 
 	private void zoomIn() {
-		setNodesSize(nodeWidth * zoomScale, nodeDistance * zoomScale,
+		setNodesSize(nodeSize * zoomScale, nodeDistance * zoomScale,
 				levelDistance * zoomScale);
 		resizeGraph();
 	}
 
 	private void zoomOut() {
-		setNodesSize(nodeWidth / zoomScale, nodeDistance / zoomScale,
+		setNodesSize(nodeSize / zoomScale, nodeDistance / zoomScale,
 				levelDistance / zoomScale);
 		resizeGraph();
 	}
