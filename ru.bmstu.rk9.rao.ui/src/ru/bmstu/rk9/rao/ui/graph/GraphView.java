@@ -97,9 +97,6 @@ public class GraphView extends JFrame {
 
 	private final static int fontSize = mxConstants.DEFAULT_FONTSIZE;
 
-	private final Font font;
-	private final double scale = 1.0;
-
 	private final static String solutionFillColor = mxConstants.STYLE_FILLCOLOR
 			+ "=32CD32;";
 	private final static String strokeColor = mxConstants.STYLE_STROKECOLOR
@@ -111,6 +108,15 @@ public class GraphView extends JFrame {
 	private final static String solutionCellStyle = solutionFillColor
 			+ strokeColor + fontColor;
 	private final static String edgeStyle = strokeColor;
+
+	private boolean isFinished = false;
+
+	private int nodeSize;
+	private int nodeDistance;
+	private int levelDistance;
+
+	private final Font font;
+	private final double scale = 1.0;
 
 	public GraphView(int dptNum, int width, int height) {
 		this.setSize(width, height);
@@ -283,11 +289,9 @@ public class GraphView extends JFrame {
 			isFinished = treeBuilder.updateTree();
 			try {
 				drawNewVertex(graph, nodeList);
-				Dimension frameDimension = getSize();
-				Object[] cells = vertexMap.values().toArray();
-				mxRectangle graphBounds = graph.getBoundsForCells(cells, false,
-						false, false);
-				if (graphBounds.getWidth() > frameDimension.getWidth()) {
+				mxRectangle graphBounds = graph.getBoundsForCells(vertexMap
+						.values().toArray(), false, false, false);
+				if (graphBounds.getWidth() > getWidth()) {
 					layout.setMoveTree(true);
 					zoomToFit();
 				} else {
@@ -428,11 +432,6 @@ public class GraphView extends JFrame {
 	// ------------------------------ ZOOM --------------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	private boolean isFinished = false;
-	private int nodeSize;
-	private int nodeDistance;
-	private int levelDistance;
-
 	private final static double zoomScale = 1.2;
 
 	private void setProportions() {
@@ -477,16 +476,20 @@ public class GraphView extends JFrame {
 				prefferredLevelDistance);
 
 		resizeGraph();
-		setScrollsToCenter();
+		setViewOnRoot();
 	}
 
-	private void setScrollsToCenter() {
+	private void setViewOnRoot() {
 		Rectangle paneBounds = graphComponent.getViewport().getViewRect();
-		Dimension paneSize = graphComponent.getViewport().getViewSize();
+		mxRectangle graphBounds = graph.getBoundsForCells(vertexMap.values()
+				.toArray(), false, false, false);
 
-		int x = (paneSize.width - paneBounds.width) / 2;
-		int y = (paneSize.height - paneBounds.height) / 2;
-		graphComponent.getViewport().setViewPosition(new Point(x, y));
+		int x = (int) ((graphBounds.getWidth() - paneBounds.width) / 2);
+
+		if (x < 0)
+			return;
+
+		graphComponent.getViewport().setViewPosition(new Point(x, 0));
 	}
 
 	private Dimension small = new Dimension();
