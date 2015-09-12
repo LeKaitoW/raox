@@ -34,9 +34,6 @@ public class TileButton extends Composite {
 		public void paintControl(PaintEvent event) {
 			GC gc = event.gc;
 			final Display display = getDisplay();
-			final Rectangle tile = getClientArea();
-			final Color black = new Color(display, 0x00, 0x00, 0x00);
-			final Color red = new Color(display, 0xff, 0x19, 0x19);
 			final FontRegistry fontRegistry = PlatformUI.getWorkbench()
 					.getThemeManager().getCurrentTheme().getFontRegistry();
 			final String fontName = fontRegistry.get(
@@ -49,12 +46,17 @@ public class TileButton extends Composite {
 			final Point textSize = gc.stringExtent(number);
 
 			if (!number.equals(String.valueOf(tilesCountX * tilesCountY))) {
-				gc.setForeground(black);
+				final Color tileBorderColor = new Color(display, 0x00, 0x00, 0x00);
+				gc.setForeground(tileBorderColor);
 				gc.drawRoundRectangle(2, 2, 60, 60, 5, 5);
-				gc.setBackground(red);
+
+				final Color tileForegroundColor = new Color(display, 0x6b, 0xbc, 0xcd);
+				gc.setBackground(tileForegroundColor);
 				gc.fillRoundRectangle(3, 3, 59, 59, 5, 5);
-				int x = tile.width / 2 - textSize.x / 2;
-				int y = tile.height / 2 - textSize.y / 2;
+
+				final Rectangle rectangle = getClientArea();
+				int x = rectangle.width / 2 - textSize.x / 2;
+				int y = rectangle.height / 2 - textSize.y / 2;
 				gc.drawString(number, x, y);
 			}
 		}
