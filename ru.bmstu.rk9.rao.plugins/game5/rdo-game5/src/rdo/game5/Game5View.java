@@ -13,6 +13,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -72,6 +73,7 @@ import org.json.simple.parser.ParseException;
 import com.google.inject.Injector;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
@@ -87,7 +89,6 @@ public class Game5View extends EditorPart {
 	private static EmbeddedEditorModelAccess editor;
 	private static JSONObject object;
 	private final List<TileButton> tiles = new ArrayList<>();
-	private final SimulatorSubscriberManager simulatorSubscriberManager = new SimulatorSubscriberManager();
 	private final int tilesCountX = 3;
 	private final int tilesCountY = 2;
 
@@ -466,10 +467,13 @@ public class Game5View extends EditorPart {
 						| NotHandledException e) {
 					e.printStackTrace();
 				}
-				simulatorSubscriberManager.initialize(Arrays
+
+				new SimulatorSubscriberManager().initialize(Arrays
 						.asList(new SimulatorSubscriberInfo(
 								showGraphSubscriber,
-								ExecutionState.EXECUTION_COMPLETED)));
+								ExecutionState.EXECUTION_COMPLETED)), EnumSet
+						.of(SubscriptionType.IGNORE_ACCUMULATED,
+								SubscriptionType.ONE_SHOT));
 			}
 
 			@Override
@@ -737,7 +741,6 @@ public class Game5View extends EditorPart {
 					.asyncExec(
 							() -> GraphControl.openFrameWindow(new FrameInfo(0,
 									"Расстановка_фишек")));
-			simulatorSubscriberManager.deinitialize();
 		}
 	};
 }
