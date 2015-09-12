@@ -3,7 +3,6 @@ package rdo.game5;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,9 +24,7 @@ import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -67,9 +64,6 @@ import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import com.google.inject.Injector;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
@@ -95,19 +89,10 @@ public class Game5View extends EditorPart {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void createPartControl(Composite parent) {
-		try {
-			final JSONParser parser = new JSONParser();
-			final IPath workspacePath = ResourcesPlugin.getWorkspace()
-					.getRoot().getLocation();
-			final IFileEditorInput input = (IFileEditorInput) this
-					.getEditorInput();
-			final IFile configIFile = input.getFile();
-			setPartName(configIFile.getProject().getName());
-			object = (JSONObject) parser.parse(new FileReader(workspacePath
-					.append(configIFile.getFullPath()).toString()));
-		} catch (IOException | ParseException e1) {
-			e1.printStackTrace();
-		}
+		final IFileEditorInput input = (IFileEditorInput) this.getEditorInput();
+		final IFile configIFile = input.getFile();
+		setPartName(configIFile.getProject().getName());
+		object = ConfigurationParser.parseObject(configIFile);
 
 		final GridLayout gridLayout = new GridLayout(5, false);
 		parent.setLayout(gridLayout);
@@ -646,7 +631,7 @@ public class Game5View extends EditorPart {
 			}
 
 			final String configuration = ConfigurationParser
-					.parseConfig(configIFile);
+					.parseConfig(object);
 			printStream.print(configuration);
 			printStream.close();
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
