@@ -79,6 +79,10 @@ public class GraphView extends JFrame {
 		return new GraphMenuItem(parent);
 	}
 
+	public mxGraph getGraph() {
+		return graph;
+	}
+
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 	// -------------------------- INITIALIZATION --------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
