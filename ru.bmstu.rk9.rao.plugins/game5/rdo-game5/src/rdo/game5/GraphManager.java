@@ -18,7 +18,8 @@ public class GraphManager {
 
 	public GraphManager(mxGraph graph, JSONArray order) {
 		this.graph = graph;
-		this.graph.getSelectionModel().addListener(mxEvent.CHANGE, selectionListener);
+		this.graph.getSelectionModel().addListener(mxEvent.CHANGE,
+				selectionListener);
 		this.order = order;
 	}
 
@@ -54,7 +55,8 @@ public class GraphManager {
 				xPosition = 10 + (i - 3) * 20;
 				yPosition = 90;
 			}
-			graph.insertVertex(graph.getDefaultParent(), null, nodeOrder.get(i), xPosition, yPosition, 20, 20);
+			graph.insertVertex(graph.getDefaultParent(), null,
+					nodeOrder.get(i), xPosition, yPosition, 20, 20);
 		}
 
 	}

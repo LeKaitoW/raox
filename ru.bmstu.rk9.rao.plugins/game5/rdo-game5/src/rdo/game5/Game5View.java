@@ -95,12 +95,14 @@ public class Game5View extends EditorPart {
 	public void createPartControl(Composite parent) {
 		try {
 			final JSONParser parser = new JSONParser();
-			final IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
-			final IFileEditorInput input = (IFileEditorInput) this.getEditorInput();
+			final IPath workspacePath = ResourcesPlugin.getWorkspace()
+					.getRoot().getLocation();
+			final IFileEditorInput input = (IFileEditorInput) this
+					.getEditorInput();
 			final IFile configIFile = input.getFile();
 			setPartName(configIFile.getProject().getName());
-			object = (JSONObject) parser
-					.parse(new FileReader(workspacePath.append(configIFile.getFullPath()).toString()));
+			object = (JSONObject) parser.parse(new FileReader(workspacePath
+					.append(configIFile.getFullPath()).toString()));
 		} catch (IOException | ParseException e1) {
 			e1.printStackTrace();
 		}
@@ -110,20 +112,22 @@ public class Game5View extends EditorPart {
 
 		final Group boardGroup = new Group(parent, SWT.NONE);
 		final GridLayout boardLayout = new GridLayout(3, false);
-		final GridData boardData = new GridData(SWT.FILL, SWT.FILL, false, false);
+		final GridData boardData = new GridData(SWT.FILL, SWT.FILL, false,
+				false);
 		boardData.verticalSpan = 3;
 		boardGroup.setLayoutData(boardData);
 		boardGroup.setLayout(boardLayout);
 		boardGroup.setText("Board:");
 		JSONArray places = (JSONArray) object.get("places");
 		for (int i = 0; i < tilesCountX * tilesCountY; i++) {
-			tiles.add(new TileButton(boardGroup, SWT.NONE, String.valueOf(places.indexOf(String.valueOf(i + 1)) + 1),
-					i + 1));
+			tiles.add(new TileButton(boardGroup, SWT.NONE, String
+					.valueOf(places.indexOf(String.valueOf(i + 1)) + 1), i + 1));
 		}
 
 		final Group shuffleGroup = new Group(parent, SWT.SHADOW_IN);
 		shuffleGroup.setText("Shuffle:");
-		final GridData shuffleData = new GridData(SWT.FILL, SWT.FILL, false, false);
+		final GridData shuffleData = new GridData(SWT.FILL, SWT.FILL, false,
+				false);
 		shuffleData.verticalSpan = 2;
 		shuffleGroup.setLayoutData(shuffleData);
 		shuffleGroup.setLayout(new GridLayout(1, false));
@@ -148,17 +152,20 @@ public class Game5View extends EditorPart {
 		final Group setOrderGroup = new Group(parent, SWT.NONE);
 		setOrderGroup.setText("Set order:");
 		setOrderGroup.setLayout(new FormLayout());
-		final GridData setOrderData = new GridData(SWT.FILL, SWT.FILL, false, false);
+		final GridData setOrderData = new GridData(SWT.FILL, SWT.FILL, false,
+				false);
 		setOrderGroup.setLayoutData(setOrderData);
 		final Button setOrderButton = new Button(setOrderGroup, SWT.TOGGLE);
 		setOrderButton.setText("Set...");
 		final Label setOrderError = new Label(setOrderGroup, SWT.NONE);
 		setOrderError.setText("Invalid order");
-		final Color red = new Color(PlatformUI.getWorkbench().getDisplay(), 0x9B, 0x11, 0x1E);
+		final Color red = new Color(PlatformUI.getWorkbench().getDisplay(),
+				0x9B, 0x11, 0x1E);
 		setOrderError.setForeground(red);
 		setOrderError.setVisible(false);
 		final Text setOrderText = new Text(setOrderGroup, SWT.BORDER);
-		final String order = OrderConfigurator.convertPlacesToString((JSONArray) object.get("places"));
+		final String order = OrderConfigurator
+				.convertPlacesToString((JSONArray) object.get("places"));
 		setOrderText.setText(order);
 		setOrderText.setEnabled(false);
 		final Button setOrderOkButton = new Button(setOrderGroup, SWT.PUSH);
@@ -182,7 +189,8 @@ public class Game5View extends EditorPart {
 		ruleCost.setText("Rules cost:");
 		final GridLayout ruleCostLayout = new GridLayout(4, false);
 		ruleCost.setLayout(ruleCostLayout);
-		final GridData ruleCostData = new GridData(SWT.BEGINNING, SWT.FILL, false, false);
+		final GridData ruleCostData = new GridData(SWT.BEGINNING, SWT.FILL,
+				false, false);
 		ruleCostData.verticalSpan = 3;
 		ruleCost.setLayoutData(ruleCostData);
 
@@ -198,24 +206,29 @@ public class Game5View extends EditorPart {
 		inOrderGroup.setLayout(gridLayout);
 		final Button inOrder = new Button(inOrderGroup, SWT.PUSH);
 		inOrder.setText("In order");
-		final GridData inOrderData = new GridData(SWT.FILL, SWT.FILL, false, false);
+		final GridData inOrderData = new GridData(SWT.FILL, SWT.FILL, false,
+				false);
 		inOrderGroup.setLayoutData(inOrderData);
 
 		final Group simulationGroup = new Group(parent, SWT.SHADOW_IN);
 		simulationGroup.setText("Simulation:");
 		simulationGroup.setLayout(new GridLayout());
-		final GridData simulationData = new GridData(SWT.BEGINNING, SWT.FILL, true, false);
+		final GridData simulationData = new GridData(SWT.BEGINNING, SWT.FILL,
+				true, false);
 		simulationData.verticalSpan = 2;
 		simulationGroup.setLayoutData(simulationData);
 
 		final Group heuristicSelection = new Group(parent, SWT.SHADOW_IN);
 		heuristicSelection.setText("Select heuristic:");
 		heuristicSelection.setLayout(gridLayout);
-		final GridData heuristicGridData = new GridData(SWT.FILL, SWT.FILL, false, false);
+		final GridData heuristicGridData = new GridData(SWT.FILL, SWT.FILL,
+				false, false);
 		heuristicGridData.horizontalSpan = 2;
-		heuristicGridData.widthHint = setOrderGroup.getBorderWidth() + shuffleGroup.getBorderWidth();
+		heuristicGridData.widthHint = setOrderGroup.getBorderWidth()
+				+ shuffleGroup.getBorderWidth();
 		heuristicSelection.setLayoutData(heuristicGridData);
-		final Combo heuristicList = new Combo(heuristicSelection, SWT.BORDER | SWT.DROP_DOWN | SWT.V_SCROLL);
+		final Combo heuristicList = new Combo(heuristicSelection, SWT.BORDER
+				| SWT.DROP_DOWN | SWT.V_SCROLL);
 		final String zeroHeuristic = "Поиск_в_ширину()";
 		heuristicList.add(zeroHeuristic);
 		final String tilesHeuristic = "Кол_во_фишек_не_на_месте()";
@@ -237,14 +250,16 @@ public class Game5View extends EditorPart {
 
 		final Label costLabel = new Label(ruleCost, SWT.NONE);
 		costLabel.setText("Cost");
-		final GridData costLabelData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
+		final GridData costLabelData = new GridData(SWT.FILL, SWT.BEGINNING,
+				true, false);
 		costLabelData.horizontalSpan = 2;
 		costLabel.setLayoutData(costLabelData);
 
 		final Label leftLabel = new Label(ruleCost, SWT.NONE);
 		leftLabel.setText("Left");
 
-		final Combo leftCombo = new Combo(ruleCost, SWT.BORDER | SWT.DROP_DOWN | SWT.V_SCROLL | SWT.READ_ONLY);
+		final Combo leftCombo = new Combo(ruleCost, SWT.BORDER | SWT.DROP_DOWN
+				| SWT.V_SCROLL | SWT.READ_ONLY);
 		leftCombo.add("After");
 		leftCombo.add("Before");
 		leftCombo.select(object.get("computeLeft").equals("After") ? 0 : 1);
@@ -254,12 +269,14 @@ public class Game5View extends EditorPart {
 		leftCost.setText(object.get("costLeft").toString());
 		leftCost.setEnabled((boolean) object.get("enableLeft"));
 		leftButton.setSelection((boolean) object.get("enableLeft"));
-		leftButton.addSelectionListener(new CostButtonListener("enableLeft", leftCost));
+		leftButton.addSelectionListener(new CostButtonListener("enableLeft",
+				leftCost));
 
 		final Label rightLabel = new Label(ruleCost, SWT.NONE);
 		rightLabel.setText("Right");
 
-		final Combo rightCombo = new Combo(ruleCost, SWT.BORDER | SWT.DROP_DOWN | SWT.V_SCROLL | SWT.READ_ONLY);
+		final Combo rightCombo = new Combo(ruleCost, SWT.BORDER | SWT.DROP_DOWN
+				| SWT.V_SCROLL | SWT.READ_ONLY);
 		rightCombo.add("After");
 		rightCombo.add("Before");
 		rightCombo.select(object.get("computeRight").equals("After") ? 0 : 1);
@@ -269,12 +286,14 @@ public class Game5View extends EditorPart {
 		rightCost.setText(object.get("costRight").toString());
 		rightCost.setEnabled((boolean) object.get("enableRight"));
 		rightButton.setSelection((boolean) object.get("enableRight"));
-		rightButton.addSelectionListener(new CostButtonListener("enableRight", rightCost));
+		rightButton.addSelectionListener(new CostButtonListener("enableRight",
+				rightCost));
 
 		final Label upLabel = new Label(ruleCost, SWT.NONE);
 		upLabel.setText("Up");
 
-		final Combo upCombo = new Combo(ruleCost, SWT.BORDER | SWT.DROP_DOWN | SWT.V_SCROLL | SWT.READ_ONLY);
+		final Combo upCombo = new Combo(ruleCost, SWT.BORDER | SWT.DROP_DOWN
+				| SWT.V_SCROLL | SWT.READ_ONLY);
 		upCombo.add("After");
 		upCombo.add("Before");
 		upCombo.select(object.get("computeUp").equals("After") ? 0 : 1);
@@ -289,7 +308,8 @@ public class Game5View extends EditorPart {
 		final Label downLabel = new Label(ruleCost, SWT.NONE);
 		downLabel.setText("Down");
 
-		final Combo downCombo = new Combo(ruleCost, SWT.BORDER | SWT.DROP_DOWN | SWT.V_SCROLL | SWT.READ_ONLY);
+		final Combo downCombo = new Combo(ruleCost, SWT.BORDER | SWT.DROP_DOWN
+				| SWT.V_SCROLL | SWT.READ_ONLY);
 		downCombo.add("After");
 		downCombo.add("Before");
 		downCombo.select(object.get("computeDown").equals("After") ? 0 : 1);
@@ -299,7 +319,8 @@ public class Game5View extends EditorPart {
 		downCost.setText(object.get("costDown").toString());
 		downCost.setEnabled((boolean) object.get("enableDown"));
 		downButton.setSelection((boolean) object.get("enableDown"));
-		downButton.addSelectionListener(new CostButtonListener("enableDown", downCost));
+		downButton.addSelectionListener(new CostButtonListener("enableDown",
+				downCost));
 
 		setOrderButton.addSelectionListener(new SelectionListener() {
 			@Override
@@ -308,7 +329,8 @@ public class Game5View extends EditorPart {
 					setOrderText.setEnabled(true);
 					setOrderOkButton.setEnabled(true);
 					JSONArray places = (JSONArray) object.get("places");
-					String order = OrderConfigurator.convertPlacesToString(places);
+					String order = OrderConfigurator
+							.convertPlacesToString(places);
 					setOrderText.setText(order);
 				} else {
 					setOrderText.setEnabled(false);
@@ -336,7 +358,8 @@ public class Game5View extends EditorPart {
 		setOrderOkButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				JSONArray places = OrderConfigurator.convertStringToPlaces(setOrderText.getText());
+				JSONArray places = OrderConfigurator
+						.convertStringToPlaces(setOrderText.getText());
 				if (places != null) {
 					object.put("places", places);
 					updateTiles();
@@ -354,17 +377,24 @@ public class Game5View extends EditorPart {
 		final Group editorGroup = new Group(parent, SWT.SHADOW_IN);
 		editorGroup.setText("Heuristic code:");
 		editorGroup.setLayout(gridLayout);
-		final GridData editorGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		final GridData editorGridData = new GridData(SWT.FILL, SWT.FILL, true,
+				true, 1, 1);
 		editorGridData.horizontalSpan = 5;
 		editorGroup.setLayoutData(editorGridData);
 
-		final Injector injector = ru.bmstu.rk9.rao.ui.RaoActivatorExtension.getInstance()
-				.getInjector(ru.bmstu.rk9.rao.ui.RaoActivatorExtension.RU_BMSTU_RK9_RAO_RAO);
-		final EmbeddedEditorFactory factory = injector.getInstance(EmbeddedEditorFactory.class);
-		final EditedResourceProvider resourceProvider = injector.getInstance(EditedResourceProvider.class);
-		final EmbeddedEditor embeddedEditor = factory.newEditor(resourceProvider).showErrorAndWarningAnnotations()
+		final Injector injector = ru.bmstu.rk9.rao.ui.RaoActivatorExtension
+				.getInstance()
+				.getInjector(
+						ru.bmstu.rk9.rao.ui.RaoActivatorExtension.RU_BMSTU_RK9_RAO_RAO);
+		final EmbeddedEditorFactory factory = injector
+				.getInstance(EmbeddedEditorFactory.class);
+		final EditedResourceProvider resourceProvider = injector
+				.getInstance(EditedResourceProvider.class);
+		final EmbeddedEditor embeddedEditor = factory
+				.newEditor(resourceProvider).showErrorAndWarningAnnotations()
 				.withParent(editorGroup);
-		editor = embeddedEditor.createPartialEditor("", object.get("code").toString(), "", false);
+		editor = embeddedEditor.createPartialEditor("", object.get("code")
+				.toString(), "", false);
 
 		IXtextDocument document = embeddedEditor.getDocument();
 		document.addModelListener(new IXtextModelListener() {
@@ -374,23 +404,31 @@ public class Game5View extends EditorPart {
 			}
 		});
 
-		heuristicList.addSelectionListener(new ConfigurationListener("heuristic", () -> heuristicList.getText()));
+		heuristicList.addSelectionListener(new ConfigurationListener(
+				"heuristic", () -> heuristicList.getText()));
 
 		leftCost.addKeyListener(new CostKeyListener("costLeft"));
-		leftCombo.addSelectionListener(new ConfigurationListener("computeLeft", () -> leftCombo.getText()));
+		leftCombo.addSelectionListener(new ConfigurationListener("computeLeft",
+				() -> leftCombo.getText()));
 
 		rightCost.addKeyListener(new CostKeyListener("costRight"));
-		rightCombo.addSelectionListener(new ConfigurationListener("computeRight", () -> rightCombo.getText()));
+		rightCombo.addSelectionListener(new ConfigurationListener(
+				"computeRight", () -> rightCombo.getText()));
 
 		upCost.addKeyListener(new CostKeyListener("costUp"));
-		upCombo.addSelectionListener(new ConfigurationListener("computeUp", () -> upCombo.getText()));
+		upCombo.addSelectionListener(new ConfigurationListener("computeUp",
+				() -> upCombo.getText()));
 
 		downCost.addKeyListener(new CostKeyListener("costDown"));
-		downCombo.addSelectionListener(new ConfigurationListener("computeDown", () -> downCombo.getText()));
+		downCombo.addSelectionListener(new ConfigurationListener("computeDown",
+				() -> downCombo.getText()));
 
-		solvableOnly.addSelectionListener(new ConfigurationListener("solvable", () -> "true"));
-		unsolvableOnly.addSelectionListener(new ConfigurationListener("solvable", () -> "false"));
-		allSituations.addSelectionListener(new ConfigurationListener("solvable", () -> "all"));
+		solvableOnly.addSelectionListener(new ConfigurationListener("solvable",
+				() -> "true"));
+		unsolvableOnly.addSelectionListener(new ConfigurationListener(
+				"solvable", () -> "false"));
+		allSituations.addSelectionListener(new ConfigurationListener(
+				"solvable", () -> "all"));
 
 		compareTops.addSelectionListener(new SelectionListener() {
 			@Override
@@ -409,16 +447,22 @@ public class Game5View extends EditorPart {
 			public void widgetSelected(SelectionEvent event) {
 				// need to check serialization objects tree
 				IServiceLocator serviceLocator = PlatformUI.getWorkbench();
-				doSave((IProgressMonitor) serviceLocator.getService(IProgressMonitor.class));
-				ICommandService commandService = (ICommandService) serviceLocator.getService(ICommandService.class);
-				Command command = commandService.getCommand("ru.bmstu.rk9.rao.ui.runtime.execute");
+				doSave((IProgressMonitor) serviceLocator
+						.getService(IProgressMonitor.class));
+				ICommandService commandService = (ICommandService) serviceLocator
+						.getService(ICommandService.class);
+				Command command = commandService
+						.getCommand("ru.bmstu.rk9.rao.ui.runtime.execute");
 				try {
 					command.executeWithChecks(new ExecutionEvent());
-				} catch (ExecutionException | NotDefinedException | NotEnabledException | NotHandledException e) {
+				} catch (ExecutionException | NotDefinedException
+						| NotEnabledException | NotHandledException e) {
 					e.printStackTrace();
 				}
 				simulatorSubscriberManager.initialize(Arrays
-						.asList(new SimulatorSubscriberInfo(showGraphSubscriber, ExecutionState.EXECUTION_COMPLETED)));
+						.asList(new SimulatorSubscriberInfo(
+								showGraphSubscriber,
+								ExecutionState.EXECUTION_COMPLETED)));
 			}
 
 			@Override
@@ -444,10 +488,12 @@ public class Game5View extends EditorPart {
 				setOrderText.setEnabled(false);
 				setOrderOkButton.setEnabled(false);
 				JSONArray places = (JSONArray) object.get("places");
-				JSONArray newPlaces = OrderConfigurator.shuffle(places, (String) object.get("solvable"));
+				JSONArray newPlaces = OrderConfigurator.shuffle(places,
+						(String) object.get("solvable"));
 				object.put("places", newPlaces);
 				updateTiles();
-				setOrderText.setText(OrderConfigurator.convertPlacesToString(newPlaces));
+				setOrderText.setText(OrderConfigurator
+						.convertPlacesToString(newPlaces));
 				setDirty(true);
 			}
 
@@ -464,7 +510,8 @@ public class Game5View extends EditorPart {
 				setOrderOkButton.setEnabled(false);
 				OrderConfigurator.setInOrder(object);
 				updateTiles();
-				setOrderText.setText(OrderConfigurator.convertPlacesToString((JSONArray) object.get("places")));
+				setOrderText.setText(OrderConfigurator
+						.convertPlacesToString((JSONArray) object.get("places")));
 				setDirty(true);
 			}
 
@@ -484,13 +531,18 @@ public class Game5View extends EditorPart {
 					final JSONArray places = (JSONArray) object.get("places");
 					final int tileNumber = tile.getTileNumber();
 					final int tilePlace = tile.getTilePlace();
-					final int freePlace = Integer.valueOf((String) places.get(tilesCountX * tilesCountY - 1));
+					final int freePlace = Integer.valueOf((String) places
+							.get(tilesCountX * tilesCountY - 1));
 					if (TileButton.isFreePlaceNearby(tilePlace, freePlace)) {
-						tiles.get(freePlace - 1).updateTile(String.valueOf(tileNumber));
-						tile.updateTile(String.valueOf(tilesCountX * tilesCountY));
+						tiles.get(freePlace - 1).updateTile(
+								String.valueOf(tileNumber));
+						tile.updateTile(String.valueOf(tilesCountX
+								* tilesCountY));
 						places.set(tileNumber - 1, String.valueOf(freePlace));
-						places.set(tilesCountX * tilesCountY - 1, String.valueOf(tilePlace));
-						setOrderText.setText(OrderConfigurator.convertPlacesToString(places));
+						places.set(tilesCountX * tilesCountY - 1,
+								String.valueOf(tilePlace));
+						setOrderText.setText(OrderConfigurator
+								.convertPlacesToString(places));
 						setDirty(true);
 					}
 				}
@@ -515,14 +567,18 @@ public class Game5View extends EditorPart {
 	public void doSave(IProgressMonitor arg0) {
 		object.put("code", editor.getEditablePart());
 		try {
-			IFile configIFile = (IFile) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+			IFile configIFile = (IFile) PlatformUI.getWorkbench()
+					.getActiveWorkbenchWindow().getActivePage()
 					.getActiveEditor().getEditorInput().getAdapter(IFile.class);
-			OutputStream outputStream = new FileOutputStream(configIFile.getRawLocation().toString());
-			PrintStream printStream = new PrintStream(outputStream, true, StandardCharsets.UTF_8.name());
+			OutputStream outputStream = new FileOutputStream(configIFile
+					.getRawLocation().toString());
+			PrintStream printStream = new PrintStream(outputStream, true,
+					StandardCharsets.UTF_8.name());
 			printStream.print(object.toString());
 			printStream.close();
 			fillModelFile(configIFile);
-			configIFile.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+			configIFile.getProject().refreshLocal(IResource.DEPTH_INFINITE,
+					null);
 		} catch (IOException | CoreException e) {
 			e.printStackTrace();
 		}
@@ -534,7 +590,8 @@ public class Game5View extends EditorPart {
 	}
 
 	@Override
-	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
+	public void init(IEditorSite site, IEditorInput input)
+			throws PartInitException {
 		setInput(input);
 		setSite(site);
 	}
@@ -562,18 +619,22 @@ public class Game5View extends EditorPart {
 		firePropertyChange(IEditorPart.PROP_DIRTY);
 	}
 
-	private static final void fillModelFile(IFile configIFile) throws IOException {
+	private static final void fillModelFile(IFile configIFile)
+			throws IOException {
 		final String modelTemplatePath = "/model_template/game_5.rao";
-		final InputStream inputStream = Game5ProjectConfigurator.class.getClassLoader()
-				.getResourceAsStream(modelTemplatePath);
+		final InputStream inputStream = Game5ProjectConfigurator.class
+				.getClassLoader().getResourceAsStream(modelTemplatePath);
 		OutputStream outputStream = null;
 
 		try {
-			InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8.name());
-			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-			outputStream = new FileOutputStream(
-					configIFile.getLocation().removeLastSegments(1).append("/game5.rao").toString());
-			PrintStream printStream = new PrintStream(outputStream, true, StandardCharsets.UTF_8.name());
+			InputStreamReader inputStreamReader = new InputStreamReader(
+					inputStream, StandardCharsets.UTF_8.name());
+			BufferedReader bufferedReader = new BufferedReader(
+					inputStreamReader);
+			outputStream = new FileOutputStream(configIFile.getLocation()
+					.removeLastSegments(1).append("/game5.rao").toString());
+			PrintStream printStream = new PrintStream(outputStream, true,
+					StandardCharsets.UTF_8.name());
 
 			String modelTemplateCode = bufferedReader.readLine();
 			while (modelTemplateCode != null) {
@@ -581,7 +642,8 @@ public class Game5View extends EditorPart {
 				modelTemplateCode = bufferedReader.readLine();
 			}
 
-			final String configuration = ConfigurationParser.parseConfig(configIFile);
+			final String configuration = ConfigurationParser
+					.parseConfig(configIFile);
 			printStream.print(configuration);
 			printStream.close();
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
@@ -660,15 +722,20 @@ public class Game5View extends EditorPart {
 	private final void updateTiles() {
 		JSONArray places = (JSONArray) object.get("places");
 		for (int i = 0; i < tilesCountX * tilesCountY; i++) {
-			tiles.get(i).updateTile(String.valueOf(places.indexOf(String.valueOf(i + 1)) + 1));
+			tiles.get(i).updateTile(
+					String.valueOf(places.indexOf(String.valueOf(i + 1)) + 1));
 		}
 	}
 
 	private final Subscriber showGraphSubscriber = new Subscriber() {
 		@Override
 		public void fireChange() {
-			PlatformUI.getWorkbench().getDisplay()
-					.asyncExec(() -> GraphControl.openFrameWindow(new FrameInfo(0, "Расстановка_фишек")));
+			PlatformUI
+					.getWorkbench()
+					.getDisplay()
+					.asyncExec(
+							() -> GraphControl.openFrameWindow(new FrameInfo(0,
+									"Расстановка_фишек")));
 			try {
 				Thread.sleep(5000);
 				// question!
@@ -676,7 +743,8 @@ public class Game5View extends EditorPart {
 				e.printStackTrace();
 			}
 			new GraphManager(GraphControl.openedGraphMap.get(0).getGraph(),
-					OrderConfigurator.inverseOrderPlaces((JSONArray) object.get("places")));
+					OrderConfigurator.inverseOrderPlaces((JSONArray) object
+							.get("places")));
 			simulatorSubscriberManager.deinitialize();
 		}
 	};
