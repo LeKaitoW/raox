@@ -9,6 +9,8 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +20,11 @@ import javax.swing.JFrame;
 
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.resource.FontRegistry;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.PlatformUI;
 
@@ -29,7 +36,6 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
-import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.GraphInfo;
 import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.Node;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView.ConditionalMenuItem;
@@ -178,9 +184,7 @@ public class GraphView extends JFrame {
 						if (cell != null && cell.isVertex() && cell != cellInfo) {
 							graph.getModel().beginUpdate();
 							try {
-								if (cellInfo != null)
-									cellInfo.removeFromParent();
-								cellInfo = showCellInfo(graph, cell);
+								showCellInfo(cell);
 							} finally {
 								graph.getModel().endUpdate();
 							}
@@ -191,9 +195,23 @@ public class GraphView extends JFrame {
 		this.addComponentListener(componentListener);
 		this.addKeyListener(keyListener);
 		graphComponent.addKeyListener(keyListener);
+		graphComponent.getGraphControl().addMouseListener(mouseListener);
 
 		if (!isFinished)
 			initializeSubscribers();
+	}
+
+	@Override
+	public void dispose() {
+		if (!isFinished)
+			deinitializeSubscribers();
+
+		if (graphInfoWindow != null && !graphInfoWindow.isDisposed()) {
+			PlatformUI.getWorkbench().getDisplay()
+					.asyncExec(() -> graphInfoWindow.close());
+		}
+
+		super.dispose();
 	}
 
 	private final ComponentListener componentListener = new ComponentListener() {
@@ -213,6 +231,41 @@ public class GraphView extends JFrame {
 
 		@Override
 		public void componentHidden(ComponentEvent e) {
+		}
+	};
+
+	private final MouseListener mouseListener = new MouseListener() {
+		@Override
+		public void mouseReleased(MouseEvent e) {
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if (graph.getSelectionCell() == null)
+				return;
+
+			mxCell cell = (mxCell) graph.getSelectionCell();
+
+			if (!cell.isVertex())
+				return;
+
+			if (e.getClickCount() > 1) {
+				openGraphInfo();
+			}
+
+			showCellInfo(cell);
 		}
 	};
 
@@ -240,14 +293,9 @@ public class GraphView extends JFrame {
 		}
 	};
 
-	@Override
-	public void dispose() {
-		if (!isFinished)
-			deinitializeSubscribers();
-		super.dispose();
-	}
-
-	private final TreeBuilder treeBuilder;
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// --------------------------- SUBSCRIPTIONS --------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private final void initializeSubscribers() {
 		simulationSubscriberManager.initialize(Arrays.asList(
@@ -309,18 +357,108 @@ public class GraphView extends JFrame {
 	};
 
 	private final void onFinish() {
-		GraphInfo info = treeBuilder.graphInfo;
 		List<Node> solution = treeBuilder.solutionList;
 		colorNodes(solution);
-		insertInfo(info);
 
 		graph.refresh();
+	}
+
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ------------------------- GRAPH INFO WINDOW ------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+	private GraphInfoWindow graphInfoWindow = null;
+	private Label cellInfoLabel = null;
+
+	public final GraphInfoWindow getGraphInfoWindow() {
+		return graphInfoWindow;
+	}
+
+	private final void openGraphInfo() {
+		Display display = PlatformUI.getWorkbench().getDisplay();
+
+		if (graphInfoWindow != null && !graphInfoWindow.isDisposed()) {
+			display.syncExec(() -> graphInfoWindow.forceActive());
+		} else {
+			display.syncExec(() -> {
+				graphInfoWindow = new GraphInfoWindow(display);
+				graphInfoWindow.open();
+				graphInfoWindow.getButtonNext().addSelectionListener(
+						new SelectionListener() {
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								// TODO select next cell and show its info
+							}
+
+							@Override
+							public void widgetDefaultSelected(SelectionEvent e) {
+							}
+						});
+
+				graphInfoWindow.getButtonPrevious().addSelectionListener(
+						new SelectionListener() {
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								// TODO select previous cell and show its info
+							}
+
+							@Override
+							public void widgetDefaultSelected(SelectionEvent e) {
+							}
+						});
+			});
+		}
+	}
+
+	private final void addCellInfo(String info) {
+		Display display = PlatformUI.getWorkbench().getDisplay();
+
+		display.syncExec(() -> {
+			if (graphInfoWindow == null || graphInfoWindow.isDisposed())
+				return;
+
+			if (cellInfoLabel == null || cellInfoLabel.isDisposed())
+				cellInfoLabel = new Label(graphInfoWindow.getInfoArea(),
+						SWT.NONE);
+
+			cellInfoLabel.setText(info);
+			graphInfoWindow.updateContents();
+		});
+	}
+
+	private final void showCellInfo(mxCell cell) {
+		if (!(cell.getValue() instanceof Node))
+			return;
+
+		Node cellNode = (Node) cell.getValue();
+		final String nodeIndex = "Номер вершины: "
+				+ Integer.toString(cellNode.index) + "\n";
+
+		String parentIndex = "Корневая вершина";
+		if (cellNode.parent != null) {
+			parentIndex = "Номер вершины родителя: "
+					+ Integer.toString(cellNode.parent.index);
+		}
+		parentIndex += "\n";
+
+		final String g = "Стоимость пути g = " + Double.toString(cellNode.g)
+				+ "\n";
+		final String h = "Стоимость оставшегося пути h = "
+				+ Double.toString(cellNode.h) + "\n";
+		final String ruleName = cellNode.ruleDesсription + "\n";
+		final String ruleCost = "Стоимость применения правила = "
+				+ Double.toString(cellNode.ruleCost) + "\n";
+		final String text = nodeIndex + parentIndex + g + h + ruleName
+				+ ruleCost;
+
+		addCellInfo(text);
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 	// --------------------------- VISUALISATION --------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
+	private final TreeBuilder treeBuilder;
 	final Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
 	private int lastAddedVertexIndex = 0;
 
@@ -328,7 +466,7 @@ public class GraphView extends JFrame {
 	 * TODO: two methods below looks the same, but are magically not
 	 * interchangeable. They should be merged in one.
 	 */
-	private void drawGraph(Node parentNode) {
+	private final void drawGraph(Node parentNode) {
 		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(),
 				null, parentNode, getAbsoluteX(0.5), getAbsoluteY(0.05),
 				nodeSize, nodeSize, regularCellStyle);
@@ -344,7 +482,7 @@ public class GraphView extends JFrame {
 				drawGraph(nodeList.get(parentNode.children.get(i).index));
 	}
 
-	private void drawNewVertex(mxGraph graph, List<Node> nodeList) {
+	private final void drawNewVertex(mxGraph graph, List<Node> nodeList) {
 		int lastAddedNodeIndex = treeBuilder.lastAddedNodeIndex;
 		for (int i = lastAddedVertexIndex; i <= lastAddedNodeIndex; i++) {
 			Node node = nodeList.get(i);
@@ -364,7 +502,7 @@ public class GraphView extends JFrame {
 		}
 	}
 
-	public void colorNodes(List<Node> solution) {
+	private final void colorNodes(List<Node> solution) {
 		if (!solution.isEmpty()) {
 			Node rootNode = nodeList.get(0);
 			vertexMap.get(rootNode).setStyle(solutionCellStyle);
@@ -372,60 +510,6 @@ public class GraphView extends JFrame {
 				vertexMap.get(solution.get(i)).setStyle(solutionCellStyle);
 			}
 		}
-	}
-
-	public mxCell insertInfo(GraphInfo info) {
-		final String solutionCost = "Стоимость решения: "
-				+ Double.toString(info.solutionCost) + "\n";
-		final String numOpened = "Количество раскрытых вершин: "
-				+ Integer.toString(info.numOpened) + "\n";
-		final String numNodes = "Количество вершин в графе: "
-				+ Integer.toString(info.numNodes);
-		final String text = solutionCost + numOpened + numNodes;
-
-		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
-
-		final double delta = getRelativeWidth(0.01);
-
-		double width = bounds.getWidth() + delta;
-		double height = bounds.getHeight() + delta;
-
-		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null,
-				text, delta, delta, width, height, regularCellStyle);
-	}
-
-	public mxCell showCellInfo(mxGraph graph, mxCell cell) {
-		if (!(cell.getValue() instanceof Node))
-			return null;
-
-		Node cellNode = (Node) cell.getValue();
-		final String nodeIndex = "Номер вершины: "
-				+ Integer.toString(cellNode.index) + "\n";
-		String parentIndex = "Корневая вершина\n";
-		if (cellNode.parent != null) {
-			parentIndex = "Номер вершины родителя: "
-					+ Integer.toString(cellNode.parent.index) + "\n";
-		}
-		final String g = "Стоимость пути g = " + Double.toString(cellNode.g)
-				+ "\n";
-		final String h = "Стоимость оставшегося пути h = "
-				+ Double.toString(cellNode.h) + "\n";
-		final String ruleName = cellNode.ruleDesсription + "\n";
-		final String ruleCost = "Стоимость применения правила = "
-				+ Double.toString(cellNode.ruleCost);
-		final String text = nodeIndex + parentIndex + g + h + ruleName
-				+ ruleCost;
-
-		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
-
-		final double delta = getRelativeWidth(0.01);
-
-		double width = bounds.getWidth() + delta;
-		double height = bounds.getHeight() + delta;
-
-		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null,
-				text, getRelativeWidth(1) - width - (delta), delta, width,
-				height, regularCellStyle);
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
