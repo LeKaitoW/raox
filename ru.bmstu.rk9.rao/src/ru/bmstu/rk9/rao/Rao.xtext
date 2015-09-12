@@ -33,27 +33,12 @@ RaoEntity
 
 ResourceType:
 	'type' name = ID '{'
-		(parameters += ParameterType ';' )+
+		(parameters += Parameter ';' )+
 	'}'
 ;
 
-ParameterType
-	: ParameterTypeBasic
-	| ParameterTypeString
-	| ParameterTypeArray
-;
-
-ParameterTypeBasic:
-	type = (RaoInt | RaoDouble | RaoBoolean | RaoEnum) name = ID
-		('=' default = ExpressionOr)?
-;
-
-ParameterTypeString:
-	type = RaoString name = ID ('=' default = STRING)?
-;
-
-ParameterTypeArray:
-	type = RaoArray name = ID ('=' default = ArrayValues)?
+Parameter
+	: type = RaoType name = ID ('=' default = ExpressionOr)?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -75,8 +60,8 @@ ResourceParameterExpression
 
 Event:
 	'event' name = ID '('
-		(parameters += ParameterType (
-			',' parameters += ParameterType)* )? ')' '{'
+		(parameters += Parameter (
+			',' parameters += Parameter)* )? ')' '{'
 		body = StatementList
 	'}'
 ;
@@ -87,8 +72,8 @@ Event:
 
 Pattern:
 	type = PatternType name = ID '('
-		(parameters += ParameterType (
-			',' parameters += ParameterType)* )? ')' '{'
+		(parameters += Parameter (
+			',' parameters += Parameter)* )? ')' '{'
 		relevantResources += RelevantResource*
 		('relevantSet' combinational = PatternSelectMethod ';')?
 		defaultMethods += DefaultMethod*

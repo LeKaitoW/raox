@@ -11,7 +11,6 @@ import ru.bmstu.rk9.rao.rao.StatementList
 import ru.bmstu.rk9.rao.rao.ExpressionStatement
 import ru.bmstu.rk9.rao.rao.NestedStatement
 import ru.bmstu.rk9.rao.rao.LocalVariableDeclaration
-import ru.bmstu.rk9.rao.rao.VariableDeclarationList
 import ru.bmstu.rk9.rao.rao.IfStatement
 import ru.bmstu.rk9.rao.rao.ForStatement
 import ru.bmstu.rk9.rao.rao.BreakStatement
@@ -104,23 +103,26 @@ class RaoStatementCompiler
 			}
 
 			LocalVariableDeclaration:
-				'''
-				«statement.type.compileType» «statement.list.compileStatement»;
-				'''
-
-			VariableDeclarationList:
 			{
+				var variableType = statement.type
 				var flag = false
 				var list = ""
 
-				for (declaration : statement.declarations)
+				for (declaration : statement.list.declarations)
 				{
-					list = list + (if (flag) ", " else "") + declaration.name +
-						(if (declaration.value != null) " = " + declaration.value.compileExpression.value else "")
+					var value = ""
+					if (declaration.value != null) {
+						value = declaration.value.compileExpression.value
+						if (variableType.isStandardType)
+							value = variableType.compileType + ".valueOf(" + value + ")"
+						value = " = " + value
+					}
+
+					list = list + (if (flag) ", " else "") + declaration.name + value
 					flag = true
 				}
 
-				return list
+				return variableType.compileType + " " + list + ";"
 			}
 
 			IfStatement:

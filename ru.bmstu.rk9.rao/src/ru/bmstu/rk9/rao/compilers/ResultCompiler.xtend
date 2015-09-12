@@ -19,7 +19,6 @@ import ru.bmstu.rk9.rao.rao.ResultWatchState
 import ru.bmstu.rk9.rao.rao.ResultWatchValue
 
 import ru.bmstu.rk9.rao.generator.RaoExpression
-import ru.bmstu.rk9.rao.rao.ParameterTypeBasic
 import ru.bmstu.rk9.rao.rao.RaoEnum
 
 class ResultCompiler
@@ -475,25 +474,31 @@ class ResultCompiler
 	}
 
 	def private static compileValueType(ResultType result, RaoExpression expression) {
-		if (expression.type.endsWith("_enum")) '''
+		if (!expression.type.endsWith("_enum"))
+			return '''INSTANCE.data.put("valueType", "«expression.type.backToRaoType»");'''
+
+		val enumTypeEndIndex = expression.type.length - 5
+		val enumParameterNameEndIndex = expression.type.lastIndexOf('.')
+		val resourceType = result.modelRoot.eAllContents.findFirst[resourceType |
+				resourceType instanceof ResourceType
+				&& (resourceType as ResourceType).fullyQualifiedName
+						== expression.type.substring(0, enumParameterNameEndIndex)
+				] as ResourceType
+
+		return '''
 			INSTANCE.data
 				.put("valueType", "enum")
-				.put("enum_origin", "«expression.type.substring(0, expression.type.length - 5)»")
+				.put("enum_origin", "«expression.type.substring(0, enumTypeEndIndex)»")
 				.put
 				(
 					"enums", new JSONArray()
-						«FOR enumValue : (((result.modelRoot.eAllContents.findFirst[resourceType |
-									resourceType instanceof ResourceType && (resourceType as ResourceType).fullyQualifiedName ==
-									expression.type.substring(0, expression.type.lastIndexOf('.'))
-								] as ResourceType).parameters.findFirst[parameter |
+						«FOR enumValue : (resourceType.parameters.findFirst[parameter |
 									parameter.name == expression.type.substring(
-									expression.type.lastIndexOf('.') + 1, expression.type.length - 5)
-								] as ParameterTypeBasic).type as RaoEnum).type.values»
+										expression.type.lastIndexOf('.') + 1, enumTypeEndIndex)
+								]  as RaoEnum).type.values»
 							.put("«enumValue»")
 						«ENDFOR»
 				);
-		''' else '''
-			INSTANCE.data.put("valueType", "«expression.type.backToRaoType»");
 		'''
 	}
 }

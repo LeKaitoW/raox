@@ -14,8 +14,10 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -25,6 +27,7 @@ import org.eclipse.jface.viewers.ILazyContentProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
@@ -102,6 +105,12 @@ public class TraceView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		viewer = new TableViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL
 				| SWT.VIRTUAL);
+
+		TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
+		TableColumnLayout tableLayout = new TableColumnLayout();
+		parent.setLayout(tableLayout);
+		tableLayout.setColumnData(column.getColumn(), new ColumnWeightData(100,
+				ColumnWeightData.MINIMUM_WIDTH));
 
 		FontRegistry fontRegistry = PlatformUI.getWorkbench().getThemeManager()
 				.getCurrentTheme().getFontRegistry();

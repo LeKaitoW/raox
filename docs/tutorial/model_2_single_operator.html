@@ -3,20 +3,12 @@
 <link rel="stylesheet" type="text/css" href="../styles/rao_general.css">
 <link rel="stylesheet" href="../styles/rao_highlight.css">
 <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
-<script src="../highlight.js.prebuilt/highlight.pack.js"></script>
+<script src="../scripts/thirdparty/highlight.pack.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
+<script src="../scripts/thirdparty/jquery-2.1.4.min.js"></script>
+<script src="../scripts/table_of_contents.js"></script>
 </head>
 <body>
-<div id="wrapper">
-    <div id="sidebar-wrapper">
-        <div class="sidebar-nav">
-            <h2><div align="center">Содержание</div></h2>
-            <li><a href="../tutorial/model_1_call_count.html">Модель подсчета количества звонков в службу технической поддержки</a></li>
-            <li><a href="../tutorial/model_2_single_operator.html">Модель службы технической поддержки с одним оператором</a></li>
-        </div>
-    </div>
-    <div id="page-content-wrapper"><div class="page-content">
-
 <h2>Модель службы технической поддержки с одним оператором</h2>
 <h3>Постановка задачи</h3>
 <p>За основу будет взята модель подсчета числа звонков, рассмотренная ранее. Необходимо промоделировать обслуживание заявок единственным оператором в течение рабочего дня, собрать статистику по длине очереди и количеству обслуженных заявок. Время на обслуживание заявки распределено по равномерному закону на интервале от 20 до 40 минут.</p>
@@ -124,10 +116,8 @@ simple.queueLengthStatistics: watch_par
     Minimum value: 0
     Maximum value: 6
     Mean: 1.0463030677141867
-    Standart deviation: 1.4991507874386485
+    Standard deviation: 1.4991507874386485
     Coefficient of variation: 214.7994355390579</code></pre>
 <p>В данной модели было рассмотрено использование подхода сканирования активностей совместно с событийным подходом для моделирования простой СМО. Было рассмотрено понятие релевантных ресурсов и способ их подбора, а также сбор подробной статистики по какому-либо параметру ресурса.</p>
-
-</div></div></div>
 </body>
 </html>

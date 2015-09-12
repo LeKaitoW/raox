@@ -5,7 +5,7 @@ import org.eclipse.swt.graphics.Image
 import org.eclipse.xtext.ui.editor.outline.impl.AbstractOutlineNode
 import org.eclipse.xtext.ui.editor.outline.IOutlineNode
 
-import ru.bmstu.rk9.rao.rao.ParameterType
+import ru.bmstu.rk9.rao.rao.Parameter
 
 import ru.bmstu.rk9.rao.rao.ResourceCreateStatement
 
@@ -36,12 +36,12 @@ class RaoOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 
 	// Resource Types
 	def _createChildren(IOutlineNode parentNode, ResourceType resourceType) {
-		for (parameterType : resourceType.eAllContents.toIterable.filter(typeof(ParameterType))) {
-			createNode(parentNode, parameterType)
+		for (parameter : resourceType.eAllContents.toIterable.filter(typeof(Parameter))) {
+			createNode(parentNode, parameter)
 		}
 	}
 
-	def _isLeaf(ParameterType parameterType) { true }
+	def _isLeaf(Parameter parameter) { true }
 
 	// Resources
 	def _isLeaf(ResourceCreateStatement resourceCreateStatement) { true }
@@ -63,10 +63,10 @@ class RaoOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 
 	// Pattern
 	def _createChildren(IOutlineNode parentNode, Pattern pattern) {
-		if (!pattern.eAllContents.filter(typeof(ParameterType)).empty) {
+		if (!pattern.eAllContents.filter(typeof(Parameter)).empty) {
 			val groupParameters = new VirtualOutlineNode(parentNode, parentNode.image, "Parameters", false)
-			for (parameterType : pattern.eAllContents.toIterable.filter(typeof(ParameterType))) {
-				createEObjectNode(groupParameters, parameterType)
+			for (parameter : pattern.eAllContents.toIterable.filter(typeof(Parameter))) {
+				createEObjectNode(groupParameters, parameter)
 			}
 		}
 
