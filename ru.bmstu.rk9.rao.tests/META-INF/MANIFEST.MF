@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ru.bmstu.rk9.rao.tests
 Bundle-Vendor: My Company
-Bundle-Version: 2.3.1
+Bundle-Version: 2.4.0
 Bundle-SymbolicName: ru.bmstu.rk9.rao.tests;singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: ru.bmstu.rk9.rao,

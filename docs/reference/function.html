@@ -1,0 +1,45 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../styles/rao_general.css">
+<link rel="stylesheet" href="../styles/rao_highlight.css">
+<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+<script src="../scripts/thirdparty/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="../scripts/thirdparty/jquery-2.1.4.min.js"></script>
+<script src="../scripts/table_of_contents.js"></script>
+</head>
+<body>
+<h2>Функции</h2>
+<p>Описание функции имеет следующий вид:</p>
+<pre><code class="rao"><i>тип_возвращаемого_значения</i> <i>имя_функции</i>(<i>описание_параметров_функции</i>) {
+    <i>тело_функции</i>
+}</code></pre>
+<p>Вызов функции имеет следующий вид:</p>
+<pre><code class="rao"><i>имя_функции</i>(<i>список_значений_параметров_функции</i>);</code></pre>
+<p>Вызов одной функции из другой:</p>
+<pre><code class="rao">double длина_линии(double x1, double y1, double x2, double y2) {
+    double y_diff = Math.abs(y2 - y2);
+    double x_diff = Math.abs(x2 - x1);
+    return Math.sqrt(y_diff * y_diff + x_diff * x_diff);
+}
+
+double периметр_треугольника(
+        double x1, double y1,
+        double x2, double y2,
+        double x3, double y3) {
+    return длина_линии(x1, y1, x2, y2) + длина_линии(x2, y2, x3, y3)
+            + длина_линии(x1, y1, x3, y3);
+}</code></pre>
+<p>Подсчет результата в конце моделирования:</p>
+<pre><code class="rao">int определить_победителя() {
+    if (игрок_1.сумма_очков &gt; игрок_2.сумма_очков)
+        return 1;
+    else if (игрок_1.сумма_очков &lt; игрок_2.сумма_очков)
+        return 2;
+    else
+        return 0;
+}
+
+result победитель = getValue(определить_победителя());</code></pre>
+</body>
+</html>

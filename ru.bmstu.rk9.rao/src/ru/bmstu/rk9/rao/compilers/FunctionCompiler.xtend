@@ -36,6 +36,8 @@ class FunctionCompiler
 		package «filename»;
 
 		import ru.bmstu.rk9.rao.lib.*;
+		import ru.bmstu.rk9.rao.lib.simulator.*;
+		import ru.bmstu.rk9.rao.lib.database.*;
 		@SuppressWarnings("all")
 
 		public class «function.type.name»
