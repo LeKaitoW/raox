@@ -36,7 +36,8 @@ import org.osgi.service.prefs.BackingStoreException;
 public class Game5ProjectConfigurator {
 
 	private static IProject game5Project;
-	private static final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+	private static final IWorkspaceRoot root = ResourcesPlugin.getWorkspace()
+			.getRoot();
 
 	public static final void initializeProject() {
 
@@ -67,7 +68,8 @@ public class Game5ProjectConfigurator {
 			projectNode.flush();
 
 			description = game5Project.getDescription();
-			description.setNatureIds(new String[] { JavaCore.NATURE_ID, XtextProjectHelper.NATURE_ID });
+			description.setNatureIds(new String[] { JavaCore.NATURE_ID,
+					XtextProjectHelper.NATURE_ID });
 			game5Project.setDescription(description, null);
 
 			game5JavaProject = JavaCore.create(game5Project);
@@ -83,15 +85,18 @@ public class Game5ProjectConfigurator {
 			final String JSEVersion = "JavaSE-1.8";
 			for (IExecutionEnvironment iExecutionEnvironment : executionEnvironments) {
 				if (iExecutionEnvironment.getId().equals(JSEVersion)) {
-					entries.add(JavaCore.newContainerEntry(JavaRuntime.newJREContainerPath(iExecutionEnvironment)));
+					entries.add(JavaCore.newContainerEntry(JavaRuntime
+							.newJREContainerPath(iExecutionEnvironment)));
 					break;
 				}
 			}
 
 			final IPath sourceFolderPath = sourceFolder.getFullPath();
-			final IClasspathEntry srcEntry = JavaCore.newSourceEntry(sourceFolderPath);
+			final IClasspathEntry srcEntry = JavaCore
+					.newSourceEntry(sourceFolderPath);
 			entries.add(srcEntry);
-			game5JavaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
+			game5JavaProject.setRawClasspath(
+					entries.toArray(new IClasspathEntry[entries.size()]), null);
 		} catch (CoreException | BackingStoreException e2) {
 			e2.printStackTrace();
 		}
@@ -103,20 +108,25 @@ public class Game5ProjectConfigurator {
 	private static void createModelFile(IFile configIFile) {
 
 		final String modelName = "game5.rao";
-		IPath modelIPath = root.getLocation().append(game5Project.getFullPath()).append(modelName);
+		IPath modelIPath = root.getLocation()
+				.append(game5Project.getFullPath()).append(modelName);
 		File modelFile = new File(modelIPath.toString());
 		IFile modelIFile = game5Project.getFile(modelName);
 		final String modelTemplatePath = "/model_template/game_5.rao";
 		try {
 			modelFile.createNewFile();
-			InputStream inputStream = Game5ProjectConfigurator.class.getClassLoader()
-					.getResourceAsStream(modelTemplatePath);
+			InputStream inputStream = Game5ProjectConfigurator.class
+					.getClassLoader().getResourceAsStream(modelTemplatePath);
 			modelIFile.create(inputStream, true, null);
-			OutputStream outputStream = new FileOutputStream(
-					configIFile.getLocation().removeLastSegments(1).append("/game5.rao").toString(), true);
-			PrintStream printStream = new PrintStream(outputStream, true, StandardCharsets.UTF_8.name());
-			final JSONObject object = ConfigurationParser.parseObject(configIFile);
-			final String configuration = ConfigurationParser.parseConfig(object);
+			OutputStream outputStream = new FileOutputStream(configIFile
+					.getLocation().removeLastSegments(1).append("/game5.rao")
+					.toString(), true);
+			PrintStream printStream = new PrintStream(outputStream, true,
+					StandardCharsets.UTF_8.name());
+			final JSONObject object = ConfigurationParser
+					.parseObject(configIFile);
+			final String configuration = ConfigurationParser
+					.parseConfig(object);
 			printStream.print(configuration);
 		} catch (CoreException | IOException e) {
 			e.printStackTrace();
@@ -126,16 +136,18 @@ public class Game5ProjectConfigurator {
 	private static final IFile createConfigFile() {
 
 		final String configName = "game5.json";
-		IPath configIPath = root.getLocation().append(game5Project.getFullPath().append(configName));
+		IPath configIPath = root.getLocation().append(
+				game5Project.getFullPath().append(configName));
 		final File configFile = new File(configIPath.toString());
 		final String configFilePath = "/model_template/config.json";
-		final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		final IWorkbenchPage page = PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow().getActivePage();
 		IFile configIFile = null; // exception pls?
 		try {
 			configFile.createNewFile();
 			configIFile = game5Project.getFile(configName);
-			InputStream inputStream = Game5ProjectConfigurator.class.getClassLoader()
-					.getResourceAsStream(configFilePath);
+			InputStream inputStream = Game5ProjectConfigurator.class
+					.getClassLoader().getResourceAsStream(configFilePath);
 			configIFile.create(inputStream, true, null);
 			page.openEditor(new FileEditorInput(configIFile), Game5View.ID);
 		} catch (CoreException | IOException e) {
