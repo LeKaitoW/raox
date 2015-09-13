@@ -348,6 +348,9 @@ public class GraphView extends JFrame implements GraphApi {
 				drawNewVertices();
 				mxRectangle graphBounds = graph.getBoundsForCells(vertexByNode
 						.values().toArray(), false, false, false);
+				if (graphBounds == null)
+					return;
+
 				if (graphBounds.getWidth() > getWidth()) {
 					layout.setMoveTree(true);
 					zoomToFit();
