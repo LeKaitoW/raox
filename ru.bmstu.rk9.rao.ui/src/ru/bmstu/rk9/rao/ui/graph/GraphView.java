@@ -517,7 +517,8 @@ public class GraphView extends JFrame {
 				+ "\n";
 		graphInfo += "Nodes opened: " + String.valueOf(info.numOpened) + "\n";
 		graphInfo += "Nodes total: " + String.valueOf(info.numNodes) + "\n";
-		graphInfo += "Depth: " + String.valueOf(info.depth);
+		graphInfo += "Max depth: " + String.valueOf(info.depth) + "\n";
+		graphInfo += "Max width: " + String.valueOf(info.width);
 
 		return graphInfo;
 	}
@@ -536,7 +537,7 @@ public class GraphView extends JFrame {
 
 			FillLayout cellInfoLayout = new FillLayout();
 			cellInfoLayout.marginHeight = 2;
-			cellInfoLayout.marginWidth = 2;
+			cellInfoLayout.marginWidth = 4;
 			cellInfoGroup.setLayout(cellInfoLayout);
 			cellInfoLabel = new Label(cellInfoGroup, SWT.NONE);
 		}
@@ -562,7 +563,7 @@ public class GraphView extends JFrame {
 
 			FillLayout graphInfoLayout = new FillLayout();
 			graphInfoLayout.marginHeight = 2;
-			graphInfoLayout.marginWidth = 2;
+			graphInfoLayout.marginWidth = 4;
 			graphInfoGroup.setLayout(graphInfoLayout);
 			graphInfoLabel = new Label(graphInfoGroup, SWT.NONE);
 		}
@@ -608,7 +609,6 @@ public class GraphView extends JFrame {
 				graph.insertEdge(graph.getDefaultParent(), null, null,
 						vertexByNode.get(node.parent), vertexByNode.get(node),
 						edgeStyle);
-
 		}
 	}
 
@@ -627,17 +627,17 @@ public class GraphView extends JFrame {
 	private final static double zoomScale = 1.2;
 
 	private void setProportions() {
-		setNodesSize(getRelativeWidth(0.05), getWidth() * 0.01,
-				getHeight() * 0.1);
+		setNodesSize(getRelativeWidth(0.05));
 	}
 
-	private final void setNodesSize(double size, double nodeDistance,
-			double levelDistance) {
-		setNodesSize((int) size, (int) nodeDistance, (int) levelDistance);
+	private final void setNodesSize(double size) {
+		setNodesSize((int) size);
 	}
 
-	private final void setNodesSize(int size, int nodeDistance,
-			int levelDistance) {
+	private final void setNodesSize(int size) {
+		int levelDistance = size / sizeToLevelDistanceRatio;
+		int nodeDistance = size / sizeToNodeDistanceRatio;
+
 		this.levelDistance = levelDistance > minLevelDistance ? levelDistance
 				: minLevelDistance;
 		this.nodeSize = size > minNodeSize ? size : minNodeSize;
@@ -659,13 +659,8 @@ public class GraphView extends JFrame {
 				/ sizeToLevelDistanceRatio;
 		double prefferredHeight = (height - minLevelOffset)
 				/ (depth * levelDistanceCoef);
-		double prefferredNodeDistance = prefferredHeight
-				/ sizeToNodeDistanceRatio;
-		double prefferredLevelDistance = prefferredHeight
-				/ sizeToLevelDistanceRatio;
 
-		setNodesSize(prefferredHeight, prefferredNodeDistance,
-				prefferredLevelDistance);
+		setNodesSize(prefferredHeight);
 
 		resizeGraph();
 		setViewOnRoot();
@@ -791,14 +786,12 @@ public class GraphView extends JFrame {
 	}
 
 	private void zoomIn() {
-		setNodesSize(nodeSize * zoomScale, nodeDistance * zoomScale,
-				levelDistance * zoomScale);
+		setNodesSize(nodeSize * zoomScale);
 		resizeGraph();
 	}
 
 	private void zoomOut() {
-		setNodesSize(nodeSize / zoomScale, nodeDistance / zoomScale,
-				levelDistance / zoomScale);
+		setNodesSize(nodeSize / zoomScale);
 		resizeGraph();
 	}
 

@@ -2,7 +2,9 @@ package ru.bmstu.rk9.rao.ui.graph;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
@@ -84,6 +86,7 @@ public class TreeBuilder {
 			Node treeNode = new Node(null, 0);
 			treeNode.depthLevel = 1;
 			graphInfo.depth = 1;
+			widthByLevel.put(1, 1);
 			nodeByNumber.add(treeNode);
 			lastAddedNodeIndex = treeNode.index;
 			break;
@@ -100,6 +103,7 @@ public class TreeBuilder {
 			graphInfo.solutionCost = finalCost;
 			graphInfo.numOpened = totalOpened;
 			graphInfo.numNodes = totalNodes;
+			graphInfo.width = calculateTreeWidth();
 
 			if (solutionFound)
 				solutionList.add(0, nodeByNumber.get(0));
@@ -158,9 +162,17 @@ public class TreeBuilder {
 				treeNode.ruleDesсription = activity.getName()
 						+ relResStringJoiner.getString();
 				treeNode.ruleCost = ruleCost;
+
 				treeNode.depthLevel = treeNode.parent.depthLevel + 1;
+				if (widthByLevel.containsKey(treeNode.depthLevel))
+					widthByLevel.put(treeNode.depthLevel,
+							widthByLevel.get(treeNode.depthLevel) + 1);
+				else
+					widthByLevel.put(treeNode.depthLevel, 1);
+
 				if (treeNode.depthLevel > graphInfo.depth)
 					graphInfo.depth = treeNode.depthLevel;
+
 				nodeByNumber.add(treeNode);
 				lastAddedNodeIndex = treeNode.index;
 				break;
@@ -184,6 +196,17 @@ public class TreeBuilder {
 		return isFinished;
 	}
 
+	private final int calculateTreeWidth() {
+		int maxWidth = 0;
+		for (Integer width : widthByLevel.values()) {
+			if (width > maxWidth)
+				maxWidth = width;
+		}
+
+		return maxWidth;
+	}
+
+	final Map<Integer, Integer> widthByLevel = new HashMap<>();
 	final List<Node> nodeByNumber = new ArrayList<Node>();
 	final List<Node> solutionList = new ArrayList<Node>();
 	final GraphInfo graphInfo = new GraphInfo();
@@ -199,6 +222,7 @@ public class TreeBuilder {
 		public int numOpened;
 		public int numNodes;
 		public int depth;
+		public int width;
 	}
 
 	public int getEntryNumber() {
