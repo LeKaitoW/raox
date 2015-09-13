@@ -538,7 +538,7 @@ public class GraphView extends JFrame implements GraphApi {
 			cellInfoGroup = new Group(graphInfoWindow.getInfoArea(), SWT.NONE);
 			cellInfoGroup.setText("Cell Info");
 			FormData cellInfoGroupData = new FormData();
-			cellInfoGroupData.left = new FormAttachment(0, 5);
+			cellInfoGroupData.left = new FormAttachment(0, 0);
 			cellInfoGroupData.top = new FormAttachment(0, 5);
 			cellInfoGroup.setLayoutData(cellInfoGroupData);
 

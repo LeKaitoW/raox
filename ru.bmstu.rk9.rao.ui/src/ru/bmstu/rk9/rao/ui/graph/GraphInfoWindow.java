@@ -19,6 +19,8 @@ public class GraphInfoWindow extends Shell {
 		windowArea = new Composite(this, SWT.FILL);
 		RowLayout windowAreaLayout = new RowLayout(numberOfAreas);
 		windowAreaLayout.fill = true;
+		windowAreaLayout.marginLeft = 5;
+		windowAreaLayout.marginRight = 5;
 		windowArea.setLayout(windowAreaLayout);
 
 		infoArea = new Composite(windowArea, SWT.FILL);
