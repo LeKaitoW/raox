@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rao.ui.wizard;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.xtext.ui.XtextProjectHelper;
+
+import ru.bmstu.rk9.rao.ui.wizard.ProjectInfo.TemplateType;
 
 public class ProjectConfigurator {
 
@@ -101,12 +104,37 @@ public class ProjectConfigurator {
 
 		try {
 			modelFile.createNewFile();
+			fillModel(modelIFile, info.getTemplate());
 			raoProject.refreshLocal(IResource.DEPTH_INFINITE, null);
 			IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 					.getActivePage(), modelIFile);
 		} catch (IOException | CoreException e) {
 			e.printStackTrace();
 		}
+	}
 
+	private static void fillModel(IFile modelIFile, TemplateType template)
+			throws CoreException {
+
+		final String modelTemplatePath;
+		switch (template) {
+		case NO_TEMPLATE:
+			return;
+		case BARBER_SIMPLE:
+			modelTemplatePath = "/model_templates/barber_simple.rao";
+			break;
+		case BARBER_EVENTS:
+			modelTemplatePath = "/model_templates/barber_events.rao";
+			break;
+		case BARBER_CLIENTS:
+			modelTemplatePath = "/model_templates/barber_clients.rao";
+			break;
+		default:
+			return;
+		}
+
+		InputStream inputStream = ProjectConfigurator.class.getClassLoader()
+				.getResourceAsStream(modelTemplatePath);
+		modelIFile.create(inputStream, true, null);
 	}
 }

@@ -62,7 +62,7 @@ public class RaoWizardPage extends WizardPage {
 
 		final Button barberEventButton = new Button(templateGroup, SWT.RADIO);
 		barberEventButton.setText("Модель простейшей СМО на событиях");
-		templates.put(barberEventButton, TemplateType.BARBER_EVENT);
+		templates.put(barberEventButton, TemplateType.BARBER_EVENTS);
 
 		final Button barberClientsButton = new Button(templateGroup, SWT.RADIO);
 		barberClientsButton.setText("Модель простейшей СМО с клиентами");
