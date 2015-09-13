@@ -369,16 +369,15 @@ public class GraphView extends JFrame implements GraphApi {
 	};
 
 	private final void onFinish() {
-		colorNodes(treeBuilder.solutionList);
+		colorNodes();
 
 		createGraphInfo();
+		graph.refresh();
 
 		mxCell cell = getSelectionVertex();
 		if (cell == null)
 			return;
 		updateButtonState(cell);
-
-		graph.refresh();
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -620,9 +619,9 @@ public class GraphView extends JFrame implements GraphApi {
 		}
 	}
 
-	private final void colorNodes(List<Node> solution) {
-		if (!solution.isEmpty()) {
-			for (Node node : solution) {
+	private final void colorNodes() {
+		if (!treeBuilder.solutionList.isEmpty()) {
+			for (Node node : treeBuilder.solutionList) {
 				vertexByNode.get(node).setStyle(solutionCellStyle);
 			}
 		}
