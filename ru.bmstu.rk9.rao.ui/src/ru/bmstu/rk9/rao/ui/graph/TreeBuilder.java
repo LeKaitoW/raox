@@ -38,6 +38,7 @@ public class TreeBuilder {
 		public Node(Node parent, int index) {
 			this.parent = parent;
 			this.index = index;
+			this.label = String.valueOf(index);
 		}
 
 		public final Node parent;
@@ -81,10 +82,9 @@ public class TreeBuilder {
 		switch (searchEntryType) {
 		case BEGIN: {
 			Node treeNode = new Node(null, 0);
-			treeNode.label = Integer.toString(treeNode.index);
 			treeNode.depthLevel = 1;
 			graphInfo.depth = 1;
-			nodeList.add(treeNode);
+			nodeByNumber.add(treeNode);
 			lastAddedNodeIndex = treeNode.index;
 			break;
 		}
@@ -100,6 +100,9 @@ public class TreeBuilder {
 			graphInfo.solutionCost = finalCost;
 			graphInfo.numOpened = totalOpened;
 			graphInfo.numNodes = totalNodes;
+
+			if (solutionFound)
+				solutionList.add(0, nodeByNumber.get(0));
 			isFinished = true;
 			break;
 		}
@@ -146,19 +149,19 @@ public class TreeBuilder {
 					relResStringJoiner.add(resourceName);
 				}
 
-				Node treeNode = new Node(nodeList.get(parentNumber), nodeNumber);
-				nodeList.get(parentNumber).children.add(treeNode);
+				Node parentNode = nodeByNumber.get(parentNumber);
+				Node treeNode = new Node(parentNode, nodeNumber);
+				parentNode.children.add(treeNode);
 				treeNode.g = g;
 				treeNode.h = h;
 				treeNode.ruleNumber = ruleNum;
 				treeNode.ruleDesсription = activity.getName()
 						+ relResStringJoiner.getString();
 				treeNode.ruleCost = ruleCost;
-				treeNode.label = Integer.toString(treeNode.index);
 				treeNode.depthLevel = treeNode.parent.depthLevel + 1;
 				if (treeNode.depthLevel > graphInfo.depth)
 					graphInfo.depth = treeNode.depthLevel;
-				nodeList.add(treeNode);
+				nodeByNumber.add(treeNode);
 				lastAddedNodeIndex = treeNode.index;
 				break;
 			}
@@ -171,9 +174,9 @@ public class TreeBuilder {
 			final ByteBuffer data = Tracer.prepareBufferForReading(entry
 					.getData());
 			final int number = data.getInt();
-			Node solutionNode = nodeList.get(number);
-			//TODO add root to solution to simplify GraphView logic
+			Node solutionNode = nodeByNumber.get(number);
 			solutionList.add(solutionNode);
+			solutionFound = true;
 			break;
 		}
 		}
@@ -181,10 +184,12 @@ public class TreeBuilder {
 		return isFinished;
 	}
 
-	public final List<Node> nodeList = new ArrayList<Node>();
-	List<Node> solutionList = new ArrayList<Node>();
-	GraphInfo graphInfo = new GraphInfo();
-	int lastAddedNodeIndex = 0;
+	final List<Node> nodeByNumber = new ArrayList<Node>();
+	final List<Node> solutionList = new ArrayList<Node>();
+	final GraphInfo graphInfo = new GraphInfo();
+	int lastAddedNodeIndex = -1;
+	private boolean solutionFound = false;
+
 	private int entryNumber = 0;
 	private final int dptNumber;
 	private final DecisionPointCache decisionPointCache;

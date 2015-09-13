@@ -100,7 +100,7 @@ public class GraphView extends JFrame {
 			/ sizeToNodeDistanceRatio;
 	private final static int minLevelDistance = minNodeSize
 			/ sizeToLevelDistanceRatio;
-	private final static int minLevelOffset = 20;
+	private final static int minLevelOffset = 40;
 
 	private final static int fontSize = mxConstants.DEFAULT_FONTSIZE;
 
@@ -139,13 +139,11 @@ public class GraphView extends JFrame {
 
 		treeBuilder = new TreeBuilder(dptNum);
 		isFinished = treeBuilder.updateTree();
-		nodeList = treeBuilder.nodeList;
 
 		graph = new mxGraph();
 		graph.getModel().beginUpdate();
 		try {
-			if (!nodeList.isEmpty())
-				drawGraph(nodeList.get(0));
+			drawNewVertices();
 			if (isFinished)
 				onFinish();
 		} finally {
@@ -224,7 +222,7 @@ public class GraphView extends JFrame {
 	private final ComponentListener componentListener = new ComponentListener() {
 		@Override
 		public void componentShown(ComponentEvent e) {
-			if (!nodeList.isEmpty())
+			if (!treeBuilder.nodeByNumber.isEmpty())
 				zoomToFit();
 		}
 
@@ -320,7 +318,6 @@ public class GraphView extends JFrame {
 	private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
 
 	private final mxGraph graph;
-	private List<Node> nodeList;
 	private final mxCompactTreeLayout layout;
 	private final mxGraphComponent graphComponent;
 
@@ -340,8 +337,8 @@ public class GraphView extends JFrame {
 			graph.getModel().beginUpdate();
 			isFinished = treeBuilder.updateTree();
 			try {
-				drawNewVertex(graph, nodeList);
-				mxRectangle graphBounds = graph.getBoundsForCells(vertexMap
+				drawNewVertices();
+				mxRectangle graphBounds = graph.getBoundsForCells(vertexByNode
 						.values().toArray(), false, false, false);
 				if (graphBounds.getWidth() > getWidth()) {
 					layout.setMoveTree(true);
@@ -396,25 +393,15 @@ public class GraphView extends JFrame {
 
 								List<Node> solutionList = treeBuilder.solutionList;
 								Node node = (Node) cell.getValue();
-								boolean inSelection = solutionList
-										.contains(node);
-								boolean isRoot = node == nodeList.get(0);
-
-								int nodeIndex;
-								Node nextNode;
-
-								if (inSelection) {
-									nodeIndex = solutionList.indexOf(node);
-									if (nodeIndex == solutionList.size() - 1)
-										return;
-									nextNode = solutionList.get(nodeIndex + 1);
-								} else if (isRoot) {
-									nextNode = solutionList.get(0);
-								} else {
+								if (!solutionList.contains(node))
 									return;
-								}
 
-								mxCell nextCell = vertexMap.get(nextNode);
+								int nodeIndex = solutionList.indexOf(node);
+								if (nodeIndex == solutionList.size() - 1)
+									return;
+								Node nextNode = solutionList.get(nodeIndex + 1);
+
+								mxCell nextCell = vertexByNode.get(nextNode);
 								graph.setSelectionCell(nextCell);
 								showCellInfo(nextCell);
 							}
@@ -438,12 +425,12 @@ public class GraphView extends JFrame {
 									return;
 
 								int nodeIndex = solutionList.indexOf(node);
-
-								Node previousNode = nodeIndex == 0 ? nodeList
-										.get(0) : solutionList
+								if (nodeIndex == 0)
+									return;
+								Node previousNode = solutionList
 										.get(nodeIndex - 1);
 
-								mxCell previousCell = vertexMap
+								mxCell previousCell = vertexByNode
 										.get(previousNode);
 								graph.setSelectionCell(previousCell);
 								showCellInfo(previousCell);
@@ -464,22 +451,21 @@ public class GraphView extends JFrame {
 		PlatformUI
 				.getWorkbench()
 				.getDisplay()
-				.asyncExec(
+				.syncExec(
 						() -> {
 							List<Node> solutionList = treeBuilder.solutionList;
 							Node node = (Node) cell.getValue();
 							boolean inSolution = solutionList.contains(node);
-							boolean isRoot = cell.getValue() == nodeList.get(0);
 							boolean inSolutionNext = inSolution
 									&& solutionList.indexOf(node) != solutionList
 											.size() - 1;
+							boolean inSolutionPrevious = inSolution
+									&& solutionList.indexOf(node) != 0;
 
 							graphInfoWindow.getButtonNext().setEnabled(
-									inSolutionNext
-											|| (isRoot && !solutionList
-													.isEmpty()));
+									inSolutionNext);
 							graphInfoWindow.getButtonPrevious().setEnabled(
-									inSolution);
+									inSolutionPrevious);
 						});
 	}
 
@@ -533,55 +519,34 @@ public class GraphView extends JFrame {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private final TreeBuilder treeBuilder;
-	final Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
-	private int lastAddedVertexIndex = 0;
+	final Map<Node, mxCell> vertexByNode = new HashMap<Node, mxCell>();
+	private int lastAddedVertexIndex = -1;
 
-	/*
-	 * TODO: two methods below looks the same, but are magically not
-	 * interchangeable. They should be merged in one.
-	 */
-	private final void drawGraph(Node parentNode) {
-		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(),
-				null, parentNode, getAbsoluteX(0.5), getAbsoluteY(0.05),
-				nodeSize, nodeSize, regularCellStyle);
-		vertexMap.put(parentNode, vertex);
-		lastAddedVertexIndex = parentNode.index;
-		updateTypicalDimensions(parentNode);
-		if (parentNode.parent != null)
-			graph.insertEdge(graph.getDefaultParent(), null, null,
-					vertexMap.get(parentNode.parent),
-					vertexMap.get(parentNode), regularCellStyle);
-		if (parentNode.children.size() != 0)
-			for (int i = 0; i < parentNode.children.size(); i++)
-				drawGraph(nodeList.get(parentNode.children.get(i).index));
-	}
-
-	private final void drawNewVertex(mxGraph graph, List<Node> nodeList) {
+	private final void drawNewVertices() {
 		int lastAddedNodeIndex = treeBuilder.lastAddedNodeIndex;
-		for (int i = lastAddedVertexIndex; i <= lastAddedNodeIndex; i++) {
-			Node node = nodeList.get(i);
-			if (!vertexMap.containsKey(node)) {
-				mxCell vertex = (mxCell) graph.insertVertex(
-						graph.getDefaultParent(), null, node,
-						getAbsoluteX(0.5), getAbsoluteY(0.05), nodeSize,
-						nodeSize, regularCellStyle);
-				vertexMap.put(node, vertex);
-				lastAddedVertexIndex = node.index;
-				updateTypicalDimensions(node);
-				if (node.parent != null)
-					graph.insertEdge(graph.getDefaultParent(), null, null,
-							vertexMap.get(node.parent), vertexMap.get(node),
-							edgeStyle);
-			}
+
+		while (lastAddedVertexIndex < lastAddedNodeIndex) {
+			lastAddedVertexIndex++;
+
+			Node node = treeBuilder.nodeByNumber.get(lastAddedVertexIndex);
+			mxCell vertex = (mxCell) graph.insertVertex(
+					graph.getDefaultParent(), null, node, getAbsoluteX(0.5),
+					getAbsoluteY(0.05), nodeSize, nodeSize, regularCellStyle);
+			vertexByNode.put(node, vertex);
+			updateTypicalDimensions(node);
+
+			if (node.parent != null)
+				graph.insertEdge(graph.getDefaultParent(), null, null,
+						vertexByNode.get(node.parent), vertexByNode.get(node),
+						edgeStyle);
+
 		}
 	}
 
 	private final void colorNodes(List<Node> solution) {
 		if (!solution.isEmpty()) {
-			Node rootNode = nodeList.get(0);
-			vertexMap.get(rootNode).setStyle(solutionCellStyle);
-			for (int i = 0; i < solution.size(); i++) {
-				vertexMap.get(solution.get(i)).setStyle(solutionCellStyle);
+			for (Node node : solution) {
+				vertexByNode.get(node).setStyle(solutionCellStyle);
 			}
 		}
 	}
@@ -639,7 +604,7 @@ public class GraphView extends JFrame {
 
 	private void setViewOnRoot() {
 		Rectangle paneBounds = graphComponent.getViewport().getViewRect();
-		mxRectangle graphBounds = graph.getBoundsForCells(vertexMap.values()
+		mxRectangle graphBounds = graph.getBoundsForCells(vertexByNode.values()
 				.toArray(), false, false, false);
 
 		int x = (int) ((graphBounds.getWidth() - paneBounds.width) / 2);
@@ -698,7 +663,7 @@ public class GraphView extends JFrame {
 		SizeType type = checkSize();
 		switch (type) {
 		case BRIEF:
-			for (mxCell cell : vertexMap.values()) {
+			for (mxCell cell : vertexByNode.values()) {
 				Node node = (Node) cell.getValue();
 				final String number = Integer.toString(node.index);
 				node.label = number;
@@ -706,7 +671,7 @@ public class GraphView extends JFrame {
 			}
 			break;
 		case NORMAL:
-			for (mxCell cell : vertexMap.values()) {
+			for (mxCell cell : vertexByNode.values()) {
 				Node node = (Node) cell.getValue();
 				final String number = Integer.toString(node.index);
 				final String costFunction = Double.toString(node.g + node.h)
@@ -718,7 +683,7 @@ public class GraphView extends JFrame {
 			}
 			break;
 		case FULL:
-			for (mxCell cell : vertexMap.values()) {
+			for (mxCell cell : vertexByNode.values()) {
 				Node node = (Node) cell.getValue();
 				final String number = Integer.toString(node.index);
 				final String costFunction = Double.toString(node.g + node.h)
@@ -738,12 +703,12 @@ public class GraphView extends JFrame {
 
 	private void resizeGraph() {
 		final mxRectangle bound = new mxRectangle(0, 0, nodeSize, nodeSize);
-		final mxRectangle[] bounds = new mxRectangle[vertexMap.size()];
-		for (int i = 0; i < vertexMap.size(); i++) {
+		final mxRectangle[] bounds = new mxRectangle[vertexByNode.size()];
+		for (int i = 0; i < vertexByNode.size(); i++) {
 			bounds[i] = bound;
 		}
 
-		final Object[] cells = vertexMap.values().toArray();
+		final Object[] cells = vertexByNode.values().toArray();
 		graph.getModel().beginUpdate();
 		try {
 			graph.resizeCells(cells, bounds);
