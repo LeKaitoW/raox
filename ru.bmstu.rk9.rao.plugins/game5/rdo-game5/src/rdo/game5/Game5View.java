@@ -722,12 +722,13 @@ public class Game5View extends EditorPart {
 		@Override
 		public void fireChange() {
 			final Display display = PlatformUI.getWorkbench().getDisplay();
-			display.asyncExec(() -> GraphControl.openFrameWindow(new FrameInfo(
-					0, "Расстановка_фишек")));
-			display.asyncExec(() -> new GraphManager(
-					GraphControl.openedGraphMap.get(0).getGraph(),
-					OrderConfigurator.inverseOrderPlaces((JSONArray) object
-							.get("places"))));
+			display.asyncExec(() -> {
+				GraphControl.openFrameWindow(new FrameInfo(0,
+						"Расстановка_фишек"));
+				new GraphManager(GraphControl.openedGraphMap.get(0).getGraph(),
+						OrderConfigurator.inverseOrderPlaces((JSONArray) object
+								.get("places")));
+			});
 		}
 	};
 }
