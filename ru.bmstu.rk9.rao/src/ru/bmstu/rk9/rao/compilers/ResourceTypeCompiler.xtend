@@ -151,7 +151,7 @@ class ResourceTypeCompiler
 			}
 
 			«FOR parameter : resourceType.parameters»
-				private volatile «parameter.compileType» «parameter.name»«parameter.getDefault»;
+				private volatile «parameter.compileType» «parameter.name»«parameter.getDefaultValue»;
 
 				public «parameter.compileType» get_«parameter.name»()
 				{
@@ -589,7 +589,7 @@ class ResourceTypeCompiler
 		type.compileTypePrimitive
 	}
 
-	def static String getDefault(Parameter parameter)
+	def static String getDefaultValue(Parameter parameter)
 	{
 		switch parameter.type
 		{
