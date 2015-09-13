@@ -32,6 +32,8 @@ public class GraphManager {
 		public void invoke(Object sender, mxEventObject evt) {
 			final mxGraphSelectionModel mxGraphSelectionModel = (mxGraphSelectionModel) sender;
 			final mxCell mxCell = (mxCell) mxGraphSelectionModel.getCell();
+			if (mxCell == null)
+				return;
 			if (!(mxCell.getValue() instanceof Node)) {
 				return;
 			}
