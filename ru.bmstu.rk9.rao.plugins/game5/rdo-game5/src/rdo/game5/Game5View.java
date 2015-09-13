@@ -206,7 +206,7 @@ public class Game5View extends EditorPart {
 		simulationGroup.setLayoutData(simulationData);
 
 		final Group heuristicSelection = new Group(parent, SWT.SHADOW_IN);
-		heuristicSelection.setText("Select heuristic:");
+		heuristicSelection.setText("Heuristic:");
 		heuristicSelection.setLayout(gridLayout);
 		final GridData heuristicGridData = new GridData(SWT.FILL, SWT.FILL,
 				false, false);
