@@ -43,7 +43,7 @@ import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphSelectionModel;
 
-public class GraphView extends JFrame {
+public class GraphView extends JFrame implements GraphApi {
 
 	private static final long serialVersionUID = 1668866556340389760L;
 
@@ -79,6 +79,7 @@ public class GraphView extends JFrame {
 		return new GraphMenuItem(parent);
 	}
 
+	@Override
 	public mxGraph getGraph() {
 		return graph;
 	}
@@ -282,7 +283,8 @@ public class GraphView extends JFrame {
 	final Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
 	private int lastAddedVertexIndex = 0;
 
-	/* TODO: two methods below looks the same, but are magically not
+	/*
+	 * TODO: two methods below looks the same, but are magically not
 	 * interchangeable. They should be merged in one.
 	 */
 	private void drawGraph(mxGraph graph, List<Node> nodeList, Node parentNode) {
