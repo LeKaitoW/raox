@@ -23,9 +23,11 @@ import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.PlatformUI;
@@ -38,6 +40,7 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
+import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.GraphInfo;
 import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.Node;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView.ConditionalMenuItem;
@@ -266,7 +269,7 @@ public class GraphView extends JFrame {
 				openGraphInfo();
 			}
 
-			showCellInfo(cell);
+			updateInfo(cell);
 			updateButtonState(cell);
 		}
 	};
@@ -368,6 +371,9 @@ public class GraphView extends JFrame {
 
 	private GraphInfoWindow graphInfoWindow = null;
 	private Label cellInfoLabel = null;
+	private Label graphInfoLabel = null;
+	private Group cellInfoGroup = null;
+	private Group graphInfoGroup = null;
 
 	public final GraphInfoWindow getGraphInfoWindow() {
 		return graphInfoWindow;
@@ -403,7 +409,7 @@ public class GraphView extends JFrame {
 
 								mxCell nextCell = vertexByNode.get(nextNode);
 								graph.setSelectionCell(nextCell);
-								showCellInfo(nextCell);
+								updateInfo(nextCell);
 							}
 
 							@Override
@@ -433,7 +439,7 @@ public class GraphView extends JFrame {
 								mxCell previousCell = vertexByNode
 										.get(previousNode);
 								graph.setSelectionCell(previousCell);
-								showCellInfo(previousCell);
+								updateInfo(previousCell);
 							}
 
 							@Override
@@ -469,47 +475,89 @@ public class GraphView extends JFrame {
 						});
 	}
 
-	private final void showCellInfo(mxCell cell) {
-		Node cellNode = (Node) cell.getValue();
-		final String nodeIndex = "Номер вершины: "
-				+ Integer.toString(cellNode.index) + "\n";
-
-		String parentIndex = "Корневая вершина";
-		if (cellNode.parent != null) {
-			parentIndex = "Номер вершины родителя: "
-					+ Integer.toString(cellNode.parent.index);
-		}
-		parentIndex += "\n";
-
-		final String g = "Стоимость пути g = " + Double.toString(cellNode.g)
-				+ "\n";
-		final String h = "Стоимость оставшегося пути h = "
-				+ Double.toString(cellNode.h) + "\n";
-		final String ruleName = cellNode.ruleDesсription + "\n";
-		final String ruleCost = "Стоимость применения правила = "
-				+ Double.toString(cellNode.ruleCost) + "\n";
-		final String text = nodeIndex + parentIndex + g + h + ruleName
-				+ ruleCost;
-
-		addCellInfo(text);
+	private final void updateInfo(mxCell cell) {
+		Node node = (Node) cell.getValue();
+		String cellInfo = getCellInfo(node);
+		addInfo(cellInfo);
 	}
 
-	private final void addCellInfo(String info) {
+	private final String getCellInfo(Node node) {
+		String cellInfo = "";
+		cellInfo += "Node number: " + String.valueOf(node.index) + "\n";
+
+		String parentName = "Root";
+		if (node.parent != null) {
+			parentName = "Parent node number: "
+					+ String.valueOf(node.parent.index);
+		}
+		parentName += "\n";
+
+		cellInfo += parentName;
+		cellInfo += "Path cost (g) = " + Double.toString(node.g) + "\n";
+		cellInfo += "Remaining path cost (h) = " + Double.toString(node.h)
+				+ "\n";
+		cellInfo += node.ruleDesсription + "\n";
+		cellInfo += "Rule cost = " + Double.toString(node.ruleCost);
+
+		return cellInfo;
+	}
+
+	private final String getGraphInfo() {
+		GraphInfo info = treeBuilder.graphInfo;
+		String graphInfo = "";
+		graphInfo += "Solution cost: " + String.valueOf(info.solutionCost)
+				+ "\n";
+		graphInfo += "Nodes opened: " + String.valueOf(info.numOpened) + "\n";
+		graphInfo += "Nodes total: " + String.valueOf(info.numNodes) + "\n";
+		graphInfo += "Depth: " + String.valueOf(info.depth);
+
+		return graphInfo;
+	}
+
+	private final void addInfo(String info) {
 		Display display = PlatformUI.getWorkbench().getDisplay();
 
 		display.syncExec(() -> {
 			if (graphInfoWindow == null || graphInfoWindow.isDisposed())
 				return;
 
-			if (cellInfoLabel == null || cellInfoLabel.isDisposed()) {
-				cellInfoLabel = new Label(graphInfoWindow.getInfoArea(),
+			if (cellInfoGroup == null || cellInfoGroup.isDisposed()) {
+				cellInfoGroup = new Group(graphInfoWindow.getInfoArea(),
 						SWT.NONE);
-				FormData cellInfoFormData = new FormData();
-				cellInfoFormData.left = new FormAttachment(0, 5);
-				cellInfoFormData.top = new FormAttachment(0, 5);
+				cellInfoGroup.setText("Cell Info");
+				FormData cellInfoGroupData = new FormData();
+				cellInfoGroupData.right = new FormAttachment(100, -5);
+				cellInfoGroupData.top = new FormAttachment(0, 5);
+				cellInfoGroup.setLayoutData(cellInfoGroupData);
+
+				FillLayout cellInfoLayout = new FillLayout();
+				cellInfoLayout.marginHeight = 2;
+				cellInfoLayout.marginWidth = 2;
+				cellInfoGroup.setLayout(cellInfoLayout);
+				cellInfoLabel = new Label(cellInfoGroup, SWT.NONE);
+
+				if (isFinished) {
+					graphInfoGroup = new Group(graphInfoWindow.getInfoArea(),
+							SWT.NONE);
+					graphInfoGroup.setText("Graph Info");
+					FormData graphInfoGroupData = new FormData();
+					graphInfoGroupData.right = new FormAttachment(
+							cellInfoGroup, -5);
+					graphInfoGroupData.top = new FormAttachment(0, 5);
+					graphInfoGroup.setLayoutData(graphInfoGroupData);
+
+					FillLayout graphInfoLayout = new FillLayout();
+					graphInfoLayout.marginHeight = 2;
+					graphInfoLayout.marginWidth = 2;
+					graphInfoGroup.setLayout(graphInfoLayout);
+					graphInfoLabel = new Label(graphInfoGroup, SWT.NONE);
+				}
 			}
 
 			cellInfoLabel.setText(info);
+			if (isFinished) {
+				graphInfoLabel.setText(getGraphInfo());
+			}
 			graphInfoWindow.updateContents();
 		});
 	}
@@ -731,6 +779,7 @@ public class GraphView extends JFrame {
 		setNodesSize(nodeSize / zoomScale, nodeDistance / zoomScale,
 				levelDistance / zoomScale);
 		resizeGraph();
+		setViewOnRoot();
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

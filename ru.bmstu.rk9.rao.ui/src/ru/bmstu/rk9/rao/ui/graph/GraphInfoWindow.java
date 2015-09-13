@@ -33,13 +33,13 @@ public class GraphInfoWindow extends Shell {
 		buttonNext = new Button(buttonArea, SWT.NONE);
 		buttonNext.setText("Next Cell");
 
-		FormData buttonNextFormData = new FormData();
-		buttonNextFormData.right = new FormAttachment(100, -5);
-		buttonNext.setLayoutData(buttonNextFormData);
-
 		FormData buttonPreviousFormData = new FormData();
-		buttonPreviousFormData.right = new FormAttachment(buttonNext, -5);
+		buttonPreviousFormData.left = new FormAttachment(0, 5);
 		buttonPrevious.setLayoutData(buttonPreviousFormData);
+
+		FormData buttonNextFormData = new FormData();
+		buttonNextFormData.left = new FormAttachment(buttonPrevious, 5);
+		buttonNext.setLayoutData(buttonNextFormData);
 
 		updateContents();
 	}
