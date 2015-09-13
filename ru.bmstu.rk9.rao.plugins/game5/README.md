@@ -20,6 +20,10 @@ git clone git@github.com:lekaitow/rdo-game5.git
 * `File` `>` `Import` `>` `General` `>` `Existing Projects into Workspace``>` `Select root directory` `>` `/home/USERNAME/git/rdo-game5` `>` `Finish`
 * `Run` `>` `Run As` `>` `Eclipse Application`
 
+>**[!]** Fix [bug](https://bugs.eclipse.org/bugs/show_bug.cgi?id=463733) in Eclipse Mars under Linux:
+`Run` > `Run Configurations` > `Eclipse Application` > Tab `Environment` > `New...` >
+`Name:` = ` SWT_GTK3 ` > `Value:` = `0` > `OK` > `Apply` > `Run`
+
 ## Running  
 * `Window` `>` `Open Perspective` `>` `Other...` `>` `Rao`
 * `Plugins` > `Game 5` > `Model name:`(must be valid java identificator) > `Ok`
