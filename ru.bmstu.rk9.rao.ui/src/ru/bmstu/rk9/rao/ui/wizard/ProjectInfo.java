@@ -6,16 +6,16 @@ public class ProjectInfo {
 	private final String projectName;
 	private final TemplateType template;
 	
-	public ProjectInfo(String projectName, TemplateType template) {
+	public ProjectInfo(final String projectName, final TemplateType template) {
 		this.projectName = projectName;
 		this.template = template;
 	}
 	
-	public String getProjectName() {
+	public final String getProjectName() {
 		return projectName;
 	}
 	
-	public TemplateType getTemplate() {
+	public final TemplateType getTemplate() {
 		return template;
 	}
 }

@@ -27,19 +27,21 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 
-import ru.bmstu.rk9.rao.ui.wizard.ProjectInfo.TemplateType;
-
 public class ProjectConfigurator {
 
-	private static IProject raoProject;
-	private static final IWorkspaceRoot root = ResourcesPlugin.getWorkspace()
-			.getRoot();
-
-	public static final void initializeProject(ProjectInfo info) {
-
+	public ProjectConfigurator(final ProjectInfo info) {
+		this.info = info;
+		root = ResourcesPlugin.getWorkspace().getRoot();
 		raoProject = root.getProject(info.getProjectName() + "_project");
-		IServiceLocator serviceLocator = PlatformUI.getWorkbench();
-		IProgressMonitor iProgressMonitor = (IProgressMonitor) serviceLocator
+	}
+
+	private final IWorkspaceRoot root;
+	private final ProjectInfo info;
+	private final IProject raoProject;
+
+	public final void initializeProject() {
+		final IServiceLocator serviceLocator = PlatformUI.getWorkbench();
+		final IProgressMonitor iProgressMonitor = (IProgressMonitor) serviceLocator
 				.getService(IProgressMonitor.class);
 		try {
 			if (!raoProject.exists()) {
@@ -51,13 +53,12 @@ public class ProjectConfigurator {
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
-		createModelFile(info);
+		createModelFile();
 	}
 
-	private static final void configureProject() {
-
-		IProjectDescription description;
-		IJavaProject game5JavaProject;
+	private final void configureProject() {
+		final IProjectDescription description;
+		final IJavaProject game5JavaProject;
 
 		try {
 			description = raoProject.getDescription();
@@ -94,17 +95,16 @@ public class ProjectConfigurator {
 		}
 	}
 
-	private static void createModelFile(ProjectInfo info) {
-
+	private final void createModelFile() {
 		final String modelName = info.getProjectName() + ".rao";
-		IPath modelIPath = root.getLocation().append(raoProject.getFullPath())
+		final IPath modelIPath = root.getLocation().append(raoProject.getFullPath())
 				.append(modelName);
-		File modelFile = new File(modelIPath.toString());
-		IFile modelIFile = raoProject.getFile(modelName);
+		final File modelFile = new File(modelIPath.toString());
+		final IFile modelIFile = raoProject.getFile(modelName);
 
 		try {
 			modelFile.createNewFile();
-			fillModel(modelIFile, info.getTemplate());
+			fillModel(modelIFile);
 			raoProject.refreshLocal(IResource.DEPTH_INFINITE, null);
 			IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 					.getActivePage(), modelIFile);
@@ -113,11 +113,9 @@ public class ProjectConfigurator {
 		}
 	}
 
-	private static void fillModel(IFile modelIFile, TemplateType template)
-			throws CoreException {
-
+	private final void fillModel(final IFile modelIFile) throws CoreException {
 		final String modelTemplatePath;
-		switch (template) {
+		switch (info.getTemplate()) {
 		case NO_TEMPLATE:
 			return;
 		case BARBER_SIMPLE:
