@@ -27,11 +27,8 @@ public class GraphInfoWindow extends Shell {
 		buttonArea = new Composite(windowArea, SWT.FILL);
 		buttonArea.setLayout(new FormLayout());
 
-		buttonPrevious = new Button(buttonArea, SWT.NONE);
-		buttonPrevious.setText("Previous Cell");
-
-		buttonNext = new Button(buttonArea, SWT.NONE);
-		buttonNext.setText("Next Cell");
+		buttonPrevious = new Button(buttonArea, SWT.ARROW | SWT.LEFT);
+		buttonNext = new Button(buttonArea, SWT.ARROW | SWT.RIGHT);
 
 		FormData buttonPreviousFormData = new FormData();
 		buttonPreviousFormData.left = new FormAttachment(0, 5);
