@@ -800,7 +800,6 @@ public class GraphView extends JFrame {
 		setNodesSize(nodeSize / zoomScale, nodeDistance / zoomScale,
 				levelDistance / zoomScale);
 		resizeGraph();
-		setViewOnRoot();
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
