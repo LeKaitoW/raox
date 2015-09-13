@@ -362,6 +362,14 @@ public class GraphView extends JFrame {
 
 	private final void onFinish() {
 		colorNodes(treeBuilder.solutionList);
+
+		createGraphInfo();
+
+		mxCell cell = getSelectionVertex();
+		if (cell == null)
+			return;
+		updateButtonState(cell);
+
 		graph.refresh();
 	}
 
@@ -514,51 +522,64 @@ public class GraphView extends JFrame {
 		return graphInfo;
 	}
 
-	private final void addInfo(String info) {
+	private final void createCellInfo(String cellInfo) {
+		if (graphInfoWindow == null || graphInfoWindow.isDisposed())
+			return;
+
+		if (cellInfoGroup == null || cellInfoGroup.isDisposed()) {
+			cellInfoGroup = new Group(graphInfoWindow.getInfoArea(), SWT.NONE);
+			cellInfoGroup.setText("Cell Info");
+			FormData cellInfoGroupData = new FormData();
+			cellInfoGroupData.left = new FormAttachment(0, 5);
+			cellInfoGroupData.top = new FormAttachment(0, 5);
+			cellInfoGroup.setLayoutData(cellInfoGroupData);
+
+			FillLayout cellInfoLayout = new FillLayout();
+			cellInfoLayout.marginHeight = 2;
+			cellInfoLayout.marginWidth = 2;
+			cellInfoGroup.setLayout(cellInfoLayout);
+			cellInfoLabel = new Label(cellInfoGroup, SWT.NONE);
+		}
+
+		cellInfoLabel.setText(cellInfo);
+		graphInfoWindow.updateContents();
+	}
+
+	private final void createGraphInfo() {
+		if (!isFinished)
+			return;
+
+		if (graphInfoWindow == null || graphInfoWindow.isDisposed())
+			return;
+
+		if (graphInfoGroup == null || graphInfoGroup.isDisposed()) {
+			graphInfoGroup = new Group(graphInfoWindow.getInfoArea(), SWT.NONE);
+			graphInfoGroup.setText("Graph Info");
+			FormData graphInfoGroupData = new FormData();
+			graphInfoGroupData.left = new FormAttachment(cellInfoGroup, 5);
+			graphInfoGroupData.top = new FormAttachment(0, 5);
+			graphInfoGroup.setLayoutData(graphInfoGroupData);
+
+			FillLayout graphInfoLayout = new FillLayout();
+			graphInfoLayout.marginHeight = 2;
+			graphInfoLayout.marginWidth = 2;
+			graphInfoGroup.setLayout(graphInfoLayout);
+			graphInfoLabel = new Label(graphInfoGroup, SWT.NONE);
+		}
+
+		graphInfoLabel.setText(getGraphInfo());
+		graphInfoWindow.updateContents();
+	}
+
+	private final void addInfo(String cellInfo) {
 		Display display = PlatformUI.getWorkbench().getDisplay();
 
 		display.syncExec(() -> {
 			if (graphInfoWindow == null || graphInfoWindow.isDisposed())
 				return;
 
-			if (cellInfoGroup == null || cellInfoGroup.isDisposed()) {
-				cellInfoGroup = new Group(graphInfoWindow.getInfoArea(),
-						SWT.NONE);
-				cellInfoGroup.setText("Cell Info");
-				FormData cellInfoGroupData = new FormData();
-				cellInfoGroupData.right = new FormAttachment(100, -5);
-				cellInfoGroupData.top = new FormAttachment(0, 5);
-				cellInfoGroup.setLayoutData(cellInfoGroupData);
-
-				FillLayout cellInfoLayout = new FillLayout();
-				cellInfoLayout.marginHeight = 2;
-				cellInfoLayout.marginWidth = 2;
-				cellInfoGroup.setLayout(cellInfoLayout);
-				cellInfoLabel = new Label(cellInfoGroup, SWT.NONE);
-
-				if (isFinished) {
-					graphInfoGroup = new Group(graphInfoWindow.getInfoArea(),
-							SWT.NONE);
-					graphInfoGroup.setText("Graph Info");
-					FormData graphInfoGroupData = new FormData();
-					graphInfoGroupData.right = new FormAttachment(
-							cellInfoGroup, -5);
-					graphInfoGroupData.top = new FormAttachment(0, 5);
-					graphInfoGroup.setLayoutData(graphInfoGroupData);
-
-					FillLayout graphInfoLayout = new FillLayout();
-					graphInfoLayout.marginHeight = 2;
-					graphInfoLayout.marginWidth = 2;
-					graphInfoGroup.setLayout(graphInfoLayout);
-					graphInfoLabel = new Label(graphInfoGroup, SWT.NONE);
-				}
-			}
-
-			cellInfoLabel.setText(info);
-			if (isFinished) {
-				graphInfoLabel.setText(getGraphInfo());
-			}
-			graphInfoWindow.updateContents();
+			createCellInfo(cellInfo);
+			createGraphInfo();
 		});
 	}
 
@@ -783,7 +804,7 @@ public class GraphView extends JFrame {
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-	// ----------------------- RELATIVE COORINATES ------------------------- //
+	// ----------------------- RELATIVE COORDINATES ------------------------ //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private double getAspectRatio() {

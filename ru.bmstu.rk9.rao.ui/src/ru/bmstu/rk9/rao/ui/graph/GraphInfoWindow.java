@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Shell;
 
 public class GraphInfoWindow extends Shell {
 	GraphInfoWindow(Display display) {
-		setText("Cell Info");
+		setText("Graph Info");
 		setLayout(new FillLayout());
 
 		windowArea = new Composite(this, SWT.FILL);
