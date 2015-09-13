@@ -444,7 +444,7 @@ class RaoExpressionCompiler
 
 						if (parameter != null && compiled.type == "unknown"
 								&& checkValidEnumID(parameter.compileType, compiled.value))
-							compiled.value = parameter + "."
+							compiled.value = parameter.compileType + "."
 									+ compiled.value.substring(compiled.value.lastIndexOf('.') + 1)
 
 						if (parameter != null && parameter.type.isStandardType)
