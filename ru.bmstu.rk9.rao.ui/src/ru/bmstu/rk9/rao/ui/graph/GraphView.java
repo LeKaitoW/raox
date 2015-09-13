@@ -56,7 +56,7 @@ import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxGraph;
 
-public class GraphView extends JFrame {
+public class GraphView extends JFrame implements GraphApi {
 
 	private static final long serialVersionUID = 1668866556340389760L;
 
@@ -90,6 +90,11 @@ public class GraphView extends JFrame {
 
 	static public ConditionalMenuItem createConditionalMenuItem(Menu parent) {
 		return new GraphMenuItem(parent);
+	}
+
+	@Override
+	public mxGraph getGraph() {
+		return graph;
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
