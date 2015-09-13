@@ -22,7 +22,7 @@ public class GraphInfoWindow extends Shell {
 		windowArea.setLayout(windowAreaLayout);
 
 		infoArea = new Composite(windowArea, SWT.FILL);
-		infoArea.setLayout(new FillLayout());
+		infoArea.setLayout(new FormLayout());
 
 		buttonArea = new Composite(windowArea, SWT.FILL);
 		buttonArea.setLayout(new FormLayout());

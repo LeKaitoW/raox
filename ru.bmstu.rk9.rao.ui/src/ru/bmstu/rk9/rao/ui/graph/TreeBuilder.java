@@ -35,16 +35,22 @@ public class TreeBuilder {
 	}
 
 	public class Node {
-		public Node parent;
-		public List<Node> children = new ArrayList<Node>();
-		public int index;
+		public Node(Node parent, int index) {
+			this.parent = parent;
+			this.index = index;
+		}
+
+		public final Node parent;
+		public final List<Node> children = new ArrayList<Node>();
+		public final int index;
+
+		public int depthLevel;
 		public double g;
 		public double h;
 		public int ruleNumber;
 		public String ruleDesсription;
 		public double ruleCost;
 		public String label;
-		public int depthLevel;
 
 		@Override
 		public String toString() {
@@ -74,9 +80,7 @@ public class TreeBuilder {
 
 		switch (searchEntryType) {
 		case BEGIN: {
-			Node treeNode = new Node();
-			treeNode.parent = null;
-			treeNode.index = 0;
+			Node treeNode = new Node(null, 0);
 			treeNode.label = Integer.toString(treeNode.index);
 			treeNode.depthLevel = 1;
 			graphInfo.depth = 1;
@@ -108,8 +112,7 @@ public class TreeBuilder {
 					.values()[data.get()];
 			switch (spawnStatus) {
 			case NEW:
-			case BETTER:
-				Node treeNode = new Node();
+			case BETTER: {
 				final int nodeNumber = data.getInt();
 				final int parentNumber = data.getInt();
 				final double g = data.getDouble();
@@ -119,8 +122,6 @@ public class TreeBuilder {
 						.get(ruleNum);
 				final int patternNumber = activity.getPatternNumber();
 				final double ruleCost = data.getDouble();
-				treeNode.parent = nodeList.get(parentNumber);
-				nodeList.get(parentNumber).children.add(treeNode);
 
 				final int numberOfRelevantResources = Simulator
 						.getModelStructureCache().getPatternsInfo()
@@ -145,13 +146,14 @@ public class TreeBuilder {
 					relResStringJoiner.add(resourceName);
 				}
 
+				Node treeNode = new Node(nodeList.get(parentNumber), nodeNumber);
+				nodeList.get(parentNumber).children.add(treeNode);
 				treeNode.g = g;
 				treeNode.h = h;
 				treeNode.ruleNumber = ruleNum;
 				treeNode.ruleDesсription = activity.getName()
 						+ relResStringJoiner.getString();
 				treeNode.ruleCost = ruleCost;
-				treeNode.index = nodeNumber;
 				treeNode.label = Integer.toString(treeNode.index);
 				treeNode.depthLevel = treeNode.parent.depthLevel + 1;
 				if (treeNode.depthLevel > graphInfo.depth)
@@ -159,6 +161,7 @@ public class TreeBuilder {
 				nodeList.add(treeNode);
 				lastAddedNodeIndex = treeNode.index;
 				break;
+			}
 			case WORSE:
 				break;
 			}
@@ -169,6 +172,7 @@ public class TreeBuilder {
 					.getData());
 			final int number = data.getInt();
 			Node solutionNode = nodeList.get(number);
+			//TODO add root to solution to simplify GraphView logic
 			solutionList.add(solutionNode);
 			break;
 		}

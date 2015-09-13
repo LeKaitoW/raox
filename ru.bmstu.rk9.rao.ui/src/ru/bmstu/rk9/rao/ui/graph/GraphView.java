@@ -23,6 +23,8 @@ import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
@@ -50,7 +52,6 @@ import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxGraphSelectionModel;
 
 public class GraphView extends JFrame {
 
@@ -172,30 +173,21 @@ public class GraphView extends JFrame {
 		graph.setCellsResizable(false);
 		graph.setAllowDanglingEdges(false);
 
-		graph.getSelectionModel().addListener(mxEvent.CHANGE,
-				new mxIEventListener() {
-
-					private mxCell cellInfo;
-
-					@Override
-					public void invoke(Object sender, mxEventObject evt) {
-						mxGraphSelectionModel selectionModel = (mxGraphSelectionModel) sender;
-						mxCell cell = (mxCell) selectionModel.getCell();
-						if (cell != null && cell.isVertex() && cell != cellInfo) {
-							graph.getModel().beginUpdate();
-							try {
-								showCellInfo(cell);
-							} finally {
-								graph.getModel().endUpdate();
-							}
-						}
-					}
-				});
-
 		this.addComponentListener(componentListener);
 		this.addKeyListener(keyListener);
 		graphComponent.addKeyListener(keyListener);
 		graphComponent.getGraphControl().addMouseListener(mouseListener);
+
+		graph.getSelectionModel().addListener(mxEvent.CHANGE,
+				new mxIEventListener() {
+					@Override
+					public void invoke(Object sender, mxEventObject evt) {
+						mxCell cell = getSelectionVertex();
+						if (cell == null)
+							return;
+						updateButtonState(cell);
+					}
+				});
 
 		if (!isFinished)
 			initializeSubscribers();
@@ -212,6 +204,21 @@ public class GraphView extends JFrame {
 		}
 
 		super.dispose();
+	}
+
+	private final mxCell getSelectionVertex() {
+		if (graph.getSelectionCell() == null)
+			return null;
+
+		mxCell cell = (mxCell) graph.getSelectionCell();
+
+		if (!cell.isVertex())
+			return null;
+
+		if (!(cell.getValue() instanceof Node))
+			return null;
+
+		return cell;
 	}
 
 	private final ComponentListener componentListener = new ComponentListener() {
@@ -253,12 +260,8 @@ public class GraphView extends JFrame {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			if (graph.getSelectionCell() == null)
-				return;
-
-			mxCell cell = (mxCell) graph.getSelectionCell();
-
-			if (!cell.isVertex())
+			mxCell cell = getSelectionVertex();
+			if (cell == null)
 				return;
 
 			if (e.getClickCount() > 1) {
@@ -266,6 +269,7 @@ public class GraphView extends JFrame {
 			}
 
 			showCellInfo(cell);
+			updateButtonState(cell);
 		}
 	};
 
@@ -357,9 +361,7 @@ public class GraphView extends JFrame {
 	};
 
 	private final void onFinish() {
-		List<Node> solution = treeBuilder.solutionList;
-		colorNodes(solution);
-
+		colorNodes(treeBuilder.solutionList);
 		graph.refresh();
 	}
 
@@ -383,11 +385,38 @@ public class GraphView extends JFrame {
 			display.syncExec(() -> {
 				graphInfoWindow = new GraphInfoWindow(display);
 				graphInfoWindow.open();
+
 				graphInfoWindow.getButtonNext().addSelectionListener(
 						new SelectionListener() {
 							@Override
 							public void widgetSelected(SelectionEvent e) {
-								// TODO select next cell and show its info
+								mxCell cell = getSelectionVertex();
+								if (cell == null)
+									return;
+
+								List<Node> solutionList = treeBuilder.solutionList;
+								Node node = (Node) cell.getValue();
+								boolean inSelection = solutionList
+										.contains(node);
+								boolean isRoot = node == nodeList.get(0);
+
+								int nodeIndex;
+								Node nextNode;
+
+								if (inSelection) {
+									nodeIndex = solutionList.indexOf(node);
+									if (nodeIndex == solutionList.size() - 1)
+										return;
+									nextNode = solutionList.get(nodeIndex + 1);
+								} else if (isRoot) {
+									nextNode = solutionList.get(0);
+								} else {
+									return;
+								}
+
+								mxCell nextCell = vertexMap.get(nextNode);
+								graph.setSelectionCell(nextCell);
+								showCellInfo(nextCell);
 							}
 
 							@Override
@@ -399,7 +428,25 @@ public class GraphView extends JFrame {
 						new SelectionListener() {
 							@Override
 							public void widgetSelected(SelectionEvent e) {
-								// TODO select previous cell and show its info
+								mxCell cell = getSelectionVertex();
+								if (cell == null)
+									return;
+
+								List<Node> solutionList = treeBuilder.solutionList;
+								Node node = (Node) cell.getValue();
+								if (!solutionList.contains(node))
+									return;
+
+								int nodeIndex = solutionList.indexOf(node);
+
+								Node previousNode = nodeIndex == 0 ? nodeList
+										.get(0) : solutionList
+										.get(nodeIndex - 1);
+
+								mxCell previousCell = vertexMap
+										.get(previousNode);
+								graph.setSelectionCell(previousCell);
+								showCellInfo(previousCell);
 							}
 
 							@Override
@@ -410,26 +457,33 @@ public class GraphView extends JFrame {
 		}
 	}
 
-	private final void addCellInfo(String info) {
-		Display display = PlatformUI.getWorkbench().getDisplay();
+	private final void updateButtonState(mxCell cell) {
+		if (graphInfoWindow == null || graphInfoWindow.isDisposed())
+			return;
 
-		display.syncExec(() -> {
-			if (graphInfoWindow == null || graphInfoWindow.isDisposed())
-				return;
+		PlatformUI
+				.getWorkbench()
+				.getDisplay()
+				.asyncExec(
+						() -> {
+							List<Node> solutionList = treeBuilder.solutionList;
+							Node node = (Node) cell.getValue();
+							boolean inSolution = solutionList.contains(node);
+							boolean isRoot = cell.getValue() == nodeList.get(0);
+							boolean inSolutionNext = inSolution
+									&& solutionList.indexOf(node) != solutionList
+											.size() - 1;
 
-			if (cellInfoLabel == null || cellInfoLabel.isDisposed())
-				cellInfoLabel = new Label(graphInfoWindow.getInfoArea(),
-						SWT.NONE);
-
-			cellInfoLabel.setText(info);
-			graphInfoWindow.updateContents();
-		});
+							graphInfoWindow.getButtonNext().setEnabled(
+									inSolutionNext
+											|| (isRoot && !solutionList
+													.isEmpty()));
+							graphInfoWindow.getButtonPrevious().setEnabled(
+									inSolution);
+						});
 	}
 
 	private final void showCellInfo(mxCell cell) {
-		if (!(cell.getValue() instanceof Node))
-			return;
-
 		Node cellNode = (Node) cell.getValue();
 		final String nodeIndex = "Номер вершины: "
 				+ Integer.toString(cellNode.index) + "\n";
@@ -452,6 +506,26 @@ public class GraphView extends JFrame {
 				+ ruleCost;
 
 		addCellInfo(text);
+	}
+
+	private final void addCellInfo(String info) {
+		Display display = PlatformUI.getWorkbench().getDisplay();
+
+		display.syncExec(() -> {
+			if (graphInfoWindow == null || graphInfoWindow.isDisposed())
+				return;
+
+			if (cellInfoLabel == null || cellInfoLabel.isDisposed()) {
+				cellInfoLabel = new Label(graphInfoWindow.getInfoArea(),
+						SWT.NONE);
+				FormData cellInfoFormData = new FormData();
+				cellInfoFormData.left = new FormAttachment(0, 5);
+				cellInfoFormData.top = new FormAttachment(0, 5);
+			}
+
+			cellInfoLabel.setText(info);
+			graphInfoWindow.updateContents();
+		});
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
