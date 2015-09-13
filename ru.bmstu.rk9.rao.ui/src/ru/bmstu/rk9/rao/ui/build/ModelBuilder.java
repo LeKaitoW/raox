@@ -61,6 +61,8 @@ public class ModelBuilder {
 
 	public static List<IResource> getAllRaoFilesInProject(IProject project) {
 		List<IResource> allRaoFiles = new ArrayList<IResource>();
+		if (!project.isAccessible())
+			return allRaoFiles;
 		IPath path = project.getLocation();
 		recursiveFindRaoFiles(allRaoFiles, path, ResourcesPlugin.getWorkspace()
 				.getRoot());
