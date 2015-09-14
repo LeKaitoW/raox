@@ -357,20 +357,11 @@ Frame:
 ;
 
 FrameBackPicture:
-	'background' '=' colour = FrameColour
-	(picture = ProjectFilePath | size = FrameBackPictureSize)
-;
-
-FrameBackPictureSize:
-	width = INT height = INT
+	'background' '(' width = INT ',' height = INT ',' colour = FrameColour ')'
 ;
 
 FrameColour:
 	'color' '(' r = INT ',' g = INT ',' b = INT ( ',' alpha = INT)? ')'
-;
-
-ProjectFilePath:
-	segments += ID (('/'|'\\') segments += ID)*
 ;
 
 FrameStatementList returns StatementList:
