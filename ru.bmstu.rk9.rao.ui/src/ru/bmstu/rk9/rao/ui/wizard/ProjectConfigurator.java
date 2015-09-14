@@ -15,8 +15,11 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -28,6 +31,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.xtext.ui.XtextProjectHelper;
+import org.osgi.framework.Bundle;
 import org.osgi.service.prefs.BackingStoreException;
 
 public class ProjectConfigurator {
@@ -100,9 +104,22 @@ public class ProjectConfigurator {
 			final IClasspathEntry srcEntry = JavaCore
 					.newSourceEntry(sourceFolderPath);
 			entries.add(srcEntry);
+			
+			Bundle lib = Platform.getBundle("ru.bmstu.rk9.rao.lib");
+			File libPath = FileLocator.getBundleFile(lib);
+			IPath libPathBinary;
+			if (libPath.isDirectory())
+				libPathBinary = new Path(libPath.getAbsolutePath()
+						+ "/bin/");
+			else
+				libPathBinary = new Path(libPath.getAbsolutePath());
+			IClasspathEntry libEntry = JavaCore.newLibraryEntry(
+					libPathBinary, null, null);
+			entries.add(libEntry);
+			
 			game5JavaProject.setRawClasspath(
 					entries.toArray(new IClasspathEntry[entries.size()]), null);
-		} catch (CoreException | BackingStoreException e2) {
+		} catch (CoreException | BackingStoreException | IOException e2) {
 			e2.printStackTrace();
 		}
 	}
