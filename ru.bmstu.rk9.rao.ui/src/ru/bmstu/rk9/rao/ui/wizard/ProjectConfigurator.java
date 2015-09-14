@@ -24,6 +24,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.services.IServiceLocator;
@@ -42,7 +44,7 @@ public class ProjectConfigurator {
 	private final ProjectInfo info;
 	private final IProject raoProject;
 
-	public final void initializeProject() {
+	public final boolean initializeProject() {
 		final IServiceLocator serviceLocator = PlatformUI.getWorkbench();
 		final IProgressMonitor iProgressMonitor = (IProgressMonitor) serviceLocator
 				.getService(IProgressMonitor.class);
@@ -51,12 +53,24 @@ public class ProjectConfigurator {
 				raoProject.create(iProgressMonitor);
 				raoProject.open(iProgressMonitor);
 				configureProject();
-			} else if (!raoProject.isOpen())
-				raoProject.open(iProgressMonitor);
+			} else {
+				final IWorkbenchWindow activeWindow = PlatformUI.getWorkbench()
+						.getActiveWorkbenchWindow();
+				final boolean dialog = MessageDialog.openQuestion(
+						activeWindow.getShell(), "Project exists",
+						"Project already exists. Open existing project?");
+				if (dialog) {
+					raoProject.open(iProgressMonitor);
+					IDE.openEditor(activeWindow.getActivePage(),
+							raoProject.getFile(info.getProjectName() + ".rao"));
+				}
+				return dialog;
+			}
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
 		createModelFile();
+		return true;
 	}
 
 	private final void configureProject() {
@@ -70,7 +84,7 @@ public class ProjectConfigurator {
 			projectNode = projectScope.getNode("org.eclipse.core.resources");
 			projectNode.node("encoding").put("<project>", "UTF-8");
 			projectNode.flush();
-			
+
 			description = raoProject.getDescription();
 			description.setNatureIds(new String[] { JavaCore.NATURE_ID,
 					XtextProjectHelper.NATURE_ID });
@@ -107,8 +121,8 @@ public class ProjectConfigurator {
 
 	private final void createModelFile() {
 		final String modelName = info.getProjectName() + ".rao";
-		final IPath modelIPath = root.getLocation().append(raoProject.getFullPath())
-				.append(modelName);
+		final IPath modelIPath = root.getLocation()
+				.append(raoProject.getFullPath()).append(modelName);
 		final File modelFile = new File(modelIPath.toString());
 		final IFile modelIFile = raoProject.getFile(modelName);
 

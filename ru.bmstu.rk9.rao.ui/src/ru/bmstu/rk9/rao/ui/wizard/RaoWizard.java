@@ -18,12 +18,15 @@ public class RaoWizard extends Wizard implements IWorkbenchWizard {
 	public boolean performFinish() {
 		ProjectInfo info = new ProjectInfo(wizardPage.getProjectName(),
 				wizardPage.getTemplate());
-		new ProjectConfigurator(info).initializeProject();
-		return true;
+		return new ProjectConfigurator(info).initializeProject();
 	}
 
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 	}
 
+	@Override
+	public String getWindowTitle() {
+		return "New Rao Project";
+	}
 }

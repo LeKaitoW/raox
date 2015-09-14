@@ -25,6 +25,8 @@ public class RaoWizardPage extends WizardPage {
 
 	public RaoWizardPage(String pageName) {
 		super(pageName);
+		setTitle("Create a Rao Project");
+		setDescription("Enter a project name");
 	}
 
 	@Override
