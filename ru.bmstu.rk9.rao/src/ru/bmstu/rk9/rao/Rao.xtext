@@ -366,7 +366,7 @@ FrameBackPictureSize:
 ;
 
 FrameColour:
-	'<' r = INT g = INT b = INT (alpha = INT)?'>'
+	'color' '(' r = INT ',' g = INT ',' b = INT ( ',' alpha = INT)? ')'
 ;
 
 ProjectFilePath:
