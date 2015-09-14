@@ -74,9 +74,22 @@ public class RaoWizardPage extends WizardPage {
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				if (!projectNameText.getText().isEmpty()) {
-					setDescription("Create a Rao project in the workspace.");
-					setPageComplete(true);}
+				String projectName = projectNameText.getText();
+				if (projectName.isEmpty()) {
+					setDescription("Enter a project name");
+					return;
+				}
+				if (!isValidJavaIdentifier(projectName)) {
+					setDescription("Project name is not a valid Java identifier.");
+					return;
+				}
+				if (projectName.equals("model")) {
+					setDescription("\"model\" is an invalid name for Rao project");
+					return;
+				}
+				setDescription("Create a Rao project in the workspace.");
+				setPageComplete(true);
+				// TODO check for Java key words!
 			}
 
 			@Override
@@ -99,5 +112,17 @@ public class RaoWizardPage extends WizardPage {
 		}
 		return null;
 		// TODO throw exception
+	}
+
+	public boolean isValidJavaIdentifier(String projectName) {
+		if (!Character.isJavaIdentifierStart(projectName.charAt(0))) {
+			return false;
+		}
+		for (int i = 1; i < projectName.length(); i++) {
+			if (!Character.isJavaIdentifierPart(projectName.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
