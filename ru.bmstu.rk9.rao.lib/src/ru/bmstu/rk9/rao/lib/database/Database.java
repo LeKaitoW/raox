@@ -27,7 +27,6 @@ import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modelStructure.ModelStructureCache.ValueType;
 import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
-import ru.bmstu.rk9.rao.lib.notification.NotificationManager;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
@@ -102,7 +101,8 @@ public class Database {
 		final JSONArray results = modelStructure.getJSONArray("results");
 		for (int i = 0; i < results.length(); i++) {
 			final JSONObject result = results.getJSONObject(i);
-			final ResultType type = ResultType.get(result.getString("type"));
+			final ResultType type = ResultType.getByString(result
+					.getString("type"));
 			indexHelper.addResult(result.getString("name")).setIndex(
 					new ResultIndex(i, type));
 		}
@@ -222,18 +222,22 @@ public class Database {
 
 	private final void addEntry(final Entry entry) {
 		allEntries.add(entry);
-		notifyChange("EntryAdded");
+		notifyChange(NotificationCategory.ENTRY_ADDED);
 	}
 
-	private final NotificationManager notificationManager = new NotificationManager(
-			new String[] { "EntryAdded" });
+	public enum NotificationCategory {
+		ENTRY_ADDED
+	};
 
-	public final Notifier getNotifier() {
-		return notificationManager;
+	private final Notifier<NotificationCategory> notifier = new Notifier<NotificationCategory>(
+			NotificationCategory.class);
+
+	public final Notifier<NotificationCategory> getNotifier() {
+		return notifier;
 	}
 
-	private final void notifyChange(final String category) {
-		notificationManager.notifySubscribers(category);
+	private final void notifyChange(final NotificationCategory category) {
+		notifier.notifySubscribers(category);
 	}
 
 	private final DbIndexHelper indexHelper = new DbIndexHelper();
@@ -632,20 +636,20 @@ public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	public static enum ResultType {
-		GET_VALUE("get_value"), WATCH_PAR("watch_par"), WATCH_QUANT(
-				"watch_quant"), WATCH_STATE("watch_state"), WATCH_VALUE(
-				"watch_value");
+		GET_VALUE("getValue"), WATCH_PAR("watchParameter"), WATCH_QUANT(
+				"watchQuant"), WATCH_STATE("watchState"), WATCH_VALUE(
+				"watchValue");
 
 		ResultType(final String type) {
 			this.type = type;
 		}
 
-		static final ResultType get(final String type) {
+		static final ResultType getByString(final String type) {
 			for (final ResultType t : values()) {
 				if (t.type.equals(type))
 					return t;
 			}
-			return null;
+			throw new DatabaseException("Unexpected result type: " + type);
 		}
 
 		public String getString() {

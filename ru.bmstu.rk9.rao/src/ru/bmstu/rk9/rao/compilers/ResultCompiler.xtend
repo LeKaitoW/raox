@@ -19,7 +19,6 @@ import ru.bmstu.rk9.rao.rao.ResultWatchState
 import ru.bmstu.rk9.rao.rao.ResultWatchValue
 
 import ru.bmstu.rk9.rao.generator.RaoExpression
-import ru.bmstu.rk9.rao.rao.ParameterTypeBasic
 import ru.bmstu.rk9.rao.rao.RaoEnum
 
 class ResultCompiler
@@ -31,10 +30,12 @@ class ResultCompiler
 		package «filename»;
 
 		import java.nio.ByteBuffer;
+		import java.util.EnumSet;
 
 		import ru.bmstu.rk9.rao.lib.json.*;
 
 		import ru.bmstu.rk9.rao.lib.*;
+		import ru.bmstu.rk9.rao.lib.resource.*;
 		import ru.bmstu.rk9.rao.lib.result.*;
 		import ru.bmstu.rk9.rao.lib.database.*;
 		import ru.bmstu.rk9.rao.lib.simulator.*;
@@ -71,7 +72,7 @@ class ResultCompiler
 		switch (type)
 		{
 			ResultGetValue:       "getValue"
-			ResultWatchParameter: "watchPar"
+			ResultWatchParameter: "watchParameter"
 			ResultWatchQuant:     "watchQuant"
 			ResultWatchState:     "watchState"
 			ResultWatchValue:     "watchValue"
@@ -126,14 +127,13 @@ class ResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 
-					Notifier notifier = Simulator.getNotifier();
+					Notifier<Simulator.ExecutionState> notifier = Simulator.getExecutionStateNotifier();
 
-					notifier.getSubscription("StateChange")
-						.addSubscriber(INSTANCE);
-					notifier.getSubscription("ExecutionAborted")
-						.addSubscriber(INSTANCE.finalizer);
-					notifier.getSubscription("ExecutionComplete")
-						.addSubscriber(INSTANCE.finalizer);
+					notifier.addSubscriber(INSTANCE, Simulator.ExecutionState.STATE_CHANGED);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED,
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED,
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
 
 					«type.compileValueType(expression)»
 				}
@@ -157,8 +157,8 @@ class ResultCompiler
 				public static void init()
 				{
 					Simulator.addResult(INSTANCE);
-					«type.resource.fullyQualifiedName».getNotifier().getSubscription(«""
-						»"ResourceDeleted").addSubscriber(INSTANCE);
+					«type.resource.fullyQualifiedName».getNotifier().addSubscriber(«
+						»INSTANCE, ResourceNotificationCategory.RESOURCE_DELETED);
 
 					«type.compileValueType(expression)»
 				}
@@ -208,16 +208,16 @@ class ResultCompiler
 					double varcoef = storelessStats.getCoefficientOfVariation();
 
 					data
-						.put("mean", Double.isFinite(mean) ? mean : "N/A")
-						.put("deviation", Double.isFinite(deviation) ? deviation : "N/A")
-						.put("varcoef", Double.isFinite(varcoef) ? varcoef : "N/A")
-						.put("last", value)
-						.put("min", minValue)
-						.put("max", maxValue)
-						.put("counter", watchCounter);
+						.put("mean", Double.toString(mean))
+						.put("deviation", Double.toString(deviation))
+						.put("varcoef", Double.toString(varcoef))
+						.put("last", «expression.type».toString(value))
+						.put("min", «expression.type».toString(minValue))
+						.put("max", «expression.type».toString(maxValue))
+						.put("counter", Integer.toString(watchCounter));
 
 					if (storelessStats.initFromDatabase(this))
-						data.put("median", storelessStats.getMedian());
+						data.put("median", Double.toString(storelessStats.getMedian()));
 				}
 				'''
 			}
@@ -229,14 +229,13 @@ class ResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 
-					Notifier notifier = Simulator.getNotifier();
+					Notifier notifier = Simulator.getExecutionStateNotifier();
 
-					notifier.getSubscription("StateChange")
-						.addSubscriber(INSTANCE);
-					notifier.getSubscription("ExecutionAborted")
-						.addSubscriber(INSTANCE.finalizer);
-					notifier.getSubscription("ExecutionComplete")
-						.addSubscriber(INSTANCE.finalizer);
+					notifier.addSubscriber(INSTANCE, Simulator.ExecutionState.STATE_CHANGED);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED,
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED,
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
 
 					INSTANCE.data.put("valueType", "bool");
 				}
@@ -305,14 +304,20 @@ class ResultCompiler
 				@Override
 				public void calculate()
 				{
+					double minTrue = storelessStats.getMinTrue();
+					double maxTrue = storelessStats.getMaxTrue();
+					double minFalse = storelessStats.getMinFalse();
+					double maxFalse = storelessStats.getMaxFalse();
+					double percent = storelessStats.getPercent();
+
 					data
-						.put("last", value)
-						.put("counter", watchCounter)
-						.put("minTrue", storelessStats.getMinTrue())
-						.put("maxTrue", storelessStats.getMaxTrue())
-						.put("minFalse", storelessStats.getMinFalse())
-						.put("maxFalse", storelessStats.getMaxFalse())
-						.put("percent", storelessStats.getPercent());
+						.put("last", Boolean.toString(value))
+						.put("counter", Integer.toString(watchCounter))
+						.put("minTrue", Double.toString(minTrue))
+						.put("maxTrue", Double.toString(maxTrue))
+						.put("minFalse", Double.toString(minFalse))
+						.put("maxFalse", Double.toString(maxFalse))
+						.put("percent", Double.toString(percent));
 				}
 				'''
 			}
@@ -350,14 +355,13 @@ class ResultCompiler
 				{
 					Simulator.addResult(INSTANCE);
 
-					Notifier notifier = Simulator.getNotifier();
+					Notifier<Simulator.ExecutionState> notifier = Simulator.getExecutionStateNotifier();
 
-					notifier.getSubscription("StateChange")
-						.addSubscriber(INSTANCE);
-					notifier.getSubscription("ExecutionAborted")
-						.addSubscriber(INSTANCE.finalizer);
-					notifier.getSubscription("ExecutionComplete")
-						.addSubscriber(INSTANCE.finalizer);
+					notifier.addSubscriber(INSTANCE, Simulator.ExecutionState.STATE_CHANGED);
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_ABORTED,
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
+					notifier.addSubscriber(INSTANCE.finalizer, Simulator.ExecutionState.EXECUTION_COMPLETED,
+							EnumSet.of(Subscription.SubscriptionType.ONE_SHOT));
 
 					INSTANCE.data.put("valueType", "«expression.type.backToRaoType»");
 				}
@@ -435,16 +439,16 @@ class ResultCompiler
 			double varcoef = storelessStats.getCoefficientOfVariation();
 
 			data
-				.put("mean", Double.isFinite(mean) ? mean : "N/A")
-				.put("deviation", Double.isFinite(deviation) ? deviation : "N/A")
-				.put("varcoef", Double.isFinite(varcoef) ? varcoef : "N/A")
-				.put("last", value)
-				.put("min", minValue)
-				.put("max", maxValue)
-				.put("counter", watchCounter);
+				.put("mean", Double.toString(mean))
+				.put("deviation", Double.toString(deviation))
+				.put("varcoef", Double.toString(varcoef))
+				.put("last", «expression.type».toString(value))
+				.put("min", «expression.type».toString(minValue))
+				.put("max", «expression.type».toString(maxValue))
+				.put("counter", Integer.toString(watchCounter));
 
 			if (storelessStats.initFromDatabase(this))
-				data.put("median", storelessStats.getMedian());
+				data.put("median", Double.toString(storelessStats.getMedian()));
 		}
 		'''
 	}
@@ -470,25 +474,31 @@ class ResultCompiler
 	}
 
 	def private static compileValueType(ResultType result, RaoExpression expression) {
-		if (expression.type.endsWith("_enum")) '''
+		if (!expression.type.endsWith("_enum"))
+			return '''INSTANCE.data.put("valueType", "«expression.type.backToRaoType»");'''
+
+		val enumTypeEndIndex = expression.type.length - 5
+		val enumParameterNameEndIndex = expression.type.lastIndexOf('.')
+		val resourceType = result.modelRoot.eAllContents.findFirst[resourceType |
+				resourceType instanceof ResourceType
+				&& (resourceType as ResourceType).fullyQualifiedName
+						== expression.type.substring(0, enumParameterNameEndIndex)
+				] as ResourceType
+
+		return '''
 			INSTANCE.data
 				.put("valueType", "enum")
-				.put("enum_origin", "«expression.type.substring(0, expression.type.length - 5)»")
+				.put("enum_origin", "«expression.type.substring(0, enumTypeEndIndex)»")
 				.put
 				(
 					"enums", new JSONArray()
-						«FOR enumValue : (((result.modelRoot.eAllContents.findFirst[resourceType |
-									resourceType instanceof ResourceType && (resourceType as ResourceType).fullyQualifiedName ==
-									expression.type.substring(0, expression.type.lastIndexOf('.'))
-								] as ResourceType).parameters.findFirst[parameter |
+						«FOR enumValue : (resourceType.parameters.findFirst[parameter |
 									parameter.name == expression.type.substring(
-									expression.type.lastIndexOf('.') + 1, expression.type.length - 5)
-								] as ParameterTypeBasic).type as RaoEnum).type.values»
+										expression.type.lastIndexOf('.') + 1, enumTypeEndIndex)
+								]  as RaoEnum).type.values»
 							.put("«enumValue»")
 						«ENDFOR»
 				);
-		''' else '''
-			INSTANCE.data.put("valueType", "«expression.type.backToRaoType»");
 		'''
 	}
 }

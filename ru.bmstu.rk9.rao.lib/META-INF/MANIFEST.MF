@@ -2,14 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Rao Lib
 Bundle-SymbolicName: ru.bmstu.rk9.rao.lib;singleton:=true
-Bundle-Version: 0.1
+Bundle-Version: 2.4.1
 Bundle-Vendor: Rao
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: ru.bmstu.rk9.rao.lib.animation,
  ru.bmstu.rk9.rao.lib.database,
  ru.bmstu.rk9.rao.lib.dpt,
  ru.bmstu.rk9.rao.lib.event,
- ru.bmstu.rk9.rao.lib.exception,
  ru.bmstu.rk9.rao.lib.json,
  ru.bmstu.rk9.rao.lib.math,
  ru.bmstu.rk9.rao.lib.modelStructure,
@@ -20,6 +19,4 @@ Export-Package: ru.bmstu.rk9.rao.lib.animation,
  ru.bmstu.rk9.rao.lib.result,
  ru.bmstu.rk9.rao.lib.sequence,
  ru.bmstu.rk9.rao.lib.simulator,
- ru.bmstu.rk9.rao.lib.tracer,
- ru.bmstu.rk9.rao.lib.treeBuilder,
  ru.bmstu.rk9.rao.lib.type

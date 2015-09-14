@@ -1,26 +1,59 @@
 package ru.bmstu.rk9.rao.lib.notification;
 
-import java.util.LinkedList;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public interface Notifier {
-	public static class Subscription {
-		protected LinkedList<Subscriber> subscribers;
+import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
 
-		Subscription() {
-			subscribers = new LinkedList<Subscriber>();
-		}
+public class Notifier<Category extends Enum<Category>> {
 
-		public Subscription addSubscriber(Subscriber object) {
-			subscribers.add(object);
-			return this;
-		}
+	private class SubscriptionState {
+		private final Subscription subscription = new Subscription();
+		private boolean hadNotifications = false;
+	}
 
-		public boolean removeSubscriber(Subscriber object) {
-			return subscribers.remove(object);
+	private final Map<Category, SubscriptionState> subscriptionStates;
+
+	public Notifier(Class<Category> enumClass) {
+		subscriptionStates = new ConcurrentHashMap<Category, SubscriptionState>();
+
+		for (Category category : enumClass.getEnumConstants()) {
+			subscriptionStates.put(category, new SubscriptionState());
 		}
 	}
 
-	public Subscription getSubscription(String category);
+	public void notifySubscribers(Category category) {
+		SubscriptionState subscriptionState = subscriptionStates.get(category);
+		Subscription subscription = subscriptionState.subscription;
 
-	public String[] getAvailableSubscriptions();
+		for (Subscriber subscriber : subscription.subscribers.keySet()) {
+			if (subscription.subscribers.get(subscriber).contains(SubscriptionType.ONE_SHOT))
+				subscription.removeSubscriber(subscriber);
+			subscriber.fireChange();
+		}
+
+		subscriptionState.hadNotifications = true;
+	}
+
+	public void addSubscriber(Subscriber subscriber, Category category) {
+		addSubscriber(subscriber, category, EnumSet.noneOf(SubscriptionType.class));
+	}
+
+	public void addSubscriber(Subscriber subscriber, Category category,
+			EnumSet<SubscriptionType> subscriptionFlags) {
+		SubscriptionState subscriptionState = subscriptionStates.get(category);
+
+		subscriptionState.subscription.addSubscriber(subscriber,
+				subscriptionFlags);
+
+		if (!subscriptionFlags.contains(SubscriptionType.IGNORE_ACCUMULATED)
+				&& subscriptionState.hadNotifications)
+			subscriber.fireChange();
+	}
+
+	public void removeSubscriber(Subscriber subscriber, Category category) {
+		subscriptionStates.get(category).subscription
+				.removeSubscriber(subscriber);
+	}
 }

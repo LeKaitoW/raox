@@ -33,27 +33,12 @@ RaoEntity
 
 ResourceType:
 	'type' name = ID '{'
-		(parameters += ParameterType ';' )+
+		(parameters += Parameter ';' )+
 	'}'
 ;
 
-ParameterType
-	: ParameterTypeBasic
-	| ParameterTypeString
-	| ParameterTypeArray
-;
-
-ParameterTypeBasic:
-	type = (RaoInt | RaoDouble | RaoBoolean | RaoEnum) name = ID
-		('=' default = ExpressionOr)?
-;
-
-ParameterTypeString:
-	type = RaoString name = ID ('=' default = STRING)?
-;
-
-ParameterTypeArray:
-	type = RaoArray name = ID ('=' default = ArrayValues)?
+Parameter
+	: type = RaoType name = ID ('=' default = ExpressionOr)?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -75,8 +60,8 @@ ResourceParameterExpression
 
 Event:
 	'event' name = ID '('
-		(parameters += ParameterType (
-			',' parameters += ParameterType)* )? ')' '{'
+		(parameters += Parameter (
+			',' parameters += Parameter)* )? ')' '{'
 		body = StatementList
 	'}'
 ;
@@ -87,8 +72,8 @@ Event:
 
 Pattern:
 	type = PatternType name = ID '('
-		(parameters += ParameterType (
-			',' parameters += ParameterType)* )? ')' '{'
+		(parameters += Parameter (
+			',' parameters += Parameter)* )? ')' '{'
 		relevantResources += RelevantResource*
 		('relevantSet' combinational = PatternSelectMethod ';')?
 		defaultMethods += DefaultMethod*
@@ -222,7 +207,7 @@ SequenceType
 EnumerativeSequence:
 	'enumerative' '(' ')'
 	'{'
-		values += Primary+
+		values += ExpressionList
 	'}'
 ;
 
@@ -389,7 +374,8 @@ ProjectFilePath:
 ;
 
 FrameStatementList returns StatementList:
-	(statements += FrameStatement)+
+	{StatementList}
+	(statements += FrameStatement)*
 ;
 
 FrameStatement returns Statement
@@ -405,7 +391,7 @@ FrameStatement returns Statement
 ;
 
 FrameNestedStatement returns NestedStatement:
-	invoke = '{' statements = FrameStatementList?  '}'
+	invoke = '{' statements = FrameStatementList '}'
 ;
 
 FrameIfStatement returns IfStatement:
@@ -580,7 +566,8 @@ RaoArray:
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 StatementList:
-	(statements += Statement)+
+	{StatementList}
+	(statements += Statement)*
 ;
 
 Statement
@@ -603,7 +590,7 @@ ExpressionStatement:
 ;
 
 NestedStatement:
-	invoke = '{' statements = StatementList?  '}'
+	invoke = '{' statements = StatementList '}'
 ;
 
 LocalVariableDeclaration:

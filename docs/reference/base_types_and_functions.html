@@ -1,0 +1,65 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../styles/rao_general.css">
+<link rel="stylesheet" href="../styles/rao_highlight.css">
+<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+<script src="../scripts/thirdparty/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="../scripts/thirdparty/jquery-2.1.4.min.js"></script>
+<script src="../scripts/table_of_contents.js"></script>
+</head>
+<body>
+<h2>Базовые возможности языка</h2>
+<h3>Встроенные типы данных</h3>
+<table style="width:100%">
+    <tr>
+        <th width="20%">Тип данных</th>
+        <th width="80%">Описание</th>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">int</code></pre></td>
+        <td>Целочисленный тип данных</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">double</code></pre></td>
+        <td>Числа с плавающей точкой</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">boolean</code></pre></td>
+        <td>Логический тип данных</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">String</code></pre></td>
+        <td>Строковый тип данных</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">enum</code></pre></td>
+        <td>Перечислимый типы данных</td>
+    </tr>
+</table>
+<p>Пример:</p>
+<pre><code class="rao">enum Тип_заготовки {вал, диск}
+enum Тип_станка {фрезерный, токарный}
+
+type Заготовка {
+    int номер;
+    double вес;
+    boolean срочная;
+    Тип_заготовки тип;
+}
+
+type Станок {
+    int номер;
+    String название;
+    Тип_станка тип;
+}
+
+Заготовка.create(1, 0.420, false, Тип_заготовки.вал);
+Станок.create(1, "16К20", Тип_станка.токарный);</code></pre>
+<h3>Встроенные функции</h3>
+<p>Язык использует встроенные математические функции языка Java, определенные в пакете <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Math.html">Math</a>.</p>
+<pre><code class="rao">boolean приемлемость_погрешности(double значение_1, double значение_2) {
+    return Math.abs(значение_1 - значение_2) &lt;= 0.001;
+}</code></pre>
+</body>
+</html>

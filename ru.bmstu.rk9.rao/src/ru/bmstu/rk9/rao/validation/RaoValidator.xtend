@@ -42,7 +42,7 @@ import ru.bmstu.rk9.rao.rao.Function
 import ru.bmstu.rk9.rao.rao.FunctionTable
 
 import ru.bmstu.rk9.rao.rao.Pattern
-import ru.bmstu.rk9.rao.rao.ParameterType
+import ru.bmstu.rk9.rao.rao.Parameter
 import ru.bmstu.rk9.rao.rao.PatternSelectMethod
 import ru.bmstu.rk9.rao.rao.RelevantResource
 import ru.bmstu.rk9.rao.rao.Event
@@ -308,7 +308,7 @@ class RaoValidator extends AbstractRaoValidator
 	def checkNamesInPatterns (Pattern pattern)
 	{
 		val List<EObject> parameters  = pattern.eAllContents.filter[eObject |
-			eObject instanceof ParameterType
+			eObject instanceof Parameter
 		].toList
 		val List<EObject> relevantResources = pattern.eAllContents.filter[eObject |
 			eObject instanceof RelevantResource].toList
@@ -355,8 +355,8 @@ class RaoValidator extends AbstractRaoValidator
 			Result:
 				RaoPackage.eINSTANCE.result_Name
 
-			ParameterType:
-				RaoPackage.eINSTANCE.parameterType_Name
+			Parameter:
+				RaoPackage.eINSTANCE.parameter_Name
 
 			RelevantResource:
 				RaoPackage.eINSTANCE.META_ResourceReference_Name

@@ -1,6 +1,6 @@
 # RAO-XT
 ## Summary
-<img src=https://raw.githubusercontent.com/k-alexandrovsky/k-alexandrovsky.github.io/master/rdo-xtext.png><img>
+<img src=docs/rdo-xtext.png><img>
 This project is an implementation of RDO modelling language in Eclipse, using xtext.
 * [About RAO modelling language (rus)](http://rdo.rk9.bmstu.ru/help/help/rdo_lang_rus/html/rdo_intro.htm)
 
@@ -39,14 +39,19 @@ git clone git@github.com:aurusov/rdo-xtext.git
 ```
 >**[!]** *If your output differs from the one above by a lot of errors mentioning* `RULE_ANY_OTHER`*, you should run the generation process again and again until the bulid is succesfull. This is Xtext/Antlr bug caused by complex rules supporting unicode identifiers in grammar, sorry for the inconvenience*
 
-* `Run` `>` `Run Configurations...` `>` `Eclipse Application` `>` `New` `>` `Name` `=` `runtime-EclipseXtext` `>` `Location` `=` `${workspace_loc}/../runtime-EclipseXtext` `>` `Run`
+* `Run` `>` `Run Configurations...` `>` `Eclipse Application` `>` `New` `>` `Name` `=`
+ * `runtime-EclipseXtext`<br>`>` `Location` `=`
+ * `${workspace_loc}/../runtime-EclipseXtext`<br>`>` `Run`
  * *Ignore this if you use Java version 8 or later.* Eclipse Platform may freeze during its launch. This happens due to the unsufficient [permgen](http://wiki.eclipse.org/FAQ_How_do_I_increase_the_permgen_size_available_to_Eclipse%3F) size available to Eclipse. To prevent that, add `-XX:MaxPermSize=256M` to VM arguments in Run Configuration.
 * And that's it.
 
 ## Running
 * `Window` `>` `Open Perspective` `>` `Other...` `>` `Rao`
-* `File` `>` `New` `>` `Project...` `>` `Java Project` `>` `Next>` `>` `Project name:` `>` set project name `>` `Project layout` `>` `Configure default` `>` `Source folder name` `=` `src-gen` `>` `OK` `>` `Finish`
+* `File` `>` `New` `>` `Project...` `>` `Java Project` `>` `Next>` `>` `Project name:` `>`
+ * set project name<br>`>` `Project layout` `>` `Configure default` `>` `Source folder name` `=`
+ * `src-gen`<br>`>` `OK` `>` `Preference Recorder` `>` `OK` `>` `Finish`
  * `Do you want to open this perspective now?` `>` `No`
-* Right-click on created project `>` `New` `>` `File` `>` `File name:` `>` filename.**rao** (must be valid java identificator) `>` `Finish`
+* Right-click on created project `>` `New` `>` `File` `>` `File name:` `>`
+ * filename.**rao** (must be valid java identificator)<br>`>` `Finish`
  * `Do you want to add the Xtext nature to the project?` `>` `Yes`
 * [Models examples](https://github.com/aurusov/rdo-xtext-models)

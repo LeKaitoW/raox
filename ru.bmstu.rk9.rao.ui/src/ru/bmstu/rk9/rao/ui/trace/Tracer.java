@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.lib.tracer;
+package ru.bmstu.rk9.rao.ui.trace;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -13,12 +13,10 @@ import ru.bmstu.rk9.rao.lib.modelStructure.ActivityCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResourceTypeCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResultCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
-import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.tracer.StringJoiner.StringFormat;
+import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
 
-// TODO make static and move to ui
-public class Tracer implements Subscriber {
+public class Tracer {
 	public static enum TraceType {
 		RESOURCE_CREATE("RC"), RESOURCE_KEEP("RK"), RESOURCE_ERASE("RE"), SYSTEM(
 				"ES"), OPERATION_BEGIN("EB"), OPERATION_END("EF"), EVENT("EI"), RULE(
@@ -57,52 +55,6 @@ public class Tracer implements Subscriber {
 		}
 	}
 
-	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-	// -----------------------NOTIFICATION SYSTEM -------------------------- //
-	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-
-	// TODO unify with DbIndexHelper notification System
-
-	private boolean paused = true;
-
-	public final synchronized void setPaused(boolean paused) {
-		if (this.paused == paused)
-			return;
-
-		this.paused = paused;
-		fireChange();
-	}
-
-	private Subscriber realTimeSubscriber = null;
-
-	public final void setRealTimeSubscriber(Subscriber subscriber) {
-		this.realTimeSubscriber = subscriber;
-	}
-
-	private final void notifyRealTimeSubscriber() {
-		if (realTimeSubscriber != null)
-			realTimeSubscriber.fireChange();
-	}
-
-	private Subscriber commonSubscriber = null;
-
-	public final void setCommonSubscriber(Subscriber subscriber) {
-		this.commonSubscriber = subscriber;
-	}
-
-	public final void notifyCommonSubscriber() {
-		if (commonSubscriber != null)
-			commonSubscriber.fireChange();
-	}
-
-	@Override
-	public void fireChange() {
-		if (paused)
-			return;
-
-		notifyRealTimeSubscriber();
-	}
-
 	static private final String delimiter = " ";
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -126,7 +78,7 @@ public class Tracer implements Subscriber {
 		case RESULT:
 			return parseResultEntry(entry);
 		default:
-			return null;
+			throw new TracerException("Unexpected entry type: " + type);
 		}
 	}
 
@@ -180,7 +132,8 @@ public class Tracer implements Subscriber {
 			traceType = TraceType.SEARCH_RESOURCE_KEEP;
 			break;
 		default:
-			return null;
+			throw new TracerException("Unexpected resource entry type: "
+					+ entryType);
 		}
 
 		final int typeNum = header.getInt();
@@ -234,7 +187,9 @@ public class Tracer implements Subscriber {
 						+ new String(rawString, StandardCharsets.UTF_8) + "\"");
 				break;
 			default:
-				return null;
+				throw new TracerException(
+						"Unexpected resource parameter type: "
+								+ valueCache.getType());
 			}
 		}
 		return stringJoiner.getString();
@@ -265,7 +220,8 @@ public class Tracer implements Subscriber {
 			traceType = TraceType.OPERATION_END;
 			break;
 		default:
-			return null;
+			throw new TracerException("Unexpected pattern enrty type: "
+					+ entryType);
 		}
 
 		return new TraceOutput(traceType, new StringJoiner(delimiter)
@@ -274,8 +230,7 @@ public class Tracer implements Subscriber {
 	}
 
 	private String parsePatternData(final ByteBuffer data) {
-		final StringJoiner stringJoiner = new StringJoiner(
-				delimiter);
+		final StringJoiner stringJoiner = new StringJoiner(delimiter);
 
 		int dptNumber = data.getInt();
 		int activityNumber = data.getInt();
@@ -325,8 +280,7 @@ public class Tracer implements Subscriber {
 	}
 
 	private String parseEventData(final ByteBuffer data) {
-		final StringJoiner stringJoiner = new StringJoiner(
-				delimiter);
+		final StringJoiner stringJoiner = new StringJoiner(delimiter);
 
 		int eventNumber = data.getInt();
 		int actionNumber = data.getInt();
@@ -343,8 +297,7 @@ public class Tracer implements Subscriber {
 	private TraceOutput parseSearchEntry(final Entry entry) {
 		final ByteBuffer header = prepareBufferForReading(entry.getHeader());
 
-		final StringJoiner stringJoiner = new StringJoiner(
-				delimiter);
+		final StringJoiner stringJoiner = new StringJoiner(delimiter);
 
 		final TraceType traceType;
 		skipPart(header, TypeSize.BYTE);
@@ -381,8 +334,8 @@ public class Tracer implements Subscriber {
 				traceType = TraceType.SEARCH_END_FAIL;
 				break;
 			default:
-				// TODO throw exception
-				return null;
+				throw new TracerException("Unexpected search end status: "
+						+ endStatus);
 			}
 
 			skipPart(data, TypeSize.LONG * 2);
@@ -426,8 +379,8 @@ public class Tracer implements Subscriber {
 				traceType = TraceType.SEARCH_SPAWN_BETTER;
 				break;
 			default:
-				// TODO throw exception
-				return null;
+				throw new TracerException("Unexpected search spawn status: "
+						+ spawnStatus);
 			}
 			final int childNumber = data.getInt();
 			final int parentNumber = data.getInt();
@@ -506,7 +459,8 @@ public class Tracer implements Subscriber {
 			break;
 		}
 		default:
-			return null;
+			throw new TracerException("Unexpected search entry type: "
+					+ entryType);
 		}
 
 		return new TraceOutput(traceType, stringJoiner.getString());
@@ -526,8 +480,8 @@ public class Tracer implements Subscriber {
 		final ResultCache resultCache = Simulator.getModelStructureCache()
 				.getResultsInfo().get(resultNum);
 
-		return new TraceOutput(TraceType.RESULT, new StringJoiner(
-				delimiter).add(TraceType.RESULT.toString()).add(time)
+		return new TraceOutput(TraceType.RESULT, new StringJoiner(delimiter)
+				.add(TraceType.RESULT.toString()).add(time)
 				.add(resultCache.getName()).add("=")
 				.add(parseResultParameter(data, resultCache)).getString());
 	}
@@ -551,10 +505,9 @@ public class Tracer implements Subscriber {
 			}
 			return "\"" + rawString.toString() + "\"";
 		default:
-			break;
+			throw new TracerException("Unexpected result parameter type: "
+					+ resultCache.getValueType());
 		}
-
-		return null;
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

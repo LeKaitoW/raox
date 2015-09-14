@@ -1,9 +1,8 @@
 package ru.bmstu.rk9.rao.lib.database;
 
 import ru.bmstu.rk9.rao.lib.database.Database.SerializationCategory;
-import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 
-public class DbIndexHelper implements Subscriber {
+public class DbIndexHelper {
 	public final CollectedDataNode getTree() {
 		return root;
 	}
@@ -79,50 +78,4 @@ public class DbIndexHelper implements Subscriber {
 
 	private String modelName;
 	private final CollectedDataNode root = new CollectedDataNode("root", null);
-
-	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-	// -----------------------NOTIFICATION SYSTEM -------------------------- //
-	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-
-	// TODO unify with Tracer notification system
-
-	private boolean paused = true;
-
-	public final synchronized void setPaused(boolean paused) {
-		if (this.paused == paused)
-			return;
-
-		this.paused = paused;
-		fireChange();
-	}
-
-	private Subscriber realTimeSubscriber = null;
-
-	public final void setRealTimeSubscriber(Subscriber subscriber) {
-		this.realTimeSubscriber = subscriber;
-	}
-
-	private final void notifyRealTimeSubscriber() {
-		if (realTimeSubscriber != null)
-			realTimeSubscriber.fireChange();
-	}
-
-	private Subscriber commonSubscriber = null;
-
-	public final void setCommonSubscriber(Subscriber subscriber) {
-		this.commonSubscriber = subscriber;
-	}
-
-	public final void notifyCommonSubscriber() {
-		if (commonSubscriber != null)
-			commonSubscriber.fireChange();
-	}
-
-	@Override
-	public void fireChange() {
-		if (paused)
-			return;
-
-		notifyRealTimeSubscriber();
-	}
 }
