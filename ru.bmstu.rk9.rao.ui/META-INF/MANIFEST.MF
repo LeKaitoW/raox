@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ru.bmstu.rk9.rao.ui
 Bundle-Vendor: My Company
-Bundle-Version: 2.4.0
+Bundle-Version: 2.4.1
 Bundle-SymbolicName: ru.bmstu.rk9.rao.ui;singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: ru.bmstu.rk9.rao;visibility:=reexport,
@@ -27,7 +27,30 @@ Require-Bundle: ru.bmstu.rk9.rao;visibility:=reexport,
 Import-Package: org.apache.log4j,
  org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: ru.bmstu.rk9.rao.ui;
+Export-Package: com.mxgraph.analysis,
+ com.mxgraph.canvas,
+ com.mxgraph.costfunction,
+ com.mxgraph.generatorfunction,
+ com.mxgraph.io,
+ com.mxgraph.io.graphml,
+ com.mxgraph.layout,
+ com.mxgraph.layout.hierarchical,
+ com.mxgraph.layout.hierarchical.model,
+ com.mxgraph.layout.hierarchical.stage,
+ com.mxgraph.layout.orthogonal,
+ com.mxgraph.layout.orthogonal.model,
+ com.mxgraph.model,
+ com.mxgraph.reader,
+ com.mxgraph.shape,
+ com.mxgraph.swing,
+ com.mxgraph.swing.handler,
+ com.mxgraph.swing.util,
+ com.mxgraph.swing.view,
+ com.mxgraph.util,
+ com.mxgraph.util.png,
+ com.mxgraph.util.svg,
+ com.mxgraph.view,
+ ru.bmstu.rk9.rao.ui;
   uses:="org.osgi.framework,
    com.google.inject,
    org.eclipse.core.resources,
