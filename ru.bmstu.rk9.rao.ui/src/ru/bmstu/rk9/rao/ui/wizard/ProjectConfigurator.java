@@ -24,8 +24,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.services.IServiceLocator;
@@ -54,23 +52,13 @@ public class ProjectConfigurator {
 				raoProject.open(iProgressMonitor);
 				configureProject();
 			} else {
-				final IWorkbenchWindow activeWindow = PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow();
-				final boolean dialog = MessageDialog.openQuestion(
-						activeWindow.getShell(), "Project exists",
-						"Project already exists. Open existing project?");
-				if (dialog) {
-					raoProject.open(iProgressMonitor);
-					IDE.openEditor(activeWindow.getActivePage(),
-							raoProject.getFile(info.getProjectName() + ".rao"));
-				}
-				return dialog;
+				return true;
 			}
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
 		createModelFile();
-		return true;
+		return false;
 	}
 
 	private final void configureProject() {

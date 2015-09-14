@@ -16,9 +16,16 @@ public class RaoWizard extends Wizard implements IWorkbenchWizard {
 
 	@Override
 	public boolean performFinish() {
-		ProjectInfo info = new ProjectInfo(wizardPage.getProjectName(),
+		final ProjectInfo info = new ProjectInfo(wizardPage.getProjectName(),
 				wizardPage.getTemplate());
-		return new ProjectConfigurator(info).initializeProject();
+		final boolean projectExist = new ProjectConfigurator(info)
+				.initializeProject();
+		if (projectExist) {
+			wizardPage
+					.setDescription("A project with this name already exists.");
+			return false;
+		}
+		return true;
 	}
 
 	@Override

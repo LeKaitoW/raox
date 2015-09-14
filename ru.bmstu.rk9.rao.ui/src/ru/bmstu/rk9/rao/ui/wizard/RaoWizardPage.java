@@ -74,8 +74,9 @@ public class RaoWizardPage extends WizardPage {
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				if (!projectNameText.getText().isEmpty())
-					setPageComplete(true);
+				if (!projectNameText.getText().isEmpty()) {
+					setDescription("Create a Rao project in the workspace.");
+					setPageComplete(true);}
 			}
 
 			@Override
