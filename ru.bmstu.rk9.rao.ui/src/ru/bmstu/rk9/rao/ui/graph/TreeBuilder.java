@@ -2,7 +2,9 @@ package ru.bmstu.rk9.rao.ui.graph;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
@@ -35,9 +37,17 @@ public class TreeBuilder {
 	}
 
 	public class Node {
-		public Node parent;
-		public List<Node> children = new ArrayList<Node>();
-		public int index;
+		public Node(Node parent, int index) {
+			this.parent = parent;
+			this.index = index;
+			this.label = String.valueOf(index);
+		}
+
+		public final Node parent;
+		public final List<Node> children = new ArrayList<Node>();
+		public final int index;
+
+		public int depthLevel;
 		public double g;
 		public double h;
 		public int ruleNumber;
@@ -73,18 +83,17 @@ public class TreeBuilder {
 
 		switch (searchEntryType) {
 		case BEGIN: {
-			Node treeNode = new Node();
-			treeNode.parent = null;
-			treeNode.index = 0;
-			treeNode.label = Integer.toString(treeNode.index);
-			nodeList.add(treeNode);
+			Node treeNode = new Node(null, 0);
+			treeNode.depthLevel = 1;
+			graphInfo.depth = 1;
+			widthByLevel.put(1, 1);
+			nodeByNumber.add(treeNode);
 			lastAddedNodeIndex = treeNode.index;
 			break;
 		}
 		case END: {
 			final ByteBuffer data = Tracer.prepareBufferForReading(entry
 					.getData());
-			graphInfo = new GraphInfo();
 			Tracer.skipPart(data, TypeSize.BYTE + TypeSize.LONG * 2);
 
 			final double finalCost = data.getDouble();
@@ -94,6 +103,10 @@ public class TreeBuilder {
 			graphInfo.solutionCost = finalCost;
 			graphInfo.numOpened = totalOpened;
 			graphInfo.numNodes = totalNodes;
+			graphInfo.width = calculateTreeWidth();
+
+			if (solutionFound)
+				solutionList.add(0, nodeByNumber.get(0));
 			isFinished = true;
 			break;
 		}
@@ -104,11 +117,9 @@ public class TreeBuilder {
 					.getData());
 			final DecisionPointSearch.SpawnStatus spawnStatus = DecisionPointSearch.SpawnStatus
 					.values()[data.get()];
-			// TODO delete spawn
 			switch (spawnStatus) {
 			case NEW:
-			case BETTER:
-				Node treeNode = new Node();
+			case BETTER: {
 				final int nodeNumber = data.getInt();
 				final int parentNumber = data.getInt();
 				final double g = data.getDouble();
@@ -118,8 +129,6 @@ public class TreeBuilder {
 						.get(ruleNum);
 				final int patternNumber = activity.getPatternNumber();
 				final double ruleCost = data.getDouble();
-				treeNode.parent = nodeList.get(parentNumber);
-				nodeList.get(parentNumber).children.add(treeNode);
 
 				final int numberOfRelevantResources = Simulator
 						.getModelStructureCache().getPatternsInfo()
@@ -144,17 +153,30 @@ public class TreeBuilder {
 					relResStringJoiner.add(resourceName);
 				}
 
+				Node parentNode = nodeByNumber.get(parentNumber);
+				Node treeNode = new Node(parentNode, nodeNumber);
+				parentNode.children.add(treeNode);
 				treeNode.g = g;
 				treeNode.h = h;
 				treeNode.ruleNumber = ruleNum;
 				treeNode.ruleDesсription = activity.getName()
 						+ relResStringJoiner.getString();
 				treeNode.ruleCost = ruleCost;
-				treeNode.index = nodeNumber;
-				treeNode.label = Integer.toString(treeNode.index);
-				nodeList.add(treeNode);
+
+				treeNode.depthLevel = treeNode.parent.depthLevel + 1;
+				if (widthByLevel.containsKey(treeNode.depthLevel))
+					widthByLevel.put(treeNode.depthLevel,
+							widthByLevel.get(treeNode.depthLevel) + 1);
+				else
+					widthByLevel.put(treeNode.depthLevel, 1);
+
+				if (treeNode.depthLevel > graphInfo.depth)
+					graphInfo.depth = treeNode.depthLevel;
+
+				nodeByNumber.add(treeNode);
 				lastAddedNodeIndex = treeNode.index;
 				break;
+			}
 			case WORSE:
 				break;
 			}
@@ -164,8 +186,9 @@ public class TreeBuilder {
 			final ByteBuffer data = Tracer.prepareBufferForReading(entry
 					.getData());
 			final int number = data.getInt();
-			Node solutionNode = nodeList.get(number);
+			Node solutionNode = nodeByNumber.get(number);
 			solutionList.add(solutionNode);
+			solutionFound = true;
 			break;
 		}
 		}
@@ -173,10 +196,23 @@ public class TreeBuilder {
 		return isFinished;
 	}
 
-	public final List<Node> nodeList = new ArrayList<Node>();
-	List<Node> solutionList = new ArrayList<Node>();
-	GraphInfo graphInfo = new GraphInfo();
-	int lastAddedNodeIndex = 0;
+	private final int calculateTreeWidth() {
+		int maxWidth = 0;
+		for (Integer width : widthByLevel.values()) {
+			if (width > maxWidth)
+				maxWidth = width;
+		}
+
+		return maxWidth;
+	}
+
+	final Map<Integer, Integer> widthByLevel = new HashMap<>();
+	final List<Node> nodeByNumber = new ArrayList<Node>();
+	final List<Node> solutionList = new ArrayList<Node>();
+	final GraphInfo graphInfo = new GraphInfo();
+	int lastAddedNodeIndex = -1;
+	private boolean solutionFound = false;
+
 	private int entryNumber = 0;
 	private final int dptNumber;
 	private final DecisionPointCache decisionPointCache;
@@ -185,6 +221,8 @@ public class TreeBuilder {
 		public double solutionCost;
 		public int numOpened;
 		public int numNodes;
+		public int depth;
+		public int width;
 	}
 
 	public int getEntryNumber() {
