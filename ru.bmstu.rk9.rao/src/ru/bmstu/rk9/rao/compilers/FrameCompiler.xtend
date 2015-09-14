@@ -13,6 +13,7 @@ class FrameCompiler
 		package «filename»;
 
 		import ru.bmstu.rk9.rao.lib.*;
+		import ru.bmstu.rk9.rao.lib.animation.*;
 		@SuppressWarnings("all")
 
 		public class «frame.name» implements AnimationFrame
