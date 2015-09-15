@@ -137,6 +137,8 @@ public class ModelBuilder {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			return "Build failed: internal error while checking project classpath "
+					+ e.getMessage();
 		}
 
 		return null;
@@ -296,7 +298,7 @@ public class ModelBuilder {
 					if (markers.length > 0) {
 						String errorsDetails = "Project contains errors:";
 						for (IMarker marker : markers) {
-							errorsDetails += "\n\nfile "
+							errorsDetails += "\nfile "
 									+ marker.getResource().getName()
 									+ " at line "
 									+ MarkerUtilities.getLineNumber(marker)
