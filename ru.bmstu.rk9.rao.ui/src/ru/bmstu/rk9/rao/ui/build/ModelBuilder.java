@@ -95,8 +95,7 @@ public class ModelBuilder {
 		return file.getProject();
 	}
 
-	private static String checkProjectClassPath(IProject project,
-			IProgressMonitor monitor) {
+	private static String checkRaoLib(IProject project, IProgressMonitor monitor) {
 		String libBundleName = "ru.bmstu.rk9.rao.lib";
 		Bundle lib = Platform.getBundle(libBundleName);
 		try {
@@ -137,7 +136,50 @@ public class ModelBuilder {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "Build failed: internal error while checking project classpath "
+			return "Build failed: internal error while checking rao lib:\n"
+					+ e.getMessage();
+		}
+
+		return null;
+	}
+
+	private static String checkSrcGen(IProject project, IFolder srcGenFolder,
+			IProgressMonitor monitor) {
+		IJavaProject jProject = JavaCore.create(project);
+		try {
+			IClasspathEntry[] projectClassPathArray;
+			projectClassPathArray = jProject.getRawClasspath();
+			List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
+					Arrays.asList(projectClassPathArray));
+
+			if (srcGenFolder.exists()) {
+				for (IResource resource : srcGenFolder.members(true))
+					resource.delete(true, new NullProgressMonitor());
+			} else {
+				srcGenFolder.create(true, true, new NullProgressMonitor());
+			}
+
+			boolean srcGenInClasspath = false;
+			for (IClasspathEntry classpathEntry : projectClassPathArray) {
+				if (classpathEntry.getPath().equals(srcGenFolder.getFullPath())) {
+					srcGenInClasspath = true;
+					break;
+				}
+			}
+
+			if (!srcGenInClasspath) {
+				IClasspathEntry libEntry = JavaCore.newSourceEntry(
+						srcGenFolder.getFullPath(), null, null);
+				projectClassPathList.add(libEntry);
+
+				jProject.setRawClasspath(
+						(IClasspathEntry[]) projectClassPathList
+								.toArray(new IClasspathEntry[projectClassPathList
+										.size()]), monitor);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Build failed: internal error while checking src-gen:\n"
 					+ e.getMessage();
 		}
 
@@ -195,9 +237,9 @@ public class ModelBuilder {
 				display.syncExec(() -> PlatformUI.getWorkbench().saveAll(
 						workbenchWindow, workbenchWindow, filter, true));
 
-				String errorMessage = checkProjectClassPath(project, monitor);
-				if (errorMessage != null)
-					return new Status(Status.ERROR, pluginId, errorMessage);
+				String libErrorMessage = checkRaoLib(project, monitor);
+				if (libErrorMessage != null)
+					return new Status(Status.ERROR, pluginId, libErrorMessage);
 
 				IJobManager jobManager = Job.getJobManager();
 				try {
@@ -215,32 +257,11 @@ public class ModelBuilder {
 				}
 
 				IFolder srcGenFolder = project.getFolder("src-gen");
-				if (srcGenFolder.exists()) {
-					try {
-						for (IResource resource : srcGenFolder.members(true)) {
-							resource.delete(true, new NullProgressMonitor());
-						}
-					} catch (CoreException e) {
-						e.printStackTrace();
-						return new Status(
-								Status.ERROR,
-								pluginId,
-								"Build failed: could not delete src-gen folder",
-								e);
-					}
-				} else {
-					try {
-						srcGenFolder.create(true, true,
-								new NullProgressMonitor());
-					} catch (CoreException e) {
-						e.printStackTrace();
-						return new Status(
-								Status.ERROR,
-								pluginId,
-								"Build failed: could not create src-gen folder",
-								e);
-					}
-				}
+				String srcGenErrorMessage = checkSrcGen(project, srcGenFolder,
+						monitor);
+				if (srcGenErrorMessage != null)
+					return new Status(Status.ERROR, pluginId,
+							srcGenErrorMessage);
 
 				fsa.setOutputPath(srcGenFolder.getFullPath().toString());
 
