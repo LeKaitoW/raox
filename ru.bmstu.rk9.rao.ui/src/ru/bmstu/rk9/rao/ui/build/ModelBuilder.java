@@ -95,49 +95,51 @@ public class ModelBuilder {
 		return file.getProject();
 	}
 
-	private static void checkProjectClassPath(IProject project,
+	private static String checkProjectClassPath(IProject project,
 			IProgressMonitor monitor) {
-		Bundle lib = Platform.getBundle("ru.bmstu.rk9.rao.lib");
-		File libPath = null;
+		String libBundleName = "ru.bmstu.rk9.rao.lib";
+		Bundle lib = Platform.getBundle(libBundleName);
 		try {
-			libPath = FileLocator.getBundleFile(lib);
-			if (libPath != null) {
-				IJavaProject jProject = JavaCore.create(project);
+			File libPath = FileLocator.getBundleFile(lib);
+			if (libPath == null)
+				return "Build failed: cannot locate bundle " + libBundleName;
 
-				IClasspathEntry[] projectClassPathArray = jProject
-						.getRawClasspath();
+			IJavaProject jProject = JavaCore.create(project);
 
-				IPath libPathBinary;
-				if (libPath.isDirectory())
-					libPathBinary = new Path(libPath.getAbsolutePath()
-							+ "/bin/");
-				else
-					libPathBinary = new Path(libPath.getAbsolutePath());
+			IClasspathEntry[] projectClassPathArray = jProject
+					.getRawClasspath();
 
-				if (projectClassPathArray.length > 2) {
-					if (!projectClassPathArray[2].getPath().equals(
-							libPathBinary)) {
-						projectClassPathArray[2] = JavaCore.newLibraryEntry(
-								libPathBinary, null, null);
-						jProject.setRawClasspath(projectClassPathArray, monitor);
-					}
-				} else {
-					List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
-							Arrays.asList(projectClassPathArray));
-					IClasspathEntry libEntry = JavaCore.newLibraryEntry(
-							libPathBinary, null, null);
-					projectClassPathList.add(libEntry);
+			IPath libPathBinary;
+			if (libPath.isDirectory())
+				libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
+			else
+				libPathBinary = new Path(libPath.getAbsolutePath());
 
-					jProject.setRawClasspath(
-							(IClasspathEntry[]) projectClassPathList
-									.toArray(new IClasspathEntry[projectClassPathList
-											.size()]), monitor);
+			boolean libInClasspath = false;
+			for (IClasspathEntry classpathEntry : projectClassPathArray) {
+				if (classpathEntry.getPath().equals(libPathBinary)) {
+					libInClasspath = true;
+					break;
 				}
+			}
+
+			if (!libInClasspath) {
+				List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
+						Arrays.asList(projectClassPathArray));
+				IClasspathEntry libEntry = JavaCore.newLibraryEntry(
+						libPathBinary, null, null);
+				projectClassPathList.add(libEntry);
+
+				jProject.setRawClasspath(
+						(IClasspathEntry[]) projectClassPathList
+								.toArray(new IClasspathEntry[projectClassPathList
+										.size()]), monitor);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
+		return null;
 	}
 
 	public static Job build(final ExecutionEvent event,
@@ -145,18 +147,19 @@ public class ModelBuilder {
 			final IResourceSetProvider resourceSetProvider,
 			final EclipseOutputConfigurationProvider ocp,
 			final IMultipleResourceGenerator generator) {
+		final String pluginId = "ru.bmstu.rk9.rao.ui";
 		Job buildJob = new Job("Building Rao model") {
 			protected IStatus run(IProgressMonitor monitor) {
 				IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
 				if (activeEditor == null)
-					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+					return new Status(Status.ERROR, pluginId,
 							"Build failed: no editor opened.");
 
 				final IProject project = getProject(activeEditor);
 				if (project == null)
 					return new Status(
 							Status.ERROR,
-							"ru.bmstu.rk9.rao.ui",
+							pluginId,
 							"Build failed: file '"
 									+ activeEditor.getTitle()
 									+ "' is not a part of any project in workspace.");
@@ -190,7 +193,9 @@ public class ModelBuilder {
 				display.syncExec(() -> PlatformUI.getWorkbench().saveAll(
 						workbenchWindow, workbenchWindow, filter, true));
 
-				checkProjectClassPath(project, monitor);
+				String errorMessage = checkProjectClassPath(project, monitor);
+				if (errorMessage != null)
+					return new Status(Status.ERROR, pluginId, errorMessage);
 
 				IJobManager jobManager = Job.getJobManager();
 				try {
@@ -203,7 +208,7 @@ public class ModelBuilder {
 				final List<IResource> raoFiles = ModelBuilder
 						.getAllRaoFilesInProject(project);
 				if (raoFiles.isEmpty()) {
-					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+					return new Status(Status.ERROR, pluginId,
 							"Build failed: project contains no rao files");
 				}
 
@@ -217,17 +222,21 @@ public class ModelBuilder {
 						e.printStackTrace();
 						return new Status(
 								Status.ERROR,
-								"ru.bmstu.rk9.rao.ui",
+								pluginId,
 								"Build failed: could not delete src-gen folder",
 								e);
 					}
 				} else {
 					try {
-						srcGenFolder.create(true, true, new NullProgressMonitor());
+						srcGenFolder.create(true, true,
+								new NullProgressMonitor());
 					} catch (CoreException e) {
 						e.printStackTrace();
-						return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
-								"Build failed: could not create src-gen folder", e);
+						return new Status(
+								Status.ERROR,
+								pluginId,
+								"Build failed: could not create src-gen folder",
+								e);
 					}
 				}
 
@@ -264,7 +273,7 @@ public class ModelBuilder {
 					} catch (CoreException e) {
 						e.printStackTrace();
 					}
-					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+					return new Status(Status.ERROR, pluginId,
 							"Build failed: model has errors");
 				}
 
@@ -275,7 +284,7 @@ public class ModelBuilder {
 							monitor);
 				} catch (CoreException e) {
 					e.printStackTrace();
-					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+					return new Status(Status.ERROR, pluginId,
 							"Build failed: could not build project", e);
 				}
 
@@ -293,13 +302,12 @@ public class ModelBuilder {
 									+ MarkerUtilities.getLineNumber(marker)
 									+ ": " + MarkerUtilities.getMessage(marker);
 						}
-						return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
-								errorsDetails);
+						return new Status(Status.ERROR, pluginId, errorsDetails);
 					}
 				} catch (CoreException e) {
 					return new Status(
 							Status.ERROR,
-							"ru.bmstu.rk9.rao.ui",
+							pluginId,
 							"Build failed: internal error whule calculating error markers",
 							e);
 				}
