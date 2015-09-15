@@ -7,17 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.osgi.framework.Bundle;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -29,7 +24,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -50,51 +44,11 @@ import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.generator.OutputConfiguration;
 import org.eclipse.xtext.ui.editor.XtextEditor;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
+import org.osgi.framework.Bundle;
 
 import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
 
 public class ModelBuilder {
-	public static URI getURI(IResource res) {
-		return URI.createPlatformResourceURI(res.getProject().getName() + "/"
-				+ res.getProjectRelativePath(), true);
-	}
-
-	public static List<IResource> getAllRaoFilesInProject(IProject project) {
-		List<IResource> allRaoFiles = new ArrayList<IResource>();
-		IPath path = project.getLocation();
-		recursiveFindRaoFiles(allRaoFiles, path, ResourcesPlugin.getWorkspace()
-				.getRoot());
-		return allRaoFiles;
-	}
-
-	private static void recursiveFindRaoFiles(List<IResource> allRaoFiles,
-			IPath path, IWorkspaceRoot workspaceRoot) {
-		IContainer container = workspaceRoot.getContainerForLocation(path);
-		try {
-			IResource[] iResources;
-			iResources = container.members();
-			for (IResource iR : iResources) {
-				if ("rao".equalsIgnoreCase(iR.getFileExtension()))
-					allRaoFiles.add(iR);
-				if (iR.getType() == IResource.FOLDER) {
-					IPath tempPath = iR.getLocation();
-					recursiveFindRaoFiles(allRaoFiles, tempPath, workspaceRoot);
-				}
-			}
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static IProject getProject(IEditorPart activeEditor) {
-		IFile file = (IFile) activeEditor.getEditorInput().getAdapter(
-				IFile.class);
-		if (file == null)
-			return null;
-
-		return file.getProject();
-	}
-
 	private static String checkRaoLib(IProject project, IProgressMonitor monitor) {
 		String libBundleName = "ru.bmstu.rk9.rao.lib";
 		Bundle lib = Platform.getBundle(libBundleName);
@@ -199,7 +153,7 @@ public class ModelBuilder {
 					return new Status(Status.ERROR, pluginId,
 							"Build failed: no editor opened.");
 
-				final IProject project = getProject(activeEditor);
+				final IProject project = BuildUtil.getProject(activeEditor);
 				if (project == null)
 					return new Status(
 							Status.ERROR,
@@ -249,7 +203,7 @@ public class ModelBuilder {
 					e.printStackTrace();
 				}
 
-				final List<IResource> raoFiles = ModelBuilder
+				final List<IResource> raoFiles = BuildUtil
 						.getAllRaoFilesInProject(project);
 				if (raoFiles.isEmpty()) {
 					return new Status(Status.ERROR, pluginId,
@@ -283,7 +237,7 @@ public class ModelBuilder {
 
 				for (IResource resource : raoFiles) {
 					Resource loadedResource = resourceSet.getResource(
-							getURI(resource), true);
+							BuildUtil.getURI(resource), true);
 					if (!loadedResource.getErrors().isEmpty()) {
 						projectHasErrors = true;
 						break;
