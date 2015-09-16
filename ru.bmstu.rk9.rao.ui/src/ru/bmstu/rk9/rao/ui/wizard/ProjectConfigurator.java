@@ -64,7 +64,7 @@ public class ProjectConfigurator {
 		} catch (CoreException | BackingStoreException | IOException e) {
 			MessageDialog.openError(PlatformUI.getWorkbench()
 					.getActiveWorkbenchWindow().getShell(), "Error",
-					e.getMessage());
+					"Failed to create project:\n" + e.getMessage());
 			e.printStackTrace();
 			return ProjectWizardStatus.UNDEFINED_ERROR;
 		}
