@@ -28,9 +28,8 @@ public class RaoWizard extends Wizard implements IWorkbenchWizard {
 		case UNDEFINED_ERROR:
 			return false;
 		default:
-			break;
+			return false;
 		}
-		return false;
 	}
 
 	@Override
