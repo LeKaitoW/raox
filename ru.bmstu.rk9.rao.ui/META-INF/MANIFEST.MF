@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ru.bmstu.rk9.rao.ui
 Bundle-Vendor: My Company
-Bundle-Version: 2.4.1
+Bundle-Version: 2.5.0
 Bundle-SymbolicName: ru.bmstu.rk9.rao.ui;singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: ru.bmstu.rk9.rao;visibility:=reexport,
@@ -22,7 +22,8 @@ Require-Bundle: ru.bmstu.rk9.rao;visibility:=reexport,
  org.eclipse.jface,
  org.eclipse.jdt.ui;bundle-version="3.5.0",
  org.eclipse.jdt.core;bundle-version="3.5.0",
- org.eclipse.xtext.xbase.lib
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.jdt.launching;bundle-version="3.7.100"
 Import-Package: org.apache.log4j,
  org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -89,7 +90,9 @@ Export-Package: com.mxgraph.analysis,
    com.mxgraph.layout,
    javax.swing",
  ru.bmstu.rk9.rao.ui.internal;uses:="org.osgi.framework,com.google.inject,org.eclipse.ui.plugin",
+ ru.bmstu.rk9.rao.ui.labeling,
  ru.bmstu.rk9.rao.ui.notification;uses:="ru.bmstu.rk9.rao.lib.notification",
+ ru.bmstu.rk9.rao.ui.outline,
  ru.bmstu.rk9.rao.ui.plot;
   uses:="org.jfree.data.xy,
    org.eclipse.swt.events,
@@ -127,6 +130,7 @@ Export-Package: com.mxgraph.analysis,
    org.eclipse.jface.viewers,
    ru.bmstu.rk9.rao.lib.database,
    ru.bmstu.rk9.rao.lib.notification,
-   org.eclipse.ui.part"
+   org.eclipse.ui.part",
+ ru.bmstu.rk9.rao.ui.wizard
 Bundle-ClassPath: .,thirdparty/jgraphx/lib/jgraphx.jar,thirdparty/jfreechart/lib/jcommon-1.0.23.jar,thirdparty/jfreechart/lib/jfreechart-1.0.19-experimental.jar,thirdparty/jfreechart/lib/jfreechart-1.0.19-swt.jar,thirdparty/jfreechart/lib/jfreechart-1.0.19.jar
 Bundle-Activator: ru.bmstu.rk9.rao.ui.RaoActivatorExtension

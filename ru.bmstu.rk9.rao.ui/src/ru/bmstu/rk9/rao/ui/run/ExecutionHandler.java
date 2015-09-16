@@ -33,6 +33,7 @@ import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
+import ru.bmstu.rk9.rao.ui.build.BuildUtil;
 import ru.bmstu.rk9.rao.ui.build.ModelBuilder;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
@@ -95,7 +96,7 @@ public class ExecutionHandler extends AbstractHandler {
 			return null;
 		}
 
-		final IProject project = ModelBuilder.getProject(activeEditor);
+		final IProject project = BuildUtil.getProject(activeEditor);
 
 		if (project == null) {
 			setRunningState(display, sourceProvider, false);
