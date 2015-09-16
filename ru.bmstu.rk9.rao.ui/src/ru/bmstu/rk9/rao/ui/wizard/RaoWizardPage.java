@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.ui.wizard;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -94,9 +95,12 @@ public class RaoWizardPage extends WizardPage {
 					setDescription("\"model\" is an invalid name for Rao project");
 					return;
 				}
+				if (isJavaKeyword(projectName)) {
+					setDescription("Project name can not be a Java keyword.");
+					return;
+				}
 				setDescription("Create a Rao project in the workspace.");
 				setPageComplete(true);
-				// TODO check for Java key words!
 			}
 
 			@Override
@@ -117,8 +121,7 @@ public class RaoWizardPage extends WizardPage {
 			if (button.getSelection())
 				return templates.get(button);
 		}
-		return null;
-		// TODO throw exception
+		throw new RaoWizardException("Template for button is not defined");
 	}
 
 	private boolean isValidJavaIdentifier(String projectName) {
@@ -131,5 +134,18 @@ public class RaoWizardPage extends WizardPage {
 			}
 		}
 		return true;
+	}
+
+	private boolean isJavaKeyword(String projectName) {
+		final String keywords[] = { "abstract", "assert", "boolean", "break",
+				"byte", "case", "catch", "char", "class", "const", "continue",
+				"default", "do", "double", "else", "enum", "extends", "false",
+				"final", "finally", "float", "for", "goto", "if", "implements",
+				"import", "instanceof", "int", "interface", "long", "native",
+				"new", "null", "package", "private", "protected", "public",
+				"return", "short", "static", "strictfp", "super", "switch",
+				"synchronized", "this", "throw", "throws", "transient", "true",
+				"try", "void", "volatile", "while" };
+		return (Arrays.binarySearch(keywords, projectName) >= 0);
 	}
 }
