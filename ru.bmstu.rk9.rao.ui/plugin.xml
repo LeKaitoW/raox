@@ -1030,7 +1030,8 @@
             class="ru.bmstu.rk9.rao.ui.wizard.RaoWizard"
             id="ru.bmstu.rk9.rao.ui.wizard.RaoWizard"
             icon="icons/rao_old.gif"
-            category="ru.bmstu.rk9.rao.wizard">
+            category="ru.bmstu.rk9.rao.wizard"
+            project="true">
       </wizard>
   </extension>
 
