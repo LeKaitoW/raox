@@ -275,7 +275,7 @@ class RaoStatementCompiler
 						context.drawLine
 						(
 							«statement.x1.compileExpression.value», «statement.y1.compileExpression.value»,
-							«statement.x2.compileExpression.value», «statement.x2.compileExpression.value»,
+							«statement.x2.compileExpression.value», «statement.y2.compileExpression.value»,
 							«statement.colour.compileFrameColour»
 						);
 						'''
