@@ -3,6 +3,8 @@ package ru.bmstu.rk9.rao.ui.wizard;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
@@ -75,8 +77,13 @@ public class RaoWizardPage extends WizardPage {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				String projectName = projectNameText.getText();
+				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 				if (projectName.isEmpty()) {
 					setDescription("Enter a project name");
+					return;
+				}
+				if (root.getProject(projectName + "_project").exists()) {
+					setDescription("A project with this name already exists.");
 					return;
 				}
 				if (!isValidJavaIdentifier(projectName)) {
@@ -114,7 +121,7 @@ public class RaoWizardPage extends WizardPage {
 		// TODO throw exception
 	}
 
-	public boolean isValidJavaIdentifier(String projectName) {
+	private boolean isValidJavaIdentifier(String projectName) {
 		if (!Character.isJavaIdentifierStart(projectName.charAt(0))) {
 			return false;
 		}

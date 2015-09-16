@@ -5,6 +5,8 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
 
+import ru.bmstu.rk9.rao.ui.wizard.ProjectConfigurator.ProjectWizardStatus;
+
 public class RaoWizard extends Wizard implements IWorkbenchWizard {
 
 	protected RaoWizardPage wizardPage;
@@ -18,14 +20,17 @@ public class RaoWizard extends Wizard implements IWorkbenchWizard {
 	public boolean performFinish() {
 		final ProjectInfo info = new ProjectInfo(wizardPage.getProjectName(),
 				wizardPage.getTemplate());
-		final boolean projectExist = new ProjectConfigurator(info)
-				.initializeProject();
-		if (projectExist) {
-			wizardPage
-					.setDescription("A project with this name already exists.");
+		final ProjectWizardStatus projectWizardStatus = new ProjectConfigurator(
+				info).initializeProject();
+		switch (projectWizardStatus) {
+		case SUCCESS:
+			return true;
+		case UNDEFINED_ERROR:
 			return false;
+		default:
+			break;
 		}
-		return true;
+		return false;
 	}
 
 	@Override

@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.services.IServiceLocator;
@@ -35,6 +36,10 @@ import org.osgi.framework.Bundle;
 import org.osgi.service.prefs.BackingStoreException;
 
 public class ProjectConfigurator {
+
+	enum ProjectWizardStatus {
+		SUCCESS, UNDEFINED_ERROR
+	}
 
 	public ProjectConfigurator(final ProjectInfo info) {
 		this.info = info;
@@ -46,100 +51,92 @@ public class ProjectConfigurator {
 	private final ProjectInfo info;
 	private final IProject raoProject;
 
-	public final boolean initializeProject() {
+	public final ProjectWizardStatus initializeProject() {
 		final IServiceLocator serviceLocator = PlatformUI.getWorkbench();
 		final IProgressMonitor iProgressMonitor = (IProgressMonitor) serviceLocator
 				.getService(IProgressMonitor.class);
 		try {
-			if (!raoProject.exists()) {
-				raoProject.create(iProgressMonitor);
-				raoProject.open(iProgressMonitor);
-				configureProject();
-			} else {
-				return true;
-			}
-		} catch (CoreException e) {
+			raoProject.create(iProgressMonitor);
+			raoProject.open(iProgressMonitor);
+			configureProject();
+			createModelFile();
+			return ProjectWizardStatus.SUCCESS;
+		} catch (CoreException | BackingStoreException | IOException e) {
+			MessageDialog.openError(PlatformUI.getWorkbench()
+					.getActiveWorkbenchWindow().getShell(), "Error",
+					e.getMessage());
 			e.printStackTrace();
+			return ProjectWizardStatus.UNDEFINED_ERROR;
 		}
-		createModelFile();
-		return false;
 	}
 
-	private final void configureProject() {
+	private final void configureProject() throws BackingStoreException,
+			CoreException, IOException {
 		final IProjectDescription description;
 		final IJavaProject game5JavaProject;
 		final ProjectScope projectScope;
 		final IEclipsePreferences projectNode;
 
-		try {
-			projectScope = new ProjectScope(raoProject);
-			projectNode = projectScope.getNode("org.eclipse.core.resources");
-			projectNode.node("encoding").put("<project>", "UTF-8");
-			projectNode.flush();
+		projectScope = new ProjectScope(raoProject);
+		projectNode = projectScope.getNode("org.eclipse.core.resources");
+		projectNode.node("encoding").put("<project>", "UTF-8");
+		projectNode.flush();
 
-			description = raoProject.getDescription();
-			description.setNatureIds(new String[] { JavaCore.NATURE_ID,
-					XtextProjectHelper.NATURE_ID });
-			raoProject.setDescription(description, null);
+		description = raoProject.getDescription();
+		description.setNatureIds(new String[] { JavaCore.NATURE_ID,
+				XtextProjectHelper.NATURE_ID });
+		raoProject.setDescription(description, null);
 
-			game5JavaProject = JavaCore.create(raoProject);
-			final IFolder sourceFolder = raoProject.getFolder("src-gen");
-			sourceFolder.create(false, true, null);
+		game5JavaProject = JavaCore.create(raoProject);
+		final IFolder sourceFolder = raoProject.getFolder("src-gen");
+		sourceFolder.create(false, true, null);
 
-			final List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
-			final IExecutionEnvironmentsManager executionEnvironmentsManager = JavaRuntime
-					.getExecutionEnvironmentsManager();
-			final IExecutionEnvironment[] executionEnvironments = executionEnvironmentsManager
-					.getExecutionEnvironments();
+		final List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
+		final IExecutionEnvironmentsManager executionEnvironmentsManager = JavaRuntime
+				.getExecutionEnvironmentsManager();
+		final IExecutionEnvironment[] executionEnvironments = executionEnvironmentsManager
+				.getExecutionEnvironments();
 
-			final String JSEVersion = "JavaSE-1.8";
-			for (IExecutionEnvironment iExecutionEnvironment : executionEnvironments) {
-				if (iExecutionEnvironment.getId().equals(JSEVersion)) {
-					entries.add(JavaCore.newContainerEntry(JavaRuntime
-							.newJREContainerPath(iExecutionEnvironment)));
-					break;
-				}
+		final String JSEVersion = "JavaSE-1.8";
+		for (IExecutionEnvironment iExecutionEnvironment : executionEnvironments) {
+			if (iExecutionEnvironment.getId().equals(JSEVersion)) {
+				entries.add(JavaCore.newContainerEntry(JavaRuntime
+						.newJREContainerPath(iExecutionEnvironment)));
+				break;
 			}
-			final IPath sourceFolderPath = sourceFolder.getFullPath();
-			final IClasspathEntry srcEntry = JavaCore
-					.newSourceEntry(sourceFolderPath);
-			entries.add(srcEntry);
-			
-			Bundle lib = Platform.getBundle("ru.bmstu.rk9.rao.lib");
-			File libPath = FileLocator.getBundleFile(lib);
-			IPath libPathBinary;
-			if (libPath.isDirectory())
-				libPathBinary = new Path(libPath.getAbsolutePath()
-						+ "/bin/");
-			else
-				libPathBinary = new Path(libPath.getAbsolutePath());
-			IClasspathEntry libEntry = JavaCore.newLibraryEntry(
-					libPathBinary, null, null);
-			entries.add(libEntry);
-			
-			game5JavaProject.setRawClasspath(
-					entries.toArray(new IClasspathEntry[entries.size()]), null);
-		} catch (CoreException | BackingStoreException | IOException e2) {
-			e2.printStackTrace();
 		}
+		final IPath sourceFolderPath = sourceFolder.getFullPath();
+		final IClasspathEntry srcEntry = JavaCore
+				.newSourceEntry(sourceFolderPath);
+		entries.add(srcEntry);
+
+		Bundle lib = Platform.getBundle("ru.bmstu.rk9.rao.lib");
+		File libPath = FileLocator.getBundleFile(lib);
+		IPath libPathBinary;
+		if (libPath.isDirectory())
+			libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
+		else
+			libPathBinary = new Path(libPath.getAbsolutePath());
+		IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary,
+				null, null);
+		entries.add(libEntry);
+
+		game5JavaProject.setRawClasspath(
+				entries.toArray(new IClasspathEntry[entries.size()]), null);
 	}
 
-	private final void createModelFile() {
+	private final void createModelFile() throws CoreException, IOException {
 		final String modelName = info.getProjectName() + ".rao";
 		final IPath modelIPath = root.getLocation()
 				.append(raoProject.getFullPath()).append(modelName);
 		final File modelFile = new File(modelIPath.toString());
 		final IFile modelIFile = raoProject.getFile(modelName);
 
-		try {
-			modelFile.createNewFile();
-			fillModel(modelIFile);
-			raoProject.refreshLocal(IResource.DEPTH_INFINITE, null);
-			IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-					.getActivePage(), modelIFile);
-		} catch (IOException | CoreException e) {
-			e.printStackTrace();
-		}
+		modelFile.createNewFile();
+		fillModel(modelIFile);
+		raoProject.refreshLocal(IResource.DEPTH_INFINITE, null);
+		IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+				.getActivePage(), modelIFile);
 	}
 
 	private final void fillModel(final IFile modelIFile) throws CoreException {
