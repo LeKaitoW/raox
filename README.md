@@ -47,11 +47,8 @@ git clone git@github.com:aurusov/rdo-xtext.git
 
 ## Running
 * `Window` `>` `Open Perspective` `>` `Other...` `>` `Rao`
-* `File` `>` `New` `>` `Project...` `>` `Java Project` `>` `Next>` `>` `Project name:` `>`
- * set project name<br>`>` `Project layout` `>` `Configure default` `>` `Source folder name` `=`
- * `src-gen`<br>`>` `OK` `>` `Preference Recorder` `>` `OK` `>` `Finish`
- * `Do you want to open this perspective now?` `>` `No`
-* Right-click on created project `>` `New` `>` `File` `>` `File name:` `>`
- * filename.**rao** (must be valid java identificator)<br>`>` `Finish`
- * `Do you want to add the Xtext nature to the project?` `>` `Yes`
+* `File` `>` `New` `>` `Project...` `>` `Rao` > `Rao Project` `>` `Next>` `>` `Project name:` `>`
+ * set project name<br>
+ * choose model template<br>
+* `Finish`
 * [Models examples](https://github.com/aurusov/rdo-xtext-models)

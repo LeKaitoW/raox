@@ -52,7 +52,7 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.rao.RaoModel;
-import ru.bmstu.rk9.rao.ui.build.ModelBuilder;
+import ru.bmstu.rk9.rao.ui.build.BuildUtil;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfig.SerializationNode;
 
 import com.google.inject.Inject;
@@ -275,7 +275,7 @@ public class SerializationConfigView extends ViewPart {
 		openedProjectsContents.put(project,
 				new ConcurrentHashMap<IResource, SerializationNode>());
 
-		final List<IResource> projectFiles = ModelBuilder
+		final List<IResource> projectFiles = BuildUtil
 				.getAllRaoFilesInProject(project);
 
 		for (IResource raoFile : projectFiles) {
@@ -284,7 +284,7 @@ public class SerializationConfigView extends ViewPart {
 	}
 
 	private final void updateFileContents(IFile raoFile) {
-		URI uri = ModelBuilder.getURI(raoFile);
+		URI uri = BuildUtil.getURI(raoFile);
 		IProject project = raoFile.getProject();
 
 		final ResourceSet resourceSet = resourceSetProvider.get(project);
