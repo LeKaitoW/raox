@@ -7,17 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.osgi.framework.Bundle;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -29,7 +24,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -50,96 +44,100 @@ import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.generator.OutputConfiguration;
 import org.eclipse.xtext.ui.editor.XtextEditor;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
+import org.osgi.framework.Bundle;
 
 import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
 
 public class ModelBuilder {
-	public static URI getURI(IResource res) {
-		return URI.createPlatformResourceURI(res.getProject().getName() + "/"
-				+ res.getProjectRelativePath(), true);
-	}
-
-	public static List<IResource> getAllRaoFilesInProject(IProject project) {
-		List<IResource> allRaoFiles = new ArrayList<IResource>();
-		if (!project.isAccessible())
-			return allRaoFiles;
-		IPath path = project.getLocation();
-		recursiveFindRaoFiles(allRaoFiles, path, ResourcesPlugin.getWorkspace()
-				.getRoot());
-		return allRaoFiles;
-	}
-
-	private static void recursiveFindRaoFiles(List<IResource> allRaoFiles,
-			IPath path, IWorkspaceRoot workspaceRoot) {
-		IContainer container = workspaceRoot.getContainerForLocation(path);
+	private static String checkRaoLib(IProject project, IProgressMonitor monitor) {
+		String libBundleName = "ru.bmstu.rk9.rao.lib";
+		Bundle lib = Platform.getBundle(libBundleName);
 		try {
-			IResource[] iResources;
-			iResources = container.members();
-			for (IResource iR : iResources) {
-				if ("rao".equalsIgnoreCase(iR.getFileExtension()))
-					allRaoFiles.add(iR);
-				if (iR.getType() == IResource.FOLDER) {
-					IPath tempPath = iR.getLocation();
-					recursiveFindRaoFiles(allRaoFiles, tempPath, workspaceRoot);
+			File libPath = FileLocator.getBundleFile(lib);
+			if (libPath == null)
+				return "Build failed: cannot locate bundle " + libBundleName;
+
+			IJavaProject jProject = JavaCore.create(project);
+
+			IClasspathEntry[] projectClassPathArray = jProject
+					.getRawClasspath();
+
+			IPath libPathBinary;
+			if (libPath.isDirectory())
+				libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
+			else
+				libPathBinary = new Path(libPath.getAbsolutePath());
+
+			boolean libInClasspath = false;
+			for (IClasspathEntry classpathEntry : projectClassPathArray) {
+				if (classpathEntry.getPath().equals(libPathBinary)) {
+					libInClasspath = true;
+					break;
 				}
 			}
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-	}
 
-	public static IProject getProject(IEditorPart activeEditor) {
-		IFile file = (IFile) activeEditor.getEditorInput().getAdapter(
-				IFile.class);
-		if (file == null)
-			return null;
+			if (!libInClasspath) {
+				List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
+						Arrays.asList(projectClassPathArray));
+				IClasspathEntry libEntry = JavaCore.newLibraryEntry(
+						libPathBinary, null, null);
+				projectClassPathList.add(libEntry);
 
-		return file.getProject();
-	}
-
-	private static void checkProjectClassPath(IProject project,
-			IProgressMonitor monitor) {
-		Bundle lib = Platform.getBundle("ru.bmstu.rk9.rao.lib");
-		File libPath = null;
-		try {
-			libPath = FileLocator.getBundleFile(lib);
-			if (libPath != null) {
-				IJavaProject jProject = JavaCore.create(project);
-
-				IClasspathEntry[] projectClassPathArray = jProject
-						.getRawClasspath();
-
-				IPath libPathBinary;
-				if (libPath.isDirectory())
-					libPathBinary = new Path(libPath.getAbsolutePath()
-							+ "/bin/");
-				else
-					libPathBinary = new Path(libPath.getAbsolutePath());
-
-				if (projectClassPathArray.length > 2) {
-					if (!projectClassPathArray[2].getPath().equals(
-							libPathBinary)) {
-						projectClassPathArray[2] = JavaCore.newLibraryEntry(
-								libPathBinary, null, null);
-						jProject.setRawClasspath(projectClassPathArray, monitor);
-					}
-				} else {
-					List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
-							Arrays.asList(projectClassPathArray));
-					IClasspathEntry libEntry = JavaCore.newLibraryEntry(
-							libPathBinary, null, null);
-					projectClassPathList.add(libEntry);
-
-					jProject.setRawClasspath(
-							(IClasspathEntry[]) projectClassPathList
-									.toArray(new IClasspathEntry[projectClassPathList
-											.size()]), monitor);
-				}
+				jProject.setRawClasspath(
+						(IClasspathEntry[]) projectClassPathList
+								.toArray(new IClasspathEntry[projectClassPathList
+										.size()]), monitor);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			return "Build failed: internal error while checking rao lib:\n"
+					+ e.getMessage();
 		}
 
+		return null;
+	}
+
+	private static String checkSrcGen(IProject project, IFolder srcGenFolder,
+			IProgressMonitor monitor) {
+		IJavaProject jProject = JavaCore.create(project);
+		try {
+			IClasspathEntry[] projectClassPathArray;
+			projectClassPathArray = jProject.getRawClasspath();
+			List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
+					Arrays.asList(projectClassPathArray));
+
+			if (srcGenFolder.exists()) {
+				for (IResource resource : srcGenFolder.members(true))
+					resource.delete(true, new NullProgressMonitor());
+			} else {
+				srcGenFolder.create(true, true, new NullProgressMonitor());
+			}
+
+			boolean srcGenInClasspath = false;
+			for (IClasspathEntry classpathEntry : projectClassPathArray) {
+				if (classpathEntry.getPath().equals(srcGenFolder.getFullPath())) {
+					srcGenInClasspath = true;
+					break;
+				}
+			}
+
+			if (!srcGenInClasspath) {
+				IClasspathEntry libEntry = JavaCore.newSourceEntry(
+						srcGenFolder.getFullPath(), null, null);
+				projectClassPathList.add(libEntry);
+
+				jProject.setRawClasspath(
+						(IClasspathEntry[]) projectClassPathList
+								.toArray(new IClasspathEntry[projectClassPathList
+										.size()]), monitor);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "Build failed: internal error while checking src-gen:\n"
+					+ e.getMessage();
+		}
+
+		return null;
 	}
 
 	public static Job build(final ExecutionEvent event,
@@ -147,18 +145,19 @@ public class ModelBuilder {
 			final IResourceSetProvider resourceSetProvider,
 			final EclipseOutputConfigurationProvider ocp,
 			final IMultipleResourceGenerator generator) {
+		final String pluginId = "ru.bmstu.rk9.rao.ui";
 		Job buildJob = new Job("Building Rao model") {
 			protected IStatus run(IProgressMonitor monitor) {
 				IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
 				if (activeEditor == null)
-					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+					return new Status(Status.ERROR, pluginId,
 							"Build failed: no editor opened.");
 
-				final IProject project = getProject(activeEditor);
+				final IProject project = BuildUtil.getProject(activeEditor);
 				if (project == null)
 					return new Status(
 							Status.ERROR,
-							"ru.bmstu.rk9.rao.ui",
+							pluginId,
 							"Build failed: file '"
 									+ activeEditor.getTitle()
 									+ "' is not a part of any project in workspace.");
@@ -192,7 +191,9 @@ public class ModelBuilder {
 				display.syncExec(() -> PlatformUI.getWorkbench().saveAll(
 						workbenchWindow, workbenchWindow, filter, true));
 
-				checkProjectClassPath(project, monitor);
+				String libErrorMessage = checkRaoLib(project, monitor);
+				if (libErrorMessage != null)
+					return new Status(Status.ERROR, pluginId, libErrorMessage);
 
 				IJobManager jobManager = Job.getJobManager();
 				try {
@@ -202,36 +203,19 @@ public class ModelBuilder {
 					e.printStackTrace();
 				}
 
-				final List<IResource> raoFiles = ModelBuilder
+				final List<IResource> raoFiles = BuildUtil
 						.getAllRaoFilesInProject(project);
 				if (raoFiles.isEmpty()) {
-					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+					return new Status(Status.ERROR, pluginId,
 							"Build failed: project contains no rao files");
 				}
 
 				IFolder srcGenFolder = project.getFolder("src-gen");
-				if (srcGenFolder.exists()) {
-					try {
-						for (IResource resource : srcGenFolder.members(true)) {
-							resource.delete(true, new NullProgressMonitor());
-						}
-					} catch (CoreException e) {
-						e.printStackTrace();
-						return new Status(
-								Status.ERROR,
-								"ru.bmstu.rk9.rao.ui",
-								"Build failed: could not delete src-gen folder",
-								e);
-					}
-				} else {
-					try {
-						srcGenFolder.create(true, true, new NullProgressMonitor());
-					} catch (CoreException e) {
-						e.printStackTrace();
-						return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
-								"Build failed: could not create src-gen folder", e);
-					}
-				}
+				String srcGenErrorMessage = checkSrcGen(project, srcGenFolder,
+						monitor);
+				if (srcGenErrorMessage != null)
+					return new Status(Status.ERROR, pluginId,
+							srcGenErrorMessage);
 
 				fsa.setOutputPath(srcGenFolder.getFullPath().toString());
 
@@ -253,7 +237,7 @@ public class ModelBuilder {
 
 				for (IResource resource : raoFiles) {
 					Resource loadedResource = resourceSet.getResource(
-							getURI(resource), true);
+							BuildUtil.getURI(resource), true);
 					if (!loadedResource.getErrors().isEmpty()) {
 						projectHasErrors = true;
 						break;
@@ -266,7 +250,7 @@ public class ModelBuilder {
 					} catch (CoreException e) {
 						e.printStackTrace();
 					}
-					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+					return new Status(Status.ERROR, pluginId,
 							"Build failed: model has errors");
 				}
 
@@ -277,7 +261,7 @@ public class ModelBuilder {
 							monitor);
 				} catch (CoreException e) {
 					e.printStackTrace();
-					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+					return new Status(Status.ERROR, pluginId,
 							"Build failed: could not build project", e);
 				}
 
@@ -289,19 +273,18 @@ public class ModelBuilder {
 					if (markers.length > 0) {
 						String errorsDetails = "Project contains errors:";
 						for (IMarker marker : markers) {
-							errorsDetails += "\n\nfile "
+							errorsDetails += "\nfile "
 									+ marker.getResource().getName()
 									+ " at line "
 									+ MarkerUtilities.getLineNumber(marker)
 									+ ": " + MarkerUtilities.getMessage(marker);
 						}
-						return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
-								errorsDetails);
+						return new Status(Status.ERROR, pluginId, errorsDetails);
 					}
 				} catch (CoreException e) {
 					return new Status(
 							Status.ERROR,
-							"ru.bmstu.rk9.rao.ui",
+							pluginId,
 							"Build failed: internal error whule calculating error markers",
 							e);
 				}
