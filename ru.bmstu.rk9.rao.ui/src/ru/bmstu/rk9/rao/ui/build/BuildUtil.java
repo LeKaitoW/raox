@@ -15,9 +15,9 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.ui.IEditorPart;
 
 public class BuildUtil {
-	public static URI getURI(IResource res) {
-		return URI.createPlatformResourceURI(res.getProject().getName() + "/"
-				+ res.getProjectRelativePath(), true);
+	public static URI getURI(IResource resource) {
+		return URI.createPlatformResourceURI(resource.getProject().getName() + "/"
+				+ resource.getProjectRelativePath(), true);
 	}
 
 	public static List<IResource> getAllRaoFilesInProject(IProject project) {
