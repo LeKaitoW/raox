@@ -416,18 +416,18 @@ FrameObjectText:
 		width = ExpressionOr ',' height = ExpressionOr ','
 		backColour = FrameColour ','
 		textcolour = FrameColour ','
-		(alignment = FrameAlignment)? text = ExpressionOr
+		(alignment = FrameAlignment ',')? text = ExpressionOr
 	')'
 ;
 
 enum FrameAlignment
-	: LEFT   = '<'
-	| CENTER = '='
-	| RIGHT  = '>'
+	: LEFT   = 'left'
+	| CENTER = 'center'
+	| RIGHT  = 'right'
 ;
 
 FrameObjectRectangle:
-	'rect' '('
+	'rectangle' '('
 		x = ExpressionOr ',' y = ExpressionOr ','
 		width = ExpressionOr ',' height = ExpressionOr ','
 		backColour = FrameColour ','
@@ -439,7 +439,7 @@ FrameObjectLine:
 	'line' '('
 		x1 = ExpressionOr ',' y1 = ExpressionOr ','
 		x2 = ExpressionOr ',' y2 = ExpressionOr ','
-		colour = FrameColour ','
+		colour = FrameColour
 	')'
 ;
 
@@ -462,7 +462,7 @@ FrameObjectEllipse:
 ;
 
 FrameObjectTriangle:
-	'triang' '('
+	'triangle' '('
 		x1 = ExpressionOr ',' y1 = ExpressionOr ','
 		x2 = ExpressionOr ',' y2 = ExpressionOr ','
 		x3 = ExpressionOr ',' y3 = ExpressionOr ','
