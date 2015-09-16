@@ -34,11 +34,11 @@ public class BuildUtil {
 		try {
 			IResource[] iResources;
 			iResources = container.members();
-			for (IResource iR : iResources) {
-				if ("rao".equalsIgnoreCase(iR.getFileExtension()))
-					allRaoFiles.add(iR);
-				if (iR.getType() == IResource.FOLDER) {
-					IPath tempPath = iR.getLocation();
+			for (IResource resource : iResources) {
+				if ("rao".equalsIgnoreCase(resource.getFileExtension()))
+					allRaoFiles.add(resource);
+				if (resource.getType() == IResource.FOLDER) {
+					IPath tempPath = resource.getLocation();
 					recursiveFindRaoFiles(allRaoFiles, tempPath, workspaceRoot);
 				}
 			}
