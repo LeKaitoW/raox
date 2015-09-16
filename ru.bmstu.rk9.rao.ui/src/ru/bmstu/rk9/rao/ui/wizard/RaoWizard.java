@@ -11,6 +11,7 @@ public class RaoWizard extends Wizard implements IWorkbenchWizard {
 
 	protected RaoWizardPage wizardPage;
 
+	@Override
 	public void addPages() {
 		wizardPage = new RaoWizardPage("");
 		addPage(wizardPage);

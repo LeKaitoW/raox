@@ -124,19 +124,19 @@ public class RaoWizardPage extends WizardPage {
 		throw new RaoWizardException("Template for button is not defined");
 	}
 
-	private boolean isValidJavaIdentifier(String projectName) {
-		if (!Character.isJavaIdentifierStart(projectName.charAt(0))) {
+	private static boolean isValidJavaIdentifier(String identifier) {
+		if (!Character.isJavaIdentifierStart(identifier.charAt(0))) {
 			return false;
 		}
-		for (int i = 1; i < projectName.length(); i++) {
-			if (!Character.isJavaIdentifierPart(projectName.charAt(i))) {
+		for (int i = 1; i < identifier.length(); i++) {
+			if (!Character.isJavaIdentifierPart(identifier.charAt(i))) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	private boolean isJavaKeyword(String projectName) {
+	private static boolean isJavaKeyword(String keyword) {
 		final String keywords[] = { "abstract", "assert", "boolean", "break",
 				"byte", "case", "catch", "char", "class", "const", "continue",
 				"default", "do", "double", "else", "enum", "extends", "false",
@@ -146,6 +146,6 @@ public class RaoWizardPage extends WizardPage {
 				"return", "short", "static", "strictfp", "super", "switch",
 				"synchronized", "this", "throw", "throws", "transient", "true",
 				"try", "void", "volatile", "while" };
-		return (Arrays.binarySearch(keywords, projectName) >= 0);
+		return (Arrays.binarySearch(keywords, keyword) >= 0);
 	}
 }

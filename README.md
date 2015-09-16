@@ -49,6 +49,6 @@ git clone git@github.com:aurusov/rdo-xtext.git
 * `Window` `>` `Open Perspective` `>` `Other...` `>` `Rao`
 * `File` `>` `New` `>` `Other...` `>` `Rao` > `Rao Project` `>` `Next>` `>` `Project name:` `>`
  * set project name<br>
- * set model template<br>
+ * choose model template<br>
 * `Finish`
 * [Models examples](https://github.com/aurusov/rdo-xtext-models)
