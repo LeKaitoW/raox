@@ -12,6 +12,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -43,6 +44,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -66,11 +68,13 @@ import org.json.simple.JSONObject;
 import com.google.inject.Injector;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
+import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 
 @SuppressWarnings("restriction")
 public class Game5View extends EditorPart {
@@ -80,7 +84,6 @@ public class Game5View extends EditorPart {
 	private static EmbeddedEditorModelAccess editor;
 	private static JSONObject object;
 	private final List<TileButton> tiles = new ArrayList<>();
-	private final SimulatorSubscriberManager simulatorSubscriberManager = new SimulatorSubscriberManager();
 	private final int tilesCountX = 3;
 	private final int tilesCountY = 2;
 
@@ -196,7 +199,7 @@ public class Game5View extends EditorPart {
 		inOrderGroup.setLayoutData(inOrderData);
 
 		final Group simulationGroup = new Group(parent, SWT.SHADOW_IN);
-		simulationGroup.setText("Simulation:");
+		simulationGroup.setText("Experiment:");
 		simulationGroup.setLayout(new GridLayout());
 		final GridData simulationData = new GridData(SWT.BEGINNING, SWT.FILL,
 				true, false);
@@ -204,7 +207,7 @@ public class Game5View extends EditorPart {
 		simulationGroup.setLayoutData(simulationData);
 
 		final Group heuristicSelection = new Group(parent, SWT.SHADOW_IN);
-		heuristicSelection.setText("Select heuristic:");
+		heuristicSelection.setText("Heuristic:");
 		heuristicSelection.setLayout(gridLayout);
 		final GridData heuristicGridData = new GridData(SWT.FILL, SWT.FILL,
 				false, false);
@@ -223,9 +226,7 @@ public class Game5View extends EditorPart {
 		heuristicList.setText((String) object.get("heuristic"));
 
 		final Button simulationButton = new Button(simulationGroup, SWT.PUSH);
-		simulationButton.setText("Simulation");
-		final Button graphButton = new Button(simulationGroup, SWT.PUSH);
-		graphButton.setText("Show graph");
+		simulationButton.setText("Run experiment");
 
 		final Label moveLabel = new Label(ruleCost, SWT.NONE);
 		moveLabel.setText("Move");
@@ -392,19 +393,23 @@ public class Game5View extends EditorPart {
 		heuristicList.addSelectionListener(new ConfigurationListener(
 				"heuristic", () -> heuristicList.getText()));
 
-		leftCost.addKeyListener(new CostKeyListener("costLeft"));
+		leftCost.addKeyListener(new ConfigurationKeyListener("costLeft",
+				() -> leftCost.getText()));
 		leftCombo.addSelectionListener(new ConfigurationListener("computeLeft",
 				() -> leftCombo.getText()));
 
-		rightCost.addKeyListener(new CostKeyListener("costRight"));
+		rightCost.addKeyListener(new ConfigurationKeyListener("costRight",
+				() -> rightCost.getText()));
 		rightCombo.addSelectionListener(new ConfigurationListener(
 				"computeRight", () -> rightCombo.getText()));
 
-		upCost.addKeyListener(new CostKeyListener("costUp"));
+		upCost.addKeyListener(new ConfigurationKeyListener("costUp",
+				() -> upCost.getText()));
 		upCombo.addSelectionListener(new ConfigurationListener("computeUp",
 				() -> upCombo.getText()));
 
-		downCost.addKeyListener(new CostKeyListener("costDown"));
+		downCost.addKeyListener(new ConfigurationKeyListener("costDown",
+				() -> downCost.getText()));
 		downCombo.addSelectionListener(new ConfigurationListener("computeDown",
 				() -> downCombo.getText()));
 
@@ -430,39 +435,35 @@ public class Game5View extends EditorPart {
 		simulationButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				// need to check serialization objects tree
-				IServiceLocator serviceLocator = PlatformUI.getWorkbench();
-				doSave((IProgressMonitor) serviceLocator
-						.getService(IProgressMonitor.class));
-				ICommandService commandService = (ICommandService) serviceLocator
-						.getService(ICommandService.class);
-				Command command = commandService
-						.getCommand("ru.bmstu.rk9.rao.ui.runtime.execute");
 				try {
+					((SerializationConfigView) PlatformUI.getWorkbench()
+							.getActiveWorkbenchWindow().getActivePage()
+							.showView(SerializationConfigView.ID))
+							.setCheckedStateForAll();
+					IServiceLocator serviceLocator = PlatformUI.getWorkbench();
+					doSave((IProgressMonitor) serviceLocator
+							.getService(IProgressMonitor.class));
+					ICommandService commandService = (ICommandService) serviceLocator
+							.getService(ICommandService.class);
+					Command command = commandService
+							.getCommand("ru.bmstu.rk9.rao.ui.runtime.execute");
 					command.executeWithChecks(new ExecutionEvent());
-				} catch (ExecutionException | NotDefinedException
-						| NotEnabledException | NotHandledException e) {
+				} catch (PartInitException | ExecutionException
+						| NotDefinedException | NotEnabledException
+						| NotHandledException e) {
 					e.printStackTrace();
 				}
-				simulatorSubscriberManager.initialize(Arrays
+
+				new SimulatorSubscriberManager().initialize(Arrays
 						.asList(new SimulatorSubscriberInfo(
 								showGraphSubscriber,
-								ExecutionState.EXECUTION_COMPLETED)));
+								ExecutionState.EXECUTION_COMPLETED)), EnumSet
+						.of(SubscriptionType.IGNORE_ACCUMULATED,
+								SubscriptionType.ONE_SHOT));
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent event) {
-			}
-		});
-
-		graphButton.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				GraphControl.openFrameWindow(new FrameInfo(0, "game5"));
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
 
@@ -541,6 +542,9 @@ public class Game5View extends EditorPart {
 				}
 			});
 		}
+
+		heuristicList.addKeyListener(new ConfigurationKeyListener("heuristic",
+				() -> heuristicList.getText()));
 	}
 
 	@Override
@@ -685,12 +689,14 @@ public class Game5View extends EditorPart {
 		}
 	}
 
-	public class CostKeyListener implements KeyListener {
-		public CostKeyListener(String key) {
+	public class ConfigurationKeyListener implements KeyListener {
+		public ConfigurationKeyListener(String key, Supplier<String> value) {
 			this.key = key;
+			this.value = value;
 		}
 
 		private final String key;
+		private final Supplier<String> value;
 
 		@Override
 		public void keyPressed(KeyEvent e) {
@@ -699,7 +705,7 @@ public class Game5View extends EditorPart {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void keyReleased(KeyEvent e) {
-			object.put(key, ((Text) e.getSource()).getText());
+			object.put(key, value.get());
 			setDirty(true);
 		}
 	}
@@ -715,13 +721,14 @@ public class Game5View extends EditorPart {
 	private final Subscriber showGraphSubscriber = new Subscriber() {
 		@Override
 		public void fireChange() {
-			PlatformUI
-					.getWorkbench()
-					.getDisplay()
-					.asyncExec(
-							() -> GraphControl.openFrameWindow(new FrameInfo(0,
-									"Расстановка_фишек")));
-			simulatorSubscriberManager.deinitialize();
+			final Display display = PlatformUI.getWorkbench().getDisplay();
+			display.asyncExec(() -> {
+				GraphControl.openFrameWindow(new FrameInfo(0,
+						"Расстановка_фишек"));
+				new GraphManager(GraphControl.openedGraphMap.get(0).getGraph(),
+						OrderConfigurator.inverseOrderPlaces((JSONArray) object
+								.get("places")));
+			});
 		}
 	};
 }
