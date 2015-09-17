@@ -357,7 +357,7 @@ Frame:
 ;
 
 FrameBackPicture:
-	'background' '(' width = INT ',' height = INT ',' colour = FrameColour ')'
+	'background' '(' width = INT ',' height = INT ',' colour = FrameColour ')' ';'
 ;
 
 FrameColour:
@@ -371,14 +371,14 @@ FrameStatementList returns StatementList:
 
 FrameStatement returns Statement
 	: empty ?= ';'
-	| ExpressionStatement ';'
+	| ExpressionStatement
 	| FrameNestedStatement
-	| LocalVariableDeclaration ';'
+	| LocalVariableDeclaration
 	| FrameIfStatement
 	| FrameForStatement
-	| BreakStatement ';'
-	| ReturnStatement ';'
-	| FrameObject ';'
+	| BreakStatement
+	| ReturnStatement
+	| FrameObject
 ;
 
 FrameNestedStatement returns NestedStatement:
@@ -417,7 +417,7 @@ FrameObjectText:
 		backColour = FrameColour ','
 		textcolour = FrameColour ','
 		(alignment = FrameAlignment ',')? text = ExpressionOr
-	')'
+	')' ';'
 ;
 
 enum FrameAlignment
@@ -432,7 +432,7 @@ FrameObjectRectangle:
 		width = ExpressionOr ',' height = ExpressionOr ','
 		backColour = FrameColour ','
 		borderColour = FrameColour
-	')'
+	')' ';'
 ;
 
 FrameObjectLine:
@@ -440,7 +440,7 @@ FrameObjectLine:
 		x1 = ExpressionOr ',' y1 = ExpressionOr ','
 		x2 = ExpressionOr ',' y2 = ExpressionOr ','
 		colour = FrameColour
-	')'
+	')' ';'
 ;
 
 FrameObjectCircle:
@@ -449,7 +449,7 @@ FrameObjectCircle:
 		radius = ExpressionOr ','
 		backColour = FrameColour ','
 		borderColour = FrameColour
-	')'
+	')' ';'
 ;
 
 FrameObjectEllipse:
@@ -458,7 +458,7 @@ FrameObjectEllipse:
 		width = ExpressionOr ',' height = ExpressionOr ','
 		backColour = FrameColour ','
 		borderColour = FrameColour
-	')'
+	')' ';'
 ;
 
 FrameObjectTriangle:
@@ -468,7 +468,7 @@ FrameObjectTriangle:
 		x3 = ExpressionOr ',' y3 = ExpressionOr ','
 		backColour = FrameColour ','
 		borderColour = FrameColour
-	')'
+	')' ';'
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
