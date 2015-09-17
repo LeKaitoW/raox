@@ -31,4 +31,18 @@
 			extensions="json">
 		</editor>
 	</extension>
+ <extension
+       point="org.eclipse.ui.newWizards">
+       <category
+       		id="ru.bmstu.rk9.rao.wizard"
+       		name="Rao">
+       </category>
+       <wizard
+       		name="Rao Game 5 Project"
+       		class="rdo.game5.Game5Wizard"
+       		id="rdo.game5.Game5Wizard"
+       		category="ru.bmstu.rk9.rao.wizard"
+       		project="true">
+       </wizard>
+ </extension>
 </plugin>
