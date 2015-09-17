@@ -2,25 +2,44 @@
 <?eclipse version="3.4"?>
 <plugin>
 	<extension
-		point="org.eclipse.ui.actionSets">
-		<actionSet
-			label="Game 5"
-			visible="true"
-			id="rdo-game5">
-		<menu
-			label="Plugins"
-			id="plugins">
-		<separator
-			name="game5Separator">
-		</separator>
-		</menu>
-			<action
-				label="Game 5"
-				class="rdo.game5.Game5Action"
-				menubarPath="plugins/game5Separator"
-				id="rdo.game5.Game5Action">
-			</action>
-		</actionSet>
+		point="org.eclipse.ui.menus">
+		<menuContribution
+			locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+			<menu
+				id="rdo.game5.menu"
+				label="Plugins">
+				<visibleWhen
+					checkEnabled="false">
+					<with
+						variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+						<equals
+							value="showActions">
+						</equals>
+					</with>
+				</visibleWhen>
+				<command
+					commandId="rdo.game5"
+					id="rdo.game5"
+					label="Game 5"
+					style="push">
+				</command>
+			</menu>
+		</menuContribution>
+	</extension>
+	<extension
+		point="org.eclipse.ui.commands">
+		<command
+			description="Run Game 5"
+			id="rdo.game5"
+			name="Game 5">
+		</command>
+	</extension>
+	<extension
+		point="org.eclipse.ui.handlers">
+		<handler
+			class="rdo.game5.Game5Handler"
+			commandId="rdo.game5">
+		</handler>
 	</extension>
 	<extension
 		point="org.eclipse.ui.editors">
