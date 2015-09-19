@@ -357,7 +357,11 @@ Frame:
 ;
 
 FrameBackPicture:
-	'background' '(' width = INT ',' height = INT ',' colour = FrameColour ')' ';'
+	'background' '(' (size = FrameSize ',')? colour = FrameColour ')' ';'
+;
+
+FrameSize:
+	width = INT ',' height = INT
 ;
 
 FrameColour:

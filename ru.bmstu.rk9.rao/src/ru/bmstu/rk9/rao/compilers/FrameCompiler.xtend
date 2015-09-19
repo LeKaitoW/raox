@@ -36,7 +36,11 @@ class FrameCompiler
 			private int[] backgroundData = new int[]
 			{
 				«IF frame.backPicture != null»
-						«frame.backPicture.width», «frame.backPicture.height»,
+					«IF frame.backPicture.size != null»
+						«frame.backPicture.size.width», «frame.backPicture.size.height»,
+					«ELSE»
+						800, 600,
+					«ENDIF»
 					«frame.backPicture.colour.r
 					», «frame.backPicture.colour.g
 					», «frame.backPicture.colour.b»
