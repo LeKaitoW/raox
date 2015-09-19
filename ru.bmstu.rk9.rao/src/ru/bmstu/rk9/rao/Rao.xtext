@@ -416,7 +416,7 @@ FrameObjectText:
 		width = ExpressionOr ',' height = ExpressionOr ','
 		backColour = FrameColour ','
 		textcolour = FrameColour ','
-		(alignment = FrameAlignment ',')? text = ExpressionOr
+		('Alignment' '.' alignment = FrameAlignment ',')? text = ExpressionOr
 	')' ';'
 ;
 
