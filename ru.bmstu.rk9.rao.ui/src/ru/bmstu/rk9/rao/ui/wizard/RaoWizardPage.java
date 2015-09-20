@@ -81,22 +81,27 @@ public class RaoWizardPage extends WizardPage {
 				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 				if (projectName.isEmpty()) {
 					setDescription("Enter a project name");
-					return;
-				}
-				if (root.getProject(projectName + "_project").exists()) {
-					setDescription("A project with this name already exists.");
+					setPageComplete(false);
 					return;
 				}
 				if (!isValidJavaIdentifier(projectName)) {
 					setDescription("Project name is not a valid Java identifier.");
-					return;
-				}
-				if (projectName.equals("model")) {
-					setDescription("\"model\" is an invalid name for Rao project");
+					setPageComplete(false);
 					return;
 				}
 				if (isJavaKeyword(projectName)) {
 					setDescription("Project name can not be a Java keyword.");
+					setPageComplete(false);
+					return;
+				}
+				if (projectName.equals("model")) {
+					setDescription("\"model\" is an invalid name for Rao project");
+					setPageComplete(false);
+					return;
+				}
+				if (root.getProject(projectName + "_project").exists()) {
+					setDescription("A project with this name already exists.");
+					setPageComplete(false);
 					return;
 				}
 				setDescription("Create a Rao project in the workspace.");
