@@ -37,6 +37,6 @@ public class Game5Wizard extends Wizard implements IWorkbenchWizard {
 
 	@Override
 	public String getWindowTitle() {
-		return "New Rao Game 5 Project";
+		return "New Rao Game5 Project";
 	}
 }

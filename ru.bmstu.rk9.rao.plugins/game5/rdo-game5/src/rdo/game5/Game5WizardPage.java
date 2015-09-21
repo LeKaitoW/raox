@@ -21,7 +21,7 @@ public class Game5WizardPage extends WizardPage {
 
 	protected Game5WizardPage(String pageName) {
 		super(pageName);
-		setTitle("Create a Rao Game 5 Project");
+		setTitle("Create a Rao Game5 Project");
 		setDescription("Enter a project name");
 	}
 
@@ -71,7 +71,7 @@ public class Game5WizardPage extends WizardPage {
 					setPageComplete(false);
 					return;
 				}
-				setDescription("Create a Rao Game 5 project in the workspace.");
+				setDescription("Create a Rao Game5 project in the workspace.");
 				setPageComplete(true);
 			}
 
