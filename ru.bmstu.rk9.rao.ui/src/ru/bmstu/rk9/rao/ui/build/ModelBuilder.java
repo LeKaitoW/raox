@@ -229,6 +229,11 @@ public class ModelBuilder {
 				for (IResource resource : raoFiles) {
 					Resource loadedResource = resourceSet.getResource(
 							BuildUtil.getURI(resource), true);
+					if (!loadedResource.getErrors().isEmpty()) {
+						projectHasErrors = true;
+						break;
+					}
+
 					try {
 						validatorExtension.updateValidationMarkers(
 								(IFile) resource, loadedResource,
@@ -246,10 +251,6 @@ public class ModelBuilder {
 								pluginId,
 								"Build failed: internal error whule calculating model error markers",
 								e);
-					}
-					if (!loadedResource.getErrors().isEmpty()) {
-						projectHasErrors = true;
-						break;
 					}
 				}
 
