@@ -148,6 +148,10 @@ function getUserGuideContents() {
         {
             "href":"../user_guide/create_model.html",
             "title":"Создание модели"
+        },
+        {
+            "href":"../user_guide/run_model.html",
+            "title":"Запуск модели"
         }
     ];
 
