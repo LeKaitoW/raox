@@ -6,6 +6,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
+import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 
 import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
 
@@ -25,11 +26,14 @@ public class BuildHandler extends AbstractHandler {
 	@Inject
 	EclipseOutputConfigurationProvider outputConfigurationProvider;
 
+	@Inject
+	DefaultResourceUIValidatorExtension validatorExtension;
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ModelBuilder.build(event, fileAccessProvider.get(),
-				resourceSetProvider, outputConfigurationProvider, generator)
-				.schedule();
+				resourceSetProvider, outputConfigurationProvider, generator,
+				validatorExtension).schedule();
 		return null;
 	}
 }

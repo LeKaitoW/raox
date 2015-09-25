@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -44,6 +45,8 @@ import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.generator.OutputConfiguration;
 import org.eclipse.xtext.ui.editor.XtextEditor;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
+import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
+import org.eclipse.xtext.validation.CheckMode;
 import org.osgi.framework.Bundle;
 
 import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
@@ -144,7 +147,8 @@ public class ModelBuilder {
 			final EclipseResourceFileSystemAccess2 fsa,
 			final IResourceSetProvider resourceSetProvider,
 			final EclipseOutputConfigurationProvider ocp,
-			final IMultipleResourceGenerator generator) {
+			final IMultipleResourceGenerator generator,
+			final DefaultResourceUIValidatorExtension validatorExtension) {
 		final String pluginId = "ru.bmstu.rk9.rao.ui";
 		Job buildJob = new Job("Building Rao model") {
 			protected IStatus run(IProgressMonitor monitor) {
@@ -217,19 +221,6 @@ public class ModelBuilder {
 					return new Status(Status.ERROR, pluginId,
 							srcGenErrorMessage);
 
-				fsa.setOutputPath(srcGenFolder.getFullPath().toString());
-
-				fsa.setMonitor(monitor);
-				fsa.setProject(project);
-
-				Map<String, OutputConfiguration> outputConfigurations = new HashMap<String, OutputConfiguration>();
-
-				for (OutputConfiguration oc : ocp
-						.getOutputConfigurations(project))
-					outputConfigurations.put(oc.getName(), oc);
-
-				fsa.setOutputConfigurations(outputConfigurations);
-
 				final ResourceSet resourceSet = resourceSetProvider
 						.get(project);
 
@@ -242,6 +233,25 @@ public class ModelBuilder {
 						projectHasErrors = true;
 						break;
 					}
+
+					try {
+						validatorExtension.updateValidationMarkers(
+								(IFile) resource, loadedResource,
+								CheckMode.ALL, monitor);
+						IMarker[] markers = resource.findMarkers(
+								IMarker.PROBLEM, true, 0);
+						if (markers.length > 0) {
+							projectHasErrors = true;
+							break;
+						}
+					} catch (CoreException e) {
+						e.printStackTrace();
+						return new Status(
+								Status.ERROR,
+								pluginId,
+								"Build failed: internal error whule calculating model error markers",
+								e);
+					}
 				}
 
 				if (projectHasErrors) {
@@ -253,6 +263,19 @@ public class ModelBuilder {
 					return new Status(Status.ERROR, pluginId,
 							"Build failed: model has errors");
 				}
+
+				fsa.setOutputPath(srcGenFolder.getFullPath().toString());
+
+				fsa.setMonitor(monitor);
+				fsa.setProject(project);
+
+				Map<String, OutputConfiguration> outputConfigurations = new HashMap<String, OutputConfiguration>();
+
+				for (OutputConfiguration oc : ocp
+						.getOutputConfigurations(project))
+					outputConfigurations.put(oc.getName(), oc);
+
+				fsa.setOutputConfigurations(outputConfigurations);
 
 				generator.doGenerate(resourceSet, fsa);
 
@@ -285,7 +308,7 @@ public class ModelBuilder {
 					return new Status(
 							Status.ERROR,
 							pluginId,
-							"Build failed: internal error whule calculating error markers",
+							"Build failed: internal error whule calculating generated files error markers",
 							e);
 				}
 
