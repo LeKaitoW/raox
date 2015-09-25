@@ -142,6 +142,10 @@ function getTutorialContents() {
 function getUserGuideContents() {
     var contents = [
         {
+            "href":"../user_guide/first_run.html",
+            "title":"Первый запуск"
+        },
+        {
             "href":"../user_guide/create_model.html",
             "title":"Создание модели"
         }
