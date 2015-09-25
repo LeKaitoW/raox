@@ -1,0 +1,400 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../styles/rao_general.css">
+<link rel="stylesheet" href="../styles/rao_highlight.css">
+<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+<script src="../scripts/thirdparty/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="../scripts/thirdparty/jquery-2.1.4.min.js"></script>
+<script src="../scripts/table_of_contents.js"></script>
+</head>
+<body>
+<h2>Анимация</h2>
+<p>Описание кадра анимации имеет следующий вид:</p>
+<pre><code class="rao">frame <i>имя_кадра</i> {
+    <i>тело_кадра</i>
+}</code></pre>
+<p>В моделе может быть несколько кадров. В процессе прогона отображается выбранный из списка. В теле кадра с помощью процедурного языка и специальных функций для отрисовки описывается изображение.<br>Функции для отрисовки:</p>
+<table style="width:100%">
+    <tr>
+        <th width="20%">Сигнатура</th>
+        <th width="30%">Описание</th>
+        <th width="50%">Параметры</th>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">color(
+        int r,
+        int g,
+        int b
+        [, int alpha])</code></pre></td>
+        <td>Задание цвета в модели <a href="https://ru.wikipedia.org/wiki/RGB">RGB</a></td>
+        <td>
+            <table style="width:100%">
+                <tr>
+                    <td width="35%"><code class="rao">r</code></td>
+                    <td>интенсивность красного цвета в интервале от 0 до 255</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">g</code></td>
+                    <td>интенсивность зеленого цвета в интервале от 0 до 255</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">b</code></td>
+                    <td>интенсивность синего цвета от в интервале 0 до 255</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">alpha</code></td>
+                    <td><a href="https://en.wikipedia.org/wiki/RGBA_color_space">прозрачность</a> в интервале от 0 до 255</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">background(
+        int width,
+        int height,
+        color c)</code></pre></td>
+        <td>Задание фона кадра. Должна вызываться первой.</td>
+        <td>
+            <table style="width:100%">
+                <tr>
+                    <td width="35%"><code class="rao">width</code></td>
+                    <td>ширина кадра</td>
+                </tr>
+                <tr>
+                    <td><code class="rao">height</code></td>
+                    <td>высота кадра</td>
+                </tr>
+                <tr>
+                    <td><code class="rao">c</code></td>
+                    <td>цвет кадра</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">text(
+        double x,
+        double y,
+        double width,
+        double height,
+        color fillColor,
+        color textColor,
+        String text
+        [, alignment a])</code></pre></td>
+        <td>Отрисовка текста</td>
+        <td>
+            <table style="width:100%">
+                <tr>
+                    <td width="35%"><code class="rao">x</code></td>
+                    <td>координата <code>x</code> верхнего левого угла панели текста</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">y</code></td>
+                    <td>координата <code>y</code> верхнего левого угла панели текста</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">width</code></td>
+                    <td>ширина панели текста</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">width</code></td>
+                    <td>высота панели текста</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">fillColor</code></td>
+                    <td>цвет фона панели текста</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">textColor</code></td>
+                    <td>цвет текста</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">text</code></td>
+                    <td>текст</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">alignment</code></td>
+                    <td>выравнивание текста в панели, задается одним из значений <code class="rao">left</code>, <code class="rao">center</code> или <code class="rao">right</code></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">line(
+        double x1,
+        double y1,
+        double x2,
+        double y2,
+        color c)</code></pre></td>
+        <td>Отрисовка отрезка</td>
+        <td>
+            <table style="width:100%">
+                <tr>
+                    <td width="35%"><code class="rao">x1</code></td>
+                    <td>координата <code>x</code> первой точки отрезка</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">y1</code></td>
+                    <td>координата <code>y</code> первой точки отрезка</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">x2</code></td>
+                    <td>координата <code>x</code> второй точки отрезка</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">y2</code></td>
+                    <td>координата <code>y</code> второй точки отрезка</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">c</code></td>
+                    <td>цвет отрезка</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">rectangle(
+        double x,
+        double y,
+        double width,
+        double height,
+        color fillColor,
+        color borderColor)</code></pre></td>
+        <td>Отрисовка прямоугольника</td>
+        <td>
+            <table style="width:100%">
+                <tr>
+                    <td width="35%"><code class="rao">x</code></td>
+                    <td>координата <code>x</code> левой верхней точки прямоугольника</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">y</code></td>
+                    <td>координата <code>y</code> левой верхней точки прямоугольника</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">width</code></td>
+                    <td>ширина прямоугольника</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">height</code></td>
+                    <td>высота прямоугольника</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">fillColor</code></td>
+                    <td>цвет фона прямоугольника</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">borderColor</code></td>
+                    <td>цвет границы прямоугольника</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">circle(
+        double x,
+        double y,
+        double radius,
+        color fillColor,
+        color borderColor)</code></pre></td>
+        <td>Отрисовка круга</td>
+        <td>
+            <table style="width:100%">
+                <tr>
+                    <td width="35%"><code class="rao">x</code></td>
+                    <td>координата <code>x</code> центра круга</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">y</code></td>
+                    <td>координата <code>y</code> центра круга</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">radius</code></td>
+                    <td>радиус круга</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">fillColor</code></td>
+                    <td>цвет фона круга</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">borderColor</code></td>
+                    <td>цвет границы круга</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">ellipse(
+        double x,
+        double y,
+        double width,
+        double height,
+        color fillColor,
+        color borderColor)</code></pre></td>
+        <td>Отрисовка эллипса</td>
+        <td>
+            <table style="width:100%">
+                <tr>
+                    <td width="35%"><code class="rao">x</code></td>
+                    <td>координата <code>x</code> левого верхнего угла прямоугольника, в который вписан эллипс</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">y</code></td>
+                    <td>координата <code>y</code> левого верхнего угла прямоугольника, в который вписан эллипс</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">width</code></td>
+                    <td>длина горизонтальной оси эллипса</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">height</code></td>
+                    <td>длина вертикальной оси эллипса</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">fillColor</code></td>
+                    <td>цвет фона эллипса</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">borderColor</code></td>
+                    <td>цвет границы эллипса</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">triangle(
+        double x1,
+        double y1,
+        double x2,
+        double y2,
+        double x3,
+        double y3,
+        color fillColor,
+        color borderColor)</code></pre></td>
+        <td>Отрисовка треугольника</td>
+        <td>
+            <table style="width:100%">
+                <tr>
+                    <td width="35%"><code class="rao">x1</code></td>
+                    <td>координата <code>x</code> первой вершины треугольника</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">y1</code></td>
+                    <td>координата <code>y</code> первой вершины треугольника</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">x2</code></td>
+                    <td>координата <code>x</code> второй вершины треугольника</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">y2</code></td>
+                    <td>координата <code>y</code> второй вершины треугольника</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">x3</code></td>
+                    <td>координата <code>x</code> третьей вершины треугольника</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">y3</code></td>
+                    <td>координата <code>y</code> третьей вершины треугольника</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">fillColor</code></td>
+                    <td>цвет фона треугольника</td>
+                </tr>
+                <tr>
+                    <td width="35%"><code class="rao">borderColor</code></td>
+                    <td>цвет границы треугольника</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<p>Пример:</p>
+<pre><code class="rao">event timer() {
+    timer.plan(currentTime + 1);
+}
+
+set init() {
+    timer.plan(currentTime + 1);
+}
+
+set terminateCondition() {
+    return currentTime > 200;
+}
+
+frame whosthat {
+    background(300, 300, color(255, 255, 255));
+
+    double dy = Math.abs(4 - currentTime % 8);
+    double dx = Math.abs(8 - currentTime % 16);
+
+    /* tail */
+    triangle(255, 170 + dy, 290, 40 + dy, 200, 150 + dy, color(255, 153, 188), color(255, 153, 188));
+    line(255, 170 + dy, 290, 40 + dy, color(0, 0, 0));
+
+    triangle(100, 20 + dy, 290, 40 + dy, 275, 75 + dy, color(255, 153, 188), color(255, 153, 188));
+    triangle(100, 20 + dy, 140, 24 + dy, 130, 30 + dy, color(255, 255, 255), color(255, 255, 255));
+    line(100, 20 + dy, 290, 40 + dy, color(0, 0, 0));
+    line(100, 20 + dy, 265, 72 + dy, color(0, 0, 0));
+
+    triangle(250, 220 + dy, 270, 40 + dy, 200, 150 + dy, color(255, 153, 188), color(255, 153, 188));
+    line(250, 68 + dy, 220, 120 + dy, color(0, 0, 0));
+
+    /* right back leg */
+    triangle(220, 220 + dy, 245 + dx, 255 + dy, 260, 183 + dy, color(255, 153, 188), color(255, 153, 188));
+
+    /* body */
+    ellipse(30, 100 + dy, 230, 150, color(255, 153, 188), color(0, 0, 0));
+
+    /* right back leg partially-behind effect */
+    triangle(240, 220 + dy, 245 + dx, 255 + dy, 260, 183 + dy, color(255, 153, 188), color(255, 153, 188));
+    triangle(233, 243 + dy, 245 + dx, 255 + dy, 255, 245 + dy, color(255, 255, 255), color(255, 255, 255));
+    line(226, 228 + dy, 245 + dx, 255 + dy, color(0, 0, 0));
+    line(245 + dx, 255 + dy, 260, 183 + dy, color(0, 0, 0));
+
+    /* left ear */
+    circle(35, 150 + dy, 40, color(255, 153, 188), color(0, 0, 0));
+
+    /* head */
+    ellipse(7, 127 + dy, 135, 125, color(255, 153, 188), color(0, 0, 0));
+
+    /* right ear */
+    circle(120, 150 + dy, 40, color(255, 153, 188), color(0, 0, 0));
+    circle(120, 150 + dy, 20, color(255, 153, 188), color(0, 0, 0));
+
+    /* left eye */
+    circle(23, 180 + dy, 30, color(255, 255, 255), color(0, 0, 0));
+    circle(28, 180 + dy, 2, color(0, 0, 0), color(0, 0, 0));
+
+    /* right eye */
+    circle(80, 180 + dy, 30, color(255, 255, 255), color(0, 0, 0));
+    circle(78, 180 + dy, 2, color(0, 0, 0), color(0, 0, 0));
+
+    /* left front leg */
+    triangle(10, 225 + dy, 1 - dx, 265 + dy, 80, 225 + dy, color(255, 153, 188), color(255, 153, 188));
+    triangle(0, 255 + dy, 1 - dx, 265 + dy, 15, 258 + dy, color(255, 255, 255), color(255, 255, 255));
+    line(10, 225 + dy, 1 - dx, 265 + dy, color(0, 0, 0));
+    line(1 - dx, 265 + dy, 80, 225 + dy, color(0, 0, 0));
+
+    /* mouth area */
+    ellipse(1, 188 + dy, 100, 70, color(242, 245, 207), color(0, 0, 0));
+    triangle(10, 225 + dy, 45, 250 + dy, 70, 225 + dy, color(255, 153, 188), color(0, 0, 0));
+
+    /* nose */
+    line(20, 214 + dy, 27, 217 + dy, color(0, 0, 0));
+    line(38, 217 + dy, 44, 214 + dy, color(0, 0, 0));
+
+    /* teeth */
+    triangle(15, 225 + dy, 20, 230 + dy, 25, 225 + dy, color(255, 255, 255), color(0, 0, 0));
+    triangle(50, 225 + dy, 55, 230 + dy, 60, 225 + dy, color(255, 255, 255), color(0, 0, 0));
+
+    /* right front leg */
+    triangle(135, 240 + dy, 170 + dx, 275 + dy, 175, 225 + dy, color(255, 153, 188), color(255, 153, 188));
+    triangle(159, 265 + dy, 170 + dx, 275 + dy, 176, 260 + dy, color(255, 255, 255), color(255, 255, 255));
+    line(135, 240 + dy, 170 + dx, 275 + dy, color(0, 0, 0));
+    line(175, 225 + dy, 170 + dx, 275 + dy, color(0, 0, 0));
+}</code></pre>
+</body>
+</html>

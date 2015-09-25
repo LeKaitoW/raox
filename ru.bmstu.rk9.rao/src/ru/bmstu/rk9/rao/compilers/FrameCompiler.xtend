@@ -13,6 +13,8 @@ class FrameCompiler
 		package «filename»;
 
 		import ru.bmstu.rk9.rao.lib.*;
+		import ru.bmstu.rk9.rao.lib.animation.*;
+		import ru.bmstu.rk9.rao.lib.simulator.*;
 		@SuppressWarnings("all")
 
 		public class «frame.name» implements AnimationFrame
@@ -37,8 +39,7 @@ class FrameCompiler
 					«IF frame.backPicture.size != null»
 						«frame.backPicture.size.width», «frame.backPicture.size.height»,
 					«ELSE»
-						««« TODO handle background picture
-						800, 600
+						800, 600,
 					«ENDIF»
 					«frame.backPicture.colour.r
 					», «frame.backPicture.colour.g

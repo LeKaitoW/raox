@@ -251,8 +251,10 @@ class RaoStatementCompiler
 						'''
 						context.drawText
 						(
-							«statement.x.compileExpression.value», «statement.y.compileExpression.value»,
-							«statement.width.compileExpression.value», «statement.height.compileExpression.value»,
+							(int) («statement.x.compileExpression.value»),
+							(int) («statement.y.compileExpression.value»),
+							(int) («statement.width.compileExpression.value»),
+							(int) («statement.height.compileExpression.value»),
 							«statement.backColour.compileFrameColour»,
 							«statement.textcolour.compileFrameColour»,
 							AnimationContext.Alignment.«IF statement.alignment != null
@@ -264,8 +266,10 @@ class RaoStatementCompiler
 						'''
 						context.drawRectangle
 						(
-							«statement.x.compileExpression.value», «statement.y.compileExpression.value»,
-							«statement.width.compileExpression.value», «statement.height.compileExpression.value»,
+							(int) («statement.x.compileExpression.value»),
+							(int) («statement.y.compileExpression.value»),
+							(int) («statement.width.compileExpression.value»),
+							(int) («statement.height.compileExpression.value»),
 							«statement.backColour.compileFrameColour»,
 							«statement.borderColour.compileFrameColour»
 						);
@@ -274,8 +278,10 @@ class RaoStatementCompiler
 						'''
 						context.drawLine
 						(
-							«statement.x1.compileExpression.value», «statement.y1.compileExpression.value»,
-							«statement.x2.compileExpression.value», «statement.x2.compileExpression.value»,
+							(int) («statement.x1.compileExpression.value»),
+							(int) («statement.y1.compileExpression.value»),
+							(int) («statement.x2.compileExpression.value»),
+							(int) («statement.y2.compileExpression.value»),
 							«statement.colour.compileFrameColour»
 						);
 						'''
@@ -283,8 +289,9 @@ class RaoStatementCompiler
 						'''
 						context.drawCircle
 						(
-							«statement.x.compileExpression.value», «statement.y.compileExpression.value»,
-							«statement.radius.compileExpression.value»,
+							(int) («statement.x.compileExpression.value»),
+							(int) («statement.y.compileExpression.value»),
+							(int) («statement.radius.compileExpression.value»),
 							«statement.backColour.compileFrameColour»,
 							«statement.borderColour.compileFrameColour»
 						);
@@ -293,19 +300,24 @@ class RaoStatementCompiler
 						'''
 						context.drawEllipse
 						(
-							«statement.x.compileExpression.value», «statement.y.compileExpression.value»,
-							«statement.width.compileExpression.value», «statement.height.compileExpression.value»,
+							(int) («statement.x.compileExpression.value»),
+							(int) («statement.y.compileExpression.value»),
+							(int) («statement.width.compileExpression.value»),
+							(int) («statement.height.compileExpression.value»),
 							«statement.backColour.compileFrameColour»,
 							«statement.borderColour.compileFrameColour»
 						);
 						'''
 					FrameObjectTriangle:
 						'''
-						context.drawRectangle
+						context.drawTriangle
 						(
-							«statement.x1.compileExpression.value», «statement.y1.compileExpression.value»,
-							«statement.x2.compileExpression.value», «statement.y2.compileExpression.value»,
-							«statement.x3.compileExpression.value», «statement.y3.compileExpression.value»,
+							(int) («statement.x1.compileExpression.value»),
+							(int) («statement.y1.compileExpression.value»),
+							(int) («statement.x2.compileExpression.value»),
+							(int) («statement.y2.compileExpression.value»),
+							(int) («statement.x3.compileExpression.value»),
+							(int) («statement.y3.compileExpression.value»),
 							«statement.backColour.compileFrameColour»,
 							«statement.borderColour.compileFrameColour»
 						);
