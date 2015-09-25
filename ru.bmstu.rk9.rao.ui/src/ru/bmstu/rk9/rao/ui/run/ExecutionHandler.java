@@ -27,6 +27,7 @@ import org.eclipse.ui.services.ISourceProviderService;
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
+import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 
 import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
@@ -58,6 +59,9 @@ public class ExecutionHandler extends AbstractHandler {
 	@Inject
 	private EclipseOutputConfigurationProvider outputConfigurationProvider;
 
+	@Inject
+	DefaultResourceUIValidatorExtension validatorExtension;
+
 	private static boolean isRunning = false;
 
 	public static boolean getRunningState() {
@@ -86,7 +90,8 @@ public class ExecutionHandler extends AbstractHandler {
 		setRunningState(display, sourceProvider, true);
 
 		final Job build = ModelBuilder.build(event, fileAccessProvider.get(),
-				resourceSetProvider, outputConfigurationProvider, generator);
+				resourceSetProvider, outputConfigurationProvider, generator,
+				validatorExtension);
 		build.schedule();
 
 		IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);

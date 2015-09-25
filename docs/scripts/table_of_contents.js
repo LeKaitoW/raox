@@ -106,6 +106,10 @@ function getReferenceContents() {
         {
             "href":"../reference/result.html",
             "title":"Результаты моделирования"
+        },
+        {
+            "href":"../reference/animation.html",
+            "title":"Анимация"
         }
     ];
 
