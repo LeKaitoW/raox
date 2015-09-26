@@ -1,6 +1,6 @@
 # RAO-XT
 ## Summary
-<img src=https://raw.githubusercontent.com/k-alexandrovsky/k-alexandrovsky.github.io/master/rdo-xtext.png><img>
+<img src=docs/rdo-xtext.png><img>
 This project is an implementation of RDO modelling language in Eclipse, using xtext.
 * [About RAO modelling language (rus)](http://rdo.rk9.bmstu.ru/help/help/rdo_lang_rus/html/rdo_intro.htm)
 
@@ -47,11 +47,8 @@ git clone git@github.com:aurusov/rdo-xtext.git
 
 ## Running
 * `Window` `>` `Open Perspective` `>` `Other...` `>` `Rao`
-* `File` `>` `New` `>` `Project...` `>` `Java Project` `>` `Next>` `>` `Project name:` `>`
- * set project name<br>`>` `Project layout` `>` `Configure default` `>` `Source folder name` `=`
- * `src-gen`<br>`>` `OK` `>` `Preference Recorder` `>` `OK` `>` `Finish`
- * `Do you want to open this perspective now?` `>` `No`
-* Right-click on created project `>` `New` `>` `File` `>` `File name:` `>`
- * filename.**rao** (must be valid java identificator)<br>`>` `Finish`
- * `Do you want to add the Xtext nature to the project?` `>` `Yes`
+* `File` `>` `New` `>` `Project...` `>` `Rao` > `Rao Project` `>` `Next>` `>` `Project name:` `>`
+ * set project name<br>
+ * choose model template<br>
+* `Finish`
 * [Models examples](https://github.com/aurusov/rdo-xtext-models)

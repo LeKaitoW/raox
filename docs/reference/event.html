@@ -1,0 +1,39 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../styles/rao_general.css">
+<link rel="stylesheet" href="../styles/rao_highlight.css">
+<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+<script src="../scripts/thirdparty/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="../scripts/thirdparty/jquery-2.1.4.min.js"></script>
+<script src="../scripts/table_of_contents.js"></script>
+</head>
+<body>
+<h2>События</h2>
+<p>Объявление события производится указанием ключевого слова <code class="rao">event</code>.</p>
+<pre><code class="rao">event <i>имя_события</i>(<i>параметры_события</i>) {
+    <i>тело_события</i>
+}</code></pre>
+<p>В теле события описываются операции, выполняемые в момент его совершения.</p>
+<pre><code class="rao">event поступление_заявки() {
+    служба_технической_поддержки.количество_заявок++;
+}</code></pre>
+<p>Событие может иметь произвольное число параметров.</p>
+<pre><code class="rao">event отказ_станка_1(Тип_отказа тип_отказа) {
+    if (тип_отказа == Тип_отказа.Критический)
+        станок_1.состояние = Состояние_станка.требует_ремонта;
+    else
+        станок_1.состояние = Состояние_станка.требует_переналадки;
+}</code></pre>
+<p>Планирование событий выполняется с помощью вызова метода <code class="rao">plan()</code>. В качестве параметра методу <code class="rao">plan()</code> передается момент времени, в который должно совершиться событие, а затем его параметры. События могут планироваться в телах образцов или других событий, а также при инициализации модели. Для получения текущего модельного времени используется глобальная переменная <code class="rao">currentTime</code>.</p>
+<pre><code class="rao">set init() {
+    поступление_детали.plan(currentTime + интервал_поступления_детали.next());
+    отказ_станка_1.plan(currentTime + интервал_отказа_станка_1.next(), распределение_типа_отказа.next());
+}</code></pre>
+<p>Метод <code class="rao">plan()</code> планирует только одно совершение события. Для организации периодического совершения событий с заданным распределением, событие должно планировать само себя при каждом совершении.</p>
+<pre><code class="rao">event поступление_заявки() {
+    служба_технической_поддержки.количество_заявок++;
+    поступление_заявки.plan(currentTime + интервал_поступления_заявки.next());
+}</code></pre>
+</body>
+</html>

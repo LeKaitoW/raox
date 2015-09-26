@@ -33,27 +33,12 @@ RaoEntity
 
 ResourceType:
 	'type' name = ID '{'
-		(parameters += ParameterType ';' )+
+		(parameters += Parameter ';' )+
 	'}'
 ;
 
-ParameterType
-	: ParameterTypeBasic
-	| ParameterTypeString
-	| ParameterTypeArray
-;
-
-ParameterTypeBasic:
-	type = (RaoInt | RaoDouble | RaoBoolean | RaoEnum) name = ID
-		('=' default = ExpressionOr)?
-;
-
-ParameterTypeString:
-	type = RaoString name = ID ('=' default = STRING)?
-;
-
-ParameterTypeArray:
-	type = RaoArray name = ID ('=' default = ArrayValues)?
+Parameter
+	: type = RaoType name = ID ('=' default = ExpressionOr)?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -75,8 +60,8 @@ ResourceParameterExpression
 
 Event:
 	'event' name = ID '('
-		(parameters += ParameterType (
-			',' parameters += ParameterType)* )? ')' '{'
+		(parameters += Parameter (
+			',' parameters += Parameter)* )? ')' '{'
 		body = StatementList
 	'}'
 ;
@@ -87,8 +72,8 @@ Event:
 
 Pattern:
 	type = PatternType name = ID '('
-		(parameters += ParameterType (
-			',' parameters += ParameterType)* )? ')' '{'
+		(parameters += Parameter (
+			',' parameters += Parameter)* )? ')' '{'
 		relevantResources += RelevantResource*
 		('relevantSet' combinational = PatternSelectMethod ';')?
 		defaultMethods += DefaultMethod*
@@ -372,20 +357,15 @@ Frame:
 ;
 
 FrameBackPicture:
-	'background' '=' colour = FrameColour
-	(picture = ProjectFilePath | size = FrameBackPictureSize)
+	'background' '(' (size = FrameSize ',')? colour = FrameColour ')' ';'
 ;
 
-FrameBackPictureSize:
-	width = INT height = INT
+FrameSize:
+	width = INT ',' height = INT
 ;
 
 FrameColour:
-	'<' r = INT g = INT b = INT (alpha = INT)?'>'
-;
-
-ProjectFilePath:
-	segments += ID (('/'|'\\') segments += ID)*
+	'color' '(' r = INT ',' g = INT ',' b = INT ( ',' alpha = INT)? ')'
 ;
 
 FrameStatementList returns StatementList:
@@ -395,14 +375,14 @@ FrameStatementList returns StatementList:
 
 FrameStatement returns Statement
 	: empty ?= ';'
-	| ExpressionStatement ';'
+	| ExpressionStatement
 	| FrameNestedStatement
-	| LocalVariableDeclaration ';'
+	| LocalVariableDeclaration
 	| FrameIfStatement
 	| FrameForStatement
-	| BreakStatement ';'
-	| ReturnStatement ';'
-	| FrameObject ';'
+	| BreakStatement
+	| ReturnStatement
+	| FrameObject
 ;
 
 FrameNestedStatement returns NestedStatement:
@@ -440,31 +420,31 @@ FrameObjectText:
 		width = ExpressionOr ',' height = ExpressionOr ','
 		backColour = FrameColour ','
 		textcolour = FrameColour ','
-		(alignment = FrameAlignment)? text = ExpressionOr
-	')'
+		('Alignment' '.' alignment = FrameAlignment ',')? text = ExpressionOr
+	')' ';'
 ;
 
 enum FrameAlignment
-	: LEFT   = '<'
-	| CENTER = '='
-	| RIGHT  = '>'
+	: LEFT   = 'left'
+	| CENTER = 'center'
+	| RIGHT  = 'right'
 ;
 
 FrameObjectRectangle:
-	'rect' '('
+	'rectangle' '('
 		x = ExpressionOr ',' y = ExpressionOr ','
 		width = ExpressionOr ',' height = ExpressionOr ','
 		backColour = FrameColour ','
 		borderColour = FrameColour
-	')'
+	')' ';'
 ;
 
 FrameObjectLine:
 	'line' '('
 		x1 = ExpressionOr ',' y1 = ExpressionOr ','
 		x2 = ExpressionOr ',' y2 = ExpressionOr ','
-		colour = FrameColour ','
-	')'
+		colour = FrameColour
+	')' ';'
 ;
 
 FrameObjectCircle:
@@ -473,7 +453,7 @@ FrameObjectCircle:
 		radius = ExpressionOr ','
 		backColour = FrameColour ','
 		borderColour = FrameColour
-	')'
+	')' ';'
 ;
 
 FrameObjectEllipse:
@@ -482,17 +462,17 @@ FrameObjectEllipse:
 		width = ExpressionOr ',' height = ExpressionOr ','
 		backColour = FrameColour ','
 		borderColour = FrameColour
-	')'
+	')' ';'
 ;
 
 FrameObjectTriangle:
-	'triang' '('
+	'triangle' '('
 		x1 = ExpressionOr ',' y1 = ExpressionOr ','
 		x2 = ExpressionOr ',' y2 = ExpressionOr ','
 		x3 = ExpressionOr ',' y3 = ExpressionOr ','
 		backColour = FrameColour ','
 		borderColour = FrameColour
-	')'
+	')' ';'
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

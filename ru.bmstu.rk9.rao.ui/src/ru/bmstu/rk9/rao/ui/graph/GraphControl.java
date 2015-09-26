@@ -22,7 +22,8 @@ public class GraphControl {
 	}
 
 	private static void createFrameWindow(FrameInfo frameInfo) {
-		Rectangle monitorBounds = PlatformUI.getWorkbench().getDisplay().getBounds();
+		Rectangle monitorBounds = PlatformUI.getWorkbench().getDisplay()
+				.getBounds();
 		monitorAspectRatio = (double) monitorBounds.width
 				/ monitorBounds.height;
 

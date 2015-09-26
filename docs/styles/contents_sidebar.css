@@ -1,0 +1,32 @@
+#wrapper {
+  padding-left: 270px;
+}
+
+#sidebar-wrapper {
+  margin-left: -270px;
+  left: 270px;
+  width: 270px;
+  background: #fff;
+  position: fixed;
+  height: 100%;
+  border-right: 1px solid gray;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#page-content-wrapper {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.sidebar-nav {
+  position: absolute;
+  width: 250px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.page-content {
+  margin-left: 10px;
+  margin-right: 10px;
+}

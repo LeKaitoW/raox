@@ -6,9 +6,6 @@ import static extension ru.bmstu.rk9.rao.generator.RaoNaming.*
 import static extension ru.bmstu.rk9.rao.compilers.EnumCompiler.*
 
 import ru.bmstu.rk9.rao.rao.RaoDefaultParameter
-import ru.bmstu.rk9.rao.rao.ParameterTypeBasic
-import ru.bmstu.rk9.rao.rao.ParameterTypeString
-import ru.bmstu.rk9.rao.rao.ParameterTypeArray
 
 import ru.bmstu.rk9.rao.rao.ResourceCreateStatement
 import ru.bmstu.rk9.rao.rao.ResourceExpressionList
@@ -59,6 +56,9 @@ import ru.bmstu.rk9.rao.rao.TimeNow
 
 import ru.bmstu.rk9.rao.rao.RaoType
 import ru.bmstu.rk9.rao.rao.RaoEnum
+import ru.bmstu.rk9.rao.rao.Parameter
+import org.eclipse.emf.common.util.EList
+import ru.bmstu.rk9.rao.rao.Expression
 
 enum ExpressionOperation
 {
@@ -379,14 +379,23 @@ class RaoExpressionCompiler
 				if (next.type == "unknown" && checkValidEnumID(left.type, next.value))
 					next.value = compileEnumValue(left.type, next.value)
 
+				var value = next.value
+				if (left.type.isStandardCompiledType)
+					value = left.type + ".valueOf(" + value + ")"
+
 				if (expression.left instanceof VariableIncDecExpression)
 				{
 					val idex = expression.left as VariableIncDecExpression
 					if (left.value.contains(".get_") && left.value.endsWith("()"))
 					{
 						var operation = (if (idex.operation.length > 1) idex.operation.substring(0, 1) else null)
-						return new RaoExpression(cutLastChars(left.value, 2).replace(".get_", ".set_") + "("
-							+ (if (operation != null) left.value + " " + operation + " " else "") + next.value + ")", left.type)
+
+						if (operation != null) {
+							value = left.value + " " + operation + " " + value
+						}
+
+						return new RaoExpression(cutLastChars(left.value, 2).replace(".get_", ".set_")
+								+ "(" + value + ")", left.type)
 					}
 				}
 
@@ -413,10 +422,10 @@ class RaoExpressionCompiler
 				val parameters = switch parent
 				{
 					ResourceCreateStatement:
-						parent.type.parameters.map[parameter | parameter.compileType]
+						parent.type.parameters
 
 					PlanStatement:
-						parent.event.parameters.map[parameter | parameter.compileType]
+						parent.event.parameters
 				}
 
 				var String list = ""
@@ -428,14 +437,18 @@ class RaoExpressionCompiler
 						list = list + ( if (flag) ", " else "" ) + "null"
 					else
 					{
+						val parameterNumber = expression.expressions.indexOf(resourceParameterExpression)
+						val parameter = if (parameters != null && parameters.size > parameterNumber)
+							parameters.get(parameterNumber) else null
 						val compiled = resourceParameterExpression.compileExpression
 
-						if (parameters != null && compiled.type == "unknown"
-								&& parameters.size > expression.expressions.indexOf(resourceParameterExpression)
-								&& checkValidEnumID(
-									parameters.get(expression.expressions.indexOf(resourceParameterExpression)), compiled.value))
-							compiled.value = parameters.get(expression.expressions.indexOf(resourceParameterExpression)) + "."
-									 + compiled.value.substring(compiled.value.lastIndexOf('.') + 1)
+						if (parameter != null && compiled.type == "unknown"
+								&& checkValidEnumID(parameter.compileType, compiled.value))
+							compiled.value = parameter.compileType + "."
+									+ compiled.value.substring(compiled.value.lastIndexOf('.') + 1)
+
+						if (parameter != null && parameter.type.isStandardType)
+							compiled.value = parameter.compileType + ".valueOf(" + compiled.value + ")"
 
 						list = list + ( if (flag) ", " else "" ) + compiled.value
 					}
@@ -447,60 +460,58 @@ class RaoExpressionCompiler
 			DecisionPointActivity:
 			{
 				val pattern = expression.pattern
-				val parameters = pattern.parameters.map[parameter | parameter.compileType]
+				val patternParameters = pattern.parameters
+				val expressionParameters = expression.parameters
 
-				var String list = ""
-				var flag = false
-
-				for (activityParameter : expression.parameters)
-				{
-					val compiled = activityParameter.compileExpression
-					if (parameters != null && compiled.type == "unknown"
-							&& parameters.size > expression.parameters.indexOf(activityParameter)
-							&& checkValidEnumID(
-								parameters.get(expression.parameters.indexOf(activityParameter)), compiled.value
-							)) {
-						compiled.value = compileEnumValue(
-							parameters.get(expression.parameters.indexOf(activityParameter)),
-							compiled.value)
-					}
-
-					list = list + ( if (flag) ", " else "" ) + compiled.value
-					flag = true
-				}
+				var String list = compileActivityParameters(patternParameters, expressionParameters)
 				return new RaoExpression(list, "List")
 			}
 
 			DecisionPointSearchActivity:
 			{
-				val parameters = expression.pattern.parameters.map[p | p.compileType]
+				val pattern = expression.pattern
+				val patternParameters = pattern.parameters
+				val expressionParameters = expression.parameters
 
-				var String list = ""
-				var flag = false
-
-				for (activityParameter : expression.parameters)
-				{
-					val compiled = activityParameter.compileExpression
-
-					if (parameters != null && compiled.type == "unknown"
-							&& parameters.size > expression.parameters.indexOf(activityParameter)
-							&& checkValidEnumID(
-								parameters.get(expression.parameters.indexOf(activityParameter)), compiled.value
-							)) {
-						compiled.value = compileEnumValue(
-							parameters.get(expression.parameters.indexOf(activityParameter)),
-							compiled.value)
-					}
-
-					list = list + ( if (flag) ", " else "" ) + compiled.value
-					flag = true
-				}
+				var String list = compileActivityParameters(patternParameters, expressionParameters)
 				return new RaoExpression(list, "List")
 			}
 
 			default:
 				return new RaoExpression("VAL", "unknown")
 		}
+	}
+
+	def private static compileActivityParameters(
+			EList<Parameter> patternParameters,
+			EList<Expression> arguments
+	)
+	{
+		var String list = ""
+		var flag = false
+
+		for (activityParameter : arguments)
+		{
+			val parameterNumber = arguments.indexOf(activityParameter)
+			val compiled = activityParameter.compileExpression
+			val parameter = if (patternParameters != null && patternParameters.size > parameterNumber)
+					patternParameters.get(parameterNumber) else null
+
+			if (parameter != null && compiled.type == "unknown"
+					&& checkValidEnumID(patternParameters.get(parameterNumber).compileType, compiled.value)) {
+				compiled.value = compileEnumValue(
+					patternParameters.get(parameterNumber).compileType,
+					compiled.value)
+			}
+
+			if (parameter != null && parameter.type.isStandardType)
+				compiled.value = parameter.compileType + ".valueOf(" + compiled.value + ")"
+
+			list = list + ( if (flag) ", " else "" ) + compiled.value
+			flag = true
+		}
+
+		return list
 	}
 
 	def private static LocalContext.ContextEntry lookupLocal(VariableMethodCallExpression expression)
@@ -582,10 +593,13 @@ class RaoExpressionCompiler
 				var i = 0
 				for (value : next.args.values)
 				{
+					val paramType = params.get(i).type
 					globalCall = globalCall + (if (flag) ", " else "") +
-						if (params.get(i).type.compileType.endsWith("_enum"))
+						if (paramType.compileType.endsWith("_enum"))
 							value.compileExpressionContext((new LocalContext(localContext)).
 								populateWithEnums(params.get(i).type as RaoEnum)).value
+						else if (paramType.isStandardType)
+							paramType.compileType + ".valueOf(" + value.compileExpression.value + ")"
 						else
 							value.compileExpression.value
 					i = i + 1
@@ -599,14 +613,39 @@ class RaoExpressionCompiler
 		return null
 	}
 
+	def static boolean isStandardType(EObject type)
+	{
+		switch type
+		{
+			RaoInt,
+			RaoDouble,
+			RaoString,
+			RaoBoolean:
+				return true
+			default:
+				return false
+		}
+	}
+
+	def static boolean isStandardCompiledType(String type)
+	{
+		switch type
+		{
+			case "Integer",
+			case "Double",
+			case "Boolean",
+			case "String":
+				return true
+			default:
+				return false
+		}
+	}
+
 	def static String compileType(EObject type)
 	{
 		switch type
 		{
-			ParameterTypeBasic: type.type.compileType
-			ParameterTypeString: type.type.compileType
-			ParameterTypeArray: type.type.compileType
-
+			Parameter: type.type.compileType
 			Constant: type.type.compileType
 
 			RaoInt: "Integer"
@@ -616,7 +655,7 @@ class RaoExpressionCompiler
 			RaoArray: "java.util.ArrayList<" + type.arrayType.compileType + ">"
 			RaoEnum: type.getFullEnumName
 
-			default: "Integer /* TYPE IS ACTUALLY UNKNOWN */"
+			default: "/* ERROR UNKNOWN TYPE */"
 		}
 	}
 
@@ -624,10 +663,7 @@ class RaoExpressionCompiler
 	{
 		switch type
 		{
-			ParameterTypeBasic : type.type.compileTypePrimitive
-			ParameterTypeString: type.type.compileTypePrimitive
-			ParameterTypeArray : type.type.compileTypePrimitive
-
+			Parameter: type.type.compileTypePrimitive
 			Constant: type.type.compileTypePrimitive
 
 			RaoInt: "int"
@@ -637,7 +673,7 @@ class RaoExpressionCompiler
 			RaoArray: "java.util.ArrayList<" + type.arrayType.compileType + ">"
 			RaoEnum: type.getFullEnumName
 
-			default: "int /* TYPE IS ACTUALLY UNKNOWN */"
+			default: "/* ERROR UNKNOWN TYPE */"
 		}
 	}
 
@@ -645,10 +681,7 @@ class RaoExpressionCompiler
 	{
 		switch type
 		{
-			ParameterTypeBasic: type.type
-			ParameterTypeString: type.type
-			ParameterTypeArray: type.type.resolveAllArrays
-
+			Parameter: type.type.resolveAllTypes.resolveAllArrays
 			Constant: type.type.resolveAllTypes.resolveAllArrays
 
 			RaoInt,
@@ -666,9 +699,7 @@ class RaoExpressionCompiler
 	{
 		switch type
 		{
-			ParameterTypeBasic: type.type
-			ParameterTypeString: type.type
-			ParameterTypeArray: type.type
+			Parameter: type.type.resolveAllTypes
 			Constant: type.type.resolveAllTypes
 
 			RaoInt,

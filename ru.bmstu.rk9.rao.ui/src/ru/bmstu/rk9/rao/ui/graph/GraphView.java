@@ -1,11 +1,16 @@
 package ru.bmstu.rk9.rao.ui.graph;
 
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +20,15 @@ import javax.swing.JFrame;
 
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.resource.FontRegistry;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.PlatformUI;
 
@@ -22,8 +36,8 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.IndexType;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
-import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
 import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.GraphInfo;
@@ -41,9 +55,8 @@ import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxGraphSelectionModel;
 
-public class GraphView extends JFrame {
+public class GraphView extends JFrame implements GraphApi {
 
 	private static final long serialVersionUID = 1668866556340389760L;
 
@@ -79,35 +92,66 @@ public class GraphView extends JFrame {
 		return new GraphMenuItem(parent);
 	}
 
+	@Override
+	public mxGraph getGraph() {
+		return graph;
+	}
+
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 	// -------------------------- INITIALIZATION --------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
+	private final static int minNodeSize = 20;
+	private final static int sizeToNodeDistanceRatio = 10;
+	private final static int sizeToLevelDistanceRatio = 4;
+	private final static int minNodeDistance = minNodeSize
+			/ sizeToNodeDistanceRatio;
+	private final static int minLevelDistance = minNodeSize
+			/ sizeToLevelDistanceRatio;
+	private final static int minLevelOffset = 40;
+
+	private final static int fontSize = mxConstants.DEFAULT_FONTSIZE;
+
+	private final static String solutionFillColor = mxConstants.STYLE_FILLCOLOR
+			+ "=32CD32;";
+	private final static String strokeColor = mxConstants.STYLE_STROKECOLOR
+			+ "=000000;";
+	private final static String fontColor = mxConstants.STYLE_FONTCOLOR
+			+ "=000000;";
+
+	private final static String regularCellStyle = strokeColor + fontColor;
+	private final static String solutionCellStyle = solutionFillColor
+			+ strokeColor + fontColor;
+	private final static String edgeStyle = strokeColor;
+
+	private boolean isFinished = false;
+
+	private int nodeSize;
+	private int nodeDistance;
+	private int levelDistance;
+
+	private final Font font;
+	private final double scale = 1.0;
+
 	public GraphView(int dptNum, int width, int height) {
 		this.setSize(width, height);
-		setAspectRatio();
-
-		this.dptNum = dptNum;
 
 		final FontRegistry fontRegistry = PlatformUI.getWorkbench()
 				.getThemeManager().getCurrentTheme().getFontRegistry();
 		final String fontName = fontRegistry.get(
 				PreferenceConstants.EDITOR_TEXT_FONT).getFontData()[0]
 				.getName();
-		font = new Font(fontName, Font.PLAIN, mxConstants.DEFAULT_FONTSIZE);
+		font = new Font(fontName, Font.PLAIN, fontSize);
 
-		frameDimension = this.getSize();
-		setProportions(frameDimension);
+		setProportions();
 
 		treeBuilder = new TreeBuilder(dptNum);
 		isFinished = treeBuilder.updateTree();
-		nodeList = treeBuilder.nodeList;
 
 		graph = new mxGraph();
 		graph.getModel().beginUpdate();
 		try {
-			if (!nodeList.isEmpty())
-				drawGraph(graph, nodeList, nodeList.get(0));
+			drawNewVertices();
 			if (isFinished)
 				onFinish();
 		} finally {
@@ -116,8 +160,11 @@ public class GraphView extends JFrame {
 
 		graphComponent = new mxGraphComponent(graph);
 		graphComponent.setConnectable(false);
+		graphComponent.setFont(font);
 		graphComponent.zoomAndCenter();
-		getContentPane().add(graphComponent);
+
+		Container pane = getContentPane();
+		pane.add(graphComponent);
 
 		layout = new mxCompactTreeLayout(graph, false);
 		layout.setLevelDistance(levelDistance);
@@ -132,58 +179,21 @@ public class GraphView extends JFrame {
 		graph.setCellsResizable(false);
 		graph.setAllowDanglingEdges(false);
 
+		this.addComponentListener(componentListener);
+		this.addKeyListener(keyListener);
+		graphComponent.addKeyListener(keyListener);
+		graphComponent.getGraphControl().addMouseListener(mouseListener);
+
 		graph.getSelectionModel().addListener(mxEvent.CHANGE,
 				new mxIEventListener() {
-
-					private mxCell cellInfo;
-
 					@Override
 					public void invoke(Object sender, mxEventObject evt) {
-						mxGraphSelectionModel selectionModel = (mxGraphSelectionModel) sender;
-						mxCell cell = (mxCell) selectionModel.getCell();
-						if (cell != null && cell.isVertex() && cell != cellInfo) {
-							graph.getModel().beginUpdate();
-							try {
-								if (cellInfo != null)
-									cellInfo.removeFromParent();
-								cellInfo = showCellInfo(graph, cell);
-							} finally {
-								graph.getModel().endUpdate();
-							}
-						}
+						mxCell cell = getSelectionVertex();
+						if (cell == null)
+							return;
+						updateButtonState(cell);
 					}
 				});
-
-		this.addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.isControlDown() && e.getKeyChar() == '+') {
-					zoomIn(graph, layout);
-				}
-				if (e.isControlDown() && e.getKeyChar() == '-') {
-					zoomOut(graph, layout);
-				}
-				if (e.isControlDown() && e.getKeyChar() != 'z'
-						&& e.getKeyCode() == 90) {
-					Dimension frameDimension = getSize();
-					Object[] cells = vertexMap.values().toArray();
-					mxRectangle graphBounds = graph.getBoundsForCells(cells,
-							false, false, false);
-					while ((graphBounds.getWidth() >= frameDimension.getWidth())
-							&& (nodeWidth > minNodeWidth)) {
-						zoomToFit(graph, layout, graphComponent);
-					}
-				}
-			}
-		});
 
 		if (!isFinished)
 			initializeSubscribers();
@@ -193,10 +203,109 @@ public class GraphView extends JFrame {
 	public void dispose() {
 		if (!isFinished)
 			deinitializeSubscribers();
+
+		if (graphInfoWindow != null && !graphInfoWindow.isDisposed()) {
+			PlatformUI.getWorkbench().getDisplay()
+					.asyncExec(() -> graphInfoWindow.close());
+		}
+
 		super.dispose();
 	}
 
-	private final TreeBuilder treeBuilder;
+	private final mxCell getSelectionVertex() {
+		if (graph.getSelectionCell() == null)
+			return null;
+
+		mxCell cell = (mxCell) graph.getSelectionCell();
+
+		if (!cell.isVertex())
+			return null;
+
+		if (!(cell.getValue() instanceof Node))
+			return null;
+
+		return cell;
+	}
+
+	private final ComponentListener componentListener = new ComponentListener() {
+		@Override
+		public void componentShown(ComponentEvent e) {
+			if (!treeBuilder.nodeByNumber.isEmpty())
+				zoomToFit();
+		}
+
+		@Override
+		public void componentResized(ComponentEvent e) {
+		}
+
+		@Override
+		public void componentMoved(ComponentEvent e) {
+		}
+
+		@Override
+		public void componentHidden(ComponentEvent e) {
+		}
+	};
+
+	private final MouseListener mouseListener = new MouseListener() {
+		@Override
+		public void mouseReleased(MouseEvent e) {
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			mxCell cell = getSelectionVertex();
+			if (cell == null)
+				return;
+
+			if (e.getClickCount() > 1) {
+				openGraphInfo();
+			}
+
+			updateInfo(cell);
+			updateButtonState(cell);
+		}
+	};
+
+	private final KeyListener keyListener = new KeyListener() {
+		@Override
+		public void keyTyped(KeyEvent e) {
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e) {
+		}
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+			char keyChar = e.getKeyChar();
+			if (e.isControlDown() && (keyChar == '+' || keyChar == '=')) {
+				zoomIn();
+			}
+			if (e.isControlDown() && (keyChar == '-' || keyChar == '_')) {
+				zoomOut();
+			}
+			if (e.isControlDown() && (keyChar == '0' || keyChar == ')')) {
+				zoomToFit();
+			}
+		}
+	};
+
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// --------------------------- SUBSCRIPTIONS --------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private final void initializeSubscribers() {
 		simulationSubscriberManager.initialize(Arrays.asList(
@@ -216,11 +325,9 @@ public class GraphView extends JFrame {
 	private final SimulatorSubscriberManager simulationSubscriberManager = new SimulatorSubscriberManager();
 	private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
 
-	final mxGraph graph;
-	List<Node> nodeList;
-	final int dptNum;
-	final mxCompactTreeLayout layout;
-	final mxGraphComponent graphComponent;
+	private final mxGraph graph;
+	private final mxCompactTreeLayout layout;
+	private final mxGraphComponent graphComponent;
 
 	private final Subscriber commonSubscriber = new Subscriber() {
 		@Override
@@ -238,16 +345,15 @@ public class GraphView extends JFrame {
 			graph.getModel().beginUpdate();
 			isFinished = treeBuilder.updateTree();
 			try {
-				drawNewVertex(graph, nodeList);
+				drawNewVertices();
+				mxRectangle graphBounds = graph.getBoundsForCells(vertexByNode
+						.values().toArray(), false, false, false);
+				if (graphBounds == null)
+					return;
 
-				Dimension frameDimension = getSize();
-				Object[] cells = vertexMap.values().toArray();
-				mxRectangle graphBounds = graph.getBoundsForCells(cells, false,
-						false, false);
-				if (graphBounds.getWidth() > frameDimension.getWidth()) {
+				if (graphBounds.getWidth() > getWidth()) {
 					layout.setMoveTree(true);
-					zoomToFit(graph, layout, graphComponent);
-					graph.refresh();
+					zoomToFit();
 				} else {
 					layout.execute(graph.getDefaultParent());
 				}
@@ -263,187 +369,321 @@ public class GraphView extends JFrame {
 	};
 
 	private final void onFinish() {
-		GraphInfo info = treeBuilder.graphInfo;
-		List<Node> solution = treeBuilder.solutionList;
-		colorNodes(vertexMap, nodeList, solution);
-		insertInfo(graph, info);
+		colorNodes();
 
+		createGraphInfo();
 		graph.refresh();
+
+		mxCell cell = getSelectionVertex();
+		if (cell == null)
+			return;
+		updateButtonState(cell);
+	}
+
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ------------------------- GRAPH INFO WINDOW ------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+	private GraphInfoWindow graphInfoWindow = null;
+	private Label cellInfoLabel = null;
+	private Label graphInfoLabel = null;
+	private Group cellInfoGroup = null;
+	private Group graphInfoGroup = null;
+
+	public final GraphInfoWindow getGraphInfoWindow() {
+		return graphInfoWindow;
+	}
+
+	private final void openGraphInfo() {
+		Display display = PlatformUI.getWorkbench().getDisplay();
+
+		if (graphInfoWindow != null && !graphInfoWindow.isDisposed()) {
+			display.syncExec(() -> graphInfoWindow.forceActive());
+		} else {
+			display.syncExec(() -> {
+				graphInfoWindow = new GraphInfoWindow(display);
+				graphInfoWindow.open();
+
+				graphInfoWindow.getButtonNext().addSelectionListener(
+						new SelectionListener() {
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								mxCell cell = getSelectionVertex();
+								if (cell == null)
+									return;
+
+								List<Node> solutionList = treeBuilder.solutionList;
+								Node node = (Node) cell.getValue();
+								if (!solutionList.contains(node))
+									return;
+
+								int nodeIndex = solutionList.indexOf(node);
+								if (nodeIndex == solutionList.size() - 1)
+									return;
+								Node nextNode = solutionList.get(nodeIndex + 1);
+
+								mxCell nextCell = vertexByNode.get(nextNode);
+								graph.setSelectionCell(nextCell);
+								updateInfo(nextCell);
+							}
+
+							@Override
+							public void widgetDefaultSelected(SelectionEvent e) {
+							}
+						});
+
+				graphInfoWindow.getButtonPrevious().addSelectionListener(
+						new SelectionListener() {
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								mxCell cell = getSelectionVertex();
+								if (cell == null)
+									return;
+
+								List<Node> solutionList = treeBuilder.solutionList;
+								Node node = (Node) cell.getValue();
+								if (!solutionList.contains(node))
+									return;
+
+								int nodeIndex = solutionList.indexOf(node);
+								if (nodeIndex == 0)
+									return;
+								Node previousNode = solutionList
+										.get(nodeIndex - 1);
+
+								mxCell previousCell = vertexByNode
+										.get(previousNode);
+								graph.setSelectionCell(previousCell);
+								updateInfo(previousCell);
+							}
+
+							@Override
+							public void widgetDefaultSelected(SelectionEvent e) {
+							}
+						});
+			});
+		}
+	}
+
+	private final void updateButtonState(mxCell cell) {
+		if (graphInfoWindow == null || graphInfoWindow.isDisposed())
+			return;
+
+		PlatformUI
+				.getWorkbench()
+				.getDisplay()
+				.syncExec(
+						() -> {
+							List<Node> solutionList = treeBuilder.solutionList;
+							Node node = (Node) cell.getValue();
+							boolean inSolution = solutionList.contains(node);
+							boolean inSolutionNext = inSolution
+									&& solutionList.indexOf(node) != solutionList
+											.size() - 1;
+							boolean inSolutionPrevious = inSolution
+									&& solutionList.indexOf(node) != 0;
+
+							graphInfoWindow.getButtonNext().setEnabled(
+									inSolutionNext);
+							graphInfoWindow.getButtonPrevious().setEnabled(
+									inSolutionPrevious);
+						});
+	}
+
+	private final void updateInfo(mxCell cell) {
+		Node node = (Node) cell.getValue();
+		String cellInfo = getCellInfo(node);
+		addInfo(cellInfo);
+	}
+
+	private final String getCellInfo(Node node) {
+		String cellInfo = "";
+		cellInfo += "Node number: " + String.valueOf(node.index) + "\n";
+
+		String parentName = "Root";
+		if (node.parent != null) {
+			parentName = "Parent node number: "
+					+ String.valueOf(node.parent.index);
+		}
+		parentName += "\n";
+
+		cellInfo += parentName;
+		cellInfo += "Path cost (g) = " + Double.toString(node.g) + "\n";
+		cellInfo += "Remaining path cost (h) = " + Double.toString(node.h)
+				+ "\n";
+		cellInfo += node.ruleDesсription + "\n";
+		cellInfo += "Rule cost = " + Double.toString(node.ruleCost);
+
+		return cellInfo;
+	}
+
+	private final String getGraphInfo() {
+		GraphInfo info = treeBuilder.graphInfo;
+		String graphInfo = "";
+		graphInfo += "Solution cost: " + String.valueOf(info.solutionCost)
+				+ "\n";
+		graphInfo += "Nodes opened: " + String.valueOf(info.numOpened) + "\n";
+		graphInfo += "Nodes total: " + String.valueOf(info.numNodes) + "\n";
+		graphInfo += "Max depth: " + String.valueOf(info.depth) + "\n";
+		graphInfo += "Max width: " + String.valueOf(info.width);
+
+		return graphInfo;
+	}
+
+	private final void createCellInfo(String cellInfo) {
+		if (graphInfoWindow == null || graphInfoWindow.isDisposed())
+			return;
+
+		if (cellInfoGroup == null || cellInfoGroup.isDisposed()) {
+			cellInfoGroup = new Group(graphInfoWindow.getInfoArea(), SWT.NONE);
+			cellInfoGroup.setText("Cell Info");
+			FormData cellInfoGroupData = new FormData();
+			cellInfoGroupData.left = new FormAttachment(0, 0);
+			cellInfoGroupData.top = new FormAttachment(0, 5);
+			cellInfoGroup.setLayoutData(cellInfoGroupData);
+
+			FillLayout cellInfoLayout = new FillLayout();
+			cellInfoLayout.marginHeight = 2;
+			cellInfoLayout.marginWidth = 4;
+			cellInfoGroup.setLayout(cellInfoLayout);
+			cellInfoLabel = new Label(cellInfoGroup, SWT.NONE);
+		}
+
+		cellInfoLabel.setText(cellInfo);
+		graphInfoWindow.updateContents();
+	}
+
+	private final void createGraphInfo() {
+		if (!isFinished)
+			return;
+
+		if (graphInfoWindow == null || graphInfoWindow.isDisposed())
+			return;
+
+		if (graphInfoGroup == null || graphInfoGroup.isDisposed()) {
+			graphInfoGroup = new Group(graphInfoWindow.getInfoArea(), SWT.NONE);
+			graphInfoGroup.setText("Graph Info");
+			FormData graphInfoGroupData = new FormData();
+			graphInfoGroupData.left = new FormAttachment(cellInfoGroup, 5);
+			graphInfoGroupData.top = new FormAttachment(0, 5);
+			graphInfoGroup.setLayoutData(graphInfoGroupData);
+
+			FillLayout graphInfoLayout = new FillLayout();
+			graphInfoLayout.marginHeight = 2;
+			graphInfoLayout.marginWidth = 4;
+			graphInfoGroup.setLayout(graphInfoLayout);
+			graphInfoLabel = new Label(graphInfoGroup, SWT.NONE);
+		}
+
+		graphInfoLabel.setText(getGraphInfo());
+		graphInfoWindow.updateContents();
+	}
+
+	private final void addInfo(String cellInfo) {
+		Display display = PlatformUI.getWorkbench().getDisplay();
+
+		display.syncExec(() -> {
+			if (graphInfoWindow == null || graphInfoWindow.isDisposed())
+				return;
+
+			createCellInfo(cellInfo);
+			createGraphInfo();
+		});
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 	// --------------------------- VISUALISATION --------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	final Map<Node, mxCell> vertexMap = new HashMap<Node, mxCell>();
-	private int lastAddedVertexIndex = 0;
+	private final TreeBuilder treeBuilder;
+	final Map<Node, mxCell> vertexByNode = new HashMap<Node, mxCell>();
+	private int lastAddedVertexIndex = -1;
 
-	/* TODO: two methods below looks the same, but are magically not
-	 * interchangeable. They should be merged in one.
-	 */
-	private void drawGraph(mxGraph graph, List<Node> nodeList, Node parentNode) {
-		mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(),
-				null, parentNode, getAbsoluteX(0.5), getAbsoluteY(0.05),
-				nodeWidth, nodeHeight, fontColor + strokeColor);
-		vertexMap.put(parentNode, vertex);
-		lastAddedVertexIndex = parentNode.index;
-		updateTypicalDimensions(parentNode);
-		if (parentNode.parent != null)
-			graph.insertEdge(graph.getDefaultParent(), null, null,
-					vertexMap.get(parentNode.parent),
-					vertexMap.get(parentNode), strokeColor);
-		if (parentNode.children.size() != 0)
-			for (int i = 0; i < parentNode.children.size(); i++)
-				drawGraph(graph, nodeList,
-						nodeList.get(parentNode.children.get(i).index));
-	}
-
-	private void drawNewVertex(mxGraph graph, List<Node> nodeList) {
+	private final void drawNewVertices() {
 		int lastAddedNodeIndex = treeBuilder.lastAddedNodeIndex;
-		for (int i = lastAddedVertexIndex; i <= lastAddedNodeIndex; i++) {
-			Node node = nodeList.get(i);
-			if (!vertexMap.containsKey(node)) {
-				mxCell vertex = (mxCell) graph.insertVertex(
-						graph.getDefaultParent(), null, node,
-						getAbsoluteX(0.5), getAbsoluteY(0.05), nodeWidth,
-						nodeHeight, fontColor + strokeColor);
-				vertexMap.put(node, vertex);
-				lastAddedVertexIndex = node.index;
-				updateTypicalDimensions(node);
-				if (node.parent != null)
-					graph.insertEdge(graph.getDefaultParent(), null, null,
-							vertexMap.get(node.parent), vertexMap.get(node),
-							strokeColor);
+
+		while (lastAddedVertexIndex < lastAddedNodeIndex) {
+			lastAddedVertexIndex++;
+
+			Node node = treeBuilder.nodeByNumber.get(lastAddedVertexIndex);
+			mxCell vertex = (mxCell) graph.insertVertex(
+					graph.getDefaultParent(), null, node, getAbsoluteX(0.5),
+					getAbsoluteY(0.05), nodeSize, nodeSize, regularCellStyle);
+			vertexByNode.put(node, vertex);
+			updateTypicalDimensions(node);
+
+			if (node.parent != null)
+				graph.insertEdge(graph.getDefaultParent(), null, null,
+						vertexByNode.get(node.parent), vertexByNode.get(node),
+						edgeStyle);
+		}
+	}
+
+	private final void colorNodes() {
+		if (!treeBuilder.solutionList.isEmpty()) {
+			for (Node node : treeBuilder.solutionList) {
+				vertexByNode.get(node).setStyle(solutionCellStyle);
 			}
 		}
-	}
-
-	final String solutionColor = "fillColor=32CD32;";
-	final String strokeColor = "strokeColor=000000;";
-	final String fontColor = "fontColor=000000;";
-
-	public void colorNodes(Map<Node, mxCell> vertexMap, List<Node> nodeList,
-			List<Node> solution) {
-		if (!solution.isEmpty()) {
-			Node rootNode = nodeList.get(0);
-			vertexMap.get(rootNode).setStyle(
-					solutionColor + fontColor + strokeColor);
-			for (int i = 0; i < solution.size(); i++) {
-				vertexMap.get(solution.get(i)).setStyle(
-						solutionColor + fontColor + strokeColor);
-			}
-		}
-	}
-
-	final Font font;
-	double scale = 1.0;
-
-	public mxCell insertInfo(mxGraph graph, GraphInfo info) {
-		final String solutionCost = "Стоимость решения: "
-				+ Double.toString(info.solutionCost) + "\n";
-		final String numOpened = "Количество раскрытых вершин: "
-				+ Integer.toString(info.numOpened) + "\n";
-		final String numNodes = "Количество вершин в графе: "
-				+ Integer.toString(info.numNodes);
-		final String text = solutionCost + numOpened + numNodes;
-
-		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
-
-		final double delta = setWidth(frameDimension, 0.01);
-
-		double width = bounds.getWidth() + delta;
-		double height = bounds.getHeight() + delta;
-
-		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null,
-				text, delta, delta, width, height);
-	}
-
-	public mxCell showCellInfo(mxGraph graph, mxCell cell) {
-		Node cellNode = (Node) cell.getValue();
-		final String nodeIndex = "Номер вершины: "
-				+ Integer.toString(cellNode.index) + "\n";
-		String parentIndex = "Корневая вершина\n";
-		if (cellNode.parent != null) {
-			parentIndex = "Номер вершины родителя: "
-					+ Integer.toString(cellNode.parent.index) + "\n";
-		}
-		final String g = "Стоимость пути g = " + Double.toString(cellNode.g)
-				+ "\n";
-		final String h = "Стоимость оставшегося пути h = "
-				+ Double.toString(cellNode.h) + "\n";
-		final String ruleName = cellNode.ruleDesсription + "\n";
-		final String ruleCost = "Стоимость применения правила = "
-				+ Double.toString(cellNode.ruleCost);
-		final String text = nodeIndex + parentIndex + g + h + ruleName
-				+ ruleCost;
-
-		mxRectangle bounds = mxUtils.getSizeForString(text, font, scale);
-
-		final double delta = setWidth(frameDimension, 0.01);
-
-		double width = bounds.getWidth() + delta;
-		double height = bounds.getHeight() + delta;
-
-		return (mxCell) graph.insertVertex(graph.getDefaultParent(), null,
-				text, setWidth(frameDimension, 1) - width - (delta), delta,
-				width, height);
-	}
-
-	boolean isFinished = false;
-	Dimension frameDimension;
-	int nodeWidth;
-	int nodeHeight;
-	int minNodeWidth;
-	int nodeDistance;
-	int levelDistance;
-
-	private void setProportions(Dimension d) {
-		nodeWidth = setWidth(d, 0.05);
-		nodeHeight = setHeight(d, 0.05);
-		minNodeWidth = setWidth(d, 0.01);
-		nodeDistance = (int) (d.width * 0.01);
-		levelDistance = (int) (d.height * 0.1);
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 	// ------------------------------ ZOOM --------------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	int maxNumOfNodesInWidth;
+	private final static double zoomScale = 1.2;
 
-	private void zoomToFit(mxGraph graph, mxCompactTreeLayout layout,
-			mxGraphComponent graphComponent) {
-		Dimension frameDimension = this.getSize();
-
-		Object[] cells = vertexMap.values().toArray();
-		mxRectangle graphBounds = graph.getBoundsForCells(cells, false, false,
-				false);
-
-		maxNumOfNodesInWidth = (int) ((graphBounds.getWidth() + 2 * nodeDistance) / (nodeWidth + 2 * nodeDistance));
-		double period = frameDimension.getWidth() / maxNumOfNodesInWidth;
-
-		if (nodeWidth < minNodeWidth) {
-			nodeWidth = minNodeWidth;
-			nodeHeight = nodeWidth;
-			nodeDistance = nodeWidth;
-		} else {
-			nodeWidth = (int) (0.8 * period);
-			nodeHeight = nodeWidth;
-			nodeDistance = (int) (0.1 * period);
-		}
-
-		resizeGraph(graph, layout);
-		setScrollsToCenter(graphComponent);
-		graph.refresh();
+	private void setProportions() {
+		setNodesSize(getRelativeWidth(0.05));
 	}
 
-	private void setScrollsToCenter(mxGraphComponent graphComponent) {
-		Rectangle paneBounds = graphComponent.getViewport().getViewRect();
-		Dimension paneSize = graphComponent.getViewport().getViewSize();
+	private final void setNodesSize(double size) {
+		setNodesSize((int) size);
+	}
 
-		int x = (paneSize.width - paneBounds.width) / 2;
-		int y = (paneSize.height - paneBounds.height) / 2;
-		graphComponent.getViewport().setViewPosition(new Point(x, y));
+	private final void setNodesSize(int size) {
+		int levelDistance = size / sizeToLevelDistanceRatio;
+		int nodeDistance = size / sizeToNodeDistanceRatio;
+
+		this.levelDistance = levelDistance > minLevelDistance ? levelDistance
+				: minLevelDistance;
+		this.nodeSize = size > minNodeSize ? size : minNodeSize;
+		this.nodeDistance = nodeDistance > minNodeDistance ? nodeDistance
+				: minNodeDistance;
+	}
+
+	private void zoomToFit() {
+		// TODO implement fitInWidth() algorithm and choose
+		// appropriate strategy depending on graph width a
+		fitInDepth();
+	}
+
+	private void fitInDepth() {
+		int height = getContentPane().getHeight();
+		int depth = treeBuilder.graphInfo.depth;
+
+		double levelDistanceCoef = (sizeToLevelDistanceRatio + 1.0)
+				/ sizeToLevelDistanceRatio;
+		double prefferredHeight = (height - minLevelOffset)
+				/ (depth * levelDistanceCoef);
+
+		setNodesSize(prefferredHeight);
+
+		resizeGraph();
+		setViewOnRoot();
+	}
+
+	private void setViewOnRoot() {
+		Rectangle paneBounds = graphComponent.getViewport().getViewRect();
+		mxRectangle graphBounds = graph.getBoundsForCells(vertexByNode.values()
+				.toArray(), false, false, false);
+
+		int x = (int) ((graphBounds.getWidth() - paneBounds.width) / 2);
+
+		if (x < 0)
+			return;
+
+		graphComponent.getViewport().setViewPosition(new Point(x, 0));
 	}
 
 	private Dimension small = new Dimension();
@@ -477,32 +717,24 @@ public class GraphView extends JFrame {
 			large.setSize(largeBounds.getWidth(), largeBounds.getHeight());
 	}
 
-	enum SizeType {
-		NOTEXT, BRIEF, NORMAL, FULL
+	private enum SizeType {
+		BRIEF, NORMAL, FULL
 	}
 
-	private SizeType checkSize() {
-		if (nodeWidth <= minNodeWidth)
-			return SizeType.NOTEXT;
-		if (nodeWidth > medium.width && nodeWidth < large.width)
+	private final SizeType checkSize() {
+		if (nodeSize > medium.width && nodeSize < large.width)
 			return SizeType.NORMAL;
-		if (nodeWidth > large.width)
+		if (nodeSize > large.width)
 			return SizeType.FULL;
+
 		return SizeType.BRIEF;
 	}
 
 	private void setTextForVertexes() {
 		SizeType type = checkSize();
 		switch (type) {
-		case NOTEXT:
-			for (mxCell cell : vertexMap.values()) {
-				Node node = (Node) cell.getValue();
-				node.label = "";
-				cell.setValue(node);
-			}
-			break;
 		case BRIEF:
-			for (mxCell cell : vertexMap.values()) {
+			for (mxCell cell : vertexByNode.values()) {
 				Node node = (Node) cell.getValue();
 				final String number = Integer.toString(node.index);
 				node.label = number;
@@ -510,7 +742,7 @@ public class GraphView extends JFrame {
 			}
 			break;
 		case NORMAL:
-			for (mxCell cell : vertexMap.values()) {
+			for (mxCell cell : vertexByNode.values()) {
 				Node node = (Node) cell.getValue();
 				final String number = Integer.toString(node.index);
 				final String costFunction = Double.toString(node.g + node.h)
@@ -522,7 +754,7 @@ public class GraphView extends JFrame {
 			}
 			break;
 		case FULL:
-			for (mxCell cell : vertexMap.values()) {
+			for (mxCell cell : vertexByNode.values()) {
 				Node node = (Node) cell.getValue();
 				final String number = Integer.toString(node.index);
 				final String costFunction = Double.toString(node.g + node.h)
@@ -540,65 +772,57 @@ public class GraphView extends JFrame {
 		}
 	}
 
-	private void resizeGraph(mxGraph graph, mxCompactTreeLayout layout) {
-		final mxRectangle bound = new mxRectangle(0, 0, nodeWidth, nodeWidth);
-		final mxRectangle[] bounds = new mxRectangle[vertexMap.size()];
-		for (int i = 0; i < vertexMap.size(); i++) {
+	private void resizeGraph() {
+		final mxRectangle bound = new mxRectangle(0, 0, nodeSize, nodeSize);
+		final mxRectangle[] bounds = new mxRectangle[vertexByNode.size()];
+		for (int i = 0; i < vertexByNode.size(); i++) {
 			bounds[i] = bound;
 		}
 
-		final Object[] cells = vertexMap.values().toArray();
+		final Object[] cells = vertexByNode.values().toArray();
 		graph.getModel().beginUpdate();
 		try {
 			graph.resizeCells(cells, bounds);
 			setTextForVertexes();
+			layout.setLevelDistance(levelDistance);
 			layout.setNodeDistance(nodeDistance);
 			layout.execute(graph.getDefaultParent());
 		} finally {
 			graph.getModel().endUpdate();
 		}
-		graph.refresh();
 	}
 
-	final double zoomScale = 1.1;
-
-	private void zoomIn(mxGraph graph, mxCompactTreeLayout layout) {
-		nodeWidth *= zoomScale;
-		nodeDistance *= zoomScale;
-		levelDistance *= zoomScale;
-		resizeGraph(graph, layout);
+	private void zoomIn() {
+		setNodesSize(nodeSize * zoomScale);
+		resizeGraph();
 	}
 
-	private void zoomOut(mxGraph graph, mxCompactTreeLayout layout) {
-		nodeWidth /= zoomScale;
-		nodeDistance /= zoomScale;
-		levelDistance /= zoomScale;
-		resizeGraph(graph, layout);
+	private void zoomOut() {
+		setNodesSize(nodeSize / zoomScale);
+		resizeGraph();
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-	// ----------------------- RELATIVE COORINATES ------------------------- //
+	// ----------------------- RELATIVE COORDINATES ------------------------ //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	private double frameAspectRatio;
-
-	private void setAspectRatio() {
-		frameAspectRatio = (double) this.getWidth() / this.getHeight();
+	private double getAspectRatio() {
+		return ((double) this.getWidth()) / this.getHeight();
 	}
 
-	public int getAbsoluteX(double relativeX) {
-		return (int) (this.getSize().width * relativeX);
+	public int getAbsoluteX(double ratio) {
+		return (int) (getWidth() * ratio);
 	}
 
-	public int getAbsoluteY(double relativeY) {
-		return (int) (this.getSize().height * relativeY);
+	public int getAbsoluteY(double ratio) {
+		return (int) (getHeight() * ratio);
 	}
 
-	public int setWidth(Dimension d, double relativeWidth) {
-		return (int) (d.width * relativeWidth / frameAspectRatio);
+	public int getRelativeWidth(double ratio) {
+		return (int) (getWidth() * ratio / getAspectRatio());
 	}
 
-	public int setHeight(Dimension d, double relativeHeight) {
-		return (int) (d.height * relativeHeight);
+	public int getRelativeHeight(double ratio) {
+		return (int) (getHeight() * ratio);
 	}
 }

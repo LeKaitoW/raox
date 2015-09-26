@@ -1,0 +1,23 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../styles/rao_general.css">
+<link rel="stylesheet" href="../styles/rao_highlight.css">
+<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+<script src="../scripts/thirdparty/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="../scripts/thirdparty/jquery-2.1.4.min.js"></script>
+<script src="../scripts/table_of_contents.js"></script>
+</head>
+<body>
+<h2>Константы</h2>
+<p>Объявление глобальных констант модели осуществляется с помощью ключевого слова <code class="rao">constant</code>. Значение константы должно быть задано при ее объявлении.</p>
+<pre><code class="rao">constant <i>тип_значения_константы</i> <i>имя_константы</i> = <i>значение_константы</i>;</code></pre>
+<p>Примеры:</p>
+<pre><code class="rao">constant double pi = 3.14159;
+constant double e = 2.71828;
+
+enum этап_обработки {накопитель_1, станок_1, манипулятор_1, станок_2, накопитель_2}
+constant этап_обработки начальное_положение_заготовки = этап_обработки.накопитель_1;
+</code></pre>
+</body>
+</html>

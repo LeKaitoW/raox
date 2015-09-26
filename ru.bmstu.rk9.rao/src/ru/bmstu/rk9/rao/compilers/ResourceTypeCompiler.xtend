@@ -9,10 +9,7 @@ import static extension ru.bmstu.rk9.rao.generator.RaoExpressionCompiler.*
 import static extension ru.bmstu.rk9.rao.compilers.EnumCompiler.*
 
 import ru.bmstu.rk9.rao.rao.ResourceType
-import ru.bmstu.rk9.rao.rao.ParameterType
-import ru.bmstu.rk9.rao.rao.ParameterTypeBasic
-import ru.bmstu.rk9.rao.rao.ParameterTypeString
-import ru.bmstu.rk9.rao.rao.ParameterTypeArray
+import ru.bmstu.rk9.rao.rao.Parameter
 
 import ru.bmstu.rk9.rao.rao.ResourceCreateStatement
 
@@ -154,7 +151,7 @@ class ResourceTypeCompiler
 			}
 
 			«FOR parameter : resourceType.parameters»
-				private volatile «parameter.compileType» «parameter.name»«parameter.getDefault»;
+				private volatile «parameter.compileType» «parameter.name»«parameter.getDefaultValue»;
 
 				public «parameter.compileType» get_«parameter.name»()
 				{
@@ -242,7 +239,7 @@ class ResourceTypeCompiler
 		'''
 	}
 
-	def private static compileParameterTypesCopyCall(List<ParameterType> parameters)
+	def private static compileParameterTypesCopyCall(List<Parameter> parameters)
 	{
 		'''«IF parameters.size > 0»«
 			parameters.get(0).name»«
@@ -361,7 +358,7 @@ class ResourceTypeCompiler
 
 	}
 
-	def private static String compileBufferCalculation(Iterable<ParameterType> parameters)
+	def private static String compileBufferCalculation(Iterable<Parameter> parameters)
 	{
 		var ret = ""
 
@@ -423,7 +420,7 @@ class ResourceTypeCompiler
 		return ret
 	}
 
-	def private static String compileSerialization(Iterable<ParameterType> parameters)
+	def private static String compileSerialization(Iterable<Parameter> parameters)
 	{
 		var ret = ""
 		val constantSizeParameters = parameters.filter
@@ -568,72 +565,53 @@ class ResourceTypeCompiler
 		return '''«FOR i : 0 ..< number»	«ENDFOR»'''
 	}
 
-	def private static int getArrayDepth(ParameterType parameter)
+	def private static int getArrayDepth(Parameter parameter)
 	{
 		var EObject type = parameter
 		var depth = 0;
 
-		while (type instanceof ParameterTypeArray || type instanceof RaoArray)
+		while (type instanceof RaoArray)
 		{
-			if (type instanceof ParameterTypeArray)
-				type = (type as ParameterTypeArray).type.arrayType
-			else
-				type = (type as RaoArray).arrayType
+			type = (type as RaoArray).arrayType
 			depth = depth + 1
 		}
 
 		return depth
 	}
 
-	def private static String getArrayType(ParameterType parameter)
+	def private static String getArrayType(Parameter parameter)
 	{
 		var EObject type = parameter
 
-		while (type instanceof ParameterTypeArray || type instanceof RaoArray)
-			if (type instanceof ParameterTypeArray)
-				type = (type as ParameterTypeArray).type.arrayType
-			else
-				type = (type as RaoArray).arrayType
+		while (type instanceof RaoArray)
+			type = (type as RaoArray).arrayType
 
-		type.getTypename
+		type.compileTypePrimitive
 	}
 
-	def private static String getTypename(EObject type)
+	def static String getDefaultValue(Parameter parameter)
 	{
-		switch (type)
+		switch parameter.type
 		{
-			RaoInt : return "integer"
-			RaoDouble : return "real"
-			RaoBoolean : return "boolean"
-			RaoEnum : return type.compileType
-			RaoString : return "string"
-			default: return null
-		}
-	}
+			RaoInt,
+			RaoDouble,
+			RaoBoolean: {
+				if (parameter.^default == null)
+					return ""
 
-	def static String getDefault(ParameterType parameter)
-	{
-		switch parameter
-		{
-			ParameterTypeBasic: {
-				var defaultValue = ""
-				if (parameter.^default != null) {
-					if (parameter.type instanceof RaoEnum) {
-						val value = parameter.^default.compileExpression.value
-						val fullTypeName = (parameter.type as RaoEnum).getFullEnumName
-						if (checkValidEnumID(
-								(parameter.type as RaoEnum).getFullEnumName,
-								value))
-							defaultValue = " = " + compileEnumValue(fullTypeName, value)
-					}
-					else
-						defaultValue = " = " + parameter.^default.compileExpression.value
-				}
-
-				return defaultValue
+				return " = " + parameter.^default.compileExpression.value
 			}
 
-			ParameterTypeString:
+			RaoEnum: {
+				val value = parameter.^default.compileExpression.value
+				val fullTypeName = (parameter.type as RaoEnum).getFullEnumName
+				if (!checkValidEnumID((parameter.type as RaoEnum).getFullEnumName, value))
+					return ""
+
+				return " = " + compileEnumValue(fullTypeName, value)
+			}
+
+			RaoString:
 				return if (parameter.^default != null) ' = "' + parameter.^default + '"' else ""
 
 			default:
@@ -641,7 +619,7 @@ class ResourceTypeCompiler
 		}
 	}
 
-	def private static compileParameterTypes(List<ParameterType> parameters)
+	def private static compileParameterTypes(List<Parameter> parameters)
 	{
 		'''«IF parameters.size > 0»«parameters.get(0).compileType» «
 			parameters.get(0).name»«

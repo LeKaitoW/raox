@@ -27,12 +27,14 @@ import org.eclipse.ui.services.ISourceProviderService;
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
+import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 
 import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
+import ru.bmstu.rk9.rao.ui.build.BuildUtil;
 import ru.bmstu.rk9.rao.ui.build.ModelBuilder;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
@@ -56,6 +58,9 @@ public class ExecutionHandler extends AbstractHandler {
 
 	@Inject
 	private EclipseOutputConfigurationProvider outputConfigurationProvider;
+
+	@Inject
+	DefaultResourceUIValidatorExtension validatorExtension;
 
 	private static boolean isRunning = false;
 
@@ -85,7 +90,8 @@ public class ExecutionHandler extends AbstractHandler {
 		setRunningState(display, sourceProvider, true);
 
 		final Job build = ModelBuilder.build(event, fileAccessProvider.get(),
-				resourceSetProvider, outputConfigurationProvider, generator);
+				resourceSetProvider, outputConfigurationProvider, generator,
+				validatorExtension);
 		build.schedule();
 
 		IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
@@ -95,7 +101,7 @@ public class ExecutionHandler extends AbstractHandler {
 			return null;
 		}
 
-		final IProject project = ModelBuilder.getProject(activeEditor);
+		final IProject project = BuildUtil.getProject(activeEditor);
 
 		if (project == null) {
 			setRunningState(display, sourceProvider, false);

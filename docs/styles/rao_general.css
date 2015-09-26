@@ -1,35 +1,4 @@
-#wrapper {
-  padding-left: 220px;
-}
-
-#sidebar-wrapper {
-  margin-left: -220px;
-  left: 220px;
-  width: 220px;
-  background: #fff;
-  position: fixed;
-  height: 100%;
-  border-right: 1px solid gray;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-#page-content-wrapper {
-  width: 100%;
-  overflow-x: hidden;
-}
-
-.sidebar-nav {
-  position: absolute;
-  width: 200px;
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
-.page-content {
-  margin-left: 10px;
-  margin-right: 10px;
-}
+@import url("contents_sidebar.css");
 
 body {
   font-family: Helvetica, arial, sans-serif;
@@ -250,30 +219,29 @@ blockquote > :last-child {
 table {
   padding: 0;
 }
+
 table tr {
   border-top: 1px solid #cccccc;
-  background-color: white;
+  background-color: #f8f8f8;
   margin: 0;
   padding: 0;
 }
 
-table tr:nth-child(2n) {
-  background-color: #f8f8f8;
-}
-
 table tr th {
   font-weight: bold;
-  border: 1px solid #cccccc;
+  border: 0px solid #cccccc;
   text-align: left;
   margin: 0;
   padding: 6px 13px;
+  font-size: 16px;
 }
 
 table tr td {
-  border: 1px solid #cccccc;
+  border: 0px solid #cccccc;
   text-align: left;
   margin: 0;
   padding: 6px 13px;
+  font-size: 14px;
 }
 
 table tr th :first-child, table tr td :first-child {

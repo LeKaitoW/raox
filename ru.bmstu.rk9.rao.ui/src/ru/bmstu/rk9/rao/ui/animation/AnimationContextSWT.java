@@ -106,7 +106,7 @@ public class AnimationContextSWT implements AnimationContext {
 
 		Color borderColor = createColor(borderColour, 0);
 
-		paintContext.setBackground(borderColor);
+		paintContext.setForeground(borderColor);
 		paintContext.drawRectangle(x, y, width, height);
 
 		backgroundColor.dispose();
@@ -119,7 +119,7 @@ public class AnimationContextSWT implements AnimationContext {
 
 		Color lineColor = createColor(lineColour, 0);
 
-		paintContext.setBackground(lineColor);
+		paintContext.setForeground(lineColor);
 		paintContext.drawLine(x1, y1, x2, y2);
 
 		lineColor.dispose();
@@ -139,7 +139,7 @@ public class AnimationContextSWT implements AnimationContext {
 
 		Color borderColor = createColor(borderColour, 0);
 
-		paintContext.setBackground(borderColor);
+		paintContext.setForeground(borderColor);
 		paintContext.drawOval(x - radius / 2, y - radius / 2, radius, radius);
 
 		backgroundColor.dispose();
@@ -160,7 +160,7 @@ public class AnimationContextSWT implements AnimationContext {
 
 		Color borderColor = createColor(borderColour, 0);
 
-		paintContext.setBackground(borderColor);
+		paintContext.setForeground(borderColor);
 		paintContext.drawOval(x, y, width, height);
 
 		backgroundColor.dispose();
@@ -181,7 +181,7 @@ public class AnimationContextSWT implements AnimationContext {
 
 		Color borderColor = createColor(borderColour, 0);
 
-		paintContext.setBackground(borderColor);
+		paintContext.setForeground(borderColor);
 		paintContext.drawPolygon(new int[] { x1, y1, x2, y2, x3, y3 });
 
 		backgroundColor.dispose();
