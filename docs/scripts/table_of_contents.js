@@ -146,12 +146,16 @@ function getUserGuideContents() {
             "title":"Первый запуск"
         },
         {
-            "href":"../user_guide/create_model.html",
+            "href":"../user_guide/model_create.html",
             "title":"Создание модели"
         },
         {
-            "href":"../user_guide/run_model.html",
+            "href":"../user_guide/model_run.html",
             "title":"Запуск модели"
+        },
+        {
+            "href":"../user_guide/model_import.html",
+            "title":"Импорт модели"
         }
     ];
 
