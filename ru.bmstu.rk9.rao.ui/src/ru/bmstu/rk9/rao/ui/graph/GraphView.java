@@ -35,6 +35,7 @@ import org.eclipse.ui.PlatformUI;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.IndexType;
+import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
@@ -188,13 +189,16 @@ public class GraphView extends JFrame implements GraphApi {
 				new mxIEventListener() {
 					@Override
 					public void invoke(Object sender, mxEventObject evt) {
-						mxCell cell = getSelectionVertex();
+						mxCell cell = GraphUtil.getSelectionVertex(graph);
 						if (cell == null)
 							return;
 						updateButtonState(cell);
+						updateInfo(cell);
 					}
 				});
 
+		graphEventNotifier.addSubscriber(graphInfoWindowOpenedSubscriber,
+				GraphEvent.GRAPHINFO_WINDOW_OPENED);
 		if (!isFinished)
 			initializeSubscribers();
 	}
@@ -210,21 +214,6 @@ public class GraphView extends JFrame implements GraphApi {
 		}
 
 		super.dispose();
-	}
-
-	private final mxCell getSelectionVertex() {
-		if (graph.getSelectionCell() == null)
-			return null;
-
-		mxCell cell = (mxCell) graph.getSelectionCell();
-
-		if (!cell.isVertex())
-			return null;
-
-		if (!(cell.getValue() instanceof Node))
-			return null;
-
-		return cell;
 	}
 
 	private final ComponentListener componentListener = new ComponentListener() {
@@ -266,16 +255,13 @@ public class GraphView extends JFrame implements GraphApi {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			mxCell cell = getSelectionVertex();
-			if (cell == null)
+			mxCell cell = GraphUtil.getSelectionVertex(graph);
+			if (cell == null || e.getClickCount() < 2)
 				return;
 
-			if (e.getClickCount() > 1) {
-				openGraphInfo();
-			}
+			PlatformUI.getWorkbench().getDisplay()
+					.syncExec(() -> openGraphInfo());
 
-			updateInfo(cell);
-			updateButtonState(cell);
 		}
 	};
 
@@ -374,7 +360,7 @@ public class GraphView extends JFrame implements GraphApi {
 		createGraphInfo();
 		graph.refresh();
 
-		mxCell cell = getSelectionVertex();
+		mxCell cell = GraphUtil.getSelectionVertex(graph);
 		if (cell == null)
 			return;
 		updateButtonState(cell);
@@ -383,6 +369,29 @@ public class GraphView extends JFrame implements GraphApi {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 	// ------------------------- GRAPH INFO WINDOW ------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+	public enum GraphEvent {
+		GRAPHINFO_WINDOW_OPENED
+	};
+
+	private final Notifier<GraphEvent> graphEventNotifier = new Notifier<>(
+			GraphEvent.class);
+
+	public final Notifier<GraphEvent> getGraphEventNotifier() {
+		return graphEventNotifier;
+	}
+
+	private final Subscriber graphInfoWindowOpenedSubscriber = new Subscriber() {
+		@Override
+		public void fireChange() {
+			setGraphInfoButtonListeners();
+			mxCell cell = GraphUtil.getSelectionVertex(graph);
+			if (cell == null)
+				return;
+			updateInfo(cell);
+			updateButtonState(cell);
+		}
+	};
 
 	private GraphInfoWindow graphInfoWindow = null;
 	private Label cellInfoLabel = null;
@@ -394,74 +403,72 @@ public class GraphView extends JFrame implements GraphApi {
 		return graphInfoWindow;
 	}
 
+	private final void setGraphInfoButtonListeners() {
+		graphInfoWindow.getButtonNext().addSelectionListener(
+				new SelectionListener() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						mxCell cell = GraphUtil.getSelectionVertex(graph);
+						if (cell == null)
+							return;
+
+						List<Node> solutionList = treeBuilder.solutionList;
+						Node node = (Node) cell.getValue();
+						if (!solutionList.contains(node))
+							return;
+
+						int nodeIndex = solutionList.indexOf(node);
+						if (nodeIndex == solutionList.size() - 1)
+							return;
+						Node nextNode = solutionList.get(nodeIndex + 1);
+
+						mxCell nextCell = vertexByNode.get(nextNode);
+						graph.setSelectionCell(nextCell);
+					}
+
+					@Override
+					public void widgetDefaultSelected(SelectionEvent e) {
+					}
+				});
+
+		graphInfoWindow.getButtonPrevious().addSelectionListener(
+				new SelectionListener() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						mxCell cell = GraphUtil.getSelectionVertex(graph);
+						if (cell == null)
+							return;
+
+						List<Node> solutionList = treeBuilder.solutionList;
+						Node node = (Node) cell.getValue();
+						if (!solutionList.contains(node))
+							return;
+
+						int nodeIndex = solutionList.indexOf(node);
+						if (nodeIndex == 0)
+							return;
+						Node previousNode = solutionList.get(nodeIndex - 1);
+
+						mxCell previousCell = vertexByNode.get(previousNode);
+						graph.setSelectionCell(previousCell);
+					}
+
+					@Override
+					public void widgetDefaultSelected(SelectionEvent e) {
+					}
+				});
+	}
+
 	private final void openGraphInfo() {
 		Display display = PlatformUI.getWorkbench().getDisplay();
 
 		if (graphInfoWindow != null && !graphInfoWindow.isDisposed()) {
-			display.syncExec(() -> graphInfoWindow.forceActive());
+			graphInfoWindow.forceActive();
 		} else {
-			display.syncExec(() -> {
-				graphInfoWindow = new GraphInfoWindow(display);
-				graphInfoWindow.open();
-
-				graphInfoWindow.getButtonNext().addSelectionListener(
-						new SelectionListener() {
-							@Override
-							public void widgetSelected(SelectionEvent e) {
-								mxCell cell = getSelectionVertex();
-								if (cell == null)
-									return;
-
-								List<Node> solutionList = treeBuilder.solutionList;
-								Node node = (Node) cell.getValue();
-								if (!solutionList.contains(node))
-									return;
-
-								int nodeIndex = solutionList.indexOf(node);
-								if (nodeIndex == solutionList.size() - 1)
-									return;
-								Node nextNode = solutionList.get(nodeIndex + 1);
-
-								mxCell nextCell = vertexByNode.get(nextNode);
-								graph.setSelectionCell(nextCell);
-								updateInfo(nextCell);
-							}
-
-							@Override
-							public void widgetDefaultSelected(SelectionEvent e) {
-							}
-						});
-
-				graphInfoWindow.getButtonPrevious().addSelectionListener(
-						new SelectionListener() {
-							@Override
-							public void widgetSelected(SelectionEvent e) {
-								mxCell cell = getSelectionVertex();
-								if (cell == null)
-									return;
-
-								List<Node> solutionList = treeBuilder.solutionList;
-								Node node = (Node) cell.getValue();
-								if (!solutionList.contains(node))
-									return;
-
-								int nodeIndex = solutionList.indexOf(node);
-								if (nodeIndex == 0)
-									return;
-								Node previousNode = solutionList
-										.get(nodeIndex - 1);
-
-								mxCell previousCell = vertexByNode
-										.get(previousNode);
-								graph.setSelectionCell(previousCell);
-								updateInfo(previousCell);
-							}
-
-							@Override
-							public void widgetDefaultSelected(SelectionEvent e) {
-							}
-						});
-			});
+			graphInfoWindow = new GraphInfoWindow(display);
+			graphInfoWindow.open();
+			graphEventNotifier
+					.notifySubscribers(GraphEvent.GRAPHINFO_WINDOW_OPENED);
 		}
 	}
 
