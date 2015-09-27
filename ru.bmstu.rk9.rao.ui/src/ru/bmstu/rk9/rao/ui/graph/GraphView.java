@@ -20,15 +20,9 @@ import javax.swing.JFrame;
 
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.resource.FontRegistry;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.PlatformUI;
 
@@ -357,7 +351,7 @@ public class GraphView extends JFrame implements GraphApi {
 	private final void onFinish() {
 		colorNodes();
 
-		createGraphInfo();
+		setGraphInfo();
 		graph.refresh();
 
 		mxCell cell = GraphUtil.getSelectionVertex(graph);
@@ -394,10 +388,6 @@ public class GraphView extends JFrame implements GraphApi {
 	};
 
 	private GraphInfoWindow graphInfoWindow = null;
-	private Label cellInfoLabel = null;
-	private Label graphInfoLabel = null;
-	private Group cellInfoGroup = null;
-	private Group graphInfoGroup = null;
 
 	public final GraphInfoWindow getGraphInfoWindow() {
 		return graphInfoWindow;
@@ -473,14 +463,15 @@ public class GraphView extends JFrame implements GraphApi {
 	}
 
 	private final void updateButtonState(mxCell cell) {
-		if (graphInfoWindow == null || graphInfoWindow.isDisposed())
-			return;
-
 		PlatformUI
 				.getWorkbench()
 				.getDisplay()
 				.syncExec(
 						() -> {
+							if (graphInfoWindow == null
+									|| graphInfoWindow.isDisposed())
+								return;
+
 							List<Node> solutionList = treeBuilder.solutionList;
 							Node node = (Node) cell.getValue();
 							boolean inSolution = solutionList.contains(node);
@@ -500,7 +491,13 @@ public class GraphView extends JFrame implements GraphApi {
 	private final void updateInfo(mxCell cell) {
 		Node node = (Node) cell.getValue();
 		String cellInfo = getCellInfo(node);
-		addInfo(cellInfo);
+		PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+			if (graphInfoWindow == null || graphInfoWindow.isDisposed())
+				return;
+
+			setCellInfo(cellInfo);
+			setGraphInfo();
+		});
 	}
 
 	private final String getCellInfo(Node node) {
@@ -537,65 +534,23 @@ public class GraphView extends JFrame implements GraphApi {
 		return graphInfo;
 	}
 
-	private final void createCellInfo(String cellInfo) {
+	private final void setCellInfo(String cellInfo) {
 		if (graphInfoWindow == null || graphInfoWindow.isDisposed())
 			return;
 
-		if (cellInfoGroup == null || cellInfoGroup.isDisposed()) {
-			cellInfoGroup = new Group(graphInfoWindow.getInfoArea(), SWT.NONE);
-			cellInfoGroup.setText("Cell Info");
-			FormData cellInfoGroupData = new FormData();
-			cellInfoGroupData.left = new FormAttachment(0, 0);
-			cellInfoGroupData.top = new FormAttachment(0, 5);
-			cellInfoGroup.setLayoutData(cellInfoGroupData);
-
-			FillLayout cellInfoLayout = new FillLayout();
-			cellInfoLayout.marginHeight = 2;
-			cellInfoLayout.marginWidth = 4;
-			cellInfoGroup.setLayout(cellInfoLayout);
-			cellInfoLabel = new Label(cellInfoGroup, SWT.NONE);
-		}
-
-		cellInfoLabel.setText(cellInfo);
+		graphInfoWindow.getCellInfoLabel().setText(cellInfo);
 		graphInfoWindow.updateContents();
 	}
 
-	private final void createGraphInfo() {
+	private final void setGraphInfo() {
 		if (!isFinished)
 			return;
 
 		if (graphInfoWindow == null || graphInfoWindow.isDisposed())
 			return;
 
-		if (graphInfoGroup == null || graphInfoGroup.isDisposed()) {
-			graphInfoGroup = new Group(graphInfoWindow.getInfoArea(), SWT.NONE);
-			graphInfoGroup.setText("Graph Info");
-			FormData graphInfoGroupData = new FormData();
-			graphInfoGroupData.left = new FormAttachment(cellInfoGroup, 5);
-			graphInfoGroupData.top = new FormAttachment(0, 5);
-			graphInfoGroup.setLayoutData(graphInfoGroupData);
-
-			FillLayout graphInfoLayout = new FillLayout();
-			graphInfoLayout.marginHeight = 2;
-			graphInfoLayout.marginWidth = 4;
-			graphInfoGroup.setLayout(graphInfoLayout);
-			graphInfoLabel = new Label(graphInfoGroup, SWT.NONE);
-		}
-
-		graphInfoLabel.setText(getGraphInfo());
+		graphInfoWindow.getGraphInfoLabel().setText(getGraphInfo());
 		graphInfoWindow.updateContents();
-	}
-
-	private final void addInfo(String cellInfo) {
-		Display display = PlatformUI.getWorkbench().getDisplay();
-
-		display.syncExec(() -> {
-			if (graphInfoWindow == null || graphInfoWindow.isDisposed())
-				return;
-
-			createCellInfo(cellInfo);
-			createGraphInfo();
-		});
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

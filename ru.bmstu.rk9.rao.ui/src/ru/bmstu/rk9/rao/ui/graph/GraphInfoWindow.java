@@ -9,6 +9,8 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 public class GraphInfoWindow extends Shell {
@@ -24,7 +26,39 @@ public class GraphInfoWindow extends Shell {
 		windowArea.setLayout(windowAreaLayout);
 
 		infoArea = new Composite(windowArea, SWT.FILL);
-		infoArea.setLayout(new FormLayout());
+		RowLayout infoAreaLayout = new RowLayout(SWT.VERTICAL);
+		infoAreaLayout.spacing = 5;
+		infoArea.setLayout(infoAreaLayout);
+
+		graphInfoGroup = new Group(infoArea, SWT.NONE);
+		graphInfoGroup.setText("Graph info");
+		graphInfoGroup.setLayout(new FormLayout());
+
+		Group selectedCellInfoGroup = new Group(graphInfoGroup, SWT.NONE);
+		selectedCellInfoGroup.setText("Selected cell");
+		FormData cellInfoGroupData = new FormData();
+		cellInfoGroupData.left = new FormAttachment(0, 0);
+		cellInfoGroupData.top = new FormAttachment(0, 5);
+		selectedCellInfoGroup.setLayoutData(cellInfoGroupData);
+
+		FillLayout cellInfoLayout = new FillLayout();
+		cellInfoLayout.marginHeight = 2;
+		cellInfoLayout.marginWidth = 4;
+		selectedCellInfoGroup.setLayout(cellInfoLayout);
+		cellInfoLabel = new Label(selectedCellInfoGroup, SWT.NONE);
+
+		Group commonInfoGroup = new Group(graphInfoGroup, SWT.NONE);
+		commonInfoGroup.setText("Common");
+		FormData graphInfoGroupData = new FormData();
+		graphInfoGroupData.left = new FormAttachment(selectedCellInfoGroup, 5);
+		graphInfoGroupData.top = new FormAttachment(0, 5);
+		commonInfoGroup.setLayoutData(graphInfoGroupData);
+
+		FillLayout graphInfoLayout = new FillLayout();
+		graphInfoLayout.marginHeight = 2;
+		graphInfoLayout.marginWidth = 4;
+		commonInfoGroup.setLayout(graphInfoLayout);
+		graphInfoLabel = new Label(commonInfoGroup, SWT.NONE);
 
 		buttonArea = new Composite(windowArea, SWT.FILL);
 		buttonArea.setLayout(new FormLayout());
@@ -43,14 +77,23 @@ public class GraphInfoWindow extends Shell {
 		updateContents();
 	}
 
+	@Override
+	protected void checkSubclass() {
+	}
+
 	public final void updateContents() {
 		layout(true, true);
 		pack();
 	}
 
-	@Override
-	protected void checkSubclass() {
-	}
+	private final static int numberOfAreas = 2;
+
+	private final Composite windowArea;
+	private final Composite infoArea;
+	private final Composite buttonArea;
+
+	private final Button buttonNext;
+	private final Button buttonPrevious;
 
 	public final Composite getInfoArea() {
 		return infoArea;
@@ -64,13 +107,20 @@ public class GraphInfoWindow extends Shell {
 		return buttonPrevious;
 	}
 
-	private final Composite windowArea;
+	private final Label cellInfoLabel;
+	private final Label graphInfoLabel;
+	private final Group graphInfoGroup;
 
-	private final static int numberOfAreas = 2;
+	public final Label getCellInfoLabel() {
+		return cellInfoLabel;
+	}
 
-	private final Composite infoArea;
-	private final Composite buttonArea;
+	public final Label getGraphInfoLabel() {
+		return graphInfoLabel;
+	}
 
-	private final Button buttonNext;
-	private final Button buttonPrevious;
+	public final Group getGraphInfoGroup() {
+		return graphInfoGroup;
+	}
+
 }
