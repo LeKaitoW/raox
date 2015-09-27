@@ -251,7 +251,7 @@ class RaoStatementCompiler
 						'''
 						context.drawText
 						(
-							«statement.text.compileExpression.value»,
+							String.valueOf(«statement.text.compileExpression.value»),
 							(int) («statement.x.compileExpression.value»),
 							(int) («statement.y.compileExpression.value»),
 							«statement.textColor.compileFrameColor»
