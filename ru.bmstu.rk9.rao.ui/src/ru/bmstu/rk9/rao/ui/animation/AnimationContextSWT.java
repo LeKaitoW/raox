@@ -70,17 +70,10 @@ public class AnimationContextSWT implements AnimationContext {
 		return image;
 	}
 
+	// TODO handle alignment
 	@Override
-	public void drawText(int x, int y, int width, int height,
-			int[] backgroundColour, int[] textColor, Alignment alignment,
-			String text) {
-		paintContext.setAlpha(backgroundColour[3]);
-
-		Color backgroundColor = createColor(backgroundColour, 0);
-
-		paintContext.setBackground(backgroundColor);
-		paintContext.fillRectangle(x, y, width, height);
-
+	public void drawText(String text, int x, int y, int[] textColor, int width,
+			Alignment alignment) {
 		paintContext.setAlpha(textColor[3]);
 
 		Color foregroundColor = createColor(textColor, 0);
@@ -88,8 +81,12 @@ public class AnimationContextSWT implements AnimationContext {
 		paintContext.setForeground(foregroundColor);
 		paintContext.drawText(text, x, y, true);
 
-		backgroundColor.dispose();
 		foregroundColor.dispose();
+	}
+
+	@Override
+	public void drawText(String text, int x, int y, int[] textColor) {
+		drawText(text, x, y, textColor, 0, Alignment.LEFT);
 	}
 
 	@Override

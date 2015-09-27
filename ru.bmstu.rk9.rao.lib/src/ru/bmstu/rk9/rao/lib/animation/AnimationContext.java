@@ -5,9 +5,10 @@ public interface AnimationContext {
 		LEFT, CENTER, RIGHT
 	}
 
-	public void drawText(int x, int y, int width, int height,
-			int[] backgroundColour, int[] textColor, Alignment alignment,
-			String text);
+	public void drawText(String text, int x, int y, int[] textColor, int width,
+			Alignment alignment);
+
+	public void drawText(String text, int x, int y, int[] textColor);
 
 	public void drawRectangle(int x, int y, int width, int height,
 			int[] backgroundColour, int[] borderColour);

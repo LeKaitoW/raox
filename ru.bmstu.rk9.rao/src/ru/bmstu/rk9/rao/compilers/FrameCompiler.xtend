@@ -41,9 +41,9 @@ class FrameCompiler
 					«ELSE»
 						800, 600,
 					«ENDIF»
-					«frame.backPicture.colour.r
-					», «frame.backPicture.colour.g
-					», «frame.backPicture.colour.b»
+					«frame.backPicture.color.r
+					», «frame.backPicture.color.g
+					», «frame.backPicture.color.b»
 				«ELSE»
 				800, 600,
 				255, 255, 255
