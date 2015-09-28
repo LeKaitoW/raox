@@ -33,25 +33,22 @@ class FrameCompiler
 				«frame.frame.compileStatement»
 			}
 
-			private int[] backgroundData = new int[]
-			{
+			private BackgroundData backgroundData = new BackgroundData(
 				«IF frame.backPicture != null»
 					«IF frame.backPicture.size != null»
 						«frame.backPicture.size.width», «frame.backPicture.size.height»,
 					«ELSE»
 						800, 600,
 					«ENDIF»
-					«frame.backPicture.color.r
-					», «frame.backPicture.color.g
-					», «frame.backPicture.color.b»
+					«frame.backPicture.color.compileFrameColor»
 				«ELSE»
 				800, 600,
-				255, 255, 255
+				new int[] {255, 255, 255, 255}
 				«ENDIF»
-			};
+			);
 
 			@Override
-			public int[] getBackgroundData()
+			public BackgroundData getBackgroundData()
 			{
 				return backgroundData;
 			}

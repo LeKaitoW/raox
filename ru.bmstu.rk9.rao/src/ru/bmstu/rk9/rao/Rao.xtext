@@ -365,7 +365,20 @@ FrameSize:
 ;
 
 FrameColor:
-	'color' '(' r = INT ',' g = INT ',' b = INT ( ',' alpha = INT)? ')'
+	(colorExplicit = FrameColorExplicit | colorPredefined = FrameColorPredefined)
+;
+
+FrameColorExplicit:
+	'Color' '(' r = INT ',' g = INT ',' b = INT ( ',' alpha = INT)? ')'
+;
+
+FrameColorPredefined:
+	'Color' '.' standardColor = FrameColorPredefinedValue
+;
+
+enum FrameColorPredefinedValue
+	: BLACK = 'BLACK'
+	| WHITE = 'WHITE'
 ;
 
 FrameStatementList returns StatementList:
