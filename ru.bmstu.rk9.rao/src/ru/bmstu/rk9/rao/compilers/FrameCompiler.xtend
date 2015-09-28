@@ -14,6 +14,7 @@ class FrameCompiler
 
 		import ru.bmstu.rk9.rao.lib.*;
 		import ru.bmstu.rk9.rao.lib.animation.*;
+		import ru.bmstu.rk9.rao.lib.animation.RaoColor.*;
 		import ru.bmstu.rk9.rao.lib.simulator.*;
 		@SuppressWarnings("all")
 
@@ -42,8 +43,7 @@ class FrameCompiler
 					«ENDIF»
 					«frame.backPicture.color.compileFrameColor»
 				«ELSE»
-				800, 600,
-				new int[] {255, 255, 255, 255}
+				800, 600, new RaoColor (ColorValue.WHITE)
 				«ENDIF»
 			);
 

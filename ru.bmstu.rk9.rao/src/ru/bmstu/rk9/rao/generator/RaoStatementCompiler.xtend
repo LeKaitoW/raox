@@ -327,30 +327,13 @@ class RaoStatementCompiler
 
 	def static String compileFrameColor(FrameColor color)
 	{
-		var int r = 0;
-		var int g = 0;
-		var int b = 0;
-		var int alpha = 0;
-		if (color.colorExplicit != null) {
-			r = color.colorExplicit.r
-			g = color.colorExplicit.g
-			b = color.colorExplicit.b
-			alpha = color.colorExplicit.alpha
-		} else if (color.colorPredefined != null) {
-			alpha = 0
-			switch (color.colorPredefined.standardColor) {
-				case BLACK: {
-					r = 0
-					g = 0
-					b = 0
-				}
-				case WHITE: {
-					r = 255
-					g = 255
-					b = 255
-				}
-			}
+		if (color.colorPredefined != null) {
+			return '''new RaoColor(ColorValue.«color.colorPredefined.standardColor»)'''
 		}
-		return '''new int[] {«r», «g», «b», «255 - alpha»}'''
+
+		return '''new RaoColor («color.colorExplicit.r», «
+				color.colorExplicit.g», «
+				color.colorExplicit.b», «
+				255 - color.colorExplicit.alpha»)'''
 	}
 }

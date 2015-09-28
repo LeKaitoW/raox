@@ -1,7 +1,7 @@
 package ru.bmstu.rk9.rao.lib.animation;
 
 public class BackgroundData {
-	public BackgroundData(int width, int height, int[] color) {
+	public BackgroundData(int width, int height, RaoColor color) {
 		this.width = width;
 		this.height = height;
 		this.color = color;
@@ -9,5 +9,5 @@ public class BackgroundData {
 
 	public final int width;
 	public final int height;
-	public final int[] color;
+	public final RaoColor color;
 }
