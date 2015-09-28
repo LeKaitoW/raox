@@ -725,7 +725,7 @@ public class Game5View extends EditorPart {
 			display.asyncExec(() -> {
 				GraphControl.openFrameWindow(new FrameInfo(0,
 						"Расстановка_фишек"));
-				new GraphManager(GraphControl.openedGraphMap.get(0).getGraph(),
+				new GraphManager(GraphControl.openedGraphMap.get(0),
 						OrderConfigurator.inverseOrderPlaces((JSONArray) object
 								.get("places")));
 			});
