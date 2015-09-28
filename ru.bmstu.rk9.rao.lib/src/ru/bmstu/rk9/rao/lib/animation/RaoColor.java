@@ -2,7 +2,7 @@ package ru.bmstu.rk9.rao.lib.animation;
 
 public class RaoColor {
 	public enum ColorValue {
-		UNDEFINED, WHITE, BLACK
+		UNDEFINED, BLACK, BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GRAY, DARK_GREEN, DARK_MAGENTA, DARK_RED, DARK_YELLOW, GRAY, GREEN, MAGENTA, RED, WHITE, YELLOW
 	};
 
 	public RaoColor(ColorValue value) {

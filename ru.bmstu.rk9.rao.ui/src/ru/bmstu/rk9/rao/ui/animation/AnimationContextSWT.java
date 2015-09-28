@@ -192,11 +192,50 @@ public class AnimationContextSWT implements AnimationContext {
 	private final Color raoColorToSWTColor(ColorValue color) {
 		int swtColorConstant;
 		switch (color) {
+		case BLACK:
+			swtColorConstant = SWT.COLOR_BLACK;
+			break;
+		case BLUE:
+			swtColorConstant = SWT.COLOR_BLUE;
+			break;
+		case CYAN:
+			swtColorConstant = SWT.COLOR_CYAN;
+			break;
+		case DARK_BLUE:
+			swtColorConstant = SWT.COLOR_DARK_BLUE;
+			break;
+		case DARK_CYAN:
+			swtColorConstant = SWT.COLOR_DARK_CYAN;
+			break;
+		case DARK_GRAY:
+			swtColorConstant = SWT.COLOR_DARK_GRAY;
+			break;
+		case DARK_GREEN:
+			swtColorConstant = SWT.COLOR_DARK_GREEN;
+			break;
+		case DARK_RED:
+			swtColorConstant = SWT.COLOR_DARK_RED;
+			break;
+		case DARK_YELLOW:
+			swtColorConstant = SWT.COLOR_DARK_YELLOW;
+			break;
+		case GRAY:
+			swtColorConstant = SWT.COLOR_GRAY;
+			break;
+		case GREEN:
+			swtColorConstant = SWT.COLOR_GREEN;
+			break;
+		case MAGENTA:
+			swtColorConstant = SWT.COLOR_MAGENTA;
+			break;
+		case RED:
+			swtColorConstant = SWT.COLOR_RED;
+			break;
 		case WHITE:
 			swtColorConstant = SWT.COLOR_WHITE;
 			break;
-		case BLACK:
-			swtColorConstant = SWT.COLOR_BLACK;
+		case YELLOW:
+			swtColorConstant = SWT.COLOR_YELLOW;
 			break;
 		default:
 			throw new AnimationException("Undefined rao color value: " + color);

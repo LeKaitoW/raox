@@ -378,7 +378,21 @@ FrameColorPredefined:
 
 enum FrameColorPredefinedValue
 	: BLACK = 'BLACK'
+	| BLUE = 'BLUE'
+	| CYAN = 'CYAN'
+	| DARK_BLUE = 'DARK_BLUE'
+	| DARK_CYAN = 'DARK_CYAN'
+	| DARK_GRAY = 'DARK_GRAY'
+	| DARK_GREEN = 'DARK_GREEN'
+	| DARK_MAGENTA = 'DARK_MAGENTA'
+	| DARK_RED = 'DARK_RED'
+	| DARK_YELLOW = 'DARK_YELLOW'
+	| GRAY = 'GRAY'
+	| GREEN = 'GREEN'
+	| MAGENTA = 'MAGENTA'
+	| RED = 'RED'
 	| WHITE = 'WHITE'
+	| YELLOW = 'YELLOW'
 ;
 
 FrameStatementList returns StatementList:
