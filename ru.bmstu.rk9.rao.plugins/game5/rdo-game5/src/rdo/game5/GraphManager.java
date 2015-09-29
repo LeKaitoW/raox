@@ -27,7 +27,7 @@ public class GraphManager {
 
 	public GraphManager(GraphView graph, JSONArray order) {
 		this.graph = graph;
-		this.order = order;
+		this.initialOrder = order;
 		this.currentOrder = order;
 		this.graph.getGraph().getSelectionModel()
 				.addListener(mxEvent.CHANGE, selectionListener);
@@ -42,22 +42,18 @@ public class GraphManager {
 	private final Subscriber addBoardSubscriber = new Subscriber() {
 		@Override
 		public void fireChange() {
-			Composite infoArea = GraphControl.openedGraphMap.get(0)
-					.getGraphInfoWindow().getInfoArea();
+			Composite infoArea = graph.getGraphInfoWindow().getInfoArea();
 			Group boardGroup = new Group(infoArea, SWT.NONE);
-			final GridLayout boardLayout = new GridLayout(3, false);
+			GridLayout boardLayout = new GridLayout(3, false);
 			boardGroup.setLayout(boardLayout);
-			boardGroup.setText("Board:");
-			for (int i = 0; i < tilesCountX * tilesCountY; i++) {
-				tiles.add(new TileButton(boardGroup, SWT.NONE, currentOrder
-						.get(i).toString(), i + 1));
-			}
+			boardGroup.setText("Board");
+			creteBoard(boardGroup);
 			graph.getGraphInfoWindow().updateContents();
 		}
 	};
 
 	private final GraphView graph;
-	private final JSONArray order;
+	private final JSONArray initialOrder;
 	private JSONArray currentOrder;
 
 	private final mxIEventListener selectionListener = new mxIEventListener() {
@@ -74,21 +70,9 @@ public class GraphManager {
 			final Node node = (Node) mxCell.getValue();
 			final List<String> rules = createRulesList(node);
 			currentOrder = useRules(rules);
-			GraphInfoWindow graphInfoWindow = graph.getGraphInfoWindow();
-			PlatformUI
-					.getWorkbench()
-					.getDisplay()
-					.asyncExec(
-							() -> {
-								if (graphInfoWindow != null
-										&& !graphInfoWindow.isDisposed()) {
-									for (int i = 0; i < tilesCountX
-											* tilesCountY; i++) {
-										tiles.get(i).updateTile(
-												currentOrder.get(i).toString());
-									}
-								}
-							});
+			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+				updateBoard();
+			});
 		}
 	};
 
@@ -105,7 +89,7 @@ public class GraphManager {
 
 	@SuppressWarnings("unchecked")
 	private final JSONArray useRules(List<String> rules) {
-		final JSONArray nodeOrder = (JSONArray) order.clone();
+		final JSONArray nodeOrder = (JSONArray) initialOrder.clone();
 		for (int i = rules.size() - 1; i >= 0; i--) {
 			final int holeIndex = nodeOrder.indexOf("6");
 			switch (rules.get(i)) {
@@ -130,5 +114,21 @@ public class GraphManager {
 			}
 		}
 		return nodeOrder;
+	}
+
+	private final void creteBoard(final Group boardGroup) {
+		for (int i = 0; i < tilesCountX * tilesCountY; i++) {
+			tiles.add(new TileButton(boardGroup, SWT.NONE, currentOrder.get(i)
+					.toString(), i + 1));
+		}
+	}
+
+	private final void updateBoard() {
+		GraphInfoWindow graphInfoWindow = graph.getGraphInfoWindow();
+		if (graphInfoWindow != null && !graphInfoWindow.isDisposed()) {
+			for (int i = 0; i < tilesCountX * tilesCountY; i++) {
+				tiles.get(i).updateTile(currentOrder.get(i).toString());
+			}
+		}
 	}
 }
