@@ -13,7 +13,6 @@ import ru.bmstu.rk9.rao.lib.animation.AnimationContext;
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
 import ru.bmstu.rk9.rao.lib.animation.BackgroundData;
 import ru.bmstu.rk9.rao.lib.animation.RaoColor;
-import ru.bmstu.rk9.rao.lib.animation.RaoColor.ColorValue;
 
 public class AnimationContextSWT implements AnimationContext {
 	private Display display;
@@ -189,67 +188,7 @@ public class AnimationContextSWT implements AnimationContext {
 		borderColor.dispose();
 	}
 
-	private final Color raoColorToSWTColor(ColorValue color) {
-		int swtColorConstant;
-		switch (color) {
-		case BLACK:
-			swtColorConstant = SWT.COLOR_BLACK;
-			break;
-		case BLUE:
-			swtColorConstant = SWT.COLOR_BLUE;
-			break;
-		case CYAN:
-			swtColorConstant = SWT.COLOR_CYAN;
-			break;
-		case DARK_BLUE:
-			swtColorConstant = SWT.COLOR_DARK_BLUE;
-			break;
-		case DARK_CYAN:
-			swtColorConstant = SWT.COLOR_DARK_CYAN;
-			break;
-		case DARK_GRAY:
-			swtColorConstant = SWT.COLOR_DARK_GRAY;
-			break;
-		case DARK_GREEN:
-			swtColorConstant = SWT.COLOR_DARK_GREEN;
-			break;
-		case DARK_RED:
-			swtColorConstant = SWT.COLOR_DARK_RED;
-			break;
-		case DARK_YELLOW:
-			swtColorConstant = SWT.COLOR_DARK_YELLOW;
-			break;
-		case GRAY:
-			swtColorConstant = SWT.COLOR_GRAY;
-			break;
-		case GREEN:
-			swtColorConstant = SWT.COLOR_GREEN;
-			break;
-		case MAGENTA:
-			swtColorConstant = SWT.COLOR_MAGENTA;
-			break;
-		case RED:
-			swtColorConstant = SWT.COLOR_RED;
-			break;
-		case WHITE:
-			swtColorConstant = SWT.COLOR_WHITE;
-			break;
-		case YELLOW:
-			swtColorConstant = SWT.COLOR_YELLOW;
-			break;
-		default:
-			throw new AnimationException("Undefined rao color value: " + color);
-		}
-
-		return display.getSystemColor(swtColorConstant);
-	}
-
 	Color createColor(RaoColor color) {
-		if (color.value != ColorValue.UNDEFINED) {
-			Color systemColor = raoColorToSWTColor(color.value);
-			return new Color(display, systemColor.getRGB());
-		}
-
 		return new Color(display, color.r, color.g, color.b);
 	}
 }

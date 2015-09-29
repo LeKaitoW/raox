@@ -43,7 +43,7 @@ class FrameCompiler
 					«ENDIF»
 					«frame.backPicture.color.compileFrameColor»
 				«ELSE»
-				800, 600, new RaoColor (ColorValue.WHITE)
+				800, 600, RaoColor.COLOR_WHITE
 				«ENDIF»
 			);
 

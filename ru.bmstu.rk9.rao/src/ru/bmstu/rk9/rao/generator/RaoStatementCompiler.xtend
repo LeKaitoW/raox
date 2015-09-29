@@ -328,7 +328,7 @@ class RaoStatementCompiler
 	def static String compileFrameColor(FrameColor color)
 	{
 		if (color.colorPredefined != null) {
-			return '''new RaoColor(ColorValue.«color.colorPredefined.standardColor»)'''
+			return '''RaoColor.COLOR_«color.colorPredefined.standardColor»'''
 		}
 
 		return '''new RaoColor («color.colorExplicit.r», «
