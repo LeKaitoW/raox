@@ -14,7 +14,8 @@
 <pre><code class="rao">frame <i>имя_кадра</i> {
     <i>тело_кадра</i>
 }</code></pre>
-<p>В моделе может быть несколько кадров. В процессе прогона отображается выбранный из списка. В теле кадра с помощью процедурного языка и специальных функций для отрисовки описывается изображение.<br>Функции для отрисовки:</p>
+<p>В моделе может быть несколько кадров. В процессе прогона отображается выбранный из списка. В теле кадра с помощью процедурного языка и специальных функций для отрисовки описывается изображение.</p>
+<h3>Функции для отрисовки</h3>
 <table style="width:100%">
     <tr>
         <th width="20%">Сигнатура</th>
@@ -22,7 +23,7 @@
         <th width="50%">Параметры</th>
     </tr>
     <tr>
-        <td><pre><code class="rao">color(
+        <td><pre><code class="rao">Color(
         int r,
         int g,
         int b
@@ -44,7 +45,7 @@
                 </tr>
                 <tr>
                     <td width="35%"><code class="rao">alpha</code></td>
-                    <td><a href="https://en.wikipedia.org/wiki/RGBA_color_space">прозрачность</a> в интервале от 0 до 255</td>
+                    <td><a href="https://en.wikipedia.org/wiki/RGBA_Color_space">прозрачность</a> в интервале от 0 до 255</td>
                 </tr>
             </table>
         </td>
@@ -53,7 +54,7 @@
         <td><pre><code class="rao">background(
         int width,
         int height,
-        color c)</code></pre></td>
+        Color c)</code></pre></td>
         <td>Задание фона кадра. Должна вызываться первой.</td>
         <td>
             <table style="width:100%">
@@ -74,17 +75,18 @@
     </tr>
     <tr>
         <td><pre><code class="rao">text(
+        String text,
         double x,
         double y,
-        double width,
-        double height,
-        color fillColor,
-        color textColor,
-        String text
-        [, alignment a])</code></pre></td>
+        Color textColor
+        [, double width, alignment a])</code></pre></td>
         <td>Отрисовка текста</td>
         <td>
             <table style="width:100%">
+                <tr>
+                    <td width="35%"><code class="rao">text</code></td>
+                    <td>текст</td>
+                </tr>
                 <tr>
                     <td width="35%"><code class="rao">x</code></td>
                     <td>координата <code>x</code> верхнего левого угла панели текста</td>
@@ -94,24 +96,12 @@
                     <td>координата <code>y</code> верхнего левого угла панели текста</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">width</code></td>
-                    <td>ширина панели текста</td>
-                </tr>
-                <tr>
-                    <td width="35%"><code class="rao">width</code></td>
-                    <td>высота панели текста</td>
-                </tr>
-                <tr>
-                    <td width="35%"><code class="rao">fillColor</code></td>
-                    <td>цвет фона панели текста</td>
-                </tr>
-                <tr>
                     <td width="35%"><code class="rao">textColor</code></td>
                     <td>цвет текста</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">text</code></td>
-                    <td>текст</td>
+                    <td width="35%"><code class="rao">width</code></td>
+                    <td>ширина панели текста, по которой производится выравнивание</td>
                 </tr>
                 <tr>
                     <td width="35%"><code class="rao">alignment</code></td>
@@ -126,7 +116,7 @@
         double y1,
         double x2,
         double y2,
-        color c)</code></pre></td>
+        Color c)</code></pre></td>
         <td>Отрисовка отрезка</td>
         <td>
             <table style="width:100%">
@@ -159,8 +149,8 @@
         double y,
         double width,
         double height,
-        color fillColor,
-        color borderColor)</code></pre></td>
+        Color fillColor,
+        Color borderColor)</code></pre></td>
         <td>Отрисовка прямоугольника</td>
         <td>
             <table style="width:100%">
@@ -196,8 +186,8 @@
         double x,
         double y,
         double radius,
-        color fillColor,
-        color borderColor)</code></pre></td>
+        Color fillColor,
+        Color borderColor)</code></pre></td>
         <td>Отрисовка круга</td>
         <td>
             <table style="width:100%">
@@ -230,8 +220,8 @@
         double y,
         double width,
         double height,
-        color fillColor,
-        color borderColor)</code></pre></td>
+        Color fillColor,
+        Color borderColor)</code></pre></td>
         <td>Отрисовка эллипса</td>
         <td>
             <table style="width:100%">
@@ -270,8 +260,8 @@
         double y2,
         double x3,
         double y3,
-        color fillColor,
-        color borderColor)</code></pre></td>
+        Color fillColor,
+        Color borderColor)</code></pre></td>
         <td>Отрисовка треугольника</td>
         <td>
             <table style="width:100%">
@@ -311,7 +301,29 @@
         </td>
     </tr>
 </table>
-<p>Пример:</p>
+<h3>Встроенные цвета</h3>
+<p>Помимо явного задания цвета в модели RGB, возможен выбор одного из встроенных цветов.</p>
+<pre><code class="rao">Color.VALUE</code></pre>
+<p>Список доступных встроенных цветов:</p>
+<ul>
+    <li>BLACK</li>
+    <li>BLUE</li>
+    <li>CYAN</li>
+    <li>DARK_BLUE</li>
+    <li>DARK_CYAN</li>
+    <li>DARK_GRAY</li>
+    <li>DARK_GREEN</li>
+    <li>DARK_MAGENTA</li>
+    <li>DARK_RED</li>
+    <li>DARK_YELLOW</li>
+    <li>GRAY</li>
+    <li>GREEN</li>
+    <li>MAGENTA</li>
+    <li>RED</li>
+    <li>WHITE</li>
+    <li>YELLOW</li>
+</ul>
+<h3>Пример</h3>
 <pre><code class="rao">event timer() {
     timer.plan(currentTime + 1);
 }
@@ -325,76 +337,76 @@ set terminateCondition() {
 }
 
 frame whosthat {
-    background(300, 300, color(255, 255, 255));
+    background(300, 300, Color.WHITE);
 
     double dy = Math.abs(4 - currentTime % 8);
     double dx = Math.abs(8 - currentTime % 16);
 
     /* tail */
-    triangle(255, 170 + dy, 290, 40 + dy, 200, 150 + dy, color(255, 153, 188), color(255, 153, 188));
-    line(255, 170 + dy, 290, 40 + dy, color(0, 0, 0));
+    triangle(255, 170 + dy, 290, 40 + dy, 200, 150 + dy, Color(255, 153, 188), Color(255, 153, 188));
+    line(255, 170 + dy, 290, 40 + dy, Color.BLACK);
 
-    triangle(100, 20 + dy, 290, 40 + dy, 275, 75 + dy, color(255, 153, 188), color(255, 153, 188));
-    triangle(100, 20 + dy, 140, 24 + dy, 130, 30 + dy, color(255, 255, 255), color(255, 255, 255));
-    line(100, 20 + dy, 290, 40 + dy, color(0, 0, 0));
-    line(100, 20 + dy, 265, 72 + dy, color(0, 0, 0));
+    triangle(100, 20 + dy, 290, 40 + dy, 275, 75 + dy, Color(255, 153, 188), Color(255, 153, 188));
+    triangle(100, 20 + dy, 140, 24 + dy, 130, 30 + dy, Color.WHITE, Color.WHITE);
+    line(100, 20 + dy, 290, 40 + dy, Color.BLACK);
+    line(100, 20 + dy, 265, 72 + dy, Color.BLACK);
 
-    triangle(250, 220 + dy, 270, 40 + dy, 200, 150 + dy, color(255, 153, 188), color(255, 153, 188));
-    line(250, 68 + dy, 220, 120 + dy, color(0, 0, 0));
+    triangle(250, 220 + dy, 270, 40 + dy, 200, 150 + dy, Color(255, 153, 188), Color(255, 153, 188));
+    line(250, 68 + dy, 220, 120 + dy, Color.BLACK);
 
     /* right back leg */
-    triangle(220, 220 + dy, 245 + dx, 255 + dy, 260, 183 + dy, color(255, 153, 188), color(255, 153, 188));
+    triangle(220, 220 + dy, 245 + dx, 255 + dy, 260, 183 + dy, Color(255, 153, 188), Color(255, 153, 188));
 
     /* body */
-    ellipse(30, 100 + dy, 230, 150, color(255, 153, 188), color(0, 0, 0));
+    ellipse(30, 100 + dy, 230, 150, Color(255, 153, 188), Color.BLACK);
 
     /* right back leg partially-behind effect */
-    triangle(240, 220 + dy, 245 + dx, 255 + dy, 260, 183 + dy, color(255, 153, 188), color(255, 153, 188));
-    triangle(233, 243 + dy, 245 + dx, 255 + dy, 255, 245 + dy, color(255, 255, 255), color(255, 255, 255));
-    line(226, 228 + dy, 245 + dx, 255 + dy, color(0, 0, 0));
-    line(245 + dx, 255 + dy, 260, 183 + dy, color(0, 0, 0));
+    triangle(240, 220 + dy, 245 + dx, 255 + dy, 260, 183 + dy, Color(255, 153, 188), Color(255, 153, 188));
+    triangle(233, 243 + dy, 245 + dx, 255 + dy, 255, 245 + dy, Color.WHITE, Color.WHITE);
+    line(226, 228 + dy, 245 + dx, 255 + dy, Color.BLACK);
+    line(245 + dx, 255 + dy, 260, 183 + dy, Color.BLACK);
 
     /* left ear */
-    circle(35, 150 + dy, 40, color(255, 153, 188), color(0, 0, 0));
+    circle(35, 150 + dy, 40, Color(255, 153, 188), Color.BLACK);
 
     /* head */
-    ellipse(7, 127 + dy, 135, 125, color(255, 153, 188), color(0, 0, 0));
+    ellipse(7, 127 + dy, 135, 125, Color(255, 153, 188), Color.BLACK);
 
     /* right ear */
-    circle(120, 150 + dy, 40, color(255, 153, 188), color(0, 0, 0));
-    circle(120, 150 + dy, 20, color(255, 153, 188), color(0, 0, 0));
+    circle(120, 150 + dy, 40, Color(255, 153, 188), Color.BLACK);
+    circle(120, 150 + dy, 20, Color(255, 153, 188), Color.BLACK);
 
     /* left eye */
-    circle(23, 180 + dy, 30, color(255, 255, 255), color(0, 0, 0));
-    circle(28, 180 + dy, 2, color(0, 0, 0), color(0, 0, 0));
+    circle(23, 180 + dy, 30, Color.WHITE, Color.BLACK);
+    circle(28, 180 + dy, 2, Color.BLACK, Color.BLACK);
 
     /* right eye */
-    circle(80, 180 + dy, 30, color(255, 255, 255), color(0, 0, 0));
-    circle(78, 180 + dy, 2, color(0, 0, 0), color(0, 0, 0));
+    circle(80, 180 + dy, 30, Color.WHITE, Color.BLACK);
+    circle(78, 180 + dy, 2, Color.BLACK, Color.BLACK);
 
     /* left front leg */
-    triangle(10, 225 + dy, 1 - dx, 265 + dy, 80, 225 + dy, color(255, 153, 188), color(255, 153, 188));
-    triangle(0, 255 + dy, 1 - dx, 265 + dy, 15, 258 + dy, color(255, 255, 255), color(255, 255, 255));
-    line(10, 225 + dy, 1 - dx, 265 + dy, color(0, 0, 0));
-    line(1 - dx, 265 + dy, 80, 225 + dy, color(0, 0, 0));
+    triangle(10, 225 + dy, 1 - dx, 265 + dy, 80, 225 + dy, Color(255, 153, 188), Color(255, 153, 188));
+    triangle(0, 255 + dy, 1 - dx, 265 + dy, 15, 258 + dy, Color.WHITE, Color.WHITE);
+    line(10, 225 + dy, 1 - dx, 265 + dy, Color.BLACK);
+    line(1 - dx, 265 + dy, 80, 225 + dy, Color.BLACK);
 
     /* mouth area */
-    ellipse(1, 188 + dy, 100, 70, color(242, 245, 207), color(0, 0, 0));
-    triangle(10, 225 + dy, 45, 250 + dy, 70, 225 + dy, color(255, 153, 188), color(0, 0, 0));
+    ellipse(1, 188 + dy, 100, 70, Color(242, 245, 207), Color.BLACK);
+    triangle(10, 225 + dy, 45, 250 + dy, 70, 225 + dy, Color(255, 153, 188), Color.BLACK);
 
     /* nose */
-    line(20, 214 + dy, 27, 217 + dy, color(0, 0, 0));
-    line(38, 217 + dy, 44, 214 + dy, color(0, 0, 0));
+    line(20, 214 + dy, 27, 217 + dy, Color.BLACK);
+    line(38, 217 + dy, 44, 214 + dy, Color.BLACK);
 
     /* teeth */
-    triangle(15, 225 + dy, 20, 230 + dy, 25, 225 + dy, color(255, 255, 255), color(0, 0, 0));
-    triangle(50, 225 + dy, 55, 230 + dy, 60, 225 + dy, color(255, 255, 255), color(0, 0, 0));
+    triangle(15, 225 + dy, 20, 230 + dy, 25, 225 + dy, Color.WHITE, Color.BLACK);
+    triangle(50, 225 + dy, 55, 230 + dy, 60, 225 + dy, Color.WHITE, Color.BLACK);
 
     /* right front leg */
-    triangle(135, 240 + dy, 170 + dx, 275 + dy, 175, 225 + dy, color(255, 153, 188), color(255, 153, 188));
-    triangle(159, 265 + dy, 170 + dx, 275 + dy, 176, 260 + dy, color(255, 255, 255), color(255, 255, 255));
-    line(135, 240 + dy, 170 + dx, 275 + dy, color(0, 0, 0));
-    line(175, 225 + dy, 170 + dx, 275 + dy, color(0, 0, 0));
+    triangle(135, 240 + dy, 170 + dx, 275 + dy, 175, 225 + dy, Color(255, 153, 188), Color(255, 153, 188));
+    triangle(159, 265 + dy, 170 + dx, 275 + dy, 176, 260 + dy, Color.WHITE, Color.WHITE);
+    line(135, 240 + dy, 170 + dx, 275 + dy, Color.BLACK);
+    line(175, 225 + dy, 170 + dx, 275 + dy, Color.BLACK);
 }</code></pre>
 </body>
 </html>
