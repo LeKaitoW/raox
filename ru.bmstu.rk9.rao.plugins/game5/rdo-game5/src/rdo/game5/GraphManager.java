@@ -11,7 +11,6 @@ import org.eclipse.ui.PlatformUI;
 import org.json.simple.JSONArray;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
-import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphInfoWindow;
 import ru.bmstu.rk9.rao.ui.graph.GraphView;
 import ru.bmstu.rk9.rao.ui.graph.GraphView.GraphEvent;
