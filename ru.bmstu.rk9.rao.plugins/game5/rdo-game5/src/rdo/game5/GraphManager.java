@@ -47,7 +47,7 @@ public class GraphManager {
 			GridLayout boardLayout = new GridLayout(3, false);
 			boardGroup.setLayout(boardLayout);
 			boardGroup.setText("Board");
-			creteBoard(boardGroup);
+			createBoard(boardGroup);
 			graph.getGraphInfoWindow().updateContents();
 		}
 	};
@@ -116,7 +116,7 @@ public class GraphManager {
 		return nodeOrder;
 	}
 
-	private final void creteBoard(final Group boardGroup) {
+	private final void createBoard(final Group boardGroup) {
 		for (int i = 0; i < tilesCountX * tilesCountY; i++) {
 			tiles.add(new TileButton(boardGroup, SWT.NONE, currentOrder.get(i)
 					.toString(), i + 1));
