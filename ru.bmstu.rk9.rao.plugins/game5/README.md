@@ -26,4 +26,4 @@ git clone git@github.com:lekaitow/rdo-game5.git
 
 ## Running  
 * `Window` `>` `Open Perspective` `>` `Other...` `>` `Rao`
-* `Plugins` > `Game 5` > `Model name:`(must be valid java identificator) > `Ok`
+* `Plugins` > `Game 5` > `Model name:` > `Ok`
