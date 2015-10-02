@@ -14,6 +14,7 @@ class FrameCompiler
 
 		import ru.bmstu.rk9.rao.lib.*;
 		import ru.bmstu.rk9.rao.lib.animation.*;
+		import ru.bmstu.rk9.rao.lib.animation.RaoColor.*;
 		import ru.bmstu.rk9.rao.lib.simulator.*;
 		@SuppressWarnings("all")
 
@@ -33,25 +34,21 @@ class FrameCompiler
 				«frame.frame.compileStatement»
 			}
 
-			private int[] backgroundData = new int[]
-			{
+			private BackgroundData backgroundData = new BackgroundData(
 				«IF frame.backPicture != null»
 					«IF frame.backPicture.size != null»
 						«frame.backPicture.size.width», «frame.backPicture.size.height»,
 					«ELSE»
 						800, 600,
 					«ENDIF»
-					«frame.backPicture.colour.r
-					», «frame.backPicture.colour.g
-					», «frame.backPicture.colour.b»
+					«frame.backPicture.color.compileFrameColor»
 				«ELSE»
-				800, 600,
-				255, 255, 255
+				800, 600, RaoColor.COLOR_WHITE
 				«ENDIF»
-			};
+			);
 
 			@Override
-			public int[] getBackgroundData()
+			public BackgroundData getBackgroundData()
 			{
 				return backgroundData;
 			}

@@ -357,15 +357,42 @@ Frame:
 ;
 
 FrameBackPicture:
-	'background' '(' (size = FrameSize ',')? colour = FrameColour ')' ';'
+	'background' '(' (size = FrameSize ',')? color = FrameColor ')' ';'
 ;
 
 FrameSize:
 	width = INT ',' height = INT
 ;
 
-FrameColour:
-	'color' '(' r = INT ',' g = INT ',' b = INT ( ',' alpha = INT)? ')'
+FrameColor:
+	(colorExplicit = FrameColorExplicit | colorPredefined = FrameColorPredefined)
+;
+
+FrameColorExplicit:
+	'Color' '(' r = INT ',' g = INT ',' b = INT ( ',' alpha = INT)? ')'
+;
+
+FrameColorPredefined:
+	'Color' '.' standardColor = FrameColorPredefinedValue
+;
+
+enum FrameColorPredefinedValue
+	: BLACK = 'BLACK'
+	| BLUE = 'BLUE'
+	| CYAN = 'CYAN'
+	| DARK_BLUE = 'DARK_BLUE'
+	| DARK_CYAN = 'DARK_CYAN'
+	| DARK_GRAY = 'DARK_GRAY'
+	| DARK_GREEN = 'DARK_GREEN'
+	| DARK_MAGENTA = 'DARK_MAGENTA'
+	| DARK_RED = 'DARK_RED'
+	| DARK_YELLOW = 'DARK_YELLOW'
+	| GRAY = 'GRAY'
+	| GREEN = 'GREEN'
+	| MAGENTA = 'MAGENTA'
+	| RED = 'RED'
+	| WHITE = 'WHITE'
+	| YELLOW = 'YELLOW'
 ;
 
 FrameStatementList returns StatementList:
@@ -416,12 +443,13 @@ FrameObject
 
 FrameObjectText:
 	'text' '('
-		x = ExpressionOr ',' y = ExpressionOr ','
-		width = ExpressionOr ',' height = ExpressionOr ','
-		backColour = FrameColour ','
-		textcolour = FrameColour ','
-		('Alignment' '.' alignment = FrameAlignment ',')? text = ExpressionOr
+		text = ExpressionOr ',' x = ExpressionOr ',' y = ExpressionOr ','
+		textColor = FrameColor (',' area = FrameObjectTextArea)?
 	')' ';'
+;
+
+FrameObjectTextArea:
+	width = ExpressionOr ',' 'Alignment' '.' alignment = FrameAlignment
 ;
 
 enum FrameAlignment
@@ -434,8 +462,8 @@ FrameObjectRectangle:
 	'rectangle' '('
 		x = ExpressionOr ',' y = ExpressionOr ','
 		width = ExpressionOr ',' height = ExpressionOr ','
-		backColour = FrameColour ','
-		borderColour = FrameColour
+		backColor = FrameColor ','
+		borderColor = FrameColor
 	')' ';'
 ;
 
@@ -443,7 +471,7 @@ FrameObjectLine:
 	'line' '('
 		x1 = ExpressionOr ',' y1 = ExpressionOr ','
 		x2 = ExpressionOr ',' y2 = ExpressionOr ','
-		colour = FrameColour
+		color = FrameColor
 	')' ';'
 ;
 
@@ -451,8 +479,8 @@ FrameObjectCircle:
 	'circle' '('
 		x = ExpressionOr ',' y = ExpressionOr ','
 		radius = ExpressionOr ','
-		backColour = FrameColour ','
-		borderColour = FrameColour
+		backColor = FrameColor ','
+		borderColor = FrameColor
 	')' ';'
 ;
 
@@ -460,8 +488,8 @@ FrameObjectEllipse:
 	'ellipse' '('
 		x = ExpressionOr ',' y = ExpressionOr ','
 		width = ExpressionOr ',' height = ExpressionOr ','
-		backColour = FrameColour ','
-		borderColour = FrameColour
+		backColor = FrameColor ','
+		borderColor = FrameColor
 	')' ';'
 ;
 
@@ -470,8 +498,8 @@ FrameObjectTriangle:
 		x1 = ExpressionOr ',' y1 = ExpressionOr ','
 		x2 = ExpressionOr ',' y2 = ExpressionOr ','
 		x3 = ExpressionOr ',' y3 = ExpressionOr ','
-		backColour = FrameColour ','
-		borderColour = FrameColour
+		backColor = FrameColor ','
+		borderColor = FrameColor
 	')' ';'
 ;
 

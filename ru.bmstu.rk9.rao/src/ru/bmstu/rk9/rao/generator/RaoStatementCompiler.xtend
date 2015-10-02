@@ -24,7 +24,7 @@ import ru.bmstu.rk9.rao.rao.FrameObjectLine
 import ru.bmstu.rk9.rao.rao.FrameObjectCircle
 import ru.bmstu.rk9.rao.rao.FrameObjectEllipse
 import ru.bmstu.rk9.rao.rao.FrameObjectTriangle
-import ru.bmstu.rk9.rao.rao.FrameColour
+import ru.bmstu.rk9.rao.rao.FrameColor
 import ru.bmstu.rk9.rao.rao.ResourceCreateStatement
 import ru.bmstu.rk9.rao.rao.ResourceEraseStatement
 import ru.bmstu.rk9.rao.rao.ResourceType
@@ -251,15 +251,14 @@ class RaoStatementCompiler
 						'''
 						context.drawText
 						(
+							String.valueOf(«statement.text.compileExpression.value»),
 							(int) («statement.x.compileExpression.value»),
 							(int) («statement.y.compileExpression.value»),
-							(int) («statement.width.compileExpression.value»),
-							(int) («statement.height.compileExpression.value»),
-							«statement.backColour.compileFrameColour»,
-							«statement.textcolour.compileFrameColour»,
-							AnimationContext.Alignment.«IF statement.alignment != null
-								»«statement.alignment.getName»«ELSE»LEFT«ENDIF»,
-							«statement.text.compileExpression.value»
+							«statement.textColor.compileFrameColor»
+							«IF statement.area != null»,
+							(int) («statement.area.width.compileExpression.value»),
+							AnimationContext.Alignment.«statement.area.alignment.getName»
+							«ENDIF»
 						);
 						'''
 					FrameObjectRectangle:
@@ -270,8 +269,8 @@ class RaoStatementCompiler
 							(int) («statement.y.compileExpression.value»),
 							(int) («statement.width.compileExpression.value»),
 							(int) («statement.height.compileExpression.value»),
-							«statement.backColour.compileFrameColour»,
-							«statement.borderColour.compileFrameColour»
+							«statement.backColor.compileFrameColor»,
+							«statement.borderColor.compileFrameColor»
 						);
 						'''
 					FrameObjectLine:
@@ -282,7 +281,7 @@ class RaoStatementCompiler
 							(int) («statement.y1.compileExpression.value»),
 							(int) («statement.x2.compileExpression.value»),
 							(int) («statement.y2.compileExpression.value»),
-							«statement.colour.compileFrameColour»
+							«statement.color.compileFrameColor»
 						);
 						'''
 					FrameObjectCircle:
@@ -292,8 +291,8 @@ class RaoStatementCompiler
 							(int) («statement.x.compileExpression.value»),
 							(int) («statement.y.compileExpression.value»),
 							(int) («statement.radius.compileExpression.value»),
-							«statement.backColour.compileFrameColour»,
-							«statement.borderColour.compileFrameColour»
+							«statement.backColor.compileFrameColor»,
+							«statement.borderColor.compileFrameColor»
 						);
 						'''
 					FrameObjectEllipse:
@@ -304,8 +303,8 @@ class RaoStatementCompiler
 							(int) («statement.y.compileExpression.value»),
 							(int) («statement.width.compileExpression.value»),
 							(int) («statement.height.compileExpression.value»),
-							«statement.backColour.compileFrameColour»,
-							«statement.borderColour.compileFrameColour»
+							«statement.backColor.compileFrameColor»,
+							«statement.borderColor.compileFrameColor»
 						);
 						'''
 					FrameObjectTriangle:
@@ -318,17 +317,23 @@ class RaoStatementCompiler
 							(int) («statement.y2.compileExpression.value»),
 							(int) («statement.x3.compileExpression.value»),
 							(int) («statement.y3.compileExpression.value»),
-							«statement.backColour.compileFrameColour»,
-							«statement.borderColour.compileFrameColour»
+							«statement.backColor.compileFrameColor»,
+							«statement.borderColor.compileFrameColor»
 						);
 						'''
 				}
 		}
 	}
 
-	def static String compileFrameColour(FrameColour colour)
+	def static String compileFrameColor(FrameColor color)
 	{
-		'''new int[] {«colour.r», «colour.g
-			», «colour.b», «255 - colour.alpha»}'''
+		if (color.colorPredefined != null) {
+			return '''RaoColor.COLOR_«color.colorPredefined.standardColor»'''
+		}
+
+		return '''new RaoColor («color.colorExplicit.r», «
+				color.colorExplicit.g», «
+				color.colorExplicit.b», «
+				255 - color.colorExplicit.alpha»)'''
 	}
 }
