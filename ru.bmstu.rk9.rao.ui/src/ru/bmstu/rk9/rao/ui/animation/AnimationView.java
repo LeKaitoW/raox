@@ -28,6 +28,7 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.part.ViewPart;
 
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
+import ru.bmstu.rk9.rao.lib.animation.BackgroundData;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 import ru.bmstu.rk9.rao.ui.simulation.SimulationModeDispatcher;
 import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer.ExecutionMode;
@@ -61,9 +62,9 @@ public class AnimationView extends ViewPart {
 	private static void setCurrentFrame(AnimationFrame frame) {
 		currentFrame = frame;
 
-		int[] backgroundData = frame.getBackgroundData();
+		BackgroundData backgroundData = frame.getBackgroundData();
 
-		setFrameSize(backgroundData[0], backgroundData[1]);
+		setFrameSize(backgroundData.width, backgroundData.height);
 
 		frameView.redraw();
 	}

@@ -281,6 +281,10 @@ class RaoValidator extends AbstractRaoValidator
 
 		for (eObject : checklist)
 		{
+			if (eObject.nameGeneric.equals(model.nameGeneric))
+				error("Error - object cannot have the same name as model ('" + eObject.nameGeneric + "').",
+						eObject, eObject.getNameStructuralFeature)
+
 			val name = eObject.fullyQualifiedName
 			if (entities.contains(name))
 			{
@@ -305,7 +309,7 @@ class RaoValidator extends AbstractRaoValidator
 	}
 
 	@Check
-	def checkNamesInPatterns (Pattern pattern)
+	def checkNamesInPatterns(Pattern pattern)
 	{
 		val List<EObject> parameters  = pattern.eAllContents.filter[eObject |
 			eObject instanceof Parameter

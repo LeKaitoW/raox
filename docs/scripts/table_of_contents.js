@@ -11,7 +11,7 @@ function fillContents(ul, contents) {
     }
 }
 
-function generateSidebar(referenceContents, tutorialContents) {
+function generateSidebar(referenceContents, tutorialContents, userGuideContents) {
     var body = $("body");
 
     var wrapper = $("<div>");
@@ -43,6 +43,10 @@ function generateSidebar(referenceContents, tutorialContents) {
     tutorialList.html("Руководство по изучению языка");
     var tutorialNestedList = $("<ul>");
 
+    var userGuideList = $("<li>");
+    userGuideList.html("Руководство пользователя");
+    var userGuideNestedList = $("<ul>");
+
     fillContents(referenceNestedList, referenceContents);
     referenceNestedList.appendTo(referenceList);
     referenceList.appendTo(commonList);
@@ -50,6 +54,10 @@ function generateSidebar(referenceContents, tutorialContents) {
     fillContents(tutorialNestedList, tutorialContents);
     tutorialNestedList.appendTo(tutorialList);
     tutorialList.appendTo(commonList);
+
+    fillContents(userGuideNestedList, userGuideContents);
+    userGuideNestedList.appendTo(userGuideList);
+    userGuideList.appendTo(commonList);
 
     header.appendTo(sidebarNav);
     commonList.appendTo(sidebarNav);
@@ -131,6 +139,29 @@ function getTutorialContents() {
     return contents;
 }
 
+function getUserGuideContents() {
+    var contents = [
+        {
+            "href":"../user_guide/first_run.html",
+            "title":"Первый запуск"
+        },
+        {
+            "href":"../user_guide/model_create.html",
+            "title":"Создание модели"
+        },
+        {
+            "href":"../user_guide/model_run.html",
+            "title":"Запуск модели"
+        },
+        {
+            "href":"../user_guide/model_import.html",
+            "title":"Импорт модели"
+        }
+    ];
+
+    return contents;
+}
+
 $(document).ready(function() {
-    generateSidebar(getReferenceContents(), getTutorialContents());
+    generateSidebar(getReferenceContents(), getTutorialContents(), getUserGuideContents());
 });
