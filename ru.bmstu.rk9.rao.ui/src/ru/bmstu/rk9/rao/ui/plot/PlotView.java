@@ -214,11 +214,7 @@ public class PlotView extends ViewPart {
 			String[] enumLabels = new String[axisSymbols.size()];
 			enumLabels = axisSymbols.toArray(enumLabels);
 
-			final FontRegistry fontRegistry = PlatformUI.getWorkbench()
-					.getThemeManager().getCurrentTheme().getFontRegistry();
-			final String fontName = fontRegistry.get(
-					PreferenceConstants.EDITOR_TEXT_FONT).getFontData()[0]
-					.getName();
+			final String fontName = chart.getTitle().getFont().getName();
 
 			final Font font = new Font(fontName, Font.PLAIN, 10);
 			rangeAxis = new SymbolAxis("", enumLabels);
