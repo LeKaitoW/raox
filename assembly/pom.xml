@@ -8,12 +8,69 @@
 		<artifactId>parent</artifactId>
 		<version>1.0.0</version>
 	</parent>
-	
+
 	<artifactId>assembly</artifactId>
 	<name>Package binaries</name>
 
+	<properties>
+		<replace-token>-product</replace-token>
+		<replace-value>
+-perspective${line.separator}
+ru.bmstu.rk9.rao.ui.perspective${line.separator}
+-product
+		</replace-value>
+	</properties>
+
 	<build>
 		<plugins>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.7</version>
+				<executions>
+					<execution>
+					<id>copy-eclipse-ini</id>
+					<phase>prepare-package</phase>
+					<goals>
+						<goal>copy-resources</goal>
+					</goals>
+					<configuration>
+						<overwrite>true</overwrite>
+						<outputDirectory>${basedir}/target</outputDirectory>
+						<resources>
+							<resource>
+								<directory>../../eclipse</directory>
+								<includes>
+									<include>eclipse.ini</include>
+								</includes>
+							</resource>
+						</resources>
+					</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.google.code.maven-replacer-plugin</groupId>
+				<artifactId>replacer</artifactId>
+				<version>1.5.3</version>
+				<executions>
+					<execution>
+					<phase>prepare-package</phase>
+					<goals>
+						<goal>replace</goal>
+					</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<ignoreMissingFile>true</ignoreMissingFile>
+					<file>${basedir}/target/eclipse.ini</file>
+					<replacements>
+						<replacement>
+							<token>${replace-token}</token>
+							<value>${replace-value}</value>
+						</replacement>
+					</replacements>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
