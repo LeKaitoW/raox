@@ -2,7 +2,7 @@
 	<formats>
 		<format>zip</format>
 	</formats>
-	<id>make-assembly</id>
+	<id>${rao-version}</id>
 	<fileSets>
 		<fileSet>
 			<directory>../../eclipse</directory>
