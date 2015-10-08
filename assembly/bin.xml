@@ -5,7 +5,7 @@
 	<id>${rao-version}</id>
 	<fileSets>
 		<fileSet>
-			<directory>../../eclipse</directory>
+			<directory>${eclipse-path}</directory>
 			<outputDirectory>/</outputDirectory>
 		</fileSet>
 		<fileSet>
