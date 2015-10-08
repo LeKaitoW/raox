@@ -13,12 +13,12 @@
 	<name>Package binaries</name>
 
 	<properties>
-		<replace-token>-product</replace-token>
-		<replace-value>
+		<set_rao_perspective-token>-product</set_rao_perspective-token>
+		<set_rao_perspective-value>
 -perspective${line.separator}
 ru.bmstu.rk9.rao.ui.perspective${line.separator}
 -product
-		</replace-value>
+		</set_rao_perspective-value>
 	</properties>
 
 	<build>
@@ -65,8 +65,8 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 					<file>${basedir}/target/eclipse.ini</file>
 					<replacements>
 						<replacement>
-							<token>${replace-token}</token>
-							<value>${replace-value}</value>
+							<token>${set_rao_perspective-token}</token>
+							<value>${set_rao_perspective-value}</value>
 						</replacement>
 					</replacements>
 				</configuration>
