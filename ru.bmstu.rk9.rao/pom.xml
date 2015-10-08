@@ -65,12 +65,12 @@
 					<dependency>
 						<groupId>org.eclipse.xtext</groupId>
 						<artifactId>org.eclipse.xtext.xtext</artifactId>
-						<version>${xtext.version}</version>
+						<version>${xtext-version}</version>
 					</dependency>
 					<dependency>
 						<groupId>org.eclipse.xtext</groupId>
 						<artifactId>org.eclipse.xtext.xbase</artifactId>
-						<version>${xtext.version}</version>
+						<version>${xtext-version}</version>
 					</dependency>
 					<dependency>
 						<groupId>org.eclipse.equinox</groupId>
