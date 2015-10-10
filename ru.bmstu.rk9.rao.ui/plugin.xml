@@ -455,11 +455,11 @@
   <extension
         point="org.eclipse.ui.handlers">
      <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.build.BuildHandler"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.execution.BuildModelHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.build">
      </handler>
      <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.run.ExecutionHandler"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.execution.StartExecutionHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.execute">
         <enabledWhen>
            <with
@@ -471,7 +471,7 @@
         </enabledWhen>
      </handler>
      <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.run.StoppingHandler"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.execution.StopExecutionHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.stop">
         <enabledWhen>
            <with
@@ -483,7 +483,7 @@
         </enabledWhen>
      </handler>
      <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.simulation.SetExecutionModeHandler"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.simulation.SetSimulationModeHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode">
      </handler>
      <handler

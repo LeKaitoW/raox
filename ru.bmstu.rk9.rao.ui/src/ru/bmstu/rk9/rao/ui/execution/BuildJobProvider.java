@@ -1,8 +1,5 @@
-package ru.bmstu.rk9.rao.ui.build;
+package ru.bmstu.rk9.rao.ui.execution;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,22 +12,14 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaModelMarker;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISaveableFilter;
@@ -47,128 +36,61 @@ import org.eclipse.xtext.ui.editor.XtextEditor;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 import org.eclipse.xtext.validation.CheckMode;
-import org.osgi.framework.Bundle;
 
 import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
+import ru.bmstu.rk9.rao.ui.RaoActivatorExtension;
 
-public class ModelBuilder {
-	private static String checkRaoLib(IProject project, IProgressMonitor monitor) {
-		String libBundleName = "ru.bmstu.rk9.rao.lib";
-		Bundle lib = Platform.getBundle(libBundleName);
-		try {
-			File libPath = FileLocator.getBundleFile(lib);
-			if (libPath == null)
-				return "Build failed: cannot locate bundle " + libBundleName;
+public class BuildJobProvider {
+	private final IMultipleResourceGenerator generator;
+	private final EclipseResourceFileSystemAccess2 fsa;
+	private final IResourceSetProvider resourceSetProvider;
+	private final EclipseOutputConfigurationProvider outputConfigurationProvider;
+	private final DefaultResourceUIValidatorExtension validatorExtension;
+	private final ExecutionEvent buildEvent;
 
-			IJavaProject jProject = JavaCore.create(project);
+	private IProject project;
+	private final String pluginId = RaoActivatorExtension.getInstance()
+			.getBundle().getSymbolicName();
 
-			IClasspathEntry[] projectClassPathArray = jProject
-					.getRawClasspath();
-
-			IPath libPathBinary;
-			if (libPath.isDirectory())
-				libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
-			else
-				libPathBinary = new Path(libPath.getAbsolutePath());
-
-			boolean libInClasspath = false;
-			for (IClasspathEntry classpathEntry : projectClassPathArray) {
-				if (classpathEntry.getPath().equals(libPathBinary)) {
-					libInClasspath = true;
-					break;
-				}
-			}
-
-			if (!libInClasspath) {
-				List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
-						Arrays.asList(projectClassPathArray));
-				IClasspathEntry libEntry = JavaCore.newLibraryEntry(
-						libPathBinary, null, null);
-				projectClassPathList.add(libEntry);
-
-				jProject.setRawClasspath(
-						(IClasspathEntry[]) projectClassPathList
-								.toArray(new IClasspathEntry[projectClassPathList
-										.size()]), monitor);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "Build failed: internal error while checking rao lib:\n"
-					+ e.getMessage();
-		}
-
-		return null;
-	}
-
-	private static String checkSrcGen(IProject project, IFolder srcGenFolder,
-			IProgressMonitor monitor) {
-		IJavaProject jProject = JavaCore.create(project);
-		try {
-			IClasspathEntry[] projectClassPathArray;
-			projectClassPathArray = jProject.getRawClasspath();
-			List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
-					Arrays.asList(projectClassPathArray));
-
-			if (srcGenFolder.exists()) {
-				for (IResource resource : srcGenFolder.members(true))
-					resource.delete(true, new NullProgressMonitor());
-			} else {
-				srcGenFolder.create(true, true, new NullProgressMonitor());
-			}
-
-			boolean srcGenInClasspath = false;
-			for (IClasspathEntry classpathEntry : projectClassPathArray) {
-				if (classpathEntry.getPath().equals(srcGenFolder.getFullPath())) {
-					srcGenInClasspath = true;
-					break;
-				}
-			}
-
-			if (!srcGenInClasspath) {
-				IClasspathEntry libEntry = JavaCore.newSourceEntry(
-						srcGenFolder.getFullPath(), null, null);
-				projectClassPathList.add(libEntry);
-
-				jProject.setRawClasspath(
-						(IClasspathEntry[]) projectClassPathList
-								.toArray(new IClasspathEntry[projectClassPathList
-										.size()]), monitor);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "Build failed: internal error while checking src-gen:\n"
-					+ e.getMessage();
-		}
-
-		return null;
-	}
-
-	public static Job build(final ExecutionEvent event,
+	public BuildJobProvider(final ExecutionEvent event,
 			final EclipseResourceFileSystemAccess2 fsa,
 			final IResourceSetProvider resourceSetProvider,
 			final EclipseOutputConfigurationProvider ocp,
 			final IMultipleResourceGenerator generator,
 			final DefaultResourceUIValidatorExtension validatorExtension) {
-		final String pluginId = "ru.bmstu.rk9.rao.ui";
+		this.buildEvent = event;
+		this.fsa = fsa;
+		this.resourceSetProvider = resourceSetProvider;
+		this.outputConfigurationProvider = ocp;
+		this.generator = generator;
+		this.validatorExtension = validatorExtension;
+	}
+
+	public IProject getBuiltProject() {
+		return project;
+	}
+
+	public final Job createBuildJob() {
 		Job buildJob = new Job("Building Rao model") {
 			protected IStatus run(IProgressMonitor monitor) {
-				IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
+				IEditorPart activeEditor = HandlerUtil
+						.getActiveEditor(buildEvent);
 				if (activeEditor == null)
 					return new Status(Status.ERROR, pluginId,
-							"Build failed: no editor opened.");
+							BuildUtil.createErrorMessage("no editor opened."));
 
-				final IProject project = BuildUtil.getProject(activeEditor);
+				project = BuildUtil.getProject(activeEditor);
 				if (project == null)
 					return new Status(
 							Status.ERROR,
 							pluginId,
-							"Build failed: file '"
+							BuildUtil.createErrorMessage("file '"
 									+ activeEditor.getTitle()
-									+ "' is not a part of any project in workspace.");
+									+ "' is not a part of any project in workspace."));
 
 				final Display display = PlatformUI.getWorkbench().getDisplay();
 				IWorkbenchWindow workbenchWindow = HandlerUtil
-						.getActiveWorkbenchWindow(event);
+						.getActiveWorkbenchWindow(buildEvent);
 
 				ISaveableFilter filter = new ISaveableFilter() {
 					@Override
@@ -195,31 +117,28 @@ public class ModelBuilder {
 				display.syncExec(() -> PlatformUI.getWorkbench().saveAll(
 						workbenchWindow, workbenchWindow, filter, true));
 
-				String libErrorMessage = checkRaoLib(project, monitor);
+				String libErrorMessage = BuildUtil
+						.checkRaoLib(project, monitor);
 				if (libErrorMessage != null)
-					return new Status(Status.ERROR, pluginId, libErrorMessage);
-
-				IJobManager jobManager = Job.getJobManager();
-				try {
-					for (Job projectJob : jobManager.find(project.getName()))
-						projectJob.join();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+					return new Status(Status.ERROR, pluginId,
+							BuildUtil.createErrorMessage(libErrorMessage));
 
 				final List<IResource> raoFiles = BuildUtil
 						.getAllRaoFilesInProject(project);
 				if (raoFiles.isEmpty()) {
-					return new Status(Status.ERROR, pluginId,
-							"Build failed: project contains no rao files");
+					return new Status(
+							Status.ERROR,
+							pluginId,
+							BuildUtil
+									.createErrorMessage("project contains no rao files"));
 				}
 
 				IFolder srcGenFolder = project.getFolder("src-gen");
-				String srcGenErrorMessage = checkSrcGen(project, srcGenFolder,
-						monitor);
+				String srcGenErrorMessage = BuildUtil.checkSrcGen(project,
+						srcGenFolder, monitor);
 				if (srcGenErrorMessage != null)
 					return new Status(Status.ERROR, pluginId,
-							srcGenErrorMessage);
+							BuildUtil.createErrorMessage(srcGenErrorMessage));
 
 				final ResourceSet resourceSet = resourceSetProvider
 						.get(project);
@@ -249,7 +168,8 @@ public class ModelBuilder {
 						return new Status(
 								Status.ERROR,
 								pluginId,
-								"Build failed: internal error whule calculating model error markers",
+								BuildUtil
+										.createErrorMessage("internal error whule calculating model error markers"),
 								e);
 					}
 				}
@@ -261,7 +181,7 @@ public class ModelBuilder {
 						e.printStackTrace();
 					}
 					return new Status(Status.ERROR, pluginId,
-							"Build failed: model has errors");
+							BuildUtil.createErrorMessage("model has errors"));
 				}
 
 				fsa.setOutputPath(srcGenFolder.getFullPath().toString());
@@ -271,7 +191,7 @@ public class ModelBuilder {
 
 				Map<String, OutputConfiguration> outputConfigurations = new HashMap<String, OutputConfiguration>();
 
-				for (OutputConfiguration oc : ocp
+				for (OutputConfiguration oc : outputConfigurationProvider
 						.getOutputConfigurations(project))
 					outputConfigurations.put(oc.getName(), oc);
 
@@ -284,8 +204,12 @@ public class ModelBuilder {
 							monitor);
 				} catch (CoreException e) {
 					e.printStackTrace();
-					return new Status(Status.ERROR, pluginId,
-							"Build failed: could not build project", e);
+					return new Status(
+							Status.ERROR,
+							pluginId,
+							BuildUtil
+									.createErrorMessage("could not build project"),
+							e);
 				}
 
 				try {
@@ -308,7 +232,8 @@ public class ModelBuilder {
 					return new Status(
 							Status.ERROR,
 							pluginId,
-							"Build failed: internal error whule calculating generated files error markers",
+							BuildUtil
+									.createErrorMessage("internal error whule calculating generated files error markers"),
 							e);
 				}
 

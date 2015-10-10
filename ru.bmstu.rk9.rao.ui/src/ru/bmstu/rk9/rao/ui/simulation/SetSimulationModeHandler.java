@@ -8,7 +8,7 @@ import org.eclipse.ui.handlers.RadioState;
 
 import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer.ExecutionMode;
 
-public class SetExecutionModeHandler extends AbstractHandler {
+public class SetSimulationModeHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		if (HandlerUtil.matchesRadioState(event))
