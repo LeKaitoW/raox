@@ -89,26 +89,29 @@ public class BuildUtil {
 			else
 				libPathBinary = new Path(libPath.getAbsolutePath());
 
-			boolean libInClasspath = false;
-			for (IClasspathEntry classpathEntry : projectClassPathArray) {
+			List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
+					Arrays.asList(projectClassPathArray));
+
+			for (IClasspathEntry classpathEntry : projectClassPathList) {
 				if (classpathEntry.getPath().equals(libPathBinary)) {
-					libInClasspath = true;
+					System.out.println(projectClassPathList
+							.remove(classpathEntry));
+					System.out.println("found");
 					break;
 				}
 			}
 
-			if (!libInClasspath) {
-				List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
-						Arrays.asList(projectClassPathArray));
-				IClasspathEntry libEntry = JavaCore.newLibraryEntry(
-						libPathBinary, null, null);
-				projectClassPathList.add(libEntry);
+			jProject.setRawClasspath((IClasspathEntry[]) projectClassPathList
+					.toArray(new IClasspathEntry[projectClassPathList.size()]),
+					monitor);
 
-				jProject.setRawClasspath(
-						(IClasspathEntry[]) projectClassPathList
-								.toArray(new IClasspathEntry[projectClassPathList
-										.size()]), monitor);
-			}
+			IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary,
+					null, null);
+			projectClassPathList.add(libEntry);
+
+			jProject.setRawClasspath((IClasspathEntry[]) projectClassPathList
+					.toArray(new IClasspathEntry[projectClassPathList.size()]),
+					monitor);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "internal error while checking rao lib:\n" + e.getMessage();
