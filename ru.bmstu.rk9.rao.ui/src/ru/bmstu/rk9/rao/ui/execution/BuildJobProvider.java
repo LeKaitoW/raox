@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.jdt.core.IJavaModelMarker;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISaveableFilter;
@@ -47,7 +48,7 @@ public class BuildJobProvider {
 	private final IEditorPart activeEditor;
 	private final IWorkbenchWindow activeWorkbenchWindow;
 
-	private IProject project;
+	private static IProject recentProject = null;
 	private final String pluginId = RaoActivatorExtension.getInstance()
 			.getBundle().getSymbolicName();
 
@@ -68,26 +69,54 @@ public class BuildJobProvider {
 	}
 
 	public IProject getBuiltProject() {
-		return project;
+		return recentProject;
 	}
 
 	public final Job createBuildJob() {
 		Job buildJob = new Job("Building Rao model") {
 			protected IStatus run(IProgressMonitor monitor) {
-				if (activeEditor == null)
-					return new Status(Status.ERROR, pluginId,
-							BuildUtil.createErrorMessage("no editor opened."));
+				final Display display = PlatformUI.getWorkbench().getDisplay();
 
-				project = BuildUtil.getProject(activeEditor);
-				if (project == null)
+				if (activeWorkbenchWindow == null)
+					return new Status(
+							Status.CANCEL,
+							pluginId,
+							BuildUtil
+									.createErrorMessage("Internal error: activeWorkbenchWindow is null"));
+
+				if (activeEditor != null) {
+					IProject project = BuildUtil.getProject(activeEditor);
+					if (project == null)
+						return new Status(
+								Status.ERROR,
+								pluginId,
+								BuildUtil.createErrorMessage("file '"
+										+ activeEditor.getTitle()
+										+ "' is not a part of any project in workspace."));
+					recentProject = project;
+				} else if (recentProject != null
+						&& recentProject.isAccessible()) {
+					Boolean[] confirmed = new Boolean[1];
+					display.syncExec(new Runnable() {
+						@Override
+						public void run() {
+							confirmed[0] = MessageDialog.openConfirm(
+									activeWorkbenchWindow.getShell(), "Build",
+									"No editor is active, building last built project '"
+											+ recentProject.getName() + "'.");
+						}
+					});
+
+					if (!confirmed[0])
+						return new Status(Status.CANCEL, pluginId,
+								BuildUtil.createErrorMessage("build cancelled"));
+				} else {
 					return new Status(
 							Status.ERROR,
 							pluginId,
-							BuildUtil.createErrorMessage("file '"
-									+ activeEditor.getTitle()
-									+ "' is not a part of any project in workspace."));
-
-				final Display display = PlatformUI.getWorkbench().getDisplay();
+							BuildUtil
+									.createErrorMessage("no editor is active, cannot choose project to build"));
+				}
 
 				ISaveableFilter filter = new ISaveableFilter() {
 					@Override
@@ -104,7 +133,8 @@ public class BuildJobProvider {
 							return false;
 
 						XtextEditor editor = (XtextEditor) part;
-						if (editor.getResource().getProject().equals(project))
+						if (editor.getResource().getProject()
+								.equals(recentProject))
 							return true;
 
 						return false;
@@ -115,14 +145,14 @@ public class BuildJobProvider {
 						activeWorkbenchWindow, activeWorkbenchWindow, filter,
 						true));
 
-				String libErrorMessage = BuildUtil
-						.checkRaoLib(project, monitor);
+				String libErrorMessage = BuildUtil.checkRaoLib(recentProject,
+						monitor);
 				if (libErrorMessage != null)
 					return new Status(Status.ERROR, pluginId,
 							BuildUtil.createErrorMessage(libErrorMessage));
 
 				final List<IResource> raoFiles = BuildUtil
-						.getAllRaoFilesInProject(project);
+						.getAllRaoFilesInProject(recentProject);
 				if (raoFiles.isEmpty()) {
 					return new Status(
 							Status.ERROR,
@@ -131,15 +161,15 @@ public class BuildJobProvider {
 									.createErrorMessage("project contains no rao files"));
 				}
 
-				IFolder srcGenFolder = project.getFolder("src-gen");
-				String srcGenErrorMessage = BuildUtil.checkSrcGen(project,
-						srcGenFolder, monitor);
+				IFolder srcGenFolder = recentProject.getFolder("src-gen");
+				String srcGenErrorMessage = BuildUtil.checkSrcGen(
+						recentProject, srcGenFolder, monitor);
 				if (srcGenErrorMessage != null)
 					return new Status(Status.ERROR, pluginId,
 							BuildUtil.createErrorMessage(srcGenErrorMessage));
 
 				final ResourceSet resourceSet = resourceSetProvider
-						.get(project);
+						.get(recentProject);
 
 				boolean projectHasErrors = false;
 
@@ -185,12 +215,12 @@ public class BuildJobProvider {
 				fsa.setOutputPath(srcGenFolder.getFullPath().toString());
 
 				fsa.setMonitor(monitor);
-				fsa.setProject(project);
+				fsa.setProject(recentProject);
 
 				Map<String, OutputConfiguration> outputConfigurations = new HashMap<String, OutputConfiguration>();
 
 				for (OutputConfiguration oc : outputConfigurationProvider
-						.getOutputConfigurations(project))
+						.getOutputConfigurations(recentProject))
 					outputConfigurations.put(oc.getName(), oc);
 
 				fsa.setOutputConfigurations(outputConfigurations);
@@ -198,7 +228,8 @@ public class BuildJobProvider {
 				generator.doGenerate(resourceSet, fsa);
 
 				try {
-					project.build(IncrementalProjectBuilder.INCREMENTAL_BUILD,
+					recentProject.build(
+							IncrementalProjectBuilder.INCREMENTAL_BUILD,
 							monitor);
 				} catch (CoreException e) {
 					e.printStackTrace();
@@ -211,7 +242,7 @@ public class BuildJobProvider {
 				}
 
 				try {
-					IMarker[] markers = project.findMarkers(
+					IMarker[] markers = recentProject.findMarkers(
 							IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true,
 							IResource.DEPTH_INFINITE);
 

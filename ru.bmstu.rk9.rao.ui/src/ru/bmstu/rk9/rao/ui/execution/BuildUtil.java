@@ -61,7 +61,7 @@ public class BuildUtil {
 		}
 	}
 
-	public static IProject getProject(IEditorPart activeEditor) {
+	static IProject getProject(IEditorPart activeEditor) {
 		IFile file = (IFile) activeEditor.getEditorInput().getAdapter(
 				IFile.class);
 		if (file == null)
