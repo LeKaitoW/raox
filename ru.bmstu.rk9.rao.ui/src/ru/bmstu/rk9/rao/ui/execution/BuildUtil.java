@@ -94,9 +94,7 @@ public class BuildUtil {
 
 			for (IClasspathEntry classpathEntry : projectClassPathList) {
 				if (classpathEntry.getPath().equals(libPathBinary)) {
-					System.out.println(projectClassPathList
-							.remove(classpathEntry));
-					System.out.println("found");
+					projectClassPathList.remove(classpathEntry);
 					break;
 				}
 			}
