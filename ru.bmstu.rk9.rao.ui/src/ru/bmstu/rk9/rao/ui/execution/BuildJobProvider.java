@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -27,7 +26,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.Saveable;
-import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
@@ -46,19 +44,22 @@ public class BuildJobProvider {
 	private final IResourceSetProvider resourceSetProvider;
 	private final EclipseOutputConfigurationProvider outputConfigurationProvider;
 	private final DefaultResourceUIValidatorExtension validatorExtension;
-	private final ExecutionEvent buildEvent;
+	private final IEditorPart activeEditor;
+	private final IWorkbenchWindow activeWorkbenchWindow;
 
 	private IProject project;
 	private final String pluginId = RaoActivatorExtension.getInstance()
 			.getBundle().getSymbolicName();
 
-	public BuildJobProvider(final ExecutionEvent event,
+	public BuildJobProvider(final IEditorPart activeEditor,
+			final IWorkbenchWindow activeWorkbenchWindow,
 			final EclipseResourceFileSystemAccess2 fsa,
 			final IResourceSetProvider resourceSetProvider,
 			final EclipseOutputConfigurationProvider ocp,
 			final IMultipleResourceGenerator generator,
 			final DefaultResourceUIValidatorExtension validatorExtension) {
-		this.buildEvent = event;
+		this.activeEditor = activeEditor;
+		this.activeWorkbenchWindow = activeWorkbenchWindow;
 		this.fsa = fsa;
 		this.resourceSetProvider = resourceSetProvider;
 		this.outputConfigurationProvider = ocp;
@@ -73,8 +74,6 @@ public class BuildJobProvider {
 	public final Job createBuildJob() {
 		Job buildJob = new Job("Building Rao model") {
 			protected IStatus run(IProgressMonitor monitor) {
-				IEditorPart activeEditor = HandlerUtil
-						.getActiveEditor(buildEvent);
 				if (activeEditor == null)
 					return new Status(Status.ERROR, pluginId,
 							BuildUtil.createErrorMessage("no editor opened."));
@@ -89,8 +88,6 @@ public class BuildJobProvider {
 									+ "' is not a part of any project in workspace."));
 
 				final Display display = PlatformUI.getWorkbench().getDisplay();
-				IWorkbenchWindow workbenchWindow = HandlerUtil
-						.getActiveWorkbenchWindow(buildEvent);
 
 				ISaveableFilter filter = new ISaveableFilter() {
 					@Override
@@ -115,7 +112,8 @@ public class BuildJobProvider {
 				};
 
 				display.syncExec(() -> PlatformUI.getWorkbench().saveAll(
-						workbenchWindow, workbenchWindow, filter, true));
+						activeWorkbenchWindow, activeWorkbenchWindow, filter,
+						true));
 
 				String libErrorMessage = BuildUtil
 						.checkRaoLib(project, monitor);

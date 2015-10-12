@@ -49,6 +49,7 @@ public class Simulator {
 	}
 
 	public static final void notifyError() {
+		onFinish(SystemEntryType.RUN_TIME_ERROR);
 		setSimulationState(SimulatorState.DEINITIALIZED);
 	}
 
@@ -191,6 +192,15 @@ public class Simulator {
 		return stop(0);
 	}
 
+	private static void onFinish(Database.SystemEntryType simFinishType) {
+		try {
+			INSTANCE.database.addSystemEntry(simFinishType);
+			notifyChange(ExecutionState.EXECUTION_COMPLETED);
+		} finally {
+			isRunning = false;
+		}
+	}
+
 	private static int stop(int code) {
 		Database.SystemEntryType simFinishType;
 		switch (code) {
@@ -207,9 +217,8 @@ public class Simulator {
 			simFinishType = SystemEntryType.RUN_TIME_ERROR;
 			break;
 		}
-		INSTANCE.database.addSystemEntry(simFinishType);
-		notifyChange(ExecutionState.EXECUTION_COMPLETED);
-		isRunning = false;
+
+		onFinish(simFinishType);
 		return code;
 	}
 }

@@ -509,12 +509,12 @@ public class SerializationConfigView extends ViewPart {
 	private static void setEnabled(boolean state) {
 		if (!readyForInput())
 			return;
-		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				serializationTreeViewer.getTree().setEnabled(state);
-			}
-		});
+		PlatformUI
+				.getWorkbench()
+				.getDisplay()
+				.asyncExec(
+						() -> serializationTreeViewer.getTree().setEnabled(
+								state));
 	}
 }
 

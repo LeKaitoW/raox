@@ -88,8 +88,6 @@ public class ExecutionJobProvider {
 						simulationResult = (int) simulation.invoke(null,
 								(Object) results);
 
-					display.syncExec(() -> AnimationView.deinitialize());
-
 					switch (simulationResult) {
 					case 1:
 						ConsoleView.addLine("Stopped by terminate condition");
@@ -110,8 +108,6 @@ public class ExecutionJobProvider {
 							+ String.valueOf(System.currentTimeMillis()
 									- startTime) + "ms");
 
-					classLoader.close();
-
 					return Status.OK_STATUS;
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -120,8 +116,11 @@ public class ExecutionJobProvider {
 					ConsoleView.printStackTrace(e);
 					Simulator.notifyError();
 
+					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
+							"Execution failed", e);
+				} finally {
+					// TODO deinitialize via notification instead
 					display.syncExec(() -> AnimationView.deinitialize());
-
 					if (classLoader != null) {
 						try {
 							classLoader.close();
@@ -129,9 +128,6 @@ public class ExecutionJobProvider {
 							e1.printStackTrace();
 						}
 					}
-
-					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
-							"Execution failed", e);
 				}
 			}
 
@@ -140,6 +136,7 @@ public class ExecutionJobProvider {
 				return ("rao_model_run").equals(family);
 			}
 		};
+
 		executionJob.setPriority(Job.LONG);
 		return executionJob;
 	}

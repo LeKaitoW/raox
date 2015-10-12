@@ -115,6 +115,8 @@ public class AnimationView extends ViewPart {
 	}
 
 	public static void deinitialize() {
+		if (!isInitialized)
+			return;
 		if (frames != null)
 			for (AnimationFrame frame : frames)
 				animationContext.prepareFrame(frame);
@@ -261,7 +263,7 @@ public class AnimationView extends ViewPart {
 
 	private static boolean isInitialized = false;
 
-	private static boolean isInitialized() {
+	static boolean isInitialized() {
 		return frameList != null && !frameList.isDisposed()
 				&& frameView != null && !frameView.isDisposed();
 	}
