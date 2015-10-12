@@ -147,20 +147,25 @@ public class Simulator {
 		notifyChange(ExecutionState.EXECUTION_ABORTED);
 	}
 
-	private int checkDPT() {
+	public enum SimulationStopCode {
+		USER_INTERRUPT, NO_MORE_EVENTS, TERMINATE_CONDITION, RUNTIME_ERROR, SIMULATION_CONTINUES
+	}
+
+	private SimulationStopCode checkDPT() {
 		while (dptManager.checkDPT() && !executionAborted) {
 			notifyChange(ExecutionState.STATE_CHANGED);
 
 			if (checkTerminate())
-				return 1;
+				return SimulationStopCode.TERMINATE_CONDITION;
 		}
 
 		if (executionAborted)
-			return -1;
-		return 0;
+			return SimulationStopCode.USER_INTERRUPT;
+
+		return SimulationStopCode.SIMULATION_CONTINUES;
 	}
 
-	public static int run() {
+	public static SimulationStopCode run() {
 		isRunning = true;
 
 		INSTANCE.database.addSystemEntry(Database.SystemEntryType.SIM_START);
@@ -169,8 +174,8 @@ public class Simulator {
 		notifyChange(ExecutionState.TIME_CHANGED);
 		notifyChange(ExecutionState.STATE_CHANGED);
 
-		int dptCheck = INSTANCE.checkDPT();
-		if (dptCheck != 0)
+		SimulationStopCode dptCheck = INSTANCE.checkDPT();
+		if (dptCheck != SimulationStopCode.SIMULATION_CONTINUES)
 			return stop(dptCheck);
 
 		while (INSTANCE.eventScheduler.haveEvents()) {
@@ -183,13 +188,13 @@ public class Simulator {
 			notifyChange(ExecutionState.STATE_CHANGED);
 
 			if (INSTANCE.checkTerminate())
-				return stop(1);
+				return stop(SimulationStopCode.TERMINATE_CONDITION);
 
 			dptCheck = INSTANCE.checkDPT();
-			if (dptCheck != 0)
+			if (dptCheck != SimulationStopCode.SIMULATION_CONTINUES)
 				return stop(dptCheck);
 		}
-		return stop(0);
+		return stop(SimulationStopCode.NO_MORE_EVENTS);
 	}
 
 	private static void onFinish(Database.SystemEntryType simFinishType) {
@@ -201,21 +206,23 @@ public class Simulator {
 		}
 	}
 
-	private static int stop(int code) {
+	private static SimulationStopCode stop(SimulationStopCode code) {
 		Database.SystemEntryType simFinishType;
 		switch (code) {
-		case -1:
+		case USER_INTERRUPT:
 			simFinishType = SystemEntryType.ABORT;
 			break;
-		case 0:
+		case NO_MORE_EVENTS:
 			simFinishType = SystemEntryType.NO_MORE_EVENTS;
 			break;
-		case 1:
+		case TERMINATE_CONDITION:
 			simFinishType = SystemEntryType.NORMAL_TERMINATION;
 			break;
-		default:
+		case RUNTIME_ERROR:
 			simFinishType = SystemEntryType.RUN_TIME_ERROR;
 			break;
+		default:
+			throw new SimulatorException("Invalid stop code");
 		}
 
 		onFinish(simFinishType);

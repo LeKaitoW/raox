@@ -20,6 +20,7 @@ import org.eclipse.ui.PlatformUI;
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
@@ -83,20 +84,24 @@ public class ExecutionJobProvider {
 					ConsoleView.addLine("Started model " + project.getName());
 
 					List<Result> results = new LinkedList<Result>();
-					int simulationResult = -1;
+					SimulationStopCode simulationResult = SimulationStopCode.SIMULATION_CONTINUES;
 					if (simulation != null)
-						simulationResult = (int) simulation.invoke(null,
-								(Object) results);
+						simulationResult = (SimulationStopCode) simulation
+								.invoke(null, (Object) results);
 
 					switch (simulationResult) {
-					case 1:
+					case TERMINATE_CONDITION:
 						ConsoleView.addLine("Stopped by terminate condition");
 						break;
-					case -1:
+					case USER_INTERRUPT:
 						ConsoleView.addLine("Model terminated by user");
 						break;
-					default:
+					case NO_MORE_EVENTS:
 						ConsoleView.addLine("No more events");
+						break;
+					default:
+						ConsoleView.addLine("Runtime error");
+						break;
 					}
 
 					for (Result result : results)
