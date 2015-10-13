@@ -32,15 +32,7 @@ class ResultCompiler
 		import java.nio.ByteBuffer;
 		import java.util.EnumSet;
 
-		import ru.bmstu.rk9.rao.lib.json.*;
-
-		import ru.bmstu.rk9.rao.lib.*;
-		import ru.bmstu.rk9.rao.lib.resource.*;
-		import ru.bmstu.rk9.rao.lib.result.*;
-		import ru.bmstu.rk9.rao.lib.database.*;
-		import ru.bmstu.rk9.rao.lib.simulator.*;
-		import ru.bmstu.rk9.rao.lib.notification.*;
-		@SuppressWarnings("all")
+		«Util.putImports»
 
 		public class «name» implements Result, Subscriber
 		{

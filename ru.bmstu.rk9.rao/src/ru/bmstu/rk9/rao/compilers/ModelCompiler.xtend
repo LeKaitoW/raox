@@ -31,13 +31,7 @@ class ModelCompiler
 		'''
 		package rao_model;
 
-		import ru.bmstu.rk9.rao.lib.json.*;
-
-		import ru.bmstu.rk9.rao.lib.*;
-		import ru.bmstu.rk9.rao.lib.resource.*;
-		import ru.bmstu.rk9.rao.lib.database.*;
-		import ru.bmstu.rk9.rao.lib.simulator.*;
-		@SuppressWarnings("all")
+		«Util.putImports»
 
 		public class «project»Model implements ModelState<«project»Model>
 		{
