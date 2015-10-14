@@ -15,7 +15,7 @@ import ru.bmstu.rk9.rao.rao.ResourceCreateStatement
 import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.ResultWatchParameter
 import ru.bmstu.rk9.rao.rao.ResultWatchValue
-import ru.bmstu.rk9.rao.rao.ResultWatchQuant
+import ru.bmstu.rk9.rao.rao.ResultWatchQuantity
 import ru.bmstu.rk9.rao.rao.ResultWatchState
 import ru.bmstu.rk9.rao.rao.ResultGetValue
 
@@ -266,9 +266,9 @@ class ModelCompiler
 				.put("type", "watchState")
 				.put("value_type", "boolean")
 				'''
-			ResultWatchQuant:
+			ResultWatchQuantity:
 				'''
-				.put("type", "watchQuant")
+				.put("type", "watchQuantity")
 				.put("value_type", "int")
 				'''
 			ResultWatchValue:

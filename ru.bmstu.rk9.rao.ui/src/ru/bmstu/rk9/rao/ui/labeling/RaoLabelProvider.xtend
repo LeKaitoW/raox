@@ -35,7 +35,7 @@ import ru.bmstu.rk9.rao.rao.DecisionPointActivity
 import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.ResultWatchParameter
 import ru.bmstu.rk9.rao.rao.ResultWatchState
-import ru.bmstu.rk9.rao.rao.ResultWatchQuant
+import ru.bmstu.rk9.rao.rao.ResultWatchQuantity
 import ru.bmstu.rk9.rao.rao.ResultWatchValue
 import ru.bmstu.rk9.rao.rao.ResultGetValue
 import ru.bmstu.rk9.rao.rao.DefaultMethod
@@ -130,7 +130,7 @@ class RaoLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelPro
 		switch declaration.type {
 			ResultWatchParameter: "watchParameter"
 			ResultWatchState: "watchState"
-			ResultWatchQuant: "watchQuant"
+			ResultWatchQuantity: "watchQuantity"
 			ResultWatchValue: "watchValue"
 			ResultGetValue: "getValue"
 		}
