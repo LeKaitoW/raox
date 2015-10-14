@@ -321,7 +321,7 @@ class ResultCompiler
 					'''«IF type.logic == null»«
 							type.resource.fullyQualifiedName».getTemporary().size()«
 						ELSE
-							»Select.Size(«type.resource.fullyQualifiedName».getTemporary(), logic)«
+							»Select.size(«type.resource.fullyQualifiedName».getTemporary(), logic)«
 						ENDIF»''',
 					"Integer"
 				);
