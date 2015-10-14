@@ -12,11 +12,8 @@ class FrameCompiler
 		'''
 		package «filename»;
 
-		import ru.bmstu.rk9.rao.lib.*;
-		import ru.bmstu.rk9.rao.lib.animation.*;
 		import ru.bmstu.rk9.rao.lib.animation.RaoColor.*;
-		import ru.bmstu.rk9.rao.lib.simulator.*;
-		@SuppressWarnings("all")
+		«Util.putImports»
 
 		public class «frame.name» implements AnimationFrame
 		{
