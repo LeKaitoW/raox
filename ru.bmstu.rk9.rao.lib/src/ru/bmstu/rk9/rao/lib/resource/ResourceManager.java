@@ -15,7 +15,6 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>> {
 	private SortedMap<Integer, T> listResources;
 
 	private Map<String, T> named;
-	private Map<Integer, T> nameless;
 
 	private Integer resourceNumber;
 
@@ -36,8 +35,6 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>> {
 
 		if (name != null)
 			named.put(name, res);
-		else
-			nameless.put(number, res);
 	}
 
 	public void eraseResource(T res) {
@@ -46,8 +43,6 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>> {
 
 		if (name != null)
 			named.remove(name);
-		else
-			nameless.remove(number);
 
 		listResources.remove(number);
 	}
@@ -64,20 +59,14 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>> {
 		return Collections.unmodifiableCollection(listResources.values());
 	}
 
-	public Collection<T> getNameless() {
-		return Collections.unmodifiableCollection(nameless.values());
-	}
-
 	public ResourceManager() {
 		this.named = new ConcurrentHashMap<String, T>();
-		this.nameless = new ConcurrentHashMap<Integer, T>();
 		this.listResources = new ConcurrentSkipListMap<Integer, T>();
 		this.resourceNumber = 0;
 	}
 
 	private ResourceManager(ResourceManager<T> source) {
 		this.named = new ConcurrentHashMap<String, T>(source.named);
-		this.nameless = new ConcurrentHashMap<Integer, T>(source.nameless);
 		this.listResources = new ConcurrentSkipListMap<Integer, T>(
 				source.listResources);
 		this.resourceNumber = source.resourceNumber;

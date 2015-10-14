@@ -106,11 +106,6 @@ class ResourceTypeCompiler
 				return managerCurrent.getAll();
 			}
 
-			public static Collection<«resourceType.name»> getNameless()
-			{
-				return managerCurrent.getNameless();
-			}
-
 			public static void eraseResource(«resourceType.name» res)
 			{
 				managerCurrent.eraseResource(res);
