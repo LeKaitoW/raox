@@ -319,9 +319,9 @@ class ResultCompiler
 				val expression = new RaoExpression
 				(
 					'''«IF type.logic == null»«
-							type.resource.fullyQualifiedName».getTemporary().size()«
+							type.resource.fullyQualifiedName».getNameless().size()«
 						ELSE
-							»Select.size(«type.resource.fullyQualifiedName».getTemporary(), logic)«
+							»Select.size(«type.resource.fullyQualifiedName».getNameless(), logic)«
 						ENDIF»''',
 					"Integer"
 				);

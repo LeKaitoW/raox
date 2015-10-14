@@ -14,8 +14,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 public class ResourceManager<T extends Resource & ResourceComparison<T>> {
 	private SortedMap<Integer, T> listResources;
 
-	private Map<String, T> permanent;
-	private Map<Integer, T> temporary;
+	private Map<String, T> named;
+	private Map<Integer, T> nameless;
 
 	private Integer resourceNumber;
 
@@ -35,9 +35,9 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>> {
 		listResources.put(number, res);
 
 		if (name != null)
-			permanent.put(name, res);
+			named.put(name, res);
 		else
-			temporary.put(number, res);
+			nameless.put(number, res);
 	}
 
 	public void eraseResource(T res) {
@@ -45,15 +45,15 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>> {
 		Integer number = res.getNumber();
 
 		if (name != null)
-			permanent.remove(name);
+			named.remove(name);
 		else
-			temporary.remove(number);
+			nameless.remove(number);
 
 		listResources.remove(number);
 	}
 
 	public T getResource(String name) {
-		return permanent.get(name);
+		return named.get(name);
 	}
 
 	public T getResource(int number) {
@@ -64,20 +64,20 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>> {
 		return Collections.unmodifiableCollection(listResources.values());
 	}
 
-	public Collection<T> getTemporary() {
-		return Collections.unmodifiableCollection(temporary.values());
+	public Collection<T> getNameless() {
+		return Collections.unmodifiableCollection(nameless.values());
 	}
 
 	public ResourceManager() {
-		this.permanent = new ConcurrentHashMap<String, T>();
-		this.temporary = new ConcurrentHashMap<Integer, T>();
+		this.named = new ConcurrentHashMap<String, T>();
+		this.nameless = new ConcurrentHashMap<Integer, T>();
 		this.listResources = new ConcurrentSkipListMap<Integer, T>();
 		this.resourceNumber = 0;
 	}
 
 	private ResourceManager(ResourceManager<T> source) {
-		this.permanent = new ConcurrentHashMap<String, T>(source.permanent);
-		this.temporary = new ConcurrentHashMap<Integer, T>(source.temporary);
+		this.named = new ConcurrentHashMap<String, T>(source.named);
+		this.nameless = new ConcurrentHashMap<Integer, T>(source.nameless);
 		this.listResources = new ConcurrentSkipListMap<Integer, T>(
 				source.listResources);
 		this.resourceNumber = source.resourceNumber;

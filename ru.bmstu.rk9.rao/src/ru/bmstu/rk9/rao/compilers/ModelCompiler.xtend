@@ -158,7 +158,6 @@ class ModelCompiler
 					(
 						new JSONObject()
 							.put("name", "«resourceType.fullyQualifiedName»")
-							.put("temporary", true)
 							.put("structure", «resourceType.fullyQualifiedName».structure)
 							.put
 							(
