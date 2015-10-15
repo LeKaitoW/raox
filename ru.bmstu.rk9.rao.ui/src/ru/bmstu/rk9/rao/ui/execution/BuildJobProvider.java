@@ -10,6 +10,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -92,24 +93,27 @@ public class BuildJobProvider {
 								+ activeEditor.getTitle()
 								+ "' is not a part of any project in workspace."));
 			recentProject = project;
-		} else if (recentProject != null && recentProject.isAccessible()) {
-			Boolean[] confirmed = new Boolean[1];
-			display.syncExec(new Runnable() {
-				@Override
-				public void run() {
-					confirmed[0] = MessageDialog.openConfirm(
-							activeWorkbenchWindow.getShell(), "Build",
-							"No editor is active.\n"
-									+ "Going to build last built project '"
-									+ recentProject.getName() + "'.\n"
-									+ "Proceed with launch?");
-				}
-			});
+			return Status.OK_STATUS;
+		}
 
-			if (!confirmed[0])
-				return new Status(Status.CANCEL, pluginId,
-						BuildUtil.createErrorMessage("build cancelled"));
+		IProject[] projectsInWorkspace = ResourcesPlugin.getWorkspace()
+				.getRoot().getProjects();
+		final IProject projectToBuild;
+		final String projectDescription;
+
+		if (projectsInWorkspace.length == 1
+				&& projectsInWorkspace[0].isAccessible()) {
+			projectToBuild = projectsInWorkspace[0];
+			projectDescription = "only opened project in workspace";
+		} else if (recentProject != null && recentProject.isAccessible()) {
+			projectToBuild = recentProject;
+			projectDescription = "last built project";
 		} else {
+			projectToBuild = null;
+			projectDescription = null;
+		}
+
+		if (projectToBuild == null) {
 			return new Status(
 					Status.ERROR,
 					pluginId,
@@ -117,6 +121,25 @@ public class BuildJobProvider {
 							.createErrorMessage("no editor is active, cannot choose project to build"));
 		}
 
+		Boolean[] confirmed = new Boolean[1];
+		display.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				confirmed[0] = MessageDialog.openConfirm(
+						activeWorkbenchWindow.getShell(),
+						"Build",
+						"No editor is active.\n" + "Going to build "
+								+ projectDescription + " '"
+								+ projectToBuild.getName() + "'.\n"
+								+ "Proceed with launch?");
+			}
+		});
+
+		if (!confirmed[0])
+			return new Status(Status.CANCEL, pluginId,
+					BuildUtil.createErrorMessage("build cancelled"));
+
+		recentProject = projectToBuild;
 		return Status.OK_STATUS;
 	}
 
