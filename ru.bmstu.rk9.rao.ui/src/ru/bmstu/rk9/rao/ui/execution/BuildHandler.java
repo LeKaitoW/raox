@@ -16,7 +16,7 @@ import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-public class BuildModelHandler extends AbstractHandler {
+public class BuildHandler extends AbstractHandler {
 	@Inject
 	private IMultipleResourceGenerator generator;
 

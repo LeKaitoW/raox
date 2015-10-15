@@ -455,7 +455,7 @@
   <extension
         point="org.eclipse.ui.handlers">
      <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.execution.BuildModelHandler"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.execution.BuildHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.build">
      </handler>
      <handler
