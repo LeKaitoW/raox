@@ -72,51 +72,62 @@ public class BuildJobProvider {
 		return recentProject;
 	}
 
+	private final IStatus setProjectToBuild() {
+		final Display display = PlatformUI.getWorkbench().getDisplay();
+
+		if (activeWorkbenchWindow == null)
+			return new Status(
+					Status.ERROR,
+					pluginId,
+					BuildUtil
+							.createErrorMessage("Internal error: activeWorkbenchWindow is null"));
+
+		if (activeEditor != null) {
+			IProject project = BuildUtil.getProject(activeEditor);
+			if (project == null)
+				return new Status(
+						Status.ERROR,
+						pluginId,
+						BuildUtil.createErrorMessage("file '"
+								+ activeEditor.getTitle()
+								+ "' is not a part of any project in workspace."));
+			recentProject = project;
+		} else if (recentProject != null && recentProject.isAccessible()) {
+			Boolean[] confirmed = new Boolean[1];
+			display.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					confirmed[0] = MessageDialog.openConfirm(
+							activeWorkbenchWindow.getShell(), "Build",
+							"No editor is active.\n"
+									+ "Going to build last built project '"
+									+ recentProject.getName() + "'.\n"
+									+ "Proceed with launch?");
+				}
+			});
+
+			if (!confirmed[0])
+				return new Status(Status.CANCEL, pluginId,
+						BuildUtil.createErrorMessage("build cancelled"));
+		} else {
+			return new Status(
+					Status.ERROR,
+					pluginId,
+					BuildUtil
+							.createErrorMessage("no editor is active, cannot choose project to build"));
+		}
+
+		return Status.OK_STATUS;
+	}
+
 	public final Job createBuildJob() {
 		Job buildJob = new Job("Building Rao model") {
 			protected IStatus run(IProgressMonitor monitor) {
 				final Display display = PlatformUI.getWorkbench().getDisplay();
 
-				if (activeWorkbenchWindow == null)
-					return new Status(
-							Status.CANCEL,
-							pluginId,
-							BuildUtil
-									.createErrorMessage("Internal error: activeWorkbenchWindow is null"));
-
-				if (activeEditor != null) {
-					IProject project = BuildUtil.getProject(activeEditor);
-					if (project == null)
-						return new Status(
-								Status.ERROR,
-								pluginId,
-								BuildUtil.createErrorMessage("file '"
-										+ activeEditor.getTitle()
-										+ "' is not a part of any project in workspace."));
-					recentProject = project;
-				} else if (recentProject != null
-						&& recentProject.isAccessible()) {
-					Boolean[] confirmed = new Boolean[1];
-					display.syncExec(new Runnable() {
-						@Override
-						public void run() {
-							confirmed[0] = MessageDialog.openConfirm(
-									activeWorkbenchWindow.getShell(), "Build",
-									"No editor is active, building last built project '"
-											+ recentProject.getName() + "'.");
-						}
-					});
-
-					if (!confirmed[0])
-						return new Status(Status.CANCEL, pluginId,
-								BuildUtil.createErrorMessage("build cancelled"));
-				} else {
-					return new Status(
-							Status.ERROR,
-							pluginId,
-							BuildUtil
-									.createErrorMessage("no editor is active, cannot choose project to build"));
-				}
+				IStatus projectSelectionStatus = setProjectToBuild();
+				if (projectSelectionStatus != Status.OK_STATUS)
+					return projectSelectionStatus;
 
 				ISaveableFilter filter = new ISaveableFilter() {
 					@Override
