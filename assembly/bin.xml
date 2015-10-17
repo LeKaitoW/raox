@@ -2,7 +2,7 @@
 	<formats>
 		<format>zip</format>
 	</formats>
-	<id>${rao-version}</id>
+	<id>${rao-version}${target-os-property}${target-bitness-property}</id>
 	<fileSets>
 		<fileSet>
 			<directory>${eclipse-path}</directory>

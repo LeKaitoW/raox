@@ -20,7 +20,34 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		<xtext-version>2.8.4</xtext-version>
 		<rao-version>2.6.0</rao-version>
 		<eclipse-path>../../eclipse</eclipse-path>
+		<target-os-property></target-os-property>
+		<target-bitness-property></target-bitness-property>
 	</properties>
+
+	<profiles>
+		<profile>
+			<id>set-bitness</id>
+			<activation>
+				<property>
+					<name>target-bitness</name>
+				</property>
+			</activation>
+			<properties>
+				<target-bitness-property>-${target-bitness}</target-bitness-property>
+			</properties>
+		</profile>
+		<profile>
+			<id>set-os</id>
+			<activation>
+				<property>
+					<name>target-os</name>
+				</property>
+			</activation>
+			<properties>
+				<target-os-property>-${target-os}</target-os-property>
+			</properties>
+		</profile>
+	</profiles>
 
 	<repositories>
 		<repository>
