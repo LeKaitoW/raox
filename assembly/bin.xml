@@ -6,7 +6,7 @@
 	<fileSets>
 		<fileSet>
 			<directory>${eclipse-path}</directory>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory>./</outputDirectory>
 		</fileSet>
 		<fileSet>
 			<directory>../ru.bmstu.rk9.rao/target</directory>
@@ -31,7 +31,7 @@
 		</fileSet>
 		<fileSet>
 			<directory>${basedir}/target</directory>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory>./</outputDirectory>
 			<includes>
 				<include>eclipse.ini</include>
 			</includes>
