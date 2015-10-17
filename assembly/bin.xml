@@ -7,6 +7,16 @@
 		<fileSet>
 			<directory>${eclipse-path}</directory>
 			<outputDirectory>./</outputDirectory>
+			<excludes>
+				<exclude>eclipse.ini</exclude>
+			</excludes>
+		</fileSet>
+		<fileSet>
+			<directory>${basedir}/target</directory>
+			<outputDirectory>./</outputDirectory>
+			<includes>
+				<include>eclipse.ini</include>
+			</includes>
 		</fileSet>
 		<fileSet>
 			<directory>../ru.bmstu.rk9.rao/target</directory>
@@ -27,13 +37,6 @@
 			<outputDirectory>dropins</outputDirectory>
 			<includes>
 				<include>ru.bmstu.rk9.rao.ui*.jar</include>
-			</includes>
-		</fileSet>
-		<fileSet>
-			<directory>${basedir}/target</directory>
-			<outputDirectory>./</outputDirectory>
-			<includes>
-				<include>eclipse.ini</include>
 			</includes>
 		</fileSet>
 	</fileSets>
