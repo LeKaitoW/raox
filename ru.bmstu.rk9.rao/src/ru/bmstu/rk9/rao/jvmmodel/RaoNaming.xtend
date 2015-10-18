@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.generator
+package ru.bmstu.rk9.rao.jvmmodel
 
 import org.eclipse.emf.common.util.URI
 

@@ -24,18 +24,13 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.services.ISourceProviderService;
-import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
-import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
-import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 
-import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.build.BuildUtil;
-import ru.bmstu.rk9.rao.ui.build.ModelBuilder;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
@@ -44,21 +39,8 @@ import ru.bmstu.rk9.rao.ui.simulation.StatusView;
 import ru.bmstu.rk9.rao.ui.trace.ExportTraceHandler;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 public class ExecutionHandler extends AbstractHandler {
-	@Inject
-	private IMultipleResourceGenerator generator;
-
-	@Inject
-	private Provider<EclipseResourceFileSystemAccess2> fileAccessProvider;
-
-	@Inject
-	private IResourceSetProvider resourceSetProvider;
-
-	@Inject
-	private EclipseOutputConfigurationProvider outputConfigurationProvider;
-
 	@Inject
 	DefaultResourceUIValidatorExtension validatorExtension;
 
@@ -89,11 +71,6 @@ public class ExecutionHandler extends AbstractHandler {
 
 		setRunningState(display, sourceProvider, true);
 
-		final Job build = ModelBuilder.build(event, fileAccessProvider.get(),
-				resourceSetProvider, outputConfigurationProvider, generator,
-				validatorExtension);
-		build.schedule();
-
 		IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
 
 		if (activeEditor == null) {
@@ -123,17 +100,7 @@ public class ExecutionHandler extends AbstractHandler {
 							job.join();
 
 					this.setName(name + " (waiting for build to complete)");
-
-					build.join();
-
 					this.setName(name);
-
-					if (build.getResult() != Status.OK_STATUS) {
-						setRunningState(display, sourceProvider, false);
-						ConsoleView.addLine("Build failed");
-						return new Status(Status.CANCEL, "ru.bmstu.rk9.rao.ui",
-								"Execution cancelled");
-					}
 
 					ConsoleView.clearConsoleText();
 
@@ -148,15 +115,12 @@ public class ExecutionHandler extends AbstractHandler {
 							Simulator.class.getClassLoader());
 
 					Class<?> modelClass = classLoader
-							.loadClass("rao_model.Embedded");
+							.loadClass("model");
 
-					Method simulation = null;
-					Method initialization = null;
+					Method run = null;
 					for (Method method : modelClass.getMethods()) {
-						if (method.getName() == "runSimulation")
-							simulation = method;
-						if (method.getName() == "initSimulation")
-							initialization = method;
+						if (method.getName() == "run")
+							run = method;
 					}
 
 					IFile modelFile = (IFile) HandlerUtil
@@ -171,8 +135,8 @@ public class ExecutionHandler extends AbstractHandler {
 
 					final List<AnimationFrame> frames = new ArrayList<AnimationFrame>();
 
-					if (initialization != null)
-						initialization.invoke(null, (Object) frames);
+					if (run != null)
+						run.invoke(null);
 
 					display.syncExec(() -> AnimationView.initialize(frames));
 
@@ -183,9 +147,6 @@ public class ExecutionHandler extends AbstractHandler {
 
 					List<Result> results = new LinkedList<Result>();
 					int simulationResult = -1;
-					if (simulation != null)
-						simulationResult = (int) simulation.invoke(null,
-								(Object) results);
 
 					display.syncExec(() -> AnimationView.deinitialize());
 

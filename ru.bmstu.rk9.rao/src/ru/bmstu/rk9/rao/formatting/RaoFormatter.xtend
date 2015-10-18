@@ -5,13 +5,13 @@ package ru.bmstu.rk9.rao.formatting
 
 import org.eclipse.xtext.formatting.impl.AbstractDeclarativeFormatter
 import org.eclipse.xtext.formatting.impl.FormattingConfig
+
 // import com.google.inject.Inject;
 // import ru.bmstu.rk9.rao.services.RaoGrammarAccess
-
 /**
  * This class contains custom formatting description.
  *
- * see : http://www.eclipse.org/Xtext/documentation.html#formatting
+ * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#formatting
  * on how and when to use it
  *
  * Also see {@link org.eclipse.xtext.xtext.XtextFormattingTokenSerializer} as an example
@@ -19,7 +19,6 @@ import org.eclipse.xtext.formatting.impl.FormattingConfig
 class RaoFormatter extends AbstractDeclarativeFormatter {
 
 //	@Inject extension RaoGrammarAccess
-
 	override protected void configureFormatting(FormattingConfig c) {
 // It's usually a good idea to activate the following three statements.
 // They will add and preserve newlines around comments

@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="src-gen"/>
+	<classpathentry kind="src" path="src-gen">
+		<attributes>
+			<attribute name="ignore_optional_problems" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="src" path="xtend-gen"/>
 	<classpathentry exported="true" kind="lib" path="thirdparty/jgraphx/lib/jgraphx.jar" sourcepath="thirdparty/jgraphx/source/src.zip"/>
 	<classpathentry exported="true" kind="lib" path="thirdparty/jfreechart/lib/jcommon-1.0.23.jar"/>

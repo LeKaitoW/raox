@@ -8,15 +8,10 @@ import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 
-import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 public class BuildHandler extends AbstractHandler {
-	@Inject
-	private IMultipleResourceGenerator generator;
-
 	@Inject
 	private Provider<EclipseResourceFileSystemAccess2> fileAccessProvider;
 
@@ -32,7 +27,7 @@ public class BuildHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ModelBuilder.build(event, fileAccessProvider.get(),
-				resourceSetProvider, outputConfigurationProvider, generator,
+				resourceSetProvider, outputConfigurationProvider,
 				validatorExtension).schedule();
 		return null;
 	}

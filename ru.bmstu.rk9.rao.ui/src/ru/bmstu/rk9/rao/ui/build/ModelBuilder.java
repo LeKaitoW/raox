@@ -49,8 +49,6 @@ import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 import org.eclipse.xtext.validation.CheckMode;
 import org.osgi.framework.Bundle;
 
-import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
-
 public class ModelBuilder {
 	private static String checkRaoLib(IProject project, IProgressMonitor monitor) {
 		String libBundleName = "ru.bmstu.rk9.rao.lib";
@@ -147,7 +145,6 @@ public class ModelBuilder {
 			final EclipseResourceFileSystemAccess2 fsa,
 			final IResourceSetProvider resourceSetProvider,
 			final EclipseOutputConfigurationProvider ocp,
-			final IMultipleResourceGenerator generator,
 			final DefaultResourceUIValidatorExtension validatorExtension) {
 		final String pluginId = "ru.bmstu.rk9.rao.ui";
 		Job buildJob = new Job("Building Rao model") {
@@ -277,7 +274,7 @@ public class ModelBuilder {
 
 				fsa.setOutputConfigurations(outputConfigurations);
 
-				generator.doGenerate(resourceSet, fsa);
+//				generator.doGenerate(resourceSet, fsa);
 
 				try {
 					project.build(IncrementalProjectBuilder.INCREMENTAL_BUILD,

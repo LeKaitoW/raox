@@ -1,194 +1,43 @@
 package ru.bmstu.rk9.rao.validation
 
-import java.util.List
-import java.util.LinkedList
 import java.util.ArrayList
-
-import java.util.Map
 import java.util.HashMap
-
-import com.google.inject.Inject
-
-import org.eclipse.xtext.validation.Check
-
-import org.eclipse.xtext.resource.IResourceDescription
-import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
-
-import org.eclipse.xtext.resource.IContainer
-
-import org.eclipse.emf.ecore.resource.Resource
-
+import java.util.List
+import java.util.Map
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
-
-import ru.bmstu.rk9.rao.generator.GlobalContext
-
-import static extension ru.bmstu.rk9.rao.generator.RaoNaming.*
-import static extension ru.bmstu.rk9.rao.generator.RaoExpressionCompiler.*
-
-import ru.bmstu.rk9.rao.rao.RaoPackage
-
+import org.eclipse.xtext.validation.Check
+import ru.bmstu.rk9.rao.rao.Constant
+import ru.bmstu.rk9.rao.rao.DecisionPoint
+import ru.bmstu.rk9.rao.rao.DecisionPointSearch
+import ru.bmstu.rk9.rao.rao.DecisionPointSome
+import ru.bmstu.rk9.rao.rao.DefaultMethod
+import ru.bmstu.rk9.rao.rao.DptCompareTopsStatement
+import ru.bmstu.rk9.rao.rao.DptEvaluateByStatement
+import ru.bmstu.rk9.rao.rao.DptSetConditionStatement
+import ru.bmstu.rk9.rao.rao.DptSetParentStatement
+import ru.bmstu.rk9.rao.rao.DptSetPriorityStatement
+import ru.bmstu.rk9.rao.rao.DptSetTerminateConditionStatement
+import ru.bmstu.rk9.rao.rao.Event
+import ru.bmstu.rk9.rao.rao.Frame
+import ru.bmstu.rk9.rao.rao.Function
+import ru.bmstu.rk9.rao.rao.FunctionType
+import ru.bmstu.rk9.rao.rao.Parameter
+import ru.bmstu.rk9.rao.rao.Pattern
+import ru.bmstu.rk9.rao.rao.PatternSelectMethod
+import ru.bmstu.rk9.rao.rao.PatternType
 import ru.bmstu.rk9.rao.rao.RaoModel
-
-import ru.bmstu.rk9.rao.rao.ResourceType
-
+import ru.bmstu.rk9.rao.rao.RaoPackage
+import ru.bmstu.rk9.rao.rao.RelevantResource
 import ru.bmstu.rk9.rao.rao.ResourceCreateStatement
-
+import ru.bmstu.rk9.rao.rao.ResourceType
+import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.Sequence
 
-import ru.bmstu.rk9.rao.rao.Constant
-
-import ru.bmstu.rk9.rao.rao.Function
-import ru.bmstu.rk9.rao.rao.FunctionTable
-
-import ru.bmstu.rk9.rao.rao.Pattern
-import ru.bmstu.rk9.rao.rao.Parameter
-import ru.bmstu.rk9.rao.rao.PatternSelectMethod
-import ru.bmstu.rk9.rao.rao.RelevantResource
-import ru.bmstu.rk9.rao.rao.Event
-
-import ru.bmstu.rk9.rao.rao.DecisionPoint
-
-import ru.bmstu.rk9.rao.rao.Frame
-
-import ru.bmstu.rk9.rao.rao.Result
-
-import ru.bmstu.rk9.rao.rao.RaoInt
-import ru.bmstu.rk9.rao.rao.RaoEnum
-import ru.bmstu.rk9.rao.rao.DefaultMethod
-import ru.bmstu.rk9.rao.rao.DecisionPointSome
-import ru.bmstu.rk9.rao.rao.DptSetConditionStatement
-import ru.bmstu.rk9.rao.rao.DptSetPriorityStatement
-import ru.bmstu.rk9.rao.rao.DptSetParentStatement
-import ru.bmstu.rk9.rao.rao.DptEvaluateByStatement
-import ru.bmstu.rk9.rao.rao.DptCompareTopsStatement
-import ru.bmstu.rk9.rao.rao.DptSetTerminateConditionStatement
-import ru.bmstu.rk9.rao.rao.DecisionPointSearch
-import ru.bmstu.rk9.rao.rao.FunctionType
-import ru.bmstu.rk9.rao.rao.PatternType
+import static extension ru.bmstu.rk9.rao.jvmmodel.RaoNaming.*
 
 class RaoValidator extends AbstractRaoValidator
 {
-
-	@Inject
-	private ResourceDescriptionsProvider resourceDescriptionsProvider
-
-	@Inject
-	private IContainer.Manager containerManager
-
-	private static List<Resource> resourceIndex = new LinkedList<Resource>
-	private static HashMap<String, GlobalContext> variableIndex = new HashMap<String, GlobalContext>
-
-	@Check
-	def exportResources(RaoModel model)
-	{
-		val index = resourceDescriptionsProvider.createResourceDescriptions
-		val resourceDescription = index.getResourceDescription(model.eResource.URI)
-
-		resourceIndex.clear
-
-		if (resourceDescription == null)
-			return
-		else
-		{
-			for (IContainer container : containerManager.getVisibleContainers(resourceDescription, index))
-				for (IResourceDescription containerResourceDescription : container.getResourceDescriptions())
-				{
-					resourceIndex.add(model.eResource.resourceSet.getResource(containerResourceDescription.URI, true))
-					if (!variableIndex.containsKey(resourceIndex.last.resourceName))
-						variableIndex.put(resourceIndex.last.resourceName, new GlobalContext)
-				}
-
-			if (variableIndex.size != resourceIndex.size)
-			{
-				variableIndex.clear
-				for (resource : resourceIndex)
-					variableIndex.put(resourceIndex.last.resourceName, new GlobalContext)
-			}
-		}
-	}
-
-	@Check
-	def exportResourceCreateStatements(ResourceCreateStatement resourceCreateStatement)
-	{
-		val model = resourceCreateStatement.modelRoot
-		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
-			return
-
-		val resourceIndex = variableIndex.get(model.nameGeneric).resources
-		val resources = model.eAllContents.filter(typeof(ResourceCreateStatement)).toMap[name]
-		for (name : resources.keySet)
-			if (resourceIndex.get(name) == null || name == resourceCreateStatement.name)
-				resourceIndex.put(name, variableIndex.get(model.nameGeneric).newResourceReference(resources.get(name)))
-
-		clearMissing(resourceIndex, resources)
-	}
-
-	@Check
-	def exportSequences(Sequence sequence)
-	{
-		val model = sequence.modelRoot
-		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
-			return
-
-		val sequenceIndex = variableIndex.get(model.nameGeneric).sequences
-		val sequences = model.eAllContents.filter(typeof(Sequence)).toMap[name]
-		for (name : sequences.keySet)
-			if (sequenceIndex.get(name) == null || name == sequence.name)
-				sequenceIndex.put(name, variableIndex.get(model.nameGeneric).newSequenceReference(sequences.get(name)))
-
-		clearMissing(sequenceIndex, sequences)
-	}
-
-	@Check
-	def exportConstants(Constant constant)
-	{
-		val model = constant.modelRoot
-		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
-			return
-
-		val constantIndex = variableIndex.get(model.nameGeneric).constants
-		val constants = model.eAllContents.filter(typeof(Constant)).toMap[name]
-		for (name : constants.keySet)
-			if (constantIndex.get(name) == null || name == constant.name)
-				constantIndex.put(name, variableIndex.get(model.nameGeneric).newConstantReference(constants.get(name)))
-
-		clearMissing(constantIndex, constants)
-	}
-
-	@Check
-	def exportFunctions(Function function)
-	{
-		val model = function.modelRoot
-		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
-			return
-
-		val functionIndex = variableIndex.get(model.nameGeneric).functions
-		val functions = model.eAllContents.filter(typeof(Function)).toMap[type.name]
-		for (name : functions.keySet)
-			if (functionIndex.get(name) == null || name == function.type.name)
-				functionIndex.put(name, variableIndex.get(model.nameGeneric).newFunctionReference(functions.get(name)))
-
-		clearMissing(functionIndex, functions)
-	}
-
-	def private clearMissing(Map<String, ?> index, Map<String, ?> model)
-	{
-		if (index.size != model.size)
-		{
-			var iter = index.keySet.iterator
-			while (iter.hasNext)
-			{
-				val next = iter.next
-				if (model.get(next) == null)
-				{
-					index.remove(next)
-					iter = index.keySet.iterator
-				}
-			}
-		}
-	}
-
 	def private checkDefaultMethodCountGeneric(EObject parent,
 			Iterable<DefaultMethod> methods,
 			Map<String, DefaultMethodsHelper.MethodInfo> counts
@@ -409,21 +258,6 @@ class RaoValidator extends AbstractRaoValidator
 						error("Pattern " + pattern.name + " already uses combinational approach for relevant resources search",
 							selectMethod.eContainer, RaoPackage.eINSTANCE.relevantResource_SelectMethod)}
 			}
-	}
-
-	@Check
-	def checkTableParameters(FunctionTable function)
-	{
-		if (function.parameters == null)
-			return;
-
-		for (parameter : function.parameters)
-		{
-			val actual = parameter.type.resolveAllTypes
-			if (!(actual instanceof RaoEnum || (actual instanceof RaoInt && (actual as RaoInt).range != null)))
-				error("Invalid parameter type. Table function allows enumerative and ranged integer parameters only",
-					parameter, RaoPackage.eINSTANCE.functionParameter_Type)
-		}
 	}
 
 	@Check

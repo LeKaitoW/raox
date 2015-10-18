@@ -11,7 +11,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 
-import ru.bmstu.rk9.rao.generator.RaoNaming;
+import ru.bmstu.rk9.rao.jvmmodel.RaoNaming;
 import ru.bmstu.rk9.rao.lib.database.Database.SerializationCategory;
 import ru.bmstu.rk9.rao.lib.dpt.DecisionPointSearch.SerializationLevel;
 import ru.bmstu.rk9.rao.rao.DecisionPointSearch;
