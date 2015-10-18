@@ -7,12 +7,7 @@ import org.eclipse.xtext.ui.editor.outline.IOutlineNode
 
 import ru.bmstu.rk9.rao.rao.Parameter
 
-import ru.bmstu.rk9.rao.rao.ResourceCreateStatement
-
 import ru.bmstu.rk9.rao.rao.Sequence
-
-import ru.bmstu.rk9.rao.rao.Function
-import ru.bmstu.rk9.rao.rao.FunctionParameter
 
 import ru.bmstu.rk9.rao.rao.Constant
 
@@ -25,6 +20,7 @@ import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.DefaultMethod
 import ru.bmstu.rk9.rao.rao.ResourceType
 import ru.bmstu.rk9.rao.rao.Event
+import ru.bmstu.rk9.rao.rao.FunctionDeclaration
 
 public class VirtualOutlineNode extends AbstractOutlineNode {
 	protected new(IOutlineNode parent, Image image, Object text, boolean isLeaf) {
@@ -43,20 +39,11 @@ class RaoOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 
 	def _isLeaf(Parameter parameter) { true }
 
-	// Resources
-	def _isLeaf(ResourceCreateStatement resourceCreateStatement) { true }
-
 	// Sequence
 	def _isLeaf(Sequence sequence) { true }
 
 	// Functions
-	def _createChildren(IOutlineNode parentNode, Function function) {
-		for (functionParameter : function.eAllContents.toIterable.filter(typeof(FunctionParameter))) {
-			createNode(parentNode, functionParameter)
-		}
-	}
-
-	def _isLeaf(FunctionParameter functionParameter) { true }
+	def _isLeaf(IOutlineNode parentNode, FunctionDeclaration function) { true }
 
 	// Constants
 	def _isLeaf(Constant constant) { true }

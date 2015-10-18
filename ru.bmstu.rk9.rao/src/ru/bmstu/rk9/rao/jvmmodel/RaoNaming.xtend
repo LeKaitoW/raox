@@ -10,15 +10,12 @@ import ru.bmstu.rk9.rao.rao.RaoModel
 
 import ru.bmstu.rk9.rao.rao.ResourceType
 import ru.bmstu.rk9.rao.rao.Parameter
-import ru.bmstu.rk9.rao.rao.ResourceCreateStatement
-
 
 import ru.bmstu.rk9.rao.rao.Sequence
 
 import ru.bmstu.rk9.rao.rao.Constant
 
-import ru.bmstu.rk9.rao.rao.Function
-import ru.bmstu.rk9.rao.rao.FunctionParameter
+import ru.bmstu.rk9.rao.rao.FunctionDeclaration
 
 import ru.bmstu.rk9.rao.rao.RelevantResource
 import ru.bmstu.rk9.rao.rao.Event
@@ -29,15 +26,8 @@ import ru.bmstu.rk9.rao.rao.Frame
 
 import ru.bmstu.rk9.rao.rao.Result
 
-import ru.bmstu.rk9.rao.rao.RaoInt
-import ru.bmstu.rk9.rao.rao.RaoDouble
-import ru.bmstu.rk9.rao.rao.RaoBoolean
-import ru.bmstu.rk9.rao.rao.RaoString
-import ru.bmstu.rk9.rao.rao.RaoArray
 import ru.bmstu.rk9.rao.rao.EnumDeclaration
-import ru.bmstu.rk9.rao.rao.RaoEnum
 import ru.bmstu.rk9.rao.rao.Pattern
-import ru.bmstu.rk9.rao.rao.META_RelevantResourceType
 
 class RaoNaming
 {
@@ -77,20 +67,11 @@ class RaoNaming
 			Parameter:
 				return object.name
 
-			ResourceCreateStatement:
-				return object.name
-
 			Sequence:
 				return object.name
 
 			Constant:
-				return object.name
-
-			Function:
-				return object.type.name
-
-			FunctionParameter:
-				return object.name
+				return object.constant.name
 
 			Pattern:
 				return object.name
@@ -129,20 +110,14 @@ class RaoNaming
 				return object.eContainer.eContainer.nameGeneric +
 					"." + object.eContainer.nameGeneric + "." + object.name
 
-			ResourceCreateStatement:
-				return object.eContainer.nameGeneric + "." + object.name
-
 			Sequence:
 				return object.eContainer.nameGeneric + "." + object.name
 
 			Constant:
-				return object.eContainer.eContainer.nameGeneric + "." + object.name
+				return object.eContainer.eContainer.nameGeneric + "." + object.constant.name
 
-			Function:
-				return object.eContainer.nameGeneric + "." + object.type.name
-
-			FunctionParameter:
-				return object.eContainer.eContainer.eContainer.fullyQualifiedName + "." + object.name
+			FunctionDeclaration:
+				return object.eContainer.nameGeneric + "." + object.name
 
 			Pattern:
 				return object.eContainer.nameGeneric + "." + object.name
@@ -167,14 +142,6 @@ class RaoNaming
 		}
 	}
 
-	def static relevantResourceFullyQualifiedName(META_RelevantResourceType relevantResource)
-	{
-		if (relevantResource instanceof ResourceCreateStatement)
-			return (relevantResource as ResourceCreateStatement).type.fullyQualifiedName
-		else
-			return relevantResource.fullyQualifiedName
-	}
-
 	def static getContextQualifiedName(EObject object, EObject context)
 	{
 		var objectName = object.fullyQualifiedName
@@ -187,20 +154,5 @@ class RaoNaming
 			contextName = contextName.substring(contextName.indexOf(".") + 1)
 		}
 		return objectName
-	}
-
-	def static String getTypeGenericLabel(EObject type)
-	{
-		switch type
-		{
-			RaoInt: " : " + type.type
-			RaoDouble   : " : " + type.type
-			RaoBoolean: " : " + type.type
-			RaoString : " : " + type.type
-			RaoArray  : " : array" + getTypeGenericLabel(type.arrayType)
-			RaoEnum: " : " + type.type
-
-			default: ""
-		}
 	}
 }

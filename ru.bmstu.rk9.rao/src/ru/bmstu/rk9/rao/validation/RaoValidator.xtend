@@ -20,8 +20,7 @@ import ru.bmstu.rk9.rao.rao.DptSetPriorityStatement
 import ru.bmstu.rk9.rao.rao.DptSetTerminateConditionStatement
 import ru.bmstu.rk9.rao.rao.Event
 import ru.bmstu.rk9.rao.rao.Frame
-import ru.bmstu.rk9.rao.rao.Function
-import ru.bmstu.rk9.rao.rao.FunctionType
+import ru.bmstu.rk9.rao.rao.FunctionDeclaration
 import ru.bmstu.rk9.rao.rao.Parameter
 import ru.bmstu.rk9.rao.rao.Pattern
 import ru.bmstu.rk9.rao.rao.PatternSelectMethod
@@ -29,7 +28,6 @@ import ru.bmstu.rk9.rao.rao.PatternType
 import ru.bmstu.rk9.rao.rao.RaoModel
 import ru.bmstu.rk9.rao.rao.RaoPackage
 import ru.bmstu.rk9.rao.rao.RelevantResource
-import ru.bmstu.rk9.rao.rao.ResourceCreateStatement
 import ru.bmstu.rk9.rao.rao.ResourceType
 import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.Sequence
@@ -118,10 +116,9 @@ class RaoValidator extends AbstractRaoValidator
 
 		val List<EObject> checklist = model.eAllContents.filter[eObject |
 			eObject instanceof ResourceType ||
-			eObject instanceof ResourceCreateStatement ||
 			eObject instanceof Sequence ||
 			eObject instanceof Constant ||
-			eObject instanceof Function ||
+			eObject instanceof FunctionDeclaration ||
 			eObject instanceof Pattern ||
 			eObject instanceof DecisionPoint ||
 			eObject instanceof Frame ||
@@ -184,14 +181,11 @@ class RaoValidator extends AbstractRaoValidator
 			ResourceType:
 				RaoPackage.eINSTANCE.resourceType_Name
 
-			ResourceCreateStatement:
-				RaoPackage.eINSTANCE.META_ResourceReference_Name
-
 			Sequence:
 				RaoPackage.eINSTANCE.sequence_Name
 
-			FunctionType:
-				RaoPackage.eINSTANCE.functionType_Name
+			FunctionDeclaration:
+				RaoPackage.eINSTANCE.functionDeclaration_Name
 
 			Pattern:
 				RaoPackage.eINSTANCE.pattern_Name
@@ -212,7 +206,7 @@ class RaoValidator extends AbstractRaoValidator
 				RaoPackage.eINSTANCE.parameter_Name
 
 			RelevantResource:
-				RaoPackage.eINSTANCE.META_ResourceReference_Name
+				RaoPackage.eINSTANCE.relevantResource_Name
 
 			DptSetConditionStatement:
 				RaoPackage.eINSTANCE.dptSetConditionStatement_Name

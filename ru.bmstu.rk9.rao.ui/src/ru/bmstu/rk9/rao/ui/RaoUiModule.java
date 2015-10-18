@@ -1,14 +1,14 @@
 package ru.bmstu.rk9.rao.ui;
 
 import org.eclipse.swt.widgets.Display;
-
 import org.eclipse.ui.IWorkbenchWindow;
-
 import org.eclipse.ui.PlatformUI;
-
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.xtext.ui.editor.syntaxcoloring.ISemanticHighlightingCalculator;
 
-public class RaoUiModule extends ru.bmstu.rk9.rao.ui.AbstractRaoUiModule {
+import ru.bmstu.rk9.rao.ui.highlightning.RaoHighlightningCalculator;
+
+public class RaoUiModule extends AbstractRaoUiModule {
 	private void registerPerspectiveAdapter() {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
@@ -30,5 +30,10 @@ public class RaoUiModule extends ru.bmstu.rk9.rao.ui.AbstractRaoUiModule {
 	public RaoUiModule(AbstractUIPlugin plugin) {
 		super(plugin);
 		registerPerspectiveAdapter();
+	}
+
+	@Override
+	public Class<? extends ISemanticHighlightingCalculator> bindISemanticHighlightingCalculator() {
+		return RaoHighlightningCalculator.class;
 	}
 }

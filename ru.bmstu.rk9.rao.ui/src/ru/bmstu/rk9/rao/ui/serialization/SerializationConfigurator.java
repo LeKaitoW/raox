@@ -1,10 +1,8 @@
 package ru.bmstu.rk9.rao.ui.serialization;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
@@ -18,8 +16,6 @@ import ru.bmstu.rk9.rao.rao.DecisionPointSearch;
 import ru.bmstu.rk9.rao.rao.DecisionPointSome;
 import ru.bmstu.rk9.rao.rao.Event;
 import ru.bmstu.rk9.rao.rao.Pattern;
-import ru.bmstu.rk9.rao.rao.RaoModel;
-import ru.bmstu.rk9.rao.rao.ResourceCreateStatement;
 import ru.bmstu.rk9.rao.rao.Result;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfig.SerializationNode;
 
@@ -30,11 +26,6 @@ class SerializationConfigurator {
 	final void fillCategories(Resource model, SerializationNode modelNode) {
 		for (SerializationNode category : modelNode.getVisibleChildren())
 			category.hideChildren();
-
-		fillCategory(
-				modelNode.getVisibleChildren().get(
-						SerializationCategory.RESOURCES.ordinal()), model,
-				ResourceCreateStatement.class);
 
 		fillCategory(
 				modelNode.getVisibleChildren().get(
@@ -67,28 +58,8 @@ class SerializationConfigurator {
 		final List<T> categoryItems = filterAllContents(model.getAllContents(),
 				categoryClass);
 
-		final Map<String, Integer> instanceCountOfResourceType = new HashMap<String, Integer>();
-
 		for (T categoryItem : categoryItems) {
 			String name = RaoNaming.getFullyQualifiedName(categoryItem);
-
-			if (categoryItem instanceof ResourceCreateStatement) {
-				if (!(categoryItem.eContainer() instanceof RaoModel))
-					continue;
-				if (((ResourceCreateStatement) categoryItem).getName() == null) {
-					final String typeName = ((ResourceCreateStatement) categoryItem)
-							.getType().getName();
-					int count = 0;
-
-					if (instanceCountOfResourceType.containsKey(typeName)) {
-						count = instanceCountOfResourceType.get(typeName) + 1;
-					}
-					instanceCountOfResourceType.put(typeName, count);
-
-					name = name.substring(0, name.lastIndexOf('.') + 1)
-							+ typeName + "[" + count + "]";
-				}
-			}
 
 			SerializationNode child = category.addChild(name);
 
