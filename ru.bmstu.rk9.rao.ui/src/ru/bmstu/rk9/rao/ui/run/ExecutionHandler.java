@@ -114,13 +114,12 @@ public class ExecutionHandler extends AbstractHandler {
 					classLoader = new URLClassLoader(urls,
 							Simulator.class.getClassLoader());
 
-					Class<?> modelClass = classLoader
-							.loadClass("model");
+					Class<?> modelClass = classLoader.loadClass("model");
 
-					Method run = null;
+					Method runSimulation = null;
 					for (Method method : modelClass.getMethods()) {
-						if (method.getName() == "run")
-							run = method;
+						if (method.getName() == "runSimulation")
+							runSimulation = method;
 					}
 
 					IFile modelFile = (IFile) HandlerUtil
@@ -135,9 +134,6 @@ public class ExecutionHandler extends AbstractHandler {
 
 					final List<AnimationFrame> frames = new ArrayList<AnimationFrame>();
 
-					if (run != null)
-						run.invoke(null);
-
 					display.syncExec(() -> AnimationView.initialize(frames));
 
 					final long startTime = System.currentTimeMillis();
@@ -147,6 +143,9 @@ public class ExecutionHandler extends AbstractHandler {
 
 					List<Result> results = new LinkedList<Result>();
 					int simulationResult = -1;
+
+					if (runSimulation != null)
+						simulationResult = (int) runSimulation.invoke(null);
 
 					display.syncExec(() -> AnimationView.deinitialize());
 

@@ -10,15 +10,22 @@ import ru.bmstu.rk9.rao.rao.Constant
 import ru.bmstu.rk9.rao.rao.FunctionDeclaration
 import org.eclipse.xtext.common.types.JvmVisibility
 
+import ru.bmstu.rk9.rao.lib.simulator.EmbeddedSimulation
+
 class RaoJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
 
 	def dispatch void infer(RaoModel element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		acceptor.accept(element.toClass(QualifiedName.create("model"))) [
-			members += element.toMethod("run", typeRef(void)) [
+			superTypes += typeRef(EmbeddedSimulation)
+
+			// TODO add override annotation to that method
+			members += element.toMethod("run", typeRef(int)) [
+				visibility = JvmVisibility.PROTECTED
 				final = true
-				static = true
-				body = '''System.out.println("so, we meet again");'''
+				body = '''
+				System.out.println("so, we meet again");
+				return 0;'''
 			]
 
 			for (entity : element.objects) {
