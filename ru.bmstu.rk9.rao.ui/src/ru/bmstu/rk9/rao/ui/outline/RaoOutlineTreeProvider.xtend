@@ -5,8 +5,6 @@ import org.eclipse.swt.graphics.Image
 import org.eclipse.xtext.ui.editor.outline.impl.AbstractOutlineNode
 import org.eclipse.xtext.ui.editor.outline.IOutlineNode
 
-import ru.bmstu.rk9.rao.rao.Parameter
-
 import ru.bmstu.rk9.rao.rao.Sequence
 
 import ru.bmstu.rk9.rao.rao.Constant
@@ -21,6 +19,7 @@ import ru.bmstu.rk9.rao.rao.DefaultMethod
 import ru.bmstu.rk9.rao.rao.ResourceType
 import ru.bmstu.rk9.rao.rao.Event
 import ru.bmstu.rk9.rao.rao.FunctionDeclaration
+import ru.bmstu.rk9.rao.rao.FieldDeclaration
 
 public class VirtualOutlineNode extends AbstractOutlineNode {
 	protected new(IOutlineNode parent, Image image, Object text, boolean isLeaf) {
@@ -32,12 +31,12 @@ class RaoOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 
 	// Resource Types
 	def _createChildren(IOutlineNode parentNode, ResourceType resourceType) {
-		for (parameter : resourceType.eAllContents.toIterable.filter(typeof(Parameter))) {
+		for (parameter : resourceType.eAllContents.toIterable.filter(typeof(FieldDeclaration))) {
 			createNode(parentNode, parameter)
 		}
 	}
 
-	def _isLeaf(Parameter parameter) { true }
+	def _isLeaf(FieldDeclaration field) { true }
 
 	// Sequence
 	def _isLeaf(Sequence sequence) { true }
@@ -50,10 +49,10 @@ class RaoOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 
 	// Pattern
 	def _createChildren(IOutlineNode parentNode, Pattern pattern) {
-		if (!pattern.eAllContents.filter(typeof(Parameter)).empty) {
+		if (!pattern.eAllContents.filter(typeof(FieldDeclaration)).empty) {
 			val groupParameters = new VirtualOutlineNode(parentNode, parentNode.image, "Parameters", false)
-			for (parameter : pattern.eAllContents.toIterable.filter(typeof(Parameter))) {
-				createEObjectNode(groupParameters, parameter)
+			for (fieldDeclaration : pattern.eAllContents.toIterable.filter(typeof(FieldDeclaration))) {
+				createEObjectNode(groupParameters, fieldDeclaration)
 			}
 		}
 

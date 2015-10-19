@@ -21,7 +21,7 @@ import ru.bmstu.rk9.rao.rao.DptSetTerminateConditionStatement
 import ru.bmstu.rk9.rao.rao.Event
 import ru.bmstu.rk9.rao.rao.Frame
 import ru.bmstu.rk9.rao.rao.FunctionDeclaration
-import ru.bmstu.rk9.rao.rao.Parameter
+import ru.bmstu.rk9.rao.rao.FieldDeclaration
 import ru.bmstu.rk9.rao.rao.Pattern
 import ru.bmstu.rk9.rao.rao.PatternSelectMethod
 import ru.bmstu.rk9.rao.rao.PatternType
@@ -158,7 +158,7 @@ class RaoValidator extends AbstractRaoValidator
 	def checkNamesInPatterns(Pattern pattern)
 	{
 		val List<EObject> parameters  = pattern.eAllContents.filter[eObject |
-			eObject instanceof Parameter
+			eObject instanceof FieldDeclaration
 		].toList
 		val List<EObject> relevantResources = pattern.eAllContents.filter[eObject |
 			eObject instanceof RelevantResource].toList
@@ -201,9 +201,6 @@ class RaoValidator extends AbstractRaoValidator
 
 			Result:
 				RaoPackage.eINSTANCE.result_Name
-
-			Parameter:
-				RaoPackage.eINSTANCE.parameter_Name
 
 			RelevantResource:
 				RaoPackage.eINSTANCE.relevantResource_Name

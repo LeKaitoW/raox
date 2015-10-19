@@ -36,12 +36,12 @@ RaoEntity
 
 ResourceType:
 	'type' name = ID '{'
-		(parameters += Parameter ';' )+
+		(parameters += FieldDeclaration ';' )+
 	'}'
 ;
 
-Parameter
-	: type = JvmTypeReference name = ID ('=' default = XOrExpression)?
+FieldDeclaration
+	: declaration = FullJvmFormalParameter ('=' default = XOrExpression)?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -50,8 +50,8 @@ Parameter
 
 Event:
 	'event' name = ID '('
-		(parameters += Parameter (
-			',' parameters += Parameter)* )? ')'
+		(parameters += FullJvmFormalParameter (
+			',' parameters += FullJvmFormalParameter)* )? ')'
 		body = XBlockExpression
 ;
 
@@ -61,8 +61,8 @@ Event:
 
 Pattern:
 	type = PatternType name = ID '('
-		(parameters += Parameter (
-			',' parameters += Parameter)* )? ')' '{'
+		(parameters += FullJvmFormalParameter (
+			',' parameters += FullJvmFormalParameter)* )? ')' '{'
 		relevantResources += RelevantResource*
 		('relevantSet' combinational = PatternSelectMethod ';')?
 		defaultMethods += DefaultMethod*

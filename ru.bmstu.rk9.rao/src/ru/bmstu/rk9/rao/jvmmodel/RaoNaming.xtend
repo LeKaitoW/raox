@@ -1,31 +1,20 @@
 package ru.bmstu.rk9.rao.jvmmodel
 
 import org.eclipse.emf.common.util.URI
-
 import org.eclipse.emf.ecore.resource.Resource
-
 import org.eclipse.emf.ecore.EObject
 
 import ru.bmstu.rk9.rao.rao.RaoModel
-
 import ru.bmstu.rk9.rao.rao.ResourceType
-import ru.bmstu.rk9.rao.rao.Parameter
-
+import ru.bmstu.rk9.rao.rao.FieldDeclaration
 import ru.bmstu.rk9.rao.rao.Sequence
-
 import ru.bmstu.rk9.rao.rao.Constant
-
 import ru.bmstu.rk9.rao.rao.FunctionDeclaration
-
 import ru.bmstu.rk9.rao.rao.RelevantResource
 import ru.bmstu.rk9.rao.rao.Event
-
 import ru.bmstu.rk9.rao.rao.DecisionPoint
-
 import ru.bmstu.rk9.rao.rao.Frame
-
 import ru.bmstu.rk9.rao.rao.Result
-
 import ru.bmstu.rk9.rao.rao.EnumDeclaration
 import ru.bmstu.rk9.rao.rao.Pattern
 
@@ -64,8 +53,8 @@ class RaoNaming
 			ResourceType:
 				return object.name
 
-			Parameter:
-				return object.name
+			FieldDeclaration:
+				return object.declaration.name
 
 			Sequence:
 				return object.name
@@ -106,9 +95,9 @@ class RaoNaming
 			ResourceType:
 				return object.eContainer.nameGeneric + "." + object.name
 
-			Parameter:
+			FieldDeclaration:
 				return object.eContainer.eContainer.nameGeneric +
-					"." + object.eContainer.nameGeneric + "." + object.name
+					"." + object.eContainer.nameGeneric + "." + object.declaration.name
 
 			Sequence:
 				return object.eContainer.nameGeneric + "." + object.name
