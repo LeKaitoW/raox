@@ -1,16 +1,22 @@
 package ru.bmstu.rk9.rao.ui.process;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
-import org.eclipse.gef.palette.CreationToolEntry;
+import org.eclipse.gef.KeyHandler;
+import org.eclipse.gef.KeyStroke;
+import org.eclipse.gef.dnd.TemplateTransferDragSourceListener;
+import org.eclipse.gef.palette.CombinedTemplateCreationEntry;
 import org.eclipse.gef.palette.MarqueeToolEntry;
 import org.eclipse.gef.palette.PaletteGroup;
 import org.eclipse.gef.palette.PaletteRoot;
 import org.eclipse.gef.palette.PaletteSeparator;
 import org.eclipse.gef.palette.SelectionToolEntry;
+import org.eclipse.gef.ui.palette.PaletteViewer;
+import org.eclipse.gef.ui.palette.PaletteViewerProvider;
 import org.eclipse.gef.ui.parts.GraphicalEditorWithFlyoutPalette;
+import org.eclipse.swt.SWT;
+import org.eclipse.ui.actions.ActionFactory;
 
 import ru.bmstu.rk9.rao.ui.process.advance.Advance;
 import ru.bmstu.rk9.rao.ui.process.generate.Generate;
@@ -27,6 +33,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	}
 
 	public static final String ID = "ru.bmstu.rk9.rao.ui.process.editor";
+	private Model model;
 
 	@Override
 	protected PaletteRoot getPaletteRoot() {
@@ -45,18 +52,21 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		PaletteGroup processGroup = new PaletteGroup("Process");
 		root.add(processGroup);
 
-		processGroup.add(new CreationToolEntry("Generate", "Generate",
-				new NodeCreationFactory(Generate.class), null, null));
-		processGroup.add(new CreationToolEntry("Terminate", "Terminate",
-				new NodeCreationFactory(Terminate.class), null, null));
-		processGroup.add(new CreationToolEntry("Seize", "Seize",
+		processGroup
+				.add(new CombinedTemplateCreationEntry("Generate", "Generate",
+						new NodeCreationFactory(Generate.class), null, null));
+		processGroup.add(new CombinedTemplateCreationEntry("Terminate",
+				"Terminate", new NodeCreationFactory(Terminate.class), null,
+				null));
+		processGroup.add(new CombinedTemplateCreationEntry("Seize", "Seize",
 				new NodeCreationFactory(Seize.class), null, null));
-		processGroup.add(new CreationToolEntry("Release", "Release",
-				new NodeCreationFactory(Release.class), null, null));
-		processGroup.add(new CreationToolEntry("Advance", "Advance",
-				new NodeCreationFactory(Advance.class), null, null));
-		processGroup.add(new CreationToolEntry("Resource", "Resource",
-				new NodeCreationFactory(Resource.class), null, null));
+		processGroup.add(new CombinedTemplateCreationEntry("Release",
+				"Release", new NodeCreationFactory(Release.class), null, null));
+		processGroup.add(new CombinedTemplateCreationEntry("Advance",
+				"Advance", new NodeCreationFactory(Advance.class), null, null));
+		processGroup
+				.add(new CombinedTemplateCreationEntry("Resource", "Resource",
+						new NodeCreationFactory(Resource.class), null, null));
 
 		root.setDefaultEntry(selectionToolEntry);
 		return root;
@@ -66,24 +76,36 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	public void doSave(IProgressMonitor monitor) {
 	}
 
-	public Model createModel() {
-		Model model = new Model();
-		model.setLayout(new Rectangle(20, 20, 500, 500));
-		Generate generate = new Generate();
-
-		model.addChild(generate);
-		generate.setLayout(new Rectangle(30, 50, 250, 150));
-		return model;
-	}
-
+	@Override
 	protected void configureGraphicalViewer() {
 		super.configureGraphicalViewer();
 		GraphicalViewer viewer = getGraphicalViewer();
 		viewer.setEditPartFactory(new ProcessEditPartFactory());
+
+		KeyHandler keyHandler = new KeyHandler();
+
+		keyHandler.put(KeyStroke.getPressed(SWT.DEL, 127, 0),
+				getActionRegistry().getAction(ActionFactory.DELETE.getId()));
+		viewer.setKeyHandler(keyHandler);
 	}
 
+	@Override
 	protected void initializeGraphicalViewer() {
 		GraphicalViewer viewer = getGraphicalViewer();
-		viewer.setContents(createModel());
+		model = new Model();
+		viewer.setContents(model);
+		viewer.addDropTargetListener(new ProcessDropTargetListener(viewer));
+	}
+
+	@Override
+	protected PaletteViewerProvider createPaletteViewerProvider() {
+		return new PaletteViewerProvider(getEditDomain()) {
+			@Override
+			protected void configurePaletteViewer(PaletteViewer viewer) {
+				super.configurePaletteViewer(viewer);
+				viewer.addDragSourceListener(new TemplateTransferDragSourceListener(
+						viewer));
+			}
+		};
 	}
 }

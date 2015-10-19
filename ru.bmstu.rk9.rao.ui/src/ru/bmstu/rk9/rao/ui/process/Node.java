@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rao.ui.process;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,12 +13,17 @@ public class Node {
 	private Rectangle layout;
 	private List<Node> children;
 	private Node parent;
+	private PropertyChangeSupport listeners;
+	public static final String PROPERTY_LAYOUT = "NodeLayout";
+	public static final String PROPERTY_ADD = "NodeAddChild";
+	public static final String PROPERTY_REMOVE = "NodeRemoveChild";
 
 	public Node() {
 		this.name = "Unknown";
 		this.layout = new Rectangle(10, 10, 100, 100);
 		this.children = new ArrayList<Node>();
 		this.parent = null;
+		this.listeners = new PropertyChangeSupport(this);
 	}
 
 	public void setName(String name) {
@@ -27,8 +34,11 @@ public class Node {
 		return this.name;
 	}
 
-	public void setLayout(Rectangle layout) {
-		this.layout = layout;
+	public void setLayout(Rectangle newLayout) {
+		Rectangle oldLayout = this.layout;
+		this.layout = newLayout;
+		getListeners()
+				.firePropertyChange(PROPERTY_LAYOUT, oldLayout, newLayout);
 	}
 
 	public Rectangle getLayout() {
@@ -36,15 +46,22 @@ public class Node {
 	}
 
 	public boolean addChild(Node child) {
-		child.setParent(this);
-		return this.children.add(child);
+		boolean isAdded = this.children.add(child);
+		if (isAdded) {
+			child.setParent(this);
+			getListeners().firePropertyChange(PROPERTY_ADD, null, child);
+		}
+		return isAdded;
 	}
 
 	public boolean removeChild(Node child) {
-		return this.children.remove(child);
+		boolean isRemoved = this.children.remove(child);
+		if (isRemoved)
+			getListeners().firePropertyChange(PROPERTY_REMOVE, child, null);
+		return isRemoved;
 	}
 
-	public List<Node> getChildrenArray() {
+	public List<Node> getChildren() {
 		return this.children;
 	}
 
@@ -54,5 +71,21 @@ public class Node {
 
 	public Node getParent() {
 		return this.parent;
+	}
+
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		listeners.addPropertyChangeListener(listener);
+	}
+
+	public PropertyChangeSupport getListeners() {
+		return listeners;
+	}
+
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		listeners.removePropertyChangeListener(listener);
+	}
+
+	public boolean contains(Node child) {
+		return children.contains(child);
 	}
 }
