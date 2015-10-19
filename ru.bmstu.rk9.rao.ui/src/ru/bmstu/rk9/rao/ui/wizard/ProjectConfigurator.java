@@ -121,6 +121,13 @@ public class ProjectConfigurator {
 				null, null);
 		entries.add(libEntry);
 
+		Bundle xbaseLib = Platform.getBundle("org.eclipse.xtext.xbase.lib");
+		File xbaseLibPath = FileLocator.getBundleFile(xbaseLib);
+		IPath xbaseLibPathBinary = new Path(xbaseLibPath.getAbsolutePath());
+		IClasspathEntry xbaseLibEntry = JavaCore.newLibraryEntry(
+				xbaseLibPathBinary, null, null);
+		entries.add(xbaseLibEntry);
+
 		game5JavaProject.setRawClasspath(
 				entries.toArray(new IClasspathEntry[entries.size()]), null);
 	}
