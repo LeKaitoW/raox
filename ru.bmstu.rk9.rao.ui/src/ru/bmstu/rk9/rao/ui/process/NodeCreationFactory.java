@@ -1,13 +1,8 @@
 package ru.bmstu.rk9.rao.ui.process;
 
-import org.eclipse.gef.requests.CreationFactory;
+import java.util.Map;
 
-import ru.bmstu.rk9.rao.ui.process.advance.Advance;
-import ru.bmstu.rk9.rao.ui.process.generate.Generate;
-import ru.bmstu.rk9.rao.ui.process.release.Release;
-import ru.bmstu.rk9.rao.ui.process.resource.Resource;
-import ru.bmstu.rk9.rao.ui.process.seize.Seize;
-import ru.bmstu.rk9.rao.ui.process.terminate.Terminate;
+import org.eclipse.gef.requests.CreationFactory;
 
 public class NodeCreationFactory implements CreationFactory {
 
@@ -19,34 +14,11 @@ public class NodeCreationFactory implements CreationFactory {
 
 	@Override
 	public Object getNewObject() {
-		if (template == null)
+		Map<Class<?>, ProcessNodeInfo> processNodesInfo = ProcessEditor.processNodesInfo;
+		if (!processNodesInfo.containsKey(template))
 			return null;
-		if (template == Generate.class) {
-			Generate generate = new Generate();
-			return generate;
-		}
-		if (template == Advance.class) {
-			Advance advance = new Advance();
-			return advance;
-		}
-		if (template == Release.class) {
-			Release release = new Release();
-			return release;
-		}
-		if (template == Resource.class) {
-			Resource resource = new Resource();
-			return resource;
-		}
-		if (template == Seize.class) {
-			Seize seize = new Seize();
-			return seize;
-		}
-		if (template == Terminate.class) {
-			Terminate terminate = new Terminate();
-			return terminate;
-		}
-		return null;
-		//exception, sysout template
+		return processNodesInfo.get(template).getNodeFactory().get();
+		// exception, sysout template
 	}
 
 	@Override

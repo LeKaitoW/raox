@@ -6,16 +6,10 @@ import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editpolicies.XYLayoutEditPolicy;
 import org.eclipse.gef.requests.CreateRequest;
 
-import ru.bmstu.rk9.rao.ui.process.advance.AdvancePart;
 import ru.bmstu.rk9.rao.ui.process.command.ChangeLayoutCommand;
 import ru.bmstu.rk9.rao.ui.process.command.CreateCommand;
 import ru.bmstu.rk9.rao.ui.process.command.LayoutCommand;
-import ru.bmstu.rk9.rao.ui.process.generate.GeneratePart;
 import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
-import ru.bmstu.rk9.rao.ui.process.release.ReleasePart;
-import ru.bmstu.rk9.rao.ui.process.resource.ResourcePart;
-import ru.bmstu.rk9.rao.ui.process.seize.SeizePart;
-import ru.bmstu.rk9.rao.ui.process.terminate.TerminatePart;
 
 public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 
@@ -27,19 +21,11 @@ public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 			Object constraint) {
 		LayoutCommand command = null;
 
-		if (child instanceof GeneratePart)
-			command = new ChangeLayoutCommand();
-		if (child instanceof AdvancePart)
-			command = new ChangeLayoutCommand();
-		if (child instanceof ReleasePart)
-			command = new ChangeLayoutCommand();
-		if (child instanceof ResourcePart)
-			command = new ChangeLayoutCommand();
-		if (child instanceof SeizePart)
-			command = new ChangeLayoutCommand();
-		if (child instanceof TerminatePart)
-			command = new ChangeLayoutCommand();
+		if (!ProcessEditor.processNodesInfo.containsKey(child.getModel()
+				.getClass()))
+			return null;
 
+		command = new ChangeLayoutCommand();
 		command.setModel(child.getModel());
 		command.setConstraint((Rectangle) constraint);
 		return command;

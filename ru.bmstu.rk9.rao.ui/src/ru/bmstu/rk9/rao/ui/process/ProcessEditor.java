@@ -1,5 +1,8 @@
 package ru.bmstu.rk9.rao.ui.process;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
@@ -19,12 +22,19 @@ import org.eclipse.swt.SWT;
 import org.eclipse.ui.actions.ActionFactory;
 
 import ru.bmstu.rk9.rao.ui.process.advance.Advance;
+import ru.bmstu.rk9.rao.ui.process.advance.AdvancePart;
 import ru.bmstu.rk9.rao.ui.process.generate.Generate;
+import ru.bmstu.rk9.rao.ui.process.generate.GeneratePart;
 import ru.bmstu.rk9.rao.ui.process.model.Model;
+import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
 import ru.bmstu.rk9.rao.ui.process.release.Release;
+import ru.bmstu.rk9.rao.ui.process.release.ReleasePart;
 import ru.bmstu.rk9.rao.ui.process.resource.Resource;
+import ru.bmstu.rk9.rao.ui.process.resource.ResourcePart;
 import ru.bmstu.rk9.rao.ui.process.seize.Seize;
+import ru.bmstu.rk9.rao.ui.process.seize.SeizePart;
 import ru.bmstu.rk9.rao.ui.process.terminate.Terminate;
+import ru.bmstu.rk9.rao.ui.process.terminate.TerminatePart;
 
 public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
@@ -34,6 +44,23 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 	public static final String ID = "ru.bmstu.rk9.rao.ui.process.editor";
 	private Model model;
+	public static final Map<Class<?>, ProcessNodeInfo> processNodesInfo = new LinkedHashMap<>();
+	static {
+		processNodesInfo.put(Model.class, new ProcessNodeInfo("Model",
+				() -> new Model(), () -> new ModelPart()));
+		processNodesInfo.put(Generate.class, new ProcessNodeInfo("Generate",
+				() -> new Generate(), () -> new GeneratePart()));
+		processNodesInfo.put(Terminate.class, new ProcessNodeInfo("Terminate",
+				() -> new Terminate(), () -> new TerminatePart()));
+		processNodesInfo.put(Seize.class, new ProcessNodeInfo("Seize",
+				() -> new Seize(), () -> new SeizePart()));
+		processNodesInfo.put(Release.class, new ProcessNodeInfo("Release",
+				() -> new Release(), () -> new ReleasePart()));
+		processNodesInfo.put(Advance.class, new ProcessNodeInfo("Advance",
+				() -> new Advance(), () -> new AdvancePart()));
+		processNodesInfo.put(Resource.class, new ProcessNodeInfo("Resource",
+				() -> new Resource(), () -> new ResourcePart()));
+	}
 
 	@Override
 	protected PaletteRoot getPaletteRoot() {
@@ -52,22 +79,13 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		PaletteGroup processGroup = new PaletteGroup("Process");
 		root.add(processGroup);
 
-		processGroup
-				.add(new CombinedTemplateCreationEntry("Generate", "Generate",
-						new NodeCreationFactory(Generate.class), null, null));
-		processGroup.add(new CombinedTemplateCreationEntry("Terminate",
-				"Terminate", new NodeCreationFactory(Terminate.class), null,
-				null));
-		processGroup.add(new CombinedTemplateCreationEntry("Seize", "Seize",
-				new NodeCreationFactory(Seize.class), null, null));
-		processGroup.add(new CombinedTemplateCreationEntry("Release",
-				"Release", new NodeCreationFactory(Release.class), null, null));
-		processGroup.add(new CombinedTemplateCreationEntry("Advance",
-				"Advance", new NodeCreationFactory(Advance.class), null, null));
-		processGroup
-				.add(new CombinedTemplateCreationEntry("Resource", "Resource",
-						new NodeCreationFactory(Resource.class), null, null));
-
+		for (Class<?> nodeClass : processNodesInfo.keySet()) {
+			String nodeName = processNodesInfo.get(nodeClass).getName();
+			if (!nodeClass.equals(Model.class))
+				processGroup.add(new CombinedTemplateCreationEntry(nodeName,
+						nodeName, new NodeCreationFactory(nodeClass), null,
+						null));
+		}
 		root.setDefaultEntry(selectionToolEntry);
 		return root;
 	}
