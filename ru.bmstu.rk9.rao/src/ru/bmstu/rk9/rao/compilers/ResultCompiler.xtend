@@ -14,7 +14,7 @@ import ru.bmstu.rk9.rao.rao.ResultType
 
 import ru.bmstu.rk9.rao.rao.ResultGetValue
 import ru.bmstu.rk9.rao.rao.ResultWatchParameter
-import ru.bmstu.rk9.rao.rao.ResultWatchQuant
+import ru.bmstu.rk9.rao.rao.ResultWatchQuantity
 import ru.bmstu.rk9.rao.rao.ResultWatchState
 import ru.bmstu.rk9.rao.rao.ResultWatchValue
 
@@ -32,15 +32,7 @@ class ResultCompiler
 		import java.nio.ByteBuffer;
 		import java.util.EnumSet;
 
-		import ru.bmstu.rk9.rao.lib.json.*;
-
-		import ru.bmstu.rk9.rao.lib.*;
-		import ru.bmstu.rk9.rao.lib.resource.*;
-		import ru.bmstu.rk9.rao.lib.result.*;
-		import ru.bmstu.rk9.rao.lib.database.*;
-		import ru.bmstu.rk9.rao.lib.simulator.*;
-		import ru.bmstu.rk9.rao.lib.notification.*;
-		@SuppressWarnings("all")
+		«Util.putImports»
 
 		public class «name» implements Result, Subscriber
 		{
@@ -73,7 +65,7 @@ class ResultCompiler
 		{
 			ResultGetValue:       "getValue"
 			ResultWatchParameter: "watchParameter"
-			ResultWatchQuant:     "watchQuant"
+			ResultWatchQuantity:     "watchQuantity"
 			ResultWatchState:     "watchState"
 			ResultWatchValue:     "watchValue"
 		}
@@ -321,15 +313,15 @@ class ResultCompiler
 				}
 				'''
 			}
-			ResultWatchQuant:
+			ResultWatchQuantity:
 			{
 				val context = (new LocalContext).populateWithResourceRename(type.resource, "current")
 				val expression = new RaoExpression
 				(
 					'''«IF type.logic == null»«
-							type.resource.fullyQualifiedName».getTemporary().size()«
+							type.resource.fullyQualifiedName».getAll().size()«
 						ELSE
-							»Select.Size(«type.resource.fullyQualifiedName».getTemporary(), logic)«
+							»Select.size(«type.resource.fullyQualifiedName».getAll(), logic)«
 						ENDIF»''',
 					"Integer"
 				);

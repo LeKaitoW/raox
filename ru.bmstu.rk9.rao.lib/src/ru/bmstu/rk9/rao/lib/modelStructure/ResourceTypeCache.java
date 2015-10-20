@@ -11,7 +11,6 @@ public class ResourceTypeCache {
 	ResourceTypeCache(final JSONObject resourceType) {
 		name = ModelStructureCache.getRelativeName(resourceType
 				.getString("name"));
-		temporary = resourceType.getBoolean("temporary");
 
 		JSONObject structure = resourceType.getJSONObject("structure");
 		JSONArray parameters = structure.getJSONArray("parameters");
@@ -52,7 +51,6 @@ public class ResourceTypeCache {
 	}
 
 	private final String name;
-	final boolean temporary;
 	private final int numberOfParameters;
 	private final List<ValueCache> paramTypes;
 	private final HashMap<Integer, Integer> indexList;

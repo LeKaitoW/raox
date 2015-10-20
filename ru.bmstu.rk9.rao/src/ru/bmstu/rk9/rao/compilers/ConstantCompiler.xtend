@@ -18,8 +18,7 @@ class ConstantCompiler
 		'''
 		package «filename»;
 
-		import ru.bmstu.rk9.rao.lib.*;
-		@SuppressWarnings("all")
+		«Util.putImports»
 
 		public class «constant.name»
 		{

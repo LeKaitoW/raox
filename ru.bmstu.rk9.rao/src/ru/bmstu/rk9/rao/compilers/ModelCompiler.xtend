@@ -15,7 +15,7 @@ import ru.bmstu.rk9.rao.rao.ResourceCreateStatement
 import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.ResultWatchParameter
 import ru.bmstu.rk9.rao.rao.ResultWatchValue
-import ru.bmstu.rk9.rao.rao.ResultWatchQuant
+import ru.bmstu.rk9.rao.rao.ResultWatchQuantity
 import ru.bmstu.rk9.rao.rao.ResultWatchState
 import ru.bmstu.rk9.rao.rao.ResultGetValue
 
@@ -31,13 +31,7 @@ class ModelCompiler
 		'''
 		package rao_model;
 
-		import ru.bmstu.rk9.rao.lib.json.*;
-
-		import ru.bmstu.rk9.rao.lib.*;
-		import ru.bmstu.rk9.rao.lib.resource.*;
-		import ru.bmstu.rk9.rao.lib.database.*;
-		import ru.bmstu.rk9.rao.lib.simulator.*;
-		@SuppressWarnings("all")
+		«Util.putImports»
 
 		public class «project»Model implements ModelState<«project»Model>
 		{
@@ -164,7 +158,6 @@ class ModelCompiler
 					(
 						new JSONObject()
 							.put("name", "«resourceType.fullyQualifiedName»")
-							.put("temporary", true)
 							.put("structure", «resourceType.fullyQualifiedName».structure)
 							.put
 							(
@@ -272,9 +265,9 @@ class ModelCompiler
 				.put("type", "watchState")
 				.put("value_type", "boolean")
 				'''
-			ResultWatchQuant:
+			ResultWatchQuantity:
 				'''
-				.put("type", "watchQuant")
+				.put("type", "watchQuantity")
 				.put("value_type", "int")
 				'''
 			ResultWatchValue:
