@@ -19,23 +19,11 @@
 			</includes>
 		</fileSet>
 		<fileSet>
-			<directory>../ru.bmstu.rk9.rao/target</directory>
+			<directory>${basedir}/target/plugins</directory>
 			<outputDirectory>dropins</outputDirectory>
 			<includes>
 				<include>ru.bmstu.rk9.rao*.jar</include>
-			</includes>
-		</fileSet>
-		<fileSet>
-			<directory>../ru.bmstu.rk9.rao.lib/target</directory>
-			<outputDirectory>dropins</outputDirectory>
-			<includes>
 				<include>ru.bmstu.rk9.rao.lib*.jar</include>
-			</includes>
-		</fileSet>
-		<fileSet>
-			<directory>../ru.bmstu.rk9.rao.ui/target</directory>
-			<outputDirectory>dropins</outputDirectory>
-			<includes>
 				<include>ru.bmstu.rk9.rao.ui*.jar</include>
 			</includes>
 		</fileSet>
