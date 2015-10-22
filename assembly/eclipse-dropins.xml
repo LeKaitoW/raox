@@ -21,11 +21,6 @@
 		<fileSet>
 			<directory>${basedir}/target/plugins</directory>
 			<outputDirectory>dropins</outputDirectory>
-			<includes>
-				<include>ru.bmstu.rk9.rao*.jar</include>
-				<include>ru.bmstu.rk9.rao.lib*.jar</include>
-				<include>ru.bmstu.rk9.rao.ui*.jar</include>
-			</includes>
 		</fileSet>
 	</fileSets>
 </assembly>
