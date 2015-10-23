@@ -18,6 +18,8 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 
 import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
+import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider;
+import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider.SimulationState;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -69,10 +71,17 @@ public class StartExecutionHandler extends AbstractHandler implements
 		IProject projectToBuild = BuildJobProvider.getProjectToBuild(
 				activeWorkbenchWindow, activeEditor);
 		String message;
-		if (projectToBuild == null)
-			message = "Execute rao model: cannot choose project to run";
-		else
+		if (projectToBuild == null) {
+			ModelExecutionSourceProvider.setSimulationState(
+					activeWorkbenchWindow, SimulationState.DISABLED.toString());
+			message = "Execute Rao model: cannot choose project to run";
+		} else {
 			message = "Execute model " + projectToBuild.getName();
+			if (ModelExecutionSourceProvider.getSimulationState().equals(
+					SimulationState.DISABLED.toString()))
+				ModelExecutionSourceProvider.setSimulationState(
+						activeWorkbenchWindow, SimulationState.STOPPED.toString());
+		}
 
 		element.setText(message);
 		element.setTooltip(message);

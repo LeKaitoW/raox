@@ -18,6 +18,8 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 
 import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
+import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider;
+import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider.SimulationState;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -67,10 +69,17 @@ public class BuildHandler extends AbstractHandler implements IElementUpdater {
 		IProject projectToBuild = BuildJobProvider.getProjectToBuild(
 				activeWorkbenchWindow, activeEditor);
 		String message;
-		if (projectToBuild == null)
-			message = "Build rao model: cannot choose project to build";
-		else
+		if (projectToBuild == null) {
+			ModelExecutionSourceProvider.setSimulationState(
+					activeWorkbenchWindow, SimulationState.DISABLED.toString());
+			message = "Build Rao model: cannot choose project to build";
+		} else {
 			message = "Build model " + projectToBuild.getName();
+			if (ModelExecutionSourceProvider.getSimulationState().equals(
+					SimulationState.DISABLED.toString()))
+				ModelExecutionSourceProvider.setSimulationState(
+						activeWorkbenchWindow, SimulationState.STOPPED.toString());
+		}
 
 		element.setText(message);
 		element.setTooltip(message);

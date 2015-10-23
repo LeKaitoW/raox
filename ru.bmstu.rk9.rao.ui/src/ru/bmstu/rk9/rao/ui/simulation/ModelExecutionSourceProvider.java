@@ -9,26 +9,39 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.ISourceProviderService;
 
 public class ModelExecutionSourceProvider extends AbstractSourceProvider {
-	public final static String ModelExecutionKey = "ru.bmstu.rk9.rao.ui.handlers.simulationRunning";
-	public final static String running = "RUNNING";
-	public final static String stopped = "STOPPED";
+	public final static String ModelExecutionKey = "ru.bmstu.rk9.rao.ui.handlers.simulationState";
 
-	private static boolean isRunning = false;
+	public enum SimulationState {
+		RUNNING("RUNNING"), STOPPED("STOPPED"), DISABLED("DISABLED");
 
-	public static boolean getRunningState() {
-		return isRunning;
+		SimulationState(String state) {
+			this.state = state;
+		}
+
+		private final String state;
+
+		@Override
+		public final String toString() {
+			return state;
+		}
 	}
 
-	public static void setRunningState(IWorkbenchWindow workbenchWindow,
-			boolean newstate) {
+	private static String simulationState = SimulationState.STOPPED.toString();
+
+	public static String getSimulationState() {
+		return simulationState;
+	}
+
+	public static void setSimulationState(IWorkbenchWindow workbenchWindow,
+			String newState) {
 		ISourceProviderService sourceProviderService = (ISourceProviderService) workbenchWindow
 				.getService(ISourceProviderService.class);
 		ModelExecutionSourceProvider sourceProvider = (ModelExecutionSourceProvider) sourceProviderService
 				.getSourceProvider(ModelExecutionKey);
 
-		isRunning = newstate;
+		simulationState = newState;
 		PlatformUI.getWorkbench().getDisplay()
-				.syncExec(() -> sourceProvider.updateRunningState());
+				.syncExec(() -> sourceProvider.updateSimulationState());
 	}
 
 	@Override
@@ -38,7 +51,7 @@ public class ModelExecutionSourceProvider extends AbstractSourceProvider {
 	@Override
 	public HashMap<String, String> getCurrentState() {
 		HashMap<String, String> currentState = new HashMap<String, String>(1);
-		currentState.put(ModelExecutionKey, isRunning ? running : stopped);
+		currentState.put(ModelExecutionKey, simulationState.toString());
 		return currentState;
 	}
 
@@ -47,8 +60,8 @@ public class ModelExecutionSourceProvider extends AbstractSourceProvider {
 		return new String[] { ModelExecutionKey };
 	}
 
-	public void updateRunningState() {
+	public void updateSimulationState() {
 		fireSourceChanged(ISources.WORKBENCH, ModelExecutionKey,
-				isRunning ? running : stopped);
+				simulationState.toString());
 	}
 }

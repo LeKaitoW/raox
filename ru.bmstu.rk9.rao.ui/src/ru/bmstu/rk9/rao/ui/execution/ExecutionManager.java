@@ -16,6 +16,7 @@ import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
 import ru.bmstu.rk9.rao.ui.RaoActivatorExtension;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider;
+import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider.SimulationState;
 
 public class ExecutionManager {
 	private final IMultipleResourceGenerator generator;
@@ -49,8 +50,9 @@ public class ExecutionManager {
 		Job executionJob = new Job("Building Rao model") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				ModelExecutionSourceProvider.setRunningState(
-						activeWorkbenchWindow, true);
+				ModelExecutionSourceProvider.setSimulationState(
+						activeWorkbenchWindow,
+						SimulationState.RUNNING.toString());
 				try {
 					BuildJobProvider modelBuilder = new BuildJobProvider(
 							activeEditor, activeWorkbenchWindow, fsa,
@@ -67,16 +69,18 @@ public class ExecutionManager {
 					}
 
 					if (build.getResult() != Status.OK_STATUS) {
-						ModelExecutionSourceProvider.setRunningState(
-								activeWorkbenchWindow, false);
+						ModelExecutionSourceProvider.setSimulationState(
+								activeWorkbenchWindow,
+								SimulationState.STOPPED.toString());
 						ConsoleView.addLine("Build failed");
 						return new Status(Status.CANCEL, pluginId,
 								"Execution cancelled");
 					}
 
 					if (buildOnly) {
-						ModelExecutionSourceProvider.setRunningState(
-								activeWorkbenchWindow, false);
+						ModelExecutionSourceProvider.setSimulationState(
+								activeWorkbenchWindow,
+								SimulationState.STOPPED.toString());
 						return Status.OK_STATUS;
 					}
 
@@ -101,8 +105,9 @@ public class ExecutionManager {
 
 					return Status.OK_STATUS;
 				} finally {
-					ModelExecutionSourceProvider.setRunningState(
-							activeWorkbenchWindow, false);
+					ModelExecutionSourceProvider.setSimulationState(
+							activeWorkbenchWindow,
+							SimulationState.STOPPED.toString());
 				}
 			}
 		};
