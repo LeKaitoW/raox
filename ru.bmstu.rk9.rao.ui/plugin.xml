@@ -455,15 +455,11 @@
   <extension
         point="org.eclipse.ui.handlers">
      <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.build.BuildHandler"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.execution.BuildHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.build">
-     </handler>
-     <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.run.ExecutionHandler"
-           commandId="ru.bmstu.rk9.rao.ui.runtime.execute">
         <enabledWhen>
            <with
-                 variable="ru.bmstu.rk9.rao.ui.handlers.simulationRunning">
+                 variable="ru.bmstu.rk9.rao.ui.handlers.simulationState">
               <equals
                     value="STOPPED">
               </equals>
@@ -471,11 +467,23 @@
         </enabledWhen>
      </handler>
      <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.run.StoppingHandler"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.execution.StartExecutionHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.execute">
+        <enabledWhen>
+           <with
+                 variable="ru.bmstu.rk9.rao.ui.handlers.simulationState">
+              <equals
+                    value="STOPPED">
+              </equals>
+           </with>
+        </enabledWhen>
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.execution.StopExecutionHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.stop">
         <enabledWhen>
            <with
-                 variable="ru.bmstu.rk9.rao.ui.handlers.simulationRunning">
+                 variable="ru.bmstu.rk9.rao.ui.handlers.simulationState">
               <equals
                     value="RUNNING">
               </equals>
@@ -483,7 +491,7 @@
         </enabledWhen>
      </handler>
      <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.simulation.SetExecutionModeHandler"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.simulation.SetSimulationModeHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode">
      </handler>
      <handler
@@ -942,7 +950,7 @@
      <sourceProvider
            provider="ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider">
         <variable
-              name="ru.bmstu.rk9.rao.ui.handlers.simulationRunning"
+              name="ru.bmstu.rk9.rao.ui.handlers.simulationState"
               priorityLevel="workbench">
         </variable>
      </sourceProvider>

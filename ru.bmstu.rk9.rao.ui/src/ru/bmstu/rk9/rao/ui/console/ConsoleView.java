@@ -85,7 +85,7 @@ public class ConsoleView extends ViewPart {
 	}
 
 	public static void redrawText() {
-		if (styledText != null)
+		if (styledText != null && !styledText.isDisposed())
 			styledText.getDisplay().asyncExec(new Runnable() {
 				public void run() {
 					styledText.setText(text);

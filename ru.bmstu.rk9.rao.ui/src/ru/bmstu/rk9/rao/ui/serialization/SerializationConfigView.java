@@ -52,7 +52,7 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.rao.RaoModel;
-import ru.bmstu.rk9.rao.ui.build.BuildUtil;
+import ru.bmstu.rk9.rao.ui.execution.BuildUtil;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfig.SerializationNode;
 
 import com.google.inject.Inject;
@@ -509,12 +509,12 @@ public class SerializationConfigView extends ViewPart {
 	private static void setEnabled(boolean state) {
 		if (!readyForInput())
 			return;
-		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				serializationTreeViewer.getTree().setEnabled(state);
-			}
-		});
+		PlatformUI
+				.getWorkbench()
+				.getDisplay()
+				.asyncExec(
+						() -> serializationTreeViewer.getTree().setEnabled(
+								state));
 	}
 }
 
