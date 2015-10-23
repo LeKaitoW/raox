@@ -5,9 +5,12 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.ui.views.properties.IPropertySource;
 
-public class Node {
+public class Node implements IAdaptable {
 
 	private String name;
 	private Rectangle layout;
@@ -17,13 +20,17 @@ public class Node {
 	public static final String PROPERTY_LAYOUT = "NodeLayout";
 	public static final String PROPERTY_ADD = "NodeAddChild";
 	public static final String PROPERTY_REMOVE = "NodeRemoveChild";
+	public static final String PROPERTY_COLOR = "NodeColor";
+	private IPropertySource propertySource = null;
+	private Color color;
 
-	public Node() {
+	public Node(Color backgroundColor) {
 		this.name = "Unknown";
 		this.layout = new Rectangle(10, 10, 100, 100);
 		this.children = new ArrayList<Node>();
 		this.parent = null;
 		this.listeners = new PropertyChangeSupport(this);
+		this.color = backgroundColor;
 	}
 
 	public void setName(String name) {
@@ -87,5 +94,28 @@ public class Node {
 
 	public boolean contains(Node child) {
 		return children.contains(child);
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Object getAdapter(Class adapter) {
+		if (adapter == IPropertySource.class) {
+			if (propertySource == null) {
+				propertySource = new NodePropertySource(this);
+
+			}
+			return propertySource;
+		}
+		return null;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
+		Color oldColor = this.color;
+		this.color = color;
+		getListeners().firePropertyChange(PROPERTY_COLOR, oldColor, color);
 	}
 }

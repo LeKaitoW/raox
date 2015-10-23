@@ -1,24 +1,15 @@
 package ru.bmstu.rk9.rao.ui.process.seize;
 
-import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.draw2d.Figure;
-import org.eclipse.draw2d.LineBorder;
-import org.eclipse.draw2d.XYLayout;
+import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.geometry.Rectangle;
 
-public class SeizeFigure extends Figure {
+import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
-	public SeizeFigure() {
-		XYLayout layout = new XYLayout();
-		setLayoutManager(layout);
+public class SeizeFigure extends ProcessFigure {
 
-		setForegroundColor(ColorConstants.cyan);
-		setBackgroundColor(ColorConstants.red);
-		setBorder(new LineBorder(1));
-		setOpaque(true);
-	}
-
-	public void setLayout(Rectangle rect) {
-		getParent().setConstraint(this, rect);
+	@Override
+	protected void paintFigure(Graphics graphics) {
+		Rectangle rectangle = getBounds().getCopy();
+		graphics.fillRectangle(rectangle);
 	}
 }

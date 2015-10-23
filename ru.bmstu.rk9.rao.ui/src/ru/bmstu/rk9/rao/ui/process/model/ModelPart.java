@@ -23,14 +23,6 @@ public class ModelPart extends ProcessEditPart {
 	}
 
 	@Override
-	protected void refreshVisuals() {
-		ModelFigure figure = (ModelFigure) getFigure();
-		Model model = (Model) getModel();
-
-		figure.setLayout(model.getLayout());
-	}
-
-	@Override
 	public List<Node> getModelChildren() {
 		return ((Model) getModel()).getChildren();
 	}

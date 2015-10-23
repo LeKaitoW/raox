@@ -1,19 +1,7 @@
 package ru.bmstu.rk9.rao.ui.process.model;
 
-import org.eclipse.draw2d.Figure;
-import org.eclipse.draw2d.XYLayout;
-import org.eclipse.draw2d.geometry.Rectangle;
+import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
-public class ModelFigure extends Figure {
+public class ModelFigure extends ProcessFigure {
 
-	private XYLayout layout;
-
-	public ModelFigure() {
-		layout = new XYLayout();
-		setLayoutManager(layout);
-	}
-
-	public void setLayout(Rectangle rect) {
-		setBounds(rect);
-	}
 }

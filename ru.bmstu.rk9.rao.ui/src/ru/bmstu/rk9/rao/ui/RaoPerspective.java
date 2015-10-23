@@ -32,8 +32,8 @@ public class RaoPerspective implements IPerspectiveFactory {
 	private final void setPlotLocation() {
 		if (factory instanceof org.eclipse.ui.internal.e4.compatibility.ModeledPageLayout) {
 			org.eclipse.ui.internal.e4.compatibility.ModeledPageLayout plotLayout = (org.eclipse.ui.internal.e4.compatibility.ModeledPageLayout) factory;
-			plotLayout.stackView(PlotView.ID + ":*",
-					factory.getEditorArea(), false);
+			plotLayout.stackView(PlotView.ID + ":*", factory.getEditorArea(),
+					false);
 		}
 	}
 
@@ -57,6 +57,7 @@ public class RaoPerspective implements IPerspectiveFactory {
 		bottom.addView(ConsoleView.ID);
 		bottom.addView(TraceView.ID);
 		bottom.addView(ResultsView.ID);
+		bottom.addView(IPageLayout.ID_PROP_SHEET);
 
 		IFolderLayout bottomRight = factory.createFolder("bottomRight",
 				IPageLayout.RIGHT, 0.75f, "bottom");

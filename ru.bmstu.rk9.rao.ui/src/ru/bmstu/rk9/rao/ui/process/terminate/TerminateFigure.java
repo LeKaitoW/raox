@@ -3,10 +3,7 @@ package ru.bmstu.rk9.rao.ui.process.terminate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.Graphics;
-import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jdt.ui.PreferenceConstants;
@@ -14,15 +11,9 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.ui.PlatformUI;
 
-public class TerminateFigure extends Figure {
+import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
-	public TerminateFigure() {
-		XYLayout layout = new XYLayout();
-		setLayoutManager(layout);
-
-		setBackgroundColor(ColorConstants.red);
-		setOpaque(true);
-	}
+public class TerminateFigure extends ProcessFigure {
 
 	@Override
 	protected void paintFigure(Graphics graphics) {
@@ -58,9 +49,5 @@ public class TerminateFigure extends Figure {
 		Font font = new Font(oldFont.getDevice(), fontData);
 		graphics.setFont(font);
 		graphics.drawText("Terminate", rectangle.x + 2, rectangle.y + 48);
-	}
-
-	public void setLayout(Rectangle rect) {
-		getParent().setConstraint(this, rect);
 	}
 }
