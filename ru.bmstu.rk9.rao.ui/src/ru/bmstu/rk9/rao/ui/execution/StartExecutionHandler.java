@@ -59,28 +59,35 @@ public class StartExecutionHandler extends AbstractHandler implements
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void updateElement(UIElement element, Map parameters) {
+		String message;
+
 		IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow();
 
-		if (activeWorkbenchWindow == null)
-			return;
-
-		IEditorPart activeEditor = activeWorkbenchWindow.getActivePage()
-				.getActiveEditor();
-
-		IProject projectToBuild = BuildJobProvider.getProjectToBuild(
-				activeWorkbenchWindow, activeEditor);
-		String message;
-		if (projectToBuild == null) {
+		if (activeWorkbenchWindow == null) {
 			ModelExecutionSourceProvider.setSimulationState(
 					activeWorkbenchWindow, SimulationState.DISABLED.toString());
-			message = "Execute Rao model: cannot choose project to run";
+			message = "Execute Rao model: no active workbench window";
 		} else {
-			message = "Execute model " + projectToBuild.getName();
-			if (ModelExecutionSourceProvider.getSimulationState().equals(
-					SimulationState.DISABLED.toString()))
+			IEditorPart activeEditor = activeWorkbenchWindow.getActivePage()
+					.getActiveEditor();
+
+			IProject projectToBuild = BuildJobProvider.getProjectToBuild(
+					activeWorkbenchWindow, activeEditor);
+
+			if (projectToBuild == null) {
 				ModelExecutionSourceProvider.setSimulationState(
-						activeWorkbenchWindow, SimulationState.STOPPED.toString());
+						activeWorkbenchWindow,
+						SimulationState.DISABLED.toString());
+				message = "Execute Rao model: cannot choose project to run";
+			} else {
+				message = "Execute model " + projectToBuild.getName();
+				if (ModelExecutionSourceProvider.getSimulationState().equals(
+						SimulationState.DISABLED.toString()))
+					ModelExecutionSourceProvider.setSimulationState(
+							activeWorkbenchWindow,
+							SimulationState.STOPPED.toString());
+			}
 		}
 
 		element.setText(message);
