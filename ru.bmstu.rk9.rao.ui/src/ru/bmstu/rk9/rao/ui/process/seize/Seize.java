@@ -12,4 +12,5 @@ public class Seize extends Node {
 	}
 
 	private static Color backgroundColor = ColorConstants.darkGray;
+	public static String name = "Seize";
 }

@@ -12,4 +12,5 @@ public class Resource extends Node {
 	}
 
 	private static Color backgroundColor = ColorConstants.cyan;
+	public static String name = "Resource";
 }

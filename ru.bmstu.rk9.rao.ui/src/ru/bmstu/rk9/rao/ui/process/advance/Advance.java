@@ -12,5 +12,6 @@ public class Advance extends Node {
 	}
 
 	private static Color backgroundColor = ColorConstants.green;
+	public static String name = "Advance";
 
 }

@@ -46,19 +46,20 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	private Model model;
 	public static final Map<Class<?>, ProcessNodeInfo> processNodesInfo = new LinkedHashMap<>();
 	static {
-		processNodesInfo.put(Model.class, new ProcessNodeInfo("Model",
+		processNodesInfo.put(Model.class, new ProcessNodeInfo(Model.name,
 				() -> new Model(), () -> new ModelPart()));
-		processNodesInfo.put(Generate.class, new ProcessNodeInfo("Generate",
+		processNodesInfo.put(Generate.class, new ProcessNodeInfo(Generate.name,
 				() -> new Generate(), () -> new GeneratePart()));
-		processNodesInfo.put(Terminate.class, new ProcessNodeInfo("Terminate",
-				() -> new Terminate(), () -> new TerminatePart()));
-		processNodesInfo.put(Seize.class, new ProcessNodeInfo("Seize",
+		processNodesInfo.put(Terminate.class, new ProcessNodeInfo(
+				Terminate.name, () -> new Terminate(),
+				() -> new TerminatePart()));
+		processNodesInfo.put(Seize.class, new ProcessNodeInfo(Seize.name,
 				() -> new Seize(), () -> new SeizePart()));
-		processNodesInfo.put(Release.class, new ProcessNodeInfo("Release",
+		processNodesInfo.put(Release.class, new ProcessNodeInfo(Release.name,
 				() -> new Release(), () -> new ReleasePart()));
-		processNodesInfo.put(Advance.class, new ProcessNodeInfo("Advance",
+		processNodesInfo.put(Advance.class, new ProcessNodeInfo(Advance.name,
 				() -> new Advance(), () -> new AdvancePart()));
-		processNodesInfo.put(Resource.class, new ProcessNodeInfo("Resource",
+		processNodesInfo.put(Resource.class, new ProcessNodeInfo(Resource.name,
 				() -> new Resource(), () -> new ResourcePart()));
 	}
 

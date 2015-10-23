@@ -12,4 +12,5 @@ public class Generate extends Node {
 	}
 
 	private static Color backgroundColor = ColorConstants.lightBlue;
+	public static String name = "Generate";
 }

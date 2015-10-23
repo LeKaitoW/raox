@@ -12,4 +12,5 @@ public class Model extends Node {
 	}
 
 	private static Color backgroundColor = ColorConstants.white;
+	public static String name = "Model";
 }

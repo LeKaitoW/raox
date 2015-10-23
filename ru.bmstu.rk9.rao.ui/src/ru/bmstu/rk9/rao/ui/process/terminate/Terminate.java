@@ -12,5 +12,6 @@ public class Terminate extends Node {
 	}
 
 	private static Color backgroundColor = ColorConstants.red;
+	public static String name = "Terminate";
 
 }

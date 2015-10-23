@@ -12,4 +12,5 @@ public class Release extends Node {
 	}
 
 	private static Color backgroundColor = ColorConstants.yellow;
+	public static String name = "Release";
 }
