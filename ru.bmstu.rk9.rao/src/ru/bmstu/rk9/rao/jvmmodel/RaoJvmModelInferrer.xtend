@@ -11,7 +11,11 @@ import ru.bmstu.rk9.rao.rao.FunctionDeclaration
 import org.eclipse.xtext.common.types.JvmVisibility
 
 import ru.bmstu.rk9.rao.lib.simulator.EmbeddedSimulation
+import ru.bmstu.rk9.rao.rao.Event
+import ru.bmstu.rk9.rao.rao.DefaultMethod
+import ru.bmstu.rk9.rao.lib.simulator.TerminateCondition
 
+// TODO add override annotation to all generated overriden methods
 class RaoJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
 
@@ -19,13 +23,14 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 		acceptor.accept(element.toClass(QualifiedName.create("model"))) [
 			superTypes += typeRef(EmbeddedSimulation)
 
-			// TODO add override annotation to that method
 			members += element.toMethod("run", typeRef(int)) [
-				visibility = JvmVisibility.PROTECTED
+				visibility = JvmVisibility.PUBLIC
+				static = true
 				final = true
 				body = '''
-				System.out.println("so, we meet again");
-				return 0;'''
+					INSTANCE = new model();
+					return INSTANCE.initSimulation(new ModelTerminateCondition());
+				'''
 			]
 
 			for (entity : element.objects) {
@@ -34,8 +39,75 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 						members += entity.compileConstantAsField
 					FunctionDeclaration:
 						members += entity.compileFunctionAsMethod
+					DefaultMethod:
+						switch (entity.name) {
+							case "init": {
+								members += entity.compileInitMethod
+							}
+							case "terminateCondition": {
+								members += entity.compileTerminateConditionClass
+							}
+						}
 				}
 			}
+		]
+
+		for (entity : element.objects) {
+			switch (entity) {
+				Event:
+					entity.compileEventAsClass(acceptor)
+			}
+		}
+	}
+
+	def compileEventAsClass(Event event, IJvmDeclaredTypeAcceptor acceptor) {
+		acceptor.accept(event.toClass(QualifiedName.create(event.name))) [
+			superTypes += typeRef(ru.bmstu.rk9.rao.lib.event.Event)
+
+			members += event.toConstructor [
+				visibility = JvmVisibility.PUBLIC
+				parameters += event.toParameter("time", typeRef(double))
+				for (param : event.parameters)
+					parameters += param.toParameter(param.name, param.parameterType)
+				body = '''
+					«FOR param : parameters»this.«param.name» = «param.name»;
+					«ENDFOR»
+				'''
+			]
+
+			for (param : event.parameters)
+				members += param.toField(param.name, param.parameterType)
+
+			members += event.toMethod("getName", typeRef(String)) [
+				visibility = JvmVisibility.PUBLIC
+				final = true
+				body = '''
+					return "«event.name»";
+				'''
+			]
+
+			members += event.toMethod("run", typeRef(void)) [
+				visibility = JvmVisibility.PUBLIC
+				final = true
+				body = event.body
+			]
+
+			members += event.toMethod("plan", typeRef(void)) [
+				visibility = JvmVisibility.PUBLIC
+				static = true
+				final = true
+
+				parameters += event.toParameter("time", typeRef(double))
+				for (param : event.parameters)
+					parameters += event.toParameter(param.name, param.parameterType)
+
+				body = '''
+					«event.name» event = new «event.name»(«FOR param : parameters»«
+							param.name»«
+							IF parameters.indexOf(param) != parameters.size - 1», «ENDIF»«ENDFOR»);
+					pushEvent(event);
+				'''
+			]
 		]
 	}
 
@@ -50,13 +122,33 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 
 	def compileFunctionAsMethod(FunctionDeclaration function) {
 		return function.toMethod(function.name, function.type) [
-			for (param : function.params)
+			for (param : function.parameters)
 				parameters += function.toParameter(param.name, param.parameterType)
 			visibility = JvmVisibility.PUBLIC
 			static = true
 			final = true
-			varArgs = false
 			body = function.body
+		]
+	}
+
+	def compileInitMethod(DefaultMethod method) {
+		return method.toMethod(method.name, typeRef(void)) [
+			visibility = JvmVisibility.PROTECTED
+			final = true
+			body = method.body
+		]
+	}
+
+	def compileTerminateConditionClass(DefaultMethod method) {
+		return method.toClass("ModelTerminateCondition") [
+			superTypes += typeRef(TerminateCondition)
+			static = true
+
+			members += method.toMethod("check", typeRef(boolean)) [
+				visibility = JvmVisibility.PUBLIC
+				final = true
+				body = method.body
+			]
 		]
 	}
 }

@@ -1,10 +1,18 @@
 package ru.bmstu.rk9.rao.lib.event;
 
-public interface Event {
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
-	public String getName();
+public abstract class Event {
+	protected double time;
 
-	public double getTime();
+	public final double getTime() {
+		return time;
+	}
 
-	public void run();
+	protected static void pushEvent(Event event) {
+		Simulator.pushEvent(event);
+	}
+
+	public abstract String getName();
+	public abstract void run();
 }
