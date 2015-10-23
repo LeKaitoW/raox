@@ -1,11 +1,17 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
+import java.util.Map;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.menus.UIElement;
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
@@ -16,7 +22,8 @@ import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-public class StartExecutionHandler extends AbstractHandler {
+public class StartExecutionHandler extends AbstractHandler implements
+		IElementUpdater {
 	@Inject
 	private IMultipleResourceGenerator generator;
 
@@ -45,5 +52,29 @@ public class StartExecutionHandler extends AbstractHandler {
 		executionManager.execute(false);
 
 		return null;
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void updateElement(UIElement element, Map parameters) {
+		IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench()
+				.getActiveWorkbenchWindow();
+
+		if (activeWorkbenchWindow == null)
+			return;
+
+		IEditorPart activeEditor = activeWorkbenchWindow.getActivePage()
+				.getActiveEditor();
+
+		IProject projectToBuild = BuildJobProvider.getProjectToBuild(
+				activeWorkbenchWindow, activeEditor);
+		String message;
+		if (projectToBuild == null)
+			message = "Execute rao model: cannot choose project to run";
+		else
+			message = "Execute model " + projectToBuild.getName();
+
+		element.setText(message);
+		element.setTooltip(message);
 	}
 }
