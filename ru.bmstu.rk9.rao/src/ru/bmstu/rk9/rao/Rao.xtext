@@ -318,7 +318,7 @@ Result:
 ResultType
 	: ResultWatchParameter
 	| ResultWatchState
-	| ResultWatchQuant
+	| ResultWatchQuantity
 	| ResultWatchValue
 	| ResultGetValue
 ;
@@ -331,8 +331,8 @@ ResultWatchState:
 	'watchState' '(' logic = ExpressionOr ')'
 ;
 
-ResultWatchQuant:
-	'watchQuant' '(' resource = [ResourceType|FQN]
+ResultWatchQuantity:
+	'watchQuantity' '(' resource = [ResourceType|FQN]
 		',' ('any' | logic = ExpressionOr) ')'
 ;
 

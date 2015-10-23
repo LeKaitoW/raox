@@ -637,7 +637,7 @@ public class Database {
 
 	public static enum ResultType {
 		GET_VALUE("getValue"), WATCH_PAR("watchParameter"), WATCH_QUANT(
-				"watchQuant"), WATCH_STATE("watchState"), WATCH_VALUE(
+				"watchQuantity"), WATCH_STATE("watchState"), WATCH_VALUE(
 				"watchValue");
 
 		ResultType(final String type) {

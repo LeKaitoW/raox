@@ -57,14 +57,7 @@ class DecisionPointCompiler
 			'''
 			package «filename»;
 
-			import ru.bmstu.rk9.rao.lib.json.*;
-
-			import ru.bmstu.rk9.rao.lib.*;
-			import ru.bmstu.rk9.rao.lib.dpt.*;
-			import ru.bmstu.rk9.rao.lib.pattern.*;
-			import ru.bmstu.rk9.rao.lib.simulator.*;
-			import ru.bmstu.rk9.rao.lib.database.*;
-			@SuppressWarnings("all")
+			«Util.putImports»
 
 			public class «dpt.name»
 			{
@@ -235,14 +228,7 @@ class DecisionPointCompiler
 		'''
 			package «filename»;
 
-			import ru.bmstu.rk9.rao.lib.json.*;
-
-			import ru.bmstu.rk9.rao.lib.*;
-			import ru.bmstu.rk9.rao.lib.dpt.*;
-			import ru.bmstu.rk9.rao.lib.pattern.*;
-			import ru.bmstu.rk9.rao.lib.simulator.*;
-			import ru.bmstu.rk9.rao.lib.database.*;
-			@SuppressWarnings("all")
+			«Util.putImports»
 
 			public class «dpt.name»
 			{

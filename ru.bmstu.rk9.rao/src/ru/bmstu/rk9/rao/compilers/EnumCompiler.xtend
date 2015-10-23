@@ -10,10 +10,7 @@ class EnumCompiler {
 		'''
 			package «filename»;
 
-			import ru.bmstu.rk9.rao.lib.json.*;
-
-			import ru.bmstu.rk9.rao.lib.*;
-			@SuppressWarnings("all")
+			«Util.putImports»
 
 			public class «enumDeclaration.name»
 			{
