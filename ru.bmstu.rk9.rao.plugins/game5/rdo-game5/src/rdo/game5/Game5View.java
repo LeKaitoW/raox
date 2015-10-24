@@ -90,6 +90,11 @@ public class Game5View extends EditorPart {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void createPartControl(Composite parent) {
+
+		Color color = parent.getDisplay().getSystemColor(
+				SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW);
+		parent.setBackground(color);
+
 		final IFileEditorInput input = (IFileEditorInput) this.getEditorInput();
 		final IFile configIFile = input.getFile();
 		setPartName(configIFile.getProject().getName());
@@ -106,6 +111,7 @@ public class Game5View extends EditorPart {
 		boardGroup.setLayoutData(boardData);
 		boardGroup.setLayout(boardLayout);
 		boardGroup.setText("Board:");
+		boardGroup.setBackground(color);
 		JSONArray places = (JSONArray) object.get("places");
 		for (int i = 0; i < tilesCountX * tilesCountY; i++) {
 			tiles.add(new TileButton(boardGroup, SWT.NONE, String
@@ -114,6 +120,7 @@ public class Game5View extends EditorPart {
 
 		final Group shuffleGroup = new Group(parent, SWT.SHADOW_IN);
 		shuffleGroup.setText("Shuffle:");
+		shuffleGroup.setBackground(color);
 		final GridData shuffleData = new GridData(SWT.FILL, SWT.FILL, false,
 				false);
 		shuffleData.verticalSpan = 2;
@@ -139,6 +146,7 @@ public class Game5View extends EditorPart {
 
 		final Group setOrderGroup = new Group(parent, SWT.NONE);
 		setOrderGroup.setText("Set order:");
+		setOrderGroup.setBackground(color);
 		setOrderGroup.setLayout(new FormLayout());
 		final GridData setOrderData = new GridData(SWT.FILL, SWT.FILL, false,
 				false);
@@ -175,6 +183,7 @@ public class Game5View extends EditorPart {
 
 		final Group ruleCost = new Group(parent, SWT.SHADOW_IN);
 		ruleCost.setText("Rules cost:");
+		ruleCost.setBackground(color);
 		final GridLayout ruleCostLayout = new GridLayout(4, false);
 		ruleCost.setLayout(ruleCostLayout);
 		final GridData ruleCostData = new GridData(SWT.BEGINNING, SWT.FILL,
@@ -184,6 +193,7 @@ public class Game5View extends EditorPart {
 
 		final Group traverseGraph = new Group(parent, SWT.SHADOW_IN);
 		traverseGraph.setText("Traverse graph:");
+		traverseGraph.setBackground(color);
 		traverseGraph.setLayout(gridLayout);
 		final Button compareTops = new Button(traverseGraph, SWT.CHECK);
 		compareTops.setText("Compare tops");
@@ -191,6 +201,7 @@ public class Game5View extends EditorPart {
 
 		final Group inOrderGroup = new Group(parent, SWT.SHADOW_IN);
 		inOrderGroup.setText("Set in order:");
+		inOrderGroup.setBackground(color);
 		inOrderGroup.setLayout(gridLayout);
 		final Button inOrder = new Button(inOrderGroup, SWT.PUSH);
 		inOrder.setText("In order");
@@ -200,6 +211,7 @@ public class Game5View extends EditorPart {
 
 		final Group simulationGroup = new Group(parent, SWT.SHADOW_IN);
 		simulationGroup.setText("Experiment:");
+		simulationGroup.setBackground(color);
 		simulationGroup.setLayout(new GridLayout());
 		final GridData simulationData = new GridData(SWT.BEGINNING, SWT.FILL,
 				true, false);
@@ -208,6 +220,7 @@ public class Game5View extends EditorPart {
 
 		final Group heuristicSelection = new Group(parent, SWT.SHADOW_IN);
 		heuristicSelection.setText("Heuristic:");
+		heuristicSelection.setBackground(color);
 		heuristicSelection.setLayout(gridLayout);
 		final GridData heuristicGridData = new GridData(SWT.FILL, SWT.FILL,
 				false, false);
@@ -362,6 +375,7 @@ public class Game5View extends EditorPart {
 
 		final Group editorGroup = new Group(parent, SWT.SHADOW_IN);
 		editorGroup.setText("Heuristic code:");
+		editorGroup.setBackground(color);
 		editorGroup.setLayout(gridLayout);
 		final GridData editorGridData = new GridData(SWT.FILL, SWT.FILL, true,
 				true, 1, 1);
