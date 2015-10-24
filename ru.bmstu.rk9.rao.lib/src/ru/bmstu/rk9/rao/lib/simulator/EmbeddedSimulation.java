@@ -4,17 +4,20 @@ import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 
 public abstract class EmbeddedSimulation {
-	protected static EmbeddedSimulation INSTANCE = null;
+	protected void init() {
+	}
 
-	protected abstract void init();
+	protected TerminateCondition getTerminateCondition() {
+		return () -> false;
+	}
 
-	public static double getCurrentTime() {
+	public static final double getCurrentTime() {
 		return Simulator.getTime();
 	}
 
-	public int initSimulation(TerminateCondition terminateCondition) {
+	public final int run() {
 		Simulator.initSimulation(modelStructure);
-		Simulator.addTerminateCondition(terminateCondition);
+		Simulator.addTerminateCondition(getTerminateCondition());
 		init();
 		return Simulator.run();
 	}

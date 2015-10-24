@@ -118,7 +118,7 @@ public class ExecutionHandler extends AbstractHandler {
 
 					Method runSimulation = null;
 					for (Method method : modelClass.getMethods()) {
-						if (method.getName() == "run")
+						if (method.getName() == "startSimulation")
 							runSimulation = method;
 					}
 

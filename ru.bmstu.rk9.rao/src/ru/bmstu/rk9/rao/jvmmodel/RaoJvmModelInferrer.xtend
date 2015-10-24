@@ -23,13 +23,14 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 		acceptor.accept(element.toClass(QualifiedName.create("model"))) [
 			superTypes += typeRef(EmbeddedSimulation)
 
-			members += element.toMethod("run", typeRef(int)) [
+			members += element.compileInstanceField
+
+			members += element.toMethod("startSimulation", typeRef(int)) [
 				visibility = JvmVisibility.PUBLIC
 				static = true
 				final = true
 				body = '''
-					INSTANCE = new model();
-					return INSTANCE.initSimulation(new ModelTerminateCondition());
+					return INSTANCE.run();
 				'''
 			]
 
@@ -46,6 +47,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 							}
 							case "terminateCondition": {
 								members += entity.compileTerminateConditionClass
+								members += entity.compileTerminateConditionGetter
 							}
 						}
 				}
@@ -149,6 +151,23 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				final = true
 				body = method.body
 			]
+		]
+	}
+
+	def compileTerminateConditionGetter(DefaultMethod method) {
+		return method.toMethod("getTerminateCondition", typeRef(TerminateCondition)) [
+			visibility = JvmVisibility.PROTECTED
+			final = true
+			body = '''return new ModelTerminateCondition();'''
+		]
+	}
+
+	def compileInstanceField(RaoModel element) {
+		return element.toField("INSTANCE", typeRef(EmbeddedSimulation)) [
+			visibility = JvmVisibility.PRIVATE
+			static = true
+			final = true
+			initializer = '''new model()'''
 		]
 	}
 }
