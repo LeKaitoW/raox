@@ -2,8 +2,12 @@ import ftplib
 import re
 import versioned_file
 
+
+HOST='rk9.bmstu.ru'
+
+
 def connect(login, password):
-	ftp = ftplib.FTP('rk9.bmstu.ru')
+	ftp = ftplib.FTP(HOST)
 	ftp.login(login, password)
 	return ftp
 
