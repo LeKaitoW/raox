@@ -47,7 +47,7 @@ def parseFtpFiles(files):
 		if file_type != 'file':
 			continue
 		file_name = file_info[3].strip()
-		rao_match = re.search('rao-(\d+.\d+.\d+)-(win|linux|mac|plugins).*', file_name)
+		rao_match = re.search('rao-(\d+\.\d+\.\d+)-(win|linux|mac|plugins).*', file_name)
 		if rao_match:
 			if rao_match.group(2) == 'plugins':
 				rao_plugins_files.append(VersionedFile(file_name = file_name, file_version = rao_match.group(1)))
