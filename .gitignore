@@ -66,6 +66,7 @@ ru.bmstu.rk9.rao.lib*.jar
 
 ru.bmstu.rk9.rao/target
 ru.bmstu.rk9.rao.lib/target
+ru.bmstu.rk9.rao.sdk/target
 ru.bmstu.rk9.rao.tests/target
 ru.bmstu.rk9.rao.ui/target
 assembly/target

@@ -9,6 +9,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	<modules>
 		<module>ru.bmstu.rk9.rao</module>
 		<module>ru.bmstu.rk9.rao.lib</module>
+		<module>ru.bmstu.rk9.rao.sdk</module>
 		<module>ru.bmstu.rk9.rao.tests</module>
 		<module>ru.bmstu.rk9.rao.ui</module>
 		<module>assembly</module>
@@ -186,6 +187,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 								parent,
 								ru.bmstu.rk9.rao,
 								ru.bmstu.rk9.rao.lib,
+								ru.bmstu.rk9.rao.sdk,
 								ru.bmstu.rk9.rao.tests,
 								ru.bmstu.rk9.rao.ui,
 								assembly
