@@ -8,7 +8,7 @@ if __name__ == "__main__":
     argument_parser.add_argument('--login', help='ftp login', default='')
     argument_parser.add_argument('--password', help='ftp password', default='')
     argument_parser.add_argument('--directory', help='ftp directory', default='tmp')
-    argument_parser.add_argument('--versions_limit', type=int, help="files last versions limit count", default=5)
+    argument_parser.add_argument('--versions_limit', type=int, help="number of last versions to store", default=5)
     args = argument_parser.parse_args()
 
     ftp = ftp_server.connect(args.login, args.password)
