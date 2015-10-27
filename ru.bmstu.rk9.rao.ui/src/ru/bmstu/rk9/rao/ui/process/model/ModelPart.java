@@ -35,5 +35,7 @@ public class ModelPart extends ProcessEditPart {
 			refreshChildren();
 		if (evt.getPropertyName().equals(Node.PROPERTY_REMOVE))
 			refreshChildren();
+		if (evt.getPropertyName().equals(Node.PROPERTY_NAME))
+			refreshVisuals();
 	}
 }

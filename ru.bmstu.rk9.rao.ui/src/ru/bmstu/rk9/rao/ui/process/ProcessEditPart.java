@@ -46,6 +46,10 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		if (evt.getPropertyName().equals(Node.PROPERTY_COLOR)) {
 			getFigure().setBackgroundColor((Color) evt.getNewValue());
 		}
+		if (evt.getPropertyName().equals(Node.PROPERTY_NAME)) {
+			((ProcessFigure) getFigure()).setFigureNameVisible((boolean) evt
+					.getNewValue());
+		}
 		if (evt.getPropertyName().equals(Node.PROPERTY_LAYOUT))
 			refreshVisuals();
 	}

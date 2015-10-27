@@ -1,7 +1,6 @@
 package ru.bmstu.rk9.rao.ui.process.generate;
 
 import org.eclipse.draw2d.Graphics;
-import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 
@@ -9,7 +8,10 @@ import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class GenerateFigure extends ProcessFigure {
 
-	private Label label = new Label(Generate.name);
+	public GenerateFigure() {
+		super();
+		label.setText(Generate.name);
+	}
 
 	@Override
 	protected void paintFigure(Graphics graphics) {
@@ -23,12 +25,6 @@ public class GenerateFigure extends ProcessFigure {
 				- 3 * offset);
 		graphics.fillPolygon(points);
 
-		Rectangle relativeRectangle = rectangle.getCopy();
-		relativeRectangle.setX(0);
-		relativeRectangle.setY(rectangle.height * 2 / 5);
-
-		label.setFont(getFont());
-		add(label);
-		setConstraint(label, relativeRectangle);
+		paintName(rectangle);
 	}
 }

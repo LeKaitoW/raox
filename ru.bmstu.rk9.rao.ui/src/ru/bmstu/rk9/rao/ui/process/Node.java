@@ -21,8 +21,10 @@ public class Node implements IAdaptable {
 	public static final String PROPERTY_ADD = "NodeAddChild";
 	public static final String PROPERTY_REMOVE = "NodeRemoveChild";
 	public static final String PROPERTY_COLOR = "NodeColor";
+	public static final String PROPERTY_NAME = "ShowNodeName";
 	private IPropertySource propertySource = null;
 	private Color color;
+	private boolean nameIsVisible = true;
 
 	public Node(Color backgroundColor) {
 		this.name = "Unknown";
@@ -117,5 +119,15 @@ public class Node implements IAdaptable {
 		Color oldColor = this.color;
 		this.color = color;
 		getListeners().firePropertyChange(PROPERTY_COLOR, oldColor, color);
+	}
+
+	public boolean nameIsVisible() {
+		return nameIsVisible;
+	}
+
+	public void setNameVisible(boolean visible) {
+		boolean oldVisible = this.nameIsVisible;
+		this.nameIsVisible = visible;
+		getListeners().firePropertyChange(PROPERTY_NAME, oldVisible, visible);
 	}
 }

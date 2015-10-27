@@ -7,6 +7,11 @@ import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class AdvanceFigure extends ProcessFigure {
 
+	public AdvanceFigure() {
+		super();
+		label.setText(Advance.name);
+	}
+
 	@Override
 	protected void paintFigure(Graphics graphics) {
 		Rectangle rectangle = getBounds().getCopy();

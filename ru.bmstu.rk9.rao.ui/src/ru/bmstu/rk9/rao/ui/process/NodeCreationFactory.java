@@ -15,9 +15,10 @@ public class NodeCreationFactory implements CreationFactory {
 	@Override
 	public Object getNewObject() {
 		Map<Class<?>, ProcessNodeInfo> processNodesInfo = ProcessEditor.processNodesInfo;
-		if (!processNodesInfo.containsKey(template))
+		ProcessNodeInfo processNode = processNodesInfo.get(template);
+		if (processNode == null)
 			return null;
-		return processNodesInfo.get(template).getNodeFactory().get();
+		return processNode.getNodeFactory().get();
 		// exception, sysout template
 	}
 

@@ -25,7 +25,9 @@ public class NodePropertySource implements IPropertySource {
 	public IPropertyDescriptor[] getPropertyDescriptors() {
 		PropertyDescriptor colorProperty = new ColorPropertyDescriptor(
 				Node.PROPERTY_COLOR, "Color");
-		properties = new IPropertyDescriptor[] { colorProperty };
+		PropertyDescriptor nameProperty = new CheckboxPropertyDescriptor(
+				Node.PROPERTY_NAME, "Show name");
+		properties = new IPropertyDescriptor[] { colorProperty, nameProperty };
 		return properties;
 	}
 
@@ -33,6 +35,8 @@ public class NodePropertySource implements IPropertySource {
 	public Object getPropertyValue(Object id) {
 		if (id.equals(Node.PROPERTY_COLOR)) {
 			return node.getColor().getRGB();
+		} else if (id.equals(Node.PROPERTY_NAME)) {
+			return node.nameIsVisible();
 		}
 		return null;
 	}
@@ -53,6 +57,8 @@ public class NodePropertySource implements IPropertySource {
 		if (id.equals(Node.PROPERTY_COLOR)) {
 			Color newColor = new Color(null, (RGB) value);
 			node.setColor(newColor);
+		} else if (id.equals(Node.PROPERTY_NAME)) {
+			node.setNameVisible((boolean) value);
 		}
 	}
 }
