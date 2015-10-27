@@ -116,6 +116,7 @@ public class GraphManager {
 	}
 
 	private final void createBoard(final Group boardGroup) {
+		tiles.clear();
 		for (int i = 0; i < tilesCountX * tilesCountY; i++) {
 			tiles.add(new TileButton(boardGroup, SWT.NONE, currentOrder.get(i)
 					.toString(), i + 1));
