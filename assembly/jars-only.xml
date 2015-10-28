@@ -2,7 +2,7 @@
 	<formats>
 		<format>zip</format>
 	</formats>
-	<id>${git-long-version}-plugins</id>
+	<id>${project.version}-plugins</id>
 	<fileSets>
 		<fileSet>
 			<directory>${basedir}/target/plugins</directory>
