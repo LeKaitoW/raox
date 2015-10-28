@@ -15,12 +15,12 @@ def generate_download_page(versioned_files, directory, program_name):
     if not versioned_files:
         return ''
 
-    download_page = '<P><B>{program_name}</B></P>'.format(program_name=program_name)
+    download_page = '<B>{program_name}</B>'.format(program_name=program_name)
     last_version = ''
     for versioned_file in versioned_files:
         if last_version != versioned_file.file_version:
             last_version = versioned_file.file_version
-            download_page += '<P>{last_version}</P>\n'.format(last_version=last_version)
+            download_page += '<BR><BR>{last_version}<BR>\n'.format(last_version=last_version)
         download_page += '<A HREF="http://{host}/{directory}/{file_name}">{file_name}</A><BR>\n'.format(
             host=HOST,
             directory=directory,
@@ -41,22 +41,19 @@ if __name__ == "__main__":
     rao_plugins_files = get_sorted_versioned_files(rao_plugins_files)
 
     page = '''
-<HTML>
-<HEAD>
-<TITLE>Язык имитационного моделирования РДО</TITLE>
-<META http-equiv="Content-Type" content="text/html; charset=utf-8">
-<LINK rel = "stylesheet" type = "text/css" href = "shared/styles/styles.css">
-</HEAD>
-<BODY>
-<H1>Загрузить</H1>
-<TABLE cols="2" cellspacing="10" cellpadding="10">
+<STYLE type="text/css">
+.no_border, .no_border tr, .no_border th, .no_border td {
+    border: hidden;
+}
+</STYLE>
+
+<TABLE class="no_border" cols="2" cellspacing="10" cellpadding="10">
 <TR valign="top">
 '''
-    page += '<TD>' + generate_download_page(rao_eclipse_files, args.directory, 'RAO Eclipse') + '</TD>'
-    page += '<TD>' + generate_download_page(rao_plugins_files, args.directory, 'RAO Plugin') + '</TD>'
+    page += '<TD width="50%">' + generate_download_page(rao_eclipse_files, args.directory, 'RAO Eclipse') + '</TD>'
+    page += '<TD width="50%">' + generate_download_page(rao_plugins_files, args.directory, 'RAO Plugin') + '</TD>'
     page += '''
 </TR>
 </TABLE>
-</BODY>
 '''
     print page
