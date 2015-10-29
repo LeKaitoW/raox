@@ -148,9 +148,8 @@ public class Game5ProjectConfigurator {
 		final String configFilePath = "/model_template/config.json";
 		final IWorkbenchPage page = PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow().getActivePage();
-		IFile configIFile = null; // exception pls?
 		configFile.createNewFile();
-		configIFile = game5Project.getFile(configName);
+		IFile configIFile = game5Project.getFile(configName);
 		InputStream inputStream = Game5ProjectConfigurator.class
 				.getClassLoader().getResourceAsStream(configFilePath);
 		configIFile.create(inputStream, true, null);

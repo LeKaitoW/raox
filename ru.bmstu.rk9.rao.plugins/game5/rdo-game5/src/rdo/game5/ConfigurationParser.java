@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.PlatformUI;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -25,6 +27,13 @@ public class ConfigurationParser {
 					StandardCharsets.UTF_8));
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();
+			MessageDialog.openError(
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+							.getShell(),
+					"Error",
+					"Failed to parse configuration template:\n"
+							+ e.getMessage());
+			throw new Game5Exception("Failed to parse configuration template");
 		}
 		return object;
 	}

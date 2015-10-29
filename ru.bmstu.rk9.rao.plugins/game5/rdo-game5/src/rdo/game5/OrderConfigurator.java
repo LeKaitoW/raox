@@ -16,19 +16,16 @@ public class OrderConfigurator {
 	private static final int tilesCountY = 2;
 
 	@SuppressWarnings("unchecked")
-	public static void setInOrder(JSONObject object) {
+	public static void setInOrder(JSONObject object) throws IOException,
+			ParseException {
 		JSONParser parser = new JSONParser();
 		final String configPath = "/model_template/config.json";
-		try {
-			InputStream inputStream = Game5View.class.getClassLoader()
-					.getResourceAsStream(configPath);
-			InputStreamReader reader = new InputStreamReader(inputStream);
-			JSONObject templateObject = (JSONObject) parser.parse(reader);
-			JSONArray templateOrder = (JSONArray) templateObject.get("places");
-			object.put("places", templateOrder);
-		} catch (IOException | ParseException e) {
-			e.printStackTrace();
-		}
+		InputStream inputStream = Game5View.class.getClassLoader()
+				.getResourceAsStream(configPath);
+		InputStreamReader reader = new InputStreamReader(inputStream);
+		JSONObject templateObject = (JSONObject) parser.parse(reader);
+		JSONArray templateOrder = (JSONArray) templateObject.get("places");
+		object.put("places", templateOrder);
 	}
 
 	public static JSONArray shuffle(JSONArray places, String solvable) {
