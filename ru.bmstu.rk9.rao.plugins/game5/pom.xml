@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>rdo-game5</groupId>
+	<artifactId>parent</artifactId>
+	<version>${rdo-game5-version}</version>
+	<packaging>pom</packaging>
+	<modules>
+		<module>rdo-game5</module>
+		<module>assembly</module>
+	</modules>
+
+	<properties>
+		<tycho-version>0.23.0</tycho-version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<rdo-game5-version>1.0.0</rdo-game5-version>
+		<target-os-property></target-os-property>
+		<target-bitness-property></target-bitness-property>
+	</properties>
+
+	<profiles>
+		<profile>
+			<id>set-bitness</id>
+			<activation>
+				<property>
+					<name>target-bitness</name>
+				</property>
+			</activation>
+			<properties>
+				<target-bitness-property>-${target-bitness}</target-bitness-property>
+			</properties>
+		</profile>
+		<profile>
+			<id>set-os</id>
+			<activation>
+				<property>
+					<name>target-os</name>
+				</property>
+			</activation>
+			<properties>
+				<target-os-property>-${target-os}</target-os-property>
+			</properties>
+		</profile>
+	</profiles>
+
+	<repositories>
+		<repository>
+			<id>eclipse</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/releases/mars/201506241002/</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>com.lukegb.mojo</groupId>
+				<artifactId>gitdescribe-maven-plugin</artifactId>
+				<version>3.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>gitdescribe</goal>
+						</goals>
+						<id>git-describe</id>
+						<phase>initialize</phase>
+						<configuration>
+							<descriptionProperty>git-long-version</descriptionProperty>
+							<extraArguments>
+								<param>--tags</param>
+							</extraArguments>
+							<setReactorProjectsProperties>true</setReactorProjectsProperties>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

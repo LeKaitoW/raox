@@ -1,4 +1,6 @@
 bin/
 .metadata/
 .recommenders/
+assembly/target
+rdo-game5/target
 

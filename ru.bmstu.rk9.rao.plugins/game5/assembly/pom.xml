@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<relativePath>../pom.xml</relativePath>
+		<groupId>rdo-game5</groupId>
+		<artifactId>parent</artifactId>
+		<version>${rdo-game5-version}</version>
+	</parent>
+
+	<artifactId>assembly</artifactId>
+	<name>Package binaries</name>
+
+	<properties>
+		<assembly-descriptor>jars-only.xml</assembly-descriptor>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.7</version>
+				<executions>
+					<execution>
+						<id>copy-jars</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<overwrite>true</overwrite>
+							<outputDirectory>${basedir}/target/plugins</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/../rdo-game5/target</directory>
+									<includes>
+										<include>rdo-game5*.jar</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.5.5</version>
+				<configuration>
+					<descriptor>${assembly-descriptor}</descriptor>
+					<finalName>rao</finalName>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
