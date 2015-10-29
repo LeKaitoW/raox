@@ -150,6 +150,7 @@ public class Game5View extends EditorPart {
 		final Color red = new Color(PlatformUI.getWorkbench().getDisplay(),
 				0x9B, 0x11, 0x1E);
 		setOrderError.setForeground(red);
+		red.dispose();
 		setOrderError.setVisible(false);
 		final Text setOrderText = new Text(setOrderGroup, SWT.BORDER);
 		final String order = OrderConfigurator
