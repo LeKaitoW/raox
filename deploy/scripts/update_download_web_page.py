@@ -20,7 +20,7 @@ def generate_download_page(versioned_files, directory, program_name):
     for versioned_file in versioned_files:
         if last_version != versioned_file.file_version:
             last_version = versioned_file.file_version
-            download_page += '<H3>{last_version}</H3>\n'.format(last_version=last_version)
+            download_page += '<H3><A HREF="https://github.com/aurusov/rdo-xtext/releases/tag/{last_version}">{last_version}</A></H3>\n'.format(last_version=last_version)
         download_page += '<A HREF="http://{host}/{directory}/{file_name}">{file_name}</A><BR>\n'.format(
             host=HOST,
             directory=directory,
