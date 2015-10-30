@@ -192,7 +192,7 @@ class PatternCompiler
 				db.addOperationEndEntry(this);
 				db.addMemorizedResourceEntries(
 						"«operation.fullyQualifiedName»",
-						null);
+						null, null);
 			}
 
 			public static final JSONObject structure = new JSONObject()
@@ -414,12 +414,13 @@ class PatternCompiler
 			}
 
 			@Override
-			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom)
+			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom, String dptName)
 			{
 				Database db = Simulator.getDatabase();
 				db.addMemorizedResourceEntries(
 						"«pattern.fullyQualifiedName».createdResources",
-						executedFrom);
+						executedFrom,
+						dptName);
 			}
 
 			@Override

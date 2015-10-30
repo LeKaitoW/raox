@@ -513,7 +513,7 @@ public class GraphView extends JFrame implements GraphApi {
 				.valueOf(node.g)));
 		cellInfoList.add(new InfoElement("Remaining path cost (h)", String
 				.valueOf(node.h)));
-		cellInfoList.add(new InfoElement("Full path cost (h)", String
+		cellInfoList.add(new InfoElement("Full path cost (f)", String
 				.valueOf(node.h + node.g)));
 		cellInfoList.add(new InfoElement("Rule used", node.ruleName));
 		cellInfoList.add(new InfoElement("Relevant resources",
@@ -620,13 +620,13 @@ public class GraphView extends JFrame implements GraphApi {
 				: minNodeDistance;
 	}
 
-	private void zoomToFit() {
+	private final void zoomToFit() {
 		// TODO implement fitInWidth() algorithm and choose
 		// appropriate strategy depending on graph width a
 		fitInDepth();
 	}
 
-	private void fitInDepth() {
+	private final void fitInDepth() {
 		int height = getContentPane().getHeight();
 		int depth = treeBuilder.graphInfo.depth;
 
@@ -641,7 +641,7 @@ public class GraphView extends JFrame implements GraphApi {
 		setViewOnRoot();
 	}
 
-	private void setViewOnRoot() {
+	private final void setViewOnRoot() {
 		Rectangle paneBounds = graphComponent.getViewport().getViewRect();
 		mxRectangle graphBounds = graph.getBoundsForCells(vertexByNode.values()
 				.toArray(), false, false, false);
@@ -654,11 +654,11 @@ public class GraphView extends JFrame implements GraphApi {
 		graphComponent.getViewport().setViewPosition(new Point(x, 0));
 	}
 
-	private Dimension small = new Dimension();
-	private Dimension medium = new Dimension();
-	private Dimension large = new Dimension();
+	private final Dimension small = new Dimension();
+	private final Dimension medium = new Dimension();
+	private final Dimension large = new Dimension();
 
-	private void updateTypicalDimensions(Node node) {
+	private final void updateTypicalDimensions(Node node) {
 		final String number = Integer.toString(node.index);
 		final String costFunction = Double.toString(node.g + node.h) + " = "
 				+ Double.toString(node.g) + " + " + Double.toString(node.h);
@@ -698,7 +698,7 @@ public class GraphView extends JFrame implements GraphApi {
 		return SizeType.BRIEF;
 	}
 
-	private void setTextForVertexes() {
+	private final void setTextForVertexes() {
 		SizeType type = checkSize();
 		switch (type) {
 		case BRIEF:
@@ -740,7 +740,7 @@ public class GraphView extends JFrame implements GraphApi {
 		}
 	}
 
-	private void resizeGraph() {
+	private final void resizeGraph() {
 		final mxRectangle bound = new mxRectangle(0, 0, nodeSize, nodeSize);
 		final mxRectangle[] bounds = new mxRectangle[vertexByNode.size()];
 		for (int i = 0; i < vertexByNode.size(); i++) {
@@ -760,12 +760,12 @@ public class GraphView extends JFrame implements GraphApi {
 		}
 	}
 
-	private void zoomIn() {
+	private final void zoomIn() {
 		setNodesSize(nodeSize * zoomScale);
 		resizeGraph();
 	}
 
-	private void zoomOut() {
+	private final void zoomOut() {
 		setNodesSize(nodeSize / zoomScale);
 		resizeGraph();
 	}
@@ -774,23 +774,23 @@ public class GraphView extends JFrame implements GraphApi {
 	// ----------------------- RELATIVE COORDINATES ------------------------ //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	private double getAspectRatio() {
+	private final double getAspectRatio() {
 		return ((double) this.getWidth()) / this.getHeight();
 	}
 
-	public int getAbsoluteX(double ratio) {
+	public final int getAbsoluteX(double ratio) {
 		return (int) (getWidth() * ratio);
 	}
 
-	public int getAbsoluteY(double ratio) {
+	public final int getAbsoluteY(double ratio) {
 		return (int) (getHeight() * ratio);
 	}
 
-	public int getRelativeWidth(double ratio) {
+	public final int getRelativeWidth(double ratio) {
 		return (int) (getWidth() * ratio / getAspectRatio());
 	}
 
-	public int getRelativeHeight(double ratio) {
+	public final int getRelativeHeight(double ratio) {
 		return (int) (getHeight() * ratio);
 	}
 }
