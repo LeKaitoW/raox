@@ -11,6 +11,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
+import ru.bmstu.rk9.rao.ui.graph.GraphInfoWindow.InfoElement;
 import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.GraphInfo;
 import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.Node;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
@@ -490,56 +492,61 @@ public class GraphView extends JFrame implements GraphApi {
 
 	private final void updateInfo(mxCell cell) {
 		Node node = (Node) cell.getValue();
-		String cellInfo = getCellInfo(node);
+		List<InfoElement> cellInfoList = getCellInfo(node);
 		PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
 			if (graphInfoWindow == null || graphInfoWindow.isDisposed())
 				return;
 
-			setCellInfo(cellInfo);
+			setCellInfo(cellInfoList);
 			setGraphInfo();
 		});
 	}
 
-	private final String getCellInfo(Node node) {
-		String cellInfo = "";
-		cellInfo += "Node number: " + String.valueOf(node.index) + "\n";
+	private final List<InfoElement> getCellInfo(Node node) {
+		List<InfoElement> cellInfoList = new ArrayList<InfoElement>();
 
-		String parentName = "Root";
-		if (node.parent != null) {
-			parentName = "Parent node number: "
-					+ String.valueOf(node.parent.index);
-		}
-		parentName += "\n";
+		cellInfoList.add(new InfoElement("Node number", String
+				.valueOf(node.index)));
+		cellInfoList.add(new InfoElement("Parent number",
+				node.parent == null ? "" : String.valueOf(node.parent.index)));
+		cellInfoList.add(new InfoElement("Current path cost (g)", String
+				.valueOf(node.g)));
+		cellInfoList.add(new InfoElement("Remaining path cost (h)", String
+				.valueOf(node.h)));
+		cellInfoList.add(new InfoElement("Full path cost (h)", String
+				.valueOf(node.h + node.g)));
+		cellInfoList.add(new InfoElement("Rule used", node.ruleName));
+		cellInfoList.add(new InfoElement("Relevant resources",
+				node.relevantResources));
+		cellInfoList.add(new InfoElement("Rule cost", String
+				.valueOf(node.ruleCost)));
 
-		cellInfo += parentName;
-		cellInfo += "Path cost (g) = " + Double.toString(node.g) + "\n";
-		cellInfo += "Remaining path cost (h) = " + Double.toString(node.h)
-				+ "\n";
-		cellInfo += node.ruleDesсription + "\n";
-		cellInfo += "Rule cost = " + Double.toString(node.ruleCost);
-
-		return cellInfo;
+		return cellInfoList;
 	}
 
-	private final String getGraphInfo() {
+	private final List<InfoElement> getGraphInfo() {
+		List<InfoElement> graphInfoList = new ArrayList<InfoElement>();
 		GraphInfo info = treeBuilder.graphInfo;
-		String graphInfo = "";
-		graphInfo += "Solution cost: " + String.valueOf(info.solutionCost)
-				+ "\n";
-		graphInfo += "Nodes opened: " + String.valueOf(info.numOpened) + "\n";
-		graphInfo += "Nodes total: " + String.valueOf(info.numNodes) + "\n";
-		graphInfo += "Max depth: " + String.valueOf(info.depth) + "\n";
-		graphInfo += "Max width: " + String.valueOf(info.width);
 
-		return graphInfo;
+		graphInfoList.add(new InfoElement("Solution cost", String
+				.valueOf(info.solutionCost)));
+		graphInfoList.add(new InfoElement("Nodes opened", String
+				.valueOf(info.numOpened)));
+		graphInfoList.add(new InfoElement("Nodes total", String
+				.valueOf(info.numNodes)));
+		graphInfoList.add(new InfoElement("Max depth", String
+				.valueOf(info.depth)));
+		graphInfoList.add(new InfoElement("Max width", String
+				.valueOf(info.width)));
+
+		return graphInfoList;
 	}
 
-	private final void setCellInfo(String cellInfo) {
+	private final void setCellInfo(List<InfoElement> cellInfo) {
 		if (graphInfoWindow == null || graphInfoWindow.isDisposed())
 			return;
 
-		graphInfoWindow.getCellInfoLabel().setText(cellInfo);
-		graphInfoWindow.updateContents();
+		graphInfoWindow.setCellInfoInput(cellInfo);
 	}
 
 	private final void setGraphInfo() {
@@ -549,8 +556,7 @@ public class GraphView extends JFrame implements GraphApi {
 		if (graphInfoWindow == null || graphInfoWindow.isDisposed())
 			return;
 
-		graphInfoWindow.getGraphInfoLabel().setText(getGraphInfo());
-		graphInfoWindow.updateContents();
+		graphInfoWindow.setGraphInfoInput(getGraphInfo());
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -656,7 +662,7 @@ public class GraphView extends JFrame implements GraphApi {
 		final String number = Integer.toString(node.index);
 		final String costFunction = Double.toString(node.g + node.h) + " = "
 				+ Double.toString(node.g) + " + " + Double.toString(node.h);
-		final String rule = node.ruleDesсription + " = "
+		final String rule = node.ruleName + " = "
 				+ Double.toString(node.ruleCost);
 		final String shortRule = rule.replaceAll("\\(.*\\)", "");
 
@@ -722,7 +728,7 @@ public class GraphView extends JFrame implements GraphApi {
 				final String costFunction = Double.toString(node.g + node.h)
 						+ " = " + Double.toString(node.g) + " + "
 						+ Double.toString(node.h);
-				final String rule = node.ruleDesсription + " = "
+				final String rule = node.ruleName + " = "
 						+ Double.toString(node.ruleCost);
 				final String shortRule = rule.replaceAll("\\(.*\\)", "");
 				final String text = number + "\n" + costFunction + "\n"
