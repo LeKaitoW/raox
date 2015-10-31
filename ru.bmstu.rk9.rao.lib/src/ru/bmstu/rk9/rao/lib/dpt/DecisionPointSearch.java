@@ -181,6 +181,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 		head = new GraphNode(totalAdded++, null);
 		head.state = retriever.get();
+		nodesClosed.add(head);
+
 		head.children = spawnChildren(head);
 
 		nodesOpen.addAll(head.children);
