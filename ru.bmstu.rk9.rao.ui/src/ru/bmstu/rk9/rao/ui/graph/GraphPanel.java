@@ -1,6 +1,6 @@
 package ru.bmstu.rk9.rao.ui.graph;
 
-import java.awt.Container;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.resource.FontRegistry;
@@ -53,7 +53,7 @@ import com.mxgraph.util.mxRectangle;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxGraph;
 
-public class GraphView extends JFrame implements GraphApi {
+public class GraphPanel extends JPanel implements GraphApi {
 
 	private static final long serialVersionUID = 1668866556340389760L;
 
@@ -130,9 +130,7 @@ public class GraphView extends JFrame implements GraphApi {
 	private final Font font;
 	private final double scale = 1.0;
 
-	public GraphView(int dptNum, int width, int height) {
-		this.setSize(width, height);
-
+	public GraphPanel(int dptNum) {
 		final FontRegistry fontRegistry = PlatformUI.getWorkbench()
 				.getThemeManager().getCurrentTheme().getFontRegistry();
 		final String fontName = fontRegistry.get(
@@ -160,8 +158,9 @@ public class GraphView extends JFrame implements GraphApi {
 		graphComponent.setFont(font);
 		graphComponent.zoomAndCenter();
 
-		Container pane = getContentPane();
-		pane.add(graphComponent);
+		setLayout(new BorderLayout());
+		add(BorderLayout.CENTER, graphComponent);
+		validate();
 
 		layout = new mxCompactTreeLayout(graph, false);
 		layout.setLevelDistance(levelDistance);
@@ -176,9 +175,9 @@ public class GraphView extends JFrame implements GraphApi {
 		graph.setCellsResizable(false);
 		graph.setAllowDanglingEdges(false);
 
-		this.addComponentListener(componentListener);
-		this.addKeyListener(keyListener);
-		graphComponent.addKeyListener(keyListener);
+		addComponentListener(zoomToFitComponentListener);
+		addKeyListener(zoomKeyListener);
+		graphComponent.addKeyListener(zoomKeyListener);
 		graphComponent.getGraphControl().addMouseListener(mouseListener);
 
 		graph.getSelectionModel().addListener(mxEvent.CHANGE,
@@ -199,8 +198,7 @@ public class GraphView extends JFrame implements GraphApi {
 			initializeSubscribers();
 	}
 
-	@Override
-	public void dispose() {
+	final void onDispose() {
 		if (!isFinished)
 			deinitializeSubscribers();
 
@@ -208,11 +206,13 @@ public class GraphView extends JFrame implements GraphApi {
 			PlatformUI.getWorkbench().getDisplay()
 					.asyncExec(() -> graphInfoWindow.close());
 		}
-
-		super.dispose();
 	}
 
-	private final ComponentListener componentListener = new ComponentListener() {
+	public final ComponentListener getZoomToFitComponentListener() {
+		return zoomToFitComponentListener;
+	}
+
+	private final ComponentListener zoomToFitComponentListener = new ComponentListener() {
 		@Override
 		public void componentShown(ComponentEvent e) {
 			if (!treeBuilder.nodeByNumber.isEmpty())
@@ -221,6 +221,8 @@ public class GraphView extends JFrame implements GraphApi {
 
 		@Override
 		public void componentResized(ComponentEvent e) {
+			if (!treeBuilder.nodeByNumber.isEmpty())
+				zoomToFit();
 		}
 
 		@Override
@@ -261,7 +263,11 @@ public class GraphView extends JFrame implements GraphApi {
 		}
 	};
 
-	private final KeyListener keyListener = new KeyListener() {
+	public final KeyListener getZoomKeyListener() {
+		return zoomKeyListener;
+	}
+
+	private final KeyListener zoomKeyListener = new KeyListener() {
 		@Override
 		public void keyTyped(KeyEvent e) {
 		}
@@ -627,7 +633,7 @@ public class GraphView extends JFrame implements GraphApi {
 	}
 
 	private final void fitInDepth() {
-		int height = getContentPane().getHeight();
+		int height = getHeight();
 		int depth = treeBuilder.graphInfo.depth;
 
 		double levelDistanceCoef = (sizeToLevelDistanceRatio + 1.0)
