@@ -58,7 +58,12 @@ public class TileButton extends Composite {
 				int x = rectangle.width / 2 - textSize.x / 2;
 				int y = rectangle.height / 2 - textSize.y / 2;
 				gc.drawString(number, x, y);
+				
+				tileBorderColor.dispose();
+				tileForegroundColor.dispose();
 			}
+			
+			font.dispose();
 		}
 	};
 
