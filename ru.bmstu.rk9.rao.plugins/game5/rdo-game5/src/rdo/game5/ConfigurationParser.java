@@ -33,7 +33,7 @@ public class ConfigurationParser {
 					"Error",
 					"Failed to parse configuration template:\n"
 							+ e.getMessage());
-			throw new Game5Exception("Failed to parse configuration template");
+			throw new Game5Exception(e);
 		}
 		return object;
 	}

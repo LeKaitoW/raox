@@ -585,7 +585,7 @@ public class Game5View extends EditorPart {
 			MessageDialog.openError(
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 							.getShell(),
-					"Internal error",
+					"Error",
 					"Internal error occured while saving file:\n"
 							+ e.getMessage());
 			throw new Game5Exception(e);
