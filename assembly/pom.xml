@@ -88,12 +88,6 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 									</includes>
 								</resource>
 								<resource>
-									<directory>${basedir}/../ru.bmstu.rk9.rao/target</directory>
-									<includes>
-										<include>ru.bmstu.rk9.rao*.jar</include>
-									</includes>
-								</resource>
-								<resource>
 									<directory>${basedir}/../ru.bmstu.rk9.rao.lib/target</directory>
 									<includes>
 										<include>ru.bmstu.rk9.rao.lib*.jar</include>
