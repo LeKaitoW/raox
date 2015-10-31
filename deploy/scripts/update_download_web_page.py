@@ -42,7 +42,7 @@ if __name__ == "__main__":
     rao_plugins_files = get_sorted_versioned_files(rao_plugins_files)
 
     page = ''
-    page += generate_download_page(rao_eclipse_files, args.directory, 'RAO Eclipse')
-    page += generate_download_page(rao_plugins_files, args.directory, 'RAO Plugin')
+    page += generate_download_page(rao_eclipse_files, args.directory, 'Rao X Eclipse')
+    page += generate_download_page(rao_plugins_files, args.directory, 'Rao X Plugin')
 
     print page
