@@ -4,7 +4,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>rdo-game5</groupId>
 	<artifactId>parent</artifactId>
-	<version>${rdo-game5-version}</version>
+	<version>1.1.0.2-g2b66b06</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>rdo-game5</module>
@@ -14,36 +14,78 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	<properties>
 		<tycho-version>0.23.0</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<rdo-game5-version>1.0.0</rdo-game5-version>
-		<target-os-property></target-os-property>
-		<target-bitness-property></target-bitness-property>
 	</properties>
-
 	<profiles>
 		<profile>
-			<id>set-bitness</id>
-			<activation>
-				<property>
-					<name>target-bitness</name>
-				</property>
-			</activation>
-			<properties>
-				<target-bitness-property>-${target-bitness}</target-bitness-property>
-			</properties>
-		</profile>
-		<profile>
-			<id>set-os</id>
-			<activation>
-				<property>
-					<name>target-os</name>
-				</property>
-			</activation>
-			<properties>
-				<target-os-property>-${target-os}</target-os-property>
-			</properties>
+			<id>set-git-version</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.lukegb.mojo</groupId>
+						<artifactId>gitdescribe-maven-plugin</artifactId>
+						<version>3.0</version>
+						<executions>
+							<execution>
+								<id>git-describe</id>
+								<goals>
+									<goal>gitdescribe</goal>
+								</goals>
+								<phase>initialize</phase>
+								<inherited>false</inherited>
+								<configuration>
+									<descriptionProperty>git-long-version</descriptionProperty>
+									<extraArguments>
+										<param>--tags</param>
+									</extraArguments>
+									<setReactorProjectsProperties>true</setReactorProjectsProperties>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<version>1.9.1</version>
+						<executions>
+							<execution>
+								<id>regex-property</id>
+								<goals>
+									<goal>regex-property</goal>
+								</goals>
+								<phase>initialize</phase>
+								<inherited>false</inherited>
+								<configuration>
+									<name>git-version-OSGi</name>
+									<value>${git-long-version}</value>
+									<regex>(\d+)\.(\d+)\.(\d+)-(\d+)-(\w+)</regex>
+									<replacement>$1.$2.$3.$4-$5</replacement>
+									<failIfNoMatch>false</failIfNoMatch>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-versions-plugin</artifactId>
+						<version>${tycho-version}</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>set-version</goal>
+								</goals>
+								<id>set-git-long-version</id>
+								<phase>initialize</phase>
+								<inherited>false</inherited>
+								<configuration>
+									<newVersion>${git-version-OSGi}</newVersion>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 	</profiles>
-
 	<repositories>
 		<repository>
 			<id>eclipse</id>
@@ -59,27 +101,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
-			</plugin>
-			<plugin>
-				<groupId>com.lukegb.mojo</groupId>
-				<artifactId>gitdescribe-maven-plugin</artifactId>
-				<version>3.0</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>gitdescribe</goal>
-						</goals>
-						<id>git-describe</id>
-						<phase>initialize</phase>
-						<configuration>
-							<descriptionProperty>git-long-version</descriptionProperty>
-							<extraArguments>
-								<param>--tags</param>
-							</extraArguments>
-							<setReactorProjectsProperties>true</setReactorProjectsProperties>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
