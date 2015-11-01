@@ -4,7 +4,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>rdo-game5</groupId>
 	<artifactId>parent</artifactId>
-	<version>1.1.0.2-g2b66b06</version>
+	<version>1.1.0.6-g1411299</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>rdo-game5</module>
@@ -95,6 +95,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 								<inherited>false</inherited>
 								<configuration>
 									<newVersion>${git-version-OSGi}</newVersion>
+									<artifacts>
+										parent,
+										rdo-game5,
+										assembly
+									</artifacts>
 								</configuration>
 							</execution>
 						</executions>

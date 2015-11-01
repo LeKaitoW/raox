@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: rdo-game5
 Bundle-SymbolicName: rdo-game5;singleton:=true
-Bundle-Version: 1.1.0.2-g2b66b06
+Bundle-Version: 1.1.0.6-g1411299
 Bundle-Activator: rdo.game5.Game5Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
