@@ -49,7 +49,7 @@
 				<version>2.5.5</version>
 				<configuration>
 					<descriptor>jars-only.xml</descriptor>
-					<finalName>rao-game5</finalName>
+					<finalName>raox-game5</finalName>
 				</configuration>
 				<executions>
 					<execution>
