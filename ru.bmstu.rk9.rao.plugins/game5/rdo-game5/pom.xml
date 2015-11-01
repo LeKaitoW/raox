@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<relativePath>../pom.xml</relativePath>
+		<groupId>rdo-game5</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.1.0.6-g1411299</version>
+	</parent>
+
+	<artifactId>rdo-game5</artifactId>
+	<packaging>eclipse-plugin</packaging>
+
+	<name>rdo-game5</name>
+</project>
