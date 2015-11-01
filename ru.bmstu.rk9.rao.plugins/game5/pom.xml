@@ -95,11 +95,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 								<inherited>false</inherited>
 								<configuration>
 									<newVersion>${git-version-OSGi}</newVersion>
-									<artifacts>
-										parent,
-										rdo-game5,
-										assembly
-									</artifacts>
 								</configuration>
 							</execution>
 						</executions>
