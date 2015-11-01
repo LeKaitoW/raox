@@ -136,7 +136,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 				return -1;
 			if (x.g + x.h > y.g + y.h)
 				return 1;
-			return 0;
+
+			return x.number - y.number;
 		}
 	};
 
