@@ -12,10 +12,6 @@
 	<artifactId>assembly</artifactId>
 	<name>Package binaries</name>
 
-	<properties>
-		<assembly-descriptor>jars-only.xml</assembly-descriptor>
-	</properties>
-
 	<build>
 		<plugins>
 			<plugin>
