@@ -1,14 +1,12 @@
 package rdo.game5;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +24,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -65,6 +64,8 @@ import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
+
 import com.google.inject.Injector;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
@@ -463,18 +464,21 @@ public class Game5View extends EditorPart {
 					Command command = commandService
 							.getCommand("ru.bmstu.rk9.rao.ui.runtime.execute");
 					command.executeWithChecks(new ExecutionEvent());
+					new SimulatorSubscriberManager().initialize(Arrays
+							.asList(new SimulatorSubscriberInfo(
+									showGraphSubscriber,
+									ExecutionState.EXECUTION_COMPLETED)),
+							EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED,
+									SubscriptionType.ONE_SHOT));
 				} catch (PartInitException | ExecutionException
 						| NotDefinedException | NotEnabledException
 						| NotHandledException e) {
 					e.printStackTrace();
+					MessageDialog.openError(PlatformUI.getWorkbench()
+							.getActiveWorkbenchWindow().getShell(), "Error",
+							"Failed to run experiment:\n" + e.getMessage());
+					throw new Game5Exception(e);
 				}
-
-				new SimulatorSubscriberManager().initialize(Arrays
-						.asList(new SimulatorSubscriberInfo(
-								showGraphSubscriber,
-								ExecutionState.EXECUTION_COMPLETED)), EnumSet
-						.of(SubscriptionType.IGNORE_ACCUMULATED,
-								SubscriptionType.ONE_SHOT));
 			}
 
 			@Override
@@ -509,7 +513,15 @@ public class Game5View extends EditorPart {
 				setOrderButton.setSelection(false);
 				setOrderText.setEnabled(false);
 				setOrderOkButton.setEnabled(false);
-				OrderConfigurator.setInOrder(object);
+				try {
+					OrderConfigurator.setInOrder(object);
+				} catch (IOException | ParseException e) {
+					e.printStackTrace();
+					MessageDialog.openError(PlatformUI.getWorkbench()
+							.getActiveWorkbenchWindow().getShell(), "Error",
+							"Failed to set tiles in order:\n" + e.getMessage());
+					throw new Game5Exception(e);
+				}
 				updateTiles();
 				setOrderText.setText(OrderConfigurator
 						.convertPlacesToString((JSONArray) object.get("places")));
@@ -585,6 +597,13 @@ public class Game5View extends EditorPart {
 					null);
 		} catch (IOException | CoreException e) {
 			e.printStackTrace();
+			MessageDialog.openError(
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+							.getShell(),
+					"Error",
+					"Internal error occured while saving file:\n"
+							+ e.getMessage());
+			throw new Game5Exception(e);
 		}
 		setDirty(false);
 	}
@@ -650,8 +669,6 @@ public class Game5View extends EditorPart {
 					.parseConfig(object);
 			printStream.print(configuration);
 			printStream.close();
-		} catch (FileNotFoundException | UnsupportedEncodingException e) {
-			e.printStackTrace();
 		} finally {
 			inputStream.close();
 			if (outputStream != null) {
