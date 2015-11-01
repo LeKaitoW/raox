@@ -24,8 +24,9 @@ def remove_files(ftp, file_names):
 
 
 def parse_files(ftp_file_infos):
-    rao_eclipse_files = []
-    rao_plugins_files = []
+    raox_eclipse_files = []
+    raox_files = []
+    raox_game5_files = []
     other_files = []
 
     for ftp_file_info in ftp_file_infos:
@@ -34,18 +35,26 @@ def parse_files(ftp_file_infos):
         if file_type != 'file':
             continue
         file_name = ftp_file_info[3].strip()
-        rao_match = re.search('rao-(\d+\.\d+\.\d+)-(win|linux|mac|plugins).*', file_name)
-        if rao_match:
-            if rao_match.group(2) == 'plugins':
-                rao_plugins_files.append(
-                    versioned_file.VersionedFile(file_name=file_name, file_version=rao_match.group(1)))
+        raox_match = re.search('raox(-(eclipse|game5))?-(\d+\.\d+\.\d+)(\.(\d+-g[0-9a-f]+))?(-(win|linux|mac))?.*', file_name)
+        if raox_match:
+            long_git_version = raox_match.group(5)
+            if not long_git_version:
+                file_version = raox_match.group(3)
+                if raox_match.group(2) == 'eclipse':
+                    raox_eclipse_files.append(
+                        versioned_file.VersionedFile(file_name=file_name, file_version=file_version))
+                elif raox_match.group(2) == 'game5':
+                    raox_game5_files.append(
+                        versioned_file.VersionedFile(file_name=file_name, file_version=file_version))
+                else:
+                    raox_files.append(
+                        versioned_file.VersionedFile(file_name=file_name, file_version=file_version))
             else:
-                rao_eclipse_files.append(
-                    versioned_file.VersionedFile(file_name=file_name, file_version=rao_match.group(1)))
+                other_files.append(file_name)
         else:
             other_files.append(file_name)
 
-    return rao_eclipse_files, rao_plugins_files, other_files
+    return raox_eclipse_files, raox_files, raox_game5_files, other_files
 
 
 def remove_versioned_file(ftp, versioned_files, versions_limit):

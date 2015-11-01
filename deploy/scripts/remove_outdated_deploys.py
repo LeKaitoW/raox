@@ -12,8 +12,9 @@ if __name__ == "__main__":
     args = argument_parser.parse_args()
 
     ftp = ftp_server.connect(args.login, args.password)
-    rao_eclipse_files, rao_plugins_files, other_files = ftp_server.parse_files(ftp_server.get_files(ftp, args.directory))
+    raox_eclipse_files, raox_files, raox_game5_files, other_files = ftp_server.parse_files(ftp_server.get_files(ftp, args.directory))
 
-    ftp_server.remove_versioned_file(ftp, rao_eclipse_files, args.versions_limit)
-    ftp_server.remove_versioned_file(ftp, rao_plugins_files, args.versions_limit)
+    ftp_server.remove_versioned_file(ftp, raox_eclipse_files, args.versions_limit)
+    ftp_server.remove_versioned_file(ftp, raox_files, args.versions_limit)
+    ftp_server.remove_versioned_file(ftp, raox_game5_files, args.versions_limit)
     ftp_server.remove_files(ftp, other_files)

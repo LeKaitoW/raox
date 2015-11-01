@@ -37,12 +37,15 @@ if __name__ == "__main__":
     args = argument_parser.parse_args()
 
     ftp = ftp_server.connect(args.login, args.password)
-    rao_eclipse_files, rao_plugins_files, other_files = ftp_server.parse_files(ftp_server.get_files(ftp, args.directory))
-    rao_eclipse_files = get_sorted_versioned_files(rao_eclipse_files)
-    rao_plugins_files = get_sorted_versioned_files(rao_plugins_files)
+    raox_eclipse_files, raox_files, raox_game5_files, other_files = ftp_server.parse_files(ftp_server.get_files(ftp, args.directory))
+
+    raox_eclipse_files = get_sorted_versioned_files(raox_eclipse_files)
+    raox_files = get_sorted_versioned_files(raox_files)
+    raox_game5_files = get_sorted_versioned_files(raox_game5_files)
 
     page = ''
-    page += generate_download_page(rao_eclipse_files, args.directory, 'Rao X Eclipse')
-    page += generate_download_page(rao_plugins_files, args.directory, 'Rao X Plugin')
+    page += generate_download_page(raox_eclipse_files, args.directory, 'Rao X Eclipse')
+    page += generate_download_page(raox_files, args.directory, 'Rao X Plugin')
+    page += generate_download_page(raox_game5_files, args.directory, 'Rao X Game5 Plugin')
 
     print page
