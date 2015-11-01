@@ -11,16 +11,16 @@ def get_sorted_versioned_files(versioned_files):
     return sorted(versioned_files, key=lambda versioned_file: versioned_file.file_version, reverse=True)
 
 
-def generate_download_page(versioned_files, directory, program_name):
+def generate_download_page(versioned_files, directory, program_name, repository_name):
     if not versioned_files:
         return ''
 
     download_page = '<H2>{program_name}</H2>\n'.format(program_name=program_name)
-    last_version = ''
+    current_version = ''
     for versioned_file in versioned_files:
-        if last_version != versioned_file.file_version:
-            last_version = versioned_file.file_version
-            download_page += '<H3><A HREF="https://github.com/aurusov/rdo-xtext/releases/tag/{last_version}">{last_version}</A></H3>\n'.format(last_version=last_version)
+        if current_version != versioned_file.file_version:
+            current_version = versioned_file.file_version
+            download_page += '<H3><A HREF="https://github.com/aurusov/{repository_name}/releases/tag/{current_version}">{current_version}</A></H3>\n'.format(current_version=current_version, repository_name=repository_name)
         download_page += '<A HREF="http://{host}/{directory}/{file_name}">{file_name}</A><BR>\n'.format(
             host=HOST,
             directory=directory,
@@ -44,8 +44,8 @@ if __name__ == "__main__":
     raox_game5_files = get_sorted_versioned_files(raox_game5_files)
 
     page = ''
-    page += generate_download_page(raox_eclipse_files, args.directory, 'Rao X Eclipse')
-    page += generate_download_page(raox_files, args.directory, 'Rao X Plugin')
-    page += generate_download_page(raox_game5_files, args.directory, 'Rao X Game5 Plugin')
+    page += generate_download_page(raox_eclipse_files, args.directory, 'Rao X Eclipse', 'rdo-xtext')
+    page += generate_download_page(raox_files, args.directory, 'Rao X Plugin', 'rdo-xtext')
+    page += generate_download_page(raox_game5_files, args.directory, 'Rao X Game5 Plugin', 'raox-game5')
 
     print page
