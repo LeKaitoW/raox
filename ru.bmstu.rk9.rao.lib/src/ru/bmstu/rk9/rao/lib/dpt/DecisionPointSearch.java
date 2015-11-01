@@ -210,6 +210,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 			}
 
 			current.children = spawnChildren(current);
+			nodesOpen.addAll(current.children);
+
 			for (GraphNode child : current.children) {
 				child.state.deploy();
 				if (terminate.check()) {
@@ -219,8 +221,6 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 				current.state.deploy();
 			}
-
-			nodesOpen.addAll(current.children);
 		}
 		head.state.deploy();
 		return stop(StopCode.FAIL);
