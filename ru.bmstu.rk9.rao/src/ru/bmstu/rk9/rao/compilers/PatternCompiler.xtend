@@ -19,6 +19,7 @@ import ru.bmstu.rk9.rao.rao.Parameter
 import ru.bmstu.rk9.rao.rao.PatternSelectMethod
 import ru.bmstu.rk9.rao.rao.RelevantResource
 import ru.bmstu.rk9.rao.rao.PatternSelectLogic
+import ru.bmstu.rk9.rao.rao.PatternSelectWithType
 
 class PatternCompiler
 {
@@ -501,8 +502,9 @@ class PatternCompiler
 					@Override
 					public int compare(«resource» x, «resource» y)
 					{
-						if («expression.replaceAll("resources." + relevantResource + ".", "x.")» «IF selectMethod.withType.literal
-							== "with_min"»<«ELSE»>«ENDIF» «expression.replaceAll("resources." + relevantResource + ".", "y.")»)
+						if («expression.replaceAll("resources." + relevantResource + ".", "x.")» «IF selectMethod.withType
+							== PatternSelectWithType.WITH_MIN»<«ELSE»>«ENDIF» «
+								expression.replaceAll("resources." + relevantResource + ".", "y.")»)
 							return -1;
 						else
 							return 1;
