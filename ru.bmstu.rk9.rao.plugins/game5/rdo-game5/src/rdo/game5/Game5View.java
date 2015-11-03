@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
@@ -35,6 +36,7 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -91,10 +93,20 @@ public class Game5View extends EditorPart {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void createPartControl(Composite parent) {
+		parent.setLayout(new FillLayout());
+		ScrolledComposite scrolledComposite = new ScrolledComposite(parent,
+				SWT.H_SCROLL | SWT.V_SCROLL | SWT.FILL);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+		scrolledComposite.setLayout(new FillLayout());
+
+		Composite composite = new Composite(scrolledComposite, SWT.NONE
+				| SWT.FILL);
+		scrolledComposite.setContent(composite);
 
 		Color color = parent.getDisplay().getSystemColor(
 				SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW);
-		parent.setBackground(color);
+		composite.setBackground(color);
 
 		final IFileEditorInput input = (IFileEditorInput) this.getEditorInput();
 		final IFile configIFile = input.getFile();
@@ -102,9 +114,9 @@ public class Game5View extends EditorPart {
 		object = ConfigurationParser.parseObject(configIFile);
 
 		final GridLayout gridLayout = new GridLayout(5, false);
-		parent.setLayout(gridLayout);
+		composite.setLayout(gridLayout);
 
-		final Group boardGroup = new Group(parent, SWT.NONE);
+		final Group boardGroup = new Group(composite, SWT.NONE);
 		final GridLayout boardLayout = new GridLayout(3, false);
 		final GridData boardData = new GridData(SWT.FILL, SWT.FILL, false,
 				false);
@@ -119,7 +131,7 @@ public class Game5View extends EditorPart {
 					.valueOf(places.indexOf(String.valueOf(i + 1)) + 1), i + 1));
 		}
 
-		final Group shuffleGroup = new Group(parent, SWT.SHADOW_IN);
+		final Group shuffleGroup = new Group(composite, SWT.SHADOW_IN);
 		shuffleGroup.setText("Shuffle:");
 		shuffleGroup.setBackground(color);
 		final GridData shuffleData = new GridData(SWT.FILL, SWT.FILL, false,
@@ -145,7 +157,7 @@ public class Game5View extends EditorPart {
 		final Button shuffle = new Button(shuffleGroup, SWT.PUSH);
 		shuffle.setText("Shuffle");
 
-		final Group setOrderGroup = new Group(parent, SWT.NONE);
+		final Group setOrderGroup = new Group(composite, SWT.NONE);
 		setOrderGroup.setText("Set order:");
 		setOrderGroup.setBackground(color);
 		setOrderGroup.setLayout(new FormLayout());
@@ -183,7 +195,7 @@ public class Game5View extends EditorPart {
 		setOrderOkButtonData.top = new FormAttachment(setOrderButton, 1);
 		setOrderOkButton.setLayoutData(setOrderOkButtonData);
 
-		final Group ruleCost = new Group(parent, SWT.SHADOW_IN);
+		final Group ruleCost = new Group(composite, SWT.SHADOW_IN);
 		ruleCost.setText("Rules cost:");
 		ruleCost.setBackground(color);
 		final GridLayout ruleCostLayout = new GridLayout(4, false);
@@ -193,7 +205,7 @@ public class Game5View extends EditorPart {
 		ruleCostData.verticalSpan = 3;
 		ruleCost.setLayoutData(ruleCostData);
 
-		final Group traverseGraph = new Group(parent, SWT.SHADOW_IN);
+		final Group traverseGraph = new Group(composite, SWT.SHADOW_IN);
 		traverseGraph.setText("Traverse graph:");
 		traverseGraph.setBackground(color);
 		traverseGraph.setLayout(gridLayout);
@@ -201,7 +213,7 @@ public class Game5View extends EditorPart {
 		compareTops.setText("Compare tops");
 		compareTops.setSelection((boolean) object.get("compare"));
 
-		final Group inOrderGroup = new Group(parent, SWT.SHADOW_IN);
+		final Group inOrderGroup = new Group(composite, SWT.SHADOW_IN);
 		inOrderGroup.setText("Set in order:");
 		inOrderGroup.setBackground(color);
 		inOrderGroup.setLayout(gridLayout);
@@ -211,7 +223,7 @@ public class Game5View extends EditorPart {
 				false);
 		inOrderGroup.setLayoutData(inOrderData);
 
-		final Group simulationGroup = new Group(parent, SWT.SHADOW_IN);
+		final Group simulationGroup = new Group(composite, SWT.SHADOW_IN);
 		simulationGroup.setText("Experiment:");
 		simulationGroup.setBackground(color);
 		simulationGroup.setLayout(new GridLayout());
@@ -220,7 +232,7 @@ public class Game5View extends EditorPart {
 		simulationData.verticalSpan = 2;
 		simulationGroup.setLayoutData(simulationData);
 
-		final Group heuristicSelection = new Group(parent, SWT.SHADOW_IN);
+		final Group heuristicSelection = new Group(composite, SWT.SHADOW_IN);
 		heuristicSelection.setText("Heuristic:");
 		heuristicSelection.setBackground(color);
 		heuristicSelection.setLayout(gridLayout);
@@ -375,7 +387,7 @@ public class Game5View extends EditorPart {
 			}
 		});
 
-		final Group editorGroup = new Group(parent, SWT.SHADOW_IN);
+		final Group editorGroup = new Group(composite, SWT.SHADOW_IN);
 		editorGroup.setText("Heuristic code:");
 		editorGroup.setBackground(color);
 		editorGroup.setLayout(gridLayout);
@@ -452,13 +464,14 @@ public class Game5View extends EditorPart {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				try {
+					IServiceLocator serviceLocator = PlatformUI.getWorkbench();
+					doSave((IProgressMonitor) serviceLocator
+							.getService(IProgressMonitor.class));
 					((SerializationConfigView) PlatformUI.getWorkbench()
 							.getActiveWorkbenchWindow().getActivePage()
 							.showView(SerializationConfigView.ID))
 							.setCheckedStateForAll();
-					IServiceLocator serviceLocator = PlatformUI.getWorkbench();
-					doSave((IProgressMonitor) serviceLocator
-							.getService(IProgressMonitor.class));
+
 					ICommandService commandService = (ICommandService) serviceLocator
 							.getService(ICommandService.class);
 					Command command = commandService
@@ -572,6 +585,9 @@ public class Game5View extends EditorPart {
 
 		heuristicList.addKeyListener(new ConfigurationKeyListener("heuristic",
 				() -> heuristicList.getText()));
+
+		scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT,
+				SWT.DEFAULT));
 	}
 
 	@Override
