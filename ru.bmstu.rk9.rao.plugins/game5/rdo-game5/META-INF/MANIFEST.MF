@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Rao X Game5
 Bundle-Vendor: rdostudio.com
 Bundle-SymbolicName: rdo-game5;singleton:=true
-Bundle-Version: 1.2.0
+Bundle-Version: 1.3.0
 Bundle-Activator: rdo.game5.Game5Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

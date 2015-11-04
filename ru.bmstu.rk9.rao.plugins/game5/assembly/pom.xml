@@ -6,7 +6,7 @@
 		<relativePath>../pom.xml</relativePath>
 		<groupId>rdo-game5</groupId>
 		<artifactId>parent</artifactId>
-		<version>1.2.0</version>
+		<version>1.3.0</version>
 	</parent>
 
 	<artifactId>assembly</artifactId>
