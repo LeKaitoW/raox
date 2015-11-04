@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.resource.FontRegistry;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Display;
@@ -465,8 +466,11 @@ public class GraphPanel extends JPanel implements GraphApi {
 		} else {
 			graphInfoWindow = new GraphInfoWindow(display);
 			graphInfoWindow.open();
+
 			graphEventNotifier
 					.notifySubscribers(GraphEvent.GRAPHINFO_WINDOW_OPENED);
+			graphInfoWindow.setSize(graphInfoWindow.computeSize(SWT.DEFAULT,
+					SWT.DEFAULT));
 		}
 	}
 

@@ -9,6 +9,7 @@ import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -20,15 +21,18 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 public class GraphInfoWindow extends Shell {
-	public static final int InfoKeyColumnWidth = 200;
-	public static final int InfoValueColumnWidth = 200;
-
 	GraphInfoWindow(Display display) {
 		super(display, SWT.SHELL_TRIM);
 		setText("Graph Info");
 		setLayout(new FillLayout());
 
-		windowArea = new Composite(this, SWT.FILL);
+		scrolledWindowArea = new ScrolledComposite(this, SWT.H_SCROLL
+				| SWT.V_SCROLL | SWT.FILL);
+		scrolledWindowArea.setLayout(new FillLayout());
+		scrolledWindowArea.setExpandHorizontal(true);
+		scrolledWindowArea.setExpandVertical(true);
+
+		windowArea = new Composite(scrolledWindowArea, SWT.FILL);
 		RowLayout windowAreaLayout = new RowLayout(SWT.VERTICAL);
 		windowAreaLayout.fill = true;
 		windowAreaLayout.marginLeft = 5;
@@ -42,17 +46,8 @@ public class GraphInfoWindow extends Shell {
 		infoAreaLayout.spacing = 5;
 		infoArea.setLayout(infoAreaLayout);
 
-		Composite cellInfoComposite = new Composite(infoArea, SWT.FILL
-				| SWT.BORDER);
-		cellInfoViewer = new TableViewer(cellInfoComposite, SWT.FILL
-				| SWT.H_SCROLL | SWT.V_SCROLL);
-		configureInfoViewer(cellInfoViewer);
-
-		Composite graphInfoComposite = new Composite(infoArea, SWT.FILL
-				| SWT.BORDER);
-		graphInfoViewer = new TableViewer(graphInfoComposite, SWT.FILL
-				| SWT.H_SCROLL | SWT.V_SCROLL);
-		configureInfoViewer(graphInfoViewer);
+		graphInfoViewerWrapper = new InfoTableWrapper(infoArea);
+		cellInfoViewerWrapper = new InfoTableWrapper(infoArea);
 
 		buttonArea = new Composite(windowArea, SWT.FILL);
 		buttonArea.setLayout(new FormLayout());
@@ -68,50 +63,14 @@ public class GraphInfoWindow extends Shell {
 		buttonNextFormData.left = new FormAttachment(buttonPrevious, 5);
 		buttonNext.setLayoutData(buttonNextFormData);
 
-		updateContents();
-	}
-
-	private final void configureInfoViewer(TableViewer viewer) {
-		TableViewerColumn keyColumn = new TableViewerColumn(viewer, SWT.NONE);
-		keyColumn.setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				InfoElement cellInfo = (InfoElement) element;
-				return cellInfo.getKey();
-			}
-		});
-
-		TableViewerColumn valueColumn = new TableViewerColumn(viewer, SWT.NONE);
-		valueColumn.setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				InfoElement cellInfo = (InfoElement) element;
-				return cellInfo.getValue();
-			}
-		});
-
-		viewer.setContentProvider(new ArrayContentProvider());
-
-		TableColumnLayout tableLayout = new TableColumnLayout();
-		viewer.getTable().getParent().setLayout(tableLayout);
-		tableLayout.setColumnData(keyColumn.getColumn(), new ColumnWeightData(
-				100, InfoKeyColumnWidth));
-		tableLayout.setColumnData(valueColumn.getColumn(),
-				new ColumnWeightData(0, InfoValueColumnWidth));
-
-		viewer.getTable().setLinesVisible(true);
+		scrolledWindowArea.setContent(windowArea);
 	}
 
 	@Override
 	protected void checkSubclass() {
 	}
 
-	public final void updateContents() {
-		cellInfoViewer.refresh();
-		graphInfoViewer.refresh();
-		pack();
-	}
-
+	private final ScrolledComposite scrolledWindowArea;
 	private final Composite windowArea;
 	private final Composite infoArea;
 	private final Composite buttonArea;
@@ -131,8 +90,8 @@ public class GraphInfoWindow extends Shell {
 		return buttonPrevious;
 	}
 
-	private final TableViewer cellInfoViewer;
-	private final TableViewer graphInfoViewer;
+	private final InfoTableWrapper cellInfoViewerWrapper;
+	private final InfoTableWrapper graphInfoViewerWrapper;
 
 	static class InfoElement {
 		public InfoElement(String key, String value) {
@@ -153,12 +112,67 @@ public class GraphInfoWindow extends Shell {
 	}
 
 	public final void setCellInfoInput(List<InfoElement> newInput) {
-		cellInfoViewer.setInput(newInput);
-		updateContents();
+		cellInfoViewerWrapper.setInput(newInput);
 	}
 
 	public final void setGraphInfoInput(List<InfoElement> newInput) {
-		graphInfoViewer.setInput(newInput);
-		updateContents();
+		graphInfoViewerWrapper.setInput(newInput);
+	}
+
+	private class InfoTableWrapper {
+		public static final int infoKeyColumnWidth = 200;
+		public static final int infoValueColumnWidth = 300;
+
+		private final Composite composite;
+		private final TableViewer tableViewer;
+
+		private InfoTableWrapper(Composite parent) {
+			composite = new Composite(parent, SWT.FILL | SWT.BORDER);
+			tableViewer = new TableViewer(composite, SWT.FILL);
+
+			TableViewerColumn keyColumn = new TableViewerColumn(tableViewer,
+					SWT.NONE);
+			keyColumn.setLabelProvider(new ColumnLabelProvider() {
+				@Override
+				public String getText(Object element) {
+					InfoElement cellInfo = (InfoElement) element;
+					return cellInfo.getKey();
+				}
+			});
+
+			TableViewerColumn valueColumn = new TableViewerColumn(tableViewer,
+					SWT.NONE);
+			valueColumn.setLabelProvider(new ColumnLabelProvider() {
+				@Override
+				public String getText(Object element) {
+					InfoElement cellInfo = (InfoElement) element;
+					return cellInfo.getValue();
+				}
+			});
+
+			tableViewer.setContentProvider(new ArrayContentProvider());
+
+			TableColumnLayout tableLayout = new TableColumnLayout();
+			tableLayout.setColumnData(keyColumn.getColumn(),
+					new ColumnWeightData(0, infoKeyColumnWidth));
+			tableLayout.setColumnData(valueColumn.getColumn(),
+					new ColumnWeightData(0, infoValueColumnWidth));
+			composite.setLayout(tableLayout);
+
+			tableViewer.getTable().setLinesVisible(true);
+
+			update();
+		}
+
+		private final void setInput(List<InfoElement> newInput) {
+			tableViewer.setInput(newInput);
+			tableViewer.refresh();
+			update();
+		}
+
+		private final void update() {
+			scrolledWindowArea.setMinSize(windowArea.computeSize(SWT.DEFAULT,
+					SWT.DEFAULT));
+		}
 	}
 }
