@@ -68,11 +68,14 @@ public class GraphControl {
 		if (!GraphControl.openedGraphMap.containsKey(frameInfo.dptNumber)) {
 			GraphControl.createFrameWindow(frameInfo);
 		} else {
-			GraphShell currentGraphShell = GraphControl.openedGraphMap
-					.get(frameInfo.dptNumber);
+			GraphShell currentGraphShell = GraphControl.openedGraphMap.get(frameInfo.dptNumber);
 			currentGraphShell.forceActive();
 		}
 	}
 
 	private static final Map<Integer, GraphShell> openedGraphMap = new HashMap<Integer, GraphShell>();
+
+	public static final Map<Integer, GraphShell> getOpenedGraphMap() {
+		return openedGraphMap;
+	}
 }

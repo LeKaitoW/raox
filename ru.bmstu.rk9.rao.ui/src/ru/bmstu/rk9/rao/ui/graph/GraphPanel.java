@@ -440,7 +440,7 @@ public class GraphPanel extends JPanel implements GraphApi {
 		});
 	}
 
-	private final boolean graphInfoAccessible() {
+	public final boolean graphInfoAccessible() {
 		return graphInfoWindow != null && graphInfoWindow.getShell() != null
 				&& !graphInfoWindow.getShell().isDisposed();
 	}
