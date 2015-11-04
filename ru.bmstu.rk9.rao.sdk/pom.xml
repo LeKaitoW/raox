@@ -9,9 +9,8 @@
 		<version>2.9.1</version>
 	</parent>
 
-	<artifactId>ru.bmstu.rk9.rao.lib</artifactId>
-	<packaging>eclipse-plugin</packaging>
+	<artifactId>ru.bmstu.rk9.rao.sdk</artifactId>
+	<packaging>eclipse-feature</packaging>
 
-	<name>ru.bmstu.rk9.rao.lib</name>
-
+	<name>ru.bmstu.rk9.rao.sdk</name>
 </project>
