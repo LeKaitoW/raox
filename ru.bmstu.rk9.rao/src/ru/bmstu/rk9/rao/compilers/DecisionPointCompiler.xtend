@@ -132,7 +132,7 @@ class DecisionPointCompiler
 										executed
 									);
 
-									executed.addResourceEntriesToDatabase(null);
+									executed.addResourceEntriesToDatabase(null, null);
 
 									return executed;
 								}

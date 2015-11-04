@@ -70,7 +70,7 @@ class EventCompiler
 				db.addEventEntry(this);
 				db.addMemorizedResourceEntries(
 						"«event.fullyQualifiedName».createdResources",
-						null);
+						null, null);
 			}
 
 			public «event.name»(double time«IF !event.parameters.empty», «ENDIF»«event.parameters.compileParameterTypes»)

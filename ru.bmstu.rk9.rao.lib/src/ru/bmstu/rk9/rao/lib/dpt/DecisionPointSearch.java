@@ -304,7 +304,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 				}
 
 				if (enoughSensitivity(SerializationLevel.ALL)) {
-					executed.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SEARCH);
+					executed.addResourceEntriesToDatabase(
+							Pattern.ExecutedFrom.SEARCH, this.getName());
 				}
 
 				Simulator.getExecutionStateNotifier().notifySubscribers(
@@ -393,7 +394,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 						Database.SearchEntryType.DECISION, data);
 
 				if (enoughSensitivity(SerializationLevel.ALL)) {
-					rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SOLUTION);
+					rule.addResourceEntriesToDatabase(
+							Pattern.ExecutedFrom.SOLUTION, this.getName());
 				}
 			}
 		}

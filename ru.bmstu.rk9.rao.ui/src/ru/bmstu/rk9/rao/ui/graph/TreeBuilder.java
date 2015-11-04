@@ -51,8 +51,10 @@ public class TreeBuilder {
 		public double g;
 		public double h;
 		public int ruleNumber;
-		public String ruleDesсription;
+		public String ruleName;
 		public double ruleCost;
+		public String relevantResources;
+
 		public String label;
 
 		@Override
@@ -135,7 +137,7 @@ public class TreeBuilder {
 						.get(patternNumber).getRelResTypes().size();
 
 				StringJoiner relResStringJoiner = new StringJoiner(
-						StringFormat.FUNCTION);
+						StringFormat.ENUMERATION);
 
 				for (int num = 0; num < numberOfRelevantResources; num++) {
 					final int resNum = data.getInt();
@@ -159,8 +161,8 @@ public class TreeBuilder {
 				treeNode.g = g;
 				treeNode.h = h;
 				treeNode.ruleNumber = ruleNum;
-				treeNode.ruleDesсription = activity.getName()
-						+ relResStringJoiner.getString();
+				treeNode.ruleName = activity.getName();
+				treeNode.relevantResources = relResStringJoiner.getString();
 				treeNode.ruleCost = ruleCost;
 
 				treeNode.depthLevel = treeNode.parent.depthLevel + 1;

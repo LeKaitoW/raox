@@ -198,10 +198,11 @@ public class Database {
 	}
 
 	public static enum EntryType {
-		SYSTEM(TypeSize.BYTE * 2 + TypeSize.DOUBLE, 0), RESOURCE(TypeSize.BYTE
-				* 2 + TypeSize.INTEGER * 2 + TypeSize.DOUBLE, 0), PATTERN(
-				TypeSize.BYTE * 2 + TypeSize.DOUBLE, TypeSize.INTEGER * 4), EVENT(
-				TypeSize.BYTE * 2 + TypeSize.DOUBLE, TypeSize.INTEGER * 2), SEARCH(
+		SYSTEM(TypeSize.BYTE * 2 + TypeSize.DOUBLE, 0), RESOURCE(
+				TypeSize.BYTE * 2 + TypeSize.INTEGER * 2 + TypeSize.DOUBLE
+						+ TypeSize.INTEGER, 0), PATTERN(TypeSize.BYTE * 2
+				+ TypeSize.DOUBLE, TypeSize.INTEGER * 4), EVENT(TypeSize.BYTE
+				* 2 + TypeSize.DOUBLE, TypeSize.INTEGER * 2), SEARCH(
 				TypeSize.BYTE * 2 + TypeSize.INTEGER * 2 + TypeSize.DOUBLE, 0), RESULT(
 				TypeSize.BYTE + TypeSize.INTEGER + TypeSize.DOUBLE, 0);
 
@@ -336,7 +337,7 @@ public class Database {
 	}
 
 	public final void addMemorizedResourceEntries(final String sender,
-			final Rule.ExecutedFrom executedFrom) {
+			final Rule.ExecutedFrom executedFrom, String dptName) {
 		for (final ResourceUniqueEntry entry : memorizedResourceEntries) {
 			final Resource resource = entry.resource;
 			final ResourceEntryType status = entry.status;
@@ -348,14 +349,15 @@ public class Database {
 				actualStatus = status;
 
 			Simulator.getDatabase().addResourceEntry(resource, actualStatus,
-					sender);
+					sender, dptName);
 		}
 
 		memorizedResourceEntries.clear();
 	}
 
 	private final void addResourceEntry(final Resource resource,
-			final ResourceEntryType status, final String sender) {
+			final ResourceEntryType status, final String sender,
+			final String dptName) {
 		final String typeName = resource.getTypeName();
 
 		final CollectedDataNode resourceTypeNode = indexHelper
@@ -385,6 +387,7 @@ public class Database {
 		}
 
 		boolean shouldSerializeToIndex = true;
+		int dptNumber = -1;
 
 		switch (status) {
 		case CREATED:
@@ -413,10 +416,12 @@ public class Database {
 			break;
 		case SEARCH:
 			shouldSerializeToIndex = false;
-		case ALTERED:
 		case SOLUTION:
+			dptNumber = indexHelper.getSearch(dptName).getIndex().getNumber();
+		case ALTERED:
 			resourceIndex = (ResourceIndex) resourceTypeNode.getChildren()
 					.get(name).getIndex();
+
 			break;
 		case ERASED:
 			resourceIndex = (ResourceIndex) resourceTypeNode.getChildren()
@@ -433,7 +438,7 @@ public class Database {
 		header.put((byte) EntryType.RESOURCE.ordinal())
 				.putDouble(Simulator.getTime()).put((byte) status.ordinal())
 				.putInt(resourceTypeIndex.getNumber())
-				.putInt(resourceIndex.getNumber());
+				.putInt(resourceIndex.getNumber()).putInt(dptNumber);
 
 		final ByteBuffer data = resource.serialize();
 
