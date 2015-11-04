@@ -136,7 +136,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 				return -1;
 			if (x.g + x.h > y.g + y.h)
 				return 1;
-			return 0;
+
+			return x.number - y.number;
 		}
 	};
 
@@ -181,6 +182,8 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 		head = new GraphNode(totalAdded++, null);
 		head.state = retriever.get();
+		nodesClosed.add(head);
+
 		head.children = spawnChildren(head);
 
 		nodesOpen.addAll(head.children);
@@ -206,11 +209,18 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 						data);
 			}
 
-			if (terminate.check())
-				return stop(StopCode.SUCCESS);
-
 			current.children = spawnChildren(current);
 			nodesOpen.addAll(current.children);
+
+			for (GraphNode child : current.children) {
+				child.state.deploy();
+				if (terminate.check()) {
+					current = child;
+					return stop(StopCode.SUCCESS);
+				}
+
+				current.state.deploy();
+			}
 		}
 		head.state.deploy();
 		return stop(StopCode.FAIL);
