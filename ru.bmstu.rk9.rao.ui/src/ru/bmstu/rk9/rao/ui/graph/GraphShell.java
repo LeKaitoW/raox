@@ -21,7 +21,7 @@ public class GraphShell extends Shell {
 
 		graphFrame = SWT_AWT.new_Frame(graphFrameContainer);
 		graphFrame.setLayout(new BorderLayout());
-		graphPanel = new GraphPanel(dptNum);
+		graphPanel = new GraphPanel(dptNum, this);
 		graphFrame.add(BorderLayout.CENTER, graphPanel);
 		graphFrame.addKeyListener(graphPanel.getZoomKeyListener());
 		graphFrame.addComponentListener(graphPanel

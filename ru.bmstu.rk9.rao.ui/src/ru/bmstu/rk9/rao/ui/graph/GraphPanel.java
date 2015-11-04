@@ -24,9 +24,19 @@ import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.PlatformUI;
+
+import com.mxgraph.layout.mxCompactTreeLayout;
+import com.mxgraph.model.mxCell;
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxConstants;
+import com.mxgraph.util.mxEvent;
+import com.mxgraph.util.mxEventObject;
+import com.mxgraph.util.mxEventSource.mxIEventListener;
+import com.mxgraph.util.mxRectangle;
+import com.mxgraph.util.mxUtils;
+import com.mxgraph.view.mxGraph;
 
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
@@ -42,17 +52,6 @@ import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.GraphInfo;
 import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.Node;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView.ConditionalMenuItem;
-
-import com.mxgraph.layout.mxCompactTreeLayout;
-import com.mxgraph.model.mxCell;
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxConstants;
-import com.mxgraph.util.mxEvent;
-import com.mxgraph.util.mxEventObject;
-import com.mxgraph.util.mxEventSource.mxIEventListener;
-import com.mxgraph.util.mxRectangle;
-import com.mxgraph.util.mxUtils;
-import com.mxgraph.view.mxGraph;
 
 public class GraphPanel extends JPanel implements GraphApi {
 
@@ -102,24 +101,18 @@ public class GraphPanel extends JPanel implements GraphApi {
 	private final static int minNodeSize = 20;
 	private final static int sizeToNodeDistanceRatio = 10;
 	private final static int sizeToLevelDistanceRatio = 4;
-	private final static int minNodeDistance = minNodeSize
-			/ sizeToNodeDistanceRatio;
-	private final static int minLevelDistance = minNodeSize
-			/ sizeToLevelDistanceRatio;
+	private final static int minNodeDistance = minNodeSize / sizeToNodeDistanceRatio;
+	private final static int minLevelDistance = minNodeSize / sizeToLevelDistanceRatio;
 	private final static int minLevelOffset = 40;
 
 	private final static int fontSize = mxConstants.DEFAULT_FONTSIZE;
 
-	private final static String solutionFillColor = mxConstants.STYLE_FILLCOLOR
-			+ "=32CD32;";
-	private final static String strokeColor = mxConstants.STYLE_STROKECOLOR
-			+ "=000000;";
-	private final static String fontColor = mxConstants.STYLE_FONTCOLOR
-			+ "=000000;";
+	private final static String solutionFillColor = mxConstants.STYLE_FILLCOLOR + "=32CD32;";
+	private final static String strokeColor = mxConstants.STYLE_STROKECOLOR + "=000000;";
+	private final static String fontColor = mxConstants.STYLE_FONTCOLOR + "=000000;";
 
 	private final static String regularCellStyle = strokeColor + fontColor;
-	private final static String solutionCellStyle = solutionFillColor
-			+ strokeColor + fontColor;
+	private final static String solutionCellStyle = solutionFillColor + strokeColor + fontColor;
 	private final static String edgeStyle = strokeColor;
 
 	private boolean isFinished = false;
@@ -131,12 +124,13 @@ public class GraphPanel extends JPanel implements GraphApi {
 	private final Font font;
 	private final double scale = 1.0;
 
-	public GraphPanel(int dptNum) {
-		final FontRegistry fontRegistry = PlatformUI.getWorkbench()
-				.getThemeManager().getCurrentTheme().getFontRegistry();
-		final String fontName = fontRegistry.get(
-				PreferenceConstants.EDITOR_TEXT_FONT).getFontData()[0]
-				.getName();
+	private final GraphShell graphShell;
+
+	public GraphPanel(int dptNum, GraphShell shell) {
+		this.graphShell = shell;
+		final FontRegistry fontRegistry = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme()
+				.getFontRegistry();
+		final String fontName = fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT).getFontData()[0].getName();
 		font = new Font(fontName, Font.PLAIN, fontSize);
 
 		setProportions();
@@ -181,20 +175,18 @@ public class GraphPanel extends JPanel implements GraphApi {
 		graphComponent.addKeyListener(zoomKeyListener);
 		graphComponent.getGraphControl().addMouseListener(mouseListener);
 
-		graph.getSelectionModel().addListener(mxEvent.CHANGE,
-				new mxIEventListener() {
-					@Override
-					public void invoke(Object sender, mxEventObject evt) {
-						mxCell cell = GraphUtil.getSelectionVertex(graph);
-						if (cell == null)
-							return;
-						updateButtonState(cell);
-						updateInfo(cell);
-					}
-				});
+		graph.getSelectionModel().addListener(mxEvent.CHANGE, new mxIEventListener() {
+			@Override
+			public void invoke(Object sender, mxEventObject evt) {
+				mxCell cell = GraphUtil.getSelectionVertex(graph);
+				if (cell == null)
+					return;
+				updateButtonState(cell);
+				updateInfo(cell);
+			}
+		});
 
-		graphEventNotifier.addSubscriber(graphInfoWindowOpenedSubscriber,
-				GraphEvent.GRAPHINFO_WINDOW_OPENED);
+		graphEventNotifier.addSubscriber(graphInfoWindowOpenedSubscriber, GraphEvent.GRAPHINFO_WINDOW_OPENED);
 		if (!isFinished)
 			initializeSubscribers();
 	}
@@ -203,9 +195,8 @@ public class GraphPanel extends JPanel implements GraphApi {
 		if (!isFinished)
 			deinitializeSubscribers();
 
-		if (graphInfoWindow != null && !graphInfoWindow.isDisposed()) {
-			PlatformUI.getWorkbench().getDisplay()
-					.asyncExec(() -> graphInfoWindow.close());
+		if (graphInfoAccessible()) {
+			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> graphInfoWindow.close());
 		}
 	}
 
@@ -258,8 +249,7 @@ public class GraphPanel extends JPanel implements GraphApi {
 			if (cell == null || e.getClickCount() < 2)
 				return;
 
-			PlatformUI.getWorkbench().getDisplay()
-					.syncExec(() -> openGraphInfo());
+			PlatformUI.getWorkbench().getDisplay().syncExec(() -> openGraphInfo());
 
 		}
 	};
@@ -297,13 +287,10 @@ public class GraphPanel extends JPanel implements GraphApi {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private final void initializeSubscribers() {
-		simulationSubscriberManager.initialize(Arrays.asList(
-				new SimulatorSubscriberInfo(commonSubscriber,
-						ExecutionState.EXECUTION_STARTED),
-				new SimulatorSubscriberInfo(commonSubscriber,
-						ExecutionState.EXECUTION_COMPLETED)));
-		realTimeSubscriberManager.initialize(Arrays
-				.asList(realTimeUpdateRunnable));
+		simulationSubscriberManager.initialize(
+				Arrays.asList(new SimulatorSubscriberInfo(commonSubscriber, ExecutionState.EXECUTION_STARTED),
+						new SimulatorSubscriberInfo(commonSubscriber, ExecutionState.EXECUTION_COMPLETED)));
+		realTimeSubscriberManager.initialize(Arrays.asList(realTimeUpdateRunnable));
 	}
 
 	final void deinitializeSubscribers() {
@@ -321,8 +308,7 @@ public class GraphPanel extends JPanel implements GraphApi {
 	private final Subscriber commonSubscriber = new Subscriber() {
 		@Override
 		public void fireChange() {
-			PlatformUI.getWorkbench().getDisplay()
-					.asyncExec(realTimeUpdateRunnable);
+			PlatformUI.getWorkbench().getDisplay().asyncExec(realTimeUpdateRunnable);
 		}
 	};
 
@@ -335,8 +321,7 @@ public class GraphPanel extends JPanel implements GraphApi {
 			isFinished = treeBuilder.updateTree();
 			try {
 				drawNewVertices();
-				mxRectangle graphBounds = graph.getBoundsForCells(vertexByNode
-						.values().toArray(), false, false, false);
+				mxRectangle graphBounds = graph.getBoundsForCells(vertexByNode.values().toArray(), false, false, false);
 				if (graphBounds == null)
 					return;
 
@@ -377,8 +362,7 @@ public class GraphPanel extends JPanel implements GraphApi {
 		GRAPHINFO_WINDOW_OPENED
 	};
 
-	private final Notifier<GraphEvent> graphEventNotifier = new Notifier<>(
-			GraphEvent.class);
+	private final Notifier<GraphEvent> graphEventNotifier = new Notifier<>(GraphEvent.class);
 
 	public final Notifier<GraphEvent> getGraphEventNotifier() {
 		return graphEventNotifier;
@@ -403,108 +387,97 @@ public class GraphPanel extends JPanel implements GraphApi {
 	}
 
 	private final void setGraphInfoButtonListeners() {
-		graphInfoWindow.getButtonNext().addSelectionListener(
-				new SelectionListener() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						mxCell cell = GraphUtil.getSelectionVertex(graph);
-						if (cell == null)
-							return;
+		graphInfoWindow.getButtonNext().addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mxCell cell = GraphUtil.getSelectionVertex(graph);
+				if (cell == null)
+					return;
 
-						List<Node> solutionList = treeBuilder.solutionList;
-						Node node = (Node) cell.getValue();
-						if (!solutionList.contains(node))
-							return;
+				List<Node> solutionList = treeBuilder.solutionList;
+				Node node = (Node) cell.getValue();
+				if (!solutionList.contains(node))
+					return;
 
-						int nodeIndex = solutionList.indexOf(node);
-						if (nodeIndex == solutionList.size() - 1)
-							return;
-						Node nextNode = solutionList.get(nodeIndex + 1);
+				int nodeIndex = solutionList.indexOf(node);
+				if (nodeIndex == solutionList.size() - 1)
+					return;
+				Node nextNode = solutionList.get(nodeIndex + 1);
 
-						mxCell nextCell = vertexByNode.get(nextNode);
-						graph.setSelectionCell(nextCell);
-					}
+				mxCell nextCell = vertexByNode.get(nextNode);
+				graph.setSelectionCell(nextCell);
+			}
 
-					@Override
-					public void widgetDefaultSelected(SelectionEvent e) {
-					}
-				});
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 
-		graphInfoWindow.getButtonPrevious().addSelectionListener(
-				new SelectionListener() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						mxCell cell = GraphUtil.getSelectionVertex(graph);
-						if (cell == null)
-							return;
+		graphInfoWindow.getButtonPrevious().addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				mxCell cell = GraphUtil.getSelectionVertex(graph);
+				if (cell == null)
+					return;
 
-						List<Node> solutionList = treeBuilder.solutionList;
-						Node node = (Node) cell.getValue();
-						if (!solutionList.contains(node))
-							return;
+				List<Node> solutionList = treeBuilder.solutionList;
+				Node node = (Node) cell.getValue();
+				if (!solutionList.contains(node))
+					return;
 
-						int nodeIndex = solutionList.indexOf(node);
-						if (nodeIndex == 0)
-							return;
-						Node previousNode = solutionList.get(nodeIndex - 1);
+				int nodeIndex = solutionList.indexOf(node);
+				if (nodeIndex == 0)
+					return;
+				Node previousNode = solutionList.get(nodeIndex - 1);
 
-						mxCell previousCell = vertexByNode.get(previousNode);
-						graph.setSelectionCell(previousCell);
-					}
+				mxCell previousCell = vertexByNode.get(previousNode);
+				graph.setSelectionCell(previousCell);
+			}
 
-					@Override
-					public void widgetDefaultSelected(SelectionEvent e) {
-					}
-				});
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+	}
+
+	private final boolean graphInfoAccessible() {
+		return graphInfoWindow != null && graphInfoWindow.getShell() != null
+				&& !graphInfoWindow.getShell().isDisposed();
 	}
 
 	private final void openGraphInfo() {
-		Display display = PlatformUI.getWorkbench().getDisplay();
+		if (graphInfoAccessible())
+			return;
 
-		if (graphInfoWindow != null && !graphInfoWindow.isDisposed()) {
-			graphInfoWindow.forceActive();
-		} else {
-			graphInfoWindow = new GraphInfoWindow(display);
-			graphInfoWindow.open();
+		graphInfoWindow = new GraphInfoWindow(graphShell.getShell());
+		graphInfoWindow.setBlockOnOpen(false);
+		graphInfoWindow.open();
 
-			graphEventNotifier
-					.notifySubscribers(GraphEvent.GRAPHINFO_WINDOW_OPENED);
-			graphInfoWindow.setSize(graphInfoWindow.computeSize(SWT.DEFAULT,
-					SWT.DEFAULT));
-		}
+		graphEventNotifier.notifySubscribers(GraphEvent.GRAPHINFO_WINDOW_OPENED);
+		graphInfoWindow.getShell().setMinimumSize(graphInfoWindow.getShell().computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
 	private final void updateButtonState(mxCell cell) {
-		PlatformUI
-				.getWorkbench()
-				.getDisplay()
-				.syncExec(
-						() -> {
-							if (graphInfoWindow == null
-									|| graphInfoWindow.isDisposed())
-								return;
+		PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
+			if (!graphInfoAccessible())
+				return;
 
-							List<Node> solutionList = treeBuilder.solutionList;
-							Node node = (Node) cell.getValue();
-							boolean inSolution = solutionList.contains(node);
-							boolean inSolutionNext = inSolution
-									&& solutionList.indexOf(node) != solutionList
-											.size() - 1;
-							boolean inSolutionPrevious = inSolution
-									&& solutionList.indexOf(node) != 0;
+			List<Node> solutionList = treeBuilder.solutionList;
+			Node node = (Node) cell.getValue();
+			boolean inSolution = solutionList.contains(node);
+			boolean inSolutionNext = inSolution && solutionList.indexOf(node) != solutionList.size() - 1;
+			boolean inSolutionPrevious = inSolution && solutionList.indexOf(node) != 0;
 
-							graphInfoWindow.getButtonNext().setEnabled(
-									inSolutionNext);
-							graphInfoWindow.getButtonPrevious().setEnabled(
-									inSolutionPrevious);
-						});
+			graphInfoWindow.getButtonNext().setEnabled(inSolutionNext);
+			graphInfoWindow.getButtonPrevious().setEnabled(inSolutionPrevious);
+		});
 	}
 
 	private final void updateInfo(mxCell cell) {
 		Node node = (Node) cell.getValue();
 		List<InfoElement> cellInfoList = getCellInfo(node);
 		PlatformUI.getWorkbench().getDisplay().syncExec(() -> {
-			if (graphInfoWindow == null || graphInfoWindow.isDisposed())
+			if (!graphInfoAccessible())
 				return;
 
 			setCellInfo(cellInfoList);
@@ -515,21 +488,15 @@ public class GraphPanel extends JPanel implements GraphApi {
 	private final List<InfoElement> getCellInfo(Node node) {
 		List<InfoElement> cellInfoList = new ArrayList<InfoElement>();
 
-		cellInfoList.add(new InfoElement("Node number", String
-				.valueOf(node.index)));
-		cellInfoList.add(new InfoElement("Parent number",
-				node.parent == null ? "" : String.valueOf(node.parent.index)));
-		cellInfoList.add(new InfoElement("Current path cost (g)", String
-				.valueOf(node.g)));
-		cellInfoList.add(new InfoElement("Remaining path cost (h)", String
-				.valueOf(node.h)));
-		cellInfoList.add(new InfoElement("Full path cost (f)", String
-				.valueOf(node.h + node.g)));
+		cellInfoList.add(new InfoElement("Node number", String.valueOf(node.index)));
+		cellInfoList
+				.add(new InfoElement("Parent number", node.parent == null ? "" : String.valueOf(node.parent.index)));
+		cellInfoList.add(new InfoElement("Current path cost (g)", String.valueOf(node.g)));
+		cellInfoList.add(new InfoElement("Remaining path cost (h)", String.valueOf(node.h)));
+		cellInfoList.add(new InfoElement("Full path cost (f)", String.valueOf(node.h + node.g)));
 		cellInfoList.add(new InfoElement("Rule used", node.ruleName));
-		cellInfoList.add(new InfoElement("Relevant resources",
-				node.relevantResources));
-		cellInfoList.add(new InfoElement("Rule cost", String
-				.valueOf(node.ruleCost)));
+		cellInfoList.add(new InfoElement("Relevant resources", node.relevantResources));
+		cellInfoList.add(new InfoElement("Rule cost", String.valueOf(node.ruleCost)));
 
 		return cellInfoList;
 	}
@@ -538,22 +505,17 @@ public class GraphPanel extends JPanel implements GraphApi {
 		List<InfoElement> graphInfoList = new ArrayList<InfoElement>();
 		GraphInfo info = treeBuilder.graphInfo;
 
-		graphInfoList.add(new InfoElement("Solution cost", String
-				.valueOf(info.solutionCost)));
-		graphInfoList.add(new InfoElement("Nodes opened", String
-				.valueOf(info.numOpened)));
-		graphInfoList.add(new InfoElement("Nodes total", String
-				.valueOf(info.numNodes)));
-		graphInfoList.add(new InfoElement("Max depth", String
-				.valueOf(info.depth)));
-		graphInfoList.add(new InfoElement("Max width", String
-				.valueOf(info.width)));
+		graphInfoList.add(new InfoElement("Solution cost", String.valueOf(info.solutionCost)));
+		graphInfoList.add(new InfoElement("Nodes opened", String.valueOf(info.numOpened)));
+		graphInfoList.add(new InfoElement("Nodes total", String.valueOf(info.numNodes)));
+		graphInfoList.add(new InfoElement("Max depth", String.valueOf(info.depth)));
+		graphInfoList.add(new InfoElement("Max width", String.valueOf(info.width)));
 
 		return graphInfoList;
 	}
 
 	private final void setCellInfo(List<InfoElement> cellInfo) {
-		if (graphInfoWindow == null || graphInfoWindow.isDisposed())
+		if (!graphInfoAccessible())
 			return;
 
 		graphInfoWindow.setCellInfoInput(cellInfo);
@@ -563,7 +525,7 @@ public class GraphPanel extends JPanel implements GraphApi {
 		if (!isFinished)
 			return;
 
-		if (graphInfoWindow == null || graphInfoWindow.isDisposed())
+		if (!graphInfoAccessible())
 			return;
 
 		graphInfoWindow.setGraphInfoInput(getGraphInfo());
@@ -584,16 +546,14 @@ public class GraphPanel extends JPanel implements GraphApi {
 			lastAddedVertexIndex++;
 
 			Node node = treeBuilder.nodeByNumber.get(lastAddedVertexIndex);
-			mxCell vertex = (mxCell) graph.insertVertex(
-					graph.getDefaultParent(), null, node, getAbsoluteX(0.5),
+			mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, node, getAbsoluteX(0.5),
 					getAbsoluteY(0.05), nodeSize, nodeSize, regularCellStyle);
 			vertexByNode.put(node, vertex);
 			updateTypicalDimensions(node);
 
 			if (node.parent != null)
-				graph.insertEdge(graph.getDefaultParent(), null, null,
-						vertexByNode.get(node.parent), vertexByNode.get(node),
-						edgeStyle);
+				graph.insertEdge(graph.getDefaultParent(), null, null, vertexByNode.get(node.parent),
+						vertexByNode.get(node), edgeStyle);
 		}
 	}
 
@@ -623,11 +583,9 @@ public class GraphPanel extends JPanel implements GraphApi {
 		int levelDistance = size / sizeToLevelDistanceRatio;
 		int nodeDistance = size / sizeToNodeDistanceRatio;
 
-		this.levelDistance = levelDistance > minLevelDistance ? levelDistance
-				: minLevelDistance;
+		this.levelDistance = levelDistance > minLevelDistance ? levelDistance : minLevelDistance;
 		this.nodeSize = size > minNodeSize ? size : minNodeSize;
-		this.nodeDistance = nodeDistance > minNodeDistance ? nodeDistance
-				: minNodeDistance;
+		this.nodeDistance = nodeDistance > minNodeDistance ? nodeDistance : minNodeDistance;
 	}
 
 	private final void zoomToFit() {
@@ -640,10 +598,8 @@ public class GraphPanel extends JPanel implements GraphApi {
 		int height = getHeight();
 		int depth = treeBuilder.graphInfo.depth;
 
-		double levelDistanceCoef = (sizeToLevelDistanceRatio + 1.0)
-				/ sizeToLevelDistanceRatio;
-		double prefferredHeight = (height - minLevelOffset)
-				/ (depth * levelDistanceCoef);
+		double levelDistanceCoef = (sizeToLevelDistanceRatio + 1.0) / sizeToLevelDistanceRatio;
+		double prefferredHeight = (height - minLevelOffset) / (depth * levelDistanceCoef);
 
 		setNodesSize(prefferredHeight);
 
@@ -653,8 +609,7 @@ public class GraphPanel extends JPanel implements GraphApi {
 
 	private final void setViewOnRoot() {
 		Rectangle paneBounds = graphComponent.getViewport().getViewRect();
-		mxRectangle graphBounds = graph.getBoundsForCells(vertexByNode.values()
-				.toArray(), false, false, false);
+		mxRectangle graphBounds = graph.getBoundsForCells(vertexByNode.values().toArray(), false, false, false);
 
 		int x = (int) ((graphBounds.getWidth() - paneBounds.width) / 2);
 
@@ -670,22 +625,18 @@ public class GraphPanel extends JPanel implements GraphApi {
 
 	private final void updateTypicalDimensions(Node node) {
 		final String number = Integer.toString(node.index);
-		final String costFunction = Double.toString(node.g + node.h) + " = "
-				+ Double.toString(node.g) + " + " + Double.toString(node.h);
-		final String rule = node.ruleName + " = "
-				+ Double.toString(node.ruleCost);
+		final String costFunction = Double.toString(node.g + node.h) + " = " + Double.toString(node.g) + " + "
+				+ Double.toString(node.h);
+		final String rule = node.ruleName + " = " + Double.toString(node.ruleCost);
 		final String shortRule = rule.replaceAll("\\(.*\\)", "");
 
 		final String smallText = number;
 		final String mediumText = number + "\n" + costFunction;
 		final String largeText = mediumText + "\n" + shortRule;
 
-		final mxRectangle smallBounds = mxUtils.getSizeForString(smallText,
-				font, scale);
-		final mxRectangle mediumBounds = mxUtils.getSizeForString(mediumText,
-				font, scale);
-		final mxRectangle largeBounds = mxUtils.getSizeForString(largeText,
-				font, scale);
+		final mxRectangle smallBounds = mxUtils.getSizeForString(smallText, font, scale);
+		final mxRectangle mediumBounds = mxUtils.getSizeForString(mediumText, font, scale);
+		final mxRectangle largeBounds = mxUtils.getSizeForString(largeText, font, scale);
 
 		if (smallBounds.getWidth() > small.width)
 			small.setSize(smallBounds.getWidth(), smallBounds.getHeight());
@@ -723,8 +674,7 @@ public class GraphPanel extends JPanel implements GraphApi {
 			for (mxCell cell : vertexByNode.values()) {
 				Node node = (Node) cell.getValue();
 				final String number = Integer.toString(node.index);
-				final String costFunction = Double.toString(node.g + node.h)
-						+ " = " + Double.toString(node.g) + " + "
+				final String costFunction = Double.toString(node.g + node.h) + " = " + Double.toString(node.g) + " + "
 						+ Double.toString(node.h);
 				final String text = number + "\n" + costFunction;
 				node.label = text;
@@ -735,14 +685,11 @@ public class GraphPanel extends JPanel implements GraphApi {
 			for (mxCell cell : vertexByNode.values()) {
 				Node node = (Node) cell.getValue();
 				final String number = Integer.toString(node.index);
-				final String costFunction = Double.toString(node.g + node.h)
-						+ " = " + Double.toString(node.g) + " + "
+				final String costFunction = Double.toString(node.g + node.h) + " = " + Double.toString(node.g) + " + "
 						+ Double.toString(node.h);
-				final String rule = node.ruleName + " = "
-						+ Double.toString(node.ruleCost);
+				final String rule = node.ruleName + " = " + Double.toString(node.ruleCost);
 				final String shortRule = rule.replaceAll("\\(.*\\)", "");
-				final String text = number + "\n" + costFunction + "\n"
-						+ shortRule;
+				final String text = number + "\n" + costFunction + "\n" + shortRule;
 				node.label = text;
 				cell.setValue(node);
 			}
