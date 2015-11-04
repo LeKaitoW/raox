@@ -42,7 +42,7 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
-import ru.bmstu.rk9.rao.ui.graph.GraphView;
+import ru.bmstu.rk9.rao.ui.graph.GraphPanel;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 import ru.bmstu.rk9.rao.ui.plot.PlotView;
 
@@ -102,7 +102,7 @@ public class SerializedObjectsView extends ViewPart {
 		serializedObjectsTree.setMenu(popupMenu);
 		conditionalMenuItems.add(PlotView.createConditionalMenuItem(popupMenu));
 		conditionalMenuItems
-				.add(GraphView.createConditionalMenuItem(popupMenu));
+				.add(GraphPanel.createConditionalMenuItem(popupMenu));
 		serializedObjectsTreeViewer.getTree().setMenu(popupMenu);
 
 		serializedObjectsTreeViewer

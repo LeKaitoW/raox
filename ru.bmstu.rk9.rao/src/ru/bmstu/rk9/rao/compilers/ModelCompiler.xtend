@@ -67,7 +67,7 @@ class ModelCompiler
 							«ENDIF»
 					«ENDFOR»
 				«ENDFOR»
-				db.addMemorizedResourceEntries(null, null);
+				db.addMemorizedResourceEntries(null, null, null);
 			}
 
 			public static «project»Model getCurrent()
