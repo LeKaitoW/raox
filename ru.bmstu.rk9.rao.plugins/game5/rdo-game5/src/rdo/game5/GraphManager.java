@@ -11,9 +11,8 @@ import org.eclipse.ui.PlatformUI;
 import org.json.simple.JSONArray;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
-import ru.bmstu.rk9.rao.ui.graph.GraphInfoWindow;
-import ru.bmstu.rk9.rao.ui.graph.GraphView;
-import ru.bmstu.rk9.rao.ui.graph.GraphView.GraphEvent;
+import ru.bmstu.rk9.rao.ui.graph.GraphPanel;
+import ru.bmstu.rk9.rao.ui.graph.GraphPanel.GraphEvent;
 import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.Node;
 
 import com.mxgraph.model.mxCell;
@@ -24,11 +23,11 @@ import com.mxgraph.view.mxGraphSelectionModel;
 
 public class GraphManager {
 
-	public GraphManager(GraphView graph, JSONArray order) {
-		this.graph = graph;
+	public GraphManager(GraphPanel graph, JSONArray order) {
+		this.graphPanel = graph;
 		this.initialOrder = order;
 		this.currentOrder = order;
-		this.graph.getGraph().getSelectionModel()
+		this.graphPanel.getGraph().getSelectionModel()
 				.addListener(mxEvent.CHANGE, selectionListener);
 		graph.getGraphEventNotifier().addSubscriber(addBoardSubscriber,
 				GraphEvent.GRAPHINFO_WINDOW_OPENED);
@@ -41,17 +40,16 @@ public class GraphManager {
 	private final Subscriber addBoardSubscriber = new Subscriber() {
 		@Override
 		public void fireChange() {
-			Composite infoArea = graph.getGraphInfoWindow().getInfoArea();
+			Composite infoArea = graphPanel.getGraphInfoWindow().getInfoArea();
 			Group boardGroup = new Group(infoArea, SWT.NONE);
 			GridLayout boardLayout = new GridLayout(3, false);
 			boardGroup.setLayout(boardLayout);
 			boardGroup.setText("Board");
 			createBoard(boardGroup);
-			graph.getGraphInfoWindow().updateContents();
 		}
 	};
 
-	private final GraphView graph;
+	private final GraphPanel graphPanel;
 	private final JSONArray initialOrder;
 	private JSONArray currentOrder;
 
@@ -79,8 +77,7 @@ public class GraphManager {
 		Node currentNode = node;
 		final List<String> rules = new ArrayList<String>();
 		while (currentNode.parent != null) {
-			final String rule = currentNode.ruleDesсription;
-			rules.add(rule.substring(0, rule.indexOf("(")));
+			rules.add(currentNode.ruleName);
 			currentNode = currentNode.parent;
 		}
 		return rules;
@@ -124,8 +121,7 @@ public class GraphManager {
 	}
 
 	private final void updateBoard() {
-		GraphInfoWindow graphInfoWindow = graph.getGraphInfoWindow();
-		if (graphInfoWindow != null && !graphInfoWindow.isDisposed()) {
+		if (graphPanel.graphInfoAccessible()) {
 			for (int i = 0; i < tilesCountX * tilesCountY; i++) {
 				tiles.get(i).updateTile(currentOrder.get(i).toString());
 			}
