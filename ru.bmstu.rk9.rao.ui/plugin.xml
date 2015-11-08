@@ -1031,7 +1031,8 @@
             id="ru.bmstu.rk9.rao.ui.wizard.RaoWizard"
             icon="icons/rao_old.gif"
             category="ru.bmstu.rk9.rao.wizard"
-            project="true">
+            project="true"
+            finalPerspective="ru.bmstu.rk9.rao.ui.perspective">
       </wizard>
   </extension>
 
