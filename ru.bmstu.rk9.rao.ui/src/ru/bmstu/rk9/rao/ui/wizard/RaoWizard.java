@@ -12,7 +12,7 @@ import ru.bmstu.rk9.rao.ui.wizard.ProjectConfigurator.ProjectWizardStatus;
 public class RaoWizard extends BasicNewProjectResourceWizard implements IWorkbenchWizard, IExecutableExtension {
 
 	protected RaoWizardPage wizardPage;
-	private IConfigurationElement configElement;
+	private IConfigurationElement configurationElement;
 
 	@Override
 	public void addPages() {
@@ -26,7 +26,7 @@ public class RaoWizard extends BasicNewProjectResourceWizard implements IWorkben
 		final ProjectWizardStatus projectWizardStatus = new ProjectConfigurator(info).initializeProject();
 		switch (projectWizardStatus) {
 		case SUCCESS:
-			updatePerspective(configElement);
+			updatePerspective(configurationElement);
 			return true;
 		case UNDEFINED_ERROR:
 			return false;
@@ -45,7 +45,7 @@ public class RaoWizard extends BasicNewProjectResourceWizard implements IWorkben
 	}
 
 	@Override
-	public void setInitializationData(IConfigurationElement cfig, String propertyName, Object data) {
-		configElement = cfig;
+	public void setInitializationData(IConfigurationElement configurationElement, String propertyName, Object data) {
+		this.configurationElement = configurationElement;
 	}
 }
