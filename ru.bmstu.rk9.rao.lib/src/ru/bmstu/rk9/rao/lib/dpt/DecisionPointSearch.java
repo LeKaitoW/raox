@@ -121,8 +121,6 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 		ActivityInfo activityInfo;
 
-		LinkedList<GraphNode> children;
-
 		double g;
 		double h;
 
@@ -184,9 +182,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		head.state = retriever.get();
 		nodesClosed.add(head);
 
-		head.children = spawnChildren(head);
-
-		nodesOpen.addAll(head.children);
+		nodesOpen.addAll(spawnChildren(head));
 
 		while (!nodesOpen.isEmpty()) {
 			if (!allowSearch)
@@ -209,16 +205,16 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 						data);
 			}
 
-			current.children = spawnChildren(current);
-			nodesOpen.addAll(current.children);
-
-			for (GraphNode child : current.children) {
+			LinkedList<GraphNode> children = spawnChildren(current);
+			nodesOpen.addAll(children);
+			
+			for (GraphNode child : children) {
 				child.state.deploy();
 				if (terminate.check()) {
 					current = child;
 					return stop(StopCode.SUCCESS);
 				}
-
+				
 				current.state.deploy();
 			}
 		}
