@@ -121,8 +121,6 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 		ActivityInfo activityInfo;
 
-//		LinkedList<GraphNode> children;
-
 		double g;
 		double h;
 
