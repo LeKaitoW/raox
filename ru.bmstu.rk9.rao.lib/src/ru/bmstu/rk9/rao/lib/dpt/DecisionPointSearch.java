@@ -190,18 +190,11 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 			totalOpened++;
 			serializeOpen(current);
 
+			if (terminate.check())
+				return stop(StopCode.SUCCESS);
+
 			current.children = spawnChildren(current);
 			nodesOpen.addAll(current.children);
-
-			for (GraphNode child : current.children) {
-				child.state.deploy();
-				if (terminate.check()) {
-					current = child;
-					return stop(StopCode.SUCCESS);
-				}
-
-				current.state.deploy();
-			}
 		}
 
 		head.state.deploy();
