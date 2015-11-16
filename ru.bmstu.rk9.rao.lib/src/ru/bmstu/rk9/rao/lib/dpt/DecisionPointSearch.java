@@ -123,8 +123,6 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 		ActivityInfo activityInfo;
 
-		LinkedList<GraphNode> children;
-
 		double g;
 		double h;
 
@@ -195,8 +193,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 			if (terminate.check())
 				return stop(StopCode.SUCCESS);
 
-			current.children = spawnChildren(current);
-			nodesOpen.addAll(current.children);
+			nodesOpen.addAll(spawnChildren(current));
 		}
 
 		head.state.deploy();
