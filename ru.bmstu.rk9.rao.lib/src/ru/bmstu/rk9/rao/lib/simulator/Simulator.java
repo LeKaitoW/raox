@@ -151,7 +151,7 @@ public class Simulator {
 		USER_INTERRUPT, NO_MORE_EVENTS, TERMINATE_CONDITION, RUNTIME_ERROR, SIMULATION_CONTINUES
 	}
 
-	private SimulationStopCode checkDPT() {
+	private SimulationStopCode processDPT() {
 		while (dptManager.checkDPT() && !executionAborted) {
 			notifyChange(ExecutionState.STATE_CHANGED);
 
@@ -174,27 +174,23 @@ public class Simulator {
 		notifyChange(ExecutionState.TIME_CHANGED);
 		notifyChange(ExecutionState.STATE_CHANGED);
 
-		SimulationStopCode dptCheck = INSTANCE.checkDPT();
-		if (dptCheck != SimulationStopCode.SIMULATION_CONTINUES)
-			return stop(dptCheck);
+		while (!INSTANCE.checkTerminate()) {
+			SimulationStopCode dptCheck = INSTANCE.processDPT();
+			if (dptCheck != SimulationStopCode.SIMULATION_CONTINUES)
+				return stop(dptCheck);
 
-		while (INSTANCE.eventScheduler.haveEvents()) {
+			if (!INSTANCE.eventScheduler.haveEvents())
+				return stop(SimulationStopCode.NO_MORE_EVENTS);
+
 			Event current = INSTANCE.eventScheduler.popEvent();
-
 			INSTANCE.time = current.getTime();
 			current.run();
 
 			notifyChange(ExecutionState.TIME_CHANGED);
 			notifyChange(ExecutionState.STATE_CHANGED);
-
-			if (INSTANCE.checkTerminate())
-				return stop(SimulationStopCode.TERMINATE_CONDITION);
-
-			dptCheck = INSTANCE.checkDPT();
-			if (dptCheck != SimulationStopCode.SIMULATION_CONTINUES)
-				return stop(dptCheck);
 		}
-		return stop(SimulationStopCode.NO_MORE_EVENTS);
+
+		return stop(SimulationStopCode.TERMINATE_CONDITION);
 	}
 
 	private static void onFinish(Database.SystemEntryType simFinishType) {
