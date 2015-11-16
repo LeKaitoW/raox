@@ -1,6 +1,8 @@
 package ru.bmstu.rk9.rao.lib.dpt;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -209,74 +211,63 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		LinkedList<GraphNode> children = new LinkedList<GraphNode>();
 
 		for (int activityNumber = 0; activityNumber < activities.size(); activityNumber++) {
-			if (!allowSearch)
-				return children;
-
 			Activity a = activities.get(activityNumber);
 			double value = 0;
 
-			if (a.checkActivity()) {
-				GraphNode newChild = new GraphNode(totalAdded, parent);
+			if (!a.checkActivity())
+				continue;
 
-				totalSpawned++;
+			GraphNode newChild = new GraphNode(totalAdded, parent);
 
-				SpawnStatus spawnStatus = SpawnStatus.NEW;
+			totalSpawned++;
 
-				if (a.applyMoment == Activity.ApplyMoment.before)
-					value = a.calculateValue();
+			SpawnStatus spawnStatus = SpawnStatus.NEW;
 
-				newChild.state = parent.state.copy();
-				newChild.state.deploy();
+			if (a.applyMoment == Activity.ApplyMoment.before)
+				value = a.calculateValue();
 
-				Rule executed = a.executeActivity();
-				newChild.activityInfo = new ActivityInfo(activityNumber,
-						executed);
+			newChild.state = parent.state.copy();
+			newChild.state.deploy();
 
-				if (a.applyMoment == Activity.ApplyMoment.after)
-					value = a.calculateValue();
+			Rule executed = a.executeActivity();
+			newChild.activityInfo = new ActivityInfo(activityNumber, executed);
 
-				newChild.g = parent.g + value;
-				newChild.h = evaluateBy.get();
+			if (a.applyMoment == Activity.ApplyMoment.after)
+				value = a.calculateValue();
 
-				add_child: {
-					compare_tops: if (compareTops) {
-						for (GraphNode open : nodesOpen)
-							if (newChild.state.checkEqual(open.state))
+			newChild.g = parent.g + value;
+			newChild.h = evaluateBy.get();
+
+			add_child: {
+				compare_tops: if (compareTops) {
+					for (Collection<GraphNode> nodesList : Arrays.asList(nodesOpen, nodesClosed)) {
+						for (GraphNode open : nodesList) {
+							if (newChild.state.checkEqual(open.state)) {
 								if (newChild.g < open.g) {
-									nodesOpen.remove(open);
+									nodesList.remove(open);
 									spawnStatus = SpawnStatus.BETTER;
 									break compare_tops;
 								} else {
 									spawnStatus = SpawnStatus.WORSE;
 									break add_child;
 								}
-
-						for (GraphNode closed : nodesClosed)
-							if (newChild.state.checkEqual(closed.state))
-								if (newChild.g < closed.g) {
-									nodesClosed.remove(closed);
-									spawnStatus = SpawnStatus.BETTER;
-									break compare_tops;
-								} else {
-									spawnStatus = SpawnStatus.WORSE;
-									break add_child;
-								}
+							}
+						}
 					}
-
-					children.add(newChild);
-					totalAdded++;
 				}
 
-				serializeTops(newChild, spawnStatus, newChild.activityInfo,
-						value);
-
-				Simulator.getExecutionStateNotifier().notifySubscribers(
-						ExecutionState.SEARCH_STEP);
-
-				parent.state.deploy();
-
+				children.add(newChild);
+				totalAdded++;
 			}
+
+			serializeTops(newChild, spawnStatus, newChild.activityInfo, value);
+
+			Simulator.getExecutionStateNotifier().notifySubscribers(
+					ExecutionState.SEARCH_STEP);
+
+			parent.state.deploy();
 		}
+
 		return children;
 	}
 
