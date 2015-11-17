@@ -238,10 +238,10 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 			add_child: {
 				compare_tops: if (compareTops) {
 					for (Collection<GraphNode> nodesList : Arrays.asList(nodesOpen, nodesClosed)) {
-						for (GraphNode open : nodesList) {
-							if (newChild.state.checkEqual(open.state)) {
-								if (newChild.g < open.g) {
-									nodesList.remove(open);
+						for (GraphNode node : nodesList) {
+							if (newChild.state.checkEqual(node.state)) {
+								if (newChild.g < node.g) {
+									nodesList.remove(node);
 									spawnStatus = SpawnStatus.BETTER;
 									break compare_tops;
 								} else {
