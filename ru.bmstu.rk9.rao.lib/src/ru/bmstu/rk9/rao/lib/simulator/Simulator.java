@@ -172,9 +172,9 @@ public class Simulator {
 			if (!INSTANCE.eventScheduler.haveEvents())
 				return stop(SimulationStopCode.NO_MORE_EVENTS);
 
-			Event current = INSTANCE.eventScheduler.popEvent();
-			INSTANCE.time = current.getTime();
-			current.run();
+			Event event = INSTANCE.eventScheduler.popEvent();
+			INSTANCE.time = event.getTime();
+			event.run();
 
 			notifyChange(ExecutionState.TIME_CHANGED);
 			notifyChange(ExecutionState.STATE_CHANGED);
