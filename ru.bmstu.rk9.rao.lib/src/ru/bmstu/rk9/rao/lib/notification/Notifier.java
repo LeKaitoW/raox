@@ -56,4 +56,8 @@ public class Notifier<Category extends Enum<Category>> {
 		subscriptionStates.get(category).subscription
 				.removeSubscriber(subscriber);
 	}
+
+	public void removeAllSubscribers(Category category) {
+		subscriptionStates.get(category).subscription.subscribers.clear();
+	}
 }
