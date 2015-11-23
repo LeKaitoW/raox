@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
+import java.util.EnumSet;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -13,6 +15,9 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 
 import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
+import ru.bmstu.rk9.rao.lib.notification.Notifier;
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
 import ru.bmstu.rk9.rao.ui.RaoActivatorExtension;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider;
@@ -29,6 +34,16 @@ public class ExecutionManager {
 
 	private final String pluginId = RaoActivatorExtension.getInstance()
 			.getBundle().getSymbolicName();
+
+	private enum ExecutionManagerState {BEFORE_RUN};
+
+	private static final Notifier<ExecutionManagerState> executionManagerNotifier = new Notifier<>(
+			ExecutionManagerState.class);
+
+	public static final void registerBeforeRunSubcriber(Subscriber subscriber) {
+		executionManagerNotifier.addSubscriber(subscriber, ExecutionManagerState.BEFORE_RUN,
+				EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED));
+	}
 
 	public ExecutionManager(final IEditorPart activeEditor,
 			final IWorkbenchWindow activeWorkbenchWindow,
@@ -84,6 +99,8 @@ public class ExecutionManager {
 						return Status.OK_STATUS;
 					}
 
+					executionManagerNotifier.notifySubscribers(ExecutionManagerState.BEFORE_RUN);
+
 					final IProject project = modelBuilder.getBuiltProject();
 					ExecutionJobProvider modelExecutioner = new ExecutionJobProvider(
 							project);
@@ -105,6 +122,7 @@ public class ExecutionManager {
 
 					return Status.OK_STATUS;
 				} finally {
+					executionManagerNotifier.removeAllSubscribers(ExecutionManagerState.BEFORE_RUN);
 					ModelExecutionSourceProvider.setSimulationState(
 							activeWorkbenchWindow,
 							SimulationState.STOPPED.toString());
