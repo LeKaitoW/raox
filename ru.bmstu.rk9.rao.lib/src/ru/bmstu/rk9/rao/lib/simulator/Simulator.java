@@ -151,20 +151,6 @@ public class Simulator {
 		USER_INTERRUPT, NO_MORE_EVENTS, TERMINATE_CONDITION, RUNTIME_ERROR, SIMULATION_CONTINUES
 	}
 
-	private SimulationStopCode checkDPT() {
-		while (dptManager.checkDPT() && !executionAborted) {
-			notifyChange(ExecutionState.STATE_CHANGED);
-
-			if (checkTerminate())
-				return SimulationStopCode.TERMINATE_CONDITION;
-		}
-
-		if (executionAborted)
-			return SimulationStopCode.USER_INTERRUPT;
-
-		return SimulationStopCode.SIMULATION_CONTINUES;
-	}
-
 	public static SimulationStopCode run() {
 		isRunning = true;
 
@@ -174,27 +160,27 @@ public class Simulator {
 		notifyChange(ExecutionState.TIME_CHANGED);
 		notifyChange(ExecutionState.STATE_CHANGED);
 
-		SimulationStopCode dptCheck = INSTANCE.checkDPT();
-		if (dptCheck != SimulationStopCode.SIMULATION_CONTINUES)
-			return stop(dptCheck);
-
-		while (INSTANCE.eventScheduler.haveEvents()) {
-			Event current = INSTANCE.eventScheduler.popEvent();
-
-			INSTANCE.time = current.getTime();
-			current.run();
-
-			notifyChange(ExecutionState.TIME_CHANGED);
-			notifyChange(ExecutionState.STATE_CHANGED);
-
+		while (!INSTANCE.executionAborted) {
 			if (INSTANCE.checkTerminate())
 				return stop(SimulationStopCode.TERMINATE_CONDITION);
 
-			dptCheck = INSTANCE.checkDPT();
-			if (dptCheck != SimulationStopCode.SIMULATION_CONTINUES)
-				return stop(dptCheck);
+			if (INSTANCE.dptManager.checkDPT()) {
+				notifyChange(ExecutionState.STATE_CHANGED);
+				continue;
+			}
+
+			if (!INSTANCE.eventScheduler.haveEvents())
+				return stop(SimulationStopCode.NO_MORE_EVENTS);
+
+			Event event = INSTANCE.eventScheduler.popEvent();
+			INSTANCE.time = event.getTime();
+			event.run();
+
+			notifyChange(ExecutionState.TIME_CHANGED);
+			notifyChange(ExecutionState.STATE_CHANGED);
 		}
-		return stop(SimulationStopCode.NO_MORE_EVENTS);
+
+		return stop(SimulationStopCode.USER_INTERRUPT);
 	}
 
 	private static void onFinish(Database.SystemEntryType simFinishType) {
