@@ -75,6 +75,7 @@ import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
+import ru.bmstu.rk9.rao.ui.execution.ExecutionManager;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
@@ -476,13 +477,15 @@ public class Game5View extends EditorPart {
 							.getService(ICommandService.class);
 					Command command = commandService
 							.getCommand("ru.bmstu.rk9.rao.ui.runtime.execute");
+
+					ExecutionManager.registerBeforeRunSubcriber(() -> {
+						new SimulatorSubscriberManager().initialize(
+								Arrays.asList(new SimulatorSubscriberInfo(showGraphSubscriber,
+										ExecutionState.EXECUTION_COMPLETED)),
+								EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED, SubscriptionType.ONE_SHOT));
+					});
+
 					command.executeWithChecks(new ExecutionEvent());
-					new SimulatorSubscriberManager().initialize(Arrays
-							.asList(new SimulatorSubscriberInfo(
-									showGraphSubscriber,
-									ExecutionState.EXECUTION_COMPLETED)),
-							EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED,
-									SubscriptionType.ONE_SHOT));
 				} catch (PartInitException | ExecutionException
 						| NotDefinedException | NotEnabledException
 						| NotHandledException e) {
