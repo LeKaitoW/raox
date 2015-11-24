@@ -458,11 +458,11 @@ public class GraphPanel extends JPanel implements GraphApi {
 			List<Node> solutionList = treeBuilder.solutionList;
 			Node node = (Node) cell.getValue();
 			boolean inSolution = solutionList.contains(node);
-			boolean inSolutionNext = inSolution && solutionList.indexOf(node) != solutionList.size() - 1;
-			boolean inSolutionPrevious = node.parent != null;
+			boolean nextEnabled = inSolution && solutionList.indexOf(node) != solutionList.size() - 1;
+			boolean previousEnabled = node.parent != null;
 
-			graphInfoWindow.getButtonNext().setEnabled(inSolutionNext);
-			graphInfoWindow.getButtonPrevious().setEnabled(inSolutionPrevious);
+			graphInfoWindow.getButtonNext().setEnabled(nextEnabled);
+			graphInfoWindow.getButtonPrevious().setEnabled(previousEnabled);
 		});
 	}
 
