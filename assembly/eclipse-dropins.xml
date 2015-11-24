@@ -2,7 +2,7 @@
 	<formats>
 		<format>zip</format>
 	</formats>
-	<id>${project.version}${target-os-property}${target-bitness-property}</id>
+	<id>eclipse-${project.version}${target-os-property}${target-bitness-property}</id>
 	<fileSets>
 		<fileSet>
 			<directory>${eclipse-path}</directory>
