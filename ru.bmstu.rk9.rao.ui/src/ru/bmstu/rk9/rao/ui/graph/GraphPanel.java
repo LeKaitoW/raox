@@ -420,15 +420,8 @@ public class GraphPanel extends JPanel implements GraphApi {
 				if (cell == null)
 					return;
 
-				List<Node> solutionList = treeBuilder.solutionList;
 				Node node = (Node) cell.getValue();
-				if (!solutionList.contains(node))
-					return;
-
-				int nodeIndex = solutionList.indexOf(node);
-				if (nodeIndex == 0)
-					return;
-				Node previousNode = solutionList.get(nodeIndex - 1);
+				Node previousNode = node.parent;
 
 				mxCell previousCell = vertexByNode.get(previousNode);
 				graph.setSelectionCell(previousCell);
@@ -465,11 +458,11 @@ public class GraphPanel extends JPanel implements GraphApi {
 			List<Node> solutionList = treeBuilder.solutionList;
 			Node node = (Node) cell.getValue();
 			boolean inSolution = solutionList.contains(node);
-			boolean inSolutionNext = inSolution && solutionList.indexOf(node) != solutionList.size() - 1;
-			boolean inSolutionPrevious = inSolution && solutionList.indexOf(node) != 0;
+			boolean nextEnabled = inSolution && solutionList.indexOf(node) != solutionList.size() - 1;
+			boolean previousEnabled = node.parent != null;
 
-			graphInfoWindow.getButtonNext().setEnabled(inSolutionNext);
-			graphInfoWindow.getButtonPrevious().setEnabled(inSolutionPrevious);
+			graphInfoWindow.getButtonNext().setEnabled(nextEnabled);
+			graphInfoWindow.getButtonPrevious().setEnabled(previousEnabled);
 		});
 	}
 
