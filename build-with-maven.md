@@ -5,6 +5,7 @@
 [export MAVEN_OPTS="-Xmx512M"]
 [mvn initialize -N -Pset-git-version]
 mvn [clean] package [-Declipse-path=<path-to-eclipse-root>] [-Dtarget-os=linux|win|mac] [-Dtarget-bitness=x64|x86]
+[mvn deploy -Drepository-url=<url-to-repository-root>]
 ```
 - `export MAVEN_OPTS="-Xmx512M"` - Устанавливает максимальное количество выделяемой памяти.
 Команда необходима, если сборка выдает ошибку `java heap space`. Под Windows `set MAVEN_OPTS="-Xmx512M"` или через настройки переменных среды.
@@ -39,12 +40,21 @@ mvn clean package "-Declipse-path=C:\path with spaces\eclipse"
 
  Параметры ```target-os``` и ```target-bitness``` задают операционную систему и битность целевой платформы соответсвенно. Влияют на название получаемого архива: ```rao-<version>-<target-os>-<target-platform>.zip``` Имеют смысл только для сборки с параметром ```-Declipse-path```, обязательны для сборки на Дженкинсе.
 
+
+- `mvn deploy` - Запускает сборку и развертывает полученные артифакты в репозитории.
+
+ ```
+mvn deploy -Drepository-url=<url-to-repository-root>
+```
+Параметр `repository-url` задает адрес репозитория, который по умолчанию не задан, поэтому является обязательным при запуске сборки с развертыванием.
+
 ##Автосборка на Дженкинсе
 ### Только джарники
 ```
 export MAVEN_OPTS="-Xmx512M"
 mvn initialize -N -Pset-git-version
-mvn clean package
+mvn clean deploy -Drepository-url=file:///home/rdo/nexus/rdo-work/nexus/storage/raox-m2/
+
 ```
 ### Архив с Эклипсом
 ```
