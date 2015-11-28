@@ -6,9 +6,31 @@ This project is an implementation of RDO modelling language in Eclipse, using xt
 
 ## Preparing
  * Install [Ubuntu Desktop](http://www.ubuntu.com/download/desktop/) or any other [linux distribution](http://www.linux.com/directory/Distributions/desktop)
+ * Install Java 8
+
+   **IMPORTANT** Latest version of openjdk at the moment of writing this (openjdk-8-jdk 8u66) crushes when using`SWT_AWT` bridge.
+   Oracle jdk distributions should be used instead. For debian-based linux distributions:
+```bash
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+sudo apt-get install oracle-java8-installer
+```
+   Check java version:
+```bash
+java -version
+```
+   If output is different than (except version numbers):
+```bash
+java version "1.8.0_66"
+Java(TM) SE Runtime Environment (build 1.8.0_66-b17)
+Java HotSpot(TM) 64-Bit Server VM (build 25.66-b17, mixed mode)
+```
+   set it manually
+```bash
+sudo update-alternatives --config java
+```
  * Download [Eclipse IDE for Java and DSL Developers](http://www.eclipse.org/downloads/packages/eclipse-ide-java-and-dsl-developers/lunasr2)
 ```bash
-sudo apt-get install openjdk-8-jdk # for debian-based distributions
 cd ~/Downloads
 gunzip -c eclipse-dsl-luna-SR2-linux-gtk-x86_64.tar.gz  | tar xvf -
 cd eclipse
