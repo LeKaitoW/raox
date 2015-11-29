@@ -41,7 +41,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		</repository>
 		<repository>
 			<id>raox-repo</id>
-			<url>http://rdo.rk9.bmstu.ru/nexus/content/repositories/raox-m2/</url>
+			<url>http://raox.rk9.bmstu.ru/nexus/content/repositories/raox-m2/</url>
 		</repository>
 	</repositories>
 
