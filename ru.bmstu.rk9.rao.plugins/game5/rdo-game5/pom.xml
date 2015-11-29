@@ -4,12 +4,12 @@
 
 	<parent>
 		<relativePath>../pom.xml</relativePath>
-		<groupId>rdo-game5</groupId>
+		<groupId>ru.bmstu.rk9.raox.plugins.game5</groupId>
 		<artifactId>parent</artifactId>
 		<version>1.4.0</version>
 	</parent>
 
-	<artifactId>rdo-game5</artifactId>
+	<artifactId>ru.bmstu.rk9.raox.plugins.game5</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
 	<name>rdo-game5</name>
