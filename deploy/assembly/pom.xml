@@ -19,9 +19,22 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 		<target-os-property></target-os-property>
 		<target-bitness-property></target-bitness-property>
 		<raox-version></raox-version>
+		<eclipse-subfolder></eclipse-subfolder>
 	</properties>
 
 	<profiles>
+		<profile>
+			<id>mac-os</id>
+			<activation>
+				<property>
+					<name>target-os</name>
+					<value>mac</value>
+				</property>
+			</activation>
+			<properties>
+				<eclipse-subfolder>Contents/Eclipse</eclipse-subfolder>
+			</properties>
+		</profile>
 		<profile>
 			<id>set-bitness</id>
 			<activation>
@@ -103,7 +116,7 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 									<outputDirectory>${basedir}/target</outputDirectory>
 									<resources>
 										<resource>
-											<directory>${eclipse-path}</directory>
+											<directory>${eclipse-path}/${eclipse-subfolder}</directory>
 											<includes>
 												<include>eclipse.ini</include>
 											</includes>

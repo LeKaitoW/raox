@@ -8,19 +8,19 @@
 			<directory>${eclipse-path}</directory>
 			<outputDirectory>./</outputDirectory>
 			<excludes>
-				<exclude>eclipse.ini</exclude>
+				<exclude>./${eclipse-subfolder}/eclipse.ini</exclude>
 			</excludes>
 		</fileSet>
 		<fileSet>
 			<directory>${basedir}/target</directory>
-			<outputDirectory>./</outputDirectory>
+			<outputDirectory>./${eclipse-subfolder}</outputDirectory>
 			<includes>
 				<include>eclipse.ini</include>
 			</includes>
 		</fileSet>
 		<fileSet>
 			<directory>${basedir}/target/plugins</directory>
-			<outputDirectory>dropins</outputDirectory>
+			<outputDirectory>${eclipse-subfolder}/dropins</outputDirectory>
 		</fileSet>
 	</fileSets>
 </assembly>
