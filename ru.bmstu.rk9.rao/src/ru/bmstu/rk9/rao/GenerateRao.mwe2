@@ -4,9 +4,9 @@ import org.eclipse.emf.mwe.utils.*
 import org.eclipse.xtext.generator.*
 import org.eclipse.xtext.ui.generator.*
 
-var grammarURI = "classpath:/ru/bmstu/rk9/rao/Rao.xtext"
 var fileExtensions = "rao"
 var projectName = "ru.bmstu.rk9.rao"
+var grammarURI = "platform:/resource/${projectName}/src/ru/bmstu/rk9/rao/Rao.xtext"
 var runtimeProject = "../${projectName}"
 var generateXtendStub = true
 var encoding = "UTF-8"

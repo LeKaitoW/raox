@@ -14,6 +14,7 @@ import ru.bmstu.rk9.rao.lib.simulator.EmbeddedSimulation
 import ru.bmstu.rk9.rao.rao.Event
 import ru.bmstu.rk9.rao.rao.DefaultMethod
 import ru.bmstu.rk9.rao.lib.simulator.TerminateCondition
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode
 
 // TODO add override annotation to all generated overriden methods
 class RaoJvmModelInferrer extends AbstractModelInferrer {
@@ -25,7 +26,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 
 			members += element.compileInstanceField
 
-			members += element.toMethod("startSimulation", typeRef(int)) [
+			members += element.toMethod("startSimulation", typeRef(SimulationStopCode)) [
 				visibility = JvmVisibility.PUBLIC
 				static = true
 				final = true

@@ -21,8 +21,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 
-import ru.bmstu.rk9.rao.ui.run.RuntimeComponents;
-
 public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 	private static volatile int speedValue;
 

@@ -1,64 +1,70 @@
 package ru.bmstu.rk9.rao.ui.graph;
 
+import java.util.List;
+
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
-public class GraphInfoWindow extends Shell {
-	GraphInfoWindow(Display display) {
-		setText("Graph Info");
-		setLayout(new FillLayout());
+public class GraphInfoWindow extends Dialog {
+	protected GraphInfoWindow(Shell parentShell) {
+		super(parentShell);
+		setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE);
+	}
 
-		windowArea = new Composite(this, SWT.FILL);
-		RowLayout windowAreaLayout = new RowLayout(numberOfAreas);
+	@Override
+	protected void configureShell(Shell newShell) {
+		super.configureShell(newShell);
+		newShell.setText("Graph Info");
+	}
+
+	@Override
+	protected Control createButtonBar(final Composite parent) {
+		return null;
+	}
+
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		Composite area = (Composite) super.createDialogArea(parent);
+		area.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+		scrolledWindowArea = new ScrolledComposite(area, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FILL);
+		scrolledWindowArea.setLayout(new FillLayout());
+		scrolledWindowArea.setExpandHorizontal(true);
+		scrolledWindowArea.setExpandVertical(true);
+
+		windowArea = new Composite(scrolledWindowArea, SWT.FILL);
+		RowLayout windowAreaLayout = new RowLayout(SWT.VERTICAL);
 		windowAreaLayout.fill = true;
 		windowAreaLayout.marginLeft = 5;
 		windowAreaLayout.marginRight = 5;
+		windowAreaLayout.spacing = 5;
 		windowArea.setLayout(windowAreaLayout);
 
 		infoArea = new Composite(windowArea, SWT.FILL);
 		RowLayout infoAreaLayout = new RowLayout(SWT.VERTICAL);
+		infoAreaLayout.fill = true;
 		infoAreaLayout.spacing = 5;
 		infoArea.setLayout(infoAreaLayout);
 
-		graphInfoGroup = new Group(infoArea, SWT.NONE);
-		graphInfoGroup.setText("Graph info");
-		graphInfoGroup.setLayout(new FormLayout());
-
-		Group selectedCellInfoGroup = new Group(graphInfoGroup, SWT.NONE);
-		selectedCellInfoGroup.setText("Selected cell");
-		FormData cellInfoGroupData = new FormData();
-		cellInfoGroupData.left = new FormAttachment(0, 0);
-		cellInfoGroupData.top = new FormAttachment(0, 5);
-		selectedCellInfoGroup.setLayoutData(cellInfoGroupData);
-
-		FillLayout cellInfoLayout = new FillLayout();
-		cellInfoLayout.marginHeight = 2;
-		cellInfoLayout.marginWidth = 4;
-		selectedCellInfoGroup.setLayout(cellInfoLayout);
-		cellInfoLabel = new Label(selectedCellInfoGroup, SWT.NONE);
-
-		Group commonInfoGroup = new Group(graphInfoGroup, SWT.NONE);
-		commonInfoGroup.setText("Common");
-		FormData graphInfoGroupData = new FormData();
-		graphInfoGroupData.left = new FormAttachment(selectedCellInfoGroup, 5);
-		graphInfoGroupData.top = new FormAttachment(0, 5);
-		commonInfoGroup.setLayoutData(graphInfoGroupData);
-
-		FillLayout graphInfoLayout = new FillLayout();
-		graphInfoLayout.marginHeight = 2;
-		graphInfoLayout.marginWidth = 4;
-		commonInfoGroup.setLayout(graphInfoLayout);
-		graphInfoLabel = new Label(commonInfoGroup, SWT.NONE);
+		graphInfoViewerWrapper = new InfoTableWrapper(infoArea);
+		cellInfoViewerWrapper = new InfoTableWrapper(infoArea);
 
 		buttonArea = new Composite(windowArea, SWT.FILL);
 		buttonArea.setLayout(new FormLayout());
@@ -74,26 +80,18 @@ public class GraphInfoWindow extends Shell {
 		buttonNextFormData.left = new FormAttachment(buttonPrevious, 5);
 		buttonNext.setLayoutData(buttonNextFormData);
 
-		updateContents();
+		scrolledWindowArea.setContent(windowArea);
+
+		return area;
 	}
 
-	@Override
-	protected void checkSubclass() {
-	}
+	private ScrolledComposite scrolledWindowArea;
+	private Composite windowArea;
+	private Composite infoArea;
+	private Composite buttonArea;
 
-	public final void updateContents() {
-		layout(true, true);
-		pack();
-	}
-
-	private final static int numberOfAreas = 2;
-
-	private final Composite windowArea;
-	private final Composite infoArea;
-	private final Composite buttonArea;
-
-	private final Button buttonNext;
-	private final Button buttonPrevious;
+	private Button buttonNext;
+	private Button buttonPrevious;
 
 	public final Composite getInfoArea() {
 		return infoArea;
@@ -107,20 +105,84 @@ public class GraphInfoWindow extends Shell {
 		return buttonPrevious;
 	}
 
-	private final Label cellInfoLabel;
-	private final Label graphInfoLabel;
-	private final Group graphInfoGroup;
+	private InfoTableWrapper cellInfoViewerWrapper;
+	private InfoTableWrapper graphInfoViewerWrapper;
 
-	public final Label getCellInfoLabel() {
-		return cellInfoLabel;
+	static class InfoElement {
+		public InfoElement(String key, String value) {
+			this.key = key;
+			this.value = value;
+		}
+
+		public final String getKey() {
+			return key;
+		}
+
+		public final String getValue() {
+			return value;
+		}
+
+		private final String key;
+		private final String value;
 	}
 
-	public final Label getGraphInfoLabel() {
-		return graphInfoLabel;
+	public final void setCellInfoInput(List<InfoElement> newInput) {
+		cellInfoViewerWrapper.setInput(newInput);
 	}
 
-	public final Group getGraphInfoGroup() {
-		return graphInfoGroup;
+	public final void setGraphInfoInput(List<InfoElement> newInput) {
+		graphInfoViewerWrapper.setInput(newInput);
 	}
 
+	private class InfoTableWrapper {
+		public static final int infoKeyColumnWidth = 200;
+		public static final int infoValueColumnWidth = 200;
+
+		private final Composite composite;
+		private final TableViewer tableViewer;
+
+		private InfoTableWrapper(Composite parent) {
+			composite = new Composite(parent, SWT.FILL | SWT.BORDER);
+			tableViewer = new TableViewer(composite, SWT.FILL);
+
+			TableViewerColumn keyColumn = new TableViewerColumn(tableViewer, SWT.NONE);
+			keyColumn.setLabelProvider(new ColumnLabelProvider() {
+				@Override
+				public String getText(Object element) {
+					InfoElement cellInfo = (InfoElement) element;
+					return cellInfo.getKey();
+				}
+			});
+
+			TableViewerColumn valueColumn = new TableViewerColumn(tableViewer, SWT.NONE);
+			valueColumn.setLabelProvider(new ColumnLabelProvider() {
+				@Override
+				public String getText(Object element) {
+					InfoElement cellInfo = (InfoElement) element;
+					return cellInfo.getValue();
+				}
+			});
+
+			tableViewer.setContentProvider(new ArrayContentProvider());
+
+			TableColumnLayout tableLayout = new TableColumnLayout();
+			tableLayout.setColumnData(keyColumn.getColumn(), new ColumnWeightData(0, infoKeyColumnWidth));
+			tableLayout.setColumnData(valueColumn.getColumn(), new ColumnWeightData(0, infoValueColumnWidth));
+			composite.setLayout(tableLayout);
+
+			tableViewer.getTable().setLinesVisible(true);
+
+			update();
+		}
+
+		private final void setInput(List<InfoElement> newInput) {
+			tableViewer.setInput(newInput);
+			tableViewer.refresh();
+			update();
+		}
+
+		private final void update() {
+			scrolledWindowArea.setMinSize(windowArea.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		}
+	}
 }

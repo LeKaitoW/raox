@@ -7,7 +7,6 @@ import org.eclipse.ui.commands.ICommandService;
 
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeUpdater;
-import ru.bmstu.rk9.rao.ui.run.RuntimeComponents;
 import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer.ExecutionMode;
 
 public class SimulationModeDispatcher {

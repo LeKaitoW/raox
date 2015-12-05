@@ -2,8 +2,10 @@ package ru.bmstu.rk9.rao.lib.simulator;
 
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
 
 public abstract class EmbeddedSimulation {
+
 	protected void init() {
 	}
 
@@ -15,7 +17,7 @@ public abstract class EmbeddedSimulation {
 		return Simulator.getTime();
 	}
 
-	public final int run() {
+	public final SimulationStopCode run() {
 		Simulator.initSimulation(modelStructure);
 		Simulator.addTerminateCondition(getTerminateCondition());
 		init();

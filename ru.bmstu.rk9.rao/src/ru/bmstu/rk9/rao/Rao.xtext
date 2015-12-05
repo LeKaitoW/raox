@@ -249,7 +249,7 @@ Result:
 ResultType
 	: ResultWatchParameter
 	| ResultWatchState
-	| ResultWatchQuant
+	| ResultWatchQuantity
 	| ResultWatchValue
 	| ResultGetValue
 ;
@@ -262,8 +262,8 @@ ResultWatchState:
 	'watchState' '(' logic = XOrExpression ')'
 ;
 
-ResultWatchQuant:
-	'watchQuant' '(' resource = [ResourceType|FQN]
+ResultWatchQuantity:
+	'watchQuantity' '(' resource = [ResourceType|FQN]
 		',' ('any' | logic = XOrExpression) ')'
 ;
 

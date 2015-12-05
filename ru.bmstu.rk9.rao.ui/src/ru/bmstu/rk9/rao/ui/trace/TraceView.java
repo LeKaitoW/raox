@@ -54,6 +54,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
@@ -82,15 +83,34 @@ public class TraceView extends ViewPart {
 		Entry entry = Simulator.getDatabase().getAllEntries().get(stringNum);
 		final EntryType type = EntryType.values()[entry.getHeader().get(
 				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
+		final ByteBuffer header = Tracer.prepareBufferForReading(entry
+				.getHeader());
 
 		final int dptNumber;
 		switch (type) {
-		case SEARCH:
-			final ByteBuffer header = Tracer.prepareBufferForReading(entry
-					.getHeader());
+		case SEARCH: {
 			Tracer.skipPart(header, 2 * TypeSize.BYTE + TypeSize.DOUBLE);
 			dptNumber = header.getInt();
 			break;
+		}
+
+		case RESOURCE: {
+			Tracer.skipPart(header, TypeSize.BYTE + TypeSize.DOUBLE);
+			final Database.ResourceEntryType entryType = Database.ResourceEntryType
+					.values()[header.get()];
+			switch (entryType) {
+			case SEARCH:
+			case SOLUTION:
+				Tracer.skipPart(header, TypeSize.INTEGER * 2);
+				dptNumber = header.getInt();
+				break;
+			default:
+				return null;
+			}
+
+			break;
+		}
+
 		default:
 			return null;
 		}

@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: ru.bmstu.rk9.rao.ui
-Bundle-Vendor: My Company
-Bundle-Version: 2.7.1
+Bundle-Name: Rao X UI
+Bundle-Vendor: rdostudio.com
+Bundle-Version: 2.11.1
 Bundle-SymbolicName: ru.bmstu.rk9.rao.ui;singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: ru.bmstu.rk9.rao;visibility:=reexport,
@@ -25,7 +25,8 @@ Require-Bundle: ru.bmstu.rk9.rao;visibility:=reexport,
  org.eclipse.jdt.ui;bundle-version="3.5.0",
  org.eclipse.jdt.core;bundle-version="3.5.0",
  org.eclipse.xtext.xbase.lib,
- org.eclipse.jdt.launching;bundle-version="3.7.100"
+ org.eclipse.jdt.launching;bundle-version="3.7.100",
+ org.eclipse.ui.workbench
 Import-Package: org.apache.log4j,
  org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -64,15 +65,6 @@ Export-Package: com.mxgraph.analysis,
    org.eclipse.swt.graphics,
    org.eclipse.swt.widgets,
    org.eclipse.ui.part",
- ru.bmstu.rk9.rao.ui.build;
-  uses:="org.eclipse.core.runtime.jobs,
-   org.eclipse.ui,
-   org.eclipse.emf.common.util,
-   org.eclipse.xtext.builder,
-   org.eclipse.xtext.ui.resource,
-   org.eclipse.core.resources,
-   org.eclipse.core.commands,
-   ru.bmstu.rk9.rao",
  ru.bmstu.rk9.rao.ui.console;uses:="org.eclipse.swt.widgets,org.eclipse.ui.part",
  ru.bmstu.rk9.rao.ui.contentassist;uses:="org.eclipse.xtext.ui.editor.contentassist,org.eclipse.xtext",
  ru.bmstu.rk9.rao.ui.contentassist.antlr;
@@ -83,6 +75,7 @@ Export-Package: com.mxgraph.analysis,
    org.eclipse.xtext,
    org.eclipse.xtext.ui.editor.contentassist.antlr",
  ru.bmstu.rk9.rao.ui.contentassist.antlr.internal,
+ ru.bmstu.rk9.rao.ui.execution;uses:="org.eclipse.core.commands,ru.bmstu.rk9.rao.ui.notification,ru.bmstu.rk9.rao.ui.simulation",
  ru.bmstu.rk9.rao.ui.graph;
   uses:="com.mxgraph.swing,
    org.eclipse.swt.graphics,
@@ -108,7 +101,6 @@ Export-Package: com.mxgraph.analysis,
    org.eclipse.ui.part",
  ru.bmstu.rk9.rao.ui.quickfix;uses:="org.eclipse.xtext.ui.editor.quickfix",
  ru.bmstu.rk9.rao.ui.results;uses:="org.eclipse.swt.widgets,org.eclipse.core.commands,org.eclipse.ui.part",
- ru.bmstu.rk9.rao.ui.run;uses:="org.eclipse.core.commands,ru.bmstu.rk9.rao.ui.notification,ru.bmstu.rk9.rao.ui.simulation",
  ru.bmstu.rk9.rao.ui.serialization;
   uses:="org.eclipse.xtext.ui.resource,
    org.eclipse.swt.widgets,

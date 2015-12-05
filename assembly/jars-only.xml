@@ -1,0 +1,12 @@
+<assembly>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<id>${project.version}</id>
+	<fileSets>
+		<fileSet>
+			<directory>${basedir}/target/plugins</directory>
+			<outputDirectory>./</outputDirectory>
+		</fileSet>
+	</fileSets>
+</assembly>

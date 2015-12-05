@@ -1,8 +1,8 @@
 package ru.bmstu.rk9.rao.ui;
 
-import org.eclipse.ui.IPerspectiveFactory;
-import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IFolderLayout;
+import org.eclipse.ui.IPageLayout;
+import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
@@ -32,8 +32,8 @@ public class RaoPerspective implements IPerspectiveFactory {
 	private final void setPlotLocation() {
 		if (factory instanceof org.eclipse.ui.internal.e4.compatibility.ModeledPageLayout) {
 			org.eclipse.ui.internal.e4.compatibility.ModeledPageLayout plotLayout = (org.eclipse.ui.internal.e4.compatibility.ModeledPageLayout) factory;
-			plotLayout.stackView(PlotView.ID + ":*",
-					factory.getEditorArea(), false);
+			plotLayout.stackView(PlotView.ID + ":*", factory.getEditorArea(),
+					false);
 		}
 	}
 
@@ -61,6 +61,5 @@ public class RaoPerspective implements IPerspectiveFactory {
 		IFolderLayout bottomRight = factory.createFolder("bottomRight",
 				IPageLayout.RIGHT, 0.75f, "bottom");
 		bottomRight.addView(StatusView.ID);
-
 	}
 }
