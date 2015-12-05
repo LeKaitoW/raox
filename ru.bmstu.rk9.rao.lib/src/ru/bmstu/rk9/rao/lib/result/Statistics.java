@@ -40,20 +40,15 @@ public class Statistics {
 
 		public boolean initFromDatabase(Result result) {
 			Database database = Simulator.getDatabase();
-			Index resultIndex = database.getIndexHelper()
-					.getResult(result.getName()).getIndex();
+			Index resultIndex = database.getIndexHelper().getResult(result.getName()).getIndex();
 
 			if (resultIndex != null && !resultIndex.getEntryNumbers().isEmpty()) {
-				Function<Integer, Double> getValue = result.getData()
-						.getString("valueType").equals("real") ? i -> database
-						.getAllEntries().get(i).getData().getDouble(0)
-						: i -> (double) database.getAllEntries().get(i)
-								.getData().getInt(0);
+				Function<Integer, Double> getValue = result.getData().getString("valueType").equals("real")
+						? i -> database.getAllEntries().get(i).getData().getDouble(0)
+						: i -> (double) database.getAllEntries().get(i).getData().getInt(0);
 
-				PriorityQueue<Integer> queue = new PriorityQueue<Integer>(
-						resultIndex.getEntryNumbers().size(),
-						(a, b) -> getValue.apply(a)
-								.compareTo(getValue.apply(b)));
+				PriorityQueue<Integer> queue = new PriorityQueue<Integer>(resultIndex.getEntryNumbers().size(),
+						(a, b) -> getValue.apply(a).compareTo(getValue.apply(b)));
 
 				queue.addAll(resultIndex.getEntryNumbers());
 
@@ -65,8 +60,7 @@ public class Statistics {
 					;
 
 				if (size % 2 == 0)
-					median = (getValue.apply(value) + getValue.apply(iter
-							.next())) / 2;
+					median = (getValue.apply(value) + getValue.apply(iter.next())) / 2;
 				else
 					median = getValue.apply(iter.next());
 
@@ -136,25 +130,19 @@ public class Statistics {
 
 		public boolean initFromDatabase(Result result) {
 			Database database = Simulator.getDatabase();
-			Index resultIndex = database.getIndexHelper()
-					.getResult(result.getName()).getIndex();
+			Index resultIndex = database.getIndexHelper().getResult(result.getName()).getIndex();
 
 			if (resultIndex == null || resultIndex.getEntryNumbers().isEmpty())
 				return false;
 
 			List<Entry> entries = database.getAllEntries();
 
-			Function<Integer, Double> getValue = result.getData()
-					.getString("valueType").equals("double") ? i -> entries
-					.get(i).getData().getDouble(0) : i -> (double) entries
-					.get(i).getData().getInt(0);
+			Function<Integer, Double> getValue = result.getData().getString("valueType").equals("double")
+					? i -> entries.get(i).getData().getDouble(0) : i -> (double) entries.get(i).getData().getInt(0);
 
-			PriorityQueue<Integer> queue = new PriorityQueue<Integer>(
-					resultIndex.getEntryNumbers().size(), (a, b) -> getValue
-							.apply(resultIndex.getEntryNumbers().get(a))
-							.compareTo(
-									getValue.apply(resultIndex
-											.getEntryNumbers().get(b))));
+			PriorityQueue<Integer> queue = new PriorityQueue<Integer>(resultIndex.getEntryNumbers().size(),
+					(a, b) -> getValue.apply(resultIndex.getEntryNumbers().get(a))
+							.compareTo(getValue.apply(resultIndex.getEntryNumbers().get(b))));
 
 			for (int i = 0; i < resultIndex.getEntryNumbers().size(); i++)
 				queue.add(i);
@@ -172,28 +160,19 @@ public class Statistics {
 					break;
 
 				previousW = weight;
-				weight = database.getAllEntries()
-						.get(resultIndex.getEntryNumbers().get(number + 1))
-						.getHeader()
+				weight = database.getAllEntries().get(resultIndex.getEntryNumbers().get(number + 1)).getHeader()
 						.getDouble(Database.TypeSize.Internal.TIME_OFFSET)
-						- database
-								.getAllEntries()
-								.get(resultIndex.getEntryNumbers().get(number))
-								.getHeader()
-								.getDouble(
-										Database.TypeSize.Internal.TIME_OFFSET);
+						- database.getAllEntries().get(resultIndex.getEntryNumbers().get(number)).getHeader()
+								.getDouble(Database.TypeSize.Internal.TIME_OFFSET);
 
 				tempSum -= weight;
 			}
 
-			double value = getValue.apply(resultIndex.getEntryNumbers().get(
-					number));
-			double previous = getValue.apply(resultIndex.getEntryNumbers().get(
-					previousN));
+			double value = getValue.apply(resultIndex.getEntryNumbers().get(number));
+			double previous = getValue.apply(resultIndex.getEntryNumbers().get(previousN));
 
 			median = 2d * (value - previous) / (weight + previousW)
-					* ((previousW / 2 + weight) - (weightSum / 2 - tempSum))
-					+ previous;
+					* ((previousW / 2 + weight) - (weightSum / 2 - tempSum)) + previous;
 
 			return true;
 		}

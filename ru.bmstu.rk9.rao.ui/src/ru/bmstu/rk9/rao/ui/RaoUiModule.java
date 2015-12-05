@@ -13,16 +13,13 @@ public class RaoUiModule extends ru.bmstu.rk9.rao.ui.AbstractRaoUiModule {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow();
+				IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 				RaoPerspectiveAdapter wsPerspectiveListener = new RaoPerspectiveAdapter();
 				workbenchWindow.addPerspectiveListener(wsPerspectiveListener);
 
-				wsPerspectiveListener.perspectiveActivated(PlatformUI
-						.getWorkbench().getActiveWorkbenchWindow()
-						.getActivePage(), PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getActivePage()
-						.getPerspective());
+				wsPerspectiveListener.perspectiveActivated(
+						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
+						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getPerspective());
 			}
 		});
 	}

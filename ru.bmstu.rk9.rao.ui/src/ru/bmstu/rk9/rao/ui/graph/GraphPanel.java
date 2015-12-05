@@ -364,6 +364,7 @@ public class GraphPanel extends JPanel implements GraphApi {
 
 	private final Notifier<GraphEvent> graphEventNotifier = new Notifier<>(GraphEvent.class);
 
+	@Override
 	public final Notifier<GraphEvent> getGraphEventNotifier() {
 		return graphEventNotifier;
 	}
@@ -382,6 +383,7 @@ public class GraphPanel extends JPanel implements GraphApi {
 
 	private GraphInfoWindow graphInfoWindow = null;
 
+	@Override
 	public final GraphInfoWindow getGraphInfoWindow() {
 		return graphInfoWindow;
 	}

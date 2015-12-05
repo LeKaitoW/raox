@@ -21,15 +21,12 @@ public class PlotFrame extends ChartComposite implements KeyListener {
 	private double verticalRatio;
 
 	public PlotFrame(final Composite comp, final int style) {
-		super(comp, style, null, ChartComposite.DEFAULT_WIDTH,
-				ChartComposite.DEFAULT_HEIGHT, 0, 0, Integer.MAX_VALUE,
-				Integer.MAX_VALUE, ChartComposite.DEFAULT_BUFFER_USED, true,
-				true, true, true, true);
+		super(comp, style, null, ChartComposite.DEFAULT_WIDTH, ChartComposite.DEFAULT_HEIGHT, 0, 0, Integer.MAX_VALUE,
+				Integer.MAX_VALUE, ChartComposite.DEFAULT_BUFFER_USED, true, true, true, true, true);
 		addSWTListener(this);
 	}
 
-	public final void setSliders(final Slider horizontalSlider,
-			final Slider verticalSlider) {
+	public final void setSliders(final Slider horizontalSlider, final Slider verticalSlider) {
 		this.horizontalSlider = horizontalSlider;
 		this.verticalSlider = verticalSlider;
 		horizontalSlider.setMinimum(0);
@@ -38,18 +35,9 @@ public class PlotFrame extends ChartComposite implements KeyListener {
 		this.horizontalSlider.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getChart()
-						.getXYPlot()
-						.getDomainAxis()
-						.setLowerBound(
-								horizontalSlider.getSelection()
-										/ horizontalRatio);
-				getChart()
-						.getXYPlot()
-						.getDomainAxis()
-						.setUpperBound(
-								(horizontalSlider.getThumb() + horizontalSlider
-										.getSelection()) / horizontalRatio);
+				getChart().getXYPlot().getDomainAxis().setLowerBound(horizontalSlider.getSelection() / horizontalRatio);
+				getChart().getXYPlot().getDomainAxis().setUpperBound(
+						(horizontalSlider.getThumb() + horizontalSlider.getSelection()) / horizontalRatio);
 			}
 
 			@Override
@@ -60,19 +48,11 @@ public class PlotFrame extends ChartComposite implements KeyListener {
 		this.verticalSlider.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getChart()
-						.getXYPlot()
-						.getRangeAxis()
-						.setLowerBound(
-								(verticalSlider.getMaximum()
-										- verticalSlider.getSelection() - verticalSlider
-											.getThumb()) / verticalRatio);
-				getChart()
-						.getXYPlot()
-						.getRangeAxis()
-						.setUpperBound(
-								(verticalSlider.getMaximum() - verticalSlider
-										.getSelection()) / verticalRatio);
+				getChart().getXYPlot().getRangeAxis().setLowerBound(
+						(verticalSlider.getMaximum() - verticalSlider.getSelection() - verticalSlider.getThumb())
+								/ verticalRatio);
+				getChart().getXYPlot().getRangeAxis()
+						.setUpperBound((verticalSlider.getMaximum() - verticalSlider.getSelection()) / verticalRatio);
 			}
 
 			@Override
@@ -81,8 +61,7 @@ public class PlotFrame extends ChartComposite implements KeyListener {
 		});
 	}
 
-	public final void setChartMaximum(final double horizontalMaximum,
-			final double verticalMaximum) {
+	public final void setChartMaximum(final double horizontalMaximum, final double verticalMaximum) {
 		final double freeSpaceCoefficient = 1.05;
 		this.horizontalMaximum = horizontalMaximum * freeSpaceCoefficient;
 		this.verticalMaximum = verticalMaximum * freeSpaceCoefficient;
@@ -93,23 +72,19 @@ public class PlotFrame extends ChartComposite implements KeyListener {
 		final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
 
 		horizontalRatio = horizontalSlider.getMaximum() / horizontalMaximum;
-		horizontalSlider
-				.setThumb((int) Math.round((domainAxis.getUpperBound() - domainAxis
-						.getLowerBound()) * horizontalRatio));
-		horizontalSlider.setSelection((int) Math.round(domainAxis
-				.getLowerBound() * horizontalRatio));
+		horizontalSlider.setThumb(
+				(int) Math.round((domainAxis.getUpperBound() - domainAxis.getLowerBound()) * horizontalRatio));
+		horizontalSlider.setSelection((int) Math.round(domainAxis.getLowerBound() * horizontalRatio));
 
 		if (verticalMaximum > rangeAxis.getRange().getUpperBound()) {
 			verticalSlider.setVisible(true);
 			verticalSlider.setEnabled(true);
 
 			verticalRatio = verticalSlider.getMaximum() / verticalMaximum;
+			verticalSlider.setThumb(
+					(int) Math.round((rangeAxis.getUpperBound() - rangeAxis.getLowerBound()) * verticalRatio));
 			verticalSlider
-					.setThumb((int) Math.round((rangeAxis.getUpperBound() - rangeAxis
-							.getLowerBound()) * verticalRatio));
-			verticalSlider.setSelection((int) Math
-					.round((verticalMaximum - rangeAxis.getUpperBound())
-							* verticalRatio));
+					.setSelection((int) Math.round((verticalMaximum - rangeAxis.getUpperBound()) * verticalRatio));
 		}
 	}
 

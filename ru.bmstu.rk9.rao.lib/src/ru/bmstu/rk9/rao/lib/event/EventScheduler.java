@@ -17,8 +17,7 @@ public class EventScheduler {
 		}
 	};
 
-	private PriorityQueue<Event> eventList = new PriorityQueue<Event>(1,
-			comparator);
+	private PriorityQueue<Event> eventList = new PriorityQueue<Event>(1, comparator);
 
 	public void pushEvent(Event event) {
 		if (event.getTime() >= Simulator.getTime())

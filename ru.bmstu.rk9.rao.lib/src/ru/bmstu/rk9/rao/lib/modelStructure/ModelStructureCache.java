@@ -20,8 +20,7 @@ public class ModelStructureCache {
 	}
 
 	public enum ValueType {
-		INTEGER("int"), REAL("double"), BOOLEAN("boolean"), ENUM("enum"), STRING(
-				"String");
+		INTEGER("int"), REAL("double"), BOOLEAN("boolean"), ENUM("enum"), STRING("String");
 
 		private final String type;
 
@@ -54,8 +53,7 @@ public class ModelStructureCache {
 	}
 
 	final void initResourceCache() {
-		final JSONArray resourceTypes = Simulator.getDatabase()
-				.getModelStructure().getJSONArray("resource_types");
+		final JSONArray resourceTypes = Simulator.getDatabase().getModelStructure().getJSONArray("resource_types");
 
 		for (int typeNum = 0; typeNum < resourceTypes.length(); typeNum++) {
 			JSONObject type = resourceTypes.getJSONObject(typeNum);
@@ -63,51 +61,42 @@ public class ModelStructureCache {
 
 			JSONArray jResources = type.getJSONArray("resources");
 			for (int resNum = 0; resNum < jResources.length(); resNum++)
-				resources.put(resNum,
-						getRelativeName(jResources.getString(resNum)));
+				resources.put(resNum, getRelativeName(jResources.getString(resNum)));
 
 			getResourceNames().put(typeNum, resources);
 		}
 	}
 
 	final void initResourceTypesCache() {
-		final JSONArray resourceTypes = Simulator.getDatabase()
-				.getModelStructure().getJSONArray("resource_types");
+		final JSONArray resourceTypes = Simulator.getDatabase().getModelStructure().getJSONArray("resource_types");
 
 		for (int num = 0; num < resourceTypes.length(); num++)
-			getResourceTypesInfo().add(
-					new ResourceTypeCache(resourceTypes.getJSONObject(num)));
+			getResourceTypesInfo().add(new ResourceTypeCache(resourceTypes.getJSONObject(num)));
 	}
 
 	final void initPatternsCache() {
-		final JSONArray patterns = Simulator.getDatabase().getModelStructure()
-				.getJSONArray("patterns");
+		final JSONArray patterns = Simulator.getDatabase().getModelStructure().getJSONArray("patterns");
 
 		for (int num = 0; num < patterns.length(); num++)
-			getPatternsInfo()
-					.add(new PatternCache(patterns.getJSONObject(num)));
+			getPatternsInfo().add(new PatternCache(patterns.getJSONObject(num)));
 	}
 
 	final void initDecisionPointsCache() {
-		final JSONArray decisionPoints = Simulator.getDatabase()
-				.getModelStructure().getJSONArray("decision_points");
+		final JSONArray decisionPoints = Simulator.getDatabase().getModelStructure().getJSONArray("decision_points");
 
 		for (int num = 0; num < decisionPoints.length(); num++)
-			decisionPointsInfo.add(new DecisionPointCache(decisionPoints
-					.getJSONObject(num)));
+			decisionPointsInfo.add(new DecisionPointCache(decisionPoints.getJSONObject(num)));
 	}
 
 	final void initResultsCache() {
-		final JSONArray results = Simulator.getDatabase().getModelStructure()
-				.getJSONArray("results");
+		final JSONArray results = Simulator.getDatabase().getModelStructure().getJSONArray("results");
 
 		for (int num = 0; num < results.length(); num++)
 			getResultsInfo().add(new ResultCache(results.getJSONObject(num)));
 	}
 
 	final void initEventNames() {
-		final JSONArray events = Simulator.getDatabase().getModelStructure()
-				.getJSONArray("events");
+		final JSONArray events = Simulator.getDatabase().getModelStructure().getJSONArray("events");
 
 		for (int num = 0; num < events.length(); num++)
 			getEventNames().add(events.getJSONObject(num).getString("name"));
@@ -116,8 +105,7 @@ public class ModelStructureCache {
 	final static JSONObject getEnumOrigin(String enumOrigin) {
 		String typeName = enumOrigin.substring(0, enumOrigin.lastIndexOf("."));
 
-		JSONArray enums = Simulator.getDatabase().getModelStructure()
-				.getJSONArray("enums");
+		JSONArray enums = Simulator.getDatabase().getModelStructure().getJSONArray("enums");
 		for (int num = 0; num < enums.length(); num++) {
 			JSONObject enumItem = enums.getJSONObject(num);
 			if (typeName.equals(enumItem.getString("name"))) {
@@ -125,8 +113,7 @@ public class ModelStructureCache {
 			}
 		}
 
-		throw new ModelStructureException("Enum origin " + enumOrigin
-				+ " not found in model structure");
+		throw new ModelStructureException("Enum origin " + enumOrigin + " not found in model structure");
 	}
 
 	public final static String getRelativeName(final String fullName) {

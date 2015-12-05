@@ -10,8 +10,7 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class DPTManager implements Subscriber {
 	public DPTManager() {
-		Simulator.getExecutionStateNotifier().addSubscriber(this,
-				Simulator.ExecutionState.EXECUTION_ABORTED,
+		Simulator.getExecutionStateNotifier().addSubscriber(this, Simulator.ExecutionState.EXECUTION_ABORTED,
 				EnumSet.of(SubscriptionType.ONE_SHOT));
 	}
 

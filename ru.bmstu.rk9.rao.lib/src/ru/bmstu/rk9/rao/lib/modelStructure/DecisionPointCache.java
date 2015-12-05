@@ -13,8 +13,7 @@ public class DecisionPointCache {
 		activitiesInfo = new ArrayList<ActivityCache>();
 		JSONArray activities = dpt.getJSONArray("activities");
 		for (int num = 0; num < activities.length(); num++)
-			getActivitiesInfo()
-					.add(new ActivityCache(activities.getJSONObject(num)));
+			getActivitiesInfo().add(new ActivityCache(activities.getJSONObject(num)));
 	}
 
 	final String name;

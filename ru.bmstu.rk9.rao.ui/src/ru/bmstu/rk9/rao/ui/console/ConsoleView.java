@@ -43,6 +43,7 @@ public class ConsoleView extends ViewPart {
 		copy.setText("Copy\tCtrl+C");
 		copy.setAccelerator(SWT.CTRL + 'C');
 		copy.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent event) {
 				styledText.invokeAction(ST.COPY);
 			}
@@ -54,12 +55,10 @@ public class ConsoleView extends ViewPart {
 	}
 
 	private void updateTextFont() {
-		IThemeManager themeManager = PlatformUI.getWorkbench()
-				.getThemeManager();
+		IThemeManager themeManager = PlatformUI.getWorkbench().getThemeManager();
 		ITheme currentTheme = themeManager.getCurrentTheme();
 		FontRegistry fontRegistry = currentTheme.getFontRegistry();
-		styledText.setFont(fontRegistry
-				.get(PreferenceConstants.EDITOR_TEXT_FONT));
+		styledText.setFont(fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
 	}
 
 	public static void clearConsoleText() {
@@ -87,6 +86,7 @@ public class ConsoleView extends ViewPart {
 	public static void redrawText() {
 		if (styledText != null && !styledText.isDisposed())
 			styledText.getDisplay().asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					styledText.setText(text);
 				}
@@ -101,8 +101,7 @@ public class ConsoleView extends ViewPart {
 		fontListener = new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(
-						PreferenceConstants.EDITOR_TEXT_FONT))
+				if (event.getProperty().equals(PreferenceConstants.EDITOR_TEXT_FONT))
 					updateTextFont();
 			}
 		};

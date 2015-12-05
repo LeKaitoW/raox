@@ -32,16 +32,14 @@ public class ModelExecutionSourceProvider extends AbstractSourceProvider {
 		return simulationState;
 	}
 
-	public static void setSimulationState(IWorkbenchWindow workbenchWindow,
-			String newState) {
-		ISourceProviderService sourceProviderService = (ISourceProviderService) workbenchWindow
+	public static void setSimulationState(IWorkbenchWindow workbenchWindow, String newState) {
+		ISourceProviderService sourceProviderService = workbenchWindow
 				.getService(ISourceProviderService.class);
 		ModelExecutionSourceProvider sourceProvider = (ModelExecutionSourceProvider) sourceProviderService
 				.getSourceProvider(ModelExecutionKey);
 
 		simulationState = newState;
-		PlatformUI.getWorkbench().getDisplay()
-				.syncExec(() -> sourceProvider.updateSimulationState());
+		PlatformUI.getWorkbench().getDisplay().syncExec(() -> sourceProvider.updateSimulationState());
 	}
 
 	@Override
@@ -61,7 +59,6 @@ public class ModelExecutionSourceProvider extends AbstractSourceProvider {
 	}
 
 	public void updateSimulationState() {
-		fireSourceChanged(ISources.WORKBENCH, ModelExecutionKey,
-				simulationState.toString());
+		fireSourceChanged(ISources.WORKBENCH, ModelExecutionKey, simulationState.toString());
 	}
 }

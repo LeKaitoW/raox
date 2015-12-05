@@ -67,8 +67,7 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>> {
 
 	private ResourceManager(ResourceManager<T> source) {
 		this.named = new ConcurrentHashMap<String, T>(source.named);
-		this.listResources = new ConcurrentSkipListMap<Integer, T>(
-				source.listResources);
+		this.listResources = new ConcurrentSkipListMap<Integer, T>(source.listResources);
 		this.resourceNumber = source.resourceNumber;
 	}
 

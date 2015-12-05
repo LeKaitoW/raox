@@ -38,12 +38,10 @@ public class StartExecutionHandler extends AbstractUIElementUpdatingHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
-		IWorkbenchWindow activeWorkbenchWindow = HandlerUtil
-				.getActiveWorkbenchWindow(event);
+		IWorkbenchWindow activeWorkbenchWindow = HandlerUtil.getActiveWorkbenchWindow(event);
 
-		ExecutionManager executionManager = new ExecutionManager(activeEditor,
-				activeWorkbenchWindow, fileAccessProvider.get(),
-				resourceSetProvider, outputConfigurationProvider, generator,
+		ExecutionManager executionManager = new ExecutionManager(activeEditor, activeWorkbenchWindow,
+				fileAccessProvider.get(), resourceSetProvider, outputConfigurationProvider, generator,
 				validatorExtension);
 		executionManager.execute(false);
 

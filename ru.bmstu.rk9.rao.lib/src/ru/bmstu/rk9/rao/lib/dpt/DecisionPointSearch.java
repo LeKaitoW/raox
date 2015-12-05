@@ -29,31 +29,25 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 	private EvaluateBy evaluateBy;
 
-	public DecisionPointSearch(String name, Condition condition,
-			Condition terminate, EvaluateBy evaluateBy, boolean compareTops,
-			DatabaseRetriever<T> retriever) {
+	public DecisionPointSearch(String name, Condition condition, Condition terminate, EvaluateBy evaluateBy,
+			boolean compareTops, DatabaseRetriever<T> retriever) {
 		super(name, null, condition);
 		this.terminate = terminate;
 		this.evaluateBy = evaluateBy;
 		this.retriever = retriever;
 		this.compareTops = compareTops;
 
-		Simulator.getSimulatorStateNotifier().addSubscriber(
-				simulatorInitializedListener,
-				SimulatorState.INITIALIZED,
-				EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED,
-						SubscriptionType.ONE_SHOT));
+		Simulator.getSimulatorStateNotifier().addSubscriber(simulatorInitializedListener, SimulatorState.INITIALIZED,
+				EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED, SubscriptionType.ONE_SHOT));
 	}
 
 	private final Subscriber simulatorInitializedListener = new Subscriber() {
 		@Override
 		public void fireChange() {
-			Simulator.getExecutionStateNotifier().addSubscriber(
-					executionAbortedListener, ExecutionState.EXECUTION_ABORTED,
-					EnumSet.of(SubscriptionType.ONE_SHOT));
-			Simulator.getExecutionStateNotifier().addSubscriber(
-					executionStartedListener, ExecutionState.EXECUTION_STARTED,
-					EnumSet.of(SubscriptionType.ONE_SHOT));
+			Simulator.getExecutionStateNotifier().addSubscriber(executionAbortedListener,
+					ExecutionState.EXECUTION_ABORTED, EnumSet.of(SubscriptionType.ONE_SHOT));
+			Simulator.getExecutionStateNotifier().addSubscriber(executionStartedListener,
+					ExecutionState.EXECUTION_STARTED, EnumSet.of(SubscriptionType.ONE_SHOT));
 		}
 	};
 
@@ -141,8 +135,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		}
 	};
 
-	private PriorityQueue<GraphNode> nodesOpen = new PriorityQueue<GraphNode>(
-			1, nodeComparator);
+	private PriorityQueue<GraphNode> nodesOpen = new PriorityQueue<GraphNode>(1, nodeComparator);
 	private LinkedList<GraphNode> nodesClosed = new LinkedList<GraphNode>();
 
 	private GraphNode head;
@@ -259,8 +252,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 			serializeTops(newChild, spawnStatus, newChild.activityInfo, value);
 
-			Simulator.getExecutionStateNotifier().notifySubscribers(
-					ExecutionState.SEARCH_STEP);
+			Simulator.getExecutionStateNotifier().notifySubscribers(ExecutionState.SEARCH_STEP);
 
 			parent.state.deploy();
 		}
@@ -312,8 +304,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 	}
 
 	public enum SerializationLevel implements Comparable<SerializationLevel> {
-		ALL("all", 4), TOPS("tops", 2), DECISION("decision", 1), START_STOP(
-				"start/stop", 0);
+		ALL("all", 4), TOPS("tops", 2), DECISION("decision", 1), START_STOP("start/stop", 0);
 
 		private SerializationLevel(String name, int comparisonValue) {
 			this.name = name;
@@ -338,8 +329,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 	private final boolean enoughSensitivity(SerializationLevel checkedType) {
 		for (SerializationLevel type : SerializationLevel.values()) {
-			if (Simulator.getDatabase().sensitiveTo(
-					getName() + "." + type.toString()))
+			if (Simulator.getDatabase().sensitiveTo(getName() + "." + type.toString()))
 				if (serializationLevelComparator.compare(type, checkedType) >= 0)
 					return true;
 		}
@@ -351,66 +341,51 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		if (!enoughSensitivity(SerializationLevel.START_STOP))
 			return;
 
-		Simulator.getDatabase().addSearchEntry(this,
-				Database.SearchEntryType.BEGIN, null);
+		Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.BEGIN, null);
 	}
 
 	private final void serializeStop(StopCode code, double finalCost) {
 		if (!enoughSensitivity(SerializationLevel.START_STOP))
 			return;
 
-		ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.BYTE
-				+ Database.TypeSize.DOUBLE + Database.TypeSize.INTEGER * 4
-				+ Database.TypeSize.LONG * 2);
+		ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.BYTE + Database.TypeSize.DOUBLE
+				+ Database.TypeSize.INTEGER * 4 + Database.TypeSize.LONG * 2);
 
-		data.put((byte) code.ordinal())
-				.putLong(System.currentTimeMillis() - time)
-				.putLong(memory - Runtime.getRuntime().freeMemory())
-				.putDouble(finalCost).putInt(totalOpened)
-				.putInt(nodesOpen.size() + nodesClosed.size())
-				.putInt(totalAdded).putInt(totalSpawned);
+		data.put((byte) code.ordinal()).putLong(System.currentTimeMillis() - time)
+				.putLong(memory - Runtime.getRuntime().freeMemory()).putDouble(finalCost).putInt(totalOpened)
+				.putInt(nodesOpen.size() + nodesClosed.size()).putInt(totalAdded).putInt(totalSpawned);
 
-		Simulator.getDatabase().addSearchEntry(this,
-				Database.SearchEntryType.END, data);
+		Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.END, data);
 	}
 
 	private final void serializeOpen(GraphNode node) {
 		if (node != head && enoughSensitivity(SerializationLevel.TOPS)) {
-			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.INTEGER * 2
-					+ Database.TypeSize.DOUBLE * 2);
+			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.INTEGER * 2 + Database.TypeSize.DOUBLE * 2);
 
-			data.putInt(node.number).putInt(node.parent.number)
-					.putDouble(node.g).putDouble(node.h);
+			data.putInt(node.number).putInt(node.parent.number).putDouble(node.g).putDouble(node.h);
 
-			Simulator.getDatabase().addSearchEntry(this,
-					Database.SearchEntryType.OPEN, data);
+			Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.OPEN, data);
 		}
 	}
 
-	private final void serializeTops(GraphNode node, SpawnStatus spawnStatus,
-			ActivityInfo activityInfo, double value) {
+	private final void serializeTops(GraphNode node, SpawnStatus spawnStatus, ActivityInfo activityInfo, double value) {
 		if (enoughSensitivity(SerializationLevel.TOPS)) {
 			int[] relevantResources = node.activityInfo.rule.getRelevantInfo();
 
-			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.BYTE
-					+ Database.TypeSize.DOUBLE * 3 + Database.TypeSize.INTEGER
-					* (3 + relevantResources.length));
+			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 3
+					+ Database.TypeSize.INTEGER * (3 + relevantResources.length));
 
-			data.put((byte) spawnStatus.ordinal()).putInt(node.number)
-					.putInt(node.parent.number).putDouble(node.g)
-					.putDouble(node.h).putInt(activityInfo.number)
-					.putDouble(value);
+			data.put((byte) spawnStatus.ordinal()).putInt(node.number).putInt(node.parent.number).putDouble(node.g)
+					.putDouble(node.h).putInt(activityInfo.number).putDouble(value);
 
 			for (int relres : relevantResources)
 				data.putInt(relres);
 
-			Simulator.getDatabase().addSearchEntry(this,
-					Database.SearchEntryType.SPAWN, data);
+			Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.SPAWN, data);
 		}
 
 		if (enoughSensitivity(SerializationLevel.ALL)) {
-			activityInfo.rule.addResourceEntriesToDatabase(
-					Pattern.ExecutedFrom.SEARCH, this.getName());
+			activityInfo.rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SEARCH, this.getName());
 		}
 	}
 
@@ -419,27 +394,23 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 			return;
 
 		GraphNode node;
-		for (Iterator<GraphNode> it = decision.descendingIterator(); it
-				.hasNext();) {
+		for (Iterator<GraphNode> it = decision.descendingIterator(); it.hasNext();) {
 			node = it.next();
 
 			Rule rule = node.activityInfo.rule;
 			int[] relevantResources = rule.getRelevantInfo();
 
-			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.INTEGER
-					* (2 + relevantResources.length));
+			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.INTEGER * (2 + relevantResources.length));
 
 			data.putInt(node.number).putInt(node.activityInfo.number);
 
 			for (int relres : relevantResources)
 				data.putInt(relres);
 
-			Simulator.getDatabase().addSearchEntry(this,
-					Database.SearchEntryType.DECISION, data);
+			Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.DECISION, data);
 
 			if (enoughSensitivity(SerializationLevel.ALL)) {
-				rule.addResourceEntriesToDatabase(
-						Pattern.ExecutedFrom.SOLUTION, this.getName());
+				rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SOLUTION, this.getName());
 			}
 		}
 	}

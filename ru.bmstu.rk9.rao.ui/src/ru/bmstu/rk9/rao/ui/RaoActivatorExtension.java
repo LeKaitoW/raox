@@ -37,10 +37,9 @@ import ru.bmstu.rk9.rao.ui.simulation.SetSimulationScaleHandler;
 import ru.bmstu.rk9.rao.ui.simulation.SpeedSelectionToolbar;
 
 public class RaoActivatorExtension extends RaoActivator {
-	private MessageDialog closeDialog = new MessageDialog(Display.getDefault()
-			.getActiveShell(), "Error", null,
-			"Simulation should be stopped prior to shutdown!",
-			MessageDialog.ERROR, new String[] { "Force Shutdown", "OK" }, 1);
+	private MessageDialog closeDialog = new MessageDialog(Display.getDefault().getActiveShell(), "Error", null,
+			"Simulation should be stopped prior to shutdown!", MessageDialog.ERROR,
+			new String[] { "Force Shutdown", "OK" }, 1);
 
 	@Override
 	public void start(BundleContext context) throws Exception {
@@ -49,8 +48,7 @@ public class RaoActivatorExtension extends RaoActivator {
 		preinitializeUiComponents();
 
 		IWorkbench workbench = PlatformUI.getWorkbench();
-		ICommandService commandService = (ICommandService) workbench
-				.getService(ICommandService.class);
+		ICommandService commandService = workbench.getService(ICommandService.class);
 
 		workbench.addWorkbenchListener(workbenchListener);
 		commandService.addExecutionListener(commandExecutionListener);
@@ -82,12 +80,10 @@ public class RaoActivatorExtension extends RaoActivator {
 	}
 
 	private void preinitializeUiComponents() {
-		IEclipsePreferences prefs = InstanceScope.INSTANCE
-				.getNode("ru.bmstu.rk9.rao.ui");
+		IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode("ru.bmstu.rk9.rao.ui");
 		RuntimeComponents.initialize();
 		SpeedSelectionToolbar.setSpeed(prefs.getInt("SimulationSpeed", 100));
-		SetSimulationScaleHandler.setSimulationScale(prefs.getDouble(
-				"SimulationScale", 3600d));
+		SetSimulationScaleHandler.setSimulationScale(prefs.getDouble("SimulationScale", 3600d));
 	}
 
 	@Override
@@ -98,12 +94,10 @@ public class RaoActivatorExtension extends RaoActivator {
 	}
 
 	private void deinitializeUiComponents() {
-		IEclipsePreferences prefs = InstanceScope.INSTANCE
-				.getNode("ru.bmstu.rk9.rao.ui");
+		IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode("ru.bmstu.rk9.rao.ui");
 
 		prefs.putInt("SimulationSpeed", SpeedSelectionToolbar.getSpeed());
-		prefs.putDouble("SimulationScale",
-				SetSimulationScaleHandler.getSimulationScale());
+		prefs.putDouble("SimulationScale", SetSimulationScaleHandler.getSimulationScale());
 
 		int animationFrameListSize = AnimationView.getFrameListSize();
 		if (animationFrameListSize != SWT.DEFAULT)
@@ -117,16 +111,14 @@ public class RaoActivatorExtension extends RaoActivator {
 	private final IWorkbenchListener workbenchListener = new IWorkbenchListener() {
 		@Override
 		public boolean preShutdown(IWorkbench workbench, boolean forced) {
-			ISourceProviderService sourceProviderService = (ISourceProviderService) workbench
-					.getActiveWorkbenchWindow().getService(
-							ISourceProviderService.class);
+			ISourceProviderService sourceProviderService = workbench.getActiveWorkbenchWindow()
+					.getService(ISourceProviderService.class);
 			ModelExecutionSourceProvider sourceProvider = (ModelExecutionSourceProvider) sourceProviderService
 					.getSourceProvider(ModelExecutionSourceProvider.ModelExecutionKey);
 
 			final AtomicInteger result = new AtomicInteger(0);
-			if (sourceProvider.getCurrentState().get(
-					ModelExecutionSourceProvider.ModelExecutionKey) == SimulationState.RUNNING
-					.toString()) {
+			if (sourceProvider.getCurrentState()
+					.get(ModelExecutionSourceProvider.ModelExecutionKey) == SimulationState.RUNNING.toString()) {
 				workbench.getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
@@ -135,18 +127,12 @@ public class RaoActivatorExtension extends RaoActivator {
 				});
 			}
 			if (result.get() == 0) {
-				List<Integer> secondaryIDList = new ArrayList<Integer>(PlotView
-						.getOpenedPlotMap().values());
+				List<Integer> secondaryIDList = new ArrayList<Integer>(PlotView.getOpenedPlotMap().values());
 				for (int secondaryID : secondaryIDList) {
-					PlotView oldView = (PlotView) PlatformUI
-							.getWorkbench()
-							.getActiveWorkbenchWindow()
-							.getActivePage()
-							.findViewReference(PlotView.ID,
-									String.valueOf(secondaryID)).getView(false);
+					PlotView oldView = (PlotView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+							.findViewReference(PlotView.ID, String.valueOf(secondaryID)).getView(false);
 					if (oldView != null) {
-						PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-								.getActivePage().hideView(oldView);
+						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().hideView(oldView);
 					}
 
 				}
@@ -171,8 +157,7 @@ public class RaoActivatorExtension extends RaoActivator {
 		}
 
 		@Override
-		public void postExecuteFailure(String commandId,
-				ExecutionException exception) {
+		public void postExecuteFailure(String commandId, ExecutionException exception) {
 		}
 
 		@Override
@@ -184,10 +169,8 @@ public class RaoActivatorExtension extends RaoActivator {
 		private final String executionCommandId = "ru.bmstu.rk9.rao.ui.runtime.execute";
 		private final String buildCommandId = "ru.bmstu.rk9.rao.ui.runtime.build";
 
-		private final void updateExecutionContributions(
-				IWorkbenchPartReference partRef) {
-			ICommandService commandService = (ICommandService) partRef
-					.getPage().getWorkbenchWindow()
+		private final void updateExecutionContributions(IWorkbenchPartReference partRef) {
+			ICommandService commandService = partRef.getPage().getWorkbenchWindow()
 					.getService(ICommandService.class);
 			commandService.refreshElements(executionCommandId, null);
 			commandService.refreshElements(buildCommandId, null);

@@ -28,8 +28,7 @@ public class GlobalContext {
 			origin = resourceType;
 			parameters = new HashMap<String, String>();
 			for (Parameter p : resourceType.getParameters())
-				parameters.put(p.getName(),
-						RaoExpressionCompiler.compileType(p));
+				parameters.put(p.getName(), RaoExpressionCompiler.compileType(p));
 		}
 	}
 
@@ -38,12 +37,10 @@ public class GlobalContext {
 
 		public String type;
 
-		public ResourceGlobalReference(
-				ResourceCreateStatement resourceCreateStatement) {
+		public ResourceGlobalReference(ResourceCreateStatement resourceCreateStatement) {
 			origin = resourceCreateStatement;
 			ResourceType resourceType = resourceCreateStatement.getType();
-			resourceTypes.put(resourceType.getName(),
-					new ResourceTypeGlobalReference(resourceType));
+			resourceTypes.put(resourceType.getName(), new ResourceTypeGlobalReference(resourceType));
 			type = resourceType.getName();
 		}
 	}
@@ -58,8 +55,7 @@ public class GlobalContext {
 			origin = sequence;
 			type = RaoExpressionCompiler.compileType(sequence.getReturnType());
 			SequenceType type = sequence.getType();
-			if (type instanceof EnumerativeSequence
-					|| type instanceof HistogramSequence)
+			if (type instanceof EnumerativeSequence || type instanceof HistogramSequence)
 				parameters = 0;
 			else
 				switch (((RegularSequence) type).getType()) {
@@ -104,13 +100,11 @@ public class GlobalContext {
 
 			if (parameters != null)
 				for (FunctionParameter p : parameters)
-					this.parameters.addLast(RaoExpressionCompiler.compileType(p
-							.getType()));
+					this.parameters.addLast(RaoExpressionCompiler.compileType(p.getType()));
 		}
 	}
 
-	public ResourceGlobalReference newResourceReference(
-			ResourceCreateStatement resourceCreateStatement) {
+	public ResourceGlobalReference newResourceReference(ResourceCreateStatement resourceCreateStatement) {
 		return new ResourceGlobalReference(resourceCreateStatement);
 	}
 

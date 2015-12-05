@@ -15,8 +15,7 @@ public class DefaultMethodsHelper {
 	}
 
 	public static enum GlobalMethodInfo {
-		INIT("init", ValidatorAction.NOTHING), TERMINATE_CONDITION(
-				"terminateCondition", ValidatorAction.NOTHING);
+		INIT("init", ValidatorAction.NOTHING), TERMINATE_CONDITION("terminateCondition", ValidatorAction.NOTHING);
 
 		GlobalMethodInfo(String name, ValidatorAction validatorAction) {
 			this.name = name;
@@ -28,8 +27,7 @@ public class DefaultMethodsHelper {
 	}
 
 	public static enum OperationMethodInfo {
-		BEGIN("begin", ValidatorAction.NOTHING), END("end",
-				ValidatorAction.NOTHING), DURATION("duration",
+		BEGIN("begin", ValidatorAction.NOTHING), END("end", ValidatorAction.NOTHING), DURATION("duration",
 				ValidatorAction.NOTHING);
 
 		OperationMethodInfo(String name, ValidatorAction validatorAction) {

@@ -9,8 +9,7 @@ import ru.bmstu.rk9.rao.lib.json.JSONObject;
 
 public class ResourceTypeCache {
 	ResourceTypeCache(final JSONObject resourceType) {
-		name = ModelStructureCache.getRelativeName(resourceType
-				.getString("name"));
+		name = ModelStructureCache.getRelativeName(resourceType.getString("name"));
 
 		JSONObject structure = resourceType.getJSONObject("structure");
 		JSONArray parameters = structure.getJSONArray("parameters");
@@ -20,8 +19,7 @@ public class ResourceTypeCache {
 		indexList = new HashMap<Integer, Integer>();
 		for (int num = 0; num < getNumberOfParameters(); num++) {
 			final JSONObject currentParameter = parameters.getJSONObject(num);
-			ModelStructureCache.ValueType type = ModelStructureCache.ValueType
-					.get(currentParameter.getString("type"));
+			ModelStructureCache.ValueType type = ModelStructureCache.ValueType.get(currentParameter.getString("type"));
 			getParamTypes().add(new ValueCache(currentParameter));
 			if (type == ModelStructureCache.ValueType.STRING) {
 				getIndexList().put(num, currentParameter.getInt("index"));

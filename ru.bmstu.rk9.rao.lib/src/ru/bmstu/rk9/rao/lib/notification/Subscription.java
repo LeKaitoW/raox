@@ -12,16 +12,15 @@ public class Subscription {
 
 	protected final Map<Subscriber, Set<SubscriptionType>> subscribers = new ConcurrentHashMap<>();
 
-	void addSubscriber(Subscriber subscriber,
-			EnumSet<SubscriptionType> flags) {
+	void addSubscriber(Subscriber subscriber, EnumSet<SubscriptionType> flags) {
 		if (subscribers.put(subscriber, flags) != null)
-			throw new NotifierException("Cannot add subscriber" + subscriber
-					+ ", it is already present in subscription");
+			throw new NotifierException(
+					"Cannot add subscriber" + subscriber + ", it is already present in subscription");
 	}
 
 	void removeSubscriber(Subscriber subscriber) {
 		if (subscribers.remove(subscriber) == null)
-			throw new NotifierException("Cannot remove subscriber" + subscriber
-					+ ", it is not present in subscription");
+			throw new NotifierException(
+					"Cannot remove subscriber" + subscriber + ", it is not present in subscription");
 	}
 }

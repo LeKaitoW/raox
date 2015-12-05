@@ -55,10 +55,8 @@ public class PlotDataParser {
 		case RESOURCE_PARAMETER:
 			final ResourceParameterIndex resourceParameterIndex = (ResourceParameterIndex) index;
 			final CollectedDataNode resourceNode = node.getParent();
-			final ResourceIndex resourceIndex = (ResourceIndex) resourceNode
-					.getIndex();
-			parseInfo = parseResourceParameter(resourceParameterIndex,
-					resourceIndex, currentItemNumber);
+			final ResourceIndex resourceIndex = (ResourceIndex) resourceNode.getIndex();
+			parseInfo = parseResourceParameter(resourceParameterIndex, resourceIndex, currentItemNumber);
 			break;
 		case RESULT:
 			final ResultIndex resultIndex = (ResultIndex) index;
@@ -69,16 +67,14 @@ public class PlotDataParser {
 			parseInfo = parsePattern(patternIndex, currentItemNumber);
 			break;
 		default:
-			throw new PlotDataParserException("Unexpected index type: "
-					+ index.getType());
+			throw new PlotDataParserException("Unexpected index type: " + index.getType());
 		}
 		currentItemNumber = parseInfo.itemNumber;
 
 		return parseInfo.dataset;
 	}
 
-	private ParseInfo parsePattern(final PatternIndex patternIndex,
-			final int startItemNumber) {
+	private ParseInfo parsePattern(final PatternIndex patternIndex, final int startItemNumber) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = patternIndex.getEntryNumbers();
 		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
@@ -90,14 +86,12 @@ public class PlotDataParser {
 		while (currentItemNumber < entriesNumbers.size()) {
 			int currentEntryNumber = entriesNumbers.get(currentItemNumber);
 			final Entry currentEntry = allEntries.get(currentEntryNumber);
-			final ByteBuffer header = Tracer
-					.prepareBufferForReading(currentEntry.getHeader());
+			final ByteBuffer header = Tracer.prepareBufferForReading(currentEntry.getHeader());
 
 			Tracer.skipPart(header, TypeSize.BYTE);
 			final double time = header.getDouble();
 
-			final Database.PatternType entryType = Database.PatternType
-					.values()[header.get()];
+			final Database.PatternType entryType = Database.PatternType.values()[header.get()];
 
 			switch (entryType) {
 			case OPERATION_BEGIN:
@@ -107,8 +101,7 @@ public class PlotDataParser {
 				patternCount--;
 				break;
 			default:
-				throw new PlotDataParserException("Unexpected entry type: "
-						+ entryType);
+				throw new PlotDataParserException("Unexpected entry type: " + entryType);
 			}
 			dataset.add(new PlotItem(time, patternCount));
 			currentItemNumber++;
@@ -117,8 +110,7 @@ public class PlotDataParser {
 		return new ParseInfo(dataset, currentItemNumber);
 	}
 
-	private ParseInfo parseResult(final ResultIndex resultIndex,
-			final int startItemNumber) {
+	private ParseInfo parseResult(final ResultIndex resultIndex, final int startItemNumber) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = resultIndex.getEntryNumbers();
 		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
@@ -126,16 +118,13 @@ public class PlotDataParser {
 		while (currentItemNumber < entriesNumbers.size()) {
 			int currentEntryNumber = entriesNumbers.get(currentItemNumber);
 			final Entry currentEntry = allEntries.get(currentEntryNumber);
-			final ByteBuffer header = Tracer
-					.prepareBufferForReading(currentEntry.getHeader());
-			final ByteBuffer data = Tracer.prepareBufferForReading(currentEntry
-					.getData());
+			final ByteBuffer header = Tracer.prepareBufferForReading(currentEntry.getHeader());
+			final ByteBuffer data = Tracer.prepareBufferForReading(currentEntry.getData());
 
 			Tracer.skipPart(header, TypeSize.BYTE);
 			final double time = header.getDouble();
 			final int resultNum = header.getInt();
-			final ResultCache resultCache = Simulator.getModelStructureCache()
-					.getResultsInfo().get(resultNum);
+			final ResultCache resultCache = Simulator.getModelStructureCache().getResultsInfo().get(resultNum);
 			PlotItem item = null;
 			switch (resultCache.getValueType()) {
 			case INTEGER:
@@ -151,8 +140,7 @@ public class PlotDataParser {
 				item = new PlotItem(time, data.get() != 0 ? 1 : 0);
 				break;
 			default:
-				throw new PlotDataParserException("Unexpected value type: "
-						+ resultCache.getValueType());
+				throw new PlotDataParserException("Unexpected value type: " + resultCache.getValueType());
 			}
 			dataset.add(item);
 			currentItemNumber++;
@@ -161,8 +149,7 @@ public class PlotDataParser {
 		return new ParseInfo(dataset, currentItemNumber);
 	}
 
-	private ParseInfo parseResourceParameter(
-			final ResourceParameterIndex resourceParameterIndex,
+	private ParseInfo parseResourceParameter(final ResourceParameterIndex resourceParameterIndex,
 			final ResourceIndex resourceIndex, final int startItemNumber) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = resourceIndex.getEntryNumbers();
@@ -172,10 +159,8 @@ public class PlotDataParser {
 			int currentEntryNumber = entriesNumbers.get(currentItemNumber);
 			final Entry currentEntry = allEntries.get(currentEntryNumber);
 
-			final ByteBuffer header = Tracer
-					.prepareBufferForReading(currentEntry.getHeader());
-			final ByteBuffer data = Tracer.prepareBufferForReading(currentEntry
-					.getData());
+			final ByteBuffer header = Tracer.prepareBufferForReading(currentEntry.getHeader());
+			final ByteBuffer data = Tracer.prepareBufferForReading(currentEntry.getData());
 
 			Tracer.skipPart(header, TypeSize.BYTE);
 			final double time = header.getDouble();
@@ -184,24 +169,20 @@ public class PlotDataParser {
 
 			switch (resourceParameterIndex.getValueCache().getType()) {
 			case INTEGER:
-				item = new PlotItem(time, data.getInt(resourceParameterIndex
-						.getOffset()));
+				item = new PlotItem(time, data.getInt(resourceParameterIndex.getOffset()));
 				break;
 			case REAL:
-				item = new PlotItem(time, data.getDouble(resourceParameterIndex
-						.getOffset()));
+				item = new PlotItem(time, data.getDouble(resourceParameterIndex.getOffset()));
 				break;
 			case ENUM:
-				item = new PlotItem(time, data.getShort(resourceParameterIndex
-						.getOffset()));
+				item = new PlotItem(time, data.getShort(resourceParameterIndex.getOffset()));
 				break;
 			case BOOLEAN:
-				item = new PlotItem(time, data.get(resourceParameterIndex
-						.getOffset()) != 0 ? 1 : 0);
+				item = new PlotItem(time, data.get(resourceParameterIndex.getOffset()) != 0 ? 1 : 0);
 				break;
 			default:
-				throw new PlotDataParserException("Unexpected value type: "
-						+ resourceParameterIndex.getValueCache().getType());
+				throw new PlotDataParserException(
+						"Unexpected value type: " + resourceParameterIndex.getValueCache().getType());
 			}
 
 			dataset.add(item);
@@ -217,14 +198,11 @@ public class PlotDataParser {
 		if (index != null) {
 			switch (index.getType()) {
 			case RESOURCE_PARAMETER:
-				enumNames = ((ResourceParameterIndex) index).getValueCache()
-						.getEnumNames();
+				enumNames = ((ResourceParameterIndex) index).getValueCache().getEnumNames();
 				break;
 			case RESULT:
 				int resultNumber = index.getNumber();
-				final ResultCache resultCache = Simulator
-						.getModelStructureCache().getResultsInfo()
-						.get(resultNumber);
+				final ResultCache resultCache = Simulator.getModelStructureCache().getResultsInfo().get(resultNumber);
 				enumNames = resultCache.getEnumNames();
 				break;
 			default:

@@ -15,8 +15,7 @@ public class GraphShell extends Shell {
 		super(display, SWT.SHELL_TRIM);
 		setLayout(new FillLayout());
 
-		Composite graphFrameContainer = new Composite(this, SWT.EMBEDDED
-				| SWT.NO_BACKGROUND | SWT.FILL);
+		Composite graphFrameContainer = new Composite(this, SWT.EMBEDDED | SWT.NO_BACKGROUND | SWT.FILL);
 		graphFrameContainer.setLayout(new FillLayout());
 
 		graphFrame = SWT_AWT.new_Frame(graphFrameContainer);
@@ -24,8 +23,7 @@ public class GraphShell extends Shell {
 		graphPanel = new GraphPanel(dptNum, this);
 		graphFrame.add(BorderLayout.CENTER, graphPanel);
 		graphFrame.addKeyListener(graphPanel.getZoomKeyListener());
-		graphFrame.addComponentListener(graphPanel
-				.getZoomToFitComponentListener());
+		graphFrame.addComponentListener(graphPanel.getZoomToFitComponentListener());
 		graphFrame.pack();
 	}
 

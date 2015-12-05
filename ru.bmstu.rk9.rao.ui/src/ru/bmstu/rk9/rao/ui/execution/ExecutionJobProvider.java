@@ -37,6 +37,7 @@ public class ExecutionJobProvider {
 
 	public final Job createExecutionJob() {
 		final Job executionJob = new Job(project.getName() + " execution") {
+			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				URLClassLoader classLoader = null;
 				final Display display = PlatformUI.getWorkbench().getDisplay();
@@ -44,18 +45,14 @@ public class ExecutionJobProvider {
 				try {
 					ConsoleView.clearConsoleText();
 
-					URL model = new URL("file:///"
-							+ ResourcesPlugin.getWorkspace().getRoot()
-									.getLocation().toString() + "/"
-							+ project.getName() + "/bin/");
+					URL model = new URL("file:///" + ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()
+							+ "/" + project.getName() + "/bin/");
 
 					URL[] urls = new URL[] { model };
 
-					classLoader = new URLClassLoader(urls,
-							Simulator.class.getClassLoader());
+					classLoader = new URLClassLoader(urls, Simulator.class.getClassLoader());
 
-					Class<?> modelClass = classLoader
-							.loadClass("rao_model.Embedded");
+					Class<?> modelClass = classLoader.loadClass("rao_model.Embedded");
 
 					Method simulation = null;
 					Method initialization = null;
@@ -86,8 +83,7 @@ public class ExecutionJobProvider {
 					List<Result> results = new LinkedList<Result>();
 					SimulationStopCode simulationResult = SimulationStopCode.SIMULATION_CONTINUES;
 					if (simulation != null)
-						simulationResult = (SimulationStopCode) simulation
-								.invoke(null, (Object) results);
+						simulationResult = (SimulationStopCode) simulation.invoke(null, (Object) results);
 
 					switch (simulationResult) {
 					case TERMINATE_CONDITION:
@@ -109,9 +105,8 @@ public class ExecutionJobProvider {
 
 					display.asyncExec(() -> ResultsView.setResults(results));
 
-					ConsoleView.addLine("Time elapsed: "
-							+ String.valueOf(System.currentTimeMillis()
-									- startTime) + "ms");
+					ConsoleView
+							.addLine("Time elapsed: " + String.valueOf(System.currentTimeMillis() - startTime) + "ms");
 
 					return Status.OK_STATUS;
 				} catch (Exception e) {
@@ -121,8 +116,7 @@ public class ExecutionJobProvider {
 					ConsoleView.printStackTrace(e);
 					Simulator.notifyError();
 
-					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
-							"Execution failed", e);
+					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Execution failed", e);
 				} finally {
 					// TODO deinitialize via notification instead
 					display.syncExec(() -> AnimationView.deinitialize());

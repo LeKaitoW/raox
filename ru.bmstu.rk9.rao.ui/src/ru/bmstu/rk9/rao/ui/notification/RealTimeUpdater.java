@@ -21,11 +21,9 @@ import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer.ExecutionMode;
 public class RealTimeUpdater {
 
 	public RealTimeUpdater() {
-		subscriberRegistrationManager.initialize(Arrays.asList(
-				new SimulatorSubscriberInfo(simulationStartSubscriber,
-						ExecutionState.EXECUTION_STARTED),
-				new SimulatorSubscriberInfo(simulationStopSubscriber,
-						ExecutionState.EXECUTION_COMPLETED)));
+		subscriberRegistrationManager.initialize(
+				Arrays.asList(new SimulatorSubscriberInfo(simulationStartSubscriber, ExecutionState.EXECUTION_STARTED),
+						new SimulatorSubscriberInfo(simulationStopSubscriber, ExecutionState.EXECUTION_COMPLETED)));
 	}
 
 	private final SimulatorSubscriberManager subscriberRegistrationManager = new SimulatorSubscriberManager();
@@ -44,11 +42,8 @@ public class RealTimeUpdater {
 
 	private final void start() {
 		display = PlatformUI.getWorkbench().getDisplay();
-		Simulator
-				.getDatabase()
-				.getNotifier()
-				.addSubscriber(databaseSubscriber,
-						Database.NotificationCategory.ENTRY_ADDED);
+		Simulator.getDatabase().getNotifier().addSubscriber(databaseSubscriber,
+				Database.NotificationCategory.ENTRY_ADDED);
 
 		timer = new Timer();
 		timerTask = new TimerTask() {

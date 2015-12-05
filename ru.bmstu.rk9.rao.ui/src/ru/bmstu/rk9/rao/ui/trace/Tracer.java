@@ -18,12 +18,12 @@ import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
 
 public class Tracer {
 	public static enum TraceType {
-		RESOURCE_CREATE("RC"), RESOURCE_KEEP("RK"), RESOURCE_ERASE("RE"), SYSTEM(
-				"ES"), OPERATION_BEGIN("EB"), OPERATION_END("EF"), EVENT("EI"), RULE(
-				"ER"), RESULT("V "), SEARCH_BEGIN("SB"), SEARCH_OPEN("SO "), SEARCH_SPAWN_NEW(
-				"STN"), SEARCH_SPAWN_WORSE("STD"), SEARCH_SPAWN_BETTER("STR"), SEARCH_RESOURCE_KEEP(
-				"SRK"), SEARCH_DECISION("SD "), SEARCH_END_ABORTED("SEA"), SEARCH_END_CONDITION(
-				"SEC"), SEARCH_END_SUCCESS("SES"), SEARCH_END_FAIL("SEN");
+		RESOURCE_CREATE("RC"), RESOURCE_KEEP("RK"), RESOURCE_ERASE("RE"), SYSTEM("ES"), OPERATION_BEGIN(
+				"EB"), OPERATION_END("EF"), EVENT("EI"), RULE("ER"), RESULT("V "), SEARCH_BEGIN("SB"), SEARCH_OPEN(
+						"SO "), SEARCH_SPAWN_NEW("STN"), SEARCH_SPAWN_WORSE("STD"), SEARCH_SPAWN_BETTER(
+								"STR"), SEARCH_RESOURCE_KEEP("SRK"), SEARCH_DECISION("SD "), SEARCH_END_ABORTED(
+										"SEA"), SEARCH_END_CONDITION("SEC"), SEARCH_END_SUCCESS("SES"), SEARCH_END_FAIL(
+												"SEN");
 
 		private final String traceCode;
 
@@ -62,8 +62,7 @@ public class Tracer {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	public final TraceOutput parseSerializedData(final Entry entry) {
-		final EntryType type = EntryType.values()[entry.getHeader().get(
-				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
+		final EntryType type = EntryType.values()[entry.getHeader().get(TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 		switch (type) {
 		case SYSTEM:
 			return parseSystemEntry(entry);
@@ -93,12 +92,10 @@ public class Tracer {
 
 		skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
-		final Database.SystemEntryType type = Database.SystemEntryType.values()[header
-				.get()];
+		final Database.SystemEntryType type = Database.SystemEntryType.values()[header.get()];
 
-		final String headerLine = new StringJoiner(delimiter)
-				.add(traceType.toString()).add(time).add(type.getDescription())
-				.getString();
+		final String headerLine = new StringJoiner(delimiter).add(traceType.toString()).add(time)
+				.add(type.getDescription()).getString();
 
 		return new TraceOutput(traceType, headerLine);
 	}
@@ -115,8 +112,7 @@ public class Tracer {
 		final double time = header.getDouble();
 		final TraceType traceType;
 
-		final Database.ResourceEntryType entryType = Database.ResourceEntryType
-				.values()[header.get()];
+		final Database.ResourceEntryType entryType = Database.ResourceEntryType.values()[header.get()];
 		switch (entryType) {
 		case CREATED:
 			traceType = TraceType.RESOURCE_CREATE;
@@ -132,29 +128,22 @@ public class Tracer {
 			traceType = TraceType.SEARCH_RESOURCE_KEEP;
 			break;
 		default:
-			throw new TracerException("Unexpected resource entry type: "
-					+ entryType);
+			throw new TracerException("Unexpected resource entry type: " + entryType);
 		}
 
 		final int typeNum = header.getInt();
-		final ResourceTypeCache typeInfo = Simulator.getModelStructureCache()
-				.getResourceTypesInfo().get(typeNum);
+		final ResourceTypeCache typeInfo = Simulator.getModelStructureCache().getResourceTypesInfo().get(typeNum);
 		final int resNum = header.getInt();
-		final String name = Simulator.getModelStructureCache()
-				.getResourceNames().get(typeNum).get(resNum);
+		final String name = Simulator.getModelStructureCache().getResourceNames().get(typeNum).get(resNum);
 
-		final String resourceName = name != null ? name : typeInfo.getName()
-				+ encloseIndex(resNum);
+		final String resourceName = name != null ? name : typeInfo.getName() + encloseIndex(resNum);
 
-		return new TraceOutput(traceType, new StringJoiner(delimiter)
-				.add(traceType.toString()).add(time).add(resourceName).add("=")
-				.add(parseResourceParameters(data, typeInfo)).getString());
+		return new TraceOutput(traceType, new StringJoiner(delimiter).add(traceType.toString()).add(time)
+				.add(resourceName).add("=").add(parseResourceParameters(data, typeInfo)).getString());
 	}
 
-	private String parseResourceParameters(final ByteBuffer data,
-			final ResourceTypeCache typeInfo) {
-		final StringJoiner stringJoiner = new StringJoiner(
-				StringJoiner.StringFormat.STRUCTURE);
+	private String parseResourceParameters(final ByteBuffer data, final ResourceTypeCache typeInfo) {
+		final StringJoiner stringJoiner = new StringJoiner(StringJoiner.StringFormat.STRUCTURE);
 
 		for (int paramNum = 0; paramNum < typeInfo.getNumberOfParameters(); paramNum++) {
 			ValueCache valueCache = typeInfo.getParamTypes().get(paramNum);
@@ -170,26 +159,20 @@ public class Tracer {
 				stringJoiner.add(data.get() != 0);
 				break;
 			case ENUM:
-				stringJoiner.add(valueCache.getEnumNames().get(
-						(int) data.getShort()));
+				stringJoiner.add(valueCache.getEnumNames().get(data.getShort()));
 				break;
 			case STRING:
 				final int index = typeInfo.getIndexList().get(paramNum);
-				final int stringPosition = data.getInt(typeInfo
-						.getFinalOffset() + (index - 1) * TypeSize.Rao.INTEGER);
+				final int stringPosition = data.getInt(typeInfo.getFinalOffset() + (index - 1) * TypeSize.Rao.INTEGER);
 				final int length = data.getInt(stringPosition);
 
 				byte rawString[] = new byte[length];
 				for (int i = 0; i < length; i++)
-					rawString[i] = data.get(stringPosition
-							+ TypeSize.Rao.INTEGER + i);
-				stringJoiner.add("\""
-						+ new String(rawString, StandardCharsets.UTF_8) + "\"");
+					rawString[i] = data.get(stringPosition + TypeSize.Rao.INTEGER + i);
+				stringJoiner.add("\"" + new String(rawString, StandardCharsets.UTF_8) + "\"");
 				break;
 			default:
-				throw new TracerException(
-						"Unexpected resource parameter type: "
-								+ valueCache.getType());
+				throw new TracerException("Unexpected resource parameter type: " + valueCache.getType());
 			}
 		}
 		return stringJoiner.getString();
@@ -207,8 +190,7 @@ public class Tracer {
 		final double time = header.getDouble();
 		final TraceType traceType;
 
-		final Database.PatternType entryType = Database.PatternType.values()[header
-				.get()];
+		final Database.PatternType entryType = Database.PatternType.values()[header.get()];
 		switch (entryType) {
 		case RULE:
 			traceType = TraceType.RULE;
@@ -220,12 +202,10 @@ public class Tracer {
 			traceType = TraceType.OPERATION_END;
 			break;
 		default:
-			throw new TracerException("Unexpected pattern enrty type: "
-					+ entryType);
+			throw new TracerException("Unexpected pattern enrty type: " + entryType);
 		}
 
-		return new TraceOutput(traceType, new StringJoiner(delimiter)
-				.add(traceType.toString()).add(time)
+		return new TraceOutput(traceType, new StringJoiner(delimiter).add(traceType.toString()).add(time)
 				.add(parsePatternData(data)).getString());
 	}
 
@@ -235,27 +215,22 @@ public class Tracer {
 		int dptNumber = data.getInt();
 		int activityNumber = data.getInt();
 		int actionNumber = data.getInt();
-		ActivityCache activity = Simulator.getModelStructureCache().decisionPointsInfo
-				.get(dptNumber).getActivitiesInfo().get(activityNumber);
+		ActivityCache activity = Simulator.getModelStructureCache().decisionPointsInfo.get(dptNumber)
+				.getActivitiesInfo().get(activityNumber);
 		int patternNumber = activity.getPatternNumber();
 		stringJoiner.add(activity.getName() + encloseIndex(actionNumber));
 
-		final StringJoiner relResStringJoiner = new StringJoiner(
-				StringJoiner.StringFormat.FUNCTION);
+		final StringJoiner relResStringJoiner = new StringJoiner(StringJoiner.StringFormat.FUNCTION);
 
 		int numberOfRelevantResources = data.getInt();
 		for (int num = 0; num < numberOfRelevantResources; num++) {
 			final int resNum = data.getInt();
-			final int typeNum = Simulator.getModelStructureCache()
-					.getPatternsInfo().get(patternNumber).getRelResTypes()
+			final int typeNum = Simulator.getModelStructureCache().getPatternsInfo().get(patternNumber).getRelResTypes()
 					.get(num);
-			final String typeName = Simulator.getModelStructureCache()
-					.getResourceTypesInfo().get(typeNum).getName();
+			final String typeName = Simulator.getModelStructureCache().getResourceTypesInfo().get(typeNum).getName();
 
-			final String name = Simulator.getModelStructureCache()
-					.getResourceNames().get(typeNum).get(resNum);
-			final String resourceName = name != null ? name : typeName
-					+ encloseIndex(resNum);
+			final String name = Simulator.getModelStructureCache().getResourceNames().get(typeNum).get(resNum);
+			final String resourceName = name != null ? name : typeName + encloseIndex(resNum);
 
 			relResStringJoiner.add(resourceName);
 		}
@@ -274,9 +249,8 @@ public class Tracer {
 		final double time = header.getDouble();
 		final TraceType traceType = TraceType.EVENT;
 
-		return new TraceOutput(traceType, new StringJoiner(delimiter)
-				.add(traceType.toString()).add(time).add(parseEventData(data))
-				.getString());
+		return new TraceOutput(traceType,
+				new StringJoiner(delimiter).add(traceType.toString()).add(time).add(parseEventData(data)).getString());
 	}
 
 	private String parseEventData(final ByteBuffer data) {
@@ -284,9 +258,8 @@ public class Tracer {
 
 		int eventNumber = data.getInt();
 		int actionNumber = data.getInt();
-		stringJoiner.add(Simulator.getModelStructureCache().getEventNames()
-				.get(eventNumber)
-				+ encloseIndex(actionNumber));
+		stringJoiner
+				.add(Simulator.getModelStructureCache().getEventNames().get(eventNumber) + encloseIndex(actionNumber));
 		return stringJoiner.getString();
 	}
 
@@ -301,25 +274,20 @@ public class Tracer {
 
 		final TraceType traceType;
 		skipPart(header, TypeSize.BYTE);
-		final Database.SearchEntryType entryType = Database.SearchEntryType
-				.values()[header.get()];
+		final Database.SearchEntryType entryType = Database.SearchEntryType.values()[header.get()];
 		final double time = header.getDouble();
 		final int dptNumber = header.getInt();
 
 		switch (entryType) {
 		case BEGIN: {
 			traceType = TraceType.SEARCH_BEGIN;
-			stringJoiner
-					.add(traceType.toString())
-					.add(time)
-					.add(Simulator.getModelStructureCache().decisionPointsInfo
-							.get(dptNumber).getName());
+			stringJoiner.add(traceType.toString()).add(time)
+					.add(Simulator.getModelStructureCache().decisionPointsInfo.get(dptNumber).getName());
 			break;
 		}
 		case END: {
 			final ByteBuffer data = prepareBufferForReading(entry.getData());
-			final DecisionPointSearch.StopCode endStatus = DecisionPointSearch.StopCode
-					.values()[data.get()];
+			final DecisionPointSearch.StopCode endStatus = DecisionPointSearch.StopCode.values()[data.get()];
 			switch (endStatus) {
 			case ABORTED:
 				traceType = TraceType.SEARCH_END_ABORTED;
@@ -334,8 +302,7 @@ public class Tracer {
 				traceType = TraceType.SEARCH_END_FAIL;
 				break;
 			default:
-				throw new TracerException("Unexpected search end status: "
-						+ endStatus);
+				throw new TracerException("Unexpected search end status: " + endStatus);
 			}
 
 			skipPart(data, TypeSize.LONG * 2);
@@ -344,15 +311,10 @@ public class Tracer {
 			final int totalNodes = data.getInt();
 			final int totalAdded = data.getInt();
 			final int totalSpawned = data.getInt();
-			stringJoiner
-					.add(traceType.toString())
-					.add(time)
-					.add(new StringJoiner(StringFormat.ENUMERATION)
-							.add("solution cost = " + finalCost)
-							.add("nodes opened = " + totalOpened)
-							.add("nodes total = " + totalNodes)
-							.add("nodes added = " + totalAdded)
-							.add("nodes spawned = " + totalSpawned).getString());
+			stringJoiner.add(traceType.toString()).add(time)
+					.add(new StringJoiner(StringFormat.ENUMERATION).add("solution cost = " + finalCost)
+							.add("nodes opened = " + totalOpened).add("nodes total = " + totalNodes)
+							.add("nodes added = " + totalAdded).add("nodes spawned = " + totalSpawned).getString());
 			break;
 		}
 		case OPEN: {
@@ -360,14 +322,12 @@ public class Tracer {
 			traceType = TraceType.SEARCH_OPEN;
 			final int currentNumber = data.getInt();
 			skipPart(data, TypeSize.INTEGER + 2 * TypeSize.DOUBLE);
-			stringJoiner.add(traceType.toString()).add(
-					encloseIndex(currentNumber));
+			stringJoiner.add(traceType.toString()).add(encloseIndex(currentNumber));
 			break;
 		}
 		case SPAWN: {
 			final ByteBuffer data = prepareBufferForReading(entry.getData());
-			final DecisionPointSearch.SpawnStatus spawnStatus = DecisionPointSearch.SpawnStatus
-					.values()[data.get()];
+			final DecisionPointSearch.SpawnStatus spawnStatus = DecisionPointSearch.SpawnStatus.values()[data.get()];
 			switch (spawnStatus) {
 			case NEW:
 				traceType = TraceType.SEARCH_SPAWN_NEW;
@@ -379,47 +339,37 @@ public class Tracer {
 				traceType = TraceType.SEARCH_SPAWN_BETTER;
 				break;
 			default:
-				throw new TracerException("Unexpected search spawn status: "
-						+ spawnStatus);
+				throw new TracerException("Unexpected search spawn status: " + spawnStatus);
 			}
 			final int childNumber = data.getInt();
 			final int parentNumber = data.getInt();
 			final double g = data.getDouble();
 			final double h = data.getDouble();
 			final int ruleNumber = data.getInt();
-			ActivityCache activity = Simulator.getModelStructureCache().decisionPointsInfo
-					.get(dptNumber).getActivitiesInfo().get(ruleNumber);
+			ActivityCache activity = Simulator.getModelStructureCache().decisionPointsInfo.get(dptNumber)
+					.getActivitiesInfo().get(ruleNumber);
 			final int patternNumber = activity.getPatternNumber();
 			final double ruleCost = data.getDouble();
-			final int numberOfRelevantResources = Simulator
-					.getModelStructureCache().getPatternsInfo()
+			final int numberOfRelevantResources = Simulator.getModelStructureCache().getPatternsInfo()
 					.get(patternNumber).getRelResTypes().size();
 
-			StringJoiner relResStringJoiner = new StringJoiner(
-					StringFormat.FUNCTION);
+			StringJoiner relResStringJoiner = new StringJoiner(StringFormat.FUNCTION);
 
 			for (int num = 0; num < numberOfRelevantResources; num++) {
 				final int resNum = data.getInt();
-				final int typeNum = Simulator.getModelStructureCache()
-						.getPatternsInfo().get(patternNumber).getRelResTypes()
-						.get(num);
-				final String typeName = Simulator.getModelStructureCache()
-						.getResourceTypesInfo().get(typeNum).getName();
+				final int typeNum = Simulator.getModelStructureCache().getPatternsInfo().get(patternNumber)
+						.getRelResTypes().get(num);
+				final String typeName = Simulator.getModelStructureCache().getResourceTypesInfo().get(typeNum)
+						.getName();
 
-				final String name = Simulator.getModelStructureCache()
-						.getResourceNames().get(typeNum).get(resNum);
-				final String resourceName = name != null ? name : typeName
-						+ encloseIndex(resNum);
+				final String name = Simulator.getModelStructureCache().getResourceNames().get(typeNum).get(resNum);
+				final String resourceName = name != null ? name : typeName + encloseIndex(resNum);
 
 				relResStringJoiner.add(resourceName);
 			}
 
-			stringJoiner
-					.add(traceType.toString())
-					.add(encloseIndex(parentNumber) + "->"
-							+ encloseIndex(childNumber))
-					.add(activity.getName() + relResStringJoiner.getString())
-					.add("=").add(ruleCost + ",")
+			stringJoiner.add(traceType.toString()).add(encloseIndex(parentNumber) + "->" + encloseIndex(childNumber))
+					.add(activity.getName() + relResStringJoiner.getString()).add("=").add(ruleCost + ",")
 					.add("[" + (g + h) + " = " + g + " + " + h + "]");
 			break;
 		}
@@ -428,39 +378,32 @@ public class Tracer {
 			traceType = TraceType.SEARCH_DECISION;
 			final int nodeNumber = data.getInt();
 			final int activityNumber = data.getInt();
-			ActivityCache activity = Simulator.getModelStructureCache().decisionPointsInfo
-					.get(dptNumber).getActivitiesInfo().get(activityNumber);
+			ActivityCache activity = Simulator.getModelStructureCache().decisionPointsInfo.get(dptNumber)
+					.getActivitiesInfo().get(activityNumber);
 			final int patternNumber = activity.getPatternNumber();
-			final int numberOfRelevantResources = Simulator
-					.getModelStructureCache().getPatternsInfo()
+			final int numberOfRelevantResources = Simulator.getModelStructureCache().getPatternsInfo()
 					.get(patternNumber).getRelResTypes().size();
 
-			StringJoiner relResStringJoiner = new StringJoiner(
-					StringFormat.FUNCTION);
+			StringJoiner relResStringJoiner = new StringJoiner(StringFormat.FUNCTION);
 			for (int num = 0; num < numberOfRelevantResources; num++) {
 				final int resNum = data.getInt();
-				final int typeNum = Simulator.getModelStructureCache()
-						.getPatternsInfo().get(patternNumber).getRelResTypes()
-						.get(num);
-				final String typeName = Simulator.getModelStructureCache()
-						.getResourceTypesInfo().get(typeNum).getName();
+				final int typeNum = Simulator.getModelStructureCache().getPatternsInfo().get(patternNumber)
+						.getRelResTypes().get(num);
+				final String typeName = Simulator.getModelStructureCache().getResourceTypesInfo().get(typeNum)
+						.getName();
 
-				final String name = Simulator.getModelStructureCache()
-						.getResourceNames().get(typeNum).get(resNum);
-				final String resourceName = name != null ? name : typeName
-						+ encloseIndex(resNum);
+				final String name = Simulator.getModelStructureCache().getResourceNames().get(typeNum).get(resNum);
+				final String resourceName = name != null ? name : typeName + encloseIndex(resNum);
 
 				relResStringJoiner.add(resourceName);
 			}
 
-			stringJoiner.add(traceType.toString())
-					.add(encloseIndex(nodeNumber))
+			stringJoiner.add(traceType.toString()).add(encloseIndex(nodeNumber))
 					.add(activity.getName() + relResStringJoiner.getString());
 			break;
 		}
 		default:
-			throw new TracerException("Unexpected search entry type: "
-					+ entryType);
+			throw new TracerException("Unexpected search entry type: " + entryType);
 		}
 
 		return new TraceOutput(traceType, stringJoiner.getString());
@@ -477,17 +420,13 @@ public class Tracer {
 		skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
 		final int resultNum = header.getInt();
-		final ResultCache resultCache = Simulator.getModelStructureCache()
-				.getResultsInfo().get(resultNum);
+		final ResultCache resultCache = Simulator.getModelStructureCache().getResultsInfo().get(resultNum);
 
-		return new TraceOutput(TraceType.RESULT, new StringJoiner(delimiter)
-				.add(TraceType.RESULT.toString()).add(time)
-				.add(resultCache.getName()).add("=")
-				.add(parseResultParameter(data, resultCache)).getString());
+		return new TraceOutput(TraceType.RESULT, new StringJoiner(delimiter).add(TraceType.RESULT.toString()).add(time)
+				.add(resultCache.getName()).add("=").add(parseResultParameter(data, resultCache)).getString());
 	}
 
-	private String parseResultParameter(final ByteBuffer data,
-			final ResultCache resultCache) {
+	private String parseResultParameter(final ByteBuffer data, final ResultCache resultCache) {
 		switch (resultCache.getValueType()) {
 		case INTEGER:
 			return String.valueOf(data.getInt());
@@ -496,8 +435,7 @@ public class Tracer {
 		case BOOLEAN:
 			return String.valueOf(data.get() != 0);
 		case ENUM:
-			return String.valueOf(resultCache.getEnumNames().get(
-					(int) data.getShort()));
+			return String.valueOf(resultCache.getEnumNames().get(data.getShort()));
 		case STRING:
 			final ByteArrayOutputStream rawString = new ByteArrayOutputStream();
 			while (data.hasRemaining()) {
@@ -505,8 +443,7 @@ public class Tracer {
 			}
 			return "\"" + rawString.toString() + "\"";
 		default:
-			throw new TracerException("Unexpected result parameter type: "
-					+ resultCache.getValueType());
+			throw new TracerException("Unexpected result parameter type: " + resultCache.getValueType());
 		}
 	}
 
@@ -523,8 +460,7 @@ public class Tracer {
 		return "[" + String.valueOf(index) + "]";
 	}
 
-	public final static ByteBuffer prepareBufferForReading(
-			final ByteBuffer buffer) {
+	public final static ByteBuffer prepareBufferForReading(final ByteBuffer buffer) {
 		return (ByteBuffer) buffer.duplicate().rewind();
 	}
 }
