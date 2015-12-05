@@ -1,5 +1,5 @@
 ##Автосборка архива с эклипсом на Дженкинсе
-```
+``` bash
 export MAVEN_OPTS="-Xmx512M"
 cd assembly
 mvn initialize -N -Pset-raox-version
