@@ -19,7 +19,7 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 		<target-os-property></target-os-property>
 		<target-bitness-property></target-bitness-property>
 		<raox-version></raox-version>
-		<eclipse-subfolder></eclipse-subfolder>
+		<eclipse-content-relative-path></eclipse-content-relative-path>
 	</properties>
 
 	<profiles>
@@ -32,7 +32,7 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 				</property>
 			</activation>
 			<properties>
-				<eclipse-subfolder>Contents/Eclipse</eclipse-subfolder>
+				<eclipse-content-relative-path>Contents/Eclipse</eclipse-content-relative-path>
 			</properties>
 		</profile>
 		<profile>
@@ -96,7 +96,7 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 			<id>package-as-eclipse-dropins</id>
 			<activation>
 				<property>
-					<name>eclipse-path</name>
+					<name>eclipse-archive-root-path</name>
 				</property>
 			</activation>
 			<build>
@@ -116,7 +116,7 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 									<outputDirectory>${basedir}/target</outputDirectory>
 									<resources>
 										<resource>
-											<directory>${eclipse-path}/${eclipse-subfolder}</directory>
+											<directory>${eclipse-archive-root-path}/${eclipse-content-relative-path}</directory>
 											<includes>
 												<include>eclipse.ini</include>
 											</includes>

@@ -5,22 +5,22 @@
 	<id>eclipse-${raox-version}${target-os-property}${target-bitness-property}</id>
 	<fileSets>
 		<fileSet>
-			<directory>${eclipse-path}</directory>
+			<directory>${eclipse-archive-root-path}</directory>
 			<outputDirectory>./</outputDirectory>
 			<excludes>
-				<exclude>./${eclipse-subfolder}/eclipse.ini</exclude>
+				<exclude>./${eclipse-content-relative-path}/eclipse.ini</exclude>
 			</excludes>
 		</fileSet>
 		<fileSet>
 			<directory>${basedir}/target</directory>
-			<outputDirectory>./${eclipse-subfolder}</outputDirectory>
+			<outputDirectory>./${eclipse-content-relative-path}</outputDirectory>
 			<includes>
 				<include>eclipse.ini</include>
 			</includes>
 		</fileSet>
 		<fileSet>
 			<directory>${basedir}/target/plugins</directory>
-			<outputDirectory>${eclipse-subfolder}/dropins</outputDirectory>
+			<outputDirectory>${eclipse-content-relative-path}/dropins</outputDirectory>
 		</fileSet>
 	</fileSets>
 </assembly>
