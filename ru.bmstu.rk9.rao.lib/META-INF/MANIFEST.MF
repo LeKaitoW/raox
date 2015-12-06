@@ -17,6 +17,7 @@ Export-Package: ru.bmstu.rk9.rao.lib.animation,
  ru.bmstu.rk9.rao.lib.pattern,
  ru.bmstu.rk9.rao.lib.resource,
  ru.bmstu.rk9.rao.lib.result,
+ ru.bmstu.rk9.rao.lib.runtime,
  ru.bmstu.rk9.rao.lib.sequence,
  ru.bmstu.rk9.rao.lib.simulator,
  ru.bmstu.rk9.rao.lib.type
