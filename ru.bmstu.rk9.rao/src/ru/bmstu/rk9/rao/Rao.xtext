@@ -18,6 +18,7 @@ RaoModel:
 
 RaoEntity
 	: ResourceType
+	| ResourceDeclaration
 	| Sequence
 	| Constant
 	| FunctionDeclaration
@@ -42,6 +43,21 @@ ResourceType:
 
 FieldDeclaration
 	: declaration = FullJvmFormalParameter ('=' default = XOrExpression)?
+;
+
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                               Resources                               //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+ResourceDeclaration:
+	'resource' name = ID '=' constructor = ResourceConstructor ';'
+;
+
+ResourceConstructor returns XConstructorCall:
+	{XConstructorCall}
+	constructor=[types::JvmConstructor|QualifiedName]
+	(=>'<' typeArguments+=JvmArgumentTypeReference (',' typeArguments+=JvmArgumentTypeReference)* '>')?
+	(=>explicitConstructorCall?='(' ( arguments+=XExpression (',' arguments+=XExpression)* )? ')')?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

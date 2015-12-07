@@ -29,6 +29,7 @@ import ru.bmstu.rk9.rao.rao.RaoModel
 import ru.bmstu.rk9.rao.rao.RaoPackage
 import ru.bmstu.rk9.rao.rao.RelevantResource
 import ru.bmstu.rk9.rao.rao.ResourceType
+import ru.bmstu.rk9.rao.rao.ResourceDeclaration
 import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.Sequence
 
@@ -116,6 +117,7 @@ class RaoValidator extends AbstractRaoValidator
 
 		val List<EObject> checklist = model.eAllContents.filter[eObject |
 			eObject instanceof ResourceType ||
+			eObject instanceof ResourceDeclaration ||
 			eObject instanceof Sequence ||
 			eObject instanceof Constant ||
 			eObject instanceof FunctionDeclaration ||
@@ -180,6 +182,9 @@ class RaoValidator extends AbstractRaoValidator
 		{
 			ResourceType:
 				RaoPackage.eINSTANCE.resourceType_Name
+
+			ResourceDeclaration:
+				RaoPackage.eINSTANCE.resourceDeclaration_Name
 
 			Sequence:
 				RaoPackage.eINSTANCE.sequence_Name
