@@ -63,22 +63,25 @@ public class ExecutionJobProvider {
 					List<TerminateCondition> terminateConditions = new ArrayList<TerminateCondition>();
 
 					for (IResource raoModel : BuildUtil.getAllRaoFilesInProject(project)) {
-						Class<?> modelClass = classLoader.loadClass(project.getName() + "." + raoModel.getName().substring(0, raoModel.getName().length() - 4));
+						String modelName = raoModel.getName();
+						modelName = modelName.substring(0, modelName.length() - 4);
+						Class<?> modelClass = classLoader.loadClass(project.getName() + "." + modelName);
 
 						try {
 							Method init = modelClass.getDeclaredMethod("init");
 							init.setAccessible(true);
 							initList.add(init);
+						} catch (NoSuchMethodException methodException) {
 						}
-						catch (NoSuchMethodException methodException) { }
 
 						try {
-							Class<?> terminate = classLoader.loadClass(project.getName() + "." + raoModel.getName().substring(0, raoModel.getName().length() - 4) + "$terminateCondition");
+							Class<?> terminate = classLoader
+									.loadClass(project.getName() + "." + modelName + "$terminateCondition");
 							Constructor<?> terminateConstructor = terminate.getDeclaredConstructor();
 							terminateConstructor.setAccessible(true);
-							terminateConditions.add((TerminateCondition)terminateConstructor.newInstance());
+							terminateConditions.add((TerminateCondition) terminateConstructor.newInstance());
+						} catch (ClassNotFoundException classException) {
 						}
-						catch (ClassNotFoundException classException) { }
 					}
 
 					ExportTraceHandler.reset();
