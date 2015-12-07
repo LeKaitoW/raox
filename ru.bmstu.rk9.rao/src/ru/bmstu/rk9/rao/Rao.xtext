@@ -50,14 +50,7 @@ FieldDeclaration
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 ResourceDeclaration:
-	'resource' name = ID '=' constructor = ResourceConstructor ';'
-;
-
-ResourceConstructor returns XConstructorCall:
-	{XConstructorCall}
-	constructor=[types::JvmConstructor|QualifiedName]
-	(=>'<' typeArguments+=JvmArgumentTypeReference (',' typeArguments+=JvmArgumentTypeReference)* '>')?
-	(=>explicitConstructorCall?='(' ( arguments+=XExpression (',' arguments+=XExpression)* )? ')')?
+	'resource' name = ID '=' constructor = XMemberFeatureCall ';'
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

@@ -88,8 +88,20 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 			superTypes += typeRef(ru.bmstu.rk9.rao.lib.resource.Resource)
 			superTypes += typeRef(ru.bmstu.rk9.rao.lib.resource.ResourceComparison, { typeRef })
 
-			members += resourceType.toConstructor [
+			members += resourceType.toMethod("create", typeRef) [
 				visibility = JvmVisibility.PUBLIC
+				static = true
+				for (param : resourceType.parameters)
+					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType)
+				body = '''
+					return new «resourceType.name»(«FOR param : parameters»«
+						param.name»«
+						IF parameters.indexOf(param) != parameters.size - 1», «ENDIF»«ENDFOR»);
+				'''
+			]
+
+			members += resourceType.toConstructor [
+				visibility = JvmVisibility.PRIVATE
 				for (param : resourceType.parameters)
 					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType)
 				body = '''
