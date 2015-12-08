@@ -64,7 +64,7 @@ public class ExecutionJobProvider {
 
 					for (IResource raoModel : BuildUtil.getAllRaoFilesInProject(project)) {
 						String modelName = raoModel.getName();
-						modelName = modelName.substring(0, modelName.length() - 4);
+						modelName = modelName.substring(0, modelName.length() - ".rao".length());
 						Class<?> modelClass = classLoader.loadClass(project.getName() + "." + modelName);
 
 						try {
