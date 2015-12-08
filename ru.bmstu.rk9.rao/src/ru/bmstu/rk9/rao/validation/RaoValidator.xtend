@@ -157,6 +157,13 @@ class RaoValidator extends AbstractRaoValidator
 	}
 
 	@Check
+	def checkResourceDeclaration(ResourceDeclaration resource) {
+		if (!resource.constructor.actualType.isSubtypeOf(typeof(ru.bmstu.rk9.rao.lib.resource.Resource)))
+			error("Error in declaration of \"" + resource.name + "\": only Rao resources are allowed.",
+				RaoPackage.eINSTANCE.resourceDeclaration_Constructor)
+	}
+
+	@Check
 	def checkNamesInPatterns(Pattern pattern)
 	{
 		val List<EObject> parameters  = pattern.eAllContents.filter[eObject |

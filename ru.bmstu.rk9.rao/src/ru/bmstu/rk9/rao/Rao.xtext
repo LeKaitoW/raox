@@ -50,7 +50,7 @@ FieldDeclaration
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 ResourceDeclaration:
-	'resource' name = ID '=' constructor = XMemberFeatureCall ';'
+	'resource' name = ID '=' constructor = XOrExpression ';'
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
