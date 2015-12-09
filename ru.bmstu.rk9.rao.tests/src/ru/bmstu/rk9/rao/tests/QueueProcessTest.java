@@ -13,6 +13,7 @@ import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.process.Advance;
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.process.Generate;
+import ru.bmstu.rk9.rao.lib.process.Queue;
 import ru.bmstu.rk9.rao.lib.process.Release;
 import ru.bmstu.rk9.rao.lib.process.Resource;
 import ru.bmstu.rk9.rao.lib.process.Seize;
@@ -21,7 +22,7 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
 import ru.bmstu.rk9.rao.lib.process.Process;
 
-public class ProcessTesting {
+public class QueueProcessTest {
 
 	@Test
 	public void test() {
@@ -34,10 +35,11 @@ public class ProcessTesting {
 
 		SerializationObjectsNames.set(new ArrayList<String>());
 		Simulator.initSimulation(modelStructure);
+		Simulator.addTerminateCondition(() -> Simulator.getTime() > 1000);
 		Simulator.getProcess().addBlocks(generateSituation());
 		SimulationStopCode simulationStopCode = Simulator.run();
-		assertEquals("linear_process_test", SimulationStopCode.RUNTIME_ERROR,
-				simulationStopCode);
+		assertEquals("linear_process_test",
+				SimulationStopCode.TERMINATE_CONDITION, simulationStopCode);
 	}
 
 	private List<Block> generateSituation() {
@@ -48,12 +50,15 @@ public class ProcessTesting {
 		Resource resource = new Resource();
 		Seize seize = new Seize(resource);
 		Release release = new Release(resource);
+		Queue queue = new Queue();
 		blocks.add(generate);
+		blocks.add(queue);
 		blocks.add(seize);
 		blocks.add(advance);
 		blocks.add(release);
 		blocks.add(terminate);
-		Process.linkDocks(generate.getOutputDock(), seize.getInputDock());
+		Process.linkDocks(generate.getOutputDock(), queue.getInputDock());
+		Process.linkDocks(queue.getOutputDock(), seize.getInputDock());
 		Process.linkDocks(seize.getOutputDock(), advance.getInputDock());
 		Process.linkDocks(advance.getOutputDock(), release.getInputDock());
 		Process.linkDocks(release.getOutputDock(), terminate.getInputDock());
