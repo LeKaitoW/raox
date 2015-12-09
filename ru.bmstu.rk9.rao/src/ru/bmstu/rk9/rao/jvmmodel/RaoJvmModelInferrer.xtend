@@ -10,61 +10,185 @@ import ru.bmstu.rk9.rao.rao.Constant
 import ru.bmstu.rk9.rao.rao.FunctionDeclaration
 import org.eclipse.xtext.common.types.JvmVisibility
 
-import ru.bmstu.rk9.rao.lib.simulator.EmbeddedSimulation
+import static extension ru.bmstu.rk9.rao.jvmmodel.RaoNaming.*
+
 import ru.bmstu.rk9.rao.rao.Event
 import ru.bmstu.rk9.rao.rao.DefaultMethod
 import ru.bmstu.rk9.rao.lib.simulator.TerminateCondition
-import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode
+import org.eclipse.xtext.common.types.JvmDeclaredType
+import ru.bmstu.rk9.rao.rao.ResourceType
+import org.eclipse.xtext.common.types.JvmPrimitiveType
+import java.nio.ByteBuffer
+import ru.bmstu.rk9.rao.rao.ResourceDeclaration
 
 // TODO add override annotation to all generated overriden methods
 class RaoJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
 
 	def dispatch void infer(RaoModel element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
-		acceptor.accept(element.toClass(QualifiedName.create("model"))) [
-			superTypes += typeRef(EmbeddedSimulation)
-
-			members += element.compileInstanceField
-
-			members += element.toMethod("startSimulation", typeRef(SimulationStopCode)) [
-				visibility = JvmVisibility.PUBLIC
-				static = true
-				final = true
-				body = '''
-					return INSTANCE.run();
-				'''
-			]
-
+		acceptor.accept(element.toClass(QualifiedName.create(element.eResource.URI.projectName, element.nameGeneric))) [
+			final = true
 			for (entity : element.objects) {
-				switch (entity) {
-					Constant:
-						members += entity.compileConstantAsField
-					FunctionDeclaration:
-						members += entity.compileFunctionAsMethod
-					DefaultMethod:
-						switch (entity.name) {
-							case "init": {
-								members += entity.compileInitMethod
-							}
-							case "terminateCondition": {
-								members += entity.compileTerminateConditionClass
-								members += entity.compileTerminateConditionGetter
-							}
-						}
-				}
+				entity.compileRaoEntity(it, isPreIndexingPhase)
 			}
 		]
+	}
 
-		for (entity : element.objects) {
-			switch (entity) {
-				Event:
-					entity.compileEventAsClass(acceptor)
+	def dispatch compileRaoEntity(Constant constant, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		members += constant.toField(constant.constant.name, constant.constant.parameterType) [
+			visibility = JvmVisibility.PUBLIC
+			static = true
+			final = true
+			initializer = constant.value
+		]
+	}
+
+	def dispatch compileRaoEntity(FunctionDeclaration function, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		members += function.toMethod(function.name, function.type) [
+			for (param : function.parameters)
+				parameters += function.toParameter(param.name, param.parameterType)
+			visibility = JvmVisibility.PUBLIC
+			static = true
+			final = true
+			body = function.body
+		]
+	}
+
+	def dispatch compileRaoEntity(DefaultMethod method, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		switch (method.name) {
+			case "init": {
+				members += method.toMethod(method.name, typeRef(void)) [
+					visibility = JvmVisibility.PROTECTED
+					static = true
+					final = true
+					body = method.body
+				]
+			}
+			case "terminateCondition": {
+				members += method.toClass("terminateCondition") [
+					superTypes += typeRef(TerminateCondition)
+					visibility = JvmVisibility.PROTECTED
+					static = true
+					final = true
+					members += method.toMethod("check", typeRef(boolean)) [
+						visibility = JvmVisibility.PUBLIC
+						final = true
+						body = method.body
+					]
+				]
 			}
 		}
 	}
 
-	def compileEventAsClass(Event event, IJvmDeclaredTypeAcceptor acceptor) {
-		acceptor.accept(event.toClass(QualifiedName.create(event.name))) [
+	def dispatch compileRaoEntity(ResourceType resourceType, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		members += resourceType.toClass(QualifiedName.create(qualifiedName, resourceType.name)) [
+			static = true
+			final = true
+
+			superTypes += typeRef(ru.bmstu.rk9.rao.lib.resource.Resource)
+			superTypes += typeRef(ru.bmstu.rk9.rao.lib.resource.ResourceComparison, { typeRef })
+
+			members += resourceType.toMethod("create", typeRef) [
+				visibility = JvmVisibility.PUBLIC
+				static = true
+				for (param : resourceType.parameters)
+					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType)
+				body = '''
+					return new «resourceType.name»(«FOR param : parameters»«
+						param.name»«
+						IF parameters.indexOf(param) != parameters.size - 1», «ENDIF»«ENDFOR»);
+				'''
+			]
+
+			members += resourceType.toConstructor [
+				visibility = JvmVisibility.PRIVATE
+				for (param : resourceType.parameters)
+					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType)
+				body = '''
+					«FOR param : parameters»
+						this._«param.name» = «param.name»;
+					«ENDFOR»
+				'''
+			]
+
+			for (param : resourceType.parameters) {
+				members += param.toField("_" + param.declaration.name, param.declaration.parameterType) [ 
+					initializer = param.^default
+				]
+				members += param.toMethod("get" + param.declaration.name.toFirstUpper, param.declaration.parameterType) [
+					body = '''
+						return _«param.declaration.name»;
+					'''
+				]
+				members += param.toMethod("set" + param.declaration.name.toFirstUpper, typeRef(void)) [
+					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType) 
+					body = '''
+						this._«param.declaration.name» = «param.declaration.name»;
+					'''
+				]
+			}
+
+			members += resourceType.toMethod("checkEqual", typeRef(boolean)) [ m |
+				m.visibility = JvmVisibility.PUBLIC
+				m.parameters += resourceType.toParameter("other", typeRef)
+				m.body = '''
+					return «String.join(" && ", resourceType.parameters.map[ p |
+						'''«IF p.declaration.parameterType.type instanceof JvmPrimitiveType
+								»this._«p.declaration.name» == other._«p.declaration.name»«
+							ELSE
+								»this._«p.declaration.name».equals(other._«p.declaration.name»)«
+							ENDIF»
+						'''
+					])»;
+				'''
+			]
+
+			members += resourceType.toMethod("serialize", typeRef(ByteBuffer)) [
+				visibility = JvmVisibility.PUBLIC
+				body = '''
+					return null;
+				'''
+			]
+
+			members += resourceType.toMethod("getName", typeRef(String)) [
+				visibility = JvmVisibility.PUBLIC
+				body = '''
+					return null;
+				'''
+			]
+
+			members += resourceType.toMethod("getNumber", typeRef(Integer)) [
+				visibility = JvmVisibility.PUBLIC
+				body = '''
+					return -1;
+				'''
+			]
+
+			members += resourceType.toMethod("getTypeName", typeRef(String)) [
+				visibility = JvmVisibility.PUBLIC
+				final = true
+				body = '''
+					return "«resourceType.fullyQualifiedName»";
+				'''
+			]
+		]
+	}
+
+	def dispatch compileRaoEntity(ResourceDeclaration resource, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		if (!isPreIndexingPhase && resource.constructor != null)
+			members += resource.toField(resource.name, resource.constructor.inferredType) [
+				visibility = JvmVisibility.PUBLIC
+				static = true
+				final = true
+				initializer = resource.constructor
+			]
+	}
+
+	def dispatch compileRaoEntity(Event event, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		members += event.toClass(QualifiedName.create(qualifiedName, event.name)) [
+			static = true
+			final = true
+			
 			superTypes += typeRef(ru.bmstu.rk9.rao.lib.event.Event)
 
 			members += event.toConstructor [
@@ -111,64 +235,6 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 					pushEvent(event);
 				'''
 			]
-		]
-	}
-
-	def compileConstantAsField(Constant constant) {
-		return constant.toField(constant.constant.name, constant.constant.parameterType) [
-			visibility = JvmVisibility.PUBLIC
-			static = true
-			final = true
-			initializer = constant.value
-		]
-	}
-
-	def compileFunctionAsMethod(FunctionDeclaration function) {
-		return function.toMethod(function.name, function.type) [
-			for (param : function.parameters)
-				parameters += function.toParameter(param.name, param.parameterType)
-			visibility = JvmVisibility.PUBLIC
-			static = true
-			final = true
-			body = function.body
-		]
-	}
-
-	def compileInitMethod(DefaultMethod method) {
-		return method.toMethod(method.name, typeRef(void)) [
-			visibility = JvmVisibility.PROTECTED
-			final = true
-			body = method.body
-		]
-	}
-
-	def compileTerminateConditionClass(DefaultMethod method) {
-		return method.toClass("ModelTerminateCondition") [
-			superTypes += typeRef(TerminateCondition)
-			static = true
-
-			members += method.toMethod("check", typeRef(boolean)) [
-				visibility = JvmVisibility.PUBLIC
-				final = true
-				body = method.body
-			]
-		]
-	}
-
-	def compileTerminateConditionGetter(DefaultMethod method) {
-		return method.toMethod("getTerminateCondition", typeRef(TerminateCondition)) [
-			visibility = JvmVisibility.PROTECTED
-			final = true
-			body = '''return new ModelTerminateCondition();'''
-		]
-	}
-
-	def compileInstanceField(RaoModel element) {
-		return element.toField("INSTANCE", typeRef(EmbeddedSimulation)) [
-			visibility = JvmVisibility.PRIVATE
-			static = true
-			final = true
-			initializer = '''new model()'''
 		]
 	}
 }

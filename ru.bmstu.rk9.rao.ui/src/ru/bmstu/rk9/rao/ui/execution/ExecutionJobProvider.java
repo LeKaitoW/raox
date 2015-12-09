@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -9,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -18,8 +20,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
+import ru.bmstu.rk9.rao.lib.json.JSONArray;
+import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.TerminateCondition;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
@@ -54,12 +59,29 @@ public class ExecutionJobProvider {
 					classLoader = new URLClassLoader(urls,
 							Simulator.class.getClassLoader());
 
-					Class<?> modelClass = classLoader.loadClass("model");
+					List<Method> initList = new ArrayList<Method>();
+					List<TerminateCondition> terminateConditions = new ArrayList<TerminateCondition>();
 
-					Method run = null;
-					for (Method method : modelClass.getMethods()) {
-						if (method.getName() == "startSimulation")
-							run = method;
+					for (IResource raoModel : BuildUtil.getAllRaoFilesInProject(project)) {
+						String modelName = raoModel.getName();
+						modelName = modelName.substring(0, modelName.length() - ".rao".length());
+						Class<?> modelClass = classLoader.loadClass(project.getName() + "." + modelName);
+
+						try {
+							Method init = modelClass.getDeclaredMethod("init");
+							init.setAccessible(true);
+							initList.add(init);
+						} catch (NoSuchMethodException methodException) {
+						}
+
+						try {
+							Class<?> terminate = classLoader
+									.loadClass(project.getName() + "." + modelName + "$terminateCondition");
+							Constructor<?> terminateConstructor = terminate.getDeclaredConstructor();
+							terminateConstructor.setAccessible(true);
+							terminateConditions.add((TerminateCondition) terminateConstructor.newInstance());
+						} catch (ClassNotFoundException classException) {
+						}
 					}
 
 					ExportTraceHandler.reset();
@@ -78,9 +100,23 @@ public class ExecutionJobProvider {
 
 					List<Result> results = new LinkedList<Result>();
 					SimulationStopCode simulationResult = SimulationStopCode.SIMULATION_CONTINUES;
-					//TODO pass results
-					if (run != null)
-						run.invoke(null);
+
+					// TODO generate actual model structure in code (e.g. protected field)
+					Simulator.initSimulation(new JSONObject()
+							.put("name", "")
+							.put("resource_types", new JSONArray())
+							.put("results", new JSONArray())
+							.put("patterns", new JSONArray())
+							.put("events", new JSONArray())
+							.put("decision_points", new JSONArray()));
+
+					for (TerminateCondition terminateCondition : terminateConditions)
+						Simulator.addTerminateCondition(terminateCondition);
+
+					for (Method init : initList)
+						init.invoke(null);
+
+					simulationResult = Simulator.run();
 
 					switch (simulationResult) {
 					case TERMINATE_CONDITION:

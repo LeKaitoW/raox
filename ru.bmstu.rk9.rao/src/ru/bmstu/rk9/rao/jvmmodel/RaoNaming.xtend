@@ -6,6 +6,7 @@ import org.eclipse.emf.ecore.EObject
 
 import ru.bmstu.rk9.rao.rao.RaoModel
 import ru.bmstu.rk9.rao.rao.ResourceType
+import ru.bmstu.rk9.rao.rao.ResourceDeclaration
 import ru.bmstu.rk9.rao.rao.FieldDeclaration
 import ru.bmstu.rk9.rao.rao.Sequence
 import ru.bmstu.rk9.rao.rao.Constant
@@ -36,11 +37,11 @@ class RaoNaming
 
 	def static RaoModel getModelRoot(EObject object)
 	{
-		switch object
-		{
-			RaoModel: return object
-			default : return object.eContainer.modelRoot
-		}
+		var candidate = object
+		while (!(candidate instanceof RaoModel))
+			candidate = candidate.eContainer
+			
+		return candidate as RaoModel
 	}
 
 	def static getNameGeneric(EObject object)
@@ -51,6 +52,9 @@ class RaoNaming
 				return object.eResource.resourceName
 
 			ResourceType:
+				return object.name
+
+			ResourceDeclaration:
 				return object.name
 
 			FieldDeclaration:
@@ -93,6 +97,9 @@ class RaoNaming
 				return object.nameGeneric
 
 			ResourceType:
+				return object.eContainer.nameGeneric + "." + object.name
+
+			ResourceDeclaration:
 				return object.eContainer.nameGeneric + "." + object.name
 
 			FieldDeclaration:
