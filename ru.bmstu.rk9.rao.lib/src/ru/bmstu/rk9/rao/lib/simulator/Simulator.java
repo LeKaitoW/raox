@@ -19,8 +19,6 @@ import ru.bmstu.rk9.rao.lib.result.ResultManager;
 public class Simulator {
 	private static Simulator INSTANCE = null;
 
-	private Process processManager;
-
 	public static synchronized void initSimulation(JSONObject modelStructure) {
 		if (isRunning)
 			throw new SimulatorException("Simulation is already initialized");
@@ -105,6 +103,12 @@ public class Simulator {
 	}
 
 	private DPTManager dptManager;
+
+	private Process processManager;
+
+	public static Process getProcess() {
+		return INSTANCE.processManager;
+	}
 
 	public static void addDecisionPoint(DecisionPoint dpt) {
 		INSTANCE.dptManager.addDecisionPoint(dpt);
