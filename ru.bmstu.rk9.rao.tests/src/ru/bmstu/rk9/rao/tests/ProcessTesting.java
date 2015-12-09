@@ -3,6 +3,8 @@ package ru.bmstu.rk9.rao.tests;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 import ru.bmstu.rk9.rao.lib.database.SerializationObjectsNames;
@@ -16,6 +18,7 @@ import ru.bmstu.rk9.rao.lib.process.Resource;
 import ru.bmstu.rk9.rao.lib.process.Seize;
 import ru.bmstu.rk9.rao.lib.process.Terminate;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
 import ru.bmstu.rk9.rao.lib.process.Process;
 
 public class ProcessTesting {
@@ -32,7 +35,9 @@ public class ProcessTesting {
 		SerializationObjectsNames.set(new ArrayList<String>());
 		Simulator.initSimulation(modelStructure);
 		Simulator.getProcess().addBlocks(generateSituation());
-		Simulator.run();
+		SimulationStopCode simulationStopCode = Simulator.run();
+		assertEquals("linear_process_test", SimulationStopCode.RUNTIME_ERROR,
+				simulationStopCode);
 	}
 
 	private List<Block> generateSituation() {
