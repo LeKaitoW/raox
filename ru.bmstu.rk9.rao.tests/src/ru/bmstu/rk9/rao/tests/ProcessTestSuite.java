@@ -5,7 +5,8 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ LinearProcessTest.class, QueueProcessTest.class })
+@SuiteClasses({ LinearProcessTest.class, QueueProcessTest.class,
+		BranchedProcessTest.class })
 public class ProcessTestSuite {
 
 }

@@ -11,12 +11,12 @@ public class InputDock {
 	public OutputDock getLinkedDock() {
 		return linkedDock;
 	}
-	
+
 	public Transact pullTransact() {
 		return linkedDock.pullTransact();
 	}
-	
-	public void rollBack(Transact transact){
+
+	public void rollBack(Transact transact) {
 		linkedDock.pushTransact(transact);
 	}
 }
