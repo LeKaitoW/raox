@@ -3,18 +3,27 @@ package ru.bmstu.rk9.rao.lib.process;
 import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
-public class Release implements BlockWithInput, BlockWithOutput {
+public class Release implements Block {
 
 	public Release(Resource resource) {
 		this.resource = resource;
 	}
 
 	private Resource resource;
-	private BlockWithInput nextBlock;
-	private Transact currentTransact;
+	private InputDock inputDock = new InputDock();
+	private OutputDock outputDock = new OutputDock();
+
+	public InputDock getInputDock() {
+		return inputDock;
+	}
+
+	public OutputDock getOutputDock() {
+		return outputDock;
+	}
 
 	@Override
 	public ProcessStatus check() {
+		Transact currentTransact = inputDock.pullTransact();
 		if (currentTransact == null)
 			return ProcessStatus.NOTHING_TO_DO;
 		if (!resource.isLocked()) {
@@ -25,10 +34,11 @@ public class Release implements BlockWithInput, BlockWithOutput {
 		System.out.println(Simulator.getTime() + ": release body "
 				+ currentTransact.getNumber());
 
-		if (!nextBlock.takeTransact(currentTransact)) {
+		if (!outputDock.pushTransact(currentTransact)) {
 			System.out
 					.println(Simulator.getTime() + ": release failed to give "
 							+ currentTransact.getNumber());
+			inputDock.rollBack(currentTransact);
 			return ProcessStatus.FAILURE;
 		}
 
@@ -36,21 +46,4 @@ public class Release implements BlockWithInput, BlockWithOutput {
 		resource.unlock();
 		return ProcessStatus.SUCCESS;
 	}
-
-	@Override
-	public void setNextBlock(BlockWithInput nextBlock) {
-		this.nextBlock = nextBlock;
-
-	}
-
-	@Override
-	public boolean takeTransact(Transact transact) {
-		if (currentTransact != null)
-			return false;
-		System.out.println(Simulator.getTime() + ": release take "
-				+ transact.getNumber());
-		currentTransact = transact;
-		return true;
-	}
-
 }

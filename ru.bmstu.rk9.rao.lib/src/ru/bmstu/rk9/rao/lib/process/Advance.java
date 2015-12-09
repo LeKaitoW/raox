@@ -4,21 +4,31 @@ import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
-public class Advance implements BlockWithInput, BlockWithOutput {
+public class Advance implements Block {
 
-	private Transact currentTransact;
-	private BlockWithInput nextBlock;
+	private InputDock inputDock = new InputDock();
+	private OutputDock outputDock = new OutputDock();
 	private int interval = 15;
 	private boolean nextBlockIsReady = true;
+
+	public InputDock getInputDock() {
+		return inputDock;
+	}
+
+	public OutputDock getOutputDock() {
+		return outputDock;
+	}
 
 	@Override
 	public ProcessStatus check() {
 		if (!nextBlockIsReady) {
 			System.out
 					.println(Simulator.getTime() + ": advance failed to give");
+			// TODO rollBack
 			return ProcessStatus.FAILURE;
 		}
 
+		Transact currentTransact = inputDock.pullTransact();
 		if (currentTransact == null)
 			return ProcessStatus.NOTHING_TO_DO;
 
@@ -29,21 +39,6 @@ public class Advance implements BlockWithInput, BlockWithOutput {
 		currentTransact = null;
 		return ProcessStatus.SUCCESS;
 
-	}
-
-	@Override
-	public boolean takeTransact(Transact transact) {
-		if (currentTransact != null)
-			return false;
-		System.out.println(Simulator.getTime() + ": advance take "
-				+ transact.getNumber());
-		currentTransact = transact;
-		return true;
-	}
-
-	@Override
-	public void setNextBlock(BlockWithInput block) {
-		nextBlock = block;
 	}
 
 	private class AdvanceEvent implements Event {
@@ -70,7 +65,9 @@ public class Advance implements BlockWithInput, BlockWithOutput {
 		public void run() {
 			System.out.println(Simulator.getTime() + ": advance run "
 					+ transact.getNumber());
-			nextBlockIsReady = nextBlock.takeTransact(transact);
+			nextBlockIsReady = outputDock.pushTransact(transact);
+			if (!nextBlockIsReady)
+				inputDock.rollBack(transact);
 		}
 	}
 }

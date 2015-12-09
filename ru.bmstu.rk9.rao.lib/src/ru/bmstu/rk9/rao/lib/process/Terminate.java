@@ -3,12 +3,17 @@ package ru.bmstu.rk9.rao.lib.process;
 import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
-public class Terminate implements BlockWithInput {
+public class Terminate implements Block {
 
-	private Transact currentTransact;
+	private InputDock inputDock = new InputDock();
+
+	public InputDock getInputDock() {
+		return inputDock;
+	}
 
 	@Override
 	public ProcessStatus check() {
+		Transact currentTransact = inputDock.pullTransact();
 		if (currentTransact == null)
 			return ProcessStatus.NOTHING_TO_DO;
 		System.out.println(Simulator.getTime() + ": terminate body "
@@ -17,15 +22,4 @@ public class Terminate implements BlockWithInput {
 		currentTransact = null;
 		return ProcessStatus.SUCCESS;
 	}
-
-	@Override
-	public boolean takeTransact(Transact transact) {
-		if (currentTransact != null)
-			return false;
-		System.out.println(Simulator.getTime() + ": terminate take "
-				+ transact.getNumber());
-		currentTransact = transact;
-		return true;
-	}
-
 }

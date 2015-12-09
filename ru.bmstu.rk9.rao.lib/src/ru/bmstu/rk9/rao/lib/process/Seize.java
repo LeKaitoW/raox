@@ -3,28 +3,38 @@ package ru.bmstu.rk9.rao.lib.process;
 import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
-public class Seize implements BlockWithInput, BlockWithOutput {
+public class Seize implements Block {
 
 	public Seize(Resource resource) {
 		this.resource = resource;
 	}
 
 	private Resource resource;
-	private BlockWithInput nextBlock;
-	private Transact currentTransact;
+	private InputDock inputDock = new InputDock();
+	private OutputDock outputDock = new OutputDock();
+
+	public InputDock getInputDock() {
+		return inputDock;
+	}
+
+	public OutputDock getOutputDock() {
+		return outputDock;
+	}
 
 	@Override
 	public ProcessStatus check() {
 		if (resource.isLocked())
 			return ProcessStatus.NOTHING_TO_DO;
+		Transact currentTransact = inputDock.pullTransact();
 		if (currentTransact == null)
 			return ProcessStatus.NOTHING_TO_DO;
 
 		System.out.println(Simulator.getTime() + ": seize body "
 				+ currentTransact.getNumber());
-		if (!nextBlock.takeTransact(currentTransact)) {
+		if (!outputDock.pushTransact(currentTransact)) {
 			System.out.println(Simulator.getTime() + ": seize failed to give "
 					+ currentTransact.getNumber());
+			inputDock.rollBack(currentTransact);
 			return ProcessStatus.FAILURE;
 		}
 
@@ -32,20 +42,4 @@ public class Seize implements BlockWithInput, BlockWithOutput {
 		resource.lock();
 		return ProcessStatus.SUCCESS;
 	}
-
-	@Override
-	public void setNextBlock(BlockWithInput nextBlock) {
-		this.nextBlock = nextBlock;
-	}
-
-	@Override
-	public boolean takeTransact(Transact transact) {
-		if (currentTransact != null)
-			return false;
-		System.out.println(Simulator.getTime() + ": seize take "
-				+ transact.getNumber());
-		currentTransact = transact;
-		return true;
-	}
-
 }

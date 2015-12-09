@@ -17,10 +17,10 @@ public class Process {
 		blocks.add(advance);
 		blocks.add(release);
 		blocks.add(terminate);
-		generate.setNextBlock(seize);
-		seize.setNextBlock(advance);
-		advance.setNextBlock(release);
-		release.setNextBlock(terminate);
+		linkDocks(generate.getOutputDock(), seize.getInputDock());
+		linkDocks(seize.getOutputDock(), advance.getInputDock());
+		linkDocks(advance.getOutputDock(), release.getInputDock());
+		linkDocks(release.getOutputDock(), terminate.getInputDock());
 	}
 
 	private final List<Block> blocks = new ArrayList<Block>();
@@ -37,6 +37,11 @@ public class Process {
 
 		return processFailed ? ProcessStatus.FAILURE
 				: ProcessStatus.NOTHING_TO_DO;
+	}
+
+	public void linkDocks(OutputDock outputDock, InputDock inputDock) {
+		outputDock.setLinkedDock(inputDock);
+		inputDock.setLinkedDock(outputDock);
 	}
 
 	public enum ProcessStatus {

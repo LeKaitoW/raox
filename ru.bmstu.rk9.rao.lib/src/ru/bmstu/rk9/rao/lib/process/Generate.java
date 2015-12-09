@@ -4,7 +4,7 @@ import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
-public class Generate implements BlockWithOutput {
+public class Generate implements Block {
 
 	public Generate() {
 		Simulator.pushEvent(new GenerateEvent(0));
@@ -12,11 +12,10 @@ public class Generate implements BlockWithOutput {
 
 	private final int interval = 10;
 	private boolean ready = false;
-	private BlockWithInput nextBlock;
+	private OutputDock outputDock = new OutputDock();
 
-	@Override
-	public void setNextBlock(BlockWithInput block) {
-		nextBlock = block;
+	public OutputDock getOutputDock() {
+		return outputDock;
 	}
 
 	@Override
@@ -28,7 +27,7 @@ public class Generate implements BlockWithOutput {
 		newTransact.register();
 		System.out.println(Simulator.getTime() + ": generate body "
 				+ newTransact.getNumber());
-		if (!nextBlock.takeTransact(newTransact)) {
+		if (!outputDock.pushTransact(newTransact)) {
 			// TODO erase resource
 			System.out.println(Simulator.getTime()
 					+ ": generate failed to give " + newTransact.getNumber());
