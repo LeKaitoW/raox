@@ -1,16 +1,19 @@
 package ru.bmstu.rk9.rao.lib.process;
 
+import java.util.function.Supplier;
+
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class Generate implements Block {
 
-	public Generate() {
+	public Generate(Supplier<Integer> interval) {
+		this.interval = interval;
 		Simulator.pushEvent(new GenerateEvent(0));
 	}
 
-	private final int interval = 10;
+	private Supplier<Integer> interval;
 	private boolean ready = false;
 	private OutputDock outputDock = new OutputDock();
 
@@ -28,13 +31,13 @@ public class Generate implements Block {
 		System.out.println(Simulator.getTime() + ": generate body "
 				+ newTransact.getNumber());
 		if (!outputDock.pushTransact(newTransact)) {
-			// TODO erase resource
+			Transact.eraseTransact(newTransact);
 			System.out.println(Simulator.getTime()
 					+ ": generate failed to give " + newTransact.getNumber());
 			return ProcessStatus.FAILURE;
 		}
 
-		Double time = Simulator.getTime() + interval;
+		Double time = Simulator.getTime() + interval.get();
 		Simulator.pushEvent(new GenerateEvent(time));
 		ready = false;
 		return ProcessStatus.SUCCESS;

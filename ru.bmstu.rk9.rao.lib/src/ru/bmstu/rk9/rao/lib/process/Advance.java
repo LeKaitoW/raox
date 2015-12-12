@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rao.lib.process;
 
+import java.util.function.Supplier;
+
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
@@ -8,8 +10,12 @@ public class Advance implements Block {
 
 	private InputDock inputDock = new InputDock();
 	private OutputDock outputDock = new OutputDock();
-	private int interval = 15;
-	private boolean nextBlockIsReady = true;
+	private Supplier<Integer> interval;
+	private Transact temporaryTransactOnOutput;
+
+	public Advance(Supplier<Integer> interval) {
+		this.interval = interval;
+	}
 
 	public InputDock getInputDock() {
 		return inputDock;
@@ -21,11 +27,10 @@ public class Advance implements Block {
 
 	@Override
 	public ProcessStatus check() {
-		if (!nextBlockIsReady) {
-			System.out
-					.println(Simulator.getTime() + ": advance failed to give");
-			// TODO rollBack
-			return ProcessStatus.FAILURE;
+		if (temporaryTransactOnOutput != null) {
+			if (!outputDock.pushTransact(temporaryTransactOnOutput))
+				return ProcessStatus.FAILURE;
+			temporaryTransactOnOutput = null;
 		}
 
 		Transact currentTransact = inputDock.pullTransact();
@@ -34,7 +39,7 @@ public class Advance implements Block {
 
 		System.out.println(Simulator.getTime() + ": advance body "
 				+ currentTransact.getNumber());
-		Double time = Simulator.getTime() + interval;
+		Double time = Simulator.getTime() + interval.get();
 		Simulator.pushEvent(new AdvanceEvent(currentTransact, time));
 		currentTransact = null;
 		return ProcessStatus.SUCCESS;
@@ -65,9 +70,7 @@ public class Advance implements Block {
 		public void run() {
 			System.out.println(Simulator.getTime() + ": advance run "
 					+ transact.getNumber());
-			nextBlockIsReady = outputDock.pushTransact(transact);
-			if (!nextBlockIsReady)
-				inputDock.rollBack(transact);
+			temporaryTransactOnOutput = transact;
 		}
 	}
 }

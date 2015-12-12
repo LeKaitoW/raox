@@ -24,7 +24,6 @@ public class Resource implements ru.bmstu.rk9.rao.lib.resource.Resource,
 
 	@Override
 	public Integer getNumber() {
-		// TODO Auto-generated method stub
 		return number;
 	}
 
