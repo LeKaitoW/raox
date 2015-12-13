@@ -11,11 +11,11 @@ def get_sorted_versioned_files(versioned_files):
     return sorted(versioned_files, key=lambda versioned_file: versioned_file.file_version, reverse=True)
 
 
-def generate_download_page(versioned_files, directory, program_name, repository_name):
+def generate_download_page(versioned_files, directory, repository_name):
     if not versioned_files:
         return ''
 
-    download_page = '<H2>{program_name}</H2>\n'.format(program_name=program_name)
+    download_page = ''
     current_version = ''
     for versioned_file in versioned_files:
         if current_version != versioned_file.file_version:
@@ -30,10 +30,12 @@ def generate_download_page(versioned_files, directory, program_name, repository_
 
 
 if __name__ == "__main__":
+    download_type = ['raox-eclipse', 'raox-plugin', 'raox-game5']
     argument_parser = argparse.ArgumentParser()
     argument_parser.add_argument('--login', help='ftp login', default='')
     argument_parser.add_argument('--password', help='ftp password', default='')
     argument_parser.add_argument('--directory', help='ftp directory', default='tmp')
+    argument_parser.add_argument('--type', help='download type', required=True, choices=download_type)
     args = argument_parser.parse_args()
 
     ftp = ftp_server.connect(args.login, args.password)
@@ -43,9 +45,9 @@ if __name__ == "__main__":
     raox_files = get_sorted_versioned_files(raox_files)
     raox_game5_files = get_sorted_versioned_files(raox_game5_files)
 
-    page = ''
-    page += generate_download_page(raox_eclipse_files, args.directory, 'Rao X Eclipse', 'rdo-xtext')
-    page += generate_download_page(raox_files, args.directory, 'Rao X Plugin', 'rdo-xtext')
-    page += generate_download_page(raox_game5_files, args.directory, 'Rao X Game5 Plugin', 'raox-game5')
-
-    print page
+    if args.type == download_type[0]:
+        print generate_download_page(raox_eclipse_files, args.directory, 'raox')
+    elif args.type == download_type[1]:
+        print generate_download_page(raox_files, args.directory, 'raox')
+    elif args.type == download_type[2]:
+        print generate_download_page(raox_game5_files, args.directory, 'raox-game5')
