@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rao.ui.execution;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -22,6 +23,8 @@ import org.eclipse.ui.PlatformUI;
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
+import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
+import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.TerminateCondition;
@@ -81,6 +84,15 @@ public class ExecutionJobProvider {
 							terminateConstructor.setAccessible(true);
 							terminateConditions.add((TerminateCondition) terminateConstructor.newInstance());
 						} catch (ClassNotFoundException classException) {
+						}
+
+						for (Field field : modelClass.getDeclaredFields()) {
+							if (!ComparableResource.class.equals(field.getType().getSuperclass()))
+								continue;
+
+							String resourceName = field.getName();
+							Resource resource = (Resource) field.get(null);
+							resource.setName(resourceName);
 						}
 					}
 
