@@ -3,18 +3,18 @@ package ru.bmstu.rk9.rao.lib.process;
 import java.util.function.Supplier;
 
 import ru.bmstu.rk9.rao.lib.event.Event;
-import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
+import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class Advance implements Block {
 
 	private InputDock inputDock = new InputDock();
 	private OutputDock outputDock = new OutputDock();
-	private Supplier<Integer> interval;
+	private Supplier<Integer> duration;
 	private Transact temporaryTransactOnOutput;
 
-	public Advance(Supplier<Integer> interval) {
-		this.interval = interval;
+	public Advance(Supplier<Integer> duration) {
+		this.duration = duration;
 	}
 
 	public InputDock getInputDock() {
@@ -26,23 +26,23 @@ public class Advance implements Block {
 	}
 
 	@Override
-	public ProcessStatus check() {
+	public BlockStatus check() {
 		if (temporaryTransactOnOutput != null) {
-			if (!outputDock.pushTransact(temporaryTransactOnOutput))
-				return ProcessStatus.FAILURE;
+			if (outputDock.hasTransact())
+				return BlockStatus.CHECK_AGAIN;
+			outputDock.pushTransact(temporaryTransactOnOutput);
 			temporaryTransactOnOutput = null;
 		}
 
-		Transact currentTransact = inputDock.pullTransact();
-		if (currentTransact == null)
-			return ProcessStatus.NOTHING_TO_DO;
+		Transact transact = inputDock.pullTransact();
+		if (transact == null)
+			return BlockStatus.NOTHING_TO_DO;
 
 		System.out.println(Simulator.getTime() + ": advance body "
-				+ currentTransact.getNumber());
-		Double time = Simulator.getTime() + interval.get();
-		Simulator.pushEvent(new AdvanceEvent(currentTransact, time));
-		currentTransact = null;
-		return ProcessStatus.SUCCESS;
+				+ transact.getNumber());
+		Double time = Simulator.getTime() + duration.get();
+		Simulator.pushEvent(new AdvanceEvent(transact, time));
+		return BlockStatus.SUCCESS;
 
 	}
 
@@ -68,6 +68,9 @@ public class Advance implements Block {
 
 		@Override
 		public void run() {
+			if (temporaryTransactOnOutput != null)
+				throw new ProcessException(
+						"Transact collision in Advance block");
 			System.out.println(Simulator.getTime() + ": advance run "
 					+ transact.getNumber());
 			temporaryTransactOnOutput = transact;

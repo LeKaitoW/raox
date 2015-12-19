@@ -10,6 +10,7 @@ import org.junit.Test;
 import ru.bmstu.rk9.rao.lib.process.Advance;
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.process.Generate;
+import ru.bmstu.rk9.rao.lib.process.Link;
 import ru.bmstu.rk9.rao.lib.process.Queue;
 import ru.bmstu.rk9.rao.lib.process.Release;
 import ru.bmstu.rk9.rao.lib.process.Resource;
@@ -17,14 +18,13 @@ import ru.bmstu.rk9.rao.lib.process.Seize;
 import ru.bmstu.rk9.rao.lib.process.Terminate;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
-import ru.bmstu.rk9.rao.lib.process.Process;
 
 public class QueueProcessTest {
 
 	@Test
 	public void test() {
 		ProcessTestSuite.initEmptySimulation();
-		Simulator.addTerminateCondition(() -> Simulator.getTime() > 1000);
+		Simulator.addTerminateCondition(() -> Simulator.getTime() > 60);
 		Simulator.getProcess().addBlocks(generateSituation());
 		SimulationStopCode simulationStopCode = Simulator.run();
 		assertEquals("linear_process_test",
@@ -46,11 +46,11 @@ public class QueueProcessTest {
 		blocks.add(advance);
 		blocks.add(release);
 		blocks.add(terminate);
-		Process.linkDocks(generate.getOutputDock(), queue.getInputDock());
-		Process.linkDocks(queue.getOutputDock(), seize.getInputDock());
-		Process.linkDocks(seize.getOutputDock(), advance.getInputDock());
-		Process.linkDocks(advance.getOutputDock(), release.getInputDock());
-		Process.linkDocks(release.getOutputDock(), terminate.getInputDock());
+		Link.linkDocks(generate.getOutputDock(), queue.getInputDock());
+		Link.linkDocks(queue.getOutputDock(), seize.getInputDock());
+		Link.linkDocks(seize.getOutputDock(), advance.getInputDock());
+		Link.linkDocks(advance.getOutputDock(), release.getInputDock());
+		Link.linkDocks(release.getOutputDock(), terminate.getInputDock());
 
 		return blocks;
 	}

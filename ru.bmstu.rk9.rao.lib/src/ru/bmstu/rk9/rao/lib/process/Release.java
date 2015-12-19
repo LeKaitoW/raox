@@ -1,6 +1,6 @@
 package ru.bmstu.rk9.rao.lib.process;
 
-import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
+import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class Release implements Block {
@@ -22,28 +22,22 @@ public class Release implements Block {
 	}
 
 	@Override
-	public ProcessStatus check() {
-		Transact currentTransact = inputDock.pullTransact();
-		if (currentTransact == null)
-			return ProcessStatus.NOTHING_TO_DO;
+	public BlockStatus check() {
+		if (outputDock.hasTransact())
+			return BlockStatus.CHECK_AGAIN;
+		Transact transact = inputDock.pullTransact();
+		if (transact == null)
+			return BlockStatus.NOTHING_TO_DO;
 		if (!resource.isLocked()) {
-			// TODO unrecoverable error?
-			return ProcessStatus.FAILURE;
+			throw new ProcessException(
+					"Attempting to release unlocked resource");
 		}
 
 		System.out.println(Simulator.getTime() + ": release body "
-				+ currentTransact.getNumber());
+				+ transact.getNumber());
 
-		if (!outputDock.pushTransact(currentTransact)) {
-			System.out
-					.println(Simulator.getTime() + ": release failed to give "
-							+ currentTransact.getNumber());
-			inputDock.rollBack(currentTransact);
-			return ProcessStatus.FAILURE;
-		}
-
-		currentTransact = null;
+		outputDock.pushTransact(transact);
 		resource.unlock();
-		return ProcessStatus.SUCCESS;
+		return BlockStatus.SUCCESS;
 	}
 }

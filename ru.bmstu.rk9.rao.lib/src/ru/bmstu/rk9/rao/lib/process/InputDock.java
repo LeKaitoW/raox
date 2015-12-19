@@ -1,22 +1,24 @@
 package ru.bmstu.rk9.rao.lib.process;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class InputDock {
 
-	private OutputDock linkedDock;
+	private List<OutputDock> linkedDocks = new LinkedList<OutputDock>();
 
-	public void setLinkedDock(OutputDock outputDock) {
-		linkedDock = outputDock;
+	public void addLinkedDock(OutputDock outputDock) {
+		linkedDocks.add(outputDock);
 	}
 
-	public OutputDock getLinkedDock() {
-		return linkedDock;
+	public List<OutputDock> getLinkedDocks() {
+		return linkedDocks;
 	}
 
 	public Transact pullTransact() {
-		return linkedDock.pullTransact();
-	}
-
-	public void rollBack(Transact transact) {
-		linkedDock.pushTransact(transact);
+		for (OutputDock linkedDock : linkedDocks)
+			if (linkedDock.hasTransact())
+				return linkedDock.pullTransact();
+		return null;
 	}
 }

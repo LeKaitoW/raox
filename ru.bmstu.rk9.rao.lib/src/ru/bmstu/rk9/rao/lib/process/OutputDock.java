@@ -25,4 +25,8 @@ public class OutputDock {
 		storedTransact = null;
 		return transact;
 	}
+
+	public boolean hasTransact() {
+		return storedTransact != null;
+	}
 }

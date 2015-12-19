@@ -7,6 +7,7 @@ import static org.junit.Assert.*;
 import ru.bmstu.rk9.rao.lib.process.Advance;
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.process.Generate;
+import ru.bmstu.rk9.rao.lib.process.Link;
 import ru.bmstu.rk9.rao.lib.process.Queue;
 import ru.bmstu.rk9.rao.lib.process.Release;
 import ru.bmstu.rk9.rao.lib.process.Resource;
@@ -15,7 +16,6 @@ import ru.bmstu.rk9.rao.lib.process.Terminate;
 import ru.bmstu.rk9.rao.lib.process.Test;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
-import ru.bmstu.rk9.rao.lib.process.Process;
 
 public class BranchedProcessTest {
 
@@ -39,7 +39,6 @@ public class BranchedProcessTest {
 		Release release = new Release(resource);
 		Queue queue = new Queue();
 		Test test = new Test();
-		Terminate terminateTest = new Terminate();
 		blocks.add(generate);
 		blocks.add(test);
 		blocks.add(queue);
@@ -47,15 +46,13 @@ public class BranchedProcessTest {
 		blocks.add(advance);
 		blocks.add(release);
 		blocks.add(terminate);
-		blocks.add(terminateTest);
-		Process.linkDocks(generate.getOutputDock(), test.getInputDock());
-		Process.linkDocks(test.getTrueOutputDock(), queue.getInputDock());
-		Process.linkDocks(queue.getOutputDock(), seize.getInputDock());
-		Process.linkDocks(seize.getOutputDock(), advance.getInputDock());
-		Process.linkDocks(advance.getOutputDock(), release.getInputDock());
-		Process.linkDocks(release.getOutputDock(), terminate.getInputDock());
-		Process.linkDocks(test.getFalseOutputDock(),
-				terminateTest.getInputDock());
+		Link.linkDocks(generate.getOutputDock(), test.getInputDock());
+		Link.linkDocks(test.getTrueOutputDock(), queue.getInputDock());
+		Link.linkDocks(queue.getOutputDock(), seize.getInputDock());
+		Link.linkDocks(seize.getOutputDock(), advance.getInputDock());
+		Link.linkDocks(advance.getOutputDock(), release.getInputDock());
+		Link.linkDocks(release.getOutputDock(), terminate.getInputDock());
+		Link.linkDocks(test.getFalseOutputDock(), terminate.getInputDock());
 
 		return blocks;
 	}

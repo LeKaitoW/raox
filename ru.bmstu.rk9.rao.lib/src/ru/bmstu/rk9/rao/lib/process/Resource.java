@@ -29,7 +29,6 @@ public class Resource implements ru.bmstu.rk9.rao.lib.resource.Resource,
 
 	@Override
 	public String getTypeName() {
-		// TODO !!!!
 		return "Resource";
 	}
 

@@ -8,22 +8,17 @@ public class Process {
 	private final List<Block> blocks = new ArrayList<Block>();
 
 	public ProcessStatus scan() {
-		boolean processFailed = false;
+		boolean needCheckAgain = false;
 		for (Block block : blocks) {
-			ProcessStatus processStatus = block.check();
-			if (processStatus == ProcessStatus.SUCCESS)
-				return processStatus;
-			if (processStatus == ProcessStatus.FAILURE)
-				processFailed = true;
+			BlockStatus blockStatus = block.check();
+			if (blockStatus == BlockStatus.SUCCESS)
+				return ProcessStatus.SUCCESS;
+			if (blockStatus == BlockStatus.CHECK_AGAIN)
+				needCheckAgain = true;
 		}
 
-		return processFailed ? ProcessStatus.FAILURE
+		return needCheckAgain ? ProcessStatus.FAILURE
 				: ProcessStatus.NOTHING_TO_DO;
-	}
-
-	public static void linkDocks(OutputDock outputDock, InputDock inputDock) {
-		outputDock.setLinkedDock(inputDock);
-		inputDock.setLinkedDock(outputDock);
 	}
 
 	public void addBlocks(List<Block> blocks) {
@@ -33,4 +28,8 @@ public class Process {
 	public enum ProcessStatus {
 		SUCCESS, FAILURE, NOTHING_TO_DO
 	};
+
+	public enum BlockStatus {
+		SUCCESS, CHECK_AGAIN, NOTHING_TO_DO
+	}
 }

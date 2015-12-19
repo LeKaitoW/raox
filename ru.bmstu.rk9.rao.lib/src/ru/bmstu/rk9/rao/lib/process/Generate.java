@@ -3,14 +3,14 @@ package ru.bmstu.rk9.rao.lib.process;
 import java.util.function.Supplier;
 
 import ru.bmstu.rk9.rao.lib.event.Event;
-import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
+import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class Generate implements Block {
 
 	public Generate(Supplier<Integer> interval) {
 		this.interval = interval;
-		Simulator.pushEvent(new GenerateEvent(0));
+		Simulator.pushEvent(new GenerateEvent(interval.get()));
 	}
 
 	private Supplier<Integer> interval;
@@ -22,25 +22,23 @@ public class Generate implements Block {
 	}
 
 	@Override
-	public ProcessStatus check() {
+	public BlockStatus check() {
 		if (!ready)
-			return ProcessStatus.NOTHING_TO_DO;
+			return BlockStatus.NOTHING_TO_DO;
 
-		Transact newTransact = new Transact();
-		newTransact.register();
-		System.out.println(Simulator.getTime() + ": generate body "
-				+ newTransact.getNumber());
-		if (!outputDock.pushTransact(newTransact)) {
-			Transact.eraseTransact(newTransact);
-			System.out.println(Simulator.getTime()
-					+ ": generate failed to give " + newTransact.getNumber());
-			return ProcessStatus.FAILURE;
+		if (outputDock.hasTransact()) {
+			return BlockStatus.CHECK_AGAIN;
 		}
+		Transact transact = new Transact();
+		transact.register();
+		outputDock.pushTransact(transact);
+		System.out.println(Simulator.getTime() + ": generate body "
+				+ transact.getNumber());
 
 		Double time = Simulator.getTime() + interval.get();
 		Simulator.pushEvent(new GenerateEvent(time));
 		ready = false;
-		return ProcessStatus.SUCCESS;
+		return BlockStatus.SUCCESS;
 	}
 
 	private class GenerateEvent implements Event {

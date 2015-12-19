@@ -1,6 +1,6 @@
 package ru.bmstu.rk9.rao.lib.process;
 
-import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
+import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 
 public class Test implements Block {
 
@@ -21,10 +21,10 @@ public class Test implements Block {
 	}
 
 	@Override
-	public ProcessStatus check() {
+	public BlockStatus check() {
 		Transact transact = inputDock.pullTransact();
 		if (transact == null)
-			return ProcessStatus.NOTHING_TO_DO;
+			return BlockStatus.NOTHING_TO_DO;
 
 		OutputDock outputDock;
 		if (transact.getNumber() % 2 == 0)
@@ -32,12 +32,13 @@ public class Test implements Block {
 		else
 			outputDock = falseOutputDock;
 
-		if (!outputDock.pushTransact(transact)) {
-			inputDock.rollBack(transact);
-			return ProcessStatus.FAILURE;
+		if (outputDock.hasTransact()) {
+			return BlockStatus.CHECK_AGAIN;
 		}
 
-		return ProcessStatus.SUCCESS;
+		outputDock.pushTransact(transact);
+
+		return BlockStatus.SUCCESS;
 	}
 
 }

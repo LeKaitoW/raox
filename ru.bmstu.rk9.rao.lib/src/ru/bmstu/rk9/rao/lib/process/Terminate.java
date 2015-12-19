@@ -1,6 +1,6 @@
 package ru.bmstu.rk9.rao.lib.process;
 
-import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
+import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class Terminate implements Block {
@@ -12,14 +12,13 @@ public class Terminate implements Block {
 	}
 
 	@Override
-	public ProcessStatus check() {
+	public BlockStatus check() {
 		Transact currentTransact = inputDock.pullTransact();
 		if (currentTransact == null)
-			return ProcessStatus.NOTHING_TO_DO;
+			return BlockStatus.NOTHING_TO_DO;
 		System.out.println(Simulator.getTime() + ": terminate body "
 				+ currentTransact.getNumber());
 		Transact.eraseTransact(currentTransact);
-		currentTransact = null;
-		return ProcessStatus.SUCCESS;
+		return BlockStatus.SUCCESS;
 	}
 }
