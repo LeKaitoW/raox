@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-public class ResourceManager<T extends Resource & ResourceComparison<T>> {
+public class ResourceManager<T extends ComparableResource<T>> {
 	private SortedMap<Integer, T> listResources;
 
 	private Map<String, T> named;

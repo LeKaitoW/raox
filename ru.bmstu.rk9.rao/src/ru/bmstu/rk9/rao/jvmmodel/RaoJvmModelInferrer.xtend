@@ -20,10 +20,19 @@ import ru.bmstu.rk9.rao.rao.ResourceType
 import org.eclipse.xtext.common.types.JvmPrimitiveType
 import java.nio.ByteBuffer
 import ru.bmstu.rk9.rao.rao.ResourceDeclaration
+import org.eclipse.xtext.common.types.JvmAnnotationType
+import org.eclipse.xtext.common.types.JvmAnnotationReference
+import org.eclipse.xtext.common.types.impl.TypesFactoryImpl
 
-// TODO add override annotation to all generated overriden methods
 class RaoJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
+
+	def JvmAnnotationReference generateOverrideAnnotation() {
+		val anno = TypesFactoryImpl.eINSTANCE.createJvmAnnotationReference
+		val annoType = typeRef(Override).type as JvmAnnotationType
+		anno.setAnnotation(annoType)
+		return anno
+	}
 
 	def dispatch void infer(RaoModel element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		acceptor.accept(element.toClass(QualifiedName.create(element.eResource.URI.projectName, element.nameGeneric))) [
@@ -85,8 +94,22 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 			static = true
 			final = true
 
-			superTypes += typeRef(ru.bmstu.rk9.rao.lib.resource.Resource)
-			superTypes += typeRef(ru.bmstu.rk9.rao.lib.resource.ResourceComparison, { typeRef })
+			superTypes += typeRef(ru.bmstu.rk9.rao.lib.resource.ComparableResource, {
+				typeRef
+			})
+
+			members += resourceType.toConstructor [
+				visibility = JvmVisibility.PRIVATE
+				for (param : resourceType.parameters)
+					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType)
+				body = '''
+					«FOR param : parameters»
+						this._«param.name» = «param.name»;
+					«ENDFOR»
+					this.number = resourceManager.getNextNumber();
+					resourceManager.addResource(this);
+				'''
+			]
 
 			members += resourceType.toMethod("create", typeRef) [
 				visibility = JvmVisibility.PUBLIC
@@ -100,19 +123,28 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				'''
 			]
 
-			members += resourceType.toConstructor [
-				visibility = JvmVisibility.PRIVATE
-				for (param : resourceType.parameters)
-					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType)
+			members += resourceType.toMethod("erase", typeRef(void)) [
+				visibility = JvmVisibility.PUBLIC
+				final = true
+				annotations += generateOverrideAnnotation()
 				body = '''
-					«FOR param : parameters»
-						this._«param.name» = «param.name»;
-					«ENDFOR»
+					resourceManager.eraseResource(this);
+				'''
+			]
+
+			members += resourceType.toField("resourceManager", typeRef(ru.bmstu.rk9.rao.lib.resource.ResourceManager, {
+				typeRef
+			})) [
+				visibility = JvmVisibility.PRIVATE
+				static = true
+				final = true
+				initializer = '''
+					new ResourceManager<«resourceType.name»>();
 				'''
 			]
 
 			for (param : resourceType.parameters) {
-				members += param.toField("_" + param.declaration.name, param.declaration.parameterType) [ 
+				members += param.toField("_" + param.declaration.name, param.declaration.parameterType) [
 					initializer = param.^default
 				]
 				members += param.toMethod("get" + param.declaration.name.toFirstUpper, param.declaration.parameterType) [
@@ -121,7 +153,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 					'''
 				]
 				members += param.toMethod("set" + param.declaration.name.toFirstUpper, typeRef(void)) [
-					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType) 
+					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType)
 					body = '''
 						this._«param.declaration.name» = «param.declaration.name»;
 					'''
@@ -131,6 +163,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 			members += resourceType.toMethod("checkEqual", typeRef(boolean)) [ m |
 				m.visibility = JvmVisibility.PUBLIC
 				m.parameters += resourceType.toParameter("other", typeRef)
+				m.annotations += generateOverrideAnnotation()
 				m.body = '''
 					return «String.join(" && ", resourceType.parameters.map[ p |
 						'''«IF p.declaration.parameterType.type instanceof JvmPrimitiveType
@@ -145,28 +178,16 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 
 			members += resourceType.toMethod("serialize", typeRef(ByteBuffer)) [
 				visibility = JvmVisibility.PUBLIC
+				annotations += generateOverrideAnnotation
 				body = '''
 					return null;
-				'''
-			]
-
-			members += resourceType.toMethod("getName", typeRef(String)) [
-				visibility = JvmVisibility.PUBLIC
-				body = '''
-					return null;
-				'''
-			]
-
-			members += resourceType.toMethod("getNumber", typeRef(Integer)) [
-				visibility = JvmVisibility.PUBLIC
-				body = '''
-					return -1;
 				'''
 			]
 
 			members += resourceType.toMethod("getTypeName", typeRef(String)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
+				annotations += generateOverrideAnnotation()
 				body = '''
 					return "«resourceType.fullyQualifiedName»";
 				'''
@@ -188,7 +209,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 		members += event.toClass(QualifiedName.create(qualifiedName, event.name)) [
 			static = true
 			final = true
-			
+
 			superTypes += typeRef(ru.bmstu.rk9.rao.lib.event.Event)
 
 			members += event.toConstructor [
@@ -208,6 +229,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 			members += event.toMethod("getName", typeRef(String)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
+				annotations += generateOverrideAnnotation()
 				body = '''
 					return "«event.name»";
 				'''
@@ -216,6 +238,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 			members += event.toMethod("run", typeRef(void)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
+				annotations += generateOverrideAnnotation()
 				body = event.body
 			]
 
@@ -223,7 +246,6 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				visibility = JvmVisibility.PUBLIC
 				static = true
 				final = true
-
 				parameters += event.toParameter("time", typeRef(double))
 				for (param : event.parameters)
 					parameters += event.toParameter(param.name, param.parameterType)
@@ -238,4 +260,3 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 		]
 	}
 }
-
