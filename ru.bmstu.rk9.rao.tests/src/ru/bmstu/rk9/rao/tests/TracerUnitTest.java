@@ -10,7 +10,7 @@ import ru.bmstu.rk9.rao.ui.trace.Tracer;
 import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceOutput;
 import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceType;
 
-public class TracerTest {
+public class TracerUnitTest {
 	@Test
 	public void TracerOutputTest() {
 		Tracer tracer = new Tracer();

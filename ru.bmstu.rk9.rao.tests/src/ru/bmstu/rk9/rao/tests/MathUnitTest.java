@@ -8,7 +8,7 @@ import ru.bmstu.rk9.rao.lib.math.Erf;
 import ru.bmstu.rk9.rao.lib.math.MersenneTwisterFast;
 
 
-public class MathTest {
+public class MathUnitTest {
 	@Test
 	public void erfInvTest() {
 		assertTrue(Erf.erfInv(1) == (double)Double.POSITIVE_INFINITY);

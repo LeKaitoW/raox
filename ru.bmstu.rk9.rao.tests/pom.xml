@@ -81,6 +81,9 @@
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
+					<excludes>
+						<exclude>**/*UnitTest*</exclude>
+					</excludes>
 					<failIfNoTests>false</failIfNoTests>
 					<useUIHarness>false</useUIHarness>
 					<useUIThread>false</useUIThread>
