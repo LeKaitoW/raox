@@ -56,7 +56,7 @@
 							<goal>testCompile</goal>
 						</goals>
 						<configuration>
-							<source>1.8</source>
+							<source>8</source>
 						</configuration>
 					</execution>
 				</executions>
