@@ -37,6 +37,7 @@ import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 import org.eclipse.xtext.validation.CheckMode;
 
 import ru.bmstu.rk9.rao.ui.RaoActivatorExtension;
+import ru.bmstu.rk9.rao.ui.execution.BuildUtil.BundleType;
 
 public class BuildJobProvider {
 	private final EclipseResourceFileSystemAccess2 fsa;
@@ -138,8 +139,14 @@ public class BuildJobProvider {
 						activeWorkbenchWindow, activeWorkbenchWindow, filter,
 						true));
 
-				String libErrorMessage = BuildUtil.checkRaoLib(recentProject,
-						monitor);
+				String libErrorMessage = BuildUtil.checkLib(recentProject,
+						monitor, BundleType.RAO_LIB);
+				if (libErrorMessage != null)
+					return new Status(Status.ERROR, pluginId,
+							BuildUtil.createErrorMessage(libErrorMessage));
+
+				libErrorMessage = BuildUtil.checkLib(recentProject,
+						monitor, BundleType.XBASE_LIB);
 				if (libErrorMessage != null)
 					return new Status(Status.ERROR, pluginId,
 							BuildUtil.createErrorMessage(libErrorMessage));

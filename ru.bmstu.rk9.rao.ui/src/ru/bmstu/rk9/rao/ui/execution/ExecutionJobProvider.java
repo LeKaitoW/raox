@@ -52,12 +52,12 @@ public class ExecutionJobProvider {
 				try {
 					ConsoleView.clearConsoleText();
 
-					URL model = new URL("file:///"
+					URL modelURL = new URL("file:///"
 							+ ResourcesPlugin.getWorkspace().getRoot()
 									.getLocation().toString() + "/"
 							+ project.getName() + "/bin/");
 
-					URL[] urls = new URL[] { model };
+					URL[] urls = new URL[] { modelURL };
 
 					classLoader = new URLClassLoader(urls,
 							Simulator.class.getClassLoader());
