@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.tests;
+package ru.bmstu.rk9.rao.tests.unit;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
