@@ -23,6 +23,7 @@ import ru.bmstu.rk9.rao.rao.ResourceDeclaration
 import org.eclipse.xtext.common.types.JvmAnnotationType
 import org.eclipse.xtext.common.types.JvmAnnotationReference
 import org.eclipse.xtext.common.types.impl.TypesFactoryImpl
+import ru.bmstu.rk9.rao.rao.EnumDeclaration
 
 class RaoJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
@@ -49,6 +50,16 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 			static = true
 			final = true
 			initializer = constant.value
+		]
+	}
+
+	def dispatch compileRaoEntity(EnumDeclaration enumDeclaration, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		members += enumDeclaration.toEnumerationType(enumDeclaration.name) [
+			visibility = JvmVisibility.PUBLIC
+			static = true
+			enumDeclaration.values.forEach [ value |
+				members += enumDeclaration.toEnumerationLiteral(value)
+			]
 		]
 	}
 
