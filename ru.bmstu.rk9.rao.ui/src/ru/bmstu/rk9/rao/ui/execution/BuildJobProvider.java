@@ -129,7 +129,7 @@ public class BuildJobProvider {
 
 				String libErrorMessage = BuildUtil.checkLib(recentProject, monitor, BundleType.RAO_LIB);
 				if (libErrorMessage != null)
-					return new Status(Status.ERROR, pluginId, BuildUtil.createErrorMessage(libErrorMessage));
+					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(libErrorMessage));
 
 				libErrorMessage = BuildUtil.checkLib(recentProject, monitor, BundleType.XBASE_LIB);
 				if (libErrorMessage != null)

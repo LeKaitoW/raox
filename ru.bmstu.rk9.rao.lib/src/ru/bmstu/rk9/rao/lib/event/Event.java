@@ -14,5 +14,6 @@ public abstract class Event {
 	}
 
 	public abstract String getName();
+
 	public abstract void run();
 }

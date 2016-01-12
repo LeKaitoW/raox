@@ -29,8 +29,7 @@ import org.osgi.framework.Bundle;
 public class BuildUtil {
 
 	public enum BundleType {
-		RAO_LIB("ru.bmstu.rk9.rao.lib"),
-		XBASE_LIB("org.eclipse.xtext.xbase.lib");
+		RAO_LIB("ru.bmstu.rk9.rao.lib"), XBASE_LIB("org.eclipse.xtext.xbase.lib");
 
 		BundleType(String bundleName) {
 			this.name = bundleName;
@@ -107,15 +106,13 @@ public class BuildUtil {
 				}
 			}
 
-			jProject.setRawClasspath(
-					projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
+			jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
 					monitor);
 
 			IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary, null, null);
 			projectClassPathList.add(libEntry);
 
-			jProject.setRawClasspath(
-					projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
+			jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
 					monitor);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -152,8 +149,8 @@ public class BuildUtil {
 				IClasspathEntry libEntry = JavaCore.newSourceEntry(srcGenFolder.getFullPath(), null, null);
 				projectClassPathList.add(libEntry);
 
-				jProject.setRawClasspath(projectClassPathList
-						.toArray(new IClasspathEntry[projectClassPathList.size()]), monitor);
+				jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
+						monitor);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

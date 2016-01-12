@@ -170,8 +170,7 @@ public class RaoActivatorExtension extends RaoActivator {
 		private final String buildCommandId = "ru.bmstu.rk9.rao.ui.runtime.build";
 
 		private final void updateExecutionContributions(IWorkbenchPartReference partRef) {
-			ICommandService commandService = partRef.getPage().getWorkbenchWindow()
-					.getService(ICommandService.class);
+			ICommandService commandService = partRef.getPage().getWorkbenchWindow().getService(ICommandService.class);
 			commandService.refreshElements(executionCommandId, null);
 			commandService.refreshElements(buildCommandId, null);
 		}
