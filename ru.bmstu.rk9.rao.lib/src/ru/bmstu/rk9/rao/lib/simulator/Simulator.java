@@ -25,8 +25,7 @@ public class Simulator {
 
 		INSTANCE = new Simulator();
 
-		INSTANCE.executionStateNotifier = new Notifier<ExecutionState>(
-				ExecutionState.class);
+		INSTANCE.executionStateNotifier = new Notifier<ExecutionState>(ExecutionState.class);
 		INSTANCE.dptManager = new DPTManager();
 		INSTANCE.database = new Database(modelStructure);
 		INSTANCE.modelStructureCache = new ModelStructureCache();

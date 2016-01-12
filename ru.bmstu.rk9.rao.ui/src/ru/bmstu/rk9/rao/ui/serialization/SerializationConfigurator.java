@@ -27,36 +27,23 @@ class SerializationConfigurator {
 		for (SerializationNode category : modelNode.getVisibleChildren())
 			category.hideChildren();
 
-		fillCategory(
-				modelNode.getVisibleChildren().get(
-						SerializationCategory.PATTERNS.ordinal()), model,
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.PATTERNS.ordinal()), model,
 				Pattern.class);
 
-		fillCategory(
-				modelNode.getVisibleChildren().get(
-						SerializationCategory.EVENTS.ordinal()), model,
-				Event.class);
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.EVENTS.ordinal()), model, Event.class);
 
-		fillCategory(
-				modelNode.getVisibleChildren().get(
-						SerializationCategory.DECISION_POINTS.ordinal()),
-				model, DecisionPointSome.class);
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.DECISION_POINTS.ordinal()), model,
+				DecisionPointSome.class);
 
-		fillCategory(
-				modelNode.getVisibleChildren().get(
-						SerializationCategory.RESULTS.ordinal()), model,
-				Result.class);
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.RESULTS.ordinal()), model, Result.class);
 
-		fillCategory(
-				modelNode.getVisibleChildren().get(
-						SerializationCategory.SEARCH.ordinal()), model,
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.SEARCH.ordinal()), model,
 				DecisionPointSearch.class);
 	}
 
-	private final <T extends EObject> void fillCategory(
-			SerializationNode category, Resource model, Class<T> categoryClass) {
-		final List<T> categoryItems = filterAllContents(model.getAllContents(),
-				categoryClass);
+	private final <T extends EObject> void fillCategory(SerializationNode category, Resource model,
+			Class<T> categoryClass) {
+		final List<T> categoryItems = filterAllContents(model.getAllContents(), categoryClass);
 
 		for (T categoryItem : categoryItems) {
 			String name = RaoNaming.getFullyQualifiedName(categoryItem);
@@ -67,15 +54,14 @@ class SerializationConfigurator {
 				for (SerializationLevel type : SerializationLevel.values())
 					child.addChild(child.getFullName() + "." + type.toString());
 			}
-			if (categoryItem instanceof Pattern
-					|| categoryItem instanceof Event) {
+			if (categoryItem instanceof Pattern || categoryItem instanceof Event) {
 				child.addChild(child.getFullName() + ".createdResources");
 			}
 		}
 	}
 
-	private final <T extends EObject> List<T> filterAllContents(
-			TreeIterator<EObject> allContents, Class<T> categoryClass) {
+	private final <T extends EObject> List<T> filterAllContents(TreeIterator<EObject> allContents,
+			Class<T> categoryClass) {
 		final ArrayList<T> categoryList = new ArrayList<T>();
 		Iterator<T> filter = Iterators.<T> filter(allContents, categoryClass);
 		Iterable<T> iterable = IteratorExtensions.<T> toIterable(filter);
@@ -84,8 +70,7 @@ class SerializationConfigurator {
 	}
 
 	final SerializationNode initModel(SerializationNode root, Resource model) {
-		SerializationNode modelNode = root.addChild(model.getURI()
-				.toPlatformString(false), false, true);
+		SerializationNode modelNode = root.addChild(model.getURI().toPlatformString(false), false, true);
 		for (SerializationCategory category : SerializationCategory.values())
 			modelNode.addChild(modelNode.getName() + "." + category.getName());
 		return modelNode;

@@ -14,24 +14,21 @@ public class Select {
 		return false;
 	}
 
-	public static <T> boolean notExist(Collection<T> resources,
-			Checker<T> checker) {
+	public static <T> boolean notExist(Collection<T> resources, Checker<T> checker) {
 		for (T res : resources)
 			if (checker.check(res))
 				return false;
 		return true;
 	}
 
-	public static <T> boolean forAll(Collection<T> resources,
-			Checker<T> checker) {
+	public static <T> boolean forAll(Collection<T> resources, Checker<T> checker) {
 		for (T res : resources)
 			if (!checker.check(res))
 				return false;
 		return true;
 	}
 
-	public static <T> boolean except(Collection<T> resources,
-			Checker<T> checker) {
+	public static <T> boolean except(Collection<T> resources, Checker<T> checker) {
 		for (T res : resources)
 			if (!checker.check(res))
 				return true;

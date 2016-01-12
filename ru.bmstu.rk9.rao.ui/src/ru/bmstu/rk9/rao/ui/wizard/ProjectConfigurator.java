@@ -53,8 +53,7 @@ public class ProjectConfigurator {
 
 	public final ProjectWizardStatus initializeProject() {
 		final IServiceLocator serviceLocator = PlatformUI.getWorkbench();
-		final IProgressMonitor iProgressMonitor = (IProgressMonitor) serviceLocator
-				.getService(IProgressMonitor.class);
+		final IProgressMonitor iProgressMonitor = serviceLocator.getService(IProgressMonitor.class);
 		try {
 			raoProject.create(iProgressMonitor);
 			raoProject.open(iProgressMonitor);
@@ -62,16 +61,14 @@ public class ProjectConfigurator {
 			createModelFile();
 			return ProjectWizardStatus.SUCCESS;
 		} catch (CoreException | BackingStoreException | IOException e) {
-			MessageDialog.openError(PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow().getShell(), "Error",
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error",
 					"Failed to create project:\n" + e.getMessage());
 			e.printStackTrace();
 			return ProjectWizardStatus.UNDEFINED_ERROR;
 		}
 	}
 
-	private final void configureProject() throws BackingStoreException,
-			CoreException, IOException {
+	private final void configureProject() throws BackingStoreException, CoreException, IOException {
 		final IProjectDescription description;
 		final IJavaProject game5JavaProject;
 		final ProjectScope projectScope;
@@ -83,8 +80,7 @@ public class ProjectConfigurator {
 		projectNode.flush();
 
 		description = raoProject.getDescription();
-		description.setNatureIds(new String[] { JavaCore.NATURE_ID,
-				XtextProjectHelper.NATURE_ID });
+		description.setNatureIds(new String[] { JavaCore.NATURE_ID, XtextProjectHelper.NATURE_ID });
 		raoProject.setDescription(description, null);
 
 		game5JavaProject = JavaCore.create(raoProject);
@@ -94,20 +90,17 @@ public class ProjectConfigurator {
 		final List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
 		final IExecutionEnvironmentsManager executionEnvironmentsManager = JavaRuntime
 				.getExecutionEnvironmentsManager();
-		final IExecutionEnvironment[] executionEnvironments = executionEnvironmentsManager
-				.getExecutionEnvironments();
+		final IExecutionEnvironment[] executionEnvironments = executionEnvironmentsManager.getExecutionEnvironments();
 
 		final String JSEVersion = "JavaSE-1.8";
 		for (IExecutionEnvironment iExecutionEnvironment : executionEnvironments) {
 			if (iExecutionEnvironment.getId().equals(JSEVersion)) {
-				entries.add(JavaCore.newContainerEntry(JavaRuntime
-						.newJREContainerPath(iExecutionEnvironment)));
+				entries.add(JavaCore.newContainerEntry(JavaRuntime.newJREContainerPath(iExecutionEnvironment)));
 				break;
 			}
 		}
 		final IPath sourceFolderPath = sourceFolder.getFullPath();
-		final IClasspathEntry srcEntry = JavaCore
-				.newSourceEntry(sourceFolderPath);
+		final IClasspathEntry srcEntry = JavaCore.newSourceEntry(sourceFolderPath);
 		entries.add(srcEntry);
 
 		Bundle lib = Platform.getBundle("ru.bmstu.rk9.rao.lib");
@@ -117,33 +110,28 @@ public class ProjectConfigurator {
 			libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
 		else
 			libPathBinary = new Path(libPath.getAbsolutePath());
-		IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary,
-				null, null);
+		IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary, null, null);
 		entries.add(libEntry);
 
 		Bundle xbaseLib = Platform.getBundle("org.eclipse.xtext.xbase.lib");
 		File xbaseLibPath = FileLocator.getBundleFile(xbaseLib);
 		IPath xbaseLibPathBinary = new Path(xbaseLibPath.getAbsolutePath());
-		IClasspathEntry xbaseLibEntry = JavaCore.newLibraryEntry(
-				xbaseLibPathBinary, null, null);
+		IClasspathEntry xbaseLibEntry = JavaCore.newLibraryEntry(xbaseLibPathBinary, null, null);
 		entries.add(xbaseLibEntry);
 
-		game5JavaProject.setRawClasspath(
-				entries.toArray(new IClasspathEntry[entries.size()]), null);
+		game5JavaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
 	}
 
 	private final void createModelFile() throws CoreException, IOException {
 		final String modelName = info.getProjectName() + ".rao";
-		final IPath modelIPath = root.getLocation()
-				.append(raoProject.getFullPath()).append(modelName);
+		final IPath modelIPath = root.getLocation().append(raoProject.getFullPath()).append(modelName);
 		final File modelFile = new File(modelIPath.toString());
 		final IFile modelIFile = raoProject.getFile(modelName);
 
 		modelFile.createNewFile();
 		fillModel(modelIFile);
 		raoProject.refreshLocal(IResource.DEPTH_INFINITE, null);
-		IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-				.getActivePage(), modelIFile);
+		IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), modelIFile);
 	}
 
 	private final void fillModel(final IFile modelIFile) throws CoreException {
@@ -164,8 +152,7 @@ public class ProjectConfigurator {
 			return;
 		}
 
-		InputStream inputStream = ProjectConfigurator.class.getClassLoader()
-				.getResourceAsStream(modelTemplatePath);
+		InputStream inputStream = ProjectConfigurator.class.getClassLoader().getResourceAsStream(modelTemplatePath);
 		modelIFile.create(inputStream, true, null);
 	}
 }

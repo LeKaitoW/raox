@@ -53,13 +53,10 @@ public class LegacyTracer {
 			String output;
 			if (number < 1000000) {
 				BigDecimal raw = BigDecimal.valueOf(number);
-				BigDecimal result = raw.round(
-						new MathContext(6, RoundingMode.HALF_UP))
-						.stripTrailingZeros();
+				BigDecimal result = raw.round(new MathContext(6, RoundingMode.HALF_UP)).stripTrailingZeros();
 				output = result.toPlainString();
 			} else {
-				DecimalFormatSymbols symbols = DecimalFormatSymbols
-						.getInstance();
+				DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
 				symbols.setExponentSeparator("e+");
 				DecimalFormat formatter = new DecimalFormat("0.#####E00");
 				formatter.setDecimalFormatSymbols(symbols);
@@ -106,8 +103,7 @@ public class LegacyTracer {
 			dptSearchJustFinished = false;
 		}
 
-		final EntryType type = EntryType.values()[entry.getHeader().get(
-				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
+		final EntryType type = EntryType.values()[entry.getHeader().get(TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 
 		switch (type) {
 		case SYSTEM:
@@ -132,15 +128,13 @@ public class LegacyTracer {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	protected TraceOutput parseSystemEntry(final Entry entry) {
-		final ByteBuffer header = Tracer.prepareBufferForReading(entry
-				.getHeader());
+		final ByteBuffer header = Tracer.prepareBufferForReading(entry.getHeader());
 
 		final TraceType traceType = TraceType.SYSTEM;
 
 		Tracer.skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
-		final Database.SystemEntryType type = Database.SystemEntryType.values()[header
-				.get()];
+		final Database.SystemEntryType type = Database.SystemEntryType.values()[header.get()];
 
 		int legacyCode;
 
@@ -157,9 +151,8 @@ public class LegacyTracer {
 			break;
 		}
 
-		final String headerLine = new StringJoiner(delimiter)
-				.add(traceType.toString()).add(realFormatter.format((time)))
-				.add(legacyCode).getString();
+		final String headerLine = new StringJoiner(delimiter).add(traceType.toString())
+				.add(realFormatter.format((time))).add(legacyCode).getString();
 
 		return new TraceOutput(traceType, headerLine);
 	}
@@ -169,23 +162,20 @@ public class LegacyTracer {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	protected final TraceOutput parseResourceEntry(final Entry entry) {
-		final ByteBuffer header = Tracer.prepareBufferForReading(entry
-				.getHeader());
+		final ByteBuffer header = Tracer.prepareBufferForReading(entry.getHeader());
 		final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
 
 		Tracer.skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
 		final TraceType traceType;
-		final Database.ResourceEntryType entryType = Database.ResourceEntryType
-				.values()[header.get()];
+		final Database.ResourceEntryType entryType = Database.ResourceEntryType.values()[header.get()];
 		final int typeNum = header.getInt();
 		final int resNum = header.getInt();
 
 		int legacyId;
 		switch (entryType) {
 		case CREATED:
-			traceType = simulationStarted ? TraceType.RESOURCE_CREATE
-					: TraceType.RESOURCE_KEEP;
+			traceType = simulationStarted ? TraceType.RESOURCE_CREATE : TraceType.RESOURCE_KEEP;
 
 			if (legacyResourceIds.get(typeNum).get(resNum) == null)
 				legacyId = getNewResourceId(typeNum, resNum);
@@ -208,26 +198,20 @@ public class LegacyTracer {
 			break;
 		case SOLUTION:
 		default:
-			throw new TracerException("Unexpected resource entry type: "
-					+ entryType);
+			throw new TracerException("Unexpected resource entry type: " + entryType);
 		}
 
-		final String headerLine = new StringJoiner(delimiter)
-				.add(traceType.toString()).add(realFormatter.format((time)))
-				.add(typeNum + 1).add(legacyId).getString();
+		final String headerLine = new StringJoiner(delimiter).add(traceType.toString())
+				.add(realFormatter.format((time))).add(typeNum + 1).add(legacyId).getString();
 
-		final ResourceTypeCache typeInfo = Simulator.getModelStructureCache()
-				.getResourceTypesInfo().get(typeNum);
+		final ResourceTypeCache typeInfo = Simulator.getModelStructureCache().getResourceTypesInfo().get(typeNum);
 
-		return new TraceOutput(traceType, new StringJoiner(delimiter)
-				.add(headerLine).add(parseResourceParameters(data, typeInfo))
-				.getString());
+		return new TraceOutput(traceType,
+				new StringJoiner(delimiter).add(headerLine).add(parseResourceParameters(data, typeInfo)).getString());
 	}
 
-	protected final String parseResourceParameters(final ByteBuffer data,
-			final ResourceTypeCache typeInfo) {
-		final StringJoiner stringJoiner = new StringJoiner(
-				delimiter);
+	protected final String parseResourceParameters(final ByteBuffer data, final ResourceTypeCache typeInfo) {
+		final StringJoiner stringJoiner = new StringJoiner(delimiter);
 
 		for (int paramNum = 0; paramNum < typeInfo.getNumberOfParameters(); paramNum++) {
 			ValueCache valueCache = typeInfo.getParamTypes().get(paramNum);
@@ -247,21 +231,17 @@ public class LegacyTracer {
 				break;
 			case STRING:
 				final int index = typeInfo.getIndexList().get(paramNum);
-				final int stringPosition = data.getInt(typeInfo
-						.getFinalOffset() + (index - 1) * TypeSize.Rao.INTEGER);
+				final int stringPosition = data.getInt(typeInfo.getFinalOffset() + (index - 1) * TypeSize.Rao.INTEGER);
 				final int length = data.getInt(stringPosition);
 
 				byte rawString[] = new byte[length];
 				for (int i = 0; i < length; i++) {
-					rawString[i] = data.get(stringPosition
-							+ TypeSize.Rao.INTEGER + i);
+					rawString[i] = data.get(stringPosition + TypeSize.Rao.INTEGER + i);
 				}
 				stringJoiner.add(new String(rawString, StandardCharsets.UTF_8));
 				break;
 			default:
-				throw new TracerException(
-						"Unexpected resource parameter type: "
-								+ valueCache.getType());
+				throw new TracerException("Unexpected resource parameter type: " + valueCache.getType());
 			}
 		}
 		return stringJoiner.getString();
@@ -272,16 +252,14 @@ public class LegacyTracer {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	protected final TraceOutput parsePatternEntry(final Entry entry) {
-		final ByteBuffer header = Tracer.prepareBufferForReading(entry
-				.getHeader());
+		final ByteBuffer header = Tracer.prepareBufferForReading(entry.getHeader());
 		final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
 
 		Tracer.skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
 		final TraceType traceType;
 
-		final Database.PatternType entryType = Database.PatternType.values()[header
-				.get()];
+		final Database.PatternType entryType = Database.PatternType.values()[header.get()];
 		switch (entryType) {
 		case RULE:
 			traceType = TraceType.RULE;
@@ -293,19 +271,15 @@ public class LegacyTracer {
 			traceType = TraceType.OPERATION_END;
 			break;
 		default:
-			throw new TracerException("Unexpected pattern enrty type: "
-					+ entryType);
+			throw new TracerException("Unexpected pattern enrty type: " + entryType);
 		}
 
-		return new TraceOutput(traceType, new StringJoiner(delimiter)
-				.add(traceType.toString()).add(realFormatter.format(time))
-				.add(parsePatternData(data, traceType)).getString());
+		return new TraceOutput(traceType, new StringJoiner(delimiter).add(traceType.toString())
+				.add(realFormatter.format(time)).add(parsePatternData(data, traceType)).getString());
 	}
 
-	protected final String parsePatternData(final ByteBuffer data,
-			final TraceType patternType) {
-		final StringJoiner stringJoiner = new StringJoiner(
-				delimiter);
+	protected final String parsePatternData(final ByteBuffer data, final TraceType patternType) {
+		final StringJoiner stringJoiner = new StringJoiner(delimiter);
 
 		int patternNumber;
 
@@ -314,9 +288,8 @@ public class LegacyTracer {
 			int dptNumber = data.getInt();
 			int activityNumber = data.getInt();
 			Tracer.skipPart(data, TypeSize.INTEGER);
-			patternNumber = Simulator.getModelStructureCache().decisionPointsInfo
-					.get(dptNumber).getActivitiesInfo().get(activityNumber)
-					.getPatternNumber();
+			patternNumber = Simulator.getModelStructureCache().decisionPointsInfo.get(dptNumber).getActivitiesInfo()
+					.get(activityNumber).getPatternNumber();
 			stringJoiner.add(1).add(activityNumber + 1).add(patternNumber + 1);
 			break;
 		}
@@ -325,8 +298,7 @@ public class LegacyTracer {
 			int activityNumber = data.getInt();
 			int actionNumber = data.getInt();
 
-			Map<Integer, Integer> activityActions = legacyActionNumbers.get(
-					dptNumber).get(activityNumber);
+			Map<Integer, Integer> activityActions = legacyActionNumbers.get(dptNumber).get(activityNumber);
 
 			int legacyNumber;
 			if (vacantActionNumbers.isEmpty())
@@ -336,11 +308,9 @@ public class LegacyTracer {
 
 			activityActions.put(actionNumber, legacyNumber);
 
-			patternNumber = Simulator.getModelStructureCache().decisionPointsInfo
-					.get(dptNumber).getActivitiesInfo().get(activityNumber)
-					.getPatternNumber();
-			stringJoiner.add(legacyNumber + 1).add(activityNumber + 1)
-					.add(patternNumber + 1);
+			patternNumber = Simulator.getModelStructureCache().decisionPointsInfo.get(dptNumber).getActivitiesInfo()
+					.get(activityNumber).getPatternNumber();
+			stringJoiner.add(legacyNumber + 1).add(activityNumber + 1).add(patternNumber + 1);
 			break;
 		}
 		case OPERATION_END: {
@@ -348,28 +318,23 @@ public class LegacyTracer {
 			int activityNumber = data.getInt();
 			int actionNumber = data.getInt();
 
-			Map<Integer, Integer> activityActions = legacyActionNumbers.get(
-					dptNumber).get(activityNumber);
+			Map<Integer, Integer> activityActions = legacyActionNumbers.get(dptNumber).get(activityNumber);
 			int legacyNumber = activityActions.remove(actionNumber);
 			vacantActionNumbers.add(legacyNumber);
 
-			patternNumber = Simulator.getModelStructureCache().decisionPointsInfo
-					.get(dptNumber).getActivitiesInfo().get(activityNumber)
-					.getPatternNumber();
-			stringJoiner.add(legacyNumber + 1).add(activityNumber + 1)
-					.add(patternNumber + 1);
+			patternNumber = Simulator.getModelStructureCache().decisionPointsInfo.get(dptNumber).getActivitiesInfo()
+					.get(activityNumber).getPatternNumber();
+			stringJoiner.add(legacyNumber + 1).add(activityNumber + 1).add(patternNumber + 1);
 		}
 			break;
 		default:
-			throw new TracerException("Unexpected pattern type: "
-					+ patternType);
+			throw new TracerException("Unexpected pattern type: " + patternType);
 		}
 
 		int numberOfRelevantResources = data.getInt();
 		stringJoiner.add(numberOfRelevantResources).add("");
 		for (int num = 0; num < numberOfRelevantResources; num++) {
-			final int typeNum = Simulator.getModelStructureCache()
-					.getPatternsInfo().get(patternNumber).getRelResTypes()
+			final int typeNum = Simulator.getModelStructureCache().getPatternsInfo().get(patternNumber).getRelResTypes()
 					.get(num);
 			final int resNum = data.getInt();
 			if (legacyResourceIds.get(typeNum).get(resNum) == null) {
@@ -388,22 +353,19 @@ public class LegacyTracer {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private TraceOutput parseEventEntry(final Entry entry) {
-		final ByteBuffer header = Tracer.prepareBufferForReading(entry
-				.getHeader());
+		final ByteBuffer header = Tracer.prepareBufferForReading(entry.getHeader());
 		final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
 
 		Tracer.skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
 		final TraceType traceType = TraceType.EVENT;
 
-		return new TraceOutput(traceType, new StringJoiner(delimiter)
-				.add(traceType.toString()).add(time).add(parseEventData(data))
-				.getString());
+		return new TraceOutput(traceType,
+				new StringJoiner(delimiter).add(traceType.toString()).add(time).add(parseEventData(data)).getString());
 	}
 
 	private String parseEventData(final ByteBuffer data) {
-		final StringJoiner stringJoiner = new StringJoiner(
-				delimiter);
+		final StringJoiner stringJoiner = new StringJoiner(delimiter);
 
 		int eventNumber = data.getInt();
 		Tracer.skipPart(data, TypeSize.INTEGER);
@@ -416,16 +378,13 @@ public class LegacyTracer {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	protected TraceOutput parseSearchEntry(final Entry entry) {
-		final ByteBuffer header = Tracer.prepareBufferForReading(entry
-				.getHeader());
+		final ByteBuffer header = Tracer.prepareBufferForReading(entry.getHeader());
 
-		final StringJoiner stringJoiner = new StringJoiner(
-				delimiter);
+		final StringJoiner stringJoiner = new StringJoiner(delimiter);
 
 		final TraceType traceType;
 		Tracer.skipPart(header, TypeSize.BYTE);
-		final Database.SearchEntryType entryType = Database.SearchEntryType
-				.values()[header.get()];
+		final Database.SearchEntryType entryType = Database.SearchEntryType.values()[header.get()];
 		final double time = header.getDouble();
 		final int dptNumber = header.getInt();
 
@@ -435,16 +394,13 @@ public class LegacyTracer {
 			dptSearchJustStarted = true;
 			traceType = TraceType.SEARCH_BEGIN;
 			dptSearchTime = time;
-			stringJoiner.add(traceType.toString())
-					.add(realFormatter.format(time)).add(dptNumber + 1);
+			stringJoiner.add(traceType.toString()).add(realFormatter.format(time)).add(dptNumber + 1);
 			break;
 		}
 		case END: {
-			final ByteBuffer data = Tracer.prepareBufferForReading(entry
-					.getData());
+			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
 			dptSearchJustFinished = true;
-			final DecisionPointSearch.StopCode endStatus = DecisionPointSearch.StopCode
-					.values()[data.get()];
+			final DecisionPointSearch.StopCode endStatus = DecisionPointSearch.StopCode.values()[data.get()];
 			switch (endStatus) {
 			case ABORTED:
 				traceType = TraceType.SEARCH_END_ABORTED;
@@ -459,8 +415,7 @@ public class LegacyTracer {
 				traceType = TraceType.SEARCH_END_FAIL;
 				break;
 			default:
-				throw new TracerException("Unexpected search end status: "
-						+ endStatus);
+				throw new TracerException("Unexpected search end status: " + endStatus);
 			}
 
 			final long timeMillis = data.getLong();
@@ -470,30 +425,25 @@ public class LegacyTracer {
 			final int totalNodes = data.getInt();
 			final int totalAdded = data.getInt();
 			final int totalSpawned = data.getInt();
-			stringJoiner.add(traceType.toString())
-					.add(realFormatter.format(time)).add(timeMillis).add(mem)
-					.add(realFormatter.format(finalCost)).add(totalOpened)
-					.add(totalNodes).add(totalAdded).add(totalSpawned);
+			stringJoiner.add(traceType.toString()).add(realFormatter.format(time)).add(timeMillis).add(mem)
+					.add(realFormatter.format(finalCost)).add(totalOpened).add(totalNodes).add(totalAdded)
+					.add(totalSpawned);
 			break;
 		}
 		case OPEN: {
-			final ByteBuffer data = Tracer.prepareBufferForReading(entry
-					.getData());
+			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
 			traceType = TraceType.SEARCH_OPEN;
 			final int currentNumber = data.getInt();
 			final int parentNumber = data.getInt();
 			final double g = data.getDouble();
 			final double h = data.getDouble();
-			stringJoiner.add("SO").add(currentNumber + 1).add(parentNumber + 1)
-					.add(realFormatter.format(g))
+			stringJoiner.add("SO").add(currentNumber + 1).add(parentNumber + 1).add(realFormatter.format(g))
 					.add(realFormatter.format(g + h));
 			break;
 		}
 		case SPAWN: {
-			final ByteBuffer data = Tracer.prepareBufferForReading(entry
-					.getData());
-			final DecisionPointSearch.SpawnStatus spawnStatus = DecisionPointSearch.SpawnStatus
-					.values()[data.get()];
+			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
+			final DecisionPointSearch.SpawnStatus spawnStatus = DecisionPointSearch.SpawnStatus.values()[data.get()];
 			switch (spawnStatus) {
 			case NEW:
 				traceType = TraceType.SEARCH_SPAWN_NEW;
@@ -505,97 +455,78 @@ public class LegacyTracer {
 				traceType = TraceType.SEARCH_SPAWN_BETTER;
 				break;
 			default:
-				throw new TracerException("Unexpected search spawn status: "
-						+ spawnStatus);
+				throw new TracerException("Unexpected search spawn status: " + spawnStatus);
 			}
 			final int childNumber = data.getInt();
 			final int parentNumber = data.getInt();
 			final double g = data.getDouble();
 			final double h = data.getDouble();
 			final int ruleNumber = data.getInt();
-			final int patternNumber = Simulator.getModelStructureCache().decisionPointsInfo
-					.get(dptNumber).getActivitiesInfo().get(ruleNumber)
-					.getPatternNumber();
+			final int patternNumber = Simulator.getModelStructureCache().decisionPointsInfo.get(dptNumber)
+					.getActivitiesInfo().get(ruleNumber).getPatternNumber();
 			final double ruleCost = data.getDouble();
-			final int numberOfRelevantResources = Simulator
-					.getModelStructureCache().getPatternsInfo()
+			final int numberOfRelevantResources = Simulator.getModelStructureCache().getPatternsInfo()
 					.get(patternNumber).getRelResTypes().size();
 
-			stringJoiner.add(traceType.toString()).add(childNumber + 1)
-					.add(parentNumber + 1).add(realFormatter.format(g))
-					.add(realFormatter.format(g + h)).add(ruleNumber + 1)
-					.add(patternNumber + 1).add(realFormatter.format(ruleCost))
-					.add(numberOfRelevantResources).add("");
+			stringJoiner.add(traceType.toString()).add(childNumber + 1).add(parentNumber + 1)
+					.add(realFormatter.format(g)).add(realFormatter.format(g + h)).add(ruleNumber + 1)
+					.add(patternNumber + 1).add(realFormatter.format(ruleCost)).add(numberOfRelevantResources).add("");
 
 			for (int num = 0; num < numberOfRelevantResources; num++) {
-				final int typeNum = Simulator.getModelStructureCache()
-						.getPatternsInfo().get(patternNumber).getRelResTypes()
-						.get(num);
+				final int typeNum = Simulator.getModelStructureCache().getPatternsInfo().get(patternNumber)
+						.getRelResTypes().get(num);
 				final int resNum = data.getInt();
-				final int legacyNum = legacyResourceIds.get(typeNum)
-						.get(resNum);
+				final int legacyNum = legacyResourceIds.get(typeNum).get(resNum);
 				stringJoiner.add(legacyNum);
 			}
 			break;
 		}
 		case DECISION: {
-			final ByteBuffer data = Tracer.prepareBufferForReading(entry
-					.getData());
+			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
 			traceType = TraceType.SEARCH_DECISION;
 			final int number = data.getInt();
 			final int activityNumber = data.getInt();
-			final int patternNumber = Simulator.getModelStructureCache().decisionPointsInfo
-					.get(dptNumber).getActivitiesInfo().get(activityNumber)
-					.getPatternNumber();
-			final int numberOfRelevantResources = Simulator
-					.getModelStructureCache().getPatternsInfo()
+			final int patternNumber = Simulator.getModelStructureCache().decisionPointsInfo.get(dptNumber)
+					.getActivitiesInfo().get(activityNumber).getPatternNumber();
+			final int numberOfRelevantResources = Simulator.getModelStructureCache().getPatternsInfo()
 					.get(patternNumber).getRelResTypes().size();
 			if (!dptSearchDecisionFound) {
 				addLegacySearchEntryDecision();
 				dptSearchDecisionFound = true;
 			}
-			stringJoiner.add(number + 1).add(activityNumber + 1)
-					.add(patternNumber + 1).add(numberOfRelevantResources)
+			stringJoiner.add(number + 1).add(activityNumber + 1).add(patternNumber + 1).add(numberOfRelevantResources)
 					.add("");
 
 			for (int num = 0; num < numberOfRelevantResources; num++) {
-				final int typeNum = Simulator.getModelStructureCache()
-						.getPatternsInfo().get(patternNumber).getRelResTypes()
-						.get(num);
+				final int typeNum = Simulator.getModelStructureCache().getPatternsInfo().get(patternNumber)
+						.getRelResTypes().get(num);
 				final int resNum = data.getInt();
-				final int legacyNum = legacyResourceIds.get(typeNum)
-						.get(resNum);
+				final int legacyNum = legacyResourceIds.get(typeNum).get(resNum);
 				stringJoiner.add(legacyNum);
 			}
 			break;
 		}
 		default:
-			throw new TracerException("Unexpected search entry type: "
-					+ entryType);
+			throw new TracerException("Unexpected search entry type: " + entryType);
 		}
 
 		return new TraceOutput(traceType, stringJoiner.getString());
 	}
 
 	private final void addLegacySearchEntryDecision() {
-		traceList.add(new TraceOutput(TraceType.SEARCH_DECISION,
-				new StringJoiner(delimiter).add("SD").getString()));
+		traceList.add(new TraceOutput(TraceType.SEARCH_DECISION, new StringJoiner(delimiter).add("SD").getString()));
 	}
 
 	private final void addLegacySearchEntriesOnStart() {
-		traceList.add(new TraceOutput(TraceType.SEARCH_SPAWN_NEW,
-				new StringJoiner(delimiter).add("STN").add(1).add(0)
-						.add(0).add(0).add(-1).add(-1).add(0).add(0)
-						.getString()));
+		traceList.add(new TraceOutput(TraceType.SEARCH_SPAWN_NEW, new StringJoiner(delimiter).add("STN").add(1).add(0)
+				.add(0).add(0).add(-1).add(-1).add(0).add(0).getString()));
 
 		traceList.add(new TraceOutput(TraceType.SEARCH_OPEN,
-				new StringJoiner(delimiter).add("SO").add(1).add(0)
-						.add(0).add(0).getString()));
+				new StringJoiner(delimiter).add("SO").add(1).add(0).add(0).add(0).getString()));
 	}
 
 	private final void addLegacySearchEntriesOnFinish(double time) {
-		traceList.add(new TraceOutput(TraceType.SYSTEM, new StringJoiner(
-				delimiter).add(TraceType.SYSTEM.toString())
+		traceList.add(new TraceOutput(TraceType.SYSTEM, new StringJoiner(delimiter).add(TraceType.SYSTEM.toString())
 				.add(realFormatter.format(time)).add(4).getString()));
 	}
 
@@ -604,25 +535,21 @@ public class LegacyTracer {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	protected final TraceOutput parseResultEntry(final Entry entry) {
-		final ByteBuffer header = Tracer.prepareBufferForReading(entry
-				.getHeader());
+		final ByteBuffer header = Tracer.prepareBufferForReading(entry.getHeader());
 		final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
 
 		Tracer.skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
 		final int resultNum = header.getInt();
 
-		final ResultCache resultCache = Simulator.getModelStructureCache()
-				.getResultsInfo().get(resultNum);
+		final ResultCache resultCache = Simulator.getModelStructureCache().getResultsInfo().get(resultNum);
 
-		return new TraceOutput(TraceType.RESULT, new StringJoiner(
-				delimiter).add(TraceType.RESULT.toString())
-				.add(realFormatter.format(time)).add(resultNum + 1).add("")
-				.add(parseResultParameter(data, resultCache)).getString());
+		return new TraceOutput(TraceType.RESULT,
+				new StringJoiner(delimiter).add(TraceType.RESULT.toString()).add(realFormatter.format(time))
+						.add(resultNum + 1).add("").add(parseResultParameter(data, resultCache)).getString());
 	}
 
-	protected final String parseResultParameter(final ByteBuffer data,
-			final ResultCache resultCache) {
+	protected final String parseResultParameter(final ByteBuffer data, final ResultCache resultCache) {
 		switch (resultCache.getValueType()) {
 		case INTEGER:
 			return String.valueOf(data.getInt());
@@ -642,8 +569,7 @@ public class LegacyTracer {
 			break;
 		}
 
-		throw new TracerException("Unexpected result parameter type: "
-				+ resultCache.getValueType());
+		throw new TracerException("Unexpected result parameter type: " + resultCache.getValueType());
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -651,8 +577,7 @@ public class LegacyTracer {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private final void initializeTypes() {
-		final JSONArray resourceTypes = Simulator.getDatabase()
-				.getModelStructure().getJSONArray("resource_types");
+		final JSONArray resourceTypes = Simulator.getDatabase().getModelStructure().getJSONArray("resource_types");
 
 		for (int num = 0; num < resourceTypes.length(); num++) {
 			legacyResourceIds.put(num, new HashMap<Integer, Integer>());
@@ -660,8 +585,7 @@ public class LegacyTracer {
 	}
 
 	private final void initializeActivities() {
-		JSONArray decisionPoints = Simulator.getDatabase().getModelStructure()
-				.getJSONArray("decision_points");
+		JSONArray decisionPoints = Simulator.getDatabase().getModelStructure().getJSONArray("decision_points");
 
 		for (int dptNum = 0; dptNum < decisionPoints.length(); dptNum++) {
 			JSONObject decisionPoint = decisionPoints.getJSONObject(dptNum);
@@ -670,8 +594,7 @@ public class LegacyTracer {
 			case "some":
 			case "prior":
 				HashMap<Integer, HashMap<Integer, Integer>> activities = new HashMap<Integer, HashMap<Integer, Integer>>();
-				JSONArray jActivities = decisionPoint
-						.getJSONArray("activities");
+				JSONArray jActivities = decisionPoint.getJSONArray("activities");
 				for (int actNum = 0; actNum < jActivities.length(); actNum++) {
 					HashMap<Integer, Integer> activity = new HashMap<Integer, Integer>();
 					activities.put(actNum, activity);

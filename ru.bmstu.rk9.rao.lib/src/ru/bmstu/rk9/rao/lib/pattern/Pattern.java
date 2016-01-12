@@ -4,8 +4,7 @@ import ru.bmstu.rk9.rao.lib.database.Database;
 
 public interface Pattern {
 	public static enum ExecutedFrom {
-		SEARCH  (Database.ResourceEntryType.SEARCH),
-		SOLUTION(Database.ResourceEntryType.SOLUTION);
+		SEARCH(Database.ResourceEntryType.SEARCH), SOLUTION(Database.ResourceEntryType.SOLUTION);
 
 		public final Database.ResourceEntryType resourceSpecialStatus;
 

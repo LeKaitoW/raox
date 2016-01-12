@@ -58,18 +58,12 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 			borderColor = new Color(display, 0x40, 0x40, 0x40);
 			labelBackgroundColor = display.getSystemColor(SWT.COLOR_WHITE);
 			labelForegroundColor = display.getSystemColor(SWT.COLOR_BLACK);
-			progressColorTop = new Color[] {
-					new Color(display, 0xD0, 0x00, 0x00),
-					new Color(display, 0xEB, 0xCA, 0x00),
-					new Color(display, 0xF0, 0xF0, 0x00),
-					new Color(display, 0x00, 0xB5, 0x00),
-					new Color(display, 0x00, 0x00, 0x00)};
-			progressColorBottom = new Color[] {
-					new Color(display, 0xC0, 0x00, 0x00),
-					new Color(display, 0xCD, 0xAF, 0x00),
-					new Color(display, 0xD0, 0xD0, 0x00),
-					new Color(display, 0x00, 0xA6, 0x00),
-					new Color(display, 0x00, 0x00, 0x00)};
+			progressColorTop = new Color[] { new Color(display, 0xD0, 0x00, 0x00), new Color(display, 0xEB, 0xCA, 0x00),
+					new Color(display, 0xF0, 0xF0, 0x00), new Color(display, 0x00, 0xB5, 0x00),
+					new Color(display, 0x00, 0x00, 0x00) };
+			progressColorBottom = new Color[] { new Color(display, 0xC0, 0x00, 0x00),
+					new Color(display, 0xCD, 0xAF, 0x00), new Color(display, 0xD0, 0xD0, 0x00),
+					new Color(display, 0x00, 0xA6, 0x00), new Color(display, 0x00, 0x00, 0x00) };
 
 			final FontData[] fontData = getFont().getFontData().clone();
 			fontData[0].setHeight(8);
@@ -155,14 +149,14 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 				k2 = 0;
 				k3 = 0;
 			} else if (YELLOW_SINCE <= percent && percent <= YELLOW_UNTIL) {
-				k0 = Math.max(0, 1 - YELLOW_SINCE - (percent - YELLOW_SINCE) * 1./YELLOW_SINCE);
-				k1 = (1 - k0) - (percent - YELLOW_SINCE) * 1./(YELLOW_UNTIL - YELLOW_SINCE);
+				k0 = Math.max(0, 1 - YELLOW_SINCE - (percent - YELLOW_SINCE) * 1. / YELLOW_SINCE);
+				k1 = (1 - k0) - (percent - YELLOW_SINCE) * 1. / (YELLOW_UNTIL - YELLOW_SINCE);
 				k2 = 1 - k0 - k1;
 				k3 = 0;
 			} else if (YELLOW_UNTIL < percent) {
 				k0 = 0;
 				k1 = 0;
-				k2 = 1 - (percent - YELLOW_UNTIL) * 1./(1. - YELLOW_UNTIL);
+				k2 = 1 - (percent - YELLOW_UNTIL) * 1. / (1. - YELLOW_UNTIL);
 				k3 = 1 - k2;
 			} else {
 				k0 = 0;
@@ -175,9 +169,12 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 				colors[4].dispose();
 
 			colors[4] = new Color(device,
-					(int)(colors[0].getRed() * k0 + colors[1].getRed() * k1 + colors[2].getRed() * k2 + colors[3].getRed() * k3),
-					(int)(colors[0].getGreen() * k0 + colors[1].getGreen() * k1 + colors[2].getGreen() * k2 + colors[3].getGreen() * k3),
-					(int)(colors[0].getBlue() * k0 + colors[1].getBlue() * k1 + colors[2].getBlue() * k2 + colors[3].getBlue() * k3));
+					(int) (colors[0].getRed() * k0 + colors[1].getRed() * k1 + colors[2].getRed() * k2
+							+ colors[3].getRed() * k3),
+					(int) (colors[0].getGreen() * k0 + colors[1].getGreen() * k1 + colors[2].getGreen() * k2
+							+ colors[3].getGreen() * k3),
+					(int) (colors[0].getBlue() * k0 + colors[1].getBlue() * k1 + colors[2].getBlue() * k2
+							+ colors[3].getBlue() * k3));
 			return colors[4];
 		}
 
@@ -244,8 +241,7 @@ public class SpeedSelectionToolbar extends WorkbenchWindowControlContribution {
 		private void setSelection(int value) {
 			speedValue = value;
 			if (RuntimeComponents.isInitialized())
-				RuntimeComponents.simulationSynchronizer
-						.setSimulationSpeed(value);
+				RuntimeComponents.simulationSynchronizer.setSimulationSpeed(value);
 			redraw();
 		}
 

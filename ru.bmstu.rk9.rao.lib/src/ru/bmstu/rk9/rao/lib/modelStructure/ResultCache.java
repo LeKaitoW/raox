@@ -13,17 +13,14 @@ public class ResultCache {
 		if (valueTypeRaw.contains("_enum")) {
 			valueType = ModelStructureCache.ValueType.ENUM;
 			enumNames = new ArrayList<String>();
-			String enumOriginName = valueTypeRaw.substring(0,
-					valueTypeRaw.lastIndexOf("_"));
-			JSONObject originParam = ModelStructureCache
-					.getEnumOrigin(enumOriginName);
+			String enumOriginName = valueTypeRaw.substring(0, valueTypeRaw.lastIndexOf("_"));
+			JSONObject originParam = ModelStructureCache.getEnumOrigin(enumOriginName);
 
 			JSONArray enums = originParam.getJSONArray("enums");
 			for (int num = 0; num < enums.length(); num++)
 				getEnumNames().add(enums.getString(num));
 		} else {
-			valueType = ModelStructureCache.ValueType.get(result
-					.getString("value_type"));
+			valueType = ModelStructureCache.ValueType.get(result.getString("value_type"));
 			enumNames = null;
 		}
 	}

@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DecisionPointPrior extends DecisionPoint {
-	public DecisionPointPrior(String name, Priority priority,
-			Condition condition) {
+	public DecisionPointPrior(String name, Priority priority, Condition condition) {
 		super(name, priority, condition);
 	}
 

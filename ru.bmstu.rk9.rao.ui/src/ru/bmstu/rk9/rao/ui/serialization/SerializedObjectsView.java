@@ -61,8 +61,8 @@ public class SerializedObjectsView extends ViewPart {
 			parent.addListener(SWT.Show, new Listener() {
 				@Override
 				public void handleEvent(Event event) {
-					CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
-							.getTree().getSelection()[0].getData();
+					CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer.getTree().getSelection()[0]
+							.getData();
 					setEnabled(isEnabled(node));
 				}
 			});
@@ -70,8 +70,8 @@ public class SerializedObjectsView extends ViewPart {
 			addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent event) {
-					CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer
-							.getTree().getSelection()[0].getData();
+					CollectedDataNode node = (CollectedDataNode) serializedObjectsTreeViewer.getTree().getSelection()[0]
+							.getData();
 					show(node);
 				}
 			});
@@ -93,50 +93,41 @@ public class SerializedObjectsView extends ViewPart {
 		serializedObjectsTree.setLayoutData(new GridLayout());
 		serializedObjectsTree.setLinesVisible(true);
 
-		serializedObjectsTreeViewer
-				.setContentProvider(new RaoSerializedObjectsContentProvider());
-		serializedObjectsTreeViewer
-				.setLabelProvider(new RaoSerializedObjectsLabelProvider());
+		serializedObjectsTreeViewer.setContentProvider(new RaoSerializedObjectsContentProvider());
+		serializedObjectsTreeViewer.setLabelProvider(new RaoSerializedObjectsLabelProvider());
 
 		Menu popupMenu = new Menu(serializedObjectsTreeViewer.getTree());
 		serializedObjectsTree.setMenu(popupMenu);
 		conditionalMenuItems.add(PlotView.createConditionalMenuItem(popupMenu));
-		conditionalMenuItems
-				.add(GraphPanel.createConditionalMenuItem(popupMenu));
+		conditionalMenuItems.add(GraphPanel.createConditionalMenuItem(popupMenu));
 		serializedObjectsTreeViewer.getTree().setMenu(popupMenu);
 
-		serializedObjectsTreeViewer
-				.addDoubleClickListener(new IDoubleClickListener() {
-					@Override
-					public void doubleClick(DoubleClickEvent event) {
-						final TreeItem treeItem = serializedObjectsTreeViewer
-								.getTree().getSelection()[0];
-						final CollectedDataNode node = (CollectedDataNode) treeItem
-								.getData();
-						if (node == null)
-							return;
+		serializedObjectsTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				final TreeItem treeItem = serializedObjectsTreeViewer.getTree().getSelection()[0];
+				final CollectedDataNode node = (CollectedDataNode) treeItem.getData();
+				if (node == null)
+					return;
 
-						if (treeItem.getItemCount() == 0) {
-							List<ConditionalMenuItem> enabledMenuItems = new ArrayList<ConditionalMenuItem>();
-							for (ConditionalMenuItem conditionalMenuItem : conditionalMenuItems) {
-								if (conditionalMenuItem.isEnabled(node))
-									enabledMenuItems.add(conditionalMenuItem);
-							}
-
-							if (enabledMenuItems.size() == 1)
-								enabledMenuItems.get(0).show(node);
-						} else {
-							if (serializedObjectsTreeViewer
-									.getExpandedState(node)) {
-								serializedObjectsTreeViewer.collapseToLevel(
-										node, 1);
-							} else {
-								serializedObjectsTreeViewer.expandToLevel(node,
-										1);
-							}
-						}
+				if (treeItem.getItemCount() == 0) {
+					List<ConditionalMenuItem> enabledMenuItems = new ArrayList<ConditionalMenuItem>();
+					for (ConditionalMenuItem conditionalMenuItem : conditionalMenuItems) {
+						if (conditionalMenuItem.isEnabled(node))
+							enabledMenuItems.add(conditionalMenuItem);
 					}
-				});
+
+					if (enabledMenuItems.size() == 1)
+						enabledMenuItems.get(0).show(node);
+				} else {
+					if (serializedObjectsTreeViewer.getExpandedState(node)) {
+						serializedObjectsTreeViewer.collapseToLevel(node, 1);
+					} else {
+						serializedObjectsTreeViewer.expandToLevel(node, 1);
+					}
+				}
+			}
+		});
 
 		initializeSubscribers();
 	}
@@ -148,13 +139,10 @@ public class SerializedObjectsView extends ViewPart {
 	}
 
 	private final void initializeSubscribers() {
-		subscriberSubscriberManager.initialize(Arrays.asList(
-				new SimulatorSubscriberInfo(commonSubscriber,
-						ExecutionState.EXECUTION_STARTED),
-				new SimulatorSubscriberInfo(commonSubscriber,
-						ExecutionState.EXECUTION_COMPLETED)));
-		realTimeSubscriberManager.initialize(Arrays
-				.asList(realTimeUpdateRunnable));
+		subscriberSubscriberManager.initialize(
+				Arrays.asList(new SimulatorSubscriberInfo(commonSubscriber, ExecutionState.EXECUTION_STARTED),
+						new SimulatorSubscriberInfo(commonSubscriber, ExecutionState.EXECUTION_COMPLETED)));
+		realTimeSubscriberManager.initialize(Arrays.asList(realTimeUpdateRunnable));
 	}
 
 	private final void deinitializeSubscribers() {
@@ -170,8 +158,7 @@ public class SerializedObjectsView extends ViewPart {
 	}
 
 	public final static boolean readyForInput() {
-		return serializedObjectsTreeViewer != null
-				&& !serializedObjectsTreeViewer.getTree().isDisposed()
+		return serializedObjectsTreeViewer != null && !serializedObjectsTreeViewer.getTree().isDisposed()
 				&& serializedObjectsTreeViewer.getContentProvider() != null
 				&& serializedObjectsTreeViewer.getLabelProvider() != null;
 	}
@@ -197,15 +184,9 @@ public class SerializedObjectsView extends ViewPart {
 					if (!readyForInput())
 						return;
 
-					CollectedDataNode root = Simulator.getDatabase()
-							.getIndexHelper().getTree();
+					CollectedDataNode root = Simulator.getDatabase().getIndexHelper().getTree();
 
-					PlatformUI
-							.getWorkbench()
-							.getDisplay()
-							.asyncExec(
-									() -> serializedObjectsTreeViewer
-											.setInput(root));
+					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> serializedObjectsTreeViewer.setInput(root));
 				}
 			});
 		}
@@ -250,8 +231,7 @@ class RaoSerializedObjectsContentProvider implements ITreeContentProvider {
 	}
 }
 
-class RaoSerializedObjectsLabelProvider implements ILabelProvider,
-		IColorProvider {
+class RaoSerializedObjectsLabelProvider implements ILabelProvider, IColorProvider {
 	@Override
 	public void addListener(ILabelProviderListener listener) {
 	}
@@ -273,8 +253,7 @@ class RaoSerializedObjectsLabelProvider implements ILabelProvider,
 	public Image getImage(Object element) {
 		final CollectedDataNode collectedDataNode = (CollectedDataNode) element;
 		final Display display = PlatformUI.getWorkbench().getDisplay();
-		final ImageDescriptor img = ImageDescriptor
-				.createFromURL(getImageUrl(collectedDataNode));
+		final ImageDescriptor img = ImageDescriptor.createFromURL(getImageUrl(collectedDataNode));
 
 		return new Image(display, img.getImageData());
 	}
@@ -284,20 +263,14 @@ class RaoSerializedObjectsLabelProvider implements ILabelProvider,
 		final Index index = collectedDataNode.getIndex();
 
 		if (index == null) {
-			imageUrl = FileLocator.find(Platform
-					.getBundle("ru.bmstu.rk9.rao.ui"),
-					new org.eclipse.core.runtime.Path(
-							"icons/cross-small-white.png"), null);
-		} else if (index.getType() == IndexType.RESOURCE
-				&& ((ResourceIndex) index).isErased()) {
-			imageUrl = FileLocator.find(
-					Platform.getBundle("ru.bmstu.rk9.rao.ui"),
+			imageUrl = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rao.ui"),
+					new org.eclipse.core.runtime.Path("icons/cross-small-white.png"), null);
+		} else if (index.getType() == IndexType.RESOURCE && ((ResourceIndex) index).isErased()) {
+			imageUrl = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rao.ui"),
 					new org.eclipse.core.runtime.Path("icons/cross.png"), null);
 		} else {
-			imageUrl = FileLocator.find(
-					Platform.getBundle("ru.bmstu.rk9.rao.ui"),
-					new org.eclipse.core.runtime.Path("icons/globe-small.png"),
-					null);
+			imageUrl = FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rao.ui"),
+					new org.eclipse.core.runtime.Path("icons/globe-small.png"), null);
 		}
 
 		return imageUrl;
@@ -313,8 +286,7 @@ class RaoSerializedObjectsLabelProvider implements ILabelProvider,
 	public Color getForeground(Object element) {
 		CollectedDataNode node = (CollectedDataNode) element;
 		Index index = node.getIndex();
-		if (index != null && index.getType() == IndexType.RESOURCE
-				&& ((ResourceIndex) index).isErased()) {
+		if (index != null && index.getType() == IndexType.RESOURCE && ((ResourceIndex) index).isErased()) {
 			Display display = PlatformUI.getWorkbench().getDisplay();
 			return new Color(display, 0x88, 0x88, 0x88);
 		}

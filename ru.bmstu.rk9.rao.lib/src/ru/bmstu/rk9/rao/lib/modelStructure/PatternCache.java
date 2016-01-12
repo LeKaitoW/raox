@@ -11,19 +11,15 @@ public class PatternCache {
 		name = ModelStructureCache.getRelativeName(pattern.getString("name"));
 		relResTypes = new HashMap<Integer, Integer>();
 
-		JSONArray relevantResources = pattern
-				.getJSONArray("relevant_resources");
+		JSONArray relevantResources = pattern.getJSONArray("relevant_resources");
 		for (int num = 0; num < relevantResources.length(); num++) {
-			String typeName = relevantResources.getJSONObject(num).getString(
-					"type");
+			String typeName = relevantResources.getJSONObject(num).getString("type");
 
-			JSONArray resTypes = Simulator.getDatabase().getModelStructure()
-					.getJSONArray("resource_types");
+			JSONArray resTypes = Simulator.getDatabase().getModelStructure().getJSONArray("resource_types");
 			int typeNum = -1;
 			// TODO throw exception if not found
 			for (int i = 0; i < resTypes.length(); i++)
-				if (typeName
-						.equals(resTypes.getJSONObject(i).getString("name"))) {
+				if (typeName.equals(resTypes.getJSONObject(i).getString("name"))) {
 					typeNum = i;
 					break;
 				}

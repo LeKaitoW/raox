@@ -40,8 +40,8 @@ public class BuildUtil {
 	}
 
 	public static URI getURI(IResource resource) {
-		return URI.createPlatformResourceURI(resource.getProject().getName()
-				+ "/" + resource.getProjectRelativePath(), true);
+		return URI.createPlatformResourceURI(resource.getProject().getName() + "/" + resource.getProjectRelativePath(),
+				true);
 	}
 
 	public static List<IResource> getAllRaoFilesInProject(IProject project) {
@@ -49,13 +49,11 @@ public class BuildUtil {
 		if (!project.isAccessible())
 			return allRaoFiles;
 		IPath path = project.getLocation();
-		recursiveFindRaoFiles(allRaoFiles, path, ResourcesPlugin.getWorkspace()
-				.getRoot());
+		recursiveFindRaoFiles(allRaoFiles, path, ResourcesPlugin.getWorkspace().getRoot());
 		return allRaoFiles;
 	}
 
-	private static void recursiveFindRaoFiles(List<IResource> allRaoFiles,
-			IPath path, IWorkspaceRoot workspaceRoot) {
+	private static void recursiveFindRaoFiles(List<IResource> allRaoFiles, IPath path, IWorkspaceRoot workspaceRoot) {
 		IContainer container = workspaceRoot.getContainerForLocation(path);
 		try {
 			IResource[] iResources;
@@ -74,8 +72,7 @@ public class BuildUtil {
 	}
 
 	static IProject getProject(IEditorPart activeEditor) {
-		IFile file = (IFile) activeEditor.getEditorInput().getAdapter(
-				IFile.class);
+		IFile file = activeEditor.getEditorInput().getAdapter(IFile.class);
 		if (file == null)
 			return null;
 
@@ -92,8 +89,7 @@ public class BuildUtil {
 
 			IJavaProject jProject = JavaCore.create(project);
 
-			IClasspathEntry[] projectClassPathArray = jProject
-					.getRawClasspath();
+			IClasspathEntry[] projectClassPathArray = jProject.getRawClasspath();
 
 			IPath libPathBinary;
 			if (libPath.isDirectory())
@@ -111,16 +107,15 @@ public class BuildUtil {
 				}
 			}
 
-			jProject.setRawClasspath((IClasspathEntry[]) projectClassPathList
-					.toArray(new IClasspathEntry[projectClassPathList.size()]),
+			jProject.setRawClasspath(
+					projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
 					monitor);
 
-			IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary,
-					null, null);
+			IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary, null, null);
 			projectClassPathList.add(libEntry);
 
-			jProject.setRawClasspath((IClasspathEntry[]) projectClassPathList
-					.toArray(new IClasspathEntry[projectClassPathList.size()]),
+			jProject.setRawClasspath(
+					projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
 					monitor);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -130,8 +125,7 @@ public class BuildUtil {
 		return null;
 	}
 
-	static String checkSrcGen(IProject project, IFolder srcGenFolder,
-			IProgressMonitor monitor) {
+	static String checkSrcGen(IProject project, IFolder srcGenFolder, IProgressMonitor monitor) {
 		IJavaProject jProject = JavaCore.create(project);
 		try {
 			IClasspathEntry[] projectClassPathArray;
@@ -155,14 +149,11 @@ public class BuildUtil {
 			}
 
 			if (!srcGenInClasspath) {
-				IClasspathEntry libEntry = JavaCore.newSourceEntry(
-						srcGenFolder.getFullPath(), null, null);
+				IClasspathEntry libEntry = JavaCore.newSourceEntry(srcGenFolder.getFullPath(), null, null);
 				projectClassPathList.add(libEntry);
 
-				jProject.setRawClasspath(
-						(IClasspathEntry[]) projectClassPathList
-								.toArray(new IClasspathEntry[projectClassPathList
-										.size()]), monitor);
+				jProject.setRawClasspath(projectClassPathList
+						.toArray(new IClasspathEntry[projectClassPathList.size()]), monitor);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

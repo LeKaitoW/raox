@@ -45,6 +45,7 @@ public class ExecutionJobProvider {
 
 	public final Job createExecutionJob() {
 		final Job executionJob = new Job(project.getName() + " execution") {
+			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				URLClassLoader classLoader = null;
 				final Display display = PlatformUI.getWorkbench().getDisplay();
@@ -52,15 +53,13 @@ public class ExecutionJobProvider {
 				try {
 					ConsoleView.clearConsoleText();
 
-					URL modelURL = new URL("file:///"
-							+ ResourcesPlugin.getWorkspace().getRoot()
-									.getLocation().toString() + "/"
-							+ project.getName() + "/bin/");
+					URL modelURL = new URL(
+							"file:///" + ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/"
+									+ project.getName() + "/bin/");
 
 					URL[] urls = new URL[] { modelURL };
 
-					classLoader = new URLClassLoader(urls,
-							Simulator.class.getClassLoader());
+					classLoader = new URLClassLoader(urls, Simulator.class.getClassLoader());
 
 					List<Method> initList = new ArrayList<Method>();
 					List<TerminateCondition> terminateConditions = new ArrayList<TerminateCondition>();
@@ -113,14 +112,11 @@ public class ExecutionJobProvider {
 					List<Result> results = new LinkedList<Result>();
 					SimulationStopCode simulationResult = SimulationStopCode.SIMULATION_CONTINUES;
 
-					// TODO generate actual model structure in code (e.g. protected field)
-					Simulator.initSimulation(new JSONObject()
-							.put("name", "")
-							.put("resource_types", new JSONArray())
-							.put("results", new JSONArray())
-							.put("patterns", new JSONArray())
-							.put("events", new JSONArray())
-							.put("decision_points", new JSONArray()));
+					// TODO generate actual model structure in code (e.g.
+					// protected field)
+					Simulator.initSimulation(new JSONObject().put("name", "").put("resource_types", new JSONArray())
+							.put("results", new JSONArray()).put("patterns", new JSONArray())
+							.put("events", new JSONArray()).put("decision_points", new JSONArray()));
 
 					for (TerminateCondition terminateCondition : terminateConditions)
 						Simulator.addTerminateCondition(terminateCondition);
@@ -150,9 +146,8 @@ public class ExecutionJobProvider {
 
 					display.asyncExec(() -> ResultsView.setResults(results));
 
-					ConsoleView.addLine("Time elapsed: "
-							+ String.valueOf(System.currentTimeMillis()
-									- startTime) + "ms");
+					ConsoleView
+							.addLine("Time elapsed: " + String.valueOf(System.currentTimeMillis() - startTime) + "ms");
 
 					return Status.OK_STATUS;
 				} catch (Exception e) {
@@ -162,8 +157,7 @@ public class ExecutionJobProvider {
 					ConsoleView.printStackTrace(e);
 					Simulator.notifyError();
 
-					return new Status(Status.ERROR, "ru.bmstu.rk9.rao.ui",
-							"Execution failed", e);
+					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Execution failed", e);
 				} finally {
 					// TODO deinitialize via notification instead
 					display.syncExec(() -> AnimationView.deinitialize());

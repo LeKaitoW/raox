@@ -52,8 +52,7 @@ import ru.bmstu.rk9.rao.lib.result.Result;
 public class ResultsView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.ResultsView"; //$NON-NLS-1$
 
-	private static IEclipsePreferences prefs = InstanceScope.INSTANCE
-			.getNode("ru.bmstu.rk9.rao.ui");
+	private static IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode("ru.bmstu.rk9.rao.ui");
 
 	private static class Formatter {
 		static int counter = 0;
@@ -71,28 +70,21 @@ public class ResultsView extends ViewPart {
 		return format;
 	}
 
-	private static Map<String, Formatter> sortList = ImmutableMap
-			.<String, Formatter> builder().put("value", format("Value"))
-			.put("last", format("Last value"))
-			.put("counter", format("Times registered"))
-			.put("minTrue", format("Shortest true"))
-			.put("maxTrue", format("Longest true"))
-			.put("minFalse", format("Shortest false"))
-			.put("maxFalse", format("Longest false"))
-			.put("percent", format("Percent true"))
-			.put("min", format("Minimum value"))
+	private static Map<String, Formatter> sortList = ImmutableMap.<String, Formatter> builder()
+			.put("value", format("Value")).put("last", format("Last value")).put("counter", format("Times registered"))
+			.put("minTrue", format("Shortest true")).put("maxTrue", format("Longest true"))
+			.put("minFalse", format("Shortest false")).put("maxFalse", format("Longest false"))
+			.put("percent", format("Percent true")).put("min", format("Minimum value"))
 			.put("max", format("Maximum value")).put("mean", format("Mean"))
-			.put("deviation", format("Standard deviation"))
-			.put("varcoef", format("Coefficient of variation"))
+			.put("deviation", format("Standard deviation")).put("varcoef", format("Coefficient of variation"))
 			.put("median", format("Median")).build();
 
-	private static Comparator<String> comparator = (a, b) -> Integer.compare(
-			sortList.get(a).value, sortList.get(b).value);
+	private static Comparator<String> comparator = (a, b) -> Integer.compare(sortList.get(a).value,
+			sortList.get(b).value);
 
 	private static List<Result> results;
 
-	private static boolean viewAsText = prefs.getBoolean("ResultsViewAsText",
-			false);
+	private static boolean viewAsText = prefs.getBoolean("ResultsViewAsText", false);
 
 	private static HashMap<String, TreeItem> models;
 
@@ -119,38 +111,29 @@ public class ResultsView extends ViewPart {
 		styleRange.start = origin.length();
 		styleRange.fontStyle = SWT.BOLD;
 
-		String[] resultText = { origin + (origin.length() > 0 ? "\n\n" : "")
-				+ data.getString("name") + ": " + data.getString("type") };
+		String[] resultText = {
+				origin + (origin.length() > 0 ? "\n\n" : "") + data.getString("name") + ": " + data.getString("type") };
 
 		styleRange.length = resultText[0].length() - origin.length();
 
 		LinkedList<StyleRange> numberStyles = new LinkedList<StyleRange>();
 
-		data.keySet()
-				.stream()
-				.filter(e -> sortList.containsKey(e))
-				.sorted(comparator)
-				.forEachOrdered(
-						e -> {
-							String[] text = new String[] {
-									sortList.get(e).name,
-									data.get(e).toString() };
+		data.keySet().stream().filter(e -> sortList.containsKey(e)).sorted(comparator).forEachOrdered(e -> {
+			String[] text = new String[] { sortList.get(e).name, data.get(e).toString() };
 
-							TreeItem child = new TreeItem(result, SWT.NONE);
-							child.setText(text);
+			TreeItem child = new TreeItem(result, SWT.NONE);
+			child.setText(text);
 
-							StyleRange numberStyle = new StyleRange();
-							numberStyle.start = resultText[0].length()
-									+ text[0].length() + 4;
-							numberStyle.length = text[1].length();
-							numberStyle.fontStyle = SWT.ITALIC;
-							numberStyle.foreground = child.getDisplay()
-									.getSystemColor(SWT.COLOR_DARK_BLUE);
+			StyleRange numberStyle = new StyleRange();
+			numberStyle.start = resultText[0].length() + text[0].length() + 4;
+			numberStyle.length = text[1].length();
+			numberStyle.fontStyle = SWT.ITALIC;
+			numberStyle.foreground = child.getDisplay().getSystemColor(SWT.COLOR_DARK_BLUE);
 
-							numberStyles.add(numberStyle);
+			numberStyles.add(numberStyle);
 
-							resultText[0] += "\n\t" + text[0] + ": " + text[1];
-						});
+			resultText[0] += "\n\t" + text[0] + ": " + text[1];
+		});
 
 		StyleRange[] styles = text.getStyleRanges();
 		text.setText(resultText[0]);
@@ -186,8 +169,7 @@ public class ResultsView extends ViewPart {
 	private static Tree tree;
 
 	private static int nameWidth = prefs.getInt("ResultsNameColumnWidth", 200);
-	private static int valueWidth = prefs
-			.getInt("ResultsValueColumnWidth", 200);
+	private static int valueWidth = prefs.getInt("ResultsValueColumnWidth", 200);
 
 	public static void savePreferences() {
 		prefs.putBoolean("ResultsViewAsText", viewAsText);
@@ -205,16 +187,16 @@ public class ResultsView extends ViewPart {
 	private static final String TREE_TEXT_SWITCH_ID = "ResultsView.actions.treeTextSwitch";
 	private static SwitchAction actionTreeTextSwitch = new SwitchAction() {
 		ImageDescriptor text, tree;
+
 		{
 			Bundle ui = Platform.getBundle("ru.bmstu.rk9.rao.ui");
 			setId(TREE_TEXT_SWITCH_ID);
 
-			text = ImageDescriptor.createFromURL(FileLocator.find(ui, new Path(
-					"icons/script-text.png"), null));
-			tree = ImageDescriptor.createFromURL(FileLocator.find(ui, new Path(
-					"icons/tree.png"), null));
+			text = ImageDescriptor.createFromURL(FileLocator.find(ui, new Path("icons/script-text.png"), null));
+			tree = ImageDescriptor.createFromURL(FileLocator.find(ui, new Path("icons/tree.png"), null));
 		}
 
+		@Override
 		public void updateLook() {
 			if (viewAsText) {
 				setText("View as tree");
@@ -244,11 +226,11 @@ public class ResultsView extends ViewPart {
 			setId(EXPAND_ALL_ID);
 
 			setText("Expand All");
-			setImageDescriptor(ImageDescriptor.createFromURL(FileLocator.find(
-					Platform.getBundle("ru.bmstu.rk9.rao.ui"), new Path(
-							"icons/zones-stack.png"), null)));
+			setImageDescriptor(ImageDescriptor.createFromURL(FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rao.ui"),
+					new Path("icons/zones-stack.png"), null)));
 		}
 
+		@Override
 		public void run() {
 			for (TreeItem item : tree.getItems()) {
 				item.setExpanded(true);
@@ -264,11 +246,11 @@ public class ResultsView extends ViewPart {
 			setId(COLLAPSE_ALL_ID);
 
 			setText("Collapse All");
-			setImageDescriptor(ImageDescriptor.createFromURL(FileLocator.find(
-					Platform.getBundle("ru.bmstu.rk9.rao.ui"), new Path(
-							"icons/zones.png"), null)));
+			setImageDescriptor(ImageDescriptor.createFromURL(
+					FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rao.ui"), new Path("icons/zones.png"), null)));
 		}
 
+		@Override
 		public void run() {
 			for (TreeItem item : tree.getItems()) {
 				item.setExpanded(true);
@@ -284,11 +266,11 @@ public class ResultsView extends ViewPart {
 			setId(COLLAPSE_MODELS_ID);
 
 			setText("Collapse Including Models");
-			setImageDescriptor(ImageDescriptor.createFromURL(FileLocator.find(
-					Platform.getBundle("ru.bmstu.rk9.rao.ui"), new Path(
-							"icons/zone-medium.png"), null)));
+			setImageDescriptor(ImageDescriptor.createFromURL(FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rao.ui"),
+					new Path("icons/zone-medium.png"), null)));
 		}
 
+		@Override
 		public void run() {
 			for (TreeItem item : tree.getItems()) {
 				for (TreeItem child : item.getItems())
@@ -386,6 +368,7 @@ public class ResultsView extends ViewPart {
 		MenuItem copy = new MenuItem(popupMenu, SWT.CASCADE);
 		copy.setText("Copy\tCtrl+C");
 		copy.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent event) {
 				text.invokeAction(ST.COPY);
 			}
@@ -415,21 +398,18 @@ public class ResultsView extends ViewPart {
 	}
 
 	private void updateTextFont() {
-		IThemeManager themeManager = PlatformUI.getWorkbench()
-				.getThemeManager();
+		IThemeManager themeManager = PlatformUI.getWorkbench().getThemeManager();
 		ITheme currentTheme = themeManager.getCurrentTheme();
 		FontRegistry fontRegistry = currentTheme.getFontRegistry();
 		text.setFont(fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT));
 	}
 
 	private void registerTextFontUpdateListener() {
-		IThemeManager themeManager = PlatformUI.getWorkbench()
-				.getThemeManager();
+		IThemeManager themeManager = PlatformUI.getWorkbench().getThemeManager();
 		IPropertyChangeListener listener = new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(
-						PreferenceConstants.EDITOR_TEXT_FONT))
+				if (event.getProperty().equals(PreferenceConstants.EDITOR_TEXT_FONT))
 					updateTextFont();
 			}
 		};
@@ -444,8 +424,7 @@ public class ResultsView extends ViewPart {
 	}
 
 	private static boolean isInitialized() {
-		return tree != null && text != null && !tree.isDisposed()
-				&& !text.isDisposed();
+		return tree != null && text != null && !tree.isDisposed() && !text.isDisposed();
 	}
 
 	@Override

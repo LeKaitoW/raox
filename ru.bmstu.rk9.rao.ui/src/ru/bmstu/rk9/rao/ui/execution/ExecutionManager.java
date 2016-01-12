@@ -30,10 +30,11 @@ public class ExecutionManager {
 	private final IEditorPart activeEditor;
 	private final IWorkbenchWindow activeWorkbenchWindow;
 
-	private final String pluginId = RaoActivatorExtension.getInstance()
-			.getBundle().getSymbolicName();
+	private final String pluginId = RaoActivatorExtension.getInstance().getBundle().getSymbolicName();
 
-	private enum ExecutionManagerState {BEFORE_RUN};
+	private enum ExecutionManagerState {
+		BEFORE_RUN
+	};
 
 	private static final Notifier<ExecutionManagerState> executionManagerNotifier = new Notifier<>(
 			ExecutionManagerState.class);
@@ -43,10 +44,8 @@ public class ExecutionManager {
 				EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED));
 	}
 
-	public ExecutionManager(final IEditorPart activeEditor,
-			final IWorkbenchWindow activeWorkbenchWindow,
-			final EclipseResourceFileSystemAccess2 fsa,
-			final IResourceSetProvider resourceSetProvider,
+	public ExecutionManager(final IEditorPart activeEditor, final IWorkbenchWindow activeWorkbenchWindow,
+			final EclipseResourceFileSystemAccess2 fsa, final IResourceSetProvider resourceSetProvider,
 			final EclipseOutputConfigurationProvider ocp,
 			final DefaultResourceUIValidatorExtension validatorExtension) {
 		this.activeEditor = activeEditor;
@@ -61,12 +60,10 @@ public class ExecutionManager {
 		Job executionJob = new Job("Building Rao model") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				ModelExecutionSourceProvider.setSimulationState(
-						activeWorkbenchWindow,
+				ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 						SimulationState.RUNNING.toString());
 				try {
-					BuildJobProvider modelBuilder = new BuildJobProvider(
-							activeEditor, activeWorkbenchWindow, fsa,
+					BuildJobProvider modelBuilder = new BuildJobProvider(activeEditor, activeWorkbenchWindow, fsa,
 							resourceSetProvider, outputConfigurationProvider, validatorExtension);
 					final Job build = modelBuilder.createBuildJob();
 					build.schedule();
@@ -74,22 +71,18 @@ public class ExecutionManager {
 						build.join();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
-						return new Status(Status.ERROR, pluginId,
-								"Internal error while finishing build");
+						return new Status(IStatus.ERROR, pluginId, "Internal error while finishing build");
 					}
 
 					if (build.getResult() != Status.OK_STATUS) {
-						ModelExecutionSourceProvider.setSimulationState(
-								activeWorkbenchWindow,
+						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 								SimulationState.STOPPED.toString());
 						ConsoleView.addLine("Build failed");
-						return new Status(Status.CANCEL, pluginId,
-								"Execution cancelled");
+						return new Status(IStatus.CANCEL, pluginId, "Execution cancelled");
 					}
 
 					if (buildOnly) {
-						ModelExecutionSourceProvider.setSimulationState(
-								activeWorkbenchWindow,
+						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 								SimulationState.STOPPED.toString());
 						return Status.OK_STATUS;
 					}
@@ -97,29 +90,25 @@ public class ExecutionManager {
 					executionManagerNotifier.notifySubscribers(ExecutionManagerState.BEFORE_RUN);
 
 					final IProject project = modelBuilder.getBuiltProject();
-					ExecutionJobProvider modelExecutioner = new ExecutionJobProvider(
-							project);
+					ExecutionJobProvider modelExecutioner = new ExecutionJobProvider(project);
 					final Job runJob = modelExecutioner.createExecutionJob();
 					runJob.schedule();
 					try {
 						runJob.join();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
-						return new Status(Status.ERROR, pluginId,
-								"Internal error while finishing execution");
+						return new Status(IStatus.ERROR, pluginId, "Internal error while finishing execution");
 					}
 
 					if (runJob.getResult() != Status.OK_STATUS) {
 						ConsoleView.addLine("Execution failed");
-						return new Status(Status.CANCEL, pluginId,
-								"Execution failed");
+						return new Status(IStatus.CANCEL, pluginId, "Execution failed");
 					}
 
 					return Status.OK_STATUS;
 				} finally {
 					executionManagerNotifier.removeAllSubscribers(ExecutionManagerState.BEFORE_RUN);
-					ModelExecutionSourceProvider.setSimulationState(
-							activeWorkbenchWindow,
+					ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 							SimulationState.STOPPED.toString());
 				}
 			}

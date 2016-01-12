@@ -35,8 +35,7 @@ public class DbIndexHelper {
 	}
 
 	public final CollectedDataNode getResourceType(String name) {
-		return getCategory(SerializationCategory.RESOURCES).getChildren().get(
-				name);
+		return getCategory(SerializationCategory.RESOURCES).getChildren().get(name);
 	}
 
 	public final CollectedDataNode addResult(String name) {
@@ -44,8 +43,7 @@ public class DbIndexHelper {
 	}
 
 	public final CollectedDataNode getResult(String name) {
-		return getCategory(SerializationCategory.RESULTS).getChildren().get(
-				name);
+		return getCategory(SerializationCategory.RESULTS).getChildren().get(name);
 	}
 
 	public final CollectedDataNode addEvent(String name) {
@@ -53,18 +51,15 @@ public class DbIndexHelper {
 	}
 
 	public final CollectedDataNode getEvent(String name) {
-		return getCategory(SerializationCategory.EVENTS).getChildren().get(
-				name);
+		return getCategory(SerializationCategory.EVENTS).getChildren().get(name);
 	}
 
 	public final CollectedDataNode addDecisionPoint(String name) {
-		return getCategory(SerializationCategory.DECISION_POINTS)
-				.addChild(name);
+		return getCategory(SerializationCategory.DECISION_POINTS).addChild(name);
 	}
 
 	public final CollectedDataNode getDecisionPoint(String name) {
-		return getCategory(SerializationCategory.DECISION_POINTS).getChildren()
-				.get(name);
+		return getCategory(SerializationCategory.DECISION_POINTS).getChildren().get(name);
 	}
 
 	public final CollectedDataNode addSearch(String name) {
@@ -72,8 +67,7 @@ public class DbIndexHelper {
 	}
 
 	public final CollectedDataNode getSearch(String name) {
-		return getCategory(SerializationCategory.SEARCH).getChildren()
-				.get(name);
+		return getCategory(SerializationCategory.SEARCH).getChildren().get(name);
 	}
 
 	private String modelName;

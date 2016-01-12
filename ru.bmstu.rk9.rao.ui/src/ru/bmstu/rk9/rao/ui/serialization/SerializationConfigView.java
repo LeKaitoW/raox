@@ -80,8 +80,7 @@ public class SerializationConfigView extends ViewPart {
 		if (!readyForInput())
 			return;
 
-		SerializationConfig serializationConfig = (SerializationConfig) serializationTreeViewer
-				.getInput();
+		SerializationConfig serializationConfig = (SerializationConfig) serializationTreeViewer.getInput();
 		if (serializationConfig == null)
 			return;
 
@@ -115,48 +114,38 @@ public class SerializationConfigView extends ViewPart {
 
 		serializationConfig.clear();
 
-		serializationTreeViewer
-				.setContentProvider(new RaoSerializationConfigContentProvider());
-		serializationTreeViewer
-				.setLabelProvider(new RaoSerializationConfigLabelProvider());
-		serializationTreeViewer
-				.setCheckStateProvider(new RaoSerializationConfigCheckStateProvider());
+		serializationTreeViewer.setContentProvider(new RaoSerializationConfigContentProvider());
+		serializationTreeViewer.setLabelProvider(new RaoSerializationConfigLabelProvider());
+		serializationTreeViewer.setCheckStateProvider(new RaoSerializationConfigCheckStateProvider());
 
-		serializationTreeViewer
-				.addCheckStateListener(new ICheckStateListener() {
-					@Override
-					public void checkStateChanged(CheckStateChangedEvent event) {
-						boolean serializationState = event.getChecked();
-						SerializationNode node = (SerializationNode) event
-								.getElement();
+		serializationTreeViewer.addCheckStateListener(new ICheckStateListener() {
+			@Override
+			public void checkStateChanged(CheckStateChangedEvent event) {
+				boolean serializationState = event.getChecked();
+				SerializationNode node = (SerializationNode) event.getElement();
 
-						node.setSerializationState(serializationState);
-						serializationTreeViewer.setSubtreeChecked(node,
-								serializationState);
-						node.setSerializeVisibleChildren(serializationState);
-					}
-				});
+				node.setSerializationState(serializationState);
+				serializationTreeViewer.setSubtreeChecked(node, serializationState);
+				node.setSerializeVisibleChildren(serializationState);
+			}
+		});
 
-		serializationTreeViewer
-				.addDoubleClickListener(new IDoubleClickListener() {
-					@Override
-					public void doubleClick(DoubleClickEvent event) {
-						Object item = serializationTreeViewer.getTree()
-								.getSelection()[0].getData();
-						if (item == null)
-							return;
+		serializationTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				Object item = serializationTreeViewer.getTree().getSelection()[0].getData();
+				if (item == null)
+					return;
 
-						if (serializationTreeViewer.getExpandedState(item))
-							serializationTreeViewer.collapseToLevel(item, 1);
-						else
-							serializationTreeViewer.expandToLevel(item, 1);
-					}
-				});
+				if (serializationTreeViewer.getExpandedState(item))
+					serializationTreeViewer.collapseToLevel(item, 1);
+				else
+					serializationTreeViewer.expandToLevel(item, 1);
+			}
+		});
 
-		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getPartService()
-				.addPartListener(partListener);
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(
-				resourceChangeListener);
+		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getPartService().addPartListener(partListener);
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(resourceChangeListener);
 
 		initializeSubscribers();
 		initializeTree();
@@ -174,8 +163,7 @@ public class SerializationConfigView extends ViewPart {
 	}
 
 	public final static boolean readyForInput() {
-		return serializationTreeViewer != null
-				&& !serializationTreeViewer.getTree().isDisposed()
+		return serializationTreeViewer != null && !serializationTreeViewer.getTree().isDisposed()
 				&& serializationTreeViewer.getContentProvider() != null
 				&& serializationTreeViewer.getLabelProvider() != null;
 	}
@@ -190,8 +178,7 @@ public class SerializationConfigView extends ViewPart {
 	private final Map<IProject, Map<IResource, SerializationNode>> openedProjectsContents = new ConcurrentHashMap<>();
 
 	private final void initializeTree() {
-		for (IProject project : ResourcesPlugin.getWorkspace().getRoot()
-				.getProjects())
+		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects())
 			addProjectToTree(project);
 	}
 
@@ -221,8 +208,7 @@ public class SerializationConfigView extends ViewPart {
 			case IResource.FOLDER:
 				return true;
 			case IResource.PROJECT:
-				handleProjectChanges((IProject) delta.getResource(),
-						delta.getKind());
+				handleProjectChanges((IProject) delta.getResource(), delta.getKind());
 				return true;
 			case IResource.FILE:
 				handleFileChanges((IFile) delta.getResource(), delta.getKind());
@@ -272,11 +258,9 @@ public class SerializationConfigView extends ViewPart {
 	};
 
 	private final void addProjectToTree(IProject project) {
-		openedProjectsContents.put(project,
-				new ConcurrentHashMap<IResource, SerializationNode>());
+		openedProjectsContents.put(project, new ConcurrentHashMap<IResource, SerializationNode>());
 
-		final List<IResource> projectFiles = BuildUtil
-				.getAllRaoFilesInProject(project);
+		final List<IResource> projectFiles = BuildUtil.getAllRaoFilesInProject(project);
 
 		for (IResource raoFile : projectFiles) {
 			updateFileContents((IFile) raoFile);
@@ -309,8 +293,7 @@ public class SerializationConfigView extends ViewPart {
 		SerializationNode newModel = addModel(model.eResource());
 		openedProjectsContents.get(project).put(raoFile, newModel);
 
-		List<SerializationNode> modelsWithSameName = serializationConfig
-				.findModelsWithSameName(newModel.getFullName());
+		List<SerializationNode> modelsWithSameName = serializationConfig.findModelsWithSameName(newModel.getFullName());
 		if (modelsWithSameName.size() > 1)
 			for (SerializationNode node : modelsWithSameName)
 				node.mustShowFullName(true);
@@ -318,12 +301,8 @@ public class SerializationConfigView extends ViewPart {
 		if (serializationTreeViewer.getInput() == null)
 			serializationTreeViewer.setInput(serializationConfig);
 
-		PlatformUI
-				.getWorkbench()
-				.getDisplay()
-				.asyncExec(
-						() -> SerializationConfigView.serializationTreeViewer
-								.refresh());
+		PlatformUI.getWorkbench().getDisplay()
+				.asyncExec(() -> SerializationConfigView.serializationTreeViewer.refresh());
 	}
 
 	private final void removeProjectFromTree(IProject project) {
@@ -340,8 +319,7 @@ public class SerializationConfigView extends ViewPart {
 		if (!openedProjectsContents.containsKey(project))
 			return;
 
-		SerializationNode modelNode = openedProjectsContents.get(project).get(
-				raoFile);
+		SerializationNode modelNode = openedProjectsContents.get(project).get(raoFile);
 		serializationConfig.removeModel(modelNode);
 		openedProjectsContents.get(project).remove(raoFile);
 
@@ -350,12 +328,8 @@ public class SerializationConfigView extends ViewPart {
 		if (modelsWithSameName.size() == 1)
 			modelsWithSameName.get(0).mustShowFullName(false);
 
-		PlatformUI
-				.getWorkbench()
-				.getDisplay()
-				.asyncExec(
-						() -> SerializationConfigView.serializationTreeViewer
-								.refresh());
+		PlatformUI.getWorkbench().getDisplay()
+				.asyncExec(() -> SerializationConfigView.serializationTreeViewer.refresh());
 	}
 
 	// ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -427,13 +401,12 @@ public class SerializationConfigView extends ViewPart {
 
 		registeredEditors.add(editor);
 
-		((XtextEditor) editor).getDocument().addModelListener(
-				new IXtextModelListener() {
-					@Override
-					public void modelChanged(XtextResource resource) {
-						updateInput(resource);
-					}
-				});
+		((XtextEditor) editor).getDocument().addModelListener(new IXtextModelListener() {
+			@Override
+			public void modelChanged(XtextResource resource) {
+				updateInput(resource);
+			}
+		});
 
 		return;
 	}
@@ -446,8 +419,7 @@ public class SerializationConfigView extends ViewPart {
 	}
 
 	private static SerializationNode addModel(Resource model) {
-		SerializationNode modelNode = serializationConfigurator.initModel(
-				serializationConfig.getRoot(), model);
+		SerializationNode modelNode = serializationConfigurator.initModel(serializationConfig.getRoot(), model);
 		updateInput(model);
 		return modelNode;
 	}
@@ -455,15 +427,10 @@ public class SerializationConfigView extends ViewPart {
 	private static void updateInput(Resource model) {
 		if (!readyForInput())
 			return;
-		SerializationNode modelNode = serializationConfig.findModel(model
-				.getURI().toPlatformString(false));
+		SerializationNode modelNode = serializationConfig.findModel(model.getURI().toPlatformString(false));
 		serializationConfigurator.fillCategories(model, modelNode);
-		PlatformUI
-				.getWorkbench()
-				.getDisplay()
-				.asyncExec(
-						() -> SerializationConfigView.serializationTreeViewer
-								.refresh());
+		PlatformUI.getWorkbench().getDisplay()
+				.asyncExec(() -> SerializationConfigView.serializationTreeViewer.refresh());
 	}
 
 	public static void onModelSave() {
@@ -479,11 +446,9 @@ public class SerializationConfigView extends ViewPart {
 	// ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private final void initializeSubscribers() {
-		subscriberRegistrationManager.initialize(Arrays.asList(
-				new SimulatorSubscriberInfo(enableSubscriber,
-						ExecutionState.EXECUTION_COMPLETED),
-				new SimulatorSubscriberInfo(disableSubscriber,
-						ExecutionState.EXECUTION_STARTED)));
+		subscriberRegistrationManager.initialize(
+				Arrays.asList(new SimulatorSubscriberInfo(enableSubscriber, ExecutionState.EXECUTION_COMPLETED),
+						new SimulatorSubscriberInfo(disableSubscriber, ExecutionState.EXECUTION_STARTED)));
 	}
 
 	private final void deinitializeSubscribers() {
@@ -509,12 +474,7 @@ public class SerializationConfigView extends ViewPart {
 	private static void setEnabled(boolean state) {
 		if (!readyForInput())
 			return;
-		PlatformUI
-				.getWorkbench()
-				.getDisplay()
-				.asyncExec(
-						() -> serializationTreeViewer.getTree().setEnabled(
-								state));
+		PlatformUI.getWorkbench().getDisplay().asyncExec(() -> serializationTreeViewer.getTree().setEnabled(state));
 	}
 }
 
@@ -536,12 +496,15 @@ class RaoSerializationConfigCheckStateProvider implements ICheckStateProvider {
 }
 
 class RaoSerializationConfigContentProvider implements ITreeContentProvider {
+	@Override
 	public void dispose() {
 	}
 
+	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 	}
 
+	@Override
 	public Object[] getElements(Object inputElement) {
 		SerializationConfig serializationConfig = (SerializationConfig) inputElement;
 		if (!serializationConfig.getRoot().hasChildren())
@@ -549,6 +512,7 @@ class RaoSerializationConfigContentProvider implements ITreeContentProvider {
 		return serializationConfig.getRoot().getVisibleChildren().toArray();
 	}
 
+	@Override
 	public Object[] getChildren(Object parentElement) {
 		SerializationNode serializationNode = (SerializationNode) parentElement;
 		if (!serializationNode.hasChildren())
@@ -556,11 +520,13 @@ class RaoSerializationConfigContentProvider implements ITreeContentProvider {
 		return serializationNode.getVisibleChildren().toArray();
 	}
 
+	@Override
 	public Object getParent(Object element) {
 		SerializationNode serializationNode = (SerializationNode) element;
 		return serializationNode.getParent();
 	}
 
+	@Override
 	public boolean hasChildren(Object element) {
 		SerializationNode serializationNode = (SerializationNode) element;
 		return serializationNode.hasChildren();

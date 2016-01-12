@@ -22,12 +22,10 @@ public class RaoColor {
 	public static final RaoColor COLOR_DARK_GREEN = new RaoColor(0, 0x80, 0);
 	public static final RaoColor COLOR_DARK_YELLOW = new RaoColor(0x80, 0x80, 0);
 	public static final RaoColor COLOR_DARK_BLUE = new RaoColor(0, 0, 0x80);
-	public static final RaoColor COLOR_DARK_MAGENTA = new RaoColor(0x80, 0,
-			0x80);
+	public static final RaoColor COLOR_DARK_MAGENTA = new RaoColor(0x80, 0, 0x80);
 	public static final RaoColor COLOR_DARK_CYAN = new RaoColor(0, 0x80, 0x80);
 	public static final RaoColor COLOR_GRAY = new RaoColor(0xC0, 0xC0, 0xC0);
-	public static final RaoColor COLOR_DARK_GRAY = new RaoColor(0x80, 0x80,
-			0x80);
+	public static final RaoColor COLOR_DARK_GRAY = new RaoColor(0x80, 0x80, 0x80);
 	public static final RaoColor COLOR_RED = new RaoColor(0xFF, 0, 0);
 	public static final RaoColor COLOR_GREEN = new RaoColor(0, 0xFF, 0);
 	public static final RaoColor COLOR_YELLOW = new RaoColor(0xFF, 0xFF, 0);

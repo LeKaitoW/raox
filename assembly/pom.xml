@@ -6,7 +6,7 @@
 		<relativePath>../pom.xml</relativePath>
 		<groupId>ru.bmstu.rk9.rao</groupId>
 		<artifactId>parent</artifactId>
-		<version>2.11.1</version>
+		<version>2.12.0</version>
 	</parent>
 
 	<artifactId>assembly</artifactId>
@@ -21,49 +21,6 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 -product
 		</set_rao_perspective-value>
 	</properties>
-
-	<profiles>
-		<profile>
-			<id>package-as-eclipse-dropins</id>
-			<activation>
-				<property>
-					<name>eclipse-path</name>
-				</property>
-			</activation>
-			<properties>
-				<assembly-descriptor>eclipse-dropins.xml</assembly-descriptor>
-			</properties>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-resources-plugin</artifactId>
-						<version>2.7</version>
-						<executions>
-							<execution>
-								<id>copy-eclipse-ini</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>copy-resources</goal>
-								</goals>
-								<configuration>
-									<overwrite>true</overwrite>
-									<outputDirectory>${basedir}/target</outputDirectory>
-									<resources>
-										<resource>
-											<directory>${eclipse-path}</directory>
-											<includes>
-												<include>eclipse.ini</include>
-											</includes>
-										</resource>
-									</resources>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 
 	<build>
 		<plugins>

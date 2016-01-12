@@ -40,21 +40,17 @@ public class Notifier<Category extends Enum<Category>> {
 		addSubscriber(subscriber, category, EnumSet.noneOf(SubscriptionType.class));
 	}
 
-	public void addSubscriber(Subscriber subscriber, Category category,
-			EnumSet<SubscriptionType> subscriptionFlags) {
+	public void addSubscriber(Subscriber subscriber, Category category, EnumSet<SubscriptionType> subscriptionFlags) {
 		SubscriptionState subscriptionState = subscriptionStates.get(category);
 
-		subscriptionState.subscription.addSubscriber(subscriber,
-				subscriptionFlags);
+		subscriptionState.subscription.addSubscriber(subscriber, subscriptionFlags);
 
-		if (!subscriptionFlags.contains(SubscriptionType.IGNORE_ACCUMULATED)
-				&& subscriptionState.hadNotifications)
+		if (!subscriptionFlags.contains(SubscriptionType.IGNORE_ACCUMULATED) && subscriptionState.hadNotifications)
 			subscriber.fireChange();
 	}
 
 	public void removeSubscriber(Subscriber subscriber, Category category) {
-		subscriptionStates.get(category).subscription
-				.removeSubscriber(subscriber);
+		subscriptionStates.get(category).subscription.removeSubscriber(subscriber);
 	}
 
 	public void removeAllSubscribers(Category category) {
