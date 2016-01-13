@@ -161,9 +161,12 @@ public class BuildJobProvider {
 						validatorExtension.updateValidationMarkers((IFile) resource, loadedResource, CheckMode.ALL,
 								monitor);
 						IMarker[] markers = resource.findMarkers(IMarker.PROBLEM, true, 0);
-						if (markers.length > 0) {
-							projectHasErrors = true;
-							break;
+						for (IMarker marker : markers) {
+							int severity = marker.getAttribute(IMarker.SEVERITY, Integer.MAX_VALUE);
+							if (severity == IMarker.SEVERITY_ERROR) {
+								projectHasErrors = true;
+								break;
+							}
 						}
 					} catch (CoreException e) {
 						e.printStackTrace();
