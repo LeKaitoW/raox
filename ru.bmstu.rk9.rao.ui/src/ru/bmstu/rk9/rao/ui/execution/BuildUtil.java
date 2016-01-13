@@ -95,6 +95,7 @@ public class BuildUtil {
 				libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
 			else
 				libPathBinary = new Path(libPath.getAbsolutePath());
+			IPath sourcePath = new Path(libPath.getAbsolutePath());
 
 			List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
 					Arrays.asList(projectClassPathArray));
@@ -109,7 +110,7 @@ public class BuildUtil {
 			jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
 					monitor);
 
-			IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary, null, null);
+			IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary, sourcePath, null);
 			projectClassPathList.add(libEntry);
 
 			jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),

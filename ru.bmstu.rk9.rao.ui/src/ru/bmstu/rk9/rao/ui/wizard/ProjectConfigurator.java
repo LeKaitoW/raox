@@ -110,7 +110,8 @@ public class ProjectConfigurator {
 			libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
 		else
 			libPathBinary = new Path(libPath.getAbsolutePath());
-		IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary, null, null);
+		IPath sourcePath = new Path(libPath.getAbsolutePath());
+		IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary, sourcePath, null);
 		entries.add(libEntry);
 
 		Bundle xbaseLib = Platform.getBundle("org.eclipse.xtext.xbase.lib");
