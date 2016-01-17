@@ -24,6 +24,7 @@ import org.eclipse.xtext.common.types.JvmAnnotationType
 import org.eclipse.xtext.common.types.JvmAnnotationReference
 import org.eclipse.xtext.common.types.impl.TypesFactoryImpl
 import ru.bmstu.rk9.rao.rao.EnumDeclaration
+import ru.bmstu.rk9.rao.rao.Sequence
 
 class RaoJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
@@ -51,6 +52,27 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 			final = true
 			initializer = constant.value
 		]
+	}
+
+	def dispatch compileRaoEntity(Sequence sequence, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		if (!isPreIndexingPhase && sequence.constructor != null) {
+			members += sequence.toField(sequence.name, sequence.constructor.inferredType) [
+				visibility = JvmVisibility.PUBLIC
+				static = true
+				final = true
+				initializer = sequence.constructor
+			]
+		}
+	}
+
+	def dispatch compileRaoEntity(ResourceDeclaration resource, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		if (!isPreIndexingPhase && resource.constructor != null)
+			members += resource.toField(resource.name, resource.constructor.inferredType) [
+				visibility = JvmVisibility.PUBLIC
+				static = true
+				final = true
+				initializer = resource.constructor
+			]
 	}
 
 	def dispatch compileRaoEntity(EnumDeclaration enumDeclaration, JvmDeclaredType it, boolean isPreIndexingPhase) {
@@ -204,16 +226,6 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				'''
 			]
 		]
-	}
-
-	def dispatch compileRaoEntity(ResourceDeclaration resource, JvmDeclaredType it, boolean isPreIndexingPhase) {
-		if (!isPreIndexingPhase && resource.constructor != null)
-			members += resource.toField(resource.name, resource.constructor.inferredType) [
-				visibility = JvmVisibility.PUBLIC
-				static = true
-				final = true
-				initializer = resource.constructor
-			]
 	}
 
 	def dispatch compileRaoEntity(Event event, JvmDeclaredType it, boolean isPreIndexingPhase) {

@@ -193,39 +193,7 @@ DptCompareTopsStatement:
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 Sequence:
-	'sequence' name = ID '=' returnType = JvmTypeReference type = SequenceType
-;
-
-SequenceType
-	: UniformSequence
-	| ExponentialSequence
-	| NormalSequence
-	| TriangularSequence
-;
-
-UniformSequence:
-	legacy ?= 'legacy'? type = 'uniform' '('
-			seed = INT (',' a = XOrExpression ',' b = XOrExpression)?
-	')' ';'
-;
-
-ExponentialSequence:
-	legacy ?= 'legacy'? type = 'exponential' '('
-			seed = INT (',' rate = XOrExpression)?
-	')' ';'
-;
-
-NormalSequence:
-	legacy ?= 'legacy'? type = 'normal' '('
-			seed = INT (',' mean = XOrExpression ',' deviation = XOrExpression)?
-	')' ';'
-;
-
-TriangularSequence:
-	legacy ?= 'legacy'? type = 'triangular' '('
-			seed = INT (',' a = XOrExpression ','
-				b = XOrExpression ',' c = XOrExpression)?
-	')' ';'
+	'sequence' name = ID '=' constructor = XOrExpression ';'
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

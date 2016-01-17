@@ -164,6 +164,13 @@ class RaoValidator extends AbstractRaoValidator
 	}
 
 	@Check
+	def checkSequenceDeclaration(Sequence sequence) {
+		if (!sequence.constructor.actualType.isSubtypeOf(typeof(ru.bmstu.rk9.rao.lib.sequence.Sequence)))
+			error("Error in declaration of \"" + sequence.name + "\": only Rao sequences are allowed.",
+				RaoPackage.eINSTANCE.sequence_Constructor)
+	}
+
+	@Check
 	def checkNamesInPatterns(Pattern pattern)
 	{
 		val List<EObject> parameters  = pattern.eAllContents.filter[eObject |
