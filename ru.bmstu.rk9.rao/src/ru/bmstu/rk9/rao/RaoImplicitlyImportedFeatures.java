@@ -12,7 +12,7 @@ import ru.bmstu.rk9.rao.lib.runtime.Model;
 public class RaoImplicitlyImportedFeatures extends ImplicitlyImportedFeatures {
 	@Override
 	protected List<Class<?>> getExtensionClasses() {
-		List<Class<?>> classes = Lists.<Class<?>> newArrayList(Model.class);
+		List<Class<?>> classes = getRaoExtensionClasses();
 
 		classes.addAll(super.getExtensionClasses());
 		return classes;
@@ -20,9 +20,13 @@ public class RaoImplicitlyImportedFeatures extends ImplicitlyImportedFeatures {
 
 	@Override
 	protected List<Class<?>> getStaticImportClasses() {
-		List<Class<?>> classes = Lists.<Class<?>> newArrayList(Model.class);
+		List<Class<?>> classes = getRaoExtensionClasses();
 
 		classes.addAll(super.getStaticImportClasses());
 		return classes;
+	}
+
+	private List<Class<?>> getRaoExtensionClasses() {
+		return Lists.<Class<?>> newArrayList(Model.class);
 	}
 }
