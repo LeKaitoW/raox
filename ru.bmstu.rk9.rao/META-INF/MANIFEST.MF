@@ -31,5 +31,6 @@ Export-Package: ru.bmstu.rk9.rao,
  ru.bmstu.rk9.rao.parser.antlr,
  ru.bmstu.rk9.rao.parser.antlr.internal,
  ru.bmstu.rk9.rao.validation,
- ru.bmstu.rk9.rao.formatting,
- ru.bmstu.rk9.rao.jvmmodel
+ ru.bmstu.rk9.rao.formatting2,
+ ru.bmstu.rk9.rao.jvmmodel,
+ ru.bmstu.rk9.rao.formatting
