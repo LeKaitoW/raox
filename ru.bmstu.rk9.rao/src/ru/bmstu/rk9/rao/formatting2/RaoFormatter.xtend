@@ -3,7 +3,6 @@
  */
 package ru.bmstu.rk9.rao.formatting2;
 
-import com.google.inject.Inject;
 import org.eclipse.xtext.common.types.JvmFormalParameter;
 import org.eclipse.xtext.formatting2.IFormattableDocument;
 import org.eclipse.xtext.xbase.XExpression;
@@ -39,11 +38,8 @@ import ru.bmstu.rk9.rao.rao.ResultWatchQuantity;
 import ru.bmstu.rk9.rao.rao.ResultWatchState;
 import ru.bmstu.rk9.rao.rao.ResultWatchValue;
 import ru.bmstu.rk9.rao.rao.Sequence;
-import ru.bmstu.rk9.rao.services.RaoGrammarAccess;
 
 class RaoFormatter extends XbaseFormatter {
-	@Inject extension RaoGrammarAccess
-
 	def dispatch void format(RaoModel raomodel, extension IFormattableDocument document) {
 		// TODO: format HiddenRegions around keywords, attributes, cross references, etc.
 		for (RaoEntity objects : raomodel.getObjects()) {
