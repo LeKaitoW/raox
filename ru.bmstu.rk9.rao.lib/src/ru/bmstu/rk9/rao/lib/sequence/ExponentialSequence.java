@@ -4,7 +4,7 @@ import org.apache.commons.math3.random.MersenneTwister;
 
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 
-public class ExponentialSequence implements Sequence {
+public class ExponentialSequence implements NumericSequence {
 	private final Double rate;
 	private final MersenneTwister mersenneTwister;
 	private final SequenceParametersType parametersType;

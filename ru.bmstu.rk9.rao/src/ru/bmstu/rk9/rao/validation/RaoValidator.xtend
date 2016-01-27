@@ -165,9 +165,12 @@ class RaoValidator extends AbstractRaoValidator
 
 	@Check
 	def checkSequenceDeclaration(Sequence sequence) {
-		if (!sequence.constructor.actualType.isSubtypeOf(typeof(ru.bmstu.rk9.rao.lib.sequence.Sequence)))
+		if (!sequence.constructor.actualType.isSubtypeOf(typeof(NumericSequence)) &&
+				!sequence.constructor.actualType.isSubtypeOf(typeof(ArbitraryTypeSequence))) {
 			error("Error in declaration of \"" + sequence.name + "\": only Rao sequences are allowed.",
 				RaoPackage.eINSTANCE.sequence_Constructor)
+		}
+
 	}
 
 	@Check

@@ -7,7 +7,7 @@ import ru.bmstu.rk9.rao.services.RaoGrammarAccess;
 
 import com.google.inject.Inject;
 
-@SuppressWarnings("restriction")
+@SuppressWarnings({ "restriction", "deprecation" })
 public class RaoHighlightningCalculator extends XbaseHighlightingCalculator {
 	@Inject
 	RaoGrammarAccess raoGrammarAccess;

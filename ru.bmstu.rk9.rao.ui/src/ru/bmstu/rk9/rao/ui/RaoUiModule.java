@@ -8,6 +8,7 @@ import org.eclipse.xtext.ui.editor.syntaxcoloring.ISemanticHighlightingCalculato
 
 import ru.bmstu.rk9.rao.ui.highlightning.RaoHighlightningCalculator;
 
+@SuppressWarnings("deprecation")
 public class RaoUiModule extends AbstractRaoUiModule {
 	private void registerPerspectiveAdapter() {
 		Display.getDefault().asyncExec(new Runnable() {

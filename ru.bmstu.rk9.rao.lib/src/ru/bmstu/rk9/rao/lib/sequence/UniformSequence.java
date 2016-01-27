@@ -4,7 +4,7 @@ import org.apache.commons.math3.random.MersenneTwister;
 
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 
-public class UniformSequence implements Sequence {
+public class UniformSequence implements NumericSequence {
 	private final Double a;
 	private final Double b;
 	private final MersenneTwister mersenneTwister;

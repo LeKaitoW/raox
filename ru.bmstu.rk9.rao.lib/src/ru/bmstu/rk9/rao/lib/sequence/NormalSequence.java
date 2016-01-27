@@ -5,7 +5,7 @@ import org.apache.commons.math3.special.Erf;
 
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 
-public class NormalSequence implements Sequence {
+public class NormalSequence implements NumericSequence {
 	private final Double mean;
 	private final Double variance;
 	private final MersenneTwister mersenneTwister;
