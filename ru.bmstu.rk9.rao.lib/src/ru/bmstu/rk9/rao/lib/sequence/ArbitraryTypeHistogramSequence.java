@@ -6,9 +6,9 @@ import java.util.List;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.eclipse.xtext.xbase.lib.Pair;
 
-public class DiscreteHistogramSequence<T> implements ArbitraryTypeSequence<T> {
-	public class DiscreteHistogramBin {
-		DiscreteHistogramBin(T value, double weight) {
+public class ArbitraryTypeHistogramSequence<T> implements ArbitraryTypeSequence<T> {
+	public class ArbitrartyTypeHistogramBin {
+		ArbitrartyTypeHistogramBin(T value, double weight) {
 			this.weight = weight;
 			this.value = value;
 		}
@@ -17,14 +17,14 @@ public class DiscreteHistogramSequence<T> implements ArbitraryTypeSequence<T> {
 		private final double weight;
 	}
 
-	public DiscreteHistogramSequence(long seed, List<Pair<T, ? extends Number>> values) {
+	public ArbitraryTypeHistogramSequence(long seed, List<Pair<T, ? extends Number>> values) {
 		adductionCoefficient = 0;
 
 		for (Pair<T, ? extends Number> value : values) {
 			T val = value.getKey();
 			Double binHeight = value.getValue().doubleValue();
 
-			bins.add(new DiscreteHistogramBin(val, binHeight));
+			bins.add(new ArbitrartyTypeHistogramBin(val, binHeight));
 			adductionCoefficient += binHeight;
 		}
 	}
@@ -33,9 +33,9 @@ public class DiscreteHistogramSequence<T> implements ArbitraryTypeSequence<T> {
 	public T next() {
 		double offset = 0;
 		double binRandom = mersenneTwister.nextDouble();
-		DiscreteHistogramBin selectedBin = null;
+		ArbitrartyTypeHistogramBin selectedBin = null;
 
-		for (DiscreteHistogramBin bin : bins) {
+		for (ArbitrartyTypeHistogramBin bin : bins) {
 			if (offset + bin.weight >= binRandom * adductionCoefficient) {
 				selectedBin = bin;
 				break;
@@ -47,6 +47,6 @@ public class DiscreteHistogramSequence<T> implements ArbitraryTypeSequence<T> {
 	}
 
 	private final MersenneTwister mersenneTwister = new MersenneTwister(123456789);
-	private final List<DiscreteHistogramBin> bins = new ArrayList<>();
+	private final List<ArbitrartyTypeHistogramBin> bins = new ArrayList<>();
 	private double adductionCoefficient;
 }

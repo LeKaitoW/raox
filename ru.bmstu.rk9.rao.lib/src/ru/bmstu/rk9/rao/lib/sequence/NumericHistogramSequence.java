@@ -6,9 +6,9 @@ import java.util.List;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.eclipse.xtext.xbase.lib.Pair;
 
-public class ContinuousHistogramSequence implements NumericSequence {
-	public class ContinuousHistogramBin {
-		ContinuousHistogramBin(double start, double width, double weight, double offset) {
+public class NumericHistogramSequence implements NumericSequence {
+	public class NumericHistogramBin {
+		NumericHistogramBin(double start, double width, double weight, double offset) {
 			this.start = start;
 			this.width = width;
 			this.weight = weight;
@@ -21,11 +21,11 @@ public class ContinuousHistogramSequence implements NumericSequence {
 		private final double offset;
 	}
 
-	public ContinuousHistogramSequence(long seed, List<Pair<? extends Number, ? extends Number>> values) {
+	public NumericHistogramSequence(long seed, List<Pair<? extends Number, ? extends Number>> values) {
 		this(seed, values, 0);
 	}
 
-	public ContinuousHistogramSequence(long seed, List<Pair<? extends Number, ? extends Number>> values, double offset) {
+	public NumericHistogramSequence(long seed, List<Pair<? extends Number, ? extends Number>> values, double offset) {
 		double currentOffset = offset;
 		double binOffset = 0;
 		adductionCoefficient = 0;
@@ -35,7 +35,7 @@ public class ContinuousHistogramSequence implements NumericSequence {
 			Double binHeight = value.getValue().doubleValue();
 
 			double weight = binWidth * binHeight;
-			bins.add(new ContinuousHistogramBin(currentOffset, binWidth, weight, binOffset));
+			bins.add(new NumericHistogramBin(currentOffset, binWidth, weight, binOffset));
 			currentOffset += binWidth;
 			adductionCoefficient += binWidth * binHeight;
 			binOffset += weight;
@@ -45,9 +45,9 @@ public class ContinuousHistogramSequence implements NumericSequence {
 	@Override
 	public Double next() {
 		double binRandom = mersenneTwister.nextDouble();
-		ContinuousHistogramBin selectedBin = null;
+		NumericHistogramBin selectedBin = null;
 
-		for (ContinuousHistogramBin bin : bins) {
+		for (NumericHistogramBin bin : bins) {
 			if (bin.offset + bin.weight >= binRandom * adductionCoefficient) {
 				selectedBin = bin;
 				break;
@@ -61,6 +61,6 @@ public class ContinuousHistogramSequence implements NumericSequence {
 	}
 
 	private final MersenneTwister mersenneTwister = new MersenneTwister(123456789);
-	private final List<ContinuousHistogramBin> bins = new ArrayList<>();
+	private final List<NumericHistogramBin> bins = new ArrayList<>();
 	private double adductionCoefficient;
 }
