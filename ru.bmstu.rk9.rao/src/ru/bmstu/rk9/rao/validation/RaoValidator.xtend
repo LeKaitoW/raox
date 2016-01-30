@@ -34,6 +34,8 @@ import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.Sequence
 
 import static extension ru.bmstu.rk9.rao.jvmmodel.RaoNaming.*
+import ru.bmstu.rk9.rao.lib.sequence.NumericSequence
+import ru.bmstu.rk9.rao.lib.sequence.ArbitraryTypeSequence
 
 class RaoValidator extends AbstractRaoValidator
 {
