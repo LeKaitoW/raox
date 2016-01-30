@@ -25,6 +25,7 @@ import org.eclipse.xtext.common.types.JvmAnnotationReference
 import org.eclipse.xtext.common.types.impl.TypesFactoryImpl
 import ru.bmstu.rk9.rao.rao.EnumDeclaration
 import ru.bmstu.rk9.rao.rao.Sequence
+import ru.bmstu.rk9.rao.rao.Generator
 
 class RaoJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
@@ -38,7 +39,6 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 
 	def dispatch void infer(RaoModel element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		acceptor.accept(element.toClass(QualifiedName.create(element.eResource.URI.projectName, element.nameGeneric))) [
-			final = true
 			for (entity : element.objects) {
 				entity.compileRaoEntity(it, isPreIndexingPhase)
 			}
@@ -111,7 +111,6 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 					superTypes += typeRef(TerminateCondition)
 					visibility = JvmVisibility.PROTECTED
 					static = true
-					final = true
 					members += method.toMethod("check", typeRef(boolean)) [
 						visibility = JvmVisibility.PUBLIC
 						final = true
@@ -125,7 +124,6 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 	def dispatch compileRaoEntity(ResourceType resourceType, JvmDeclaredType it, boolean isPreIndexingPhase) {
 		members += resourceType.toClass(QualifiedName.create(qualifiedName, resourceType.name)) [
 			static = true
-			final = true
 
 			superTypes += typeRef(ru.bmstu.rk9.rao.lib.resource.ComparableResource, {
 				typeRef
@@ -228,10 +226,23 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 		]
 	}
 
+	def dispatch compileRaoEntity(Generator generator, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		members += generator.toClass(QualifiedName.create(qualifiedName, generator.name)) [
+			static = true
+
+			superTypes += typeRef(ru.bmstu.rk9.rao.lib.sequence.InfiniteGenerator, {generator.type})
+
+			members += generator.toMethod("generate", typeRef(void)) [
+				visibility = JvmVisibility.PUBLIC
+				annotations += generateOverrideAnnotation()
+				body = generator.body
+			]
+		]
+	}
+
 	def dispatch compileRaoEntity(Event event, JvmDeclaredType it, boolean isPreIndexingPhase) {
 		members += event.toClass(QualifiedName.create(qualifiedName, event.name)) [
 			static = true
-			final = true
 
 			superTypes += typeRef(ru.bmstu.rk9.rao.lib.event.Event)
 

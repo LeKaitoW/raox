@@ -20,6 +20,7 @@ RaoEntity
 	: ResourceType
 	| ResourceDeclaration
 	| Sequence
+	| Generator
 	| Constant
 	| FunctionDeclaration
 	| Event
@@ -194,6 +195,14 @@ DptCompareTopsStatement:
 
 Sequence:
 	'sequence' name = ID '=' constructor = XOrExpression ';'
+;
+
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                               Generators                              //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+Generator:
+	'generator' name = ID '<' type = JvmTypeReference '>' body = XBlockExpression
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
