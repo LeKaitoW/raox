@@ -15,16 +15,3 @@ public class ListGenerator<T> extends InfiniteGenerator<T> {
 			yield(element);
 	}
 }
-
-class EasyGen extends InfiniteGenerator<Integer> {
-	@Override
-	protected void generate() throws InterruptedException {
-		yield(0);
-	}
-
-	InfiniteGenerator<Integer> lg = new InfiniteGenerator<Integer>() {
-		@Override
-		protected void generate() throws InterruptedException {
-		}
-	};
-}
