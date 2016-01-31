@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.eclipse.xtext.xbase.lib.Pair;
 
-public class NumericHistogramSequence implements NumericSequence {
+public class ContinuousHistogram implements NumericSequence {
 	public class NumericHistogramBin {
 		NumericHistogramBin(double start, double width, double weight, double offset) {
 			this.start = start;
@@ -21,11 +21,11 @@ public class NumericHistogramSequence implements NumericSequence {
 		private final double offset;
 	}
 
-	public NumericHistogramSequence(long seed, List<Pair<? extends Number, ? extends Number>> values) {
+	public ContinuousHistogram(long seed, List<Pair<? extends Number, ? extends Number>> values) {
 		this(seed, values, 0);
 	}
 
-	public NumericHistogramSequence(long seed, List<Pair<? extends Number, ? extends Number>> values, double offset) {
+	public ContinuousHistogram(long seed, List<Pair<? extends Number, ? extends Number>> values, double offset) {
 		double currentOffset = offset;
 		double binOffset = 0;
 		adductionCoefficient = 0;

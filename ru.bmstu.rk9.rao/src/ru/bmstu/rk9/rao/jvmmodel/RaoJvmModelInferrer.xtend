@@ -230,9 +230,9 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 		members += generator.toClass(QualifiedName.create(qualifiedName, generator.name)) [
 			static = true
 
-			superTypes += typeRef(ru.bmstu.rk9.rao.lib.sequence.InfiniteGenerator, {generator.type})
+			superTypes += typeRef(ru.bmstu.rk9.rao.lib.sequence.Generator, {generator.type})
 
-			members += generator.toMethod("generate", typeRef(void)) [
+			members += generator.toMethod("run", typeRef(void)) [
 				visibility = JvmVisibility.PUBLIC
 				annotations += generateOverrideAnnotation()
 				body = generator.body

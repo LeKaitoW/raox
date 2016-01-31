@@ -15,14 +15,16 @@ import java.util.NoSuchElementException;
  * By overriding finalize(), the class takes care not to leave any Threads
  * running longer than necessary.
  */
-public abstract class Generator<T> implements Iterable<T> {
+public abstract class AbstractGenerator<T> implements Iterable<T> {
 
 	private class Condition {
 		private boolean isSet;
+
 		public synchronized void set() {
 			isSet = true;
 			notify();
 		}
+
 		public synchronized void await() throws InterruptedException {
 			try {
 				if (isSet)
@@ -51,6 +53,7 @@ public abstract class Generator<T> implements Iterable<T> {
 			public boolean hasNext() {
 				return waitForNext();
 			}
+
 			@Override
 			public T next() {
 				if (!waitForNext())
@@ -58,10 +61,12 @@ public abstract class Generator<T> implements Iterable<T> {
 				nextItemAvailable = false;
 				return nextItem;
 			}
+
 			@Override
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}
+
 			private boolean waitForNext() {
 				if (nextItemAvailable)
 					return true;
@@ -100,7 +105,7 @@ public abstract class Generator<T> implements Iterable<T> {
 			public void run() {
 				try {
 					itemRequested.await();
-					Generator.this.run();
+					AbstractGenerator.this.run();
 				} catch (InterruptedException e) {
 					// No need to do anything here; Remaining steps in run()
 					// will cleanly shut down the thread.

@@ -1,28 +1,26 @@
 package ru.bmstu.rk9.rao.lib.sequence;
 
 import org.apache.commons.math3.random.MersenneTwister;
+import org.apache.commons.math3.special.Erf;
 
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 
-public class TriangularSequence implements NumericSequence {
-	private final Double a;
-	private final Double b;
-	private final Double c;
+public class Normal implements NumericSequence {
+	private final Double mean;
+	private final Double variance;
 	private final MersenneTwister mersenneTwister;
 	private final SequenceParametersType parametersType;
 
-	public TriangularSequence(long seed, double a, double b, double c) {
-		this.a = a;
-		this.b = b;
-		this.c = c;
+	public Normal(long seed, double mean, double variance) {
+		this.mean = mean;
+		this.variance = variance;
 		this.mersenneTwister = new MersenneTwister(seed);
 		this.parametersType = SequenceParametersType.DEFINED_PARAMETERS;
 	}
 
-	public TriangularSequence(long seed) {
-		this.a = null;
-		this.b = null;
-		this.c = null;
+	public Normal(long seed) {
+		this.mean = null;
+		this.variance = null;
 		this.mersenneTwister = new MersenneTwister(seed);
 		this.parametersType = SequenceParametersType.UNDEFINED_PARAMETERS;
 	}
@@ -33,16 +31,10 @@ public class TriangularSequence implements NumericSequence {
 			throw new RaoLibException("Sequence parameters are undefined");
 		}
 
-		return next(a, b, c);
+		return next(mean, variance);
 	}
 
-	public Double next(double a, double b, double c) {
-		double next = mersenneTwister.nextDouble();
-		double edge = (double) (c - a) / (double) (b - a);
-
-		if (next < edge)
-			return a + Math.sqrt((b - a) * (c - a) * next);
-		else
-			return b - Math.sqrt((1 - next) * (b - a) * (b - c));
+	public Double next(double mean, double variance) {
+		return (mean + variance * Math.sqrt(2) * Erf.erfInv(2 * mersenneTwister.nextDouble() - 1));
 	}
 }

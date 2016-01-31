@@ -4,22 +4,19 @@ import org.apache.commons.math3.random.MersenneTwister;
 
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 
-public class UniformSequence implements NumericSequence {
-	private final Double a;
-	private final Double b;
+public class Exponential implements NumericSequence {
+	private final Double rate;
 	private final MersenneTwister mersenneTwister;
 	private final SequenceParametersType parametersType;
 
-	public UniformSequence(long seed, double a, double b) {
-		this.a = a;
-		this.b = b;
+	public Exponential(long seed, double rate) {
+		this.rate = rate;
 		this.mersenneTwister = new MersenneTwister(seed);
 		this.parametersType = SequenceParametersType.DEFINED_PARAMETERS;
 	}
 
-	public UniformSequence(long seed) {
-		this.a = null;
-		this.b = null;
+	public Exponential(long seed) {
+		this.rate = null;
 		this.mersenneTwister = new MersenneTwister(seed);
 		this.parametersType = SequenceParametersType.UNDEFINED_PARAMETERS;
 	}
@@ -30,10 +27,10 @@ public class UniformSequence implements NumericSequence {
 			throw new RaoLibException("Sequence parameters are undefined");
 		}
 
-		return next(a, b);
+		return next(rate);
 	}
 
-	public Double next(double a, double b) {
-		return (b - a) * mersenneTwister.nextDouble() + a;
+	public Double next(double rate) {
+		return -1.0 / rate * Math.log(1 - mersenneTwister.nextDouble());
 	}
 }
