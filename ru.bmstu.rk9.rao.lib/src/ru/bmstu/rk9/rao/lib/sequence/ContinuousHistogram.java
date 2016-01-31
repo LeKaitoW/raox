@@ -21,18 +21,20 @@ public class ContinuousHistogram implements NumericSequence {
 		private final double offset;
 	}
 
+	//TODO add values validation
 	public ContinuousHistogram(long seed, List<Pair<? extends Number, ? extends Number>> values) {
-		this(seed, values, 0);
+		this(seed, 0, values);
 	}
 
-	public ContinuousHistogram(long seed, List<Pair<? extends Number, ? extends Number>> values, double offset) {
+	public ContinuousHistogram(long seed, double offset, List<Pair<? extends Number, ? extends Number>> values) {
 		double currentOffset = offset;
 		double binOffset = 0;
 		adductionCoefficient = 0;
 
 		for (Pair<? extends Number, ? extends Number> value : values) {
-			Double binWidth = value.getKey().doubleValue();
-			Double binHeight = value.getValue().doubleValue();
+			double binEnd = value.getKey().doubleValue();
+			double binWidth = binEnd - currentOffset;
+			double binHeight = value.getValue().doubleValue();
 
 			double weight = binWidth * binHeight;
 			bins.add(new NumericHistogramBin(currentOffset, binWidth, weight, binOffset));
