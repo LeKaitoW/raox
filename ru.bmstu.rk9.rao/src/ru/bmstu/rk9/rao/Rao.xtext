@@ -202,7 +202,10 @@ Sequence:
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 Generator:
-	'generator' name = ID '<' type = JvmTypeReference '>' body = XBlockExpression
+	'generator' name = ID '<' type = JvmTypeReference '>' '('
+		(parameters += FullJvmFormalParameter (
+			',' parameters += FullJvmFormalParameter)*)?
+	')' body = XBlockExpression
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

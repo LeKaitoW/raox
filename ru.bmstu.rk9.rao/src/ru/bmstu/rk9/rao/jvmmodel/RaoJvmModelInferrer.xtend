@@ -232,6 +232,19 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 
 			superTypes += typeRef(ru.bmstu.rk9.rao.lib.sequence.Generator, {generator.type})
 
+			members += generator.toConstructor [
+					visibility = JvmVisibility.PUBLIC
+					for (param : generator.parameters)
+						parameters += param.toParameter(param.name, param.parameterType)
+					body = '''
+						«FOR param : parameters»this.«param.name» = «param.name»;
+						«ENDFOR»
+					'''
+			]
+
+			for (param : generator.parameters)
+				members += param.toField(param.name, param.parameterType)
+
 			members += generator.toMethod("run", typeRef(void)) [
 				visibility = JvmVisibility.PUBLIC
 				annotations += generateOverrideAnnotation()
