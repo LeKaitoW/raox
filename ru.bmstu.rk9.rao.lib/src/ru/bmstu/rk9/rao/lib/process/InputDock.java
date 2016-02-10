@@ -11,10 +11,6 @@ public class InputDock {
 		linkedDocks.add(outputDock);
 	}
 
-	public List<OutputDock> getLinkedDocks() {
-		return linkedDocks;
-	}
-
 	public Transact pullTransact() {
 		for (OutputDock linkedDock : linkedDocks)
 			if (linkedDock.hasTransact())
