@@ -9,7 +9,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -61,13 +60,16 @@ public class ExecutionJobProvider {
 
 					classLoader = new URLClassLoader(urls, Simulator.class.getClassLoader());
 
-					List<Method> initList = new ArrayList<Method>();
-					List<TerminateCondition> terminateConditions = new ArrayList<TerminateCondition>();
+					List<Method> initList = new ArrayList<>();
+					List<TerminateCondition> terminateConditions = new ArrayList<>();
+					List<Class<?>> resourceClasses = new ArrayList<>();
+					List<Field> resourceFields = new ArrayList<>();
 
-					for (IResource raoModel : BuildUtil.getAllRaoFilesInProject(project)) {
-						String modelName = raoModel.getName();
-						modelName = modelName.substring(0, modelName.length() - ".rao".length());
-						Class<?> modelClass = classLoader.loadClass(project.getName() + "." + modelName);
+					for (IResource raoFile : BuildUtil.getAllRaoFilesInProject(project)) {
+						String raoFileName = raoFile.getName();
+						raoFileName = raoFileName.substring(0, raoFileName.length() - ".rao".length());
+						String modelClassName = project.getName() + "." + raoFileName;
+						Class<?> modelClass = Class.forName(modelClassName, false, classLoader);
 
 						try {
 							Method init = modelClass.getDeclaredMethod("init");
@@ -77,21 +79,23 @@ public class ExecutionJobProvider {
 						}
 
 						try {
-							Class<?> terminate = classLoader
-									.loadClass(project.getName() + "." + modelName + "$terminateCondition");
+							Class<?> terminate = Class.forName(modelClassName + "$terminateCondition", false, classLoader);
 							Constructor<?> terminateConstructor = terminate.getDeclaredConstructor();
 							terminateConstructor.setAccessible(true);
 							terminateConditions.add((TerminateCondition) terminateConstructor.newInstance());
 						} catch (ClassNotFoundException classException) {
 						}
 
+						for (Class<?> nestedModelClass : modelClass.getDeclaredClasses()) {
+							if (ComparableResource.class.isAssignableFrom(nestedModelClass))
+								resourceClasses.add(nestedModelClass);
+						}
+
 						for (Field field : modelClass.getDeclaredFields()) {
 							if (!ComparableResource.class.equals(field.getType().getSuperclass()))
 								continue;
 
-							String resourceName = field.getName();
-							Resource resource = (Resource) field.get(null);
-							resource.setName(resourceName);
+							resourceFields.add(field);
 						}
 					}
 
@@ -112,11 +116,19 @@ public class ExecutionJobProvider {
 					List<Result> results = new LinkedList<Result>();
 					SimulationStopCode simulationResult = SimulationStopCode.SIMULATION_CONTINUES;
 
-					// TODO generate actual model structure in code (e.g.
-					// protected field)
-					Simulator.initSimulation(new JSONObject().put("name", "").put("resource_types", new JSONArray())
-							.put("results", new JSONArray()).put("patterns", new JSONArray())
-							.put("events", new JSONArray()).put("decision_points", new JSONArray()));
+					// TODO generate actual model structure
+					JSONObject modelStructureStub = new JSONObject().put("name", "")
+							.put("resource_types", new JSONArray()).put("results", new JSONArray())
+							.put("patterns", new JSONArray()).put("events", new JSONArray())
+							.put("decision_points", new JSONArray());
+
+					Simulator.initSimulation(modelStructureStub, resourceClasses);
+
+					for (Field resourceField : resourceFields) {
+						String resourceName = resourceField.getName();
+						Resource resource = (Resource) resourceField.get(null);
+						resource.setName(resourceName);
+					}
 
 					for (TerminateCondition terminateCondition : terminateConditions)
 						Simulator.addTerminateCondition(terminateCondition);

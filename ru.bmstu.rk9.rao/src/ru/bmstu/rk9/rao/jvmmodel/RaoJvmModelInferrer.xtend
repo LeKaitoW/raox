@@ -137,8 +137,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 					«FOR param : parameters»
 						this._«param.name» = «param.name»;
 					«ENDFOR»
-					this.number = resourceManager.getNextNumber();
-					resourceManager.addResource(this);
+					ru.bmstu.rk9.rao.lib.simulator.Simulator.getModelState().addResource(this);
 				'''
 			]
 
@@ -159,18 +158,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				final = true
 				annotations += generateOverrideAnnotation()
 				body = '''
-					resourceManager.eraseResource(this);
-				'''
-			]
-
-			members += resourceType.toField("resourceManager", typeRef(ru.bmstu.rk9.rao.lib.resource.ResourceManager, {
-				typeRef
-			})) [
-				visibility = JvmVisibility.PRIVATE
-				static = true
-				final = true
-				initializer = '''
-					new ResourceManager<«resourceType.name»>();
+					ru.bmstu.rk9.rao.lib.simulator.Simulator.getModelState().eraseResource(this);
 				'''
 			]
 
@@ -301,7 +289,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 					«event.name» event = new «event.name»(«FOR param : parameters»«
 							param.name»«
 							IF parameters.indexOf(param) != parameters.size - 1», «ENDIF»«ENDFOR»);
-					pushEvent(event);
+					ru.bmstu.rk9.rao.lib.simulator.Simulator.pushEvent(event);
 				'''
 			]
 		]

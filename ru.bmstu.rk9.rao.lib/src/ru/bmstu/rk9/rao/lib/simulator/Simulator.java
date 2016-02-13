@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rao.lib.simulator;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.SystemEntryType;
@@ -17,7 +18,7 @@ import ru.bmstu.rk9.rao.lib.result.ResultManager;
 public class Simulator {
 	private static Simulator INSTANCE = null;
 
-	public static synchronized void initSimulation(JSONObject modelStructure) {
+	public static synchronized void initSimulation(JSONObject modelStructure, List<Class<?>> resourceClasses) {
 		if (isRunning)
 			throw new SimulatorException("Simulation is already initialized");
 
@@ -25,6 +26,7 @@ public class Simulator {
 
 		INSTANCE = new Simulator();
 
+		INSTANCE.modelState = new ModelState(resourceClasses);
 		INSTANCE.executionStateNotifier = new Notifier<ExecutionState>(ExecutionState.class);
 		INSTANCE.dptManager = new DPTManager();
 		INSTANCE.database = new Database(modelStructure);
@@ -71,6 +73,12 @@ public class Simulator {
 
 	public static Database getDatabase() {
 		return INSTANCE.database;
+	}
+
+	private ModelState modelState;
+
+	public static ModelState getModelState() {
+		return INSTANCE.modelState;
 	}
 
 	private ModelStructureCache modelStructureCache;
