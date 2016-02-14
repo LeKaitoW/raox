@@ -99,15 +99,20 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 	def dispatch compileRaoEntity(DefaultMethod method, JvmDeclaredType it, boolean isPreIndexingPhase) {
 		switch (method.name) {
 			case "init": {
-				members += method.toMethod(method.name, typeRef(void)) [
+				members += method.toClass(method.name) [
+					superTypes += typeRef(Runnable)
 					visibility = JvmVisibility.PROTECTED
 					static = true
-					final = true
-					body = method.body
+					members += method.toMethod("run", typeRef(void)) [
+						visibility = JvmVisibility.PUBLIC
+						final = true
+						body = method.body
+					]
 				]
 			}
+
 			case "terminateCondition": {
-				members += method.toClass("terminateCondition") [
+				members += method.toClass(method.name) [
 					superTypes += typeRef(TerminateCondition)
 					visibility = JvmVisibility.PROTECTED
 					static = true

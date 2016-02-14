@@ -18,7 +18,8 @@ import ru.bmstu.rk9.rao.lib.result.ResultManager;
 public class Simulator {
 	private static Simulator INSTANCE = null;
 
-	public static synchronized void initSimulation(JSONObject modelStructure, List<Class<?>> resourceClasses) {
+	public static synchronized void initSimulation(JSONObject modelStructure, List<Class<?>> resourceClasses,
+			List<Runnable> initList, List<TerminateCondition> terminateConditions) {
 		if (isRunning)
 			throw new SimulatorException("Simulation is already initialized");
 
@@ -31,6 +32,12 @@ public class Simulator {
 		INSTANCE.dptManager = new DPTManager();
 		INSTANCE.database = new Database(modelStructure);
 		INSTANCE.modelStructureCache = new ModelStructureCache();
+
+		for (TerminateCondition terminateCondition : terminateConditions)
+			Simulator.addTerminateCondition(terminateCondition);
+
+		for (Runnable init : initList)
+			init.run();
 
 		setSimulationState(SimulatorState.INITIALIZED);
 	}
@@ -101,7 +108,7 @@ public class Simulator {
 
 	private LinkedList<TerminateCondition> terminateList = new LinkedList<TerminateCondition>();
 
-	public static void addTerminateCondition(TerminateCondition c) {
+	private static void addTerminateCondition(TerminateCondition c) {
 		INSTANCE.terminateList.add(c);
 	}
 

@@ -3,7 +3,6 @@ package ru.bmstu.rk9.rao.ui.execution;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -60,7 +59,7 @@ public class ExecutionJobProvider {
 
 					classLoader = new URLClassLoader(urls, Simulator.class.getClassLoader());
 
-					List<Method> initList = new ArrayList<>();
+					List<Runnable> initList = new ArrayList<>();
 					List<TerminateCondition> terminateConditions = new ArrayList<>();
 					List<Class<?>> resourceClasses = new ArrayList<>();
 					List<Field> resourceFields = new ArrayList<>();
@@ -72,14 +71,16 @@ public class ExecutionJobProvider {
 						Class<?> modelClass = Class.forName(modelClassName, false, classLoader);
 
 						try {
-							Method init = modelClass.getDeclaredMethod("init");
-							init.setAccessible(true);
-							initList.add(init);
-						} catch (NoSuchMethodException methodException) {
+							Class<?> init = Class.forName(modelClassName + "$init", false, classLoader);
+							Constructor<?> initConstructor = init.getDeclaredConstructor();
+							initConstructor.setAccessible(true);
+							initList.add((Runnable) initConstructor.newInstance());
+						} catch (ClassNotFoundException classException) {
 						}
 
 						try {
-							Class<?> terminate = Class.forName(modelClassName + "$terminateCondition", false, classLoader);
+							Class<?> terminate = Class.forName(modelClassName + "$terminateCondition", false,
+									classLoader);
 							Constructor<?> terminateConstructor = terminate.getDeclaredConstructor();
 							terminateConstructor.setAccessible(true);
 							terminateConditions.add((TerminateCondition) terminateConstructor.newInstance());
@@ -122,19 +123,13 @@ public class ExecutionJobProvider {
 							.put("patterns", new JSONArray()).put("events", new JSONArray())
 							.put("decision_points", new JSONArray());
 
-					Simulator.initSimulation(modelStructureStub, resourceClasses);
+					Simulator.initSimulation(modelStructureStub, resourceClasses, initList, terminateConditions);
 
 					for (Field resourceField : resourceFields) {
 						String resourceName = resourceField.getName();
 						Resource resource = (Resource) resourceField.get(null);
 						resource.setName(resourceName);
 					}
-
-					for (TerminateCondition terminateCondition : terminateConditions)
-						Simulator.addTerminateCondition(terminateCondition);
-
-					for (Method init : initList)
-						init.invoke(null);
 
 					simulationResult = Simulator.run();
 
