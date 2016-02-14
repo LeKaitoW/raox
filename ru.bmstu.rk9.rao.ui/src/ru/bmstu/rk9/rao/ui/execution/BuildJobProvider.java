@@ -91,17 +91,25 @@ public class BuildJobProvider {
 		return projectToBuild;
 	}
 
+	public final IProject selectNewProject() {
+		IProject projectToBuild = getProjectToBuild(activeWorkbenchWindow, activeEditor);
+		if (projectToBuild == null)
+			return null;
+
+		recentProject = projectToBuild;
+
+		return recentProject;
+	}
+
 	public final Job createBuildJob() {
 		Job buildJob = new Job("Building Rao model") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				final Display display = PlatformUI.getWorkbench().getDisplay();
-				IProject projectToBuild = getProjectToBuild(activeWorkbenchWindow, activeEditor);
-				if (projectToBuild == null) {
+				if (selectNewProject() == null) {
 					return new Status(IStatus.ERROR, pluginId,
 							BuildUtil.createErrorMessage("failed to select project to build"));
 				}
-				recentProject = projectToBuild;
 
 				ISaveableFilter filter = new ISaveableFilter() {
 					@Override

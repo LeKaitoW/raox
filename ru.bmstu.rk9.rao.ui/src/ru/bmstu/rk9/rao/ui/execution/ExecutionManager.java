@@ -56,32 +56,34 @@ public class ExecutionManager {
 		this.validatorExtension = validatorExtension;
 	}
 
-	public final void execute(boolean buildOnly) {
+	public final void execute(boolean rebuild) {
 		Job executionJob = new Job("Building Rao model") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 						SimulationState.RUNNING.toString());
 				try {
+
 					BuildJobProvider modelBuilder = new BuildJobProvider(activeEditor, activeWorkbenchWindow, fsa,
 							resourceSetProvider, outputConfigurationProvider, validatorExtension);
-					final Job build = modelBuilder.createBuildJob();
-					build.schedule();
-					try {
-						build.join();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						return new Status(IStatus.ERROR, pluginId, "Internal error while finishing build");
-					}
 
-					if (build.getResult() != Status.OK_STATUS) {
-						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
-								SimulationState.STOPPED.toString());
-						ConsoleView.addLine("Build failed");
-						return new Status(IStatus.CANCEL, pluginId, "Execution cancelled");
-					}
+					if (rebuild) {
+						final Job build = modelBuilder.createBuildJob();
+						build.schedule();
+						try {
+							build.join();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+							return new Status(IStatus.ERROR, pluginId, "Internal error while finishing build");
+						}
 
-					if (buildOnly) {
+						if (build.getResult() != Status.OK_STATUS) {
+							ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
+									SimulationState.STOPPED.toString());
+							ConsoleView.addLine("Build failed");
+							return new Status(IStatus.CANCEL, pluginId, "Execution cancelled");
+						}
+
 						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 								SimulationState.STOPPED.toString());
 						return Status.OK_STATUS;
@@ -89,7 +91,7 @@ public class ExecutionManager {
 
 					executionManagerNotifier.notifySubscribers(ExecutionManagerState.BEFORE_RUN);
 
-					final IProject project = modelBuilder.getBuiltProject();
+					final IProject project = modelBuilder.selectNewProject();
 					ExecutionJobProvider modelExecutioner = new ExecutionJobProvider(project);
 					final Job runJob = modelExecutioner.createExecutionJob();
 					runJob.schedule();
