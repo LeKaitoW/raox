@@ -1,8 +1,18 @@
 package ru.bmstu.rk9.rao.ui.process;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.util.EventObject;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
@@ -18,7 +28,11 @@ import org.eclipse.gef.palette.SelectionToolEntry;
 import org.eclipse.gef.ui.palette.PaletteViewer;
 import org.eclipse.gef.ui.palette.PaletteViewerProvider;
 import org.eclipse.gef.ui.parts.GraphicalEditorWithFlyoutPalette;
+import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.actions.ActionFactory;
 
 import ru.bmstu.rk9.rao.ui.process.advance.Advance;
@@ -45,22 +59,20 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.process.editor";
 	private Model model;
 	public static final Map<Class<?>, ProcessNodeInfo> processNodesInfo = new LinkedHashMap<>();
+
 	static {
-		processNodesInfo.put(Model.class, new ProcessNodeInfo(Model.name,
-				() -> new Model(), () -> new ModelPart()));
-		processNodesInfo.put(Generate.class, new ProcessNodeInfo(Generate.name,
-				() -> new Generate(), () -> new GeneratePart()));
-		processNodesInfo.put(Terminate.class, new ProcessNodeInfo(
-				Terminate.name, () -> new Terminate(),
-				() -> new TerminatePart()));
-		processNodesInfo.put(Seize.class, new ProcessNodeInfo(Seize.name,
-				() -> new Seize(), () -> new SeizePart()));
-		processNodesInfo.put(Release.class, new ProcessNodeInfo(Release.name,
-				() -> new Release(), () -> new ReleasePart()));
-		processNodesInfo.put(Advance.class, new ProcessNodeInfo(Advance.name,
-				() -> new Advance(), () -> new AdvancePart()));
-		processNodesInfo.put(Resource.class, new ProcessNodeInfo(Resource.name,
-				() -> new Resource(), () -> new ResourcePart()));
+		processNodesInfo.put(Model.class, new ProcessNodeInfo(Model.name, () -> new Model(), () -> new ModelPart()));
+		processNodesInfo.put(Generate.class,
+				new ProcessNodeInfo(Generate.name, () -> new Generate(), () -> new GeneratePart()));
+		processNodesInfo.put(Terminate.class,
+				new ProcessNodeInfo(Terminate.name, () -> new Terminate(), () -> new TerminatePart()));
+		processNodesInfo.put(Seize.class, new ProcessNodeInfo(Seize.name, () -> new Seize(), () -> new SeizePart()));
+		processNodesInfo.put(Release.class,
+				new ProcessNodeInfo(Release.name, () -> new Release(), () -> new ReleasePart()));
+		processNodesInfo.put(Advance.class,
+				new ProcessNodeInfo(Advance.name, () -> new Advance(), () -> new AdvancePart()));
+		processNodesInfo.put(Resource.class,
+				new ProcessNodeInfo(Resource.name, () -> new Resource(), () -> new ResourcePart()));
 	}
 
 	@Override
@@ -83,16 +95,57 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		for (Class<?> nodeClass : processNodesInfo.keySet()) {
 			String nodeName = processNodesInfo.get(nodeClass).getName();
 			if (!nodeClass.equals(Model.class))
-				processGroup.add(new CombinedTemplateCreationEntry(nodeName,
-						nodeName, new NodeCreationFactory(nodeClass), null,
-						null));
+				processGroup.add(new CombinedTemplateCreationEntry(nodeName, nodeName,
+						new NodeCreationFactory(nodeClass), null, null));
 		}
 		root.setDefaultEntry(selectionToolEntry);
 		return root;
 	}
 
+	public void setModel(Model model) {
+		this.model = model;
+	}
+
+	public Model getModel() {
+		return model;
+	}
+
+	@Override
+	protected void setInput(IEditorInput input) {
+		super.setInput(input);
+		IFile file = ((IFileEditorInput) input).getFile();
+		try {
+			InputStream inputStream = file.getContents(false);
+			ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+			setModel((Model) objectInputStream.readObject());
+			objectInputStream.close();
+
+			if (getGraphicalViewer() != null)
+				getGraphicalViewer().setContents(getModel());
+		} catch (EOFException e) {
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	};
+
+	protected void writeToOutputStream(OutputStream outputStream) throws IOException {
+		ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+		objectOutputStream.writeObject(getModel());
+		objectOutputStream.close();
+	}
+
 	@Override
 	public void doSave(IProgressMonitor monitor) {
+		SafeRunnable.run(new SafeRunnable() {
+			@Override
+			public void run() throws Exception {
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+				writeToOutputStream(outputStream);
+				IFile file = ((IFileEditorInput) getEditorInput()).getFile();
+				file.setContents(new ByteArrayInputStream(outputStream.toByteArray()), true, false, monitor);
+				getCommandStack().markSaveLocation();
+			}
+		});
 	}
 
 	@Override
@@ -111,7 +164,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	@Override
 	protected void initializeGraphicalViewer() {
 		GraphicalViewer viewer = getGraphicalViewer();
-		model = new Model();
+		if (model == null)
+			model = new Model();
 		viewer.setContents(model);
 		viewer.addDropTargetListener(new ProcessDropTargetListener(viewer));
 	}
@@ -122,9 +176,15 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 			@Override
 			protected void configurePaletteViewer(PaletteViewer viewer) {
 				super.configurePaletteViewer(viewer);
-				viewer.addDragSourceListener(new TemplateTransferDragSourceListener(
-						viewer));
+				viewer.addDragSourceListener(new TemplateTransferDragSourceListener(viewer));
 			}
 		};
+	}
+
+	@Override
+	public void commandStackChanged(EventObject event) {
+		firePropertyChange(IEditorPart.PROP_DIRTY);
+		super.commandStackChanged(event);
+
 	}
 }

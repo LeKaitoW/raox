@@ -7,8 +7,10 @@ import ru.bmstu.rk9.rao.ui.process.Node;
 
 public class Model extends Node {
 
+	private static final long serialVersionUID = 1;
+	
 	public Model() {
-		super(backgroundColor);
+		super(backgroundColor.getRGB());
 	}
 
 	private static Color backgroundColor = ColorConstants.white;

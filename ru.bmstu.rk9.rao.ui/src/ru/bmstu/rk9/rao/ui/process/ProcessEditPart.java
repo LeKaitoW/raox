@@ -8,13 +8,13 @@ import org.eclipse.gef.Request;
 import org.eclipse.gef.RequestConstants;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-public abstract class ProcessEditPart extends AbstractGraphicalEditPart
-		implements PropertyChangeListener {
+public abstract class ProcessEditPart extends AbstractGraphicalEditPart implements PropertyChangeListener {
 
 	@Override
 	public void activate() {
@@ -32,8 +32,7 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 	public void performRequest(Request request) {
 		if (request.getType().equals(RequestConstants.REQ_OPEN)) {
 			try {
-				IWorkbenchPage page = PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getActivePage();
+				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 				page.showView(IPageLayout.ID_PROP_SHEET);
 			} catch (PartInitException e) {
 				e.printStackTrace();
@@ -44,11 +43,10 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(Node.PROPERTY_COLOR)) {
-			getFigure().setBackgroundColor((Color) evt.getNewValue());
+			getFigure().setBackgroundColor(new Color(null, (RGB) evt.getNewValue()));
 		}
 		if (evt.getPropertyName().equals(Node.PROPERTY_NAME)) {
-			((ProcessFigure) getFigure()).setFigureNameVisible((boolean) evt
-					.getNewValue());
+			((ProcessFigure) getFigure()).setFigureNameVisible((boolean) evt.getNewValue());
 		}
 		if (evt.getPropertyName().equals(Node.PROPERTY_LAYOUT))
 			refreshVisuals();
@@ -65,6 +63,8 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		Node model = (Node) getModel();
 
 		figure.setLayout(model.getLayout());
-		figure.setBackgroundColor(model.getColor());
+		RGB oldColor = model.getColor();
+		Color newColor = new Color(null, oldColor);
+		figure.setBackgroundColor(newColor);
 	}
 }

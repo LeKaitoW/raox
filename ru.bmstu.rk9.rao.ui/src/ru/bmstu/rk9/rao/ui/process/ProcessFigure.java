@@ -34,6 +34,7 @@ public class ProcessFigure extends Figure {
 		getParent().setConstraint(this, rect);
 	}
 
+	@Override
 	public Font getFont() {
 		return font;
 	}

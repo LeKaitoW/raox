@@ -11,6 +11,7 @@ public class CheckboxPropertyDescriptor extends PropertyDescriptor {
 		super(id, displayName);
 	}
 
+	@Override
 	public CellEditor createPropertyEditor(Composite parent) {
 		CellEditor editor = new CheckboxCellEditor(parent);
 		if (getValidator() != null)

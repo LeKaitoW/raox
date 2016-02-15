@@ -2,15 +2,16 @@ package ru.bmstu.rk9.rao.ui.process;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.draw2d.geometry.Rectangle;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.ui.views.properties.IPropertySource;
+import org.eclipse.swt.graphics.RGB;
 
-public class Node implements IAdaptable {
+public class Node implements Serializable {
+
+	private static final long serialVersionUID = 1;
 
 	private String name;
 	private Rectangle layout;
@@ -22,17 +23,19 @@ public class Node implements IAdaptable {
 	public static final String PROPERTY_REMOVE = "NodeRemoveChild";
 	public static final String PROPERTY_COLOR = "NodeColor";
 	public static final String PROPERTY_NAME = "ShowNodeName";
-	private IPropertySource propertySource = null;
-	private Color color;
-	private boolean nameIsVisible = true;
+	private RGB color;
 
-	public Node(Color backgroundColor) {
+	public Node(RGB backgroundColor) {
 		this.name = "Unknown";
 		this.layout = new Rectangle(10, 10, 100, 100);
 		this.children = new ArrayList<Node>();
 		this.parent = null;
 		this.listeners = new PropertyChangeSupport(this);
 		this.color = backgroundColor;
+	}
+	
+	public RGB getColor() {
+		return color;
 	}
 
 	public void setName(String name) {
@@ -46,8 +49,7 @@ public class Node implements IAdaptable {
 	public void setLayout(Rectangle newLayout) {
 		Rectangle oldLayout = this.layout;
 		this.layout = newLayout;
-		getListeners()
-				.firePropertyChange(PROPERTY_LAYOUT, oldLayout, newLayout);
+		getListeners().firePropertyChange(PROPERTY_LAYOUT, oldLayout, newLayout);
 	}
 
 	public Rectangle getLayout() {
@@ -96,38 +98,5 @@ public class Node implements IAdaptable {
 
 	public boolean contains(Node child) {
 		return children.contains(child);
-	}
-
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Object getAdapter(Class adapter) {
-		if (adapter == IPropertySource.class) {
-			if (propertySource == null) {
-				propertySource = new NodePropertySource(this);
-
-			}
-			return propertySource;
-		}
-		return null;
-	}
-
-	public Color getColor() {
-		return color;
-	}
-
-	public void setColor(Color color) {
-		Color oldColor = this.color;
-		this.color = color;
-		getListeners().firePropertyChange(PROPERTY_COLOR, oldColor, color);
-	}
-
-	public boolean nameIsVisible() {
-		return nameIsVisible;
-	}
-
-	public void setNameVisible(boolean visible) {
-		boolean oldVisible = this.nameIsVisible;
-		this.nameIsVisible = visible;
-		getListeners().firePropertyChange(PROPERTY_NAME, oldVisible, visible);
 	}
 }
