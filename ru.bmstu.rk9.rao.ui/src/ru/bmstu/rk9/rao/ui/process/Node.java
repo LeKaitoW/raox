@@ -21,9 +21,8 @@ public class Node implements Serializable {
 	public static final String PROPERTY_LAYOUT = "NodeLayout";
 	public static final String PROPERTY_ADD = "NodeAddChild";
 	public static final String PROPERTY_REMOVE = "NodeRemoveChild";
-	public static final String PROPERTY_COLOR = "NodeColor";
-	public static final String PROPERTY_NAME = "ShowNodeName";
-	private RGB color;
+
+	protected RGB color;
 
 	public Node(RGB backgroundColor) {
 		this.name = "Unknown";
@@ -33,7 +32,7 @@ public class Node implements Serializable {
 		this.listeners = new PropertyChangeSupport(this);
 		this.color = backgroundColor;
 	}
-	
+
 	public RGB getColor() {
 		return color;
 	}

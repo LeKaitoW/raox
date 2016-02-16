@@ -8,7 +8,9 @@ public class NodeWithProperty extends Node implements IAdaptable {
 
 	private static final long serialVersionUID = 1;
 
-	private RGB color;
+	public static final String PROPERTY_COLOR = "NodeColor";
+	public static final String PROPERTY_NAME = "ShowNodeName";
+
 	private boolean nameIsVisible = true;
 	private transient IPropertySource propertySource = null;
 

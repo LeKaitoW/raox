@@ -42,10 +42,10 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart implemen
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals(Node.PROPERTY_COLOR)) {
+		if (evt.getPropertyName().equals(NodeWithProperty.PROPERTY_COLOR)) {
 			getFigure().setBackgroundColor(new Color(null, (RGB) evt.getNewValue()));
 		}
-		if (evt.getPropertyName().equals(Node.PROPERTY_NAME)) {
+		if (evt.getPropertyName().equals(NodeWithProperty.PROPERTY_NAME)) {
 			((ProcessFigure) getFigure()).setFigureNameVisible((boolean) evt.getNewValue());
 		}
 		if (evt.getPropertyName().equals(Node.PROPERTY_LAYOUT))
@@ -66,5 +66,8 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart implemen
 		RGB oldColor = model.getColor();
 		Color newColor = new Color(null, oldColor);
 		figure.setBackgroundColor(newColor);
+
+		if (model instanceof NodeWithProperty)
+			figure.setFigureNameVisible(((NodeWithProperty) model).nameIsVisible());
 	}
 }

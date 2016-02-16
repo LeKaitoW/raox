@@ -102,7 +102,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		return root;
 	}
 
-	public void setModel(Model model) {
+	private void setModel(Model model) {
 		this.model = model;
 	}
 

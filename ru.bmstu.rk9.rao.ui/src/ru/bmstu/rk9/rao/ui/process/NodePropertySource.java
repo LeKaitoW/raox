@@ -22,17 +22,17 @@ public class NodePropertySource implements IPropertySource {
 
 	@Override
 	public IPropertyDescriptor[] getPropertyDescriptors() {
-		PropertyDescriptor colorProperty = new ColorPropertyDescriptor(Node.PROPERTY_COLOR, "Color");
-		PropertyDescriptor nameProperty = new CheckboxPropertyDescriptor(Node.PROPERTY_NAME, "Show name");
+		PropertyDescriptor colorProperty = new ColorPropertyDescriptor(NodeWithProperty.PROPERTY_COLOR, "Color");
+		PropertyDescriptor nameProperty = new CheckboxPropertyDescriptor(NodeWithProperty.PROPERTY_NAME, "Show name");
 		properties = new IPropertyDescriptor[] { colorProperty, nameProperty };
 		return properties;
 	}
 
 	@Override
 	public Object getPropertyValue(Object id) {
-		if (id.equals(Node.PROPERTY_COLOR)) {
+		if (id.equals(NodeWithProperty.PROPERTY_COLOR)) {
 			return node.getColor();
-		} else if (id.equals(Node.PROPERTY_NAME)) {
+		} else if (id.equals(NodeWithProperty.PROPERTY_NAME)) {
 			return node.nameIsVisible();
 		}
 		return null;
@@ -49,10 +49,10 @@ public class NodePropertySource implements IPropertySource {
 
 	@Override
 	public void setPropertyValue(Object id, Object value) {
-		if (id.equals(Node.PROPERTY_COLOR)) {
+		if (id.equals(NodeWithProperty.PROPERTY_COLOR)) {
 			RGB newColor = (RGB) value;
 			node.setColor(newColor);
-		} else if (id.equals(Node.PROPERTY_NAME)) {
+		} else if (id.equals(NodeWithProperty.PROPERTY_NAME)) {
 			node.setNameVisible((boolean) value);
 		}
 	}
