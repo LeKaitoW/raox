@@ -75,7 +75,7 @@
 						</goals>
 						<configuration>
 							<includes>
-								<include>**\tests\unit\*.java</include>
+								<include>**/tests/unit/*.java</include>
 							</includes>
 						</configuration>
 					</execution>
