@@ -37,9 +37,9 @@
 							<goal>add-test-source</goal>
 						</goals>
 						<configuration>
-						<sources>
-							<source>${basedir}/src/ru/bmstu/rk9/rao/tests</source>
-						</sources>
+							<sources>
+								<source>${basedir}/src/ru/bmstu/rk9/rao/tests</source>
+							</sources>
 						</configuration>
 					</execution>
 				</executions>
