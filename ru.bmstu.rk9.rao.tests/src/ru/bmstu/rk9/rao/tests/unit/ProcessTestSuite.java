@@ -11,9 +11,6 @@ import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
-@RunWith(Suite.class)
-@SuiteClasses({ LinearProcessTest.class, QueueProcessTest.class,
-		BranchedProcessTest.class })
 public class ProcessTestSuite {
 
 	public static void initEmptySimulation(){
