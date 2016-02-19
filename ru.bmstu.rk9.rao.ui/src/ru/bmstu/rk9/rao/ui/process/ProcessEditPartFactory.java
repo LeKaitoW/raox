@@ -12,6 +12,12 @@ public class ProcessEditPartFactory implements EditPartFactory {
 	public EditPart createEditPart(EditPart context, Object model) {
 		AbstractGraphicalEditPart part = null;
 
+		if (model instanceof ProcessLink) {
+			part = new LinkPart();
+			part.setModel(model);
+			return part;
+		}
+
 		Map<Class<?>, ProcessNodeInfo> processNodesInfo = ProcessEditor.processNodesInfo;
 		if (!processNodesInfo.containsKey(model.getClass()))
 			return null;

@@ -18,8 +18,7 @@ public class ProcessFigure extends Figure {
 		XYLayout layout = new XYLayout();
 		setLayoutManager(layout);
 
-		Font oldFont = PlatformUI.getWorkbench().getThemeManager()
-				.getCurrentTheme().getFontRegistry()
+		Font oldFont = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getFontRegistry()
 				.get(PreferenceConstants.EDITOR_TEXT_FONT);
 		FontData[] fontData = oldFont.getFontData();
 		fontData[0].setHeight(6);

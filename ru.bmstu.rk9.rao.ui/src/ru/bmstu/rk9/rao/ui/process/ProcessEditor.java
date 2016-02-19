@@ -20,6 +20,7 @@ import org.eclipse.gef.KeyHandler;
 import org.eclipse.gef.KeyStroke;
 import org.eclipse.gef.dnd.TemplateTransferDragSourceListener;
 import org.eclipse.gef.palette.CombinedTemplateCreationEntry;
+import org.eclipse.gef.palette.ConnectionCreationToolEntry;
 import org.eclipse.gef.palette.MarqueeToolEntry;
 import org.eclipse.gef.palette.PaletteGroup;
 import org.eclipse.gef.palette.PaletteRoot;
@@ -87,6 +88,13 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		selectGroup.add(new MarqueeToolEntry());
 
 		PaletteSeparator separator = new PaletteSeparator();
+		root.add(separator);
+
+		PaletteGroup linkGroup = new PaletteGroup("Link");
+		root.add(linkGroup);
+		ConnectionCreationToolEntry links = new ConnectionCreationToolEntry("Link", "Create Links",
+				new LinkCreationFactory(), null, null);
+		linkGroup.add(links);
 		root.add(separator);
 
 		PaletteGroup processGroup = new PaletteGroup("Process");

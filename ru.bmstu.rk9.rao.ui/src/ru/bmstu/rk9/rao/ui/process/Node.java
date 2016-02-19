@@ -21,8 +21,12 @@ public class Node implements Serializable {
 	public static final String PROPERTY_LAYOUT = "NodeLayout";
 	public static final String PROPERTY_ADD = "NodeAddChild";
 	public static final String PROPERTY_REMOVE = "NodeRemoveChild";
+	public static final String SOURCE_CONNECTION = "SourceConnectionAdded";
+	public static final String TARGET_CONNECTION = "TargetConnectionAdded";
 
 	protected RGB color;
+	protected List<ProcessLink> sourceConnections;
+	protected List<ProcessLink> targetConnections;
 
 	public Node(RGB backgroundColor) {
 		this.name = "Unknown";
@@ -97,5 +101,55 @@ public class Node implements Serializable {
 
 	public boolean contains(Node child) {
 		return children.contains(child);
+	}
+
+	public boolean addConnections(ProcessLink link) {
+		if (link.getSourceNode() == this) {
+			if (!sourceConnections.contains(link)) {
+				if (sourceConnections.add(link)) {
+					getListeners().firePropertyChange(SOURCE_CONNECTION, null, link);
+					return true;
+				}
+				return false;
+			}
+		} else if (link.getTargetNode() == this) {
+			if (!targetConnections.contains(link)) {
+				if (targetConnections.add(link)) {
+					getListeners().firePropertyChange(TARGET_CONNECTION, null, link);
+					return true;
+				}
+				return false;
+			}
+		}
+		return false;
+	}
+
+	public boolean removeConnection(ProcessLink link) {
+		if (link.getSourceNode() == this) {
+			if (sourceConnections.contains(link)) {
+				if (sourceConnections.remove(link)) {
+					getListeners().firePropertyChange(SOURCE_CONNECTION, null, link);
+					return true;
+				}
+				return false;
+			}
+		} else if (link.getTargetNode() == this) {
+			if (targetConnections.contains(link)) {
+				if (targetConnections.remove(link)) {
+					getListeners().firePropertyChange(TARGET_CONNECTION, null, link);
+					return true;
+				}
+				return false;
+			}
+		}
+		return false;
+	}
+
+	public List<ProcessLink> getSourceConnectionsArray() {
+		return this.sourceConnections;
+	}
+
+	public List<ProcessLink> getTargetConnectionsArray() {
+		return this.targetConnections;
 	}
 }

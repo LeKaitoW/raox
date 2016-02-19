@@ -2,8 +2,13 @@ package ru.bmstu.rk9.rao.ui.process;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 
+import org.eclipse.draw2d.ChopboxAnchor;
+import org.eclipse.draw2d.ConnectionAnchor;
+import org.eclipse.gef.ConnectionEditPart;
 import org.eclipse.gef.EditPolicy;
+import org.eclipse.gef.NodeEditPart;
 import org.eclipse.gef.Request;
 import org.eclipse.gef.RequestConstants;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
@@ -14,7 +19,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-public abstract class ProcessEditPart extends AbstractGraphicalEditPart implements PropertyChangeListener {
+public abstract class ProcessEditPart extends AbstractGraphicalEditPart
+		implements PropertyChangeListener, NodeEditPart {
 
 	@Override
 	public void activate() {
@@ -50,11 +56,16 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart implemen
 		}
 		if (evt.getPropertyName().equals(Node.PROPERTY_LAYOUT))
 			refreshVisuals();
+		if (evt.getPropertyName().equals(NodeWithProperty.SOURCE_CONNECTION))
+			refreshSourceConnections();
+		if (evt.getPropertyName().equals(NodeWithProperty.TARGET_CONNECTION))
+			refreshTargetConnections();
 	}
 
 	@Override
 	protected void createEditPolicies() {
 		installEditPolicy(EditPolicy.COMPONENT_ROLE, new ProcessDeletePolicy());
+		installEditPolicy(EditPolicy.GRAPHICAL_NODE_ROLE, new ProcessConnectionPolicy());
 	}
 
 	@Override
@@ -69,5 +80,33 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart implemen
 
 		if (model instanceof NodeWithProperty)
 			figure.setFigureNameVisible(((NodeWithProperty) model).nameIsVisible());
+	}
+
+	@Override
+	public ConnectionAnchor getSourceConnectionAnchor(ConnectionEditPart connection) {
+		return new ChopboxAnchor(getFigure());
+	}
+
+	@Override
+	public ConnectionAnchor getSourceConnectionAnchor(Request request) {
+		return new ChopboxAnchor(getFigure());
+	}
+
+	@Override
+	public ConnectionAnchor getTargetConnectionAnchor(ConnectionEditPart connection) {
+		return new ChopboxAnchor(getFigure());
+	}
+
+	@Override
+	public ConnectionAnchor getTargetConnectionAnchor(Request request) {
+		return new ChopboxAnchor(getFigure());
+	}
+
+	public List<ProcessLink> getModelSourceConnections() {
+		return ((Node) getModel()).getSourceConnectionsArray();
+	}
+
+	public List<ProcessLink> getModelTargetConnections() {
+		return ((Node) getModel()).getTargetConnectionsArray();
 	}
 }
