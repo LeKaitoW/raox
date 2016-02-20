@@ -38,7 +38,7 @@ public class Triangular implements NumericSequence {
 
 	public Double next(double a, double b, double c) {
 		double next = mersenneTwister.nextDouble();
-		double edge = (double) (c - a) / (double) (b - a);
+		double edge = (c - a) / (b - a);
 
 		if (next < edge)
 			return a + Math.sqrt((b - a) * (c - a) * next);

@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 
 public class LogicActivity extends Activity {
-	//TODO add initializer constructor/fabric method
+	// TODO add initializer constructor/fabric method
 	public LogicActivity(Pattern pattern) {
 		this(pattern, () -> 0.0);
 	}

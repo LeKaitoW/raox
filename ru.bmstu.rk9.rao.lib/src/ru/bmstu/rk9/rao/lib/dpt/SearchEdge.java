@@ -14,5 +14,6 @@ public abstract class SearchEdge extends Activity {
 	public final ApplyOrder applyOrder;
 
 	public abstract double calculateValue();
+
 	public abstract Rule execute();
 }

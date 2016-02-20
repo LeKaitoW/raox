@@ -16,7 +16,10 @@ public abstract class Pattern {
 	}
 
 	public abstract void run();
+
 	public abstract boolean selectRelevantResources();
+
 	public abstract String getName();
+
 	public abstract List<Integer> getRelevantInfo();
 }

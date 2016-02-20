@@ -440,8 +440,8 @@ public class Database {
 
 	private final Map<Rule, PatternPoolEntry> patternPool = new HashMap<Rule, PatternPoolEntry>();
 
-	public final void addDecisionEntry(final AbstractDecisionPoint dpt, final Activity activity,
-			final PatternType type, final Rule rule) {
+	public final void addDecisionEntry(final AbstractDecisionPoint dpt, final Activity activity, final PatternType type,
+			final Rule rule) {
 		final String dptName = dpt.getName();
 
 		if (!sensitivityList.contains(dptName) && !sensitivityList.contains(rule.getName()))
@@ -546,8 +546,7 @@ public class Database {
 		BEGIN, END, OPEN, SPAWN, DECISION;
 	}
 
-	public final void addSearchEntry(final Search<?> dpt, final SearchEntryType type,
-			final ByteBuffer data) {
+	public final void addSearchEntry(final Search dpt, final SearchEntryType type, final ByteBuffer data) {
 		final String name = dpt.getName();
 
 		final SearchIndex index = (SearchIndex) indexHelper.getSearch(name).getIndex();

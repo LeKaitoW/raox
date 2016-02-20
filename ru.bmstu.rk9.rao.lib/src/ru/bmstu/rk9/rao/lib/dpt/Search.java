@@ -16,12 +16,12 @@ import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
 //import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
-import ru.bmstu.rk9.rao.lib.resource.ModelState;
+import ru.bmstu.rk9.rao.lib.simulator.ModelState;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulatorState;
 
-public class Search<T extends ModelState<T>> extends AbstractDecisionPoint {
+public class Search extends AbstractDecisionPoint {
 	public Search() {
 		Simulator.getSimulatorStateNotifier().addSubscriber(simulatorInitializedListener, SimulatorState.INITIALIZED,
 				EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED, SubscriptionType.ONE_SHOT));
@@ -29,11 +29,11 @@ public class Search<T extends ModelState<T>> extends AbstractDecisionPoint {
 
 	protected Supplier<Boolean> terminate;
 
-	private DatabaseRetriever<T> retriever;
+	private Supplier<ModelState> retriever;
 
 	protected boolean compareTops;
 
-	protected EvaluateBy evaluateBy;
+	protected Supplier<Double> evaluateBy;
 
 	protected Supplier<Double> priority;
 	protected Supplier<Boolean> condition;
@@ -74,18 +74,10 @@ public class Search<T extends ModelState<T>> extends AbstractDecisionPoint {
 
 	private volatile boolean allowSearch = false;
 
-	public static interface EvaluateBy {
-		public double get();
-	}
-
 	private List<SearchEdge> activities = new LinkedList<SearchEdge>();
 
 	public void addActivity(SearchEdge a) {
 		activities.add(a);
-	}
-
-	public static interface DatabaseRetriever<T extends ModelState<T>> {
-		public T get();
 	}
 
 	public class ActivityInfo {
@@ -112,7 +104,7 @@ public class Search<T extends ModelState<T>> extends AbstractDecisionPoint {
 		double g;
 		double h;
 
-		T state;
+		ModelState state;
 	}
 
 	private Comparator<GraphNode> nodeComparator = new Comparator<GraphNode>() {
@@ -377,7 +369,8 @@ public class Search<T extends ModelState<T>> extends AbstractDecisionPoint {
 		}
 
 		if (enoughSensitivity(SerializationLevel.ALL)) {
-//			activityInfo.rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SEARCH, this.getName());
+			// activityInfo.rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SEARCH,
+			// this.getName());
 		}
 	}
 
@@ -402,7 +395,8 @@ public class Search<T extends ModelState<T>> extends AbstractDecisionPoint {
 			Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.DECISION, data);
 
 			if (enoughSensitivity(SerializationLevel.ALL)) {
-//				rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SOLUTION, this.getName());
+				// rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SOLUTION,
+				// this.getName());
 			}
 		}
 	}

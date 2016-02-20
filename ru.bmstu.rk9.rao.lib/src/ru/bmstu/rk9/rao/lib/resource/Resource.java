@@ -35,7 +35,7 @@ public abstract class Resource implements Serializable {
 	protected String name = null;
 	protected Integer number = null;
 
-	//FIXME
+	// FIXME
 	@Override
 	public ByteBuffer serialize() {
 		return null;
