@@ -40,6 +40,7 @@ import ru.bmstu.rk9.rao.ui.process.advance.Advance;
 import ru.bmstu.rk9.rao.ui.process.advance.AdvancePart;
 import ru.bmstu.rk9.rao.ui.process.generate.Generate;
 import ru.bmstu.rk9.rao.ui.process.generate.GeneratePart;
+import ru.bmstu.rk9.rao.ui.process.link.LinkCreationFactory;
 import ru.bmstu.rk9.rao.ui.process.model.Model;
 import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
 import ru.bmstu.rk9.rao.ui.process.release.Release;

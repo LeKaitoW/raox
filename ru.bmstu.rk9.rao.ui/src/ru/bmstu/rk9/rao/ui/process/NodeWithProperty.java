@@ -5,6 +5,8 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.IPropertySource;
 
+import ru.bmstu.rk9.rao.ui.process.link.ProcessLink;
+
 public class NodeWithProperty extends Node implements IAdaptable {
 
 	private static final long serialVersionUID = 1;

@@ -1,6 +1,8 @@
-package ru.bmstu.rk9.rao.ui.process;
+package ru.bmstu.rk9.rao.ui.process.link;
 
 import org.eclipse.gef.commands.Command;
+
+import ru.bmstu.rk9.rao.ui.process.NodeWithProperty;
 
 public class LinkCreateCommand extends Command {
 
@@ -19,7 +21,7 @@ public class LinkCreateCommand extends Command {
 	public boolean canExecute() {
 		if (sourceNode == null || targetNode == null)
 			return false;
-		else if (sourceNode.equals(targetNode))
+		if (sourceNode.equals(targetNode))
 			return false;
 		return true;
 	}

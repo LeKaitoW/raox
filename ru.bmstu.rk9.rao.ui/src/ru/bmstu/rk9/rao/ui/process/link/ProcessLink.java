@@ -1,8 +1,10 @@
-package ru.bmstu.rk9.rao.ui.process;
+package ru.bmstu.rk9.rao.ui.process.link;
 
 import java.io.Serializable;
 
 import org.eclipse.core.runtime.IAdaptable;
+
+import ru.bmstu.rk9.rao.ui.process.NodeWithProperty;
 
 public class ProcessLink implements Serializable, IAdaptable {
 

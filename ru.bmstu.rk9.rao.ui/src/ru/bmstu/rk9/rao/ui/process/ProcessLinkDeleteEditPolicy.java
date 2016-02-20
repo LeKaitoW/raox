@@ -4,6 +4,8 @@ import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editpolicies.ConnectionEditPolicy;
 import org.eclipse.gef.requests.GroupRequest;
 
+import ru.bmstu.rk9.rao.ui.process.link.LinkDeleteCommand;
+
 public class ProcessLinkDeleteEditPolicy extends ConnectionEditPolicy {
 
 	@Override

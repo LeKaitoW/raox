@@ -6,6 +6,9 @@ import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartFactory;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 
+import ru.bmstu.rk9.rao.ui.process.link.LinkPart;
+import ru.bmstu.rk9.rao.ui.process.link.ProcessLink;
+
 public class ProcessEditPartFactory implements EditPartFactory {
 
 	@Override

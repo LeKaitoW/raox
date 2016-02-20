@@ -1,6 +1,8 @@
-package ru.bmstu.rk9.rao.ui.process;
+package ru.bmstu.rk9.rao.ui.process.link;
 
 import org.eclipse.gef.commands.Command;
+
+import ru.bmstu.rk9.rao.ui.process.NodeWithProperty;
 
 public class LinkReconnectCommand extends Command {
 
@@ -28,9 +30,9 @@ public class LinkReconnectCommand extends Command {
 	private boolean checkSourceReconnection() {
 		if (newSourceNode == null)
 			return false;
-		else if (newSourceNode.equals(oldTargetNode))
+		if (newSourceNode.equals(oldTargetNode))
 			return false;
-		else if (!newSourceNode.getClass().equals(oldTargetNode.getClass()))
+		if (!newSourceNode.getClass().equals(oldTargetNode.getClass()))
 			return false;
 		return true;
 	}
@@ -38,9 +40,9 @@ public class LinkReconnectCommand extends Command {
 	private boolean checkTargetReconnection() {
 		if (newTargetNode == null)
 			return false;
-		else if (oldSourceNode.equals(newTargetNode))
+		if (oldSourceNode.equals(newTargetNode))
 			return false;
-		else if (!oldSourceNode.getClass().equals(newTargetNode.getClass()))
+		if (!oldSourceNode.getClass().equals(newTargetNode.getClass()))
 			return false;
 		return true;
 	}
@@ -67,7 +69,7 @@ public class LinkReconnectCommand extends Command {
 		} else if (newTargetNode != null) {
 			link.reconnect(oldSourceNode, newTargetNode);
 		} else {
-			throw new IllegalStateException("Should not happen");
+			throw new IllegalStateException("Internal error: new source node and new target node cannot both be null");
 		}
 	}
 
