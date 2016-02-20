@@ -28,6 +28,7 @@ public class Simulator {
 		INSTANCE = new Simulator();
 
 		INSTANCE.modelState = new ModelState(resourceClasses);
+		INSTANCE.modelStateStorage = new ModelStateStorage();
 		INSTANCE.executionStateNotifier = new Notifier<ExecutionState>(ExecutionState.class);
 		INSTANCE.dptManager = new DPTManager();
 		INSTANCE.database = new Database(modelStructure);
@@ -87,6 +88,8 @@ public class Simulator {
 	public static ModelState getModelState() {
 		return INSTANCE.modelState;
 	}
+	
+	private ModelStateStorage modelStateStorage;
 
 	private ModelStructureCache modelStructureCache;
 
@@ -141,7 +144,13 @@ public class Simulator {
 	private static void notifyChange(ExecutionState category) {
 		INSTANCE.executionStateNotifier.notifySubscribers(category);
 	}
-
+	
+	private static void onStateChange() {
+		
+		INSTANCE.modelStateStorage.addModelState(INSTANCE.modelState);
+		notifyChange(ExecutionState.STATE_CHANGED);
+	}
+	
 	private boolean checkTerminate() {
 		for (TerminateCondition c : terminateList)
 			if (c.check())
@@ -172,14 +181,14 @@ public class Simulator {
 
 		notifyChange(ExecutionState.EXECUTION_STARTED);
 		notifyChange(ExecutionState.TIME_CHANGED);
-		notifyChange(ExecutionState.STATE_CHANGED);
+		onStateChange();
 
 		while (!INSTANCE.executionAborted) {
 			if (INSTANCE.checkTerminate())
 				return stop(SimulationStopCode.TERMINATE_CONDITION);
 
 			if (INSTANCE.dptManager.checkDPT()) {
-				notifyChange(ExecutionState.STATE_CHANGED);
+				onStateChange();
 				continue;
 			}
 
@@ -191,7 +200,7 @@ public class Simulator {
 			event.run();
 
 			notifyChange(ExecutionState.TIME_CHANGED);
-			notifyChange(ExecutionState.STATE_CHANGED);
+			onStateChange();
 		}
 
 		return stop(SimulationStopCode.USER_INTERRUPT);
