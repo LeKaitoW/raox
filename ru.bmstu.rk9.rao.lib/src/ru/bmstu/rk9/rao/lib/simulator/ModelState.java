@@ -36,5 +36,10 @@ public class ModelState {
 		resourceManager.addResource(resource);
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T extends ComparableResource<T>> List<T> getAll(Class<T> cl) {
+		return (List<T>) resourceManagers.get(cl).getAll();
+	}
+
 	private Map<Class<?>, ResourceManager<?>> resourceManagers = new HashMap<>();
 }

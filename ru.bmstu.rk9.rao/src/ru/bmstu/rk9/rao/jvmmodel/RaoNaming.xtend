@@ -13,11 +13,12 @@ import ru.bmstu.rk9.rao.rao.Constant
 import ru.bmstu.rk9.rao.rao.FunctionDeclaration
 import ru.bmstu.rk9.rao.rao.RelevantResource
 import ru.bmstu.rk9.rao.rao.Event
-import ru.bmstu.rk9.rao.rao.DecisionPoint
 import ru.bmstu.rk9.rao.rao.Frame
 import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.EnumDeclaration
 import ru.bmstu.rk9.rao.rao.Pattern
+import ru.bmstu.rk9.rao.rao.Logic
+import ru.bmstu.rk9.rao.rao.Search
 
 class RaoNaming
 {
@@ -75,7 +76,10 @@ class RaoNaming
 			Event:
 				return object.name
 
-			DecisionPoint:
+			Logic:
+				return object.name
+
+			Search:
 				return object.name
 
 			Frame:
@@ -121,7 +125,7 @@ class RaoNaming
 			Event:
 				return object.eContainer.nameGeneric + "." + object.name
 
-			DecisionPoint:
+			Logic:
 				return object.eContainer.nameGeneric + "." + object.name
 
 			Frame:

@@ -14,11 +14,9 @@ import static extension ru.bmstu.rk9.rao.jvmmodel.RaoNaming.*
 
 import ru.bmstu.rk9.rao.rao.Event
 import ru.bmstu.rk9.rao.rao.DefaultMethod
-import ru.bmstu.rk9.rao.lib.simulator.TerminateCondition
 import org.eclipse.xtext.common.types.JvmDeclaredType
 import ru.bmstu.rk9.rao.rao.ResourceType
 import org.eclipse.xtext.common.types.JvmPrimitiveType
-import java.nio.ByteBuffer
 import ru.bmstu.rk9.rao.rao.ResourceDeclaration
 import org.eclipse.xtext.common.types.JvmAnnotationType
 import org.eclipse.xtext.common.types.JvmAnnotationReference
@@ -26,6 +24,12 @@ import org.eclipse.xtext.common.types.impl.TypesFactoryImpl
 import ru.bmstu.rk9.rao.rao.EnumDeclaration
 import ru.bmstu.rk9.rao.rao.Sequence
 import ru.bmstu.rk9.rao.rao.Generator
+import java.util.function.Supplier
+import ru.bmstu.rk9.rao.rao.Logic
+import ru.bmstu.rk9.rao.rao.Pattern
+import ru.bmstu.rk9.rao.rao.PatternType
+import java.util.List
+import ru.bmstu.rk9.rao.rao.Search
 
 class RaoJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
@@ -110,13 +114,14 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 					]
 				]
 			}
-
 			case "terminateCondition": {
 				members += method.toClass(method.name) [
-					superTypes += typeRef(TerminateCondition)
+					superTypes += typeRef(Supplier, {
+						typeRef(Boolean)
+					})
 					visibility = JvmVisibility.PROTECTED
 					static = true
-					members += method.toMethod("check", typeRef(boolean)) [
+					members += method.toMethod("get", typeRef(Boolean)) [
 						visibility = JvmVisibility.PUBLIC
 						final = true
 						body = method.body
@@ -142,7 +147,6 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 					«FOR param : parameters»
 						this._«param.name» = «param.name»;
 					«ENDFOR»
-					ru.bmstu.rk9.rao.lib.simulator.Simulator.getModelState().addResource(this);
 				'''
 			]
 
@@ -152,9 +156,11 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				for (param : resourceType.parameters)
 					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType)
 				body = '''
-					return new «resourceType.name»(«FOR param : parameters»«
+					«resourceType.name» resource = new «resourceType.name»(«FOR param : parameters»«
 						param.name»«
 						IF parameters.indexOf(param) != parameters.size - 1», «ENDIF»«ENDFOR»);
+					ru.bmstu.rk9.rao.lib.simulator.Simulator.getModelState().addResource(resource);
+					return resource;
 				'''
 			]
 
@@ -200,20 +206,21 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				'''
 			]
 
-			members += resourceType.toMethod("serialize", typeRef(ByteBuffer)) [
-				visibility = JvmVisibility.PUBLIC
-				annotations += generateOverrideAnnotation
-				body = '''
-					return null;
-				'''
-			]
-
 			members += resourceType.toMethod("getTypeName", typeRef(String)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
 				annotations += generateOverrideAnnotation()
 				body = '''
 					return "«resourceType.fullyQualifiedName»";
+				'''
+			]
+
+			members += resourceType.toMethod("getAll", typeRef(List, {typeRef})) [
+				visibility = JvmVisibility.PUBLIC
+				final = true
+				static = true
+				body = '''
+					return ru.bmstu.rk9.rao.lib.simulator.Simulator.getModelState().getAll(«resourceType.name».class);
 				'''
 			]
 		]
@@ -223,16 +230,18 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 		members += generator.toClass(QualifiedName.create(qualifiedName, generator.name)) [
 			static = true
 
-			superTypes += typeRef(ru.bmstu.rk9.rao.lib.sequence.Generator, {generator.type})
+			superTypes += typeRef(ru.bmstu.rk9.rao.lib.sequence.Generator, {
+				generator.type
+			})
 
 			members += generator.toConstructor [
-					visibility = JvmVisibility.PUBLIC
-					for (param : generator.parameters)
-						parameters += param.toParameter(param.name, param.parameterType)
-					body = '''
-						«FOR param : parameters»this.«param.name» = «param.name»;
-						«ENDFOR»
-					'''
+				visibility = JvmVisibility.PUBLIC
+				for (param : generator.parameters)
+					parameters += param.toParameter(param.name, param.parameterType)
+				body = '''
+					«FOR param : parameters»this.«param.name» = «param.name»;
+					«ENDFOR»
+				'''
 			]
 
 			for (param : generator.parameters)
@@ -249,7 +258,6 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 	def dispatch compileRaoEntity(Event event, JvmDeclaredType it, boolean isPreIndexingPhase) {
 		members += event.toClass(QualifiedName.create(qualifiedName, event.name)) [
 			static = true
-
 			superTypes += typeRef(ru.bmstu.rk9.rao.lib.event.Event)
 
 			members += event.toConstructor [
@@ -298,5 +306,81 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				'''
 			]
 		]
+	}
+
+	def dispatch compileRaoEntity(Logic logic, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		if (!isPreIndexingPhase)
+			members += logic.toField(logic.name, typeRef(ru.bmstu.rk9.rao.lib.dpt.Logic)) [
+				visibility = JvmVisibility.PUBLIC
+				static = true
+				final = true
+				initializer = logic.constructor
+			]
+	}
+
+	def dispatch compileRaoEntity(Search search, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		if (!isPreIndexingPhase)
+			members += search.toField(search.name, typeRef(ru.bmstu.rk9.rao.lib.dpt.Search)) [
+				visibility = JvmVisibility.PUBLIC
+				static = true
+				final = true
+				initializer = search.constructor
+			]
+	}
+
+	def dispatch compileRaoEntity(Pattern pattern, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		members += pattern.toClass(QualifiedName.create(qualifiedName, pattern.name)) [
+			static = true
+			superTypes += if (pattern.type == PatternType.RULE)
+				typeRef(ru.bmstu.rk9.rao.lib.pattern.Rule)
+			else
+				typeRef(ru.bmstu.rk9.rao.lib.pattern.Operation)
+
+			members += pattern.toConstructor [
+				visibility = JvmVisibility.PUBLIC
+				for (param : pattern.parameters)
+					parameters += param.toParameter(param.name, param.parameterType)
+				body = '''
+					«FOR param : parameters»this.«param.name» = «param.name»;
+					«ENDFOR»
+				'''
+			]
+
+			for (param : pattern.parameters)
+					members += param.toField(param.name, param.parameterType)
+
+			if (!isPreIndexingPhase) {
+				pattern.defaultMethods.forEach [ m |
+					members += pattern.toMethod(m.name, m.name.getPatternMethodTypeRef) [
+						visibility = JvmVisibility.PUBLIC
+						final = true
+						annotations += generateOverrideAnnotation()
+						body = m.body
+					]
+				]
+
+				//TODO this is a mere stub
+				members += pattern.toMethod("selectRelevantResources", typeRef(boolean)) [
+					visibility = JvmVisibility.PUBLIC
+					final = true
+					annotations += generateOverrideAnnotation()
+					body = '''return true;'''
+				]
+			}
+		]
+	}
+
+	//FIXME ugly
+	def getPatternMethodTypeRef(String name) {
+		switch name {
+			case "execute",
+			case "begin",
+			case "end":
+				return typeRef(void)
+			case "duration":
+				return typeRef(double)
+		}
+
+		return null
 	}
 }

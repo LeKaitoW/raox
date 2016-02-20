@@ -25,7 +25,8 @@ RaoEntity
 	| FunctionDeclaration
 	| Event
 	| Pattern
-	| DecisionPoint
+	| Logic
+	| Search
 	| Frame
 	| Result
 	| DefaultMethod
@@ -38,12 +39,12 @@ RaoEntity
 
 ResourceType:
 	'type' name = ID '{'
-		(parameters += FieldDeclaration ';' )+
+		(parameters += FieldDeclaration)+
 	'}'
 ;
 
 FieldDeclaration
-	: declaration = FullJvmFormalParameter ('=' default = XOrExpression)?
+	: declaration = FullJvmFormalParameter ('=' default = XOrExpression)? ';'?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -51,7 +52,7 @@ FieldDeclaration
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 ResourceDeclaration:
-	'resource' name = ID '=' constructor = XOrExpression ';'
+	'resource' name = ID '=' constructor = XOrExpression ';'?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -73,8 +74,8 @@ Pattern:
 	type = PatternType name = ID '('
 		(parameters += FullJvmFormalParameter (
 			',' parameters += FullJvmFormalParameter)* )? ')' '{'
+
 		relevantResources += RelevantResource*
-		('relevantSet' combinational = PatternSelectMethod ';')?
 		defaultMethods += DefaultMethod*
 	'}'
 ;
@@ -82,111 +83,22 @@ Pattern:
 enum PatternType
 	: OPERATION = 'operation'
 	| RULE = 'rule'
-	| KEYBOARD = 'keyboard'
 ;
 
 RelevantResource:
-	'relevant' name = ID '=' type = [ResourceType | FQN]
-	(haveSelect ?= '.' 'select' '(' select = PatternSelectLogic ')'
-		(selectMethod = PatternSelectMethod)?
-	)? ';'
-;
-
-PatternSelectLogic
-	: logic = XOrExpression
-	| any ?= 'any'
-;
-
-PatternSelectMethod
-	: first ?= '.' 'first' '(' ')'
-	| '.' withType = PatternSelectWithType '(' expression = XOrExpression ')'
-;
-
-enum PatternSelectWithType
-	: WITH_MIN = 'withMin'
-	| WITH_MAX = 'withMax'
+	'relevant' type = JvmTypeReference name = ID '=' value = XOrExpression ';'?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                              Decision point                           //
+//                              Logic & Search                           //
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-DecisionPoint
-	: DecisionPointSome
-	| DecisionPointSearch
+Logic:
+	'logic' name = ID '=' constructor = XOrExpression ';'?
 ;
 
-DecisionPointSome:
-	'dpt' name = ID '{'
-		('set' initMethodName = ID '(' ')' '{'
-			(initStatements += DptStatements ';')*
-		'}')?
-		( activities += DecisionPointActivity ';')+
-	'}'
-;
-
-DecisionPointActivity:
-	'activity' name = ID ('(' priority = XOrExpression ')')?
-	'checks' pattern = [Pattern|FQN]
-	'(' ( parameters += XOrExpression (
-			',' parameters += XOrExpression)* )? ')'
-;
-
-DptStatements
-	: DptSetParentStatement
-	| DptSetConditionStatement
-	| DptSetPriorityStatement
-;
-
-DecisionPointSearch:
-	'search' name = ID '{'
-		'set' initMethodName = ID '(' ')' '{'
-			(initStatements += DptSearchStatemets ';')*
-		'}'
-		( activities += DecisionPointSearchActivity ';')+
-	'}'
-;
-
-DecisionPointSearchActivity:
-	'activity' name = ID 'checks' pattern = [Pattern|FQN]
-	'(' ( parameters += XOrExpression (
-		',' parameters += XOrExpression)* )? ')'
-	'.' (
-		'setValueBefore' '(' valueBefore = XOrExpression ')'
-		| 'setValueAfter'  '(' valueAfter = XOrExpression ')'
-	)
-;
-
-DptSearchStatemets
-	: DptSetTerminateConditionStatement
-	| DptEvaluateByStatement
-	| DptCompareTopsStatement
-	| DptSetParentStatement
-	| DptSetConditionStatement
-;
-
-DptSetParentStatement:
-	name = 'setParent' '(' parent = [DecisionPoint|FQN] ')'
-;
-
-DptSetConditionStatement:
-	name = 'setCondition' '(' (condition = XOrExpression | 'any') ')'
-;
-
-DptSetPriorityStatement:
-	name = 'setPriority' '(' (priority = XOrExpression) ')'
-;
-
-DptSetTerminateConditionStatement:
-	name = 'setTerminateCondition' '(' termination = XOrExpression ')'
-;
-
-DptEvaluateByStatement:
-	name = 'evaluateBy' '(' evaluateBy = XOrExpression ')'
-;
-
-DptCompareTopsStatement:
-	name = 'compareTops' '(' ((compareTops ?= 'true') | 'false') ')'
+Search:
+	'search' name = ID '=' constructor = XOrExpression ';'?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -194,7 +106,7 @@ DptCompareTopsStatement:
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 Sequence:
-	'sequence' name = ID '=' constructor = XOrExpression ';'
+	'sequence' name = ID '=' constructor = XOrExpression ';'?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -213,7 +125,7 @@ Generator:
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 Constant:
-	'constant' constant = FullJvmFormalParameter '=' value = XExpression ';'
+	'constant' constant = FullJvmFormalParameter '=' value = XExpression ';'?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -231,38 +143,9 @@ FunctionDeclaration:
 //                                Results                                //
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
+// TODO
 Result:
-	'result' name = ID '=' type = ResultType ';'
-;
-
-ResultType
-	: ResultWatchParameter
-	| ResultWatchState
-	| ResultWatchQuantity
-	| ResultWatchValue
-	| ResultGetValue
-;
-
-ResultWatchParameter:
-	'watchParameter' '(' parameter = XExpression ')'
-;
-
-ResultWatchState:
-	'watchState' '(' logic = XOrExpression ')'
-;
-
-ResultWatchQuantity:
-	'watchQuantity' '(' resource = [ResourceType|FQN]
-		',' ('any' | logic = XOrExpression) ')'
-;
-
-ResultWatchValue:
-	'watchValue' '(' resource = [ResourceType|FQN] ','
-	( 'any' | logic = XOrExpression ) ',' expression = XOrExpression ')'
-;
-
-ResultGetValue:
-	'getValue' '(' expression = XOrExpression ')'
+	'result' name = ID
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

@@ -20,8 +20,9 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceTypeIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.SearchIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.SearchIndex.SearchInfo;
-import ru.bmstu.rk9.rao.lib.dpt.DecisionPoint;
-import ru.bmstu.rk9.rao.lib.dpt.DecisionPointSearch;
+import ru.bmstu.rk9.rao.lib.dpt.AbstractDecisionPoint;
+import ru.bmstu.rk9.rao.lib.dpt.Search;
+import ru.bmstu.rk9.rao.lib.dpt.Activity;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
@@ -426,11 +427,11 @@ public class Database {
 	}
 
 	private static class PatternPoolEntry {
-		final DecisionPoint dpt;
-		final DecisionPoint.Activity activity;
+		final AbstractDecisionPoint dpt;
+		final Activity activity;
 		final int number;
 
-		PatternPoolEntry(final DecisionPoint dpt, final DecisionPoint.Activity activity, final int number) {
+		PatternPoolEntry(final AbstractDecisionPoint dpt, final Activity activity, final int number) {
 			this.dpt = dpt;
 			this.activity = activity;
 			this.number = number;
@@ -439,7 +440,7 @@ public class Database {
 
 	private final Map<Rule, PatternPoolEntry> patternPool = new HashMap<Rule, PatternPoolEntry>();
 
-	public final void addDecisionEntry(final DecisionPoint dpt, final DecisionPoint.Activity activity,
+	public final void addDecisionEntry(final AbstractDecisionPoint dpt, final Activity activity,
 			final PatternType type, final Rule rule) {
 		final String dptName = dpt.getName();
 
@@ -457,10 +458,10 @@ public class Database {
 		if (type == PatternType.OPERATION_BEGIN)
 			patternPool.put(rule, new PatternPoolEntry(dpt, activity, number));
 
-		final int[] relevantResources = rule.getRelevantInfo();
+		final List<Integer> relevantResources = rule.getRelevantInfo();
 
 		final ByteBuffer data = ByteBuffer
-				.allocate(EntryType.PATTERN.METADATA_SIZE + relevantResources.length * TypeSize.INTEGER);
+				.allocate(EntryType.PATTERN.METADATA_SIZE + relevantResources.size() * TypeSize.INTEGER);
 		data.putInt(dptIndex.getNumber()).putInt(index.getNumber()).putInt(number);
 
 		fillRelevantResources(data, relevantResources);
@@ -491,10 +492,10 @@ public class Database {
 		header.put((byte) EntryType.PATTERN.ordinal()).putDouble(Simulator.getTime())
 				.put((byte) PatternType.OPERATION_END.ordinal());
 
-		final int[] relevantResources = rule.getRelevantInfo();
+		final List<Integer> relevantResources = rule.getRelevantInfo();
 
 		final ByteBuffer data = ByteBuffer
-				.allocate(EntryType.PATTERN.METADATA_SIZE + relevantResources.length * TypeSize.INTEGER);
+				.allocate(EntryType.PATTERN.METADATA_SIZE + relevantResources.size() * TypeSize.INTEGER);
 
 		data.putInt(dptIndex.getNumber()).putInt(index.getNumber()).putInt(poolEntry.number);
 
@@ -506,8 +507,8 @@ public class Database {
 		index.getEntryNumbers().add(allEntries.size() - 1);
 	}
 
-	private final void fillRelevantResources(final ByteBuffer data, final int[] relevantResources) {
-		data.putInt(relevantResources.length);
+	private final void fillRelevantResources(final ByteBuffer data, final List<Integer> relevantResources) {
+		data.putInt(relevantResources.size());
 		for (final int number : relevantResources)
 			data.putInt(number);
 	}
@@ -545,7 +546,7 @@ public class Database {
 		BEGIN, END, OPEN, SPAWN, DECISION;
 	}
 
-	public final void addSearchEntry(final DecisionPointSearch<?> dpt, final SearchEntryType type,
+	public final void addSearchEntry(final Search<?> dpt, final SearchEntryType type,
 			final ByteBuffer data) {
 		final String name = dpt.getName();
 

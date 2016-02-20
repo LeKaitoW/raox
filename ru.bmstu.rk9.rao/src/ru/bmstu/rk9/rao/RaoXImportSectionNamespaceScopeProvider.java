@@ -13,7 +13,8 @@ import com.google.common.collect.Lists;
 public class RaoXImportSectionNamespaceScopeProvider extends XImportSectionNamespaceScopeProvider {
 	public static final List<QualifiedName> raoLibImports = Lists.<QualifiedName> newArrayList(
 			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "runtime"),
-			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "sequence"));
+			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "sequence"),
+			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "dpt"));
 
 	@Override
 	protected List<ImportNormalizer> getImplicitImports(boolean ignoreCase) {

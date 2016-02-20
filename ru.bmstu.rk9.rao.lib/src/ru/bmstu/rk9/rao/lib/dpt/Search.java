@@ -9,36 +9,43 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.function.Supplier;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
-import ru.bmstu.rk9.rao.lib.pattern.Pattern;
+//import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.ModelState;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulatorState;
 
-public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint {
-	private DecisionPoint.Condition terminate;
+public class Search<T extends ModelState<T>> extends AbstractDecisionPoint {
+	public Search() {
+		Simulator.getSimulatorStateNotifier().addSubscriber(simulatorInitializedListener, SimulatorState.INITIALIZED,
+				EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED, SubscriptionType.ONE_SHOT));
+	}
+
+	protected Supplier<Boolean> terminate;
 
 	private DatabaseRetriever<T> retriever;
 
-	private boolean compareTops;
+	protected boolean compareTops;
 
-	private EvaluateBy evaluateBy;
+	protected EvaluateBy evaluateBy;
 
-	public DecisionPointSearch(String name, Condition condition, Condition terminate, EvaluateBy evaluateBy,
-			boolean compareTops, DatabaseRetriever<T> retriever) {
-		super(name, null, condition);
-		this.terminate = terminate;
-		this.evaluateBy = evaluateBy;
-		this.retriever = retriever;
-		this.compareTops = compareTops;
+	protected Supplier<Double> priority;
+	protected Supplier<Boolean> condition;
+	private Logic parent;
 
-		Simulator.getSimulatorStateNotifier().addSubscriber(simulatorInitializedListener, SimulatorState.INITIALIZED,
-				EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED, SubscriptionType.ONE_SHOT));
+	public Logic getParent() {
+		return parent;
+	}
+
+	protected void setParent(Logic parent) {
+		this.parent = parent;
+		parent.addChild(this);
 	}
 
 	private final Subscriber simulatorInitializedListener = new Subscriber() {
@@ -71,24 +78,9 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		public double get();
 	}
 
-	public static abstract class Activity extends DecisionPoint.Activity {
-		public enum ApplyMoment {
-			before, after
-		}
+	private List<SearchEdge> activities = new LinkedList<SearchEdge>();
 
-		public Activity(String name, ApplyMoment applyMoment) {
-			super(name);
-			this.applyMoment = applyMoment;
-		}
-
-		public abstract double calculateValue();
-
-		public final ApplyMoment applyMoment;
-	}
-
-	private List<Activity> activities = new LinkedList<Activity>();
-
-	public void addActivity(Activity a) {
+	public void addActivity(SearchEdge a) {
 		activities.add(a);
 	}
 
@@ -162,7 +154,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		if (!allowSearch)
 			return stop(StopCode.ABORTED);
 
-		if (condition != null && !condition.check() || terminate.check())
+		if (condition != null && !condition.get() || terminate.get())
 			return stop(StopCode.CONDITION);
 
 		nodesOpen.clear();
@@ -183,7 +175,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 			totalOpened++;
 			serializeOpen(current);
 
-			if (terminate.check())
+			if (terminate.get())
 				return stop(StopCode.SUCCESS);
 
 			nodesOpen.addAll(spawnChildren(current));
@@ -201,10 +193,10 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		LinkedList<GraphNode> children = new LinkedList<GraphNode>();
 
 		for (int activityNumber = 0; activityNumber < activities.size(); activityNumber++) {
-			Activity a = activities.get(activityNumber);
+			SearchEdge a = activities.get(activityNumber);
 			double value = 0;
 
-			if (!a.checkActivity())
+			if (!a.check())
 				continue;
 
 			GraphNode newChild = new GraphNode(totalAdded, parent);
@@ -213,16 +205,16 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 			SpawnStatus spawnStatus = SpawnStatus.NEW;
 
-			if (a.applyMoment == Activity.ApplyMoment.before)
+			if (a.applyOrder == SearchEdge.ApplyOrder.BEFORE)
 				value = a.calculateValue();
 
 			newChild.state = parent.state.copy();
 			newChild.state.deploy();
 
-			Rule executed = a.executeActivity();
+			Rule executed = a.execute();
 			newChild.activityInfo = new ActivityInfo(activityNumber, executed);
 
-			if (a.applyMoment == Activity.ApplyMoment.after)
+			if (a.applyOrder == SearchEdge.ApplyOrder.AFTER)
 				value = a.calculateValue();
 
 			newChild.g = parent.g + value;
@@ -370,10 +362,10 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 
 	private final void serializeTops(GraphNode node, SpawnStatus spawnStatus, ActivityInfo activityInfo, double value) {
 		if (enoughSensitivity(SerializationLevel.TOPS)) {
-			int[] relevantResources = node.activityInfo.rule.getRelevantInfo();
+			List<Integer> relevantResources = node.activityInfo.rule.getRelevantInfo();
 
 			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 3
-					+ Database.TypeSize.INTEGER * (3 + relevantResources.length));
+					+ Database.TypeSize.INTEGER * (3 + relevantResources.size()));
 
 			data.put((byte) spawnStatus.ordinal()).putInt(node.number).putInt(node.parent.number).putDouble(node.g)
 					.putDouble(node.h).putInt(activityInfo.number).putDouble(value);
@@ -385,7 +377,7 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 		}
 
 		if (enoughSensitivity(SerializationLevel.ALL)) {
-			activityInfo.rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SEARCH, this.getName());
+//			activityInfo.rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SEARCH, this.getName());
 		}
 	}
 
@@ -398,9 +390,9 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 			node = it.next();
 
 			Rule rule = node.activityInfo.rule;
-			int[] relevantResources = rule.getRelevantInfo();
+			List<Integer> relevantResources = rule.getRelevantInfo();
 
-			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.INTEGER * (2 + relevantResources.length));
+			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.INTEGER * (2 + relevantResources.size()));
 
 			data.putInt(node.number).putInt(node.activityInfo.number);
 
@@ -410,8 +402,13 @@ public class DecisionPointSearch<T extends ModelState<T>> extends DecisionPoint 
 			Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.DECISION, data);
 
 			if (enoughSensitivity(SerializationLevel.ALL)) {
-				rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SOLUTION, this.getName());
+//				rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SOLUTION, this.getName());
 			}
 		}
+	}
+
+	@Override
+	public Supplier<Double> getPriority() {
+		return () -> 0.0;
 	}
 }
