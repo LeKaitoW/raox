@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.DecisionPointIndex;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.LogicIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.EventIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.PatternIndex;
@@ -83,13 +83,14 @@ public class Database {
 
 	public Database(final JSONObject modelStructure) {
 		this.modelStructure = modelStructure;
-		indexHelper.initializeModel(modelStructure.getString("name"));
+		String modelName = modelStructure.getString("name");
+		indexHelper.initializeModel(modelName);
 
 		final JSONArray resourceTypes = modelStructure.getJSONArray("resource_types");
 		for (int i = 0; i < resourceTypes.length(); i++) {
 			final JSONObject resourceType = resourceTypes.getJSONObject(i);
 
-			final String name = resourceType.getString("name");
+			final String name = modelName + "." + resourceType.getString("name");
 			final CollectedDataNode typeNode = indexHelper.addResourceType(name);
 			final ResourceTypeIndex resourceTypeIndex = new ResourceTypeIndex(i,
 					resourceType.getJSONObject("structure"));
@@ -100,21 +101,22 @@ public class Database {
 		for (int i = 0; i < results.length(); i++) {
 			final JSONObject result = results.getJSONObject(i);
 			final ResultType type = ResultType.getByString(result.getString("type"));
-			indexHelper.addResult(result.getString("name")).setIndex(new ResultIndex(i, type));
+			final String name = modelName + "." + result.getString("name");
+			indexHelper.addResult(name).setIndex(new ResultIndex(i, type));
 		}
 
 		final JSONArray patterns = modelStructure.getJSONArray("patterns");
 		final Map<String, JSONObject> patternsByName = new HashMap<String, JSONObject>();
 		for (int i = 0; i < patterns.length(); i++) {
 			final JSONObject pattern = patterns.getJSONObject(i);
-			final String name = pattern.getString("name");
+			final String name = modelName + "." + pattern.getString("name");
 			patternsByName.put(name, pattern);
 		}
 
 		final JSONArray events = modelStructure.getJSONArray("events");
 		for (int i = 0; i < events.length(); i++) {
 			final JSONObject event = events.getJSONObject(i);
-			final String name = event.getString("name");
+			final String name = modelName + "." + event.getString("name");
 			final CollectedDataNode eventNode = indexHelper.addEvent(name);
 			eventNode.setIndex(new EventIndex(i, event));
 		}
@@ -123,11 +125,12 @@ public class Database {
 		for (int i = 0; i < decisionPoints.length(); i++) {
 			final JSONObject decisionPoint = decisionPoints.getJSONObject(i);
 			final String type = decisionPoint.getString("type");
+			final String dptName = modelName + "." + decisionPoint.getString("name");
 			switch (type) {
 			case "some":
 			case "prior":
-				final CollectedDataNode dptNode = indexHelper.addDecisionPoint(decisionPoint.getString("name"));
-				dptNode.setIndex(new DecisionPointIndex(i));
+				final CollectedDataNode dptNode = indexHelper.addLogic(dptName);
+				dptNode.setIndex(new LogicIndex(i));
 
 				final JSONArray activities = decisionPoint.getJSONArray("activities");
 				for (int j = 0; j < activities.length(); j++) {
@@ -138,7 +141,7 @@ public class Database {
 				}
 				break;
 			case "search":
-				indexHelper.addSearch(decisionPoint.getString("name")).setIndex(new SearchIndex(i));
+				indexHelper.addSearch(dptName).setIndex(new SearchIndex(i));
 				break;
 			}
 		}
@@ -451,7 +454,7 @@ public class Database {
 		header.put((byte) EntryType.PATTERN.ordinal()).putDouble(Simulator.getTime()).put((byte) type.ordinal());
 
 		final CollectedDataNode dptNode = indexHelper.getDecisionPoint(dptName);
-		final DecisionPointIndex dptIndex = (DecisionPointIndex) dptNode.getIndex();
+		final LogicIndex dptIndex = (LogicIndex) dptNode.getIndex();
 		final PatternIndex index = (PatternIndex) dptNode.getChildren().get(activity.getName()).getIndex();
 
 		final int number = index.incrementTimesExecuted();
@@ -478,14 +481,14 @@ public class Database {
 			return;
 
 		PatternPoolEntry poolEntry = null;
-		DecisionPointIndex dptIndex = null;
+		LogicIndex dptIndex = null;
 
 		poolEntry = patternPool.remove(rule);
 		if (poolEntry == null)
 			return;
 		final CollectedDataNode dptNode = indexHelper.getDecisionPoint(poolEntry.dpt.getName());
 
-		dptIndex = (DecisionPointIndex) dptNode.getIndex();
+		dptIndex = (LogicIndex) dptNode.getIndex();
 		final PatternIndex index = (PatternIndex) dptNode.getChildren().get(poolEntry.activity.getName()).getIndex();
 
 		final ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
@@ -519,6 +522,7 @@ public class Database {
 
 	public final void addEventEntry(final Event event) {
 		final String name = event.getName();
+
 		if (!sensitivityList.contains(name))
 			return;
 

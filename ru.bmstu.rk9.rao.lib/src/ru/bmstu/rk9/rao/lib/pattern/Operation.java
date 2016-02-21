@@ -38,7 +38,7 @@ public class Operation extends Pattern {
 		}
 
 		@Override
-		public void run() {
+		protected void execute() {
 			Operation.this.end();
 		}
 	}

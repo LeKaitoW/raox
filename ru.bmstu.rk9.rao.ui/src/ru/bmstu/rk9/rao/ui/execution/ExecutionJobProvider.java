@@ -22,7 +22,10 @@ import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
 import ru.bmstu.rk9.rao.lib.dpt.Logic;
+import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
+import ru.bmstu.rk9.rao.lib.json.JSONObject;
+import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.result.Result;
@@ -64,6 +67,11 @@ public class ExecutionJobProvider {
 					classLoader = new URLClassLoader(urls, Simulator.class.getClassLoader());
 
 					SimulatorPreinitializationInfo simulatorPreinitializationInfo = new SimulatorPreinitializationInfo();
+					simulatorPreinitializationInfo.modelStructure.put("name", project.getName())
+							.put("resource_types", new JSONArray()).put("results", new JSONArray())
+							.put("patterns", new JSONArray()).put("events", new JSONArray())
+							.put("decision_points", new JSONArray());
+
 					SimulatorInitializationInfo simulatorInitializationInfo = new SimulatorInitializationInfo();
 					List<Field> resourceFields = new ArrayList<>();
 					List<Field> logicFields = new ArrayList<>();
@@ -93,6 +101,11 @@ public class ExecutionJobProvider {
 						}
 
 						for (Class<?> nestedModelClass : modelClass.getDeclaredClasses()) {
+							if (Event.class.isAssignableFrom(nestedModelClass))
+								simulatorPreinitializationInfo.modelStructure.getJSONArray("events")
+										.put(new JSONObject().put("name",
+												NamingHelper.fieldNameToFullName(nestedModelClass.getName())));
+
 							if (ComparableResource.class.isAssignableFrom(nestedModelClass))
 								simulatorPreinitializationInfo.resourceClasses.add(nestedModelClass);
 						}
@@ -122,11 +135,6 @@ public class ExecutionJobProvider {
 
 					List<Result> results = new LinkedList<Result>();
 					SimulationStopCode simulationResult = SimulationStopCode.SIMULATION_CONTINUES;
-
-					// TODO generate actual model structure
-					simulatorPreinitializationInfo.modelStructure.put("name", "").put("resource_types", new JSONArray())
-							.put("results", new JSONArray()).put("patterns", new JSONArray())
-							.put("events", new JSONArray()).put("decision_points", new JSONArray());
 
 					Simulator.preinitialize(simulatorPreinitializationInfo);
 

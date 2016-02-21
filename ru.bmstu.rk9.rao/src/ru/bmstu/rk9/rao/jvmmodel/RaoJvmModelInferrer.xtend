@@ -132,7 +132,9 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	def dispatch compileRaoEntity(ResourceType resourceType, JvmDeclaredType it, boolean isPreIndexingPhase) {
-		members += resourceType.toClass(QualifiedName.create(qualifiedName, resourceType.name)) [
+		val typeQualifiedName = QualifiedName.create(qualifiedName, resourceType.name)
+
+		members += resourceType.toClass(typeQualifiedName) [
 			static = true
 
 			superTypes += typeRef(ru.bmstu.rk9.rao.lib.resource.ComparableResource, {
@@ -211,7 +213,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				final = true
 				annotations += generateOverrideAnnotation()
 				body = '''
-					return "«resourceType.fullyQualifiedName»";
+					return "«typeQualifiedName»";
 				'''
 			]
 
@@ -256,7 +258,9 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	def dispatch compileRaoEntity(Event event, JvmDeclaredType it, boolean isPreIndexingPhase) {
-		members += event.toClass(QualifiedName.create(qualifiedName, event.name)) [
+		val eventQualifiedName = QualifiedName.create(qualifiedName, event.name)
+
+		members += event.toClass(eventQualifiedName) [
 			static = true
 			superTypes += typeRef(ru.bmstu.rk9.rao.lib.event.Event)
 
@@ -279,12 +283,12 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				final = true
 				annotations += generateOverrideAnnotation()
 				body = '''
-					return "«event.name»";
+					return "«eventQualifiedName»";
 				'''
 			]
 
-			members += event.toMethod("run", typeRef(void)) [
-				visibility = JvmVisibility.PUBLIC
+			members += event.toMethod("execute", typeRef(void)) [
+				visibility = JvmVisibility.PROTECTED
 				final = true
 				annotations += generateOverrideAnnotation()
 				body = event.body

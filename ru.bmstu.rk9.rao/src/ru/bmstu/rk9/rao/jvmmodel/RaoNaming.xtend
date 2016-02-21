@@ -141,18 +141,4 @@ class RaoNaming
 				return "ERROR"
 		}
 	}
-
-	def static getContextQualifiedName(EObject object, EObject context)
-	{
-		var objectName = object.fullyQualifiedName
-		var contextName = context.fullyQualifiedName
-
-		while (objectName.startsWith(contextName.substring(0,
-			if (contextName.indexOf(".") > 0)	contextName.indexOf(".") else (contextName.length - 1))))
-		{
-			objectName = objectName.substring(objectName.indexOf(".") + 1)
-			contextName = contextName.substring(contextName.indexOf(".") + 1)
-		}
-		return objectName
-	}
 }
