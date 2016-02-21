@@ -16,6 +16,7 @@ import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.rao.Event;
 import ru.bmstu.rk9.rao.rao.Logic;
 import ru.bmstu.rk9.rao.rao.Pattern;
+import ru.bmstu.rk9.rao.rao.ResourceDeclaration;
 import ru.bmstu.rk9.rao.rao.Result;
 import ru.bmstu.rk9.rao.rao.Search;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfig.SerializationNode;
@@ -27,6 +28,9 @@ class SerializationConfigurator {
 	final void fillCategories(Resource model, SerializationNode modelNode) {
 		for (SerializationNode category : modelNode.getVisibleChildren())
 			category.hideChildren();
+
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.RESOURCES.ordinal()), model,
+				ResourceDeclaration.class);
 
 		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.PATTERNS.ordinal()), model,
 				Pattern.class);

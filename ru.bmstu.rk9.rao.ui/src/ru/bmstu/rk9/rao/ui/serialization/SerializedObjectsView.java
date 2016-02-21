@@ -78,7 +78,7 @@ public class SerializedObjectsView extends ViewPart {
 		}
 
 		@Override
-		final protected void checkSubclass() {
+		protected final void checkSubclass() {
 		}
 
 		abstract public boolean isEnabled(CollectedDataNode node);
