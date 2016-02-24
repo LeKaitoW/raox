@@ -145,10 +145,10 @@ public class Simulator {
 		INSTANCE.executionStateNotifier.notifySubscribers(category);
 	}
 	
-	private static void onStateChange() {
+	public static void onStateChange() {
 		
 		INSTANCE.modelStateStorage.addModelState(INSTANCE.modelState);
-		notifyChange(ExecutionState.STATE_CHANGED);
+		
 	}
 	
 	private boolean checkTerminate() {
@@ -181,14 +181,14 @@ public class Simulator {
 
 		notifyChange(ExecutionState.EXECUTION_STARTED);
 		notifyChange(ExecutionState.TIME_CHANGED);
-		onStateChange();
+		notifyChange(ExecutionState.STATE_CHANGED);
 
 		while (!INSTANCE.executionAborted) {
 			if (INSTANCE.checkTerminate())
 				return stop(SimulationStopCode.TERMINATE_CONDITION);
 
 			if (INSTANCE.dptManager.checkDPT()) {
-				onStateChange();
+				notifyChange(ExecutionState.STATE_CHANGED);
 				continue;
 			}
 
@@ -200,7 +200,7 @@ public class Simulator {
 			event.run();
 
 			notifyChange(ExecutionState.TIME_CHANGED);
-			onStateChange();
+			notifyChange(ExecutionState.STATE_CHANGED);
 		}
 
 		return stop(SimulationStopCode.USER_INTERRUPT);

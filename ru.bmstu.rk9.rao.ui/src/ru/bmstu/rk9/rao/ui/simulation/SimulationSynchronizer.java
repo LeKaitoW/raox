@@ -43,6 +43,7 @@ public class SimulationSynchronizer {
 		simulationSubscriberManager.initialize(
 				Arrays.asList(new SimulatorSubscriberInfo(simulationManager.scaleManager, ExecutionState.TIME_CHANGED),
 						new SimulatorSubscriberInfo(simulationManager.speedManager, ExecutionState.STATE_CHANGED),
+						new SimulatorSubscriberInfo(stateStorageSubscriber, ExecutionState.STATE_CHANGED),
 						new SimulatorSubscriberInfo(simulationManager.speedManager, ExecutionState.SEARCH_STEP),
 						new SimulatorSubscriberInfo(executionAbortedListener, ExecutionState.EXECUTION_ABORTED),
 						new SimulatorSubscriberInfo(executionStartedListener, ExecutionState.EXECUTION_STARTED)));
@@ -227,7 +228,18 @@ public class SimulationSynchronizer {
 			e.printStackTrace();
 		}
 	}
+	
+	public class StateStorageSubscriber implements Subscriber{
+		public void fireChange() {
+			Simulator.onStateChange();
+			}
+	}
 
+	
+	
+	
+
+	public final StateStorageSubscriber stateStorageSubscriber = new StateStorageSubscriber();
 	public final UITimeUpdater uiTimeUpdater = new UITimeUpdater();
 	public final SimulationManager simulationManager = new SimulationManager();
 	public final ExecutionAbortedListener executionAbortedListener = new ExecutionAbortedListener();
