@@ -74,9 +74,9 @@ public class Search extends AbstractDecisionPoint {
 
 	private volatile boolean allowSearch = false;
 
-	private List<SearchEdge> activities = new LinkedList<SearchEdge>();
+	private List<Edge> activities = new LinkedList<Edge>();
 
-	public void addActivity(SearchEdge a) {
+	public void addActivity(Edge a) {
 		activities.add(a);
 	}
 
@@ -185,7 +185,7 @@ public class Search extends AbstractDecisionPoint {
 		LinkedList<GraphNode> children = new LinkedList<GraphNode>();
 
 		for (int activityNumber = 0; activityNumber < activities.size(); activityNumber++) {
-			SearchEdge a = activities.get(activityNumber);
+			Edge a = activities.get(activityNumber);
 			double value = 0;
 
 			if (!a.check())
@@ -197,7 +197,7 @@ public class Search extends AbstractDecisionPoint {
 
 			SpawnStatus spawnStatus = SpawnStatus.NEW;
 
-			if (a.applyOrder == SearchEdge.ApplyOrder.BEFORE)
+			if (a.applyOrder == Edge.ApplyOrder.BEFORE)
 				value = a.calculateValue();
 
 			newChild.state = parent.state.copy();
@@ -206,7 +206,7 @@ public class Search extends AbstractDecisionPoint {
 			Rule executed = a.execute();
 			newChild.activityInfo = new ActivityInfo(activityNumber, executed);
 
-			if (a.applyOrder == SearchEdge.ApplyOrder.AFTER)
+			if (a.applyOrder == Edge.ApplyOrder.AFTER)
 				value = a.calculateValue();
 
 			newChild.g = parent.g + value;

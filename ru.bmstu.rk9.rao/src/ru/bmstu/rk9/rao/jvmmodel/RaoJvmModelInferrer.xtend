@@ -28,8 +28,8 @@ import java.util.function.Supplier
 import ru.bmstu.rk9.rao.rao.Logic
 import ru.bmstu.rk9.rao.rao.Pattern
 import ru.bmstu.rk9.rao.rao.PatternType
-import java.util.List
 import ru.bmstu.rk9.rao.rao.Search
+import java.util.Collection
 
 class RaoJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
@@ -217,7 +217,9 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				'''
 			]
 
-			members += resourceType.toMethod("getAll", typeRef(List, {typeRef})) [
+			members += resourceType.toMethod("getAll", typeRef(Collection, {
+				typeRef
+			})) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
 				static = true
@@ -265,7 +267,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 			superTypes += typeRef(ru.bmstu.rk9.rao.lib.event.Event)
 
 			members += event.toConstructor [
-				visibility = JvmVisibility.PUBLIC
+				visibility = JvmVisibility.PRIVATE
 				parameters += event.toParameter("time", typeRef(double))
 				for (param : event.parameters)
 					parameters += param.toParameter(param.name, param.parameterType)
@@ -340,8 +342,22 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 			else
 				typeRef(ru.bmstu.rk9.rao.lib.pattern.Operation)
 
-			members += pattern.toConstructor [
+			members += pattern.toMethod("create", typeRef(Supplier, {
+				typeRef
+			})) [
 				visibility = JvmVisibility.PUBLIC
+				static = true
+				for (param : pattern.parameters)
+					parameters += param.toParameter(param.name, param.parameterType)
+				body = '''
+					return () -> new «pattern.name»(«FOR param : parameters»«
+							param.name»«
+							IF parameters.indexOf(param) != parameters.size - 1», «ENDIF»«ENDFOR»);
+				'''
+			]
+
+			members += pattern.toConstructor [
+				visibility = JvmVisibility.PRIVATE
 				for (param : pattern.parameters)
 					parameters += param.toParameter(param.name, param.parameterType)
 				body = '''
@@ -351,30 +367,45 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 			]
 
 			for (param : pattern.parameters)
-					members += param.toField(param.name, param.parameterType)
+				members += param.toField(param.name, param.parameterType)
 
 			if (!isPreIndexingPhase) {
-				pattern.defaultMethods.forEach [ m |
-					members += pattern.toMethod(m.name, m.name.getPatternMethodTypeRef) [
+				for (relevant : pattern.relevantResources) {
+					members += relevant.toMethod("resolve" + relevant.name.toFirstUpper, relevant.value.inferredType) [
+						visibility = JvmVisibility.PRIVATE
+						body = relevant.value
+					]
+
+					members += relevant.toField(relevant.name, relevant.value.inferredType)
+				}
+
+				for (method : pattern.defaultMethods) {
+					members += method.toMethod(method.name, method.name.getPatternMethodTypeRef) [
 						visibility = JvmVisibility.PUBLIC
 						final = true
 						annotations += generateOverrideAnnotation()
-						body = m.body
+						body = method.body
 					]
-				]
+				}
 
-				//TODO this is a mere stub
 				members += pattern.toMethod("selectRelevantResources", typeRef(boolean)) [
 					visibility = JvmVisibility.PUBLIC
 					final = true
 					annotations += generateOverrideAnnotation()
-					body = '''return true;'''
+					body = '''
+						«FOR relevant : pattern.relevantResources»
+							this.«relevant.name» = resolve«relevant.name.toFirstUpper»();
+							if (this.«relevant.name» == null)
+								return false;
+						«ENDFOR»
+						return true;
+					'''
 				]
 			}
 		]
 	}
 
-	//FIXME ugly
+	// FIXME ugly
 	def getPatternMethodTypeRef(String name) {
 		switch name {
 			case "execute",

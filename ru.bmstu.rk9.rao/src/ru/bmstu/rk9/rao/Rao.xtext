@@ -86,7 +86,7 @@ enum PatternType
 ;
 
 RelevantResource:
-	'relevant' type = JvmTypeReference name = ID '=' value = XOrExpression ';'?
+	'relevant' name = ID '=' value = XOrExpression ';'?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

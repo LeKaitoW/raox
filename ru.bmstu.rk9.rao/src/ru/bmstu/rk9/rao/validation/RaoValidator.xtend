@@ -26,6 +26,8 @@ import ru.bmstu.rk9.rao.lib.sequence.NumericSequence
 import ru.bmstu.rk9.rao.lib.sequence.ArbitraryTypeSequence
 import ru.bmstu.rk9.rao.rao.Logic
 import ru.bmstu.rk9.rao.rao.Search
+import org.eclipse.xtext.xbase.XNullLiteral
+import org.eclipse.xtext.xbase.XExpression
 
 class RaoValidator extends AbstractRaoValidator
 {
@@ -148,15 +150,38 @@ class RaoValidator extends AbstractRaoValidator
 			}
 	}
 
+	def private checkForNull(XExpression expression) {
+		return expression.eClass.instanceClass.equals(typeof(XNullLiteral))
+	}
+
 	@Check
 	def checkResourceDeclaration(ResourceDeclaration resource) {
+		if (resource.constructor.checkForNull)
+			error("Error in declaration of \"" + resource.name + "\": resource cannot be null.",
+				RaoPackage.eINSTANCE.resourceDeclaration_Constructor)
+
 		if (!resource.constructor.actualType.isSubtypeOf(typeof(ru.bmstu.rk9.rao.lib.resource.Resource)))
 			error("Error in declaration of \"" + resource.name + "\": only Rao resources are allowed.",
 				RaoPackage.eINSTANCE.resourceDeclaration_Constructor)
 	}
 
 	@Check
+	def checkRelevantResourceDeclaration(RelevantResource relevant) {
+		if (relevant.value.checkForNull)
+			error("Error in declaration of \"" + relevant.name + "\": relevant resource cannot be null.",
+				RaoPackage.eINSTANCE.relevantResource_Value)
+
+		if (!relevant.value.actualType.isSubtypeOf(typeof(ru.bmstu.rk9.rao.lib.resource.Resource)))
+			error("Error in declaration of \"" + relevant.name + "\": only Rao resources are allowed.",
+				RaoPackage.eINSTANCE.relevantResource_Value)
+	}
+
+	@Check
 	def checkSequenceDeclaration(Sequence sequence) {
+		if (sequence.constructor.checkForNull)
+			error("Error in declaration of \"" + sequence.name + "\": sequence cannot be null.",
+				RaoPackage.eINSTANCE.sequence_Constructor)
+
 		if (!sequence.constructor.actualType.isSubtypeOf(typeof(NumericSequence)) &&
 				!sequence.constructor.actualType.isSubtypeOf(typeof(ArbitraryTypeSequence))) {
 			error("Error in declaration of \"" + sequence.name + "\": only Rao sequences are allowed.",
@@ -166,6 +191,10 @@ class RaoValidator extends AbstractRaoValidator
 
 	@Check
 	def checkLogicDeclaration(Logic logic) {
+		if (logic.constructor.checkForNull)
+			error("Error in declaration of \"" + logic.name + "\": logic cannot be null.",
+				RaoPackage.eINSTANCE.logic_Constructor)
+
 		if (!logic.constructor.actualType.isSubtypeOf(ru.bmstu.rk9.rao.lib.dpt.Logic)) {
 			error("Error in declaration of \"" + logic.name + "\": must be Logic class subtype.",
 				RaoPackage.eINSTANCE.logic_Constructor)
@@ -173,10 +202,14 @@ class RaoValidator extends AbstractRaoValidator
 	}
 
 	@Check
-	def checkSearchDeclaration(Logic logic) {
-		if (!logic.constructor.actualType.isSubtypeOf(ru.bmstu.rk9.rao.lib.dpt.Logic)) {
-			error("Error in declaration of \"" + logic.name + "\": must be Logic class subtype.",
-				RaoPackage.eINSTANCE.logic_Constructor)
+	def checkSearchDeclaration(Search search) {
+		if (search.constructor.checkForNull)
+			error("Error in declaration of \"" + search.name + "\": search cannot be null.",
+				RaoPackage.eINSTANCE.search_Constructor)
+
+		if (!search.constructor.actualType.isSubtypeOf(ru.bmstu.rk9.rao.lib.dpt.Search)) {
+			error("Error in declaration of \"" + search.name + "\": must be Search class subtype.",
+				RaoPackage.eINSTANCE.search_Constructor)
 		}
 	}
 

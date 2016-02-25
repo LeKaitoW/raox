@@ -22,7 +22,7 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.SearchIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.SearchIndex.SearchInfo;
 import ru.bmstu.rk9.rao.lib.dpt.AbstractDecisionPoint;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
-import ru.bmstu.rk9.rao.lib.dpt.Activity;
+import ru.bmstu.rk9.rao.lib.dpt.AbstractActivity;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
@@ -431,10 +431,10 @@ public class Database {
 
 	private static class PatternPoolEntry {
 		final AbstractDecisionPoint dpt;
-		final Activity activity;
+		final AbstractActivity activity;
 		final int number;
 
-		PatternPoolEntry(final AbstractDecisionPoint dpt, final Activity activity, final int number) {
+		PatternPoolEntry(final AbstractDecisionPoint dpt, final AbstractActivity activity, final int number) {
 			this.dpt = dpt;
 			this.activity = activity;
 			this.number = number;
@@ -443,8 +443,8 @@ public class Database {
 
 	private final Map<Rule, PatternPoolEntry> patternPool = new HashMap<Rule, PatternPoolEntry>();
 
-	public final void addDecisionEntry(final AbstractDecisionPoint dpt, final Activity activity, final PatternType type,
-			final Rule rule) {
+	public final void addDecisionEntry(final AbstractDecisionPoint dpt, final AbstractActivity activity,
+			final PatternType type, final Rule rule) {
 		final String dptName = dpt.getName();
 
 		if (!sensitivityList.contains(dptName) && !sensitivityList.contains(rule.getName()))

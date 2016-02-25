@@ -6,7 +6,9 @@ import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures;
 
 import com.google.common.collect.Lists;
 
-import ru.bmstu.rk9.rao.lib.runtime.RaoLibraryFeatures;
+import ru.bmstu.rk9.rao.lib.runtime.RaoCollections;
+import ru.bmstu.rk9.rao.lib.runtime.RaoFabric;
+import ru.bmstu.rk9.rao.lib.runtime.RaoRuntime;
 
 @SuppressWarnings("restriction")
 public class RaoImplicitlyImportedFeatures extends ImplicitlyImportedFeatures {
@@ -27,6 +29,6 @@ public class RaoImplicitlyImportedFeatures extends ImplicitlyImportedFeatures {
 	}
 
 	private List<Class<?>> getRaoExtensionClasses() {
-		return Lists.<Class<?>> newArrayList(RaoLibraryFeatures.class);
+		return Lists.<Class<?>> newArrayList(RaoRuntime.class, RaoCollections.class, RaoFabric.class);
 	}
 }

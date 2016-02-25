@@ -6,7 +6,7 @@ import java.util.List;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
-public class Operation extends Pattern {
+public abstract class Operation extends Pattern {
 	@Override
 	public final void run() {
 		begin();
@@ -44,15 +44,11 @@ public class Operation extends Pattern {
 	}
 
 	@Override
-	public boolean selectRelevantResources() {
-		return true;
-	}
-
-	@Override
 	public String getName() {
 		return "Nameless operation";
 	}
 
+	// TODO stub
 	@Override
 	public List<Integer> getRelevantInfo() {
 		return new ArrayList<>();

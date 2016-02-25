@@ -8,9 +8,14 @@ import java.util.TreeSet;
 import java.util.function.Supplier;
 
 public class Logic extends AbstractDecisionPoint {
-	private static Comparator<LogicActivity> comparator = new Comparator<LogicActivity>() {
+	public Logic(Supplier<Double> priority, Supplier<Boolean> condition) {
+		this.priority = priority;
+		this.condition = condition;
+	}
+
+	private static Comparator<Activity> comparator = new Comparator<Activity>() {
 		@Override
-		public int compare(LogicActivity x, LogicActivity y) {
+		public int compare(Activity x, Activity y) {
 			if (x.priority == null)
 				return 1;
 
@@ -37,7 +42,7 @@ public class Logic extends AbstractDecisionPoint {
 		children.add(child);
 	}
 
-	protected SortedSet<LogicActivity> activities = new TreeSet<LogicActivity>(comparator);
+	protected SortedSet<Activity> activities = new TreeSet<Activity>(comparator);
 
 	@Override
 	public boolean check() {
@@ -65,11 +70,9 @@ public class Logic extends AbstractDecisionPoint {
 	}
 
 	private boolean checkActivities() {
-		for (LogicActivity a : activities)
-			if (a.check()) {
-				a.execute();
+		for (Activity a : activities)
+			if (a.execute())
 				return true;
-			}
 
 		return false;
 	}
@@ -102,11 +105,11 @@ public class Logic extends AbstractDecisionPoint {
 		return condition;
 	}
 
-	public void addActivity(LogicActivity a) {
+	public void addActivity(Activity a) {
 		activities.add(a);
 	}
 
-	public SortedSet<LogicActivity> getActivities() {
+	public SortedSet<Activity> getActivities() {
 		return activities;
 	}
 }

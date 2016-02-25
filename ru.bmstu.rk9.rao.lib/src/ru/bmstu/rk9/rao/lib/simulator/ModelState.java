@@ -2,7 +2,6 @@ package ru.bmstu.rk9.rao.lib.simulator;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
@@ -39,8 +38,8 @@ public class ModelState {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ComparableResource<T>> List<T> getAll(Class<T> cl) {
-		return (List<T>) resourceManagers.get(cl).getAll();
+	public <T extends ComparableResource<T>> Collection<T> getAll(Class<T> cl) {
+		return (Collection<T>) resourceManagers.get(cl).getAll();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

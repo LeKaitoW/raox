@@ -3,7 +3,7 @@ package ru.bmstu.rk9.rao.lib.pattern;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Rule extends Pattern {
+public abstract class Rule extends Pattern {
 	// public void addResourceEntriesToDatabase(Pattern.ExecutedFrom
 	// executedFrom, String dptName);
 
@@ -13,11 +13,6 @@ public class Rule extends Pattern {
 	}
 
 	protected void execute() {
-	}
-
-	@Override
-	public boolean selectRelevantResources() {
-		return true;
 	}
 
 	@Override
