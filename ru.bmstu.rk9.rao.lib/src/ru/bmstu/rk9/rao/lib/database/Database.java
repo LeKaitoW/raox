@@ -177,7 +177,7 @@ public class Database {
 		final ByteBuffer header;
 		final ByteBuffer data;
 
-		Entry(final ByteBuffer header, final ByteBuffer data) {
+		public Entry(final ByteBuffer header, final ByteBuffer data) {
 			this.header = header != null ? header.asReadOnlyBuffer() : null;
 			this.data = data != null ? data.asReadOnlyBuffer() : null;
 		}
@@ -199,7 +199,7 @@ public class Database {
 						TypeSize.INTEGER * 2), SEARCH(TypeSize.BYTE * 2 + TypeSize.INTEGER * 2 + TypeSize.DOUBLE,
 								0), RESULT(TypeSize.BYTE + TypeSize.INTEGER + TypeSize.DOUBLE, 0);
 
-		final int HEADER_SIZE;
+		public final int HEADER_SIZE;
 		final int METADATA_SIZE;
 
 		private EntryType(final int HEADER_SIZE, final int METADATA_SIZE) {

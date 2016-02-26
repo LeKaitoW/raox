@@ -11,11 +11,17 @@ import ru.bmstu.rk9.rao.lib.event.EventScheduler;
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 import ru.bmstu.rk9.rao.lib.modelStructure.ModelStructureCache;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
+import ru.bmstu.rk9.rao.lib.process.Process;
+import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.result.ResultManager;
 
 public class Simulator {
 	private static Simulator INSTANCE = null;
+
+	public static synchronized void preinitialize() {
+		preinitialize(new SimulatorPreinitializationInfo());
+	}
 
 	public static synchronized void preinitialize(SimulatorPreinitializationInfo preinitializationInfo) {
 		if (isRunning)
@@ -37,6 +43,8 @@ public class Simulator {
 
 		INSTANCE.executionStateNotifier = new Notifier<ExecutionState>(ExecutionState.class);
 		INSTANCE.dptManager = new DPTManager(initializationInfo.decisionPoints);
+		INSTANCE.processManager = new Process();
+		INSTANCE.processManager.addBlocks(initializationInfo.processBlocks);
 
 		for (Supplier<Boolean> terminateCondition : initializationInfo.terminateConditions)
 			Simulator.addTerminateCondition(terminateCondition);
@@ -119,6 +127,12 @@ public class Simulator {
 
 	private DPTManager dptManager;
 
+	private Process processManager;
+
+	public static Process getProcess() {
+		return INSTANCE.processManager;
+	}
+
 	private ResultManager resultManager = new ResultManager();
 
 	public static void addResult(Result result) {
@@ -182,6 +196,14 @@ public class Simulator {
 			if (INSTANCE.dptManager.checkDPT()) {
 				notifyChange(ExecutionState.STATE_CHANGED);
 				continue;
+			}
+
+			ProcessStatus processStatus = INSTANCE.processManager.scan();
+			if (processStatus == ProcessStatus.SUCCESS) {
+				notifyChange(ExecutionState.STATE_CHANGED);
+				continue;
+			} else if (processStatus == ProcessStatus.FAILURE) {
+				return stop(SimulationStopCode.RUNTIME_ERROR);
 			}
 
 			if (!INSTANCE.eventScheduler.haveEvents())

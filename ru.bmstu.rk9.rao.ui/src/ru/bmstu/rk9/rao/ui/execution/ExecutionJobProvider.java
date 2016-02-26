@@ -23,16 +23,15 @@ import org.eclipse.ui.PlatformUI;
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
 import ru.bmstu.rk9.rao.lib.dpt.Logic;
 import ru.bmstu.rk9.rao.lib.event.Event;
-import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.result.Result;
-import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
-import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
@@ -67,10 +66,7 @@ public class ExecutionJobProvider {
 					classLoader = new URLClassLoader(urls, Simulator.class.getClassLoader());
 
 					SimulatorPreinitializationInfo simulatorPreinitializationInfo = new SimulatorPreinitializationInfo();
-					simulatorPreinitializationInfo.modelStructure.put("name", project.getName())
-							.put("resource_types", new JSONArray()).put("results", new JSONArray())
-							.put("patterns", new JSONArray()).put("events", new JSONArray())
-							.put("decision_points", new JSONArray());
+					simulatorPreinitializationInfo.modelStructure.put("name", project.getName());
 
 					SimulatorInitializationInfo simulatorInitializationInfo = new SimulatorInitializationInfo();
 					List<Field> resourceFields = new ArrayList<>();

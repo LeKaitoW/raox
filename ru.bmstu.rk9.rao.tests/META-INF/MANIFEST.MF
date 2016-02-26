@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Rao X Tests
 Bundle-Vendor: rdostudio.com
-Bundle-Version: 2.12.0
+Bundle-Version: 2.13.0
 Bundle-SymbolicName: ru.bmstu.rk9.rao.tests;singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: ru.bmstu.rk9.rao,
@@ -11,14 +11,16 @@ Require-Bundle: ru.bmstu.rk9.rao,
  org.eclipse.xtext.junit4,
  org.eclipse.ui.workbench;resolution:=optional,
  org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
- org.eclipse.xtext.xbase.lib
+ org.eclipse.xtext.xbase.lib,
+ ru.bmstu.rk9.rao.lib
 Import-Package: org.apache.log4j,
+ org.eclipse.swt.widgets,
+ org.hamcrest.core,
  org.junit;version="4.5.0",
  org.junit.runner;version="4.5.0",
  org.junit.runner.manipulation;version="4.5.0",
  org.junit.runner.notification;version="4.5.0",
  org.junit.runners;version="4.5.0",
- org.junit.runners.model;version="4.5.0",
- org.hamcrest.core
+ org.junit.runners.model;version="4.5.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: ru.bmstu.rk9.rao

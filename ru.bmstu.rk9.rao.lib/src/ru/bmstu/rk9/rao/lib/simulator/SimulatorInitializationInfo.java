@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import ru.bmstu.rk9.rao.lib.dpt.AbstractDecisionPoint;
+import ru.bmstu.rk9.rao.lib.process.Block;
 
 public class SimulatorInitializationInfo {
 	public final List<Runnable> initList = new ArrayList<>();
 	public final List<Supplier<Boolean>> terminateConditions = new ArrayList<>();
 	public final List<AbstractDecisionPoint> decisionPoints = new ArrayList<>();
+	public final List<Block> processBlocks = new ArrayList<>();
 }
