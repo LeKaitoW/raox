@@ -6,7 +6,7 @@ import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 
 import ru.bmstu.rk9.rao.lib.dpt.Logic;
 
-public class RaoFabric {
+public class RaoFactory {
 	public static Logic createLogic(Procedure1<? super Logic> initializer) {
 		return createLogic(() -> Double.MAX_VALUE, initializer);
 	}
