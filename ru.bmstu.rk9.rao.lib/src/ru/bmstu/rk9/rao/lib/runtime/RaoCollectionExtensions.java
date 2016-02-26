@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 
-public class RaoCollections {
+public class RaoCollectionExtensions {
 	@SafeVarargs
 	public static <T> ArrayList<T> array(T... initial) {
 		return CollectionLiterals.newArrayList(initial);
