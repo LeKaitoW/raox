@@ -15,6 +15,7 @@ import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.result.ResultManager;
 
+
 public class Simulator {
 	private static Simulator INSTANCE = null;
 
@@ -28,7 +29,6 @@ public class Simulator {
 		INSTANCE = new Simulator();
 
 		INSTANCE.modelState = new ModelState(resourceClasses);
-		INSTANCE.modelStateStorage = new ModelStateStorage();
 		INSTANCE.executionStateNotifier = new Notifier<ExecutionState>(ExecutionState.class);
 		INSTANCE.dptManager = new DPTManager();
 		INSTANCE.database = new Database(modelStructure);
@@ -89,8 +89,6 @@ public class Simulator {
 		return INSTANCE.modelState;
 	}
 	
-	private ModelStateStorage modelStateStorage;
-
 	private ModelStructureCache modelStructureCache;
 
 	public static ModelStructureCache getModelStructureCache() {
@@ -143,12 +141,6 @@ public class Simulator {
 
 	private static void notifyChange(ExecutionState category) {
 		INSTANCE.executionStateNotifier.notifySubscribers(category);
-	}
-	
-	public static void onStateChange() {
-		
-		INSTANCE.modelStateStorage.addModelState(INSTANCE.modelState);
-		
 	}
 	
 	private boolean checkTerminate() {
