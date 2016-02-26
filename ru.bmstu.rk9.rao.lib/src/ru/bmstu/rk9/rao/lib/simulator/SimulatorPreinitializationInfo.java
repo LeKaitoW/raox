@@ -10,8 +10,8 @@ import ru.bmstu.rk9.rao.lib.process.Transact;
 
 public class SimulatorPreinitializationInfo {
 	public SimulatorPreinitializationInfo() {
-		modelStructure.put("name", "").put("resource_types", new JSONArray())
-				.put("results", new JSONArray()).put("patterns", new JSONArray()).put("events", new JSONArray())
+		modelStructure.put("name", "").put("resource_types", new JSONArray()).put("results", new JSONArray())
+				.put("patterns", new JSONArray()).put("events", new JSONArray())
 				.put("decision_points", new JSONArray());
 		resourceClasses.add(Resource.class);
 		resourceClasses.add(Transact.class);

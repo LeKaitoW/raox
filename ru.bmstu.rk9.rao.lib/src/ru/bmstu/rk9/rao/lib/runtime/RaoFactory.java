@@ -19,11 +19,13 @@ public class RaoFactory {
 		return createLogic(priority, () -> true, initializer);
 	}
 
-	public static Logic createLogic(double priority, Supplier<Boolean> condition, Procedure1<? super Logic> initializer) {
+	public static Logic createLogic(double priority, Supplier<Boolean> condition,
+			Procedure1<? super Logic> initializer) {
 		return createLogic(() -> priority, condition, initializer);
 	}
 
-	public static Logic createLogic(Supplier<Double> priority, Supplier<Boolean> condition, Procedure1<? super Logic> initializer) {
+	public static Logic createLogic(Supplier<Double> priority, Supplier<Boolean> condition,
+			Procedure1<? super Logic> initializer) {
 		Logic logic = new Logic(priority, condition);
 
 		if (initializer != null) {

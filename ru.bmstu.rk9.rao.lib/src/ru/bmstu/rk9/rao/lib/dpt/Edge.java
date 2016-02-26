@@ -16,5 +16,6 @@ public abstract class Edge extends AbstractActivity {
 	public abstract double calculateValue();
 
 	public abstract boolean check();
+
 	public abstract Rule execute();
 }

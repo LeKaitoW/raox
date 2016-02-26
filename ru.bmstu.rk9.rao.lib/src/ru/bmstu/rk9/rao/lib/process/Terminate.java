@@ -16,8 +16,7 @@ public class Terminate implements Block {
 		Transact currentTransact = inputDock.pullTransact();
 		if (currentTransact == null)
 			return BlockStatus.NOTHING_TO_DO;
-		System.out.println(Simulator.getTime() + ": terminate body "
-				+ currentTransact.getNumber());
+		System.out.println(Simulator.getTime() + ": terminate body " + currentTransact.getNumber());
 		Transact.eraseTransact(currentTransact);
 		return BlockStatus.SUCCESS;
 	}

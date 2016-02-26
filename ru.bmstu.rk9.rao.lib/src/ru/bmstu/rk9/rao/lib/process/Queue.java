@@ -24,8 +24,7 @@ public class Queue implements Block {
 		Transact inputTransact = inputDock.pullTransact();
 		if (inputTransact != null) {
 			queue.offer(inputTransact);
-			System.out.println(Simulator.getTime() + " queue added "
-					+ inputTransact.getNumber());
+			System.out.println(Simulator.getTime() + " queue added " + inputTransact.getNumber());
 			return BlockStatus.SUCCESS;
 		}
 
@@ -33,8 +32,7 @@ public class Queue implements Block {
 		if (outputTransact != null) {
 			if (!outputDock.hasTransact()) {
 				queue.remove();
-				System.out.println(Simulator.getTime() + " queue removed "
-						+ outputTransact.getNumber());
+				System.out.println(Simulator.getTime() + " queue removed " + outputTransact.getNumber());
 				outputDock.pushTransact(outputTransact);
 				return BlockStatus.SUCCESS;
 			}

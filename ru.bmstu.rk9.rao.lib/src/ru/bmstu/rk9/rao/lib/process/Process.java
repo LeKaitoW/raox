@@ -5,6 +5,10 @@ import java.util.List;
 
 public class Process {
 
+	public Process(List<Block> blocks) {
+		this.blocks.addAll(blocks);
+	}
+
 	private final List<Block> blocks = new ArrayList<Block>();
 
 	public ProcessStatus scan() {
@@ -17,12 +21,7 @@ public class Process {
 				needCheckAgain = true;
 		}
 
-		return needCheckAgain ? ProcessStatus.FAILURE
-				: ProcessStatus.NOTHING_TO_DO;
-	}
-
-	public void addBlocks(List<Block> blocks) {
-		this.blocks.addAll(blocks);
+		return needCheckAgain ? ProcessStatus.FAILURE : ProcessStatus.NOTHING_TO_DO;
 	}
 
 	public enum ProcessStatus {

@@ -29,12 +29,10 @@ public class Release implements Block {
 		if (transact == null)
 			return BlockStatus.NOTHING_TO_DO;
 		if (!resource.isLocked()) {
-			throw new ProcessException(
-					"Attempting to release unlocked resource");
+			throw new ProcessException("Attempting to release unlocked resource");
 		}
 
-		System.out.println(Simulator.getTime() + ": release body "
-				+ transact.getNumber());
+		System.out.println(Simulator.getTime() + ": release body " + transact.getNumber());
 
 		outputDock.pushTransact(transact);
 		resource.unlock();

@@ -31,8 +31,7 @@ public class Generate implements Block {
 		}
 		Transact transact = Transact.create();
 		outputDock.pushTransact(transact);
-		System.out.println(Simulator.getTime() + ": generate body "
-				+ transact.getNumber());
+		System.out.println(Simulator.getTime() + ": generate body " + transact.getNumber());
 
 		Double time = Simulator.getTime() + interval.get();
 		Simulator.pushEvent(new GenerateEvent(time));

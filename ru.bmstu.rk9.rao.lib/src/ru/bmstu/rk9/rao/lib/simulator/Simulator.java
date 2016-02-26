@@ -37,14 +37,13 @@ public class Simulator {
 		setSimulationState(SimulatorState.PREINITIALIZED);
 	}
 
-	public static synchronized void initSimulation(SimulatorInitializationInfo initializationInfo) {
+	public static synchronized void initialize(SimulatorInitializationInfo initializationInfo) {
 		if (simulatorState != SimulatorState.PREINITIALIZED)
 			throw new RaoLibException("Simulation wasn't correctly preinitialized");
 
 		INSTANCE.executionStateNotifier = new Notifier<ExecutionState>(ExecutionState.class);
 		INSTANCE.dptManager = new DPTManager(initializationInfo.decisionPoints);
-		INSTANCE.processManager = new Process();
-		INSTANCE.processManager.addBlocks(initializationInfo.processBlocks);
+		INSTANCE.processManager = new Process(initializationInfo.processBlocks);
 
 		for (Supplier<Boolean> terminateCondition : initializationInfo.terminateConditions)
 			Simulator.addTerminateCondition(terminateCondition);

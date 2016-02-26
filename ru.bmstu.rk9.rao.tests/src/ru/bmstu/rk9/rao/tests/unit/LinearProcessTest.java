@@ -27,10 +27,9 @@ public class LinearProcessTest {
 		SimulatorInitializationInfo initializationInfo = new SimulatorInitializationInfo();
 		initializationInfo.terminateConditions.add(() -> Simulator.getTime() > 1000);
 		initializationInfo.processBlocks.addAll(generateSituation());
-		Simulator.initSimulation(initializationInfo);
+		Simulator.initialize(initializationInfo);
 		SimulationStopCode simulationStopCode = Simulator.run();
-		assertEquals("linear_process_test", SimulationStopCode.RUNTIME_ERROR,
-				simulationStopCode);
+		assertEquals("linear_process_test", SimulationStopCode.RUNTIME_ERROR, simulationStopCode);
 		assertTrue(Math.abs(Simulator.getTime() - 40) < 1e16);
 	}
 

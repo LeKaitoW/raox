@@ -26,10 +26,9 @@ public class BranchedProcessTest {
 		SimulatorInitializationInfo initializationInfo = new SimulatorInitializationInfo();
 		initializationInfo.terminateConditions.add(() -> Simulator.getTime() > 60);
 		initializationInfo.processBlocks.addAll(generateSituation());
-		Simulator.initSimulation(initializationInfo);
+		Simulator.initialize(initializationInfo);
 		SimulationStopCode simulationStopCode = Simulator.run();
-		assertEquals("linear_process_test",
-				SimulationStopCode.TERMINATE_CONDITION, simulationStopCode);
+		assertEquals("linear_process_test", SimulationStopCode.TERMINATE_CONDITION, simulationStopCode);
 	}
 
 	private List<Block> generateSituation() {

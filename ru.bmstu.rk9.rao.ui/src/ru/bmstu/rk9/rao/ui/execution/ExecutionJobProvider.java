@@ -145,7 +145,7 @@ public class ExecutionJobProvider {
 						simulatorInitializationInfo.decisionPoints.add(logic);
 					}
 
-					Simulator.initSimulation(simulatorInitializationInfo);
+					Simulator.initialize(simulatorInitializationInfo);
 					simulationResult = Simulator.run();
 
 					switch (simulationResult) {
