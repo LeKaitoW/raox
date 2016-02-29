@@ -16,13 +16,7 @@ class EventCompiler
 		'''
 		package «filename»;
 
-		import ru.bmstu.rk9.rao.lib.json.*;
-
-		import ru.bmstu.rk9.rao.lib.*;
-		import ru.bmstu.rk9.rao.lib.event.*;
-		import ru.bmstu.rk9.rao.lib.simulator.*;
-		import ru.bmstu.rk9.rao.lib.database.*;
-		@SuppressWarnings("all")
+		«Util.putImports»
 
 		public class «event.name» implements Event
 		{
@@ -76,7 +70,7 @@ class EventCompiler
 				db.addEventEntry(this);
 				db.addMemorizedResourceEntries(
 						"«event.fullyQualifiedName».createdResources",
-						null);
+						null, null);
 			}
 
 			public «event.name»(double time«IF !event.parameters.empty», «ENDIF»«event.parameters.compileParameterTypes»)

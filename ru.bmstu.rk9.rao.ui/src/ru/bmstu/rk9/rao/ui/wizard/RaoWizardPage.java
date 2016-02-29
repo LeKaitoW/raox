@@ -43,14 +43,12 @@ public class RaoWizardPage extends WizardPage {
 		projectNameLabel.setText("Project name:");
 
 		projectNameText = new Text(container, SWT.BORDER | SWT.SINGLE);
-		final GridData projectNameData = new GridData(SWT.FILL, SWT.CENTER,
-				true, false);
+		final GridData projectNameData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		projectNameText.setLayoutData(projectNameData);
 		projectNameText.setFocus();
 
 		final Group templateGroup = new Group(container, SWT.SHADOW_IN);
-		final GridData templateData = new GridData(SWT.FILL, SWT.CENTER, true,
-				false);
+		final GridData templateData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		templateData.horizontalSpan = 2;
 		templateGroup.setLayoutData(templateData);
 		templateGroup.setText("Templates");
@@ -141,15 +139,12 @@ public class RaoWizardPage extends WizardPage {
 	}
 
 	private static boolean isJavaKeyword(String keyword) {
-		final String keywords[] = { "abstract", "assert", "boolean", "break",
-				"byte", "case", "catch", "char", "class", "const", "continue",
-				"default", "do", "double", "else", "enum", "extends", "false",
-				"final", "finally", "float", "for", "goto", "if", "implements",
-				"import", "instanceof", "int", "interface", "long", "native",
-				"new", "null", "package", "private", "protected", "public",
-				"return", "short", "static", "strictfp", "super", "switch",
-				"synchronized", "this", "throw", "throws", "transient", "true",
-				"try", "void", "volatile", "while" };
+		final String keywords[] = { "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class",
+				"const", "continue", "default", "do", "double", "else", "enum", "extends", "false", "final", "finally",
+				"float", "for", "goto", "if", "implements", "import", "instanceof", "int", "interface", "long",
+				"native", "new", "null", "package", "private", "protected", "public", "return", "short", "static",
+				"strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try",
+				"void", "volatile", "while" };
 		return (Arrays.binarySearch(keywords, keyword) >= 0);
 	}
 }

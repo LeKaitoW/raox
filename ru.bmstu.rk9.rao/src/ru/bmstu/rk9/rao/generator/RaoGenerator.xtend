@@ -51,6 +51,7 @@ import ru.bmstu.rk9.rao.rao.EnumDeclaration
 import ru.bmstu.rk9.rao.rao.Pattern
 import ru.bmstu.rk9.rao.rao.DefaultMethod
 import java.util.Map
+import ru.bmstu.rk9.rao.compilers.Util
 
 class RaoGenerator implements IMultipleResourceGenerator
 {
@@ -164,11 +165,7 @@ class RaoGenerator implements IMultipleResourceGenerator
 		'''
 		package rao_model;
 
-		import ru.bmstu.rk9.rao.lib.*;
-		import ru.bmstu.rk9.rao.lib.simulator.*;
-		import ru.bmstu.rk9.rao.lib.animation.*;
-		import ru.bmstu.rk9.rao.lib.result.*;
-		@SuppressWarnings("all")
+		«Util.putImports»
 
 		public class Standalone
 		{
@@ -216,13 +213,16 @@ class RaoGenerator implements IMultipleResourceGenerator
 
 				System.out.println("   Started model");
 
-				int result = Simulator.run();
+				SimulationStopCode result = Simulator.run();
 
-				if (result == 1)
-					System.out.println("\n   Stopped by terminate condition");
-
-				if (result == 0)
-					System.out.println("\n   Stopped (no more events)");
+				switch (result) {
+					case NO_MORE_EVENTS:
+						System.out.println("\n   Stopped (no more events)");
+						break;
+					case TERMINATE_CONDITION:
+						System.out.println("\n   Stopped by terminate condition");
+						break;
+				}
 
 				for (Result r : Simulator.getResults())
 				{
@@ -246,13 +246,9 @@ class RaoGenerator implements IMultipleResourceGenerator
 
 		import java.util.List;
 
-		import ru.bmstu.rk9.rao.lib.*;
-		import ru.bmstu.rk9.rao.lib.simulator.*;
-		import ru.bmstu.rk9.rao.lib.animation.*;
-		import ru.bmstu.rk9.rao.lib.result.*;
-		@SuppressWarnings("all")
+		«Util.putImports»
 
-		public class Embedded
+		public class Embedded extends EmbeddedSimulation
 		{
 			public static void initSimulation(List<AnimationFrame> frames)
 			{
@@ -295,15 +291,6 @@ class RaoGenerator implements IMultipleResourceGenerator
 						frames.add(«frame.fullyQualifiedName».INSTANCE);
 					«ENDFOR»
 				«ENDFOR»
-			}
-
-			public static int runSimulation(List<Result> results)
-			{
-				int result = Simulator.run();
-
-				results.addAll(Simulator.getResults());
-
-				return result;
 			}
 		}
 		'''

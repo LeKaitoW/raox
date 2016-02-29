@@ -53,7 +53,8 @@ public class ProjectConfigurator {
 
 	public final ProjectWizardStatus initializeProject() {
 		final IServiceLocator serviceLocator = PlatformUI.getWorkbench();
-		final IProgressMonitor iProgressMonitor = (IProgressMonitor) serviceLocator.getService(IProgressMonitor.class);
+		final IProgressMonitor iProgressMonitor = serviceLocator.getService(IProgressMonitor.class);
+
 		try {
 			raoProject.create(iProgressMonitor);
 			raoProject.open(iProgressMonitor);

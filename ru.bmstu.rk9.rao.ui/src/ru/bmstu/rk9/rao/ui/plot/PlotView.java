@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jdt.ui.PreferenceConstants;
-import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -39,8 +37,8 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
-import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 import ru.bmstu.rk9.rao.ui.plot.PlotDataParser.PlotItem;
@@ -56,8 +54,7 @@ public class PlotView extends ViewPart {
 		return openedPlotMap;
 	}
 
-	public static void addToOpenedPlotMap(final CollectedDataNode node,
-			final int secondaryID) {
+	public static void addToOpenedPlotMap(final CollectedDataNode node, final int secondaryID) {
 		openedPlotMap.put(node, secondaryID);
 	}
 
@@ -107,8 +104,7 @@ public class PlotView extends ViewPart {
 		plotFrame.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent event) {
-				if (!openedPlotMap.isEmpty()
-						&& openedPlotMap.containsKey(partNode)) {
+				if (!openedPlotMap.isEmpty() && openedPlotMap.containsKey(partNode)) {
 					openedPlotMap.remove(partNode);
 				}
 				deinitializeSubscribers();
@@ -131,13 +127,10 @@ public class PlotView extends ViewPart {
 	}
 
 	private final void initializeSubscribers() {
-		simulatorSubscriberManager.initialize(Arrays.asList(
-				new SimulatorSubscriberInfo(commonSubcriber,
-						ExecutionState.EXECUTION_STARTED),
-				new SimulatorSubscriberInfo(commonSubcriber,
-						ExecutionState.EXECUTION_COMPLETED)));
-		realTimeSubscriberManager.initialize(Arrays
-				.asList(realTimeUpdateRunnable));
+		simulatorSubscriberManager.initialize(
+				Arrays.asList(new SimulatorSubscriberInfo(commonSubcriber, ExecutionState.EXECUTION_STARTED),
+						new SimulatorSubscriberInfo(commonSubcriber, ExecutionState.EXECUTION_COMPLETED)));
+		realTimeSubscriberManager.initialize(Arrays.asList(realTimeUpdateRunnable));
 	}
 
 	private final void deinitializeSubscribers() {
@@ -162,15 +155,14 @@ public class PlotView extends ViewPart {
 
 			final List<PlotItem> items = plotDataParser.parseEntries();
 			if (!items.isEmpty()) {
-				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame
-						.getChart().getXYPlot().getDataset();
+				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame.getChart().getXYPlot()
+						.getDataset();
 				final XYSeries newSeries = newDataset.getSeries(0);
 				for (int i = 0; i < items.size(); i++) {
 					final PlotItem item = items.get(i);
 					newSeries.add(item.x, item.y);
 				}
-				plotFrame.setChartMaximum(newSeries.getMaxX(),
-						newSeries.getMaxY());
+				plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
 				plotFrame.updateSliders();
 			}
 		}
@@ -179,8 +171,7 @@ public class PlotView extends ViewPart {
 	private final Subscriber commonSubcriber = new Subscriber() {
 		@Override
 		public void fireChange() {
-			PlatformUI.getWorkbench().getDisplay()
-					.asyncExec(realTimeUpdateRunnable);
+			PlatformUI.getWorkbench().getDisplay().asyncExec(realTimeUpdateRunnable);
 		}
 	};
 
@@ -188,18 +179,16 @@ public class PlotView extends ViewPart {
 	public void setFocus() {
 	}
 
-	public void plotXY(final XYSeriesCollection dataset,
-			List<String> axisSymbols) {
+	public void plotXY(final XYSeriesCollection dataset, List<String> axisSymbols) {
 		final JFreeChart chart = createChart(dataset, axisSymbols);
 		plotFrame.setChart(chart);
 		plotFrame.setRangeZoomable(false);
 	}
 
-	private JFreeChart createChart(final XYDataset dataset,
-			final List<String> axisSymbols) {
+	private JFreeChart createChart(final XYDataset dataset, final List<String> axisSymbols) {
 
-		final JFreeChart chart = ChartFactory.createXYStepChart("", "Time",
-				"Value", dataset, PlotOrientation.VERTICAL, true, true, false);
+		final JFreeChart chart = ChartFactory.createXYStepChart("", "Time", "Value", dataset, PlotOrientation.VERTICAL,
+				true, true, false);
 
 		final XYPlot plot = (XYPlot) chart.getPlot();
 		Color white = new Color(0xFF, 0XFF, 0xFF);
@@ -214,11 +203,7 @@ public class PlotView extends ViewPart {
 			String[] enumLabels = new String[axisSymbols.size()];
 			enumLabels = axisSymbols.toArray(enumLabels);
 
-			final FontRegistry fontRegistry = PlatformUI.getWorkbench()
-					.getThemeManager().getCurrentTheme().getFontRegistry();
-			final String fontName = fontRegistry.get(
-					PreferenceConstants.EDITOR_TEXT_FONT).getFontData()[0]
-					.getName();
+			final String fontName = chart.getTitle().getFont().getName();
 
 			final Font font = new Font(fontName, Font.PLAIN, 10);
 			rangeAxis = new SymbolAxis("", enumLabels);
@@ -265,8 +250,7 @@ public class PlotView extends ViewPart {
 
 			case PATTERN:
 				PatternIndex patternIndex = (PatternIndex) index;
-				String patternType = patternIndex.getStructrure().getString(
-						"type");
+				String patternType = patternIndex.getStructrure().getString("type");
 				return patternType.equals("operation");
 
 			default:
@@ -278,22 +262,11 @@ public class PlotView extends ViewPart {
 		public void show(CollectedDataNode node) {
 			try {
 				if (PlotView.getOpenedPlotMap().containsKey(node)) {
-					PlatformUI
-							.getWorkbench()
-							.getActiveWorkbenchWindow()
-							.getActivePage()
-							.showView(
-									PlotView.ID,
-									String.valueOf(PlotView.getOpenedPlotMap()
-											.get(node)),
-									IWorkbenchPage.VIEW_ACTIVATE);
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(PlotView.ID,
+							String.valueOf(PlotView.getOpenedPlotMap().get(node)), IWorkbenchPage.VIEW_ACTIVATE);
 				} else {
-					PlotView newView = (PlotView) PlatformUI
-							.getWorkbench()
-							.getActiveWorkbenchWindow()
-							.getActivePage()
-							.showView(PlotView.ID, String.valueOf(secondaryID),
-									IWorkbenchPage.VIEW_ACTIVATE);
+					PlotView newView = (PlotView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+							.showView(PlotView.ID, String.valueOf(secondaryID), IWorkbenchPage.VIEW_ACTIVATE);
 					PlotView.addToOpenedPlotMap(node, secondaryID);
 					secondaryID++;
 

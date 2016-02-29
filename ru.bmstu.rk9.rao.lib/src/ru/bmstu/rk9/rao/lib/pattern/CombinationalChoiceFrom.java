@@ -11,8 +11,7 @@ public class CombinationalChoiceFrom<R, PT> {
 	private RelevantResourcesManager<R> setManager;
 	private PriorityQueue<R> matchingList;
 
-	public CombinationalChoiceFrom(R set,
-			SimpleChoiceFrom.ChoiceMethod<R, R, PT> comparator,
+	public CombinationalChoiceFrom(R set, SimpleChoiceFrom.ChoiceMethod<R, R, PT> comparator,
 			RelevantResourcesManager<R> setManager) {
 		this.set = set;
 		this.setManager = setManager;
@@ -38,25 +37,21 @@ public class CombinationalChoiceFrom<R, PT> {
 		private SimpleChoiceFrom<R, T, PT> choice;
 		private Setter<R, T> setter;
 
-		public Finder(Retriever<T> retriever,
-				SimpleChoiceFrom<R, T, PT> choice, Setter<R, T> setter) {
+		public Finder(Retriever<T> retriever, SimpleChoiceFrom<R, T, PT> choice, Setter<R, T> setter) {
 			this.retriever = retriever;
 			this.choice = choice;
 			this.setter = setter;
 		}
 
-		public boolean find(R set, Iterator<Finder<R, ?, PT>> finder,
-				PriorityQueue<R> matchingList,
+		public boolean find(R set, Iterator<Finder<R, ?, PT>> finder, PriorityQueue<R> matchingList,
 				RelevantResourcesManager<R> setManager, PT parameters) {
-			Collection<T> all = choice.findAll(set, retriever.getResources(),
-					parameters);
+			Collection<T> all = choice.findAll(set, retriever.getResources(), parameters);
 			Iterator<T> iterator = all.iterator();
 			if (finder.hasNext()) {
 				Finder<R, ?, PT> currentFinder = finder.next();
 				while (iterator.hasNext()) {
 					setter.set(set, iterator.next());
-					if (currentFinder.find(set, finder, matchingList,
-							setManager, parameters))
+					if (currentFinder.find(set, finder, matchingList, setManager, parameters))
 						if (matchingList.iterator() == null)
 							return true;
 				}
@@ -93,9 +88,7 @@ public class CombinationalChoiceFrom<R, PT> {
 
 		Iterator<Finder<R, ?, PT>> finder = finders.iterator();
 
-		if (finder.next().find(set, finder, matchingList, setManager,
-				parameters)
-				&& matchingList.comparator() == null)
+		if (finder.next().find(set, finder, matchingList, setManager, parameters) && matchingList.comparator() == null)
 			return true;
 
 		if (!matchingList.isEmpty()) {

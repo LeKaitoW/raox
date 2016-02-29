@@ -31,8 +31,7 @@ public class AnimationContextSWT implements AnimationContext {
 		Color backgroundColor = createColor(backgroundData.color);
 
 		paintContext.setBackground(backgroundColor);
-		paintContext.fillRectangle(0, 0, backgroundData.width,
-				backgroundData.height);
+		paintContext.fillRectangle(0, 0, backgroundData.width, backgroundData.height);
 
 		backgroundColor.dispose();
 	}
@@ -56,8 +55,7 @@ public class AnimationContextSWT implements AnimationContext {
 	private Image drawFrameBuffer(AnimationFrame frame) {
 		BackgroundData backgroundData = frame.getBackgroundData();
 
-		Rectangle backgroundRectangle = new Rectangle(0, 0,
-				backgroundData.width, backgroundData.height);
+		Rectangle backgroundRectangle = new Rectangle(0, 0, backgroundData.width, backgroundData.height);
 
 		Image image = new Image(display, backgroundRectangle);
 
@@ -75,8 +73,7 @@ public class AnimationContextSWT implements AnimationContext {
 
 	// TODO handle alignment
 	@Override
-	public void drawText(String text, int x, int y, RaoColor textRaoColor,
-			int width, Alignment alignment) {
+	public void drawText(String text, int x, int y, RaoColor textRaoColor, int width, Alignment alignment) {
 		paintContext.setAlpha(textRaoColor.alpha);
 
 		Color foregroundColor = createColor(textRaoColor);
@@ -93,8 +90,8 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	@Override
-	public void drawRectangle(int x, int y, int width, int height,
-			RaoColor backgroundRaoColor, RaoColor borderRaoColor) {
+	public void drawRectangle(int x, int y, int width, int height, RaoColor backgroundRaoColor,
+			RaoColor borderRaoColor) {
 		paintContext.setAlpha(backgroundRaoColor.alpha);
 
 		Color backgroundColor = createColor(backgroundRaoColor);
@@ -126,8 +123,7 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	@Override
-	public void drawCircle(int x, int y, int radius,
-			RaoColor backgroundRaoColor, RaoColor borderRaoColor) {
+	public void drawCircle(int x, int y, int radius, RaoColor backgroundRaoColor, RaoColor borderRaoColor) {
 		paintContext.setAlpha(backgroundRaoColor.alpha);
 
 		Color backgroundColor = createColor(backgroundRaoColor);
@@ -147,8 +143,7 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	@Override
-	public void drawEllipse(int x, int y, int width, int height,
-			RaoColor backgroundRaoColor, RaoColor borderRaoColor) {
+	public void drawEllipse(int x, int y, int width, int height, RaoColor backgroundRaoColor, RaoColor borderRaoColor) {
 		paintContext.setAlpha(backgroundRaoColor.alpha);
 
 		Color backgroundColor = createColor(backgroundRaoColor);
@@ -168,8 +163,8 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	@Override
-	public void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3,
-			RaoColor backgroundRaoColor, RaoColor borderRaoColor) {
+	public void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, RaoColor backgroundRaoColor,
+			RaoColor borderRaoColor) {
 		paintContext.setAlpha(backgroundRaoColor.alpha);
 
 		Color backgroundColor = createColor(backgroundRaoColor);

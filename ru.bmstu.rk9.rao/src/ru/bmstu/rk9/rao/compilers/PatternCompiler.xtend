@@ -19,6 +19,7 @@ import ru.bmstu.rk9.rao.rao.Parameter
 import ru.bmstu.rk9.rao.rao.PatternSelectMethod
 import ru.bmstu.rk9.rao.rao.RelevantResource
 import ru.bmstu.rk9.rao.rao.PatternSelectLogic
+import ru.bmstu.rk9.rao.rao.PatternSelectWithType
 
 class PatternCompiler
 {
@@ -39,13 +40,7 @@ class PatternCompiler
 		'''
 		package «filename»;
 
-		import ru.bmstu.rk9.rao.lib.json.*;
-
-		import ru.bmstu.rk9.rao.lib.*;
-		import ru.bmstu.rk9.rao.lib.pattern.*;
-		import ru.bmstu.rk9.rao.lib.simulator.*;
-		import ru.bmstu.rk9.rao.lib.database.*;
-		@SuppressWarnings("all")
+		«Util.putImports»
 
 		public class «rule.name» implements Rule
 		{
@@ -108,14 +103,7 @@ class PatternCompiler
 		'''
 		package «filename»;
 
-		import ru.bmstu.rk9.rao.lib.json.*;
-
-		import ru.bmstu.rk9.rao.lib.*;
-		import ru.bmstu.rk9.rao.lib.pattern.*;
-		import ru.bmstu.rk9.rao.lib.simulator.*;
-		import ru.bmstu.rk9.rao.lib.database.*;
-		import ru.bmstu.rk9.rao.lib.event.*;
-		@SuppressWarnings("all")
+		«Util.putImports»
 
 		public class «operation.name» implements Rule, Event
 		{
@@ -205,7 +193,7 @@ class PatternCompiler
 				db.addOperationEndEntry(this);
 				db.addMemorizedResourceEntries(
 						"«operation.fullyQualifiedName»",
-						null);
+						null, null);
 			}
 
 			public static final JSONObject structure = new JSONObject()
@@ -427,12 +415,13 @@ class PatternCompiler
 			}
 
 			@Override
-			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom)
+			public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom, String dptName)
 			{
 				Database db = Simulator.getDatabase();
 				db.addMemorizedResourceEntries(
 						"«pattern.fullyQualifiedName».createdResources",
-						executedFrom);
+						executedFrom,
+						dptName);
 			}
 
 			@Override
@@ -514,8 +503,9 @@ class PatternCompiler
 					@Override
 					public int compare(«resource» x, «resource» y)
 					{
-						if («expression.replaceAll("resources." + relevantResource + ".", "x.")» «IF selectMethod.withType.literal
-							== "with_min"»<«ELSE»>«ENDIF» «expression.replaceAll("resources." + relevantResource + ".", "y.")»)
+						if («expression.replaceAll("resources." + relevantResource + ".", "x.")» «IF selectMethod.withType
+							== PatternSelectWithType.WITH_MIN»<«ELSE»>«ENDIF» «
+								expression.replaceAll("resources." + relevantResource + ".", "y.")»)
 							return -1;
 						else
 							return 1;

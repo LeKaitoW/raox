@@ -21,8 +21,7 @@ import ru.bmstu.rk9.rao.ui.trace.Tracer;
 public class TreeBuilder {
 	TreeBuilder(int dptNumber) {
 		this.dptNumber = dptNumber;
-		this.decisionPointCache = Simulator.getModelStructureCache()
-				.getDecisionPointsInfo().get(dptNumber);
+		this.decisionPointCache = Simulator.getModelStructureCache().getDecisionPointsInfo().get(dptNumber);
 	}
 
 	public final boolean updateTree() {
@@ -51,8 +50,10 @@ public class TreeBuilder {
 		public double g;
 		public double h;
 		public int ruleNumber;
-		public String ruleDesсription;
+		public String ruleName;
 		public double ruleCost;
+		public String relevantResources;
+
 		public String label;
 
 		@Override
@@ -64,17 +65,14 @@ public class TreeBuilder {
 	private boolean parseEntry(Entry entry) {
 		boolean isFinished = false;
 
-		final EntryType entryType = EntryType.values()[entry.getHeader().get(
-				TypeSize.Internal.ENTRY_TYPE_OFFSET)];
+		final EntryType entryType = EntryType.values()[entry.getHeader().get(TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 		if (entryType != EntryType.SEARCH)
 			return false;
 
-		final ByteBuffer header = Tracer.prepareBufferForReading(entry
-				.getHeader());
+		final ByteBuffer header = Tracer.prepareBufferForReading(entry.getHeader());
 
 		Tracer.skipPart(header, TypeSize.BYTE);
-		final Database.SearchEntryType searchEntryType = Database.SearchEntryType
-				.values()[header.get()];
+		final Database.SearchEntryType searchEntryType = Database.SearchEntryType.values()[header.get()];
 		Tracer.skipPart(header, TypeSize.DOUBLE);
 		final int dptNumber = header.getInt();
 
@@ -92,8 +90,7 @@ public class TreeBuilder {
 			break;
 		}
 		case END: {
-			final ByteBuffer data = Tracer.prepareBufferForReading(entry
-					.getData());
+			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
 			Tracer.skipPart(data, TypeSize.BYTE + TypeSize.LONG * 2);
 
 			final double finalCost = data.getDouble();
@@ -113,10 +110,8 @@ public class TreeBuilder {
 		case OPEN:
 			break;
 		case SPAWN: {
-			final ByteBuffer data = Tracer.prepareBufferForReading(entry
-					.getData());
-			final DecisionPointSearch.SpawnStatus spawnStatus = DecisionPointSearch.SpawnStatus
-					.values()[data.get()];
+			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
+			final DecisionPointSearch.SpawnStatus spawnStatus = DecisionPointSearch.SpawnStatus.values()[data.get()];
 			switch (spawnStatus) {
 			case NEW:
 			case BETTER: {
@@ -125,30 +120,24 @@ public class TreeBuilder {
 				final double g = data.getDouble();
 				final double h = data.getDouble();
 				final int ruleNum = data.getInt();
-				ActivityCache activity = decisionPointCache.getActivitiesInfo()
-						.get(ruleNum);
+				ActivityCache activity = decisionPointCache.getActivitiesInfo().get(ruleNum);
 				final int patternNumber = activity.getPatternNumber();
 				final double ruleCost = data.getDouble();
 
-				final int numberOfRelevantResources = Simulator
-						.getModelStructureCache().getPatternsInfo()
+				final int numberOfRelevantResources = Simulator.getModelStructureCache().getPatternsInfo()
 						.get(patternNumber).getRelResTypes().size();
 
-				StringJoiner relResStringJoiner = new StringJoiner(
-						StringFormat.FUNCTION);
+				StringJoiner relResStringJoiner = new StringJoiner(StringFormat.ENUMERATION);
 
 				for (int num = 0; num < numberOfRelevantResources; num++) {
 					final int resNum = data.getInt();
-					final int typeNum = Simulator.getModelStructureCache()
-							.getPatternsInfo().get(patternNumber)
+					final int typeNum = Simulator.getModelStructureCache().getPatternsInfo().get(patternNumber)
 							.getRelResTypes().get(num);
-					final String typeName = Simulator.getModelStructureCache()
-							.getResourceTypesInfo().get(typeNum).getName();
+					final String typeName = Simulator.getModelStructureCache().getResourceTypesInfo().get(typeNum)
+							.getName();
 
-					final String name = Simulator.getModelStructureCache()
-							.getResourceNames().get(typeNum).get(resNum);
-					final String resourceName = name != null ? name : typeName
-							+ Tracer.encloseIndex(resNum);
+					final String name = Simulator.getModelStructureCache().getResourceNames().get(typeNum).get(resNum);
+					final String resourceName = name != null ? name : typeName + Tracer.encloseIndex(resNum);
 
 					relResStringJoiner.add(resourceName);
 				}
@@ -159,14 +148,13 @@ public class TreeBuilder {
 				treeNode.g = g;
 				treeNode.h = h;
 				treeNode.ruleNumber = ruleNum;
-				treeNode.ruleDesсription = activity.getName()
-						+ relResStringJoiner.getString();
+				treeNode.ruleName = activity.getName();
+				treeNode.relevantResources = relResStringJoiner.getString();
 				treeNode.ruleCost = ruleCost;
 
 				treeNode.depthLevel = treeNode.parent.depthLevel + 1;
 				if (widthByLevel.containsKey(treeNode.depthLevel))
-					widthByLevel.put(treeNode.depthLevel,
-							widthByLevel.get(treeNode.depthLevel) + 1);
+					widthByLevel.put(treeNode.depthLevel, widthByLevel.get(treeNode.depthLevel) + 1);
 				else
 					widthByLevel.put(treeNode.depthLevel, 1);
 
@@ -183,8 +171,7 @@ public class TreeBuilder {
 			break;
 		}
 		case DECISION: {
-			final ByteBuffer data = Tracer.prepareBufferForReading(entry
-					.getData());
+			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
 			final int number = data.getInt();
 			Node solutionNode = nodeByNumber.get(number);
 			solutionList.add(solutionNode);

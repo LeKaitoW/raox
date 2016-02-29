@@ -1,7 +1,6 @@
-package ru.bmstu.rk9.rao.ui.run;
+package ru.bmstu.rk9.rao.ui.simulation;
 
 import ru.bmstu.rk9.rao.ui.notification.RealTimeUpdater;
-import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer;
 
 public class RuntimeComponents {
 	public static RealTimeUpdater realTimeUpdater = null;

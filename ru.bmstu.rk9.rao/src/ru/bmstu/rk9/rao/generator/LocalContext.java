@@ -53,8 +53,7 @@ public class LocalContext {
 
 	public LocalContext populateWithEnums(RaoEnum enm) {
 		for (String id : enm.getType().getValues())
-			this.addRawEntry(enm.getType().getName() + "." + id,
-					RaoExpressionCompiler.compileType(enm),
+			this.addRawEntry(enm.getType().getName() + "." + id, RaoExpressionCompiler.compileType(enm),
 					RaoExpressionCompiler.compileType(enm) + "." + id);
 
 		return this;
@@ -63,22 +62,16 @@ public class LocalContext {
 	public LocalContext populateFromFunction(FunctionAlgorithmic function) {
 		if (function.getParameters() != null)
 			for (FunctionParameter parameter : function.getParameters())
-				if (RaoExpressionCompiler.compileType(parameter.getType())
-						.endsWith("_enum"))
-					this.addRawEntry(parameter.getName(), RaoExpressionCompiler
-							.compileType(parameter.getType()), parameter
-							.getName());
-				else
-					this.addRawEntry(parameter.getName(), RaoExpressionCompiler
-							.compileTypePrimitive(parameter.getType()),
+				if (RaoExpressionCompiler.compileType(parameter.getType()).endsWith("_enum"))
+					this.addRawEntry(parameter.getName(), RaoExpressionCompiler.compileType(parameter.getType()),
 							parameter.getName());
+				else
+					this.addRawEntry(parameter.getName(),
+							RaoExpressionCompiler.compileTypePrimitive(parameter.getType()), parameter.getName());
 
-		if (RaoExpressionCompiler.compileType(
-				((Function) function.eContainer()).getReturnType()).endsWith(
-				"_enum"))
+		if (RaoExpressionCompiler.compileType(((Function) function.eContainer()).getReturnType()).endsWith("_enum"))
 			this.populateWithEnums((RaoEnum) (RaoExpressionCompiler
-					.resolveAllTypes(((Function) function.eContainer())
-							.getReturnType())));
+					.resolveAllTypes(((Function) function.eContainer()).getReturnType())));
 
 		return this;
 	}
@@ -86,22 +79,16 @@ public class LocalContext {
 	public LocalContext populateFromFunction(FunctionList function) {
 		if (function.getParameters() != null)
 			for (FunctionParameter parameter : function.getParameters())
-				if (RaoExpressionCompiler.compileType(parameter.getType())
-						.endsWith("_enum"))
-					this.addRawEntry(parameter.getName(), RaoExpressionCompiler
-							.compileType(parameter.getType()), parameter
-							.getName());
-				else
-					this.addRawEntry(parameter.getName(), RaoExpressionCompiler
-							.compileTypePrimitive(parameter.getType()),
+				if (RaoExpressionCompiler.compileType(parameter.getType()).endsWith("_enum"))
+					this.addRawEntry(parameter.getName(), RaoExpressionCompiler.compileType(parameter.getType()),
 							parameter.getName());
+				else
+					this.addRawEntry(parameter.getName(),
+							RaoExpressionCompiler.compileTypePrimitive(parameter.getType()), parameter.getName());
 
-		if (RaoExpressionCompiler.compileType(
-				((Function) function.eContainer()).getReturnType()).endsWith(
-				"_enum"))
+		if (RaoExpressionCompiler.compileType(((Function) function.eContainer()).getReturnType()).endsWith("_enum"))
 			this.populateWithEnums((RaoEnum) (RaoExpressionCompiler
-					.resolveAllTypes(((Function) function.eContainer())
-							.getReturnType())));
+					.resolveAllTypes(((Function) function.eContainer()).getReturnType())));
 
 		return this;
 	}
@@ -110,63 +97,49 @@ public class LocalContext {
 		return this.populateWithResourceRename(groupBy.getType(), "current");
 	}
 
-	public LocalContext populateWithResourceRename(ResourceType resourceType,
-			String newName) {
+	public LocalContext populateWithResourceRename(ResourceType resourceType, String newName) {
 		for (Parameter parameter : resourceType.getParameters()) {
-			this.addRawEntry(
-					resourceType.getName() + "." + parameter.getName(),
-					RaoExpressionCompiler.compileType(parameter), newName
-							+ ".get_" + parameter.getName() + "()");
-			this.addRawEntry(parameter.getName(),
-					RaoExpressionCompiler.compileType(parameter), newName
-							+ ".get_" + parameter.getName() + "()");
+			this.addRawEntry(resourceType.getName() + "." + parameter.getName(),
+					RaoExpressionCompiler.compileType(parameter), newName + ".get_" + parameter.getName() + "()");
+			this.addRawEntry(parameter.getName(), RaoExpressionCompiler.compileType(parameter),
+					newName + ".get_" + parameter.getName() + "()");
 		}
 		return this;
 	}
 
 	public LocalContext populateFromEvent(Event event) {
 		for (Parameter parameter : event.getParameters())
-			this.addRawEntry(parameter.getName(),
-					RaoExpressionCompiler.compileType(parameter), "parameters."
-							+ parameter.getName());
+			this.addRawEntry(parameter.getName(), RaoExpressionCompiler.compileType(parameter),
+					"parameters." + parameter.getName());
 
 		return this;
 	}
 
 	public LocalContext populateFromPattern(Pattern pattern) {
 		for (Parameter parameter : pattern.getParameters())
-			this.addRawEntry(parameter.getName(),
-					RaoExpressionCompiler.compileType(parameter), "parameters."
-							+ parameter.getName());
+			this.addRawEntry(parameter.getName(), RaoExpressionCompiler.compileType(parameter),
+					"parameters." + parameter.getName());
 
 		for (RelevantResource relevantResource : pattern.getRelevantResources()) {
 			ResourceType type;
 			if (relevantResource.getType() instanceof ResourceType)
 				type = ((ResourceType) relevantResource.getType());
 			else
-				type = ((ResourceCreateStatement) relevantResource.getType())
-						.getType();
+				type = ((ResourceCreateStatement) relevantResource.getType()).getType();
 
 			for (Parameter parameter : type.getParameters())
-				this.addRawEntry(
-						relevantResource.getName() + "." + parameter.getName(),
+				this.addRawEntry(relevantResource.getName() + "." + parameter.getName(),
 						RaoExpressionCompiler.compileType(parameter),
-						"resources." + relevantResource.getName() + ".get_"
-								+ parameter.getName() + "()");
+						"resources." + relevantResource.getName() + ".get_" + parameter.getName() + "()");
 		}
 
 		return this;
 	}
 
-	public void addCreatedResource(
-			ResourceCreateStatement resourceCreateStatement) {
-		for (Parameter parameter : resourceCreateStatement.getType()
-				.getParameters())
-			this.addRawEntry(
-					resourceCreateStatement.getName() + "."
-							+ parameter.getName(),
+	public void addCreatedResource(ResourceCreateStatement resourceCreateStatement) {
+		for (Parameter parameter : resourceCreateStatement.getType().getParameters())
+			this.addRawEntry(resourceCreateStatement.getName() + "." + parameter.getName(),
 					RaoExpressionCompiler.compileType(parameter),
-					resourceCreateStatement.getName() + ".get_"
-							+ parameter.getName() + "()");
+					resourceCreateStatement.getName() + ".get_" + parameter.getName() + "()");
 	}
 }

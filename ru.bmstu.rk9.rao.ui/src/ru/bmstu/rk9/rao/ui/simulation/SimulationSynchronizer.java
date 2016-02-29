@@ -25,8 +25,7 @@ public class SimulationSynchronizer {
 				if (executionMode.type.equals(type))
 					return executionMode;
 			}
-			throw new SimulationComponentsException("Unknown simulation mode: "
-					+ type);
+			throw new SimulationComponentsException("Unknown simulation mode: " + type);
 		}
 
 		public String getString() {
@@ -41,17 +40,12 @@ public class SimulationSynchronizer {
 	}
 
 	private final void initializeSubscribers() {
-		simulationSubscriberManager.initialize(Arrays.asList(
-				new SimulatorSubscriberInfo(simulationManager.scaleManager,
-						ExecutionState.TIME_CHANGED),
-				new SimulatorSubscriberInfo(simulationManager.speedManager,
-						ExecutionState.STATE_CHANGED),
-				new SimulatorSubscriberInfo(simulationManager.speedManager,
-						ExecutionState.SEARCH_STEP),
-				new SimulatorSubscriberInfo(executionAbortedListener,
-						ExecutionState.EXECUTION_ABORTED),
-				new SimulatorSubscriberInfo(executionStartedListener,
-						ExecutionState.EXECUTION_STARTED)));
+		simulationSubscriberManager.initialize(
+				Arrays.asList(new SimulatorSubscriberInfo(simulationManager.scaleManager, ExecutionState.TIME_CHANGED),
+						new SimulatorSubscriberInfo(simulationManager.speedManager, ExecutionState.STATE_CHANGED),
+						new SimulatorSubscriberInfo(simulationManager.speedManager, ExecutionState.SEARCH_STEP),
+						new SimulatorSubscriberInfo(executionAbortedListener, ExecutionState.EXECUTION_ABORTED),
+						new SimulatorSubscriberInfo(executionStartedListener, ExecutionState.EXECUTION_STARTED)));
 	}
 
 	public final void deinitializeSubscribers() {
@@ -71,11 +65,9 @@ public class SimulationSynchronizer {
 		}
 
 		private final void initializeSubscribers() {
-			simulatorSubscriberManager.initialize(Arrays.asList(
-					new SimulatorSubscriberInfo(commonSubscriber,
-							ExecutionState.EXECUTION_STARTED),
-					new SimulatorSubscriberInfo(commonSubscriber,
-							ExecutionState.EXECUTION_COMPLETED)));
+			simulatorSubscriberManager.initialize(
+					Arrays.asList(new SimulatorSubscriberInfo(commonSubscriber, ExecutionState.EXECUTION_STARTED),
+							new SimulatorSubscriberInfo(commonSubscriber, ExecutionState.EXECUTION_COMPLETED)));
 			realTimeSubscriberManager.initialize(Arrays.asList(updater));
 		}
 
@@ -93,10 +85,8 @@ public class SimulationSynchronizer {
 		private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
 
 		private Runnable updater = () -> {
-			StatusView.setValue("Simulation time".intern(), 20,
-					timeFormatter.format(Simulator.getTime()));
-			StatusView.setValue("Actual scale".intern(), 10,
-					scaleFormatter.format(60060d / actualTimeScale));
+			StatusView.setValue("Simulation time".intern(), 20, timeFormatter.format(Simulator.getTime()));
+			StatusView.setValue("Actual scale".intern(), 10, scaleFormatter.format(60060d / actualTimeScale));
 		};
 
 		Subscriber commonSubscriber = new Subscriber() {
@@ -130,8 +120,7 @@ public class SimulationSynchronizer {
 
 	public void setSimulationSpeed(int value) {
 		if (value < 1 || value > 100)
-			throw new SimulationComponentsException(
-					"Incorrect simulation speed value " + value);
+			throw new SimulationComponentsException("Incorrect simulation speed value " + value);
 
 		simulationManager.speedDelayMillis = (long) (-Math.log10(value / 100d) * 1000d);
 	}
@@ -139,8 +128,7 @@ public class SimulationSynchronizer {
 	public void setSimulationScale(double value) {
 		simulationManager.timeScale = 60060d / value;
 		simulationManager.startRealTime = System.currentTimeMillis();
-		simulationManager.startSimulationTime = Simulator.isRunning() ? Simulator
-				.getTime() : 0;
+		simulationManager.startSimulationTime = Simulator.isRunning() ? Simulator.getTime() : 0;
 	}
 
 	public class SimulationManager {
@@ -166,15 +154,14 @@ public class SimulationSynchronizer {
 								- (currentRealTime - startRealTime);
 
 						if (waitTime > 0) {
-							while (executionMode == ExecutionMode.NORMAL_SPEED
-									&& waitTime > 0 && !simulationAborted) {
+							while (executionMode == ExecutionMode.NORMAL_SPEED && waitTime > 0 && !simulationAborted) {
 								delay(waitTime > 50 ? 50 : waitTime);
 								waitTime = (long) ((currentSimulationTime - startSimulationTime) * timeScale)
 										- (System.currentTimeMillis() - startRealTime);
 							}
 							uiTimeUpdater.actualTimeScale = timeScale;
 						} else
-							uiTimeUpdater.actualTimeScale = ((double) (currentRealTime - startRealTime))
+							uiTimeUpdater.actualTimeScale = (currentRealTime - startRealTime)
 									/ currentSimulationTime;
 						break;
 
@@ -206,12 +193,10 @@ public class SimulationSynchronizer {
 					long startTime = System.currentTimeMillis();
 
 					long timeToWait = speedDelayMillis;
-					while (timeToWait > 0
-							&& (executionMode == ExecutionMode.FAST_FORWARD || executionMode == ExecutionMode.NORMAL_SPEED)
-							&& !simulationAborted) {
+					while (timeToWait > 0 && (executionMode == ExecutionMode.FAST_FORWARD
+							|| executionMode == ExecutionMode.NORMAL_SPEED) && !simulationAborted) {
 						delay(timeToWait > 50 ? 50 : timeToWait);
-						timeToWait = startTime + speedDelayMillis
-								- System.currentTimeMillis();
+						timeToWait = startTime + speedDelayMillis - System.currentTimeMillis();
 					}
 
 					break;

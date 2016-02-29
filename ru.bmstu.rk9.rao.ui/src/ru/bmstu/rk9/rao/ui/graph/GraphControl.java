@@ -1,13 +1,11 @@
 package ru.bmstu.rk9.rao.ui.graph;
 
-import java.awt.Frame;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.JFrame;
 
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 public class GraphControl {
@@ -22,26 +20,19 @@ public class GraphControl {
 	}
 
 	private static void createFrameWindow(FrameInfo frameInfo) {
-		Rectangle monitorBounds = PlatformUI.getWorkbench().getDisplay()
-				.getBounds();
-		monitorAspectRatio = (double) monitorBounds.width
-				/ monitorBounds.height;
+		Display display = PlatformUI.getWorkbench().getDisplay();
 
 		int dptNum = frameInfo.dptNumber;
 		String frameName = frameInfo.frameName;
 
-		int frameWidth = setWidth(monitorBounds, 1.2);
-		int frameHeight = setHeight(monitorBounds, 0.8);
+		GraphShell graphShell = new GraphShell(display, dptNum);
+		graphShell.open();
 
-		GraphView graphFrame = new GraphView(dptNum, frameWidth, frameHeight);
+		GraphControl.openedGraphMap.put(dptNum, graphShell);
+		graphShell.setText(frameName);
+		graphShell.getGraphFrame().setVisible(true);
 
-		GraphControl.openedGraphMap.put(dptNum, graphFrame);
-		graphFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		graphFrame.setTitle(frameName);
-		graphFrame.setLocationRelativeTo(null);
-		graphFrame.setVisible(true);
-
-		graphFrame.addWindowListener(new WindowListener() {
+		graphShell.getGraphFrame().addWindowListener(new WindowListener() {
 			@Override
 			public void windowOpened(WindowEvent e) {
 			}
@@ -77,24 +68,14 @@ public class GraphControl {
 		if (!GraphControl.openedGraphMap.containsKey(frameInfo.dptNumber)) {
 			GraphControl.createFrameWindow(frameInfo);
 		} else {
-			GraphView currentFrame = GraphControl.openedGraphMap
-					.get(frameInfo.dptNumber);
-			if (currentFrame.getState() == Frame.ICONIFIED)
-				currentFrame.setState(Frame.NORMAL);
-			else if (!currentFrame.isActive())
-				currentFrame.setVisible(true);
+			GraphShell currentGraphShell = GraphControl.openedGraphMap.get(frameInfo.dptNumber);
+			currentGraphShell.forceActive();
 		}
 	}
 
-	public static final Map<Integer, GraphView> openedGraphMap = new HashMap<Integer, GraphView>();
+	private static final Map<Integer, GraphShell> openedGraphMap = new HashMap<Integer, GraphShell>();
 
-	private static double monitorAspectRatio;
-
-	public static int setWidth(Rectangle r, double relativeWidth) {
-		return (int) (r.width * relativeWidth / GraphControl.monitorAspectRatio);
-	}
-
-	public static int setHeight(Rectangle r, double relativeHeight) {
-		return (int) (r.height * relativeHeight);
+	public static final Map<Integer, GraphShell> getOpenedGraphMap() {
+		return openedGraphMap;
 	}
 }

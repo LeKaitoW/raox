@@ -9,12 +9,10 @@ public class ActivityCache {
 		name = ModelStructureCache.getRelativeName(activity.getString("name"));
 
 		final String patternName = activity.getString("pattern");
-		JSONArray patterns = Simulator.getDatabase().getModelStructure()
-				.getJSONArray("patterns");
+		JSONArray patterns = Simulator.getDatabase().getModelStructure().getJSONArray("patterns");
 		// TODO throw exception if not found
 		for (int num = 0; num < patterns.length(); num++)
-			if (patternName.equals(patterns.getJSONObject(num)
-					.getString("name"))) {
+			if (patternName.equals(patterns.getJSONObject(num).getString("name"))) {
 				setPatternNumber(num);
 				break;
 			}
@@ -23,6 +21,7 @@ public class ActivityCache {
 	public int getPatternNumber() {
 		return patternNumber;
 	}
+
 	public void setPatternNumber(int patternNumber) {
 		this.patternNumber = patternNumber;
 	}

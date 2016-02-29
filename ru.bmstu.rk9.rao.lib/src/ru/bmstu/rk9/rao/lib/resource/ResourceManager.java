@@ -14,8 +14,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 public class ResourceManager<T extends Resource & ResourceComparison<T>> {
 	private SortedMap<Integer, T> listResources;
 
-	private Map<String, T> permanent;
-	private Map<Integer, T> temporary;
+	private Map<String, T> named;
 
 	private Integer resourceNumber;
 
@@ -35,9 +34,7 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>> {
 		listResources.put(number, res);
 
 		if (name != null)
-			permanent.put(name, res);
-		else
-			temporary.put(number, res);
+			named.put(name, res);
 	}
 
 	public void eraseResource(T res) {
@@ -45,15 +42,13 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>> {
 		Integer number = res.getNumber();
 
 		if (name != null)
-			permanent.remove(name);
-		else
-			temporary.remove(number);
+			named.remove(name);
 
 		listResources.remove(number);
 	}
 
 	public T getResource(String name) {
-		return permanent.get(name);
+		return named.get(name);
 	}
 
 	public T getResource(int number) {
@@ -64,22 +59,15 @@ public class ResourceManager<T extends Resource & ResourceComparison<T>> {
 		return Collections.unmodifiableCollection(listResources.values());
 	}
 
-	public Collection<T> getTemporary() {
-		return Collections.unmodifiableCollection(temporary.values());
-	}
-
 	public ResourceManager() {
-		this.permanent = new ConcurrentHashMap<String, T>();
-		this.temporary = new ConcurrentHashMap<Integer, T>();
+		this.named = new ConcurrentHashMap<String, T>();
 		this.listResources = new ConcurrentSkipListMap<Integer, T>();
 		this.resourceNumber = 0;
 	}
 
 	private ResourceManager(ResourceManager<T> source) {
-		this.permanent = new ConcurrentHashMap<String, T>(source.permanent);
-		this.temporary = new ConcurrentHashMap<Integer, T>(source.temporary);
-		this.listResources = new ConcurrentSkipListMap<Integer, T>(
-				source.listResources);
+		this.named = new ConcurrentHashMap<String, T>(source.named);
+		this.listResources = new ConcurrentSkipListMap<Integer, T>(source.listResources);
 		this.resourceNumber = source.resourceNumber;
 	}
 

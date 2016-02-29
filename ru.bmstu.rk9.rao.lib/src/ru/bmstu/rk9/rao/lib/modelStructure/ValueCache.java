@@ -14,8 +14,7 @@ public class ValueCache {
 			String enumOriginName = param.getString("enum_origin");
 			JSONObject enumOrigin = ModelStructureCache.getEnumOrigin(enumOriginName);
 
-			JSONArray enums = enumOrigin.getJSONObject("structure")
-					.getJSONArray("enums");
+			JSONArray enums = enumOrigin.getJSONObject("structure").getJSONArray("enums");
 			for (int num = 0; num < enums.length(); num++)
 				getEnumNames().add(enums.getString(num));
 		} else

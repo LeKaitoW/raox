@@ -19,8 +19,7 @@ public class RaoPerspectiveSourceProvider extends AbstractSourceProvider {
 	@Override
 	public HashMap<String, String> getCurrentState() {
 		HashMap<String, String> currentState = new HashMap<String, String>(1);
-		String currentState1 = isRaoPerspective ? RaoPerspective
-				: otherPerspective;
+		String currentState1 = isRaoPerspective ? RaoPerspective : otherPerspective;
 		currentState.put(RaoPerspectiveKey, currentState1);
 		return currentState;
 	}
@@ -35,8 +34,7 @@ public class RaoPerspectiveSourceProvider extends AbstractSourceProvider {
 			return;
 
 		this.isRaoPerspective = _isRaoPerspective;
-		String currentState = isRaoPerspective ? RaoPerspective
-				: otherPerspective;
+		String currentState = isRaoPerspective ? RaoPerspective : otherPerspective;
 		fireSourceChanged(ISources.WORKBENCH, RaoPerspectiveKey, currentState);
 	}
 }

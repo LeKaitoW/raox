@@ -5,8 +5,7 @@ import org.eclipse.xtext.naming.QualifiedName;
 
 import ru.bmstu.rk9.rao.rao.RaoModel;
 
-public class RaoQualifiedNameProvider extends
-		DefaultDeclarativeQualifiedNameProvider {
+public class RaoQualifiedNameProvider extends DefaultDeclarativeQualifiedNameProvider {
 
 	public static String filenameFromURI(RaoModel model) {
 		if (model == null)

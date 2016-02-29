@@ -8,7 +8,6 @@ import java.util.List;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
@@ -47,8 +46,7 @@ public class ExportTraceHandler extends AbstractHandler {
 		if (!ready())
 			return null;
 
-		ExportType type = ExportType.getByString(event
-				.getParameter("ru.bmstu.rk9.rao.ui.runtime.exportTraceType"));
+		ExportType type = ExportType.getByString(event.getParameter("ru.bmstu.rk9.rao.ui.runtime.exportTraceType"));
 		switch (type) {
 		case REGULAR:
 			exportTraceRegular();
@@ -96,12 +94,9 @@ public class ExportTraceHandler extends AbstractHandler {
 	}
 
 	private final static PrintWriter initializeWriter(String suffix) {
-		IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot()
-				.getLocation();
+		IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
 		IPath filePath = workspacePath.append(currentProject.getFullPath()
-				.append(currentModel.getName().substring(0,
-						currentModel.getName().lastIndexOf('.'))
-						+ suffix));
+				.append(currentProject.getName().substring(0, currentProject.getName().lastIndexOf('.')) + suffix));
 
 		PrintWriter writer = null;
 		try {
@@ -115,12 +110,11 @@ public class ExportTraceHandler extends AbstractHandler {
 	}
 
 	private final static boolean ready() {
-		return (currentProject != null && currentModel != null);
+		return (currentProject != null);
 	}
 
 	public final static void reset() {
 		currentProject = null;
-		currentModel = null;
 		legacyTracer = null;
 	}
 
@@ -128,11 +122,5 @@ public class ExportTraceHandler extends AbstractHandler {
 
 	public final static void setCurrentProject(IProject project) {
 		currentProject = project;
-	}
-
-	private static IFile currentModel = null;
-
-	public final static void setCurrentModel(IFile model) {
-		currentModel = model;
 	}
 }
