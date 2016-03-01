@@ -26,6 +26,6 @@ public class RuntimeComponents {
 		realTimeUpdater.deinitialize();
 		simulationSynchronizer.deinitializeSubscribers();
 		stateObserver.deinitializeSubscribers();
-		
+
 	}
 }

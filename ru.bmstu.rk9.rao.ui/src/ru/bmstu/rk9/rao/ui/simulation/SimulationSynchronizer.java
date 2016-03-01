@@ -227,8 +227,6 @@ public class SimulationSynchronizer {
 			e.printStackTrace();
 		}
 	}
-		
-	
 
 	public final UITimeUpdater uiTimeUpdater = new UITimeUpdater();
 	public final SimulationManager simulationManager = new SimulationManager();

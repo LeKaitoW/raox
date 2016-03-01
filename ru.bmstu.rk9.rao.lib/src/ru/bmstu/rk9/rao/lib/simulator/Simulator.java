@@ -15,7 +15,6 @@ import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.result.ResultManager;
 
-
 public class Simulator {
 	private static Simulator INSTANCE = null;
 
@@ -88,7 +87,7 @@ public class Simulator {
 	public static ModelState getModelState() {
 		return INSTANCE.modelState;
 	}
-	
+
 	private ModelStructureCache modelStructureCache;
 
 	public static ModelStructureCache getModelStructureCache() {
@@ -142,7 +141,7 @@ public class Simulator {
 	private static void notifyChange(ExecutionState category) {
 		INSTANCE.executionStateNotifier.notifySubscribers(category);
 	}
-	
+
 	private boolean checkTerminate() {
 		for (TerminateCondition c : terminateList)
 			if (c.check())
