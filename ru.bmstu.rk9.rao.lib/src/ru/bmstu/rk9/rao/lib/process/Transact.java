@@ -1,30 +1,17 @@
 package ru.bmstu.rk9.rao.lib.process;
 
 import java.nio.ByteBuffer;
-import ru.bmstu.rk9.rao.lib.resource.Resource;
-import ru.bmstu.rk9.rao.lib.resource.ResourceComparison;
-import ru.bmstu.rk9.rao.lib.resource.ResourceManager;
 
-public class Transact implements Resource, ResourceComparison<Transact> {
+import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
-	private static ResourceManager<Transact> transactManager = new ResourceManager<>();
-	private Integer number = null;
+public class Transact extends ComparableResource<Transact> {
+	private Transact() {
+	}
 
 	@Override
 	public ByteBuffer serialize() {
 		return null;
-	}
-
-	@Override
-	public String getName() {
-		return null;
-	}
-
-	@Override
-	public Integer getNumber() {
-		if (number == null)
-			throw new ProcessException("Transact not registered");
-		return number;
 	}
 
 	@Override
@@ -37,13 +24,19 @@ public class Transact implements Resource, ResourceComparison<Transact> {
 		return false;
 	}
 
-	public void register() {
-		this.number = transactManager.getNextNumber();
-		transactManager.addResource(this);
+	public static void eraseTransact(Transact transact) {
+		transact.erase();
 	}
 
-	public static void eraseTransact(Transact transact) {
-		transactManager.eraseResource(transact);
+	public static Transact create() {
+		Transact transact = new Transact();
+		Simulator.getModelState().addResource(transact);
+		return transact;
+	}
+
+	@Override
+	public void erase() {
+		Simulator.getModelState().eraseResource(this);
 	}
 
 }

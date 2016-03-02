@@ -27,6 +27,17 @@ import org.eclipse.ui.IEditorPart;
 import org.osgi.framework.Bundle;
 
 public class BuildUtil {
+
+	public enum BundleType {
+		RAO_LIB("ru.bmstu.rk9.rao.lib"), XBASE_LIB("org.eclipse.xtext.xbase.lib");
+
+		BundleType(String bundleName) {
+			this.name = bundleName;
+		}
+
+		private final String name;
+	}
+
 	public static URI getURI(IResource resource) {
 		return URI.createPlatformResourceURI(resource.getProject().getName() + "/" + resource.getProjectRelativePath(),
 				true);
@@ -67,13 +78,13 @@ public class BuildUtil {
 		return file.getProject();
 	}
 
-	static String checkRaoLib(IProject project, IProgressMonitor monitor) {
-		String libBundleName = "ru.bmstu.rk9.rao.lib";
-		Bundle lib = Platform.getBundle(libBundleName);
+	static String checkLib(IProject project, IProgressMonitor monitor, BundleType bundle) {
+		String bundleName = bundle.name;
+		Bundle lib = Platform.getBundle(bundleName);
 		try {
 			File libPath = FileLocator.getBundleFile(lib);
 			if (libPath == null)
-				return "cannot locate bundle " + libBundleName;
+				return "cannot locate bundle " + bundleName;
 
 			IJavaProject jProject = JavaCore.create(project);
 
@@ -84,6 +95,7 @@ public class BuildUtil {
 				libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
 			else
 				libPathBinary = new Path(libPath.getAbsolutePath());
+			IPath sourcePath = new Path(libPath.getAbsolutePath());
 
 			List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
 					Arrays.asList(projectClassPathArray));
@@ -95,19 +107,17 @@ public class BuildUtil {
 				}
 			}
 
-			jProject.setRawClasspath(
-					projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
+			jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
 					monitor);
 
-			IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary, null, null);
+			IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary, sourcePath, null);
 			projectClassPathList.add(libEntry);
 
-			jProject.setRawClasspath(
-					projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
+			jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
 					monitor);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "internal error while checking rao lib:\n" + e.getMessage();
+			return "internal error while checking lib:\n" + e.getMessage();
 		}
 
 		return null;
@@ -140,8 +150,8 @@ public class BuildUtil {
 				IClasspathEntry libEntry = JavaCore.newSourceEntry(srcGenFolder.getFullPath(), null, null);
 				projectClassPathList.add(libEntry);
 
-				jProject.setRawClasspath(projectClassPathList
-						.toArray(new IClasspathEntry[projectClassPathList.size()]), monitor);
+				jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
+						monitor);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

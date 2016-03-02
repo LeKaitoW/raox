@@ -183,8 +183,8 @@ public class CollectedDataNode {
 		private final ResultType type;
 	}
 
-	public static class DecisionPointIndex extends Index {
-		public DecisionPointIndex(int number) {
+	public static class LogicIndex extends Index {
+		public LogicIndex(int number) {
 			super(number, IndexType.DECISION_POINT);
 		}
 	}

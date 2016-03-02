@@ -16,6 +16,7 @@ import ru.bmstu.rk9.rao.lib.process.Resource;
 import ru.bmstu.rk9.rao.lib.process.Seize;
 import ru.bmstu.rk9.rao.lib.process.Terminate;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
 
 public class LinearProcessTest {
@@ -23,11 +24,12 @@ public class LinearProcessTest {
 	@Test
 	public void test() {
 		ProcessTestSuite.initEmptySimulation();
-		Simulator.addTerminateCondition(() -> Simulator.getTime() > 1000);
-		Simulator.getProcess().addBlocks(generateSituation());
+		SimulatorInitializationInfo initializationInfo = new SimulatorInitializationInfo();
+		initializationInfo.terminateConditions.add(() -> Simulator.getTime() > 1000);
+		initializationInfo.processBlocks.addAll(generateSituation());
+		Simulator.initialize(initializationInfo);
 		SimulationStopCode simulationStopCode = Simulator.run();
-		assertEquals("linear_process_test", SimulationStopCode.RUNTIME_ERROR,
-				simulationStopCode);
+		assertEquals("linear_process_test", SimulationStopCode.RUNTIME_ERROR, simulationStopCode);
 		assertTrue(Math.abs(Simulator.getTime() - 40) < 1e16);
 	}
 
@@ -36,7 +38,7 @@ public class LinearProcessTest {
 		Generate generate = new Generate(() -> 10);
 		Terminate terminate = new Terminate();
 		Advance advance = new Advance(() -> 15);
-		Resource resource = new Resource();
+		Resource resource = Resource.create();
 		Seize seize = new Seize(resource);
 		Release release = new Release(resource);
 		blocks.add(generate);

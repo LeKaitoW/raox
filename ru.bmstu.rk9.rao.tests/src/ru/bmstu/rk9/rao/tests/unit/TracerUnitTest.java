@@ -16,8 +16,7 @@ public class TracerUnitTest {
 		Tracer tracer = new Tracer();
 
 		final ByteBuffer header = ByteBuffer.allocate(EntryType.SYSTEM.HEADER_SIZE);
-		header.put((byte) EntryType.SYSTEM.ordinal())
-		                .putDouble(0).put((byte) SystemEntryType.TRACE_START.ordinal());
+		header.put((byte) EntryType.SYSTEM.ordinal()).putDouble(0).put((byte) SystemEntryType.TRACE_START.ordinal());
 		Entry entry = new Entry(header, null);
 
 		TraceOutput output = tracer.parseSerializedData(entry);
@@ -26,5 +25,5 @@ public class TracerUnitTest {
 		assertEquals(TraceType.SYSTEM, output.type());
 
 	}
-	
+
 }

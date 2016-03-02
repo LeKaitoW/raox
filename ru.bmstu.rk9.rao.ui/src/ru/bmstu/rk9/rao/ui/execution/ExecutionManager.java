@@ -14,7 +14,6 @@ import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 
-import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
@@ -24,7 +23,6 @@ import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider;
 import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider.SimulationState;
 
 public class ExecutionManager {
-	private final IMultipleResourceGenerator generator;
 	private final EclipseResourceFileSystemAccess2 fsa;
 	private final IResourceSetProvider resourceSetProvider;
 	private final EclipseOutputConfigurationProvider outputConfigurationProvider;
@@ -48,43 +46,44 @@ public class ExecutionManager {
 
 	public ExecutionManager(final IEditorPart activeEditor, final IWorkbenchWindow activeWorkbenchWindow,
 			final EclipseResourceFileSystemAccess2 fsa, final IResourceSetProvider resourceSetProvider,
-			final EclipseOutputConfigurationProvider ocp, final IMultipleResourceGenerator generator,
+			final EclipseOutputConfigurationProvider ocp,
 			final DefaultResourceUIValidatorExtension validatorExtension) {
 		this.activeEditor = activeEditor;
 		this.activeWorkbenchWindow = activeWorkbenchWindow;
 		this.fsa = fsa;
 		this.resourceSetProvider = resourceSetProvider;
 		this.outputConfigurationProvider = ocp;
-		this.generator = generator;
 		this.validatorExtension = validatorExtension;
 	}
 
-	public final void execute(boolean buildOnly) {
+	public final void execute(boolean rebuild) {
 		Job executionJob = new Job("Building Rao model") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 						SimulationState.RUNNING.toString());
 				try {
+
 					BuildJobProvider modelBuilder = new BuildJobProvider(activeEditor, activeWorkbenchWindow, fsa,
-							resourceSetProvider, outputConfigurationProvider, generator, validatorExtension);
-					final Job build = modelBuilder.createBuildJob();
-					build.schedule();
-					try {
-						build.join();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						return new Status(IStatus.ERROR, pluginId, "Internal error while finishing build");
-					}
+							resourceSetProvider, outputConfigurationProvider, validatorExtension);
 
-					if (build.getResult() != Status.OK_STATUS) {
-						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
-								SimulationState.STOPPED.toString());
-						ConsoleView.addLine("Build failed");
-						return new Status(IStatus.CANCEL, pluginId, "Execution cancelled");
-					}
+					if (rebuild) {
+						final Job build = modelBuilder.createBuildJob();
+						build.schedule();
+						try {
+							build.join();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+							return new Status(IStatus.ERROR, pluginId, "Internal error while finishing build");
+						}
 
-					if (buildOnly) {
+						if (build.getResult() != Status.OK_STATUS) {
+							ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
+									SimulationState.STOPPED.toString());
+							ConsoleView.addLine("Build failed");
+							return new Status(IStatus.CANCEL, pluginId, "Execution cancelled");
+						}
+
 						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 								SimulationState.STOPPED.toString());
 						return Status.OK_STATUS;
@@ -92,7 +91,7 @@ public class ExecutionManager {
 
 					executionManagerNotifier.notifySubscribers(ExecutionManagerState.BEFORE_RUN);
 
-					final IProject project = modelBuilder.getBuiltProject();
+					final IProject project = modelBuilder.selectNewProject();
 					ExecutionJobProvider modelExecutioner = new ExecutionJobProvider(project);
 					final Job runJob = modelExecutioner.createExecutionJob();
 					runJob.schedule();

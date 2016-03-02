@@ -36,11 +36,10 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 import org.eclipse.xtext.validation.CheckMode;
 
-import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
 import ru.bmstu.rk9.rao.ui.RaoActivatorExtension;
+import ru.bmstu.rk9.rao.ui.execution.BuildUtil.BundleType;
 
 public class BuildJobProvider {
-	private final IMultipleResourceGenerator generator;
 	private final EclipseResourceFileSystemAccess2 fsa;
 	private final IResourceSetProvider resourceSetProvider;
 	private final EclipseOutputConfigurationProvider outputConfigurationProvider;
@@ -53,14 +52,13 @@ public class BuildJobProvider {
 
 	public BuildJobProvider(final IEditorPart activeEditor, final IWorkbenchWindow activeWorkbenchWindow,
 			final EclipseResourceFileSystemAccess2 fsa, final IResourceSetProvider resourceSetProvider,
-			final EclipseOutputConfigurationProvider ocp, final IMultipleResourceGenerator generator,
+			final EclipseOutputConfigurationProvider ocp,
 			final DefaultResourceUIValidatorExtension validatorExtension) {
 		this.activeEditor = activeEditor;
 		this.activeWorkbenchWindow = activeWorkbenchWindow;
 		this.fsa = fsa;
 		this.resourceSetProvider = resourceSetProvider;
 		this.outputConfigurationProvider = ocp;
-		this.generator = generator;
 		this.validatorExtension = validatorExtension;
 	}
 
@@ -93,17 +91,25 @@ public class BuildJobProvider {
 		return projectToBuild;
 	}
 
+	public final IProject selectNewProject() {
+		IProject projectToBuild = getProjectToBuild(activeWorkbenchWindow, activeEditor);
+		if (projectToBuild == null)
+			return null;
+
+		recentProject = projectToBuild;
+
+		return recentProject;
+	}
+
 	public final Job createBuildJob() {
 		Job buildJob = new Job("Building Rao model") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				final Display display = PlatformUI.getWorkbench().getDisplay();
-				IProject projectToBuild = getProjectToBuild(activeWorkbenchWindow, activeEditor);
-				if (projectToBuild == null) {
+				if (selectNewProject() == null) {
 					return new Status(IStatus.ERROR, pluginId,
 							BuildUtil.createErrorMessage("failed to select project to build"));
 				}
-				recentProject = projectToBuild;
 
 				ISaveableFilter filter = new ISaveableFilter() {
 					@Override
@@ -129,7 +135,11 @@ public class BuildJobProvider {
 				display.syncExec(() -> PlatformUI.getWorkbench().saveAll(activeWorkbenchWindow, activeWorkbenchWindow,
 						filter, true));
 
-				String libErrorMessage = BuildUtil.checkRaoLib(recentProject, monitor);
+				String libErrorMessage = BuildUtil.checkLib(recentProject, monitor, BundleType.RAO_LIB);
+				if (libErrorMessage != null)
+					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(libErrorMessage));
+
+				libErrorMessage = BuildUtil.checkLib(recentProject, monitor, BundleType.XBASE_LIB);
 				if (libErrorMessage != null)
 					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(libErrorMessage));
 
@@ -159,9 +169,12 @@ public class BuildJobProvider {
 						validatorExtension.updateValidationMarkers((IFile) resource, loadedResource, CheckMode.ALL,
 								monitor);
 						IMarker[] markers = resource.findMarkers(IMarker.PROBLEM, true, 0);
-						if (markers.length > 0) {
-							projectHasErrors = true;
-							break;
+						for (IMarker marker : markers) {
+							int severity = marker.getAttribute(IMarker.SEVERITY, Integer.MAX_VALUE);
+							if (severity == IMarker.SEVERITY_ERROR) {
+								projectHasErrors = true;
+								break;
+							}
 						}
 					} catch (CoreException e) {
 						e.printStackTrace();
@@ -192,7 +205,8 @@ public class BuildJobProvider {
 
 				fsa.setOutputConfigurations(outputConfigurations);
 
-				generator.doGenerate(resourceSet, fsa);
+				// TODO: Invoke inferrer manually
+				// generator.doGenerate(resourceSet, fsa);
 
 				try {
 					recentProject.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, monitor);

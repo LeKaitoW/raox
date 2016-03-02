@@ -1,14 +1,17 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -18,9 +21,17 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
+import ru.bmstu.rk9.rao.lib.dpt.Logic;
+import ru.bmstu.rk9.rao.lib.event.Event;
+import ru.bmstu.rk9.rao.lib.json.JSONObject;
+import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
+import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
+import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
@@ -37,6 +48,7 @@ public class ExecutionJobProvider {
 
 	public final Job createExecutionJob() {
 		final Job executionJob = new Job(project.getName() + " execution") {
+			@SuppressWarnings("unchecked")
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				URLClassLoader classLoader = null;
@@ -45,22 +57,62 @@ public class ExecutionJobProvider {
 				try {
 					ConsoleView.clearConsoleText();
 
-					URL model = new URL("file:///" + ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()
-							+ "/" + project.getName() + "/bin/");
+					URL modelURL = new URL(
+							"file:///" + ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/"
+									+ project.getName() + "/bin/");
 
-					URL[] urls = new URL[] { model };
+					URL[] urls = new URL[] { modelURL };
 
 					classLoader = new URLClassLoader(urls, Simulator.class.getClassLoader());
 
-					Class<?> modelClass = classLoader.loadClass("rao_model.Embedded");
+					SimulatorPreinitializationInfo simulatorPreinitializationInfo = new SimulatorPreinitializationInfo();
+					simulatorPreinitializationInfo.modelStructure.put("name", project.getName());
 
-					Method simulation = null;
-					Method initialization = null;
-					for (Method method : modelClass.getMethods()) {
-						if (method.getName() == "runSimulation")
-							simulation = method;
-						if (method.getName() == "initSimulation")
-							initialization = method;
+					SimulatorInitializationInfo simulatorInitializationInfo = new SimulatorInitializationInfo();
+					List<Field> resourceFields = new ArrayList<>();
+					List<Field> logicFields = new ArrayList<>();
+
+					for (IResource raoFile : BuildUtil.getAllRaoFilesInProject(project)) {
+						String raoFileName = raoFile.getName();
+						raoFileName = raoFileName.substring(0, raoFileName.length() - ".rao".length());
+						String modelClassName = project.getName() + "." + raoFileName;
+						Class<?> modelClass = Class.forName(modelClassName, false, classLoader);
+
+						try {
+							Class<?> init = Class.forName(modelClassName + "$init", false, classLoader);
+							Constructor<?> initConstructor = init.getDeclaredConstructor();
+							initConstructor.setAccessible(true);
+							simulatorInitializationInfo.initList.add((Runnable) initConstructor.newInstance());
+						} catch (ClassNotFoundException classException) {
+						}
+
+						try {
+							Class<?> terminate = Class.forName(modelClassName + "$terminateCondition", false,
+									classLoader);
+							Constructor<?> terminateConstructor = terminate.getDeclaredConstructor();
+							terminateConstructor.setAccessible(true);
+							simulatorInitializationInfo.terminateConditions
+									.add((Supplier<Boolean>) terminateConstructor.newInstance());
+						} catch (ClassNotFoundException classException) {
+						}
+
+						for (Class<?> nestedModelClass : modelClass.getDeclaredClasses()) {
+							if (Event.class.isAssignableFrom(nestedModelClass))
+								simulatorPreinitializationInfo.modelStructure.getJSONArray("events")
+										.put(new JSONObject().put("name",
+												NamingHelper.fieldNameToFullName(nestedModelClass.getName())));
+
+							if (ComparableResource.class.isAssignableFrom(nestedModelClass))
+								simulatorPreinitializationInfo.resourceClasses.add(nestedModelClass);
+						}
+
+						for (Field field : modelClass.getDeclaredFields()) {
+							if (ComparableResource.class.equals(field.getType().getSuperclass()))
+								resourceFields.add(field);
+
+							if (Logic.class.equals(field.getType()))
+								logicFields.add(field);
+						}
 					}
 
 					ExportTraceHandler.reset();
@@ -69,9 +121,6 @@ public class ExecutionJobProvider {
 					SerializationConfigView.initNames();
 
 					final List<AnimationFrame> frames = new ArrayList<AnimationFrame>();
-
-					if (initialization != null)
-						initialization.invoke(null, (Object) frames);
 
 					display.syncExec(() -> AnimationView.initialize(frames));
 
@@ -82,8 +131,22 @@ public class ExecutionJobProvider {
 
 					List<Result> results = new LinkedList<Result>();
 					SimulationStopCode simulationResult = SimulationStopCode.SIMULATION_CONTINUES;
-					if (simulation != null)
-						simulationResult = (SimulationStopCode) simulation.invoke(null, (Object) results);
+
+					Simulator.preinitialize(simulatorPreinitializationInfo);
+
+					for (Field resourceField : resourceFields) {
+						String resourceName = resourceField.getName();
+						Resource resource = (Resource) resourceField.get(null);
+						resource.setName(resourceName);
+					}
+
+					for (Field logicField : logicFields) {
+						Logic logic = (Logic) logicField.get(null);
+						simulatorInitializationInfo.decisionPoints.add(logic);
+					}
+
+					Simulator.initialize(simulatorInitializationInfo);
+					simulationResult = Simulator.run();
 
 					switch (simulationResult) {
 					case TERMINATE_CONDITION:

@@ -10,7 +10,7 @@ import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
-import ru.bmstu.rk9.rao.lib.dpt.DecisionPointSearch;
+import ru.bmstu.rk9.rao.lib.dpt.Search;
 import ru.bmstu.rk9.rao.lib.modelStructure.ActivityCache;
 import ru.bmstu.rk9.rao.lib.modelStructure.DecisionPointCache;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
@@ -111,7 +111,7 @@ public class TreeBuilder {
 			break;
 		case SPAWN: {
 			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
-			final DecisionPointSearch.SpawnStatus spawnStatus = DecisionPointSearch.SpawnStatus.values()[data.get()];
+			final Search.SpawnStatus spawnStatus = Search.SpawnStatus.values()[data.get()];
 			switch (spawnStatus) {
 			case NEW:
 			case BETTER: {

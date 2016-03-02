@@ -11,6 +11,7 @@
             default="true"
             extensions="rao"
             id="ru.bmstu.rk9.rao.Rao"
+            matchingStrategy="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.xbase.ui.editor.JavaEditorInputMatcher"
             name="Rao Editor">
         </editor>
     </extension>
@@ -247,6 +248,14 @@
 	    <persistent value="true"/>
 	</extension>
 
+   <extension
+         point="org.eclipse.xtext.builder.participant">
+      <participant
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.builder.IXtextBuilderParticipant"
+            fileExtensions="rao"
+            >
+      </participant>
+   </extension>
    <extension
             point="org.eclipse.ui.preferencePages">
         <page
@@ -1053,5 +1062,10 @@
            name="RAO Process Editor">
      </editor>
   </extension>
-
+  <extension point="org.eclipse.team.core.fileTypes">
+      <fileTypes
+            extension="rao"
+            type="text">
+      </fileTypes>
+   </extension>
 </plugin>

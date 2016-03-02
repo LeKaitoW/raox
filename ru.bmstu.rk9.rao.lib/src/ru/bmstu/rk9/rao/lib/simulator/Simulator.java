@@ -1,14 +1,14 @@
 package ru.bmstu.rk9.rao.lib.simulator;
 
 import java.util.LinkedList;
+import java.util.function.Supplier;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.SystemEntryType;
 import ru.bmstu.rk9.rao.lib.dpt.DPTManager;
-import ru.bmstu.rk9.rao.lib.dpt.DecisionPoint;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.event.EventScheduler;
-import ru.bmstu.rk9.rao.lib.json.JSONObject;
+import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 import ru.bmstu.rk9.rao.lib.modelStructure.ModelStructureCache;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.process.Process;
@@ -19,21 +19,37 @@ import ru.bmstu.rk9.rao.lib.result.ResultManager;
 public class Simulator {
 	private static Simulator INSTANCE = null;
 
-	public static synchronized void initSimulation(JSONObject modelStructure) {
+	public static synchronized void preinitialize() {
+		preinitialize(new SimulatorPreinitializationInfo());
+	}
+
+	public static synchronized void preinitialize(SimulatorPreinitializationInfo preinitializationInfo) {
 		if (isRunning)
-			throw new SimulatorException("Simulation is already initialized");
+			throw new RaoLibException("Cannot start new simulation while previous one is still running");
 
 		setSimulationState(SimulatorState.DEINITIALIZED);
-
 		INSTANCE = new Simulator();
 
-		INSTANCE.executionStateNotifier = new Notifier<ExecutionState>(ExecutionState.class);
-		INSTANCE.dptManager = new DPTManager();
-
-		INSTANCE.processManager = new Process();
-
-		INSTANCE.database = new Database(modelStructure);
+		INSTANCE.modelState = new ModelState(preinitializationInfo.resourceClasses);
+		INSTANCE.database = new Database(preinitializationInfo.modelStructure);
 		INSTANCE.modelStructureCache = new ModelStructureCache();
+
+		setSimulationState(SimulatorState.PREINITIALIZED);
+	}
+
+	public static synchronized void initialize(SimulatorInitializationInfo initializationInfo) {
+		if (simulatorState != SimulatorState.PREINITIALIZED)
+			throw new RaoLibException("Simulation wasn't correctly preinitialized");
+
+		INSTANCE.executionStateNotifier = new Notifier<ExecutionState>(ExecutionState.class);
+		INSTANCE.dptManager = new DPTManager(initializationInfo.decisionPoints);
+		INSTANCE.processManager = new Process(initializationInfo.processBlocks);
+
+		for (Supplier<Boolean> terminateCondition : initializationInfo.terminateConditions)
+			Simulator.addTerminateCondition(terminateCondition);
+
+		for (Runnable init : initializationInfo.initList)
+			init.run();
 
 		setSimulationState(SimulatorState.INITIALIZED);
 	}
@@ -41,7 +57,7 @@ public class Simulator {
 	private static SimulatorState simulatorState = SimulatorState.DEINITIALIZED;
 
 	public enum SimulatorState {
-		INITIALIZED, DEINITIALIZED
+		INITIALIZED, DEINITIALIZED, PREINITIALIZED
 	};
 
 	private static final void setSimulationState(SimulatorState simulatorState) {
@@ -78,6 +94,12 @@ public class Simulator {
 		return INSTANCE.database;
 	}
 
+	private ModelState modelState;
+
+	public static ModelState getModelState() {
+		return INSTANCE.modelState;
+	}
+
 	private ModelStructureCache modelStructureCache;
 
 	public static ModelStructureCache getModelStructureCache() {
@@ -96,10 +118,10 @@ public class Simulator {
 		INSTANCE.eventScheduler.pushEvent(event);
 	}
 
-	private LinkedList<TerminateCondition> terminateList = new LinkedList<TerminateCondition>();
+	private LinkedList<Supplier<Boolean>> terminateList = new LinkedList<>();
 
-	public static void addTerminateCondition(TerminateCondition c) {
-		INSTANCE.terminateList.add(c);
+	private static void addTerminateCondition(Supplier<Boolean> terminateCondition) {
+		INSTANCE.terminateList.add(terminateCondition);
 	}
 
 	private DPTManager dptManager;
@@ -108,10 +130,6 @@ public class Simulator {
 
 	public static Process getProcess() {
 		return INSTANCE.processManager;
-	}
-
-	public static void addDecisionPoint(DecisionPoint dpt) {
-		INSTANCE.dptManager.addDecisionPoint(dpt);
 	}
 
 	private ResultManager resultManager = new ResultManager();
@@ -139,8 +157,8 @@ public class Simulator {
 	}
 
 	private boolean checkTerminate() {
-		for (TerminateCondition c : terminateList)
-			if (c.check())
+		for (Supplier<Boolean> c : terminateList)
+			if (c.get())
 				return true;
 		return false;
 	}
@@ -226,7 +244,7 @@ public class Simulator {
 			simFinishType = SystemEntryType.RUN_TIME_ERROR;
 			break;
 		default:
-			throw new SimulatorException("Invalid stop code");
+			throw new RaoLibException("Internal error: invalid simulation stop code");
 		}
 
 		onFinish(simFinishType);

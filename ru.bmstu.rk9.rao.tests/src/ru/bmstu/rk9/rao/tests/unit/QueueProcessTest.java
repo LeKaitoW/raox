@@ -17,6 +17,7 @@ import ru.bmstu.rk9.rao.lib.process.Resource;
 import ru.bmstu.rk9.rao.lib.process.Seize;
 import ru.bmstu.rk9.rao.lib.process.Terminate;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
 
 public class QueueProcessTest {
@@ -24,11 +25,12 @@ public class QueueProcessTest {
 	@Test
 	public void test() {
 		ProcessTestSuite.initEmptySimulation();
-		Simulator.addTerminateCondition(() -> Simulator.getTime() > 60);
-		Simulator.getProcess().addBlocks(generateSituation());
+		SimulatorInitializationInfo initializationInfo = new SimulatorInitializationInfo();
+		initializationInfo.terminateConditions.add(() -> Simulator.getTime() > 60);
+		initializationInfo.processBlocks.addAll(generateSituation());
+		Simulator.initialize(initializationInfo);
 		SimulationStopCode simulationStopCode = Simulator.run();
-		assertEquals("linear_process_test",
-				SimulationStopCode.TERMINATE_CONDITION, simulationStopCode);
+		assertEquals("linear_process_test", SimulationStopCode.TERMINATE_CONDITION, simulationStopCode);
 	}
 
 	private List<Block> generateSituation() {
@@ -36,7 +38,7 @@ public class QueueProcessTest {
 		Generate generate = new Generate(() -> 10);
 		Terminate terminate = new Terminate();
 		Advance advance = new Advance(() -> 15);
-		Resource resource = new Resource();
+		Resource resource = Resource.create();
 		Seize seize = new Seize(resource);
 		Release release = new Release(resource);
 		Queue queue = new Queue();

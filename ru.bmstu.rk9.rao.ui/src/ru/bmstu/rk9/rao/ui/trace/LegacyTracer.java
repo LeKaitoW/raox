@@ -21,7 +21,7 @@ import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
-import ru.bmstu.rk9.rao.lib.dpt.DecisionPointSearch;
+import ru.bmstu.rk9.rao.lib.dpt.Search;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modelStructure.ResourceTypeCache;
@@ -400,7 +400,7 @@ public class LegacyTracer {
 		case END: {
 			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
 			dptSearchJustFinished = true;
-			final DecisionPointSearch.StopCode endStatus = DecisionPointSearch.StopCode.values()[data.get()];
+			final Search.StopCode endStatus = Search.StopCode.values()[data.get()];
 			switch (endStatus) {
 			case ABORTED:
 				traceType = TraceType.SEARCH_END_ABORTED;
@@ -443,7 +443,7 @@ public class LegacyTracer {
 		}
 		case SPAWN: {
 			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
-			final DecisionPointSearch.SpawnStatus spawnStatus = DecisionPointSearch.SpawnStatus.values()[data.get()];
+			final Search.SpawnStatus spawnStatus = Search.SpawnStatus.values()[data.get()];
 			switch (spawnStatus) {
 			case NEW:
 				traceType = TraceType.SEARCH_SPAWN_NEW;

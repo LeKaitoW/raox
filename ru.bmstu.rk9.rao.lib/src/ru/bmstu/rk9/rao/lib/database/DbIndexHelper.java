@@ -54,7 +54,7 @@ public class DbIndexHelper {
 		return getCategory(SerializationCategory.EVENTS).getChildren().get(name);
 	}
 
-	public final CollectedDataNode addDecisionPoint(String name) {
+	public final CollectedDataNode addLogic(String name) {
 		return getCategory(SerializationCategory.DECISION_POINTS).addChild(name);
 	}
 

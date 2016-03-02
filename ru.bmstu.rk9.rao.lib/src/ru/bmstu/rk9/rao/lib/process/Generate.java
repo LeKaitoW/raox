@@ -29,11 +29,9 @@ public class Generate implements Block {
 		if (outputDock.hasTransact()) {
 			return BlockStatus.CHECK_AGAIN;
 		}
-		Transact transact = new Transact();
-		transact.register();
+		Transact transact = Transact.create();
 		outputDock.pushTransact(transact);
-		System.out.println(Simulator.getTime() + ": generate body "
-				+ transact.getNumber());
+		System.out.println(Simulator.getTime() + ": generate body " + transact.getNumber());
 
 		Double time = Simulator.getTime() + interval.get();
 		Simulator.pushEvent(new GenerateEvent(time));
@@ -41,10 +39,7 @@ public class Generate implements Block {
 		return BlockStatus.SUCCESS;
 	}
 
-	private class GenerateEvent implements Event {
-
-		private double time;
-
+	private class GenerateEvent extends Event {
 		public GenerateEvent(double time) {
 			this.time = time;
 		}
@@ -55,12 +50,7 @@ public class Generate implements Block {
 		}
 
 		@Override
-		public double getTime() {
-			return time;
-		}
-
-		@Override
-		public void run() {
+		public void execute() {
 			ready = true;
 		}
 	}

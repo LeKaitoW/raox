@@ -161,8 +161,7 @@ public class SimulationSynchronizer {
 							}
 							uiTimeUpdater.actualTimeScale = timeScale;
 						} else
-							uiTimeUpdater.actualTimeScale = (currentRealTime - startRealTime)
-									/ currentSimulationTime;
+							uiTimeUpdater.actualTimeScale = (currentRealTime - startRealTime) / currentSimulationTime;
 						break;
 
 					default:

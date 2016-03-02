@@ -32,8 +32,7 @@ public class Seize implements Block {
 		if (transact == null)
 			return BlockStatus.NOTHING_TO_DO;
 
-		System.out.println(Simulator.getTime() + ": seize body "
-				+ transact.getNumber());
+		System.out.println(Simulator.getTime() + ": seize body " + transact.getNumber());
 		outputDock.pushTransact(transact);
 		resource.lock();
 		return BlockStatus.SUCCESS;
