@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rao.ui.process.model;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.graphics.Color;
 
+import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.ui.process.Node;
 
 public class Model extends Node {
@@ -15,4 +16,9 @@ public class Model extends Node {
 
 	private static Color backgroundColor = ColorConstants.white;
 	public static String name = "Model";
+
+	@Override
+	public Block createBlock() {
+		return null;
+	}
 }

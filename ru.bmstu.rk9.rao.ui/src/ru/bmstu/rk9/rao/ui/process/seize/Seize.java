@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rao.ui.process.seize;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.graphics.Color;
 
+import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.ui.process.NodeWithProperty;
 
 public class Seize extends NodeWithProperty {
@@ -15,4 +16,9 @@ public class Seize extends NodeWithProperty {
 
 	private static Color backgroundColor = ColorConstants.darkGray;
 	public static String name = "Seize";
+
+	@Override
+	public Block createBlock() {
+		return null;
+	}
 }

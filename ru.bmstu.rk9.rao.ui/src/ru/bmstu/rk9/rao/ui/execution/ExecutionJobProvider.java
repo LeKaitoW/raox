@@ -1,6 +1,8 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -10,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -25,6 +28,7 @@ import ru.bmstu.rk9.rao.lib.dpt.Logic;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
+import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.result.Result;
@@ -34,6 +38,8 @@ import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
+import ru.bmstu.rk9.rao.ui.process.BlockConverter;
+import ru.bmstu.rk9.rao.ui.process.model.Model;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 import ru.bmstu.rk9.rao.ui.simulation.StatusView;
@@ -72,7 +78,7 @@ public class ExecutionJobProvider {
 					List<Field> resourceFields = new ArrayList<>();
 					List<Field> logicFields = new ArrayList<>();
 
-					for (IResource raoFile : BuildUtil.getAllRaoFilesInProject(project)) {
+					for (IResource raoFile : BuildUtil.getAllFilesInProject(project, "rao")) {
 						String raoFileName = raoFile.getName();
 						raoFileName = raoFileName.substring(0, raoFileName.length() - ".rao".length());
 						String modelClassName = project.getName() + "." + raoFileName;
@@ -133,6 +139,15 @@ public class ExecutionJobProvider {
 					SimulationStopCode simulationResult = SimulationStopCode.SIMULATION_CONTINUES;
 
 					Simulator.preinitialize(simulatorPreinitializationInfo);
+					
+					for (IResource graoFile : BuildUtil.getAllFilesInProject(project, "grao")) {
+						InputStream inputStream = ((IFile) graoFile).getContents(false);
+						ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+						List<Block> blocks = BlockConverter
+								.convertModelToBlocks((Model) objectInputStream.readObject());
+						objectInputStream.close();
+						simulatorInitializationInfo.processBlocks.addAll(blocks);
+					}
 
 					for (Field resourceField : resourceFields) {
 						String resourceName = resourceField.getName();

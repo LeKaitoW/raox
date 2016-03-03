@@ -260,7 +260,7 @@ public class SerializationConfigView extends ViewPart {
 	private final void addProjectToTree(IProject project) {
 		openedProjectsContents.put(project, new ConcurrentHashMap<IResource, SerializationNode>());
 
-		final List<IResource> projectFiles = BuildUtil.getAllRaoFilesInProject(project);
+		final List<IResource> projectFiles = BuildUtil.getAllFilesInProject(project, "rao");
 
 		for (IResource raoFile : projectFiles) {
 			updateFileContents((IFile) raoFile);

@@ -9,9 +9,10 @@ import java.util.List;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.RGB;
 
+import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.ui.process.link.ProcessLink;
 
-public class Node implements Serializable {
+public abstract class Node implements Serializable {
 
 	private static final long serialVersionUID = 1;
 
@@ -154,4 +155,6 @@ public class Node implements Serializable {
 	public List<ProcessLink> getTargetConnectionsArray() {
 		return this.targetConnections;
 	}
+	
+	public abstract Block createBlock();
 }

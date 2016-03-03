@@ -43,26 +43,26 @@ public class BuildUtil {
 				true);
 	}
 
-	public static List<IResource> getAllRaoFilesInProject(IProject project) {
+	public static List<IResource> getAllFilesInProject(IProject project, String fileExtension) {
 		List<IResource> allRaoFiles = new ArrayList<IResource>();
 		if (!project.isAccessible())
 			return allRaoFiles;
 		IPath path = project.getLocation();
-		recursiveFindRaoFiles(allRaoFiles, path, ResourcesPlugin.getWorkspace().getRoot());
+		recursiveFindFiles(allRaoFiles, path, ResourcesPlugin.getWorkspace().getRoot(), fileExtension);
 		return allRaoFiles;
 	}
 
-	private static void recursiveFindRaoFiles(List<IResource> allRaoFiles, IPath path, IWorkspaceRoot workspaceRoot) {
+	private static void recursiveFindFiles(List<IResource> allRaoFiles, IPath path, IWorkspaceRoot workspaceRoot, String fileExtension) {
 		IContainer container = workspaceRoot.getContainerForLocation(path);
 		try {
 			IResource[] iResources;
 			iResources = container.members();
 			for (IResource resource : iResources) {
-				if ("rao".equalsIgnoreCase(resource.getFileExtension()))
+				if (fileExtension.equalsIgnoreCase(resource.getFileExtension()))
 					allRaoFiles.add(resource);
 				if (resource.getType() == IResource.FOLDER) {
 					IPath tempPath = resource.getLocation();
-					recursiveFindRaoFiles(allRaoFiles, tempPath, workspaceRoot);
+					recursiveFindFiles(allRaoFiles, tempPath, workspaceRoot, fileExtension);
 				}
 			}
 		} catch (CoreException e) {

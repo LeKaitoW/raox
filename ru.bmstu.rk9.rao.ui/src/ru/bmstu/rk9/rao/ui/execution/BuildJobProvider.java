@@ -143,7 +143,7 @@ public class BuildJobProvider {
 				if (libErrorMessage != null)
 					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(libErrorMessage));
 
-				final List<IResource> raoFiles = BuildUtil.getAllRaoFilesInProject(recentProject);
+				final List<IResource> raoFiles = BuildUtil.getAllFilesInProject(recentProject, "rao");
 				if (raoFiles.isEmpty()) {
 					return new Status(IStatus.ERROR, pluginId,
 							BuildUtil.createErrorMessage("project contains no rao files"));
