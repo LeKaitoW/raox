@@ -1,8 +1,6 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -39,6 +37,7 @@ import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.process.BlockConverter;
+import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
 import ru.bmstu.rk9.rao.ui.process.model.Model;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
@@ -139,13 +138,10 @@ public class ExecutionJobProvider {
 					SimulationStopCode simulationResult = SimulationStopCode.SIMULATION_CONTINUES;
 
 					Simulator.preinitialize(simulatorPreinitializationInfo);
-					
+
 					for (IResource graoFile : BuildUtil.getAllFilesInProject(project, "grao")) {
-						InputStream inputStream = ((IFile) graoFile).getContents(false);
-						ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-						List<Block> blocks = BlockConverter
-								.convertModelToBlocks((Model) objectInputStream.readObject());
-						objectInputStream.close();
+						Model model = ProcessEditor.readModelFromFile((IFile) graoFile);
+						List<Block> blocks = BlockConverter.convertModelToBlocks(model);
 						simulatorInitializationInfo.processBlocks.addAll(blocks);
 					}
 

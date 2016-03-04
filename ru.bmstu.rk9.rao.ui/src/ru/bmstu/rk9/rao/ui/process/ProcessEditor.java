@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
@@ -43,6 +44,8 @@ import ru.bmstu.rk9.rao.ui.process.generate.GeneratePart;
 import ru.bmstu.rk9.rao.ui.process.link.LinkCreationFactory;
 import ru.bmstu.rk9.rao.ui.process.model.Model;
 import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
+import ru.bmstu.rk9.rao.ui.process.queue.Queue;
+import ru.bmstu.rk9.rao.ui.process.queue.QueuePart;
 import ru.bmstu.rk9.rao.ui.process.release.Release;
 import ru.bmstu.rk9.rao.ui.process.release.ReleasePart;
 import ru.bmstu.rk9.rao.ui.process.resource.Resource;
@@ -51,6 +54,8 @@ import ru.bmstu.rk9.rao.ui.process.seize.Seize;
 import ru.bmstu.rk9.rao.ui.process.seize.SeizePart;
 import ru.bmstu.rk9.rao.ui.process.terminate.Terminate;
 import ru.bmstu.rk9.rao.ui.process.terminate.TerminatePart;
+import ru.bmstu.rk9.rao.ui.process.test.Test;
+import ru.bmstu.rk9.rao.ui.process.test.TestPart;
 
 public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
@@ -75,6 +80,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 				new ProcessNodeInfo(Advance.name, () -> new Advance(), () -> new AdvancePart()));
 		processNodesInfo.put(Resource.class,
 				new ProcessNodeInfo(Resource.name, () -> new Resource(), () -> new ResourcePart()));
+		processNodesInfo.put(Queue.class, new ProcessNodeInfo(Queue.name, () -> new Queue(), () -> new QueuePart()));
+		processNodesInfo.put(Test.class, new ProcessNodeInfo(Test.name, () -> new Test(), () -> new TestPart()));
 	}
 
 	@Override
@@ -124,10 +131,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		super.setInput(input);
 		IFile file = ((IFileEditorInput) input).getFile();
 		try {
-			InputStream inputStream = file.getContents(false);
-			ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-			setModel((Model) objectInputStream.readObject());
-			objectInputStream.close();
+			setModel(readModelFromFile(file));
 
 			if (getGraphicalViewer() != null)
 				getGraphicalViewer().setContents(getModel());
@@ -194,6 +198,13 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	public void commandStackChanged(EventObject event) {
 		firePropertyChange(IEditorPart.PROP_DIRTY);
 		super.commandStackChanged(event);
+	}
 
+	public static Model readModelFromFile(IFile file) throws ClassNotFoundException, IOException, CoreException {
+		InputStream inputStream = file.getContents(false);
+		ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+		Model model = (Model) objectInputStream.readObject();
+		objectInputStream.close();
+		return model;
 	}
 }
