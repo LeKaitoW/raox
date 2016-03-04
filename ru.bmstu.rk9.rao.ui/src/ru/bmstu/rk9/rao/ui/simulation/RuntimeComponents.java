@@ -1,12 +1,12 @@
 package ru.bmstu.rk9.rao.ui.simulation;
 
 import ru.bmstu.rk9.rao.ui.notification.RealTimeUpdater;
-import ru.bmstu.rk9.rao.ui.player.StateObserver;
+import ru.bmstu.rk9.rao.ui.player.ModelPlayer;
 
 public class RuntimeComponents {
 	public static RealTimeUpdater realTimeUpdater = null;
 	public static SimulationSynchronizer simulationSynchronizer = null;
-	public static StateObserver stateObserver = null;
+	public static ModelPlayer modelPlayer = null;
 
 	private static boolean isInitialized = false;
 
@@ -17,7 +17,7 @@ public class RuntimeComponents {
 	public static final void initialize() {
 		realTimeUpdater = new RealTimeUpdater();
 		simulationSynchronizer = new SimulationSynchronizer();
-		stateObserver = new StateObserver();
+		modelPlayer = new ModelPlayer();
 		isInitialized = true;
 	}
 
@@ -25,7 +25,7 @@ public class RuntimeComponents {
 		isInitialized = false;
 		realTimeUpdater.deinitialize();
 		simulationSynchronizer.deinitializeSubscribers();
-		stateObserver.deinitializeSubscribers();
+		modelPlayer.deinitializeSubscribers();
 
 	}
 }
