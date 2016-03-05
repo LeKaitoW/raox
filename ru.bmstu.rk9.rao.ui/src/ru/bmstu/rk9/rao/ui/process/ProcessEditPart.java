@@ -88,25 +88,25 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 	@Override
 	public ConnectionAnchor getSourceConnectionAnchor(ConnectionEditPart connection) {
 		ProcessLink processLink = (ProcessLink) connection.getModel();
-		return ((ProcessFigure) getFigure()).getConnectionAnchor(processLink.getSourceTerminal());
+		return getProcessFigure().getConnectionAnchor(processLink.getSourceTerminal());
 	}
 
 	@Override
 	public ConnectionAnchor getSourceConnectionAnchor(Request request) {
-		Point pt = new Point(((DropRequest) request).getLocation());
-		return ((ProcessFigure) getFigure()).getSourceConnectionAnchorAt(pt);
+		Point point = new Point(((DropRequest) request).getLocation());
+		return getProcessFigure().getSourceConnectionAnchorAt(point);
 	}
 
 	@Override
 	public ConnectionAnchor getTargetConnectionAnchor(ConnectionEditPart connection) {
 		ProcessLink processLink = (ProcessLink) connection.getModel();
-		return ((ProcessFigure) getFigure()).getConnectionAnchor(processLink.getTargetTerminal());
+		return getProcessFigure().getConnectionAnchor(processLink.getTargetTerminal());
 	}
 
 	@Override
 	public ConnectionAnchor getTargetConnectionAnchor(Request request) {
-		Point pt = new Point(((DropRequest) request).getLocation());
-		return ((ProcessFigure) getFigure()).getTargetConnectionAnchorAt(pt);
+		Point point = new Point(((DropRequest) request).getLocation());
+		return getProcessFigure().getTargetConnectionAnchorAt(point);
 	}
 
 	@Override
@@ -118,8 +118,12 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 	public List<ProcessLink> getModelTargetConnections() {
 		return ((Node) getModel()).getTargetConnectionsArray();
 	}
-	
-	final protected String mapConnectionAnchorToTerminal(ConnectionAnchor c) {
-		return ((ProcessFigure) getFigure()).getConnectionAnchorName(c);
+
+	final protected String mapConnectionAnchorToTerminal(ConnectionAnchor connectionAnchor) {
+		return getProcessFigure().getConnectionAnchorName(connectionAnchor);
+	}
+
+	protected ProcessFigure getProcessFigure() {
+		return (ProcessFigure) getFigure();
 	}
 }

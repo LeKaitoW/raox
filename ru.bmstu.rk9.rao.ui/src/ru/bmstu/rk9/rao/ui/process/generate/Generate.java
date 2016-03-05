@@ -3,7 +3,6 @@ package ru.bmstu.rk9.rao.ui.process.generate;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.graphics.Color;
 
-import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.Node;
 import ru.bmstu.rk9.rao.ui.process.NodeWithProperty;

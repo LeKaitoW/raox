@@ -1,9 +1,8 @@
 package ru.bmstu.rk9.rao.ui.process;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import org.eclipse.draw2d.ConnectionAnchor;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.Label;
@@ -19,20 +18,20 @@ public class ProcessFigure extends Figure {
 
 	protected Label label = new Label();
 	private boolean isNameVisible = true;
-	protected Hashtable connectionAnchors = new Hashtable(7);
-	protected Vector inputConnectionAnchors = new Vector(2, 2);
-	protected Vector outputConnectionAnchors = new Vector(2, 2);
+	protected HashMap<String, ConnectionAnchor> connectionAnchors = new HashMap<>();
+	protected ArrayList<ConnectionAnchor> inputConnectionAnchors = new ArrayList<>();
+	protected ArrayList<ConnectionAnchor> outputConnectionAnchors = new ArrayList<>();
 
 	public ProcessFigure() {
 		ProcessConnectionAnchor inputConnectionAnchor, outputConnectionAnchor;
 		inputConnectionAnchor = new ProcessConnectionAnchor(this);
 		inputConnectionAnchor.offsetHorizontal = 4;
-		inputConnectionAnchors.addElement(inputConnectionAnchor);
+		inputConnectionAnchors.add(inputConnectionAnchor);
 		connectionAnchors.put(Node.TERMINAL_IN, inputConnectionAnchor);
 
 		outputConnectionAnchor = new ProcessConnectionAnchor(this);
 		outputConnectionAnchor.offsetHorizontal = 10;
-		outputConnectionAnchors.addElement(outputConnectionAnchor);
+		outputConnectionAnchors.add(outputConnectionAnchor);
 		connectionAnchors.put(Node.TERMINAL_OUT, outputConnectionAnchor);
 
 		XYLayout layout = new XYLayout();
@@ -78,56 +77,50 @@ public class ProcessFigure extends Figure {
 		return (ConnectionAnchor) connectionAnchors.get(terminal);
 	}
 
-	public String getConnectionAnchorName(ConnectionAnchor c) {
-		Enumeration keys = connectionAnchors.keys();
-		String key;
-		while (keys.hasMoreElements()) {
-			key = (String) keys.nextElement();
-			if (connectionAnchors.get(key).equals(c))
-				return key;
+	public String getConnectionAnchorName(ConnectionAnchor connectionAnchor) {
+		for (Entry<String, ConnectionAnchor> entry : connectionAnchors.entrySet()) {
+			if (entry.getValue().equals(connectionAnchor)) {
+				return entry.getKey();
+			}
 		}
 		return null;
 	}
 
-	public ConnectionAnchor getSourceConnectionAnchorAt(Point p) {
+	public ConnectionAnchor getSourceConnectionAnchorAt(Point point) {
 		ConnectionAnchor closest = null;
-		long min = Long.MAX_VALUE;
+		double min = Double.MAX_VALUE;
 
-		Enumeration e = getSourceConnectionAnchors().elements();
-		while (e.hasMoreElements()) {
-			ConnectionAnchor c = (ConnectionAnchor) e.nextElement();
-			Point p2 = c.getLocation(null);
-			long d = p.getDistance2(p2);
-			if (d < min) {
-				min = d;
-				closest = c;
+		for (ConnectionAnchor connectionAnchor : getSourceConnectionAnchors()) {
+			Point locationPoint = connectionAnchor.getLocation(null);
+			double distance = point.getDistance(locationPoint);
+			if (distance < min) {
+				min = distance;
+				closest = connectionAnchor;
 			}
 		}
 		return closest;
 	}
 
-	public Vector getSourceConnectionAnchors() {
+	public ArrayList<ConnectionAnchor> getSourceConnectionAnchors() {
 		return outputConnectionAnchors;
 	}
 
-	public ConnectionAnchor getTargetConnectionAnchorAt(Point p) {
+	public ConnectionAnchor getTargetConnectionAnchorAt(Point point) {
 		ConnectionAnchor closest = null;
-		long min = Long.MAX_VALUE;
+		double min = Double.MAX_VALUE;
 
-		Enumeration e = getTargetConnectionAnchors().elements();
-		while (e.hasMoreElements()) {
-			ConnectionAnchor c = (ConnectionAnchor) e.nextElement();
-			Point p2 = c.getLocation(null);
-			long d = p.getDistance2(p2);
-			if (d < min) {
-				min = d;
-				closest = c;
+		for (ConnectionAnchor connectionAnchor : getTargetConnectionAnchors()) {
+			Point locationPoint = connectionAnchor.getLocation(null);
+			double distance = point.getDistance(locationPoint);
+			if (distance < min) {
+				min = distance;
+				closest = connectionAnchor;
 			}
 		}
 		return closest;
 	}
 
-	public Vector getTargetConnectionAnchors() {
+	public ArrayList<ConnectionAnchor> getTargetConnectionAnchors() {
 		return inputConnectionAnchors;
 	}
 }

@@ -15,10 +15,10 @@ public class ProcessConnectionPolicy extends GraphicalNodeEditPolicy {
 	@Override
 	protected Command getConnectionCompleteCommand(CreateConnectionRequest request) {
 		LinkCreateCommand command = (LinkCreateCommand) request.getStartCommand();
-		NodeWithProperty targetNode = (NodeWithProperty) getHost().getModel();
+		NodeWithProperty targetNode = getNodeWithProperty();
 		command.setTargetNode(targetNode);
-		ConnectionAnchor connectionAnchor = ((ProcessEditPart) getHost()).getTargetConnectionAnchor(request);
-		String targetTerminal = ((ProcessEditPart) getHost()).mapConnectionAnchorToTerminal(connectionAnchor);
+		ConnectionAnchor connectionAnchor = getProcessEditPart().getTargetConnectionAnchor(request);
+		String targetTerminal = getProcessEditPart().mapConnectionAnchorToTerminal(connectionAnchor);
 		command.setTargetTerminal(targetTerminal);
 		return command;
 	}
@@ -26,11 +26,11 @@ public class ProcessConnectionPolicy extends GraphicalNodeEditPolicy {
 	@Override
 	protected Command getConnectionCreateCommand(CreateConnectionRequest request) {
 		LinkCreateCommand command = new LinkCreateCommand();
-		NodeWithProperty sourceNode = (NodeWithProperty) getHost().getModel();
+		NodeWithProperty sourceNode = getNodeWithProperty();
 		command.setSourceNode(sourceNode);
 		request.setStartCommand(command);
-		ConnectionAnchor connectionAnchor = ((ProcessEditPart) getHost()).getSourceConnectionAnchor(request);
-		String sourceTerminal = ((ProcessEditPart) getHost()).mapConnectionAnchorToTerminal(connectionAnchor);
+		ConnectionAnchor connectionAnchor = getProcessEditPart().getSourceConnectionAnchor(request);
+		String sourceTerminal = getProcessEditPart().mapConnectionAnchorToTerminal(connectionAnchor);
 		command.setSourceTerminal(sourceTerminal);
 		return command;
 	}
@@ -38,19 +38,28 @@ public class ProcessConnectionPolicy extends GraphicalNodeEditPolicy {
 	@Override
 	protected Command getReconnectSourceCommand(ReconnectRequest request) {
 		ProcessLink link = (ProcessLink) request.getConnectionEditPart().getModel();
-		NodeWithProperty sourceNode = (NodeWithProperty) getHost().getModel();
+		NodeWithProperty sourceNode = getNodeWithProperty();
 		LinkReconnectCommand command = new LinkReconnectCommand(link);
 		command.setNewSourceNode(sourceNode);
+		// TODO update with anchor
 		return command;
 	}
 
 	@Override
 	protected Command getReconnectTargetCommand(ReconnectRequest request) {
 		ProcessLink link = (ProcessLink) request.getConnectionEditPart().getModel();
-		NodeWithProperty targetNode = (NodeWithProperty) getHost().getModel();
+		NodeWithProperty targetNode = getNodeWithProperty();
 		LinkReconnectCommand command = new LinkReconnectCommand(link);
 		command.setNewTargetNode(targetNode);
+		// TODO update with anchor
 		return command;
 	}
 
+	protected ProcessEditPart getProcessEditPart() {
+		return (ProcessEditPart) getHost();
+	}
+
+	protected NodeWithProperty getNodeWithProperty() {
+		return (NodeWithProperty) getHost().getModel();
+	}
 }
