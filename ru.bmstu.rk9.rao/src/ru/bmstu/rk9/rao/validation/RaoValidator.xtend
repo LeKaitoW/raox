@@ -9,7 +9,6 @@ import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.xtext.validation.Check
 import ru.bmstu.rk9.rao.rao.Constant
 import ru.bmstu.rk9.rao.rao.DefaultMethod
-import ru.bmstu.rk9.rao.rao.Event
 import ru.bmstu.rk9.rao.rao.Frame
 import ru.bmstu.rk9.rao.rao.FunctionDeclaration
 import ru.bmstu.rk9.rao.rao.Pattern
@@ -28,6 +27,8 @@ import ru.bmstu.rk9.rao.rao.Logic
 import ru.bmstu.rk9.rao.rao.Search
 import org.eclipse.xtext.xbase.XNullLiteral
 import org.eclipse.xtext.xbase.XExpression
+import ru.bmstu.rk9.rao.rao.EntityCreation
+import ru.bmstu.rk9.rao.rao.RaoEntity
 
 class RaoValidator extends AbstractRaoValidator
 {
@@ -156,21 +157,13 @@ class RaoValidator extends AbstractRaoValidator
 
 	@Check
 	def checkResourceDeclaration(ResourceDeclaration resource) {
-		if (resource.constructor.checkForNull)
-			error("Error in declaration of \"" + resource.name + "\": resource cannot be null.",
-				RaoPackage.eINSTANCE.resourceDeclaration_Constructor)
-
 		if (!resource.constructor.actualType.isSubtypeOf(typeof(ru.bmstu.rk9.rao.lib.resource.Resource)))
 			error("Error in declaration of \"" + resource.name + "\": only Rao resources are allowed.",
-				RaoPackage.eINSTANCE.resourceDeclaration_Constructor)
+				RaoPackage.eINSTANCE.entityCreation_Constructor)
 	}
 
 	@Check
 	def checkRelevantResourceDeclaration(RelevantResource relevant) {
-		if (relevant.value.checkForNull)
-			error("Error in declaration of \"" + relevant.name + "\": relevant resource cannot be null.",
-				RaoPackage.eINSTANCE.relevantResource_Value)
-
 		if (!relevant.value.actualType.isSubtypeOf(typeof(ru.bmstu.rk9.rao.lib.resource.Resource)))
 			error("Error in declaration of \"" + relevant.name + "\": only Rao resources are allowed.",
 				RaoPackage.eINSTANCE.relevantResource_Value)
@@ -178,74 +171,42 @@ class RaoValidator extends AbstractRaoValidator
 
 	@Check
 	def checkSequenceDeclaration(Sequence sequence) {
-		if (sequence.constructor.checkForNull)
-			error("Error in declaration of \"" + sequence.name + "\": sequence cannot be null.",
-				RaoPackage.eINSTANCE.sequence_Constructor)
-
 		if (!sequence.constructor.actualType.isSubtypeOf(typeof(NumericSequence)) &&
 				!sequence.constructor.actualType.isSubtypeOf(typeof(ArbitraryTypeSequence))) {
 			error("Error in declaration of \"" + sequence.name + "\": only Rao sequences are allowed.",
-				RaoPackage.eINSTANCE.sequence_Constructor)
+				RaoPackage.eINSTANCE.entityCreation_Constructor)
 		}
 	}
 
 	@Check
 	def checkLogicDeclaration(Logic logic) {
-		if (logic.constructor.checkForNull)
-			error("Error in declaration of \"" + logic.name + "\": logic cannot be null.",
-				RaoPackage.eINSTANCE.logic_Constructor)
-
 		if (!logic.constructor.actualType.isSubtypeOf(ru.bmstu.rk9.rao.lib.dpt.Logic)) {
 			error("Error in declaration of \"" + logic.name + "\": must be Logic class subtype.",
-				RaoPackage.eINSTANCE.logic_Constructor)
+				RaoPackage.eINSTANCE.entityCreation_Constructor)
 		}
 	}
 
 	@Check
 	def checkSearchDeclaration(Search search) {
-		if (search.constructor.checkForNull)
-			error("Error in declaration of \"" + search.name + "\": search cannot be null.",
-				RaoPackage.eINSTANCE.search_Constructor)
-
 		if (!search.constructor.actualType.isSubtypeOf(ru.bmstu.rk9.rao.lib.dpt.Search)) {
 			error("Error in declaration of \"" + search.name + "\": must be Search class subtype.",
-				RaoPackage.eINSTANCE.search_Constructor)
+				RaoPackage.eINSTANCE.entityCreation_Constructor)
 		}
+	}
+
+	@Check
+	def checkEntityNotNull(EntityCreation entity) {
+		if (entity.constructor.checkForNull)
+			error("Error in declaration of \"" + entity.name + "\": cannot be null.",
+				RaoPackage.eINSTANCE.entityCreation_Constructor)
 	}
 
 	def private EStructuralFeature getNameStructuralFeature(EObject object)
 	{
 		switch object
 		{
-			ResourceType:
-				RaoPackage.eINSTANCE.resourceType_Name
-
-			ResourceDeclaration:
-				RaoPackage.eINSTANCE.resourceDeclaration_Name
-
-			Sequence:
-				RaoPackage.eINSTANCE.sequence_Name
-
-			FunctionDeclaration:
-				RaoPackage.eINSTANCE.functionDeclaration_Name
-
-			Pattern:
-				RaoPackage.eINSTANCE.pattern_Name
-
-			Event:
-				RaoPackage.eINSTANCE.event_Name
-
-			Logic:
-				RaoPackage.eINSTANCE.logic_Name
-
-			Search:
-				RaoPackage.eINSTANCE.search_Name
-
-			Frame:
-				RaoPackage.eINSTANCE.frame_Name
-
-			Result:
-				RaoPackage.eINSTANCE.result_Name
+			RaoEntity:
+				RaoPackage.eINSTANCE.raoEntity_Name
 
 			RelevantResource:
 				RaoPackage.eINSTANCE.relevantResource_Name
