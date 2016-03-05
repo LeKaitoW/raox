@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.ui.process;
 
+import org.eclipse.draw2d.ConnectionAnchor;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editpolicies.GraphicalNodeEditPolicy;
 import org.eclipse.gef.requests.CreateConnectionRequest;
@@ -16,6 +17,9 @@ public class ProcessConnectionPolicy extends GraphicalNodeEditPolicy {
 		LinkCreateCommand command = (LinkCreateCommand) request.getStartCommand();
 		NodeWithProperty targetNode = (NodeWithProperty) getHost().getModel();
 		command.setTargetNode(targetNode);
+		ConnectionAnchor connectionAnchor = ((ProcessEditPart) getHost()).getTargetConnectionAnchor(request);
+		String targetTerminal = ((ProcessEditPart) getHost()).mapConnectionAnchorToTerminal(connectionAnchor);
+		command.setTargetTerminal(targetTerminal);
 		return command;
 	}
 
@@ -25,6 +29,9 @@ public class ProcessConnectionPolicy extends GraphicalNodeEditPolicy {
 		NodeWithProperty sourceNode = (NodeWithProperty) getHost().getModel();
 		command.setSourceNode(sourceNode);
 		request.setStartCommand(command);
+		ConnectionAnchor connectionAnchor = ((ProcessEditPart) getHost()).getSourceConnectionAnchor(request);
+		String sourceTerminal = ((ProcessEditPart) getHost()).mapConnectionAnchorToTerminal(connectionAnchor);
+		command.setSourceTerminal(sourceTerminal);
 		return command;
 	}
 

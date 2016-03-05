@@ -11,6 +11,7 @@ import ru.bmstu.rk9.rao.ui.process.ProcessLinkDeleteEditPolicy;
 
 public class LinkPart extends AbstractConnectionEditPart {
 
+	@Override
 	protected IFigure createFigure() {
 		PolylineConnection connection = new PolylineConnection();
 		PolygonDecoration decoration = new PolygonDecoration();

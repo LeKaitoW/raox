@@ -4,6 +4,7 @@ import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.lib.process.Block;
+import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.Node;
 
 public class Model extends Node {
@@ -18,7 +19,7 @@ public class Model extends Node {
 	public static String name = "Model";
 
 	@Override
-	public Block createBlock() {
+	public BlockConverterInfo createBlock() {
 		return null;
 	}
 }

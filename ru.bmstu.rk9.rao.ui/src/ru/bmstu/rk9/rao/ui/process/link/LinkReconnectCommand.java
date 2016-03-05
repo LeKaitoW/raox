@@ -18,6 +18,7 @@ public class LinkReconnectCommand extends Command {
 		this.oldTargetNode = link.getTargetNode();
 	}
 
+	@Override
 	public boolean canExecute() {
 		if (newSourceNode != null) {
 			return checkSourceReconnection();
@@ -63,6 +64,7 @@ public class LinkReconnectCommand extends Command {
 		this.newTargetNode = targetNode;
 	}
 
+	@Override
 	public void execute() {
 		if (newSourceNode != null) {
 			link.reconnect(newSourceNode, oldTargetNode);
@@ -73,6 +75,7 @@ public class LinkReconnectCommand extends Command {
 		}
 	}
 
+	@Override
 	public void undo() {
 		link.reconnect(oldSourceNode, oldTargetNode);
 	}

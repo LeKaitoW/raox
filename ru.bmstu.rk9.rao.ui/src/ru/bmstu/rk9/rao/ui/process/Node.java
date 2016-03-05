@@ -26,6 +26,8 @@ public abstract class Node implements Serializable {
 	public static final String PROPERTY_REMOVE = "NodeRemoveChild";
 	public static final String SOURCE_CONNECTION = "SourceConnectionAdded";
 	public static final String TARGET_CONNECTION = "TargetConnectionAdded";
+	public static final String TERMINAL_IN = "IN";
+	public static final String TERMINAL_OUT = "OUT";
 
 	protected RGB color;
 	protected List<ProcessLink> sourceConnections;
@@ -155,6 +157,6 @@ public abstract class Node implements Serializable {
 	public List<ProcessLink> getTargetConnectionsArray() {
 		return this.targetConnections;
 	}
-	
-	public abstract Block createBlock();
+
+	public abstract BlockConverterInfo createBlock();
 }

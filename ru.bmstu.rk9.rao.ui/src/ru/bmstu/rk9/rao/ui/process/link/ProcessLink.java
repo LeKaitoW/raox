@@ -14,9 +14,15 @@ public class ProcessLink implements Serializable, IAdaptable {
 	protected NodeWithProperty sourceNode;
 	protected NodeWithProperty targetNode;
 
-	public ProcessLink(NodeWithProperty sourceNode, NodeWithProperty targetNode) {
+	private String sourceTerminal;
+	private String targetTerminal;
+
+	public ProcessLink(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceTerminal,
+			String targetTerminal) {
 		this.sourceNode = sourceNode;
 		this.targetNode = targetNode;
+		this.setSourceTerminal(sourceTerminal);
+		this.setTargetTerminal(targetTerminal);
 	}
 
 	public NodeWithProperty getSourceNode() {
@@ -51,5 +57,21 @@ public class ProcessLink implements Serializable, IAdaptable {
 	@Override
 	public Object getAdapter(Class adapter) {
 		return null;
+	}
+
+	public String getSourceTerminal() {
+		return sourceTerminal;
+	}
+
+	public void setSourceTerminal(String sourceTerminal) {
+		this.sourceTerminal = sourceTerminal;
+	}
+
+	public String getTargetTerminal() {
+		return targetTerminal;
+	}
+
+	public void setTargetTerminal(String targetTerminal) {
+		this.targetTerminal = targetTerminal;
 	}
 }

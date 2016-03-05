@@ -9,6 +9,9 @@ public class LinkCreateCommand extends Command {
 	private NodeWithProperty sourceNode, targetNode;
 	private ProcessLink link;
 
+	private String sourceTerminal;
+	private String targetTerminal;
+
 	public void setSourceNode(NodeWithProperty sourceNode) {
 		this.sourceNode = sourceNode;
 	}
@@ -28,7 +31,7 @@ public class LinkCreateCommand extends Command {
 
 	@Override
 	public void execute() {
-		link = new ProcessLink(sourceNode, targetNode);
+		link = new ProcessLink(sourceNode, targetNode, sourceTerminal, targetTerminal);
 		link.connect();
 	}
 
@@ -42,5 +45,21 @@ public class LinkCreateCommand extends Command {
 	@Override
 	public void undo() {
 		link.disconnect();
+	}
+
+	public String getSourceTerminal() {
+		return sourceTerminal;
+	}
+
+	public void setSourceTerminal(String sourceTerminal) {
+		this.sourceTerminal = sourceTerminal;
+	}
+
+	public String getTargetTerminal() {
+		return targetTerminal;
+	}
+
+	public void setTargetTerminal(String targetTerminal) {
+		this.targetTerminal = targetTerminal;
 	}
 }

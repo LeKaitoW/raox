@@ -4,14 +4,15 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 
-import org.eclipse.draw2d.ChopboxAnchor;
 import org.eclipse.draw2d.ConnectionAnchor;
+import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.gef.ConnectionEditPart;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.NodeEditPart;
 import org.eclipse.gef.Request;
 import org.eclipse.gef.RequestConstants;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
+import org.eclipse.gef.requests.DropRequest;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.IPageLayout;
@@ -58,9 +59,9 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		}
 		if (evt.getPropertyName().equals(Node.PROPERTY_LAYOUT))
 			refreshVisuals();
-		if (evt.getPropertyName().equals(NodeWithProperty.SOURCE_CONNECTION))
+		if (evt.getPropertyName().equals(Node.SOURCE_CONNECTION))
 			refreshSourceConnections();
-		if (evt.getPropertyName().equals(NodeWithProperty.TARGET_CONNECTION))
+		if (evt.getPropertyName().equals(Node.TARGET_CONNECTION))
 			refreshTargetConnections();
 	}
 
@@ -86,29 +87,39 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 
 	@Override
 	public ConnectionAnchor getSourceConnectionAnchor(ConnectionEditPart connection) {
-		return new ChopboxAnchor(getFigure());
+		ProcessLink processLink = (ProcessLink) connection.getModel();
+		return ((ProcessFigure) getFigure()).getConnectionAnchor(processLink.getSourceTerminal());
 	}
 
 	@Override
 	public ConnectionAnchor getSourceConnectionAnchor(Request request) {
-		return new ChopboxAnchor(getFigure());
+		Point pt = new Point(((DropRequest) request).getLocation());
+		return ((ProcessFigure) getFigure()).getSourceConnectionAnchorAt(pt);
 	}
 
 	@Override
 	public ConnectionAnchor getTargetConnectionAnchor(ConnectionEditPart connection) {
-		return new ChopboxAnchor(getFigure());
+		ProcessLink processLink = (ProcessLink) connection.getModel();
+		return ((ProcessFigure) getFigure()).getConnectionAnchor(processLink.getTargetTerminal());
 	}
 
 	@Override
 	public ConnectionAnchor getTargetConnectionAnchor(Request request) {
-		return new ChopboxAnchor(getFigure());
+		Point pt = new Point(((DropRequest) request).getLocation());
+		return ((ProcessFigure) getFigure()).getTargetConnectionAnchorAt(pt);
 	}
 
+	@Override
 	public List<ProcessLink> getModelSourceConnections() {
 		return ((Node) getModel()).getSourceConnectionsArray();
 	}
 
+	@Override
 	public List<ProcessLink> getModelTargetConnections() {
 		return ((Node) getModel()).getTargetConnectionsArray();
+	}
+	
+	final protected String mapConnectionAnchorToTerminal(ConnectionAnchor c) {
+		return ((ProcessFigure) getFigure()).getConnectionAnchorName(c);
 	}
 }
