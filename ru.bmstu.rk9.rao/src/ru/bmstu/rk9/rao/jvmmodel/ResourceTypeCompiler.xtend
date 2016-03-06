@@ -109,6 +109,17 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 					return ru.bmstu.rk9.rao.lib.simulator.Simulator.getModelState().getAll(«resourceType.name».class);
 				'''
 			]
+
+			members += resourceType.toMethod("getAccessible", typeRef(Collection, {
+				typeRef
+			})) [
+				visibility = JvmVisibility.PUBLIC
+				final = true
+				static = true
+				body = '''
+					return ru.bmstu.rk9.rao.lib.simulator.Simulator.getModelState().getAccessible(«resourceType.name».class);
+				'''
+			]
 		]
 	}
 }

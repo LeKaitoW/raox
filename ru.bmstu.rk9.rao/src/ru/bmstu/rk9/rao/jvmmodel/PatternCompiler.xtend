@@ -158,6 +158,7 @@ class PatternCompiler extends RaoEntityCompiler {
 							this.«relevant.name» = __resolve«relevant.name.toFirstUpper»();
 							if (this.«relevant.name» == null)
 								return false;
+							this.«relevant.name».setAccessible(false);
 						«ENDFOR»
 						«FOR tuple : pattern.relevantTuples»«
 							val tupleInfo = tupleInfoMap.get(tuple)
@@ -167,10 +168,27 @@ class PatternCompiler extends RaoEntityCompiler {
 								else {
 									«FOR name : tuple.names»
 										this.«name» = __«tupleInfo.name».«tupleInfo.tupleElementsInfo.get(tuple.names.indexOf(name)).name»;
+										this.«name».setAccessible(false);
 									«ENDFOR»
 								}
 						«ENDFOR»
 						return true;
+					'''
+				]
+
+				members += pattern.toMethod("finish", typeRef(void)) [
+					visibility = JvmVisibility.PUBLIC
+					final = true
+					annotations += generateOverrideAnnotation()
+
+					body = '''
+						«FOR relevant : pattern.relevantResources»
+							this.«relevant.name».setAccessible(true);
+						«ENDFOR»
+						«FOR tuple : pattern.relevantTuples»
+							«FOR name : tuple.names»this.«name».setAccessible(true);
+							«ENDFOR»
+						«ENDFOR»
 					'''
 				]
 			}

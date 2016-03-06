@@ -14,15 +14,17 @@ public abstract class Resource implements Serializable {
 		return name;
 	}
 
-	public final Integer getNumber() {
-		return number;
-	}
-
 	public final void setName(String name) {
 		if (this.name != null)
 			throw new RaoLibException("Invalid attempt to set resource name. It is already set to " + name);
 
 		this.name = name;
+	}
+
+	protected String name = null;
+
+	public final Integer getNumber() {
+		return number;
 	}
 
 	public final void setNumber(Integer number) {
@@ -32,8 +34,17 @@ public abstract class Resource implements Serializable {
 		this.number = number;
 	}
 
-	protected String name = null;
 	protected Integer number = null;
+
+	public final void setAccessible(boolean accessible) {
+		this.accessible = accessible;
+	}
+
+	public final boolean isAccessible() {
+		return accessible;
+	}
+
+	protected boolean accessible = true;
 
 	// FIXME
 	@Override

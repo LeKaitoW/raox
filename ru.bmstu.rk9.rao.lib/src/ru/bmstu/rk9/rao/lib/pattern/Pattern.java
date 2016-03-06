@@ -17,6 +17,8 @@ public abstract class Pattern {
 
 	public abstract void run();
 
+	public abstract void finish();
+
 	public abstract boolean selectRelevantResources();
 
 	public abstract String getName();
