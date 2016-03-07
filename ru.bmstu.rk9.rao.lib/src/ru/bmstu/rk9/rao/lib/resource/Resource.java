@@ -4,24 +4,12 @@ import java.nio.ByteBuffer;
 
 import ru.bmstu.rk9.rao.lib.database.Serializable;
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
+import ru.bmstu.rk9.rao.lib.naming.RaoNameable;
 
-public abstract class Resource implements Serializable {
+public abstract class Resource extends RaoNameable implements Serializable {
 	public abstract String getTypeName();
 
 	public abstract void erase();
-
-	public final String getName() {
-		return name;
-	}
-
-	public final void setName(String name) {
-		if (this.name != null)
-			throw new RaoLibException("Invalid attempt to set resource name. It is already set to " + name);
-
-		this.name = name;
-	}
-
-	protected String name = null;
 
 	public final Integer getNumber() {
 		return number;

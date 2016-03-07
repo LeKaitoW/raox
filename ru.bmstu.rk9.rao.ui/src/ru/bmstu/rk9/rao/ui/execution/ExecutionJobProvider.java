@@ -25,8 +25,8 @@ import ru.bmstu.rk9.rao.lib.dpt.Logic;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
+import ru.bmstu.rk9.rao.lib.naming.RaoNameable;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
-import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
@@ -69,8 +69,8 @@ public class ExecutionJobProvider {
 					simulatorPreinitializationInfo.modelStructure.put("name", project.getName());
 
 					SimulatorInitializationInfo simulatorInitializationInfo = new SimulatorInitializationInfo();
-					List<Field> resourceFields = new ArrayList<>();
 					List<Field> logicFields = new ArrayList<>();
+					List<Field> nameAbleFields = new ArrayList<>();
 
 					for (IResource raoFile : BuildUtil.getAllRaoFilesInProject(project)) {
 						String raoFileName = raoFile.getName();
@@ -107,11 +107,13 @@ public class ExecutionJobProvider {
 						}
 
 						for (Field field : modelClass.getDeclaredFields()) {
-							if (ComparableResource.class.equals(field.getType().getSuperclass()))
-								resourceFields.add(field);
+							if (RaoNameable.class.isAssignableFrom(field.getType()))
+								nameAbleFields.add(field);
 
-							if (Logic.class.equals(field.getType()))
+							if (Logic.class.equals(field.getType())) {
 								logicFields.add(field);
+								continue;
+							}
 						}
 					}
 
@@ -134,10 +136,10 @@ public class ExecutionJobProvider {
 
 					Simulator.preinitialize(simulatorPreinitializationInfo);
 
-					for (Field resourceField : resourceFields) {
-						String resourceName = resourceField.getName();
-						Resource resource = (Resource) resourceField.get(null);
-						resource.setName(resourceName);
+					for (Field field : nameAbleFields) {
+						String name = field.getName();
+						RaoNameable nameable = (RaoNameable) field.get(null);
+						nameable.setName(name);
 					}
 
 					for (Field logicField : logicFields) {

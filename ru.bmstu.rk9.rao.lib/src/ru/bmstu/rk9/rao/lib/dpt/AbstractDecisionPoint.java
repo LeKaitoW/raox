@@ -2,16 +2,13 @@ package ru.bmstu.rk9.rao.lib.dpt;
 
 import java.util.function.Supplier;
 
-public abstract class AbstractDecisionPoint {
+import ru.bmstu.rk9.rao.lib.naming.RaoNameable;
+
+public abstract class AbstractDecisionPoint extends RaoNameable {
 	protected void init() {
 	}
 
 	public abstract boolean check();
-
-	// FIXME
-	public String getName() {
-		return "";
-	}
 
 	public abstract Supplier<Double> getPriority();
 }
