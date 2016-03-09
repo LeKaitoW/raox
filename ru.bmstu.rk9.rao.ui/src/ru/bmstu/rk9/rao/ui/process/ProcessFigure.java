@@ -74,7 +74,7 @@ public class ProcessFigure extends Figure {
 	}
 
 	public ConnectionAnchor getConnectionAnchor(String terminal) {
-		return (ConnectionAnchor) connectionAnchors.get(terminal);
+		return connectionAnchors.get(terminal);
 	}
 
 	public String getConnectionAnchorName(ConnectionAnchor connectionAnchor) {

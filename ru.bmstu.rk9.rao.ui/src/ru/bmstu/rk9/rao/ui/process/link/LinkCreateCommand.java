@@ -12,12 +12,14 @@ public class LinkCreateCommand extends Command {
 	private String sourceTerminal;
 	private String targetTerminal;
 
-	public void setSourceNode(NodeWithProperty sourceNode) {
+	public void setSource(NodeWithProperty sourceNode, String sourceTerminal) {
 		this.sourceNode = sourceNode;
+		this.sourceTerminal = sourceTerminal;
 	}
 
-	public void setTargetNode(NodeWithProperty targetNode) {
+	public void setTarget(NodeWithProperty targetNode, String targetTerminal) {
 		this.targetNode = targetNode;
+		this.targetTerminal = targetTerminal;
 	}
 
 	@Override
@@ -51,15 +53,7 @@ public class LinkCreateCommand extends Command {
 		return sourceTerminal;
 	}
 
-	public void setSourceTerminal(String sourceTerminal) {
-		this.sourceTerminal = sourceTerminal;
-	}
-
 	public String getTargetTerminal() {
 		return targetTerminal;
-	}
-
-	public void setTargetTerminal(String targetTerminal) {
-		this.targetTerminal = targetTerminal;
 	}
 }

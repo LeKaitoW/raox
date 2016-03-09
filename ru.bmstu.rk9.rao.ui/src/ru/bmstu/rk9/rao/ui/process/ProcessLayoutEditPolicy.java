@@ -17,12 +17,10 @@ public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 	public static final int FIGURE_HEIGHT = 60;
 
 	@Override
-	protected Command createChangeConstraintCommand(EditPart child,
-			Object constraint) {
+	protected Command createChangeConstraintCommand(EditPart child, Object constraint) {
 		LayoutCommand command = null;
 
-		if (!ProcessEditor.processNodesInfo.containsKey(child.getModel()
-				.getClass()))
+		if (!ProcessEditor.processNodesInfo.containsKey(child.getModel().getClass()))
 			return null;
 
 		command = new ChangeLayoutCommand();
