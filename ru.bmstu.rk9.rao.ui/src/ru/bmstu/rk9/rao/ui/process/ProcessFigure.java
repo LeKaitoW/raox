@@ -23,17 +23,6 @@ public class ProcessFigure extends Figure {
 	protected ArrayList<ConnectionAnchor> outputConnectionAnchors = new ArrayList<>();
 
 	public ProcessFigure() {
-		ProcessConnectionAnchor inputConnectionAnchor, outputConnectionAnchor;
-		inputConnectionAnchor = new ProcessConnectionAnchor(this);
-		inputConnectionAnchor.offsetHorizontal = 4;
-		inputConnectionAnchors.add(inputConnectionAnchor);
-		connectionAnchors.put(Node.TERMINAL_IN, inputConnectionAnchor);
-
-		outputConnectionAnchor = new ProcessConnectionAnchor(this);
-		outputConnectionAnchor.offsetHorizontal = 10;
-		outputConnectionAnchors.add(outputConnectionAnchor);
-		connectionAnchors.put(Node.TERMINAL_OUT, outputConnectionAnchor);
-
 		XYLayout layout = new XYLayout();
 		setLayoutManager(layout);
 

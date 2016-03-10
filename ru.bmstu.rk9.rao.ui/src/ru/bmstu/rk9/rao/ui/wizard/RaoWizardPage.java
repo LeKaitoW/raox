@@ -70,7 +70,7 @@ public class RaoWizardPage extends WizardPage {
 		final Button barberClientsButton = new Button(templateGroup, SWT.RADIO);
 		barberClientsButton.setText("Модель простейшей СМО с клиентами");
 		templates.put(barberClientsButton, TemplateType.BARBER_CLIENTS);
-		
+
 		final Button graphicProcessButton = new Button(templateGroup, SWT.RADIO);
 		graphicProcessButton.setText("Графический редактор процессного подхода");
 		templates.put(graphicProcessButton, TemplateType.GRAPHIC_PROCESS);

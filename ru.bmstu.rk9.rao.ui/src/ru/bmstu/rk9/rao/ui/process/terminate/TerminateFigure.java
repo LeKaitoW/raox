@@ -7,12 +7,20 @@ import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 
+import ru.bmstu.rk9.rao.ui.process.ProcessConnectionAnchor;
 import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class TerminateFigure extends ProcessFigure {
 
 	public TerminateFigure() {
 		super();
+
+		ProcessConnectionAnchor inputConnectionAnchor;
+		inputConnectionAnchor = new ProcessConnectionAnchor(this);
+		inputConnectionAnchor.offsetHorizontal = 4;
+		inputConnectionAnchors.add(inputConnectionAnchor);
+		connectionAnchors.put(Terminate.TERMINAL_IN, inputConnectionAnchor);
+
 		label.setText(Terminate.name);
 	}
 

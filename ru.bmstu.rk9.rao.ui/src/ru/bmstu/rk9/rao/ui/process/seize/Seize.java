@@ -10,6 +10,9 @@ public class Seize extends NodeWithProperty {
 
 	private static final long serialVersionUID = 1;
 
+	public static final String TERMINAL_IN = "IN";
+	public static final String TERMINAL_OUT = "OUT";
+
 	public Seize() {
 		super(backgroundColor.getRGB());
 	}

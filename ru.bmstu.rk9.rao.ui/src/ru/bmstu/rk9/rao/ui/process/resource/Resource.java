@@ -9,7 +9,7 @@ import ru.bmstu.rk9.rao.ui.process.NodeWithProperty;
 public class Resource extends NodeWithProperty {
 
 	private static final long serialVersionUID = 1;
-	
+
 	public Resource() {
 		super(backgroundColor.getRGB());
 	}
