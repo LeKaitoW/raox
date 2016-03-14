@@ -16,7 +16,7 @@ public class Terminate extends NodeWithProperty {
 		super(backgroundColor.getRGB());
 	}
 
-	private static Color backgroundColor = ColorConstants.red;
+	private static Color backgroundColor = ColorConstants.lightBlue;
 	public static String name = "Terminate";
 
 	@Override

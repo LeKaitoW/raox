@@ -19,7 +19,7 @@ public class Advance extends NodeWithProperty implements Serializable {
 		super(backgroundColor.getRGB());
 	}
 
-	private static Color backgroundColor = ColorConstants.green;
+	private static Color backgroundColor = ColorConstants.darkGreen;
 	public static String name = "Advance";
 
 	@Override

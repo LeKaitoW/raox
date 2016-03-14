@@ -14,7 +14,8 @@ public class GenerateFigure extends ProcessFigure {
 
 		ProcessConnectionAnchor outputConnectionAnchor;
 		outputConnectionAnchor = new ProcessConnectionAnchor(this);
-		outputConnectionAnchor.offsetHorizontal = 10;
+		outputConnectionAnchor.offsetHorizontal = 45;
+		outputConnectionAnchor.offsetVertical = 35;
 		outputConnectionAnchors.add(outputConnectionAnchor);
 		connectionAnchors.put(Generate.TERMINAL_OUT, outputConnectionAnchor);
 
@@ -25,11 +26,10 @@ public class GenerateFigure extends ProcessFigure {
 	protected void paintFigure(Graphics graphics) {
 		Rectangle rectangle = getBounds().getCopy();
 		PointList points = new PointList();
-		int offset = 5;
-		int centerY = rectangle.y + (rectangle.height - 10) / 2;
-		points.addPoint(rectangle.x + offset, rectangle.y + offset);
+		int centerY = rectangle.y + (rectangle.height + 2 * offset) / 2;
+		points.addPoint(rectangle.x + offset, rectangle.y + 3 * offset);
 		points.addPoint(rectangle.x + rectangle.width - offset, centerY);
-		points.addPoint(rectangle.x + offset, rectangle.y + rectangle.height - 3 * offset);
+		points.addPoint(rectangle.x + offset, rectangle.y + rectangle.height - offset);
 		graphics.fillPolygon(points);
 
 		paintName(rectangle);

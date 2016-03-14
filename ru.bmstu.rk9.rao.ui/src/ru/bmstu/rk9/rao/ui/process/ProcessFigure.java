@@ -21,6 +21,7 @@ public class ProcessFigure extends Figure {
 	protected HashMap<String, ConnectionAnchor> connectionAnchors = new HashMap<>();
 	protected ArrayList<ConnectionAnchor> inputConnectionAnchors = new ArrayList<>();
 	protected ArrayList<ConnectionAnchor> outputConnectionAnchors = new ArrayList<>();
+	protected int offset = 5;
 
 	public ProcessFigure() {
 		XYLayout layout = new XYLayout();
@@ -54,7 +55,8 @@ public class ProcessFigure extends Figure {
 	protected void paintName(Rectangle rectangle) {
 		Rectangle relativeRectangle = rectangle.getCopy();
 		relativeRectangle.setX(0);
-		relativeRectangle.setY(rectangle.height * 2 / 5);
+		relativeRectangle.setHeight(10);
+		relativeRectangle.setY(0);
 
 		label.setFont(getFont());
 		add(label);

@@ -1,6 +1,5 @@
 package ru.bmstu.rk9.rao.ui.process.release;
 
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
@@ -17,7 +16,7 @@ public class Release extends NodeWithProperty {
 		super(backgroundColor.getRGB());
 	}
 
-	private static Color backgroundColor = ColorConstants.yellow;
+	private static Color backgroundColor = new Color(null, 150, 0, 24);
 	public static String name = "Release";
 
 	@Override

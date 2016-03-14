@@ -1,7 +1,10 @@
 package ru.bmstu.rk9.rao.ui.process.queue;
 
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Graphics;
+import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.ProcessConnectionAnchor;
 import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
@@ -13,12 +16,14 @@ public class QueueFigure extends ProcessFigure {
 
 		ProcessConnectionAnchor inputConnectionAnchor, outputConnectionAnchor;
 		inputConnectionAnchor = new ProcessConnectionAnchor(this);
-		inputConnectionAnchor.offsetHorizontal = 4;
+		inputConnectionAnchor.offsetHorizontal = offset;
+		inputConnectionAnchor.offsetVertical = 35;
 		inputConnectionAnchors.add(inputConnectionAnchor);
 		connectionAnchors.put(Queue.TERMINAL_IN, inputConnectionAnchor);
 
 		outputConnectionAnchor = new ProcessConnectionAnchor(this);
-		outputConnectionAnchor.offsetHorizontal = 10;
+		outputConnectionAnchor.offsetHorizontal = 45;
+		outputConnectionAnchor.offsetVertical = 35;
 		outputConnectionAnchors.add(outputConnectionAnchor);
 		connectionAnchors.put(Queue.TERMINAL_OUT, outputConnectionAnchor);
 
@@ -28,6 +33,28 @@ public class QueueFigure extends ProcessFigure {
 	@Override
 	protected void paintFigure(Graphics graphics) {
 		Rectangle rectangle = getBounds().getCopy();
-		graphics.fillRectangle(rectangle);
+		PointList points = new PointList();
+		points.addPoint(rectangle.x + offset, rectangle.y + 3 * offset);
+		points.addPoint(rectangle.x + rectangle.width - offset, rectangle.y + 3 * offset);
+		points.addPoint(rectangle.x + rectangle.width - offset, rectangle.y + rectangle.height - offset);
+		points.addPoint(rectangle.x + offset, rectangle.y + rectangle.height - offset);
+		graphics.fillPolygon(points);
+		Color oldColor = graphics.getBackgroundColor();
+		graphics.setBackgroundColor(ColorConstants.white);
+
+		int width = 6;
+		for (int i = 1; i < 4; i++) {
+			PointList internalPoints = new PointList();
+			internalPoints.addPoint(rectangle.x + i * offset + i * width, rectangle.y + 4 * offset);
+			internalPoints.addPoint(rectangle.x + i * offset + (i + 1) * width, rectangle.y + 4 * offset);
+			internalPoints.addPoint(rectangle.x + i * offset + (i + 1) * width,
+					rectangle.y + rectangle.height - 2 * offset);
+			internalPoints.addPoint(rectangle.x + i * offset + i * width, rectangle.y + rectangle.height - 2 * offset);
+			graphics.fillPolygon(internalPoints);
+		}
+
+		graphics.setBackgroundColor(oldColor);
+
+		paintName(rectangle);
 	}
 }

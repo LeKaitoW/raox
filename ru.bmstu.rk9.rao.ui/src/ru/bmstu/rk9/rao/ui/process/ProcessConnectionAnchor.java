@@ -49,16 +49,6 @@ public class ProcessConnectionAnchor extends AbstractConnectionAnchor {
 		return getLocation(null);
 	}
 
-	public void setOffsetHorizontal(int offsetHorizontal) {
-		this.offsetHorizontal = offsetHorizontal;
-		fireAnchorMoved();
-	}
-
-	public void setOffsetVertical(int offsetVertical) {
-		this.offsetVertical = offsetVertical;
-		fireAnchorMoved();
-	}
-
 	@Override
 	public boolean equals(Object object) {
 		if (object instanceof ProcessConnectionAnchor) {

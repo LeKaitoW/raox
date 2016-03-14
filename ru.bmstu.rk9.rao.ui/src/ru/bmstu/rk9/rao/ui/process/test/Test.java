@@ -2,7 +2,6 @@ package ru.bmstu.rk9.rao.ui.process.test;
 
 import java.io.Serializable;
 
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
@@ -20,7 +19,7 @@ public class Test extends NodeWithProperty implements Serializable {
 		super(backgroundColor.getRGB());
 	}
 
-	private static Color backgroundColor = ColorConstants.cyan;
+	private static Color backgroundColor = new Color(null, 140, 0, 230);
 	public static String name = "Test";
 
 	@Override

@@ -1,6 +1,5 @@
 package ru.bmstu.rk9.rao.ui.process.seize;
 
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
@@ -17,7 +16,7 @@ public class Seize extends NodeWithProperty {
 		super(backgroundColor.getRGB());
 	}
 
-	private static Color backgroundColor = ColorConstants.darkGray;
+	private static Color backgroundColor = new Color(null, 150, 0, 24);
 	public static String name = "Seize";
 
 	@Override

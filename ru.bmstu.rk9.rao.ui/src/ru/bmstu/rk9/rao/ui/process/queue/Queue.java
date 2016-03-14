@@ -18,7 +18,7 @@ public class Queue extends NodeWithProperty implements Serializable {
 		super(backgroundColor.getRGB());
 	}
 
-	private static Color backgroundColor = ColorConstants.lightBlue;
+	private static Color backgroundColor = ColorConstants.gray;
 	public static String name = "Queue";
 
 	@Override
