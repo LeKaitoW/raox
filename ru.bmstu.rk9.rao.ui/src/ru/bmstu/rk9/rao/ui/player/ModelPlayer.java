@@ -1,7 +1,6 @@
 package ru.bmstu.rk9.rao.ui.player;
 
 import java.util.Arrays;
-
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
@@ -22,6 +21,7 @@ public class ModelPlayer {
 	public class StateStorageSubscriber implements Subscriber {
 		public void fireChange() {
 			modelStateStorage.addModelState(Simulator.getModelState());
+			serializer.dumpResoursestoJSON();
 		}
 
 	}
@@ -30,6 +30,7 @@ public class ModelPlayer {
 		simulationSubscriberManager.deinitialize();
 	}
 
+	private final Serializer serializer = new Serializer();
 	private final ModelStateStorage modelStateStorage = new ModelStateStorage();
 	private final StateStorageSubscriber stateStorageSubscriber = new StateStorageSubscriber();
 	private final SimulatorSubscriberManager simulationSubscriberManager = new SimulatorSubscriberManager();

@@ -12,14 +12,16 @@ import ru.bmstu.rk9.rao.lib.event.EventScheduler;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modelStructure.ModelStructureCache;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
+import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.result.ResultManager;
 
 public class Simulator {
 	private static Simulator INSTANCE = null;
 
-	public static synchronized void initSimulation(JSONObject modelStructure, List<Class<?>> resourceClasses,
-			List<Runnable> initList, List<TerminateCondition> terminateConditions) {
+	public static synchronized void initSimulation(JSONObject modelStructure,
+			List<Class<? extends Resource>> resourceClasses, List<Runnable> initList,
+			List<TerminateCondition> terminateConditions) {
 		if (isRunning)
 			throw new SimulatorException("Simulation is already initialized");
 

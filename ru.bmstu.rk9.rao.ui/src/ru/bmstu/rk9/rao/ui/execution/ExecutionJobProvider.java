@@ -43,6 +43,7 @@ public class ExecutionJobProvider {
 
 	public final Job createExecutionJob() {
 		final Job executionJob = new Job(project.getName() + " execution") {
+			@SuppressWarnings("unchecked")
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				URLClassLoader classLoader = null;
@@ -61,7 +62,7 @@ public class ExecutionJobProvider {
 
 					List<Runnable> initList = new ArrayList<>();
 					List<TerminateCondition> terminateConditions = new ArrayList<>();
-					List<Class<?>> resourceClasses = new ArrayList<>();
+					List<Class<? extends Resource>> resourceClasses = new ArrayList<>();
 					List<Field> resourceFields = new ArrayList<>();
 
 					for (IResource raoFile : BuildUtil.getAllRaoFilesInProject(project)) {
@@ -89,7 +90,7 @@ public class ExecutionJobProvider {
 
 						for (Class<?> nestedModelClass : modelClass.getDeclaredClasses()) {
 							if (ComparableResource.class.isAssignableFrom(nestedModelClass))
-								resourceClasses.add(nestedModelClass);
+								resourceClasses.add((Class<? extends Resource>) nestedModelClass);
 						}
 
 						for (Field field : modelClass.getDeclaredFields()) {
