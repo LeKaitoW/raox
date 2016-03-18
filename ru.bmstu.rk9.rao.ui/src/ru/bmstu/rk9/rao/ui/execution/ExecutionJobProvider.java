@@ -141,12 +141,6 @@ public class ExecutionJobProvider {
 
 					Simulator.preinitialize(simulatorPreinitializationInfo);
 
-					for (IResource graoFile : BuildUtil.getAllFilesInProject(project, "grao")) {
-						Model model = ProcessEditor.readModelFromFile((IFile) graoFile);
-						List<Block> blocks = BlockConverter.convertModelToBlocks(model);
-						simulatorInitializationInfo.processBlocks.addAll(blocks);
-					}
-
 					for (Field field : nameAbleFields) {
 						String name = field.getName();
 						RaoNameable nameable = (RaoNameable) field.get(null);
@@ -156,6 +150,12 @@ public class ExecutionJobProvider {
 					for (Field logicField : logicFields) {
 						Logic logic = (Logic) logicField.get(null);
 						simulatorInitializationInfo.decisionPoints.add(logic);
+					}
+
+					for (IResource graoFile : BuildUtil.getAllFilesInProject(project, "grao")) {
+						Model model = ProcessEditor.readModelFromFile((IFile) graoFile);
+						List<Block> blocks = BlockConverter.convertModelToBlocks(model);
+						simulatorInitializationInfo.processBlocks.addAll(blocks);
 					}
 
 					Simulator.initialize(simulatorInitializationInfo);

@@ -52,7 +52,8 @@ public class BuildUtil {
 		return allRaoFiles;
 	}
 
-	private static void recursiveFindFiles(List<IResource> allRaoFiles, IPath path, IWorkspaceRoot workspaceRoot, String fileExtension) {
+	private static void recursiveFindFiles(List<IResource> allRaoFiles, IPath path, IWorkspaceRoot workspaceRoot,
+			String fileExtension) {
 		IContainer container = workspaceRoot.getContainerForLocation(path);
 		try {
 			IResource[] iResources;

@@ -2,10 +2,12 @@ package ru.bmstu.rk9.rao.ui.process.seize;
 
 import org.eclipse.swt.graphics.Color;
 
+import ru.bmstu.rk9.rao.lib.resource.Resource;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
-import ru.bmstu.rk9.rao.ui.process.NodeWithProperty;
+import ru.bmstu.rk9.rao.ui.process.NodeWithResource;
 
-public class Seize extends NodeWithProperty {
+public class Seize extends NodeWithResource {
 
 	private static final long serialVersionUID = 1;
 
@@ -21,6 +23,13 @@ public class Seize extends NodeWithProperty {
 
 	@Override
 	public BlockConverterInfo createBlock() {
-		return null;
+		Resource releasedResource = Simulator.getModelState().getAllResources().stream()
+				.filter(resource -> resource.getName().equals(resourceName)).findAny().get();
+
+		ru.bmstu.rk9.rao.lib.process.Seize seize = new ru.bmstu.rk9.rao.lib.process.Seize(releasedResource);
+		BlockConverterInfo seizeInfo = new BlockConverterInfo(seize);
+		seizeInfo.inputDocks.put(TERMINAL_IN, seize.getInputDock());
+		seizeInfo.outputDocks.put(TERMINAL_OUT, seize.getOutputDock());
+		return seizeInfo;
 	}
 }

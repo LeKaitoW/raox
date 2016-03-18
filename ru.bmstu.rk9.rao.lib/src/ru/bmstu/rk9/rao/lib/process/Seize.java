@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rao.lib.process;
 
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
+import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class Seize implements Block {
@@ -23,7 +24,7 @@ public class Seize implements Block {
 
 	@Override
 	public BlockStatus check() {
-		if (resource.isLocked())
+		if (resource.isAccessible())
 			return BlockStatus.NOTHING_TO_DO;
 		if (outputDock.hasTransact())
 			return BlockStatus.CHECK_AGAIN;
@@ -34,7 +35,7 @@ public class Seize implements Block {
 
 		System.out.println(Simulator.getTime() + ": seize body " + transact.getNumber());
 		outputDock.pushTransact(transact);
-		resource.lock();
+		resource.setAccessible(false);
 		return BlockStatus.SUCCESS;
 	}
 }

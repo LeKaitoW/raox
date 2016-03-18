@@ -2,10 +2,12 @@ package ru.bmstu.rk9.rao.ui.process.release;
 
 import org.eclipse.swt.graphics.Color;
 
+import ru.bmstu.rk9.rao.lib.resource.Resource;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
-import ru.bmstu.rk9.rao.ui.process.NodeWithProperty;
+import ru.bmstu.rk9.rao.ui.process.NodeWithResource;
 
-public class Release extends NodeWithProperty {
+public class Release extends NodeWithResource {
 
 	private static final long serialVersionUID = 1;
 
@@ -21,6 +23,13 @@ public class Release extends NodeWithProperty {
 
 	@Override
 	public BlockConverterInfo createBlock() {
-		return null;
+		Resource seizedResource = Simulator.getModelState().getAllResources().stream()
+				.filter(resource -> resource.getName().equals(resourceName)).findAny().get();
+
+		ru.bmstu.rk9.rao.lib.process.Release release = new ru.bmstu.rk9.rao.lib.process.Release(seizedResource);
+		BlockConverterInfo releaseInfo = new BlockConverterInfo(release);
+		releaseInfo.inputDocks.put(TERMINAL_IN, release.getInputDock());
+		releaseInfo.outputDocks.put(TERMINAL_OUT, release.getOutputDock());
+		return releaseInfo;
 	}
 }

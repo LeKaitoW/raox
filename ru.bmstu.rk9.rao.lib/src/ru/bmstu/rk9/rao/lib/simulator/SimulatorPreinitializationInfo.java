@@ -5,7 +5,6 @@ import java.util.List;
 
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
-import ru.bmstu.rk9.rao.lib.process.Resource;
 import ru.bmstu.rk9.rao.lib.process.Transact;
 
 public class SimulatorPreinitializationInfo {
@@ -13,7 +12,6 @@ public class SimulatorPreinitializationInfo {
 		modelStructure.put("name", "").put("resource_types", new JSONArray()).put("results", new JSONArray())
 				.put("patterns", new JSONArray()).put("events", new JSONArray())
 				.put("decision_points", new JSONArray());
-		resourceClasses.add(Resource.class);
 		resourceClasses.add(Transact.class);
 	}
 

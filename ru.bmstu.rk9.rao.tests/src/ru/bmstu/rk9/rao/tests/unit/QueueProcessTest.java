@@ -13,7 +13,7 @@ import ru.bmstu.rk9.rao.lib.process.Generate;
 import ru.bmstu.rk9.rao.lib.process.Link;
 import ru.bmstu.rk9.rao.lib.process.Queue;
 import ru.bmstu.rk9.rao.lib.process.Release;
-import ru.bmstu.rk9.rao.lib.process.Resource;
+import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.process.Seize;
 import ru.bmstu.rk9.rao.lib.process.Terminate;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
@@ -38,7 +38,7 @@ public class QueueProcessTest {
 		Generate generate = new Generate(() -> 10);
 		Terminate terminate = new Terminate();
 		Advance advance = new Advance(() -> 15);
-		Resource resource = Resource.create();
+		Resource resource = TestResource.create();
 		Seize seize = new Seize(resource);
 		Release release = new Release(resource);
 		Queue queue = new Queue();
