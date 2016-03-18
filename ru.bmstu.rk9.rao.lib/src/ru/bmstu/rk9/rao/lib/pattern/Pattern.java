@@ -1,8 +1,10 @@
 package ru.bmstu.rk9.rao.lib.pattern;
 
+import java.util.List;
+
 import ru.bmstu.rk9.rao.lib.database.Database;
 
-public interface Pattern {
+public abstract class Pattern {
 	public static enum ExecutedFrom {
 		SEARCH(Database.ResourceEntryType.SEARCH), SOLUTION(Database.ResourceEntryType.SOLUTION);
 
@@ -13,7 +15,13 @@ public interface Pattern {
 		}
 	}
 
-	public String getName();
+	public abstract void run();
 
-	public int[] getRelevantInfo();
+	public abstract void finish();
+
+	public abstract boolean selectRelevantResources();
+
+	public abstract String getName();
+
+	public abstract List<Integer> getRelevantInfo();
 }

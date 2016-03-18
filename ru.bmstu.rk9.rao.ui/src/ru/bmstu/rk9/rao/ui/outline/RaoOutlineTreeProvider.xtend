@@ -11,8 +11,6 @@ import ru.bmstu.rk9.rao.rao.Constant
 
 import ru.bmstu.rk9.rao.rao.Pattern
 import ru.bmstu.rk9.rao.rao.RelevantResource
-import ru.bmstu.rk9.rao.rao.DecisionPointSearchActivity
-import ru.bmstu.rk9.rao.rao.DecisionPointActivity
 
 import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.DefaultMethod
@@ -64,11 +62,6 @@ class RaoOutlineTreeProvider extends org.eclipse.xtext.ui.editor.outline.impl.De
 
 	// Events
 	def _isLeaf(Event event) { true }
-
-	// Decision points
-	def _isLeaf(DecisionPointSearchActivity decisionPointSearchActivity) { true }
-
-	def _isLeaf(DecisionPointActivity decisionPointActivity) { true }
 
 	// Results
 	def _isLeaf(Result result) { true }

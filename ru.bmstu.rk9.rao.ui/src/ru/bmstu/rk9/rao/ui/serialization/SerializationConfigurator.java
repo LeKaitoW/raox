@@ -11,12 +11,14 @@ import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 
 import ru.bmstu.rk9.rao.jvmmodel.RaoNaming;
 import ru.bmstu.rk9.rao.lib.database.Database.SerializationCategory;
-import ru.bmstu.rk9.rao.lib.dpt.DecisionPointSearch.SerializationLevel;
-import ru.bmstu.rk9.rao.rao.DecisionPointSearch;
-import ru.bmstu.rk9.rao.rao.DecisionPointSome;
+import ru.bmstu.rk9.rao.lib.dpt.Search.SerializationLevel;
+import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.rao.Event;
+import ru.bmstu.rk9.rao.rao.Logic;
 import ru.bmstu.rk9.rao.rao.Pattern;
+import ru.bmstu.rk9.rao.rao.ResourceDeclaration;
 import ru.bmstu.rk9.rao.rao.Result;
+import ru.bmstu.rk9.rao.rao.Search;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfig.SerializationNode;
 
 import com.google.common.collect.Iterables;
@@ -27,18 +29,20 @@ class SerializationConfigurator {
 		for (SerializationNode category : modelNode.getVisibleChildren())
 			category.hideChildren();
 
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.RESOURCES.ordinal()), model,
+				ResourceDeclaration.class);
+
 		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.PATTERNS.ordinal()), model,
 				Pattern.class);
 
 		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.EVENTS.ordinal()), model, Event.class);
 
 		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.DECISION_POINTS.ordinal()), model,
-				DecisionPointSome.class);
+				Logic.class);
 
 		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.RESULTS.ordinal()), model, Result.class);
 
-		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.SEARCH.ordinal()), model,
-				DecisionPointSearch.class);
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.SEARCH.ordinal()), model, Search.class);
 	}
 
 	private final <T extends EObject> void fillCategory(SerializationNode category, Resource model,
@@ -46,11 +50,12 @@ class SerializationConfigurator {
 		final List<T> categoryItems = filterAllContents(model.getAllContents(), categoryClass);
 
 		for (T categoryItem : categoryItems) {
-			String name = RaoNaming.getFullyQualifiedName(categoryItem);
+			String name = NamingHelper.createFullName(model.getURI().toPlatformString(false),
+					RaoNaming.getNameGeneric(categoryItem));
 
 			SerializationNode child = category.addChild(name);
 
-			if (categoryItem instanceof DecisionPointSearch) {
+			if (categoryItem instanceof Search) {
 				for (SerializationLevel type : SerializationLevel.values())
 					child.addChild(child.getFullName() + "." + type.toString());
 			}

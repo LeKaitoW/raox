@@ -8,6 +8,8 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Supplier;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -19,14 +21,18 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
-import ru.bmstu.rk9.rao.lib.json.JSONArray;
+import ru.bmstu.rk9.rao.lib.dpt.Logic;
+import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
+import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
+import ru.bmstu.rk9.rao.lib.naming.RaoNameable;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.simulator.TerminateCondition;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
@@ -60,11 +66,13 @@ public class ExecutionJobProvider {
 
 					classLoader = new URLClassLoader(urls, Simulator.class.getClassLoader());
 
-					List<Runnable> initList = new ArrayList<>();
-					List<TerminateCondition> terminateConditions = new ArrayList<>();
-					List<Class<? extends Resource>> resourceClasses = new ArrayList<>();
-					List<Field> resourceFields = new ArrayList<>();
+					SimulatorPreinitializationInfo simulatorPreinitializationInfo = new SimulatorPreinitializationInfo();
+					simulatorPreinitializationInfo.modelStructure.put("name", project.getName());
 
+					SimulatorInitializationInfo simulatorInitializationInfo = new SimulatorInitializationInfo();
+					List<Field> logicFields = new ArrayList<>();
+					List<Field> nameAbleFields = new ArrayList<>();
+					
 					for (IResource raoFile : BuildUtil.getAllRaoFilesInProject(project)) {
 						String raoFileName = raoFile.getName();
 						raoFileName = raoFileName.substring(0, raoFileName.length() - ".rao".length());
@@ -75,7 +83,7 @@ public class ExecutionJobProvider {
 							Class<?> init = Class.forName(modelClassName + "$init", false, classLoader);
 							Constructor<?> initConstructor = init.getDeclaredConstructor();
 							initConstructor.setAccessible(true);
-							initList.add((Runnable) initConstructor.newInstance());
+							simulatorInitializationInfo.initList.add((Runnable) initConstructor.newInstance());
 						} catch (ClassNotFoundException classException) {
 						}
 
@@ -84,20 +92,30 @@ public class ExecutionJobProvider {
 									classLoader);
 							Constructor<?> terminateConstructor = terminate.getDeclaredConstructor();
 							terminateConstructor.setAccessible(true);
-							terminateConditions.add((TerminateCondition) terminateConstructor.newInstance());
+							simulatorInitializationInfo.terminateConditions
+									.add((Supplier<Boolean>) terminateConstructor.newInstance());
 						} catch (ClassNotFoundException classException) {
 						}
 
 						for (Class<?> nestedModelClass : modelClass.getDeclaredClasses()) {
+							if (Event.class.isAssignableFrom(nestedModelClass))
+								simulatorPreinitializationInfo.modelStructure.getJSONArray("events")
+										.put(new JSONObject().put("name",
+												NamingHelper.fieldNameToFullName(nestedModelClass.getName())));
+
 							if (ComparableResource.class.isAssignableFrom(nestedModelClass))
-								resourceClasses.add((Class<? extends Resource>) nestedModelClass);
+
+								simulatorPreinitializationInfo.resourceClasses.add((Class<? extends Resource>) nestedModelClass);
 						}
 
 						for (Field field : modelClass.getDeclaredFields()) {
-							if (!ComparableResource.class.equals(field.getType().getSuperclass()))
-								continue;
+							if (RaoNameable.class.isAssignableFrom(field.getType()))
+								nameAbleFields.add(field);
 
-							resourceFields.add(field);
+							if (Logic.class.equals(field.getType())) {
+								logicFields.add(field);
+								continue;
+							}
 						}
 					}
 
@@ -118,20 +136,20 @@ public class ExecutionJobProvider {
 					List<Result> results = new LinkedList<Result>();
 					SimulationStopCode simulationResult = SimulationStopCode.SIMULATION_CONTINUES;
 
-					// TODO generate actual model structure
-					JSONObject modelStructureStub = new JSONObject().put("name", "")
-							.put("resource_types", new JSONArray()).put("results", new JSONArray())
-							.put("patterns", new JSONArray()).put("events", new JSONArray())
-							.put("decision_points", new JSONArray());
+					Simulator.preinitialize(simulatorPreinitializationInfo);
 
-					Simulator.initSimulation(modelStructureStub, resourceClasses, initList, terminateConditions);
-
-					for (Field resourceField : resourceFields) {
-						String resourceName = resourceField.getName();
-						Resource resource = (Resource) resourceField.get(null);
-						resource.setName(resourceName);
+					for (Field field : nameAbleFields) {
+						String name = field.getName();
+						RaoNameable nameable = (RaoNameable) field.get(null);
+						nameable.setName(name);
 					}
 
+					for (Field logicField : logicFields) {
+						Logic logic = (Logic) logicField.get(null);
+						simulatorInitializationInfo.decisionPoints.add(logic);
+					}
+
+					Simulator.initialize(simulatorInitializationInfo);
 					simulationResult = Simulator.run();
 
 					switch (simulationResult) {

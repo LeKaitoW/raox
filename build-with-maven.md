@@ -4,7 +4,7 @@
 ```
 [export MAVEN_OPTS="-Xmx512M"]
 [mvn initialize -N -Pset-git-version]
-mvn [clean] package|deploy -Drepository-url=<url-to-repository-root>
+mvn [clean] package|deploy -Drepository-url=<url-to-repository-root> [-Pdebug]
 ```
 - `export MAVEN_OPTS="-Xmx512M"` - Устанавливает максимальное количество выделяемой памяти.
 Команда необходима, если сборка выдает ошибку `java heap space`. Под Windows `set MAVEN_OPTS="-Xmx512M"` или через настройки переменных среды.
@@ -36,6 +36,11 @@ mvn package
 mvn deploy -Drepository-url=<url-to-repository-root>
 ```
 Параметр `repository-url` задает адрес репозитория, который по умолчанию не задан, поэтому является обязательным при запуске сборки с развертыванием.
+
+- `-Pdebug` - Добавляет в сборку jar'ники с исходниками, которые при необходимости отладки можно использовать в `eclipse` через `attach source` 
+    - ```assembly\target\plugins\ru.bmstu.rk9.rao.lib-<version>-sources.jar```
+    - ```assembly\target\plugins\ru.bmstu.rk9.rao.ui-<version>-sources.jar```
+    - ```assembly\target\plugins\ru.bmstu.rk9.rao-<version>-sources.jar```
 
 ##Автосборка на Дженкинсе
 ### Только джарники

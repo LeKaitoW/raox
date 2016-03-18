@@ -21,7 +21,7 @@ public class ContinuousHistogram implements NumericSequence {
 		private final double offset;
 	}
 
-	//TODO add values validation
+	// TODO add values validation
 	public ContinuousHistogram(long seed, List<Pair<? extends Number, ? extends Number>> values) {
 		this(seed, 0, values);
 	}

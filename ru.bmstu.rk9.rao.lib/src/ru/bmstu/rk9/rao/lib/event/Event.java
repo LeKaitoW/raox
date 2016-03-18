@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rao.lib.event;
 
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+
 public abstract class Event {
 	protected double time;
 
@@ -9,5 +11,10 @@ public abstract class Event {
 
 	public abstract String getName();
 
-	public abstract void run();
+	public final void run() {
+		execute();
+		Simulator.getDatabase().addEventEntry(this);
+	}
+
+	protected abstract void execute();
 }

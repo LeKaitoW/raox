@@ -50,4 +50,16 @@ public class DefaultMethodsHelper {
 		final String name;
 		final ValidatorAction validatorAction;
 	}
+
+	public static enum DptMethodInfo {
+		INIT("init", ValidatorAction.NOTHING);
+
+		DptMethodInfo(String name, ValidatorAction validatorAction) {
+			this.name = name;
+			this.validatorAction = validatorAction;
+		}
+
+		final String name;
+		final ValidatorAction validatorAction;
+	}
 }
