@@ -40,6 +40,7 @@ public abstract class Operation extends Pattern {
 		@Override
 		protected void execute() {
 			Operation.this.end();
+			finish();
 		}
 	}
 

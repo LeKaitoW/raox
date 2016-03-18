@@ -7,9 +7,10 @@ import java.util.Iterator;
 
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.stream.Collectors;
 
 public class ResourceManager<T extends ComparableResource<T>> {
-	private SortedMap<Integer, T> listResources;
+	private SortedMap<Integer, T> resources;
 
 	private Integer resourceNumber;
 
@@ -17,30 +18,35 @@ public class ResourceManager<T extends ComparableResource<T>> {
 		Integer number = resourceNumber++;
 
 		res.setNumber(number);
-		listResources.put(number, res);
+		resources.put(number, res);
 	}
 
 	public void eraseResource(T res) {
 		Integer number = res.getNumber();
 
-		listResources.remove(number);
+		resources.remove(number);
 	}
 
 	public T getResource(int number) {
-		return listResources.get(number);
+		return resources.get(number);
 	}
 
 	public Collection<T> getAll() {
-		return Collections.unmodifiableCollection(listResources.values());
+		return Collections.unmodifiableCollection(resources.values());
+	}
+
+	public Collection<T> getAccessible() {
+		return Collections.unmodifiableCollection(
+				resources.values().stream().filter((res) -> res.isAccessible()).collect(Collectors.toList()));
 	}
 
 	public ResourceManager() {
-		this.listResources = new ConcurrentSkipListMap<Integer, T>();
+		this.resources = new ConcurrentSkipListMap<Integer, T>();
 		this.resourceNumber = 0;
 	}
 
 	private ResourceManager(ResourceManager<T> source) {
-		this.listResources = new ConcurrentSkipListMap<Integer, T>(source.listResources);
+		this.resources = new ConcurrentSkipListMap<Integer, T>(source.resources);
 		this.resourceNumber = source.resourceNumber;
 	}
 
@@ -49,13 +55,13 @@ public class ResourceManager<T extends ComparableResource<T>> {
 	}
 
 	public boolean checkEqual(ResourceManager<T> other) {
-		if (this.listResources.size() != other.listResources.size())
+		if (this.resources.size() != other.resources.size())
 			return false;
 
-		Iterator<T> itThis = this.listResources.values().iterator();
-		Iterator<T> itOther = other.listResources.values().iterator();
+		Iterator<T> itThis = this.resources.values().iterator();
+		Iterator<T> itOther = other.resources.values().iterator();
 
-		for (int i = 0; i < this.listResources.size(); i++) {
+		for (int i = 0; i < this.resources.size(); i++) {
 			T resThis = itThis.next();
 			T resOther = itOther.next();
 

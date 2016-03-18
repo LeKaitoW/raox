@@ -10,6 +10,7 @@ public abstract class Rule extends Pattern {
 	@Override
 	public final void run() {
 		execute();
+		finish();
 	}
 
 	protected void execute() {

@@ -42,6 +42,11 @@ public class ModelState {
 		return (Collection<T>) resourceManagers.get(cl).getAll();
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T extends ComparableResource<T>> Collection<T> getAccessible(Class<T> cl) {
+		return (Collection<T>) resourceManagers.get(cl).getAccessible();
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean checkEqual(ModelState other) {
 		if (other == null)

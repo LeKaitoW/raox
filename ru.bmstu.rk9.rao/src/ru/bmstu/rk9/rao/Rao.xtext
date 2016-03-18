@@ -18,19 +18,47 @@ RaoModel:
 
 RaoEntity
 	: ResourceType
-	| ResourceDeclaration
-	| Sequence
 	| Generator
-	| Constant
 	| FunctionDeclaration
 	| Event
 	| Pattern
-	| Logic
-	| Search
 	| Frame
 	| Result
 	| DefaultMethod
 	| EnumDeclaration
+	| EntityCreation
+;
+
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+//                            Entity Creation                            //
+// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+EntityCreation
+	: ResourceDeclaration
+	| Sequence
+	| Constant
+	| Logic
+	| Search
+;
+
+ResourceDeclaration:
+	'resource' name = ID '=' constructor = XOrExpression ';'?
+;
+
+Logic:
+	'logic' name = ID '=' constructor = XOrExpression ';'?
+;
+
+Search:
+	'search' name = ID '=' constructor = XOrExpression ';'?
+;
+
+Sequence:
+	'sequence' name = ID '=' constructor = XOrExpression ';'?
+;
+
+Constant:
+	'constant' name = ID '=' constructor = XOrExpression ';'?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -45,14 +73,6 @@ ResourceType:
 
 FieldDeclaration
 	: declaration = FullJvmFormalParameter ('=' default = XOrExpression)? ';'?
-;
-
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                               Resources                               //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-
-ResourceDeclaration:
-	'resource' name = ID '=' constructor = XOrExpression ';'?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -76,6 +96,7 @@ Pattern:
 			',' parameters += FullJvmFormalParameter)* )? ')' '{'
 
 		relevantResources += RelevantResource*
+		relevantTuples += RelevantResourceTuple*
 		defaultMethods += DefaultMethod*
 	'}'
 ;
@@ -89,24 +110,8 @@ RelevantResource:
 	'relevant' name = ID '=' value = XOrExpression ';'?
 ;
 
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                              Logic & Search                           //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-
-Logic:
-	'logic' name = ID '=' constructor = XOrExpression ';'?
-;
-
-Search:
-	'search' name = ID '=' constructor = XOrExpression ';'?
-;
-
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                               Sequences                               //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-
-Sequence:
-	'sequence' name = ID '=' constructor = XOrExpression ';'?
+RelevantResourceTuple:
+	'relevants' names += ID (',' names += ID)* '=' value = XOrExpression ';'?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -118,14 +123,6 @@ Generator:
 		(parameters += FullJvmFormalParameter (
 			',' parameters += FullJvmFormalParameter)*)?
 	')' body = XBlockExpression
-;
-
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                               Constants                               //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-
-Constant:
-	'constant' constant = FullJvmFormalParameter '=' value = XExpression ';'?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
