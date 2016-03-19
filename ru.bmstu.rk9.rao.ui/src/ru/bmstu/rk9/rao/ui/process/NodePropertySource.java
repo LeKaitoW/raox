@@ -30,10 +30,22 @@ public class NodePropertySource implements IPropertySource {
 		properties.add(colorProperty);
 		PropertyDescriptor nameProperty = new CheckboxPropertyDescriptor(NodeWithProperty.PROPERTY_NAME, "Show name");
 		properties.add(nameProperty);
+
 		if (node instanceof NodeWithResource) {
-			PropertyDescriptor resourceProperty = new TextPropertyDescriptor(NodeWithResource.PROPERTY_RESOURCE,
-					"Resource");
-			properties.add(resourceProperty);
+			properties.add(new TextPropertyDescriptor(NodeWithResource.PROPERTY_RESOURCE, "Resource"));
+		}
+
+		if (node instanceof NodeWithInterval) {
+			properties.add(new TextPropertyDescriptor(NodeWithInterval.PROPERTY_INTERVAL,
+					((NodeWithInterval) node).getIntervalName()));
+		}
+
+		if (node instanceof NodeWithProbability) {
+			properties.add(new TextPropertyDescriptor(NodeWithProbability.PROPERTY_PROBABILITY, "Probability"));
+		}
+
+		if (node instanceof NodeWithCapacity) {
+			properties.add(new TextPropertyDescriptor(NodeWithCapacity.PROPERTY_CAPACITY, "Capacity"));
 		}
 
 		return properties.stream().toArray(IPropertyDescriptor[]::new);
@@ -43,11 +55,23 @@ public class NodePropertySource implements IPropertySource {
 	public Object getPropertyValue(Object id) {
 		if (id.equals(NodeWithProperty.PROPERTY_COLOR)) {
 			return node.getColor();
-		} else if (id.equals(NodeWithProperty.PROPERTY_NAME)) {
+		}
+		if (id.equals(NodeWithProperty.PROPERTY_NAME)) {
 			return node.nameIsVisible();
-		} else if (id.equals(NodeWithResource.PROPERTY_RESOURCE) && (node instanceof NodeWithResource)) {
+		}
+		if (id.equals(NodeWithResource.PROPERTY_RESOURCE) && node instanceof NodeWithResource) {
 			return ((NodeWithResource) node).getResourceName();
 		}
+		if (id.equals(NodeWithInterval.PROPERTY_INTERVAL) && node instanceof NodeWithInterval) {
+			return ((NodeWithInterval) node).getInterval();
+		}
+		if (id.equals(NodeWithProbability.PROPERTY_PROBABILITY) && node instanceof NodeWithProbability) {
+			return ((NodeWithProbability) node).getProbability();
+		}
+		if (id.equals(NodeWithCapacity.PROPERTY_CAPACITY) && node instanceof NodeWithCapacity) {
+			return ((NodeWithCapacity) node).getCapacity();
+		}
+
 		return null;
 	}
 
@@ -67,8 +91,14 @@ public class NodePropertySource implements IPropertySource {
 			node.setColor(newColor);
 		} else if (id.equals(NodeWithProperty.PROPERTY_NAME)) {
 			node.setNameVisible((boolean) value);
-		} else if (id.equals(NodeWithResource.PROPERTY_RESOURCE) && (node instanceof NodeWithResource)) {
+		} else if (id.equals(NodeWithResource.PROPERTY_RESOURCE) && node instanceof NodeWithResource) {
 			((NodeWithResource) node).setResourceName((String) value);
+		} else if (id.equals(NodeWithInterval.PROPERTY_INTERVAL) && node instanceof NodeWithInterval) {
+			((NodeWithInterval) node).setInterval((String) value);
+		} else if (id.equals(NodeWithProbability.PROPERTY_PROBABILITY) && node instanceof NodeWithProbability) {
+			((NodeWithProbability) node).setProbability((String) value);
+		} else if (id.equals(NodeWithCapacity.PROPERTY_CAPACITY) && node instanceof NodeWithCapacity) {
+			((NodeWithCapacity) node).setCapacity((String) value);
 		}
 	}
 }

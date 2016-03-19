@@ -35,13 +35,13 @@ public class QueueProcessTest {
 
 	private List<Block> generateSituation() {
 		List<Block> blocks = new ArrayList<Block>();
-		Generate generate = new Generate(() -> 10);
+		Generate generate = new Generate(() -> 10.0);
 		Terminate terminate = new Terminate();
-		Advance advance = new Advance(() -> 15);
+		Advance advance = new Advance(() -> 15.0);
 		Resource resource = TestResource.create();
 		Seize seize = new Seize(resource);
 		Release release = new Release(resource);
-		Queue queue = new Queue();
+		Queue queue = new Queue(Integer.MAX_VALUE);
 		blocks.add(generate);
 		blocks.add(queue);
 		blocks.add(seize);

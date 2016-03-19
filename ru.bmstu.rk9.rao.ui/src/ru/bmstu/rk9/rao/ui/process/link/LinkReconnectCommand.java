@@ -32,8 +32,6 @@ public class LinkReconnectCommand extends Command {
 	}
 
 	private boolean checkSourceReconnection() {
-		if (newSourceNode == null)
-			return false;
 		if (newSourceNode.equals(oldTargetNode))
 			return false;
 		return true;
@@ -48,7 +46,7 @@ public class LinkReconnectCommand extends Command {
 	}
 
 	public void setNewSource(NodeWithProperty sourceNode, String sourceTerminal) {
-		if (sourceNode == null) {
+		if (sourceNode == null || sourceTerminal == null) {
 			throw new IllegalArgumentException();
 		}
 		this.newSourceNode = sourceNode;
@@ -57,7 +55,7 @@ public class LinkReconnectCommand extends Command {
 	}
 
 	public void setNewTarget(NodeWithProperty targetNode, String targetTerminal) {
-		if (targetNode == null) {
+		if (targetNode == null || targetTerminal == null) {
 			throw new IllegalArgumentException();
 		}
 		this.newSourceNode = null;

@@ -29,7 +29,7 @@ public class Release implements Block {
 		Transact transact = inputDock.pullTransact();
 		if (transact == null)
 			return BlockStatus.NOTHING_TO_DO;
-		if (!resource.isAccessible()) {
+		if (resource.isAccessible()) {
 			throw new ProcessException("Attempting to release unlocked resource");
 		}
 

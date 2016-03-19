@@ -8,12 +8,12 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class Generate implements Block {
 
-	public Generate(Supplier<Integer> interval) {
+	public Generate(Supplier<Double> interval) {
 		this.interval = interval;
 		Simulator.pushEvent(new GenerateEvent(interval.get()));
 	}
 
-	private Supplier<Integer> interval;
+	private Supplier<Double> interval;
 	private boolean ready = false;
 	private OutputDock outputDock = new OutputDock();
 

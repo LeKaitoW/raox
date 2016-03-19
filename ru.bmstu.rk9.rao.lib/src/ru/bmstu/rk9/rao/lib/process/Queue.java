@@ -10,6 +10,11 @@ public class Queue implements Block {
 	private InputDock inputDock = new InputDock();
 	private OutputDock outputDock = new OutputDock();
 	private java.util.Queue<Transact> queue = new LinkedList<Transact>();
+	private int capacity;
+
+	public Queue(int capacity) {
+		this.capacity = capacity;
+	}
 
 	public InputDock getInputDock() {
 		return inputDock;
@@ -23,9 +28,12 @@ public class Queue implements Block {
 	public BlockStatus check() {
 		Transact inputTransact = inputDock.pullTransact();
 		if (inputTransact != null) {
-			queue.offer(inputTransact);
-			System.out.println(Simulator.getTime() + " queue added " + inputTransact.getNumber());
-			return BlockStatus.SUCCESS;
+			if (queue.size() < capacity) {
+				queue.offer(inputTransact);
+				System.out.println(Simulator.getTime() + " queue added " + inputTransact.getNumber());
+				return BlockStatus.SUCCESS;
+			} else
+				return BlockStatus.CHECK_AGAIN;
 		}
 
 		Transact outputTransact = queue.peek();

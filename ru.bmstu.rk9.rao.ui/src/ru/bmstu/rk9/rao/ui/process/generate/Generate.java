@@ -4,9 +4,9 @@ import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
-import ru.bmstu.rk9.rao.ui.process.NodeWithProperty;
+import ru.bmstu.rk9.rao.ui.process.NodeWithInterval;
 
-public class Generate extends NodeWithProperty {
+public class Generate extends NodeWithInterval {
 
 	private static final long serialVersionUID = 1;
 
@@ -14,6 +14,7 @@ public class Generate extends NodeWithProperty {
 
 	public Generate() {
 		super(backgroundColor.getRGB());
+		intervalName = "Interval";
 	}
 
 	private static Color backgroundColor = ColorConstants.lightBlue;
@@ -21,7 +22,8 @@ public class Generate extends NodeWithProperty {
 
 	@Override
 	public BlockConverterInfo createBlock() {
-		ru.bmstu.rk9.rao.lib.process.Generate generate = new ru.bmstu.rk9.rao.lib.process.Generate(() -> 10);
+		ru.bmstu.rk9.rao.lib.process.Generate generate = new ru.bmstu.rk9.rao.lib.process.Generate(
+				() -> Double.valueOf(this.interval));
 		BlockConverterInfo generateInfo = new BlockConverterInfo(generate);
 		generateInfo.outputDocks.put(TERMINAL_OUT, generate.getOutputDock());
 		return generateInfo;

@@ -10,10 +10,10 @@ public class Advance implements Block {
 
 	private InputDock inputDock = new InputDock();
 	private OutputDock outputDock = new OutputDock();
-	private Supplier<Integer> duration;
+	private Supplier<Double> duration;
 	private Transact temporaryTransactOnOutput;
 
-	public Advance(Supplier<Integer> duration) {
+	public Advance(Supplier<Double> duration) {
 		this.duration = duration;
 	}
 

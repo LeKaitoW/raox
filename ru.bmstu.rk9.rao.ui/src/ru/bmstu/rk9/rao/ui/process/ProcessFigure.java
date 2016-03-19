@@ -2,6 +2,8 @@ package ru.bmstu.rk9.rao.ui.process;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import org.eclipse.draw2d.ConnectionAnchor;
 import org.eclipse.draw2d.Figure;
@@ -18,9 +20,9 @@ public class ProcessFigure extends Figure {
 
 	protected Label label = new Label();
 	private boolean isNameVisible = true;
-	protected HashMap<String, ConnectionAnchor> connectionAnchors = new HashMap<>();
-	protected ArrayList<ConnectionAnchor> inputConnectionAnchors = new ArrayList<>();
-	protected ArrayList<ConnectionAnchor> outputConnectionAnchors = new ArrayList<>();
+	protected Map<String, ConnectionAnchor> connectionAnchors = new HashMap<>();
+	protected List<ConnectionAnchor> inputConnectionAnchors = new ArrayList<>();
+	protected List<ConnectionAnchor> outputConnectionAnchors = new ArrayList<>();
 	protected int offset = 5;
 
 	public ProcessFigure() {
@@ -92,7 +94,7 @@ public class ProcessFigure extends Figure {
 		return closest;
 	}
 
-	public ArrayList<ConnectionAnchor> getSourceConnectionAnchors() {
+	public List<ConnectionAnchor> getSourceConnectionAnchors() {
 		return outputConnectionAnchors;
 	}
 
@@ -111,7 +113,7 @@ public class ProcessFigure extends Figure {
 		return closest;
 	}
 
-	public ArrayList<ConnectionAnchor> getTargetConnectionAnchors() {
+	public List<ConnectionAnchor> getTargetConnectionAnchors() {
 		return inputConnectionAnchors;
 	}
 }

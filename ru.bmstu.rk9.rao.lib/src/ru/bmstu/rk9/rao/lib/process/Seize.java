@@ -24,7 +24,7 @@ public class Seize implements Block {
 
 	@Override
 	public BlockStatus check() {
-		if (resource.isAccessible())
+		if (!resource.isAccessible())
 			return BlockStatus.NOTHING_TO_DO;
 		if (outputDock.hasTransact())
 			return BlockStatus.CHECK_AGAIN;

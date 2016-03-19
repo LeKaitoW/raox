@@ -5,9 +5,9 @@ import java.io.Serializable;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
-import ru.bmstu.rk9.rao.ui.process.NodeWithProperty;
+import ru.bmstu.rk9.rao.ui.process.NodeWithProbability;
 
-public class Test extends NodeWithProperty implements Serializable {
+public class Test extends NodeWithProbability implements Serializable {
 
 	private static final long serialVersionUID = 1;
 
@@ -24,7 +24,8 @@ public class Test extends NodeWithProperty implements Serializable {
 
 	@Override
 	public BlockConverterInfo createBlock() {
-		ru.bmstu.rk9.rao.lib.process.Test test = new ru.bmstu.rk9.rao.lib.process.Test();
+		ru.bmstu.rk9.rao.lib.process.Test test = new ru.bmstu.rk9.rao.lib.process.Test(
+				Double.valueOf(this.probability));
 		BlockConverterInfo testInfo = new BlockConverterInfo(test);
 		testInfo.inputDocks.put(TERMINAL_IN, test.getInputDock());
 		testInfo.outputDocks.put(TERMINAL_TRUE_OUT, test.getTrueOutputDock());
