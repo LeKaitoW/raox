@@ -35,7 +35,7 @@ public class Writer {
 			JSONObject jsonModelStateObject = new JSONObject();
 			jsonModelStateObject.put("Model state array", jsonModelStateArray);
 			serializer.dumpResoursestoJSONfile(jsonModelStateObject);
-			serializer.retrieveJSONobjectfromJSONfile();
+			player.PlayerRun();
 		}
 
 	}
@@ -43,7 +43,7 @@ public class Writer {
 	public final void deinitializeSubscribers() {
 		simulationSubscriberManager.deinitialize();
 	}
-
+	private final Player player = new Player();
 	private final JSONArray jsonModelStateArray = new JSONArray();
 	public final SimulationEndSubscriber simulationEndSubscriber = new SimulationEndSubscriber();
 	private final Serializer serializer = new Serializer();
