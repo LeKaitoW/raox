@@ -35,6 +35,7 @@ public class Writer {
 			JSONObject jsonModelStateObject = new JSONObject();
 			jsonModelStateObject.put("Model state array", jsonModelStateArray);
 			serializer.dumpResoursestoJSONfile(jsonModelStateObject);
+			serializer.retrieveJSONobjectfromJSONfile();
 		}
 
 	}
