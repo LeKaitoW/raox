@@ -5,6 +5,7 @@ import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
+import ru.bmstu.rk9.rao.ui.player.Player.PlayingDirection;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
@@ -35,7 +36,7 @@ public class Writer {
 			JSONObject jsonModelStateObject = new JSONObject();
 			jsonModelStateObject.put("Model state array", jsonModelStateArray);
 			serializer.dumpResoursestoJSONfile(jsonModelStateObject);
-			player.PlayerRun();
+			player.PlayerRun(5, 1000, PlayingDirection.BACK);
 		}
 
 	}

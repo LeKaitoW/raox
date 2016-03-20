@@ -1,9 +1,40 @@
 package ru.bmstu.rk9.rao.ui.player;
 
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
-import ru.bmstu.rk9.rao.lib.json.JSONObject;
 
 public class Player {
+
+	private void Delay(int time) {
+		try {
+			Thread.sleep(time); // 1000 milliseconds is one second.
+		} catch (InterruptedException ex) {
+			Thread.currentThread().interrupt();
+		}
+	}
+
+	public enum PlayingDirection {
+		TOWARD, BACK;
+	};
+
+	private int PlaingSelector(int currentEventNumber, PlayingDirection playingDirection) {
+
+		switch (playingDirection) {
+		case TOWARD:
+			// System.out.println("Playing toward!");
+			currentEventNumber++;
+			break;
+		case BACK:
+			// System.out.println("Playing back");
+			currentEventNumber--;
+			break;
+
+		default:
+			System.out.println("Invalid grade");
+		}
+
+		return currentEventNumber;
+
+	}
 
 	public JSONArray getModelData() {
 
@@ -11,18 +42,29 @@ public class Player {
 
 	}
 
-	public void PlayerRun() {
+	public int PlayerRun(int currentEventNumber, int time, PlayingDirection playingDirection) {
 
 		jsonModelStateObject = getModelData();
 
-		if (jsonModelStateObject != null && jsonModelStateObject.length() > 0) {
-			for (int i = 0; i < jsonModelStateObject.length(); i++) {
-				JSONObject jsonResourses = jsonModelStateObject.getJSONObject(i);
-				System.out.println("\n" + "jsonResourses" + jsonResourses);
+		String state = new String();
+		state = "Play";
 
-			}
+		while (state != "Stop" && state != "Pause" && (currentEventNumber <= (jsonModelStateObject.length() - 1))
+				&& currentEventNumber > 0) {
+			Delay(time);
+			System.out.println("\n" + "Event number " + currentEventNumber + " Current frame"
+					+ jsonModelStateObject.getJSONObject(currentEventNumber));
+			currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
+
 		}
 
+		System.out.println("Playing done");
+		return currentEventNumber;
+
+	}
+
+	public int PlayerRun() {
+		return PlayerRun(0, 1000, PlayingDirection.TOWARD);
 	}
 
 	private JSONArray jsonModelStateObject = new JSONArray();
