@@ -38,11 +38,11 @@ public class Player {
 
 	public JSONArray getModelData() {
 
-		return serializer.retrieveJSONobjectfromJSONfile();
+		return reader.retrieveJSONobjectfromJSONfile();
 
 	}
 
-	public int PlayerRun(int currentEventNumber, int time, PlayingDirection playingDirection) {
+	public int Run(int currentEventNumber, int time, PlayingDirection playingDirection) {
 
 		jsonModelStateObject = getModelData();
 
@@ -63,11 +63,11 @@ public class Player {
 
 	}
 
-	public int PlayerRun() {
-		return PlayerRun(0, 1000, PlayingDirection.TOWARD);
+	public int Run() {
+		return Run(0, 1000, PlayingDirection.TOWARD);
 	}
 
 	private JSONArray jsonModelStateObject = new JSONArray();
-	private final Serializer serializer = new Serializer();
+	private final Reader reader = new Reader();
 
 }

@@ -1,7 +1,7 @@
 package ru.bmstu.rk9.rao.ui.simulation;
 
+import ru.bmstu.rk9.rao.ui.dump.Writer;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeUpdater;
-import ru.bmstu.rk9.rao.ui.player.Writer;
 
 public class RuntimeComponents {
 	public static RealTimeUpdater realTimeUpdater = null;
