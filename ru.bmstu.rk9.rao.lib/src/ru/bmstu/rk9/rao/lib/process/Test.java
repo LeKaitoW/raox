@@ -9,9 +9,11 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class Test implements Block {
 
+	private TransactStorage trueOutputTransactStorage = new TransactStorage();
+	private TransactStorage falseOutputTransactStorage = new TransactStorage();
 	private InputDock inputDock = new InputDock();
-	private OutputDock trueOutputDock = new OutputDock();
-	private OutputDock falseOutputDock = new OutputDock();
+	private OutputDock trueOutputDock = () -> trueOutputTransactStorage.pullTransact();
+	private OutputDock falseOutputDock = () -> falseOutputTransactStorage.pullTransact();
 	private Supplier<Boolean> test;
 
 	public Test(Supplier<Boolean> test) {
@@ -49,20 +51,17 @@ public class Test implements Block {
 		if (transact == null)
 			return BlockStatus.NOTHING_TO_DO;
 
-		OutputDock outputDock;
+		TransactStorage storage;
 		if (test.get()) {
-			outputDock = trueOutputDock;
+			storage = trueOutputTransactStorage;
 			System.out.println(Simulator.getTime() + " : transact goes true " + transact.getNumber());
 		} else {
-			outputDock = falseOutputDock;
+			storage = falseOutputTransactStorage;
 			System.out.println(Simulator.getTime() + " : transact goes false " + transact.getNumber());
 		}
 
-		if (outputDock.hasTransact()) {
+		if (!storage.pushTransact(transact))
 			return BlockStatus.CHECK_AGAIN;
-		}
-
-		outputDock.pushTransact(transact);
 
 		return BlockStatus.SUCCESS;
 	}

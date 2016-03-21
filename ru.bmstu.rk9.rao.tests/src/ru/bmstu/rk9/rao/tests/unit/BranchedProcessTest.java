@@ -13,6 +13,7 @@ import ru.bmstu.rk9.rao.lib.process.Release;
 import ru.bmstu.rk9.rao.lib.process.Seize;
 import ru.bmstu.rk9.rao.lib.process.Terminate;
 import ru.bmstu.rk9.rao.lib.process.Test;
+import ru.bmstu.rk9.rao.lib.process.Queue.Queueing;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
@@ -39,7 +40,7 @@ public class BranchedProcessTest {
 		Resource resource = TestResource.create();
 		Seize seize = new Seize(resource);
 		Release release = new Release(resource);
-		Queue queue = new Queue(100);
+		Queue queue = new Queue(Integer.MAX_VALUE, Queueing.FIFO);
 		Test test = new Test(0.5);
 		blocks.add(generate);
 		blocks.add(test);

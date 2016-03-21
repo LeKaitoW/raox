@@ -16,6 +16,7 @@ import ru.bmstu.rk9.rao.lib.process.Release;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.process.Seize;
 import ru.bmstu.rk9.rao.lib.process.Terminate;
+import ru.bmstu.rk9.rao.lib.process.Queue.Queueing;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
@@ -41,7 +42,7 @@ public class QueueProcessTest {
 		Resource resource = TestResource.create();
 		Seize seize = new Seize(resource);
 		Release release = new Release(resource);
-		Queue queue = new Queue(Integer.MAX_VALUE);
+		Queue queue = new Queue(Integer.MAX_VALUE, Queueing.FIFO);
 		blocks.add(generate);
 		blocks.add(queue);
 		blocks.add(seize);

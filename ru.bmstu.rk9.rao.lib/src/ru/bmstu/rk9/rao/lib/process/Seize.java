@@ -12,7 +12,8 @@ public class Seize implements Block {
 
 	private Resource resource;
 	private InputDock inputDock = new InputDock();
-	private OutputDock outputDock = new OutputDock();
+	private TransactStorage transactStorage = new TransactStorage();
+	private OutputDock outputDock = () -> transactStorage.pullTransact();
 
 	public InputDock getInputDock() {
 		return inputDock;
@@ -26,7 +27,7 @@ public class Seize implements Block {
 	public BlockStatus check() {
 		if (!resource.isAccessible())
 			return BlockStatus.NOTHING_TO_DO;
-		if (outputDock.hasTransact())
+		if (transactStorage.hasTransact())
 			return BlockStatus.CHECK_AGAIN;
 
 		Transact transact = inputDock.pullTransact();
@@ -34,7 +35,7 @@ public class Seize implements Block {
 			return BlockStatus.NOTHING_TO_DO;
 
 		System.out.println(Simulator.getTime() + ": seize body " + transact.getNumber());
-		outputDock.pushTransact(transact);
+		transactStorage.pushTransact(transact);
 		resource.setAccessible(false);
 		return BlockStatus.SUCCESS;
 	}

@@ -5,10 +5,13 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.ColorPropertyDescriptor;
+import org.eclipse.ui.views.properties.ComboBoxPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
+
+import ru.bmstu.rk9.rao.lib.process.Queue;
 
 public class NodePropertySource implements IPropertySource {
 
@@ -46,6 +49,8 @@ public class NodePropertySource implements IPropertySource {
 
 		if (node instanceof NodeWithCapacity) {
 			properties.add(new TextPropertyDescriptor(NodeWithCapacity.PROPERTY_CAPACITY, "Capacity"));
+			properties.add(new ComboBoxPropertyDescriptor(NodeWithCapacity.PROPERTY_QUEUEING, "Queueing",
+					Queue.getQueueingArray()));
 		}
 
 		return properties.stream().toArray(IPropertyDescriptor[]::new);
@@ -70,6 +75,9 @@ public class NodePropertySource implements IPropertySource {
 		}
 		if (id.equals(NodeWithCapacity.PROPERTY_CAPACITY) && node instanceof NodeWithCapacity) {
 			return ((NodeWithCapacity) node).getCapacity();
+		}
+		if (id.equals(NodeWithCapacity.PROPERTY_QUEUEING) && node instanceof NodeWithCapacity) {
+			return ((NodeWithCapacity) node).getQueueingIndex();
 		}
 
 		return null;
@@ -99,6 +107,8 @@ public class NodePropertySource implements IPropertySource {
 			((NodeWithProbability) node).setProbability((String) value);
 		} else if (id.equals(NodeWithCapacity.PROPERTY_CAPACITY) && node instanceof NodeWithCapacity) {
 			((NodeWithCapacity) node).setCapacity((String) value);
+		} else if (id.equals(NodeWithCapacity.PROPERTY_QUEUEING) && node instanceof NodeWithCapacity) {
+			((NodeWithCapacity) node).setQueueing((int) value);
 		}
 	}
 }

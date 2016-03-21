@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.graphics.Color;
+
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.NodeWithCapacity;
 
@@ -25,9 +26,9 @@ public class Queue extends NodeWithCapacity implements Serializable {
 	public BlockConverterInfo createBlock() {
 		ru.bmstu.rk9.rao.lib.process.Queue queue;
 		if (this.capacity.isEmpty()) {
-			queue = new ru.bmstu.rk9.rao.lib.process.Queue(Integer.MAX_VALUE);
+			queue = new ru.bmstu.rk9.rao.lib.process.Queue(Integer.MAX_VALUE, this.queueing);
 		} else {
-			queue = new ru.bmstu.rk9.rao.lib.process.Queue(Integer.valueOf(this.capacity));
+			queue = new ru.bmstu.rk9.rao.lib.process.Queue(Integer.valueOf(this.capacity), this.queueing);
 		}
 		BlockConverterInfo queueInfo = new BlockConverterInfo(queue);
 		queueInfo.inputDocks.put(TERMINAL_IN, queue.getInputDock());

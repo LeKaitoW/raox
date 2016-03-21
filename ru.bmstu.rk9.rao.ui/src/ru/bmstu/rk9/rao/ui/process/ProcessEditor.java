@@ -48,8 +48,6 @@ import ru.bmstu.rk9.rao.ui.process.queue.Queue;
 import ru.bmstu.rk9.rao.ui.process.queue.QueuePart;
 import ru.bmstu.rk9.rao.ui.process.release.Release;
 import ru.bmstu.rk9.rao.ui.process.release.ReleasePart;
-import ru.bmstu.rk9.rao.ui.process.resource.Resource;
-import ru.bmstu.rk9.rao.ui.process.resource.ResourcePart;
 import ru.bmstu.rk9.rao.ui.process.seize.Seize;
 import ru.bmstu.rk9.rao.ui.process.seize.SeizePart;
 import ru.bmstu.rk9.rao.ui.process.terminate.Terminate;
@@ -78,8 +76,6 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 				new ProcessNodeInfo(Release.name, () -> new Release(), () -> new ReleasePart()));
 		processNodesInfo.put(Advance.class,
 				new ProcessNodeInfo(Advance.name, () -> new Advance(), () -> new AdvancePart()));
-		processNodesInfo.put(Resource.class,
-				new ProcessNodeInfo(Resource.name, () -> new Resource(), () -> new ResourcePart()));
 		processNodesInfo.put(Queue.class, new ProcessNodeInfo(Queue.name, () -> new Queue(), () -> new QueuePart()));
 		processNodesInfo.put(Test.class, new ProcessNodeInfo(Test.name, () -> new Test(), () -> new TestPart()));
 	}

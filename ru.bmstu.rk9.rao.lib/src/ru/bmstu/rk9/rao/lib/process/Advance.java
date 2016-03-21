@@ -9,9 +9,9 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 public class Advance implements Block {
 
 	private InputDock inputDock = new InputDock();
-	private OutputDock outputDock = new OutputDock();
+	private TransactStorage transactStorage = new TransactStorage();
+	private OutputDock outputDock = () -> transactStorage.pullTransact();
 	private Supplier<Double> duration;
-	private Transact temporaryTransactOnOutput;
 
 	public Advance(Supplier<Double> duration) {
 		this.duration = duration;
@@ -27,11 +27,8 @@ public class Advance implements Block {
 
 	@Override
 	public BlockStatus check() {
-		if (temporaryTransactOnOutput != null) {
-			if (outputDock.hasTransact())
-				return BlockStatus.CHECK_AGAIN;
-			outputDock.pushTransact(temporaryTransactOnOutput);
-			temporaryTransactOnOutput = null;
+		if (transactStorage.hasTransact()) {
+			return BlockStatus.CHECK_AGAIN;
 		}
 
 		Transact transact = inputDock.pullTransact();
@@ -60,10 +57,9 @@ public class Advance implements Block {
 
 		@Override
 		public void execute() {
-			if (temporaryTransactOnOutput != null)
+			if (!transactStorage.pushTransact(transact))
 				throw new ProcessException("Transact collision in Advance block");
 			System.out.println(Simulator.getTime() + ": advance run " + transact.getNumber());
-			temporaryTransactOnOutput = transact;
 		}
 	}
 }

@@ -15,7 +15,8 @@ public class Generate implements Block {
 
 	private Supplier<Double> interval;
 	private boolean ready = false;
-	private OutputDock outputDock = new OutputDock();
+	private TransactStorage transactStorage = new TransactStorage();
+	private OutputDock outputDock = () -> transactStorage.pullTransact();
 
 	public OutputDock getOutputDock() {
 		return outputDock;
@@ -26,11 +27,11 @@ public class Generate implements Block {
 		if (!ready)
 			return BlockStatus.NOTHING_TO_DO;
 
-		if (outputDock.hasTransact()) {
+		if (transactStorage.hasTransact()) {
 			return BlockStatus.CHECK_AGAIN;
 		}
 		Transact transact = Transact.create();
-		outputDock.pushTransact(transact);
+		transactStorage.pushTransact(transact);
 		System.out.println(Simulator.getTime() + ": generate body " + transact.getNumber());
 
 		Double time = Simulator.getTime() + interval.get();

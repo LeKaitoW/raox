@@ -12,7 +12,8 @@ public class Release implements Block {
 
 	private Resource resource;
 	private InputDock inputDock = new InputDock();
-	private OutputDock outputDock = new OutputDock();
+	private TransactStorage transactStorage = new TransactStorage();
+	private OutputDock outputDock = () -> transactStorage.pullTransact();
 
 	public InputDock getInputDock() {
 		return inputDock;
@@ -24,7 +25,7 @@ public class Release implements Block {
 
 	@Override
 	public BlockStatus check() {
-		if (outputDock.hasTransact())
+		if (transactStorage.hasTransact())
 			return BlockStatus.CHECK_AGAIN;
 		Transact transact = inputDock.pullTransact();
 		if (transact == null)
@@ -35,7 +36,7 @@ public class Release implements Block {
 
 		System.out.println(Simulator.getTime() + ": release body " + transact.getNumber());
 
-		outputDock.pushTransact(transact);
+		transactStorage.pushTransact(transact);
 		resource.setAccessible(true);
 		return BlockStatus.SUCCESS;
 	}
