@@ -36,6 +36,9 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.xtext.ui.resource.IResourceSetProvider;
+
+import com.google.inject.Inject;
 
 import ru.bmstu.rk9.rao.ui.process.advance.Advance;
 import ru.bmstu.rk9.rao.ui.process.advance.AdvancePart;
@@ -64,6 +67,9 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.process.editor";
 	private Model model;
 	public static final Map<Class<?>, ProcessNodeInfo> processNodesInfo = new LinkedHashMap<>();
+
+	@Inject
+	IResourceSetProvider resourceSetProvider;
 
 	static {
 		processNodesInfo.put(Model.class, new ProcessNodeInfo(Model.name, () -> new Model(), () -> new ModelPart()));
@@ -116,6 +122,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 	private void setModel(Model model) {
 		this.model = model;
+		model.setResourceRetriever(new EResourceRetriever(resourceSetProvider,
+				((IFileEditorInput) getEditorInput()).getFile().getProject()));
 	}
 
 	public Model getModel() {
@@ -175,6 +183,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		GraphicalViewer viewer = getGraphicalViewer();
 		if (model == null)
 			model = new Model();
+		model.setResourceRetriever(new EResourceRetriever(resourceSetProvider,
+				((IFileEditorInput) getEditorInput()).getFile().getProject()));
 		viewer.setContents(model);
 		viewer.addDropTargetListener(new ProcessDropTargetListener(viewer));
 	}

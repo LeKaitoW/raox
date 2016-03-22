@@ -35,7 +35,8 @@ public class NodePropertySource implements IPropertySource {
 		properties.add(nameProperty);
 
 		if (node instanceof NodeWithResource) {
-			properties.add(new TextPropertyDescriptor(NodeWithResource.PROPERTY_RESOURCE, "Resource"));
+			properties.add(new ComboBoxPropertyDescriptor(NodeWithResource.PROPERTY_RESOURCE, "Resource",
+					((NodeWithResource) node).getResourcesNames().stream().toArray(String[]::new)));
 		}
 
 		if (node instanceof NodeWithInterval) {
@@ -65,7 +66,7 @@ public class NodePropertySource implements IPropertySource {
 			return node.nameIsVisible();
 		}
 		if (id.equals(NodeWithResource.PROPERTY_RESOURCE) && node instanceof NodeWithResource) {
-			return ((NodeWithResource) node).getResourceName();
+			return ((NodeWithResource) node).getResourceNameIndex();
 		}
 		if (id.equals(NodeWithInterval.PROPERTY_INTERVAL) && node instanceof NodeWithInterval) {
 			return ((NodeWithInterval) node).getInterval();
@@ -100,7 +101,7 @@ public class NodePropertySource implements IPropertySource {
 		} else if (id.equals(NodeWithProperty.PROPERTY_NAME)) {
 			node.setNameVisible((boolean) value);
 		} else if (id.equals(NodeWithResource.PROPERTY_RESOURCE) && node instanceof NodeWithResource) {
-			((NodeWithResource) node).setResourceName((String) value);
+			((NodeWithResource) node).setResourceName((int) value);
 		} else if (id.equals(NodeWithInterval.PROPERTY_INTERVAL) && node instanceof NodeWithInterval) {
 			((NodeWithInterval) node).setInterval((String) value);
 		} else if (id.equals(NodeWithProbability.PROPERTY_PROBABILITY) && node instanceof NodeWithProbability) {

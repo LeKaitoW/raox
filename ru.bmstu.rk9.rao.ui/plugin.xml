@@ -1055,7 +1055,7 @@
   <extension
         point="org.eclipse.ui.editors">
      <editor
-           class="ru.bmstu.rk9.rao.ui.process.ProcessEditor"
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.process.ProcessEditor"
            default="true"
            extensions="grao"
            id="ru.bmstu.rk9.rao.ui.process.editor"
