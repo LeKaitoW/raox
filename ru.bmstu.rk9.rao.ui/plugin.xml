@@ -946,6 +946,12 @@
            id="ru.bmstu.rk9.rao.ui.perspective"
            name="Rao">
      </perspective>
+     <perspective
+           class="ru.bmstu.rk9.rao.ui.player.gui.RaoPlayerPerspective"
+           icon="icons/rao_player.gif"
+           id="ru.bmstu.rk9.rao.ui.player.perspective"
+           name="RaoPlayer">
+     </perspective>
   </extension>
   <extension
         point="org.eclipse.ui.services">
