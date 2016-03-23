@@ -7,7 +7,6 @@ import java.util.TreeMap;
 
 import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
-import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 
 public class CollectedDataNode {
@@ -158,16 +157,9 @@ public class CollectedDataNode {
 	}
 
 	public static class ResourceTypeIndex extends Index {
-		public ResourceTypeIndex(int number, JSONObject structure) {
+		public ResourceTypeIndex(int number) {
 			super(number, IndexType.RESOURCE_TYPE);
-			this.structure = structure;
 		}
-
-		public JSONObject getStructure() {
-			return structure;
-		}
-
-		private final JSONObject structure;
 	}
 
 	public static class ResultIndex extends Index {
@@ -190,22 +182,9 @@ public class CollectedDataNode {
 	}
 
 	public static class ResourceParameterIndex extends Index {
-		public ResourceParameterIndex(int number, ValueCache cache, int offset) {
+		public ResourceParameterIndex(int number) {
 			super(number, IndexType.RESOURCE_PARAMETER);
-			this.cache = cache;
-			this.offset = offset;
 		}
-
-		public final ValueCache getValueCache() {
-			return cache;
-		}
-
-		public final int getOffset() {
-			return offset;
-		}
-
-		private final ValueCache cache;
-		private final int offset;
 	}
 
 	public CollectedDataNode(String name, CollectedDataNode parent) {

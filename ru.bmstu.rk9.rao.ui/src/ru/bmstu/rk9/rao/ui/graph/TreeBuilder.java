@@ -11,8 +11,6 @@ import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
-import ru.bmstu.rk9.rao.lib.modelStructure.ActivityCache;
-import ru.bmstu.rk9.rao.lib.modelStructure.DecisionPointCache;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.trace.StringJoiner;
 import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
@@ -21,7 +19,6 @@ import ru.bmstu.rk9.rao.ui.trace.Tracer;
 public class TreeBuilder {
 	TreeBuilder(int dptNumber) {
 		this.dptNumber = dptNumber;
-		this.decisionPointCache = Simulator.getModelStructureCache().getDecisionPointsInfo().get(dptNumber);
 	}
 
 	public final boolean updateTree() {
@@ -120,23 +117,20 @@ public class TreeBuilder {
 				final double g = data.getDouble();
 				final double h = data.getDouble();
 				final int ruleNum = data.getInt();
-				ActivityCache activity = decisionPointCache.getActivitiesInfo().get(ruleNum);
-				final int patternNumber = activity.getPatternNumber();
+				final int patternNumber = data.getInt();
 				final double ruleCost = data.getDouble();
 
-				final int numberOfRelevantResources = Simulator.getModelStructureCache().getPatternsInfo()
-						.get(patternNumber).getRelResTypes().size();
+				final int numberOfRelevantResources = Simulator.getStaticModelData()
+						.getNumberOfRelevantResources(patternNumber);
 
 				StringJoiner relResStringJoiner = new StringJoiner(StringFormat.ENUMERATION);
 
 				for (int num = 0; num < numberOfRelevantResources; num++) {
 					final int resNum = data.getInt();
-					final int typeNum = Simulator.getModelStructureCache().getPatternsInfo().get(patternNumber)
-							.getRelResTypes().get(num);
-					final String typeName = Simulator.getModelStructureCache().getResourceTypesInfo().get(typeNum)
-							.getName();
-
-					final String name = Simulator.getModelStructureCache().getResourceNames().get(typeNum).get(resNum);
+					final String typeName = Simulator.getStaticModelData().getRelevantResourceTypeName(patternNumber,
+							num);
+					final int typeNum = Simulator.getStaticModelData().getResourceTypeNumber(typeName);
+					final String name = Simulator.getStaticModelData().getResourceName(typeNum, resNum);
 					final String resourceName = name != null ? name : typeName + Tracer.encloseIndex(resNum);
 
 					relResStringJoiner.add(resourceName);
@@ -148,7 +142,7 @@ public class TreeBuilder {
 				treeNode.g = g;
 				treeNode.h = h;
 				treeNode.ruleNumber = ruleNum;
-				treeNode.ruleName = activity.getName();
+				treeNode.ruleName = Simulator.getStaticModelData().getEdgeName(dptNumber, ruleNum);
 				treeNode.relevantResources = relResStringJoiner.getString();
 				treeNode.ruleCost = ruleCost;
 
@@ -202,7 +196,6 @@ public class TreeBuilder {
 
 	private int entryNumber = 0;
 	private final int dptNumber;
-	private final DecisionPointCache decisionPointCache;
 
 	public class GraphInfo {
 		public double solutionCost;

@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rao.lib.naming;
 
+import java.lang.reflect.Field;
+
 public class NamingHelper {
 	public final static String getModelProjectName(final String name) {
 		return name.substring(name.indexOf('/') + 1, name.lastIndexOf('/'));
@@ -26,7 +28,11 @@ public class NamingHelper {
 				+ nameGeneric;
 	}
 
-	public final static String fieldNameToFullName(final String fieldName) {
-		return NamingHelper.getNameWithoutProject(fieldName.replace('$', '.'));
+	public final static String changeDollarToDot(final String name) {
+		return name.replace('$', '.');
+	}
+
+	public final static String createFullNameForField(final Field field) {
+		return changeDollarToDot(field.getDeclaringClass().getName() + "." + field.getName());
 	}
 }

@@ -9,7 +9,7 @@ import ru.bmstu.rk9.rao.lib.dpt.DPTManager;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.event.EventScheduler;
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
-import ru.bmstu.rk9.rao.lib.modelStructure.ModelStructureCache;
+import ru.bmstu.rk9.rao.lib.modelData.StaticModelData;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.process.Process;
 import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
@@ -32,7 +32,7 @@ public class Simulator {
 
 		INSTANCE.modelState = new ModelState(preinitializationInfo.resourceClasses);
 		INSTANCE.database = new Database(preinitializationInfo.modelStructure);
-		INSTANCE.modelStructureCache = new ModelStructureCache();
+		INSTANCE.staticModelData = new StaticModelData(preinitializationInfo.modelStructure);
 
 		setSimulationState(SimulatorState.PREINITIALIZED);
 	}
@@ -94,16 +94,16 @@ public class Simulator {
 		return INSTANCE.database;
 	}
 
+	private StaticModelData staticModelData;
+
+	public static StaticModelData getStaticModelData() {
+		return INSTANCE.staticModelData;
+	}
+
 	private ModelState modelState;
 
 	public static ModelState getModelState() {
 		return INSTANCE.modelState;
-	}
-
-	private ModelStructureCache modelStructureCache;
-
-	public static ModelStructureCache getModelStructureCache() {
-		return INSTANCE.modelStructureCache;
 	}
 
 	private volatile double time = 0;

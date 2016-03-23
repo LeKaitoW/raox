@@ -8,6 +8,7 @@ import org.eclipse.xtext.naming.QualifiedName
 import java.util.Collection
 import org.eclipse.xtext.common.types.JvmPrimitiveType
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
+import java.nio.ByteBuffer
 
 class ResourceTypeCompiler extends RaoEntityCompiler {
 	def static asClass(ResourceType resourceType, JvmTypesBuilder jvmTypesBuilder,
@@ -96,6 +97,35 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				annotations += generateOverrideAnnotation()
 				body = '''
 					return "«typeQualifiedName»";
+				'''
+			]
+
+			members += resourceType.toMethod("serialize", typeRef(ByteBuffer)) [
+				visibility = JvmVisibility.PUBLIC
+				final = true
+				annotations += generateOverrideAnnotation()
+
+				var size = 0
+				// TODO cleaner approach
+				for (param : resourceType.parameters) {
+					switch param.declaration.parameterType.simpleName {
+						case "int",
+						case "Integer":
+							size = size + 4
+						case "double",
+						case "Double":
+							size = size + 8
+						case "boolean",
+						case "Boolean":
+							size = size + 1
+					}
+				}
+				val totalSize = size
+
+				// FIXME stub
+				body = '''
+					ByteBuffer buffer = ByteBuffer.allocate(«totalSize»);
+					return buffer;
 				'''
 			]
 

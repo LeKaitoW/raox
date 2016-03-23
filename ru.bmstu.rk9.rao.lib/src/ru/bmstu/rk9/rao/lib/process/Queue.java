@@ -39,5 +39,4 @@ public class Queue implements Block {
 		}
 		return BlockStatus.NOTHING_TO_DO;
 	}
-
 }

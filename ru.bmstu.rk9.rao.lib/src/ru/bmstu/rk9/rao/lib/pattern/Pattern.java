@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.lib.pattern;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
@@ -21,7 +22,11 @@ public abstract class Pattern {
 
 	public abstract boolean selectRelevantResources();
 
-	public abstract String getName();
+	public abstract String getTypeName();
 
-	public abstract List<Integer> getRelevantInfo();
+	protected final List<Integer> relevantResourcesNumbers = new ArrayList<Integer>();
+
+	public List<Integer> getRelevantResourcesNumbers() {
+		return relevantResourcesNumbers;
+	}
 }

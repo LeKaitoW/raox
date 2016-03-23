@@ -1,6 +1,5 @@
 package ru.bmstu.rk9.rao.ui.trace;
 
-import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -18,20 +17,17 @@ import java.util.PriorityQueue;
 import java.util.TreeSet;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
+import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
-import ru.bmstu.rk9.rao.lib.json.JSONArray;
-import ru.bmstu.rk9.rao.lib.json.JSONObject;
-import ru.bmstu.rk9.rao.lib.modelStructure.ResourceTypeCache;
-import ru.bmstu.rk9.rao.lib.modelStructure.ResultCache;
-import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceOutput;
 import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceType;
 
 public class LegacyTracer {
+
 	public LegacyTracer() {
 		super();
 
@@ -204,46 +200,44 @@ public class LegacyTracer {
 		final String headerLine = new StringJoiner(delimiter).add(traceType.toString())
 				.add(realFormatter.format((time))).add(typeNum + 1).add(legacyId).getString();
 
-		final ResourceTypeCache typeInfo = Simulator.getModelStructureCache().getResourceTypesInfo().get(typeNum);
-
 		return new TraceOutput(traceType,
-				new StringJoiner(delimiter).add(headerLine).add(parseResourceParameters(data, typeInfo)).getString());
+				new StringJoiner(delimiter).add(headerLine).add(parseResourceParameters(data, typeNum)).getString());
 	}
 
-	protected final String parseResourceParameters(final ByteBuffer data, final ResourceTypeCache typeInfo) {
+	protected final String parseResourceParameters(final ByteBuffer data, final int typeNum) {
 		final StringJoiner stringJoiner = new StringJoiner(delimiter);
+		final int numberOfParameters = Simulator.getStaticModelData().getNumberOfResourceTypeParameters(typeNum);
+		final int finalOffset = Simulator.getStaticModelData().getResourceTypeFinalOffset(typeNum);
 
-		for (int paramNum = 0; paramNum < typeInfo.getNumberOfParameters(); paramNum++) {
-			ValueCache valueCache = typeInfo.getParamTypes().get(paramNum);
-			// TODO trace arrays when they are implemented
-			switch (valueCache.getType()) {
-			case INTEGER:
+		for (int paramNum = 0; paramNum < numberOfParameters; paramNum++) {
+			DataType dataType = Simulator.getStaticModelData().getResourceTypeParameterType(typeNum, paramNum);
+			switch (dataType) {
+			case INT:
 				stringJoiner.add(data.getInt());
 				break;
-			case REAL:
+			case DOUBLE:
 				stringJoiner.add(realFormatter.format(data.getDouble()));
 				break;
 			case BOOLEAN:
 				stringJoiner.add(legacyBooleanString(data.get() != 0));
 				break;
-			case ENUM:
-				stringJoiner.add(data.getShort());
-				break;
-			case STRING:
-				final int index = typeInfo.getIndexList().get(paramNum);
-				final int stringPosition = data.getInt(typeInfo.getFinalOffset() + (index - 1) * TypeSize.Rao.INTEGER);
+			// TODO fix this when enum serialization is implemented
+			// case ENUM:
+			// stringJoiner.add(data.getShort());
+			// break;
+			case OTHER:
+				final int index = Simulator.getStaticModelData().getVariableWidthParameterIndex(typeNum, paramNum);
+				final int stringPosition = data.getInt(finalOffset + (index - 1) * TypeSize.INT);
 				final int length = data.getInt(stringPosition);
 
 				byte rawString[] = new byte[length];
-				for (int i = 0; i < length; i++) {
-					rawString[i] = data.get(stringPosition + TypeSize.Rao.INTEGER + i);
-				}
+				for (int i = 0; i < length; i++)
+					rawString[i] = data.get(stringPosition + TypeSize.INT + i);
 				stringJoiner.add(new String(rawString, StandardCharsets.UTF_8));
 				break;
-			default:
-				throw new TracerException("Unexpected resource parameter type: " + valueCache.getType());
 			}
 		}
+
 		return stringJoiner.getString();
 	}
 
@@ -285,17 +279,17 @@ public class LegacyTracer {
 
 		switch (patternType) {
 		case RULE: {
-			int dptNumber = data.getInt();
+			Tracer.skipPart(data, TypeSize.INT);
 			int activityNumber = data.getInt();
-			Tracer.skipPart(data, TypeSize.INTEGER);
-			patternNumber = Simulator.getModelStructureCache().decisionPointsInfo.get(dptNumber).getActivitiesInfo()
-					.get(activityNumber).getPatternNumber();
+			patternNumber = data.getInt();
+			Tracer.skipPart(data, TypeSize.INT);
 			stringJoiner.add(1).add(activityNumber + 1).add(patternNumber + 1);
 			break;
 		}
 		case OPERATION_BEGIN: {
 			int dptNumber = data.getInt();
 			int activityNumber = data.getInt();
+			patternNumber = data.getInt();
 			int actionNumber = data.getInt();
 
 			Map<Integer, Integer> activityActions = legacyActionNumbers.get(dptNumber).get(activityNumber);
@@ -308,22 +302,19 @@ public class LegacyTracer {
 
 			activityActions.put(actionNumber, legacyNumber);
 
-			patternNumber = Simulator.getModelStructureCache().decisionPointsInfo.get(dptNumber).getActivitiesInfo()
-					.get(activityNumber).getPatternNumber();
 			stringJoiner.add(legacyNumber + 1).add(activityNumber + 1).add(patternNumber + 1);
 			break;
 		}
 		case OPERATION_END: {
 			int dptNumber = data.getInt();
 			int activityNumber = data.getInt();
+			patternNumber = data.getInt();
 			int actionNumber = data.getInt();
 
 			Map<Integer, Integer> activityActions = legacyActionNumbers.get(dptNumber).get(activityNumber);
 			int legacyNumber = activityActions.remove(actionNumber);
 			vacantActionNumbers.add(legacyNumber);
 
-			patternNumber = Simulator.getModelStructureCache().decisionPointsInfo.get(dptNumber).getActivitiesInfo()
-					.get(activityNumber).getPatternNumber();
 			stringJoiner.add(legacyNumber + 1).add(activityNumber + 1).add(patternNumber + 1);
 		}
 			break;
@@ -334,8 +325,7 @@ public class LegacyTracer {
 		int numberOfRelevantResources = data.getInt();
 		stringJoiner.add(numberOfRelevantResources).add("");
 		for (int num = 0; num < numberOfRelevantResources; num++) {
-			final int typeNum = Simulator.getModelStructureCache().getPatternsInfo().get(patternNumber).getRelResTypes()
-					.get(num);
+			final int typeNum = Simulator.getStaticModelData().getRelevantResourceTypeNumber(patternNumber, num);
 			final int resNum = data.getInt();
 			if (legacyResourceIds.get(typeNum).get(resNum) == null) {
 				stringJoiner.add(getNewResourceId(typeNum, resNum));
@@ -368,7 +358,7 @@ public class LegacyTracer {
 		final StringJoiner stringJoiner = new StringJoiner(delimiter);
 
 		int eventNumber = data.getInt();
-		Tracer.skipPart(data, TypeSize.INTEGER);
+		Tracer.skipPart(data, TypeSize.INT);
 		stringJoiner.add(eventNumber + 1).add(eventNumber + 1);
 		return stringJoiner.getString();
 	}
@@ -461,20 +451,19 @@ public class LegacyTracer {
 			final int parentNumber = data.getInt();
 			final double g = data.getDouble();
 			final double h = data.getDouble();
-			final int ruleNumber = data.getInt();
-			final int patternNumber = Simulator.getModelStructureCache().decisionPointsInfo.get(dptNumber)
-					.getActivitiesInfo().get(ruleNumber).getPatternNumber();
+			final int activityNumber = data.getInt();
+			final int patternNumber = data.getInt();
 			final double ruleCost = data.getDouble();
-			final int numberOfRelevantResources = Simulator.getModelStructureCache().getPatternsInfo()
-					.get(patternNumber).getRelResTypes().size();
+			final int numberOfRelevantResources = Simulator.getStaticModelData()
+					.getNumberOfRelevantResources(patternNumber);
 
 			stringJoiner.add(traceType.toString()).add(childNumber + 1).add(parentNumber + 1)
-					.add(realFormatter.format(g)).add(realFormatter.format(g + h)).add(ruleNumber + 1)
+					.add(realFormatter.format(g)).add(realFormatter.format(g + h)).add(activityNumber + 1)
 					.add(patternNumber + 1).add(realFormatter.format(ruleCost)).add(numberOfRelevantResources).add("");
 
 			for (int num = 0; num < numberOfRelevantResources; num++) {
-				final int typeNum = Simulator.getModelStructureCache().getPatternsInfo().get(patternNumber)
-						.getRelResTypes().get(num);
+				final String typeName = Simulator.getStaticModelData().getRelevantResourceTypeName(patternNumber, num);
+				final int typeNum = Simulator.getStaticModelData().getResourceTypeNumber(typeName);
 				final int resNum = data.getInt();
 				final int legacyNum = legacyResourceIds.get(typeNum).get(resNum);
 				stringJoiner.add(legacyNum);
@@ -486,10 +475,9 @@ public class LegacyTracer {
 			traceType = TraceType.SEARCH_DECISION;
 			final int number = data.getInt();
 			final int activityNumber = data.getInt();
-			final int patternNumber = Simulator.getModelStructureCache().decisionPointsInfo.get(dptNumber)
-					.getActivitiesInfo().get(activityNumber).getPatternNumber();
-			final int numberOfRelevantResources = Simulator.getModelStructureCache().getPatternsInfo()
-					.get(patternNumber).getRelResTypes().size();
+			final int patternNumber = data.getInt();
+			final int numberOfRelevantResources = Simulator.getStaticModelData()
+					.getNumberOfRelevantResources(patternNumber);
 			if (!dptSearchDecisionFound) {
 				addLegacySearchEntryDecision();
 				dptSearchDecisionFound = true;
@@ -498,8 +486,8 @@ public class LegacyTracer {
 					.add("");
 
 			for (int num = 0; num < numberOfRelevantResources; num++) {
-				final int typeNum = Simulator.getModelStructureCache().getPatternsInfo().get(patternNumber)
-						.getRelResTypes().get(num);
+				final String typeName = Simulator.getStaticModelData().getRelevantResourceTypeName(patternNumber, num);
+				final int typeNum = Simulator.getStaticModelData().getResourceTypeNumber(typeName);
 				final int resNum = data.getInt();
 				final int legacyNum = legacyResourceIds.get(typeNum).get(resNum);
 				stringJoiner.add(legacyNum);
@@ -542,34 +530,14 @@ public class LegacyTracer {
 		final double time = header.getDouble();
 		final int resultNum = header.getInt();
 
-		final ResultCache resultCache = Simulator.getModelStructureCache().getResultsInfo().get(resultNum);
-
 		return new TraceOutput(TraceType.RESULT,
 				new StringJoiner(delimiter).add(TraceType.RESULT.toString()).add(realFormatter.format(time))
-						.add(resultNum + 1).add("").add(parseResultParameter(data, resultCache)).getString());
+						.add(resultNum + 1).add("").add(parseResultParameter(data, resultNum)).getString());
 	}
 
-	protected final String parseResultParameter(final ByteBuffer data, final ResultCache resultCache) {
-		switch (resultCache.getValueType()) {
-		case INTEGER:
-			return String.valueOf(data.getInt());
-		case REAL:
-			return realFormatter.format(data.getDouble());
-		case BOOLEAN:
-			return legacyBooleanString(data.get() != 0);
-		case ENUM:
-			return String.valueOf(data.getShort());
-		case STRING:
-			final ByteArrayOutputStream rawString = new ByteArrayOutputStream();
-			while (data.hasRemaining()) {
-				rawString.write(data.get());
-			}
-			return rawString.toString();
-		default:
-			break;
-		}
-
-		throw new TracerException("Unexpected result parameter type: " + resultCache.getValueType());
+	protected final String parseResultParameter(final ByteBuffer data, final int resultNumber) {
+		// TODO implement
+		return "";
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -577,33 +545,24 @@ public class LegacyTracer {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	private final void initializeTypes() {
-		final JSONArray resourceTypes = Simulator.getDatabase().getModelStructure().getJSONArray("resource_types");
+		final int numberOfResourceTypes = Simulator.getStaticModelData().getNumberOfResourceTypes();
 
-		for (int num = 0; num < resourceTypes.length(); num++) {
+		for (int num = 0; num < numberOfResourceTypes; num++) {
 			legacyResourceIds.put(num, new HashMap<Integer, Integer>());
 		}
 	}
 
 	private final void initializeActivities() {
-		JSONArray decisionPoints = Simulator.getDatabase().getModelStructure().getJSONArray("decision_points");
+		final int numberOfLogics = Simulator.getStaticModelData().getNumberOfLogics();
 
-		for (int dptNum = 0; dptNum < decisionPoints.length(); dptNum++) {
-			JSONObject decisionPoint = decisionPoints.getJSONObject(dptNum);
-			String type = decisionPoint.getString("type");
-			switch (type) {
-			case "some":
-			case "prior":
-				HashMap<Integer, HashMap<Integer, Integer>> activities = new HashMap<Integer, HashMap<Integer, Integer>>();
-				JSONArray jActivities = decisionPoint.getJSONArray("activities");
-				for (int actNum = 0; actNum < jActivities.length(); actNum++) {
-					HashMap<Integer, Integer> activity = new HashMap<Integer, Integer>();
-					activities.put(actNum, activity);
-				}
-				legacyActionNumbers.put(dptNum, activities);
-				break;
-			default:
-				break;
+		for (int dptNum = 0; dptNum < numberOfLogics; dptNum++) {
+			HashMap<Integer, HashMap<Integer, Integer>> activities = new HashMap<Integer, HashMap<Integer, Integer>>();
+			int numberOfActivities = Simulator.getStaticModelData().getNumberOfActivities(dptNum);
+			for (int actNum = 0; actNum < numberOfActivities; actNum++) {
+				HashMap<Integer, Integer> activity = new HashMap<Integer, Integer>();
+				activities.put(actNum, activity);
 			}
+			legacyActionNumbers.put(dptNum, activities);
 		}
 	}
 

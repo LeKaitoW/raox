@@ -2,7 +2,7 @@ package ru.bmstu.rk9.rao.lib.database;
 
 import ru.bmstu.rk9.rao.lib.database.Database.SerializationCategory;
 
-public class DbIndexHelper {
+public class IndexHelper {
 	public final CollectedDataNode getTree() {
 		return root;
 	}
@@ -15,8 +15,6 @@ public class DbIndexHelper {
 		modelName = name;
 		CollectedDataNode modelIndex = root.addChild(name);
 		for (SerializationCategory value : SerializationCategory.values()) {
-			if (value == SerializationCategory.PATTERNS)
-				continue;
 			modelIndex.addChild(value.getName());
 		}
 		return modelIndex;
@@ -31,35 +29,35 @@ public class DbIndexHelper {
 	}
 
 	public final CollectedDataNode addResourceType(String name) {
-		return getCategory(SerializationCategory.RESOURCES).addChild(name);
+		return getCategory(SerializationCategory.RESOURCE).addChild(name);
 	}
 
 	public final CollectedDataNode getResourceType(String name) {
-		return getCategory(SerializationCategory.RESOURCES).getChildren().get(name);
+		return getCategory(SerializationCategory.RESOURCE).getChildren().get(name);
 	}
 
 	public final CollectedDataNode addResult(String name) {
-		return getCategory(SerializationCategory.RESULTS).addChild(name);
+		return getCategory(SerializationCategory.RESULT).addChild(name);
 	}
 
 	public final CollectedDataNode getResult(String name) {
-		return getCategory(SerializationCategory.RESULTS).getChildren().get(name);
+		return getCategory(SerializationCategory.RESULT).getChildren().get(name);
 	}
 
 	public final CollectedDataNode addEvent(String name) {
-		return getCategory(SerializationCategory.EVENTS).addChild(name);
+		return getCategory(SerializationCategory.EVENT).addChild(name);
 	}
 
 	public final CollectedDataNode getEvent(String name) {
-		return getCategory(SerializationCategory.EVENTS).getChildren().get(name);
+		return getCategory(SerializationCategory.EVENT).getChildren().get(name);
 	}
 
 	public final CollectedDataNode addLogic(String name) {
-		return getCategory(SerializationCategory.DECISION_POINTS).addChild(name);
+		return getCategory(SerializationCategory.LOGIC).addChild(name);
 	}
 
-	public final CollectedDataNode getDecisionPoint(String name) {
-		return getCategory(SerializationCategory.DECISION_POINTS).getChildren().get(name);
+	public final CollectedDataNode getLogic(String name) {
+		return getCategory(SerializationCategory.LOGIC).getChildren().get(name);
 	}
 
 	public final CollectedDataNode addSearch(String name) {
@@ -68,6 +66,14 @@ public class DbIndexHelper {
 
 	public final CollectedDataNode getSearch(String name) {
 		return getCategory(SerializationCategory.SEARCH).getChildren().get(name);
+	}
+
+	public final CollectedDataNode addPattern(String name) {
+		return getCategory(SerializationCategory.PATTERN).addChild(name);
+	}
+
+	public final CollectedDataNode getPattern(String name) {
+		return getCategory(SerializationCategory.PATTERN).getChildren().get(name);
 	}
 
 	private String modelName;

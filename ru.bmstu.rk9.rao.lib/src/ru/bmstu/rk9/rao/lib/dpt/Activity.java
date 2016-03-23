@@ -26,13 +26,20 @@ public class Activity extends AbstractActivity {
 	private final Supplier<? extends Pattern> patternFabric;
 
 	public boolean execute() {
-		Pattern current = patternFabric.get();
+		currentPattern = patternFabric.get();
 
-		if (current.selectRelevantResources()) {
-			current.run();
+		if (currentPattern.selectRelevantResources()) {
+			currentPattern.run();
 			return true;
 		}
 
 		return false;
 	}
+
+	@Override
+	public Pattern getPattern() {
+		return currentPattern;
+	}
+
+	private Pattern currentPattern = null;
 }

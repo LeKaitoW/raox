@@ -5,14 +5,19 @@ import java.util.List;
 
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
+import ru.bmstu.rk9.rao.lib.modelData.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.process.Resource;
 import ru.bmstu.rk9.rao.lib.process.Transact;
 
 public class SimulatorPreinitializationInfo {
 	public SimulatorPreinitializationInfo() {
-		modelStructure.put("name", "").put("resource_types", new JSONArray()).put("results", new JSONArray())
-				.put("patterns", new JSONArray()).put("events", new JSONArray())
-				.put("decision_points", new JSONArray());
+		modelStructure.put(ModelStructureConstants.NAME, "")
+				.put(ModelStructureConstants.RESOURCE_TYPES, new JSONArray())
+				.put(ModelStructureConstants.RESULTS, new JSONArray())
+				.put(ModelStructureConstants.PATTERNS, new JSONArray())
+				.put(ModelStructureConstants.EVENTS, new JSONArray())
+				.put(ModelStructureConstants.LOGICS, new JSONArray())
+				.put(ModelStructureConstants.SEARCHES, new JSONArray());
 		resourceClasses.add(Resource.class);
 		resourceClasses.add(Transact.class);
 	}
