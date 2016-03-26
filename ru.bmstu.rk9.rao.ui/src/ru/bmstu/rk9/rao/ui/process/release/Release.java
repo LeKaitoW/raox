@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rao.ui.process.release;
 
+import java.util.Optional;
+
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.lib.resource.Resource;
@@ -23,14 +25,16 @@ public class Release extends NodeWithResource {
 
 	@Override
 	public BlockConverterInfo createBlock() {
+		Optional<Resource> optional = Simulator.getModelState().getAllResources().stream()
+				.filter(resource -> resource.getName().equals(resourceName)).findAny();
 		BlockConverterInfo releaseInfo = new BlockConverterInfo();
-		if (this.resourceName.isEmpty()) {
+		if (optional.isPresent()) {
 			releaseInfo.isSuccessful = false;
 			releaseInfo.errorMessage = "Resource name not selected";
+			resourceName = "";
 			return releaseInfo;
 		}
-		Resource seizedResource = Simulator.getModelState().getAllResources().stream()
-				.filter(resource -> resource.getName().equals(resourceName)).findAny().get();
+		Resource seizedResource = optional.get();
 		ru.bmstu.rk9.rao.lib.process.Release release = new ru.bmstu.rk9.rao.lib.process.Release(seizedResource);
 		releaseInfo.setBlock(release);
 		releaseInfo.inputDocks.put(TERMINAL_IN, release.getInputDock());

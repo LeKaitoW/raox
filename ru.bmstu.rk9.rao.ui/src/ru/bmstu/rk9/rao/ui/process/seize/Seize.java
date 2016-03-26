@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rao.ui.process.seize;
 
+import java.util.Optional;
+
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.lib.resource.Resource;
@@ -23,14 +25,16 @@ public class Seize extends NodeWithResource {
 
 	@Override
 	public BlockConverterInfo createBlock() {
+		Optional<Resource> optional = Simulator.getModelState().getAllResources().stream()
+				.filter(resource -> resource.getName().equals(resourceName)).findAny();
 		BlockConverterInfo seizeInfo = new BlockConverterInfo();
-		if (this.resourceName.isEmpty()) {
+		if (!optional.isPresent()) {
 			seizeInfo.isSuccessful = false;
 			seizeInfo.errorMessage = "Resource name not selected";
+			resourceName = "";
 			return seizeInfo;
 		}
-		Resource releasedResource = Simulator.getModelState().getAllResources().stream()
-				.filter(resource -> resource.getName().equals(resourceName)).findAny().get();
+		Resource releasedResource = optional.get();
 		ru.bmstu.rk9.rao.lib.process.Seize seize = new ru.bmstu.rk9.rao.lib.process.Seize(releasedResource);
 		seizeInfo.setBlock(seize);
 		seizeInfo.inputDocks.put(TERMINAL_IN, seize.getInputDock());
