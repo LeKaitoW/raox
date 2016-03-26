@@ -27,9 +27,11 @@ public class TerminateFigure extends ProcessFigure {
 		Rectangle rectangle = getBounds().getCopy();
 		PointList points = new PointList();
 		int centerY = rectangle.y + (rectangle.height + 2 * offset) / 2;
-		points.addPoint(rectangle.x + rectangle.width - offset, rectangle.y + 3 * offset);
+		int xRight = rectangle.x + rectangle.width - offset;
+
+		points.addPoint(xRight, rectangle.y + 3 * offset);
 		points.addPoint(rectangle.x + offset, centerY);
-		points.addPoint(rectangle.x + rectangle.width - offset, rectangle.y + rectangle.height - offset);
+		points.addPoint(xRight, rectangle.y + rectangle.height - offset);
 		graphics.fillPolygon(points);
 
 		paintName(rectangle);

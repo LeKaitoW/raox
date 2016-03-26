@@ -37,8 +37,11 @@ public class SeizeFigure extends ProcessFigure {
 				rectangle.height - 4 * offset, 240, 240);
 		PathData data = path.getPathData();
 		float[] points = data.points;
-		path.lineTo(points[0], points[1]);
+		float xStart = points[0];
+		float yStart = points[1];
+		path.lineTo(xStart, yStart);
 		graphics.fillPath(path);
+		path.close();
 
 		paintName(rectangle);
 	}

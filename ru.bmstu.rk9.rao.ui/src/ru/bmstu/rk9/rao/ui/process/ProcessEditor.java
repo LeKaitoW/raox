@@ -182,9 +182,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	protected void initializeGraphicalViewer() {
 		GraphicalViewer viewer = getGraphicalViewer();
 		if (model == null)
-			model = new Model();
-		model.setResourceRetriever(new EResourceRetriever(resourceSetProvider,
-				((IFileEditorInput) getEditorInput()).getFile().getProject()));
+			setModel(new Model());
 		viewer.setContents(model);
 		viewer.addDropTargetListener(new ProcessDropTargetListener(viewer));
 	}

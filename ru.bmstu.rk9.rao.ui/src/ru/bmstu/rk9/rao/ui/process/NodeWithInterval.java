@@ -7,12 +7,17 @@ public abstract class NodeWithInterval extends NodeWithProperty {
 	private static final long serialVersionUID = 1;
 
 	public static final String PROPERTY_INTERVAL = "NodeInterval";
-	protected String intervalName = "";
+	private String intervalName;
 
 	protected String interval = "";
 
 	public NodeWithInterval(RGB backgroundColor) {
 		super(backgroundColor);
+	}
+
+	public NodeWithInterval(RGB backgroundColor, String intervalName) {
+		super(backgroundColor);
+		this.intervalName = intervalName;
 	}
 
 	public void setInterval(String interval) {

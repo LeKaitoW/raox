@@ -14,14 +14,14 @@ public class Test implements Block {
 	private InputDock inputDock = new InputDock();
 	private OutputDock trueOutputDock = () -> trueOutputTransactStorage.pullTransact();
 	private OutputDock falseOutputDock = () -> falseOutputTransactStorage.pullTransact();
-	private Supplier<Boolean> test;
+	private Supplier<Boolean> condition;
 
-	public Test(Supplier<Boolean> test) {
-		this.test = test;
+	public Test(Supplier<Boolean> condition) {
+		this.condition = condition;
 	}
 
 	public Test(double probability) {
-		Supplier<Boolean> test = new Supplier<Boolean>() {
+		Supplier<Boolean> condition = new Supplier<Boolean>() {
 
 			private final MersenneTwister generator = new MersenneTwister();
 
@@ -30,7 +30,7 @@ public class Test implements Block {
 				return generator.nextDouble() > probability ? false : true;
 			}
 		};
-		this.test = test;
+		this.condition = condition;
 	}
 
 	public InputDock getInputDock() {
@@ -52,7 +52,7 @@ public class Test implements Block {
 			return BlockStatus.NOTHING_TO_DO;
 
 		TransactStorage storage;
-		if (test.get()) {
+		if (condition.get()) {
 			storage = trueOutputTransactStorage;
 			System.out.println(Simulator.getTime() + " : transact goes true " + transact.getNumber());
 		} else {

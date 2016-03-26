@@ -8,7 +8,7 @@ public abstract class NodeWithProbability extends NodeWithProperty {
 
 	public static final String PROPERTY_PROBABILITY = "NodeProbability";
 
-	protected String probability = "";
+	protected String probability = "0.5";
 
 	public NodeWithProbability(RGB backgroundColor) {
 		super(backgroundColor);

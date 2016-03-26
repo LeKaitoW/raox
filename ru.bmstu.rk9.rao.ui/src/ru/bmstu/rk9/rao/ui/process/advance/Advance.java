@@ -2,7 +2,6 @@ package ru.bmstu.rk9.rao.ui.process.advance;
 
 import java.io.Serializable;
 
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
@@ -16,18 +15,26 @@ public class Advance extends NodeWithInterval implements Serializable {
 	public static final String TERMINAL_OUT = "OUT";
 
 	public Advance() {
-		super(backgroundColor.getRGB());
-		intervalName = "Advance";
+		super(backgroundColor.getRGB(), "Advance");
 	}
 
-	private static Color backgroundColor = ColorConstants.darkGreen;
+	private static Color backgroundColor = new Color(null, 67, 181, 129);
 	public static String name = "Advance";
 
 	@Override
 	public BlockConverterInfo createBlock() {
-		ru.bmstu.rk9.rao.lib.process.Advance advance = new ru.bmstu.rk9.rao.lib.process.Advance(
-				() -> Double.valueOf(this.interval));
-		BlockConverterInfo advanceInfo = new BlockConverterInfo(advance);
+		BlockConverterInfo advanceInfo = new BlockConverterInfo();
+		Double interval;
+		try {
+			interval = Double.valueOf(this.interval);
+		} catch (NumberFormatException e) {
+			advanceInfo.isSuccessful = false;
+			advanceInfo.errorMessage = e.getMessage();
+			System.out.println(advanceInfo.errorMessage);
+			return advanceInfo;
+		}
+		ru.bmstu.rk9.rao.lib.process.Advance advance = new ru.bmstu.rk9.rao.lib.process.Advance(() -> interval);
+		advanceInfo.setBlock(advance);
 		advanceInfo.inputDocks.put(TERMINAL_IN, advance.getInputDock());
 		advanceInfo.outputDocks.put(TERMINAL_OUT, advance.getOutputDock());
 		return advanceInfo;

@@ -19,6 +19,8 @@ public class BlockConverter {
 			BlockConverterInfo blockInfo;
 			if (!blocksMap.containsKey(node)) {
 				blockInfo = node.createBlock();
+				if (!blockInfo.isSuccessful)
+					throw new ProcessParsingException(blockInfo.errorMessage);
 				blocks.add(blockInfo.block);
 				blocksMap.put(node, blockInfo);
 			} else {
@@ -30,6 +32,8 @@ public class BlockConverter {
 				BlockConverterInfo targetBlockInfo;
 				if (!blocksMap.containsKey(targetNode)) {
 					targetBlockInfo = targetNode.createBlock();
+					if (!targetBlockInfo.isSuccessful)
+						throw new ProcessParsingException(targetBlockInfo.errorMessage);
 					blocks.add(targetBlockInfo.block);
 					blocksMap.put(targetNode, targetBlockInfo);
 				} else {

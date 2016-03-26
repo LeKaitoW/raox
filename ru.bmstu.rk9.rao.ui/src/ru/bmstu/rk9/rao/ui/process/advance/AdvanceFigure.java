@@ -33,20 +33,20 @@ public class AdvanceFigure extends ProcessFigure {
 	@Override
 	protected void paintFigure(Graphics graphics) {
 		Rectangle rectangle = getBounds().getCopy();
-		PointList points = new PointList();
-		points.addPoint(rectangle.x + offset, rectangle.y + 3 * offset);
-		points.addPoint(rectangle.x + rectangle.width - offset, rectangle.y + 3 * offset);
-		points.addPoint(rectangle.x + rectangle.width - offset, rectangle.y + rectangle.height - offset);
-		points.addPoint(rectangle.x + offset, rectangle.y + rectangle.height - offset);
-		graphics.fillPolygon(points);
+		int xLeft = rectangle.x + offset;
+		int yTop = rectangle.y + 3 * offset;
+		int advanceWidth = rectangle.width - 2 * offset;
+		int advanceHeight = rectangle.height - 4 * offset;
+		graphics.fillRectangle(xLeft, yTop, advanceWidth, advanceHeight);
 
 		Color oldColor = graphics.getBackgroundColor();
 		graphics.setBackgroundColor(ColorConstants.white);
 		PointList internalPoints = new PointList();
-		internalPoints.addPoint(rectangle.x + 3 * offset, rectangle.y + 5 * offset);
+		int xLeftInternal = rectangle.x + 3 * offset;
+		internalPoints.addPoint(xLeftInternal, rectangle.y + 5 * offset);
 		internalPoints.addPoint(rectangle.x + rectangle.width - 3 * offset,
 				rectangle.y + (rectangle.height + 2 * offset) / 2);
-		internalPoints.addPoint(rectangle.x + 3 * offset, rectangle.y + rectangle.height - 3 * offset);
+		internalPoints.addPoint(xLeftInternal, rectangle.y + rectangle.height - 3 * offset);
 
 		graphics.fillPolygon(internalPoints);
 		graphics.setBackgroundColor(oldColor);

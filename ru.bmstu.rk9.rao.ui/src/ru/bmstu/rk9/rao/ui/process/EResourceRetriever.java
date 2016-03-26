@@ -1,15 +1,47 @@
 package ru.bmstu.rk9.rao.ui.process;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
+
+import ru.bmstu.rk9.rao.rao.ResourceDeclaration;
+import ru.bmstu.rk9.rao.ui.execution.BuildUtil;
+import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigurator;
 
 public class EResourceRetriever {
 
-	public final IResourceSetProvider resourceSetProvider;
-	public final IProject project;
+	private final IResourceSetProvider resourceSetProvider;
+	private final IProject project;
 
 	public EResourceRetriever(IResourceSetProvider resourceSetProvider, IProject project) {
 		this.resourceSetProvider = resourceSetProvider;
 		this.project = project;
+	}
+
+	public List<String> getResourcesNames() {
+		IProject project = this.project;
+		final ResourceSet resourceSet = this.resourceSetProvider.get(project);
+		List<String> resourcesNames = new ArrayList<String>();
+		if (resourceSet == null)
+			return resourcesNames;
+
+		for (IResource resource : BuildUtil.getAllFilesInProject(project, "rao")) {
+			URI uri = BuildUtil.getURI(resource);
+			Resource loadedResource = resourceSet.getResource(uri, true);
+			if (loadedResource == null)
+				continue;
+			List<ResourceDeclaration> resources = SerializationConfigurator
+					.filterAllContents(loadedResource.getAllContents(), ResourceDeclaration.class);
+			for (ResourceDeclaration declaration : resources) {
+				resourcesNames.add(declaration.getName());
+			}
+		}
+		return resourcesNames;
 	}
 }

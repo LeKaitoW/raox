@@ -18,16 +18,21 @@ public class Release extends NodeWithResource {
 		super(backgroundColor.getRGB());
 	}
 
-	private static Color backgroundColor = new Color(null, 150, 0, 24);
+	private static Color backgroundColor = new Color(null, 67, 181, 129);
 	public static String name = "Release";
 
 	@Override
 	public BlockConverterInfo createBlock() {
+		BlockConverterInfo releaseInfo = new BlockConverterInfo();
+		if (this.resourceName.isEmpty()) {
+			releaseInfo.isSuccessful = false;
+			releaseInfo.errorMessage = "Resource name not selected";
+			return releaseInfo;
+		}
 		Resource seizedResource = Simulator.getModelState().getAllResources().stream()
 				.filter(resource -> resource.getName().equals(resourceName)).findAny().get();
-
 		ru.bmstu.rk9.rao.lib.process.Release release = new ru.bmstu.rk9.rao.lib.process.Release(seizedResource);
-		BlockConverterInfo releaseInfo = new BlockConverterInfo(release);
+		releaseInfo.setBlock(release);
 		releaseInfo.inputDocks.put(TERMINAL_IN, release.getInputDock());
 		releaseInfo.outputDocks.put(TERMINAL_OUT, release.getOutputDock());
 		return releaseInfo;

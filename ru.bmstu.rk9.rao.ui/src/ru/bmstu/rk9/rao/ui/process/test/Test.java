@@ -19,14 +19,15 @@ public class Test extends NodeWithProbability implements Serializable {
 		super(backgroundColor.getRGB());
 	}
 
-	private static Color backgroundColor = new Color(null, 140, 0, 230);
+	private static Color backgroundColor = new Color(null, 67, 181, 129);
 	public static String name = "Test";
 
 	@Override
 	public BlockConverterInfo createBlock() {
 		ru.bmstu.rk9.rao.lib.process.Test test = new ru.bmstu.rk9.rao.lib.process.Test(
 				Double.valueOf(this.probability));
-		BlockConverterInfo testInfo = new BlockConverterInfo(test);
+		BlockConverterInfo testInfo = new BlockConverterInfo();
+		testInfo.setBlock(test);
 		testInfo.inputDocks.put(TERMINAL_IN, test.getInputDock());
 		testInfo.outputDocks.put(TERMINAL_TRUE_OUT, test.getTrueOutputDock());
 		testInfo.outputDocks.put(TERMINAL_FALSE_OUT, test.getFalseOutputDock());

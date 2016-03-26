@@ -12,7 +12,7 @@ public class Queue implements Block {
 	private InputDock inputDock = new InputDock();
 	private OutputDock outputDock = () -> getCurrentTransact();
 	private TransactQueue queue;
-	private int capacity;
+	private final int capacity;
 
 	public Transact getCurrentTransact() {
 		Transact outputTransact = queue.peek();

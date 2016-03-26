@@ -38,6 +38,7 @@ import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.process.BlockConverter;
 import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
+import ru.bmstu.rk9.rao.ui.process.ProcessParsingException;
 import ru.bmstu.rk9.rao.ui.process.model.Model;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
@@ -154,7 +155,12 @@ public class ExecutionJobProvider {
 
 					for (IResource graoFile : BuildUtil.getAllFilesInProject(project, "grao")) {
 						Model model = ProcessEditor.readModelFromFile((IFile) graoFile);
-						List<Block> blocks = BlockConverter.convertModelToBlocks(model);
+						List<Block> blocks;
+						try {
+							blocks = BlockConverter.convertModelToBlocks(model);
+						} catch (ProcessParsingException e) {
+							return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "invalid block parameter", e);
+						}
 						simulatorInitializationInfo.processBlocks.addAll(blocks);
 					}
 

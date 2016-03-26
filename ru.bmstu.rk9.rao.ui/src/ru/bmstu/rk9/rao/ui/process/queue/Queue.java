@@ -2,7 +2,6 @@ package ru.bmstu.rk9.rao.ui.process.queue;
 
 import java.io.Serializable;
 
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
@@ -19,7 +18,7 @@ public class Queue extends NodeWithCapacity implements Serializable {
 		super(backgroundColor.getRGB());
 	}
 
-	private static Color backgroundColor = ColorConstants.gray;
+	private static Color backgroundColor = new Color(null, 67, 181, 129);
 	public static String name = "Queue";
 
 	@Override
@@ -30,7 +29,8 @@ public class Queue extends NodeWithCapacity implements Serializable {
 		} else {
 			queue = new ru.bmstu.rk9.rao.lib.process.Queue(Integer.valueOf(this.capacity), this.queueing);
 		}
-		BlockConverterInfo queueInfo = new BlockConverterInfo(queue);
+		BlockConverterInfo queueInfo = new BlockConverterInfo();
+		queueInfo.setBlock(queue);
 		queueInfo.inputDocks.put(TERMINAL_IN, queue.getInputDock());
 		queueInfo.outputDocks.put(TERMINAL_OUT, queue.getOutputDock());
 		return queueInfo;

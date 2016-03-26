@@ -27,9 +27,10 @@ public class GenerateFigure extends ProcessFigure {
 		Rectangle rectangle = getBounds().getCopy();
 		PointList points = new PointList();
 		int centerY = rectangle.y + (rectangle.height + 2 * offset) / 2;
-		points.addPoint(rectangle.x + offset, rectangle.y + 3 * offset);
+		int leftX = rectangle.x + offset;
+		points.addPoint(leftX, rectangle.y + 3 * offset);
 		points.addPoint(rectangle.x + rectangle.width - offset, centerY);
-		points.addPoint(rectangle.x + offset, rectangle.y + rectangle.height - offset);
+		points.addPoint(leftX, rectangle.y + rectangle.height - offset);
 		graphics.fillPolygon(points);
 
 		paintName(rectangle);

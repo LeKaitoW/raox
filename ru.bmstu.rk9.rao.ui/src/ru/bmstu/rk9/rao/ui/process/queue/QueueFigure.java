@@ -34,10 +34,15 @@ public class QueueFigure extends ProcessFigure {
 	protected void paintFigure(Graphics graphics) {
 		Rectangle rectangle = getBounds().getCopy();
 		PointList points = new PointList();
-		points.addPoint(rectangle.x + offset, rectangle.y + 3 * offset);
-		points.addPoint(rectangle.x + rectangle.width - offset, rectangle.y + 3 * offset);
-		points.addPoint(rectangle.x + rectangle.width - offset, rectangle.y + rectangle.height - offset);
-		points.addPoint(rectangle.x + offset, rectangle.y + rectangle.height - offset);
+		int xLeft = rectangle.x + offset;
+		int xRight = rectangle.x + rectangle.width - offset;
+		int yTop = rectangle.y + 3 * offset;
+		int yBottom = rectangle.y + rectangle.height - offset;
+		
+		points.addPoint(xLeft, yTop);
+		points.addPoint(xRight, yTop);
+		points.addPoint(xRight, yBottom);
+		points.addPoint(xLeft, yBottom);
 		graphics.fillPolygon(points);
 		Color oldColor = graphics.getBackgroundColor();
 		graphics.setBackgroundColor(ColorConstants.white);

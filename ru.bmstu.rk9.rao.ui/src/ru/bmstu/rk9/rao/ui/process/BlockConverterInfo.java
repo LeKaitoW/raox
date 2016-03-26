@@ -9,11 +9,14 @@ import ru.bmstu.rk9.rao.lib.process.OutputDock;
 
 public class BlockConverterInfo {
 
-	public final Block block;
+	public Block block;
 	public final Map<String, InputDock> inputDocks = new HashMap<>();
 	public final Map<String, OutputDock> outputDocks = new HashMap<>();
+	
+	public boolean isSuccessful = true;
+	public String errorMessage;
 
-	public BlockConverterInfo(Block block) {
+	public void setBlock(Block block) {
 		this.block = block;
 	}
 }
