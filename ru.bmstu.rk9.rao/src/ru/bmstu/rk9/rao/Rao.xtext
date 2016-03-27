@@ -46,7 +46,7 @@ Constant:
 
 ResourceType:
 	'type' name = ID '{'
-		(parameters += FieldDeclaration)+
+		(parameters += FieldDeclaration)*
 	'}'
 ;
 
