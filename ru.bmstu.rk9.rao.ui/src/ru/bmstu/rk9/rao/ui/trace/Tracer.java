@@ -157,7 +157,7 @@ public class Tracer {
 				break;
 			case OTHER:
 				final int index = Simulator.getStaticModelData().getVariableWidthParameterIndex(typeNum, paramNum);
-				final int stringPosition = data.getInt(finalOffset + (index - 1) * TypeSize.INT);
+				final int stringPosition = data.getInt(finalOffset + index * TypeSize.INT);
 				final int length = data.getInt(stringPosition);
 
 				byte rawString[] = new byte[length];

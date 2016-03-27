@@ -77,6 +77,8 @@ public abstract class Logic extends AbstractDecisionPoint {
 		for (Activity activity : activities)
 			if (activity.execute()) {
 				Simulator.getDatabase().addDecisionEntry(this, activity);
+				activity.getPattern().addResourceEntriesToDatabase(null, null);
+
 				return true;
 			}
 

@@ -135,7 +135,6 @@ public class PlotDataParser {
 
 		final int parameterOffset = Simulator.getStaticModelData().getResourceTypeParameterOffset(typeNumber,
 				parameterNumber);
-
 		while (currentItemNumber < entriesNumbers.size()) {
 			int currentEntryNumber = entriesNumbers.get(currentItemNumber);
 			final Entry currentEntry = allEntries.get(currentEntryNumber);
@@ -148,7 +147,7 @@ public class PlotDataParser {
 			Tracer.skipPart(header, TypeSize.BYTE);
 			PlotItem item = null;
 
-			DataType dataType = Simulator.getStaticModelData().getResourceTypeParameterType(parameterOffset,
+			DataType dataType = Simulator.getStaticModelData().getResourceTypeParameterType(typeNumber,
 					parameterNumber);
 			switch (dataType) {
 			case INT:
@@ -179,7 +178,7 @@ public class PlotDataParser {
 			switch (index.getType()) {
 			case RESOURCE_PARAMETER:
 				// TODO fix this when enums serialization is implemented
-				enumNames = new ArrayList<String>();
+				enumNames = null;
 				break;
 			case RESULT:
 				// TODO fix this when enums serialization is implemented
