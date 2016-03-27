@@ -1,6 +1,8 @@
 package ru.bmstu.rk9.rao.ui.process.generate;
 
+import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
+import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 
@@ -14,10 +16,17 @@ public class GenerateFigure extends ProcessFigure {
 
 		ProcessConnectionAnchor outputConnectionAnchor;
 		outputConnectionAnchor = new ProcessConnectionAnchor(this);
-		outputConnectionAnchor.offsetHorizontal = 45;
-		outputConnectionAnchor.offsetVertical = 35;
 		outputConnectionAnchors.add(outputConnectionAnchor);
 		connectionAnchors.put(Generate.TERMINAL_OUT, outputConnectionAnchor);
+
+		addFigureListener(new FigureListener() {
+			@Override
+			public void figureMoved(IFigure figure) {
+				final Rectangle rectangle = figure.getBounds().getCopy();
+				outputConnectionAnchor.offsetHorizontal = rectangle.width - offset;
+				outputConnectionAnchor.offsetVertical = rectangle.height / 2 + offset;
+			}
+		});
 
 		label.setText(Generate.name);
 	}
