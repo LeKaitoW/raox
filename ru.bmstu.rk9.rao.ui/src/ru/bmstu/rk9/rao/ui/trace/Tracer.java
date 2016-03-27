@@ -9,7 +9,7 @@ import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.modelData.StaticModelData;
 import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
 
 public class Tracer {
@@ -52,6 +52,12 @@ public class Tracer {
 	}
 
 	static private final String delimiter = " ";
+
+	public Tracer(StaticModelData staticModelData) {
+		this.staticModelData = staticModelData;
+	}
+
+	private final StaticModelData staticModelData;
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 	// ------------------------------ GENERAL ------------------------------ //
@@ -128,9 +134,9 @@ public class Tracer {
 		}
 
 		final int typeNum = header.getInt();
-		final String typeName = Simulator.getStaticModelData().getResourceTypeName(typeNum);
+		final String typeName = staticModelData.getResourceTypeName(typeNum);
 		final int resNum = header.getInt();
-		final String name = Simulator.getStaticModelData().getResourceName(typeNum, resNum);
+		final String name = staticModelData.getResourceName(typeNum, resNum);
 
 		final String resourceName = name != null ? name : typeName + encloseIndex(resNum);
 
@@ -140,11 +146,11 @@ public class Tracer {
 
 	private String parseResourceParameters(final ByteBuffer data, final int typeNum) {
 		final StringJoiner stringJoiner = new StringJoiner(StringJoiner.StringFormat.STRUCTURE);
-		final int numberOfParameters = Simulator.getStaticModelData().getNumberOfResourceTypeParameters(typeNum);
-		final int finalOffset = Simulator.getStaticModelData().getResourceTypeFinalOffset(typeNum);
+		final int numberOfParameters = staticModelData.getNumberOfResourceTypeParameters(typeNum);
+		final int finalOffset = staticModelData.getResourceTypeFinalOffset(typeNum);
 
 		for (int paramNum = 0; paramNum < numberOfParameters; paramNum++) {
-			DataType dataType = Simulator.getStaticModelData().getResourceTypeParameterType(typeNum, paramNum);
+			DataType dataType = staticModelData.getResourceTypeParameterType(typeNum, paramNum);
 			switch (dataType) {
 			case INT:
 				stringJoiner.add(data.getInt());
@@ -156,7 +162,7 @@ public class Tracer {
 				stringJoiner.add(data.get() != 0);
 				break;
 			case OTHER:
-				final int index = Simulator.getStaticModelData().getVariableWidthParameterIndex(typeNum, paramNum);
+				final int index = staticModelData.getVariableWidthParameterIndex(typeNum, paramNum);
 				final int stringPosition = data.getInt(finalOffset + index * TypeSize.INT);
 				final int length = data.getInt(stringPosition);
 
@@ -208,17 +214,16 @@ public class Tracer {
 		int activityNumber = data.getInt();
 		int patternNumber = data.getInt();
 		int actionNumber = data.getInt();
-		stringJoiner.add(
-				Simulator.getStaticModelData().getActivityName(dptNumber, activityNumber) + encloseIndex(actionNumber));
+		stringJoiner.add(staticModelData.getActivityName(dptNumber, activityNumber) + encloseIndex(actionNumber));
 
 		final StringJoiner relResStringJoiner = new StringJoiner(StringJoiner.StringFormat.FUNCTION);
 
 		int numberOfRelevantResources = data.getInt();
 		for (int num = 0; num < numberOfRelevantResources; num++) {
 			final int resNum = data.getInt();
-			final String typeName = Simulator.getStaticModelData().getRelevantResourceTypeName(patternNumber, num);
-			final int typeNum = Simulator.getStaticModelData().getResourceTypeNumber(typeName);
-			final String name = Simulator.getStaticModelData().getResourceName(typeNum, resNum);
+			final String typeName = staticModelData.getRelevantResourceTypeName(patternNumber, num);
+			final int typeNum = staticModelData.getResourceTypeNumber(typeName);
+			final String name = staticModelData.getResourceName(typeNum, resNum);
 			final String resourceName = name != null ? name : typeName + encloseIndex(resNum);
 
 			relResStringJoiner.add(resourceName);
@@ -249,7 +254,7 @@ public class Tracer {
 
 		int eventNumber = data.getInt();
 		int actionNumber = data.getInt();
-		stringJoiner.add(Simulator.getStaticModelData().getEventName(eventNumber) + encloseIndex(actionNumber));
+		stringJoiner.add(staticModelData.getEventName(eventNumber) + encloseIndex(actionNumber));
 		return stringJoiner.getString();
 	}
 
@@ -271,8 +276,7 @@ public class Tracer {
 		switch (entryType) {
 		case BEGIN: {
 			traceType = TraceType.SEARCH_BEGIN;
-			stringJoiner.add(traceType.toString()).add(time)
-					.add(Simulator.getStaticModelData().getSearchName(dptNumber));
+			stringJoiner.add(traceType.toString()).add(time).add(staticModelData.getSearchName(dptNumber));
 			break;
 		}
 		case END: {
@@ -337,18 +341,17 @@ public class Tracer {
 			final double h = data.getDouble();
 			final int edgeNumber = data.getInt();
 			final int patternNumber = data.getInt();
-			String edgeName = Simulator.getStaticModelData().getEdgeName(dptNumber, edgeNumber);
+			String edgeName = staticModelData.getEdgeName(dptNumber, edgeNumber);
 			final double ruleCost = data.getDouble();
-			final int numberOfRelevantResources = Simulator.getStaticModelData()
-					.getNumberOfRelevantResources(patternNumber);
+			final int numberOfRelevantResources = staticModelData.getNumberOfRelevantResources(patternNumber);
 
 			StringJoiner relResStringJoiner = new StringJoiner(StringFormat.FUNCTION);
 
 			for (int num = 0; num < numberOfRelevantResources; num++) {
 				final int resNum = data.getInt();
-				final String typeName = Simulator.getStaticModelData().getRelevantResourceTypeName(patternNumber, num);
-				final int typeNum = Simulator.getStaticModelData().getResourceTypeNumber(typeName);
-				final String name = Simulator.getStaticModelData().getResourceName(typeNum, resNum);
+				final String typeName = staticModelData.getRelevantResourceTypeName(patternNumber, num);
+				final int typeNum = staticModelData.getResourceTypeNumber(typeName);
+				final String name = staticModelData.getResourceName(typeNum, resNum);
 				final String resourceName = name != null ? name : typeName + encloseIndex(resNum);
 
 				relResStringJoiner.add(resourceName);
@@ -365,16 +368,15 @@ public class Tracer {
 			final int nodeNumber = data.getInt();
 			final int edgeNumber = data.getInt();
 			final int patternNumber = data.getInt();
-			String edgeName = Simulator.getStaticModelData().getEdgeName(dptNumber, edgeNumber);
-			final int numberOfRelevantResources = Simulator.getStaticModelData()
-					.getNumberOfRelevantResources(patternNumber);
+			String edgeName = staticModelData.getEdgeName(dptNumber, edgeNumber);
+			final int numberOfRelevantResources = staticModelData.getNumberOfRelevantResources(patternNumber);
 
 			StringJoiner relResStringJoiner = new StringJoiner(StringFormat.FUNCTION);
 			for (int num = 0; num < numberOfRelevantResources; num++) {
 				final int resNum = data.getInt();
-				final String typeName = Simulator.getStaticModelData().getRelevantResourceTypeName(patternNumber, num);
-				final int typeNum = Simulator.getStaticModelData().getResourceTypeNumber(typeName);
-				final String name = Simulator.getStaticModelData().getResourceName(typeNum, resNum);
+				final String typeName = staticModelData.getRelevantResourceTypeName(patternNumber, num);
+				final int typeNum = staticModelData.getResourceTypeNumber(typeName);
+				final String name = staticModelData.getResourceName(typeNum, resNum);
 				final String resourceName = name != null ? name : typeName + encloseIndex(resNum);
 
 				relResStringJoiner.add(resourceName);
@@ -402,7 +404,7 @@ public class Tracer {
 		skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
 		final int resultNum = header.getInt();
-		String resultName = Simulator.getStaticModelData().getResultName(resultNum);
+		String resultName = staticModelData.getResultName(resultNum);
 
 		return new TraceOutput(TraceType.RESULT, new StringJoiner(delimiter).add(TraceType.RESULT.toString()).add(time)
 				.add(resultName).add("=").add(parseResultParameter(data, resultNum)).getString());

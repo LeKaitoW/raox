@@ -62,6 +62,7 @@ import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulatorState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
@@ -207,11 +208,13 @@ public class TraceView extends ViewPart {
 				.initialize(Arrays.asList(new SimulatorSubscriberInfo(commonUpdater, ExecutionState.EXECUTION_STARTED),
 						new SimulatorSubscriberInfo(commonUpdater, ExecutionState.EXECUTION_COMPLETED)));
 		realTimeSubscriberManager.initialize(Arrays.asList(realTimeUpdateRunnable));
+		Simulator.getSimulatorStateNotifier().addSubscriber(tracerInitializer, SimulatorState.INITIALIZED);
 	}
 
 	private final void deinitializeSubscribers() {
 		simulatorSubscriberManager.deinitialize();
 		realTimeSubscriberManager.deinitialize();
+		Simulator.getSimulatorStateNotifier().removeSubscriber(tracerInitializer, SimulatorState.INITIALIZED);
 	}
 
 	private final SimulatorSubscriberManager simulatorSubscriberManager = new SimulatorSubscriberManager();
@@ -253,7 +256,7 @@ public class TraceView extends ViewPart {
 		});
 	}
 
-	static final Tracer tracer = new Tracer();
+	static Tracer tracer;
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 	// -------------------------- SEARCH AND COPY -------------------------- //
@@ -412,6 +415,13 @@ public class TraceView extends ViewPart {
 					viewer.refresh();
 				}
 			});
+		}
+	};
+
+	private static final Subscriber tracerInitializer = new Subscriber() {
+		@Override
+		public void fireChange() {
+			tracer = new Tracer(Simulator.getStaticModelData());
 		}
 	};
 
