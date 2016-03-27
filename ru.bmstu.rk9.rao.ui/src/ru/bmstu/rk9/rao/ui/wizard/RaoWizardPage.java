@@ -92,7 +92,7 @@ public class RaoWizardPage extends WizardPage {
 					setPageComplete(false);
 					return;
 				}
-				if (root.getProject(projectName + "_project").exists()) {
+				if (root.getProject(projectName).exists()) {
 					setDescription("A project with this name already exists.");
 					setPageComplete(false);
 					return;
