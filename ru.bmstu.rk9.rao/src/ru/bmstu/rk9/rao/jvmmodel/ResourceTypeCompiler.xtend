@@ -88,6 +88,9 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				m.parameters += resourceType.toParameter("other", typeRef)
 				m.annotations += generateOverrideAnnotation()
 				m.body = '''
+					«IF resourceType.parameters.isEmpty»
+					return true;
+					«ELSE»
 					return «String.join(" && ", resourceType.parameters.map[ p |
 						'''«IF p.declaration.parameterType.type instanceof JvmPrimitiveType
 								»this._«p.declaration.name» == other._«p.declaration.name»«
@@ -96,6 +99,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 							ENDIF»
 						'''
 					])»;
+					«ENDIF»
 				'''
 			]
 
