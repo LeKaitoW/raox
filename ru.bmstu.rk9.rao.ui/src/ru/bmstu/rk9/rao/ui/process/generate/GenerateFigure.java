@@ -1,6 +1,5 @@
 package ru.bmstu.rk9.rao.ui.process.generate;
 
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
@@ -45,24 +44,16 @@ public class GenerateFigure extends ProcessFigure {
 		graphics.setBackgroundColor(getBackgroundColor());
 		graphics.fillPolygon(points);
 
-		paintDock(graphics);
+		drawDocks(graphics);
 
 		paintName(bounds);
 	}
 
-	private void paintDock(Graphics graphics) {
+	@Override
+	protected void drawDocks(Graphics graphics) {
 		Rectangle bounds = getBounds();
-		final int dockCenterX = bounds.x + outputConnectionAnchor.offsetHorizontal - 1;
+		final int dockCenterX = bounds.x + outputConnectionAnchor.offsetHorizontal;
 		final int dockCenterY = bounds.y + outputConnectionAnchor.offsetVertical;
-
-		final int dockBackgroundRadius = offset;
-		graphics.setBackgroundColor(ColorConstants.white);
-		graphics.fillOval(dockCenterX - dockBackgroundRadius, dockCenterY - dockBackgroundRadius,
-				dockBackgroundRadius * 2, dockBackgroundRadius * 2);
-
-		final int dockBorderRadius = offset - 1;
-		graphics.setBackgroundColor(getBackgroundColor());
-		graphics.fillOval(dockCenterX - dockBorderRadius, dockCenterY - dockBorderRadius, dockBorderRadius * 2,
-				dockBorderRadius * 2);
+		drawDock(graphics, dockCenterX, dockCenterY);
 	}
 }

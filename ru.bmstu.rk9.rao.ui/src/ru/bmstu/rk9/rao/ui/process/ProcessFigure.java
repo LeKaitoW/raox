@@ -5,8 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.ConnectionAnchor;
 import org.eclipse.draw2d.Figure;
+import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Point;
@@ -47,6 +50,30 @@ public class ProcessFigure extends Figure {
 	@Override
 	public Font getFont() {
 		return font;
+	}
+
+	@Override
+	protected void paintFigure(Graphics graphics) {
+		drawDocks(graphics);
+	}
+
+	protected void drawDocks(Graphics graphics) {
+	}
+
+	private static final Rectangle dockRectangle = new Rectangle();
+
+	final protected void drawDock(Graphics graphics, final int dockCenterX, final int dockCenterY) {
+		final int dockSize = 4;
+		dockRectangle.x = dockCenterX - dockSize;
+		dockRectangle.y = dockCenterY - dockSize;
+		dockRectangle.width = dockSize * 2;
+		dockRectangle.height = dockSize * 2;
+		graphics.setBackgroundColor(ColorConstants.white);
+		graphics.fillRectangle(dockRectangle);
+
+		dockRectangle.shrink(1, 1);
+		graphics.setBackgroundColor(getBackgroundColor());
+		graphics.fillRectangle(dockRectangle);
 	}
 
 	public void setFigureNameVisible(boolean visible) {
