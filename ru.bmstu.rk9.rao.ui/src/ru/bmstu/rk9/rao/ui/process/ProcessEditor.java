@@ -15,11 +15,17 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.draw2d.ConnectionLayer;
+import org.eclipse.draw2d.Layer;
+import org.eclipse.draw2d.LayeredPane;
+import org.eclipse.draw2d.StackLayout;
+import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.KeyHandler;
 import org.eclipse.gef.KeyStroke;
 import org.eclipse.gef.dnd.TemplateTransferDragSourceListener;
+import org.eclipse.gef.editparts.ScalableRootEditPart;
 import org.eclipse.gef.palette.CombinedTemplateCreationEntry;
 import org.eclipse.gef.palette.ConnectionCreationToolEntry;
 import org.eclipse.gef.palette.MarqueeToolEntry;
@@ -179,6 +185,23 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		keyHandler.put(KeyStroke.getPressed(SWT.DEL, 127, 0),
 				getActionRegistry().getAction(ActionFactory.DELETE.getId()));
 		viewer.setKeyHandler(keyHandler);
+
+		getGraphicalViewer().setRootEditPart(new ScalableRootEditPart() {
+			@Override
+			protected LayeredPane createPrintableLayers() {
+				LayeredPane pane = new LayeredPane();
+
+				Layer layer = new ConnectionLayer();
+				layer.setPreferredSize(new Dimension(5, 5));
+				pane.add(layer, CONNECTION_LAYER);
+
+				layer = new Layer();
+				layer.setLayoutManager(new StackLayout());
+				pane.add(layer, PRIMARY_LAYER);
+
+				return pane;
+			}
+		});
 	}
 
 	@Override
