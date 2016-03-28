@@ -23,7 +23,7 @@ public class TerminateFigure extends ProcessFigure {
 	}
 
 	@Override
-	protected void paintFigure(Graphics graphics) {
+	protected void drawShape(Graphics graphics) {
 		Rectangle rectangle = getBounds().getCopy();
 		PointList points = new PointList();
 		int centerY = rectangle.y + (rectangle.height + 2 * offset) / 2;
@@ -33,7 +33,5 @@ public class TerminateFigure extends ProcessFigure {
 		points.addPoint(rectangle.x + offset, centerY);
 		points.addPoint(xRight, rectangle.y + rectangle.height - offset);
 		graphics.fillPolygon(points);
-
-		paintName(rectangle);
 	}
 }

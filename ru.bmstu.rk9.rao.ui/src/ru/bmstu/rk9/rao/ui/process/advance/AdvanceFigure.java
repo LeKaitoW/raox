@@ -31,7 +31,7 @@ public class AdvanceFigure extends ProcessFigure {
 	}
 
 	@Override
-	protected void paintFigure(Graphics graphics) {
+	protected void drawShape(Graphics graphics) {
 		Rectangle rectangle = getBounds().getCopy();
 		int xLeft = rectangle.x + offset;
 		int yTop = rectangle.y + 3 * offset;
@@ -50,7 +50,5 @@ public class AdvanceFigure extends ProcessFigure {
 
 		graphics.fillPolygon(internalPoints);
 		graphics.setBackgroundColor(oldColor);
-
-		paintName(rectangle);
 	}
 }

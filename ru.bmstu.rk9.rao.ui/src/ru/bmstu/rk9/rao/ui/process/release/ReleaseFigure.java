@@ -30,7 +30,7 @@ public class ReleaseFigure extends ProcessFigure {
 	}
 
 	@Override
-	protected void paintFigure(Graphics graphics) {
+	protected void drawShape(Graphics graphics) {
 		Rectangle rectangle = getBounds().getCopy();
 		Path path = new Path(null);
 		path.addArc(rectangle.x + offset, rectangle.y + 3 * offset, rectangle.width - 2 * offset,
@@ -42,7 +42,5 @@ public class ReleaseFigure extends ProcessFigure {
 		path.lineTo(xStart, yStart);
 		graphics.fillPath(path);
 		path.close();
-
-		paintName(rectangle);
 	}
 }

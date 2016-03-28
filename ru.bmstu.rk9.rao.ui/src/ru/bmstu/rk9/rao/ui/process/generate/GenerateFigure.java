@@ -33,7 +33,7 @@ public class GenerateFigure extends ProcessFigure {
 	}
 
 	@Override
-	protected void paintFigure(Graphics graphics) {
+	protected void drawShape(Graphics graphics) {
 		Rectangle bounds = getBounds();
 		PointList points = new PointList();
 		final int centerY = bounds.y + (bounds.height + 2 * offset) / 2;
@@ -43,10 +43,6 @@ public class GenerateFigure extends ProcessFigure {
 		points.addPoint(leftX, bounds.y + bounds.height - offset);
 		graphics.setBackgroundColor(getBackgroundColor());
 		graphics.fillPolygon(points);
-
-		drawDocks(graphics);
-
-		paintName(bounds);
 	}
 
 	@Override

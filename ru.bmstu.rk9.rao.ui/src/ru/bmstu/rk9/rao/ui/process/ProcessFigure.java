@@ -38,6 +38,7 @@ public class ProcessFigure extends Figure {
 		fontData[0].setHeight(6);
 		font = new Font(oldFont.getDevice(), fontData);
 		add(label);
+		label.setFont(getFont());
 		setOpaque(true);
 	}
 
@@ -54,7 +55,12 @@ public class ProcessFigure extends Figure {
 
 	@Override
 	protected void paintFigure(Graphics graphics) {
+		drawShape(graphics);
 		drawDocks(graphics);
+		drawName(graphics);
+	}
+
+	protected void drawShape(Graphics graphics) {
 	}
 
 	protected void drawDocks(Graphics graphics) {
@@ -78,17 +84,14 @@ public class ProcessFigure extends Figure {
 
 	public void setFigureNameVisible(boolean visible) {
 		isNameVisible = visible;
-		paintName(this.getBounds());
+		invalidate();
 	}
 
-	protected void paintName(Rectangle rectangle) {
-		Rectangle relativeRectangle = rectangle.getCopy();
+	protected void drawName(Graphics graphics) {
+		Rectangle relativeRectangle = getBounds().getCopy();
 		relativeRectangle.setX(0);
 		relativeRectangle.setHeight(10);
 		relativeRectangle.setY(0);
-
-		label.setFont(getFont());
-		add(label);
 		setConstraint(label, relativeRectangle);
 		label.setVisible(isNameVisible);
 	}

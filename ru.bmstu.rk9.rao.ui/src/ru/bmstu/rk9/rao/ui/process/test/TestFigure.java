@@ -35,7 +35,7 @@ public class TestFigure extends ProcessFigure {
 	}
 
 	@Override
-	protected void paintFigure(Graphics graphics) {
+	protected void drawShape(Graphics graphics) {
 		Rectangle rectangle = getBounds().getCopy();
 		PointList points = new PointList();
 		int xCenter = rectangle.x + (rectangle.width) / 2;
@@ -45,7 +45,5 @@ public class TestFigure extends ProcessFigure {
 		points.addPoint(xCenter, rectangle.y + rectangle.height - offset);
 		points.addPoint(rectangle.x + rectangle.width - offset, yCenter);
 		graphics.fillPolygon(points);
-
-		paintName(rectangle);
 	}
 }

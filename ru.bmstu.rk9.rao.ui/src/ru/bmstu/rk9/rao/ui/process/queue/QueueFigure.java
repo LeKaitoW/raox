@@ -31,14 +31,14 @@ public class QueueFigure extends ProcessFigure {
 	}
 
 	@Override
-	protected void paintFigure(Graphics graphics) {
+	protected void drawShape(Graphics graphics) {
 		Rectangle rectangle = getBounds().getCopy();
 		PointList points = new PointList();
 		int xLeft = rectangle.x + offset;
 		int xRight = rectangle.x + rectangle.width - offset;
 		int yTop = rectangle.y + 3 * offset;
 		int yBottom = rectangle.y + rectangle.height - offset;
-		
+
 		points.addPoint(xLeft, yTop);
 		points.addPoint(xRight, yTop);
 		points.addPoint(xRight, yBottom);
@@ -59,7 +59,5 @@ public class QueueFigure extends ProcessFigure {
 		}
 
 		graphics.setBackgroundColor(oldColor);
-
-		paintName(rectangle);
 	}
 }
