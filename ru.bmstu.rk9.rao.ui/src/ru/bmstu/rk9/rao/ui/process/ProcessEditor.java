@@ -20,7 +20,6 @@ import org.eclipse.draw2d.Layer;
 import org.eclipse.draw2d.LayeredPane;
 import org.eclipse.draw2d.StackLayout;
 import org.eclipse.draw2d.XYLayout;
-import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.KeyHandler;
@@ -195,9 +194,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 				Layer layer = new Layer();
 				layer.setLayoutManager(new XYLayout());
 				pane.add(layer, "ModelLayer");
-				
+
 				layer = new ConnectionLayer();
-				layer.setPreferredSize(new Dimension(5, 5));
 				pane.add(layer, CONNECTION_LAYER);
 
 				layer = new Layer();
