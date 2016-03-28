@@ -73,6 +73,8 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 
 	@Override
 	protected void refreshVisuals() {
+		if (!(getFigure() instanceof ProcessFigure))
+			return;
 		ProcessFigure figure = (ProcessFigure) getFigure();
 		Node model = (Node) getModel();
 

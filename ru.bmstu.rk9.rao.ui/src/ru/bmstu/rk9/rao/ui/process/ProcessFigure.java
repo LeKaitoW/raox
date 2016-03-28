@@ -35,7 +35,7 @@ public class ProcessFigure extends Figure {
 		fontData[0].setHeight(6);
 		font = new Font(oldFont.getDevice(), fontData);
 		add(label);
-		setOpaque(false);
+		setOpaque(true);
 	}
 
 	private Font font;
