@@ -32,6 +32,10 @@ public class EResourceRetriever {
 			return resourcesNames;
 
 		for (IResource resource : BuildUtil.getAllFilesInProject(project, "rao")) {
+			String raoFileName = resource.getName();
+			raoFileName = raoFileName.substring(0, raoFileName.lastIndexOf("."));
+			String modelClassName = project.getName() + "." + raoFileName;
+
 			URI uri = BuildUtil.getURI(resource);
 			Resource loadedResource = resourceSet.getResource(uri, true);
 			if (loadedResource == null)
@@ -39,7 +43,7 @@ public class EResourceRetriever {
 			List<ResourceDeclaration> resources = SerializationConfigurator
 					.filterAllContents(loadedResource.getAllContents(), ResourceDeclaration.class);
 			for (ResourceDeclaration declaration : resources) {
-				resourcesNames.add(declaration.getName());
+				resourcesNames.add(modelClassName + "." + declaration.getName());
 			}
 		}
 		return resourcesNames;

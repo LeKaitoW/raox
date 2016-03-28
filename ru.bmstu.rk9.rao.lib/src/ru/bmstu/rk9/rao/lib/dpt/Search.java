@@ -21,7 +21,7 @@ import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulatorState;
 
-public class Search extends AbstractDecisionPoint {
+public abstract class Search extends AbstractDecisionPoint {
 	public Search() {
 		Simulator.getSimulatorStateNotifier().addSubscriber(simulatorInitializedListener, SimulatorState.INITIALIZED,
 				EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED, SubscriptionType.ONE_SHOT));
@@ -313,7 +313,7 @@ public class Search extends AbstractDecisionPoint {
 
 	private final boolean enoughSensitivity(SerializationLevel checkedType) {
 		for (SerializationLevel type : SerializationLevel.values()) {
-			if (Simulator.getDatabase().sensitiveTo(getName() + "." + type.toString()))
+			if (Simulator.getDatabase().sensitiveTo(getTypeName() + "." + type.toString()))
 				if (serializationLevelComparator.compare(type, checkedType) >= 0)
 					return true;
 		}
@@ -333,7 +333,7 @@ public class Search extends AbstractDecisionPoint {
 			return;
 
 		ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.BYTE + Database.TypeSize.DOUBLE
-				+ Database.TypeSize.INTEGER * 4 + Database.TypeSize.LONG * 2);
+				+ Database.TypeSize.INT * 4 + Database.TypeSize.LONG * 2);
 
 		data.put((byte) code.ordinal()).putLong(System.currentTimeMillis() - time)
 				.putLong(memory - Runtime.getRuntime().freeMemory()).putDouble(finalCost).putInt(totalOpened)
@@ -344,7 +344,7 @@ public class Search extends AbstractDecisionPoint {
 
 	private final void serializeOpen(GraphNode node) {
 		if (node != head && enoughSensitivity(SerializationLevel.TOPS)) {
-			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.INTEGER * 2 + Database.TypeSize.DOUBLE * 2);
+			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.INT * 2 + Database.TypeSize.DOUBLE * 2);
 
 			data.putInt(node.number).putInt(node.parent.number).putDouble(node.g).putDouble(node.h);
 
@@ -354,10 +354,10 @@ public class Search extends AbstractDecisionPoint {
 
 	private final void serializeTops(GraphNode node, SpawnStatus spawnStatus, ActivityInfo activityInfo, double value) {
 		if (enoughSensitivity(SerializationLevel.TOPS)) {
-			List<Integer> relevantResources = node.activityInfo.rule.getRelevantInfo();
+			List<Integer> relevantResources = node.activityInfo.rule.getRelevantResourcesNumbers();
 
 			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 3
-					+ Database.TypeSize.INTEGER * (3 + relevantResources.size()));
+					+ Database.TypeSize.INT * (3 + relevantResources.size()));
 
 			data.put((byte) spawnStatus.ordinal()).putInt(node.number).putInt(node.parent.number).putDouble(node.g)
 					.putDouble(node.h).putInt(activityInfo.number).putDouble(value);
@@ -383,11 +383,12 @@ public class Search extends AbstractDecisionPoint {
 			node = it.next();
 
 			Rule rule = node.activityInfo.rule;
-			List<Integer> relevantResources = rule.getRelevantInfo();
+			List<Integer> relevantResources = rule.getRelevantResourcesNumbers();
 
-			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.INTEGER * (2 + relevantResources.size()));
+			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.INT * (3 + relevantResources.size()));
 
-			data.putInt(node.number).putInt(node.activityInfo.number);
+			// FIXME this is a mess
+			data.putInt(node.number).putInt(node.activityInfo.number).putInt(0);
 
 			for (int relres : relevantResources)
 				data.putInt(relres);

@@ -18,6 +18,7 @@ import ru.bmstu.rk9.rao.rao.ResourceType
 
 import static extension ru.bmstu.rk9.rao.jvmmodel.RaoNaming.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.PatternCompiler.*
+import static extension ru.bmstu.rk9.rao.jvmmodel.LogicCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.DefaultMethodCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.EnumCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.EventCompiler.*
@@ -25,6 +26,8 @@ import static extension ru.bmstu.rk9.rao.jvmmodel.FunctionCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.GeneratorCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.ResourceTypeCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.EntityCreationCompiler.*
+import ru.bmstu.rk9.rao.rao.Logic
+import ru.bmstu.rk9.rao.rao.Search
 
 class RaoJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder jvmTypesBuilder
@@ -68,5 +71,13 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 
 	def dispatch compileRaoEntity(Pattern pattern, JvmDeclaredType it, boolean isPreIndexingPhase) {
 		members += pattern.asClass(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase);
+	}
+
+	def dispatch compileRaoEntity(Logic logic, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		members += logic.asClass(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase);
+	}
+
+	def dispatch compileRaoEntity(Search search, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		// TODO
 	}
 }

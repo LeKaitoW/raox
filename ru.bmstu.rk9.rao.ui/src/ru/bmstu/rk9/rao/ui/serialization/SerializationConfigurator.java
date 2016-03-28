@@ -29,18 +29,16 @@ public class SerializationConfigurator {
 		for (SerializationNode category : modelNode.getVisibleChildren())
 			category.hideChildren();
 
-		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.RESOURCES.ordinal()), model,
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.RESOURCE.ordinal()), model,
 				ResourceDeclaration.class);
 
-		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.PATTERNS.ordinal()), model,
-				Pattern.class);
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.PATTERN.ordinal()), model, Pattern.class);
 
-		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.EVENTS.ordinal()), model, Event.class);
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.EVENT.ordinal()), model, Event.class);
 
-		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.DECISION_POINTS.ordinal()), model,
-				Logic.class);
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.LOGIC.ordinal()), model, Logic.class);
 
-		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.RESULTS.ordinal()), model, Result.class);
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.RESULT.ordinal()), model, Result.class);
 
 		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.SEARCH.ordinal()), model, Search.class);
 	}

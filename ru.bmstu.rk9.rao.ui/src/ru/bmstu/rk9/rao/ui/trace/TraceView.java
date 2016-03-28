@@ -79,16 +79,16 @@ public class TraceView extends ViewPart {
 	// ---------------------------- VIEW SETUP ----------------------------- //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	private FrameInfo determineDPTInfo(TraceOutput traceOutput, int stringNum) {
+	private FrameInfo determineSearchInfo(TraceOutput traceOutput, int stringNum) {
 		Entry entry = Simulator.getDatabase().getAllEntries().get(stringNum);
 		final EntryType type = EntryType.values()[entry.getHeader().get(TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 		final ByteBuffer header = Tracer.prepareBufferForReading(entry.getHeader());
 
-		final int dptNumber;
+		final int searchNumber;
 		switch (type) {
 		case SEARCH: {
 			Tracer.skipPart(header, 2 * TypeSize.BYTE + TypeSize.DOUBLE);
-			dptNumber = header.getInt();
+			searchNumber = header.getInt();
 			break;
 		}
 
@@ -98,8 +98,8 @@ public class TraceView extends ViewPart {
 			switch (entryType) {
 			case SEARCH:
 			case SOLUTION:
-				Tracer.skipPart(header, TypeSize.INTEGER * 2);
-				dptNumber = header.getInt();
+				Tracer.skipPart(header, TypeSize.INT * 2);
+				searchNumber = header.getInt();
 				break;
 			default:
 				return null;
@@ -112,9 +112,9 @@ public class TraceView extends ViewPart {
 			return null;
 		}
 
-		String dptName = Simulator.getModelStructureCache().getDecisionPointName(dptNumber);
+		String dptName = Simulator.getStaticModelData().getSearchName(searchNumber);
 
-		return new FrameInfo(dptNumber, dptName);
+		return new FrameInfo(searchNumber, dptName);
 	}
 
 	@Override
@@ -173,7 +173,7 @@ public class TraceView extends ViewPart {
 			@Override
 			public void doubleClick(DoubleClickEvent e) {
 				TraceOutput traceOutput = (TraceOutput) viewer.getTable().getSelection()[0].getData();
-				FrameInfo frameInfo = determineDPTInfo(traceOutput, viewer.getTable().getSelectionIndex());
+				FrameInfo frameInfo = determineSearchInfo(traceOutput, viewer.getTable().getSelectionIndex());
 				if (frameInfo == null)
 					return;
 

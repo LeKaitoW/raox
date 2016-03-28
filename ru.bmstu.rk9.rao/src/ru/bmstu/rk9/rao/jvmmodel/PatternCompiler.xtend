@@ -6,8 +6,6 @@ import org.eclipse.xtext.common.types.JvmVisibility
 import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
-import ru.bmstu.rk9.rao.lib.pattern.Operation
-import ru.bmstu.rk9.rao.lib.pattern.Rule
 import ru.bmstu.rk9.rao.rao.Pattern
 import ru.bmstu.rk9.rao.rao.PatternType
 
@@ -18,12 +16,13 @@ class PatternCompiler extends RaoEntityCompiler {
 		JvmDeclaredType it, boolean isPreIndexingPhase) {
 		initializeCurrent(jvmTypesBuilder, typeReferenceBuilder)
 
-		return pattern.toClass(QualifiedName.create(qualifiedName, pattern.name)) [
+		val patternQualifiedName = QualifiedName.create(qualifiedName, pattern.name)
+		return pattern.toClass(patternQualifiedName) [
 			static = true
 			superTypes += if (pattern.type == PatternType.RULE)
-				typeRef(Rule)
+				typeRef(ru.bmstu.rk9.rao.lib.pattern.Rule)
 			else
-				typeRef(Operation)
+				typeRef(ru.bmstu.rk9.rao.lib.pattern.Operation)
 
 			members += pattern.toMethod("create", typeRef(Supplier, {
 				typeRef
@@ -134,7 +133,7 @@ class PatternCompiler extends RaoEntityCompiler {
 					members += resolveMethod
 
 					for (name : tuple.names) {
-						// TODO derive actual resrouce type
+						// TODO derive actual resource type
 						members += tuple.toField(name, typeRef(ru.bmstu.rk9.rao.lib.resource.Resource))
 					}
 				}
@@ -159,18 +158,20 @@ class PatternCompiler extends RaoEntityCompiler {
 							if (this.«relevant.name» == null)
 								return false;
 							this.«relevant.name».setAccessible(false);
+							this.relevantResourcesNumbers.add(this.«relevant.name».getNumber());
 						«ENDFOR»
 						«FOR tuple : pattern.relevantTuples»«
 							val tupleInfo = tupleInfoMap.get(tuple)
 							»«tupleInfo.genericTupleInfo.genericName» __«tupleInfo.name» = «tupleInfo.resolveMethodName»();
-								if (__«tupleInfo.name» == null)
-									return false;
-								else {
-									«FOR name : tuple.names»
-										this.«name» = __«tupleInfo.name».«tupleInfo.tupleElementsInfo.get(tuple.names.indexOf(name)).name»;
-										this.«name».setAccessible(false);
-									«ENDFOR»
-								}
+							if (__«tupleInfo.name» == null) {
+								return false;
+							} else {
+								«FOR name : tuple.names»
+									this.«name» = __«tupleInfo.name».«tupleInfo.tupleElementsInfo.get(tuple.names.indexOf(name)).name»;
+									this.«name».setAccessible(false);
+									this.relevantResourcesNumbers.add(this.«name».getNumber());
+								«ENDFOR»
+							}
 						«ENDFOR»
 						return true;
 					'''
@@ -190,6 +191,14 @@ class PatternCompiler extends RaoEntityCompiler {
 							«ENDFOR»
 						«ENDFOR»
 					'''
+				]
+
+				members += pattern.toMethod("getTypeName", typeRef(String)) [
+					visibility = JvmVisibility.PUBLIC
+					final = true
+					annotations += generateOverrideAnnotation()
+
+					body = '''return "«patternQualifiedName»";'''
 				]
 			}
 		]

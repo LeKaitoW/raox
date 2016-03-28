@@ -5,15 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
-import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceParameterIndex;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceTypeIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
+import ru.bmstu.rk9.rao.lib.database.Database;
+import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
-import ru.bmstu.rk9.rao.lib.modelStructure.ResultCache;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.trace.Tracer;
 
@@ -56,7 +57,9 @@ public class PlotDataParser {
 			final ResourceParameterIndex resourceParameterIndex = (ResourceParameterIndex) index;
 			final CollectedDataNode resourceNode = node.getParent();
 			final ResourceIndex resourceIndex = (ResourceIndex) resourceNode.getIndex();
-			parseInfo = parseResourceParameter(resourceParameterIndex, resourceIndex, currentItemNumber);
+			final ResourceTypeIndex resourceTypeIndex = (ResourceTypeIndex) resourceNode.getParent().getIndex();
+			parseInfo = parseResourceParameter(resourceIndex, resourceTypeIndex.getNumber(),
+					resourceParameterIndex.getNumber(), currentItemNumber);
 			break;
 		case RESULT:
 			final ResultIndex resultIndex = (ResultIndex) index;
@@ -113,35 +116,10 @@ public class PlotDataParser {
 	private ParseInfo parseResult(final ResultIndex resultIndex, final int startItemNumber) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = resultIndex.getEntryNumbers();
-		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
 
 		while (currentItemNumber < entriesNumbers.size()) {
-			int currentEntryNumber = entriesNumbers.get(currentItemNumber);
-			final Entry currentEntry = allEntries.get(currentEntryNumber);
-			final ByteBuffer header = Tracer.prepareBufferForReading(currentEntry.getHeader());
-			final ByteBuffer data = Tracer.prepareBufferForReading(currentEntry.getData());
-
-			Tracer.skipPart(header, TypeSize.BYTE);
-			final double time = header.getDouble();
-			final int resultNum = header.getInt();
-			final ResultCache resultCache = Simulator.getModelStructureCache().getResultsInfo().get(resultNum);
 			PlotItem item = null;
-			switch (resultCache.getValueType()) {
-			case INTEGER:
-				item = new PlotItem(time, data.getInt());
-				break;
-			case REAL:
-				item = new PlotItem(time, data.getDouble());
-				break;
-			case ENUM:
-				item = new PlotItem(time, data.getShort());
-				break;
-			case BOOLEAN:
-				item = new PlotItem(time, data.get() != 0 ? 1 : 0);
-				break;
-			default:
-				throw new PlotDataParserException("Unexpected value type: " + resultCache.getValueType());
-			}
+			// TODO implement
 			dataset.add(item);
 			currentItemNumber++;
 		}
@@ -149,11 +127,14 @@ public class PlotDataParser {
 		return new ParseInfo(dataset, currentItemNumber);
 	}
 
-	private ParseInfo parseResourceParameter(final ResourceParameterIndex resourceParameterIndex,
-			final ResourceIndex resourceIndex, final int startItemNumber) {
+	private ParseInfo parseResourceParameter(final ResourceIndex resourceIndex, final int typeNumber,
+			final int parameterNumber, final int startItemNumber) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = resourceIndex.getEntryNumbers();
 		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
+
+		final int parameterOffset = Simulator.getStaticModelData().getResourceTypeParameterOffset(typeNumber,
+				parameterNumber);
 
 		while (currentItemNumber < entriesNumbers.size()) {
 			int currentEntryNumber = entriesNumbers.get(currentItemNumber);
@@ -167,22 +148,20 @@ public class PlotDataParser {
 			Tracer.skipPart(header, TypeSize.BYTE);
 			PlotItem item = null;
 
-			switch (resourceParameterIndex.getValueCache().getType()) {
-			case INTEGER:
-				item = new PlotItem(time, data.getInt(resourceParameterIndex.getOffset()));
+			DataType dataType = Simulator.getStaticModelData().getResourceTypeParameterType(parameterOffset,
+					parameterNumber);
+			switch (dataType) {
+			case INT:
+				item = new PlotItem(time, data.getInt(parameterOffset));
 				break;
-			case REAL:
-				item = new PlotItem(time, data.getDouble(resourceParameterIndex.getOffset()));
-				break;
-			case ENUM:
-				item = new PlotItem(time, data.getShort(resourceParameterIndex.getOffset()));
+			case DOUBLE:
+				item = new PlotItem(time, data.getDouble(parameterOffset));
 				break;
 			case BOOLEAN:
-				item = new PlotItem(time, data.get(resourceParameterIndex.getOffset()) != 0 ? 1 : 0);
+				item = new PlotItem(time, data.get(parameterOffset) != 0 ? 1 : 0);
 				break;
 			default:
-				throw new PlotDataParserException(
-						"Unexpected value type: " + resourceParameterIndex.getValueCache().getType());
+				throw new PlotDataParserException("Unexpected value type: " + dataType);
 			}
 
 			dataset.add(item);
@@ -194,16 +173,17 @@ public class PlotDataParser {
 
 	public static List<String> getEnumNames(final CollectedDataNode node) {
 		List<String> enumNames = null;
+
 		final Index index = node.getIndex();
 		if (index != null) {
 			switch (index.getType()) {
 			case RESOURCE_PARAMETER:
-				enumNames = ((ResourceParameterIndex) index).getValueCache().getEnumNames();
+				// TODO fix this when enums serialization is implemented
+				enumNames = new ArrayList<String>();
 				break;
 			case RESULT:
-				int resultNumber = index.getNumber();
-				final ResultCache resultCache = Simulator.getModelStructureCache().getResultsInfo().get(resultNumber);
-				enumNames = resultCache.getEnumNames();
+				// TODO fix this when enums serialization is implemented
+				enumNames = new ArrayList<String>();
 				break;
 			default:
 				break;

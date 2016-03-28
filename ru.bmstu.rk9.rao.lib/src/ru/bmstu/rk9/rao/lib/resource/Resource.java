@@ -1,7 +1,5 @@
 package ru.bmstu.rk9.rao.lib.resource;
 
-import java.nio.ByteBuffer;
-
 import ru.bmstu.rk9.rao.lib.database.Serializable;
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 import ru.bmstu.rk9.rao.lib.naming.RaoNameable;
@@ -33,10 +31,4 @@ public abstract class Resource extends RaoNameable implements Serializable {
 	}
 
 	protected boolean accessible = true;
-
-	// FIXME
-	@Override
-	public ByteBuffer serialize() {
-		return null;
-	}
 }
