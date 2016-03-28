@@ -24,8 +24,8 @@ public class TerminateFigure extends ProcessFigure {
 			@Override
 			public void figureMoved(IFigure figure) {
 				Rectangle bounds = figure.getBounds();
-				inputConnectionAnchor.offsetHorizontal = offset;
-				inputConnectionAnchor.offsetVertical = bounds.height / 2 + offset;
+				inputConnectionAnchor.offsetHorizontal = offset - 1;
+				inputConnectionAnchor.offsetVertical = bounds.height / 2 + offset - 1;
 			}
 		});
 
@@ -40,7 +40,7 @@ public class TerminateFigure extends ProcessFigure {
 
 		PointList points = new PointList();
 		points.addPoint(xRight, bounds.y + 3 * offset);
-		points.addPoint(bounds.x + offset, centerY);
+		points.addPoint(bounds.x + offset + dockSize / 2, centerY);
 		points.addPoint(xRight, bounds.y + bounds.height - offset);
 
 		graphics.setBackgroundColor(getBackgroundColor());

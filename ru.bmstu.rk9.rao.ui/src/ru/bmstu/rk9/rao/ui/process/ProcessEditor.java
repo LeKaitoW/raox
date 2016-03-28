@@ -195,8 +195,9 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 				layer.setLayoutManager(new XYLayout());
 				pane.add(layer, "ModelLayer");
 
-				layer = new ConnectionLayer();
-				pane.add(layer, CONNECTION_LAYER);
+				ConnectionLayer connectionLayer = new ConnectionLayer();
+				connectionLayer.setAntialias(SWT.ON);
+				pane.add(connectionLayer, CONNECTION_LAYER);
 
 				layer = new Layer();
 				layer.setLayoutManager(new StackLayout());

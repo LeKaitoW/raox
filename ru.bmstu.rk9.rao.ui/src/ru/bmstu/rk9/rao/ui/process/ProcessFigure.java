@@ -15,6 +15,7 @@ import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jdt.ui.PreferenceConstants;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.ui.PlatformUI;
@@ -26,7 +27,7 @@ public class ProcessFigure extends Figure {
 	protected Map<String, ConnectionAnchor> connectionAnchors = new HashMap<>();
 	protected List<ConnectionAnchor> inputConnectionAnchors = new ArrayList<>();
 	protected List<ConnectionAnchor> outputConnectionAnchors = new ArrayList<>();
-	protected int offset = 5;
+	protected static final int offset = 5;
 
 	public ProcessFigure() {
 		XYLayout layout = new XYLayout();
@@ -54,7 +55,11 @@ public class ProcessFigure extends Figure {
 	}
 
 	@Override
-	protected void paintFigure(Graphics graphics) {
+	final protected void paintFigure(Graphics graphics) {
+		graphics.setAdvanced(true);
+		graphics.setAntialias(SWT.ON);
+		graphics.setTextAntialias(SWT.ON);
+
 		drawShape(graphics);
 		drawDocks(graphics);
 		drawName(graphics);
@@ -67,11 +72,11 @@ public class ProcessFigure extends Figure {
 	}
 
 	private static final Rectangle dockRectangle = new Rectangle();
+	protected static final int dockSize = 4;
 
 	final protected void drawDock(Graphics graphics, final int dockCenterX, final int dockCenterY) {
-		final int dockSize = 4;
-		dockRectangle.x = dockCenterX - dockSize;
-		dockRectangle.y = dockCenterY - dockSize;
+		dockRectangle.x = dockCenterX - dockSize + 1;
+		dockRectangle.y = dockCenterY - dockSize + 1;
 		dockRectangle.width = dockSize * 2;
 		dockRectangle.height = dockSize * 2;
 		graphics.setBackgroundColor(ColorConstants.white);
