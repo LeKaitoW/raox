@@ -36,11 +36,15 @@ public class ProcessLink implements Serializable, IAdaptable {
 	public void connect() {
 		sourceNode.addConnections(this);
 		targetNode.addConnections(this);
+		sourceNode.increaseLinksCount(sourceTerminal);
+		targetNode.increaseLinksCount(targetTerminal);
 	}
 
 	public void disconnect() {
 		sourceNode.removeConnection(this);
 		targetNode.removeConnection(this);
+		sourceNode.decreaseLinksCount(sourceTerminal);
+		targetNode.decreaseLinksCount(targetTerminal);
 	}
 
 	public void reconnect(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceTerminal,
@@ -48,6 +52,7 @@ public class ProcessLink implements Serializable, IAdaptable {
 		if (sourceNode == null || targetNode == null || sourceNode == targetNode) {
 			throw new IllegalArgumentException();
 		}
+		System.out.println(sourceNode.getLinksCount(sourceTerminal));
 		disconnect();
 		this.sourceNode = sourceNode;
 		this.targetNode = targetNode;

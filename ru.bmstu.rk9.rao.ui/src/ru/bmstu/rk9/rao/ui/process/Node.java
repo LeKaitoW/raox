@@ -4,7 +4,9 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.RGB;
@@ -29,6 +31,8 @@ public abstract class Node implements Serializable {
 	protected RGB color;
 	protected List<ProcessLink> sourceConnections;
 	protected List<ProcessLink> targetConnections;
+
+	protected Map<String, Integer> linksCount = new HashMap<>();
 
 	public Node(RGB backgroundColor) {
 		this.name = "Unknown";
@@ -153,6 +157,22 @@ public abstract class Node implements Serializable {
 
 	public List<ProcessLink> getTargetConnectionsArray() {
 		return this.targetConnections;
+	}
+
+	public int getLinksCount(String terminal) {
+		return linksCount.get(terminal);
+	}
+
+	public void increaseLinksCount(String terminal) {
+		int count = linksCount.get(terminal);
+		count++;
+		linksCount.put(terminal, count);
+	}
+
+	public void decreaseLinksCount(String terminal) {
+		int count = linksCount.get(terminal);
+		count--;
+		linksCount.put(terminal, count);
 	}
 
 	public abstract BlockConverterInfo createBlock();

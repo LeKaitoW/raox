@@ -13,6 +13,7 @@ public class Terminate extends NodeWithProperty {
 
 	public Terminate() {
 		super(backgroundColor.getRGB());
+		linksCount.put(TERMINAL_IN, 0);
 	}
 
 	private static Color backgroundColor = new Color(null, 67, 181, 129);

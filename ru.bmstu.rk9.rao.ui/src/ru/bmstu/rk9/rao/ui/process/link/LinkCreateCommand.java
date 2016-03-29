@@ -28,6 +28,8 @@ public class LinkCreateCommand extends Command {
 			return false;
 		if (sourceNode.equals(targetNode))
 			return false;
+		if (sourceNode.getLinksCount(sourceTerminal) > 0)
+			return false;
 		return true;
 	}
 

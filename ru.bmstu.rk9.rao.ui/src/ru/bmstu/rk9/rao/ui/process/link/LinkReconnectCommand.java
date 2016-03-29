@@ -34,6 +34,8 @@ public class LinkReconnectCommand extends Command {
 	private boolean checkSourceReconnection() {
 		if (newSourceNode.equals(oldTargetNode))
 			return false;
+		if (newSourceNode.getLinksCount(newSourceTerminal) > 0)
+			return false;
 		return true;
 	}
 

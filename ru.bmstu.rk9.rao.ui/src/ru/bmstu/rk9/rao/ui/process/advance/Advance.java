@@ -16,6 +16,8 @@ public class Advance extends NodeWithInterval implements Serializable {
 
 	public Advance() {
 		super(backgroundColor.getRGB(), "Advance");
+		linksCount.put(TERMINAL_IN, 0);
+		linksCount.put(TERMINAL_OUT, 0);
 	}
 
 	private static Color backgroundColor = new Color(null, 67, 181, 129);

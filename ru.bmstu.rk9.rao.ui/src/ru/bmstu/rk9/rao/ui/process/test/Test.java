@@ -17,6 +17,9 @@ public class Test extends NodeWithProbability implements Serializable {
 
 	public Test() {
 		super(backgroundColor.getRGB());
+		linksCount.put(TERMINAL_IN, 0);
+		linksCount.put(TERMINAL_FALSE_OUT, 0);
+		linksCount.put(TERMINAL_TRUE_OUT, 0);
 	}
 
 	private static Color backgroundColor = new Color(null, 67, 181, 129);

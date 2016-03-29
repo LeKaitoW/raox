@@ -16,6 +16,8 @@ public class Queue extends NodeWithCapacity implements Serializable {
 
 	public Queue() {
 		super(backgroundColor.getRGB());
+		linksCount.put(TERMINAL_IN, 0);
+		linksCount.put(TERMINAL_OUT, 0);
 	}
 
 	private static Color backgroundColor = new Color(null, 67, 181, 129);

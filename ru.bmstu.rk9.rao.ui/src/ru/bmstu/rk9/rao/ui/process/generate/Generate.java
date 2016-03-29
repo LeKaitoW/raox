@@ -13,6 +13,7 @@ public class Generate extends NodeWithInterval {
 
 	public Generate() {
 		super(backgroundColor.getRGB(), "Interval");
+		linksCount.put(TERMINAL_OUT, 0);
 	}
 
 	private static Color backgroundColor = new Color(null, 67, 181, 129);
