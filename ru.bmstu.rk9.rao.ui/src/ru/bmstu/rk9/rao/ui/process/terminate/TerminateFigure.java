@@ -11,12 +11,10 @@ import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class TerminateFigure extends ProcessFigure {
 
-	private final ProcessConnectionAnchor inputConnectionAnchor;
-
 	public TerminateFigure() {
 		super();
 
-		inputConnectionAnchor = new ProcessConnectionAnchor(this);
+		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(this);
 		inputConnectionAnchors.add(inputConnectionAnchor);
 		connectionAnchors.put(Terminate.TERMINAL_IN, inputConnectionAnchor);
 
@@ -45,13 +43,5 @@ public class TerminateFigure extends ProcessFigure {
 
 		graphics.setBackgroundColor(getBackgroundColor());
 		graphics.fillPolygon(points);
-	}
-
-	@Override
-	protected void drawDocks(Graphics graphics) {
-		Rectangle bounds = getBounds();
-		final int dockCenterX = bounds.x + inputConnectionAnchor.offsetHorizontal;
-		final int dockCenterY = bounds.y + inputConnectionAnchor.offsetVertical;
-		drawDock(graphics, dockCenterX, dockCenterY);
 	}
 }

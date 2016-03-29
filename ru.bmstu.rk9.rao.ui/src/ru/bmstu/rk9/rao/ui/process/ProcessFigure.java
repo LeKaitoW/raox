@@ -16,6 +16,7 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.ui.PlatformUI;
@@ -24,10 +25,11 @@ public class ProcessFigure extends Figure {
 
 	protected Label label = new Label();
 	private boolean isNameVisible = true;
-	protected Map<String, ConnectionAnchor> connectionAnchors = new HashMap<>();
+	protected Map<String, ProcessConnectionAnchor> connectionAnchors = new HashMap<>();
 	protected List<ConnectionAnchor> inputConnectionAnchors = new ArrayList<>();
 	protected List<ConnectionAnchor> outputConnectionAnchors = new ArrayList<>();
 	protected static final int offset = 5;
+	protected static Color backgroundColor = ColorConstants.white;
 
 	public ProcessFigure() {
 		XYLayout layout = new XYLayout();
@@ -68,18 +70,24 @@ public class ProcessFigure extends Figure {
 	protected void drawShape(Graphics graphics) {
 	}
 
-	protected void drawDocks(Graphics graphics) {
+	private final void drawDocks(Graphics graphics) {
+		Rectangle bounds = getBounds();
+		for (Entry<String, ProcessConnectionAnchor> entry : connectionAnchors.entrySet()) {
+			final int dockCenterX = bounds.x + entry.getValue().offsetHorizontal + 1;
+			final int dockCenterY = bounds.y + entry.getValue().offsetVertical + 1;
+			drawDock(graphics, dockCenterX, dockCenterY);
+		}
 	}
 
 	private static final Rectangle dockRectangle = new Rectangle();
 	protected static final int dockSize = 4;
 
-	final protected void drawDock(Graphics graphics, final int dockCenterX, final int dockCenterY) {
-		dockRectangle.x = dockCenterX - dockSize + 1;
-		dockRectangle.y = dockCenterY - dockSize + 1;
+	final private void drawDock(Graphics graphics, final int dockCenterX, final int dockCenterY) {
+		dockRectangle.x = dockCenterX - dockSize;
+		dockRectangle.y = dockCenterY - dockSize;
 		dockRectangle.width = dockSize * 2;
 		dockRectangle.height = dockSize * 2;
-		graphics.setBackgroundColor(ColorConstants.white);
+		graphics.setBackgroundColor(backgroundColor);
 		graphics.fillRectangle(dockRectangle);
 
 		dockRectangle.shrink(1, 1);
@@ -106,7 +114,7 @@ public class ProcessFigure extends Figure {
 	}
 
 	public String getConnectionAnchorName(ConnectionAnchor connectionAnchor) {
-		for (Entry<String, ConnectionAnchor> entry : connectionAnchors.entrySet()) {
+		for (Entry<String, ProcessConnectionAnchor> entry : connectionAnchors.entrySet()) {
 			if (entry.getValue().equals(connectionAnchor)) {
 				return entry.getKey();
 			}

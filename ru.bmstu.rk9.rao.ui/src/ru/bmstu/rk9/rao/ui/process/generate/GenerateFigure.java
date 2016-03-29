@@ -11,12 +11,10 @@ import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class GenerateFigure extends ProcessFigure {
 
-	private final ProcessConnectionAnchor outputConnectionAnchor;
-
 	public GenerateFigure() {
 		super();
 
-		outputConnectionAnchor = new ProcessConnectionAnchor(this);
+		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(this);
 		outputConnectionAnchors.add(outputConnectionAnchor);
 		connectionAnchors.put(Generate.TERMINAL_OUT, outputConnectionAnchor);
 
@@ -43,13 +41,5 @@ public class GenerateFigure extends ProcessFigure {
 		points.addPoint(leftX, bounds.y + bounds.height - offset);
 		graphics.setBackgroundColor(getBackgroundColor());
 		graphics.fillPolygon(points);
-	}
-
-	@Override
-	protected void drawDocks(Graphics graphics) {
-		Rectangle bounds = getBounds();
-		final int dockCenterX = bounds.x + outputConnectionAnchor.offsetHorizontal;
-		final int dockCenterY = bounds.y + outputConnectionAnchor.offsetVertical;
-		drawDock(graphics, dockCenterX, dockCenterY);
 	}
 }
