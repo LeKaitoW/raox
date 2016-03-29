@@ -25,15 +25,13 @@ public class SeizeFigure extends ProcessFigure {
 		addFigureListener(new FigureListener() {
 			@Override
 			public void figureMoved(IFigure figure) {
-				Rectangle bounds = figure.getBounds();
-
 				Path path = new Path(null);
-				path.addArc(bounds.x + offset, bounds.y + 3 * offset, bounds.width - 2 * offset,
-						bounds.height - 4 * offset, 240, 240);
+				addArcToPath(path);
 				path.close();
 				final float xStart = path.getPathData().points[0];
 
-				inputConnectionAnchor.offsetHorizontal = (int) xStart - bounds.x;
+				Rectangle bounds = figure.getBounds();
+				inputConnectionAnchor.offsetHorizontal = (int) xStart - bounds.x - 1;
 				inputConnectionAnchor.offsetVertical = bounds.height / 2 + offset - 1;
 
 				outputConnectionAnchor.offsetHorizontal = bounds.width - offset - 1;
@@ -46,10 +44,8 @@ public class SeizeFigure extends ProcessFigure {
 
 	@Override
 	protected void drawShape(Graphics graphics) {
-		Rectangle bounds = getBounds().getCopy();
 		Path path = new Path(null);
-		path.addArc(bounds.x + offset, bounds.y + 3 * offset, bounds.width - 2 * offset, bounds.height - 4 * offset,
-				240, 240);
+		addArcToPath(path);
 		final float[] points = path.getPathData().points;
 		final float xStart = points[0];
 		final float yStart = points[1];
@@ -58,5 +54,11 @@ public class SeizeFigure extends ProcessFigure {
 
 		graphics.setBackgroundColor(getBackgroundColor());
 		graphics.fillPath(path);
+	}
+
+	private final void addArcToPath(Path path) {
+		Rectangle bounds = getBounds();
+		path.addArc(bounds.x + offset, bounds.y + 3 * offset, bounds.width - 2 * offset, bounds.height - 4 * offset,
+				240, 240);
 	}
 }

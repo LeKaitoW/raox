@@ -29,7 +29,7 @@ public class ProcessFigure extends Figure {
 	protected List<ConnectionAnchor> inputConnectionAnchors = new ArrayList<>();
 	protected List<ConnectionAnchor> outputConnectionAnchors = new ArrayList<>();
 	protected static final int offset = 5;
-	protected static Color backgroundColor = ColorConstants.white;
+	protected static Color pageBackgroundColor = ColorConstants.white;
 
 	public ProcessFigure() {
 		XYLayout layout = new XYLayout();
@@ -87,7 +87,7 @@ public class ProcessFigure extends Figure {
 		dockRectangle.y = dockCenterY - dockSize;
 		dockRectangle.width = dockSize * 2;
 		dockRectangle.height = dockSize * 2;
-		graphics.setBackgroundColor(backgroundColor);
+		graphics.setBackgroundColor(pageBackgroundColor);
 		graphics.fillRectangle(dockRectangle);
 
 		dockRectangle.shrink(1, 1);

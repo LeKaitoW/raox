@@ -58,7 +58,7 @@ public class AdvanceFigure extends ProcessFigure {
 		trianglePoints.addPoint(shapeRectangle.x, shapeRectangle.y + shapeRectangle.height);
 
 		Color previousColor = graphics.getBackgroundColor();
-		graphics.setBackgroundColor(backgroundColor);
+		graphics.setBackgroundColor(pageBackgroundColor);
 		graphics.fillPolygon(trianglePoints);
 		graphics.setBackgroundColor(previousColor);
 	}
