@@ -216,8 +216,8 @@ public class ModelInternalsParser {
 			simulatorInitializationInfo.decisionPoints.add(logic);
 		}
 
-		for (IResource graoFile : BuildUtil.getAllFilesInProject(project, "grao")) {
-			Model model = ProcessEditor.readModelFromFile((IFile) graoFile);
+		for (IResource processFile : BuildUtil.getAllFilesInProject(project, "proc")) {
+			Model model = ProcessEditor.readModelFromFile((IFile) processFile);
 			List<Block> blocks;
 			blocks = BlockConverter.convertModelToBlocks(model);
 

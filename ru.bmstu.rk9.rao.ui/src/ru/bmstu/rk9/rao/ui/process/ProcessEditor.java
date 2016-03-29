@@ -27,6 +27,7 @@ import org.eclipse.gef.palette.PaletteGroup;
 import org.eclipse.gef.palette.PaletteRoot;
 import org.eclipse.gef.palette.PaletteSeparator;
 import org.eclipse.gef.palette.SelectionToolEntry;
+import org.eclipse.gef.ui.palette.FlyoutPaletteComposite;
 import org.eclipse.gef.ui.palette.PaletteViewer;
 import org.eclipse.gef.ui.palette.PaletteViewerProvider;
 import org.eclipse.gef.ui.parts.GraphicalEditorWithFlyoutPalette;
@@ -117,6 +118,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 						new NodeCreationFactory(nodeClass), null, null));
 		}
 		root.setDefaultEntry(selectionToolEntry);
+		getPalettePreferences().setPaletteState(FlyoutPaletteComposite.STATE_PINNED_OPEN);
 		return root;
 	}
 
@@ -134,6 +136,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	protected void setInput(IEditorInput input) {
 		super.setInput(input);
 		IFile file = ((IFileEditorInput) input).getFile();
+		setPartName(file.getName());
 		try {
 			setModel(readModelFromFile(file));
 

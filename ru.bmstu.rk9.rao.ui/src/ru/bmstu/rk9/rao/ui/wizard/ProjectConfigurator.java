@@ -137,7 +137,7 @@ public class ProjectConfigurator {
 	}
 
 	private final void createGraphicProcessEditor() throws CoreException, IOException {
-		final String processName = info.getProjectName() + ".grao";
+		final String processName = info.getProjectName() + ".proc";
 		final IPath modelIPath = root.getLocation().append(raoProject.getFullPath()).append(processName);
 		final File processFile = new File(modelIPath.toString());
 		final IFile processIFile = raoProject.getFile(processName);

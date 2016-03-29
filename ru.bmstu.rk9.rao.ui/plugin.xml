@@ -1057,9 +1057,9 @@
      <editor
            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.process.ProcessEditor"
            default="true"
-           extensions="grao"
+           extensions="proc"
            id="ru.bmstu.rk9.rao.ui.process.editor"
-           name="RAO Process Editor">
+           name="Rao Process Editor">
      </editor>
   </extension>
   <extension point="org.eclipse.team.core.fileTypes">
