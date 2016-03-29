@@ -14,8 +14,8 @@ public abstract class NodeWithCapacity extends NodeWithProperty {
 	protected String capacity = "";
 	protected Queueing queueing = Queueing.FIFO;
 
-	public NodeWithCapacity(RGB backgroundColor) {
-		super(backgroundColor);
+	public NodeWithCapacity(RGB foregroundColor) {
+		super(foregroundColor);
 	}
 
 	public void setCapacity(String capacity) {

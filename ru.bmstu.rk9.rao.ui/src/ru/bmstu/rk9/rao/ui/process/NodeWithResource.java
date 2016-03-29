@@ -14,8 +14,8 @@ public abstract class NodeWithResource extends NodeWithProperty {
 
 	protected String resourceName = "";
 
-	public NodeWithResource(RGB backgroundColor) {
-		super(backgroundColor);
+	public NodeWithResource(RGB foregroundColor) {
+		super(foregroundColor);
 	}
 
 	public void setResourceName(int index) {

@@ -25,7 +25,8 @@ public class LinkReconnectCommand extends Command {
 	public boolean canExecute() {
 		if (newSourceNode != null) {
 			return checkSourceReconnection();
-		} else if (newTargetNode != null) {
+		}
+		if (newTargetNode != null) {
 			return checkTargetReconnection();
 		}
 		return false;
@@ -40,8 +41,6 @@ public class LinkReconnectCommand extends Command {
 	}
 
 	private boolean checkTargetReconnection() {
-		if (newTargetNode == null)
-			return false;
 		if (oldSourceNode.equals(newTargetNode))
 			return false;
 		return true;

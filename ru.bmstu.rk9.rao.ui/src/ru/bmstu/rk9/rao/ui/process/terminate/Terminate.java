@@ -4,6 +4,7 @@ import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.NodeWithProperty;
+import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 
 public class Terminate extends NodeWithProperty {
 
@@ -12,11 +13,11 @@ public class Terminate extends NodeWithProperty {
 	public static final String TERMINAL_IN = "IN";
 
 	public Terminate() {
-		super(backgroundColor.getRGB());
+		super(foregroundColor.getRGB());
 		linksCount.put(TERMINAL_IN, 0);
 	}
 
-	private static Color backgroundColor = new Color(null, 67, 181, 129);
+	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
 	public static String name = "Terminate";
 
 	@Override

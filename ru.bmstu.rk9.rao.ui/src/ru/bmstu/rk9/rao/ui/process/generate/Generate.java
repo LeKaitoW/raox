@@ -4,6 +4,7 @@ import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.NodeWithInterval;
+import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 
 public class Generate extends NodeWithInterval {
 
@@ -12,11 +13,11 @@ public class Generate extends NodeWithInterval {
 	public static final String TERMINAL_OUT = "OUT";
 
 	public Generate() {
-		super(backgroundColor.getRGB(), "Interval");
+		super(foregroundColor.getRGB(), "Interval");
 		linksCount.put(TERMINAL_OUT, 0);
 	}
 
-	private static Color backgroundColor = new Color(null, 67, 181, 129);
+	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
 	public static String name = "Generate";
 
 	@Override

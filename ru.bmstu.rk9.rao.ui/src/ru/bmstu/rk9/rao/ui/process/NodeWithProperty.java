@@ -17,8 +17,8 @@ public abstract class NodeWithProperty extends Node implements IAdaptable {
 	private boolean nameIsVisible = true;
 	private transient IPropertySource propertySource = null;
 
-	public NodeWithProperty(RGB backgroundColor) {
-		super(backgroundColor);
+	public NodeWithProperty(RGB foregroundColor) {
+		super(foregroundColor);
 		this.sourceConnections = new ArrayList<ProcessLink>();
 		this.targetConnections = new ArrayList<ProcessLink>();
 	}

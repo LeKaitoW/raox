@@ -6,6 +6,7 @@ import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.NodeWithProbability;
+import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 
 public class Test extends NodeWithProbability implements Serializable {
 
@@ -16,13 +17,13 @@ public class Test extends NodeWithProbability implements Serializable {
 	public static final String TERMINAL_FALSE_OUT = "FALSE_OUT";
 
 	public Test() {
-		super(backgroundColor.getRGB());
+		super(foregroundColor.getRGB());
 		linksCount.put(TERMINAL_IN, 0);
 		linksCount.put(TERMINAL_FALSE_OUT, 0);
 		linksCount.put(TERMINAL_TRUE_OUT, 0);
 	}
 
-	private static Color backgroundColor = new Color(null, 67, 181, 129);
+	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
 	public static String name = "Test";
 
 	@Override

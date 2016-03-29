@@ -32,15 +32,15 @@ public abstract class Node implements Serializable {
 	protected List<ProcessLink> sourceConnections;
 	protected List<ProcessLink> targetConnections;
 
-	protected Map<String, Integer> linksCount = new HashMap<>();
+	protected final Map<String, Integer> linksCount = new HashMap<>();
 
-	public Node(RGB backgroundColor) {
+	public Node(RGB foregroundColor) {
 		this.name = "Unknown";
 		this.layout = new Rectangle(10, 10, 100, 100);
 		this.children = new ArrayList<Node>();
 		this.parent = null;
 		this.listeners = new PropertyChangeSupport(this);
-		this.color = backgroundColor;
+		this.color = foregroundColor;
 	}
 
 	public RGB getColor() {

@@ -12,10 +12,10 @@ public class Model extends Node {
 	private static final long serialVersionUID = 1;
 
 	public Model() {
-		super(backgroundColor.getRGB());
+		super(foregroundColor.getRGB());
 	}
 
-	private static Color backgroundColor = ColorConstants.white;
+	private static Color foregroundColor = ColorConstants.white;
 	public static String name = "Model";
 
 	private transient EResourceRetriever resourceRetriever;

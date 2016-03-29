@@ -11,12 +11,12 @@ public abstract class NodeWithInterval extends NodeWithProperty {
 
 	protected String interval = "";
 
-	public NodeWithInterval(RGB backgroundColor) {
-		super(backgroundColor);
+	public NodeWithInterval(RGB foregroundColor) {
+		super(foregroundColor);
 	}
 
-	public NodeWithInterval(RGB backgroundColor, String intervalName) {
-		super(backgroundColor);
+	public NodeWithInterval(RGB foregroundColor, String intervalName) {
+		super(foregroundColor);
 		this.intervalName = intervalName;
 	}
 

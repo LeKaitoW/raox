@@ -6,6 +6,7 @@ import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.NodeWithInterval;
+import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 
 public class Advance extends NodeWithInterval implements Serializable {
 
@@ -15,12 +16,12 @@ public class Advance extends NodeWithInterval implements Serializable {
 	public static final String TERMINAL_OUT = "OUT";
 
 	public Advance() {
-		super(backgroundColor.getRGB(), "Advance");
+		super(foregroundColor.getRGB(), "Advance");
 		linksCount.put(TERMINAL_IN, 0);
 		linksCount.put(TERMINAL_OUT, 0);
 	}
 
-	private static Color backgroundColor = new Color(null, 67, 181, 129);
+	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
 	public static String name = "Advance";
 
 	@Override
