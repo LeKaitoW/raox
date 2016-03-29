@@ -82,7 +82,7 @@ public class ProcessFigure extends Figure {
 	private static final Rectangle dockRectangle = new Rectangle();
 	protected static final int dockSize = 4;
 
-	final private void drawDock(Graphics graphics, final int dockCenterX, final int dockCenterY) {
+	private final void drawDock(Graphics graphics, final int dockCenterX, final int dockCenterY) {
 		dockRectangle.x = dockCenterX - dockSize;
 		dockRectangle.y = dockCenterY - dockSize;
 		dockRectangle.width = dockSize * 2;
@@ -100,7 +100,7 @@ public class ProcessFigure extends Figure {
 		invalidate();
 	}
 
-	protected void drawName(Graphics graphics) {
+	private final void drawName(Graphics graphics) {
 		Rectangle relativeRectangle = getBounds().getCopy();
 		relativeRectangle.setX(0);
 		relativeRectangle.setHeight(10);
