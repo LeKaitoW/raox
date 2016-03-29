@@ -28,7 +28,7 @@ public class Release extends NodeWithResource {
 		Optional<Resource> optional = Simulator.getModelState().getAllResources().stream()
 				.filter(resource -> resource.getName().equals(resourceName)).findAny();
 		BlockConverterInfo releaseInfo = new BlockConverterInfo();
-		if (optional.isPresent()) {
+		if (!optional.isPresent()) {
 			releaseInfo.isSuccessful = false;
 			releaseInfo.errorMessage = "Resource name not selected";
 			resourceName = "";
