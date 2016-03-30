@@ -1,7 +1,8 @@
 package ru.bmstu.rk9.rao.ui.process.queue;
 
-import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
+import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Color;
@@ -14,52 +15,56 @@ public class QueueFigure extends ProcessFigure {
 	public QueueFigure() {
 		super();
 
-		ProcessConnectionAnchor inputConnectionAnchor, outputConnectionAnchor;
-		inputConnectionAnchor = new ProcessConnectionAnchor(this);
-		inputConnectionAnchor.offsetHorizontal = offset;
-		inputConnectionAnchor.offsetVertical = 35;
+		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(this);
 		inputConnectionAnchors.add(inputConnectionAnchor);
 		connectionAnchors.put(Queue.TERMINAL_IN, inputConnectionAnchor);
 
-		outputConnectionAnchor = new ProcessConnectionAnchor(this);
-		outputConnectionAnchor.offsetHorizontal = 45;
-		outputConnectionAnchor.offsetVertical = 35;
+		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(this);
 		outputConnectionAnchors.add(outputConnectionAnchor);
 		connectionAnchors.put(Queue.TERMINAL_OUT, outputConnectionAnchor);
+
+		addFigureListener(new FigureListener() {
+			@Override
+			public void figureMoved(IFigure figure) {
+				Rectangle bounds = figure.getBounds();
+
+				inputConnectionAnchor.offsetHorizontal = offset - 1;
+				inputConnectionAnchor.offsetVertical = bounds.height / 2 + offset - 1;
+
+				outputConnectionAnchor.offsetHorizontal = bounds.width - offset - 1;
+				outputConnectionAnchor.offsetVertical = inputConnectionAnchor.offsetVertical;
+			}
+		});
 
 		label.setText(Queue.name);
 	}
 
 	@Override
-	protected void paintFigure(Graphics graphics) {
-		Rectangle rectangle = getBounds().getCopy();
+	protected void drawShape(Graphics graphics) {
+		Rectangle bounds = getBounds();
 		PointList points = new PointList();
-		int xLeft = rectangle.x + offset;
-		int xRight = rectangle.x + rectangle.width - offset;
-		int yTop = rectangle.y + 3 * offset;
-		int yBottom = rectangle.y + rectangle.height - offset;
-		
+		final int xLeft = bounds.x + offset;
+		final int xRight = bounds.x + bounds.width - offset;
+		final int yTop = bounds.y + 3 * offset;
+		final int yBottom = bounds.y + bounds.height - offset;
 		points.addPoint(xLeft, yTop);
 		points.addPoint(xRight, yTop);
 		points.addPoint(xRight, yBottom);
 		points.addPoint(xLeft, yBottom);
+		graphics.setBackgroundColor(getBackgroundColor());
 		graphics.fillPolygon(points);
-		Color oldColor = graphics.getBackgroundColor();
-		graphics.setBackgroundColor(ColorConstants.white);
 
+		Color previousColor = graphics.getBackgroundColor();
+		graphics.setBackgroundColor(pageBackgroundColor);
 		int width = 6;
 		for (int i = 1; i < 4; i++) {
 			PointList internalPoints = new PointList();
-			internalPoints.addPoint(rectangle.x + i * offset + i * width, rectangle.y + 4 * offset);
-			internalPoints.addPoint(rectangle.x + i * offset + (i + 1) * width, rectangle.y + 4 * offset);
-			internalPoints.addPoint(rectangle.x + i * offset + (i + 1) * width,
-					rectangle.y + rectangle.height - 2 * offset);
-			internalPoints.addPoint(rectangle.x + i * offset + i * width, rectangle.y + rectangle.height - 2 * offset);
+			internalPoints.addPoint(bounds.x + i * offset + i * width, bounds.y + 4 * offset);
+			internalPoints.addPoint(bounds.x + i * offset + (i + 1) * width, bounds.y + 4 * offset);
+			internalPoints.addPoint(bounds.x + i * offset + (i + 1) * width, bounds.y + bounds.height - 2 * offset);
+			internalPoints.addPoint(bounds.x + i * offset + i * width, bounds.y + bounds.height - 2 * offset);
 			graphics.fillPolygon(internalPoints);
 		}
-
-		graphics.setBackgroundColor(oldColor);
-
-		paintName(rectangle);
+		graphics.setBackgroundColor(previousColor);
 	}
 }

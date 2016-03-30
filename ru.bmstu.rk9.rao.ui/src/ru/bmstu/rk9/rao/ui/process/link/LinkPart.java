@@ -1,7 +1,6 @@
 package ru.bmstu.rk9.rao.ui.process.link;
 
 import org.eclipse.draw2d.IFigure;
-import org.eclipse.draw2d.PolygonDecoration;
 import org.eclipse.draw2d.PolylineConnection;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.editparts.AbstractConnectionEditPart;
@@ -14,9 +13,6 @@ public class LinkPart extends AbstractConnectionEditPart {
 	@Override
 	protected IFigure createFigure() {
 		PolylineConnection connection = new PolylineConnection();
-		PolygonDecoration decoration = new PolygonDecoration();
-		decoration.setTemplate(PolygonDecoration.TRIANGLE_TIP);
-		connection.setTargetDecoration(decoration);
 		return connection;
 	}
 

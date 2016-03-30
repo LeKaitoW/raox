@@ -1,6 +1,8 @@
 package ru.bmstu.rk9.rao.ui.process.terminate;
 
+import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
+import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 
@@ -12,28 +14,34 @@ public class TerminateFigure extends ProcessFigure {
 	public TerminateFigure() {
 		super();
 
-		ProcessConnectionAnchor inputConnectionAnchor;
-		inputConnectionAnchor = new ProcessConnectionAnchor(this);
-		inputConnectionAnchor.offsetHorizontal = offset;
-		inputConnectionAnchor.offsetVertical = 35;
+		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(this);
 		inputConnectionAnchors.add(inputConnectionAnchor);
 		connectionAnchors.put(Terminate.TERMINAL_IN, inputConnectionAnchor);
+
+		addFigureListener(new FigureListener() {
+			@Override
+			public void figureMoved(IFigure figure) {
+				Rectangle bounds = figure.getBounds();
+				inputConnectionAnchor.offsetHorizontal = offset - 1;
+				inputConnectionAnchor.offsetVertical = bounds.height / 2 + offset - 1;
+			}
+		});
 
 		label.setText(Terminate.name);
 	}
 
 	@Override
-	protected void paintFigure(Graphics graphics) {
-		Rectangle rectangle = getBounds().getCopy();
+	protected void drawShape(Graphics graphics) {
+		Rectangle bounds = getBounds();
+		final int centerY = bounds.y + (bounds.height + 2 * offset) / 2;
+		final int xRight = bounds.x + bounds.width - offset;
+
 		PointList points = new PointList();
-		int centerY = rectangle.y + (rectangle.height + 2 * offset) / 2;
-		int xRight = rectangle.x + rectangle.width - offset;
+		points.addPoint(xRight, bounds.y + 3 * offset);
+		points.addPoint(bounds.x + offset + dockSize / 2, centerY);
+		points.addPoint(xRight, bounds.y + bounds.height - offset);
 
-		points.addPoint(xRight, rectangle.y + 3 * offset);
-		points.addPoint(rectangle.x + offset, centerY);
-		points.addPoint(xRight, rectangle.y + rectangle.height - offset);
+		graphics.setBackgroundColor(getBackgroundColor());
 		graphics.fillPolygon(points);
-
-		paintName(rectangle);
 	}
 }
