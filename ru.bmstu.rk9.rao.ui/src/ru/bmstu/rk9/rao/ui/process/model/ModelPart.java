@@ -6,15 +6,17 @@ import java.util.List;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.editparts.ScalableRootEditPart;
+
 import ru.bmstu.rk9.rao.ui.process.Node;
 import ru.bmstu.rk9.rao.ui.process.ProcessEditPart;
+import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
 import ru.bmstu.rk9.rao.ui.process.ProcessLayoutEditPolicy;
 
 public class ModelPart extends ProcessEditPart {
 
 	@Override
 	protected IFigure createFigure() {
-		IFigure figure = ((ScalableRootEditPart) getRoot()).getLayer("ModelLayer");
+		IFigure figure = ((ScalableRootEditPart) getRoot()).getLayer(ProcessEditor.MODEL_LAYER);
 		return figure;
 	}
 

@@ -74,8 +74,9 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	}
 
 	public static final String ID = "ru.bmstu.rk9.rao.ui.process.editor";
-	private Model model;
 	public static final Map<Class<?>, ProcessNodeInfo> processNodesInfo = new LinkedHashMap<>();
+	public static final String MODEL_LAYER = "Model Layer";
+	private Model model;
 
 	@Inject
 	IResourceSetProvider resourceSetProvider;
@@ -197,8 +198,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 				Layer layer = new Layer();
 				layer.setLayoutManager(new XYLayout());
-				// TODO Вынести в константу
-				pane.add(layer, "ModelLayer");
+				pane.add(layer, MODEL_LAYER);
 
 				ConnectionLayer connectionLayer = new ConnectionLayer();
 				connectionLayer.setAntialias(SWT.ON);
