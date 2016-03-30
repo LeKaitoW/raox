@@ -4,26 +4,26 @@ import ru.bmstu.rk9.rao.lib.json.JSONArray;
 
 public class Player {
 
-	private void Delay(int time) {
+	private void delay(int time) {
 		try {
-			Thread.sleep(time); // 1000 milliseconds is one second.
+			Thread.sleep(time); 
 		} catch (InterruptedException ex) {
 			Thread.currentThread().interrupt();
 		}
 	}
 
 	public enum PlayingDirection {
-		TOWARD, BACK;
+		FORWARD, BACKWARD;
 	};
 
 	private int PlaingSelector(int currentEventNumber, PlayingDirection playingDirection) {
 
 		switch (playingDirection) {
-		case TOWARD:
+		case FORWARD:
 			// System.out.println("Playing toward!");
 			currentEventNumber++;
 			break;
-		case BACK:
+		case BACKWARD:
 			// System.out.println("Playing back");
 			currentEventNumber--;
 			break;
@@ -42,7 +42,7 @@ public class Player {
 
 	}
 
-	public int Run(int currentEventNumber, int time, PlayingDirection playingDirection) {
+	public int run(int currentEventNumber, int time, PlayingDirection playingDirection) {
 
 		jsonModelStateObject = getModelData();
 
@@ -51,7 +51,7 @@ public class Player {
 
 		while (state != "Stop" && state != "Pause" && (currentEventNumber <= (jsonModelStateObject.length() - 1))
 				&& currentEventNumber > 0) {
-			Delay(time);
+			delay(time);
 			System.out.println("\n" + "Event number " + currentEventNumber + " Current frame"
 					+ jsonModelStateObject.getJSONObject(currentEventNumber));
 			currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
@@ -63,8 +63,8 @@ public class Player {
 
 	}
 
-	public int Run() {
-		return Run(0, 1000, PlayingDirection.TOWARD);
+	public int run() {
+		return run(0, 1000, PlayingDirection.FORWARD);
 	}
 
 	private JSONArray jsonModelStateObject = new JSONArray();

@@ -15,9 +15,9 @@ public class RaoPlayerPerspectiveAdapter extends PerspectiveAdapter {
 	@Override
 	public void perspectiveActivated(IWorkbenchPage page, IPerspectiveDescriptor perspectiveDescriptor) {
 		super.perspectiveActivated(page, perspectiveDescriptor);
-		boolean RaoPerspective = false;
+		boolean RaoPlayerPerspective = false;
 		if (perspectiveDescriptor.getId().equals("ru.bmstu.rk9.rao.ui.player.perspective")) {
-			RaoPerspective = true;
+			RaoPlayerPerspective = true;
 		}
 
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
@@ -25,7 +25,7 @@ public class RaoPlayerPerspectiveAdapter extends PerspectiveAdapter {
 		RaoPlayerPerspectiveSourceProvider sourceProvider = (RaoPlayerPerspectiveSourceProvider) service
 				.getSourceProvider(RaoPlayerPerspectiveSourceProvider.RaoPerspectiveKey);
 
-		if (RaoPerspective)
+		if (RaoPlayerPerspective)
 			sourceProvider.perspectiveChanged(true);
 		else
 			sourceProvider.perspectiveChanged(false);

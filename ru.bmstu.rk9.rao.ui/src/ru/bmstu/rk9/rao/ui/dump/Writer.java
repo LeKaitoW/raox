@@ -37,7 +37,7 @@ public class Writer {
 			JSONObject jsonModelStateObject = new JSONObject();
 			jsonModelStateObject.put("Model state array", jsonModelStateArray);
 			serializer.dumpResoursestoJSONfile(jsonModelStateObject);
-			player.Run(5, 1000, PlayingDirection.BACK);
+			player.run(5, 1000, PlayingDirection.BACKWARD);
 		}
 
 	}
