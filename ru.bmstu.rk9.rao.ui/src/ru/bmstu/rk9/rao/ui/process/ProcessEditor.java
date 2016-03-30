@@ -193,6 +193,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 				Layer layer = new Layer();
 				layer.setLayoutManager(new XYLayout());
+				// TODO Вынести в константу
 				pane.add(layer, "ModelLayer");
 
 				ConnectionLayer connectionLayer = new ConnectionLayer();

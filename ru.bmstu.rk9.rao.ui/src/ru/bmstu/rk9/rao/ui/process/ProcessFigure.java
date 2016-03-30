@@ -97,7 +97,7 @@ public class ProcessFigure extends Figure {
 
 	public void setFigureNameVisible(boolean visible) {
 		isNameVisible = visible;
-		invalidate();
+		label.setVisible(isNameVisible);
 	}
 
 	private final void drawName(Graphics graphics) {
@@ -106,7 +106,6 @@ public class ProcessFigure extends Figure {
 		relativeRectangle.setHeight(10);
 		relativeRectangle.setY(0);
 		setConstraint(label, relativeRectangle);
-		label.setVisible(isNameVisible);
 	}
 
 	public ConnectionAnchor getConnectionAnchor(String terminal) {
