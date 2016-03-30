@@ -57,7 +57,7 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		if (evt.getPropertyName().equals(NodeWithProperty.PROPERTY_NAME)) {
 			((ProcessFigure) getFigure()).setFigureNameVisible((boolean) evt.getNewValue());
 		}
-		if (evt.getPropertyName().equals(Node.PROPERTY_LAYOUT))
+		if (evt.getPropertyName().equals(Node.PROPERTY_CONSTRAINT))
 			refreshVisuals();
 		if (evt.getPropertyName().equals(Node.SOURCE_CONNECTION))
 			refreshSourceConnections();
@@ -78,7 +78,7 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		ProcessFigure figure = (ProcessFigure) getFigure();
 		Node model = (Node) getModel();
 
-		figure.setLayout(model.getLayout());
+		figure.setConstraint(model.getConstraint());
 		RGB oldColor = model.getColor();
 		Color newColor = new Color(null, oldColor);
 		figure.setBackgroundColor(newColor);

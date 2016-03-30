@@ -32,7 +32,7 @@ public class ModelPart extends ProcessEditPart {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals(Node.PROPERTY_LAYOUT))
+		if (evt.getPropertyName().equals(Node.PROPERTY_CONSTRAINT))
 			refreshVisuals();
 		if (evt.getPropertyName().equals(Node.PROPERTY_ADD))
 			refreshChildren();

@@ -27,10 +27,10 @@ public class CreateCommand extends Command {
 			this.model = (Model) model;
 	}
 
-	public void setLayout(Rectangle rectangle) {
+	public void setConstraint(Rectangle constraint) {
 		if (node == null)
 			return;
-		node.setLayout(rectangle);
+		node.setConstraint(constraint);
 	}
 
 	@Override

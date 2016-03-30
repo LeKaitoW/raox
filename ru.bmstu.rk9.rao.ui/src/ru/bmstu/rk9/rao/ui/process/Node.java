@@ -18,11 +18,11 @@ public abstract class Node implements Serializable {
 	private static final long serialVersionUID = 1;
 
 	private String name;
-	private Rectangle layout;
+	private Rectangle constraint;
 	private List<Node> children;
 	private Node parent;
 	private PropertyChangeSupport listeners;
-	public static final String PROPERTY_LAYOUT = "NodeLayout";
+	public static final String PROPERTY_CONSTRAINT = "NodeConstraint";
 	public static final String PROPERTY_ADD = "NodeAddChild";
 	public static final String PROPERTY_REMOVE = "NodeRemoveChild";
 	public static final String SOURCE_CONNECTION = "SourceConnectionAdded";
@@ -36,7 +36,7 @@ public abstract class Node implements Serializable {
 
 	public Node(RGB foregroundColor) {
 		this.name = "Unknown";
-		this.layout = new Rectangle(10, 10, 100, 100);
+		this.constraint = new Rectangle(10, 10, 100, 100);
 		this.children = new ArrayList<Node>();
 		this.parent = null;
 		this.listeners = new PropertyChangeSupport(this);
@@ -52,17 +52,17 @@ public abstract class Node implements Serializable {
 	}
 
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
-	public void setLayout(Rectangle newLayout) {
-		Rectangle oldLayout = this.layout;
-		this.layout = newLayout;
-		getListeners().firePropertyChange(PROPERTY_LAYOUT, oldLayout, newLayout);
+	public final void setConstraint(Rectangle constraint) {
+		Rectangle previousConstraint = this.constraint;
+		this.constraint = constraint;
+		getListeners().firePropertyChange(PROPERTY_CONSTRAINT, previousConstraint, constraint);
 	}
 
-	public Rectangle getLayout() {
-		return this.layout;
+	public final Rectangle getConstraint() {
+		return constraint;
 	}
 
 	public boolean addChild(Node child) {

@@ -23,32 +23,36 @@ import org.eclipse.ui.PlatformUI;
 
 public class ProcessFigure extends Figure {
 
-	protected Label label = new Label();
-	private boolean isNameVisible = true;
 	protected Map<String, ProcessConnectionAnchor> connectionAnchors = new HashMap<>();
 	protected List<ConnectionAnchor> inputConnectionAnchors = new ArrayList<>();
 	protected List<ConnectionAnchor> outputConnectionAnchors = new ArrayList<>();
-	protected static final int offset = 5;
+
+	protected Label label = new Label();
+	private boolean isNameVisible = true;
+	private Font font;
+
 	protected static Color pageBackgroundColor = ColorConstants.white;
+	protected static final int offset = 5;
+	protected static final int dockSize = 4;
+	private static final Rectangle dockRectangle = new Rectangle();
 
 	public ProcessFigure() {
 		XYLayout layout = new XYLayout();
 		setLayoutManager(layout);
 
-		Font oldFont = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getFontRegistry()
+		Font currentFont = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getFontRegistry()
 				.get(PreferenceConstants.EDITOR_TEXT_FONT);
-		FontData[] fontData = oldFont.getFontData();
-		fontData[0].setHeight(6);
-		font = new Font(oldFont.getDevice(), fontData);
+		FontData[] currentFontData = currentFont.getFontData();
+		currentFontData[0].setHeight(6);
+		font = new Font(currentFont.getDevice(), currentFontData);
+
 		add(label);
 		label.setFont(getFont());
 		setOpaque(true);
 	}
 
-	private Font font;
-
-	public void setLayout(Rectangle rect) {
-		getParent().setConstraint(this, rect);
+	public void setConstraint(Rectangle constraint) {
+		getParent().setConstraint(this, constraint);
 	}
 
 	@Override
@@ -78,9 +82,6 @@ public class ProcessFigure extends Figure {
 			drawDock(graphics, dockCenterX, dockCenterY);
 		}
 	}
-
-	private static final Rectangle dockRectangle = new Rectangle();
-	protected static final int dockSize = 4;
 
 	private final void drawDock(Graphics graphics, final int dockCenterX, final int dockCenterY) {
 		dockRectangle.x = dockCenterX - dockSize;

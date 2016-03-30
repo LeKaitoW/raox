@@ -6,9 +6,9 @@ import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editpolicies.XYLayoutEditPolicy;
 import org.eclipse.gef.requests.CreateRequest;
 
-import ru.bmstu.rk9.rao.ui.process.command.ChangeLayoutCommand;
+import ru.bmstu.rk9.rao.ui.process.command.ChangeConstraintCommand;
 import ru.bmstu.rk9.rao.ui.process.command.CreateCommand;
-import ru.bmstu.rk9.rao.ui.process.command.LayoutCommand;
+import ru.bmstu.rk9.rao.ui.process.command.ConstraintCommand;
 import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
 
 public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
@@ -18,12 +18,12 @@ public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 
 	@Override
 	protected Command createChangeConstraintCommand(EditPart child, Object constraint) {
-		LayoutCommand command = null;
+		ConstraintCommand command = null;
 
 		if (!ProcessEditor.processNodesInfo.containsKey(child.getModel().getClass()))
 			return null;
 
-		command = new ChangeLayoutCommand();
+		command = new ChangeConstraintCommand();
 		command.setModel(child.getModel());
 		command.setConstraint((Rectangle) constraint);
 		return command;
@@ -41,7 +41,7 @@ public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 			constraint.y = (constraint.y < 0) ? 0 : constraint.y;
 			constraint.width = FIGURE_WIDTH;
 			constraint.height = FIGURE_HEIGHT;
-			command.setLayout(constraint);
+			command.setConstraint(constraint);
 			return command;
 		}
 		return null;
