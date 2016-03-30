@@ -7,8 +7,12 @@ import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
+import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
+import ru.bmstu.rk9.rao.lib.process.Advance.AdvanceAction;
+import ru.bmstu.rk9.rao.lib.process.Queue.QueueAction;
+import ru.bmstu.rk9.rao.lib.process.Test.TestOutputs;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
 
@@ -16,10 +20,10 @@ public class Tracer {
 	public static enum TraceType {
 		RESOURCE_CREATE("RC"), RESOURCE_KEEP("RK"), RESOURCE_ERASE("RE"), SYSTEM("ES"), OPERATION_BEGIN(
 				"EB"), OPERATION_END("EF"), EVENT("EI"), RULE("ER"), RESULT("V "), SEARCH_BEGIN("SB"), SEARCH_OPEN(
-						"SO "), SEARCH_SPAWN_NEW("STN"), SEARCH_SPAWN_WORSE(
-								"STD"), SEARCH_SPAWN_BETTER("STR"), SEARCH_RESOURCE_KEEP("SRK"), SEARCH_DECISION(
-										"SD "), SEARCH_END_ABORTED("SEA"), SEARCH_END_CONDITION(
-												"SEC"), SEARCH_END_SUCCESS("SES"), SEARCH_END_FAIL("SEN");
+						"SO "), SEARCH_SPAWN_NEW("STN"), SEARCH_SPAWN_WORSE("STD"), SEARCH_SPAWN_BETTER(
+								"STR"), SEARCH_RESOURCE_KEEP("SRK"), SEARCH_DECISION("SD "), SEARCH_END_ABORTED(
+										"SEA"), SEARCH_END_CONDITION("SEC"), SEARCH_END_SUCCESS(
+												"SES"), SEARCH_END_FAIL("SEN"), PROCESS("PR");
 
 		private final String traceCode;
 
@@ -72,6 +76,8 @@ public class Tracer {
 			return parseSearchEntry(entry);
 		case RESULT:
 			return parseResultEntry(entry);
+		case PROCESS:
+			return parseProcessEntry(entry);
 		default:
 			throw new TracerException("Unexpected entry type: " + type);
 		}
@@ -411,6 +417,53 @@ public class Tracer {
 	private String parseResultParameter(final ByteBuffer data, final int resultNum) {
 		// TODO implement
 		return "";
+	}
+
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ------------------------- PROCESS ENTRIES --------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+	private TraceOutput parseProcessEntry(final Entry entry) {
+		final ByteBuffer header = prepareBufferForReading(entry.getHeader());
+		ByteBuffer data = null;
+		if (entry.getData() != null)
+			data = prepareBufferForReading(entry.getData());
+
+		skipPart(header, TypeSize.BYTE);
+		final double time = header.getDouble();
+		final ProcessEntryType entryType = ProcessEntryType.values()[header.get()];
+		final String blockName = entryType.getString();
+		final int transactIndex = header.getInt();
+
+		return new TraceOutput(TraceType.PROCESS, new StringJoiner(delimiter).add(TraceType.PROCESS.toString())
+				.add(time).add(blockName).add(transactIndex).add(parseProcessData(data, entryType)).getString());
+	}
+
+	private String parseProcessData(final ByteBuffer data, final ProcessEntryType entryType) {
+		switch (entryType) {
+		case GENERATE:
+		case TERMINATE:
+			return "";
+		case TEST:
+			TestOutputs output = TestOutputs.values()[data.get()];
+			String outputName = output.getString();
+			return outputName;
+		case ADVANCE:
+			AdvanceAction advanceAction = AdvanceAction.values()[data.get()];
+			String advanceActionDescription = advanceAction.getString();
+			return advanceActionDescription;
+		case QUEUE:
+			QueueAction queueAction = QueueAction.values()[data.get()];
+			String queueActionDescription = queueAction.getString();
+			return queueActionDescription;
+		case SEIZE:
+		case RELEASE:
+			int resourceTypeIndex = data.getInt();
+			int resourceIndex = data.getInt();
+			String resourceName = Simulator.getStaticModelData().getResourceName(resourceTypeIndex, resourceIndex);
+			return resourceName;
+		}
+		return null;
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

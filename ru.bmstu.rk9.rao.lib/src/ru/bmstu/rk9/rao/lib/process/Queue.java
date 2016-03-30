@@ -1,9 +1,12 @@
 package ru.bmstu.rk9.rao.lib.process;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
+import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
@@ -14,11 +17,25 @@ public class Queue implements Block {
 	private TransactQueue queue;
 	private final int capacity;
 
+	public static enum QueueAction {
+		ADD("added"), REMOVE("removed");
+
+		private QueueAction(final String action) {
+			this.action = action;
+		}
+
+		public String getString() {
+			return action;
+		}
+
+		private final String action;
+	}
+
 	public Transact getCurrentTransact() {
 		Transact outputTransact = queue.peek();
 		if (outputTransact != null) {
 			queue.remove();
-			System.out.println(Simulator.getTime() + " queue removed " + outputTransact.getNumber());
+			addQueueEntryToDatabase(outputTransact, QueueAction.REMOVE);
 			return outputTransact;
 		}
 		return null;
@@ -54,7 +71,7 @@ public class Queue implements Block {
 		if (inputTransact != null) {
 			if (queue.size() < capacity) {
 				queue.offer(inputTransact);
-				System.out.println(Simulator.getTime() + " queue added " + inputTransact.getNumber());
+				addQueueEntryToDatabase(inputTransact, QueueAction.ADD);
 				return BlockStatus.SUCCESS;
 			} else
 				return BlockStatus.CHECK_AGAIN;
@@ -67,6 +84,12 @@ public class Queue implements Block {
 		for (Queueing queueing : Queueing.values())
 			queueingList.add(queueing.toString());
 		return queueingList.stream().toArray(String[]::new);
+	}
+
+	private void addQueueEntryToDatabase(Transact transact, QueueAction queueAction) {
+		ByteBuffer data = ByteBuffer.allocate(TypeSize.BYTE);
+		data.put((byte) queueAction.ordinal());
+		Simulator.getDatabase().addProcessEntry(ProcessEntryType.QUEUE, transact.getNumber(), data);
 	}
 }
 

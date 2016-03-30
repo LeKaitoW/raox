@@ -1,9 +1,12 @@
 package ru.bmstu.rk9.rao.lib.process;
 
+import java.nio.ByteBuffer;
 import java.util.function.Supplier;
 
 import org.apache.commons.math3.random.MersenneTwister;
 
+import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
+import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
@@ -15,6 +18,20 @@ public class Test implements Block {
 	private OutputDock trueOutputDock = () -> trueOutputTransactStorage.pullTransact();
 	private OutputDock falseOutputDock = () -> falseOutputTransactStorage.pullTransact();
 	private Supplier<Boolean> condition;
+
+	public static enum TestOutputs {
+		TRUE("true"), FALSE("false");
+
+		private TestOutputs(final String output) {
+			this.output = output;
+		}
+
+		public String getString() {
+			return output;
+		}
+
+		private final String output;
+	}
 
 	public Test(Supplier<Boolean> condition) {
 		this.condition = condition;
@@ -51,14 +68,16 @@ public class Test implements Block {
 		if (transact == null)
 			return BlockStatus.NOTHING_TO_DO;
 
+		ByteBuffer data = ByteBuffer.allocate(TypeSize.BYTE);
 		TransactStorage storage;
 		if (condition.get()) {
 			storage = trueOutputTransactStorage;
-			System.out.println(Simulator.getTime() + " : transact goes true " + transact.getNumber());
+			data.put((byte) TestOutputs.TRUE.ordinal());
 		} else {
 			storage = falseOutputTransactStorage;
-			System.out.println(Simulator.getTime() + " : transact goes false " + transact.getNumber());
+			data.put((byte) TestOutputs.FALSE.ordinal());
 		}
+		Simulator.getDatabase().addProcessEntry(ProcessEntryType.TEST, transact.getNumber(), data);
 
 		if (!storage.pushTransact(transact))
 			return BlockStatus.CHECK_AGAIN;

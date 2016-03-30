@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rao.lib.process;
 
 import java.util.function.Supplier;
 
+import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
@@ -32,7 +33,7 @@ public class Generate implements Block {
 		}
 		Transact transact = Transact.create();
 		transactStorage.pushTransact(transact);
-		System.out.println(Simulator.getTime() + ": generate body " + transact.getNumber());
+		Simulator.getDatabase().addProcessEntry(ProcessEntryType.GENERATE, transact.getNumber(), null);
 
 		Double time = Simulator.getTime() + interval.get();
 		Simulator.pushEvent(new GenerateEvent(time));

@@ -1,5 +1,9 @@
 package ru.bmstu.rk9.rao.lib.process;
 
+import java.nio.ByteBuffer;
+
+import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
+import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
@@ -34,7 +38,10 @@ public class Release implements Block {
 			throw new ProcessException("Attempting to release unlocked resource");
 		}
 
-		System.out.println(Simulator.getTime() + ": release body " + transact.getNumber());
+		ByteBuffer data = ByteBuffer.allocate(TypeSize.INT * 2);
+		int resourceTypeNumber = Simulator.getStaticModelData().getResourceTypeNumber(resource.getTypeName());
+		data.putInt(resourceTypeNumber).putInt(resource.getNumber());
+		Simulator.getDatabase().addProcessEntry(ProcessEntryType.RELEASE, transact.getNumber(), data);
 
 		transactStorage.pushTransact(transact);
 		resource.setAccessible(true);

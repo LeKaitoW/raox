@@ -1,5 +1,9 @@
 package ru.bmstu.rk9.rao.lib.process;
 
+import java.nio.ByteBuffer;
+
+import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
+import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
@@ -34,7 +38,10 @@ public class Seize implements Block {
 		if (transact == null)
 			return BlockStatus.NOTHING_TO_DO;
 
-		System.out.println(Simulator.getTime() + ": seize body " + transact.getNumber());
+		ByteBuffer data = ByteBuffer.allocate(TypeSize.INT * 2);
+		int resourceTypeNumber = Simulator.getStaticModelData().getResourceTypeNumber(resource.getTypeName());
+		data.putInt(resourceTypeNumber).putInt(resource.getNumber());
+		Simulator.getDatabase().addProcessEntry(ProcessEntryType.SEIZE, transact.getNumber(), data);
 		transactStorage.pushTransact(transact);
 		resource.setAccessible(false);
 		return BlockStatus.SUCCESS;
