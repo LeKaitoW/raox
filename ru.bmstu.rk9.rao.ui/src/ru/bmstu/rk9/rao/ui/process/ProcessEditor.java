@@ -37,11 +37,13 @@ import org.eclipse.gef.ui.palette.FlyoutPaletteComposite;
 import org.eclipse.gef.ui.palette.PaletteViewer;
 import org.eclipse.gef.ui.palette.PaletteViewerProvider;
 import org.eclipse.gef.ui.parts.GraphicalEditorWithFlyoutPalette;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
@@ -149,8 +151,10 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 			if (getGraphicalViewer() != null)
 				getGraphicalViewer().setContents(getModel());
 		} catch (EOFException e) {
+			// http://stackoverflow.com/a/18451336
 		} catch (Exception e) {
-			e.printStackTrace();
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Failed to open",
+					"Invalid file format");
 		}
 	};
 

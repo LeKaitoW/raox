@@ -462,8 +462,9 @@ public class Tracer {
 			int resourceIndex = data.getInt();
 			String resourceName = Simulator.getStaticModelData().getResourceName(resourceTypeIndex, resourceIndex);
 			return resourceName;
+		default:
+			throw new TracerException("Unexpected process entry type: " + entryType);
 		}
-		return null;
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
