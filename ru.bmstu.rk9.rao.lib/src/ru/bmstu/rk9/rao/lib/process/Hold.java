@@ -9,17 +9,17 @@ import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
-public class Advance implements Block {
+public class Hold implements Block {
 
 	private InputDock inputDock = new InputDock();
 	private TransactStorage transactStorage = new TransactStorage();
 	private OutputDock outputDock = () -> transactStorage.pullTransact();
 	private Supplier<Double> duration;
 
-	public static enum AdvanceAction {
+	public static enum HoldAction {
 		IN("in"), OUT("out");
 
-		private AdvanceAction(final String action) {
+		private HoldAction(final String action) {
 			this.action = action;
 		}
 
@@ -30,7 +30,7 @@ public class Advance implements Block {
 		private final String action;
 	}
 
-	public Advance(Supplier<Double> duration) {
+	public Hold(Supplier<Double> duration) {
 		this.duration = duration;
 	}
 
@@ -52,22 +52,22 @@ public class Advance implements Block {
 		if (transact == null)
 			return BlockStatus.NOTHING_TO_DO;
 
-		addAdvanceEntryToDatabase(transact, AdvanceAction.IN);
+		addHoldEntryToDatabase(transact, HoldAction.IN);
 		Double time = Simulator.getTime() + duration.get();
-		Simulator.pushEvent(new AdvanceEvent(transact, time));
+		Simulator.pushEvent(new HoldEvent(transact, time));
 		return BlockStatus.SUCCESS;
 	}
 
-	private void addAdvanceEntryToDatabase(Transact transact, AdvanceAction advanceAction) {
+	private void addHoldEntryToDatabase(Transact transact, HoldAction holdAction) {
 		ByteBuffer data = ByteBuffer.allocate(TypeSize.BYTE);
-		data.put((byte) advanceAction.ordinal());
-		Simulator.getDatabase().addProcessEntry(ProcessEntryType.ADVANCE, transact.getNumber(), data);
+		data.put((byte) holdAction.ordinal());
+		Simulator.getDatabase().addProcessEntry(ProcessEntryType.HOLD, transact.getNumber(), data);
 	}
 
-	private class AdvanceEvent extends Event {
+	private class HoldEvent extends Event {
 		private Transact transact;
 
-		public AdvanceEvent(Transact transact, double time) {
+		public HoldEvent(Transact transact, double time) {
 			this.time = time;
 			this.transact = transact;
 		}
@@ -80,8 +80,8 @@ public class Advance implements Block {
 		@Override
 		public void execute() {
 			if (!transactStorage.pushTransact(transact))
-				throw new ProcessException("Transact collision in Advance block");
-			addAdvanceEntryToDatabase(transact, AdvanceAction.OUT);
+				throw new ProcessException("Transact collision in Hold block");
+			addHoldEntryToDatabase(transact, HoldAction.OUT);
 		}
 	}
 }

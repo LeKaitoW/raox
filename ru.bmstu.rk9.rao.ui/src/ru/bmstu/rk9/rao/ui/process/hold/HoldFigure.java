@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.process.advance;
+package ru.bmstu.rk9.rao.ui.process.hold;
 
 import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
@@ -10,18 +10,18 @@ import org.eclipse.swt.graphics.Color;
 import ru.bmstu.rk9.rao.ui.process.ProcessConnectionAnchor;
 import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
-public class AdvanceFigure extends ProcessFigure {
+public class HoldFigure extends ProcessFigure {
 
-	public AdvanceFigure() {
+	public HoldFigure() {
 		super();
 
 		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(this);
 		inputConnectionAnchors.add(inputConnectionAnchor);
-		connectionAnchors.put(Advance.TERMINAL_IN, inputConnectionAnchor);
+		connectionAnchors.put(Hold.TERMINAL_IN, inputConnectionAnchor);
 
 		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(this);
 		outputConnectionAnchors.add(outputConnectionAnchor);
-		connectionAnchors.put(Advance.TERMINAL_OUT, outputConnectionAnchor);
+		connectionAnchors.put(Hold.TERMINAL_OUT, outputConnectionAnchor);
 
 		addFigureListener(new FigureListener() {
 			@Override
@@ -36,7 +36,7 @@ public class AdvanceFigure extends ProcessFigure {
 			}
 		});
 
-		label.setText(Advance.name);
+		label.setText(Hold.name);
 	}
 
 	private static final Rectangle shapeRectangle = new Rectangle();

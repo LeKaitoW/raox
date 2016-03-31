@@ -644,7 +644,7 @@ public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	public static enum ProcessEntryType {
-		GENERATE("Generate"), TERMINATE("Terminate"), ADVANCE("Advance"), SEIZE("Seize"), RELEASE("Release"), QUEUE(
+		GENERATE("Generate"), TERMINATE("Terminate"), HOLD("Hold"), SEIZE("Seize"), RELEASE("Release"), QUEUE(
 				"Queue"), TEST("Test");
 
 		private ProcessEntryType(final String block) {

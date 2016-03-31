@@ -10,7 +10,7 @@ import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
-import ru.bmstu.rk9.rao.lib.process.Advance.AdvanceAction;
+import ru.bmstu.rk9.rao.lib.process.Hold.HoldAction;
 import ru.bmstu.rk9.rao.lib.process.Queue.QueueAction;
 import ru.bmstu.rk9.rao.lib.process.Test.TestOutputs;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
@@ -448,10 +448,10 @@ public class Tracer {
 			TestOutputs output = TestOutputs.values()[data.get()];
 			String outputName = output.getString();
 			return outputName;
-		case ADVANCE:
-			AdvanceAction advanceAction = AdvanceAction.values()[data.get()];
-			String advanceActionDescription = advanceAction.getString();
-			return advanceActionDescription;
+		case HOLD:
+			HoldAction holdAction = HoldAction.values()[data.get()];
+			String holdActionDescription = holdAction.getString();
+			return holdActionDescription;
 		case QUEUE:
 			QueueAction queueAction = QueueAction.values()[data.get()];
 			String queueActionDescription = queueAction.getString();

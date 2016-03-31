@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import ru.bmstu.rk9.rao.lib.process.Advance;
+import ru.bmstu.rk9.rao.lib.process.Hold;
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.process.Generate;
 import ru.bmstu.rk9.rao.lib.process.Link;
@@ -36,7 +36,7 @@ public class BranchedProcessTest {
 		List<Block> blocks = new ArrayList<Block>();
 		Generate generate = new Generate(() -> 10.0);
 		Terminate terminate = new Terminate();
-		Advance advance = new Advance(() -> 15.0);
+		Hold hold = new Hold(() -> 15.0);
 		Resource resource = TestResource.create();
 		Seize seize = new Seize(resource);
 		Release release = new Release(resource);
@@ -46,14 +46,14 @@ public class BranchedProcessTest {
 		blocks.add(test);
 		blocks.add(queue);
 		blocks.add(seize);
-		blocks.add(advance);
+		blocks.add(hold);
 		blocks.add(release);
 		blocks.add(terminate);
 		Link.linkDocks(generate.getOutputDock(), test.getInputDock());
 		Link.linkDocks(test.getTrueOutputDock(), queue.getInputDock());
 		Link.linkDocks(queue.getOutputDock(), seize.getInputDock());
-		Link.linkDocks(seize.getOutputDock(), advance.getInputDock());
-		Link.linkDocks(advance.getOutputDock(), release.getInputDock());
+		Link.linkDocks(seize.getOutputDock(), hold.getInputDock());
+		Link.linkDocks(hold.getOutputDock(), release.getInputDock());
 		Link.linkDocks(release.getOutputDock(), terminate.getInputDock());
 		Link.linkDocks(test.getFalseOutputDock(), terminate.getInputDock());
 

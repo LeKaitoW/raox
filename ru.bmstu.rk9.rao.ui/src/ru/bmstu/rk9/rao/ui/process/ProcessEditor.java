@@ -47,10 +47,10 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import com.google.inject.Inject;
 
-import ru.bmstu.rk9.rao.ui.process.advance.Advance;
-import ru.bmstu.rk9.rao.ui.process.advance.AdvancePart;
 import ru.bmstu.rk9.rao.ui.process.generate.Generate;
 import ru.bmstu.rk9.rao.ui.process.generate.GeneratePart;
+import ru.bmstu.rk9.rao.ui.process.hold.HoldPart;
+import ru.bmstu.rk9.rao.ui.process.hold.Hold;
 import ru.bmstu.rk9.rao.ui.process.link.LinkCreationFactory;
 import ru.bmstu.rk9.rao.ui.process.model.Model;
 import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
@@ -87,8 +87,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		processNodesInfo.put(Seize.class, new ProcessNodeInfo(Seize.name, () -> new Seize(), () -> new SeizePart()));
 		processNodesInfo.put(Release.class,
 				new ProcessNodeInfo(Release.name, () -> new Release(), () -> new ReleasePart()));
-		processNodesInfo.put(Advance.class,
-				new ProcessNodeInfo(Advance.name, () -> new Advance(), () -> new AdvancePart()));
+		processNodesInfo.put(Hold.class,
+				new ProcessNodeInfo(Hold.name, () -> new Hold(), () -> new HoldPart()));
 		processNodesInfo.put(Queue.class, new ProcessNodeInfo(Queue.name, () -> new Queue(), () -> new QueuePart()));
 		processNodesInfo.put(Test.class, new ProcessNodeInfo(Test.name, () -> new Test(), () -> new TestPart()));
 	}
