@@ -9,7 +9,7 @@ import org.eclipse.draw2d.geometry.Rectangle;
 
 public class ProcessConnectionAnchor extends AbstractConnectionAnchor {
 
-	public boolean topDown = true;
+	public boolean topToDown = true;
 	public boolean leftToRight = true;
 	public int offsetVertical;
 	public int offsetHorizontal;
@@ -27,17 +27,17 @@ public class ProcessConnectionAnchor extends AbstractConnectionAnchor {
 
 	@Override
 	public Point getLocation(Point reference) {
-		Rectangle rectangle = getOwner().getBounds();
+		Rectangle bounds = getOwner().getBounds();
 		int x, y;
-		if (topDown)
-			y = rectangle.y + offsetVertical;
+		if (topToDown)
+			y = bounds.y + offsetVertical;
 		else
-			y = rectangle.bottom() - 1 - offsetVertical;
+			y = bounds.bottom() - 1 - offsetVertical;
 
 		if (leftToRight)
-			x = rectangle.x + offsetHorizontal;
+			x = bounds.x + offsetHorizontal;
 		else
-			x = rectangle.right() - 1 - offsetHorizontal;
+			x = bounds.right() - 1 - offsetHorizontal;
 
 		Point point = new PrecisionPoint(x, y);
 		getOwner().translateToAbsolute(point);
@@ -54,7 +54,7 @@ public class ProcessConnectionAnchor extends AbstractConnectionAnchor {
 		if (object instanceof ProcessConnectionAnchor) {
 			ProcessConnectionAnchor processAnchor = (ProcessConnectionAnchor) object;
 
-			if (processAnchor.leftToRight == this.leftToRight && processAnchor.topDown == this.topDown
+			if (processAnchor.leftToRight == this.leftToRight && processAnchor.topToDown == this.topToDown
 					&& processAnchor.offsetHorizontal == this.offsetHorizontal
 					&& processAnchor.offsetVertical == this.offsetVertical
 					&& processAnchor.getOwner() == this.getOwner()) {
@@ -67,7 +67,7 @@ public class ProcessConnectionAnchor extends AbstractConnectionAnchor {
 
 	@Override
 	public int hashCode() {
-		return ((this.leftToRight ? 31 : 0) + (this.topDown ? 37 : 0) + this.offsetHorizontal * 43
+		return ((this.leftToRight ? 31 : 0) + (this.topToDown ? 37 : 0) + this.offsetHorizontal * 43
 				+ this.offsetVertical * 47) ^ this.getOwner().hashCode();
 	}
 }

@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.ui.process.terminate;
 
+import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
@@ -11,37 +12,44 @@ import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class TerminateFigure extends ProcessFigure {
 
+	class Shape extends Figure {
+		@Override
+		final protected void paintFigure(Graphics graphics) {
+			Rectangle bounds = getBounds();
+			PointList points = new PointList();
+			points.addPoint(bounds.x + bounds.width, bounds.y);
+			points.addPoint(bounds.x, bounds.y + bounds.height / 2);
+			points.addPoint(bounds.x + bounds.width, bounds.y + bounds.height);
+			graphics.setBackgroundColor(getBackgroundColor());
+			graphics.fillPolygon(points);
+		}
+	}
+
+	private Shape shape = new Shape();
+
+	@Override
+	public IFigure getShape() {
+		return shape;
+	}
+
 	public TerminateFigure() {
 		super();
 
-		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(this);
+		add(shape);
+
+		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(shape);
 		inputConnectionAnchors.add(inputConnectionAnchor);
 		connectionAnchors.put(Terminate.TERMINAL_IN, inputConnectionAnchor);
 
-		addFigureListener(new FigureListener() {
+		shape.addFigureListener(new FigureListener() {
 			@Override
-			public void figureMoved(IFigure figure) {
-				Rectangle bounds = figure.getBounds();
-				inputConnectionAnchor.offsetHorizontal = offset - 1;
-				inputConnectionAnchor.offsetVertical = bounds.height / 2 + offset - 1;
+			public void figureMoved(IFigure shape) {
+				Rectangle bounds = shape.getBounds();
+				inputConnectionAnchor.offsetHorizontal = -dockSize / 2;
+				inputConnectionAnchor.offsetVertical = bounds.height / 2;
 			}
 		});
 
 		label.setText(Terminate.name);
-	}
-
-	@Override
-	protected void drawShape(Graphics graphics) {
-		Rectangle bounds = getBounds();
-		final int centerY = bounds.y + (bounds.height + 2 * offset) / 2;
-		final int xRight = bounds.x + bounds.width - offset;
-
-		PointList points = new PointList();
-		points.addPoint(xRight, bounds.y + 3 * offset);
-		points.addPoint(bounds.x + offset + dockSize / 2, centerY);
-		points.addPoint(xRight, bounds.y + bounds.height - offset);
-
-		graphics.setBackgroundColor(getBackgroundColor());
-		graphics.fillPolygon(points);
 	}
 }

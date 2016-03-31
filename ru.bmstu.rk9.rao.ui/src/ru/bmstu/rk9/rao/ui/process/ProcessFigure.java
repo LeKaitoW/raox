@@ -9,7 +9,9 @@ import java.util.Map.Entry;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.ConnectionAnchor;
 import org.eclipse.draw2d.Figure;
+import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
+import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Point;
@@ -32,9 +34,53 @@ public class ProcessFigure extends Figure {
 	private Font font;
 
 	protected static Color pageBackgroundColor = ColorConstants.white;
-	protected static final int offset = 5;
+	private static final int offset = 5;
+
+	class Docks extends Figure {
+		@Override
+		final protected void paintFigure(Graphics graphics) {
+			Rectangle bounds = getBounds();
+			for (Entry<String, ProcessConnectionAnchor> entry : connectionAnchors.entrySet()) {
+				final int dockCenterX = bounds.x + entry.getValue().offsetHorizontal + offset;
+				final int dockCenterY = bounds.y + entry.getValue().offsetVertical + offset;
+				drawDock(graphics, dockCenterX, dockCenterY);
+			}
+		}
+
+		private final void drawDock(Graphics graphics, final int dockCenterX, final int dockCenterY) {
+			dockRectangle.x = dockCenterX - dockSize;
+			dockRectangle.y = dockCenterY - dockSize;
+			dockRectangle.width = dockSize * 2;
+			dockRectangle.height = dockSize * 2;
+
+			Rectangle bounds = getBounds();
+			final int overLeft = Math.max(bounds.x - dockRectangle.x, 0);
+			final int overTop = Math.max(bounds.y - dockRectangle.y, 0);
+			dockRectangle.translate(overLeft, overTop);
+
+			final int overRight = Math.max(dockRectangle.right() - bounds.right(), 0);
+			final int overBottom = Math.max(dockRectangle.bottom() - bounds.bottom(), 0);
+			dockRectangle.translate(-overRight, -overBottom);
+
+			graphics.setBackgroundColor(pageBackgroundColor);
+			graphics.fillRectangle(dockRectangle);
+
+			dockRectangle.shrink(1, 1);
+			graphics.setBackgroundColor(getBackgroundColor());
+			graphics.fillRectangle(dockRectangle);
+		}
+	}
+
+	private Docks docks = new Docks();
 	protected static final int dockSize = 4;
 	private static final Rectangle dockRectangle = new Rectangle();
+
+	@Override
+	public void add(IFigure figure, Object constraint, int index) {
+		if (figure == getShape() && index == -1)
+			index = 0;
+		super.add(figure, constraint, index);
+	}
 
 	public ProcessFigure() {
 		XYLayout layout = new XYLayout();
@@ -46,9 +92,32 @@ public class ProcessFigure extends Figure {
 		currentFontData[0].setHeight(6);
 		font = new Font(currentFont.getDevice(), currentFontData);
 
+		add(docks);
+
 		add(label);
 		label.setFont(getFont());
 		setOpaque(true);
+
+		addFigureListener(new FigureListener() {
+			@Override
+			public void figureMoved(IFigure figure) {
+				Rectangle docksBounds = figure.getBounds().getCopy();
+				docksBounds.x = 0;
+				docksBounds.y = offset * 2;
+				docksBounds.height -= docksBounds.y;
+				setConstraint(docks, docksBounds);
+
+				IFigure shape = getShape();
+				if (shape != null) {
+					Rectangle shapeBounds = figure.getBounds().getCopy();
+					shapeBounds.x = offset;
+					shapeBounds.y = offset * 3;
+					shapeBounds.width -= offset * 2;
+					shapeBounds.height -= offset * 4;
+					setConstraint(shape, shapeBounds);
+				}
+			}
+		});
 	}
 
 	public void setConstraint(Rectangle constraint) {
@@ -60,40 +129,19 @@ public class ProcessFigure extends Figure {
 		return font;
 	}
 
+	public IFigure getShape() {
+		return null;
+	}
+
 	@Override
 	final protected void paintFigure(Graphics graphics) {
 		graphics.setAdvanced(true);
 		graphics.setAntialias(SWT.ON);
 		graphics.setTextAntialias(SWT.ON);
-
-		drawShape(graphics);
-		drawDocks(graphics);
 		drawName(graphics);
 	}
 
 	protected void drawShape(Graphics graphics) {
-	}
-
-	private final void drawDocks(Graphics graphics) {
-		Rectangle bounds = getBounds();
-		for (Entry<String, ProcessConnectionAnchor> entry : connectionAnchors.entrySet()) {
-			final int dockCenterX = bounds.x + entry.getValue().offsetHorizontal + 1;
-			final int dockCenterY = bounds.y + entry.getValue().offsetVertical + 1;
-			drawDock(graphics, dockCenterX, dockCenterY);
-		}
-	}
-
-	private final void drawDock(Graphics graphics, final int dockCenterX, final int dockCenterY) {
-		dockRectangle.x = dockCenterX - dockSize;
-		dockRectangle.y = dockCenterY - dockSize;
-		dockRectangle.width = dockSize * 2;
-		dockRectangle.height = dockSize * 2;
-		graphics.setBackgroundColor(pageBackgroundColor);
-		graphics.fillRectangle(dockRectangle);
-
-		dockRectangle.shrink(1, 1);
-		graphics.setBackgroundColor(getBackgroundColor());
-		graphics.fillRectangle(dockRectangle);
 	}
 
 	public void setFigureNameVisible(boolean visible) {
