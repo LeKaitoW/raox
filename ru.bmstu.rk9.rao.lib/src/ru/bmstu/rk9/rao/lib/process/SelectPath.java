@@ -10,7 +10,7 @@ import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
-public class Test implements Block {
+public class SelectPath implements Block {
 
 	private TransactStorage trueOutputTransactStorage = new TransactStorage();
 	private TransactStorage falseOutputTransactStorage = new TransactStorage();
@@ -19,10 +19,10 @@ public class Test implements Block {
 	private OutputDock falseOutputDock = () -> falseOutputTransactStorage.pullTransact();
 	private Supplier<Boolean> condition;
 
-	public static enum TestOutputs {
+	public static enum SelectPathOutputs {
 		TRUE("true"), FALSE("false");
 
-		private TestOutputs(final String output) {
+		private SelectPathOutputs(final String output) {
 			this.output = output;
 		}
 
@@ -33,11 +33,11 @@ public class Test implements Block {
 		private final String output;
 	}
 
-	public Test(Supplier<Boolean> condition) {
+	public SelectPath(Supplier<Boolean> condition) {
 		this.condition = condition;
 	}
 
-	public Test(double probability) {
+	public SelectPath(double probability) {
 		Supplier<Boolean> condition = new Supplier<Boolean>() {
 
 			private final MersenneTwister generator = new MersenneTwister();
@@ -72,12 +72,12 @@ public class Test implements Block {
 		TransactStorage storage;
 		if (condition.get()) {
 			storage = trueOutputTransactStorage;
-			data.put((byte) TestOutputs.TRUE.ordinal());
+			data.put((byte) SelectPathOutputs.TRUE.ordinal());
 		} else {
 			storage = falseOutputTransactStorage;
-			data.put((byte) TestOutputs.FALSE.ordinal());
+			data.put((byte) SelectPathOutputs.FALSE.ordinal());
 		}
-		Simulator.getDatabase().addProcessEntry(ProcessEntryType.TEST, transact.getNumber(), data);
+		Simulator.getDatabase().addProcessEntry(ProcessEntryType.SELECT_PATH, transact.getNumber(), data);
 
 		if (!storage.pushTransact(transact))
 			return BlockStatus.CHECK_AGAIN;

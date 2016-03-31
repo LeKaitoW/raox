@@ -12,7 +12,7 @@ import ru.bmstu.rk9.rao.lib.process.Queue;
 import ru.bmstu.rk9.rao.lib.process.Release;
 import ru.bmstu.rk9.rao.lib.process.Seize;
 import ru.bmstu.rk9.rao.lib.process.Terminate;
-import ru.bmstu.rk9.rao.lib.process.Test;
+import ru.bmstu.rk9.rao.lib.process.SelectPath;
 import ru.bmstu.rk9.rao.lib.process.Queue.Queueing;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
@@ -41,21 +41,21 @@ public class BranchedProcessTest {
 		Seize seize = new Seize(resource);
 		Release release = new Release(resource);
 		Queue queue = new Queue(Integer.MAX_VALUE, Queueing.FIFO);
-		Test test = new Test(0.5);
+		SelectPath selectPath = new SelectPath(0.5);
 		blocks.add(generate);
-		blocks.add(test);
+		blocks.add(selectPath);
 		blocks.add(queue);
 		blocks.add(seize);
 		blocks.add(hold);
 		blocks.add(release);
 		blocks.add(terminate);
-		Link.linkDocks(generate.getOutputDock(), test.getInputDock());
-		Link.linkDocks(test.getTrueOutputDock(), queue.getInputDock());
+		Link.linkDocks(generate.getOutputDock(), selectPath.getInputDock());
+		Link.linkDocks(selectPath.getTrueOutputDock(), queue.getInputDock());
 		Link.linkDocks(queue.getOutputDock(), seize.getInputDock());
 		Link.linkDocks(seize.getOutputDock(), hold.getInputDock());
 		Link.linkDocks(hold.getOutputDock(), release.getInputDock());
 		Link.linkDocks(release.getOutputDock(), terminate.getInputDock());
-		Link.linkDocks(test.getFalseOutputDock(), terminate.getInputDock());
+		Link.linkDocks(selectPath.getFalseOutputDock(), terminate.getInputDock());
 
 		return blocks;
 	}

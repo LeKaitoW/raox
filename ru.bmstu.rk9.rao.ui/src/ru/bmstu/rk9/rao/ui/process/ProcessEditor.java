@@ -60,10 +60,10 @@ import ru.bmstu.rk9.rao.ui.process.release.Release;
 import ru.bmstu.rk9.rao.ui.process.release.ReleasePart;
 import ru.bmstu.rk9.rao.ui.process.seize.Seize;
 import ru.bmstu.rk9.rao.ui.process.seize.SeizePart;
+import ru.bmstu.rk9.rao.ui.process.selectpath.SelectPath;
+import ru.bmstu.rk9.rao.ui.process.selectpath.SelectPathPart;
 import ru.bmstu.rk9.rao.ui.process.terminate.Terminate;
 import ru.bmstu.rk9.rao.ui.process.terminate.TerminatePart;
-import ru.bmstu.rk9.rao.ui.process.test.Test;
-import ru.bmstu.rk9.rao.ui.process.test.TestPart;
 
 public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
@@ -87,10 +87,10 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		processNodesInfo.put(Seize.class, new ProcessNodeInfo(Seize.name, () -> new Seize(), () -> new SeizePart()));
 		processNodesInfo.put(Release.class,
 				new ProcessNodeInfo(Release.name, () -> new Release(), () -> new ReleasePart()));
-		processNodesInfo.put(Hold.class,
-				new ProcessNodeInfo(Hold.name, () -> new Hold(), () -> new HoldPart()));
+		processNodesInfo.put(Hold.class, new ProcessNodeInfo(Hold.name, () -> new Hold(), () -> new HoldPart()));
 		processNodesInfo.put(Queue.class, new ProcessNodeInfo(Queue.name, () -> new Queue(), () -> new QueuePart()));
-		processNodesInfo.put(Test.class, new ProcessNodeInfo(Test.name, () -> new Test(), () -> new TestPart()));
+		processNodesInfo.put(SelectPath.class,
+				new ProcessNodeInfo(SelectPath.name, () -> new SelectPath(), () -> new SelectPathPart()));
 	}
 
 	@Override

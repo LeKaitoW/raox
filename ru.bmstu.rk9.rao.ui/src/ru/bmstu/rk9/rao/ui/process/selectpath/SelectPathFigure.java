@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.process.test;
+package ru.bmstu.rk9.rao.ui.process.selectpath;
 
 import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
@@ -9,22 +9,22 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import ru.bmstu.rk9.rao.ui.process.ProcessConnectionAnchor;
 import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
-public class TestFigure extends ProcessFigure {
+public class SelectPathFigure extends ProcessFigure {
 
-	public TestFigure() {
+	public SelectPathFigure() {
 		super();
 
 		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(this);
 		inputConnectionAnchors.add(inputConnectionAnchor);
-		connectionAnchors.put(Test.TERMINAL_IN, inputConnectionAnchor);
+		connectionAnchors.put(SelectPath.TERMINAL_IN, inputConnectionAnchor);
 
 		ProcessConnectionAnchor trueOutputConnectionAnchor = new ProcessConnectionAnchor(this);
 		outputConnectionAnchors.add(trueOutputConnectionAnchor);
-		connectionAnchors.put(Test.TERMINAL_TRUE_OUT, trueOutputConnectionAnchor);
+		connectionAnchors.put(SelectPath.TERMINAL_TRUE_OUT, trueOutputConnectionAnchor);
 
 		ProcessConnectionAnchor falseOutputConnectionAnchor = new ProcessConnectionAnchor(this);
 		outputConnectionAnchors.add(falseOutputConnectionAnchor);
-		connectionAnchors.put(Test.TERMINAL_FALSE_OUT, falseOutputConnectionAnchor);
+		connectionAnchors.put(SelectPath.TERMINAL_FALSE_OUT, falseOutputConnectionAnchor);
 
 		addFigureListener(new FigureListener() {
 			@Override
@@ -42,7 +42,7 @@ public class TestFigure extends ProcessFigure {
 			}
 		});
 
-		label.setText(Test.name);
+		label.setText(SelectPath.name);
 	}
 
 	@Override

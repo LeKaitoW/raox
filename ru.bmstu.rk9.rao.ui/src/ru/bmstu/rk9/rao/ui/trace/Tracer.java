@@ -12,7 +12,7 @@ import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
 import ru.bmstu.rk9.rao.lib.process.Hold.HoldAction;
 import ru.bmstu.rk9.rao.lib.process.Queue.QueueAction;
-import ru.bmstu.rk9.rao.lib.process.Test.TestOutputs;
+import ru.bmstu.rk9.rao.lib.process.SelectPath.SelectPathOutputs;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
 
@@ -444,8 +444,8 @@ public class Tracer {
 		case GENERATE:
 		case TERMINATE:
 			return "";
-		case TEST:
-			TestOutputs output = TestOutputs.values()[data.get()];
+		case SELECT_PATH:
+			SelectPathOutputs output = SelectPathOutputs.values()[data.get()];
 			String outputName = output.getString();
 			return outputName;
 		case HOLD:
