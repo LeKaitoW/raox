@@ -31,7 +31,8 @@ public class HoldFigure extends ProcessFigure {
 			final int offset = Math.min(bounds.width, bounds.height) / 4;
 			shapeRectangle.shrink(offset, offset);
 			trianglePoints.addPoint(shapeRectangle.x, shapeRectangle.y);
-			trianglePoints.addPoint(shapeRectangle.x + shapeRectangle.width, shapeRectangle.y + shapeRectangle.height / 2);
+			trianglePoints.addPoint(shapeRectangle.x + shapeRectangle.width,
+					shapeRectangle.y + shapeRectangle.height / 2);
 			trianglePoints.addPoint(shapeRectangle.x, shapeRectangle.y + shapeRectangle.height);
 
 			Color previousColor = graphics.getBackgroundColor();
@@ -66,11 +67,11 @@ public class HoldFigure extends ProcessFigure {
 			public void figureMoved(IFigure shape) {
 				Rectangle bounds = shape.getBounds();
 
-				inputConnectionAnchor.offsetHorizontal = 0;
-				inputConnectionAnchor.offsetVertical = bounds.height / 2;
+				inputConnectionAnchor.setOffsetHorizontal(0);
+				inputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 
-				outputConnectionAnchor.offsetHorizontal = bounds.width;
-				outputConnectionAnchor.offsetVertical = inputConnectionAnchor.offsetVertical;
+				outputConnectionAnchor.setOffsetHorizontal(bounds.width);
+				outputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 			}
 		});
 

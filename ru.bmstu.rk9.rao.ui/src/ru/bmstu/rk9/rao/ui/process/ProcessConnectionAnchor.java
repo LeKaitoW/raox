@@ -9,13 +9,43 @@ import org.eclipse.draw2d.geometry.Rectangle;
 
 public class ProcessConnectionAnchor extends AbstractConnectionAnchor {
 
-	public boolean topToDown = true;
-	public boolean leftToRight = true;
-	public int offsetVertical;
-	public int offsetHorizontal;
+	private int offsetHorizontal;
+	private int offsetVertical;
 
 	public ProcessConnectionAnchor(IFigure owner) {
 		super(owner);
+	}
+
+	protected final int getOffsetHorizontal() {
+		return offsetHorizontal;
+	}
+
+	public final void setOffsetHorizontal(final int offsetHorizontal) {
+		Rectangle shapeBounds = getOwner().getBounds();
+		final int left = shapeBounds.x + offsetHorizontal - ProcessFigure.dockSize;
+		final int right = left + ProcessFigure.dockSize * 2;
+
+		Rectangle figureBounds = getOwner().getParent().getBounds();
+		final int overLeft = Math.max(figureBounds.x - left, 0);
+		final int overRight = Math.max(right - figureBounds.right(), 0);
+
+		this.offsetHorizontal = offsetHorizontal + overLeft - overRight;
+	}
+
+	protected final int getOffsetVertical() {
+		return offsetVertical;
+	}
+
+	public final void setOffsetVertical(final int offsetVertical) {
+		Rectangle shapeBounds = getOwner().getBounds();
+		final int top = shapeBounds.y + offsetVertical - ProcessFigure.dockSize;
+		final int bottom = top + ProcessFigure.dockSize * 2;
+
+		Rectangle figureBounds = getOwner().getParent().getBounds();
+		final int overTop = Math.max(figureBounds.y - top, 0);
+		final int overBottom = Math.max(bottom - figureBounds.bottom(), 0);
+
+		this.offsetVertical = offsetVertical + overTop - overBottom;
 	}
 
 	@Override
@@ -27,20 +57,13 @@ public class ProcessConnectionAnchor extends AbstractConnectionAnchor {
 
 	@Override
 	public Point getLocation(Point reference) {
-		Rectangle bounds = getOwner().getBounds();
-		int x, y;
-		if (topToDown)
-			y = bounds.y + offsetVertical;
-		else
-			y = bounds.bottom() - 1 - offsetVertical;
-
-		if (leftToRight)
-			x = bounds.x + offsetHorizontal;
-		else
-			x = bounds.right() - 1 - offsetHorizontal;
+		IFigure figure = getOwner();
+		Rectangle bounds = figure.getBounds();
+		final int x = bounds.x + offsetHorizontal - 1;
+		final int y = bounds.y + offsetVertical - 1;
 
 		Point point = new PrecisionPoint(x, y);
-		getOwner().translateToAbsolute(point);
+		figure.translateToAbsolute(point);
 		return point;
 	}
 
@@ -54,10 +77,8 @@ public class ProcessConnectionAnchor extends AbstractConnectionAnchor {
 		if (object instanceof ProcessConnectionAnchor) {
 			ProcessConnectionAnchor processAnchor = (ProcessConnectionAnchor) object;
 
-			if (processAnchor.leftToRight == this.leftToRight && processAnchor.topToDown == this.topToDown
-					&& processAnchor.offsetHorizontal == this.offsetHorizontal
-					&& processAnchor.offsetVertical == this.offsetVertical
-					&& processAnchor.getOwner() == this.getOwner()) {
+			if (offsetHorizontal == processAnchor.offsetHorizontal && offsetVertical == processAnchor.offsetVertical
+					&& getOwner() == processAnchor.getOwner()) {
 				return true;
 			}
 		}
@@ -67,7 +88,6 @@ public class ProcessConnectionAnchor extends AbstractConnectionAnchor {
 
 	@Override
 	public int hashCode() {
-		return ((this.leftToRight ? 31 : 0) + (this.topToDown ? 37 : 0) + this.offsetHorizontal * 43
-				+ this.offsetVertical * 47) ^ this.getOwner().hashCode();
+		return (offsetHorizontal * 43 + offsetVertical * 47) ^ getOwner().hashCode();
 	}
 }

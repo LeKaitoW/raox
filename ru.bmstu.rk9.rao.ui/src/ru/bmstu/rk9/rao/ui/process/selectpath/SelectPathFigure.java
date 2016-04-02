@@ -57,14 +57,14 @@ public class SelectPathFigure extends ProcessFigure {
 			public void figureMoved(IFigure shape) {
 				Rectangle bounds = shape.getBounds();
 
-				inputConnectionAnchor.offsetHorizontal = -dockSize / 2;
-				inputConnectionAnchor.offsetVertical = bounds.height / 2;
+				inputConnectionAnchor.setOffsetHorizontal(-dockSize / 2);
+				inputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 
-				trueOutputConnectionAnchor.offsetHorizontal = bounds.width + dockSize / 2;
-				trueOutputConnectionAnchor.offsetVertical = inputConnectionAnchor.offsetVertical;
+				trueOutputConnectionAnchor.setOffsetHorizontal(bounds.width + dockSize / 2);
+				trueOutputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 
-				falseOutputConnectionAnchor.offsetHorizontal = bounds.width / 2;
-				falseOutputConnectionAnchor.offsetVertical = bounds.height + dockSize / 2;
+				falseOutputConnectionAnchor.setOffsetHorizontal(bounds.width / 2);
+				falseOutputConnectionAnchor.setOffsetVertical(bounds.height + dockSize / 2);
 			}
 		});
 

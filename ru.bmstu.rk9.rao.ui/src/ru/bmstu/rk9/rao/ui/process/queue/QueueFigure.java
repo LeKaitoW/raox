@@ -37,7 +37,8 @@ public class QueueFigure extends ProcessFigure {
 				PointList internalPoints = new PointList();
 				internalPoints.addPoint(bounds.x + (i - 1) * offset + i * width, bounds.y + 1 * offset);
 				internalPoints.addPoint(bounds.x + (i - 1) * offset + (i + 1) * width, bounds.y + 1 * offset);
-				internalPoints.addPoint(bounds.x + (i - 1) * offset + (i + 1) * width, bounds.y + bounds.height - 1 * offset);
+				internalPoints.addPoint(bounds.x + (i - 1) * offset + (i + 1) * width,
+						bounds.y + bounds.height - 1 * offset);
 				internalPoints.addPoint(bounds.x + (i - 1) * offset + i * width, bounds.y + bounds.height - 1 * offset);
 				graphics.fillPolygon(internalPoints);
 			}
@@ -71,11 +72,11 @@ public class QueueFigure extends ProcessFigure {
 			public void figureMoved(IFigure shape) {
 				Rectangle bounds = shape.getBounds();
 
-				inputConnectionAnchor.offsetHorizontal = 0;
-				inputConnectionAnchor.offsetVertical = bounds.height / 2;
+				inputConnectionAnchor.setOffsetHorizontal(0);
+				inputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 
-				outputConnectionAnchor.offsetHorizontal = bounds.width;
-				outputConnectionAnchor.offsetVertical = inputConnectionAnchor.offsetVertical;
+				outputConnectionAnchor.setOffsetHorizontal(bounds.width);
+				outputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 			}
 		});
 

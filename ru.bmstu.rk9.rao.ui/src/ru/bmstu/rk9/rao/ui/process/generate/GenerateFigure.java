@@ -12,8 +12,7 @@ import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class GenerateFigure extends ProcessFigure {
 
-	class Shape extends Figure
-	{
+	class Shape extends Figure {
 		@Override
 		final protected void paintFigure(Graphics graphics) {
 			Rectangle bounds = getBounds();
@@ -29,8 +28,7 @@ public class GenerateFigure extends ProcessFigure {
 	private Shape shape = new Shape();
 
 	@Override
-	public IFigure getShape()
-	{
+	public IFigure getShape() {
 		return shape;
 	}
 
@@ -47,8 +45,8 @@ public class GenerateFigure extends ProcessFigure {
 			@Override
 			public void figureMoved(IFigure shape) {
 				Rectangle bounds = shape.getBounds();
-				outputConnectionAnchor.offsetHorizontal = bounds.width + dockSize / 2;
-				outputConnectionAnchor.offsetVertical = bounds.height / 2;
+				outputConnectionAnchor.setOffsetHorizontal(bounds.width + dockSize / 2);
+				outputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 			}
 		});
 

@@ -54,14 +54,16 @@ public class ReleaseFigure extends ProcessFigure {
 				Path path = new Path(null);
 				addArcToPath(path);
 				path.close();
+				if (path.getPathData().points.length == 0)
+					return;
 				final float xStart = path.getPathData().points[0];
 
 				Rectangle bounds = shape.getBounds();
-				inputConnectionAnchor.offsetHorizontal = 0;
-				inputConnectionAnchor.offsetVertical = bounds.height / 2;
+				inputConnectionAnchor.setOffsetHorizontal(0);
+				inputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 
-				outputConnectionAnchor.offsetHorizontal = (int) xStart - bounds.x;
-				outputConnectionAnchor.offsetVertical = inputConnectionAnchor.offsetVertical;
+				outputConnectionAnchor.setOffsetHorizontal((int) xStart - bounds.x);
+				outputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 			}
 		});
 
@@ -69,7 +71,7 @@ public class ReleaseFigure extends ProcessFigure {
 	}
 
 	private final void addArcToPath(Path path) {
-		Rectangle bounds = shape.getBounds();
+		Rectangle bounds = getShape().getBounds();
 		path.addArc(bounds.x, bounds.y, bounds.width, bounds.height, 60, 240);
 	}
 }

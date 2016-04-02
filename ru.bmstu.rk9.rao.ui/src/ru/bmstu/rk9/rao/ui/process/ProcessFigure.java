@@ -39,10 +39,10 @@ public class ProcessFigure extends Figure {
 	class Docks extends Figure {
 		@Override
 		final protected void paintFigure(Graphics graphics) {
-			Rectangle bounds = getBounds();
+			Rectangle bounds = getShape().getBounds();
 			for (Entry<String, ProcessConnectionAnchor> entry : connectionAnchors.entrySet()) {
-				final int dockCenterX = bounds.x + entry.getValue().offsetHorizontal + offset;
-				final int dockCenterY = bounds.y + entry.getValue().offsetVertical + offset;
+				final int dockCenterX = bounds.x + entry.getValue().getOffsetHorizontal();
+				final int dockCenterY = bounds.y + entry.getValue().getOffsetVertical();
 				drawDock(graphics, dockCenterX, dockCenterY);
 			}
 		}
@@ -52,15 +52,6 @@ public class ProcessFigure extends Figure {
 			dockRectangle.y = dockCenterY - dockSize;
 			dockRectangle.width = dockSize * 2;
 			dockRectangle.height = dockSize * 2;
-
-			Rectangle bounds = getBounds();
-			final int overLeft = Math.max(bounds.x - dockRectangle.x, 0);
-			final int overTop = Math.max(bounds.y - dockRectangle.y, 0);
-			dockRectangle.translate(overLeft, overTop);
-
-			final int overRight = Math.max(dockRectangle.right() - bounds.right(), 0);
-			final int overBottom = Math.max(dockRectangle.bottom() - bounds.bottom(), 0);
-			dockRectangle.translate(-overRight, -overBottom);
 
 			graphics.setBackgroundColor(pageBackgroundColor);
 			graphics.fillRectangle(dockRectangle);
@@ -101,12 +92,6 @@ public class ProcessFigure extends Figure {
 		addFigureListener(new FigureListener() {
 			@Override
 			public void figureMoved(IFigure figure) {
-				Rectangle docksBounds = figure.getBounds().getCopy();
-				docksBounds.x = 0;
-				docksBounds.y = offset * 2;
-				docksBounds.height -= docksBounds.y;
-				setConstraint(docks, docksBounds);
-
 				IFigure shape = getShape();
 				if (shape != null) {
 					Rectangle shapeBounds = figure.getBounds().getCopy();
@@ -116,6 +101,12 @@ public class ProcessFigure extends Figure {
 					shapeBounds.height -= offset * 4;
 					setConstraint(shape, shapeBounds);
 				}
+
+				Rectangle docksBounds = figure.getBounds().getCopy();
+				docksBounds.x = 0;
+				docksBounds.y = offset * 2;
+				docksBounds.height -= docksBounds.y;
+				setConstraint(docks, docksBounds);
 			}
 		});
 	}
