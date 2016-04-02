@@ -71,13 +71,13 @@ public class Database {
 	}
 
 	public static final DataType getDataType(Class<?> type) {
-		if (Integer.class.isAssignableFrom(type))
+		if (Integer.class.isAssignableFrom(type) || int.class.isAssignableFrom(type))
 			return DataType.INT;
 
-		if (Double.class.isAssignableFrom(type))
+		if (Double.class.isAssignableFrom(type) || double.class.isAssignableFrom(type))
 			return DataType.DOUBLE;
 
-		if (Boolean.class.isAssignableFrom(type))
+		if (Boolean.class.isAssignableFrom(type) || boolean.class.isAssignableFrom(type))
 			return DataType.BOOLEAN;
 
 		return DataType.OTHER;
@@ -129,7 +129,7 @@ public class Database {
 			final JSONObject pattern = patterns.getJSONObject(i);
 			final String name = pattern.getString(ModelStructureConstants.NAME);
 			final CollectedDataNode patternNode = indexHelper.addPattern(name);
-			patternNode.setIndex(new PatternIndex(i, pattern));
+			patternNode.setIndex(new PatternIndex(i));
 		}
 
 		final JSONArray events = modelStructure.getJSONArray(ModelStructureConstants.EVENTS);

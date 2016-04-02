@@ -63,7 +63,7 @@ public class ExportTraceHandler extends AbstractHandler {
 		if (!Simulator.isInitialized() || !ready())
 			return;
 
-		Tracer tracer = new Tracer();
+		Tracer tracer = new Tracer(Simulator.getStaticModelData());
 
 		PrintWriter writer = initializeWriter(".trc");
 		for (Entry entry : Simulator.getDatabase().getAllEntries()) {

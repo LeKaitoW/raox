@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Parameter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -119,18 +118,18 @@ public class ModelInternalsParser {
 				JSONArray parameters = new JSONArray();
 				int offset = 0;
 				int variableWidthParameterIndex = 0;
-				for (Parameter p : nestedModelClass.getDeclaredConstructors()[0].getParameters()) {
+				for (Field field : nestedModelClass.getDeclaredFields()) {
+					DataType dataType = Database.getDataType(field.getType());
 
-					DataType dataType = Database.getDataType(p.getType());
-					if (dataType != DataType.OTHER)
-						offset += dataType.getSize();
-					else
-						variableWidthParameterIndex++;
-
-					parameters.put(new JSONObject().put(ModelStructureConstants.NAME, p.getName())
+					parameters.put(new JSONObject().put(ModelStructureConstants.NAME, field.getName().substring(1))
 							.put(ModelStructureConstants.TYPE, dataType).put(ModelStructureConstants.OFFSET, offset)
 							.put(ModelStructureConstants.VARIABLE_WIDTH_PARAMETER_INDEX,
 									dataType == DataType.OTHER ? variableWidthParameterIndex : -1));
+
+					if (dataType == DataType.OTHER)
+						variableWidthParameterIndex++;
+					else
+						offset += dataType.getSize();
 				}
 
 				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.RESOURCE_TYPES)
@@ -152,7 +151,8 @@ public class ModelInternalsParser {
 					}
 				}
 
-				String type = Operation.class.isAssignableFrom(nestedModelClass) ? "operation" : "rule";
+				String type = Operation.class.isAssignableFrom(nestedModelClass) ? ModelStructureConstants.OPERATION
+						: ModelStructureConstants.RULE;
 
 				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.PATTERNS)
 						.put(new JSONObject().put(ModelStructureConstants.NAME, className)

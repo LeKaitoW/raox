@@ -44,7 +44,7 @@ public class ProjectConfigurator {
 	public ProjectConfigurator(final ProjectInfo info) {
 		this.info = info;
 		root = ResourcesPlugin.getWorkspace().getRoot();
-		raoProject = root.getProject(info.getProjectName() + "_project");
+		raoProject = root.getProject(info.getProjectName());
 	}
 
 	private final IWorkspaceRoot root;

@@ -51,6 +51,8 @@ public class Simulator {
 		for (Runnable init : initializationInfo.initList)
 			init.run();
 
+		INSTANCE.database.addMemorizedResourceEntries(null, null, null);
+
 		setSimulationState(SimulatorState.INITIALIZED);
 	}
 

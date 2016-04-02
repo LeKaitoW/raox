@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
+import ru.bmstu.rk9.rao.lib.database.SerializationConstants;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public abstract class Pattern {
 	public static enum ExecutedFrom {
@@ -26,7 +28,12 @@ public abstract class Pattern {
 
 	protected final List<Integer> relevantResourcesNumbers = new ArrayList<Integer>();
 
-	public List<Integer> getRelevantResourcesNumbers() {
+	public final List<Integer> getRelevantResourcesNumbers() {
 		return relevantResourcesNumbers;
+	}
+
+	public final void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom, String dptName) {
+		Simulator.getDatabase().addMemorizedResourceEntries(
+				this.getTypeName() + "." + SerializationConstants.CREATED_RESOURCES, executedFrom, dptName);
 	}
 }

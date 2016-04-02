@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.lib.pattern;
 
+import ru.bmstu.rk9.rao.lib.database.SerializationConstants;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
@@ -38,6 +39,8 @@ public abstract class Operation extends Pattern {
 		protected void execute() {
 			Operation.this.end();
 			Simulator.getDatabase().addOperationEndEntry(Operation.this);
+			Simulator.getDatabase().addMemorizedResourceEntries(
+					Operation.this.getTypeName() + "." + SerializationConstants.CREATED_RESOURCES, null, null);
 			finish();
 		}
 	}

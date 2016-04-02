@@ -9,6 +9,8 @@ import java.util.Collection
 import org.eclipse.xtext.common.types.JvmPrimitiveType
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import java.nio.ByteBuffer
+import ru.bmstu.rk9.rao.rao.FieldDeclaration
+import ru.bmstu.rk9.rao.lib.database.Database.DataType
 
 class ResourceTypeCompiler extends RaoEntityCompiler {
 	def static asClass(ResourceType resourceType, JvmTypesBuilder jvmTypesBuilder,
@@ -45,6 +47,8 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 						param.name»«
 						IF parameters.indexOf(param) != parameters.size - 1», «ENDIF»«ENDFOR»);
 					ru.bmstu.rk9.rao.lib.simulator.Simulator.getModelState().addResource(resource);
+					ru.bmstu.rk9.rao.lib.simulator.Simulator.getDatabase().memorizeResourceEntry(resource,
+							ru.bmstu.rk9.rao.lib.database.Database.ResourceEntryType.CREATED);
 					return resource;
 				'''
 			]
@@ -55,6 +59,8 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				annotations += generateOverrideAnnotation()
 				body = '''
 					ru.bmstu.rk9.rao.lib.simulator.Simulator.getModelState().eraseResource(this);
+					ru.bmstu.rk9.rao.lib.simulator.Simulator.getDatabase().memorizeResourceEntry(this,
+							ru.bmstu.rk9.rao.lib.database.Database.ResourceEntryType.ERASED);
 				'''
 			]
 
@@ -71,6 +77,8 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType)
 					body = '''
 						this._«param.declaration.name» = «param.declaration.name»;
+						ru.bmstu.rk9.rao.lib.simulator.Simulator.getDatabase().memorizeResourceEntry(this,
+								ru.bmstu.rk9.rao.lib.database.Database.ResourceEntryType.ALTERED);
 					'''
 				]
 			}
@@ -80,6 +88,9 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				m.parameters += resourceType.toParameter("other", typeRef)
 				m.annotations += generateOverrideAnnotation()
 				m.body = '''
+					«IF resourceType.parameters.isEmpty»
+					return true;
+					«ELSE»
 					return «String.join(" && ", resourceType.parameters.map[ p |
 						'''«IF p.declaration.parameterType.type instanceof JvmPrimitiveType
 								»this._«p.declaration.name» == other._«p.declaration.name»«
@@ -88,6 +99,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 							ENDIF»
 						'''
 					])»;
+					«ENDIF»
 				'''
 			]
 
@@ -106,25 +118,42 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				annotations += generateOverrideAnnotation()
 
 				var size = 0
-				// TODO cleaner approach
 				for (param : resourceType.parameters) {
-					switch param.declaration.parameterType.simpleName {
-						case "int",
-						case "Integer":
-							size = size + 4
-						case "double",
-						case "Double":
-							size = size + 8
-						case "boolean",
-						case "Boolean":
-							size = size + 1
-					}
+					size = size + param.getSize()
 				}
-				val totalSize = size
+				val fixedWidthParametersSize = size
+				val variableWidthParameters = resourceType.parameters.filter[p|!p.isFixedWidth]
 
-				// FIXME stub
 				body = '''
-					ByteBuffer buffer = ByteBuffer.allocate(«totalSize»);
+					int _totalSize = «fixedWidthParametersSize»;
+					java.util.List<Integer> _positions = new java.util.ArrayList<>();
+
+					int _currentPosition = «fixedWidthParametersSize + variableWidthParameters.size * DataType.INT.size»;
+					«FOR param : variableWidthParameters»
+						_positions.add(_currentPosition);
+						String _«param.declaration.name»Value = String.valueOf(_«param.declaration.name»);
+						byte[] _«param.declaration.name»Bytes = _«param.declaration.name»Value.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+						int _«param.declaration.name»Length = _«param.declaration.name»Bytes.length;
+						_currentPosition += _«param.declaration.name»Length + «DataType.INT.size»;
+						_totalSize += _«param.declaration.name»Length + «2 * DataType.INT.size»;
+					«ENDFOR»
+
+					ByteBuffer buffer = ByteBuffer.allocate(_totalSize);
+
+					«FOR param : resourceType.parameters.filter[p | p.isFixedWidth]»
+						buffer.«param.serializeAsFixedWidth»;
+					«ENDFOR»
+
+					java.util.Iterator<Integer> _it = _positions.iterator();
+					«FOR param : variableWidthParameters»
+						buffer.putInt(_it.next());
+					«ENDFOR»
+
+					«FOR param : variableWidthParameters»
+						buffer.putInt(_«param.declaration.name»Length);
+						buffer.put(_«param.declaration.name»Bytes);
+					«ENDFOR»
+
 					return buffer;
 				'''
 			]
@@ -151,5 +180,41 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				'''
 			]
 		]
+	}
+
+	// TODO cleaner approach?
+	def private static getSize(FieldDeclaration param) {
+		switch param.declaration.parameterType.simpleName {
+			case "int",
+			case "Integer":
+				return 4
+			case "double",
+			case "Double":
+				return 8
+			case "boolean",
+			case "Boolean":
+				return 1
+		}
+
+		return 0
+	}
+
+	def private static isFixedWidth(FieldDeclaration param) {
+		return param.getSize != 0
+	}
+
+	// TODO cleaner approach?
+	def private static serializeAsFixedWidth(FieldDeclaration param) {
+		switch param.declaration.parameterType.simpleName {
+			case "int",
+			case "Integer":
+				return '''putInt(_«param.declaration.name»)'''
+			case "double",
+			case "Double":
+				return '''putDouble(_«param.declaration.name»)'''
+			case "boolean",
+			case "Boolean":
+				return '''put(_«param.declaration.name» ? (byte)1 : (byte)0);'''
+		}
 	}
 }

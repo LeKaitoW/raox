@@ -124,20 +124,14 @@ public class CollectedDataNode {
 	}
 
 	public static class PatternIndex extends Index {
-		public PatternIndex(int number, JSONObject structure) {
+		public PatternIndex(int number) {
 			super(number, IndexType.PATTERN);
-			this.structure = structure;
-		}
-
-		public JSONObject getStructrure() {
-			return structure;
 		}
 
 		public int incrementTimesExecuted() {
 			return timesExecuted++;
 		}
 
-		JSONObject structure;
 		int timesExecuted = 0;
 
 	}

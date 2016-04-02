@@ -111,6 +111,11 @@ public class StaticModelData {
 				.getJSONArray(ModelStructureConstants.RELEVANT_RESOURCES).length();
 	}
 
+	public final String getPatternType(int patternNumber) {
+		return modelStructure.getJSONArray(ModelStructureConstants.PATTERNS).getJSONObject(patternNumber)
+				.getString(ModelStructureConstants.TYPE);
+	}
+
 	public final String getRelevantResourceTypeName(int patternNumber, int relevantResourceNumber) {
 		return modelStructure.getJSONArray(ModelStructureConstants.PATTERNS).getJSONObject(patternNumber)
 				.getJSONArray(ModelStructureConstants.RELEVANT_RESOURCES).getJSONObject(relevantResourceNumber)

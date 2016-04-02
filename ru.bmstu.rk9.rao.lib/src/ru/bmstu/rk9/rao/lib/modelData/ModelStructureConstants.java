@@ -14,6 +14,8 @@ public class ModelStructureConstants {
 
 	public static final String PATTERNS = "patterns";
 	public static final String RELEVANT_RESOURCES = "relevant_resources";
+	public static final String OPERATION = "operation";
+	public static final String RULE = "rule";
 
 	public static final String EVENTS = "events";
 
