@@ -48,6 +48,7 @@ import org.eclipse.gef.ui.palette.PaletteViewer;
 import org.eclipse.gef.ui.palette.PaletteViewerProvider;
 import org.eclipse.gef.ui.parts.GraphicalEditorWithFlyoutPalette;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -73,6 +74,7 @@ import ru.bmstu.rk9.rao.ui.gef.NodeInfo;
 import ru.bmstu.rk9.rao.ui.gef.model.ModelBackgroundLayer;
 import ru.bmstu.rk9.rao.ui.gef.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockFigure;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNodeFactory;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockTitleEditPart;
@@ -208,8 +210,11 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 				continue;
 
 			final String nodeName = node.getValue().getName();
+
+			BlockFigure blockFigure = (BlockFigure) node.getValue().getFigureFactory().get();
 			processGroup.add(new CombinedTemplateCreationEntry(nodeName, nodeName, new BlockNodeFactory(node.getKey()),
-					null, null));
+					ImageDescriptor.createFromImageData(blockFigure.getSmallPreviewImageData()),
+					ImageDescriptor.createFromImageData(blockFigure.getLargePreviewImageData())));
 		}
 		root.setDefaultEntry(panningSelectionToolEntry);
 		getPalettePreferences().setPaletteState(FlyoutPaletteComposite.STATE_PINNED_OPEN);

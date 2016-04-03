@@ -6,16 +6,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.SWTGraphics;
 import org.eclipse.draw2d.XYLayout;
+import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.widgets.Display;
 
 import ru.bmstu.rk9.rao.ui.gef.INodeFigure;
+import ru.bmstu.rk9.rao.ui.gef.model.ModelLayer;
+import ru.bmstu.rk9.rao.ui.process.ProcessColors;
+import ru.bmstu.rk9.rao.ui.process.ProcessLayoutEditPolicy;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionAnchor;
 
 public class BlockFigure extends Figure implements INodeFigure {
@@ -24,7 +35,7 @@ public class BlockFigure extends Figure implements INodeFigure {
 	protected List<ConnectionAnchor> inputConnectionAnchors = new ArrayList<>();
 	protected List<ConnectionAnchor> outputConnectionAnchors = new ArrayList<>();
 
-	private static final int shapeBorder = 5;
+	private static final int shapeBorder = 1;
 	private IFigure shape;
 	private Docks docks = new Docks();
 	public static final int dockSize = 4;
@@ -73,8 +84,7 @@ public class BlockFigure extends Figure implements INodeFigure {
 	public BlockFigure(IFigure shape) {
 		this.shape = shape;
 
-		XYLayout layout = new XYLayout();
-		setLayoutManager(layout);
+		setLayoutManager(new XYLayout());
 		setOpaque(false);
 
 		add(this.shape);
@@ -83,18 +93,22 @@ public class BlockFigure extends Figure implements INodeFigure {
 		addFigureListener(new FigureListener() {
 			@Override
 			public void figureMoved(IFigure figure) {
+				final int shapeBorder = docks.isVisible() ? BlockFigure.shapeBorder + dockSize
+						: BlockFigure.shapeBorder;
 				Rectangle shapeBounds = figure.getBounds().getCopy();
 				shapeBounds.x = shapeBorder;
 				shapeBounds.y = shapeBorder;
 				shapeBounds.width -= shapeBounds.x + shapeBorder;
 				shapeBounds.height -= shapeBounds.y + shapeBorder;
 				setConstraint(getShape(), shapeBounds);
+				getShape().setBounds(shapeBounds);
 
 				Rectangle docksBounds = figure.getBounds().getCopy();
 				docksBounds.x = 0;
 				docksBounds.y = 0;
 				docksBounds.height -= docksBounds.y;
 				setConstraint(docks, docksBounds);
+				docks.setBounds(docksBounds);
 			}
 		});
 	}
@@ -178,5 +192,54 @@ public class BlockFigure extends Figure implements INodeFigure {
 	public void assignSettings(IFigure original) {
 		setForegroundColor(original.getForegroundColor());
 		setBackgroundColor(original.getBackgroundColor());
+	}
+
+	private final ImageData getPreviewImageData(Dimension size) {
+		IFigure parent = new ModelLayer();
+		parent.setLayoutManager(new XYLayout());
+		Color transparentColor = new Color(Display.getCurrent(), 254, 255, 255);
+		parent.setBackgroundColor(transparentColor);
+		parent.setOpaque(true);
+		parent.setBounds(
+				new Rectangle(0, 0, Display.getCurrent().getBounds().width, Display.getCurrent().getBounds().height));
+
+		IFigure blockFigure = this;
+		parent.add(blockFigure);
+		blockFigure.setBounds(new Rectangle(0, 0, size.width, size.height));
+		blockFigure.setForegroundColor(ProcessColors.BLOCK_COLOR);
+		blockFigure.setBackgroundColor(ColorConstants.white);
+		Image image = new Image(Display.getCurrent(), blockFigure.getBounds().width, blockFigure.getBounds().height);
+		GC imageGC = new GC(image);
+		Graphics graphics = new SWTGraphics(imageGC);
+		graphics.setAdvanced(true);
+		graphics.setAntialias(SWT.ON);
+		graphics.setTextAntialias(SWT.ON);
+		parent.paint(graphics);
+		graphics.setForegroundColor(transparentColor);
+		graphics.drawPoint(0, 0);
+		imageGC.dispose();
+		graphics.dispose();
+		transparentColor.dispose();
+		ImageData imageData = image.getImageData();
+		image.dispose();
+		imageData.transparentPixel = imageData.getPixel(0, 0);
+		return imageData;
+	}
+
+	public final ImageData getSmallPreviewImageData() {
+		final boolean docksVisible = docks.isVisible();
+		docks.setVisible(false);
+		ImageData imageData = getPreviewImageData(new Dimension(18, 18));
+		docks.setVisible(docksVisible);
+		return imageData;
+	}
+
+	public final ImageData getLargePreviewImageData() {
+		final boolean docksVisible = docks.isVisible();
+		docks.setVisible(true);
+		ImageData imageData = getPreviewImageData(
+				new Dimension(ProcessLayoutEditPolicy.FIGURE_WIDTH, ProcessLayoutEditPolicy.FIGURE_HEIGHT));
+		docks.setVisible(docksVisible);
+		return imageData;
 	}
 }
