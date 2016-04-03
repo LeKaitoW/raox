@@ -12,7 +12,8 @@ import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class SelectPathFigure extends ProcessFigure {
 
-	class Shape extends Figure {
+	static class Shape extends Figure {
+
 		@Override
 		final protected void paintFigure(Graphics graphics) {
 			Rectangle bounds = getBounds();
@@ -26,33 +27,28 @@ public class SelectPathFigure extends ProcessFigure {
 			graphics.setBackgroundColor(getBackgroundColor());
 			graphics.fillPolygon(points);
 		}
-	}
 
-	private Shape shape = new Shape();
-
-	@Override
-	public IFigure getShape() {
-		return shape;
+		private static IFigure create() {
+			return new Shape();
+		}
 	}
 
 	public SelectPathFigure() {
-		super();
+		super(Shape.create());
 
-		add(shape);
-
-		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(shape);
+		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
 		connectionAnchors.put(SelectPath.TERMINAL_IN, inputConnectionAnchor);
 
-		ProcessConnectionAnchor trueOutputConnectionAnchor = new ProcessConnectionAnchor(shape);
+		ProcessConnectionAnchor trueOutputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		outputConnectionAnchors.add(trueOutputConnectionAnchor);
 		connectionAnchors.put(SelectPath.TERMINAL_TRUE_OUT, trueOutputConnectionAnchor);
 
-		ProcessConnectionAnchor falseOutputConnectionAnchor = new ProcessConnectionAnchor(shape);
+		ProcessConnectionAnchor falseOutputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		outputConnectionAnchors.add(falseOutputConnectionAnchor);
 		connectionAnchors.put(SelectPath.TERMINAL_FALSE_OUT, falseOutputConnectionAnchor);
 
-		shape.addFigureListener(new FigureListener() {
+		getShape().addFigureListener(new FigureListener() {
 			@Override
 			public void figureMoved(IFigure shape) {
 				Rectangle bounds = shape.getBounds();

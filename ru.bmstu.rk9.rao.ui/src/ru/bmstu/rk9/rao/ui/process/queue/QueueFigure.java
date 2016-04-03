@@ -13,7 +13,8 @@ import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class QueueFigure extends ProcessFigure {
 
-	class Shape extends Figure {
+	static class Shape extends Figure {
+
 		@Override
 		final protected void paintFigure(Graphics graphics) {
 			Rectangle bounds = getBounds();
@@ -43,31 +44,25 @@ public class QueueFigure extends ProcessFigure {
 				graphics.fillPolygon(internalPoints);
 			}
 			graphics.setBackgroundColor(previousColor);
+		}
 
+		private static IFigure create() {
+			return new Shape();
 		}
 	}
 
-	private Shape shape = new Shape();
-
-	@Override
-	public IFigure getShape() {
-		return shape;
-	}
-
 	public QueueFigure() {
-		super();
+		super(Shape.create());
 
-		add(shape);
-
-		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(shape);
+		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
 		connectionAnchors.put(Queue.TERMINAL_IN, inputConnectionAnchor);
 
-		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(shape);
+		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		outputConnectionAnchors.add(outputConnectionAnchor);
 		connectionAnchors.put(Queue.TERMINAL_OUT, outputConnectionAnchor);
 
-		shape.addFigureListener(new FigureListener() {
+		getShape().addFigureListener(new FigureListener() {
 			@Override
 			public void figureMoved(IFigure shape) {
 				Rectangle bounds = shape.getBounds();

@@ -13,9 +13,9 @@ import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class HoldFigure extends ProcessFigure {
 
-	private static final Rectangle shapeRectangle = new Rectangle();
+	static class Shape extends Figure {
 
-	class Shape extends Figure {
+		private static final Rectangle shapeRectangle = new Rectangle();
 
 		@Override
 		final protected void paintFigure(Graphics graphics) {
@@ -40,29 +40,24 @@ public class HoldFigure extends ProcessFigure {
 			graphics.fillPolygon(trianglePoints);
 			graphics.setBackgroundColor(previousColor);
 		}
-	}
 
-	private Shape shape = new Shape();
-
-	@Override
-	public IFigure getShape() {
-		return shape;
+		private static IFigure create() {
+			return new Shape();
+		}
 	}
 
 	public HoldFigure() {
-		super();
+		super(Shape.create());
 
-		add(shape);
-
-		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(shape);
+		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
 		connectionAnchors.put(Hold.TERMINAL_IN, inputConnectionAnchor);
 
-		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(shape);
+		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		outputConnectionAnchors.add(outputConnectionAnchor);
 		connectionAnchors.put(Hold.TERMINAL_OUT, outputConnectionAnchor);
 
-		shape.addFigureListener(new FigureListener() {
+		getShape().addFigureListener(new FigureListener() {
 			@Override
 			public void figureMoved(IFigure shape) {
 				Rectangle bounds = shape.getBounds();

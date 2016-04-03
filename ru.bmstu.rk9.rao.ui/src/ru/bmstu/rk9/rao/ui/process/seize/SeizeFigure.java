@@ -12,11 +12,12 @@ import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class SeizeFigure extends ProcessFigure {
 
-	class Shape extends Figure {
+	static class Shape extends Figure {
+
 		@Override
 		final protected void paintFigure(Graphics graphics) {
 			Path path = new Path(null);
-			addArcToPath(path);
+			addArcToPath(this, path);
 			final float[] points = path.getPathData().points;
 			final float xStart = points[0];
 			final float yStart = points[1];
@@ -26,33 +27,28 @@ public class SeizeFigure extends ProcessFigure {
 			graphics.setBackgroundColor(getBackgroundColor());
 			graphics.fillPath(path);
 		}
-	}
 
-	private Shape shape = new Shape();
-
-	@Override
-	public IFigure getShape() {
-		return shape;
+		private static IFigure create() {
+			return new Shape();
+		}
 	}
 
 	public SeizeFigure() {
-		super();
+		super(Shape.create());
 
-		add(shape);
-
-		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(shape);
+		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
 		connectionAnchors.put(Seize.TERMINAL_IN, inputConnectionAnchor);
 
-		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(shape);
+		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		outputConnectionAnchors.add(outputConnectionAnchor);
 		connectionAnchors.put(Seize.TERMINAL_OUT, outputConnectionAnchor);
 
-		shape.addFigureListener(new FigureListener() {
+		getShape().addFigureListener(new FigureListener() {
 			@Override
 			public void figureMoved(IFigure shape) {
 				Path path = new Path(null);
-				addArcToPath(path);
+				addArcToPath(getShape(), path);
 				path.close();
 				if (path.getPathData().points.length == 0)
 					return;
@@ -70,8 +66,8 @@ public class SeizeFigure extends ProcessFigure {
 		label.setText(Seize.name);
 	}
 
-	private final void addArcToPath(Path path) {
-		Rectangle bounds = getShape().getBounds();
+	private static void addArcToPath(IFigure shape, Path path) {
+		Rectangle bounds = shape.getBounds();
 		path.addArc(bounds.x, bounds.y, bounds.width, bounds.height, 240, 240);
 	}
 }

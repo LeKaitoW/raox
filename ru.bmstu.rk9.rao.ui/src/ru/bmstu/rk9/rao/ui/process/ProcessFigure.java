@@ -34,7 +34,8 @@ public class ProcessFigure extends Figure {
 	private Font font;
 
 	protected static Color pageBackgroundColor = ColorConstants.white;
-	private static final int offset = 5;
+	private static final int shapeBorder = 5;
+	private IFigure shape;
 
 	class Docks extends Figure {
 		@Override
@@ -66,45 +67,40 @@ public class ProcessFigure extends Figure {
 	protected static final int dockSize = 4;
 	private static final Rectangle dockRectangle = new Rectangle();
 
-	@Override
-	public void add(IFigure figure, Object constraint, int index) {
-		if (figure == getShape() && index == -1)
-			index = 0;
-		super.add(figure, constraint, index);
-	}
+	public ProcessFigure(IFigure shape) {
+		this.shape = shape;
 
-	public ProcessFigure() {
 		XYLayout layout = new XYLayout();
 		setLayoutManager(layout);
+
+		setOpaque(true);
 
 		Font currentFont = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getFontRegistry()
 				.get(PreferenceConstants.EDITOR_TEXT_FONT);
 		FontData[] currentFontData = currentFont.getFontData();
 		currentFontData[0].setHeight(6);
 		font = new Font(currentFont.getDevice(), currentFontData);
-
-		add(docks);
-
-		add(label);
 		label.setFont(getFont());
-		setOpaque(true);
+
+		add(this.shape);
+		add(docks);
+		add(label);
 
 		addFigureListener(new FigureListener() {
 			@Override
 			public void figureMoved(IFigure figure) {
-				IFigure shape = getShape();
-				if (shape != null) {
-					Rectangle shapeBounds = figure.getBounds().getCopy();
-					shapeBounds.x = offset;
-					shapeBounds.y = offset * 3;
-					shapeBounds.width -= offset * 2;
-					shapeBounds.height -= offset * 4;
-					setConstraint(shape, shapeBounds);
-				}
+				final int labelHeight = shapeBorder * 2;
+
+				Rectangle shapeBounds = figure.getBounds().getCopy();
+				shapeBounds.x = shapeBorder;
+				shapeBounds.y = shapeBorder + labelHeight;
+				shapeBounds.width -= shapeBounds.x + shapeBorder;
+				shapeBounds.height -= shapeBounds.y + shapeBorder;
+				setConstraint(getShape(), shapeBounds);
 
 				Rectangle docksBounds = figure.getBounds().getCopy();
 				docksBounds.x = 0;
-				docksBounds.y = offset * 2;
+				docksBounds.y = labelHeight;
 				docksBounds.height -= docksBounds.y;
 				setConstraint(docks, docksBounds);
 			}
@@ -120,8 +116,8 @@ public class ProcessFigure extends Figure {
 		return font;
 	}
 
-	public IFigure getShape() {
-		return null;
+	protected final IFigure getShape() {
+		return shape;
 	}
 
 	@Override
@@ -130,9 +126,6 @@ public class ProcessFigure extends Figure {
 		graphics.setAntialias(SWT.ON);
 		graphics.setTextAntialias(SWT.ON);
 		drawName(graphics);
-	}
-
-	protected void drawShape(Graphics graphics) {
 	}
 
 	public void setFigureNameVisible(boolean visible) {

@@ -12,7 +12,7 @@ import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class GenerateFigure extends ProcessFigure {
 
-	class Shape extends Figure {
+	static class Shape extends Figure {
 		@Override
 		final protected void paintFigure(Graphics graphics) {
 			Rectangle bounds = getBounds();
@@ -23,25 +23,20 @@ public class GenerateFigure extends ProcessFigure {
 			graphics.setBackgroundColor(getBackgroundColor());
 			graphics.fillPolygon(points);
 		}
-	}
 
-	private Shape shape = new Shape();
-
-	@Override
-	public IFigure getShape() {
-		return shape;
+		private static IFigure create() {
+			return new Shape();
+		}
 	}
 
 	public GenerateFigure() {
-		super();
+		super(Shape.create());
 
-		add(shape);
-
-		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(shape);
+		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		outputConnectionAnchors.add(outputConnectionAnchor);
 		connectionAnchors.put(Generate.TERMINAL_OUT, outputConnectionAnchor);
 
-		shape.addFigureListener(new FigureListener() {
+		getShape().addFigureListener(new FigureListener() {
 			@Override
 			public void figureMoved(IFigure shape) {
 				Rectangle bounds = shape.getBounds();
