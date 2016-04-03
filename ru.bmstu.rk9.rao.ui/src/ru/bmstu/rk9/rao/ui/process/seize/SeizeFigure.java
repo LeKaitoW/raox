@@ -52,13 +52,13 @@ public class SeizeFigure extends ProcessFigure {
 				path.close();
 				if (path.getPathData().points.length == 0)
 					return;
-				final float xStart = path.getPathData().points[0];
+				final int left = (int) path.getPathData().points[0];
 
 				Rectangle bounds = shape.getBounds();
-				inputConnectionAnchor.setOffsetHorizontal((int) xStart - bounds.x);
+				inputConnectionAnchor.setOffsetHorizontal(0);
 				inputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 
-				outputConnectionAnchor.setOffsetHorizontal(bounds.width);
+				outputConnectionAnchor.setOffsetHorizontal(left - bounds.x);
 				outputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 			}
 		});
@@ -68,6 +68,6 @@ public class SeizeFigure extends ProcessFigure {
 
 	private static void addArcToPath(IFigure shape, Path path) {
 		Rectangle bounds = shape.getBounds();
-		path.addArc(bounds.x, bounds.y, bounds.width, bounds.height, 240, 240);
+		path.addArc(bounds.x, bounds.y, bounds.width, bounds.height, 60, 240);
 	}
 }
