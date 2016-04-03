@@ -4,9 +4,8 @@ import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
-import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
-import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.SWT;
 
 import ru.bmstu.rk9.rao.ui.process.ProcessConnectionAnchor;
 import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
@@ -15,34 +14,55 @@ public class HoldFigure extends ProcessFigure {
 
 	static class Shape extends Figure {
 
-		private static final Rectangle shapeRectangle = new Rectangle();
-
 		@Override
 		final protected void paintFigure(Graphics graphics) {
+			graphics.setAdvanced(true);
+			graphics.setAntialias(SWT.ON);
+
 			Rectangle bounds = getBounds();
-			shapeRectangle.x = bounds.x;
-			shapeRectangle.y = bounds.y;
-			shapeRectangle.width = bounds.width;
-			shapeRectangle.height = bounds.height;
 			graphics.setBackgroundColor(getBackgroundColor());
-			graphics.fillRectangle(shapeRectangle);
+			graphics.fillRectangle(bounds);
 
-			PointList trianglePoints = new PointList();
-			final int offset = Math.min(bounds.width, bounds.height) / 4;
-			shapeRectangle.shrink(offset, offset);
-			trianglePoints.addPoint(shapeRectangle.x, shapeRectangle.y);
-			trianglePoints.addPoint(shapeRectangle.x + shapeRectangle.width,
-					shapeRectangle.y + shapeRectangle.height / 2);
-			trianglePoints.addPoint(shapeRectangle.x, shapeRectangle.y + shapeRectangle.height);
-
-			Color previousColor = graphics.getBackgroundColor();
-			graphics.setBackgroundColor(pageBackgroundColor);
-			graphics.fillPolygon(trianglePoints);
-			graphics.setBackgroundColor(previousColor);
+			Rectangle clockFaceBounds = bounds.getCopy();
+			final int clockFaceBorder = Math.min(bounds.width, bounds.height) / 7;
+			clockFaceBounds.shrink(clockFaceBorder, clockFaceBorder);
+			drawClock(graphics, clockFaceBounds, 10, 10);
 		}
 
 		private static IFigure create() {
 			return new Shape();
+		}
+
+		private void drawClock(Graphics graphics, Rectangle bounds, final int hours, final int minutes) {
+			graphics.setBackgroundColor(pageBackgroundColor);
+			graphics.fillArc(bounds, 0, 360);
+
+			graphics.setBackgroundColor(getBackgroundColor());
+			graphics.translate(bounds.getCenter());
+
+			final float clockRadius = Math.min(bounds.width, bounds.height) / 2;
+
+			final float timestampWidth = clockRadius * 0.25f;
+			final float timestampHeight = timestampWidth * 0.20f;
+			for (int timestampIndex = 0; timestampIndex < 4; ++timestampIndex) {
+				graphics.fillRectangle((int) (clockRadius - timestampWidth - timestampHeight), (int) (-timestampHeight),
+						(int) (timestampWidth), (int) (timestampHeight * 2));
+				graphics.rotate(90);
+			}
+
+			final float minutes_degrees = (float) minutes / 60 * 360 - 90;
+			graphics.rotate(minutes_degrees);
+			final int minuteHandOfClockWidth = (int) (clockRadius * 0.85);
+			final int minuteHandOfClockHegiht = Math.max(minuteHandOfClockWidth / 20, 1);
+			graphics.fillRectangle(0, -minuteHandOfClockHegiht, minuteHandOfClockWidth, minuteHandOfClockHegiht * 2);
+			graphics.rotate(-minutes_degrees);
+
+			final float hourse_degrees = (float) hours / 12 * 360 - 90;
+			graphics.rotate(hourse_degrees);
+			final int hourHandOfClockWidth = (int) (minuteHandOfClockWidth * 0.8);
+			final int hourHandOfClockHegiht = (int) Math.max(minuteHandOfClockHegiht * 1.5, 1);
+			graphics.fillRectangle(0, -hourHandOfClockHegiht, hourHandOfClockWidth, hourHandOfClockHegiht * 2);
+			graphics.rotate(-hourse_degrees);
 		}
 	}
 
