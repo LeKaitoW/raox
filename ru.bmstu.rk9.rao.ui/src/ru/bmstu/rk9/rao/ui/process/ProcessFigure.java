@@ -17,7 +17,6 @@ import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jdt.ui.PreferenceConstants;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -122,9 +121,6 @@ public class ProcessFigure extends Figure {
 
 	@Override
 	final protected void paintFigure(Graphics graphics) {
-		graphics.setAdvanced(true);
-		graphics.setAntialias(SWT.ON);
-		graphics.setTextAntialias(SWT.ON);
 		drawName(graphics);
 	}
 

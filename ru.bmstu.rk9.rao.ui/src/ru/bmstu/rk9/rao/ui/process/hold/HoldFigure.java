@@ -5,7 +5,6 @@ import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
-import org.eclipse.swt.SWT;
 
 import ru.bmstu.rk9.rao.ui.process.ProcessConnectionAnchor;
 import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
@@ -16,9 +15,6 @@ public class HoldFigure extends ProcessFigure {
 
 		@Override
 		final protected void paintFigure(Graphics graphics) {
-			graphics.setAdvanced(true);
-			graphics.setAntialias(SWT.ON);
-
 			Rectangle bounds = getBounds();
 			graphics.setBackgroundColor(getBackgroundColor());
 			graphics.fillRectangle(bounds);

@@ -19,7 +19,6 @@ import org.eclipse.draw2d.ConnectionLayer;
 import org.eclipse.draw2d.Layer;
 import org.eclipse.draw2d.LayeredPane;
 import org.eclipse.draw2d.StackLayout;
-import org.eclipse.draw2d.XYLayout;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.KeyHandler;
@@ -51,10 +50,11 @@ import com.google.inject.Inject;
 
 import ru.bmstu.rk9.rao.ui.process.generate.Generate;
 import ru.bmstu.rk9.rao.ui.process.generate.GeneratePart;
-import ru.bmstu.rk9.rao.ui.process.hold.HoldPart;
 import ru.bmstu.rk9.rao.ui.process.hold.Hold;
+import ru.bmstu.rk9.rao.ui.process.hold.HoldPart;
 import ru.bmstu.rk9.rao.ui.process.link.LinkCreationFactory;
 import ru.bmstu.rk9.rao.ui.process.model.Model;
+import ru.bmstu.rk9.rao.ui.process.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
 import ru.bmstu.rk9.rao.ui.process.queue.Queue;
 import ru.bmstu.rk9.rao.ui.process.queue.QueuePart;
@@ -196,17 +196,15 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 			protected LayeredPane createPrintableLayers() {
 				LayeredPane pane = new LayeredPane();
 
-				Layer layer = new Layer();
-				layer.setLayoutManager(new XYLayout());
-				pane.add(layer, MODEL_LAYER);
+				pane.add(new ModelLayer(), MODEL_LAYER);
 
 				ConnectionLayer connectionLayer = new ConnectionLayer();
 				connectionLayer.setAntialias(SWT.ON);
 				pane.add(connectionLayer, CONNECTION_LAYER);
 
-				layer = new Layer();
-				layer.setLayoutManager(new StackLayout());
-				pane.add(layer, PRIMARY_LAYER);
+				Layer primaryLayer = new Layer();
+				primaryLayer.setLayoutManager(new StackLayout());
+				pane.add(primaryLayer, PRIMARY_LAYER);
 
 				return pane;
 			}
