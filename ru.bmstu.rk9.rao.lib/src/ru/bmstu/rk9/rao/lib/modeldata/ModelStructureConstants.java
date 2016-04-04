@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.lib.modelData;
+package ru.bmstu.rk9.rao.lib.modeldata;
 
 public class ModelStructureConstants {
 	public static final String NAME = "name";

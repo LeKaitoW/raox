@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.lib.modelData;
+package ru.bmstu.rk9.rao.lib.modeldata;
 
 import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
@@ -33,6 +33,7 @@ public class StaticModelData {
 			if (resourceType.getString(ModelStructureConstants.NAME).equals(name))
 				return resourceTypeNumber;
 		}
+
 		return -1;
 	}
 
@@ -106,6 +107,18 @@ public class StaticModelData {
 	}
 
 	/* Patterns */
+	public final int getPatternNumber(String name) {
+		JSONArray patterns = modelStructure.getJSONArray(ModelStructureConstants.PATTERNS);
+		int patternNumber;
+		for (patternNumber = 0; patternNumber < patterns.length(); patternNumber++) {
+			JSONObject pattern = patterns.getJSONObject(patternNumber);
+			if (pattern.getString(ModelStructureConstants.NAME).equals(name))
+				return patternNumber;
+		}
+
+		return -1;
+	}
+
 	public final int getNumberOfRelevantResources(int patternNumber) {
 		return modelStructure.getJSONArray(ModelStructureConstants.PATTERNS).getJSONObject(patternNumber)
 				.getJSONArray(ModelStructureConstants.RELEVANT_RESOURCES).length();

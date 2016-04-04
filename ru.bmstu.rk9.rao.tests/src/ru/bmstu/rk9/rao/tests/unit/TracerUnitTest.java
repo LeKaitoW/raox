@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.nio.ByteBuffer;
 
 import ru.bmstu.rk9.rao.lib.database.Database.*;
-import ru.bmstu.rk9.rao.lib.modelData.StaticModelData;
+import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 import ru.bmstu.rk9.rao.ui.trace.Tracer;
 import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceOutput;

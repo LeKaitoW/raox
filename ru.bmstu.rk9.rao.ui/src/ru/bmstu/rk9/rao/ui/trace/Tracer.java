@@ -9,7 +9,7 @@ import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
-import ru.bmstu.rk9.rao.lib.modelData.StaticModelData;
+import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
 
 public class Tracer {

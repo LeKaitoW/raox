@@ -37,6 +37,10 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				'''
 			]
 
+			members += resourceType.toConstructor [
+				visibility = JvmVisibility.PRIVATE
+			]
+
 			members += resourceType.toMethod("create", typeRef) [
 				visibility = JvmVisibility.PUBLIC
 				static = true
@@ -100,6 +104,22 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 						'''
 					])»;
 					«ENDIF»
+				'''
+			]
+
+			members += resourceType.toMethod("deepCopy", typeRef) [
+				visibility = JvmVisibility.PUBLIC
+				annotations += generateOverrideAnnotation
+				body = '''
+					«resourceType.name» copy = new «resourceType.name»();
+
+					copy.setNumber(this.number);
+					copy.setName(this.name);
+					«FOR param : resourceType.parameters»
+						copy._«param.declaration.name» = this._«param.declaration.name»;
+					«ENDFOR»
+
+					return copy;
 				'''
 			]
 

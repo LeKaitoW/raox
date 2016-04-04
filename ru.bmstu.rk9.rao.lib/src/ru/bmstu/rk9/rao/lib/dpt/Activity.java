@@ -18,14 +18,10 @@ public class Activity extends AbstractActivity {
 		this.priority = priority;
 	}
 
-	public final void setPriority(Supplier<Double> priority) {
-		this.priority = priority;
-	}
-
-	public Supplier<Double> priority;
+	public final Supplier<Double> priority;
 	private final Supplier<? extends Pattern> patternFabric;
 
-	public boolean execute() {
+	public final boolean execute() {
 		currentPattern = patternFabric.get();
 
 		if (currentPattern.selectRelevantResources()) {
@@ -37,7 +33,7 @@ public class Activity extends AbstractActivity {
 	}
 
 	@Override
-	public Pattern getPattern() {
+	public final Pattern getPattern() {
 		return currentPattern;
 	}
 

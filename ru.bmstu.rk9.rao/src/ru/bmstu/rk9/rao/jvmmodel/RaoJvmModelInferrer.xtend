@@ -24,6 +24,7 @@ import static extension ru.bmstu.rk9.rao.jvmmodel.EnumCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.EventCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.FunctionCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.GeneratorCompiler.*
+import static extension ru.bmstu.rk9.rao.jvmmodel.SearchCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.ResourceTypeCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.EntityCreationCompiler.*
 import ru.bmstu.rk9.rao.rao.Logic
@@ -78,6 +79,6 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	def dispatch compileRaoEntity(Search search, JvmDeclaredType it, boolean isPreIndexingPhase) {
-		// TODO
+		members += search.asClass(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase);
 	}
 }
