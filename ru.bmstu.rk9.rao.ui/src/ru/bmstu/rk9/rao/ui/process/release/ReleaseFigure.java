@@ -17,7 +17,7 @@ public class ReleaseFigure extends ProcessFigure {
 		@Override
 		final protected void paintFigure(Graphics graphics) {
 			Path path = new Path(null);
-			addArcToPath(this, path);
+			addArcToPath(getBounds(), path);
 			final float[] points = path.getPathData().points;
 			final float xStart = points[0];
 			final float yStart = points[1];
@@ -48,7 +48,7 @@ public class ReleaseFigure extends ProcessFigure {
 			@Override
 			public void figureMoved(IFigure shape) {
 				Path path = new Path(null);
-				addArcToPath(getShape(), path);
+				addArcToPath(getShape().getBounds(), path);
 				path.close();
 				if (path.getPathData().points.length == 0)
 					return;
@@ -66,8 +66,9 @@ public class ReleaseFigure extends ProcessFigure {
 		label.setText(Release.name);
 	}
 
-	private static void addArcToPath(IFigure shape, Path path) {
-		Rectangle bounds = shape.getBounds();
-		path.addArc(bounds.x, bounds.y, bounds.width, bounds.height, 240, 240);
+	private static void addArcToPath(Rectangle bounds, Path path) {
+		final int startAngle = 240;
+		final int arcAngle = 240;
+		path.addArc(bounds.x, bounds.y, bounds.width, bounds.height, startAngle, arcAngle);
 	}
 }
