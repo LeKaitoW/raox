@@ -57,12 +57,12 @@ public class HoldFigure extends ProcessFigure {
 			graphics.fillRectangle(0, -minuteHandOfClockHegiht, minuteHandOfClockWidth, minuteHandOfClockHegiht * 2);
 			graphics.rotate(-minutes_degrees);
 
-			final float hourse_degrees = (float) hours / 12 * 360 - 90;
-			graphics.rotate(hourse_degrees);
+			final float hours_degrees = (float) hours / 12 * 360 - 90;
+			graphics.rotate(hours_degrees);
 			final int hourHandOfClockWidth = (int) (minuteHandOfClockWidth * 0.8);
 			final int hourHandOfClockHegiht = (int) Math.max(minuteHandOfClockHegiht * 1.5, 1);
 			graphics.fillRectangle(0, -hourHandOfClockHegiht, hourHandOfClockWidth, hourHandOfClockHegiht * 2);
-			graphics.rotate(-hourse_degrees);
+			graphics.rotate(-hours_degrees);
 		}
 	}
 
