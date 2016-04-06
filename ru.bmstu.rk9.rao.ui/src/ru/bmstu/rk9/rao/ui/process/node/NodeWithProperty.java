@@ -20,8 +20,8 @@ public abstract class NodeWithProperty extends NodeWithLinks implements IAdaptab
 
 	public NodeWithProperty(RGB foregroundColor) {
 		super(foregroundColor);
-		this.sourceConnections = new ArrayList<Link>();
-		this.targetConnections = new ArrayList<Link>();
+		this.sourceLinks = new ArrayList<Link>();
+		this.targetLinks = new ArrayList<Link>();
 	}
 
 	public void setColor(RGB newColor) {

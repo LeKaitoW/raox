@@ -29,7 +29,7 @@ public class BlockConverter {
 			}
 
 			NodeWithLinks nodeWithLinks = (NodeWithLinks) node;
-			for (Link sourceLink : nodeWithLinks.getSourceConnectionsArray()) {
+			for (Link sourceLink : nodeWithLinks.getSourceLinks()) {
 				Node targetNode = sourceLink.getTargetNode();
 				BlockConverterInfo targetBlockInfo;
 				if (!blocksMap.containsKey(targetNode)) {

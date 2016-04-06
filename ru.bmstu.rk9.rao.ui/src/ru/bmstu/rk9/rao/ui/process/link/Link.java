@@ -34,15 +34,15 @@ public class Link implements Serializable, IAdaptable {
 	}
 
 	public void connect() {
-		sourceNode.addConnections(this);
-		targetNode.addConnections(this);
+		sourceNode.addLink(this);
+		targetNode.addLink(this);
 		sourceNode.increaseLinksCount(sourceTerminal);
 		targetNode.increaseLinksCount(targetTerminal);
 	}
 
 	public void disconnect() {
-		sourceNode.removeConnection(this);
-		targetNode.removeConnection(this);
+		sourceNode.removeLink(this);
+		targetNode.removeLink(this);
 		sourceNode.decreaseLinksCount(sourceTerminal);
 		targetNode.decreaseLinksCount(targetTerminal);
 	}

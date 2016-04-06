@@ -67,9 +67,9 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		}
 		if (evt.getPropertyName().equals(Node.PROPERTY_CONSTRAINT))
 			refreshVisuals();
-		if (evt.getPropertyName().equals(NodeWithLinks.SOURCE_CONNECTION))
+		if (evt.getPropertyName().equals(NodeWithLinks.SOURCE_LINK_UPDATED))
 			refreshSourceConnections();
-		if (evt.getPropertyName().equals(NodeWithLinks.TARGET_CONNECTION))
+		if (evt.getPropertyName().equals(NodeWithLinks.TARGET_LINK_UPDATED))
 			refreshTargetConnections();
 	}
 
@@ -121,12 +121,12 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 
 	@Override
 	public List<Link> getModelSourceConnections() {
-		return ((NodeWithLinks) getModel()).getSourceConnectionsArray();
+		return ((NodeWithLinks) getModel()).getSourceLinks();
 	}
 
 	@Override
 	public List<Link> getModelTargetConnections() {
-		return ((NodeWithLinks) getModel()).getTargetConnectionsArray();
+		return ((NodeWithLinks) getModel()).getTargetLinks();
 	}
 
 	final protected String mapConnectionAnchorToTerminal(ConnectionAnchor connectionAnchor) {
