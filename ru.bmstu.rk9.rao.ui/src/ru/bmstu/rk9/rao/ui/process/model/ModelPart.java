@@ -1,7 +1,6 @@
 package ru.bmstu.rk9.rao.ui.process.model;
 
 import java.beans.PropertyChangeEvent;
-import java.util.List;
 
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.gef.EditPolicy;
@@ -23,11 +22,6 @@ public class ModelPart extends ProcessEditPart {
 	@Override
 	protected void createEditPolicies() {
 		installEditPolicy(EditPolicy.LAYOUT_ROLE, new ProcessLayoutEditPolicy());
-	}
-
-	@Override
-	public List<Node> getModelChildren() {
-		return ((Model) getModel()).getChildren();
 	}
 
 	@Override

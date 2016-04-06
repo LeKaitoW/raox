@@ -26,6 +26,11 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		implements PropertyChangeListener, NodeEditPart {
 
 	@Override
+	public final List<Node> getModelChildren() {
+		return ((Node) getModel()).getChildren();
+	}
+
+	@Override
 	public void activate() {
 		super.activate();
 		((Node) getModel()).addPropertyChangeListener(this);
