@@ -7,7 +7,7 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 
-import ru.bmstu.rk9.rao.ui.process.ProcessConnectionAnchor;
+import ru.bmstu.rk9.rao.ui.process.ConnectionAnchor;
 import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class SelectPathFigure extends ProcessFigure {
@@ -36,15 +36,15 @@ public class SelectPathFigure extends ProcessFigure {
 	public SelectPathFigure() {
 		super(Shape.create());
 
-		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(getShape());
+		ConnectionAnchor inputConnectionAnchor = new ConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
 		connectionAnchors.put(SelectPath.DOCK_IN, inputConnectionAnchor);
 
-		ProcessConnectionAnchor trueOutputConnectionAnchor = new ProcessConnectionAnchor(getShape());
+		ConnectionAnchor trueOutputConnectionAnchor = new ConnectionAnchor(getShape());
 		outputConnectionAnchors.add(trueOutputConnectionAnchor);
 		connectionAnchors.put(SelectPath.DOCK_TRUE_OUT, trueOutputConnectionAnchor);
 
-		ProcessConnectionAnchor falseOutputConnectionAnchor = new ProcessConnectionAnchor(getShape());
+		ConnectionAnchor falseOutputConnectionAnchor = new ConnectionAnchor(getShape());
 		outputConnectionAnchors.add(falseOutputConnectionAnchor);
 		connectionAnchors.put(SelectPath.DOCK_FALSE_OUT, falseOutputConnectionAnchor);
 

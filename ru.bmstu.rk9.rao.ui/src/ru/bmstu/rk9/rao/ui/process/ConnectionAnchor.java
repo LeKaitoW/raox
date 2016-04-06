@@ -7,12 +7,12 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.PrecisionPoint;
 import org.eclipse.draw2d.geometry.Rectangle;
 
-public class ProcessConnectionAnchor extends AbstractConnectionAnchor {
+public class ConnectionAnchor extends AbstractConnectionAnchor {
 
 	private int offsetHorizontal;
 	private int offsetVertical;
 
-	public ProcessConnectionAnchor(IFigure owner) {
+	public ConnectionAnchor(IFigure owner) {
 		super(owner);
 	}
 
@@ -74,8 +74,8 @@ public class ProcessConnectionAnchor extends AbstractConnectionAnchor {
 
 	@Override
 	public boolean equals(Object object) {
-		if (object instanceof ProcessConnectionAnchor) {
-			ProcessConnectionAnchor processAnchor = (ProcessConnectionAnchor) object;
+		if (object instanceof ConnectionAnchor) {
+			ConnectionAnchor processAnchor = (ConnectionAnchor) object;
 
 			if (offsetHorizontal == processAnchor.offsetHorizontal && offsetVertical == processAnchor.offsetVertical
 					&& getOwner() == processAnchor.getOwner()) {

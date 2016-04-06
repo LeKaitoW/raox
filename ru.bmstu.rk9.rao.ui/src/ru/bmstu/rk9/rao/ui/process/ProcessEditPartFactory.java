@@ -6,8 +6,8 @@ import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartFactory;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 
-import ru.bmstu.rk9.rao.ui.process.link.LinkPart;
-import ru.bmstu.rk9.rao.ui.process.link.Link;
+import ru.bmstu.rk9.rao.ui.process.connection.Connection;
+import ru.bmstu.rk9.rao.ui.process.connection.ConnectionPart;
 
 public class ProcessEditPartFactory implements EditPartFactory {
 
@@ -15,8 +15,8 @@ public class ProcessEditPartFactory implements EditPartFactory {
 	public EditPart createEditPart(EditPart context, Object model) {
 		AbstractGraphicalEditPart part = null;
 
-		if (model instanceof Link) {
-			part = new LinkPart();
+		if (model instanceof Connection) {
+			part = new ConnectionPart();
 			part.setModel(model);
 			return part;
 		}

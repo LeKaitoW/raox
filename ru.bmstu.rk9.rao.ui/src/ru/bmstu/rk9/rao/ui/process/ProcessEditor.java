@@ -48,11 +48,11 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import com.google.inject.Inject;
 
+import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreationFactory;
 import ru.bmstu.rk9.rao.ui.process.generate.Generate;
 import ru.bmstu.rk9.rao.ui.process.generate.GeneratePart;
 import ru.bmstu.rk9.rao.ui.process.hold.Hold;
 import ru.bmstu.rk9.rao.ui.process.hold.HoldPart;
-import ru.bmstu.rk9.rao.ui.process.link.LinkCreationFactory;
 import ru.bmstu.rk9.rao.ui.process.model.Model;
 import ru.bmstu.rk9.rao.ui.process.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
@@ -111,11 +111,11 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		PaletteSeparator separator = new PaletteSeparator();
 		root.add(separator);
 
-		PaletteGroup linkGroup = new PaletteGroup("Link");
-		root.add(linkGroup);
-		ConnectionCreationToolEntry links = new ConnectionCreationToolEntry("Link", "Create Links",
-				new LinkCreationFactory(), null, null);
-		linkGroup.add(links);
+		PaletteGroup connectionGroup = new PaletteGroup("Connection");
+		root.add(connectionGroup);
+		ConnectionCreationToolEntry connections = new ConnectionCreationToolEntry("Connection", "Create Connections",
+				new ConnectionCreationFactory(), null, null);
+		connectionGroup.add(connections);
 		root.add(separator);
 
 		PaletteGroup processGroup = new PaletteGroup("Process");

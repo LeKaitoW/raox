@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import ru.bmstu.rk9.rao.lib.process.Block;
-import ru.bmstu.rk9.rao.ui.process.link.Link;
+import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.process.node.Node;
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithLinks;
+import ru.bmstu.rk9.rao.ui.process.node.NodeWithConnections;
 
 public class BlockConverter {
 
@@ -28,9 +28,9 @@ public class BlockConverter {
 				blockInfo = blocksMap.get(node);
 			}
 
-			NodeWithLinks nodeWithLinks = (NodeWithLinks) node;
-			for (Link sourceLink : nodeWithLinks.getSourceLinks()) {
-				Node targetNode = sourceLink.getTargetNode();
+			NodeWithConnections nodeWithConnections = (NodeWithConnections) node;
+			for (Connection sourceConnection : nodeWithConnections.getSourceConnections()) {
+				Node targetNode = sourceConnection.getTargetNode();
 				BlockConverterInfo targetBlockInfo;
 				if (!blocksMap.containsKey(targetNode)) {
 					targetBlockInfo = targetNode.createBlock();
@@ -41,8 +41,9 @@ public class BlockConverter {
 				} else {
 					targetBlockInfo = blocksMap.get(targetNode);
 				}
-				ru.bmstu.rk9.rao.lib.process.Link.linkDocks(blockInfo.outputDocks.get(sourceLink.getSourceDock()),
-						targetBlockInfo.inputDocks.get(sourceLink.getTargetDock()));
+				ru.bmstu.rk9.rao.lib.process.Connection.linkDocks(
+						blockInfo.outputDocks.get(sourceConnection.getSourceDock()),
+						targetBlockInfo.inputDocks.get(sourceConnection.getTargetDock()));
 			}
 		}
 		return blocks;

@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.process.link;
+package ru.bmstu.rk9.rao.ui.process.connection;
 
 import java.io.Serializable;
 
@@ -6,18 +6,18 @@ import org.eclipse.core.runtime.IAdaptable;
 
 import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 
-public class Link implements Serializable, IAdaptable {
+public class Connection implements Serializable, IAdaptable {
 
 	private static final long serialVersionUID = 1;
 
-	public static String name = "ProcessLink";
+	public static String name = "Connection";
 	protected NodeWithProperty sourceNode;
 	protected NodeWithProperty targetNode;
 
 	private String sourceDock;
 	private String targetDock;
 
-	public Link(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceDock, String targetDock) {
+	public Connection(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceDock, String targetDock) {
 		this.sourceNode = sourceNode;
 		this.targetNode = targetNode;
 		setSourceDock(sourceDock);
@@ -33,15 +33,15 @@ public class Link implements Serializable, IAdaptable {
 	}
 
 	public void connect() {
-		sourceNode.addLink(this);
-		targetNode.addLink(this);
+		sourceNode.addConnection(this);
+		targetNode.addConnection(this);
 		sourceNode.captureDock(sourceDock);
 		targetNode.captureDock(targetDock);
 	}
 
 	public void disconnect() {
-		sourceNode.removeLink(this);
-		targetNode.removeLink(this);
+		sourceNode.removeConnection(this);
+		targetNode.removeConnection(this);
 		sourceNode.releaseDock(sourceDock);
 		targetNode.releaseDock(targetDock);
 	}

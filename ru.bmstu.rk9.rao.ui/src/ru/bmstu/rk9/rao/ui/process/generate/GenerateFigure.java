@@ -7,7 +7,7 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 
-import ru.bmstu.rk9.rao.ui.process.ProcessConnectionAnchor;
+import ru.bmstu.rk9.rao.ui.process.ConnectionAnchor;
 import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class GenerateFigure extends ProcessFigure {
@@ -32,7 +32,7 @@ public class GenerateFigure extends ProcessFigure {
 	public GenerateFigure() {
 		super(Shape.create());
 
-		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(getShape());
+		ConnectionAnchor outputConnectionAnchor = new ConnectionAnchor(getShape());
 		outputConnectionAnchors.add(outputConnectionAnchor);
 		connectionAnchors.put(Generate.DOCK_OUT, outputConnectionAnchor);
 

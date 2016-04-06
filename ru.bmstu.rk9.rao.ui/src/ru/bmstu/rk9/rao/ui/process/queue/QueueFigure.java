@@ -6,7 +6,7 @@ import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
 
-import ru.bmstu.rk9.rao.ui.process.ProcessConnectionAnchor;
+import ru.bmstu.rk9.rao.ui.process.ConnectionAnchor;
 import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class QueueFigure extends ProcessFigure {
@@ -42,11 +42,11 @@ public class QueueFigure extends ProcessFigure {
 	public QueueFigure() {
 		super(Shape.create());
 
-		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(getShape());
+		ConnectionAnchor inputConnectionAnchor = new ConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
 		connectionAnchors.put(Queue.DOCK_IN, inputConnectionAnchor);
 
-		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(getShape());
+		ConnectionAnchor outputConnectionAnchor = new ConnectionAnchor(getShape());
 		outputConnectionAnchors.add(outputConnectionAnchor);
 		connectionAnchors.put(Queue.DOCK_OUT, outputConnectionAnchor);
 

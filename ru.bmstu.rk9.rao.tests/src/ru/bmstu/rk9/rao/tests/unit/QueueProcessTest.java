@@ -10,7 +10,7 @@ import org.junit.Test;
 import ru.bmstu.rk9.rao.lib.process.Hold;
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.process.Generate;
-import ru.bmstu.rk9.rao.lib.process.Link;
+import ru.bmstu.rk9.rao.lib.process.Connection;
 import ru.bmstu.rk9.rao.lib.process.Queue;
 import ru.bmstu.rk9.rao.lib.process.Release;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
@@ -49,11 +49,11 @@ public class QueueProcessTest {
 		blocks.add(hold);
 		blocks.add(release);
 		blocks.add(terminate);
-		Link.linkDocks(generate.getOutputDock(), queue.getInputDock());
-		Link.linkDocks(queue.getOutputDock(), seize.getInputDock());
-		Link.linkDocks(seize.getOutputDock(), hold.getInputDock());
-		Link.linkDocks(hold.getOutputDock(), release.getInputDock());
-		Link.linkDocks(release.getOutputDock(), terminate.getInputDock());
+		Connection.linkDocks(generate.getOutputDock(), queue.getInputDock());
+		Connection.linkDocks(queue.getOutputDock(), seize.getInputDock());
+		Connection.linkDocks(seize.getOutputDock(), hold.getInputDock());
+		Connection.linkDocks(hold.getOutputDock(), release.getInputDock());
+		Connection.linkDocks(release.getOutputDock(), terminate.getInputDock());
 
 		return blocks;
 	}

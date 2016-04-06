@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.draw2d.ConnectionAnchor;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
@@ -24,7 +23,7 @@ import org.eclipse.ui.PlatformUI;
 
 public class ProcessFigure extends Figure {
 
-	protected Map<String, ProcessConnectionAnchor> connectionAnchors = new HashMap<>();
+	protected Map<String, ConnectionAnchor> connectionAnchors = new HashMap<>();
 	protected List<ConnectionAnchor> inputConnectionAnchors = new ArrayList<>();
 	protected List<ConnectionAnchor> outputConnectionAnchors = new ArrayList<>();
 
@@ -40,7 +39,7 @@ public class ProcessFigure extends Figure {
 		@Override
 		final protected void paintFigure(Graphics graphics) {
 			Rectangle bounds = getShape().getBounds();
-			for (Entry<String, ProcessConnectionAnchor> entry : connectionAnchors.entrySet()) {
+			for (Entry<String, ConnectionAnchor> entry : connectionAnchors.entrySet()) {
 				final int dockCenterX = bounds.x + entry.getValue().getOffsetHorizontal();
 				final int dockCenterY = bounds.y + entry.getValue().getOffsetVertical();
 				drawDock(graphics, dockCenterX, dockCenterY);
@@ -142,7 +141,7 @@ public class ProcessFigure extends Figure {
 	}
 
 	public String getConnectionAnchorName(ConnectionAnchor connectionAnchor) {
-		for (Entry<String, ProcessConnectionAnchor> entry : connectionAnchors.entrySet()) {
+		for (Entry<String, ConnectionAnchor> entry : connectionAnchors.entrySet()) {
 			if (entry.getValue().equals(connectionAnchor)) {
 				return entry.getKey();
 			}

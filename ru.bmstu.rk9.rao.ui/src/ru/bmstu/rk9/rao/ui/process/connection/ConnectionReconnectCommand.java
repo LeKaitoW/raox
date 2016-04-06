@@ -1,24 +1,24 @@
-package ru.bmstu.rk9.rao.ui.process.link;
+package ru.bmstu.rk9.rao.ui.process.connection;
 
 import org.eclipse.gef.commands.Command;
 
 import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 
-public class LinkReconnectCommand extends Command {
+public class ConnectionReconnectCommand extends Command {
 
-	private Link link;
+	private Connection connection;
 	private NodeWithProperty oldSourceNode, oldTargetNode, newSourceNode, newTargetNode;
 	private String oldSourceTerminal, oldTargetTerminal, newSourceTerminal, newTargetTerminal;
 
-	public LinkReconnectCommand(Link link) {
-		if (link == null) {
+	public ConnectionReconnectCommand(Connection connection) {
+		if (connection == null)
 			throw new IllegalArgumentException();
-		}
-		this.link = link;
-		this.oldSourceNode = link.getSourceNode();
-		this.oldTargetNode = link.getTargetNode();
-		this.oldSourceTerminal = link.getSourceDock();
-		this.oldTargetTerminal = link.getTargetDock();
+
+		this.connection = connection;
+		this.oldSourceNode = connection.getSourceNode();
+		this.oldTargetNode = connection.getTargetNode();
+		this.oldSourceTerminal = connection.getSourceDock();
+		this.oldTargetTerminal = connection.getTargetDock();
 	}
 
 	@Override
@@ -67,9 +67,9 @@ public class LinkReconnectCommand extends Command {
 	@Override
 	public void execute() {
 		if (newSourceNode != null) {
-			link.reconnect(newSourceNode, oldTargetNode, newSourceTerminal, oldTargetTerminal);
+			connection.reconnect(newSourceNode, oldTargetNode, newSourceTerminal, oldTargetTerminal);
 		} else if (newTargetNode != null) {
-			link.reconnect(oldSourceNode, newTargetNode, oldSourceTerminal, newTargetTerminal);
+			connection.reconnect(oldSourceNode, newTargetNode, oldSourceTerminal, newTargetTerminal);
 		} else {
 			throw new IllegalStateException("Internal error: new source node and new target node cannot both be null");
 		}
@@ -77,6 +77,6 @@ public class LinkReconnectCommand extends Command {
 
 	@Override
 	public void undo() {
-		link.reconnect(oldSourceNode, oldTargetNode, oldSourceTerminal, oldTargetTerminal);
+		connection.reconnect(oldSourceNode, oldTargetNode, oldSourceTerminal, oldTargetTerminal);
 	}
 }

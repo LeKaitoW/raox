@@ -1,13 +1,13 @@
-package ru.bmstu.rk9.rao.ui.process.link;
+package ru.bmstu.rk9.rao.ui.process.connection;
 
 import org.eclipse.gef.commands.Command;
 
 import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 
-public class LinkCreateCommand extends Command {
+public class ConnectionCreateCommand extends Command {
 
 	private NodeWithProperty sourceNode, targetNode;
-	private Link link;
+	private Connection connection;
 
 	private String sourceTerminal;
 	private String targetTerminal;
@@ -35,20 +35,20 @@ public class LinkCreateCommand extends Command {
 
 	@Override
 	public void execute() {
-		link = new Link(sourceNode, targetNode, sourceTerminal, targetTerminal);
-		link.connect();
+		connection = new Connection(sourceNode, targetNode, sourceTerminal, targetTerminal);
+		connection.connect();
 	}
 
 	@Override
 	public boolean canUndo() {
-		if (sourceNode == null || targetNode == null || link == null)
+		if (sourceNode == null || targetNode == null || connection == null)
 			return false;
 		return true;
 	}
 
 	@Override
 	public void undo() {
-		link.disconnect();
+		connection.disconnect();
 	}
 
 	public String getSourceTerminal() {

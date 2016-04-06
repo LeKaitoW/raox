@@ -4,7 +4,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 
-import org.eclipse.draw2d.ConnectionAnchor;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.gef.ConnectionEditPart;
 import org.eclipse.gef.EditPolicy;
@@ -20,9 +19,9 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import ru.bmstu.rk9.rao.ui.process.link.Link;
+import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.process.node.Node;
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithLinks;
+import ru.bmstu.rk9.rao.ui.process.node.NodeWithConnections;
 import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 
 public abstract class ProcessEditPart extends AbstractGraphicalEditPart
@@ -67,16 +66,16 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		}
 		if (evt.getPropertyName().equals(Node.PROPERTY_CONSTRAINT))
 			refreshVisuals();
-		if (evt.getPropertyName().equals(NodeWithLinks.SOURCE_LINK_UPDATED))
+		if (evt.getPropertyName().equals(NodeWithConnections.SOURCE_CONNECTION_UPDATED))
 			refreshSourceConnections();
-		if (evt.getPropertyName().equals(NodeWithLinks.TARGET_LINK_UPDATED))
+		if (evt.getPropertyName().equals(NodeWithConnections.TARGET_CONNECTION_UPDATED))
 			refreshTargetConnections();
 	}
 
 	@Override
 	protected void createEditPolicies() {
 		installEditPolicy(EditPolicy.COMPONENT_ROLE, new ProcessDeletePolicy());
-		installEditPolicy(EditPolicy.GRAPHICAL_NODE_ROLE, new ProcessConnectionPolicy());
+		installEditPolicy(EditPolicy.GRAPHICAL_NODE_ROLE, new ConnectionPolicy());
 	}
 
 	@Override
@@ -96,9 +95,9 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 	}
 
 	@Override
-	public ConnectionAnchor getSourceConnectionAnchor(ConnectionEditPart connection) {
-		Link processLink = (Link) connection.getModel();
-		return getProcessFigure().getConnectionAnchor(processLink.getSourceDock());
+	public ConnectionAnchor getSourceConnectionAnchor(ConnectionEditPart connectionEditPart) {
+		Connection connection = (Connection) connectionEditPart.getModel();
+		return getProcessFigure().getConnectionAnchor(connection.getSourceDock());
 	}
 
 	@Override
@@ -108,9 +107,9 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 	}
 
 	@Override
-	public ConnectionAnchor getTargetConnectionAnchor(ConnectionEditPart connection) {
-		Link processLink = (Link) connection.getModel();
-		return getProcessFigure().getConnectionAnchor(processLink.getTargetDock());
+	public ConnectionAnchor getTargetConnectionAnchor(ConnectionEditPart connectionEditPart) {
+		Connection connection = (Connection) connectionEditPart.getModel();
+		return getProcessFigure().getConnectionAnchor(connection.getTargetDock());
 	}
 
 	@Override
@@ -120,13 +119,13 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 	}
 
 	@Override
-	public List<Link> getModelSourceConnections() {
-		return ((NodeWithLinks) getModel()).getSourceLinks();
+	public List<Connection> getModelSourceConnections() {
+		return ((NodeWithConnections) getModel()).getSourceConnections();
 	}
 
 	@Override
-	public List<Link> getModelTargetConnections() {
-		return ((NodeWithLinks) getModel()).getTargetLinks();
+	public List<Connection> getModelTargetConnections() {
+		return ((NodeWithConnections) getModel()).getTargetConnections();
 	}
 
 	final protected String mapConnectionAnchorToTerminal(ConnectionAnchor connectionAnchor) {
