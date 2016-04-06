@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.bmstu.rk9.rao.lib.process.Block;
-import ru.bmstu.rk9.rao.lib.process.Link;
-import ru.bmstu.rk9.rao.ui.process.link.ProcessLink;
+import ru.bmstu.rk9.rao.ui.process.link.Link;
 import ru.bmstu.rk9.rao.ui.process.node.Node;
 
 public class BlockConverter {
@@ -28,7 +27,7 @@ public class BlockConverter {
 				blockInfo = blocksMap.get(node);
 			}
 
-			for (ProcessLink sourceLink : node.getSourceConnectionsArray()) {
+			for (Link sourceLink : node.getSourceConnectionsArray()) {
 				Node targetNode = sourceLink.getTargetNode();
 				BlockConverterInfo targetBlockInfo;
 				if (!blocksMap.containsKey(targetNode)) {
@@ -40,10 +39,9 @@ public class BlockConverter {
 				} else {
 					targetBlockInfo = blocksMap.get(targetNode);
 				}
-				Link.linkDocks(blockInfo.outputDocks.get(sourceLink.getSourceTerminal()),
+				ru.bmstu.rk9.rao.lib.process.Link.linkDocks(blockInfo.outputDocks.get(sourceLink.getSourceTerminal()),
 						targetBlockInfo.inputDocks.get(sourceLink.getTargetTerminal()));
 			}
-
 		}
 		return blocks;
 	}

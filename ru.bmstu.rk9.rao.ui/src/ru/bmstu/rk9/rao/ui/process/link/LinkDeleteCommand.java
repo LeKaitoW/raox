@@ -4,10 +4,10 @@ import org.eclipse.gef.commands.Command;
 
 public class LinkDeleteCommand extends Command {
 
-	private ProcessLink link;
+	private Link link;
 
 	public void setLink(Object model) {
-		this.link = (ProcessLink) model;
+		this.link = (Link) model;
 	}
 
 	@Override

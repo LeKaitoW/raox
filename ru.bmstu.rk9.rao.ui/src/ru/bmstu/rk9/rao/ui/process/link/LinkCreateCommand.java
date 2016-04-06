@@ -7,7 +7,7 @@ import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 public class LinkCreateCommand extends Command {
 
 	private NodeWithProperty sourceNode, targetNode;
-	private ProcessLink link;
+	private Link link;
 
 	private String sourceTerminal;
 	private String targetTerminal;
@@ -35,7 +35,7 @@ public class LinkCreateCommand extends Command {
 
 	@Override
 	public void execute() {
-		link = new ProcessLink(sourceNode, targetNode, sourceTerminal, targetTerminal);
+		link = new Link(sourceNode, targetNode, sourceTerminal, targetTerminal);
 		link.connect();
 	}
 

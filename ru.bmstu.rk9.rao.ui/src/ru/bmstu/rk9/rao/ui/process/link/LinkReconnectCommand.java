@@ -6,11 +6,11 @@ import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 
 public class LinkReconnectCommand extends Command {
 
-	private ProcessLink link;
+	private Link link;
 	private NodeWithProperty oldSourceNode, oldTargetNode, newSourceNode, newTargetNode;
 	private String oldSourceTerminal, oldTargetTerminal, newSourceTerminal, newTargetTerminal;
 
-	public LinkReconnectCommand(ProcessLink link) {
+	public LinkReconnectCommand(Link link) {
 		if (link == null) {
 			throw new IllegalArgumentException();
 		}

@@ -20,7 +20,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import ru.bmstu.rk9.rao.ui.process.link.ProcessLink;
+import ru.bmstu.rk9.rao.ui.process.link.Link;
 import ru.bmstu.rk9.rao.ui.process.node.Node;
 import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 
@@ -96,7 +96,7 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 
 	@Override
 	public ConnectionAnchor getSourceConnectionAnchor(ConnectionEditPart connection) {
-		ProcessLink processLink = (ProcessLink) connection.getModel();
+		Link processLink = (Link) connection.getModel();
 		return getProcessFigure().getConnectionAnchor(processLink.getSourceTerminal());
 	}
 
@@ -108,7 +108,7 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 
 	@Override
 	public ConnectionAnchor getTargetConnectionAnchor(ConnectionEditPart connection) {
-		ProcessLink processLink = (ProcessLink) connection.getModel();
+		Link processLink = (Link) connection.getModel();
 		return getProcessFigure().getConnectionAnchor(processLink.getTargetTerminal());
 	}
 
@@ -119,12 +119,12 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 	}
 
 	@Override
-	public List<ProcessLink> getModelSourceConnections() {
+	public List<Link> getModelSourceConnections() {
 		return ((Node) getModel()).getSourceConnectionsArray();
 	}
 
 	@Override
-	public List<ProcessLink> getModelTargetConnections() {
+	public List<Link> getModelTargetConnections() {
 		return ((Node) getModel()).getTargetConnectionsArray();
 	}
 

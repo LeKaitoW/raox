@@ -5,7 +5,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.IPropertySource;
 
-import ru.bmstu.rk9.rao.ui.process.link.ProcessLink;
+import ru.bmstu.rk9.rao.ui.process.link.Link;
 
 public abstract class NodeWithProperty extends Node implements IAdaptable {
 
@@ -19,8 +19,8 @@ public abstract class NodeWithProperty extends Node implements IAdaptable {
 
 	public NodeWithProperty(RGB foregroundColor) {
 		super(foregroundColor);
-		this.sourceConnections = new ArrayList<ProcessLink>();
-		this.targetConnections = new ArrayList<ProcessLink>();
+		this.sourceConnections = new ArrayList<Link>();
+		this.targetConnections = new ArrayList<Link>();
 	}
 
 	public void setColor(RGB newColor) {

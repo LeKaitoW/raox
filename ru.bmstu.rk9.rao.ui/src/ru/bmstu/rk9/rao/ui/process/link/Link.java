@@ -6,7 +6,7 @@ import org.eclipse.core.runtime.IAdaptable;
 
 import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 
-public class ProcessLink implements Serializable, IAdaptable {
+public class Link implements Serializable, IAdaptable {
 
 	private static final long serialVersionUID = 1;
 
@@ -17,7 +17,7 @@ public class ProcessLink implements Serializable, IAdaptable {
 	private String sourceTerminal;
 	private String targetTerminal;
 
-	public ProcessLink(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceTerminal,
+	public Link(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceTerminal,
 			String targetTerminal) {
 		this.sourceNode = sourceNode;
 		this.targetNode = targetNode;

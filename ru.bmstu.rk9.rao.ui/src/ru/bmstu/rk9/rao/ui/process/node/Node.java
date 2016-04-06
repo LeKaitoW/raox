@@ -12,7 +12,7 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
-import ru.bmstu.rk9.rao.ui.process.link.ProcessLink;
+import ru.bmstu.rk9.rao.ui.process.link.Link;
 
 public abstract class Node implements Serializable {
 
@@ -30,8 +30,8 @@ public abstract class Node implements Serializable {
 	public static final String TARGET_CONNECTION = "TargetConnectionAdded";
 
 	protected RGB color;
-	protected List<ProcessLink> sourceConnections;
-	protected List<ProcessLink> targetConnections;
+	protected List<Link> sourceConnections;
+	protected List<Link> targetConnections;
 
 	protected final Map<String, Integer> linksCount = new HashMap<>();
 
@@ -110,7 +110,7 @@ public abstract class Node implements Serializable {
 		return children.contains(child);
 	}
 
-	public boolean addConnections(ProcessLink link) {
+	public boolean addConnections(Link link) {
 		if (link.getSourceNode() == this) {
 			if (!sourceConnections.contains(link)) {
 				if (sourceConnections.add(link)) {
@@ -131,7 +131,7 @@ public abstract class Node implements Serializable {
 		return false;
 	}
 
-	public boolean removeConnection(ProcessLink link) {
+	public boolean removeConnection(Link link) {
 		if (link.getSourceNode() == this) {
 			if (sourceConnections.contains(link)) {
 				if (sourceConnections.remove(link)) {
@@ -152,11 +152,11 @@ public abstract class Node implements Serializable {
 		return false;
 	}
 
-	public List<ProcessLink> getSourceConnectionsArray() {
+	public List<Link> getSourceConnectionsArray() {
 		return this.sourceConnections;
 	}
 
-	public List<ProcessLink> getTargetConnectionsArray() {
+	public List<Link> getTargetConnectionsArray() {
 		return this.targetConnections;
 	}
 

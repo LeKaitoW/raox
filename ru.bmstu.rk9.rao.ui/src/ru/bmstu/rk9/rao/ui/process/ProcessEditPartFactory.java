@@ -7,7 +7,7 @@ import org.eclipse.gef.EditPartFactory;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 
 import ru.bmstu.rk9.rao.ui.process.link.LinkPart;
-import ru.bmstu.rk9.rao.ui.process.link.ProcessLink;
+import ru.bmstu.rk9.rao.ui.process.link.Link;
 
 public class ProcessEditPartFactory implements EditPartFactory {
 
@@ -15,7 +15,7 @@ public class ProcessEditPartFactory implements EditPartFactory {
 	public EditPart createEditPart(EditPart context, Object model) {
 		AbstractGraphicalEditPart part = null;
 
-		if (model instanceof ProcessLink) {
+		if (model instanceof Link) {
 			part = new LinkPart();
 			part.setModel(model);
 			return part;
