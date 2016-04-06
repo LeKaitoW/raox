@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 
+import ru.bmstu.rk9.rao.ui.process.ProcessLogicException;
 import ru.bmstu.rk9.rao.ui.process.link.Link;
 
 public abstract class NodeWithLinks extends Node {
@@ -78,18 +79,32 @@ public abstract class NodeWithLinks extends Node {
 	}
 
 	public final void registerDock(String dock) {
+		if (docks.containsKey(dock))
+			throw new ProcessLogicException("Dock already registered: " + getDockFullName(dock));
+
 		docks.put(dock, 0);
 	}
 
 	public final void captureDock(String dock) {
-		int count = docks.get(dock);
-		count++;
-		docks.put(dock, count);
+		if (!docks.containsKey(dock))
+			throw new ProcessLogicException("Undefined dock: " + getDockFullName(dock));
+
+		docks.put(dock, docks.get(dock) + 1);
 	}
 
 	public final void releaseDock(String dock) {
+		if (!docks.containsKey(dock))
+			throw new ProcessLogicException("Undefined dock: " + getDockFullName(dock));
+
 		int count = docks.get(dock);
+		if (count == 0)
+			throw new ProcessLogicException("Dock already released: " + getDockFullName(dock));
+
 		count--;
 		docks.put(dock, count);
+	}
+
+	private final String getDockFullName(String dock) {
+		return getName() + "." + dock;
 	}
 }
