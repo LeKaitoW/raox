@@ -38,11 +38,11 @@ public class ReleaseFigure extends ProcessFigure {
 
 		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
-		connectionAnchors.put(Release.TERMINAL_IN, inputConnectionAnchor);
+		connectionAnchors.put(Release.DOCK_IN, inputConnectionAnchor);
 
 		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		outputConnectionAnchors.add(outputConnectionAnchor);
-		connectionAnchors.put(Release.TERMINAL_OUT, outputConnectionAnchor);
+		connectionAnchors.put(Release.DOCK_OUT, outputConnectionAnchor);
 
 		getShape().addFigureListener(new FigureListener() {
 			@Override

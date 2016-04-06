@@ -14,13 +14,13 @@ public class Release extends NodeWithResource {
 
 	private static final long serialVersionUID = 1;
 
-	public static final String TERMINAL_IN = "IN";
-	public static final String TERMINAL_OUT = "OUT";
+	public static final String DOCK_IN = "IN";
+	public static final String DOCK_OUT = "OUT";
 
 	public Release() {
 		super(foregroundColor.getRGB());
-		linksCount.put(TERMINAL_IN, 0);
-		linksCount.put(TERMINAL_OUT, 0);
+		registerDock(DOCK_IN);
+		registerDock(DOCK_OUT);
 	}
 
 	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
@@ -40,8 +40,8 @@ public class Release extends NodeWithResource {
 		Resource seizedResource = optional.get();
 		ru.bmstu.rk9.rao.lib.process.Release release = new ru.bmstu.rk9.rao.lib.process.Release(seizedResource);
 		releaseInfo.setBlock(release);
-		releaseInfo.inputDocks.put(TERMINAL_IN, release.getInputDock());
-		releaseInfo.outputDocks.put(TERMINAL_OUT, release.getOutputDock());
+		releaseInfo.inputDocks.put(DOCK_IN, release.getInputDock());
+		releaseInfo.outputDocks.put(DOCK_OUT, release.getOutputDock());
 		return releaseInfo;
 	}
 }

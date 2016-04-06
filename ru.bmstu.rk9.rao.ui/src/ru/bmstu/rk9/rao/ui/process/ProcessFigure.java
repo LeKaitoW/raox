@@ -137,8 +137,8 @@ public class ProcessFigure extends Figure {
 		setConstraint(label, relativeRectangle);
 	}
 
-	public ConnectionAnchor getConnectionAnchor(String terminal) {
-		return connectionAnchors.get(terminal);
+	public ConnectionAnchor getConnectionAnchor(String dock) {
+		return connectionAnchors.get(dock);
 	}
 
 	public String getConnectionAnchorName(ConnectionAnchor connectionAnchor) {

@@ -38,15 +38,15 @@ public class SelectPathFigure extends ProcessFigure {
 
 		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
-		connectionAnchors.put(SelectPath.TERMINAL_IN, inputConnectionAnchor);
+		connectionAnchors.put(SelectPath.DOCK_IN, inputConnectionAnchor);
 
 		ProcessConnectionAnchor trueOutputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		outputConnectionAnchors.add(trueOutputConnectionAnchor);
-		connectionAnchors.put(SelectPath.TERMINAL_TRUE_OUT, trueOutputConnectionAnchor);
+		connectionAnchors.put(SelectPath.DOCK_TRUE_OUT, trueOutputConnectionAnchor);
 
 		ProcessConnectionAnchor falseOutputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		outputConnectionAnchors.add(falseOutputConnectionAnchor);
-		connectionAnchors.put(SelectPath.TERMINAL_FALSE_OUT, falseOutputConnectionAnchor);
+		connectionAnchors.put(SelectPath.DOCK_FALSE_OUT, falseOutputConnectionAnchor);
 
 		getShape().addFigureListener(new FigureListener() {
 			@Override

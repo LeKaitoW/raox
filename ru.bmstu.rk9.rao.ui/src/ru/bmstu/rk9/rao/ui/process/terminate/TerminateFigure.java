@@ -35,7 +35,7 @@ public class TerminateFigure extends ProcessFigure {
 
 		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
-		connectionAnchors.put(Terminate.TERMINAL_IN, inputConnectionAnchor);
+		connectionAnchors.put(Terminate.DOCK_IN, inputConnectionAnchor);
 
 		getShape().addFigureListener(new FigureListener() {
 			@Override

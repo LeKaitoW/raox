@@ -34,7 +34,7 @@ public class GenerateFigure extends ProcessFigure {
 
 		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		outputConnectionAnchors.add(outputConnectionAnchor);
-		connectionAnchors.put(Generate.TERMINAL_OUT, outputConnectionAnchor);
+		connectionAnchors.put(Generate.DOCK_OUT, outputConnectionAnchor);
 
 		getShape().addFigureListener(new FigureListener() {
 			@Override

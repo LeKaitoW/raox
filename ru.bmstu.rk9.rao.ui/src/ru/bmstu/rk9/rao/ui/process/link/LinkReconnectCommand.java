@@ -17,8 +17,8 @@ public class LinkReconnectCommand extends Command {
 		this.link = link;
 		this.oldSourceNode = link.getSourceNode();
 		this.oldTargetNode = link.getTargetNode();
-		this.oldSourceTerminal = link.getSourceTerminal();
-		this.oldTargetTerminal = link.getTargetTerminal();
+		this.oldSourceTerminal = link.getSourceDock();
+		this.oldTargetTerminal = link.getTargetDock();
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class LinkReconnectCommand extends Command {
 	private boolean checkSourceReconnection() {
 		if (newSourceNode.equals(oldTargetNode))
 			return false;
-		if (newSourceNode.getLinksCount(newSourceTerminal) > 0)
+		if (newSourceNode.getDocksCount(newSourceTerminal) > 0)
 			return false;
 		return true;
 	}

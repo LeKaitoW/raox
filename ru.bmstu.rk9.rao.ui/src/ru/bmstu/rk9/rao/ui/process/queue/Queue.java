@@ -12,13 +12,13 @@ public class Queue extends NodeWithCapacity implements Serializable {
 
 	private static final long serialVersionUID = 1;
 
-	public static final String TERMINAL_IN = "IN";
-	public static final String TERMINAL_OUT = "OUT";
+	public static final String DOCK_IN = "IN";
+	public static final String DOCK_OUT = "OUT";
 
 	public Queue() {
 		super(foregroundColor.getRGB());
-		linksCount.put(TERMINAL_IN, 0);
-		linksCount.put(TERMINAL_OUT, 0);
+		registerDock(DOCK_IN);
+		registerDock(DOCK_OUT);
 	}
 
 	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
@@ -34,8 +34,8 @@ public class Queue extends NodeWithCapacity implements Serializable {
 		}
 		BlockConverterInfo queueInfo = new BlockConverterInfo();
 		queueInfo.setBlock(queue);
-		queueInfo.inputDocks.put(TERMINAL_IN, queue.getInputDock());
-		queueInfo.outputDocks.put(TERMINAL_OUT, queue.getOutputDock());
+		queueInfo.inputDocks.put(DOCK_IN, queue.getInputDock());
+		queueInfo.outputDocks.put(DOCK_OUT, queue.getOutputDock());
 		return queueInfo;
 	}
 }

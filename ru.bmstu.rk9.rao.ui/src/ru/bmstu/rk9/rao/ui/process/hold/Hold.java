@@ -12,13 +12,13 @@ public class Hold extends NodeWithInterval implements Serializable {
 
 	private static final long serialVersionUID = 1;
 
-	public static final String TERMINAL_IN = "IN";
-	public static final String TERMINAL_OUT = "OUT";
+	public static final String DOCK_IN = "IN";
+	public static final String DOCK_OUT = "OUT";
 
 	public Hold() {
 		super(foregroundColor.getRGB(), "Hold");
-		linksCount.put(TERMINAL_IN, 0);
-		linksCount.put(TERMINAL_OUT, 0);
+		registerDock(DOCK_IN);
+		registerDock(DOCK_OUT);
 	}
 
 	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
@@ -38,9 +38,8 @@ public class Hold extends NodeWithInterval implements Serializable {
 		}
 		ru.bmstu.rk9.rao.lib.process.Hold hold = new ru.bmstu.rk9.rao.lib.process.Hold(() -> interval);
 		holdInfo.setBlock(hold);
-		holdInfo.inputDocks.put(TERMINAL_IN, hold.getInputDock());
-		holdInfo.outputDocks.put(TERMINAL_OUT, hold.getOutputDock());
+		holdInfo.inputDocks.put(DOCK_IN, hold.getInputDock());
+		holdInfo.outputDocks.put(DOCK_OUT, hold.getOutputDock());
 		return holdInfo;
 	}
-
 }

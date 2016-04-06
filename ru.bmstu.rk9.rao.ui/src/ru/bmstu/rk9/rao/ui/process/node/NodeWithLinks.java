@@ -21,7 +21,7 @@ public abstract class NodeWithLinks extends Node {
 
 	protected List<Link> sourceLinks;
 	protected List<Link> targetLinks;
-	protected final Map<String, Integer> linksCount = new HashMap<>();
+	private final Map<String, Integer> docks = new HashMap<>();
 
 	public final boolean addLink(Link link) {
 		if (link.getSourceNode() == this) {
@@ -73,19 +73,23 @@ public abstract class NodeWithLinks extends Node {
 		return targetLinks;
 	}
 
-	public final int getLinksCount(String terminal) {
-		return linksCount.get(terminal);
+	public final int getDocksCount(String dock) {
+		return docks.get(dock);
 	}
 
-	public final void increaseLinksCount(String terminal) {
-		int count = linksCount.get(terminal);
+	public final void registerDock(String dock) {
+		docks.put(dock, 0);
+	}
+
+	public final void captureDock(String dock) {
+		int count = docks.get(dock);
 		count++;
-		linksCount.put(terminal, count);
+		docks.put(dock, count);
 	}
 
-	public final void decreaseLinksCount(String terminal) {
-		int count = linksCount.get(terminal);
+	public final void releaseDock(String dock) {
+		int count = docks.get(dock);
 		count--;
-		linksCount.put(terminal, count);
+		docks.put(dock, count);
 	}
 }

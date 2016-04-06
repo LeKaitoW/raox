@@ -98,7 +98,7 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 	@Override
 	public ConnectionAnchor getSourceConnectionAnchor(ConnectionEditPart connection) {
 		Link processLink = (Link) connection.getModel();
-		return getProcessFigure().getConnectionAnchor(processLink.getSourceTerminal());
+		return getProcessFigure().getConnectionAnchor(processLink.getSourceDock());
 	}
 
 	@Override
@@ -110,7 +110,7 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 	@Override
 	public ConnectionAnchor getTargetConnectionAnchor(ConnectionEditPart connection) {
 		Link processLink = (Link) connection.getModel();
-		return getProcessFigure().getConnectionAnchor(processLink.getTargetTerminal());
+		return getProcessFigure().getConnectionAnchor(processLink.getTargetDock());
 	}
 
 	@Override

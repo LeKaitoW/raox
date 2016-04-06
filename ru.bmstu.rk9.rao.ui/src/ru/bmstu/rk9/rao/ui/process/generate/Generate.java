@@ -10,11 +10,11 @@ public class Generate extends NodeWithInterval {
 
 	private static final long serialVersionUID = 1;
 
-	public static final String TERMINAL_OUT = "OUT";
+	public static final String DOCK_OUT = "OUT";
 
 	public Generate() {
 		super(foregroundColor.getRGB(), "Interval");
-		linksCount.put(TERMINAL_OUT, 0);
+		registerDock(DOCK_OUT);
 	}
 
 	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
@@ -34,7 +34,7 @@ public class Generate extends NodeWithInterval {
 		}
 		ru.bmstu.rk9.rao.lib.process.Generate generate = new ru.bmstu.rk9.rao.lib.process.Generate(() -> interval);
 		generateInfo.setBlock(generate);
-		generateInfo.outputDocks.put(TERMINAL_OUT, generate.getOutputDock());
+		generateInfo.outputDocks.put(DOCK_OUT, generate.getOutputDock());
 		return generateInfo;
 	}
 }

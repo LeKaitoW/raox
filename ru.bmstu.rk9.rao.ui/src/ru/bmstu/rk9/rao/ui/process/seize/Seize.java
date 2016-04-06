@@ -14,13 +14,13 @@ public class Seize extends NodeWithResource {
 
 	private static final long serialVersionUID = 1;
 
-	public static final String TERMINAL_IN = "IN";
-	public static final String TERMINAL_OUT = "OUT";
+	public static final String DOCK_IN = "IN";
+	public static final String DOCK_OUT = "OUT";
 
 	public Seize() {
 		super(foregroundColor.getRGB());
-		linksCount.put(TERMINAL_IN, 0);
-		linksCount.put(TERMINAL_OUT, 0);
+		registerDock(DOCK_IN);
+		registerDock(DOCK_OUT);
 	}
 
 	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
@@ -40,8 +40,8 @@ public class Seize extends NodeWithResource {
 		Resource releasedResource = optional.get();
 		ru.bmstu.rk9.rao.lib.process.Seize seize = new ru.bmstu.rk9.rao.lib.process.Seize(releasedResource);
 		seizeInfo.setBlock(seize);
-		seizeInfo.inputDocks.put(TERMINAL_IN, seize.getInputDock());
-		seizeInfo.outputDocks.put(TERMINAL_OUT, seize.getOutputDock());
+		seizeInfo.inputDocks.put(DOCK_IN, seize.getInputDock());
+		seizeInfo.outputDocks.put(DOCK_OUT, seize.getOutputDock());
 		return seizeInfo;
 	}
 }

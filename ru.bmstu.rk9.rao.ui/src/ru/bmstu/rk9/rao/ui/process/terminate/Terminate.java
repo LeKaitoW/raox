@@ -10,11 +10,11 @@ public class Terminate extends NodeWithProperty {
 
 	private static final long serialVersionUID = 1;
 
-	public static final String TERMINAL_IN = "IN";
+	public static final String DOCK_IN = "IN";
 
 	public Terminate() {
 		super(foregroundColor.getRGB());
-		linksCount.put(TERMINAL_IN, 0);
+		registerDock(DOCK_IN);
 	}
 
 	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
@@ -25,7 +25,7 @@ public class Terminate extends NodeWithProperty {
 		ru.bmstu.rk9.rao.lib.process.Terminate terminate = new ru.bmstu.rk9.rao.lib.process.Terminate();
 		BlockConverterInfo terminateInfo = new BlockConverterInfo();
 		terminateInfo.setBlock(terminate);
-		terminateInfo.inputDocks.put(TERMINAL_IN, terminate.getInputDock());
+		terminateInfo.inputDocks.put(DOCK_IN, terminate.getInputDock());
 		return terminateInfo;
 	}
 

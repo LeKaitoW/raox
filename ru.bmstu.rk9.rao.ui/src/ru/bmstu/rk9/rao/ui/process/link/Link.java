@@ -14,15 +14,14 @@ public class Link implements Serializable, IAdaptable {
 	protected NodeWithProperty sourceNode;
 	protected NodeWithProperty targetNode;
 
-	private String sourceTerminal;
-	private String targetTerminal;
+	private String sourceDock;
+	private String targetDock;
 
-	public Link(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceTerminal,
-			String targetTerminal) {
+	public Link(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceDock, String targetDock) {
 		this.sourceNode = sourceNode;
 		this.targetNode = targetNode;
-		this.setSourceTerminal(sourceTerminal);
-		this.setTargetTerminal(targetTerminal);
+		setSourceDock(sourceDock);
+		setTargetDock(targetDock);
 	}
 
 	public NodeWithProperty getSourceNode() {
@@ -36,27 +35,27 @@ public class Link implements Serializable, IAdaptable {
 	public void connect() {
 		sourceNode.addLink(this);
 		targetNode.addLink(this);
-		sourceNode.increaseLinksCount(sourceTerminal);
-		targetNode.increaseLinksCount(targetTerminal);
+		sourceNode.captureDock(sourceDock);
+		targetNode.captureDock(targetDock);
 	}
 
 	public void disconnect() {
 		sourceNode.removeLink(this);
 		targetNode.removeLink(this);
-		sourceNode.decreaseLinksCount(sourceTerminal);
-		targetNode.decreaseLinksCount(targetTerminal);
+		sourceNode.releaseDock(sourceDock);
+		targetNode.releaseDock(targetDock);
 	}
 
-	public void reconnect(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceTerminal,
-			String targetTerminal) {
+	public void reconnect(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceDock,
+			String targetDock) {
 		if (sourceNode == null || targetNode == null || sourceNode == targetNode) {
 			throw new IllegalArgumentException();
 		}
 		disconnect();
 		this.sourceNode = sourceNode;
 		this.targetNode = targetNode;
-		this.sourceTerminal = sourceTerminal;
-		this.targetTerminal = targetTerminal;
+		this.sourceDock = sourceDock;
+		this.targetDock = targetDock;
 		connect();
 	}
 
@@ -66,19 +65,19 @@ public class Link implements Serializable, IAdaptable {
 		return null;
 	}
 
-	public String getSourceTerminal() {
-		return sourceTerminal;
+	public String getSourceDock() {
+		return sourceDock;
 	}
 
-	public void setSourceTerminal(String sourceTerminal) {
-		this.sourceTerminal = sourceTerminal;
+	public void setSourceDock(String sourceDock) {
+		this.sourceDock = sourceDock;
 	}
 
-	public String getTargetTerminal() {
-		return targetTerminal;
+	public String getTargetDock() {
+		return targetDock;
 	}
 
-	public void setTargetTerminal(String targetTerminal) {
-		this.targetTerminal = targetTerminal;
+	public void setTargetDock(String targetDock) {
+		this.targetDock = targetDock;
 	}
 }

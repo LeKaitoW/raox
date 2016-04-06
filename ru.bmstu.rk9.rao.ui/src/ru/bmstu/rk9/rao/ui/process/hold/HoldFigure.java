@@ -67,11 +67,11 @@ public class HoldFigure extends ProcessFigure {
 
 		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
-		connectionAnchors.put(Hold.TERMINAL_IN, inputConnectionAnchor);
+		connectionAnchors.put(Hold.DOCK_IN, inputConnectionAnchor);
 
 		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		outputConnectionAnchors.add(outputConnectionAnchor);
-		connectionAnchors.put(Hold.TERMINAL_OUT, outputConnectionAnchor);
+		connectionAnchors.put(Hold.DOCK_OUT, outputConnectionAnchor);
 
 		getShape().addFigureListener(new FigureListener() {
 			@Override

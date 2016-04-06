@@ -12,15 +12,15 @@ public class SelectPath extends NodeWithProbability implements Serializable {
 
 	private static final long serialVersionUID = 1;
 
-	public static final String TERMINAL_IN = "IN";
-	public static final String TERMINAL_TRUE_OUT = "TRUE_OUT";
-	public static final String TERMINAL_FALSE_OUT = "FALSE_OUT";
+	public static final String DOCK_IN = "IN";
+	public static final String DOCK_TRUE_OUT = "TRUE_OUT";
+	public static final String DOCK_FALSE_OUT = "FALSE_OUT";
 
 	public SelectPath() {
 		super(foregroundColor.getRGB());
-		linksCount.put(TERMINAL_IN, 0);
-		linksCount.put(TERMINAL_FALSE_OUT, 0);
-		linksCount.put(TERMINAL_TRUE_OUT, 0);
+		registerDock(DOCK_IN);
+		registerDock(DOCK_FALSE_OUT);
+		registerDock(DOCK_TRUE_OUT);
 	}
 
 	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
@@ -32,9 +32,9 @@ public class SelectPath extends NodeWithProbability implements Serializable {
 				Double.valueOf(this.probability));
 		BlockConverterInfo selectPathInfo = new BlockConverterInfo();
 		selectPathInfo.setBlock(selectPath);
-		selectPathInfo.inputDocks.put(TERMINAL_IN, selectPath.getInputDock());
-		selectPathInfo.outputDocks.put(TERMINAL_TRUE_OUT, selectPath.getTrueOutputDock());
-		selectPathInfo.outputDocks.put(TERMINAL_FALSE_OUT, selectPath.getFalseOutputDock());
+		selectPathInfo.inputDocks.put(DOCK_IN, selectPath.getInputDock());
+		selectPathInfo.outputDocks.put(DOCK_TRUE_OUT, selectPath.getTrueOutputDock());
+		selectPathInfo.outputDocks.put(DOCK_FALSE_OUT, selectPath.getFalseOutputDock());
 		return selectPathInfo;
 	}
 }

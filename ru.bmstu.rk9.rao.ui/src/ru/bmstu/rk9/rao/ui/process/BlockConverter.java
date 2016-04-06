@@ -41,8 +41,8 @@ public class BlockConverter {
 				} else {
 					targetBlockInfo = blocksMap.get(targetNode);
 				}
-				ru.bmstu.rk9.rao.lib.process.Link.linkDocks(blockInfo.outputDocks.get(sourceLink.getSourceTerminal()),
-						targetBlockInfo.inputDocks.get(sourceLink.getTargetTerminal()));
+				ru.bmstu.rk9.rao.lib.process.Link.linkDocks(blockInfo.outputDocks.get(sourceLink.getSourceDock()),
+						targetBlockInfo.inputDocks.get(sourceLink.getTargetDock()));
 			}
 		}
 		return blocks;

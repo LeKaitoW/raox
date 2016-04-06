@@ -38,11 +38,11 @@ public class SeizeFigure extends ProcessFigure {
 
 		ProcessConnectionAnchor inputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
-		connectionAnchors.put(Seize.TERMINAL_IN, inputConnectionAnchor);
+		connectionAnchors.put(Seize.DOCK_IN, inputConnectionAnchor);
 
 		ProcessConnectionAnchor outputConnectionAnchor = new ProcessConnectionAnchor(getShape());
 		outputConnectionAnchors.add(outputConnectionAnchor);
-		connectionAnchors.put(Seize.TERMINAL_OUT, outputConnectionAnchor);
+		connectionAnchors.put(Seize.DOCK_OUT, outputConnectionAnchor);
 
 		getShape().addFigureListener(new FigureListener() {
 			@Override
