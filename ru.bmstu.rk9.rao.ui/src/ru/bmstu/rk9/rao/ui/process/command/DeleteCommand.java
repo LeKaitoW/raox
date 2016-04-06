@@ -2,7 +2,7 @@ package ru.bmstu.rk9.rao.ui.process.command;
 
 import org.eclipse.gef.commands.Command;
 
-import ru.bmstu.rk9.rao.ui.process.Node;
+import ru.bmstu.rk9.rao.ui.process.node.Node;
 
 public class DeleteCommand extends Command {
 

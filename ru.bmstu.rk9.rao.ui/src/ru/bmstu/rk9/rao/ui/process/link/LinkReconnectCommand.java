@@ -2,7 +2,7 @@ package ru.bmstu.rk9.rao.ui.process.link;
 
 import org.eclipse.gef.commands.Command;
 
-import ru.bmstu.rk9.rao.ui.process.NodeWithProperty;
+import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 
 public class LinkReconnectCommand extends Command {
 

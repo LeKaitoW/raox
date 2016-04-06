@@ -6,10 +6,10 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.editparts.ScalableRootEditPart;
 
-import ru.bmstu.rk9.rao.ui.process.Node;
 import ru.bmstu.rk9.rao.ui.process.ProcessEditPart;
 import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
 import ru.bmstu.rk9.rao.ui.process.ProcessLayoutEditPolicy;
+import ru.bmstu.rk9.rao.ui.process.node.Node;
 
 public class ModelPart extends ProcessEditPart {
 

@@ -9,6 +9,7 @@ import org.eclipse.gef.requests.ReconnectRequest;
 import ru.bmstu.rk9.rao.ui.process.link.LinkCreateCommand;
 import ru.bmstu.rk9.rao.ui.process.link.LinkReconnectCommand;
 import ru.bmstu.rk9.rao.ui.process.link.ProcessLink;
+import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 
 public class ProcessConnectionPolicy extends GraphicalNodeEditPolicy {
 

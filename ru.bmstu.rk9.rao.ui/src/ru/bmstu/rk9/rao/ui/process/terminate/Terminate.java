@@ -3,8 +3,8 @@ package ru.bmstu.rk9.rao.ui.process.terminate;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
-import ru.bmstu.rk9.rao.ui.process.NodeWithProperty;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
+import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 
 public class Terminate extends NodeWithProperty {
 

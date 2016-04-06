@@ -1,8 +1,11 @@
-package ru.bmstu.rk9.rao.ui.process;
+package ru.bmstu.rk9.rao.ui.process.node;
 
 import java.util.Map;
 
 import org.eclipse.gef.requests.CreationFactory;
+
+import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
+import ru.bmstu.rk9.rao.ui.process.ProcessNodeInfo;
 
 public class NodeCreationFactory implements CreationFactory {
 

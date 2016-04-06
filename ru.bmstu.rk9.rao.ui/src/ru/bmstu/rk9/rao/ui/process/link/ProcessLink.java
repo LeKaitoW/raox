@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import org.eclipse.core.runtime.IAdaptable;
 
-import ru.bmstu.rk9.rao.ui.process.NodeWithProperty;
+import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 
 public class ProcessLink implements Serializable, IAdaptable {
 

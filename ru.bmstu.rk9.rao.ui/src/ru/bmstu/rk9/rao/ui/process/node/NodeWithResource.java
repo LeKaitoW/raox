@@ -1,9 +1,10 @@
-package ru.bmstu.rk9.rao.ui.process;
+package ru.bmstu.rk9.rao.ui.process.node;
 
 import java.util.List;
 
 import org.eclipse.swt.graphics.RGB;
 
+import ru.bmstu.rk9.rao.ui.process.EResourceRetriever;
 import ru.bmstu.rk9.rao.ui.process.model.Model;
 
 public abstract class NodeWithResource extends NodeWithProperty {

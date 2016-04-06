@@ -4,6 +4,8 @@ import org.eclipse.gef.EditPartViewer;
 import org.eclipse.gef.dnd.TemplateTransferDropTargetListener;
 import org.eclipse.gef.requests.CreationFactory;
 
+import ru.bmstu.rk9.rao.ui.process.node.NodeCreationFactory;
+
 public class ProcessDropTargetListener extends TemplateTransferDropTargetListener {
 
 	public ProcessDropTargetListener(EditPartViewer viewer) {

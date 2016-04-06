@@ -2,6 +2,8 @@ package ru.bmstu.rk9.rao.ui.process;
 
 import java.util.function.Supplier;
 
+import ru.bmstu.rk9.rao.ui.process.node.Node;
+
 public class ProcessNodeInfo {
 
 	public ProcessNodeInfo(String name, Supplier<Node> nodeFactory, Supplier<ProcessEditPart> partFactory) {

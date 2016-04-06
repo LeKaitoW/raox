@@ -5,7 +5,7 @@ import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.EResourceRetriever;
-import ru.bmstu.rk9.rao.ui.process.Node;
+import ru.bmstu.rk9.rao.ui.process.node.Node;
 
 public class Model extends Node {
 

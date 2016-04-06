@@ -7,8 +7,8 @@ import org.eclipse.swt.graphics.Color;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
-import ru.bmstu.rk9.rao.ui.process.NodeWithResource;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
+import ru.bmstu.rk9.rao.ui.process.node.NodeWithResource;
 
 public class Seize extends NodeWithResource {
 

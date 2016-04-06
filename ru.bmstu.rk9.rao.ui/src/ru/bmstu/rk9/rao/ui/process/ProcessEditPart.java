@@ -21,6 +21,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.ui.process.link.ProcessLink;
+import ru.bmstu.rk9.rao.ui.process.node.Node;
+import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 
 public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		implements PropertyChangeListener, NodeEditPart {

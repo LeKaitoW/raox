@@ -8,6 +8,7 @@ import java.util.Map;
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.process.Link;
 import ru.bmstu.rk9.rao.ui.process.link.ProcessLink;
+import ru.bmstu.rk9.rao.ui.process.node.Node;
 
 public class BlockConverter {
 

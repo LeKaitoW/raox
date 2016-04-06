@@ -5,8 +5,8 @@ import java.io.Serializable;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
-import ru.bmstu.rk9.rao.ui.process.NodeWithCapacity;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
+import ru.bmstu.rk9.rao.ui.process.node.NodeWithCapacity;
 
 public class Queue extends NodeWithCapacity implements Serializable {
 

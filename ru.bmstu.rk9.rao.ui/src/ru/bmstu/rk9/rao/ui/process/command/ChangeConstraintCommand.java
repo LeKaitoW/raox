@@ -2,7 +2,7 @@ package ru.bmstu.rk9.rao.ui.process.command;
 
 import org.eclipse.draw2d.geometry.Rectangle;
 
-import ru.bmstu.rk9.rao.ui.process.Node;
+import ru.bmstu.rk9.rao.ui.process.node.Node;
 
 public class ChangeConstraintCommand extends ConstraintCommand {
 
