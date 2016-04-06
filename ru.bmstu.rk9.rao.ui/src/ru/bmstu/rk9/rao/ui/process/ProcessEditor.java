@@ -49,23 +49,23 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import com.google.inject.Inject;
 
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreationFactory;
-import ru.bmstu.rk9.rao.ui.process.generate.Generate;
+import ru.bmstu.rk9.rao.ui.process.generate.GenerateNode;
 import ru.bmstu.rk9.rao.ui.process.generate.GeneratePart;
-import ru.bmstu.rk9.rao.ui.process.hold.Hold;
+import ru.bmstu.rk9.rao.ui.process.hold.HoldNode;
 import ru.bmstu.rk9.rao.ui.process.hold.HoldPart;
-import ru.bmstu.rk9.rao.ui.process.model.Model;
+import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 import ru.bmstu.rk9.rao.ui.process.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
 import ru.bmstu.rk9.rao.ui.process.node.NodeCreationFactory;
-import ru.bmstu.rk9.rao.ui.process.queue.Queue;
+import ru.bmstu.rk9.rao.ui.process.queue.QueueNode;
 import ru.bmstu.rk9.rao.ui.process.queue.QueuePart;
-import ru.bmstu.rk9.rao.ui.process.release.Release;
+import ru.bmstu.rk9.rao.ui.process.release.ReleaseNode;
 import ru.bmstu.rk9.rao.ui.process.release.ReleasePart;
-import ru.bmstu.rk9.rao.ui.process.seize.Seize;
+import ru.bmstu.rk9.rao.ui.process.seize.SeizeNode;
 import ru.bmstu.rk9.rao.ui.process.seize.SeizePart;
-import ru.bmstu.rk9.rao.ui.process.selectpath.SelectPath;
+import ru.bmstu.rk9.rao.ui.process.selectpath.SelectPathNode;
 import ru.bmstu.rk9.rao.ui.process.selectpath.SelectPathPart;
-import ru.bmstu.rk9.rao.ui.process.terminate.Terminate;
+import ru.bmstu.rk9.rao.ui.process.terminate.TerminateNode;
 import ru.bmstu.rk9.rao.ui.process.terminate.TerminatePart;
 
 public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
@@ -77,24 +77,24 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.process.editor";
 	public static final Map<Class<?>, ProcessNodeInfo> processNodesInfo = new LinkedHashMap<>();
 	public static final String MODEL_LAYER = "Model Layer";
-	private Model model;
+	private ModelNode model;
 
 	@Inject
 	IResourceSetProvider resourceSetProvider;
 
 	static {
-		processNodesInfo.put(Model.class, new ProcessNodeInfo(Model.name, () -> new Model(), () -> new ModelPart()));
-		processNodesInfo.put(Generate.class,
-				new ProcessNodeInfo(Generate.name, () -> new Generate(), () -> new GeneratePart()));
-		processNodesInfo.put(Terminate.class,
-				new ProcessNodeInfo(Terminate.name, () -> new Terminate(), () -> new TerminatePart()));
-		processNodesInfo.put(Seize.class, new ProcessNodeInfo(Seize.name, () -> new Seize(), () -> new SeizePart()));
-		processNodesInfo.put(Release.class,
-				new ProcessNodeInfo(Release.name, () -> new Release(), () -> new ReleasePart()));
-		processNodesInfo.put(Hold.class, new ProcessNodeInfo(Hold.name, () -> new Hold(), () -> new HoldPart()));
-		processNodesInfo.put(Queue.class, new ProcessNodeInfo(Queue.name, () -> new Queue(), () -> new QueuePart()));
-		processNodesInfo.put(SelectPath.class,
-				new ProcessNodeInfo(SelectPath.name, () -> new SelectPath(), () -> new SelectPathPart()));
+		processNodesInfo.put(ModelNode.class, new ProcessNodeInfo(ModelNode.name, () -> new ModelNode(), () -> new ModelPart()));
+		processNodesInfo.put(GenerateNode.class,
+				new ProcessNodeInfo(GenerateNode.name, () -> new GenerateNode(), () -> new GeneratePart()));
+		processNodesInfo.put(TerminateNode.class,
+				new ProcessNodeInfo(TerminateNode.name, () -> new TerminateNode(), () -> new TerminatePart()));
+		processNodesInfo.put(SeizeNode.class, new ProcessNodeInfo(SeizeNode.name, () -> new SeizeNode(), () -> new SeizePart()));
+		processNodesInfo.put(ReleaseNode.class,
+				new ProcessNodeInfo(ReleaseNode.name, () -> new ReleaseNode(), () -> new ReleasePart()));
+		processNodesInfo.put(HoldNode.class, new ProcessNodeInfo(HoldNode.name, () -> new HoldNode(), () -> new HoldPart()));
+		processNodesInfo.put(QueueNode.class, new ProcessNodeInfo(QueueNode.name, () -> new QueueNode(), () -> new QueuePart()));
+		processNodesInfo.put(SelectPathNode.class,
+				new ProcessNodeInfo(SelectPathNode.name, () -> new SelectPathNode(), () -> new SelectPathPart()));
 	}
 
 	@Override
@@ -123,7 +123,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 		for (Class<?> nodeClass : processNodesInfo.keySet()) {
 			String nodeName = processNodesInfo.get(nodeClass).getName();
-			if (!nodeClass.equals(Model.class))
+			if (!nodeClass.equals(ModelNode.class))
 				processGroup.add(new CombinedTemplateCreationEntry(nodeName, nodeName,
 						new NodeCreationFactory(nodeClass), null, null));
 		}
@@ -132,13 +132,13 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		return root;
 	}
 
-	private void setModel(Model model) {
+	private void setModel(ModelNode model) {
 		this.model = model;
 		model.setResourceRetriever(new EResourceRetriever(resourceSetProvider,
 				((IFileEditorInput) getEditorInput()).getFile().getProject()));
 	}
 
-	public Model getModel() {
+	public ModelNode getModel() {
 		return model;
 	}
 
@@ -216,7 +216,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	protected void initializeGraphicalViewer() {
 		GraphicalViewer viewer = getGraphicalViewer();
 		if (model == null)
-			setModel(new Model());
+			setModel(new ModelNode());
 		viewer.setContents(model);
 		viewer.addDropTargetListener(new ProcessDropTargetListener(viewer));
 	}
@@ -238,10 +238,10 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		super.commandStackChanged(event);
 	}
 
-	public static Model readModelFromFile(IFile file) throws ClassNotFoundException, IOException, CoreException {
+	public static ModelNode readModelFromFile(IFile file) throws ClassNotFoundException, IOException, CoreException {
 		InputStream inputStream = file.getContents(false);
 		ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-		Model model = (Model) objectInputStream.readObject();
+		ModelNode model = (ModelNode) objectInputStream.readObject();
 		objectInputStream.close();
 		return model;
 	}

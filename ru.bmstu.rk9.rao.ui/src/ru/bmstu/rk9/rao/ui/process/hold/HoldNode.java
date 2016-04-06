@@ -8,14 +8,14 @@ import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.process.node.NodeWithInterval;
 
-public class Hold extends NodeWithInterval implements Serializable {
+public class HoldNode extends NodeWithInterval implements Serializable {
 
 	private static final long serialVersionUID = 1;
 
 	public static final String DOCK_IN = "IN";
 	public static final String DOCK_OUT = "OUT";
 
-	public Hold() {
+	public HoldNode() {
 		super(foregroundColor.getRGB(), "Hold");
 		registerDock(DOCK_IN);
 		registerDock(DOCK_OUT);

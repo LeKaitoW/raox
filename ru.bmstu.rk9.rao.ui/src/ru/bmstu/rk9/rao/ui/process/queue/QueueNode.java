@@ -8,14 +8,14 @@ import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.process.node.NodeWithCapacity;
 
-public class Queue extends NodeWithCapacity implements Serializable {
+public class QueueNode extends NodeWithCapacity implements Serializable {
 
 	private static final long serialVersionUID = 1;
 
 	public static final String DOCK_IN = "IN";
 	public static final String DOCK_OUT = "OUT";
 
-	public Queue() {
+	public QueueNode() {
 		super(foregroundColor.getRGB());
 		registerDock(DOCK_IN);
 		registerDock(DOCK_OUT);

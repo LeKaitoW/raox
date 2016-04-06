@@ -38,11 +38,11 @@ public class ReleaseFigure extends ProcessFigure {
 
 		ConnectionAnchor inputConnectionAnchor = new ConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
-		connectionAnchors.put(Release.DOCK_IN, inputConnectionAnchor);
+		connectionAnchors.put(ReleaseNode.DOCK_IN, inputConnectionAnchor);
 
 		ConnectionAnchor outputConnectionAnchor = new ConnectionAnchor(getShape());
 		outputConnectionAnchors.add(outputConnectionAnchor);
-		connectionAnchors.put(Release.DOCK_OUT, outputConnectionAnchor);
+		connectionAnchors.put(ReleaseNode.DOCK_OUT, outputConnectionAnchor);
 
 		getShape().addFigureListener(new FigureListener() {
 			@Override
@@ -63,7 +63,7 @@ public class ReleaseFigure extends ProcessFigure {
 			}
 		});
 
-		label.setText(Release.name);
+		label.setText(ReleaseNode.name);
 	}
 
 	private static void addArcToPath(Rectangle bounds, Path path) {

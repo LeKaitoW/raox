@@ -67,11 +67,11 @@ public class HoldFigure extends ProcessFigure {
 
 		ConnectionAnchor inputConnectionAnchor = new ConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
-		connectionAnchors.put(Hold.DOCK_IN, inputConnectionAnchor);
+		connectionAnchors.put(HoldNode.DOCK_IN, inputConnectionAnchor);
 
 		ConnectionAnchor outputConnectionAnchor = new ConnectionAnchor(getShape());
 		outputConnectionAnchors.add(outputConnectionAnchor);
-		connectionAnchors.put(Hold.DOCK_OUT, outputConnectionAnchor);
+		connectionAnchors.put(HoldNode.DOCK_OUT, outputConnectionAnchor);
 
 		getShape().addFigureListener(new FigureListener() {
 			@Override
@@ -86,6 +86,6 @@ public class HoldFigure extends ProcessFigure {
 			}
 		});
 
-		label.setText(Hold.name);
+		label.setText(HoldNode.name);
 	}
 }

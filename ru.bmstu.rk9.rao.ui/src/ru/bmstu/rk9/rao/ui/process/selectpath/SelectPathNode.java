@@ -8,7 +8,7 @@ import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.process.node.NodeWithProbability;
 
-public class SelectPath extends NodeWithProbability implements Serializable {
+public class SelectPathNode extends NodeWithProbability implements Serializable {
 
 	private static final long serialVersionUID = 1;
 
@@ -16,7 +16,7 @@ public class SelectPath extends NodeWithProbability implements Serializable {
 	public static final String DOCK_TRUE_OUT = "TRUE_OUT";
 	public static final String DOCK_FALSE_OUT = "FALSE_OUT";
 
-	public SelectPath() {
+	public SelectPathNode() {
 		super(foregroundColor.getRGB());
 		registerDock(DOCK_IN);
 		registerDock(DOCK_FALSE_OUT);

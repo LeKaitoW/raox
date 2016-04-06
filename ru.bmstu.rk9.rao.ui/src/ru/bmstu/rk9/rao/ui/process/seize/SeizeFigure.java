@@ -38,11 +38,11 @@ public class SeizeFigure extends ProcessFigure {
 
 		ConnectionAnchor inputConnectionAnchor = new ConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
-		connectionAnchors.put(Seize.DOCK_IN, inputConnectionAnchor);
+		connectionAnchors.put(SeizeNode.DOCK_IN, inputConnectionAnchor);
 
 		ConnectionAnchor outputConnectionAnchor = new ConnectionAnchor(getShape());
 		outputConnectionAnchors.add(outputConnectionAnchor);
-		connectionAnchors.put(Seize.DOCK_OUT, outputConnectionAnchor);
+		connectionAnchors.put(SeizeNode.DOCK_OUT, outputConnectionAnchor);
 
 		getShape().addFigureListener(new FigureListener() {
 			@Override
@@ -63,7 +63,7 @@ public class SeizeFigure extends ProcessFigure {
 			}
 		});
 
-		label.setText(Seize.name);
+		label.setText(SeizeNode.name);
 	}
 
 	private static void addArcToPath(Rectangle bounds, Path path) {

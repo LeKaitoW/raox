@@ -5,7 +5,7 @@ import java.util.List;
 import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.process.EResourceRetriever;
-import ru.bmstu.rk9.rao.ui.process.model.Model;
+import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 
 public abstract class NodeWithResource extends NodeWithProperty {
 
@@ -30,7 +30,7 @@ public abstract class NodeWithResource extends NodeWithProperty {
 	}
 
 	public List<String> getResourcesNames() {
-		EResourceRetriever resourceRetriever = ((Model) getParent()).getResourceRetriever();
+		EResourceRetriever resourceRetriever = ((ModelNode) getParent()).getResourceRetriever();
 		return resourceRetriever.getResourcesNames();
 	}
 }

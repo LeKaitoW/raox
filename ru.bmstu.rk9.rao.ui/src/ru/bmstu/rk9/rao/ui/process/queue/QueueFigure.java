@@ -44,11 +44,11 @@ public class QueueFigure extends ProcessFigure {
 
 		ConnectionAnchor inputConnectionAnchor = new ConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
-		connectionAnchors.put(Queue.DOCK_IN, inputConnectionAnchor);
+		connectionAnchors.put(QueueNode.DOCK_IN, inputConnectionAnchor);
 
 		ConnectionAnchor outputConnectionAnchor = new ConnectionAnchor(getShape());
 		outputConnectionAnchors.add(outputConnectionAnchor);
-		connectionAnchors.put(Queue.DOCK_OUT, outputConnectionAnchor);
+		connectionAnchors.put(QueueNode.DOCK_OUT, outputConnectionAnchor);
 
 		getShape().addFigureListener(new FigureListener() {
 			@Override
@@ -63,6 +63,6 @@ public class QueueFigure extends ProcessFigure {
 			}
 		});
 
-		label.setText(Queue.name);
+		label.setText(QueueNode.name);
 	}
 }

@@ -6,13 +6,13 @@ import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.process.node.NodeWithInterval;
 
-public class Generate extends NodeWithInterval {
+public class GenerateNode extends NodeWithInterval {
 
 	private static final long serialVersionUID = 1;
 
 	public static final String DOCK_OUT = "OUT";
 
-	public Generate() {
+	public GenerateNode() {
 		super(foregroundColor.getRGB(), "Interval");
 		registerDock(DOCK_OUT);
 	}

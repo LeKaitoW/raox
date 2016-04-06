@@ -10,14 +10,14 @@ import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.process.node.NodeWithResource;
 
-public class Seize extends NodeWithResource {
+public class SeizeNode extends NodeWithResource {
 
 	private static final long serialVersionUID = 1;
 
 	public static final String DOCK_IN = "IN";
 	public static final String DOCK_OUT = "OUT";
 
-	public Seize() {
+	public SeizeNode() {
 		super(foregroundColor.getRGB());
 		registerDock(DOCK_IN);
 		registerDock(DOCK_OUT);

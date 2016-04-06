@@ -6,13 +6,13 @@ import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 
-public class Terminate extends NodeWithProperty {
+public class TerminateNode extends NodeWithProperty {
 
 	private static final long serialVersionUID = 1;
 
 	public static final String DOCK_IN = "IN";
 
-	public Terminate() {
+	public TerminateNode() {
 		super(foregroundColor.getRGB());
 		registerDock(DOCK_IN);
 	}

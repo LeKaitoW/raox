@@ -38,15 +38,15 @@ public class SelectPathFigure extends ProcessFigure {
 
 		ConnectionAnchor inputConnectionAnchor = new ConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
-		connectionAnchors.put(SelectPath.DOCK_IN, inputConnectionAnchor);
+		connectionAnchors.put(SelectPathNode.DOCK_IN, inputConnectionAnchor);
 
 		ConnectionAnchor trueOutputConnectionAnchor = new ConnectionAnchor(getShape());
 		outputConnectionAnchors.add(trueOutputConnectionAnchor);
-		connectionAnchors.put(SelectPath.DOCK_TRUE_OUT, trueOutputConnectionAnchor);
+		connectionAnchors.put(SelectPathNode.DOCK_TRUE_OUT, trueOutputConnectionAnchor);
 
 		ConnectionAnchor falseOutputConnectionAnchor = new ConnectionAnchor(getShape());
 		outputConnectionAnchors.add(falseOutputConnectionAnchor);
-		connectionAnchors.put(SelectPath.DOCK_FALSE_OUT, falseOutputConnectionAnchor);
+		connectionAnchors.put(SelectPathNode.DOCK_FALSE_OUT, falseOutputConnectionAnchor);
 
 		getShape().addFigureListener(new FigureListener() {
 			@Override
@@ -64,6 +64,6 @@ public class SelectPathFigure extends ProcessFigure {
 			}
 		});
 
-		label.setText(SelectPath.name);
+		label.setText(SelectPathNode.name);
 	}
 }

@@ -34,7 +34,7 @@ public class GenerateFigure extends ProcessFigure {
 
 		ConnectionAnchor outputConnectionAnchor = new ConnectionAnchor(getShape());
 		outputConnectionAnchors.add(outputConnectionAnchor);
-		connectionAnchors.put(Generate.DOCK_OUT, outputConnectionAnchor);
+		connectionAnchors.put(GenerateNode.DOCK_OUT, outputConnectionAnchor);
 
 		getShape().addFigureListener(new FigureListener() {
 			@Override
@@ -45,6 +45,6 @@ public class GenerateFigure extends ProcessFigure {
 			}
 		});
 
-		label.setText(Generate.name);
+		label.setText(GenerateNode.name);
 	}
 }

@@ -35,7 +35,7 @@ public class TerminateFigure extends ProcessFigure {
 
 		ConnectionAnchor inputConnectionAnchor = new ConnectionAnchor(getShape());
 		inputConnectionAnchors.add(inputConnectionAnchor);
-		connectionAnchors.put(Terminate.DOCK_IN, inputConnectionAnchor);
+		connectionAnchors.put(TerminateNode.DOCK_IN, inputConnectionAnchor);
 
 		getShape().addFigureListener(new FigureListener() {
 			@Override
@@ -46,6 +46,6 @@ public class TerminateFigure extends ProcessFigure {
 			}
 		});
 
-		label.setText(Terminate.name);
+		label.setText(TerminateNode.name);
 	}
 }
