@@ -17,8 +17,8 @@ public class ConnectionPolicy extends GraphicalNodeEditPolicy {
 		ConnectionCreateCommand command = (ConnectionCreateCommand) request.getStartCommand();
 		NodeWithProperty targetNode = getNodeWithProperty();
 		ConnectionAnchor connectionAnchor = getProcessEditPart().getTargetConnectionAnchor(request);
-		String targetTerminal = getProcessEditPart().mapConnectionAnchorToTerminal(connectionAnchor);
-		command.setTarget(targetNode, targetTerminal);
+		String targetDock = getProcessEditPart().mapConnectionAnchorToDock(connectionAnchor);
+		command.setTarget(targetNode, targetDock);
 		return command;
 	}
 
@@ -28,8 +28,8 @@ public class ConnectionPolicy extends GraphicalNodeEditPolicy {
 		NodeWithProperty sourceNode = getNodeWithProperty();
 		request.setStartCommand(command);
 		ConnectionAnchor connectionAnchor = getProcessEditPart().getSourceConnectionAnchor(request);
-		String sourceTerminal = getProcessEditPart().mapConnectionAnchorToTerminal(connectionAnchor);
-		command.setSource(sourceNode, sourceTerminal);
+		String sourceDock = getProcessEditPart().mapConnectionAnchorToDock(connectionAnchor);
+		command.setSource(sourceNode, sourceDock);
 		return command;
 	}
 
@@ -39,8 +39,8 @@ public class ConnectionPolicy extends GraphicalNodeEditPolicy {
 		NodeWithProperty sourceNode = getNodeWithProperty();
 		ConnectionReconnectCommand command = new ConnectionReconnectCommand(connection);
 		ConnectionAnchor connectionAnchor = getProcessEditPart().getSourceConnectionAnchor(request);
-		String sourceTerminal = getProcessEditPart().mapConnectionAnchorToTerminal(connectionAnchor);
-		command.setNewSource(sourceNode, sourceTerminal);
+		String sourceDock = getProcessEditPart().mapConnectionAnchorToDock(connectionAnchor);
+		command.setNewSource(sourceNode, sourceDock);
 		return command;
 	}
 
@@ -50,8 +50,8 @@ public class ConnectionPolicy extends GraphicalNodeEditPolicy {
 		NodeWithProperty targetNode = getNodeWithProperty();
 		ConnectionReconnectCommand command = new ConnectionReconnectCommand(connection);
 		ConnectionAnchor connectionAnchor = getProcessEditPart().getTargetConnectionAnchor(request);
-		String targetTerminal = getProcessEditPart().mapConnectionAnchorToTerminal(connectionAnchor);
-		command.setNewTarget(targetNode, targetTerminal);
+		String targetDock = getProcessEditPart().mapConnectionAnchorToDock(connectionAnchor);
+		command.setNewTarget(targetNode, targetDock);
 		return command;
 	}
 

@@ -8,7 +8,7 @@ public class ConnectionReconnectCommand extends Command {
 
 	private Connection connection;
 	private NodeWithProperty oldSourceNode, oldTargetNode, newSourceNode, newTargetNode;
-	private String oldSourceTerminal, oldTargetTerminal, newSourceTerminal, newTargetTerminal;
+	private String oldSourceDock, oldTargetDock, newSourceDock, newTargetDock;
 
 	public ConnectionReconnectCommand(Connection connection) {
 		if (connection == null)
@@ -17,8 +17,8 @@ public class ConnectionReconnectCommand extends Command {
 		this.connection = connection;
 		this.oldSourceNode = connection.getSourceNode();
 		this.oldTargetNode = connection.getTargetNode();
-		this.oldSourceTerminal = connection.getSourceDock();
-		this.oldTargetTerminal = connection.getTargetDock();
+		this.oldSourceDock = connection.getSourceDock();
+		this.oldTargetDock = connection.getTargetDock();
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class ConnectionReconnectCommand extends Command {
 	private boolean checkSourceReconnection() {
 		if (newSourceNode.equals(oldTargetNode))
 			return false;
-		if (newSourceNode.getDocksCount(newSourceTerminal) > 0)
+		if (newSourceNode.getDocksCount(newSourceDock) > 0)
 			return false;
 		return true;
 	}
@@ -46,30 +46,30 @@ public class ConnectionReconnectCommand extends Command {
 		return true;
 	}
 
-	public void setNewSource(NodeWithProperty sourceNode, String sourceTerminal) {
-		if (sourceNode == null || sourceTerminal == null) {
+	public void setNewSource(NodeWithProperty sourceNode, String sourceDock) {
+		if (sourceNode == null || sourceDock == null) {
 			throw new IllegalArgumentException();
 		}
 		this.newSourceNode = sourceNode;
 		this.newTargetNode = null;
-		this.newSourceTerminal = sourceTerminal;
+		this.newSourceDock = sourceDock;
 	}
 
-	public void setNewTarget(NodeWithProperty targetNode, String targetTerminal) {
-		if (targetNode == null || targetTerminal == null) {
+	public void setNewTarget(NodeWithProperty targetNode, String targetDock) {
+		if (targetNode == null || targetDock == null) {
 			throw new IllegalArgumentException();
 		}
 		this.newSourceNode = null;
 		this.newTargetNode = targetNode;
-		this.newTargetTerminal = targetTerminal;
+		this.newTargetDock = targetDock;
 	}
 
 	@Override
 	public void execute() {
 		if (newSourceNode != null) {
-			connection.reconnect(newSourceNode, oldTargetNode, newSourceTerminal, oldTargetTerminal);
+			connection.reconnect(newSourceNode, oldTargetNode, newSourceDock, oldTargetDock);
 		} else if (newTargetNode != null) {
-			connection.reconnect(oldSourceNode, newTargetNode, oldSourceTerminal, newTargetTerminal);
+			connection.reconnect(oldSourceNode, newTargetNode, oldSourceDock, newTargetDock);
 		} else {
 			throw new IllegalStateException("Internal error: new source node and new target node cannot both be null");
 		}
@@ -77,6 +77,6 @@ public class ConnectionReconnectCommand extends Command {
 
 	@Override
 	public void undo() {
-		connection.reconnect(oldSourceNode, oldTargetNode, oldSourceTerminal, oldTargetTerminal);
+		connection.reconnect(oldSourceNode, oldTargetNode, oldSourceDock, oldTargetDock);
 	}
 }

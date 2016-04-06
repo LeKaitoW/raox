@@ -128,7 +128,7 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		return ((NodeWithConnections) getModel()).getTargetConnections();
 	}
 
-	final protected String mapConnectionAnchorToTerminal(ConnectionAnchor connectionAnchor) {
+	final protected String mapConnectionAnchorToDock(ConnectionAnchor connectionAnchor) {
 		return getProcessFigure().getConnectionAnchorName(connectionAnchor);
 	}
 
