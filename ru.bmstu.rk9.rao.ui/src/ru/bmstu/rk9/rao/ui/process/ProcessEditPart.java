@@ -22,6 +22,7 @@ import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.ui.process.link.Link;
 import ru.bmstu.rk9.rao.ui.process.node.Node;
+import ru.bmstu.rk9.rao.ui.process.node.NodeWithLinks;
 import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 
 public abstract class ProcessEditPart extends AbstractGraphicalEditPart
@@ -66,9 +67,9 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		}
 		if (evt.getPropertyName().equals(Node.PROPERTY_CONSTRAINT))
 			refreshVisuals();
-		if (evt.getPropertyName().equals(Node.SOURCE_CONNECTION))
+		if (evt.getPropertyName().equals(NodeWithLinks.SOURCE_CONNECTION))
 			refreshSourceConnections();
-		if (evt.getPropertyName().equals(Node.TARGET_CONNECTION))
+		if (evt.getPropertyName().equals(NodeWithLinks.TARGET_CONNECTION))
 			refreshTargetConnections();
 	}
 
@@ -120,12 +121,12 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 
 	@Override
 	public List<Link> getModelSourceConnections() {
-		return ((Node) getModel()).getSourceConnectionsArray();
+		return ((NodeWithLinks) getModel()).getSourceConnectionsArray();
 	}
 
 	@Override
 	public List<Link> getModelTargetConnections() {
-		return ((Node) getModel()).getTargetConnectionsArray();
+		return ((NodeWithLinks) getModel()).getTargetConnectionsArray();
 	}
 
 	final protected String mapConnectionAnchorToTerminal(ConnectionAnchor connectionAnchor) {
