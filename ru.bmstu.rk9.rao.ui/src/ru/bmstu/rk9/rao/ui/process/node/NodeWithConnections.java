@@ -22,7 +22,7 @@ public abstract class NodeWithConnections extends Node {
 
 	protected List<Connection> sourceConnections;
 	protected List<Connection> targetConnections;
-	private final Map<String, Integer> docks = new HashMap<>();
+	private final Map<String, Integer> dockNames = new HashMap<>();
 
 	public final boolean addConnection(Connection connection) {
 		if (connection.getSourceNode() == this) {
@@ -75,33 +75,33 @@ public abstract class NodeWithConnections extends Node {
 	}
 
 	public final int getDocksCount(String dockName) {
-		return docks.get(dockName);
+		return dockNames.get(dockName);
 	}
 
 	public final void registerDock(String dockName) {
-		if (docks.containsKey(dockName))
+		if (dockNames.containsKey(dockName))
 			throw new ProcessLogicException("Dock already registered: " + getDockFullName(dockName));
 
-		docks.put(dockName, 0);
+		dockNames.put(dockName, 0);
 	}
 
 	public final void captureDock(String dockName) {
-		if (!docks.containsKey(dockName))
+		if (!dockNames.containsKey(dockName))
 			throw new ProcessLogicException("Undefined dock: " + getDockFullName(dockName));
 
-		docks.put(dockName, docks.get(dockName) + 1);
+		dockNames.put(dockName, dockNames.get(dockName) + 1);
 	}
 
 	public final void releaseDock(String dockName) {
-		if (!docks.containsKey(dockName))
+		if (!dockNames.containsKey(dockName))
 			throw new ProcessLogicException("Undefined dock: " + getDockFullName(dockName));
 
-		int count = docks.get(dockName);
+		int count = dockNames.get(dockName);
 		if (count == 0)
 			throw new ProcessLogicException("Dock already released: " + getDockFullName(dockName));
 
 		count--;
-		docks.put(dockName, count);
+		dockNames.put(dockName, count);
 	}
 
 	private final String getDockFullName(String dockName) {
