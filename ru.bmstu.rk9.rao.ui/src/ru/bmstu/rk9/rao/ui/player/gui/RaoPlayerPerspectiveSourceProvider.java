@@ -1,3 +1,4 @@
+
 package ru.bmstu.rk9.rao.ui.player.gui;
 
 import java.util.HashMap;
@@ -6,11 +7,11 @@ import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
 
 public class RaoPlayerPerspectiveSourceProvider extends AbstractSourceProvider {
-	public final static String RaoPerspectiveKey = "ru.bmstu.rk9.rao.ui.handlers.showActions";
-	private final static String RaoPerspective = "showActions";
-	private final static String otherPerspective = "hideActions";
+	public final static String RaoPerspectiveKey = "ru.bmstu.rk9.rao.ui.handlers.showPlayerActions";
+	private final static String RaoPerspective = "showPlayerActions";
+	private final static String otherPerspective = "hidePlayerActions";
 
-	private boolean isRaoPerspective = true;
+	private boolean isRaoPlayerPerspective = true;
 
 	@Override
 	public void dispose() {
@@ -19,7 +20,7 @@ public class RaoPlayerPerspectiveSourceProvider extends AbstractSourceProvider {
 	@Override
 	public HashMap<String, String> getCurrentState() {
 		HashMap<String, String> currentState = new HashMap<String, String>(1);
-		String currentState1 = isRaoPerspective ? RaoPerspective : otherPerspective;
+		String currentState1 = isRaoPlayerPerspective ? RaoPerspective : otherPerspective;
 		currentState.put(RaoPerspectiveKey, currentState1);
 		return currentState;
 	}
@@ -30,11 +31,11 @@ public class RaoPlayerPerspectiveSourceProvider extends AbstractSourceProvider {
 	}
 
 	public void perspectiveChanged(boolean _isRaoPerspective) {
-		if (this.isRaoPerspective == _isRaoPerspective)
+		if (this.isRaoPlayerPerspective == _isRaoPerspective)
 			return;
 
-		this.isRaoPerspective = _isRaoPerspective;
-		String currentState = isRaoPerspective ? RaoPerspective : otherPerspective;
+		this.isRaoPlayerPerspective = _isRaoPerspective;
+		String currentState = isRaoPlayerPerspective ? RaoPerspective : otherPerspective;
 		fireSourceChanged(ISources.WORKBENCH, RaoPerspectiveKey, currentState);
 	}
 }

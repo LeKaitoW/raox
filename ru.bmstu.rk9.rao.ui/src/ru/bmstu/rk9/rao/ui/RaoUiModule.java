@@ -5,6 +5,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import ru.bmstu.rk9.rao.ui.highlightning.RaoHighlightningCalculator;
+import ru.bmstu.rk9.rao.ui.player.gui.RaoPlayerPerspectiveAdapter;
 
 public class RaoUiModule extends AbstractRaoUiModule {
 	private void registerPerspectiveAdapter() {
@@ -14,6 +15,8 @@ public class RaoUiModule extends AbstractRaoUiModule {
 				IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 				RaoPerspectiveAdapter wsPerspectiveListener = new RaoPerspectiveAdapter();
 				workbenchWindow.addPerspectiveListener(wsPerspectiveListener);
+				RaoPlayerPerspectiveAdapter wsPlayerPerspectiveListener = new RaoPlayerPerspectiveAdapter();
+				workbenchWindow.addPerspectiveListener(wsPlayerPerspectiveListener);
 
 				wsPerspectiveListener.perspectiveActivated(
 						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),

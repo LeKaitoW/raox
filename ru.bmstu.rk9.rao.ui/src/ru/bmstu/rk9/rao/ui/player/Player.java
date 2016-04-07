@@ -51,9 +51,10 @@ public class Player {
 
 		while (state != "Stop" && state != "Pause" && (currentEventNumber <= (jsonModelStateObject.length() - 1))
 				&& currentEventNumber > 0) {
+			Double currentFrameTime = jsonModelStateObject.getJSONObject(currentEventNumber).getJSONArray("Current resourses").getJSONObject(1).getDouble("time ");
 			delay(time);
-			System.out.println("\n" + "Event number " + currentEventNumber + " Current frame"
-					+ jsonModelStateObject.getJSONObject(currentEventNumber));
+			System.out.println("\n" + "Time " + currentFrameTime + "Event number " + currentEventNumber + " Current frame"
+					+ jsonModelStateObject.getJSONObject(currentEventNumber).getJSONArray("Current resourses")  );
 			currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
 
 		}
