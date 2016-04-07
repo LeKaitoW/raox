@@ -74,37 +74,37 @@ public abstract class NodeWithConnections extends Node {
 		return targetConnections;
 	}
 
-	public final int getDocksCount(String dock) {
-		return docks.get(dock);
+	public final int getDocksCount(String dockName) {
+		return docks.get(dockName);
 	}
 
-	public final void registerDock(String dock) {
-		if (docks.containsKey(dock))
-			throw new ProcessLogicException("Dock already registered: " + getDockFullName(dock));
+	public final void registerDock(String dockName) {
+		if (docks.containsKey(dockName))
+			throw new ProcessLogicException("Dock already registered: " + getDockFullName(dockName));
 
-		docks.put(dock, 0);
+		docks.put(dockName, 0);
 	}
 
-	public final void captureDock(String dock) {
-		if (!docks.containsKey(dock))
-			throw new ProcessLogicException("Undefined dock: " + getDockFullName(dock));
+	public final void captureDock(String dockName) {
+		if (!docks.containsKey(dockName))
+			throw new ProcessLogicException("Undefined dock: " + getDockFullName(dockName));
 
-		docks.put(dock, docks.get(dock) + 1);
+		docks.put(dockName, docks.get(dockName) + 1);
 	}
 
-	public final void releaseDock(String dock) {
-		if (!docks.containsKey(dock))
-			throw new ProcessLogicException("Undefined dock: " + getDockFullName(dock));
+	public final void releaseDock(String dockName) {
+		if (!docks.containsKey(dockName))
+			throw new ProcessLogicException("Undefined dock: " + getDockFullName(dockName));
 
-		int count = docks.get(dock);
+		int count = docks.get(dockName);
 		if (count == 0)
-			throw new ProcessLogicException("Dock already released: " + getDockFullName(dock));
+			throw new ProcessLogicException("Dock already released: " + getDockFullName(dockName));
 
 		count--;
-		docks.put(dock, count);
+		docks.put(dockName, count);
 	}
 
-	private final String getDockFullName(String dock) {
-		return getName() + "." + dock;
+	private final String getDockFullName(String dockName) {
+		return getName() + "." + dockName;
 	}
 }

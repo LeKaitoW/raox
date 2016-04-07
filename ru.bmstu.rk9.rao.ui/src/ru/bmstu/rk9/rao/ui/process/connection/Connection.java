@@ -14,14 +14,15 @@ public class Connection implements Serializable, IAdaptable {
 	protected NodeWithProperty sourceNode;
 	protected NodeWithProperty targetNode;
 
-	private String sourceDock;
-	private String targetDock;
+	private String sourceDockName;
+	private String targetDockName;
 
-	public Connection(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceDock, String targetDock) {
+	public Connection(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceDockName,
+			String targetDockName) {
 		this.sourceNode = sourceNode;
 		this.targetNode = targetNode;
-		setSourceDock(sourceDock);
-		setTargetDock(targetDock);
+		setSourceDockName(sourceDockName);
+		setTargetDockName(targetDockName);
 	}
 
 	public NodeWithProperty getSourceNode() {
@@ -35,27 +36,27 @@ public class Connection implements Serializable, IAdaptable {
 	public void connect() {
 		sourceNode.addConnection(this);
 		targetNode.addConnection(this);
-		sourceNode.captureDock(sourceDock);
-		targetNode.captureDock(targetDock);
+		sourceNode.captureDock(sourceDockName);
+		targetNode.captureDock(targetDockName);
 	}
 
 	public void disconnect() {
 		sourceNode.removeConnection(this);
 		targetNode.removeConnection(this);
-		sourceNode.releaseDock(sourceDock);
-		targetNode.releaseDock(targetDock);
+		sourceNode.releaseDock(sourceDockName);
+		targetNode.releaseDock(targetDockName);
 	}
 
-	public void reconnect(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceDock,
-			String targetDock) {
+	public void reconnect(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceDockName,
+			String targetDockName) {
 		if (sourceNode == null || targetNode == null || sourceNode == targetNode) {
 			throw new IllegalArgumentException();
 		}
 		disconnect();
 		this.sourceNode = sourceNode;
 		this.targetNode = targetNode;
-		this.sourceDock = sourceDock;
-		this.targetDock = targetDock;
+		this.sourceDockName = sourceDockName;
+		this.targetDockName = targetDockName;
 		connect();
 	}
 
@@ -65,19 +66,19 @@ public class Connection implements Serializable, IAdaptable {
 		return null;
 	}
 
-	public String getSourceDock() {
-		return sourceDock;
+	public String getSourceDockName() {
+		return sourceDockName;
 	}
 
-	public void setSourceDock(String sourceDock) {
-		this.sourceDock = sourceDock;
+	public void setSourceDockName(String sourceDockName) {
+		this.sourceDockName = sourceDockName;
 	}
 
-	public String getTargetDock() {
-		return targetDock;
+	public String getTargetDockName() {
+		return targetDockName;
 	}
 
-	public void setTargetDock(String targetDock) {
-		this.targetDock = targetDock;
+	public void setTargetDockName(String targetDockName) {
+		this.targetDockName = targetDockName;
 	}
 }

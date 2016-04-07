@@ -9,17 +9,17 @@ public class ConnectionCreateCommand extends Command {
 	private NodeWithProperty sourceNode, targetNode;
 	private Connection connection;
 
-	private String sourceDock;
-	private String targetDock;
+	private String sourceDockName;
+	private String targetDockName;
 
-	public void setSource(NodeWithProperty sourceNode, String sourceDock) {
+	public void setSource(NodeWithProperty sourceNode, String sourceDockName) {
 		this.sourceNode = sourceNode;
-		this.sourceDock = sourceDock;
+		this.sourceDockName = sourceDockName;
 	}
 
-	public void setTarget(NodeWithProperty targetNode, String targetDock) {
+	public void setTarget(NodeWithProperty targetNode, String targetDockName) {
 		this.targetNode = targetNode;
-		this.targetDock = targetDock;
+		this.targetDockName = targetDockName;
 	}
 
 	@Override
@@ -28,14 +28,14 @@ public class ConnectionCreateCommand extends Command {
 			return false;
 		if (sourceNode.equals(targetNode))
 			return false;
-		if (sourceNode.getDocksCount(sourceDock) > 0)
+		if (sourceNode.getDocksCount(sourceDockName) > 0)
 			return false;
 		return true;
 	}
 
 	@Override
 	public void execute() {
-		connection = new Connection(sourceNode, targetNode, sourceDock, targetDock);
+		connection = new Connection(sourceNode, targetNode, sourceDockName, targetDockName);
 		connection.connect();
 	}
 
@@ -51,11 +51,11 @@ public class ConnectionCreateCommand extends Command {
 		connection.disconnect();
 	}
 
-	public final String getSourceDock() {
-		return sourceDock;
+	public final String getSourceDockName() {
+		return sourceDockName;
 	}
 
-	public final String getTargetDock() {
-		return targetDock;
+	public final String getTargetDockName() {
+		return targetDockName;
 	}
 }
