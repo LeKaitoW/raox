@@ -9,8 +9,6 @@ import java.util.List;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.RGB;
 
-import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
-
 public abstract class Node implements Serializable {
 
 	private static final long serialVersionUID = 1;
@@ -100,6 +98,4 @@ public abstract class Node implements Serializable {
 	public boolean contains(Node child) {
 		return children.contains(child);
 	}
-
-	public abstract BlockConverterInfo createBlock();
 }

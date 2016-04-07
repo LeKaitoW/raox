@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 
+import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.ProcessLogicException;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 
@@ -107,4 +108,6 @@ public abstract class NodeWithConnections extends Node {
 	private final String getDockFullName(String dockName) {
 		return getName() + "." + dockName;
 	}
+
+	public abstract BlockConverterInfo createBlock();
 }

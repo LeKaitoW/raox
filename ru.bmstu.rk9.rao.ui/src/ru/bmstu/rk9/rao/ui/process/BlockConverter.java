@@ -17,20 +17,26 @@ public class BlockConverter {
 		List<Block> blocks = new ArrayList<Block>();
 		Map<Node, BlockConverterInfo> blocksMap = new HashMap<>();
 		for (Node node : children) {
+			if (!(node instanceof NodeWithConnections))
+				continue;
+
+			NodeWithConnections nodeWithConnections = (NodeWithConnections) node;
 			BlockConverterInfo blockInfo;
-			if (!blocksMap.containsKey(node)) {
-				blockInfo = node.createBlock();
+			if (!blocksMap.containsKey(nodeWithConnections)) {
+				blockInfo = nodeWithConnections.createBlock();
 				if (!blockInfo.isSuccessful)
 					throw new ProcessParsingException(blockInfo.errorMessage);
 				blocks.add(blockInfo.block);
-				blocksMap.put(node, blockInfo);
+				blocksMap.put(nodeWithConnections, blockInfo);
 			} else {
-				blockInfo = blocksMap.get(node);
+				blockInfo = blocksMap.get(nodeWithConnections);
 			}
 
-			NodeWithConnections nodeWithConnections = (NodeWithConnections) node;
 			for (Connection sourceConnection : nodeWithConnections.getSourceConnections()) {
-				Node targetNode = sourceConnection.getTargetNode();
+				if (!(sourceConnection.getTargetNode() instanceof NodeWithConnections))
+					continue;
+
+				NodeWithConnections targetNode = sourceConnection.getTargetNode();
 				BlockConverterInfo targetBlockInfo;
 				if (!blocksMap.containsKey(targetNode)) {
 					targetBlockInfo = targetNode.createBlock();
