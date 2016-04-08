@@ -17,6 +17,7 @@ public class HoldNode extends NodeWithInterval implements Serializable {
 
 	public HoldNode() {
 		super(foregroundColor.getRGB(), "Hold");
+		setName(name);
 		registerDock(DOCK_IN);
 		registerDock(DOCK_OUT);
 	}

@@ -1,7 +1,9 @@
 package ru.bmstu.rk9.rao.ui.process.node;
 
 import java.util.List;
-
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.process.EResourceRetriever;
@@ -32,5 +34,15 @@ public abstract class NodeWithResource extends NodeWithProperty {
 	public List<String> getResourcesNames() {
 		EResourceRetriever resourceRetriever = ((ModelNode) getParent()).getResourceRetriever();
 		return resourceRetriever.getResourcesNames();
+	}
+
+	@Override
+	public void validateProperty(IResource file) throws CoreException {
+
+		if (!getResourcesNames().contains(resourceName)) {
+			IMarker marker = file.createMarker(NodeWithProperty.PROCESS_MARKER);
+			marker.setAttribute(IMarker.MESSAGE, "Wrong resource");
+			marker.setAttribute(IMarker.LOCATION, this.getName());
+		}
 	}
 }

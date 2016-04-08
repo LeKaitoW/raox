@@ -17,6 +17,7 @@ public class QueueNode extends NodeWithCapacity implements Serializable {
 
 	public QueueNode() {
 		super(foregroundColor.getRGB());
+		setName(name);
 		registerDock(DOCK_IN);
 		registerDock(DOCK_OUT);
 	}

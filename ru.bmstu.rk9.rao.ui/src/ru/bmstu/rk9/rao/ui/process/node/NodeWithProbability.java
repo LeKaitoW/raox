@@ -1,5 +1,8 @@
 package ru.bmstu.rk9.rao.ui.process.node;
 
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.RGB;
 
 public abstract class NodeWithProbability extends NodeWithProperty {
@@ -22,5 +25,22 @@ public abstract class NodeWithProbability extends NodeWithProperty {
 
 	public String getProbability() {
 		return probability;
+	}
+
+	@Override
+	public void validateProperty(IResource file) throws CoreException {
+		boolean valid = true;
+		try {
+			double probability = Double.valueOf(this.probability);
+			if (probability < 0 || probability > 1)
+				valid = false;
+		} catch (NumberFormatException e) {
+			valid = false;
+		}
+		if (!valid) {
+			IMarker marker = file.createMarker(NodeWithProperty.PROCESS_MARKER);
+			marker.setAttribute(IMarker.MESSAGE, "Wrong probability");
+			marker.setAttribute(IMarker.LOCATION, this.getName());
+		}
 	}
 }

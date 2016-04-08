@@ -2,6 +2,8 @@ package ru.bmstu.rk9.rao.ui.process.node;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.IPropertySource;
@@ -14,6 +16,7 @@ public abstract class NodeWithProperty extends NodeWithConnections implements IA
 
 	public static final String PROPERTY_COLOR = "NodeColor";
 	public static final String PROPERTY_NAME = "ShowNodeName";
+	public static final String PROCESS_MARKER = "ru.bmstu.rk9.rao.ui.ProcessMarker";
 
 	private boolean nameIsVisible = true;
 	private transient IPropertySource propertySource = null;
@@ -51,4 +54,6 @@ public abstract class NodeWithProperty extends NodeWithConnections implements IA
 		}
 		return null;
 	}
+
+	public abstract void validateProperty(IResource file) throws CoreException;
 }

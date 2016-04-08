@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.ui.process.terminate;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
@@ -14,6 +15,7 @@ public class TerminateNode extends NodeWithProperty {
 
 	public TerminateNode() {
 		super(foregroundColor.getRGB());
+		setName(name);
 		registerDock(DOCK_IN);
 	}
 
@@ -29,4 +31,7 @@ public class TerminateNode extends NodeWithProperty {
 		return terminateInfo;
 	}
 
+	@Override
+	public void validateProperty(IResource file) {
+	}
 }

@@ -18,6 +18,7 @@ public class SelectPathNode extends NodeWithProbability implements Serializable 
 
 	public SelectPathNode() {
 		super(foregroundColor.getRGB());
+		setName(name);
 		registerDock(DOCK_IN);
 		registerDock(DOCK_FALSE_OUT);
 		registerDock(DOCK_TRUE_OUT);

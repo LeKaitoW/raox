@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.ConnectionLayer;
@@ -56,7 +57,9 @@ import ru.bmstu.rk9.rao.ui.process.hold.HoldPart;
 import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 import ru.bmstu.rk9.rao.ui.process.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
+import ru.bmstu.rk9.rao.ui.process.node.Node;
 import ru.bmstu.rk9.rao.ui.process.node.NodeCreationFactory;
+import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 import ru.bmstu.rk9.rao.ui.process.queue.QueueNode;
 import ru.bmstu.rk9.rao.ui.process.queue.QueuePart;
 import ru.bmstu.rk9.rao.ui.process.release.ReleaseNode;
@@ -83,16 +86,20 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	IResourceSetProvider resourceSetProvider;
 
 	static {
-		processNodesInfo.put(ModelNode.class, new ProcessNodeInfo(ModelNode.name, () -> new ModelNode(), () -> new ModelPart()));
+		processNodesInfo.put(ModelNode.class,
+				new ProcessNodeInfo(ModelNode.name, () -> new ModelNode(), () -> new ModelPart()));
 		processNodesInfo.put(GenerateNode.class,
 				new ProcessNodeInfo(GenerateNode.name, () -> new GenerateNode(), () -> new GeneratePart()));
 		processNodesInfo.put(TerminateNode.class,
 				new ProcessNodeInfo(TerminateNode.name, () -> new TerminateNode(), () -> new TerminatePart()));
-		processNodesInfo.put(SeizeNode.class, new ProcessNodeInfo(SeizeNode.name, () -> new SeizeNode(), () -> new SeizePart()));
+		processNodesInfo.put(SeizeNode.class,
+				new ProcessNodeInfo(SeizeNode.name, () -> new SeizeNode(), () -> new SeizePart()));
 		processNodesInfo.put(ReleaseNode.class,
 				new ProcessNodeInfo(ReleaseNode.name, () -> new ReleaseNode(), () -> new ReleasePart()));
-		processNodesInfo.put(HoldNode.class, new ProcessNodeInfo(HoldNode.name, () -> new HoldNode(), () -> new HoldPart()));
-		processNodesInfo.put(QueueNode.class, new ProcessNodeInfo(QueueNode.name, () -> new QueueNode(), () -> new QueuePart()));
+		processNodesInfo.put(HoldNode.class,
+				new ProcessNodeInfo(HoldNode.name, () -> new HoldNode(), () -> new HoldPart()));
+		processNodesInfo.put(QueueNode.class,
+				new ProcessNodeInfo(QueueNode.name, () -> new QueueNode(), () -> new QueuePart()));
 		processNodesInfo.put(SelectPathNode.class,
 				new ProcessNodeInfo(SelectPathNode.name, () -> new SelectPathNode(), () -> new SelectPathPart()));
 	}
@@ -234,8 +241,22 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 	@Override
 	public void commandStackChanged(EventObject event) {
-		firePropertyChange(IEditorPart.PROP_DIRTY);
-		super.commandStackChanged(event);
+		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
+		try {
+			file.deleteMarkers(NodeWithProperty.PROCESS_MARKER, true, IResource.DEPTH_ZERO);
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+		for (Node node : model.getChildren()) {
+			try {
+				((NodeWithProperty) node).validateProperty(file);
+			} catch (CoreException e) {
+				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+						"Internal error", "Internal error during problem markers creation");
+			}
+			firePropertyChange(IEditorPart.PROP_DIRTY);
+			super.commandStackChanged(event);
+		}
 	}
 
 	public static ModelNode readModelFromFile(IFile file) throws ClassNotFoundException, IOException, CoreException {

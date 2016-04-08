@@ -1,5 +1,8 @@
 package ru.bmstu.rk9.rao.ui.process.node;
 
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.RGB;
 
 public abstract class NodeWithInterval extends NodeWithProperty {
@@ -32,5 +35,16 @@ public abstract class NodeWithInterval extends NodeWithProperty {
 
 	public String getIntervalName() {
 		return intervalName;
+	}
+
+	@Override
+	public void validateProperty(IResource file) throws CoreException {
+		try {
+			Double.valueOf(this.interval);
+		} catch (NumberFormatException e) {
+			IMarker marker = file.createMarker(NodeWithProperty.PROCESS_MARKER);
+			marker.setAttribute(IMarker.MESSAGE, "Wrong " + getIntervalName());
+			marker.setAttribute(IMarker.LOCATION, this.getName());
+		}
 	}
 }

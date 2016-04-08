@@ -14,6 +14,7 @@ public class GenerateNode extends NodeWithInterval {
 
 	public GenerateNode() {
 		super(foregroundColor.getRGB(), "Interval");
+		setName(name);
 		registerDock(DOCK_OUT);
 	}
 

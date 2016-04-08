@@ -19,6 +19,7 @@ public class ReleaseNode extends NodeWithResource {
 
 	public ReleaseNode() {
 		super(foregroundColor.getRGB());
+		setName(name);
 		registerDock(DOCK_IN);
 		registerDock(DOCK_OUT);
 	}

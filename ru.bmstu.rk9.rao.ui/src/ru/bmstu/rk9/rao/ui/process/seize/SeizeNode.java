@@ -19,6 +19,7 @@ public class SeizeNode extends NodeWithResource {
 
 	public SeizeNode() {
 		super(foregroundColor.getRGB());
+		setName(name);
 		registerDock(DOCK_IN);
 		registerDock(DOCK_OUT);
 	}

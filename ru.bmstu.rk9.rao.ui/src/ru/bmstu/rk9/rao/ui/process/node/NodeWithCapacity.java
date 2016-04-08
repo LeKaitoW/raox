@@ -1,5 +1,8 @@
 package ru.bmstu.rk9.rao.ui.process.node;
 
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.lib.process.Queue.Queueing;
@@ -36,5 +39,17 @@ public abstract class NodeWithCapacity extends NodeWithProperty {
 
 	public Integer getQueueingIndex() {
 		return queueing.ordinal();
+	}
+
+	@Override
+	public void validateProperty(IResource file) throws CoreException {
+		if (!capacity.isEmpty())
+			try {
+				Double.valueOf(this.capacity);
+			} catch (NumberFormatException e) {
+				IMarker marker = file.createMarker(NodeWithProperty.PROCESS_MARKER);
+				marker.setAttribute(IMarker.MESSAGE, "Wrong capacity");
+				marker.setAttribute(IMarker.LOCATION, this.getName());
+			}
 	}
 }
