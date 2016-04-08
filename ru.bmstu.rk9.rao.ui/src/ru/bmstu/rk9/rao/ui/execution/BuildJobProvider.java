@@ -14,7 +14,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -91,7 +90,11 @@ public class BuildJobProvider {
 		return projectToBuild;
 	}
 
-	public final IProject selectNewProject() {
+	public final IProject getProject() {
+		return recentProject;
+	}
+
+	private final IProject selectNewProject() {
 		IProject projectToBuild = getProjectToBuild(activeWorkbenchWindow, activeEditor);
 		if (projectToBuild == null)
 			return null;
@@ -101,8 +104,8 @@ public class BuildJobProvider {
 		return recentProject;
 	}
 
-	public final Job createBuildJob() {
-		Job buildJob = new Job("Building Rao model") {
+	public final Job createPreprocessJob() {
+		Job preprocessJob = new Job("Building Rao model") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				final Display display = PlatformUI.getWorkbench().getDisplay();
@@ -150,7 +153,7 @@ public class BuildJobProvider {
 				}
 
 				IFolder srcGenFolder = recentProject.getFolder("src-gen");
-				String srcGenErrorMessage = BuildUtil.checkSrcGen(recentProject, srcGenFolder, monitor);
+				String srcGenErrorMessage = BuildUtil.checkSrcGen(recentProject, srcGenFolder, monitor, false);
 				if (srcGenErrorMessage != null)
 					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(srcGenErrorMessage));
 
@@ -179,22 +182,32 @@ public class BuildJobProvider {
 					} catch (CoreException e) {
 						e.printStackTrace();
 						return new Status(IStatus.ERROR, pluginId,
-								BuildUtil.createErrorMessage("internal error whule calculating model error markers"),
+								BuildUtil.createErrorMessage("internal error while calculating model error markers"),
 								e);
 					}
 				}
 
-				if (projectHasErrors) {
-					try {
-						srcGenFolder.delete(true, new NullProgressMonitor());
-					} catch (CoreException e) {
-						e.printStackTrace();
-					}
+				if (projectHasErrors)
 					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage("model has errors"));
-				}
+
+				return Status.OK_STATUS;
+			}
+		};
+
+		preprocessJob.setPriority(Job.BUILD);
+		return preprocessJob;
+	}
+
+	public final Job createRebuildJob() {
+		Job rebuildJob = new Job("Building Rao model") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				IFolder srcGenFolder = recentProject.getFolder("src-gen");
+				String srcGenErrorMessage = BuildUtil.checkSrcGen(recentProject, srcGenFolder, monitor, true);
+				if (srcGenErrorMessage != null)
+					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(srcGenErrorMessage));
 
 				fsa.setOutputPath(srcGenFolder.getFullPath().toString());
-
 				fsa.setMonitor(monitor);
 				fsa.setProject(recentProject);
 
@@ -237,7 +250,7 @@ public class BuildJobProvider {
 			}
 		};
 
-		buildJob.setPriority(Job.BUILD);
-		return buildJob;
+		rebuildJob.setPriority(Job.BUILD);
+		return rebuildJob;
 	}
 }
