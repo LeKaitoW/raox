@@ -1116,18 +1116,19 @@
            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
         <toolbar
               id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar"
-              label="Rao Toolbar">
+              label="Rao Player Toolbar">
            <command
                  commandId="ru.bmstu.rk9.rao.ui.runtime.execute"
                  icon="icons/rao_model_run.gif"
-                 id="ru.bmstu.rk9.rao.ui.RaoToolbar.execute"
+                 id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.play"
+                 label="Play"
                  style="push">
               <visibleWhen
                     checkEnabled="false">
                  <with
-                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
                     <equals
-                          value="showActions">
+                          value="showPlayerActions">
                     </equals>
                  </with>
               </visibleWhen>
@@ -1135,14 +1136,15 @@
            <command
                  commandId="ru.bmstu.rk9.rao.ui.runtime.stop"
                  icon="icons/rao_stop.gif"
-                 id="ru.bmstu.rk9.rao.ui.RaoToolbar.stop"
+                 id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.stop"
+                 label="Stop"
                  style="push">
               <visibleWhen
                     checkEnabled="false">
                  <with
-                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
                     <equals
-                          value="showActions">
+                          value="showPlayerActions">
                     </equals>
                  </with>
               </visibleWhen>
@@ -1152,7 +1154,7 @@
               <visibleWhen
                     checkEnabled="false">
                  <with
-                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
                     <equals
                           value="showActions">
                     </equals>
@@ -1190,7 +1192,7 @@
               <visibleWhen
                     checkEnabled="false">
                  <with
-                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
                     <equals
                           value="showActions">
                     </equals>
@@ -1211,9 +1213,9 @@
               <visibleWhen
                     checkEnabled="false">
                  <with
-                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
                     <equals
-                          value="showActions">
+                          value="showPlayerActions">
                     </equals>
                  </with>
               </visibleWhen>
@@ -1232,9 +1234,9 @@
               <visibleWhen
                     checkEnabled="false">
                  <with
-                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
                     <equals
-                          value="showActions">
+                          value="showPlayerActions">
                     </equals>
                  </with>
               </visibleWhen>
@@ -1272,9 +1274,9 @@
               <visibleWhen
                     checkEnabled="false">
                  <with
-                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
                     <equals
-                          value="showActions">
+                          value="showPlayerActions">
                     </equals>
                  </with>
               </visibleWhen>
@@ -1293,9 +1295,9 @@
               <visibleWhen
                     checkEnabled="false">
                  <with
-                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
                     <equals
-                          value="showActions">
+                          value="showPlayerActions">
                     </equals>
                  </with>
               </visibleWhen>
@@ -1314,9 +1316,9 @@
               <visibleWhen
                     checkEnabled="false">
                  <with
-                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
                     <equals
-                          value="showActions">
+                          value="showPlayerwActions">
                     </equals>
                  </with>
               </visibleWhen>
@@ -1335,9 +1337,9 @@
               <visibleWhen
                     checkEnabled="false">
                  <with
-                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
                     <equals
-                          value="showActions">
+                          value="showPlayerActions">
                     </equals>
                  </with>
               </visibleWhen>
@@ -1356,9 +1358,9 @@
               <visibleWhen
                     checkEnabled="false">
                  <with
-                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
                     <equals
-                          value="showActions">
+                          value="showPlayerActions">
                     </equals>
                  </with>
               </visibleWhen>
