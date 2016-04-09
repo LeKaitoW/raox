@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
@@ -21,6 +22,9 @@ public class ModelState {
 
 			resourceManagers.put(resourceClass, new ResourceManager<>());
 		}
+	}
+
+	private ModelState() {
 	}
 
 	@SuppressWarnings("unchecked")
@@ -77,13 +81,17 @@ public class ModelState {
 		return true;
 	}
 
-	// FIXME stub
 	public void deploy() {
+		Simulator.setModelState(this);
 	}
 
-	// FIXME stub
-	public ModelState copy() {
-		return null;
+	public ModelState deepCopy() {
+		ModelState copy = new ModelState();
+		for (Entry<Class<?>, ResourceManager<?>> entry : resourceManagers.entrySet()) {
+			copy.resourceManagers.put(entry.getKey(), entry.getValue().deepCopy());
+		}
+
+		return copy;
 	}
 
 	private Map<Class<?>, ResourceManager<?>> resourceManagers = new HashMap<>();

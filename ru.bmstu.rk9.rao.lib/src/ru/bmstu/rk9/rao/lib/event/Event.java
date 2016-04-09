@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.lib.event;
 
+import ru.bmstu.rk9.rao.lib.database.SerializationConstants;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public abstract class Event {
@@ -14,6 +15,8 @@ public abstract class Event {
 	public final void run() {
 		execute();
 		Simulator.getDatabase().addEventEntry(this);
+		Simulator.getDatabase().addMemorizedResourceEntries(
+				this.getName() + "." + SerializationConstants.CREATED_RESOURCES, null, null);
 	}
 
 	protected abstract void execute();

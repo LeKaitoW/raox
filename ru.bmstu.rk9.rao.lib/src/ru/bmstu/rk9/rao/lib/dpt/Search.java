@@ -14,29 +14,28 @@ import java.util.function.Supplier;
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
-//import ru.bmstu.rk9.rao.lib.pattern.Pattern;
+import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.simulator.ModelState;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulatorState;
 
-public class Search extends AbstractDecisionPoint {
+public abstract class Search extends AbstractDecisionPoint {
 	public Search() {
 		Simulator.getSimulatorStateNotifier().addSubscriber(simulatorInitializedListener, SimulatorState.INITIALIZED,
 				EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED, SubscriptionType.ONE_SHOT));
+		initializeEdges();
+		init();
 	}
 
-	protected Supplier<Boolean> terminate;
-
-	private Supplier<ModelState> retriever;
+	protected abstract void initializeEdges();
 
 	protected boolean compareTops;
-
-	protected Supplier<Double> evaluateBy;
-
 	protected Supplier<Double> priority;
-	protected Supplier<Boolean> condition;
+	protected Supplier<Boolean> startCondition;
+	protected Supplier<Double> heuristic;
+	protected Supplier<Boolean> terminateCondition;
 	private Logic parent;
 
 	public Logic getParent() {
@@ -74,14 +73,14 @@ public class Search extends AbstractDecisionPoint {
 
 	private volatile boolean allowSearch = false;
 
-	private List<Edge> activities = new LinkedList<Edge>();
+	private List<Edge> edges = new LinkedList<Edge>();
 
 	public void addActivity(Edge a) {
-		activities.add(a);
+		edges.add(a);
 	}
 
-	public class ActivityInfo {
-		private ActivityInfo(int number, Rule rule) {
+	public class EdgeInfo {
+		private EdgeInfo(int number, Rule rule) {
 			this.number = number;
 			this.rule = rule;
 		}
@@ -99,7 +98,7 @@ public class Search extends AbstractDecisionPoint {
 		final int number;
 		final GraphNode parent;
 
-		ActivityInfo activityInfo;
+		EdgeInfo edgeInfo;
 
 		double g;
 		double h;
@@ -146,14 +145,14 @@ public class Search extends AbstractDecisionPoint {
 		if (!allowSearch)
 			return stop(StopCode.ABORTED);
 
-		if (condition != null && !condition.get() || terminate.get())
+		if (startCondition != null && !startCondition.get() || terminateCondition.get())
 			return stop(StopCode.CONDITION);
 
 		nodesOpen.clear();
 		nodesClosed.clear();
 
 		head = new GraphNode(totalAdded++, null);
-		head.state = retriever.get();
+		head.state = Simulator.getModelState();
 		nodesOpen.add(head);
 
 		while (!nodesOpen.isEmpty()) {
@@ -167,7 +166,7 @@ public class Search extends AbstractDecisionPoint {
 			totalOpened++;
 			serializeOpen(current);
 
-			if (terminate.get())
+			if (terminateCondition.get())
 				return stop(StopCode.SUCCESS);
 
 			nodesOpen.addAll(spawnChildren(current));
@@ -184,11 +183,15 @@ public class Search extends AbstractDecisionPoint {
 	private LinkedList<GraphNode> spawnChildren(GraphNode parent) {
 		LinkedList<GraphNode> children = new LinkedList<GraphNode>();
 
-		for (int activityNumber = 0; activityNumber < activities.size(); activityNumber++) {
-			Edge a = activities.get(activityNumber);
+		for (int edgeNumber = 0; edgeNumber < edges.size(); edgeNumber++) {
+			Edge edge = edges.get(edgeNumber);
 			double value = 0;
 
-			if (!a.check())
+			/* FIXME huge overhead if case of deep copy */
+			ModelState parentStateCopy = parent.state.deepCopy();
+			parentStateCopy.deploy();
+
+			if (!edge.check())
 				continue;
 
 			GraphNode newChild = new GraphNode(totalAdded, parent);
@@ -197,20 +200,20 @@ public class Search extends AbstractDecisionPoint {
 
 			SpawnStatus spawnStatus = SpawnStatus.NEW;
 
-			if (a.applyOrder == Edge.ApplyOrder.BEFORE)
-				value = a.calculateValue();
+			if (edge.applyOrder == Edge.ApplyOrder.BEFORE)
+				value = edge.calculateValue();
 
-			newChild.state = parent.state.copy();
+			newChild.state = parentStateCopy;
 			newChild.state.deploy();
 
-			Rule executed = a.execute();
-			newChild.activityInfo = new ActivityInfo(activityNumber, executed);
+			Rule executed = edge.execute();
+			newChild.edgeInfo = new EdgeInfo(edgeNumber, executed);
 
-			if (a.applyOrder == Edge.ApplyOrder.AFTER)
-				value = a.calculateValue();
+			if (edge.applyOrder == Edge.ApplyOrder.AFTER)
+				value = edge.calculateValue();
 
 			newChild.g = parent.g + value;
-			newChild.h = evaluateBy.get();
+			newChild.h = heuristic.get();
 
 			add_child: {
 				compare_tops: if (compareTops) {
@@ -234,10 +237,9 @@ public class Search extends AbstractDecisionPoint {
 				totalAdded++;
 			}
 
-			serializeTops(newChild, spawnStatus, newChild.activityInfo, value);
+			serializeTops(newChild, spawnStatus, value);
 
 			Simulator.getExecutionStateNotifier().notifySubscribers(ExecutionState.SEARCH_STEP);
-
 			parent.state.deploy();
 		}
 
@@ -313,7 +315,7 @@ public class Search extends AbstractDecisionPoint {
 
 	private final boolean enoughSensitivity(SerializationLevel checkedType) {
 		for (SerializationLevel type : SerializationLevel.values()) {
-			if (Simulator.getDatabase().sensitiveTo(getName() + "." + type.toString()))
+			if (Simulator.getDatabase().sensitiveTo(getTypeName() + "." + type.toString()))
 				if (serializationLevelComparator.compare(type, checkedType) >= 0)
 					return true;
 		}
@@ -333,7 +335,7 @@ public class Search extends AbstractDecisionPoint {
 			return;
 
 		ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.BYTE + Database.TypeSize.DOUBLE
-				+ Database.TypeSize.INTEGER * 4 + Database.TypeSize.LONG * 2);
+				+ Database.TypeSize.INT * 4 + Database.TypeSize.LONG * 2);
 
 		data.put((byte) code.ordinal()).putLong(System.currentTimeMillis() - time)
 				.putLong(memory - Runtime.getRuntime().freeMemory()).putDouble(finalCost).putInt(totalOpened)
@@ -344,7 +346,7 @@ public class Search extends AbstractDecisionPoint {
 
 	private final void serializeOpen(GraphNode node) {
 		if (node != head && enoughSensitivity(SerializationLevel.TOPS)) {
-			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.INTEGER * 2 + Database.TypeSize.DOUBLE * 2);
+			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.INT * 2 + Database.TypeSize.DOUBLE * 2);
 
 			data.putInt(node.number).putInt(node.parent.number).putDouble(node.g).putDouble(node.h);
 
@@ -352,25 +354,28 @@ public class Search extends AbstractDecisionPoint {
 		}
 	}
 
-	private final void serializeTops(GraphNode node, SpawnStatus spawnStatus, ActivityInfo activityInfo, double value) {
+	private final void serializeTops(GraphNode node, SpawnStatus spawnStatus, double value) {
+		Rule rule = node.edgeInfo.rule;
+		int edgeNumber = node.edgeInfo.number;
+
 		if (enoughSensitivity(SerializationLevel.TOPS)) {
-			List<Integer> relevantResources = node.activityInfo.rule.getRelevantInfo();
+			List<Integer> relevantResourcesNumbers = rule.getRelevantResourcesNumbers();
 
 			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.BYTE + Database.TypeSize.DOUBLE * 3
-					+ Database.TypeSize.INTEGER * (3 + relevantResources.size()));
+					+ Database.TypeSize.INT * (4 + relevantResourcesNumbers.size()));
 
 			data.put((byte) spawnStatus.ordinal()).putInt(node.number).putInt(node.parent.number).putDouble(node.g)
-					.putDouble(node.h).putInt(activityInfo.number).putDouble(value);
+					.putDouble(node.h).putInt(edgeNumber)
+					.putInt(Simulator.getStaticModelData().getPatternNumber(rule.getTypeName())).putDouble(value);
 
-			for (int relres : relevantResources)
-				data.putInt(relres);
+			for (int num : relevantResourcesNumbers)
+				data.putInt(num);
 
 			Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.SPAWN, data);
 		}
 
 		if (enoughSensitivity(SerializationLevel.ALL)) {
-			// activityInfo.rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SEARCH,
-			// this.getName());
+			rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SEARCH, this.getTypeName());
 		}
 	}
 
@@ -382,21 +387,21 @@ public class Search extends AbstractDecisionPoint {
 		for (Iterator<GraphNode> it = decision.descendingIterator(); it.hasNext();) {
 			node = it.next();
 
-			Rule rule = node.activityInfo.rule;
-			List<Integer> relevantResources = rule.getRelevantInfo();
+			Rule rule = node.edgeInfo.rule;
+			List<Integer> relevantResourcesNumbers = rule.getRelevantResourcesNumbers();
 
-			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.INTEGER * (2 + relevantResources.size()));
+			ByteBuffer data = ByteBuffer.allocate(Database.TypeSize.INT * (3 + relevantResourcesNumbers.size()));
 
-			data.putInt(node.number).putInt(node.activityInfo.number);
+			data.putInt(node.number).putInt(node.edgeInfo.number)
+					.putInt(Simulator.getStaticModelData().getPatternNumber(node.edgeInfo.rule.getTypeName()));
 
-			for (int relres : relevantResources)
-				data.putInt(relres);
+			for (int num : relevantResourcesNumbers)
+				data.putInt(num);
 
 			Simulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.DECISION, data);
 
 			if (enoughSensitivity(SerializationLevel.ALL)) {
-				// rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SOLUTION,
-				// this.getName());
+				rule.addResourceEntriesToDatabase(Pattern.ExecutedFrom.SOLUTION, this.getTypeName());
 			}
 		}
 	}

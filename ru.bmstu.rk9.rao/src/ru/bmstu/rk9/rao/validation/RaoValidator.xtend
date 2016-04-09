@@ -31,6 +31,8 @@ import ru.bmstu.rk9.rao.rao.EntityCreation
 import ru.bmstu.rk9.rao.rao.RaoEntity
 import java.util.Set
 import java.util.HashSet
+import ru.bmstu.rk9.rao.rao.Activity
+import ru.bmstu.rk9.rao.rao.Edge
 
 class RaoValidator extends AbstractRaoValidator
 {
@@ -203,18 +205,18 @@ class RaoValidator extends AbstractRaoValidator
 	}
 
 	@Check
-	def checkLogicDeclaration(Logic logic) {
-		if (!logic.constructor.actualType.isSubtypeOf(ru.bmstu.rk9.rao.lib.dpt.Logic)) {
-			error("Error in declaration of \"" + logic.name + "\": must be Logic class subtype.",
-				RaoPackage.eINSTANCE.entityCreation_Constructor)
+	def checkActivityDeclaration(Activity activity) {
+		if (!activity.constructor.actualType.isSubtypeOf(ru.bmstu.rk9.rao.lib.dpt.Activity)) {
+			error("Error in declaration of \"" + activity.name + "\": must be Activity class subtype.",
+				RaoPackage.eINSTANCE.activity_Constructor)
 		}
 	}
 
 	@Check
-	def checkSearchDeclaration(Search search) {
-		if (!search.constructor.actualType.isSubtypeOf(ru.bmstu.rk9.rao.lib.dpt.Search)) {
-			error("Error in declaration of \"" + search.name + "\": must be Search class subtype.",
-				RaoPackage.eINSTANCE.entityCreation_Constructor)
+	def checkEdgeDeclaration(Edge edge) {
+		if (!edge.constructor.actualType.isSubtypeOf(ru.bmstu.rk9.rao.lib.dpt.Edge)) {
+			error("Error in declaration of \"" + edge.name + "\": must be Edge class subtype.",
+				RaoPackage.eINSTANCE.edge_Constructor)
 		}
 	}
 

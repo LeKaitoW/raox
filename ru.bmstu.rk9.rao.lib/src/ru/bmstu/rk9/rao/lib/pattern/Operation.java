@@ -1,8 +1,6 @@
 package ru.bmstu.rk9.rao.lib.pattern;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ru.bmstu.rk9.rao.lib.database.SerializationConstants;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
@@ -34,24 +32,16 @@ public abstract class Operation extends Pattern {
 
 		@Override
 		public String getName() {
-			return Operation.this.getName() + "_endEvent";
+			return Operation.this.getTypeName() + "_endEvent";
 		}
 
 		@Override
 		protected void execute() {
 			Operation.this.end();
+			Simulator.getDatabase().addOperationEndEntry(Operation.this);
+			Simulator.getDatabase().addMemorizedResourceEntries(
+					Operation.this.getTypeName() + "." + SerializationConstants.CREATED_RESOURCES, null, null);
 			finish();
 		}
-	}
-
-	@Override
-	public String getName() {
-		return "Nameless operation";
-	}
-
-	// TODO stub
-	@Override
-	public List<Integer> getRelevantInfo() {
-		return new ArrayList<>();
 	}
 }

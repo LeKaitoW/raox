@@ -39,4 +39,8 @@ public class Transact extends ComparableResource<Transact> {
 		Simulator.getModelState().eraseResource(this);
 	}
 
+	@Override
+	public Transact deepCopy() {
+		return new Transact();
+	}
 }

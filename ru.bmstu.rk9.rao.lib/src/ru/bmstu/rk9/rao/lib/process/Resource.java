@@ -52,4 +52,9 @@ public class Resource extends ComparableResource<Resource> {
 	public void erase() {
 		Simulator.getModelState().eraseResource(this);
 	}
+
+	@Override
+	public Resource deepCopy() {
+		return null;
+	}
 }

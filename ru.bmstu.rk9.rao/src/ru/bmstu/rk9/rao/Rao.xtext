@@ -7,11 +7,6 @@ import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 
 generate rao "http://www.bmstu.ru/rk9/rao/Rao"
 
-
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                               Root tokens                             //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-
 RaoModel:
 	{RaoModel} objects += RaoEntity*
 ;
@@ -26,31 +21,19 @@ RaoEntity
 	| Result
 	| DefaultMethod
 	| EnumDeclaration
+	| Logic
+	| Search
 	| EntityCreation
 ;
-
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                            Entity Creation                            //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 EntityCreation
 	: ResourceDeclaration
 	| Sequence
 	| Constant
-	| Logic
-	| Search
 ;
 
 ResourceDeclaration:
 	'resource' name = ID '=' constructor = XOrExpression ';'?
-;
-
-Logic:
-	'logic' name = ID '=' constructor = XOrExpression ';'?
-;
-
-Search:
-	'search' name = ID '=' constructor = XOrExpression ';'?
 ;
 
 Sequence:
@@ -61,23 +44,15 @@ Constant:
 	'constant' name = ID '=' constructor = XOrExpression ';'?
 ;
 
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                             Resource Types                            //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-
 ResourceType:
 	'type' name = ID '{'
-		(parameters += FieldDeclaration)+
+		(parameters += FieldDeclaration)*
 	'}'
 ;
 
 FieldDeclaration
 	: declaration = FullJvmFormalParameter ('=' default = XOrExpression)? ';'?
 ;
-
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                                 Events                                //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 Event:
 	'event' name = ID '('
@@ -86,9 +61,27 @@ Event:
 	')' body = XBlockExpression
 ;
 
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                                 Patterns                              //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+Logic:
+	'logic' name = ID '{'
+		activities += Activity*
+		defaultMethods += DefaultMethod*
+	'}'
+;
+
+Activity:
+	'activity' name = ID '=' constructor = XOrExpression ';'?
+;
+
+Search:
+	'search' name = ID '{'
+		edges += Edge*
+		defaultMethods += DefaultMethod*
+	'}'
+;
+
+Edge:
+	'edge' name = ID '=' constructor = XOrExpression ';'?
+;
 
 Pattern:
 	type = PatternType name = ID '('
@@ -114,20 +107,12 @@ RelevantResourceTuple:
 	'relevants' names += ID (',' names += ID)* '=' value = XOrExpression ';'?
 ;
 
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                               Generators                              //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-
 Generator:
 	'generator' name = ID '<' type = JvmTypeReference '>' '('
 		(parameters += FullJvmFormalParameter (
 			',' parameters += FullJvmFormalParameter)*)?
 	')' body = XBlockExpression
 ;
-
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                               Functions                               //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 FunctionDeclaration:
 	type = JvmTypeReference name = ID '('
@@ -136,45 +121,23 @@ FunctionDeclaration:
 	')' body = XBlockExpression
 ;
 
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                                Results                                //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-
 // TODO
 Result:
 	'result' name = ID
 ;
 
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                           Animation frame                             //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-
 Frame:
 	'frame' name = ID body = XBlockExpression
 ;
-
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                             Default methods                           //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-
-DefaultMethod:
-	'set' name = ID '(' ')'
-		body = XBlockExpression
-;
-
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                           Enum Declarations                           //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 EnumDeclaration:
 	'enum' name = ID '{' values += ID (',' values += ID)* '}'
 ;
 
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-//                               RAO types                               //
-// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
-
-FQN: ID ('.' ID)*;
+DefaultMethod:
+	'set' name = ID '(' ')'
+		body = XBlockExpression
+;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 //                           Basic Terminals                             //

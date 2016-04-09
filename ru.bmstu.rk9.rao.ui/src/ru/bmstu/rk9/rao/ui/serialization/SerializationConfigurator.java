@@ -11,6 +11,7 @@ import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 
 import ru.bmstu.rk9.rao.jvmmodel.RaoNaming;
 import ru.bmstu.rk9.rao.lib.database.Database.SerializationCategory;
+import ru.bmstu.rk9.rao.lib.database.SerializationConstants;
 import ru.bmstu.rk9.rao.lib.dpt.Search.SerializationLevel;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.rao.Event;
@@ -29,18 +30,16 @@ class SerializationConfigurator {
 		for (SerializationNode category : modelNode.getVisibleChildren())
 			category.hideChildren();
 
-		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.RESOURCES.ordinal()), model,
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.RESOURCE.ordinal()), model,
 				ResourceDeclaration.class);
 
-		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.PATTERNS.ordinal()), model,
-				Pattern.class);
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.PATTERN.ordinal()), model, Pattern.class);
 
-		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.EVENTS.ordinal()), model, Event.class);
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.EVENT.ordinal()), model, Event.class);
 
-		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.DECISION_POINTS.ordinal()), model,
-				Logic.class);
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.LOGIC.ordinal()), model, Logic.class);
 
-		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.RESULTS.ordinal()), model, Result.class);
+		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.RESULT.ordinal()), model, Result.class);
 
 		fillCategory(modelNode.getVisibleChildren().get(SerializationCategory.SEARCH.ordinal()), model, Search.class);
 	}
@@ -60,7 +59,7 @@ class SerializationConfigurator {
 					child.addChild(child.getFullName() + "." + type.toString());
 			}
 			if (categoryItem instanceof Pattern || categoryItem instanceof Event) {
-				child.addChild(child.getFullName() + ".createdResources");
+				child.addChild(child.getFullName() + "." + SerializationConstants.CREATED_RESOURCES);
 			}
 		}
 	}

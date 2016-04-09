@@ -64,6 +64,7 @@ public abstract class DefferedSubscriberManager<T> {
 				return;
 
 			initializationFired = true;
+			targetInitialized = true;
 
 			registerExecutionSubscribers();
 		}
@@ -74,13 +75,18 @@ public abstract class DefferedSubscriberManager<T> {
 	private final Subscriber deinitializationSubscriber = new Subscriber() {
 		@Override
 		public void fireChange() {
+			boolean targerWasInitisalized = targetInitialized;
+			targetInitialized = false;
+
 			if (!needFire)
 				return;
 
 			if (subscriptionFlags.contains(SubscriptionType.IGNORE_ACCUMULATED) && !initializationFired)
 				return;
 
-			unregisterExecutionSubscribers();
+			if (targerWasInitisalized)
+				unregisterExecutionSubscribers();
+
 			if (subscriptionFlags.contains(SubscriptionType.ONE_SHOT)) {
 				needFire = false;
 				deinitialize();
@@ -94,4 +100,5 @@ public abstract class DefferedSubscriberManager<T> {
 	protected final Set<T> subscribersInfo = new HashSet<T>();
 	private boolean initializationFired = false;
 	private boolean needFire = true;
+	private boolean targetInitialized = false;
 }

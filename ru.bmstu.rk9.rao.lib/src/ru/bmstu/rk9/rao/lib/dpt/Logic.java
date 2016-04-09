@@ -7,11 +7,15 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Supplier;
 
-public class Logic extends AbstractDecisionPoint {
-	public Logic(Supplier<Double> priority, Supplier<Boolean> condition) {
-		this.priority = priority;
-		this.condition = condition;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+
+public abstract class Logic extends AbstractDecisionPoint {
+	public Logic() {
+		initializeActivities();
+		init();
 	}
+
+	protected abstract void initializeActivities();
 
 	private static Comparator<Activity> comparator = new Comparator<Activity>() {
 		@Override
@@ -32,17 +36,17 @@ public class Logic extends AbstractDecisionPoint {
 		}
 	};
 
-	protected Supplier<Double> priority;
-	protected Supplier<Boolean> condition;
-	protected Logic parent;
+	private Supplier<Double> priority = () -> 0.0;
+	private Supplier<Boolean> condition = () -> true;
+	private Logic parent = null;
 
 	private List<AbstractDecisionPoint> children = new ArrayList<AbstractDecisionPoint>();
 
-	void addChild(AbstractDecisionPoint child) {
+	protected void addChild(AbstractDecisionPoint child) {
 		children.add(child);
 	}
 
-	protected SortedSet<Activity> activities = new TreeSet<Activity>(comparator);
+	private SortedSet<Activity> activities = new TreeSet<Activity>(comparator);
 
 	@Override
 	public boolean check() {
@@ -51,12 +55,12 @@ public class Logic extends AbstractDecisionPoint {
 		all.addAll(children);
 		all.add(this);
 
-		for (AbstractDecisionPoint d : all)
-			if (d == this) {
+		for (AbstractDecisionPoint decisionPoint : all)
+			if (decisionPoint == this) {
 				if (checkCurrent())
 					return true;
 			} else {
-				if (d.check())
+				if (decisionPoint.check())
 					return true;
 			}
 		return false;
@@ -70,25 +74,29 @@ public class Logic extends AbstractDecisionPoint {
 	}
 
 	private boolean checkActivities() {
-		for (Activity a : activities)
-			if (a.execute())
+		for (Activity activity : activities)
+			if (activity.execute()) {
+				Simulator.getDatabase().addDecisionEntry(this, activity);
+				activity.getPattern().addResourceEntriesToDatabase(null, null);
+
 				return true;
+			}
 
 		return false;
 	}
 
 	/* API available to user */
 
-	public void setParent(Logic parent) {
+	protected void setParent(Logic parent) {
 		this.parent = parent;
 		parent.addChild(this);
 	}
 
-	public Logic getParent() {
+	protected Logic getParent() {
 		return parent;
 	}
 
-	public void setPriority(Supplier<Double> priority) {
+	protected void setPriority(Supplier<Double> priority) {
 		this.priority = priority;
 	}
 
@@ -97,19 +105,16 @@ public class Logic extends AbstractDecisionPoint {
 		return priority;
 	}
 
-	public void setCondition(Supplier<Boolean> condition) {
+	protected void setCondition(Supplier<Boolean> condition) {
 		this.condition = condition;
 	}
 
-	public Supplier<Boolean> getCondition() {
+	protected Supplier<Boolean> getCondition() {
 		return condition;
 	}
 
-	public void addActivity(Activity a) {
+	protected void addActivity(Activity a) {
+		a.setNumber(activities.size());
 		activities.add(a);
-	}
-
-	public SortedSet<Activity> getActivities() {
-		return activities;
 	}
 }

@@ -18,21 +18,24 @@ public class Activity extends AbstractActivity {
 		this.priority = priority;
 	}
 
-	public final void setPriority(Supplier<Double> priority) {
-		this.priority = priority;
-	}
-
-	public Supplier<Double> priority;
+	public final Supplier<Double> priority;
 	private final Supplier<? extends Pattern> patternFabric;
 
-	public boolean execute() {
-		Pattern current = patternFabric.get();
+	public final boolean execute() {
+		currentPattern = patternFabric.get();
 
-		if (current.selectRelevantResources()) {
-			current.run();
+		if (currentPattern.selectRelevantResources()) {
+			currentPattern.run();
 			return true;
 		}
 
 		return false;
 	}
+
+	@Override
+	public final Pattern getPattern() {
+		return currentPattern;
+	}
+
+	private Pattern currentPattern = null;
 }
