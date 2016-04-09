@@ -2,11 +2,11 @@ package ru.bmstu.rk9.rao.ui.player;
 
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 
-public class Player {
+public class Player implements Runnable {
 
 	private void delay(int time) {
 		try {
-			Thread.sleep(time); 
+			Thread.sleep(time);
 		} catch (InterruptedException ex) {
 			Thread.currentThread().interrupt();
 		}
@@ -42,19 +42,33 @@ public class Player {
 
 	}
 
-	public int run(int currentEventNumber, int time, PlayingDirection playingDirection) {
+	public static void stop() {
+		Thread thread = new Thread(new Player());
+		thread.start();
+		System.out.println("Stop");
+		state = "Stop";
+	}
 
-		jsonModelStateObject = getModelData();
-
-		String state = new String();
+	public static void play() {
+		Thread thread = new Thread(new Player());
+		thread.start();
+		System.out.println("Play");
 		state = "Play";
+	}
+
+	public synchronized int runPlayer(int currentEventNumber, int time, PlayingDirection playingDirection) {
+
+		
+		jsonModelStateObject = getModelData();
 
 		while (state != "Stop" && state != "Pause" && (currentEventNumber <= (jsonModelStateObject.length() - 1))
 				&& currentEventNumber > 0) {
-			Double currentFrameTime = jsonModelStateObject.getJSONObject(currentEventNumber).getJSONArray("Current resourses").getJSONObject(1).getDouble("time ");
+			Double currentFrameTime = jsonModelStateObject.getJSONObject(currentEventNumber)
+					.getJSONArray("Current resourses").getJSONObject(1).getDouble("time ");
 			delay(time);
-			System.out.println("\n" + "Time " + currentFrameTime + "Event number " + currentEventNumber + " Current frame"
-					+ jsonModelStateObject.getJSONObject(currentEventNumber).getJSONArray("Current resourses")  );
+			System.out
+					.println("\n" + "Time " + currentFrameTime + "Event number " + currentEventNumber + " Current frame"
+							+ jsonModelStateObject.getJSONObject(currentEventNumber).getJSONArray("Current resourses"));
 			currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
 
 		}
@@ -64,10 +78,13 @@ public class Player {
 
 	}
 
-	public int run() {
-		return run(0, 1000, PlayingDirection.FORWARD);
+	public void run() {
+	//System.out.println("MyRunnable running from Player");
+
+		return;
 	}
 
+	private static volatile String state = new String("");
 	private JSONArray jsonModelStateObject = new JSONArray();
 	private final Reader reader = new Reader();
 

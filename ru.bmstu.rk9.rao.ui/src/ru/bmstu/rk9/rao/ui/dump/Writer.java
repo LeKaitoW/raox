@@ -5,8 +5,6 @@ import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
-import ru.bmstu.rk9.rao.ui.player.Player;
-import ru.bmstu.rk9.rao.ui.player.Player.PlayingDirection;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
@@ -37,7 +35,6 @@ public class Writer {
 			JSONObject jsonModelStateObject = new JSONObject();
 			jsonModelStateObject.put("Model state array", jsonModelStateArray);
 			serializer.dumpResoursestoJSONfile(jsonModelStateObject);
-			player.run(5, 1000, PlayingDirection.BACKWARD);
 		}
 
 	}
@@ -46,7 +43,6 @@ public class Writer {
 		simulationSubscriberManager.deinitialize();
 	}
 
-	private final Player player = new Player();
 	private final JSONArray jsonModelStateArray = new JSONArray();
 	public final SimulationEndSubscriber simulationEndSubscriber = new SimulationEndSubscriber();
 	private final Serializer serializer = new Serializer();

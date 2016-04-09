@@ -517,16 +517,12 @@
            commandId="ru.bmstu.rk9.rao.ui.runtime.exportTrace">
      </handler>
      <handler
-           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.execution.StartExecutionHandler"
+           class="ru.bmstu.rk9.rao.ui.player.handler.PlayHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.player.play">
-        <enabledWhen>
-           <with
-                 variable="ru.bmstu.rk9.rao.ui.handlers.playerState">
-              <equals
-                    value="STOPPED">
-              </equals>
-           </with>
-        </enabledWhen>
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rao.ui.player.handler.StopHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.player.stop">
      </handler>
   </extension>
   <extension
@@ -1133,7 +1129,7 @@
                  commandId="ru.bmstu.rk9.rao.ui.runtime.player.play"
                  icon="icons/rao_model_run.gif"
                  id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.play"
-                 label="Play"
+                 label="Play "
                  style="push">
               <visibleWhen
                     checkEnabled="false">
@@ -1146,7 +1142,7 @@
               </visibleWhen>
            </command>
            <command
-                 commandId="ru.bmstu.rk9.rao.ui.runtime.stop"
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.player.stop"
                  icon="icons/rao_stop.gif"
                  id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.stop"
                  label="Stop"
@@ -1185,7 +1181,7 @@
                  <with
                        variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
                     <equals
-                          value="showActions">
+                          value="showPlayerActions">
                     </equals>
                  </with>
               </visibleWhen>
