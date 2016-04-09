@@ -41,6 +41,7 @@ public abstract class NodeWithProbability extends NodeWithProperty {
 			IMarker marker = file.createMarker(NodeWithProperty.PROCESS_MARKER);
 			marker.setAttribute(IMarker.MESSAGE, "Wrong probability");
 			marker.setAttribute(IMarker.LOCATION, this.getName());
+			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		}
 	}
 }
