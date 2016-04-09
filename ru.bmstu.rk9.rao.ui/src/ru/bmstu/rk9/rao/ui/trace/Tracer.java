@@ -10,11 +10,11 @@ import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
+import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.lib.process.Hold.HoldAction;
 import ru.bmstu.rk9.rao.lib.process.Queue.QueueAction;
 import ru.bmstu.rk9.rao.lib.process.SelectPath.SelectPathOutputs;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.modelData.StaticModelData;
 import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
 
 public class Tracer {

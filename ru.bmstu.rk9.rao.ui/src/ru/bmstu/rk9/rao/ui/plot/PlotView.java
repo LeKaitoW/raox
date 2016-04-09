@@ -39,7 +39,7 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceTypeIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
-import ru.bmstu.rk9.rao.lib.modelData.ModelStructureConstants;
+import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;

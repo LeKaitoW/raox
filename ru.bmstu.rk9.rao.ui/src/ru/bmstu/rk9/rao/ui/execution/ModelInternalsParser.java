@@ -19,12 +19,15 @@ import org.eclipse.core.runtime.CoreException;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.DataType;
+import ru.bmstu.rk9.rao.lib.dpt.AbstractDecisionPoint;
 import ru.bmstu.rk9.rao.lib.dpt.Activity;
+import ru.bmstu.rk9.rao.lib.dpt.Edge;
 import ru.bmstu.rk9.rao.lib.dpt.Logic;
+import ru.bmstu.rk9.rao.lib.dpt.Search;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
-import ru.bmstu.rk9.rao.lib.modelData.ModelStructureConstants;
+import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.lib.naming.RaoNameable;
 import ru.bmstu.rk9.rao.lib.pattern.Operation;
@@ -42,7 +45,7 @@ import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 public class ModelInternalsParser {
 	private final SimulatorPreinitializationInfo simulatorPreinitializationInfo = new SimulatorPreinitializationInfo();
 	private final SimulatorInitializationInfo simulatorInitializationInfo = new SimulatorInitializationInfo();
-	private final List<Class<?>> logicClasses = new ArrayList<>();
+	private final List<Class<?>> decisionPointClasses = new ArrayList<>();
 	private final List<Field> nameableFields = new ArrayList<>();
 
 	private URLClassLoader classLoader;
@@ -162,7 +165,7 @@ public class ModelInternalsParser {
 			}
 
 			if (Logic.class.isAssignableFrom(nestedModelClass)) {
-				logicClasses.add(nestedModelClass);
+				decisionPointClasses.add(nestedModelClass);
 
 				JSONArray activities = new JSONArray();
 				for (Field field : nestedModelClass.getDeclaredFields()) {
@@ -175,6 +178,23 @@ public class ModelInternalsParser {
 				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.LOGICS)
 						.put(new JSONObject().put(ModelStructureConstants.NAME, className)
 								.put(ModelStructureConstants.ACTIVITIES, activities));
+				continue;
+			}
+
+			if (Search.class.isAssignableFrom(nestedModelClass)) {
+				decisionPointClasses.add(nestedModelClass);
+
+				JSONArray edges = new JSONArray();
+				for (Field field : nestedModelClass.getDeclaredFields()) {
+					String fieldName = field.getName();
+					if (Edge.class.isAssignableFrom(field.getType())) {
+						edges.put(new JSONObject().put(ModelStructureConstants.NAME, fieldName));
+					}
+				}
+
+				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.SEARCHES)
+						.put(new JSONObject().put(ModelStructureConstants.NAME, className)
+								.put(ModelStructureConstants.EDGES, edges));
 				continue;
 			}
 		}
@@ -211,9 +231,9 @@ public class ModelInternalsParser {
 			nameable.setName(name);
 		}
 
-		for (Class<?> logicClass : logicClasses) {
-			Logic logic = (Logic) logicClass.newInstance();
-			simulatorInitializationInfo.decisionPoints.add(logic);
+		for (Class<?> decisionPointClass : decisionPointClasses) {
+			AbstractDecisionPoint dpt = (AbstractDecisionPoint) decisionPointClass.newInstance();
+			simulatorInitializationInfo.decisionPoints.add(dpt);
 		}
 
 		for (IResource processFile : BuildUtil.getAllFilesInProject(project, "proc")) {

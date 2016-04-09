@@ -26,7 +26,7 @@ import ru.bmstu.rk9.rao.lib.dpt.Search;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
-import ru.bmstu.rk9.rao.lib.modelData.ModelStructureConstants;
+import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.pattern.Operation;
 import ru.bmstu.rk9.rao.lib.pattern.Pattern;

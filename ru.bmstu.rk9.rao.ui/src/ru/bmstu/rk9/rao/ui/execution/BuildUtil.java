@@ -23,6 +23,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.ui.IEditorPart;
 import org.osgi.framework.Bundle;
 
@@ -124,36 +125,42 @@ public class BuildUtil {
 		return null;
 	}
 
-	static String checkSrcGen(IProject project, IFolder srcGenFolder, IProgressMonitor monitor) {
+	private static void addSrcGenToClassPath(IProject project, IFolder srcGenFolder, IProgressMonitor monitor)
+			throws JavaModelException {
 		IJavaProject jProject = JavaCore.create(project);
-		try {
-			IClasspathEntry[] projectClassPathArray;
-			projectClassPathArray = jProject.getRawClasspath();
-			List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
-					Arrays.asList(projectClassPathArray));
 
-			if (srcGenFolder.exists()) {
+		IClasspathEntry[] projectClassPathArray;
+		projectClassPathArray = jProject.getRawClasspath();
+		List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
+				Arrays.asList(projectClassPathArray));
+
+		boolean srcGenInClasspath = false;
+		for (IClasspathEntry classpathEntry : projectClassPathArray) {
+			if (classpathEntry.getPath().equals(srcGenFolder.getFullPath())) {
+				srcGenInClasspath = true;
+				break;
+			}
+		}
+
+		if (!srcGenInClasspath) {
+			IClasspathEntry libEntry = JavaCore.newSourceEntry(srcGenFolder.getFullPath(), null, null);
+			projectClassPathList.add(libEntry);
+
+			jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
+					monitor);
+		}
+	}
+
+	static String checkSrcGen(IProject project, IFolder srcGenFolder, IProgressMonitor monitor, boolean clean) {
+		try {
+			if (!srcGenFolder.exists()) {
+				srcGenFolder.create(true, true, new NullProgressMonitor());
+			} else if (clean) {
 				for (IResource resource : srcGenFolder.members(true))
 					resource.delete(true, new NullProgressMonitor());
-			} else {
-				srcGenFolder.create(true, true, new NullProgressMonitor());
 			}
 
-			boolean srcGenInClasspath = false;
-			for (IClasspathEntry classpathEntry : projectClassPathArray) {
-				if (classpathEntry.getPath().equals(srcGenFolder.getFullPath())) {
-					srcGenInClasspath = true;
-					break;
-				}
-			}
-
-			if (!srcGenInClasspath) {
-				IClasspathEntry libEntry = JavaCore.newSourceEntry(srcGenFolder.getFullPath(), null, null);
-				projectClassPathList.add(libEntry);
-
-				jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
-						monitor);
-			}
+			addSrcGenToClassPath(project, srcGenFolder, monitor);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "internal error while checking src-gen:\n" + e.getMessage();

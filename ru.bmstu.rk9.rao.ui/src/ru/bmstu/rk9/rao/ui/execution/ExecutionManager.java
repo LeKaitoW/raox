@@ -56,42 +56,63 @@ public class ExecutionManager {
 		this.validatorExtension = validatorExtension;
 	}
 
-	public final void execute(boolean rebuild) {
+	public final void execute(boolean buildOnly) {
 		Job executionJob = new Job("Building Rao model") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 						SimulationState.RUNNING.toString());
 				try {
-
 					BuildJobProvider modelBuilder = new BuildJobProvider(activeEditor, activeWorkbenchWindow, fsa,
 							resourceSetProvider, outputConfigurationProvider, validatorExtension);
 
-					if (rebuild) {
-						final Job build = modelBuilder.createBuildJob();
-						build.schedule();
-						try {
-							build.join();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-							return new Status(IStatus.ERROR, pluginId, "Internal error while finishing build");
-						}
-
-						if (build.getResult() != Status.OK_STATUS) {
-							ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
-									SimulationState.STOPPED.toString());
-							ConsoleView.addLine("Build failed");
-							return new Status(IStatus.CANCEL, pluginId, "Execution cancelled");
-						}
-
+					final Job preprocess = modelBuilder.createPreprocessJob();
+					preprocess.schedule();
+					try {
+						preprocess.join();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 								SimulationState.STOPPED.toString());
+						return new Status(IStatus.ERROR, pluginId, "Internal error while finishing model validation");
+					}
+
+					if (preprocess.getResult() != Status.OK_STATUS) {
+						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
+								SimulationState.STOPPED.toString());
+						ConsoleView.addLine("Build failed");
+						return new Status(IStatus.CANCEL, pluginId, "Execution cancelled");
+					}
+
+					// TODO uncomment the code below after succeeding in running inferrer manually in rebuild job
+//					final Job rebuild = modelBuilder.createRebuildJob();
+//					rebuild.schedule();
+//					try {
+//						rebuild.join();
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
+//								SimulationState.STOPPED.toString());
+//						return new Status(IStatus.ERROR, pluginId, "Internal error while finishing build");
+//					}
+//
+//					if (rebuild.getResult() != Status.OK_STATUS) {
+//						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
+//								SimulationState.STOPPED.toString());
+//						ConsoleView.addLine("Build failed");
+//						return new Status(IStatus.CANCEL, pluginId, "Execution cancelled");
+//					}
+
+					if (buildOnly) {
+						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
+								SimulationState.STOPPED.toString());
+
 						return Status.OK_STATUS;
 					}
 
 					executionManagerNotifier.notifySubscribers(ExecutionManagerState.BEFORE_RUN);
 
-					final IProject project = modelBuilder.selectNewProject();
+					final IProject project = modelBuilder.getProject();
 					ExecutionJobProvider modelExecutioner = new ExecutionJobProvider(project);
 					final Job runJob = modelExecutioner.createExecutionJob();
 					runJob.schedule();

@@ -37,6 +37,11 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				'''
 			]
 
+			if (!resourceType.parameters.empty)
+				members += resourceType.toConstructor [
+					visibility = JvmVisibility.PRIVATE
+				]
+
 			members += resourceType.toMethod("create", typeRef) [
 				visibility = JvmVisibility.PUBLIC
 				static = true
@@ -89,9 +94,9 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				m.annotations += generateOverrideAnnotation()
 				m.body = '''
 					«IF resourceType.parameters.isEmpty»
-					return true;
+						return true;
 					«ELSE»
-					return «String.join(" && ", resourceType.parameters.map[ p |
+						return «String.join(" && ", resourceType.parameters.map[ p |
 						'''«IF p.declaration.parameterType.type instanceof JvmPrimitiveType
 								»this._«p.declaration.name» == other._«p.declaration.name»«
 							ELSE
@@ -100,6 +105,21 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 						'''
 					])»;
 					«ENDIF»
+				'''
+			]
+
+			members += resourceType.toMethod("deepCopy", typeRef) [
+				visibility = JvmVisibility.PUBLIC
+				annotations += generateOverrideAnnotation
+				body = '''
+					«resourceType.name» copy = new «resourceType.name»();
+					copy.setNumber(this.number);
+					copy.setName(this.name);
+					«FOR param : resourceType.parameters»
+						copy._«param.declaration.name» = this._«param.declaration.name»;
+					«ENDFOR»
+
+					return copy;
 				'''
 			]
 

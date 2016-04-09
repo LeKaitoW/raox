@@ -32,4 +32,9 @@ public class TestResource extends ComparableResource<TestResource> {
 	public ByteBuffer serialize() {
 		return null;
 	}
+
+	@Override
+	public TestResource deepCopy() {
+		return null;
+	}
 }

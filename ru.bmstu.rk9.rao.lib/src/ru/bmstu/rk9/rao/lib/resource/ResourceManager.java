@@ -4,18 +4,17 @@ import java.util.Collection;
 import java.util.Collections;
 
 import java.util.Iterator;
-
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.stream.Collectors;
 
 public class ResourceManager<T extends ComparableResource<T>> {
-	private SortedMap<Integer, T> resources;
-
-	private Integer resourceNumber;
+	private SortedMap<Integer, T> resources = new ConcurrentSkipListMap<Integer, T>();
+	private Integer numberOfResources = 0;
 
 	public void addResource(T res) {
-		Integer number = resourceNumber++;
+		Integer number = numberOfResources++;
 
 		res.setNumber(number);
 		resources.put(number, res);
@@ -41,17 +40,18 @@ public class ResourceManager<T extends ComparableResource<T>> {
 	}
 
 	public ResourceManager() {
-		this.resources = new ConcurrentSkipListMap<Integer, T>();
-		this.resourceNumber = 0;
+		this.numberOfResources = 0;
 	}
 
-	private ResourceManager(ResourceManager<T> source) {
-		this.resources = new ConcurrentSkipListMap<Integer, T>(source.resources);
-		this.resourceNumber = source.resourceNumber;
-	}
+	public ResourceManager<T> deepCopy() {
+		ResourceManager<T> copy = new ResourceManager<>();
 
-	public ResourceManager<T> copy() {
-		return new ResourceManager<T>(this);
+		copy.numberOfResources = this.numberOfResources;
+		for (Entry<Integer, T> entry : this.resources.entrySet()) {
+			copy.resources.put(entry.getKey(), entry.getValue().deepCopy());
+		}
+
+		return copy;
 	}
 
 	public boolean checkEqual(ResourceManager<T> other) {

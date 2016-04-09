@@ -9,7 +9,7 @@ import ru.bmstu.rk9.rao.lib.dpt.DPTManager;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.event.EventScheduler;
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
-import ru.bmstu.rk9.rao.lib.modelData.StaticModelData;
+import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.process.Process;
 import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
@@ -106,6 +106,10 @@ public class Simulator {
 
 	public static ModelState getModelState() {
 		return INSTANCE.modelState;
+	}
+
+	public static void setModelState(ModelState modelState) {
+		INSTANCE.modelState = modelState;
 	}
 
 	private volatile double time = 0;
