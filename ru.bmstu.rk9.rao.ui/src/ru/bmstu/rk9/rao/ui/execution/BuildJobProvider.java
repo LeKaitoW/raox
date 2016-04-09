@@ -138,14 +138,6 @@ public class BuildJobProvider {
 				display.syncExec(() -> PlatformUI.getWorkbench().saveAll(activeWorkbenchWindow, activeWorkbenchWindow,
 						filter, true));
 
-				String libErrorMessage = BuildUtil.checkLib(recentProject, monitor, BundleType.RAO_LIB);
-				if (libErrorMessage != null)
-					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(libErrorMessage));
-
-				libErrorMessage = BuildUtil.checkLib(recentProject, monitor, BundleType.XBASE_LIB);
-				if (libErrorMessage != null)
-					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(libErrorMessage));
-
 				final List<IResource> raoFiles = BuildUtil.getAllRaoFilesInProject(recentProject);
 				if (raoFiles.isEmpty()) {
 					return new Status(IStatus.ERROR, pluginId,
@@ -202,6 +194,14 @@ public class BuildJobProvider {
 		Job rebuildJob = new Job("Building Rao model") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
+				String libErrorMessage = BuildUtil.checkLib(recentProject, monitor, BundleType.RAO_LIB);
+				if (libErrorMessage != null)
+					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(libErrorMessage));
+
+				libErrorMessage = BuildUtil.checkLib(recentProject, monitor, BundleType.XBASE_LIB);
+				if (libErrorMessage != null)
+					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(libErrorMessage));
+
 				IFolder srcGenFolder = recentProject.getFolder("src-gen");
 				String srcGenErrorMessage = BuildUtil.checkSrcGen(recentProject, srcGenFolder, monitor, true);
 				if (srcGenErrorMessage != null)
