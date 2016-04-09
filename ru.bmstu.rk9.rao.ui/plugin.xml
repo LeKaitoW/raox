@@ -516,6 +516,18 @@
            class="ru.bmstu.rk9.rao.ui.trace.ExportTraceHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.exportTrace">
      </handler>
+     <handler
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.execution.StartExecutionHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.player.play">
+        <enabledWhen>
+           <with
+                 variable="ru.bmstu.rk9.rao.ui.handlers.playerState">
+              <equals
+                    value="STOPPED">
+              </equals>
+           </with>
+        </enabledWhen>
+     </handler>
   </extension>
   <extension
         point="org.eclipse.ui.menus">
@@ -1118,7 +1130,7 @@
               id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar"
               label="Rao Player Toolbar">
            <command
-                 commandId="ru.bmstu.rk9.rao.ui.runtime.execute"
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.player.play"
                  icon="icons/rao_model_run.gif"
                  id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.play"
                  label="Play"
