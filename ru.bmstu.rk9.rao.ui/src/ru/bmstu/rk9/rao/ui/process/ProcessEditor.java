@@ -244,19 +244,14 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
 		try {
 			file.deleteMarkers(NodeWithProperty.PROCESS_MARKER, true, IResource.DEPTH_ZERO);
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-		for (Node node : model.getChildren()) {
-			try {
+			for (Node node : model.getChildren())
 				((NodeWithProperty) node).validateProperty(file);
-			} catch (CoreException e) {
-				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-						"Internal error", "Internal error during problem markers creation");
-			}
-			firePropertyChange(IEditorPart.PROP_DIRTY);
-			super.commandStackChanged(event);
+		} catch (CoreException e) {
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Internal error",
+					"Internal error during problem markers creation");
 		}
+		firePropertyChange(IEditorPart.PROP_DIRTY);
+		super.commandStackChanged(event);
 	}
 
 	public static ModelNode readModelFromFile(IFile file) throws ClassNotFoundException, IOException, CoreException {
