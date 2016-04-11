@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rao.ui.process.node;
 
 import java.util.List;
+
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -9,7 +10,7 @@ import org.eclipse.swt.graphics.RGB;
 import ru.bmstu.rk9.rao.ui.process.EResourceRetriever;
 import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 
-public abstract class NodeWithResource extends NodeWithConnections {
+public abstract class BlockNodeWithResource extends BlockNode {
 
 	private static final long serialVersionUID = 1;
 
@@ -17,7 +18,7 @@ public abstract class NodeWithResource extends NodeWithConnections {
 
 	protected String resourceName = "";
 
-	public NodeWithResource(RGB foregroundColor) {
+	public BlockNodeWithResource(RGB foregroundColor) {
 		super(foregroundColor);
 	}
 
@@ -39,7 +40,7 @@ public abstract class NodeWithResource extends NodeWithConnections {
 	public void validateResource(IResource file) throws CoreException {
 
 		if (!getResourcesNames().contains(resourceName)) {
-			IMarker marker = file.createMarker(NodeWithProperty.PROCESS_MARKER);
+			IMarker marker = file.createMarker(BlockNode.PROCESS_MARKER);
 			marker.setAttribute(IMarker.MESSAGE, "Wrong resource");
 			marker.setAttribute(IMarker.LOCATION, getName());
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);

@@ -8,14 +8,16 @@ import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithInterval;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNodeWithInterval;
 
-public class HoldNode extends NodeWithInterval implements Serializable {
+public class HoldNode extends BlockNodeWithInterval implements Serializable {
 
 	private static final long serialVersionUID = 1;
 
 	public static final String DOCK_IN = "IN";
 	public static final String DOCK_OUT = "OUT";
+	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
+	public static String name = "Hold";
 
 	public HoldNode() {
 		super(foregroundColor.getRGB(), "Hold");
@@ -23,9 +25,6 @@ public class HoldNode extends NodeWithInterval implements Serializable {
 		registerDock(DOCK_IN);
 		registerDock(DOCK_OUT);
 	}
-
-	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
-	public static String name = "Hold";
 
 	@Override
 	public BlockConverterInfo createBlock() {

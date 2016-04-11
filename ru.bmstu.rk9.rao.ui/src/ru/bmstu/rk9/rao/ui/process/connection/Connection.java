@@ -4,57 +4,57 @@ import java.io.Serializable;
 
 import org.eclipse.core.runtime.IAdaptable;
 
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithConnections;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 
 public class Connection implements Serializable, IAdaptable {
 
 	private static final long serialVersionUID = 1;
 
 	public static String name = "Connection";
-	protected NodeWithConnections sourceNode;
-	protected NodeWithConnections targetNode;
+	protected BlockNode sourceBlockNode;
+	protected BlockNode targetBlockNode;
 
 	private String sourceDockName;
 	private String targetDockName;
 
-	public Connection(NodeWithConnections sourceNode, NodeWithConnections targetNode, String sourceDockName,
+	public Connection(BlockNode sourceBlockNode, BlockNode targetBlockNode, String sourceDockName,
 			String targetDockName) {
-		this.sourceNode = sourceNode;
-		this.targetNode = targetNode;
+		this.sourceBlockNode = sourceBlockNode;
+		this.targetBlockNode = targetBlockNode;
 		setSourceDockName(sourceDockName);
 		setTargetDockName(targetDockName);
 	}
 
-	public NodeWithConnections getSourceNode() {
-		return sourceNode;
+	public BlockNode getSourceBlockNode() {
+		return sourceBlockNode;
 	}
 
-	public NodeWithConnections getTargetNode() {
-		return targetNode;
+	public BlockNode getTargetBlockNode() {
+		return targetBlockNode;
 	}
 
 	public void connect() {
-		sourceNode.addConnection(this);
-		targetNode.addConnection(this);
-		sourceNode.captureDock(sourceDockName);
-		targetNode.captureDock(targetDockName);
+		sourceBlockNode.addConnection(this);
+		targetBlockNode.addConnection(this);
+		sourceBlockNode.captureDock(sourceDockName);
+		targetBlockNode.captureDock(targetDockName);
 	}
 
 	public void disconnect() {
-		sourceNode.removeConnection(this);
-		targetNode.removeConnection(this);
-		sourceNode.releaseDock(sourceDockName);
-		targetNode.releaseDock(targetDockName);
+		sourceBlockNode.removeConnection(this);
+		targetBlockNode.removeConnection(this);
+		sourceBlockNode.releaseDock(sourceDockName);
+		targetBlockNode.releaseDock(targetDockName);
 	}
 
-	public void reconnect(NodeWithConnections sourceNode, NodeWithConnections targetNode, String sourceDockName,
+	public void reconnect(BlockNode sourceBlockNode, BlockNode targetBlockNode, String sourceDockName,
 			String targetDockName) {
-		if (sourceNode == null || targetNode == null || sourceNode == targetNode) {
+		if (sourceBlockNode == null || targetBlockNode == null || sourceBlockNode == targetBlockNode) {
 			throw new IllegalArgumentException();
 		}
 		disconnect();
-		this.sourceNode = sourceNode;
-		this.targetNode = targetNode;
+		this.sourceBlockNode = sourceBlockNode;
+		this.targetBlockNode = targetBlockNode;
 		this.sourceDockName = sourceDockName;
 		this.targetDockName = targetDockName;
 		connect();

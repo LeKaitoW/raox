@@ -2,77 +2,80 @@ package ru.bmstu.rk9.rao.ui.process.connection;
 
 import org.eclipse.gef.commands.Command;
 
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithConnections;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 
 public class ConnectionReconnectCommand extends Command {
 
 	private Connection connection;
-	private NodeWithConnections oldSourceNode;
-	private NodeWithConnections oldTargetNode;
-	private NodeWithConnections newSourceNode;
-	private NodeWithConnections newTargetNode;
-	private String oldSourceDockName, oldTargetDockName, newSourceDockName, newTargetDockName;
+	private BlockNode oldSourceBlockNode;
+	private BlockNode oldTargetBlockNode;
+	private BlockNode newSourceBlockNode;
+	private BlockNode newTargetBlockNode;
+	private String oldSourceDockName;
+	private String oldTargetDockName;
+	private String newSourceDockName;
+	private String newTargetDockName;
 
 	public ConnectionReconnectCommand(Connection connection) {
 		if (connection == null)
 			throw new IllegalArgumentException();
 
 		this.connection = connection;
-		this.oldSourceNode = connection.getSourceNode();
-		this.oldTargetNode = connection.getTargetNode();
+		this.oldSourceBlockNode = connection.getSourceBlockNode();
+		this.oldTargetBlockNode = connection.getTargetBlockNode();
 		this.oldSourceDockName = connection.getSourceDockName();
 		this.oldTargetDockName = connection.getTargetDockName();
 	}
 
 	@Override
 	public boolean canExecute() {
-		if (newSourceNode != null) {
+		if (newSourceBlockNode != null) {
 			return checkSourceReconnection();
 		}
-		if (newTargetNode != null) {
+		if (newTargetBlockNode != null) {
 			return checkTargetReconnection();
 		}
 		return false;
 	}
 
 	private boolean checkSourceReconnection() {
-		if (newSourceNode.equals(oldTargetNode))
+		if (newSourceBlockNode.equals(oldTargetBlockNode))
 			return false;
-		if (newSourceNode.getDocksCount(newSourceDockName) > 0)
+		if (newSourceBlockNode.getDocksCount(newSourceDockName) > 0)
 			return false;
 		return true;
 	}
 
 	private boolean checkTargetReconnection() {
-		if (oldSourceNode.equals(newTargetNode))
+		if (oldSourceBlockNode.equals(newTargetBlockNode))
 			return false;
 		return true;
 	}
 
-	public void setNewSource(NodeWithConnections sourceNode, String sourceDockName) {
-		if (sourceNode == null || sourceDockName == null) {
+	public void setNewSource(BlockNode sourceBlockNode, String sourceDockName) {
+		if (sourceBlockNode == null || sourceDockName == null) {
 			throw new IllegalArgumentException();
 		}
-		this.newSourceNode = sourceNode;
-		this.newTargetNode = null;
+		this.newSourceBlockNode = sourceBlockNode;
+		this.newTargetBlockNode = null;
 		this.newSourceDockName = sourceDockName;
 	}
 
-	public void setNewTarget(NodeWithConnections targetNode, String targetDockName) {
-		if (targetNode == null || targetDockName == null) {
+	public void setNewTarget(BlockNode targetBlockNode, String targetDockName) {
+		if (targetBlockNode == null || targetDockName == null) {
 			throw new IllegalArgumentException();
 		}
-		this.newSourceNode = null;
-		this.newTargetNode = targetNode;
+		this.newSourceBlockNode = null;
+		this.newTargetBlockNode = targetBlockNode;
 		this.newTargetDockName = targetDockName;
 	}
 
 	@Override
 	public void execute() {
-		if (newSourceNode != null) {
-			connection.reconnect(newSourceNode, oldTargetNode, newSourceDockName, oldTargetDockName);
-		} else if (newTargetNode != null) {
-			connection.reconnect(oldSourceNode, newTargetNode, oldSourceDockName, newTargetDockName);
+		if (newSourceBlockNode != null) {
+			connection.reconnect(newSourceBlockNode, oldTargetBlockNode, newSourceDockName, oldTargetDockName);
+		} else if (newTargetBlockNode != null) {
+			connection.reconnect(oldSourceBlockNode, newTargetBlockNode, oldSourceDockName, newTargetDockName);
 		} else {
 			throw new IllegalStateException("Internal error: new source node and new target node cannot both be null");
 		}
@@ -80,6 +83,6 @@ public class ConnectionReconnectCommand extends Command {
 
 	@Override
 	public void undo() {
-		connection.reconnect(oldSourceNode, oldTargetNode, oldSourceDockName, oldTargetDockName);
+		connection.reconnect(oldSourceBlockNode, oldTargetBlockNode, oldSourceDockName, oldTargetDockName);
 	}
 }

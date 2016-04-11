@@ -20,8 +20,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 import ru.bmstu.rk9.rao.ui.process.node.Node;
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithConnections;
 
 public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		implements PropertyChangeListener, NodeEditPart {
@@ -65,9 +65,9 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		}
 		if (evt.getPropertyName().equals(Node.PROPERTY_CONSTRAINT))
 			refreshVisuals();
-		if (evt.getPropertyName().equals(NodeWithConnections.SOURCE_CONNECTION_UPDATED))
+		if (evt.getPropertyName().equals(BlockNode.SOURCE_CONNECTION_UPDATED))
 			refreshSourceConnections();
-		if (evt.getPropertyName().equals(NodeWithConnections.TARGET_CONNECTION_UPDATED))
+		if (evt.getPropertyName().equals(BlockNode.TARGET_CONNECTION_UPDATED))
 			refreshTargetConnections();
 	}
 
@@ -117,12 +117,20 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 
 	@Override
 	public List<Connection> getModelSourceConnections() {
-		return ((NodeWithConnections) getModel()).getSourceConnections();
+		Node node = (Node) getModel();
+		if (node instanceof BlockNode) {
+			return ((BlockNode) node).getSourceConnections();
+		}
+		return null;
 	}
 
 	@Override
 	public List<Connection> getModelTargetConnections() {
-		return ((NodeWithConnections) getModel()).getTargetConnections();
+		Node node = (Node) getModel();
+		if (node instanceof BlockNode) {
+			return ((BlockNode) node).getTargetConnections();
+		}
+		return null;
 	}
 
 	final protected String mapConnectionAnchorToDock(ConnectionAnchor connectionAnchor) {

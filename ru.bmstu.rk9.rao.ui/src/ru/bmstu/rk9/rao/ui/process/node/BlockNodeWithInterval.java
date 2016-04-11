@@ -5,32 +5,31 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.RGB;
 
-public abstract class NodeWithInterval extends NodeWithConnections {
+public abstract class BlockNodeWithInterval extends BlockNode {
 
 	private static final long serialVersionUID = 1;
 
 	public static final String PROPERTY_INTERVAL = "NodeInterval";
 	private String intervalName;
-
 	protected String interval = "";
 
-	public NodeWithInterval(RGB foregroundColor) {
+	public BlockNodeWithInterval(RGB foregroundColor) {
 		super(foregroundColor);
 	}
 
-	public NodeWithInterval(RGB foregroundColor, String intervalName) {
+	public BlockNodeWithInterval(RGB foregroundColor, String intervalName) {
 		super(foregroundColor);
 		this.intervalName = intervalName;
+	}
+
+	public String getInterval() {
+		return interval;
 	}
 
 	public void setInterval(String interval) {
 		String oldInterval = this.interval;
 		this.interval = interval;
 		getListeners().firePropertyChange(PROPERTY_INTERVAL, oldInterval, interval);
-	}
-
-	public String getInterval() {
-		return interval;
 	}
 
 	public String getIntervalName() {
@@ -41,7 +40,7 @@ public abstract class NodeWithInterval extends NodeWithConnections {
 		try {
 			Double.valueOf(interval);
 		} catch (NumberFormatException e) {
-			IMarker marker = file.createMarker(NodeWithProperty.PROCESS_MARKER);
+			IMarker marker = file.createMarker(BlockNode.PROCESS_MARKER);
 			marker.setAttribute(IMarker.MESSAGE, "Wrong " + getIntervalName());
 			marker.setAttribute(IMarker.LOCATION, getName());
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);

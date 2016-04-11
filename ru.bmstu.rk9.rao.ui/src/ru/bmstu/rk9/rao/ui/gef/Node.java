@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Node implements Serializable {
+public class Node implements Serializable {
 
 	private static final long serialVersionUID = 1;
 
@@ -22,7 +22,7 @@ public abstract class Node implements Serializable {
 		listeners = new PropertyChangeSupport(this);
 	}
 
-	public boolean addChild(Node child) {
+	public final boolean addChild(Node child) {
 		boolean isAdded = this.children.add(child);
 		if (isAdded) {
 			child.setParent(this);
@@ -31,38 +31,38 @@ public abstract class Node implements Serializable {
 		return isAdded;
 	}
 
-	public boolean removeChild(Node child) {
+	public final boolean removeChild(Node child) {
 		boolean isRemoved = this.children.remove(child);
 		if (isRemoved)
 			getListeners().firePropertyChange(PROPERTY_REMOVE, child, null);
 		return isRemoved;
 	}
 
-	public List<Node> getChildren() {
+	public final List<Node> getChildren() {
 		return this.children;
 	}
 
-	public Node getParent() {
+	public final Node getParent() {
 		return this.parent;
 	}
 
-	public void setParent(Node parent) {
+	public final void setParent(Node parent) {
 		this.parent = parent;
 	}
 
-	public PropertyChangeSupport getListeners() {
+	public final PropertyChangeSupport getListeners() {
 		return listeners;
 	}
 
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
+	public final void addPropertyChangeListener(PropertyChangeListener listener) {
 		listeners.addPropertyChangeListener(listener);
 	}
 
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
+	public final void removePropertyChangeListener(PropertyChangeListener listener) {
 		listeners.removePropertyChangeListener(listener);
 	}
 
-	public boolean contains(Node child) {
+	public final boolean contains(Node child) {
 		return children.contains(child);
 	}
 }

@@ -7,48 +7,46 @@ import java.util.Map;
 
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 import ru.bmstu.rk9.rao.ui.process.node.Node;
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithConnections;
 
 public class BlockConverter {
 
 	public static List<Block> convertModelToBlocks(Node model) {
 		List<ru.bmstu.rk9.rao.ui.gef.Node> children = model.getChildren();
 		List<Block> blocks = new ArrayList<Block>();
-		Map<Node, BlockConverterInfo> blocksMap = new HashMap<>();
+		Map<Node, BlockConverterInfo> blockNodes = new HashMap<>();
 		for (ru.bmstu.rk9.rao.ui.gef.Node node : children) {
-			if (!(node instanceof NodeWithConnections))
+			if (!(node instanceof BlockNode))
 				continue;
 
-			NodeWithConnections nodeWithConnections = (NodeWithConnections) node;
-			BlockConverterInfo blockInfo;
-			if (!blocksMap.containsKey(nodeWithConnections)) {
-				blockInfo = nodeWithConnections.createBlock();
-				if (!blockInfo.isSuccessful)
-					throw new ProcessParsingException(blockInfo.errorMessage);
-				blocks.add(blockInfo.block);
-				blocksMap.put(nodeWithConnections, blockInfo);
+			BlockNode sourceBlockNode = (BlockNode) node;
+			BlockConverterInfo sourceBlockInfo;
+			if (blockNodes.containsKey(sourceBlockNode)) {
+				sourceBlockInfo = blockNodes.get(sourceBlockNode);
 			} else {
-				blockInfo = blocksMap.get(nodeWithConnections);
+				sourceBlockInfo = sourceBlockNode.createBlock();
+				if (!sourceBlockInfo.isSuccessful)
+					throw new ProcessParsingException(sourceBlockInfo.errorMessage);
+				blocks.add(sourceBlockInfo.block);
+				blockNodes.put(sourceBlockNode, sourceBlockInfo);
 			}
 
-			for (Connection sourceConnection : nodeWithConnections.getSourceConnections()) {
-				if (!(sourceConnection.getTargetNode() instanceof NodeWithConnections))
-					continue;
-
-				NodeWithConnections targetNode = sourceConnection.getTargetNode();
+			for (Connection sourceConnection : sourceBlockNode.getSourceConnections()) {
+				BlockNode targetBlockNode = sourceConnection.getTargetBlockNode();
 				BlockConverterInfo targetBlockInfo;
-				if (!blocksMap.containsKey(targetNode)) {
-					targetBlockInfo = targetNode.createBlock();
+				if (blockNodes.containsKey(targetBlockNode)) {
+					targetBlockInfo = blockNodes.get(targetBlockNode);
+				} else {
+					targetBlockInfo = targetBlockNode.createBlock();
 					if (!targetBlockInfo.isSuccessful)
 						throw new ProcessParsingException(targetBlockInfo.errorMessage);
 					blocks.add(targetBlockInfo.block);
-					blocksMap.put(targetNode, targetBlockInfo);
-				} else {
-					targetBlockInfo = blocksMap.get(targetNode);
+					blockNodes.put(targetBlockNode, targetBlockInfo);
 				}
+
 				ru.bmstu.rk9.rao.lib.process.Connection.linkDocks(
-						blockInfo.outputDocks.get(sourceConnection.getSourceDockName()),
+						sourceBlockInfo.outputDocks.get(sourceConnection.getSourceDockName()),
 						targetBlockInfo.inputDocks.get(sourceConnection.getTargetDockName()));
 			}
 		}

@@ -7,7 +7,7 @@ import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.lib.process.Queue.Queueing;
 
-public abstract class NodeWithCapacity extends NodeWithConnections {
+public abstract class BlockNodeWithCapacity extends BlockNode {
 
 	private static final long serialVersionUID = 1;
 
@@ -17,8 +17,12 @@ public abstract class NodeWithCapacity extends NodeWithConnections {
 	protected String capacity = "";
 	protected Queueing queueing = Queueing.FIFO;
 
-	public NodeWithCapacity(RGB foregroundColor) {
+	public BlockNodeWithCapacity(RGB foregroundColor) {
 		super(foregroundColor);
+	}
+
+	public String getCapacity() {
+		return capacity;
 	}
 
 	public void setCapacity(String capacity) {
@@ -27,8 +31,8 @@ public abstract class NodeWithCapacity extends NodeWithConnections {
 		getListeners().firePropertyChange(PROPERTY_CAPACITY, oldCapacity, capacity);
 	}
 
-	public String getCapacity() {
-		return capacity;
+	public Integer getQueueingIndex() {
+		return queueing.ordinal();
 	}
 
 	public void setQueueing(int index) {
@@ -37,17 +41,13 @@ public abstract class NodeWithCapacity extends NodeWithConnections {
 		getListeners().firePropertyChange(PROPERTY_QUEUEING, oldQueueig, queueing);
 	}
 
-	public Integer getQueueingIndex() {
-		return queueing.ordinal();
-	}
-	
 	protected final void validateCapacity(IResource file) throws CoreException {
 		if (capacity.isEmpty())
 			return;
 		try {
 			Double.valueOf(capacity);
 		} catch (NumberFormatException e) {
-			IMarker marker = file.createMarker(NodeWithProperty.PROCESS_MARKER);
+			IMarker marker = file.createMarker(BlockNode.PROCESS_MARKER);
 			marker.setAttribute(IMarker.MESSAGE, "Wrong capacity");
 			marker.setAttribute(IMarker.LOCATION, this.getName());
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);

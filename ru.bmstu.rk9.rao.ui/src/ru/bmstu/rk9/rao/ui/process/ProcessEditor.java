@@ -57,8 +57,8 @@ import ru.bmstu.rk9.rao.ui.process.hold.HoldPart;
 import ru.bmstu.rk9.rao.ui.process.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 import ru.bmstu.rk9.rao.ui.process.node.NodeFactory;
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 import ru.bmstu.rk9.rao.ui.process.queue.QueueNode;
 import ru.bmstu.rk9.rao.ui.process.queue.QueuePart;
 import ru.bmstu.rk9.rao.ui.process.release.ReleaseNode;
@@ -242,9 +242,9 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	public void commandStackChanged(EventObject event) {
 		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
 		try {
-			file.deleteMarkers(NodeWithProperty.PROCESS_MARKER, true, IResource.DEPTH_ZERO);
+			file.deleteMarkers(BlockNode.PROCESS_MARKER, true, IResource.DEPTH_ZERO);
 			for (ru.bmstu.rk9.rao.ui.gef.Node node : model.getChildren())
-				((NodeWithProperty) node).validateProperty(file);
+				((BlockNode) node).validateProperty(file);
 		} catch (CoreException e) {
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Internal error",
 					"Internal error during problem markers creation");

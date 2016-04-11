@@ -37,7 +37,7 @@ import org.eclipse.xtext.validation.CheckMode;
 
 import ru.bmstu.rk9.rao.ui.RaoActivatorExtension;
 import ru.bmstu.rk9.rao.ui.execution.BuildUtil.BundleType;
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 
 public class BuildJobProvider {
 	private final EclipseResourceFileSystemAccess2 fsa;
@@ -195,8 +195,7 @@ public class BuildJobProvider {
 				boolean projectHasErrors;
 				try {
 					boolean raoHasErrors = projectHasErrors(raoFiles, IMarker.PROBLEM, monitor, true);
-					boolean procHasErrors = projectHasErrors(processFiles, NodeWithProperty.PROCESS_MARKER, monitor,
-							false);
+					boolean procHasErrors = projectHasErrors(processFiles, BlockNode.PROCESS_MARKER, monitor, false);
 					projectHasErrors = raoHasErrors || procHasErrors;
 				} catch (CoreException e) {
 					e.printStackTrace();

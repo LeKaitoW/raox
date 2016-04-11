@@ -35,23 +35,23 @@ public class NodePropertySource implements IPropertySource {
 		PropertyDescriptor nameProperty = new CheckboxPropertyDescriptor(Node.PROPERTY_NAME, "Show name");
 		properties.add(nameProperty);
 
-		if (node instanceof NodeWithResource) {
-			properties.add(new ComboBoxPropertyDescriptor(NodeWithResource.PROPERTY_RESOURCE, "Resource",
-					((NodeWithResource) node).getResourcesNames().stream().toArray(String[]::new)));
+		if (node instanceof BlockNodeWithResource) {
+			properties.add(new ComboBoxPropertyDescriptor(BlockNodeWithResource.PROPERTY_RESOURCE, "Resource",
+					((BlockNodeWithResource) node).getResourcesNames().stream().toArray(String[]::new)));
 		}
 
-		if (node instanceof NodeWithInterval) {
-			properties.add(new TextPropertyDescriptor(NodeWithInterval.PROPERTY_INTERVAL,
-					((NodeWithInterval) node).getIntervalName()));
+		if (node instanceof BlockNodeWithInterval) {
+			properties.add(new TextPropertyDescriptor(BlockNodeWithInterval.PROPERTY_INTERVAL,
+					((BlockNodeWithInterval) node).getIntervalName()));
 		}
 
-		if (node instanceof NodeWithProbability) {
-			properties.add(new TextPropertyDescriptor(NodeWithProbability.PROPERTY_PROBABILITY, "Probability"));
+		if (node instanceof BlockNodeWithProbability) {
+			properties.add(new TextPropertyDescriptor(BlockNodeWithProbability.PROPERTY_PROBABILITY, "Probability"));
 		}
 
-		if (node instanceof NodeWithCapacity) {
-			properties.add(new TextPropertyDescriptor(NodeWithCapacity.PROPERTY_CAPACITY, "Capacity"));
-			properties.add(new ComboBoxPropertyDescriptor(NodeWithCapacity.PROPERTY_QUEUEING, "Queueing",
+		if (node instanceof BlockNodeWithCapacity) {
+			properties.add(new TextPropertyDescriptor(BlockNodeWithCapacity.PROPERTY_CAPACITY, "Capacity"));
+			properties.add(new ComboBoxPropertyDescriptor(BlockNodeWithCapacity.PROPERTY_QUEUEING, "Queueing",
 					Queue.getQueueingArray()));
 		}
 
@@ -66,20 +66,20 @@ public class NodePropertySource implements IPropertySource {
 		if (id.equals(Node.PROPERTY_NAME)) {
 			return node.nameIsVisible();
 		}
-		if (id.equals(NodeWithResource.PROPERTY_RESOURCE) && node instanceof NodeWithResource) {
-			return ((NodeWithResource) node).getResourceNameIndex();
+		if (id.equals(BlockNodeWithResource.PROPERTY_RESOURCE) && node instanceof BlockNodeWithResource) {
+			return ((BlockNodeWithResource) node).getResourceNameIndex();
 		}
-		if (id.equals(NodeWithInterval.PROPERTY_INTERVAL) && node instanceof NodeWithInterval) {
-			return ((NodeWithInterval) node).getInterval();
+		if (id.equals(BlockNodeWithInterval.PROPERTY_INTERVAL) && node instanceof BlockNodeWithInterval) {
+			return ((BlockNodeWithInterval) node).getInterval();
 		}
-		if (id.equals(NodeWithProbability.PROPERTY_PROBABILITY) && node instanceof NodeWithProbability) {
-			return ((NodeWithProbability) node).getProbability();
+		if (id.equals(BlockNodeWithProbability.PROPERTY_PROBABILITY) && node instanceof BlockNodeWithProbability) {
+			return ((BlockNodeWithProbability) node).getProbability();
 		}
-		if (id.equals(NodeWithCapacity.PROPERTY_CAPACITY) && node instanceof NodeWithCapacity) {
-			return ((NodeWithCapacity) node).getCapacity();
+		if (id.equals(BlockNodeWithCapacity.PROPERTY_CAPACITY) && node instanceof BlockNodeWithCapacity) {
+			return ((BlockNodeWithCapacity) node).getCapacity();
 		}
-		if (id.equals(NodeWithCapacity.PROPERTY_QUEUEING) && node instanceof NodeWithCapacity) {
-			return ((NodeWithCapacity) node).getQueueingIndex();
+		if (id.equals(BlockNodeWithCapacity.PROPERTY_QUEUEING) && node instanceof BlockNodeWithCapacity) {
+			return ((BlockNodeWithCapacity) node).getQueueingIndex();
 		}
 
 		return null;
@@ -101,16 +101,16 @@ public class NodePropertySource implements IPropertySource {
 			node.setColor(newColor);
 		} else if (id.equals(Node.PROPERTY_NAME)) {
 			node.setNameVisible((boolean) value);
-		} else if (id.equals(NodeWithResource.PROPERTY_RESOURCE) && node instanceof NodeWithResource) {
-			((NodeWithResource) node).setResourceName((int) value);
-		} else if (id.equals(NodeWithInterval.PROPERTY_INTERVAL) && node instanceof NodeWithInterval) {
-			((NodeWithInterval) node).setInterval((String) value);
-		} else if (id.equals(NodeWithProbability.PROPERTY_PROBABILITY) && node instanceof NodeWithProbability) {
-			((NodeWithProbability) node).setProbability((String) value);
-		} else if (id.equals(NodeWithCapacity.PROPERTY_CAPACITY) && node instanceof NodeWithCapacity) {
-			((NodeWithCapacity) node).setCapacity((String) value);
-		} else if (id.equals(NodeWithCapacity.PROPERTY_QUEUEING) && node instanceof NodeWithCapacity) {
-			((NodeWithCapacity) node).setQueueing((int) value);
+		} else if (id.equals(BlockNodeWithResource.PROPERTY_RESOURCE) && node instanceof BlockNodeWithResource) {
+			((BlockNodeWithResource) node).setResourceName((int) value);
+		} else if (id.equals(BlockNodeWithInterval.PROPERTY_INTERVAL) && node instanceof BlockNodeWithInterval) {
+			((BlockNodeWithInterval) node).setInterval((String) value);
+		} else if (id.equals(BlockNodeWithProbability.PROPERTY_PROBABILITY) && node instanceof BlockNodeWithProbability) {
+			((BlockNodeWithProbability) node).setProbability((String) value);
+		} else if (id.equals(BlockNodeWithCapacity.PROPERTY_CAPACITY) && node instanceof BlockNodeWithCapacity) {
+			((BlockNodeWithCapacity) node).setCapacity((String) value);
+		} else if (id.equals(BlockNodeWithCapacity.PROPERTY_QUEUEING) && node instanceof BlockNodeWithCapacity) {
+			((BlockNodeWithCapacity) node).setQueueing((int) value);
 		}
 	}
 }

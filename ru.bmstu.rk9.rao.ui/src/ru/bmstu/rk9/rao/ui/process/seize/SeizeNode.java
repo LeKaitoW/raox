@@ -10,14 +10,16 @@ import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithResource;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNodeWithResource;
 
-public class SeizeNode extends NodeWithResource {
+public class SeizeNode extends BlockNodeWithResource {
 
 	private static final long serialVersionUID = 1;
 
 	public static final String DOCK_IN = "IN";
 	public static final String DOCK_OUT = "OUT";
+	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
+	public static String name = "Seize";
 
 	public SeizeNode() {
 		super(foregroundColor.getRGB());
@@ -25,9 +27,6 @@ public class SeizeNode extends NodeWithResource {
 		registerDock(DOCK_IN);
 		registerDock(DOCK_OUT);
 	}
-
-	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
-	public static String name = "Seize";
 
 	@Override
 	public BlockConverterInfo createBlock() {

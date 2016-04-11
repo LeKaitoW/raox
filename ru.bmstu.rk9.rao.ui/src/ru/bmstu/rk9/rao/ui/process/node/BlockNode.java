@@ -14,7 +14,7 @@ import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.ProcessLogicException;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 
-public abstract class NodeWithConnections extends Node {
+public abstract class BlockNode extends Node {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,14 +26,14 @@ public abstract class NodeWithConnections extends Node {
 	protected List<Connection> targetConnections;
 	private final Map<String, Integer> dockNames = new HashMap<>();
 
-	public NodeWithConnections(RGB foregroundColor) {
+	public BlockNode(RGB foregroundColor) {
 		super(foregroundColor);
 		sourceConnections = new ArrayList<Connection>();
 		targetConnections = new ArrayList<Connection>();
 	}
 
 	public final boolean addConnection(Connection connection) {
-		if (connection.getSourceNode() == this) {
+		if (connection.getSourceBlockNode() == this) {
 			if (!sourceConnections.contains(connection)) {
 				if (sourceConnections.add(connection)) {
 					getListeners().firePropertyChange(SOURCE_CONNECTION_UPDATED, null, connection);
@@ -41,7 +41,7 @@ public abstract class NodeWithConnections extends Node {
 				}
 				return false;
 			}
-		} else if (connection.getTargetNode() == this) {
+		} else if (connection.getTargetBlockNode() == this) {
 			if (!targetConnections.contains(connection)) {
 				if (targetConnections.add(connection)) {
 					getListeners().firePropertyChange(TARGET_CONNECTION_UPDATED, null, connection);
@@ -54,7 +54,7 @@ public abstract class NodeWithConnections extends Node {
 	}
 
 	public final boolean removeConnection(Connection connection) {
-		if (connection.getSourceNode() == this) {
+		if (connection.getSourceBlockNode() == this) {
 			if (sourceConnections.contains(connection)) {
 				if (sourceConnections.remove(connection)) {
 					getListeners().firePropertyChange(SOURCE_CONNECTION_UPDATED, null, connection);
@@ -62,7 +62,7 @@ public abstract class NodeWithConnections extends Node {
 				}
 				return false;
 			}
-		} else if (connection.getTargetNode() == this) {
+		} else if (connection.getTargetBlockNode() == this) {
 			if (targetConnections.contains(connection)) {
 				if (targetConnections.remove(connection)) {
 					getListeners().firePropertyChange(TARGET_CONNECTION_UPDATED, null, connection);
@@ -121,7 +121,7 @@ public abstract class NodeWithConnections extends Node {
 		if (getSourceConnections().size() == sourceConnections && getTargetConnections().size() == targetConnections)
 			return;
 
-		IMarker marker = file.createMarker(NodeWithProperty.PROCESS_MARKER);
+		IMarker marker = file.createMarker(BlockNode.PROCESS_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, "Not all docks are connected");
 		marker.setAttribute(IMarker.LOCATION, getName());
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);

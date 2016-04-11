@@ -8,50 +8,50 @@ import org.eclipse.gef.requests.ReconnectRequest;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreateCommand;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionReconnectCommand;
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithConnections;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 
 public class ConnectionPolicy extends GraphicalNodeEditPolicy {
 
 	@Override
 	protected Command getConnectionCompleteCommand(CreateConnectionRequest request) {
 		ConnectionCreateCommand command = (ConnectionCreateCommand) request.getStartCommand();
-		NodeWithConnections targetNode = getNodeWithConnections();
+		BlockNode targetBlockNode = getBlockNode();
 		ConnectionAnchor connectionAnchor = getProcessEditPart().getTargetConnectionAnchor(request);
 		String targetDockName = getProcessEditPart().mapConnectionAnchorToDock(connectionAnchor);
-		command.setTarget(targetNode, targetDockName);
+		command.setTarget(targetBlockNode, targetDockName);
 		return command;
 	}
 
 	@Override
 	protected Command getConnectionCreateCommand(CreateConnectionRequest request) {
 		ConnectionCreateCommand command = new ConnectionCreateCommand();
-		NodeWithConnections sourceNode = getNodeWithConnections();
+		BlockNode sourceBlockNode = getBlockNode();
 		request.setStartCommand(command);
 		ConnectionAnchor connectionAnchor = getProcessEditPart().getSourceConnectionAnchor(request);
 		String sourceDockName = getProcessEditPart().mapConnectionAnchorToDock(connectionAnchor);
-		command.setSource(sourceNode, sourceDockName);
+		command.setSource(sourceBlockNode, sourceDockName);
 		return command;
 	}
 
 	@Override
 	protected Command getReconnectSourceCommand(ReconnectRequest request) {
 		Connection connection = (Connection) request.getConnectionEditPart().getModel();
-		NodeWithConnections sourceNode = getNodeWithConnections();
+		BlockNode sourceBlockNode = getBlockNode();
 		ConnectionReconnectCommand command = new ConnectionReconnectCommand(connection);
 		ConnectionAnchor connectionAnchor = getProcessEditPart().getSourceConnectionAnchor(request);
 		String sourceDockName = getProcessEditPart().mapConnectionAnchorToDock(connectionAnchor);
-		command.setNewSource(sourceNode, sourceDockName);
+		command.setNewSource(sourceBlockNode, sourceDockName);
 		return command;
 	}
 
 	@Override
 	protected Command getReconnectTargetCommand(ReconnectRequest request) {
 		Connection connection = (Connection) request.getConnectionEditPart().getModel();
-		NodeWithConnections targetNode = getNodeWithConnections();
+		BlockNode targetBlockNode = getBlockNode();
 		ConnectionReconnectCommand command = new ConnectionReconnectCommand(connection);
 		ConnectionAnchor connectionAnchor = getProcessEditPart().getTargetConnectionAnchor(request);
 		String targetDockName = getProcessEditPart().mapConnectionAnchorToDock(connectionAnchor);
-		command.setNewTarget(targetNode, targetDockName);
+		command.setNewTarget(targetBlockNode, targetDockName);
 		return command;
 	}
 
@@ -59,7 +59,7 @@ public class ConnectionPolicy extends GraphicalNodeEditPolicy {
 		return (ProcessEditPart) getHost();
 	}
 
-	protected NodeWithConnections getNodeWithConnections() {
-		return (NodeWithConnections) getHost().getModel();
+	protected BlockNode getBlockNode() {
+		return (BlockNode) getHost().getModel();
 	}
 }

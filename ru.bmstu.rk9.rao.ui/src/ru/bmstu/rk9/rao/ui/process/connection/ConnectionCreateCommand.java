@@ -2,47 +2,47 @@ package ru.bmstu.rk9.rao.ui.process.connection;
 
 import org.eclipse.gef.commands.Command;
 
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithConnections;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 
 public class ConnectionCreateCommand extends Command {
 
-	private NodeWithConnections sourceNode;
-	private NodeWithConnections targetNode;
+	private BlockNode sourceBlockNode;
+	private BlockNode targetBlockNode;
 	private Connection connection;
 
 	private String sourceDockName;
 	private String targetDockName;
 
-	public void setSource(NodeWithConnections sourceNode, String sourceDockName) {
-		this.sourceNode = sourceNode;
+	public void setSource(BlockNode sourceBlockNode, String sourceDockName) {
+		this.sourceBlockNode = sourceBlockNode;
 		this.sourceDockName = sourceDockName;
 	}
 
-	public void setTarget(NodeWithConnections targetNode, String targetDockName) {
-		this.targetNode = targetNode;
+	public void setTarget(BlockNode targetBlockNode, String targetDockName) {
+		this.targetBlockNode = targetBlockNode;
 		this.targetDockName = targetDockName;
 	}
 
 	@Override
 	public boolean canExecute() {
-		if (sourceNode == null || targetNode == null)
+		if (sourceBlockNode == null || targetBlockNode == null)
 			return false;
-		if (sourceNode.equals(targetNode))
+		if (sourceBlockNode.equals(targetBlockNode))
 			return false;
-		if (sourceNode.getDocksCount(sourceDockName) > 0)
+		if (sourceBlockNode.getDocksCount(sourceDockName) > 0)
 			return false;
 		return true;
 	}
 
 	@Override
 	public void execute() {
-		connection = new Connection(sourceNode, targetNode, sourceDockName, targetDockName);
+		connection = new Connection(sourceBlockNode, targetBlockNode, sourceDockName, targetDockName);
 		connection.connect();
 	}
 
 	@Override
 	public boolean canUndo() {
-		if (sourceNode == null || targetNode == null || connection == null)
+		if (sourceBlockNode == null || targetBlockNode == null || connection == null)
 			return false;
 		return true;
 	}
