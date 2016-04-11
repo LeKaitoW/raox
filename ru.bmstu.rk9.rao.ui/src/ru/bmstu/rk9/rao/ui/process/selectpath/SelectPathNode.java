@@ -4,10 +4,8 @@ import java.io.Serializable;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
-import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.process.node.BlockNodeWithProbability;
 
 public class SelectPathNode extends BlockNodeWithProbability implements Serializable {
@@ -17,11 +15,9 @@ public class SelectPathNode extends BlockNodeWithProbability implements Serializ
 	public static final String DOCK_IN = "IN";
 	public static final String DOCK_TRUE_OUT = "TRUE_OUT";
 	public static final String DOCK_FALSE_OUT = "FALSE_OUT";
-	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
 	public static String name = "SelectPath";
 
 	public SelectPathNode() {
-		super(foregroundColor.getRGB());
 		setName(name);
 		registerDock(DOCK_IN);
 		registerDock(DOCK_FALSE_OUT);

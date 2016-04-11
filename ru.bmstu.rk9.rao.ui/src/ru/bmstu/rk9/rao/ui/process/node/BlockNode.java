@@ -8,9 +8,9 @@ import java.util.Map;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
+import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.process.ProcessLogicException;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 
@@ -26,8 +26,8 @@ public abstract class BlockNode extends Node {
 	protected List<Connection> targetConnections;
 	private final Map<String, Integer> dockNames = new HashMap<>();
 
-	public BlockNode(RGB foregroundColor) {
-		super(foregroundColor);
+	public BlockNode() {
+		super(ProcessColors.BLOCK_COLOR.getRGB());
 		sourceConnections = new ArrayList<Connection>();
 		targetConnections = new ArrayList<Connection>();
 	}

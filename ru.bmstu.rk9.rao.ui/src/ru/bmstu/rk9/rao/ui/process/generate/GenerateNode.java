@@ -2,10 +2,8 @@ package ru.bmstu.rk9.rao.ui.process.generate;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
-import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.process.node.BlockNodeWithInterval;
 
 public class GenerateNode extends BlockNodeWithInterval {
@@ -13,12 +11,10 @@ public class GenerateNode extends BlockNodeWithInterval {
 	private static final long serialVersionUID = 1;
 
 	public static final String DOCK_OUT = "OUT";
-	private static Color foregroundColor = ProcessColors.BLOCK_COLOR;
 	public static String name = "Generate";
 
 	public GenerateNode() {
-		super(foregroundColor.getRGB(), "Interval");
-		setName(name);
+		super("Interval");
 		registerDock(DOCK_OUT);
 	}
 

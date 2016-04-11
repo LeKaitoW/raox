@@ -3,7 +3,6 @@ package ru.bmstu.rk9.rao.ui.process.node;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.swt.graphics.RGB;
 
 public abstract class BlockNodeWithInterval extends BlockNode {
 
@@ -13,12 +12,7 @@ public abstract class BlockNodeWithInterval extends BlockNode {
 	private String intervalName;
 	protected String interval = "";
 
-	public BlockNodeWithInterval(RGB foregroundColor) {
-		super(foregroundColor);
-	}
-
-	public BlockNodeWithInterval(RGB foregroundColor, String intervalName) {
-		super(foregroundColor);
+	public BlockNodeWithInterval(String intervalName) {
 		this.intervalName = intervalName;
 	}
 

@@ -3,7 +3,6 @@ package ru.bmstu.rk9.rao.ui.process.node;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.swt.graphics.RGB;
 
 public abstract class BlockNodeWithProbability extends BlockNode {
 
@@ -12,10 +11,6 @@ public abstract class BlockNodeWithProbability extends BlockNode {
 	public static final String PROPERTY_PROBABILITY = "NodeProbability";
 
 	protected String probability = "0.5";
-
-	public BlockNodeWithProbability(RGB foregroundColor) {
-		super(foregroundColor);
-	}
 
 	public String getProbability() {
 		return probability;

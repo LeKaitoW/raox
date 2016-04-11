@@ -3,7 +3,6 @@ package ru.bmstu.rk9.rao.ui.process.node;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.lib.process.Queue.Queueing;
 
@@ -16,10 +15,6 @@ public abstract class BlockNodeWithCapacity extends BlockNode {
 
 	protected String capacity = "";
 	protected Queueing queueing = Queueing.FIFO;
-
-	public BlockNodeWithCapacity(RGB foregroundColor) {
-		super(foregroundColor);
-	}
 
 	public String getCapacity() {
 		return capacity;

@@ -5,7 +5,6 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.process.EResourceRetriever;
 import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
@@ -17,10 +16,6 @@ public abstract class BlockNodeWithResource extends BlockNode {
 	public static final String PROPERTY_RESOURCE = "NodeResource";
 
 	protected String resourceName = "";
-
-	public BlockNodeWithResource(RGB foregroundColor) {
-		super(foregroundColor);
-	}
 
 	public void setResourceName(int index) {
 		String oldName = this.resourceName;
