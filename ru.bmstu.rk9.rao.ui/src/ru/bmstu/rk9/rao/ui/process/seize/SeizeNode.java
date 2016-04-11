@@ -2,6 +2,8 @@ package ru.bmstu.rk9.rao.ui.process.seize;
 
 import java.util.Optional;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.lib.resource.Resource;
@@ -44,5 +46,11 @@ public class SeizeNode extends NodeWithResource {
 		seizeInfo.inputDocks.put(DOCK_IN, seize.getInputDock());
 		seizeInfo.outputDocks.put(DOCK_OUT, seize.getOutputDock());
 		return seizeInfo;
+	}
+
+	@Override
+	public void validateProperty(IResource file) throws CoreException {
+		validateResource(file);
+		validateConnections(file, 1, 1);
 	}
 }

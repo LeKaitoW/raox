@@ -37,14 +37,13 @@ public abstract class NodeWithInterval extends NodeWithProperty {
 		return intervalName;
 	}
 
-	@Override
-	public void validateProperty(IResource file) throws CoreException {
+	public final void validateInterval(IResource file) throws CoreException {
 		try {
-			Double.valueOf(this.interval);
+			Double.valueOf(interval);
 		} catch (NumberFormatException e) {
 			IMarker marker = file.createMarker(NodeWithProperty.PROCESS_MARKER);
 			marker.setAttribute(IMarker.MESSAGE, "Wrong " + getIntervalName());
-			marker.setAttribute(IMarker.LOCATION, this.getName());
+			marker.setAttribute(IMarker.LOCATION, getName());
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		}
 	}

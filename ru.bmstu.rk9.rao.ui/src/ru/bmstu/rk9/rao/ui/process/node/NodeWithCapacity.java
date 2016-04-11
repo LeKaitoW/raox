@@ -40,13 +40,12 @@ public abstract class NodeWithCapacity extends NodeWithProperty {
 	public Integer getQueueingIndex() {
 		return queueing.ordinal();
 	}
-
-	@Override
-	public void validateProperty(IResource file) throws CoreException {
+	
+	protected final void validateCapacity(IResource file) throws CoreException {
 		if (capacity.isEmpty())
 			return;
 		try {
-			Double.valueOf(this.capacity);
+			Double.valueOf(capacity);
 		} catch (NumberFormatException e) {
 			IMarker marker = file.createMarker(NodeWithProperty.PROCESS_MARKER);
 			marker.setAttribute(IMarker.MESSAGE, "Wrong capacity");

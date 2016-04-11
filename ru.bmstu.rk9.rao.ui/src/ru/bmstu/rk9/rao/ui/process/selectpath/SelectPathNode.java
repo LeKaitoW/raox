@@ -2,6 +2,8 @@ package ru.bmstu.rk9.rao.ui.process.selectpath;
 
 import java.io.Serializable;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
@@ -37,5 +39,11 @@ public class SelectPathNode extends NodeWithProbability implements Serializable 
 		selectPathInfo.outputDocks.put(DOCK_TRUE_OUT, selectPath.getTrueOutputDock());
 		selectPathInfo.outputDocks.put(DOCK_FALSE_OUT, selectPath.getFalseOutputDock());
 		return selectPathInfo;
+	}
+
+	@Override
+	public void validateProperty(IResource file) throws CoreException {
+		validateProbability(file);
+		validateConnections(file, 2, 1);
 	}
 }

@@ -2,6 +2,8 @@ package ru.bmstu.rk9.rao.ui.process.queue;
 
 import java.io.Serializable;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
@@ -38,5 +40,11 @@ public class QueueNode extends NodeWithCapacity implements Serializable {
 		queueInfo.inputDocks.put(DOCK_IN, queue.getInputDock());
 		queueInfo.outputDocks.put(DOCK_OUT, queue.getOutputDock());
 		return queueInfo;
+	}
+
+	@Override
+	public void validateProperty(IResource file) throws CoreException {
+		validateCapacity(file);
+		validateConnections(file, 1, 1);
 	}
 }

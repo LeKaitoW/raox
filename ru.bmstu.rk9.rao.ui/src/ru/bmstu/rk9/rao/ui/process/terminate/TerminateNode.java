@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rao.ui.process.terminate;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
@@ -32,6 +33,7 @@ public class TerminateNode extends NodeWithProperty {
 	}
 
 	@Override
-	public void validateProperty(IResource file) {
+	public void validateProperty(IResource file) throws CoreException {
+		validateConnections(file, 0, 1);
 	}
 }

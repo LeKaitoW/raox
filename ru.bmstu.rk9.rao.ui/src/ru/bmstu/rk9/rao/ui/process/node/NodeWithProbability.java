@@ -27,8 +27,7 @@ public abstract class NodeWithProbability extends NodeWithProperty {
 		return probability;
 	}
 
-	@Override
-	public void validateProperty(IResource file) throws CoreException {
+	public void validateProbability(IResource file) throws CoreException {
 		boolean valid = true;
 		try {
 			double probability = Double.valueOf(this.probability);
@@ -40,7 +39,7 @@ public abstract class NodeWithProbability extends NodeWithProperty {
 		if (!valid) {
 			IMarker marker = file.createMarker(NodeWithProperty.PROCESS_MARKER);
 			marker.setAttribute(IMarker.MESSAGE, "Wrong probability");
-			marker.setAttribute(IMarker.LOCATION, this.getName());
+			marker.setAttribute(IMarker.LOCATION, getName());
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		}
 	}

@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
@@ -107,6 +110,17 @@ public abstract class NodeWithConnections extends Node {
 
 	private final String getDockFullName(String dockName) {
 		return getName() + "." + dockName;
+	}
+
+	public final void validateConnections(IResource file, int sourceConnections, int targetConnections)
+			throws CoreException {
+		if (getSourceConnections().size() == sourceConnections && getTargetConnections().size() == targetConnections)
+			return;
+
+		IMarker marker = file.createMarker(NodeWithProperty.PROCESS_MARKER);
+		marker.setAttribute(IMarker.MESSAGE, "Not all docks are connected");
+		marker.setAttribute(IMarker.LOCATION, getName());
+		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
 	}
 
 	public abstract BlockConverterInfo createBlock();
