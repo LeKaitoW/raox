@@ -22,7 +22,6 @@ import org.eclipse.ui.PlatformUI;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.process.node.Node;
 import ru.bmstu.rk9.rao.ui.process.node.NodeWithConnections;
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 
 public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		implements PropertyChangeListener, NodeEditPart {
@@ -58,10 +57,10 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals(NodeWithProperty.PROPERTY_COLOR)) {
+		if (evt.getPropertyName().equals(Node.PROPERTY_COLOR)) {
 			getFigure().setBackgroundColor(new Color(null, (RGB) evt.getNewValue()));
 		}
-		if (evt.getPropertyName().equals(NodeWithProperty.PROPERTY_NAME)) {
+		if (evt.getPropertyName().equals(Node.PROPERTY_NAME)) {
 			((ProcessFigure) getFigure()).setFigureNameVisible((boolean) evt.getNewValue());
 		}
 		if (evt.getPropertyName().equals(Node.PROPERTY_CONSTRAINT))
@@ -83,15 +82,13 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		if (!(getFigure() instanceof ProcessFigure))
 			return;
 		ProcessFigure figure = (ProcessFigure) getFigure();
-		Node model = (Node) getModel();
+		Node node = (Node) getModel();
 
-		figure.setConstraint(model.getConstraint());
-		RGB oldColor = model.getColor();
+		figure.setConstraint(node.getConstraint());
+		RGB oldColor = node.getColor();
 		Color newColor = new Color(null, oldColor);
 		figure.setBackgroundColor(newColor);
-
-		if (model instanceof NodeWithProperty)
-			figure.setFigureNameVisible(((NodeWithProperty) model).nameIsVisible());
+		figure.setFigureNameVisible(node.nameIsVisible());
 	}
 
 	@Override

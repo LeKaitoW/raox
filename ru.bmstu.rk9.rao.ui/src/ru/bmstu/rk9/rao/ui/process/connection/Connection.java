@@ -4,20 +4,20 @@ import java.io.Serializable;
 
 import org.eclipse.core.runtime.IAdaptable;
 
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
+import ru.bmstu.rk9.rao.ui.process.node.NodeWithConnections;
 
 public class Connection implements Serializable, IAdaptable {
 
 	private static final long serialVersionUID = 1;
 
 	public static String name = "Connection";
-	protected NodeWithProperty sourceNode;
-	protected NodeWithProperty targetNode;
+	protected NodeWithConnections sourceNode;
+	protected NodeWithConnections targetNode;
 
 	private String sourceDockName;
 	private String targetDockName;
 
-	public Connection(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceDockName,
+	public Connection(NodeWithConnections sourceNode, NodeWithConnections targetNode, String sourceDockName,
 			String targetDockName) {
 		this.sourceNode = sourceNode;
 		this.targetNode = targetNode;
@@ -25,11 +25,11 @@ public class Connection implements Serializable, IAdaptable {
 		setTargetDockName(targetDockName);
 	}
 
-	public NodeWithProperty getSourceNode() {
+	public NodeWithConnections getSourceNode() {
 		return sourceNode;
 	}
 
-	public NodeWithProperty getTargetNode() {
+	public NodeWithConnections getTargetNode() {
 		return targetNode;
 	}
 
@@ -47,7 +47,7 @@ public class Connection implements Serializable, IAdaptable {
 		targetNode.releaseDock(targetDockName);
 	}
 
-	public void reconnect(NodeWithProperty sourceNode, NodeWithProperty targetNode, String sourceDockName,
+	public void reconnect(NodeWithConnections sourceNode, NodeWithConnections targetNode, String sourceDockName,
 			String targetDockName) {
 		if (sourceNode == null || targetNode == null || sourceNode == targetNode) {
 			throw new IllegalArgumentException();

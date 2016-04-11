@@ -16,9 +16,9 @@ import ru.bmstu.rk9.rao.ui.process.CheckboxPropertyDescriptor;
 
 public class NodePropertySource implements IPropertySource {
 
-	private NodeWithProperty node;
+	private Node node;
 
-	public NodePropertySource(NodeWithProperty node) {
+	public NodePropertySource(Node node) {
 		this.node = node;
 	}
 
@@ -30,9 +30,9 @@ public class NodePropertySource implements IPropertySource {
 	@Override
 	public IPropertyDescriptor[] getPropertyDescriptors() {
 		List<PropertyDescriptor> properties = new ArrayList<PropertyDescriptor>();
-		PropertyDescriptor colorProperty = new ColorPropertyDescriptor(NodeWithProperty.PROPERTY_COLOR, "Color");
+		PropertyDescriptor colorProperty = new ColorPropertyDescriptor(Node.PROPERTY_COLOR, "Color");
 		properties.add(colorProperty);
-		PropertyDescriptor nameProperty = new CheckboxPropertyDescriptor(NodeWithProperty.PROPERTY_NAME, "Show name");
+		PropertyDescriptor nameProperty = new CheckboxPropertyDescriptor(Node.PROPERTY_NAME, "Show name");
 		properties.add(nameProperty);
 
 		if (node instanceof NodeWithResource) {
@@ -60,10 +60,10 @@ public class NodePropertySource implements IPropertySource {
 
 	@Override
 	public Object getPropertyValue(Object id) {
-		if (id.equals(NodeWithProperty.PROPERTY_COLOR)) {
+		if (id.equals(Node.PROPERTY_COLOR)) {
 			return node.getColor();
 		}
-		if (id.equals(NodeWithProperty.PROPERTY_NAME)) {
+		if (id.equals(Node.PROPERTY_NAME)) {
 			return node.nameIsVisible();
 		}
 		if (id.equals(NodeWithResource.PROPERTY_RESOURCE) && node instanceof NodeWithResource) {
@@ -96,10 +96,10 @@ public class NodePropertySource implements IPropertySource {
 
 	@Override
 	public void setPropertyValue(Object id, Object value) {
-		if (id.equals(NodeWithProperty.PROPERTY_COLOR)) {
+		if (id.equals(Node.PROPERTY_COLOR)) {
 			RGB newColor = (RGB) value;
 			node.setColor(newColor);
-		} else if (id.equals(NodeWithProperty.PROPERTY_NAME)) {
+		} else if (id.equals(Node.PROPERTY_NAME)) {
 			node.setNameVisible((boolean) value);
 		} else if (id.equals(NodeWithResource.PROPERTY_RESOURCE) && node instanceof NodeWithResource) {
 			((NodeWithResource) node).setResourceName((int) value);

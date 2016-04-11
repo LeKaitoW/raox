@@ -9,7 +9,7 @@ import org.eclipse.swt.graphics.RGB;
 import ru.bmstu.rk9.rao.ui.process.EResourceRetriever;
 import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 
-public abstract class NodeWithResource extends NodeWithProperty {
+public abstract class NodeWithResource extends NodeWithConnections {
 
 	private static final long serialVersionUID = 1;
 

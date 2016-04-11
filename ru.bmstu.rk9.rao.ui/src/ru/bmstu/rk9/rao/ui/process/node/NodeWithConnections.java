@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.ui.process.node;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,14 +20,17 @@ public abstract class NodeWithConnections extends Node {
 
 	public static final String SOURCE_CONNECTION_UPDATED = "SourceConnectionUpdated";
 	public static final String TARGET_CONNECTION_UPDATED = "TargetConnectionUpdated";
-
-	public NodeWithConnections(RGB foregroundColor) {
-		super(foregroundColor);
-	}
+	public static final String PROCESS_MARKER = "ru.bmstu.rk9.rao.ui.ProcessMarker";
 
 	protected List<Connection> sourceConnections;
 	protected List<Connection> targetConnections;
 	private final Map<String, Integer> dockNames = new HashMap<>();
+
+	public NodeWithConnections(RGB foregroundColor) {
+		super(foregroundColor);
+		sourceConnections = new ArrayList<Connection>();
+		targetConnections = new ArrayList<Connection>();
+	}
 
 	public final boolean addConnection(Connection connection) {
 		if (connection.getSourceNode() == this) {
@@ -124,4 +128,6 @@ public abstract class NodeWithConnections extends Node {
 	}
 
 	public abstract BlockConverterInfo createBlock();
+
+	public abstract void validateProperty(IResource file) throws CoreException;
 }

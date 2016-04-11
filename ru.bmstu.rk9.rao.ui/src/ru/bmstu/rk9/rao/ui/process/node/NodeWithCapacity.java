@@ -7,7 +7,7 @@ import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.lib.process.Queue.Queueing;
 
-public abstract class NodeWithCapacity extends NodeWithProperty {
+public abstract class NodeWithCapacity extends NodeWithConnections {
 
 	private static final long serialVersionUID = 1;
 

@@ -2,12 +2,15 @@ package ru.bmstu.rk9.rao.ui.process.connection;
 
 import org.eclipse.gef.commands.Command;
 
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
+import ru.bmstu.rk9.rao.ui.process.node.NodeWithConnections;
 
 public class ConnectionReconnectCommand extends Command {
 
 	private Connection connection;
-	private NodeWithProperty oldSourceNode, oldTargetNode, newSourceNode, newTargetNode;
+	private NodeWithConnections oldSourceNode;
+	private NodeWithConnections oldTargetNode;
+	private NodeWithConnections newSourceNode;
+	private NodeWithConnections newTargetNode;
 	private String oldSourceDockName, oldTargetDockName, newSourceDockName, newTargetDockName;
 
 	public ConnectionReconnectCommand(Connection connection) {
@@ -46,7 +49,7 @@ public class ConnectionReconnectCommand extends Command {
 		return true;
 	}
 
-	public void setNewSource(NodeWithProperty sourceNode, String sourceDockName) {
+	public void setNewSource(NodeWithConnections sourceNode, String sourceDockName) {
 		if (sourceNode == null || sourceDockName == null) {
 			throw new IllegalArgumentException();
 		}
@@ -55,7 +58,7 @@ public class ConnectionReconnectCommand extends Command {
 		this.newSourceDockName = sourceDockName;
 	}
 
-	public void setNewTarget(NodeWithProperty targetNode, String targetDockName) {
+	public void setNewTarget(NodeWithConnections targetNode, String targetDockName) {
 		if (targetNode == null || targetDockName == null) {
 			throw new IllegalArgumentException();
 		}

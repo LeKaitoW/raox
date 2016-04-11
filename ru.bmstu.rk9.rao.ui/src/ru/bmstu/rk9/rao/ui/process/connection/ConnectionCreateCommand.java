@@ -2,22 +2,23 @@ package ru.bmstu.rk9.rao.ui.process.connection;
 
 import org.eclipse.gef.commands.Command;
 
-import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
+import ru.bmstu.rk9.rao.ui.process.node.NodeWithConnections;
 
 public class ConnectionCreateCommand extends Command {
 
-	private NodeWithProperty sourceNode, targetNode;
+	private NodeWithConnections sourceNode;
+	private NodeWithConnections targetNode;
 	private Connection connection;
 
 	private String sourceDockName;
 	private String targetDockName;
 
-	public void setSource(NodeWithProperty sourceNode, String sourceDockName) {
+	public void setSource(NodeWithConnections sourceNode, String sourceDockName) {
 		this.sourceNode = sourceNode;
 		this.sourceDockName = sourceDockName;
 	}
 
-	public void setTarget(NodeWithProperty targetNode, String targetDockName) {
+	public void setTarget(NodeWithConnections targetNode, String targetDockName) {
 		this.targetNode = targetNode;
 		this.targetDockName = targetDockName;
 	}

@@ -5,7 +5,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.RGB;
 
-public abstract class NodeWithInterval extends NodeWithProperty {
+public abstract class NodeWithInterval extends NodeWithConnections {
 
 	private static final long serialVersionUID = 1;
 
