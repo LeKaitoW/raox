@@ -21,6 +21,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.ISaveableFilter;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -30,7 +31,6 @@ import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.generator.OutputConfiguration;
-import org.eclipse.xtext.ui.editor.XtextEditor;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 import org.eclipse.xtext.validation.CheckMode;
@@ -108,20 +108,21 @@ public class BuildJobProvider {
 	public final Job createPreprocessJob() {
 		Job preprocessJob = new Job("Building Rao model") {
 
-			private boolean projectHasErrors(List<IResource> files, String problem, IProgressMonitor monitor)
-					throws CoreException {
+			private boolean projectHasErrors(List<IResource> files, String problem, IProgressMonitor monitor,
+					boolean areXtextFiles) throws CoreException {
 				boolean projectHasErrors = false;
 				final ResourceSet resourceSet = resourceSetProvider.get(recentProject);
 
 				for (IResource resource : files) {
-					Resource loadedResource = resourceSet.getResource(BuildUtil.getURI(resource), true);
-					if (!loadedResource.getErrors().isEmpty()) {
-						projectHasErrors = true;
-						break;
+					if (areXtextFiles) {
+						Resource loadedResource = resourceSet.getResource(BuildUtil.getURI(resource), true);
+						if (!loadedResource.getErrors().isEmpty()) {
+							projectHasErrors = true;
+							break;
+						}
+						validatorExtension.updateValidationMarkers((IFile) resource, loadedResource, CheckMode.ALL,
+								monitor);
 					}
-
-					validatorExtension.updateValidationMarkers((IFile) resource, loadedResource, CheckMode.ALL,
-							monitor);
 					IMarker[] markers = resource.findMarkers(problem, true, 0);
 					for (IMarker marker : markers) {
 						int severity = marker.getAttribute(IMarker.SEVERITY, Integer.MAX_VALUE);
@@ -145,18 +146,22 @@ public class BuildJobProvider {
 				ISaveableFilter filter = new ISaveableFilter() {
 					@Override
 					public boolean select(Saveable saveable, IWorkbenchPart[] containingParts) {
-						if (!saveable.getName().endsWith(".rao"))
+						if (!(saveable.getName().endsWith(".rao") || saveable.getName().endsWith(".proc")))
 							return false;
 
 						if (containingParts.length < 1)
 							return false;
 
 						IWorkbenchPart part = containingParts[0];
-						if (!(part instanceof XtextEditor))
+						if (!(part instanceof IEditorPart))
 							return false;
 
-						XtextEditor editor = (XtextEditor) part;
-						if (editor.getResource().getProject().equals(recentProject))
+						IEditorPart editorPart = (IEditorPart) part;
+						if (!(editorPart.getEditorInput() instanceof IFileEditorInput))
+							return false;
+
+						IFileEditorInput fileInput = (IFileEditorInput) editorPart.getEditorInput();
+						if (fileInput.getFile().getProject().equals(recentProject))
 							return true;
 
 						return false;
@@ -189,8 +194,9 @@ public class BuildJobProvider {
 
 				boolean projectHasErrors;
 				try {
-					boolean raoHasErrors = projectHasErrors(raoFiles, IMarker.PROBLEM, monitor);
-					boolean procHasErrors = projectHasErrors(processFiles, NodeWithProperty.PROCESS_MARKER, monitor);
+					boolean raoHasErrors = projectHasErrors(raoFiles, IMarker.PROBLEM, monitor, true);
+					boolean procHasErrors = projectHasErrors(processFiles, NodeWithProperty.PROCESS_MARKER, monitor,
+							false);
 					projectHasErrors = raoHasErrors || procHasErrors;
 				} catch (CoreException e) {
 					e.printStackTrace();
