@@ -15,7 +15,7 @@ public class BlockConverter {
 	public static List<Block> convertModelToBlocks(Node model) {
 		List<ru.bmstu.rk9.rao.ui.gef.Node> children = model.getChildren();
 		List<Block> blocks = new ArrayList<Block>();
-		Map<Node, BlockConverterInfo> blockNodes = new HashMap<>();
+		Map<BlockNode, BlockConverterInfo> blockNodes = new HashMap<>();
 		for (ru.bmstu.rk9.rao.ui.gef.Node node : children) {
 			if (!(node instanceof BlockNode))
 				continue;
