@@ -18,6 +18,7 @@ public class HoldNode extends BlockNodeWithInterval implements Serializable {
 
 	public HoldNode() {
 		super("Hold");
+		setName(name);
 		registerDock(DOCK_IN);
 		registerDock(DOCK_OUT);
 	}

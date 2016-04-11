@@ -15,6 +15,7 @@ public class GenerateNode extends BlockNodeWithInterval {
 
 	public GenerateNode() {
 		super("Interval");
+		setName(name);
 		registerDock(DOCK_OUT);
 	}
 
