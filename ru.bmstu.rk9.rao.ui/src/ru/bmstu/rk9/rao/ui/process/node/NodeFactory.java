@@ -7,11 +7,11 @@ import org.eclipse.gef.requests.CreationFactory;
 import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
 import ru.bmstu.rk9.rao.ui.process.ProcessNodeInfo;
 
-public class NodeCreationFactory implements CreationFactory {
+public class NodeFactory implements CreationFactory {
 
 	private Class<?> template;
 
-	public NodeCreationFactory(Class<?> template) {
+	public NodeFactory(Class<?> template) {
 		this.template = template;
 	}
 

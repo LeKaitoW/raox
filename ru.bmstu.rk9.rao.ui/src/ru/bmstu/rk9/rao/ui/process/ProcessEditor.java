@@ -54,11 +54,10 @@ import ru.bmstu.rk9.rao.ui.process.generate.GenerateNode;
 import ru.bmstu.rk9.rao.ui.process.generate.GeneratePart;
 import ru.bmstu.rk9.rao.ui.process.hold.HoldNode;
 import ru.bmstu.rk9.rao.ui.process.hold.HoldPart;
-import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 import ru.bmstu.rk9.rao.ui.process.model.ModelLayer;
+import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
-import ru.bmstu.rk9.rao.ui.process.node.Node;
-import ru.bmstu.rk9.rao.ui.process.node.NodeCreationFactory;
+import ru.bmstu.rk9.rao.ui.process.node.NodeFactory;
 import ru.bmstu.rk9.rao.ui.process.node.NodeWithProperty;
 import ru.bmstu.rk9.rao.ui.process.queue.QueueNode;
 import ru.bmstu.rk9.rao.ui.process.queue.QueuePart;
@@ -131,8 +130,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		for (Class<?> nodeClass : processNodesInfo.keySet()) {
 			String nodeName = processNodesInfo.get(nodeClass).getName();
 			if (!nodeClass.equals(ModelNode.class))
-				processGroup.add(new CombinedTemplateCreationEntry(nodeName, nodeName,
-						new NodeCreationFactory(nodeClass), null, null));
+				processGroup.add(
+						new CombinedTemplateCreationEntry(nodeName, nodeName, new NodeFactory(nodeClass), null, null));
 		}
 		root.setDefaultEntry(selectionToolEntry);
 		getPalettePreferences().setPaletteState(FlyoutPaletteComposite.STATE_PINNED_OPEN);
@@ -244,7 +243,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
 		try {
 			file.deleteMarkers(NodeWithProperty.PROCESS_MARKER, true, IResource.DEPTH_ZERO);
-			for (Node node : model.getChildren())
+			for (ru.bmstu.rk9.rao.ui.gef.Node node : model.getChildren())
 				((NodeWithProperty) node).validateProperty(file);
 		} catch (CoreException e) {
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Internal error",
