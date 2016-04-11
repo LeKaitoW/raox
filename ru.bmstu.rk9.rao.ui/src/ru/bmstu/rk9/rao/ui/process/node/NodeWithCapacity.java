@@ -40,7 +40,7 @@ public abstract class NodeWithCapacity extends NodeWithProperty {
 	public Integer getQueueingIndex() {
 		return queueing.ordinal();
 	}
-	
+
 	protected final void validateCapacity(IResource file) throws CoreException {
 		if (capacity.isEmpty())
 			return;
@@ -51,6 +51,7 @@ public abstract class NodeWithCapacity extends NodeWithProperty {
 			marker.setAttribute(IMarker.MESSAGE, "Wrong capacity");
 			marker.setAttribute(IMarker.LOCATION, this.getName());
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+			marker.setAttribute(NODE_MARKER, getID());
 		}
 	}
 }

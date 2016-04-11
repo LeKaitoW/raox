@@ -37,12 +37,12 @@ public abstract class NodeWithResource extends NodeWithProperty {
 	}
 
 	public void validateResource(IResource file) throws CoreException {
-
 		if (!getResourcesNames().contains(resourceName)) {
 			IMarker marker = file.createMarker(NodeWithProperty.PROCESS_MARKER);
 			marker.setAttribute(IMarker.MESSAGE, "Wrong resource");
 			marker.setAttribute(IMarker.LOCATION, getName());
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+			marker.setAttribute(NODE_MARKER, getID());
 		}
 	}
 }

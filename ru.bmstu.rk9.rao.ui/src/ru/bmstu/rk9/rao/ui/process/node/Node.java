@@ -21,8 +21,10 @@ public abstract class Node implements Serializable {
 	public static final String PROPERTY_CONSTRAINT = "NodeConstraint";
 	public static final String PROPERTY_ADD = "NodeAddChild";
 	public static final String PROPERTY_REMOVE = "NodeRemoveChild";
+	public static final String NODE_MARKER = "NodeID";
 
 	protected RGB color;
+	protected int ID;
 
 	public Node(RGB foregroundColor) {
 		this.name = "Unknown";
@@ -35,6 +37,14 @@ public abstract class Node implements Serializable {
 
 	public RGB getColor() {
 		return color;
+	}
+
+	public void setID(int ID) {
+		this.ID = ID;
+	}
+	
+	public int getID() {
+		return ID;
 	}
 
 	public void setName(String name) {

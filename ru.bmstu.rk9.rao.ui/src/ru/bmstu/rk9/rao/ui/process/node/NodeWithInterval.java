@@ -45,6 +45,7 @@ public abstract class NodeWithInterval extends NodeWithProperty {
 			marker.setAttribute(IMarker.MESSAGE, "Wrong " + getIntervalName());
 			marker.setAttribute(IMarker.LOCATION, getName());
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+			marker.setAttribute(NODE_MARKER, getID());
 		}
 	}
 }
