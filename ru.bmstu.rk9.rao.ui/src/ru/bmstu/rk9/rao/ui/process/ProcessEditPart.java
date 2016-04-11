@@ -28,8 +28,8 @@ public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		implements PropertyChangeListener, NodeEditPart {
 
 	@Override
-	public final List<Node> getModelChildren() {
-		return ((Node) getModel()).getChildren();
+	public final List<ru.bmstu.rk9.rao.ui.gef.Node> getModelChildren() {
+		return ((ru.bmstu.rk9.rao.ui.gef.Node) getModel()).getChildren();
 	}
 
 	@Override

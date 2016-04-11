@@ -13,10 +13,10 @@ import ru.bmstu.rk9.rao.ui.process.node.NodeWithConnections;
 public class BlockConverter {
 
 	public static List<Block> convertModelToBlocks(Node model) {
-		List<Node> children = model.getChildren();
+		List<ru.bmstu.rk9.rao.ui.gef.Node> children = model.getChildren();
 		List<Block> blocks = new ArrayList<Block>();
 		Map<Node, BlockConverterInfo> blocksMap = new HashMap<>();
-		for (Node node : children) {
+		for (ru.bmstu.rk9.rao.ui.gef.Node node : children) {
 			if (!(node instanceof NodeWithConnections))
 				continue;
 
