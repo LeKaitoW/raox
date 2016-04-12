@@ -125,6 +125,7 @@ public abstract class BlockNode extends Node {
 		marker.setAttribute(IMarker.MESSAGE, "Not all docks are connected");
 		marker.setAttribute(IMarker.LOCATION, getName());
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+		marker.setAttribute(NODE_MARKER, getID());
 	}
 
 	public abstract BlockConverterInfo createBlock();

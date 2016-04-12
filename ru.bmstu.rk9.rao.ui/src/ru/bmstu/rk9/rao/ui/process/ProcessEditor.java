@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.EventObject;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -39,12 +40,19 @@ import org.eclipse.gef.ui.palette.PaletteViewerProvider;
 import org.eclipse.gef.ui.parts.GraphicalEditorWithFlyoutPalette;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.ui.views.markers.MarkerItem;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import com.google.inject.Inject;
@@ -58,6 +66,7 @@ import ru.bmstu.rk9.rao.ui.process.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
 import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
+import ru.bmstu.rk9.rao.ui.process.node.Node;
 import ru.bmstu.rk9.rao.ui.process.node.NodeFactory;
 import ru.bmstu.rk9.rao.ui.process.queue.QueueNode;
 import ru.bmstu.rk9.rao.ui.process.queue.QueuePart;
@@ -225,6 +234,37 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 			setModel(new ModelNode());
 		viewer.setContents(model);
 		viewer.addDropTargetListener(new ProcessDropTargetListener(viewer));
+		IViewSite site = null;
+		try {
+			site = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+					.showView("org.eclipse.ui.views.ProblemView").getViewSite();
+		} catch (PartInitException e) {
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Failed to open",
+					"Failed to open problem view");
+			e.printStackTrace();
+		}
+		site.getWorkbenchWindow().getSelectionService().addSelectionListener(new ISelectionListener() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+				IStructuredSelection structedSelection = (IStructuredSelection) selection;
+				if (!(structedSelection.getFirstElement() instanceof MarkerItem))
+					return;
+
+				MarkerItem marker = (MarkerItem) structedSelection.getFirstElement();
+				if (marker != null && marker.getMarker() != null) {
+					int nodeID = marker.getAttributeValue(Node.NODE_MARKER, 0);
+					ModelPart modelPart = (ModelPart) getGraphicalViewer().getRootEditPart().getChildren().get(0);
+					List<ProcessEditPart> editParts = modelPart.getChildren();
+					for (ProcessEditPart editPart : editParts) {
+						if (editPart.getID() == nodeID) {
+							viewer.select(editPart);
+							viewer.reveal(editPart);
+						}
+					}
+				}
+			}
+		});
 	}
 
 	@Override

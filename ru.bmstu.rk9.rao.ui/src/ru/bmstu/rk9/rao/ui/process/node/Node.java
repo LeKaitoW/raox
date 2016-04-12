@@ -12,6 +12,7 @@ public class Node extends ru.bmstu.rk9.rao.ui.gef.Node implements IAdaptable {
 	public static final String PROPERTY_CONSTRAINT = "NodeConstraint";
 	public static final String PROPERTY_COLOR = "NodeColor";
 	public static final String PROPERTY_NAME = "ShowNodeName";
+	public static final String NODE_MARKER = "NodeID";
 
 	private transient IPropertySource propertySource = null;
 
@@ -19,6 +20,7 @@ public class Node extends ru.bmstu.rk9.rao.ui.gef.Node implements IAdaptable {
 	private boolean nameIsVisible = true;
 	protected RGB color;
 	private Rectangle constraint;
+	protected int ID;
 
 	public Node(RGB color) {
 		this.name = "Unknown";
@@ -28,6 +30,14 @@ public class Node extends ru.bmstu.rk9.rao.ui.gef.Node implements IAdaptable {
 
 	public String getName() {
 		return name;
+	}
+
+	public void setID(int ID) {
+		this.ID = ID;
+	}
+
+	public int getID() {
+		return ID;
 	}
 
 	public void setName(String name) {

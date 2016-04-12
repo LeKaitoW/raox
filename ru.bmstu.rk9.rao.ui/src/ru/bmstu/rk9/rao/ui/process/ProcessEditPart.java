@@ -26,6 +26,16 @@ import ru.bmstu.rk9.rao.ui.process.node.Node;
 public abstract class ProcessEditPart extends AbstractGraphicalEditPart
 		implements PropertyChangeListener, NodeEditPart {
 
+	private int ID;
+
+	public void setID(int ID) {
+		this.ID = ID;
+	}
+	
+	public int getID() {
+		return ID;
+	}
+
 	@Override
 	public final List<ru.bmstu.rk9.rao.ui.gef.Node> getModelChildren() {
 		return ((ru.bmstu.rk9.rao.ui.gef.Node) getModel()).getChildren();

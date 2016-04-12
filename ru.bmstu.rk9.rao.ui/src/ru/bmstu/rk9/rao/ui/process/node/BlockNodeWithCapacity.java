@@ -46,6 +46,7 @@ public abstract class BlockNodeWithCapacity extends BlockNode {
 			marker.setAttribute(IMarker.MESSAGE, "Wrong capacity");
 			marker.setAttribute(IMarker.LOCATION, this.getName());
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+			marker.setAttribute(NODE_MARKER, getID());
 		}
 	}
 }
