@@ -34,7 +34,7 @@ class GeneratorCompiler extends RaoEntityCompiler {
 
 			members += generator.toMethod("run", typeRef(void)) [
 				visibility = JvmVisibility.PUBLIC
-				annotations += generateOverrideAnnotation()
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				body = generator.body
 			]
 		]
