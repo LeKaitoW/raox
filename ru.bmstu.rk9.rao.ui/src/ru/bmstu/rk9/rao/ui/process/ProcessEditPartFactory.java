@@ -12,7 +12,7 @@ import ru.bmstu.rk9.rao.ui.process.node.Node;
 
 public class ProcessEditPartFactory implements EditPartFactory {
 
-	private int currentID;
+	private int currentID = 0;
 
 	@Override
 	public EditPart createEditPart(EditPart context, Object model) {

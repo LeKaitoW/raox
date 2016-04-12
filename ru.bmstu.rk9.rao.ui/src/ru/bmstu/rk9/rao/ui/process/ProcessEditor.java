@@ -234,36 +234,37 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 			setModel(new ModelNode());
 		viewer.setContents(model);
 		viewer.addDropTargetListener(new ProcessDropTargetListener(viewer));
+		IViewSite site = null;
 		try {
-			IViewSite site = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+			site = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 					.showView("org.eclipse.ui.views.ProblemView").getViewSite();
-			site.getWorkbenchWindow().getSelectionService().addSelectionListener(new ISelectionListener() {
-				@SuppressWarnings("unchecked")
-				@Override
-				public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-					IStructuredSelection structedSelection = (IStructuredSelection) selection;
-					if (structedSelection.getFirstElement() instanceof MarkerItem) {
-						MarkerItem marker = (MarkerItem) structedSelection.getFirstElement();
-						if (marker != null && marker.getMarker() != null) {
-							int nodeID = marker.getAttributeValue(Node.NODE_MARKER, 0);
-							ModelPart modelPart = (ModelPart) getGraphicalViewer().getRootEditPart().getChildren()
-									.get(0);
-							List<ProcessEditPart> editParts = modelPart.getChildren();
-							for (ProcessEditPart editPart : editParts) {
-								if (editPart.getID() == nodeID) {
-									viewer.select(editPart);
-									viewer.reveal(editPart);
-								}
-							}
-						}
-					}
-				}
-			});
 		} catch (PartInitException e) {
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Failed to open",
 					"Failed to open problem view");
 			e.printStackTrace();
 		}
+		site.getWorkbenchWindow().getSelectionService().addSelectionListener(new ISelectionListener() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+				IStructuredSelection structedSelection = (IStructuredSelection) selection;
+				if (!(structedSelection.getFirstElement() instanceof MarkerItem))
+					return;
+
+				MarkerItem marker = (MarkerItem) structedSelection.getFirstElement();
+				if (marker != null && marker.getMarker() != null) {
+					int nodeID = marker.getAttributeValue(Node.NODE_MARKER, 0);
+					ModelPart modelPart = (ModelPart) getGraphicalViewer().getRootEditPart().getChildren().get(0);
+					List<ProcessEditPart> editParts = modelPart.getChildren();
+					for (ProcessEditPart editPart : editParts) {
+						if (editPart.getID() == nodeID) {
+							viewer.select(editPart);
+							viewer.reveal(editPart);
+						}
+					}
+				}
+			}
+		});
 	}
 
 	@Override
