@@ -23,7 +23,7 @@ public class Serializer {
 		for (ResourceManager<? extends Resource> resourceManager : listModelState) {
 			for (Resource resource : resourceManager.getAll()) {
 				JSONObject jsonResourse = new JSONObject();
-				jsonResourse.put("Resourse", resource.getName()).put("time ", Simulator.getTime());
+				jsonResourse.put("Resourse \n", resource.getName()).put("time ", Simulator.getTime());
 				jsonResourses.put(jsonResourse);
 			}
 
@@ -33,8 +33,8 @@ public class Serializer {
 	}
 
 	public void dumpResoursestoJSONfile(JSONObject jsonObject) {
-		try (FileWriter file = new FileWriter("/home/timur/JSON/test.json")) {
-			file.write(jsonObject.toString());
+		try (FileWriter file = new FileWriter("/home/timur/JSON/test.json")) {			
+			file.write(jsonObject.toString(4));
 			System.out.println("Successfully Copied JSON Object to File...");
 			System.out.println("\nJSON Object: " + jsonObject);
 

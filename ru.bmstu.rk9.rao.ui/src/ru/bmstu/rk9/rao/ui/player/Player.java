@@ -43,8 +43,6 @@ public class Player implements Runnable {
 	}
 
 	public static void stop() {
-		Thread thread = new Thread(new Player());
-		thread.start();
 		System.out.println("Stop");
 		state = "Stop";
 	}
@@ -58,7 +56,6 @@ public class Player implements Runnable {
 
 	public synchronized int runPlayer(int currentEventNumber, int time, PlayingDirection playingDirection) {
 
-		
 		jsonModelStateObject = getModelData();
 
 		while (state != "Stop" && state != "Pause" && (currentEventNumber <= (jsonModelStateObject.length() - 1))
@@ -79,7 +76,7 @@ public class Player implements Runnable {
 	}
 
 	public void run() {
-	//System.out.println("MyRunnable running from Player");
+		System.out.println("MyRunnable running from Player");
 
 		return;
 	}
