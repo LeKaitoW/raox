@@ -90,6 +90,11 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	@Override
+	public void drawText(String text, int x, int y) {
+		drawText(text, x, y, RaoColor.BLACK);
+	}
+
+	@Override
 	public void drawRectangle(int x, int y, int width, int height, RaoColor backgroundRaoColor,
 			RaoColor borderRaoColor) {
 		paintContext.setAlpha(backgroundRaoColor.alpha);
@@ -111,6 +116,11 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	@Override
+	public void drawRectangle(int x, int y, int width, int height) {
+		drawRectangle(x, y, width, height, RaoColor.WHITE, RaoColor.BLACK);
+	}
+
+	@Override
 	public void drawLine(int x1, int y1, int x2, int y2, RaoColor lineRaoColor) {
 		paintContext.setAlpha(lineRaoColor.alpha);
 
@@ -120,6 +130,11 @@ public class AnimationContextSWT implements AnimationContext {
 		paintContext.drawLine(x1, y1, x2, y2);
 
 		lineColor.dispose();
+	}
+
+	@Override
+	public void drawLine(int x1, int y1, int x2, int y2) {
+		drawLine(x1, y1, x2, y2, RaoColor.BLACK);
 	}
 
 	@Override
@@ -143,6 +158,11 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	@Override
+	public void drawCircle(int x, int y, int radius) {
+		drawCircle(x, y, radius, RaoColor.WHITE, RaoColor.BLACK);
+	}
+
+	@Override
 	public void drawEllipse(int x, int y, int width, int height, RaoColor backgroundRaoColor, RaoColor borderRaoColor) {
 		paintContext.setAlpha(backgroundRaoColor.alpha);
 
@@ -160,6 +180,11 @@ public class AnimationContextSWT implements AnimationContext {
 
 		backgroundColor.dispose();
 		borderColor.dispose();
+	}
+
+	@Override
+	public void drawEllipse(int x, int y, int width, int height) {
+		drawEllipse(x, y, width, height, RaoColor.WHITE, RaoColor.BLACK);
 	}
 
 	@Override
@@ -181,6 +206,11 @@ public class AnimationContextSWT implements AnimationContext {
 
 		backgroundColor.dispose();
 		borderColor.dispose();
+	}
+
+	@Override
+	public void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
+		drawTriangle(x1, y1, x2, y2, x3, y3, RaoColor.WHITE, RaoColor.BLACK);
 	}
 
 	Color createColor(RaoColor color) {

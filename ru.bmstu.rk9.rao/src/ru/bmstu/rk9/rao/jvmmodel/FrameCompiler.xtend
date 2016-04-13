@@ -26,7 +26,7 @@ class FrameCompiler extends RaoEntityCompiler {
 				final = true
 				annotations += overrideAnnotation
 				body = '''
-					return new ru.bmstu.rk9.rao.lib.animation.BackgroundData(500, 500, ru.bmstu.rk9.rao.lib.animation.RaoColor.COLOR_WHITE);
+					return new ru.bmstu.rk9.rao.lib.animation.BackgroundData(500, 500, ru.bmstu.rk9.rao.lib.animation.RaoColor.WHITE);
 				'''
 			]
 
