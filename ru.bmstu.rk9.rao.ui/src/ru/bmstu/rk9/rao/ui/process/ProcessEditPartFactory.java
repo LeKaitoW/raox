@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartFactory;
-import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
+import org.eclipse.gef.editparts.AbstractEditPart;
 
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionPart;
@@ -16,7 +16,7 @@ public class ProcessEditPartFactory implements EditPartFactory {
 
 	@Override
 	public EditPart createEditPart(EditPart context, Object model) {
-		AbstractGraphicalEditPart part = null;
+		AbstractEditPart part = null;
 
 		if (model instanceof Connection) {
 			part = new ConnectionPart();
@@ -27,12 +27,16 @@ public class ProcessEditPartFactory implements EditPartFactory {
 		Map<Class<?>, ProcessNodeInfo> processNodesInfo = ProcessEditor.processNodesInfo;
 		if (!processNodesInfo.containsKey(model.getClass()))
 			return null;
-		part = processNodesInfo.get(model.getClass()).getPartFactory().get();
 
+		part = processNodesInfo.get(model.getClass()).getPartFactory().get();
 		part.setModel(model);
-		((ProcessEditPart) part).setID(currentID);
-		((Node) model).setID(currentID);
-		currentID++;
+
+		if (part instanceof ProcessEditPart) {
+			((ProcessEditPart) part).setID(currentID);
+			((Node) model).setID(currentID);
+			currentID++;
+		}
+
 		return part;
 	}
 }
