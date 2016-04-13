@@ -84,7 +84,7 @@ public class AnimationView extends ViewPart {
 				selectedFrameIndex = 0;
 
 			for (AnimationFrame frame : frames)
-				frameList.add(frame.getName());
+				frameList.add(frame.getTypeName());
 
 			frameList.setEnabled(true);
 			frameList.setSelection(selectedFrameIndex);

@@ -35,7 +35,7 @@ class EventCompiler extends RaoEntityCompiler {
 			members += event.toMethod("getName", typeRef(String)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
-				annotations += generateOverrideAnnotation()
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				body = '''
 					return "«eventQualifiedName»";
 				'''
@@ -44,7 +44,7 @@ class EventCompiler extends RaoEntityCompiler {
 			members += event.toMethod("execute", typeRef(void)) [
 				visibility = JvmVisibility.PROTECTED
 				final = true
-				annotations += generateOverrideAnnotation()
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				body = event.body
 			]
 

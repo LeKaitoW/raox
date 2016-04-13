@@ -1,7 +1,7 @@
 package ru.bmstu.rk9.rao.lib.animation;
 
 public interface AnimationFrame {
-	public String getName();
+	public String getTypeName();
 
 	public void draw(AnimationContext context);
 

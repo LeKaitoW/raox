@@ -15,6 +15,7 @@ import ru.bmstu.rk9.rao.lib.database.Database.DataType
 class ResourceTypeCompiler extends RaoEntityCompiler {
 	def static asClass(ResourceType resourceType, JvmTypesBuilder jvmTypesBuilder,
 		JvmTypeReferenceBuilder typeReferenceBuilder, JvmDeclaredType it, boolean isPreIndexingPhase) {
+
 		initializeCurrent(jvmTypesBuilder, typeReferenceBuilder)
 
 		val typeQualifiedName = QualifiedName.create(qualifiedName, resourceType.name)
@@ -61,7 +62,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 			members += resourceType.toMethod("erase", typeRef(void)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
-				annotations += generateOverrideAnnotation()
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				body = '''
 					ru.bmstu.rk9.rao.lib.simulator.Simulator.getModelState().eraseResource(this);
 					ru.bmstu.rk9.rao.lib.simulator.Simulator.getDatabase().memorizeResourceEntry(this,
@@ -91,7 +92,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 			members += resourceType.toMethod("checkEqual", typeRef(boolean)) [ m |
 				m.visibility = JvmVisibility.PUBLIC
 				m.parameters += resourceType.toParameter("other", typeRef)
-				m.annotations += generateOverrideAnnotation()
+				m.annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				m.body = '''
 					«IF resourceType.parameters.isEmpty»
 						return true;
@@ -110,7 +111,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 
 			members += resourceType.toMethod("deepCopy", typeRef) [
 				visibility = JvmVisibility.PUBLIC
-				annotations += generateOverrideAnnotation
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation
 				body = '''
 					«resourceType.name» copy = new «resourceType.name»();
 					copy.setNumber(this.number);
@@ -126,7 +127,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 			members += resourceType.toMethod("getTypeName", typeRef(String)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
-				annotations += generateOverrideAnnotation()
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				body = '''
 					return "«typeQualifiedName»";
 				'''
@@ -135,7 +136,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 			members += resourceType.toMethod("serialize", typeRef(ByteBuffer)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
-				annotations += generateOverrideAnnotation()
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 
 				var size = 0
 				for (param : resourceType.parameters) {

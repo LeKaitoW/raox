@@ -142,7 +142,7 @@ class PatternCompiler extends RaoEntityCompiler {
 					members += method.toMethod(method.name, method.name.getPatternMethodTypeRef) [
 						visibility = JvmVisibility.PUBLIC
 						final = true
-						annotations += generateOverrideAnnotation()
+						annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 						body = method.body
 					]
 				}
@@ -150,7 +150,7 @@ class PatternCompiler extends RaoEntityCompiler {
 				members += pattern.toMethod("selectRelevantResources", typeRef(boolean)) [
 					visibility = JvmVisibility.PUBLIC
 					final = true
-					annotations += generateOverrideAnnotation()
+					annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 
 					body = '''
 						«FOR relevant : pattern.relevantResources»
@@ -183,7 +183,7 @@ class PatternCompiler extends RaoEntityCompiler {
 				members += pattern.toMethod("finish", typeRef(void)) [
 					visibility = JvmVisibility.PUBLIC
 					final = true
-					annotations += generateOverrideAnnotation()
+					annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 
 					body = '''
 						«FOR relevant : pattern.relevantResources»
@@ -202,7 +202,7 @@ class PatternCompiler extends RaoEntityCompiler {
 				members += pattern.toMethod("getTypeName", typeRef(String)) [
 					visibility = JvmVisibility.PUBLIC
 					final = true
-					annotations += generateOverrideAnnotation()
+					annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 
 					body = '''return "«patternQualifiedName»";'''
 				]

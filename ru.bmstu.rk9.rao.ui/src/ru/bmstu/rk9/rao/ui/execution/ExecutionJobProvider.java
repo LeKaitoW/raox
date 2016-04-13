@@ -1,6 +1,5 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,7 +11,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
-import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
@@ -35,9 +33,9 @@ public class ExecutionJobProvider {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				final Display display = PlatformUI.getWorkbench().getDisplay();
+				final ModelInternalsParser parser = new ModelInternalsParser(project);
 
 				ConsoleView.clearConsoleText();
-				final ModelInternalsParser parser = new ModelInternalsParser(project);
 
 				try {
 					parser.parse();
@@ -52,8 +50,6 @@ public class ExecutionJobProvider {
 				ExportTraceHandler.reset();
 				ExportTraceHandler.setCurrentProject(project);
 				SerializationConfigView.initNames();
-				final List<AnimationFrame> frames = new ArrayList<AnimationFrame>();
-				display.syncExec(() -> AnimationView.initialize(frames));
 				List<Result> results = new LinkedList<Result>();
 
 				try {
@@ -69,6 +65,8 @@ public class ExecutionJobProvider {
 					e.printStackTrace();
 					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Model postprocessing failed", e);
 				}
+
+				display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
 
 				try {
 					Simulator.initialize(parser.getSimulatorInitializationInfo());

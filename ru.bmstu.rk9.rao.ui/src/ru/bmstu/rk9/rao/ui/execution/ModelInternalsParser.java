@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 
+import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.dpt.AbstractDecisionPoint;
@@ -40,7 +41,9 @@ public class ModelInternalsParser {
 	private final SimulatorPreinitializationInfo simulatorPreinitializationInfo = new SimulatorPreinitializationInfo();
 	private final SimulatorInitializationInfo simulatorInitializationInfo = new SimulatorInitializationInfo();
 	private final List<Class<?>> decisionPointClasses = new ArrayList<>();
+	private final List<Class<?>> animationClasses = new ArrayList<>();
 	private final List<Field> nameableFields = new ArrayList<>();
+	private final List<AnimationFrame> animationFrames = new ArrayList<>();
 
 	private URLClassLoader classLoader;
 	private final IProject project;
@@ -191,6 +194,10 @@ public class ModelInternalsParser {
 								.put(ModelStructureConstants.EDGES, edges));
 				continue;
 			}
+
+			if (AnimationFrame.class.isAssignableFrom(nestedModelClass)) {
+				animationClasses.add(nestedModelClass);
+			}
 		}
 
 		for (Field field : modelClass.getDeclaredFields()) {
@@ -228,6 +235,15 @@ public class ModelInternalsParser {
 			AbstractDecisionPoint dpt = (AbstractDecisionPoint) decisionPointClass.newInstance();
 			simulatorInitializationInfo.decisionPoints.add(dpt);
 		}
+
+		for (Class<?> animationClass : animationClasses) {
+			AnimationFrame frame = (AnimationFrame) animationClass.newInstance();
+			animationFrames.add(frame);
+		}
+	}
+
+	public final List<AnimationFrame> getAnimationFrames() {
+		return animationFrames;
 	}
 
 	public final void closeClassLoader() {

@@ -15,7 +15,7 @@ abstract class RaoEntityCompiler {
 		currentJvmTypeReferenceBuilder = jvmTypeReferenceBuilder;
 	}
 
-	def protected static JvmAnnotationReference generateOverrideAnnotation() {
+	def protected static JvmAnnotationReference overrideAnnotation() {
 		val anno = TypesFactoryImpl.eINSTANCE.createJvmAnnotationReference
 		val annoType = typeRef(Override).type as JvmAnnotationType
 		anno.setAnnotation(annoType)
