@@ -21,15 +21,27 @@ public abstract class BlockNode extends Node {
 	public static final String SOURCE_CONNECTION_UPDATED = "SourceConnectionUpdated";
 	public static final String TARGET_CONNECTION_UPDATED = "TargetConnectionUpdated";
 	public static final String PROCESS_MARKER = "ru.bmstu.rk9.rao.ui.ProcessMarker";
+	public static final String PROPERTY_NAME = "ShowNodeName";
 
 	protected List<Connection> sourceConnections;
 	protected List<Connection> targetConnections;
 	private final Map<String, Integer> dockNames = new HashMap<>();
+	private boolean nameIsVisible = true;
 
 	public BlockNode() {
 		super(ProcessColors.BLOCK_COLOR.getRGB());
 		sourceConnections = new ArrayList<Connection>();
 		targetConnections = new ArrayList<Connection>();
+	}
+
+	public boolean nameIsVisible() {
+		return nameIsVisible;
+	}
+
+	public void setNameVisible(boolean visible) {
+		boolean oldVisible = this.nameIsVisible;
+		this.nameIsVisible = visible;
+		getListeners().firePropertyChange(PROPERTY_NAME, oldVisible, visible);
 	}
 
 	public final boolean addConnection(Connection connection) {

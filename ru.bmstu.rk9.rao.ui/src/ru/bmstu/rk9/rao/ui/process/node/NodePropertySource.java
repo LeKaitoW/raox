@@ -32,7 +32,7 @@ public class NodePropertySource implements IPropertySource {
 		List<PropertyDescriptor> properties = new ArrayList<PropertyDescriptor>();
 		PropertyDescriptor colorProperty = new ColorPropertyDescriptor(Node.PROPERTY_COLOR, "Color");
 		properties.add(colorProperty);
-		PropertyDescriptor nameProperty = new CheckboxPropertyDescriptor(Node.PROPERTY_NAME, "Show name");
+		PropertyDescriptor nameProperty = new CheckboxPropertyDescriptor(BlockNode.PROPERTY_NAME, "Show name");
 		properties.add(nameProperty);
 
 		if (node instanceof BlockNodeWithResource) {
@@ -63,8 +63,8 @@ public class NodePropertySource implements IPropertySource {
 		if (id.equals(Node.PROPERTY_COLOR)) {
 			return node.getColor();
 		}
-		if (id.equals(Node.PROPERTY_NAME)) {
-			return node.nameIsVisible();
+		if (id.equals(BlockNode.PROPERTY_NAME) && node instanceof BlockNode) {
+			return ((BlockNode) node).nameIsVisible();
 		}
 		if (id.equals(BlockNodeWithResource.PROPERTY_RESOURCE) && node instanceof BlockNodeWithResource) {
 			return ((BlockNodeWithResource) node).getResourceNameIndex();
@@ -99,13 +99,14 @@ public class NodePropertySource implements IPropertySource {
 		if (id.equals(Node.PROPERTY_COLOR)) {
 			RGB newColor = (RGB) value;
 			node.setColor(newColor);
-		} else if (id.equals(Node.PROPERTY_NAME)) {
-			node.setNameVisible((boolean) value);
+		} else if (id.equals(BlockNode.PROPERTY_NAME) && node instanceof BlockNode) {
+			((BlockNode) node).setNameVisible((boolean) value);
 		} else if (id.equals(BlockNodeWithResource.PROPERTY_RESOURCE) && node instanceof BlockNodeWithResource) {
 			((BlockNodeWithResource) node).setResourceName((int) value);
 		} else if (id.equals(BlockNodeWithInterval.PROPERTY_INTERVAL) && node instanceof BlockNodeWithInterval) {
 			((BlockNodeWithInterval) node).setInterval((String) value);
-		} else if (id.equals(BlockNodeWithProbability.PROPERTY_PROBABILITY) && node instanceof BlockNodeWithProbability) {
+		} else if (id.equals(BlockNodeWithProbability.PROPERTY_PROBABILITY)
+				&& node instanceof BlockNodeWithProbability) {
 			((BlockNodeWithProbability) node).setProbability((String) value);
 		} else if (id.equals(BlockNodeWithCapacity.PROPERTY_CAPACITY) && node instanceof BlockNodeWithCapacity) {
 			((BlockNodeWithCapacity) node).setCapacity((String) value);
