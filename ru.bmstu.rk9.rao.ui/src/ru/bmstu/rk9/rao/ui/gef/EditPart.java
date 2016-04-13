@@ -17,9 +17,15 @@ public abstract class EditPart extends AbstractGraphicalEditPart implements Prop
 	@Override
 	protected void refreshVisuals() {
 		super.refreshVisuals();
+
 		IFigure figure = getFigure();
 		Node node = (Node) getModel();
+
 		figure.getParent().setConstraint(figure, node.getConstraint());
+
+		RGB oldColor = node.getColor();
+		Color newColor = new Color(null, oldColor);
+		figure.setBackgroundColor(newColor);
 	}
 
 	@Override

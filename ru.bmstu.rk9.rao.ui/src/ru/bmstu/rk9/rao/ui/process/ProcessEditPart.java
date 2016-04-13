@@ -10,8 +10,6 @@ import org.eclipse.gef.NodeEditPart;
 import org.eclipse.gef.Request;
 import org.eclipse.gef.RequestConstants;
 import org.eclipse.gef.requests.DropRequest;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -79,13 +77,8 @@ public abstract class ProcessEditPart extends EditPart implements NodeEditPart {
 			return;
 
 		ProcessFigure figure = (ProcessFigure) getFigure();
-		Node node = (Node) getModel();
-
-		RGB oldColor = node.getColor();
-		Color newColor = new Color(null, oldColor);
-		figure.setBackgroundColor(newColor);
-
-		figure.setFigureNameVisible(((BlockNode) node).nameIsVisible());
+		BlockNode node = (BlockNode) getModel();
+		figure.setFigureNameVisible(node.nameIsVisible());
 	}
 
 	@Override

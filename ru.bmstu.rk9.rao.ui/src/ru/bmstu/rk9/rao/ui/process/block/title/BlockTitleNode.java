@@ -13,6 +13,6 @@ public class BlockTitleNode extends Node implements Serializable {
 	public static String name = "Title";
 
 	public BlockTitleNode() {
-		super(ColorConstants.red.getRGB());
+		super(ColorConstants.yellow.getRGB());
 	}
 }
