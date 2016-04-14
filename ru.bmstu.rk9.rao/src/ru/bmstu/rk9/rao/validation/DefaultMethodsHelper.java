@@ -62,4 +62,16 @@ public class DefaultMethodsHelper {
 		final String name;
 		final ValidatorAction validatorAction;
 	}
+
+	public static enum FrameMethodInfo {
+		INIT("init", ValidatorAction.NOTHING), DRAW("draw", ValidatorAction.NOTHING);
+
+		FrameMethodInfo(String name, ValidatorAction validatorAction) {
+			this.name = name;
+			this.validatorAction = validatorAction;
+		}
+
+		final String name;
+		final ValidatorAction validatorAction;
+	}
 }

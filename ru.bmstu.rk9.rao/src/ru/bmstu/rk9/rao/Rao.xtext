@@ -127,7 +127,9 @@ Result:
 ;
 
 Frame:
-	'frame' name = ID body = XBlockExpression
+	'frame' name = ID '{'
+		defaultMethods += DefaultMethod*
+	'}'
 ;
 
 EnumDeclaration:

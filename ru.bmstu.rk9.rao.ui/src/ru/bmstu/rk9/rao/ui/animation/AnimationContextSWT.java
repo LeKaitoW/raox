@@ -11,7 +11,7 @@ import org.eclipse.swt.graphics.Rectangle;
 
 import ru.bmstu.rk9.rao.lib.animation.AnimationContext;
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
-import ru.bmstu.rk9.rao.lib.animation.BackgroundData;
+import ru.bmstu.rk9.rao.lib.animation.Background;
 import ru.bmstu.rk9.rao.lib.animation.RaoColor;
 
 public class AnimationContextSWT implements AnimationContext {
@@ -25,7 +25,7 @@ public class AnimationContextSWT implements AnimationContext {
 
 	private HashMap<AnimationFrame, Image> storedFrames = new HashMap<AnimationFrame, Image>();
 
-	void drawBackground(BackgroundData backgroundData) {
+	void drawBackground(Background backgroundData) {
 		paintContext.setAlpha(255);
 
 		Color backgroundColor = createColor(backgroundData.color);
@@ -53,7 +53,7 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	private Image drawFrameBuffer(AnimationFrame frame) {
-		BackgroundData backgroundData = frame.getBackgroundData();
+		Background backgroundData = frame.getBackground();
 
 		Rectangle backgroundRectangle = new Rectangle(0, 0, backgroundData.width, backgroundData.height);
 
