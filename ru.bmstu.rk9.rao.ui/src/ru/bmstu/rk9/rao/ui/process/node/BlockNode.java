@@ -1,9 +1,9 @@
 package ru.bmstu.rk9.rao.ui.process.node;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -23,15 +23,15 @@ public abstract class BlockNode extends Node {
 	public static final String PROCESS_MARKER = "ru.bmstu.rk9.rao.ui.ProcessMarker";
 	public static final String PROPERTY_NAME = "ShowNodeName";
 
-	protected List<Connection> sourceConnections;
-	protected List<Connection> targetConnections;
+	protected CopyOnWriteArrayList<Connection> sourceConnections;
+	protected CopyOnWriteArrayList<Connection> targetConnections;
 	private final Map<String, Integer> dockNames = new HashMap<>();
 	private boolean nameIsVisible = true;
 
 	public BlockNode() {
 		super(ProcessColors.BLOCK_COLOR.getRGB());
-		sourceConnections = new ArrayList<Connection>();
-		targetConnections = new ArrayList<Connection>();
+		sourceConnections = new CopyOnWriteArrayList<Connection>();
+		targetConnections = new CopyOnWriteArrayList<Connection>();
 	}
 
 	public boolean nameIsVisible() {
