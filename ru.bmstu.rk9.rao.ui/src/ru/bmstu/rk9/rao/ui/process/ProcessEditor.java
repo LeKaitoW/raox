@@ -57,6 +57,8 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import com.google.inject.Inject;
 
+import ru.bmstu.rk9.rao.ui.process.block.title.BlockTitleNode;
+import ru.bmstu.rk9.rao.ui.process.block.title.BlockTitlePart;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreationFactory;
 import ru.bmstu.rk9.rao.ui.process.generate.GenerateNode;
 import ru.bmstu.rk9.rao.ui.process.generate.GeneratePart;
@@ -110,6 +112,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 				new ProcessNodeInfo(QueueNode.name, () -> new QueueNode(), () -> new QueuePart()));
 		processNodesInfo.put(SelectPathNode.class,
 				new ProcessNodeInfo(SelectPathNode.name, () -> new SelectPathNode(), () -> new SelectPathPart()));
+		processNodesInfo.put(BlockTitleNode.class,
+				new ProcessNodeInfo(BlockTitleNode.name, () -> new BlockTitleNode(), () -> new BlockTitlePart()));
 	}
 
 	@Override
@@ -290,8 +294,11 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
 		try {
 			file.deleteMarkers(BlockNode.PROCESS_MARKER, true, IResource.DEPTH_ZERO);
-			for (ru.bmstu.rk9.rao.ui.gef.Node node : model.getChildren())
-				((BlockNode) node).validateProperty(file);
+			for (ru.bmstu.rk9.rao.ui.gef.Node node : model.getChildren()) {
+				if (node instanceof BlockNode) {
+					((BlockNode) node).validateProperty(file);
+				}
+			}
 		} catch (CoreException e) {
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Internal error",
 					"Internal error during problem markers creation");

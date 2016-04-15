@@ -7,8 +7,8 @@ import org.eclipse.gef.editpolicies.XYLayoutEditPolicy;
 import org.eclipse.gef.requests.CreateRequest;
 
 import ru.bmstu.rk9.rao.ui.process.command.ChangeConstraintCommand;
-import ru.bmstu.rk9.rao.ui.process.command.CreateCommand;
 import ru.bmstu.rk9.rao.ui.process.command.ConstraintCommand;
+import ru.bmstu.rk9.rao.ui.process.command.CreateCommand;
 import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
 
 public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
