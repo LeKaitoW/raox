@@ -1,6 +1,6 @@
 package ru.bmstu.rk9.rao.ui.process.node;
 
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.swt.graphics.RGB;
@@ -20,8 +20,8 @@ public abstract class NodeWithProperty extends NodeWithConnections implements IA
 
 	public NodeWithProperty(RGB foregroundColor) {
 		super(foregroundColor);
-		this.sourceConnections = new ArrayList<Connection>();
-		this.targetConnections = new ArrayList<Connection>();
+		this.sourceConnections = new CopyOnWriteArrayList<Connection>();
+		this.targetConnections = new CopyOnWriteArrayList<Connection>();
 	}
 
 	public void setColor(RGB newColor) {

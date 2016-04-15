@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rao.ui.process.node;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.swt.graphics.RGB;
 
@@ -21,8 +22,8 @@ public abstract class NodeWithConnections extends Node {
 		super(foregroundColor);
 	}
 
-	protected List<Connection> sourceConnections;
-	protected List<Connection> targetConnections;
+	protected CopyOnWriteArrayList<Connection> sourceConnections;
+	protected CopyOnWriteArrayList<Connection> targetConnections;
 	private final Map<String, Integer> dockNames = new HashMap<>();
 
 	public final boolean addConnection(Connection connection) {
