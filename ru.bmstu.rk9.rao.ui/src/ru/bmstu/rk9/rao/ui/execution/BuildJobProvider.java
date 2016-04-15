@@ -43,7 +43,6 @@ public class BuildJobProvider {
 	private final IResourceSetProvider resourceSetProvider;
 	private final EclipseOutputConfigurationProvider outputConfigurationProvider;
 	private final DefaultResourceUIValidatorExtension validatorExtension;
-	private final IEditorPart activeEditor;
 	private final IWorkbenchWindow activeWorkbenchWindow;
 
 	private static IProject recentProject = null;
@@ -53,12 +52,17 @@ public class BuildJobProvider {
 			final EclipseResourceFileSystemAccess2 fsa, final IResourceSetProvider resourceSetProvider,
 			final EclipseOutputConfigurationProvider ocp,
 			final DefaultResourceUIValidatorExtension validatorExtension) {
-		this.activeEditor = activeEditor;
 		this.activeWorkbenchWindow = activeWorkbenchWindow;
 		this.fsa = fsa;
 		this.resourceSetProvider = resourceSetProvider;
 		this.outputConfigurationProvider = ocp;
 		this.validatorExtension = validatorExtension;
+
+		IProject projectToBuild = getProjectToBuild(activeWorkbenchWindow, activeEditor);
+		if (projectToBuild == null)
+			return;
+
+		recentProject = projectToBuild;
 	}
 
 	public IProject getBuiltProject() {
@@ -94,22 +98,12 @@ public class BuildJobProvider {
 		return recentProject;
 	}
 
-	private final IProject selectNewProject() {
-		IProject projectToBuild = getProjectToBuild(activeWorkbenchWindow, activeEditor);
-		if (projectToBuild == null)
-			return null;
-
-		recentProject = projectToBuild;
-
-		return recentProject;
-	}
-
 	public final Job createPreprocessJob() {
-		Job preprocessJob = new Job("Building Rao model") {
+		Job preprocessJob = new Job("Preprocessing project " + recentProject.getName()) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				final Display display = PlatformUI.getWorkbench().getDisplay();
-				if (selectNewProject() == null) {
+				if (recentProject == null) {
 					return new Status(IStatus.ERROR, pluginId,
 							BuildUtil.createErrorMessage("failed to select project to build"));
 				}
@@ -138,49 +132,10 @@ public class BuildJobProvider {
 				display.syncExec(() -> PlatformUI.getWorkbench().saveAll(activeWorkbenchWindow, activeWorkbenchWindow,
 						filter, true));
 
-				final List<IResource> raoFiles = BuildUtil.getAllRaoFilesInProject(recentProject);
-				if (raoFiles.isEmpty()) {
-					return new Status(IStatus.ERROR, pluginId,
-							BuildUtil.createErrorMessage("project contains no rao files"));
-				}
-
 				IFolder srcGenFolder = recentProject.getFolder("src-gen");
 				String srcGenErrorMessage = BuildUtil.checkSrcGen(recentProject, srcGenFolder, monitor, false);
 				if (srcGenErrorMessage != null)
 					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(srcGenErrorMessage));
-
-				final ResourceSet resourceSet = resourceSetProvider.get(recentProject);
-
-				boolean projectHasErrors = false;
-
-				for (IResource resource : raoFiles) {
-					Resource loadedResource = resourceSet.getResource(BuildUtil.getURI(resource), true);
-					if (!loadedResource.getErrors().isEmpty()) {
-						projectHasErrors = true;
-						break;
-					}
-
-					try {
-						validatorExtension.updateValidationMarkers((IFile) resource, loadedResource, CheckMode.ALL,
-								monitor);
-						IMarker[] markers = resource.findMarkers(IMarker.PROBLEM, true, 0);
-						for (IMarker marker : markers) {
-							int severity = marker.getAttribute(IMarker.SEVERITY, Integer.MAX_VALUE);
-							if (severity == IMarker.SEVERITY_ERROR) {
-								projectHasErrors = true;
-								break;
-							}
-						}
-					} catch (CoreException e) {
-						e.printStackTrace();
-						return new Status(IStatus.ERROR, pluginId,
-								BuildUtil.createErrorMessage("internal error while calculating model error markers"),
-								e);
-					}
-				}
-
-				if (projectHasErrors)
-					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage("model has errors"));
 
 				return Status.OK_STATUS;
 			}
@@ -191,7 +146,7 @@ public class BuildJobProvider {
 	}
 
 	public final Job createRebuildJob() {
-		Job rebuildJob = new Job("Building Rao model") {
+		Job rebuildJob = new Job("Rebuilding project" + recentProject.getName()) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				String libErrorMessage = BuildUtil.checkLib(recentProject, monitor, BundleType.RAO_LIB);
@@ -225,9 +180,59 @@ public class BuildJobProvider {
 					recentProject.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, monitor);
 				} catch (CoreException e) {
 					e.printStackTrace();
-					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage("could not build project"),
+					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage("Failed to build project"),
 							e);
 				}
+
+				return Status.OK_STATUS;
+			}
+		};
+
+		rebuildJob.setPriority(Job.BUILD);
+		return rebuildJob;
+	}
+
+	public final Job createValidateJob() {
+		Job validateJob = new Job("Validating project" + recentProject.getName()) {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				final ResourceSet resourceSet = resourceSetProvider.get(recentProject);
+				boolean projectHasErrors = false;
+
+				final List<IResource> raoFiles = BuildUtil.getAllRaoFilesInProject(recentProject);
+				if (raoFiles.isEmpty()) {
+					return new Status(IStatus.ERROR, pluginId,
+							BuildUtil.createErrorMessage("project contains no rao files"));
+				}
+
+				for (IResource resource : raoFiles) {
+					Resource loadedResource = resourceSet.getResource(BuildUtil.getURI(resource), true);
+					if (!loadedResource.getErrors().isEmpty()) {
+						projectHasErrors = true;
+						break;
+					}
+
+					try {
+						validatorExtension.updateValidationMarkers((IFile) resource, loadedResource, CheckMode.ALL,
+								monitor);
+						IMarker[] markers = resource.findMarkers(IMarker.PROBLEM, true, 0);
+						for (IMarker marker : markers) {
+							int severity = marker.getAttribute(IMarker.SEVERITY, Integer.MAX_VALUE);
+							if (severity == IMarker.SEVERITY_ERROR) {
+								projectHasErrors = true;
+								break;
+							}
+						}
+					} catch (CoreException e) {
+						e.printStackTrace();
+						return new Status(IStatus.ERROR, pluginId,
+								BuildUtil.createErrorMessage("internal error while calculating model error markers"),
+								e);
+					}
+				}
+
+				if (projectHasErrors)
+					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage("model has errors"));
 
 				try {
 					IMarker[] markers = recentProject.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true,
@@ -250,7 +255,7 @@ public class BuildJobProvider {
 			}
 		};
 
-		rebuildJob.setPriority(Job.BUILD);
-		return rebuildJob;
+		validateJob.setPriority(Job.BUILD);
+		return validateJob;
 	}
 }

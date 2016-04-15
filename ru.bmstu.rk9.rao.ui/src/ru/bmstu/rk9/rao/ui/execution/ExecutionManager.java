@@ -57,7 +57,7 @@ public class ExecutionManager {
 	}
 
 	public final void execute(boolean buildOnly) {
-		Job executionJob = new Job("Building Rao model") {
+		Job executionJob = new Job("Building project") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
@@ -74,7 +74,8 @@ public class ExecutionManager {
 						e.printStackTrace();
 						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 								SimulationState.STOPPED.toString());
-						return new Status(IStatus.ERROR, pluginId, "Internal error while finishing model validation");
+						return new Status(IStatus.ERROR, pluginId,
+								"Internal error while finishing preprocessing project");
 					}
 
 					if (preprocess.getResult() != Status.OK_STATUS) {
@@ -84,24 +85,44 @@ public class ExecutionManager {
 						return new Status(IStatus.CANCEL, pluginId, "Execution cancelled");
 					}
 
-					// TODO uncomment the code below after succeeding in running inferrer manually in rebuild job
-//					final Job rebuild = modelBuilder.createRebuildJob();
-//					rebuild.schedule();
-//					try {
-//						rebuild.join();
-//					} catch (InterruptedException e) {
-//						e.printStackTrace();
-//						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
-//								SimulationState.STOPPED.toString());
-//						return new Status(IStatus.ERROR, pluginId, "Internal error while finishing build");
-//					}
-//
-//					if (rebuild.getResult() != Status.OK_STATUS) {
-//						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
-//								SimulationState.STOPPED.toString());
-//						ConsoleView.addLine("Build failed");
-//						return new Status(IStatus.CANCEL, pluginId, "Execution cancelled");
-//					}
+					if (buildOnly) {
+						final Job rebuild = modelBuilder.createRebuildJob();
+						rebuild.schedule();
+						try {
+							rebuild.join();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+							ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
+									SimulationState.STOPPED.toString());
+							return new Status(IStatus.ERROR, pluginId,
+									"Internal error while finishing rebuilding project");
+						}
+
+						if (rebuild.getResult() != Status.OK_STATUS) {
+							ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
+									SimulationState.STOPPED.toString());
+							ConsoleView.addLine("Build failed");
+							return new Status(IStatus.CANCEL, pluginId, "Execution cancelled");
+						}
+					}
+
+					final Job validate = modelBuilder.createValidateJob();
+					validate.schedule();
+					try {
+						validate.join();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
+								SimulationState.STOPPED.toString());
+						return new Status(IStatus.ERROR, pluginId, "Internal error while finishing project validation");
+					}
+
+					if (validate.getResult() != Status.OK_STATUS) {
+						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
+								SimulationState.STOPPED.toString());
+						ConsoleView.addLine("Build failed");
+						return new Status(IStatus.CANCEL, pluginId, "Execution cancelled");
+					}
 
 					if (buildOnly) {
 						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
