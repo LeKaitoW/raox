@@ -105,7 +105,8 @@ public class NodePropertySource implements IPropertySource {
 			((BlockNodeWithResource) node).setResourceName((int) value);
 		} else if (id.equals(BlockNodeWithInterval.PROPERTY_INTERVAL) && node instanceof BlockNodeWithInterval) {
 			((BlockNodeWithInterval) node).setInterval((String) value);
-		} else if (id.equals(BlockNodeWithProbability.PROPERTY_PROBABILITY) && node instanceof BlockNodeWithProbability) {
+		} else if (id.equals(BlockNodeWithProbability.PROPERTY_PROBABILITY)
+				&& node instanceof BlockNodeWithProbability) {
 			((BlockNodeWithProbability) node).setProbability((String) value);
 		} else if (id.equals(BlockNodeWithCapacity.PROPERTY_CAPACITY) && node instanceof BlockNodeWithCapacity) {
 			((BlockNodeWithCapacity) node).setCapacity((String) value);
