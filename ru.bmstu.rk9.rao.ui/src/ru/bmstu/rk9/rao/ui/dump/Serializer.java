@@ -35,7 +35,7 @@ public class Serializer {
 	}
 
 	public void dumpResoursestoJSONfile(JSONObject jsonObject) {
-		try (FileWriter file = new FileWriter("/home/timur/JSON/test.json")) {			
+		try (FileWriter file = new FileWriter("/home/timur/JSON/test.json")) {
 			file.write(jsonObject.toString(4));
 			System.out.println("Successfully Copied JSON Object to File...");
 			System.out.println("\nJSON Object: " + jsonObject);

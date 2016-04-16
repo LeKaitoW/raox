@@ -12,6 +12,7 @@ import java.nio.ByteBuffer
 import ru.bmstu.rk9.rao.rao.FieldDeclaration
 import ru.bmstu.rk9.rao.lib.database.Database.DataType
 import ru.bmstu.rk9.rao.lib.json.JSONObject
+import ru.bmstu.rk9.rao.lib.json.JSONArray
 
 class ResourceTypeCompiler extends RaoEntityCompiler {
 	def static asClass(ResourceType resourceType, JvmTypesBuilder jvmTypesBuilder,
@@ -139,17 +140,17 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				visibility = JvmVisibility.PUBLIC
 				final = true
 				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
-
-				var size = 0
-				for (param : resourceType.parameters) {
-					size = size + param.getSize()
-				}
-				// val fixedWidthParametersSize = size
 				body = '''
-					JSONObject jsonModelStateObject = new JSONObject();
+					JSONArray jsonArray = new JSONArray();
+					JSONObject jsonParametersObject = new JSONObject();
+					JSONObject jsonObject = new JSONObject();
 
-
-					return jsonModelStateObject;
+						«FOR param : resourceType.parameters»
+							jsonObject.put("name", "«param.declaration.name»").put("value","_«param.declaration.name»");
+							jsonArray.put(jsonObject);
+						«ENDFOR»
+					jsonParametersObject.put("parameters",jsonArray); 
+					return jsonParametersObject;
 				'''
 			]
 
