@@ -28,10 +28,7 @@ public abstract class EditPart extends AbstractGraphicalEditPart implements Prop
 		Node node = (Node) getModel();
 
 		figure.getParent().setConstraint(figure, node.getConstraint());
-
-		RGB oldColor = node.getColor();
-		Color newColor = new Color(null, oldColor);
-		figure.setBackgroundColor(newColor);
+		figure.setBackgroundColor(new Color(null, node.getColor()));
 	}
 
 	@Override
@@ -39,8 +36,10 @@ public abstract class EditPart extends AbstractGraphicalEditPart implements Prop
 		if (evt.getPropertyName().equals(Node.PROPERTY_CONSTRAINT))
 			refreshVisuals();
 
-		if (evt.getPropertyName().equals(Node.PROPERTY_COLOR))
+		if (evt.getPropertyName().equals(Node.PROPERTY_COLOR)) {
 			getFigure().setBackgroundColor(new Color(null, (RGB) evt.getNewValue()));
+			refreshVisuals();
+		}
 	}
 
 	@Override
