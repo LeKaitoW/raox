@@ -10,7 +10,7 @@ public class LabelNode extends Node implements Serializable {
 
 	private static final long serialVersionUID = 1;
 
-	public static String name = "Title";
+	public static String name = "Label";
 
 	public LabelNode() {
 		super(ColorConstants.yellow.getRGB());
