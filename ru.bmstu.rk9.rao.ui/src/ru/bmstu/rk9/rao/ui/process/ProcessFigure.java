@@ -28,7 +28,6 @@ public class ProcessFigure extends Figure {
 	protected List<ConnectionAnchor> outputConnectionAnchors = new ArrayList<>();
 
 	protected Label label = new Label();
-	private boolean isNameVisible = true;
 	private Font font;
 
 	protected static Color pageBackgroundColor = ColorConstants.white;
@@ -123,9 +122,8 @@ public class ProcessFigure extends Figure {
 		drawName(graphics);
 	}
 
-	public void setFigureNameVisible(boolean visible) {
-		isNameVisible = visible;
-		label.setVisible(isNameVisible);
+	public final void setShowName(boolean showName) {
+		label.setVisible(showName);
 	}
 
 	private final void drawName(Graphics graphics) {

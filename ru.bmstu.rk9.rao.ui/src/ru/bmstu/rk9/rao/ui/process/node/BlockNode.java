@@ -26,7 +26,7 @@ public abstract class BlockNode extends Node {
 	protected CopyOnWriteArrayList<Connection> sourceConnections;
 	protected CopyOnWriteArrayList<Connection> targetConnections;
 	private final Map<String, Integer> dockNames = new HashMap<>();
-	private boolean nameIsVisible = true;
+	private boolean showName = true;
 
 	public BlockNode() {
 		super(ProcessColors.BLOCK_COLOR.getRGB());
@@ -34,14 +34,14 @@ public abstract class BlockNode extends Node {
 		targetConnections = new CopyOnWriteArrayList<Connection>();
 	}
 
-	public boolean nameIsVisible() {
-		return nameIsVisible;
+	public final boolean getShowName() {
+		return showName;
 	}
 
-	public void setNameVisible(boolean visible) {
-		boolean oldVisible = this.nameIsVisible;
-		this.nameIsVisible = visible;
-		getListeners().firePropertyChange(PROPERTY_NAME, oldVisible, visible);
+	public final void setShowName(boolean showName) {
+		boolean previousValue = this.showName;
+		this.showName = showName;
+		getListeners().firePropertyChange(PROPERTY_NAME, previousValue, showName);
 	}
 
 	public final boolean addConnection(Connection connection) {

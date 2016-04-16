@@ -32,8 +32,11 @@ public class NodePropertySource implements IPropertySource {
 		List<PropertyDescriptor> properties = new ArrayList<PropertyDescriptor>();
 		PropertyDescriptor colorProperty = new ColorPropertyDescriptor(Node.PROPERTY_COLOR, "Color");
 		properties.add(colorProperty);
-		PropertyDescriptor nameProperty = new CheckboxPropertyDescriptor(BlockNode.PROPERTY_NAME, "Show name");
-		properties.add(nameProperty);
+
+		if (node instanceof BlockNode) {
+			PropertyDescriptor nameProperty = new CheckboxPropertyDescriptor(BlockNode.PROPERTY_NAME, "Show name");
+			properties.add(nameProperty);
+		}
 
 		if (node instanceof BlockNodeWithResource) {
 			properties.add(new ComboBoxPropertyDescriptor(BlockNodeWithResource.PROPERTY_RESOURCE, "Resource",
@@ -64,7 +67,7 @@ public class NodePropertySource implements IPropertySource {
 			return node.getColor();
 		}
 		if (id.equals(BlockNode.PROPERTY_NAME) && node instanceof BlockNode) {
-			return ((BlockNode) node).nameIsVisible();
+			return ((BlockNode) node).getShowName();
 		}
 		if (id.equals(BlockNodeWithResource.PROPERTY_RESOURCE) && node instanceof BlockNodeWithResource) {
 			return ((BlockNodeWithResource) node).getResourceNameIndex();
@@ -100,7 +103,7 @@ public class NodePropertySource implements IPropertySource {
 			RGB newColor = (RGB) value;
 			node.setColor(newColor);
 		} else if (id.equals(BlockNode.PROPERTY_NAME) && node instanceof BlockNode) {
-			((BlockNode) node).setNameVisible((boolean) value);
+			((BlockNode) node).setShowName((boolean) value);
 		} else if (id.equals(BlockNodeWithResource.PROPERTY_RESOURCE) && node instanceof BlockNodeWithResource) {
 			((BlockNodeWithResource) node).setResourceName((int) value);
 		} else if (id.equals(BlockNodeWithInterval.PROPERTY_INTERVAL) && node instanceof BlockNodeWithInterval) {

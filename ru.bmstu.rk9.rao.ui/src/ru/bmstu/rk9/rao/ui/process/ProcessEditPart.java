@@ -54,7 +54,7 @@ public abstract class ProcessEditPart extends EditPart implements NodeEditPart {
 		super.propertyChange(evt);
 
 		if (evt.getPropertyName().equals(BlockNode.PROPERTY_NAME))
-			((ProcessFigure) getFigure()).setFigureNameVisible((boolean) evt.getNewValue());
+			((ProcessFigure) getFigure()).setShowName((boolean) evt.getNewValue());
 
 		if (evt.getPropertyName().equals(BlockNode.SOURCE_CONNECTION_UPDATED))
 			refreshSourceConnections();
@@ -78,7 +78,7 @@ public abstract class ProcessEditPart extends EditPart implements NodeEditPart {
 
 		ProcessFigure figure = (ProcessFigure) getFigure();
 		BlockNode node = (BlockNode) getModel();
-		figure.setFigureNameVisible(node.nameIsVisible());
+		figure.setShowName(node.getShowName());
 	}
 
 	@Override
