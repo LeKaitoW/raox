@@ -54,7 +54,7 @@ public class Player implements Runnable {
 		state = "Play";
 	}
 
-	public synchronized int runPlayer(int currentEventNumber, int time, PlayingDirection playingDirection) {
+	private synchronized int runPlayer(int currentEventNumber, int time, PlayingDirection playingDirection) {
 
 		jsonModelStateObject = getModelData();
 
@@ -77,6 +77,7 @@ public class Player implements Runnable {
 
 	public void run() {
 		System.out.println("MyRunnable running from Player");
+		runPlayer(1, 1000, PlayingDirection.FORWARD);
 
 		return;
 	}

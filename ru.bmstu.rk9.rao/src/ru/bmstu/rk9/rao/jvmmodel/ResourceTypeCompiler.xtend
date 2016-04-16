@@ -11,6 +11,7 @@ import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import java.nio.ByteBuffer
 import ru.bmstu.rk9.rao.rao.FieldDeclaration
 import ru.bmstu.rk9.rao.lib.database.Database.DataType
+import ru.bmstu.rk9.rao.lib.json.JSONObject
 
 class ResourceTypeCompiler extends RaoEntityCompiler {
 	def static asClass(ResourceType resourceType, JvmTypesBuilder jvmTypesBuilder,
@@ -130,6 +131,25 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				body = '''
 					return "«typeQualifiedName»";
+				'''
+			]
+
+			members += resourceType.toMethod("serializeToJsonObject", typeRef(JSONObject)) [
+
+				visibility = JvmVisibility.PUBLIC
+				final = true
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
+
+				var size = 0
+				for (param : resourceType.parameters) {
+					size = size + param.getSize()
+				}
+				// val fixedWidthParametersSize = size
+				body = '''
+					JSONObject jsonModelStateObject = new JSONObject();
+
+
+					return jsonModelStateObject;
 				'''
 			]
 

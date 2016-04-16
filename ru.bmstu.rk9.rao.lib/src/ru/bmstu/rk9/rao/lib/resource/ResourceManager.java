@@ -30,6 +30,10 @@ public class ResourceManager<T extends ComparableResource<T>> {
 		return resources.get(number);
 	}
 
+	public String getValue() {
+		return resources.values().toString();
+	}
+
 	public Collection<T> getAll() {
 		return Collections.unmodifiableCollection(resources.values());
 	}

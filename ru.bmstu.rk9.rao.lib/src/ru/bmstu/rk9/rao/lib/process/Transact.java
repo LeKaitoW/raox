@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rao.lib.process;
 
 import java.nio.ByteBuffer;
 
+import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
@@ -42,5 +43,11 @@ public class Transact extends ComparableResource<Transact> {
 	@Override
 	public Transact deepCopy() {
 		return new Transact();
+	}
+
+	@Override
+	public JSONObject serializeToJsonObject() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
