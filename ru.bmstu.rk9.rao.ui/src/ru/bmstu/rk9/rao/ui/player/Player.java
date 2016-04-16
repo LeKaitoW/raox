@@ -20,11 +20,9 @@ public class Player implements Runnable {
 
 		switch (playingDirection) {
 		case FORWARD:
-			// System.out.println("Playing toward!");
 			currentEventNumber++;
 			break;
 		case BACKWARD:
-			// System.out.println("Playing back");
 			currentEventNumber--;
 			break;
 
@@ -47,6 +45,11 @@ public class Player implements Runnable {
 		state = "Stop";
 	}
 
+	public static void pause() {
+		System.out.println("Pause");
+		state = "Pause";
+	}
+
 	public static void play() {
 		Thread thread = new Thread(new Player());
 		thread.start();
@@ -54,11 +57,11 @@ public class Player implements Runnable {
 		state = "Play";
 	}
 
-	private synchronized int runPlayer(int currentEventNumber, int time, PlayingDirection playingDirection) {
+	private synchronized void runPlayer(int currentEventNumber, int time, PlayingDirection playingDirection) {
 
 		jsonModelStateObject = getModelData();
 
-		while (state != "Stop" && state != "Pause" && (currentEventNumber <= (jsonModelStateObject.length() - 1))
+		while (state != "Stop" && state != "Pause" && (currentEventNumber < (jsonModelStateObject.length() - 1))
 				&& currentEventNumber > 0) {
 			Double currentFrameTime = jsonModelStateObject.getJSONObject(currentEventNumber)
 					.getJSONArray("Current resourses").getJSONObject(1).getDouble("time ");
@@ -66,23 +69,26 @@ public class Player implements Runnable {
 			System.out
 					.println("\n" + "Time " + currentFrameTime + "Event number " + currentEventNumber + " Current frame"
 							+ jsonModelStateObject.getJSONObject(currentEventNumber).getJSONArray("Current resourses"));
+
 			currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
 
 		}
-
-		System.out.println("Playing done");
-		return currentEventNumber;
+		if (state == "Stop") {
+			Player.currentEventNumber = 1;
+		} else {
+			Player.currentEventNumber = currentEventNumber;
+		}
 
 	}
 
 	public void run() {
-		System.out.println("MyRunnable running from Player");
-		runPlayer(1, 1000, PlayingDirection.FORWARD);
+		runPlayer(currentEventNumber, 1000, PlayingDirection.FORWARD);
 
 		return;
 	}
 
 	private static volatile String state = new String("");
+	private volatile static Integer currentEventNumber = new Integer(1);
 	private JSONArray jsonModelStateObject = new JSONArray();
 	private final Reader reader = new Reader();
 

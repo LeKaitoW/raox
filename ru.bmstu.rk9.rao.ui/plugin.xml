@@ -524,6 +524,10 @@
            class="ru.bmstu.rk9.rao.ui.player.handler.StopHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.player.stop">
      </handler>
+     <handler
+           class="ru.bmstu.rk9.rao.ui.player.handler.PauseHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.player.pause">
+     </handler>
   </extension>
   <extension
         point="org.eclipse.ui.menus">
@@ -1233,11 +1237,11 @@
               </parameter>
            </command>
            <command
-                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.player.pause"
                  icon="icons/rao_pause.gif"
-                 id="ru.bmstu.rk9.rao.ui.RaoToolbar.pause"
+                 id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.pause"
                  label="Pause"
-                 style="radio"
+                 style="push"
                  tooltip="Pause">
               <visibleWhen
                     checkEnabled="false">
@@ -1248,10 +1252,6 @@
                     </equals>
                  </with>
               </visibleWhen>
-              <parameter
-                    name="org.eclipse.ui.commands.radioStateParameter"
-                    value="P">
-              </parameter>
            </command>
            <control
                  class="ru.bmstu.rk9.rao.ui.toolbar.ToolbarSeparator">
