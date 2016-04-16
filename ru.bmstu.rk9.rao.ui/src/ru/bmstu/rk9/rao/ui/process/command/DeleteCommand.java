@@ -11,27 +11,30 @@ import ru.bmstu.rk9.rao.ui.process.node.Node;
 
 public class DeleteCommand extends Command {
 
-	private BlockNode node;
-	private Node parentModel;
+	private Node node;
+	private Node parentNode;
 
 	@Override
 	public void execute() {
-		this.parentModel.removeChild(node);
-		disconnect(node.getSourceConnections());
-		disconnect(node.getTargetConnections());
+		parentNode.removeChild(node);
+		if (node instanceof BlockNode) {
+			BlockNode blockNode = (BlockNode) node;
+			disconnect(blockNode.getSourceConnections());
+			disconnect(blockNode.getTargetConnections());
+		}
 	}
 
 	public void setModel(Object model) {
-		this.node = (BlockNode) model;
+		node = (Node) model;
 	}
 
 	public void setParentModel(Object model) {
-		parentModel = (Node) model;
+		parentNode = (Node) model;
 	}
 
 	@Override
 	public void undo() {
-		this.parentModel.addChild(node);
+		parentNode.addChild(node);
 	}
 
 	private void disconnect(List<Connection> connections) {
