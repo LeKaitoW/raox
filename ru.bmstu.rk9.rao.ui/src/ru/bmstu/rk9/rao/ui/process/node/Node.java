@@ -26,27 +26,27 @@ public class Node extends ru.bmstu.rk9.rao.ui.gef.Node implements IAdaptable {
 		this.constraint = new Rectangle(10, 10, 100, 100);
 	}
 
-	public void setID(int ID) {
-		this.ID = ID;
-	}
-
-	public int getID() {
+	public final int getID() {
 		return ID;
 	}
 
-	public String getName() {
+	public final void setID(int ID) {
+		this.ID = ID;
+	}
+
+	public final String getName() {
 		return name;
 	}
 
-	public void setName(String name) {
+	public final void setName(String name) {
 		this.name = name;
 	}
 
-	public RGB getColor() {
+	public final RGB getColor() {
 		return color;
 	}
 
-	public void setColor(RGB color) {
+	public final void setColor(RGB color) {
 		RGB oldColor = this.color;
 		this.color = color;
 		getListeners().firePropertyChange(PROPERTY_COLOR, oldColor, color);
