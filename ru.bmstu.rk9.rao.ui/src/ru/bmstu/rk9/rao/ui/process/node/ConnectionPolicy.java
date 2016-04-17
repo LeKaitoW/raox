@@ -5,7 +5,6 @@ import org.eclipse.gef.editpolicies.GraphicalNodeEditPolicy;
 import org.eclipse.gef.requests.CreateConnectionRequest;
 import org.eclipse.gef.requests.ReconnectRequest;
 
-import ru.bmstu.rk9.rao.ui.process.ConnectionAnchor;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreateCommand;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionReconnectCommand;

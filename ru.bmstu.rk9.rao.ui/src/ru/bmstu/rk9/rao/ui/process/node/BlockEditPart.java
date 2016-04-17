@@ -13,8 +13,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
-import ru.bmstu.rk9.rao.ui.process.ConnectionAnchor;
-import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 
 public abstract class BlockEditPart extends EditPart implements NodeEditPart {
@@ -44,7 +42,7 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 		}
 
 		if (evt.getPropertyName().equals(BlockNode.PROPERTY_NAME))
-			((ProcessFigure) getFigure()).setShowName((boolean) evt.getNewValue());
+			((BlockFigure) getFigure()).setShowName((boolean) evt.getNewValue());
 
 		if (evt.getPropertyName().equals(BlockNode.SOURCE_CONNECTION_UPDATED))
 			refreshSourceConnections();
@@ -63,10 +61,10 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 	protected void refreshVisuals() {
 		super.refreshVisuals();
 
-		if (!(getFigure() instanceof ProcessFigure))
+		if (!(getFigure() instanceof BlockFigure))
 			return;
 
-		ProcessFigure figure = (ProcessFigure) getFigure();
+		BlockFigure figure = (BlockFigure) getFigure();
 		BlockNode node = (BlockNode) getModel();
 		figure.setForegroundColor(new Color(null, node.getColor()));
 		figure.setShowName(node.getShowName());
@@ -118,7 +116,7 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 		return getProcessFigure().getConnectionAnchorName(connectionAnchor);
 	}
 
-	protected final ProcessFigure getProcessFigure() {
-		return (ProcessFigure) getFigure();
+	protected final BlockFigure getProcessFigure() {
+		return (BlockFigure) getFigure();
 	}
 }

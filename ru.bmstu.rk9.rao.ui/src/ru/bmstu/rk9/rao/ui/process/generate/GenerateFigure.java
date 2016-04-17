@@ -7,10 +7,10 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 
-import ru.bmstu.rk9.rao.ui.process.ConnectionAnchor;
-import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
+import ru.bmstu.rk9.rao.ui.process.node.BlockFigure;
+import ru.bmstu.rk9.rao.ui.process.node.ConnectionAnchor;
 
-public class GenerateFigure extends ProcessFigure {
+public class GenerateFigure extends BlockFigure {
 
 	static class Shape extends Figure {
 		@Override

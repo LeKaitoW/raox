@@ -7,10 +7,10 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Path;
 
-import ru.bmstu.rk9.rao.ui.process.ConnectionAnchor;
-import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
+import ru.bmstu.rk9.rao.ui.process.node.BlockFigure;
+import ru.bmstu.rk9.rao.ui.process.node.ConnectionAnchor;
 
-public class SeizeFigure extends ProcessFigure {
+public class SeizeFigure extends BlockFigure {
 
 	static class Shape extends Figure {
 
