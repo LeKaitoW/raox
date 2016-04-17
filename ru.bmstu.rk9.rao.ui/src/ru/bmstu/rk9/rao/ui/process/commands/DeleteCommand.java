@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.process.command;
+package ru.bmstu.rk9.rao.ui.process.commands;
 
 import java.util.Iterator;
 import java.util.List;

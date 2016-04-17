@@ -4,7 +4,7 @@ import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editpolicies.ComponentEditPolicy;
 import org.eclipse.gef.requests.GroupRequest;
 
-import ru.bmstu.rk9.rao.ui.process.command.DeleteCommand;
+import ru.bmstu.rk9.rao.ui.process.commands.DeleteCommand;
 
 public class ProcessDeletePolicy extends ComponentEditPolicy {
 
