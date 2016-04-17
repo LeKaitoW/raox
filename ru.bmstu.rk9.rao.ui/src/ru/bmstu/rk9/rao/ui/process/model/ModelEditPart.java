@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rao.ui.process.model;
 
 import java.beans.PropertyChangeEvent;
+import java.util.List;
 
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.gef.EditPolicy;
@@ -16,6 +17,11 @@ public class ModelEditPart extends EditPart {
 	protected IFigure createFigure() {
 		IFigure figure = ((ScalableRootEditPart) getRoot()).getLayer(ProcessEditor.MODEL_LAYER);
 		return figure;
+	}
+
+	@Override
+	public final List<ru.bmstu.rk9.rao.ui.gef.Node> getModelChildren() {
+		return ((ru.bmstu.rk9.rao.ui.gef.Node) getModel()).getChildren();
 	}
 
 	@Override

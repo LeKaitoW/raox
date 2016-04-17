@@ -21,17 +21,12 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 
 	private int ID;
 
-	public int getID() {
+	public final int getID() {
 		return ID;
 	}
 
-	public void setID(int ID) {
+	public final void setID(int ID) {
 		this.ID = ID;
-	}
-
-	@Override
-	public final List<ru.bmstu.rk9.rao.ui.gef.Node> getModelChildren() {
-		return ((ru.bmstu.rk9.rao.ui.gef.Node) getModel()).getChildren();
 	}
 
 	@Override
