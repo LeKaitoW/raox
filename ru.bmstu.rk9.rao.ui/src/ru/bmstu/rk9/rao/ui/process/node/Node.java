@@ -1,30 +1,17 @@
 package ru.bmstu.rk9.rao.ui.process.node;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.draw2d.geometry.Rectangle;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.IPropertySource;
 
 public class Node extends ru.bmstu.rk9.rao.ui.gef.Node implements IAdaptable {
 
 	private static final long serialVersionUID = 1;
 
-	public static final String PROPERTY_CONSTRAINT = "NodeConstraint";
-	public static final String PROPERTY_COLOR = "NodeColor";
 	public static final String NODE_MARKER = "NodeID";
 
-	private transient IPropertySource propertySource = null;
-
-	private String name;
-	protected RGB color;
-	private Rectangle constraint;
 	protected int ID;
-
-	public Node(RGB color) {
-		this.name = "Unknown";
-		this.color = color;
-		this.constraint = new Rectangle(10, 10, 100, 100);
-	}
+	private String name = "Unknown";
+	private transient IPropertySource propertySource = null;
 
 	public final int getID() {
 		return ID;
@@ -40,26 +27,6 @@ public class Node extends ru.bmstu.rk9.rao.ui.gef.Node implements IAdaptable {
 
 	public final void setName(String name) {
 		this.name = name;
-	}
-
-	public final RGB getColor() {
-		return color;
-	}
-
-	public final void setColor(RGB color) {
-		RGB oldColor = this.color;
-		this.color = color;
-		getListeners().firePropertyChange(PROPERTY_COLOR, oldColor, color);
-	}
-
-	public final Rectangle getConstraint() {
-		return constraint;
-	}
-
-	public final void setConstraint(Rectangle constraint) {
-		Rectangle previousConstraint = this.constraint;
-		this.constraint = constraint;
-		getListeners().firePropertyChange(PROPERTY_CONSTRAINT, previousConstraint, constraint);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

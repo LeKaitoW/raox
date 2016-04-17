@@ -9,6 +9,8 @@ import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.NodeEditPart;
 import org.eclipse.gef.Request;
 import org.eclipse.gef.requests.DropRequest;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
@@ -36,6 +38,11 @@ public abstract class ProcessEditPart extends EditPart implements NodeEditPart {
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
 
+		if (evt.getPropertyName().equals(BlockNode.PROPERTY_COLOR)) {
+			getFigure().setBackgroundColor(new Color(null, (RGB) evt.getNewValue()));
+			refreshVisuals();
+		}
+
 		if (evt.getPropertyName().equals(BlockNode.PROPERTY_NAME))
 			((ProcessFigure) getFigure()).setShowName((boolean) evt.getNewValue());
 
@@ -61,6 +68,7 @@ public abstract class ProcessEditPart extends EditPart implements NodeEditPart {
 
 		ProcessFigure figure = (ProcessFigure) getFigure();
 		BlockNode node = (BlockNode) getModel();
+		figure.setBackgroundColor(new Color(null, node.getColor()));
 		figure.setShowName(node.getShowName());
 	}
 

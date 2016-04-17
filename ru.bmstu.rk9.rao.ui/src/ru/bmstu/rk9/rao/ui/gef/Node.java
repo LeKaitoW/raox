@@ -6,21 +6,20 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.draw2d.geometry.Rectangle;
+
 public class Node implements Serializable {
 
 	private static final long serialVersionUID = 1;
 
-	private List<Node> children;
-	private Node parent;
-	private PropertyChangeSupport listeners;
 	public static final String PROPERTY_ADD = "NodeAddChild";
 	public static final String PROPERTY_REMOVE = "NodeRemoveChild";
+	public static final String PROPERTY_CONSTRAINT = "NodeConstraint";
 
-	public Node() {
-		parent = null;
-		children = new ArrayList<Node>();
-		listeners = new PropertyChangeSupport(this);
-	}
+	private Node parent = null;
+	private List<Node> children = new ArrayList<Node>();
+	private PropertyChangeSupport listeners = new PropertyChangeSupport(this);
+	private Rectangle constraint = new Rectangle(10, 10, 100, 100);
 
 	public final boolean addChild(Node child) {
 		boolean isAdded = this.children.add(child);
@@ -39,11 +38,15 @@ public class Node implements Serializable {
 	}
 
 	public final List<Node> getChildren() {
-		return this.children;
+		return children;
+	}
+
+	public final boolean contains(Node child) {
+		return children.contains(child);
 	}
 
 	public final Node getParent() {
-		return this.parent;
+		return parent;
 	}
 
 	public final void setParent(Node parent) {
@@ -62,7 +65,13 @@ public class Node implements Serializable {
 		listeners.removePropertyChangeListener(listener);
 	}
 
-	public final boolean contains(Node child) {
-		return children.contains(child);
+	public final Rectangle getConstraint() {
+		return constraint;
+	}
+
+	public final void setConstraint(Rectangle constraint) {
+		Rectangle previousValue = this.constraint;
+		this.constraint = constraint;
+		getListeners().firePropertyChange(PROPERTY_CONSTRAINT, previousValue, constraint);
 	}
 }

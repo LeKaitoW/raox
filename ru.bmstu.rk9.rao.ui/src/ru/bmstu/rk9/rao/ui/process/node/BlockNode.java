@@ -8,6 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
@@ -21,18 +22,14 @@ public abstract class BlockNode extends Node {
 	public static final String SOURCE_CONNECTION_UPDATED = "SourceConnectionUpdated";
 	public static final String TARGET_CONNECTION_UPDATED = "TargetConnectionUpdated";
 	public static final String PROCESS_MARKER = "ru.bmstu.rk9.rao.ui.ProcessMarker";
+	public static final String PROPERTY_COLOR = "Color";
 	public static final String PROPERTY_NAME = "ShowNodeName";
 
-	protected CopyOnWriteArrayList<Connection> sourceConnections;
-	protected CopyOnWriteArrayList<Connection> targetConnections;
+	protected CopyOnWriteArrayList<Connection> sourceConnections = new CopyOnWriteArrayList<Connection>();
+	protected CopyOnWriteArrayList<Connection> targetConnections = new CopyOnWriteArrayList<Connection>();
 	private final Map<String, Integer> dockNames = new HashMap<>();
+	private RGB color = ProcessColors.BLOCK_COLOR.getRGB();
 	private boolean showName = true;
-
-	public BlockNode() {
-		super(ProcessColors.BLOCK_COLOR.getRGB());
-		sourceConnections = new CopyOnWriteArrayList<Connection>();
-		targetConnections = new CopyOnWriteArrayList<Connection>();
-	}
 
 	public final boolean getShowName() {
 		return showName;
@@ -42,6 +39,16 @@ public abstract class BlockNode extends Node {
 		boolean previousValue = this.showName;
 		this.showName = showName;
 		getListeners().firePropertyChange(PROPERTY_NAME, previousValue, showName);
+	}
+
+	public final RGB getColor() {
+		return color;
+	}
+
+	public final void setColor(RGB color) {
+		RGB oldColor = this.color;
+		this.color = color;
+		getListeners().firePropertyChange(PROPERTY_COLOR, oldColor, color);
 	}
 
 	public final boolean addConnection(Connection connection) {

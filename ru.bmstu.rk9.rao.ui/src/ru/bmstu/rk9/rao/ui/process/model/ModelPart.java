@@ -9,7 +9,6 @@ import org.eclipse.gef.editparts.ScalableRootEditPart;
 import ru.bmstu.rk9.rao.ui.process.ProcessEditPart;
 import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
 import ru.bmstu.rk9.rao.ui.process.ProcessLayoutEditPolicy;
-import ru.bmstu.rk9.rao.ui.process.node.Node;
 
 public class ModelPart extends ProcessEditPart {
 
@@ -26,11 +25,12 @@ public class ModelPart extends ProcessEditPart {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals(Node.PROPERTY_CONSTRAINT))
-			refreshVisuals();
-		if (evt.getPropertyName().equals(Node.PROPERTY_ADD))
+		super.propertyChange(evt);
+
+		if (evt.getPropertyName().equals(ru.bmstu.rk9.rao.ui.gef.Node.PROPERTY_ADD))
 			refreshChildren();
-		if (evt.getPropertyName().equals(Node.PROPERTY_REMOVE))
+
+		if (evt.getPropertyName().equals(ru.bmstu.rk9.rao.ui.gef.Node.PROPERTY_REMOVE))
 			refreshChildren();
 	}
 }

@@ -13,6 +13,7 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 import ru.bmstu.rk9.rao.lib.process.Queue;
 import ru.bmstu.rk9.rao.ui.process.CheckboxPropertyDescriptor;
+import ru.bmstu.rk9.rao.ui.process.label.LabelNode;
 
 public class NodePropertySource implements IPropertySource {
 
@@ -30,10 +31,15 @@ public class NodePropertySource implements IPropertySource {
 	@Override
 	public IPropertyDescriptor[] getPropertyDescriptors() {
 		List<PropertyDescriptor> properties = new ArrayList<PropertyDescriptor>();
-		PropertyDescriptor colorProperty = new ColorPropertyDescriptor(Node.PROPERTY_COLOR, "Color");
-		properties.add(colorProperty);
+
+		if (node instanceof LabelNode) {
+			properties.add(new ColorPropertyDescriptor(LabelNode.PROPERTY_TEXT_COLOR, "Text color"));
+			properties.add(new ColorPropertyDescriptor(LabelNode.PROPERTY_BACKGROUND_COLOR, "Background color"));
+		}
 
 		if (node instanceof BlockNode) {
+			PropertyDescriptor colorProperty = new ColorPropertyDescriptor(BlockNode.PROPERTY_COLOR, "Color");
+			properties.add(colorProperty);
 			PropertyDescriptor nameProperty = new CheckboxPropertyDescriptor(BlockNode.PROPERTY_NAME, "Show name");
 			properties.add(nameProperty);
 		}
@@ -63,11 +69,26 @@ public class NodePropertySource implements IPropertySource {
 
 	@Override
 	public Object getPropertyValue(Object id) {
-		if (id.equals(Node.PROPERTY_COLOR)) {
-			return node.getColor();
+
+		if (node instanceof LabelNode) {
+			LabelNode labelNode = (LabelNode) node;
+
+			if (id.equals(LabelNode.PROPERTY_TEXT_COLOR))
+				return labelNode.getTextColor();
+
+			if (id.equals(LabelNode.PROPERTY_BACKGROUND_COLOR))
+				return labelNode.getBackgroundColor();
 		}
-		if (id.equals(BlockNode.PROPERTY_NAME) && node instanceof BlockNode) {
-			return ((BlockNode) node).getShowName();
+
+		if (!(node instanceof BlockNode))
+			return null;
+
+		BlockNode blockNode = (BlockNode) node;
+		if (id.equals(BlockNode.PROPERTY_COLOR)) {
+			return blockNode.getColor();
+		}
+		if (id.equals(BlockNode.PROPERTY_NAME)) {
+			return blockNode.getShowName();
 		}
 		if (id.equals(BlockNodeWithResource.PROPERTY_RESOURCE) && node instanceof BlockNodeWithResource) {
 			return ((BlockNodeWithResource) node).getResourceNameIndex();
@@ -99,9 +120,19 @@ public class NodePropertySource implements IPropertySource {
 
 	@Override
 	public void setPropertyValue(Object id, Object value) {
-		if (id.equals(Node.PROPERTY_COLOR)) {
-			RGB newColor = (RGB) value;
-			node.setColor(newColor);
+
+		if (node instanceof LabelNode) {
+			LabelNode labelNode = (LabelNode) node;
+
+			if (id.equals(LabelNode.PROPERTY_TEXT_COLOR))
+				labelNode.setTextColor((RGB) value);
+
+			if (id.equals(LabelNode.PROPERTY_BACKGROUND_COLOR))
+				labelNode.setBackgroundColor((RGB) value);
+		}
+
+		if (id.equals(BlockNode.PROPERTY_COLOR)) {
+			((BlockNode) node).setColor((RGB) value);
 		} else if (id.equals(BlockNode.PROPERTY_NAME) && node instanceof BlockNode) {
 			((BlockNode) node).setShowName((boolean) value);
 		} else if (id.equals(BlockNodeWithResource.PROPERTY_RESOURCE) && node instanceof BlockNodeWithResource) {

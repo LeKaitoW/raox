@@ -8,15 +8,12 @@ import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.Request;
 import org.eclipse.gef.RequestConstants;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.ui.process.ProcessDeletePolicy;
-import ru.bmstu.rk9.rao.ui.process.node.Node;
 
 public abstract class EditPart extends AbstractGraphicalEditPart implements PropertyChangeListener {
 
@@ -24,22 +21,15 @@ public abstract class EditPart extends AbstractGraphicalEditPart implements Prop
 	protected void refreshVisuals() {
 		super.refreshVisuals();
 
-		IFigure figure = getFigure();
 		Node node = (Node) getModel();
-
+		IFigure figure = getFigure();
 		figure.getParent().setConstraint(figure, node.getConstraint());
-		figure.setBackgroundColor(new Color(null, node.getColor()));
 	}
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(Node.PROPERTY_CONSTRAINT))
 			refreshVisuals();
-
-		if (evt.getPropertyName().equals(Node.PROPERTY_COLOR)) {
-			getFigure().setBackgroundColor(new Color(null, (RGB) evt.getNewValue()));
-			refreshVisuals();
-		}
 	}
 
 	@Override
