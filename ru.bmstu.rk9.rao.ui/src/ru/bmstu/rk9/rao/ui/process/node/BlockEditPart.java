@@ -13,6 +13,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
+import ru.bmstu.rk9.rao.ui.process.ProcessDeletePolicy;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionAnchor;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionPolicy;
@@ -50,7 +51,7 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 
 	@Override
 	protected void createEditPolicies() {
-		super.createEditPolicies();
+		installEditPolicy(EditPolicy.COMPONENT_ROLE, new ProcessDeletePolicy());
 		installEditPolicy(EditPolicy.GRAPHICAL_NODE_ROLE, new ConnectionPolicy());
 	}
 
