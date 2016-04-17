@@ -34,15 +34,11 @@ public abstract class BlockNodeWithInterval extends BlockNode {
 		return intervalName;
 	}
 
-	public final void validateInterval(IResource file) throws CoreException {
+	protected final void validateInterval(IResource file) throws CoreException {
 		try {
 			Double.valueOf(interval);
 		} catch (NumberFormatException e) {
-			IMarker marker = file.createMarker(BlockNode.PROCESS_MARKER);
-			marker.setAttribute(IMarker.MESSAGE, "Wrong " + getIntervalName());
-			marker.setAttribute(IMarker.LOCATION, getName());
-			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-			marker.setAttribute(NODE_MARKER, getID());
+			createErrorMarker(file, "Wrong " + getIntervalName(), IMarker.SEVERITY_ERROR);
 		}
 	}
 

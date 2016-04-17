@@ -295,7 +295,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	public void commandStackChanged(EventObject event) {
 		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
 		try {
-			file.deleteMarkers(BlockNode.PROCESS_MARKER, true, IResource.DEPTH_ZERO);
+			file.deleteMarkers(BlockNode.PROCESS_ERROR_MARKER, true, IResource.DEPTH_ZERO);
 			for (ru.bmstu.rk9.rao.ui.gef.Node node : model.getChildren()) {
 				if (node instanceof BlockNode) {
 					((BlockNode) node).validateProperty(file);

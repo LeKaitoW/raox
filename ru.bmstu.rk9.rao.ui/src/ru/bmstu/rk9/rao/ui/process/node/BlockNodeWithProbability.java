@@ -27,21 +27,15 @@ public abstract class BlockNodeWithProbability extends BlockNode {
 	}
 
 	public void validateProbability(IResource file) throws CoreException {
-		boolean valid = true;
+		boolean valid = false;
 		try {
 			double probability = Double.valueOf(this.probability);
-			if (probability < 0 || probability > 1)
-				valid = false;
+			valid = 0 <= probability && probability <= 1;
 		} catch (NumberFormatException e) {
-			valid = false;
 		}
-		if (!valid) {
-			IMarker marker = file.createMarker(BlockNode.PROCESS_MARKER);
-			marker.setAttribute(IMarker.MESSAGE, "Wrong probability");
-			marker.setAttribute(IMarker.LOCATION, getName());
-			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-			marker.setAttribute(NODE_MARKER, getID());
-		}
+
+		if (!valid)
+			createErrorMarker(file, "Wrong probability", IMarker.SEVERITY_ERROR);
 	}
 
 	@Override

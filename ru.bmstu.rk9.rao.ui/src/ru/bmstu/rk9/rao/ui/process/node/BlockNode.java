@@ -24,7 +24,7 @@ public abstract class BlockNode extends Node {
 
 	public static final String SOURCE_CONNECTION_UPDATED = "SourceConnectionUpdated";
 	public static final String TARGET_CONNECTION_UPDATED = "TargetConnectionUpdated";
-	public static final String PROCESS_MARKER = "ru.bmstu.rk9.rao.ui.ProcessMarker";
+	public static final String PROCESS_ERROR_MARKER = "ru.bmstu.rk9.rao.ui.process.ErrorMarker";
 	protected static final String PROPERTY_COLOR = "Color";
 	protected static final String PROPERTY_SHOW_NAME = "ShowName";
 
@@ -173,11 +173,16 @@ public abstract class BlockNode extends Node {
 		if (getSourceConnections().size() == sourceConnections && getTargetConnections().size() == targetConnections)
 			return;
 
-		IMarker marker = file.createMarker(BlockNode.PROCESS_MARKER);
-		marker.setAttribute(IMarker.MESSAGE, "Not all docks are connected");
+		createErrorMarker(file, "Not all docks are connected", IMarker.SEVERITY_WARNING);
+	}
+
+	protected final IMarker createErrorMarker(IResource file, String message, int severity) throws CoreException {
+		IMarker marker = file.createMarker(BlockNode.PROCESS_ERROR_MARKER);
+		marker.setAttribute(IMarker.MESSAGE, message);
 		marker.setAttribute(IMarker.LOCATION, getName());
-		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+		marker.setAttribute(IMarker.SEVERITY, severity);
 		marker.setAttribute(NODE_MARKER, getID());
+		return marker;
 	}
 
 	public abstract BlockConverterInfo createBlock();
