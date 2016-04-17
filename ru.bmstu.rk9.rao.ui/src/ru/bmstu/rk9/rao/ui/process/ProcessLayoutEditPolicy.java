@@ -6,6 +6,7 @@ import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editpolicies.XYLayoutEditPolicy;
 import org.eclipse.gef.requests.CreateRequest;
 
+import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.commands.ChangeConstraintCommand;
 import ru.bmstu.rk9.rao.ui.gef.commands.CreateCommand;
 import ru.bmstu.rk9.rao.ui.process.model.ModelEditPart;
@@ -29,17 +30,12 @@ public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 	@Override
 	protected Command getCreateCommand(CreateRequest request) {
 		if (request.getType() == REQ_CREATE && getHost() instanceof ModelEditPart) {
-			CreateCommand command = new CreateCommand();
-			command.setModel(getHost().getModel());
-			command.setNode(request.getNewObject());
-
 			Rectangle constraint = (Rectangle) getConstraintFor(request);
 			constraint.x = (constraint.x < 0) ? 0 : constraint.x;
 			constraint.y = (constraint.y < 0) ? 0 : constraint.y;
 			constraint.width = FIGURE_WIDTH;
 			constraint.height = FIGURE_HEIGHT;
-			command.setConstraint(constraint);
-			return command;
+			return new CreateCommand((Node) getHost().getModel(), (Node) request.getNewObject(), constraint);
 		}
 		return null;
 	}

@@ -10,33 +10,10 @@ public class CreateCommand extends Command {
 	private Node model;
 	private Node node;
 
-	public CreateCommand() {
-		super();
-		model = null;
-		node = null;
-	}
-
-	public void setNode(Object node) {
-		if (node instanceof Node)
-			this.node = (Node) node;
-	}
-
-	public void setModel(Object model) {
-		if (model instanceof Node)
-			this.model = (Node) model;
-	}
-
-	public void setConstraint(Rectangle constraint) {
-		if (node == null)
-			return;
-		node.setConstraint(constraint);
-	}
-
-	@Override
-	public boolean canExecute() {
-		if (node == null || model == null)
-			return false;
-		return true;
+	public CreateCommand(Node model, Node node, Rectangle constraint) {
+		this.model = model;
+		this.node = node;
+		this.node.setConstraint(constraint);
 	}
 
 	@Override
