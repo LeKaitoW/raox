@@ -55,14 +55,10 @@ public abstract class BlockNodeWithInterval extends BlockNode {
 
 	@Override
 	public Object getPropertyValue(Object propertyName) {
-		Object value = super.getPropertyValue(propertyName);
-		if (value != null)
-			return value;
-
 		if (propertyName.equals(PROPERTY_INTERVAL))
 			return getInterval();
 
-		return null;
+		return super.getPropertyValue(propertyName);
 	}
 
 	@Override

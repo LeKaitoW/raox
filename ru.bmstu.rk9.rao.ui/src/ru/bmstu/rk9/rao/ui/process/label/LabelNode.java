@@ -56,17 +56,13 @@ public class LabelNode extends Node implements Serializable {
 
 	@Override
 	public Object getPropertyValue(Object propertyName) {
-		Object value = super.getPropertyValue(propertyName);
-		if (value != null)
-			return value;
-
 		if (propertyName.equals(PROPERTY_TEXT_COLOR))
 			return getTextColor();
 
 		if (propertyName.equals(PROPERTY_BACKGROUND_COLOR))
 			return getBackgroundColor();
 
-		return null;
+		return super.getPropertyValue(propertyName);
 	}
 
 	@Override

@@ -64,17 +64,13 @@ public abstract class BlockNode extends Node {
 
 	@Override
 	public Object getPropertyValue(Object propertyName) {
-		Object value = super.getPropertyValue(propertyName);
-		if (value != null)
-			return value;
-
 		if (propertyName.equals(PROPERTY_COLOR))
 			return getColor();
 
 		if (propertyName.equals(PROPERTY_NAME))
 			return getShowName();
 
-		return null;
+		return super.getPropertyValue(propertyName);
 	}
 
 	@Override

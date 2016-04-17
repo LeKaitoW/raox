@@ -66,17 +66,13 @@ public abstract class BlockNodeWithCapacity extends BlockNode {
 
 	@Override
 	public Object getPropertyValue(Object propertyName) {
-		Object value = super.getPropertyValue(propertyName);
-		if (value != null)
-			return value;
-
 		if (propertyName.equals(PROPERTY_CAPACITY))
 			return getCapacity();
 
 		if (propertyName.equals(PROPERTY_QUEUEING))
 			return getQueueingIndex();
 
-		return null;
+		return super.getPropertyValue(propertyName);
 	}
 
 	@Override
