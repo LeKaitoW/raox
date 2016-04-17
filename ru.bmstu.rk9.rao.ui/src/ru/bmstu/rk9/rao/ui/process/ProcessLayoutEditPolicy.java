@@ -21,10 +21,7 @@ public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 		if (!ProcessEditor.processNodesInfo.containsKey(child.getModel().getClass()))
 			return null;
 
-		ChangeConstraintCommand command = new ChangeConstraintCommand();
-		command.setModel(child.getModel());
-		command.setConstraint((Rectangle) constraint);
-		return command;
+		return new ChangeConstraintCommand((Node) child.getModel(), (Rectangle) constraint);
 	}
 
 	@Override
