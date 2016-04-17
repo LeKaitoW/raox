@@ -1,22 +1,39 @@
 package ru.bmstu.rk9.rao.ui.process.generate;
 
+import java.util.List;
+
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.ui.views.properties.PropertyDescriptor;
+import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
-import ru.bmstu.rk9.rao.ui.process.node.BlockNodeWithInterval;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 
-public class GenerateNode extends BlockNodeWithInterval {
+public class GenerateNode extends BlockNode {
 
 	private static final long serialVersionUID = 1;
 
 	public static final String DOCK_OUT = "OUT";
-	public static String name = "Generate";
+	public static final String name = "Generate";
+	private static final String PROPERTY_INTERVAL = "Interval";
+
+	private String interval = "";
 
 	public GenerateNode() {
-		super("Interval");
 		setName(name);
 		registerDock(DOCK_OUT);
+	}
+
+	public final String getInterval() {
+		return interval;
+	}
+
+	public final void setInterval(String interval) {
+		String previousValue = this.interval;
+		this.interval = interval;
+		getListeners().firePropertyChange(PROPERTY_INTERVAL, previousValue, interval);
 	}
 
 	@Override
@@ -38,8 +55,35 @@ public class GenerateNode extends BlockNodeWithInterval {
 	}
 
 	@Override
+	public void createProperties(List<PropertyDescriptor> properties) {
+		super.createProperties(properties);
+
+		properties.add(new TextPropertyDescriptor(PROPERTY_INTERVAL, "Interval"));
+	}
+
+	@Override
+	public Object getPropertyValue(Object propertyName) {
+		if (propertyName.equals(PROPERTY_INTERVAL))
+			return getInterval();
+
+		return super.getPropertyValue(propertyName);
+	}
+
+	@Override
+	public void setPropertyValue(Object propertyName, Object value) {
+		super.setPropertyValue(propertyName, value);
+
+		if (propertyName.equals(PROPERTY_INTERVAL))
+			setInterval((String) value);
+	}
+
+	@Override
 	public void validateProperty(IResource file) throws CoreException {
-		validateInterval(file);
+		try {
+			Double.valueOf(interval);
+		} catch (NumberFormatException e) {
+			createErrorMarker(file, "Wrong interval", IMarker.SEVERITY_ERROR);
+		}
 		validateConnections(file, 1, 0);
 	}
 }
