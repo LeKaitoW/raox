@@ -15,7 +15,7 @@ import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.ui.trace.Tracer;
 
 public class PlotDataParser {
@@ -80,7 +80,7 @@ public class PlotDataParser {
 	private ParseInfo parsePattern(final PatternIndex patternIndex, final int startItemNumber) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = patternIndex.getEntryNumbers();
-		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
+		final List<Entry> allEntries = CurrentSimulator.getDatabase().getAllEntries();
 
 		if (patternCount == 0) {
 			dataset.add(new PlotItem(0, patternCount));
@@ -131,9 +131,9 @@ public class PlotDataParser {
 			final int parameterNumber, final int startItemNumber) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = resourceIndex.getEntryNumbers();
-		final List<Entry> allEntries = Simulator.getDatabase().getAllEntries();
+		final List<Entry> allEntries = CurrentSimulator.getDatabase().getAllEntries();
 
-		final int parameterOffset = Simulator.getStaticModelData().getResourceTypeParameterOffset(typeNumber,
+		final int parameterOffset = CurrentSimulator.getStaticModelData().getResourceTypeParameterOffset(typeNumber,
 				parameterNumber);
 		while (currentItemNumber < entriesNumbers.size()) {
 			int currentEntryNumber = entriesNumbers.get(currentItemNumber);
@@ -147,7 +147,7 @@ public class PlotDataParser {
 			Tracer.skipPart(header, TypeSize.BYTE);
 			PlotItem item = null;
 
-			DataType dataType = Simulator.getStaticModelData().getResourceTypeParameterType(typeNumber,
+			DataType dataType = CurrentSimulator.getStaticModelData().getResourceTypeParameterType(typeNumber,
 					parameterNumber);
 			switch (dataType) {
 			case INT:

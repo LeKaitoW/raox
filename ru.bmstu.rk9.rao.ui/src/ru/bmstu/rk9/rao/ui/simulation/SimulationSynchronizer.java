@@ -6,9 +6,9 @@ import java.util.Arrays;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 
@@ -85,7 +85,7 @@ public class SimulationSynchronizer {
 		private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
 
 		private Runnable updater = () -> {
-			StatusView.setValue("Simulation time".intern(), 20, timeFormatter.format(Simulator.getTime()));
+			StatusView.setValue("Simulation time".intern(), 20, timeFormatter.format(CurrentSimulator.getTime()));
 			StatusView.setValue("Actual scale".intern(), 10, scaleFormatter.format(60060d / actualTimeScale));
 		};
 
@@ -128,7 +128,7 @@ public class SimulationSynchronizer {
 	public void setSimulationScale(double value) {
 		simulationManager.timeScale = 60060d / value;
 		simulationManager.startRealTime = System.currentTimeMillis();
-		simulationManager.startSimulationTime = Simulator.isRunning() ? Simulator.getTime() : 0;
+		simulationManager.startSimulationTime = CurrentSimulator.isRunning() ? CurrentSimulator.getTime() : 0;
 	}
 
 	public class SimulationManager {
@@ -140,7 +140,7 @@ public class SimulationSynchronizer {
 		public class ScaleManager implements Subscriber {
 			@Override
 			public void fireChange() {
-				double currentSimulationTime = Simulator.getTime();
+				double currentSimulationTime = CurrentSimulator.getTime();
 				long currentRealTime = System.currentTimeMillis();
 
 				if (currentSimulationTime != 0) {
@@ -216,7 +216,7 @@ public class SimulationSynchronizer {
 
 		private void updateTimes() {
 			startRealTime = System.currentTimeMillis();
-			startSimulationTime = Simulator.getTime();
+			startSimulationTime = CurrentSimulator.getTime();
 		}
 	}
 

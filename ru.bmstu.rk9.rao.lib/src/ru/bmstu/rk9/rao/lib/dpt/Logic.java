@@ -7,7 +7,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Supplier;
 
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public abstract class Logic extends AbstractDecisionPoint {
 	public Logic() {
@@ -76,7 +76,7 @@ public abstract class Logic extends AbstractDecisionPoint {
 	private boolean checkActivities() {
 		for (Activity activity : activities)
 			if (activity.execute()) {
-				Simulator.getDatabase().addDecisionEntry(this, activity);
+				CurrentSimulator.getDatabase().addDecisionEntry(this, activity);
 				activity.getPattern().addResourceEntriesToDatabase(null, null);
 
 				return true;
