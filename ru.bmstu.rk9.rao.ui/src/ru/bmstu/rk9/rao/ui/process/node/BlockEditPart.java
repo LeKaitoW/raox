@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.process;
+package ru.bmstu.rk9.rao.ui.process.node;
 
 import java.beans.PropertyChangeEvent;
 import java.util.List;
@@ -13,11 +13,11 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
+import ru.bmstu.rk9.rao.ui.process.ConnectionAnchor;
+import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
-import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
-import ru.bmstu.rk9.rao.ui.process.node.Node;
 
-public abstract class ProcessEditPart extends EditPart implements NodeEditPart {
+public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 
 	private int ID;
 
@@ -114,11 +114,11 @@ public abstract class ProcessEditPart extends EditPart implements NodeEditPart {
 		return null;
 	}
 
-	final protected String mapConnectionAnchorToDock(ConnectionAnchor connectionAnchor) {
+	protected final String mapConnectionAnchorToDock(ConnectionAnchor connectionAnchor) {
 		return getProcessFigure().getConnectionAnchorName(connectionAnchor);
 	}
 
-	protected ProcessFigure getProcessFigure() {
+	protected final ProcessFigure getProcessFigure() {
 		return (ProcessFigure) getFigure();
 	}
 }

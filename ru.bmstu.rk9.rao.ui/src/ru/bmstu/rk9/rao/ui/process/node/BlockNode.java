@@ -25,8 +25,8 @@ public abstract class BlockNode extends Node {
 	public static final String SOURCE_CONNECTION_UPDATED = "SourceConnectionUpdated";
 	public static final String TARGET_CONNECTION_UPDATED = "TargetConnectionUpdated";
 	public static final String PROCESS_MARKER = "ru.bmstu.rk9.rao.ui.ProcessMarker";
-	public static final String PROPERTY_COLOR = "Color";
-	public static final String PROPERTY_NAME = "ShowNodeName";
+	protected static final String PROPERTY_COLOR = "Color";
+	protected static final String PROPERTY_NAME = "ShowNodeName";
 
 	protected CopyOnWriteArrayList<Connection> sourceConnections = new CopyOnWriteArrayList<Connection>();
 	protected CopyOnWriteArrayList<Connection> targetConnections = new CopyOnWriteArrayList<Connection>();

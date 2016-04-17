@@ -1,14 +1,14 @@
-package ru.bmstu.rk9.rao.ui.process;
+package ru.bmstu.rk9.rao.ui.process.node;
 
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editpolicies.GraphicalNodeEditPolicy;
 import org.eclipse.gef.requests.CreateConnectionRequest;
 import org.eclipse.gef.requests.ReconnectRequest;
 
+import ru.bmstu.rk9.rao.ui.process.ConnectionAnchor;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreateCommand;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionReconnectCommand;
-import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 
 public class ConnectionPolicy extends GraphicalNodeEditPolicy {
 
@@ -16,8 +16,8 @@ public class ConnectionPolicy extends GraphicalNodeEditPolicy {
 	protected Command getConnectionCompleteCommand(CreateConnectionRequest request) {
 		ConnectionCreateCommand command = (ConnectionCreateCommand) request.getStartCommand();
 		BlockNode targetBlockNode = getBlockNode();
-		ConnectionAnchor connectionAnchor = getProcessEditPart().getTargetConnectionAnchor(request);
-		String targetDockName = getProcessEditPart().mapConnectionAnchorToDock(connectionAnchor);
+		ConnectionAnchor connectionAnchor = getBlockEditPart().getTargetConnectionAnchor(request);
+		String targetDockName = getBlockEditPart().mapConnectionAnchorToDock(connectionAnchor);
 		command.setTarget(targetBlockNode, targetDockName);
 		return command;
 	}
@@ -27,8 +27,8 @@ public class ConnectionPolicy extends GraphicalNodeEditPolicy {
 		ConnectionCreateCommand command = new ConnectionCreateCommand();
 		BlockNode sourceBlockNode = getBlockNode();
 		request.setStartCommand(command);
-		ConnectionAnchor connectionAnchor = getProcessEditPart().getSourceConnectionAnchor(request);
-		String sourceDockName = getProcessEditPart().mapConnectionAnchorToDock(connectionAnchor);
+		ConnectionAnchor connectionAnchor = getBlockEditPart().getSourceConnectionAnchor(request);
+		String sourceDockName = getBlockEditPart().mapConnectionAnchorToDock(connectionAnchor);
 		command.setSource(sourceBlockNode, sourceDockName);
 		return command;
 	}
@@ -38,8 +38,8 @@ public class ConnectionPolicy extends GraphicalNodeEditPolicy {
 		Connection connection = (Connection) request.getConnectionEditPart().getModel();
 		BlockNode sourceBlockNode = getBlockNode();
 		ConnectionReconnectCommand command = new ConnectionReconnectCommand(connection);
-		ConnectionAnchor connectionAnchor = getProcessEditPart().getSourceConnectionAnchor(request);
-		String sourceDockName = getProcessEditPart().mapConnectionAnchorToDock(connectionAnchor);
+		ConnectionAnchor connectionAnchor = getBlockEditPart().getSourceConnectionAnchor(request);
+		String sourceDockName = getBlockEditPart().mapConnectionAnchorToDock(connectionAnchor);
 		command.setNewSource(sourceBlockNode, sourceDockName);
 		return command;
 	}
@@ -49,14 +49,14 @@ public class ConnectionPolicy extends GraphicalNodeEditPolicy {
 		Connection connection = (Connection) request.getConnectionEditPart().getModel();
 		BlockNode targetBlockNode = getBlockNode();
 		ConnectionReconnectCommand command = new ConnectionReconnectCommand(connection);
-		ConnectionAnchor connectionAnchor = getProcessEditPart().getTargetConnectionAnchor(request);
-		String targetDockName = getProcessEditPart().mapConnectionAnchorToDock(connectionAnchor);
+		ConnectionAnchor connectionAnchor = getBlockEditPart().getTargetConnectionAnchor(request);
+		String targetDockName = getBlockEditPart().mapConnectionAnchorToDock(connectionAnchor);
 		command.setNewTarget(targetBlockNode, targetDockName);
 		return command;
 	}
 
-	protected ProcessEditPart getProcessEditPart() {
-		return (ProcessEditPart) getHost();
+	protected BlockEditPart getBlockEditPart() {
+		return (BlockEditPart) getHost();
 	}
 
 	protected BlockNode getBlockNode() {

@@ -67,6 +67,7 @@ import ru.bmstu.rk9.rao.ui.process.label.LabelEditPart;
 import ru.bmstu.rk9.rao.ui.process.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 import ru.bmstu.rk9.rao.ui.process.model.ModelEditPart;
+import ru.bmstu.rk9.rao.ui.process.node.BlockEditPart;
 import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 import ru.bmstu.rk9.rao.ui.process.node.Node;
 import ru.bmstu.rk9.rao.ui.process.node.NodeFactory;
@@ -265,8 +266,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 				int nodeID = marker.getAttributeValue(Node.NODE_MARKER, 0);
 				ModelEditPart modelPart = (ModelEditPart) getGraphicalViewer().getRootEditPart().getChildren().get(0);
-				List<ProcessEditPart> editParts = modelPart.getChildren();
-				for (ProcessEditPart editPart : editParts) {
+				List<BlockEditPart> editParts = modelPart.getChildren();
+				for (BlockEditPart editPart : editParts) {
 					if (editPart.getID() == nodeID) {
 						viewer.select(editPart);
 						viewer.reveal(editPart);
