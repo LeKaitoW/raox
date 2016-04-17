@@ -71,7 +71,7 @@ public class ModelState {
 	}
 
 	public void deploy() {
-		Simulator.setModelState(this);
+		CurrentSimulator.setModelState(this);
 	}
 
 	public ModelState deepCopy() {

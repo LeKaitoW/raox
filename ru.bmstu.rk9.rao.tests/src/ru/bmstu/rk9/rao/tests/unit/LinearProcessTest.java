@@ -15,9 +15,9 @@ import ru.bmstu.rk9.rao.lib.process.Release;
 import ru.bmstu.rk9.rao.lib.process.Resource;
 import ru.bmstu.rk9.rao.lib.process.Seize;
 import ru.bmstu.rk9.rao.lib.process.Terminate;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
 
 public class LinearProcessTest {
 
@@ -25,12 +25,12 @@ public class LinearProcessTest {
 	public void test() {
 		ProcessTestSuite.initEmptySimulation();
 		SimulatorInitializationInfo initializationInfo = new SimulatorInitializationInfo();
-		initializationInfo.terminateConditions.add(() -> Simulator.getTime() > 1000);
+		initializationInfo.terminateConditions.add(() -> CurrentSimulator.getTime() > 1000);
 		initializationInfo.processBlocks.addAll(generateSituation());
-		Simulator.initialize(initializationInfo);
-		SimulationStopCode simulationStopCode = Simulator.run();
+		CurrentSimulator.initialize(initializationInfo);
+		SimulationStopCode simulationStopCode = CurrentSimulator.run();
 		assertEquals("linear_process_test", SimulationStopCode.RUNTIME_ERROR, simulationStopCode);
-		assertTrue(Math.abs(Simulator.getTime() - 40) < 1e16);
+		assertTrue(Math.abs(CurrentSimulator.getTime() - 40) < 1e16);
 	}
 
 	private List<Block> generateSituation() {
