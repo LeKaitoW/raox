@@ -7,6 +7,7 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
 
 import ru.bmstu.rk9.rao.ui.process.ConnectionAnchor;
+import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.process.ProcessFigure;
 
 public class HoldFigure extends ProcessFigure {
@@ -16,7 +17,7 @@ public class HoldFigure extends ProcessFigure {
 		@Override
 		final protected void paintFigure(Graphics graphics) {
 			Rectangle bounds = getBounds();
-			graphics.setBackgroundColor(getBackgroundColor());
+			graphics.setBackgroundColor(getForegroundColor());
 			graphics.fillRectangle(bounds);
 
 			Rectangle clockFaceBounds = bounds.getCopy();
@@ -30,10 +31,10 @@ public class HoldFigure extends ProcessFigure {
 		}
 
 		private void drawClock(Graphics graphics, Rectangle bounds, final int hours, final int minutes) {
-			graphics.setBackgroundColor(pageBackgroundColor);
+			graphics.setBackgroundColor(ProcessColors.MODEL_BACKGROUND_COLOR);
 			graphics.fillArc(bounds, 0, 360);
 
-			graphics.setBackgroundColor(getBackgroundColor());
+			graphics.setBackgroundColor(getForegroundColor());
 			graphics.translate(bounds.getCenter());
 
 			final float clockRadius = Math.min(bounds.width, bounds.height) / 2;

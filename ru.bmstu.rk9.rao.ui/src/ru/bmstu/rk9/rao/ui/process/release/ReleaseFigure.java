@@ -24,7 +24,7 @@ public class ReleaseFigure extends ProcessFigure {
 			path.lineTo(xStart, yStart);
 			path.close();
 
-			graphics.setBackgroundColor(getBackgroundColor());
+			graphics.setBackgroundColor(getForegroundColor());
 			graphics.fillPath(path);
 		}
 

@@ -39,7 +39,7 @@ public abstract class ProcessEditPart extends EditPart implements NodeEditPart {
 		super.propertyChange(evt);
 
 		if (evt.getPropertyName().equals(BlockNode.PROPERTY_COLOR)) {
-			getFigure().setBackgroundColor(new Color(null, (RGB) evt.getNewValue()));
+			getFigure().setForegroundColor(new Color(null, (RGB) evt.getNewValue()));
 			refreshVisuals();
 		}
 
@@ -68,7 +68,7 @@ public abstract class ProcessEditPart extends EditPart implements NodeEditPart {
 
 		ProcessFigure figure = (ProcessFigure) getFigure();
 		BlockNode node = (BlockNode) getModel();
-		figure.setBackgroundColor(new Color(null, node.getColor()));
+		figure.setForegroundColor(new Color(null, node.getColor()));
 		figure.setShowName(node.getShowName());
 	}
 

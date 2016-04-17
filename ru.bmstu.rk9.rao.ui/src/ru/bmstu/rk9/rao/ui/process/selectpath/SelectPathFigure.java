@@ -24,7 +24,7 @@ public class SelectPathFigure extends ProcessFigure {
 			points.addPoint(bounds.x + bounds.width, yCenter);
 			points.addPoint(xCenter, bounds.y + bounds.height);
 			points.addPoint(bounds.x, yCenter);
-			graphics.setBackgroundColor(getBackgroundColor());
+			graphics.setBackgroundColor(getForegroundColor());
 			graphics.fillPolygon(points);
 		}
 

@@ -20,7 +20,7 @@ public class GenerateFigure extends ProcessFigure {
 			points.addPoint(bounds.x, bounds.y);
 			points.addPoint(bounds.x + bounds.width, bounds.y + bounds.height / 2);
 			points.addPoint(bounds.x, bounds.y + bounds.height);
-			graphics.setBackgroundColor(getBackgroundColor());
+			graphics.setBackgroundColor(getForegroundColor());
 			graphics.fillPolygon(points);
 		}
 

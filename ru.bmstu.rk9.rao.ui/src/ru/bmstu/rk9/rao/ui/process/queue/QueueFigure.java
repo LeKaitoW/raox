@@ -19,7 +19,7 @@ public class QueueFigure extends ProcessFigure {
 			final int border = Math.min(bounds.width, bounds.height) / 7;
 			bounds.shrink(0, border);
 
-			graphics.setBackgroundColor(getBackgroundColor());
+			graphics.setBackgroundColor(getForegroundColor());
 			graphics.fillRectangle(bounds.x, bounds.y, bounds.width, border);
 			graphics.fillRectangle(bounds.x, bounds.bottom() - border, bounds.width, border);
 

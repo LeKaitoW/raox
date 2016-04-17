@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
@@ -16,7 +15,6 @@ import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jdt.ui.PreferenceConstants;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.ui.PlatformUI;
@@ -30,7 +28,6 @@ public class ProcessFigure extends Figure {
 	protected Label label = new Label();
 	private Font font;
 
-	protected static Color pageBackgroundColor = ColorConstants.white;
 	private static final int shapeBorder = 5;
 	private IFigure shape;
 
@@ -51,11 +48,11 @@ public class ProcessFigure extends Figure {
 			dockRectangle.width = dockSize * 2;
 			dockRectangle.height = dockSize * 2;
 
-			graphics.setBackgroundColor(pageBackgroundColor);
+			graphics.setBackgroundColor(ProcessColors.MODEL_BACKGROUND_COLOR);
 			graphics.fillRectangle(dockRectangle);
 
 			dockRectangle.shrink(1, 1);
-			graphics.setBackgroundColor(getBackgroundColor());
+			graphics.setBackgroundColor(getForegroundColor());
 			graphics.fillRectangle(dockRectangle);
 		}
 	}
@@ -132,6 +129,7 @@ public class ProcessFigure extends Figure {
 		relativeRectangle.setHeight(10);
 		relativeRectangle.setY(0);
 		setConstraint(label, relativeRectangle);
+		label.setForegroundColor(ProcessColors.LABEL_TEXT_COLOR);
 	}
 
 	public ConnectionAnchor getConnectionAnchor(String dockName) {
