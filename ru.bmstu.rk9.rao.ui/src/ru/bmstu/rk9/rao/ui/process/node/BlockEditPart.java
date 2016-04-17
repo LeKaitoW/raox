@@ -14,6 +14,8 @@ import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
+import ru.bmstu.rk9.rao.ui.process.connection.ConnectionAnchor;
+import ru.bmstu.rk9.rao.ui.process.connection.ConnectionPolicy;
 
 public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 
@@ -112,7 +114,7 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 		return null;
 	}
 
-	protected final String mapConnectionAnchorToDock(ConnectionAnchor connectionAnchor) {
+	public final String mapConnectionAnchorToDock(ConnectionAnchor connectionAnchor) {
 		return getProcessFigure().getConnectionAnchorName(connectionAnchor);
 	}
 

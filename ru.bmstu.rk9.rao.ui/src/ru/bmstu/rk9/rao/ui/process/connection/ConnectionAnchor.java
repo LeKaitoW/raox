@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.process.node;
+package ru.bmstu.rk9.rao.ui.process.connection;
 
 import org.eclipse.draw2d.AbstractConnectionAnchor;
 import org.eclipse.draw2d.IFigure;
@@ -6,6 +6,8 @@ import org.eclipse.draw2d.ScalableFigure;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.PrecisionPoint;
 import org.eclipse.draw2d.geometry.Rectangle;
+
+import ru.bmstu.rk9.rao.ui.process.node.BlockFigure;
 
 public class ConnectionAnchor extends AbstractConnectionAnchor {
 
@@ -16,7 +18,7 @@ public class ConnectionAnchor extends AbstractConnectionAnchor {
 		super(owner);
 	}
 
-	protected final int getOffsetHorizontal() {
+	public final int getOffsetHorizontal() {
 		return offsetHorizontal;
 	}
 
@@ -32,7 +34,7 @@ public class ConnectionAnchor extends AbstractConnectionAnchor {
 		this.offsetHorizontal = offsetHorizontal + overLeft - overRight;
 	}
 
-	protected final int getOffsetVertical() {
+	public final int getOffsetVertical() {
 		return offsetVertical;
 	}
 

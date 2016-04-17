@@ -1,13 +1,12 @@
-package ru.bmstu.rk9.rao.ui.process.node;
+package ru.bmstu.rk9.rao.ui.process.connection;
 
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editpolicies.GraphicalNodeEditPolicy;
 import org.eclipse.gef.requests.CreateConnectionRequest;
 import org.eclipse.gef.requests.ReconnectRequest;
 
-import ru.bmstu.rk9.rao.ui.process.connection.Connection;
-import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreateCommand;
-import ru.bmstu.rk9.rao.ui.process.connection.ConnectionReconnectCommand;
+import ru.bmstu.rk9.rao.ui.process.node.BlockEditPart;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 
 public class ConnectionPolicy extends GraphicalNodeEditPolicy {
 
@@ -54,11 +53,11 @@ public class ConnectionPolicy extends GraphicalNodeEditPolicy {
 		return command;
 	}
 
-	protected BlockEditPart getBlockEditPart() {
+	private final BlockEditPart getBlockEditPart() {
 		return (BlockEditPart) getHost();
 	}
 
-	protected BlockNode getBlockNode() {
+	private final BlockNode getBlockNode() {
 		return (BlockNode) getHost().getModel();
 	}
 }

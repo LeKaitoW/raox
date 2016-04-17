@@ -20,6 +20,7 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
+import ru.bmstu.rk9.rao.ui.process.connection.ConnectionAnchor;
 
 public class BlockFigure extends Figure {
 
@@ -32,6 +33,10 @@ public class BlockFigure extends Figure {
 
 	private static final int shapeBorder = 5;
 	private IFigure shape;
+
+	private Docks docks = new Docks();
+	public static final int dockSize = 4;
+	private static final Rectangle dockRectangle = new Rectangle();
 
 	class Docks extends Figure {
 		@Override
@@ -58,10 +63,6 @@ public class BlockFigure extends Figure {
 			graphics.fillRectangle(dockRectangle);
 		}
 	}
-
-	private Docks docks = new Docks();
-	protected static final int dockSize = 4;
-	private static final Rectangle dockRectangle = new Rectangle();
 
 	public BlockFigure(IFigure shape) {
 		this.shape = shape;
