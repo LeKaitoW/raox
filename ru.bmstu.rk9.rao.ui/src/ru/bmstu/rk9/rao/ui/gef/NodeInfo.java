@@ -1,14 +1,12 @@
-package ru.bmstu.rk9.rao.ui.process;
+package ru.bmstu.rk9.rao.ui.gef;
 
 import java.util.function.Supplier;
 
 import org.eclipse.gef.editparts.AbstractEditPart;
 
-import ru.bmstu.rk9.rao.ui.process.node.Node;
+public class NodeInfo {
 
-public class ProcessNodeInfo {
-
-	public ProcessNodeInfo(String name, Supplier<Node> nodeFactory, Supplier<AbstractEditPart> partFactory) {
+	public NodeInfo(String name, Supplier<Node> nodeFactory, Supplier<AbstractEditPart> partFactory) {
 		this.name = name;
 		this.nodeFactory = nodeFactory;
 		this.partFactory = partFactory;

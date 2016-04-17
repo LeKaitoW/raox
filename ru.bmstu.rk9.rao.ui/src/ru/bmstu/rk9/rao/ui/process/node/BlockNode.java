@@ -26,7 +26,7 @@ public abstract class BlockNode extends Node {
 	public static final String TARGET_CONNECTION_UPDATED = "TargetConnectionUpdated";
 	public static final String PROCESS_MARKER = "ru.bmstu.rk9.rao.ui.ProcessMarker";
 	protected static final String PROPERTY_COLOR = "Color";
-	protected static final String PROPERTY_NAME = "ShowNodeName";
+	protected static final String PROPERTY_SHOW_NAME = "ShowName";
 
 	protected CopyOnWriteArrayList<Connection> sourceConnections = new CopyOnWriteArrayList<Connection>();
 	protected CopyOnWriteArrayList<Connection> targetConnections = new CopyOnWriteArrayList<Connection>();
@@ -41,7 +41,7 @@ public abstract class BlockNode extends Node {
 	public final void setShowName(boolean showName) {
 		boolean previousValue = this.showName;
 		this.showName = showName;
-		getListeners().firePropertyChange(PROPERTY_NAME, previousValue, showName);
+		getListeners().firePropertyChange(PROPERTY_SHOW_NAME, previousValue, showName);
 	}
 
 	public final RGB getColor() {
@@ -59,7 +59,7 @@ public abstract class BlockNode extends Node {
 		super.createProperties(properties);
 
 		properties.add(new ColorPropertyDescriptor(PROPERTY_COLOR, "Color"));
-		properties.add(new CheckboxPropertyDescriptor(PROPERTY_NAME, "Show name"));
+		properties.add(new CheckboxPropertyDescriptor(PROPERTY_SHOW_NAME, "Show name"));
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public abstract class BlockNode extends Node {
 		if (propertyName.equals(PROPERTY_COLOR))
 			return getColor();
 
-		if (propertyName.equals(PROPERTY_NAME))
+		if (propertyName.equals(PROPERTY_SHOW_NAME))
 			return getShowName();
 
 		return super.getPropertyValue(propertyName);
@@ -80,7 +80,7 @@ public abstract class BlockNode extends Node {
 		if (propertyName.equals(PROPERTY_COLOR))
 			setColor((RGB) value);
 
-		if (propertyName.equals(PROPERTY_NAME))
+		if (propertyName.equals(PROPERTY_SHOW_NAME))
 			setShowName((boolean) value);
 	}
 

@@ -39,7 +39,7 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 			refreshVisuals();
 		}
 
-		if (evt.getPropertyName().equals(BlockNode.PROPERTY_NAME))
+		if (evt.getPropertyName().equals(BlockNode.PROPERTY_SHOW_NAME))
 			((BlockFigure) getFigure()).setShowName((boolean) evt.getNewValue());
 
 		if (evt.getPropertyName().equals(BlockNode.SOURCE_CONNECTION_UPDATED))

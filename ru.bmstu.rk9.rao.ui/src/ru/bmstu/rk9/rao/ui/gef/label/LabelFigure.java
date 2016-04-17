@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.process.label;
+package ru.bmstu.rk9.rao.ui.gef.label;
 
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.Label;

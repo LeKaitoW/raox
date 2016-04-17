@@ -57,13 +57,14 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import com.google.inject.Inject;
 
+import ru.bmstu.rk9.rao.ui.gef.NodeInfo;
+import ru.bmstu.rk9.rao.ui.gef.label.LabelEditPart;
+import ru.bmstu.rk9.rao.ui.gef.label.LabelNode;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreationFactory;
 import ru.bmstu.rk9.rao.ui.process.generate.GenerateEditPart;
 import ru.bmstu.rk9.rao.ui.process.generate.GenerateNode;
 import ru.bmstu.rk9.rao.ui.process.hold.HoldEditPart;
 import ru.bmstu.rk9.rao.ui.process.hold.HoldNode;
-import ru.bmstu.rk9.rao.ui.process.label.LabelEditPart;
-import ru.bmstu.rk9.rao.ui.process.label.LabelNode;
 import ru.bmstu.rk9.rao.ui.process.model.ModelEditPart;
 import ru.bmstu.rk9.rao.ui.process.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
@@ -89,7 +90,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	}
 
 	public static final String ID = "ru.bmstu.rk9.rao.ui.process.editor";
-	public static final Map<Class<?>, ProcessNodeInfo> processNodesInfo = new LinkedHashMap<>();
+	public static final Map<Class<?>, NodeInfo> processNodesInfo = new LinkedHashMap<>();
 	public static final String MODEL_LAYER = "Model Layer";
 	private ModelNode model;
 
@@ -98,23 +99,23 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 	static {
 		processNodesInfo.put(ModelNode.class,
-				new ProcessNodeInfo(ModelNode.name, () -> new ModelNode(), () -> new ModelEditPart()));
+				new NodeInfo(ModelNode.name, () -> new ModelNode(), () -> new ModelEditPart()));
 		processNodesInfo.put(GenerateNode.class,
-				new ProcessNodeInfo(GenerateNode.name, () -> new GenerateNode(), () -> new GenerateEditPart()));
+				new NodeInfo(GenerateNode.name, () -> new GenerateNode(), () -> new GenerateEditPart()));
 		processNodesInfo.put(TerminateNode.class,
-				new ProcessNodeInfo(TerminateNode.name, () -> new TerminateNode(), () -> new TerminateEditPart()));
+				new NodeInfo(TerminateNode.name, () -> new TerminateNode(), () -> new TerminateEditPart()));
 		processNodesInfo.put(SeizeNode.class,
-				new ProcessNodeInfo(SeizeNode.name, () -> new SeizeNode(), () -> new SeizeEditPart()));
+				new NodeInfo(SeizeNode.name, () -> new SeizeNode(), () -> new SeizeEditPart()));
 		processNodesInfo.put(ReleaseNode.class,
-				new ProcessNodeInfo(ReleaseNode.name, () -> new ReleaseNode(), () -> new ReleaseEditPart()));
+				new NodeInfo(ReleaseNode.name, () -> new ReleaseNode(), () -> new ReleaseEditPart()));
 		processNodesInfo.put(HoldNode.class,
-				new ProcessNodeInfo(HoldNode.name, () -> new HoldNode(), () -> new HoldEditPart()));
+				new NodeInfo(HoldNode.name, () -> new HoldNode(), () -> new HoldEditPart()));
 		processNodesInfo.put(QueueNode.class,
-				new ProcessNodeInfo(QueueNode.name, () -> new QueueNode(), () -> new QueueEditPart()));
+				new NodeInfo(QueueNode.name, () -> new QueueNode(), () -> new QueueEditPart()));
 		processNodesInfo.put(SelectPathNode.class,
-				new ProcessNodeInfo(SelectPathNode.name, () -> new SelectPathNode(), () -> new SelectPathEditPart()));
+				new NodeInfo(SelectPathNode.name, () -> new SelectPathNode(), () -> new SelectPathEditPart()));
 		processNodesInfo.put(LabelNode.class,
-				new ProcessNodeInfo(LabelNode.name, () -> new LabelNode(), () -> new LabelEditPart()));
+				new NodeInfo(LabelNode.name, () -> new LabelNode(), () -> new LabelEditPart()));
 	}
 
 	@Override
