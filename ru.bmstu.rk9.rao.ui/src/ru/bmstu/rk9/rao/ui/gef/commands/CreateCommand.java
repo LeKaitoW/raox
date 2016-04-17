@@ -1,14 +1,13 @@
-package ru.bmstu.rk9.rao.ui.process.command;
+package ru.bmstu.rk9.rao.ui.gef.commands;
 
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.commands.Command;
 
-import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
-import ru.bmstu.rk9.rao.ui.process.node.Node;
+import ru.bmstu.rk9.rao.ui.gef.Node;
 
 public class CreateCommand extends Command {
 
-	private ModelNode model;
+	private Node model;
 	private Node node;
 
 	public CreateCommand() {
@@ -23,8 +22,8 @@ public class CreateCommand extends Command {
 	}
 
 	public void setModel(Object model) {
-		if (model instanceof ModelNode)
-			this.model = (ModelNode) model;
+		if (model instanceof Node)
+			this.model = (Node) model;
 	}
 
 	public void setConstraint(Rectangle constraint) {

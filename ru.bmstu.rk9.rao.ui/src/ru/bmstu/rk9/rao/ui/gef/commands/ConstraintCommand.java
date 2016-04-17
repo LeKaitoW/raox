@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.process.command;
+package ru.bmstu.rk9.rao.ui.gef.commands;
 
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.commands.Command;
