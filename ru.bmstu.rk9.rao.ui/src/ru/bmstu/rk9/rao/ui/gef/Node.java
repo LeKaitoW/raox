@@ -6,9 +6,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.ui.views.properties.IPropertySource;
+import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-public class Node implements Serializable {
+public class Node implements Serializable, IAdaptable {
 
 	private static final long serialVersionUID = 1;
 
@@ -20,6 +23,8 @@ public class Node implements Serializable {
 	private List<Node> children = new ArrayList<Node>();
 	private PropertyChangeSupport listeners = new PropertyChangeSupport(this);
 	private Rectangle constraint = new Rectangle(10, 10, 100, 100);
+
+	private transient IPropertySource propertySource = null;
 
 	public final boolean addChild(Node child) {
 		boolean isAdded = this.children.add(child);
@@ -73,5 +78,27 @@ public class Node implements Serializable {
 		Rectangle previousValue = this.constraint;
 		this.constraint = constraint;
 		getListeners().firePropertyChange(PROPERTY_CONSTRAINT, previousValue, constraint);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public Object getAdapter(Class adapter) {
+		if (adapter == IPropertySource.class) {
+			if (propertySource == null) {
+				propertySource = new NodePropertySource(this);
+			}
+			return propertySource;
+		}
+		return null;
+	}
+
+	public void createProperties(List<PropertyDescriptor> properties) {
+	}
+
+	public Object getPropertyValue(Object propertyName) {
+		return null;
+	}
+
+	public void setPropertyValue(Object propertyName, Object value) {
 	}
 }

@@ -9,8 +9,11 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.ui.views.properties.ColorPropertyDescriptor;
+import org.eclipse.ui.views.properties.PropertyDescriptor;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
+import ru.bmstu.rk9.rao.ui.process.CheckboxPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.process.ProcessLogicException;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
@@ -49,6 +52,40 @@ public abstract class BlockNode extends Node {
 		RGB oldColor = this.color;
 		this.color = color;
 		getListeners().firePropertyChange(PROPERTY_COLOR, oldColor, color);
+	}
+
+	@Override
+	public void createProperties(List<PropertyDescriptor> properties) {
+		super.createProperties(properties);
+
+		properties.add(new ColorPropertyDescriptor(PROPERTY_COLOR, "Color"));
+		properties.add(new CheckboxPropertyDescriptor(PROPERTY_NAME, "Show name"));
+	}
+
+	@Override
+	public Object getPropertyValue(Object propertyName) {
+		Object value = super.getPropertyValue(propertyName);
+		if (value != null)
+			return value;
+
+		if (propertyName.equals(PROPERTY_COLOR))
+			return getColor();
+
+		if (propertyName.equals(PROPERTY_NAME))
+			return getShowName();
+
+		return null;
+	}
+
+	@Override
+	public void setPropertyValue(Object propertyName, Object value) {
+		super.setPropertyValue(propertyName, value);
+
+		if (propertyName.equals(PROPERTY_COLOR))
+			setColor((RGB) value);
+
+		if (propertyName.equals(PROPERTY_NAME))
+			setShowName((boolean) value);
 	}
 
 	public final boolean addConnection(Connection connection) {
