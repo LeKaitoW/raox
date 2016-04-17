@@ -10,7 +10,7 @@ import ru.bmstu.rk9.rao.ui.process.ProcessEditPart;
 import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
 import ru.bmstu.rk9.rao.ui.process.ProcessLayoutEditPolicy;
 
-public class ModelPart extends ProcessEditPart {
+public class ModelEditPart extends ProcessEditPart {
 
 	@Override
 	protected IFigure createFigure() {

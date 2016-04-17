@@ -1,14 +1,15 @@
-package ru.bmstu.rk9.rao.ui.process.hold;
+package ru.bmstu.rk9.rao.ui.process.selectpath;
 
 import org.eclipse.draw2d.IFigure;
 
 import ru.bmstu.rk9.rao.ui.process.ProcessEditPart;
 
-public class HoldPart extends ProcessEditPart {
+public class SelectPathEditPart extends ProcessEditPart {
 
 	@Override
 	protected IFigure createFigure() {
-		IFigure figure = new HoldFigure();
+		IFigure figure = new SelectPathFigure();
 		return figure;
 	}
+
 }

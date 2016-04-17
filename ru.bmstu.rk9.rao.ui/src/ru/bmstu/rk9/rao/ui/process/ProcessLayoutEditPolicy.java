@@ -9,7 +9,7 @@ import org.eclipse.gef.requests.CreateRequest;
 import ru.bmstu.rk9.rao.ui.process.command.ChangeConstraintCommand;
 import ru.bmstu.rk9.rao.ui.process.command.ConstraintCommand;
 import ru.bmstu.rk9.rao.ui.process.command.CreateCommand;
-import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
+import ru.bmstu.rk9.rao.ui.process.model.ModelEditPart;
 
 public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 
@@ -31,7 +31,7 @@ public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 
 	@Override
 	protected Command getCreateCommand(CreateRequest request) {
-		if (request.getType() == REQ_CREATE && getHost() instanceof ModelPart) {
+		if (request.getType() == REQ_CREATE && getHost() instanceof ModelEditPart) {
 			CreateCommand command = new CreateCommand();
 			command.setModel(getHost().getModel());
 			command.setNode(request.getNewObject());

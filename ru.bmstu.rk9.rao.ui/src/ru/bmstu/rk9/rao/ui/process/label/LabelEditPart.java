@@ -7,7 +7,7 @@ import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
 
-public class LabelPart extends EditPart {
+public class LabelEditPart extends EditPart {
 
 	@Override
 	protected IFigure createFigure() {

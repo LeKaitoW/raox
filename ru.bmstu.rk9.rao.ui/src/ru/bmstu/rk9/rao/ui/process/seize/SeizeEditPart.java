@@ -1,14 +1,14 @@
-package ru.bmstu.rk9.rao.ui.process.terminate;
+package ru.bmstu.rk9.rao.ui.process.seize;
 
 import org.eclipse.draw2d.IFigure;
 
 import ru.bmstu.rk9.rao.ui.process.ProcessEditPart;
 
-public class TerminatePart extends ProcessEditPart {
+public class SeizeEditPart extends ProcessEditPart {
 
 	@Override
 	protected IFigure createFigure() {
-		IFigure figure = new TerminateFigure();
+		IFigure figure = new SeizeFigure();
 		return figure;
 	}
 }

@@ -59,27 +59,27 @@ import com.google.inject.Inject;
 
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreationFactory;
 import ru.bmstu.rk9.rao.ui.process.generate.GenerateNode;
-import ru.bmstu.rk9.rao.ui.process.generate.GeneratePart;
+import ru.bmstu.rk9.rao.ui.process.generate.GenerateEditPart;
 import ru.bmstu.rk9.rao.ui.process.hold.HoldNode;
-import ru.bmstu.rk9.rao.ui.process.hold.HoldPart;
+import ru.bmstu.rk9.rao.ui.process.hold.HoldEditPart;
 import ru.bmstu.rk9.rao.ui.process.label.LabelNode;
-import ru.bmstu.rk9.rao.ui.process.label.LabelPart;
+import ru.bmstu.rk9.rao.ui.process.label.LabelEditPart;
 import ru.bmstu.rk9.rao.ui.process.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
-import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
+import ru.bmstu.rk9.rao.ui.process.model.ModelEditPart;
 import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 import ru.bmstu.rk9.rao.ui.process.node.Node;
 import ru.bmstu.rk9.rao.ui.process.node.NodeFactory;
 import ru.bmstu.rk9.rao.ui.process.queue.QueueNode;
-import ru.bmstu.rk9.rao.ui.process.queue.QueuePart;
+import ru.bmstu.rk9.rao.ui.process.queue.QueueEditPart;
 import ru.bmstu.rk9.rao.ui.process.release.ReleaseNode;
-import ru.bmstu.rk9.rao.ui.process.release.ReleasePart;
+import ru.bmstu.rk9.rao.ui.process.release.ReleaseEditPart;
 import ru.bmstu.rk9.rao.ui.process.seize.SeizeNode;
-import ru.bmstu.rk9.rao.ui.process.seize.SeizePart;
+import ru.bmstu.rk9.rao.ui.process.seize.SeizeEditPart;
 import ru.bmstu.rk9.rao.ui.process.selectpath.SelectPathNode;
-import ru.bmstu.rk9.rao.ui.process.selectpath.SelectPathPart;
+import ru.bmstu.rk9.rao.ui.process.selectpath.SelectPathEditPart;
 import ru.bmstu.rk9.rao.ui.process.terminate.TerminateNode;
-import ru.bmstu.rk9.rao.ui.process.terminate.TerminatePart;
+import ru.bmstu.rk9.rao.ui.process.terminate.TerminateEditPart;
 
 public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
@@ -97,23 +97,23 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 	static {
 		processNodesInfo.put(ModelNode.class,
-				new ProcessNodeInfo(ModelNode.name, () -> new ModelNode(), () -> new ModelPart()));
+				new ProcessNodeInfo(ModelNode.name, () -> new ModelNode(), () -> new ModelEditPart()));
 		processNodesInfo.put(GenerateNode.class,
-				new ProcessNodeInfo(GenerateNode.name, () -> new GenerateNode(), () -> new GeneratePart()));
+				new ProcessNodeInfo(GenerateNode.name, () -> new GenerateNode(), () -> new GenerateEditPart()));
 		processNodesInfo.put(TerminateNode.class,
-				new ProcessNodeInfo(TerminateNode.name, () -> new TerminateNode(), () -> new TerminatePart()));
+				new ProcessNodeInfo(TerminateNode.name, () -> new TerminateNode(), () -> new TerminateEditPart()));
 		processNodesInfo.put(SeizeNode.class,
-				new ProcessNodeInfo(SeizeNode.name, () -> new SeizeNode(), () -> new SeizePart()));
+				new ProcessNodeInfo(SeizeNode.name, () -> new SeizeNode(), () -> new SeizeEditPart()));
 		processNodesInfo.put(ReleaseNode.class,
-				new ProcessNodeInfo(ReleaseNode.name, () -> new ReleaseNode(), () -> new ReleasePart()));
+				new ProcessNodeInfo(ReleaseNode.name, () -> new ReleaseNode(), () -> new ReleaseEditPart()));
 		processNodesInfo.put(HoldNode.class,
-				new ProcessNodeInfo(HoldNode.name, () -> new HoldNode(), () -> new HoldPart()));
+				new ProcessNodeInfo(HoldNode.name, () -> new HoldNode(), () -> new HoldEditPart()));
 		processNodesInfo.put(QueueNode.class,
-				new ProcessNodeInfo(QueueNode.name, () -> new QueueNode(), () -> new QueuePart()));
+				new ProcessNodeInfo(QueueNode.name, () -> new QueueNode(), () -> new QueueEditPart()));
 		processNodesInfo.put(SelectPathNode.class,
-				new ProcessNodeInfo(SelectPathNode.name, () -> new SelectPathNode(), () -> new SelectPathPart()));
+				new ProcessNodeInfo(SelectPathNode.name, () -> new SelectPathNode(), () -> new SelectPathEditPart()));
 		processNodesInfo.put(LabelNode.class,
-				new ProcessNodeInfo(LabelNode.name, () -> new LabelNode(), () -> new LabelPart()));
+				new ProcessNodeInfo(LabelNode.name, () -> new LabelNode(), () -> new LabelEditPart()));
 	}
 
 	@Override
@@ -264,7 +264,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 					return;
 
 				int nodeID = marker.getAttributeValue(Node.NODE_MARKER, 0);
-				ModelPart modelPart = (ModelPart) getGraphicalViewer().getRootEditPart().getChildren().get(0);
+				ModelEditPart modelPart = (ModelEditPart) getGraphicalViewer().getRootEditPart().getChildren().get(0);
 				List<ProcessEditPart> editParts = modelPart.getChildren();
 				for (ProcessEditPart editPart : editParts) {
 					if (editPart.getID() == nodeID) {
