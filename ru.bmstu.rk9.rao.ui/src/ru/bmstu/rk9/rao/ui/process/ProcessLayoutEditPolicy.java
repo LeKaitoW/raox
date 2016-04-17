@@ -7,7 +7,6 @@ import org.eclipse.gef.editpolicies.XYLayoutEditPolicy;
 import org.eclipse.gef.requests.CreateRequest;
 
 import ru.bmstu.rk9.rao.ui.gef.commands.ChangeConstraintCommand;
-import ru.bmstu.rk9.rao.ui.gef.commands.ConstraintCommand;
 import ru.bmstu.rk9.rao.ui.gef.commands.CreateCommand;
 import ru.bmstu.rk9.rao.ui.process.model.ModelEditPart;
 
@@ -21,7 +20,7 @@ public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 		if (!ProcessEditor.processNodesInfo.containsKey(child.getModel().getClass()))
 			return null;
 
-		ConstraintCommand command = new ChangeConstraintCommand();
+		ChangeConstraintCommand command = new ChangeConstraintCommand();
 		command.setModel(child.getModel());
 		command.setConstraint((Rectangle) constraint);
 		return command;
