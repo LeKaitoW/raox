@@ -263,6 +263,10 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 				if (marker == null || marker.getMarker() == null)
 					return;
 
+				if (!marker.getMarker().getResource()
+						.equals(((IFileEditorInput) ProcessEditor.this.getEditorInput()).getFile()))
+					return;
+
 				int nodeID = marker.getAttributeValue(Node.NODE_MARKER, 0);
 				ModelPart modelPart = (ModelPart) getGraphicalViewer().getRootEditPart().getChildren().get(0);
 				List<ProcessEditPart> editParts = modelPart.getChildren();
