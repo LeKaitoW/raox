@@ -6,7 +6,7 @@ import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.editparts.AbstractConnectionEditPart;
 import org.eclipse.gef.editpolicies.ConnectionEndpointEditPolicy;
 
-import ru.bmstu.rk9.rao.ui.process.ConnectionDeleteEditPolicy;
+import ru.bmstu.rk9.rao.ui.process.node.ConnectionDeleteEditPolicy;
 
 public class ConnectionPart extends AbstractConnectionEditPart {
 
