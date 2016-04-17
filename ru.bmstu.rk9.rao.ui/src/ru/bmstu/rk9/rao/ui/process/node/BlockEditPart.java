@@ -51,6 +51,7 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 
 	@Override
 	protected void createEditPolicies() {
+		super.createEditPolicies();
 		installEditPolicy(EditPolicy.COMPONENT_ROLE, new ProcessDeletePolicy());
 		installEditPolicy(EditPolicy.GRAPHICAL_NODE_ROLE, new ConnectionPolicy());
 	}
