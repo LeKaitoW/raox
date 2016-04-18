@@ -35,7 +35,7 @@ public abstract class BlockNodeWithProbability extends BlockNode {
 		}
 
 		if (!valid)
-			createErrorMarker(file, "Wrong probability", IMarker.SEVERITY_ERROR);
+			createProblemMarker(file, "Wrong probability", IMarker.SEVERITY_ERROR);
 	}
 
 	@Override

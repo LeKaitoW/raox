@@ -36,7 +36,7 @@ public abstract class BlockNodeWithResource extends BlockNode {
 
 	public void validateResource(IResource file) throws CoreException {
 		if (!getResourcesNames().contains(resourceName))
-			createErrorMarker(file, "Wrong resource", IMarker.SEVERITY_ERROR);
+			createProblemMarker(file, "Wrong resource", IMarker.SEVERITY_ERROR);
 	}
 
 	@Override

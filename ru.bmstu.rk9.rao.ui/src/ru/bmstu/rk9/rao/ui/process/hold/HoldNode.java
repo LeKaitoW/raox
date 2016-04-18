@@ -86,7 +86,7 @@ public class HoldNode extends BlockNode implements Serializable {
 		try {
 			Double.valueOf(duration);
 		} catch (NumberFormatException e) {
-			createErrorMarker(file, "Wrong duration", IMarker.SEVERITY_ERROR);
+			createProblemMarker(file, "Wrong duration", IMarker.SEVERITY_ERROR);
 		}
 		validateConnections(file, 1, 1);
 	}

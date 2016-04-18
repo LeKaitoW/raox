@@ -82,7 +82,7 @@ public class GenerateNode extends BlockNode {
 		try {
 			Double.valueOf(interval);
 		} catch (NumberFormatException e) {
-			createErrorMarker(file, "Wrong interval", IMarker.SEVERITY_ERROR);
+			createProblemMarker(file, "Wrong interval", IMarker.SEVERITY_ERROR);
 		}
 		validateConnections(file, 1, 0);
 	}

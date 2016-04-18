@@ -49,7 +49,7 @@ public abstract class BlockNodeWithCapacity extends BlockNode {
 		try {
 			Double.valueOf(capacity);
 		} catch (NumberFormatException e) {
-			createErrorMarker(file, "Wrong capacity", IMarker.SEVERITY_ERROR);
+			createProblemMarker(file, "Wrong capacity", IMarker.SEVERITY_ERROR);
 		}
 	}
 
