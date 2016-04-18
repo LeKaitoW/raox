@@ -33,5 +33,5 @@ public abstract class Resource extends RaoNameable implements Serializable {
 
 	protected boolean accessible = true;
 
-	public abstract JSONObject serializeToJsonObject();
+	public abstract JSONObject getResParamsInJSON();
 }

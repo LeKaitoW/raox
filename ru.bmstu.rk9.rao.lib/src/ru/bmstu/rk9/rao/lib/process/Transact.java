@@ -45,8 +45,9 @@ public class Transact extends ComparableResource<Transact> {
 		return new Transact();
 	}
 
+
 	@Override
-	public JSONObject serializeToJsonObject() {
+	public JSONObject getResParamsInJSON() {
 		// TODO Auto-generated method stub
 		return null;
 	}

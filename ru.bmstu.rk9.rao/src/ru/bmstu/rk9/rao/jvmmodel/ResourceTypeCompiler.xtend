@@ -1,18 +1,18 @@
 package ru.bmstu.rk9.rao.jvmmodel
 
-import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
-import org.eclipse.xtext.common.types.JvmDeclaredType
-import org.eclipse.xtext.common.types.JvmVisibility
-import ru.bmstu.rk9.rao.rao.ResourceType
-import org.eclipse.xtext.naming.QualifiedName
-import java.util.Collection
-import org.eclipse.xtext.common.types.JvmPrimitiveType
-import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import java.nio.ByteBuffer
-import ru.bmstu.rk9.rao.rao.FieldDeclaration
+import java.util.Collection
+import org.eclipse.xtext.common.types.JvmDeclaredType
+import org.eclipse.xtext.common.types.JvmPrimitiveType
+import org.eclipse.xtext.common.types.JvmVisibility
+import org.eclipse.xtext.naming.QualifiedName
+import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
+import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import ru.bmstu.rk9.rao.lib.database.Database.DataType
 import ru.bmstu.rk9.rao.lib.json.JSONObject
-import ru.bmstu.rk9.rao.lib.json.JSONArray
+import ru.bmstu.rk9.rao.lib.resource.ComparableResource
+import ru.bmstu.rk9.rao.rao.FieldDeclaration
+import ru.bmstu.rk9.rao.rao.ResourceType
 
 class ResourceTypeCompiler extends RaoEntityCompiler {
 	def static asClass(ResourceType resourceType, JvmTypesBuilder jvmTypesBuilder,
@@ -25,7 +25,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 		return resourceType.toClass(typeQualifiedName) [
 			static = true
 
-			superTypes += typeRef(ru.bmstu.rk9.rao.lib.resource.ComparableResource, {
+			superTypes += typeRef(ComparableResource, {
 				typeRef
 			})
 
@@ -64,7 +64,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 			members += resourceType.toMethod("erase", typeRef(void)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
-				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
+				annotations += RaoEntityCompiler.overrideAnnotation()
 				body = '''
 					ru.bmstu.rk9.rao.lib.simulator.Simulator.getModelState().eraseResource(this);
 					ru.bmstu.rk9.rao.lib.simulator.Simulator.getDatabase().memorizeResourceEntry(this,
@@ -94,7 +94,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 			members += resourceType.toMethod("checkEqual", typeRef(boolean)) [ m |
 				m.visibility = JvmVisibility.PUBLIC
 				m.parameters += resourceType.toParameter("other", typeRef)
-				m.annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
+				m.annotations += RaoEntityCompiler.overrideAnnotation()
 				m.body = '''
 					«IF resourceType.parameters.isEmpty»
 						return true;
@@ -113,7 +113,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 
 			members += resourceType.toMethod("deepCopy", typeRef) [
 				visibility = JvmVisibility.PUBLIC
-				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation
+				annotations += RaoEntityCompiler.overrideAnnotation
 				body = '''
 					«resourceType.name» copy = new «resourceType.name»();
 					copy.setNumber(this.number);
@@ -129,17 +129,17 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 			members += resourceType.toMethod("getTypeName", typeRef(String)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
-				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
+				annotations += RaoEntityCompiler.overrideAnnotation()
 				body = '''
 					return "«typeQualifiedName»";
 				'''
 			]
 
-			members += resourceType.toMethod("serializeToJsonObject", typeRef(JSONObject)) [
+			members += resourceType.toMethod("getResParamsInJSON ", typeRef(JSONObject)) [
 
 				visibility = JvmVisibility.PUBLIC
 				final = true
-				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
+				annotations += RaoEntityCompiler.overrideAnnotation()
 				body = '''
 					JSONArray jsonArray = new JSONArray();
 					JSONObject jsonParametersObject = new JSONObject();
@@ -157,7 +157,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 			members += resourceType.toMethod("serialize", typeRef(ByteBuffer)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
-				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
+				annotations += RaoEntityCompiler.overrideAnnotation()
 
 				var size = 0
 				for (param : resourceType.parameters) {

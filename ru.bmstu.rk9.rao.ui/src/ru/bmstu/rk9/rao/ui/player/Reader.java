@@ -34,7 +34,6 @@ public class Reader {
 		JSONArray jsonModelStateObject = new JSONArray();
 		jsonModelStateObject = obj.getJSONArray("Model state array");
 		return jsonModelStateObject;
-		// System.out.println("\n" + jsonModelStateObject);
 
 	}
 }

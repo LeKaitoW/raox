@@ -23,9 +23,9 @@ public class Serializer {
 		for (ResourceManager<? extends Resource> resourceManager : listModelState) {
 			for (Resource resource : resourceManager.getAll()) {
 				JSONObject jsonResourse = new JSONObject();
+				jsonResourse.put("Resourse parametrs ",resource.getResParamsInJSON());
 				jsonResourse.put("Resourse ", resource.getName()).put("time ", Simulator.getTime());
 				jsonResourses.put(jsonResourse);
-				System.out.println("Res" + resourceManager.getValue());
 
 			}
 

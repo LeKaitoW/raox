@@ -60,7 +60,7 @@ public class Resource extends ComparableResource<Resource> {
 	}
 
 	@Override
-	public JSONObject serializeToJsonObject() {
+	public JSONObject getResParamsInJSON() {
 		// TODO Auto-generated method stub
 		return null;
 	}
