@@ -251,6 +251,7 @@ public abstract class Search extends AbstractDecisionPoint {
 
 	private boolean stop(StopCode code) {
 		double finalCost;
+		boolean result = false;
 
 		switch (code) {
 		case ABORTED:
@@ -266,6 +267,10 @@ public abstract class Search extends AbstractDecisionPoint {
 			break;
 		case SUCCESS:
 			databaseAddDecision();
+			result = true;
+			finalCost = current.g;
+			break;
+		case FAIL:
 		default:
 			finalCost = current.g;
 			break;
@@ -273,7 +278,7 @@ public abstract class Search extends AbstractDecisionPoint {
 
 		serializeStop(code, finalCost);
 
-		return false;
+		return result;
 	}
 
 	private void databaseAddDecision() {
