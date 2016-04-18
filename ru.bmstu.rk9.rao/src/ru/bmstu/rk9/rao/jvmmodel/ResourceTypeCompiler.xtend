@@ -82,8 +82,13 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				members += param.toMethod("set" + param.declaration.name.toFirstUpper, typeRef(void)) [
 					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType)
 					body = '''
-						this._«param.declaration.name» = «param.declaration.name»;
-						ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.getDatabase().memorizeResourceEntry(this,
+						«resourceType.name» actual = this;
+
+						if (isShallowCopy)
+							actual = ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.getModelState().copyOnWrite(this);
+
+						actual._«param.declaration.name» = «param.declaration.name»;
+						ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.getDatabase().memorizeResourceEntry(actual,
 								ru.bmstu.rk9.rao.lib.database.Database.ResourceEntryType.ALTERED);
 					'''
 				]

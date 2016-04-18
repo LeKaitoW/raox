@@ -23,8 +23,8 @@ import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulatorState;
 
 public abstract class Search extends AbstractDecisionPoint {
 	public Search() {
-		CurrentSimulator.getSimulatorStateNotifier().addSubscriber(simulatorInitializedListener, SimulatorState.INITIALIZED,
-				EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED, SubscriptionType.ONE_SHOT));
+		CurrentSimulator.getSimulatorStateNotifier().addSubscriber(simulatorInitializedListener,
+				SimulatorState.INITIALIZED, EnumSet.of(SubscriptionType.IGNORE_ACCUMULATED, SubscriptionType.ONE_SHOT));
 		initializeEdges();
 		init();
 	}
@@ -187,8 +187,7 @@ public abstract class Search extends AbstractDecisionPoint {
 			Edge edge = edges.get(edgeNumber);
 			double value = 0;
 
-			/* FIXME huge overhead if case of deep copy */
-			ModelState parentStateCopy = parent.state.deepCopy();
+			ModelState parentStateCopy = parent.state.shallowCopy();
 			parentStateCopy.deploy();
 
 			if (!edge.check())
@@ -366,7 +365,8 @@ public abstract class Search extends AbstractDecisionPoint {
 
 			data.put((byte) spawnStatus.ordinal()).putInt(node.number).putInt(node.parent.number).putDouble(node.g)
 					.putDouble(node.h).putInt(edgeNumber)
-					.putInt(CurrentSimulator.getStaticModelData().getPatternNumber(rule.getTypeName())).putDouble(value);
+					.putInt(CurrentSimulator.getStaticModelData().getPatternNumber(rule.getTypeName()))
+					.putDouble(value);
 
 			for (int num : relevantResourcesNumbers)
 				data.putInt(num);

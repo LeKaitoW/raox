@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
@@ -54,14 +53,12 @@ public class ModelState {
 
 	@SuppressWarnings("unchecked")
 	public <T extends ComparableResource<T>> T getResource(Class<T> cl, String name) {
-		// TODO RaoName
-		Collection<T> resources = (Collection<T>) resourceManagers.get(cl).getAll().stream()
-				.filter(r -> r.getName().equals(name)).collect(Collectors.toList());
-		if (resources.size() != 1)
-			throw new RaoLibException(
-					"Exactly one resource with name \"" + name + "\" should exist, instead found " + resources.size());
+		return (T) resourceManagers.get(cl).getResource(name);
+	}
 
-		return resources.iterator().next();
+	@SuppressWarnings("unchecked")
+	public <T extends ComparableResource<T>> T getResource(Class<T> cl, int number) {
+		return (T) resourceManagers.get(cl).getResource(number);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -87,10 +84,24 @@ public class ModelState {
 		CurrentSimulator.setModelState(this);
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T extends ComparableResource<T>> T copyOnWrite(T resource) {
+		return (T) ((ResourceManager<T>) resourceManagers.get(resource.getClass())).copyOnWrite((T) resource);
+	}
+
 	public ModelState deepCopy() {
+		return copy(false);
+	}
+
+	public ModelState shallowCopy() {
+		return copy(true);
+	}
+
+	private ModelState copy(boolean isShallow) {
 		ModelState copy = new ModelState();
 		for (Entry<Class<?>, ResourceManager<?>> entry : resourceManagers.entrySet()) {
-			copy.resourceManagers.put(entry.getKey(), entry.getValue().deepCopy());
+			copy.resourceManagers.put(entry.getKey(),
+					isShallow ? entry.getValue().shallowCopy() : entry.getValue().deepCopy());
 		}
 
 		return copy;
