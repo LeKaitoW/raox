@@ -17,6 +17,8 @@ class PatternCompiler extends RaoEntityCompiler {
 		initializeCurrent(jvmTypesBuilder, typeReferenceBuilder)
 
 		val patternQualifiedName = QualifiedName.create(qualifiedName, pattern.name)
+		println(patternQualifiedName)
+
 		return pattern.toClass(patternQualifiedName) [
 			static = true
 			superTypes += if (pattern.type == PatternType.RULE)

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -77,7 +78,6 @@ public class ModelInternalsParser {
 			raoFileName = raoFileName.substring(0, raoFileName.length() - ".rao".length());
 			String modelClassName = project.getName() + "." + raoFileName;
 			parseModel(modelClassName);
-
 		}
 	}
 
@@ -101,6 +101,16 @@ public class ModelInternalsParser {
 			Constructor<?> terminateConstructor = terminate.getDeclaredConstructor();
 			terminateConstructor.setAccessible(true);
 			simulatorInitializationInfo.terminateConditions.add((Supplier<Boolean>) terminateConstructor.newInstance());
+		} catch (ClassNotFoundException classException) {
+		}
+
+		try {
+			Class<?> resourcePreinitializer = Class.forName(modelClassName + "$resourcesPreinitializer", false,
+					classLoader);
+			Constructor<?> resourcePreinitializerConstructor = resourcePreinitializer.getDeclaredConstructor();
+			resourcePreinitializerConstructor.setAccessible(true);
+			simulatorPreinitializationInfo.resourcePreinitializers
+					.add((Runnable) resourcePreinitializerConstructor.newInstance());
 		} catch (ClassNotFoundException classException) {
 		}
 
@@ -200,12 +210,12 @@ public class ModelInternalsParser {
 			}
 		}
 
-		for (Field field : modelClass.getDeclaredFields()) {
-			if (RaoNameable.class.isAssignableFrom(field.getType()))
-				nameableFields.add(field);
+		for (Method method : modelClass.getDeclaredMethods()) {
+			if (Resource.class.isAssignableFrom(method.getReturnType())) {
+				if (!method.getName().startsWith("initialize"))
+					continue;
 
-			if (Resource.class.isAssignableFrom(field.getType())) {
-				String typeName = NamingHelper.changeDollarToDot(field.getType().getName());
+				String typeName = NamingHelper.changeDollarToDot(method.getReturnType().getName());
 				JSONArray resourceTypes = simulatorPreinitializationInfo.modelStructure
 						.getJSONArray(ModelStructureConstants.RESOURCE_TYPES);
 				JSONObject resourceType = null;
@@ -216,11 +226,16 @@ public class ModelInternalsParser {
 				}
 
 				if (resourceType == null)
-					throw new RuntimeException("Invalid resource type + " + field.getType());
+					throw new RuntimeException("Invalid resource type + " + method.getReturnType());
 
 				resourceType.getJSONArray(ModelStructureConstants.NAMED_RESOURCES).put(
-						new JSONObject().put(ModelStructureConstants.NAME, NamingHelper.createFullNameForField(field)));
+						new JSONObject().put(ModelStructureConstants.NAME, NamingHelper.createFullNameFromInitializeMethod(method)));
 			}
+		}
+
+		for (Field field : modelClass.getDeclaredFields()) {
+			if (RaoNameable.class.isAssignableFrom(field.getType()))
+				nameableFields.add(field);
 		}
 	}
 

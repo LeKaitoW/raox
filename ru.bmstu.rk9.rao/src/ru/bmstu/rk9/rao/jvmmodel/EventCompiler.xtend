@@ -13,6 +13,7 @@ class EventCompiler extends RaoEntityCompiler {
 		initializeCurrent(jvmTypesBuilder, typeReferenceBuilder);
 
 		val eventQualifiedName = QualifiedName.create(qualifiedName, event.name)
+		println(eventQualifiedName)
 
 		return event.toClass(eventQualifiedName) [
 			static = true

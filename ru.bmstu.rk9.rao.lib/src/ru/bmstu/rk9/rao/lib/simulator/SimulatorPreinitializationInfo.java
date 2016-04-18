@@ -18,6 +18,7 @@ public class SimulatorPreinitializationInfo {
 
 	public final JSONObject modelStructure;
 	public final List<Class<?>> resourceClasses = new ArrayList<>();
+	public final List<Runnable> resourcePreinitializers = new ArrayList<>();
 
 	public static final JSONObject generateModelStructureStrub() {
 		return new JSONObject().put(ModelStructureConstants.NAME, "")

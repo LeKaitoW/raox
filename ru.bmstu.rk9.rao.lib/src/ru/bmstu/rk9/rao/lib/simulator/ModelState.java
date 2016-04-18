@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
@@ -49,6 +50,18 @@ public class ModelState {
 	@SuppressWarnings("unchecked")
 	public <T extends ComparableResource<T>> Collection<T> getAccessible(Class<T> cl) {
 		return (Collection<T>) resourceManagers.get(cl).getAccessible();
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends ComparableResource<T>> T getResource(Class<T> cl, String name) {
+		// TODO RaoName
+		Collection<T> resources = (Collection<T>) resourceManagers.get(cl).getAll().stream()
+				.filter(r -> r.getName().equals(name)).collect(Collectors.toList());
+		if (resources.size() != 1)
+			throw new RaoLibException(
+					"Exactly one resource with name \"" + name + "\" should exist, instead found " + resources.size());
+
+		return resources.iterator().next();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

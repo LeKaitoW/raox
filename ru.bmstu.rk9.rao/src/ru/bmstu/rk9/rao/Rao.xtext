@@ -26,11 +26,11 @@ RaoEntity
 	| Logic
 	| Search
 	| EntityCreation
+	| ResourceDeclaration
 ;
 
 EntityCreation
-	: ResourceDeclaration
-	| Sequence
+	: Sequence
 	| Constant
 ;
 

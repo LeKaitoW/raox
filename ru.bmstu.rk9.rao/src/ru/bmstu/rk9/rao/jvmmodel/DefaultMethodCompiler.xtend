@@ -28,6 +28,7 @@ class DefaultMethodCompiler extends RaoEntityCompiler {
 			members += method.toMethod("run", typeRef(void)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
+				annotations += overrideAnnotation
 				body = method.body
 			]
 		]
@@ -43,6 +44,7 @@ class DefaultMethodCompiler extends RaoEntityCompiler {
 			members += method.toMethod("get", typeRef(Boolean)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
+				annotations += overrideAnnotation
 				body = method.body
 			]
 		]

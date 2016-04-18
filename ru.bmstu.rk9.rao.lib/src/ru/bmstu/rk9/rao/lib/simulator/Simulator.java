@@ -21,6 +21,9 @@ public class Simulator implements ISimulator {
 		modelState = new ModelState(preinitializationInfo.resourceClasses);
 		database = new Database(preinitializationInfo.modelStructure);
 		staticModelData = new StaticModelData(preinitializationInfo.modelStructure);
+
+		for (Runnable resourcePreinitializer : preinitializationInfo.resourcePreinitializers)
+			resourcePreinitializer.run();
 	}
 
 	@Override

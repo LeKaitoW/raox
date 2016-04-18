@@ -25,7 +25,7 @@ import ru.bmstu.rk9.rao.ui.serialization.SerializationConfig.SerializationNode;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 
-class SerializationConfigurator {
+public class SerializationConfigurator {
 	final void fillCategories(Resource model, SerializationNode modelNode) {
 		for (SerializationNode category : modelNode.getVisibleChildren())
 			category.hideChildren();
@@ -64,7 +64,7 @@ class SerializationConfigurator {
 		}
 	}
 
-	private final <T extends EObject> List<T> filterAllContents(TreeIterator<EObject> allContents,
+	public static final <T extends EObject> List<T> filterAllContents(TreeIterator<EObject> allContents,
 			Class<T> categoryClass) {
 		final ArrayList<T> categoryList = new ArrayList<T>();
 		Iterator<T> filter = Iterators.<T> filter(allContents, categoryClass);
