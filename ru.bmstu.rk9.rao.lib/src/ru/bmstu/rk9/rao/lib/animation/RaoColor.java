@@ -17,20 +17,20 @@ public class RaoColor {
 	public final int g;
 	public final int b;
 
-	public static final RaoColor COLOR_BLACK = new RaoColor(0, 0, 0);
-	public static final RaoColor COLOR_DARK_RED = new RaoColor(0x80, 0, 0);
-	public static final RaoColor COLOR_DARK_GREEN = new RaoColor(0, 0x80, 0);
-	public static final RaoColor COLOR_DARK_YELLOW = new RaoColor(0x80, 0x80, 0);
-	public static final RaoColor COLOR_DARK_BLUE = new RaoColor(0, 0, 0x80);
-	public static final RaoColor COLOR_DARK_MAGENTA = new RaoColor(0x80, 0, 0x80);
-	public static final RaoColor COLOR_DARK_CYAN = new RaoColor(0, 0x80, 0x80);
-	public static final RaoColor COLOR_GRAY = new RaoColor(0xC0, 0xC0, 0xC0);
-	public static final RaoColor COLOR_DARK_GRAY = new RaoColor(0x80, 0x80, 0x80);
-	public static final RaoColor COLOR_RED = new RaoColor(0xFF, 0, 0);
-	public static final RaoColor COLOR_GREEN = new RaoColor(0, 0xFF, 0);
-	public static final RaoColor COLOR_YELLOW = new RaoColor(0xFF, 0xFF, 0);
-	public static final RaoColor COLOR_BLUE = new RaoColor(0, 0, 0xFF);
-	public static final RaoColor COLOR_MAGENTA = new RaoColor(0xFF, 0, 0xFF);
-	public static final RaoColor COLOR_CYAN = new RaoColor(0, 0xFF, 0xFF);
-	public static final RaoColor COLOR_WHITE = new RaoColor(0xFF, 0xFF, 0xFF);
+	public static final RaoColor BLACK = new RaoColor(0, 0, 0);
+	public static final RaoColor DARK_RED = new RaoColor(0x80, 0, 0);
+	public static final RaoColor DARK_GREEN = new RaoColor(0, 0x80, 0);
+	public static final RaoColor DARK_YELLOW = new RaoColor(0x80, 0x80, 0);
+	public static final RaoColor DARK_BLUE = new RaoColor(0, 0, 0x80);
+	public static final RaoColor DARK_MAGENTA = new RaoColor(0x80, 0, 0x80);
+	public static final RaoColor DARK_CYAN = new RaoColor(0, 0x80, 0x80);
+	public static final RaoColor GRAY = new RaoColor(0xC0, 0xC0, 0xC0);
+	public static final RaoColor DARK_GRAY = new RaoColor(0x80, 0x80, 0x80);
+	public static final RaoColor RED = new RaoColor(0xFF, 0, 0);
+	public static final RaoColor GREEN = new RaoColor(0, 0xFF, 0);
+	public static final RaoColor YELLOW = new RaoColor(0xFF, 0xFF, 0);
+	public static final RaoColor BLUE = new RaoColor(0, 0, 0xFF);
+	public static final RaoColor MAGENTA = new RaoColor(0xFF, 0, 0xFF);
+	public static final RaoColor CYAN = new RaoColor(0, 0xFF, 0xFF);
+	public static final RaoColor WHITE = new RaoColor(0xFF, 0xFF, 0xFF);
 }

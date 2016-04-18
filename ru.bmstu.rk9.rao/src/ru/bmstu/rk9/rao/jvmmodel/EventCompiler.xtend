@@ -60,7 +60,7 @@ class EventCompiler extends RaoEntityCompiler {
 					«event.name» event = new «event.name»(«FOR param : parameters»«
 							param.name»«
 							IF parameters.indexOf(param) != parameters.size - 1», «ENDIF»«ENDFOR»);
-					ru.bmstu.rk9.rao.lib.simulator.Simulator.pushEvent(event);
+					ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.pushEvent(event);
 				'''
 			]
 		]

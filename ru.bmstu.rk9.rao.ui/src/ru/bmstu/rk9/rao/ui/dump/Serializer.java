@@ -6,16 +6,16 @@ import java.util.Collection;
 
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.resource.ResourceManager;
 import ru.bmstu.rk9.rao.lib.simulator.ModelState;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class Serializer {
 
 	public JSONObject dumpResoursestoJSONobject() {
 
-		ModelState modelState = Simulator.getModelState();
+		ModelState modelState = CurrentSimulator.getModelState();
 		Collection<ResourceManager<? extends Resource>> listModelState = modelState.getResourceManagers();
 		JSONObject jsonCurrentModelState = new JSONObject();
 		JSONArray jsonResourses = new JSONArray();
@@ -23,8 +23,8 @@ public class Serializer {
 		for (ResourceManager<? extends Resource> resourceManager : listModelState) {
 			for (Resource resource : resourceManager.getAll()) {
 				JSONObject jsonResourse = new JSONObject();
-				jsonResourse.put("Resourse parametrs ",resource.getResParamsInJSON());
-				jsonResourse.put("Resourse ", resource.getName()).put("time ", Simulator.getTime());
+				jsonResourse.put("Resourse parametrs ", resource.getResParamsInJSON());
+				jsonResourse.put("Resourse ", resource.getName()).put("time ", CurrentSimulator.getTime());
 				jsonResourses.put(jsonResourse);
 
 			}

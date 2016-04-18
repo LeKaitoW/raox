@@ -41,8 +41,8 @@ import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
@@ -250,8 +250,8 @@ public class PlotView extends ViewPart {
 				int parameterNumber = parameterIndex.getNumber();
 				ResourceTypeIndex resourceTypeIndex = (ResourceTypeIndex) node.getParent().getParent().getIndex();
 				int resourceTypeNumber = resourceTypeIndex.getNumber();
-				DataType parameterType = Simulator.getStaticModelData().getResourceTypeParameterType(resourceTypeNumber,
-						parameterNumber);
+				DataType parameterType = CurrentSimulator.getStaticModelData()
+						.getResourceTypeParameterType(resourceTypeNumber, parameterNumber);
 				return parameterType != DataType.OTHER;
 
 			case RESULT:
@@ -262,7 +262,7 @@ public class PlotView extends ViewPart {
 			case PATTERN:
 				PatternIndex patternIndex = (PatternIndex) index;
 				int patternNumber = patternIndex.getNumber();
-				String patternType = Simulator.getStaticModelData().getPatternType(patternNumber);
+				String patternType = CurrentSimulator.getStaticModelData().getPatternType(patternNumber);
 				return patternType.equals(ModelStructureConstants.OPERATION);
 
 			default:

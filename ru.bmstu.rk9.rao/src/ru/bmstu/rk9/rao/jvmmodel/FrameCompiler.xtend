@@ -6,7 +6,7 @@ import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder;
 
 import ru.bmstu.rk9.rao.rao.Frame;
 import org.eclipse.xtext.naming.QualifiedName
-import ru.bmstu.rk9.rao.lib.animation.BackgroundData
+import org.eclipse.xtext.common.types.JvmVisibility
 import ru.bmstu.rk9.rao.lib.animation.AnimationContext
 
 class FrameCompiler extends RaoEntityCompiler {
@@ -21,15 +21,6 @@ class FrameCompiler extends RaoEntityCompiler {
 			static = true
 			superTypes += typeRef(ru.bmstu.rk9.rao.lib.animation.AnimationFrame)
 
-			// TODO make configurable
-			members += frame.toMethod("getBackgroundData", typeRef(BackgroundData)) [
-				final = true
-				annotations += overrideAnnotation
-				body = '''
-					return new ru.bmstu.rk9.rao.lib.animation.BackgroundData(500, 500, ru.bmstu.rk9.rao.lib.animation.RaoColor.COLOR_WHITE);
-				'''
-			]
-
 			members += frame.toMethod("getTypeName", typeRef(String)) [
 				final = true
 				annotations += overrideAnnotation
@@ -38,12 +29,16 @@ class FrameCompiler extends RaoEntityCompiler {
 				'''
 			]
 
-			members += frame.toMethod("draw", typeRef(void)) [
-				final = true
-				annotations += overrideAnnotation
-				parameters += frame.toParameter("it", typeRef(AnimationContext))
-				body = frame.body
-			]
+			for (method : frame.defaultMethods) {
+				members += method.toMethod(method.name, typeRef(void)) [
+					if (method.name == "draw")
+						parameters += frame.toParameter("it", typeRef(AnimationContext))
+					visibility = JvmVisibility.PUBLIC
+					final = true
+					annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
+					body = method.body
+				]
+			}
 		]
 	}
 }

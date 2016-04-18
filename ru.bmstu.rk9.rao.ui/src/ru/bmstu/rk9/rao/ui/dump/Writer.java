@@ -2,8 +2,8 @@ package ru.bmstu.rk9.rao.ui.dump;
 
 import java.util.Arrays;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
@@ -24,7 +24,7 @@ public class Writer {
 
 	public class StateStorageSubscriber implements Subscriber {
 		public void fireChange() {
-			modelStateStorage.addModelState(Simulator.getModelState());
+			modelStateStorage.addModelState(CurrentSimulator.getModelState());
 			jsonModelStateArray.put(serializer.dumpResoursestoJSONobject());
 		}
 

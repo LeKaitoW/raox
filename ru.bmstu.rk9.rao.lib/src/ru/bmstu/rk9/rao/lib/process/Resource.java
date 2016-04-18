@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class Resource extends ComparableResource<Resource> {
 	private Resource() {
@@ -41,7 +41,7 @@ public class Resource extends ComparableResource<Resource> {
 
 	public static Resource create() {
 		Resource resource = new Resource();
-		Simulator.getModelState().addResource(resource);
+		CurrentSimulator.getModelState().addResource(resource);
 		return resource;
 	}
 
@@ -51,7 +51,7 @@ public class Resource extends ComparableResource<Resource> {
 
 	@Override
 	public void erase() {
-		Simulator.getModelState().eraseResource(this);
+		CurrentSimulator.getModelState().eraseResource(this);
 	}
 
 	@Override

@@ -12,8 +12,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.result.Result;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
@@ -52,8 +53,10 @@ public class ExecutionJobProvider {
 				SerializationConfigView.initNames();
 				List<Result> results = new LinkedList<Result>();
 
+				CurrentSimulator.set(new Simulator());
+
 				try {
-					Simulator.preinitialize(parser.getSimulatorPreinitializationInfo());
+					CurrentSimulator.preinitialize(parser.getSimulatorPreinitializationInfo());
 				} catch (Exception e) {
 					e.printStackTrace();
 					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Simulator preinitialization failed", e);
@@ -69,7 +72,7 @@ public class ExecutionJobProvider {
 				display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
 
 				try {
-					Simulator.initialize(parser.getSimulatorInitializationInfo());
+					CurrentSimulator.initialize(parser.getSimulatorInitializationInfo());
 				} catch (Exception e) {
 					e.printStackTrace();
 					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Simulator initialization failed", e);
@@ -82,13 +85,13 @@ public class ExecutionJobProvider {
 				SimulationStopCode simulationResult;
 
 				try {
-					simulationResult = Simulator.run();
+					simulationResult = CurrentSimulator.run();
 				} catch (Exception e) {
 					e.printStackTrace();
 					ConsoleView.addLine("Execution error\n");
 					ConsoleView.addLine("Call stack:");
 					ConsoleView.printStackTrace(e);
-					Simulator.notifyError();
+					CurrentSimulator.notifyError();
 
 					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Execution failed", e);
 				} finally {

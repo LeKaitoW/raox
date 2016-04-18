@@ -104,6 +104,42 @@ class RaoValidator extends AbstractRaoValidator
 	}
 
 	@Check
+	def checkDefaultMethodLogicCount(Logic logic) {
+		var Map<String, DefaultMethodsHelper.MethodInfo> counts = new HashMap<String, DefaultMethodsHelper.MethodInfo>()
+		for (value : DefaultMethodsHelper.DptMethodInfo.values)
+			counts.put(
+				value.name,
+				new DefaultMethodsHelper.MethodInfo(value.validatorAction)
+			)
+
+		checkDefaultMethodCountGeneric(logic, logic.defaultMethods, counts)
+	}
+
+	@Check
+	def checkDefaultMethodSearchCount(Search search) {
+		var Map<String, DefaultMethodsHelper.MethodInfo> counts = new HashMap<String, DefaultMethodsHelper.MethodInfo>()
+		for (value : DefaultMethodsHelper.DptMethodInfo.values)
+			counts.put(
+				value.name,
+				new DefaultMethodsHelper.MethodInfo(value.validatorAction)
+			)
+
+		checkDefaultMethodCountGeneric(search, search.defaultMethods, counts)
+	}
+
+	@Check
+	def checkDefaultMethodFrameCount(Frame frame) {
+		var Map<String, DefaultMethodsHelper.MethodInfo> counts = new HashMap<String, DefaultMethodsHelper.MethodInfo>()
+		for (value : DefaultMethodsHelper.FrameMethodInfo.values)
+			counts.put(
+				value.name,
+				new DefaultMethodsHelper.MethodInfo(value.validatorAction)
+			)
+
+		checkDefaultMethodCountGeneric(frame, frame.defaultMethods, counts)
+	}
+
+	@Check
 	def checkDuplicateNamesForEntities(RaoModel model) {
 		val List<String> entities = new ArrayList<String>()
 		val List<String> duplicates = new ArrayList<String>()

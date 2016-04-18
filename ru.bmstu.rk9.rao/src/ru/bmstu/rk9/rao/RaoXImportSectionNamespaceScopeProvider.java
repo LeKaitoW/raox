@@ -14,7 +14,8 @@ public class RaoXImportSectionNamespaceScopeProvider extends XImportSectionNames
 	public static final List<QualifiedName> raoLibImports = Lists.<QualifiedName> newArrayList(
 			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "runtime"),
 			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "sequence"),
-			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "dpt"));
+			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "dpt"),
+			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "animation"));
 
 	@Override
 	protected List<ImportNormalizer> getImplicitImports(boolean ignoreCase) {

@@ -8,7 +8,7 @@ import java.util.function.Function;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class Statistics {
 	public static class Storeless {
@@ -39,7 +39,7 @@ public class Statistics {
 		private double median;
 
 		public boolean initFromDatabase(Result result) {
-			Database database = Simulator.getDatabase();
+			Database database = CurrentSimulator.getDatabase();
 			Index resultIndex = database.getIndexHelper().getResult(result.getName()).getIndex();
 
 			if (resultIndex != null && !resultIndex.getEntryNumbers().isEmpty()) {
@@ -129,7 +129,7 @@ public class Statistics {
 		private double median;
 
 		public boolean initFromDatabase(Result result) {
-			Database database = Simulator.getDatabase();
+			Database database = CurrentSimulator.getDatabase();
 			Index resultIndex = database.getIndexHelper().getResult(result.getName()).getIndex();
 
 			if (resultIndex == null || resultIndex.getEntryNumbers().isEmpty())
