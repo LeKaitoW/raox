@@ -199,6 +199,19 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 				getCommandStack().markSaveLocation();
 			}
 		});
+
+		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
+		try {
+			file.deleteMarkers(BlockNode.PROCESS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
+			for (ru.bmstu.rk9.rao.ui.gef.Node node : model.getChildren()) {
+				if (node instanceof BlockNode) {
+					((BlockNode) node).validateProperty(file);
+				}
+			}
+		} catch (CoreException e) {
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Internal error",
+					"Internal error during problem markers creation");
+		}
 	}
 
 	@Override
@@ -297,18 +310,6 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 	@Override
 	public void commandStackChanged(EventObject event) {
-		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
-		try {
-			file.deleteMarkers(BlockNode.PROCESS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
-			for (ru.bmstu.rk9.rao.ui.gef.Node node : model.getChildren()) {
-				if (node instanceof BlockNode) {
-					((BlockNode) node).validateProperty(file);
-				}
-			}
-		} catch (CoreException e) {
-			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Internal error",
-					"Internal error during problem markers creation");
-		}
 		firePropertyChange(IEditorPart.PROP_DIRTY);
 		super.commandStackChanged(event);
 	}
