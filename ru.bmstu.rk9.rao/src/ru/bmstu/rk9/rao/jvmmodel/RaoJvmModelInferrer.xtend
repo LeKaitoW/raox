@@ -29,10 +29,10 @@ import static extension ru.bmstu.rk9.rao.jvmmodel.FunctionCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.GeneratorCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.LogicCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.PatternCompiler.*
-import static extension ru.bmstu.rk9.rao.jvmmodel.RaoNaming.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.ResourceDeclarationCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.ResourceTypeCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.SearchCompiler.*
+import static extension ru.bmstu.rk9.rao.naming.RaoNaming.*
 
 class RaoJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder jvmTypesBuilder

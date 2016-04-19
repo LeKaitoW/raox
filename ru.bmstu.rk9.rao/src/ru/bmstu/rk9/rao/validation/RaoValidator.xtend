@@ -20,7 +20,7 @@ import ru.bmstu.rk9.rao.rao.ResourceDeclaration
 import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.Sequence
 
-import static extension ru.bmstu.rk9.rao.jvmmodel.RaoNaming.*
+import static extension ru.bmstu.rk9.rao.naming.RaoNaming.*
 import ru.bmstu.rk9.rao.lib.sequence.NumericSequence
 import ru.bmstu.rk9.rao.lib.sequence.ArbitraryTypeSequence
 import ru.bmstu.rk9.rao.rao.Logic

@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.jvmmodel
+package ru.bmstu.rk9.rao.naming
 
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
