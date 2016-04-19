@@ -38,7 +38,7 @@ public class ConnectionReconnectCommand extends Command {
 		return false;
 	}
 
-	private boolean checkSourceReconnection() {
+	private final boolean checkSourceReconnection() {
 		if (newSourceBlockNode.equals(oldTargetBlockNode))
 			return false;
 		if (newSourceBlockNode.getDocksCount(newSourceDockName) > 0)
@@ -46,13 +46,13 @@ public class ConnectionReconnectCommand extends Command {
 		return true;
 	}
 
-	private boolean checkTargetReconnection() {
+	private final boolean checkTargetReconnection() {
 		if (oldSourceBlockNode.equals(newTargetBlockNode))
 			return false;
 		return true;
 	}
 
-	public void setNewSource(BlockNode sourceBlockNode, String sourceDockName) {
+	public final void setNewSource(BlockNode sourceBlockNode, String sourceDockName) {
 		if (sourceBlockNode == null || sourceDockName == null) {
 			throw new IllegalArgumentException();
 		}
@@ -61,7 +61,7 @@ public class ConnectionReconnectCommand extends Command {
 		this.newSourceDockName = sourceDockName;
 	}
 
-	public void setNewTarget(BlockNode targetBlockNode, String targetDockName) {
+	public final void setNewTarget(BlockNode targetBlockNode, String targetDockName) {
 		if (targetBlockNode == null || targetDockName == null) {
 			throw new IllegalArgumentException();
 		}

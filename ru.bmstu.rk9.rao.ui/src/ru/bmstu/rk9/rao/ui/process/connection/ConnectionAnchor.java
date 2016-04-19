@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.process;
+package ru.bmstu.rk9.rao.ui.process.connection;
 
 import org.eclipse.draw2d.AbstractConnectionAnchor;
 import org.eclipse.draw2d.IFigure;
@@ -6,6 +6,8 @@ import org.eclipse.draw2d.ScalableFigure;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.PrecisionPoint;
 import org.eclipse.draw2d.geometry.Rectangle;
+
+import ru.bmstu.rk9.rao.ui.process.node.BlockFigure;
 
 public class ConnectionAnchor extends AbstractConnectionAnchor {
 
@@ -16,14 +18,14 @@ public class ConnectionAnchor extends AbstractConnectionAnchor {
 		super(owner);
 	}
 
-	protected final int getOffsetHorizontal() {
+	public final int getOffsetHorizontal() {
 		return offsetHorizontal;
 	}
 
 	public final void setOffsetHorizontal(final int offsetHorizontal) {
 		Rectangle shapeBounds = getOwner().getBounds();
-		final int left = shapeBounds.x + offsetHorizontal - ProcessFigure.dockSize;
-		final int right = left + ProcessFigure.dockSize * 2;
+		final int left = shapeBounds.x + offsetHorizontal - BlockFigure.dockSize;
+		final int right = left + BlockFigure.dockSize * 2;
 
 		Rectangle figureBounds = getOwner().getParent().getBounds();
 		final int overLeft = Math.max(figureBounds.x - left, 0);
@@ -32,14 +34,14 @@ public class ConnectionAnchor extends AbstractConnectionAnchor {
 		this.offsetHorizontal = offsetHorizontal + overLeft - overRight;
 	}
 
-	protected final int getOffsetVertical() {
+	public final int getOffsetVertical() {
 		return offsetVertical;
 	}
 
 	public final void setOffsetVertical(final int offsetVertical) {
 		Rectangle shapeBounds = getOwner().getBounds();
-		final int top = shapeBounds.y + offsetVertical - ProcessFigure.dockSize;
-		final int bottom = top + ProcessFigure.dockSize * 2;
+		final int top = shapeBounds.y + offsetVertical - BlockFigure.dockSize;
+		final int bottom = top + BlockFigure.dockSize * 2;
 
 		Rectangle figureBounds = getOwner().getParent().getBounds();
 		final int overTop = Math.max(figureBounds.y - top, 0);

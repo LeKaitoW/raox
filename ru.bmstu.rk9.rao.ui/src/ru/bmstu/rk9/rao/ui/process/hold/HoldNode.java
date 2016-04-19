@@ -1,41 +1,57 @@
 package ru.bmstu.rk9.rao.ui.process.hold;
 
 import java.io.Serializable;
+import java.util.List;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.ui.views.properties.PropertyDescriptor;
+import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
-import ru.bmstu.rk9.rao.ui.process.node.BlockNodeWithInterval;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 
-public class HoldNode extends BlockNodeWithInterval implements Serializable {
+public class HoldNode extends BlockNode implements Serializable {
 
 	private static final long serialVersionUID = 1;
 
 	public static final String DOCK_IN = "IN";
 	public static final String DOCK_OUT = "OUT";
-	public static String name = "Hold";
+	public static final String name = "Hold";
+	private static final String PROPERTY_DURATION = "Duration";
+
+	private String duration = "";
 
 	public HoldNode() {
-		super("Hold");
 		setName(name);
 		registerDock(DOCK_IN);
 		registerDock(DOCK_OUT);
 	}
 
+	public final String getDuration() {
+		return duration;
+	}
+
+	public final void setDuration(String duration) {
+		String previousValue = this.duration;
+		this.duration = duration;
+		getListeners().firePropertyChange(PROPERTY_DURATION, previousValue, duration);
+	}
+
 	@Override
 	public BlockConverterInfo createBlock() {
 		BlockConverterInfo holdInfo = new BlockConverterInfo();
-		Double interval;
+		Double duration;
 		try {
-			interval = Double.valueOf(this.interval);
+			duration = Double.valueOf(this.duration);
 		} catch (NumberFormatException e) {
 			holdInfo.isSuccessful = false;
 			holdInfo.errorMessage = e.getMessage();
 			System.out.println(holdInfo.errorMessage);
 			return holdInfo;
 		}
-		ru.bmstu.rk9.rao.lib.process.Hold hold = new ru.bmstu.rk9.rao.lib.process.Hold(() -> interval);
+		ru.bmstu.rk9.rao.lib.process.Hold hold = new ru.bmstu.rk9.rao.lib.process.Hold(() -> duration);
 		holdInfo.setBlock(hold);
 		holdInfo.inputDocks.put(DOCK_IN, hold.getInputDock());
 		holdInfo.outputDocks.put(DOCK_OUT, hold.getOutputDock());
@@ -43,8 +59,35 @@ public class HoldNode extends BlockNodeWithInterval implements Serializable {
 	}
 
 	@Override
+	public void createProperties(List<PropertyDescriptor> properties) {
+		super.createProperties(properties);
+
+		properties.add(new TextPropertyDescriptor(PROPERTY_DURATION, "Duration"));
+	}
+
+	@Override
+	public Object getPropertyValue(Object propertyName) {
+		if (propertyName.equals(PROPERTY_DURATION))
+			return getDuration();
+
+		return super.getPropertyValue(propertyName);
+	}
+
+	@Override
+	public void setPropertyValue(Object propertyName, Object value) {
+		super.setPropertyValue(propertyName, value);
+
+		if (propertyName.equals(PROPERTY_DURATION))
+			setDuration((String) value);
+	}
+
+	@Override
 	public void validateProperty(IResource file) throws CoreException {
-		validateInterval(file);
+		try {
+			Double.valueOf(duration);
+		} catch (NumberFormatException e) {
+			createProblemMarker(file, "Wrong duration", IMarker.SEVERITY_ERROR);
+		}
 		validateConnections(file, 1, 1);
 	}
 }

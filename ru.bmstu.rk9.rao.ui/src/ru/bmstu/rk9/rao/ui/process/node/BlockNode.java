@@ -24,9 +24,9 @@ public abstract class BlockNode extends Node {
 
 	public static final String SOURCE_CONNECTION_UPDATED = "SourceConnectionUpdated";
 	public static final String TARGET_CONNECTION_UPDATED = "TargetConnectionUpdated";
-	public static final String PROCESS_MARKER = "ru.bmstu.rk9.rao.ui.ProcessMarker";
-	public static final String PROPERTY_COLOR = "Color";
-	public static final String PROPERTY_NAME = "ShowNodeName";
+	public static final String PROCESS_PROBLEM_MARKER = "ru.bmstu.rk9.rao.ui.process.ProblemMarker";
+	protected static final String PROPERTY_COLOR = "Color";
+	protected static final String PROPERTY_SHOW_NAME = "ShowName";
 
 	protected CopyOnWriteArrayList<Connection> sourceConnections = new CopyOnWriteArrayList<Connection>();
 	protected CopyOnWriteArrayList<Connection> targetConnections = new CopyOnWriteArrayList<Connection>();
@@ -41,7 +41,7 @@ public abstract class BlockNode extends Node {
 	public final void setShowName(boolean showName) {
 		boolean previousValue = this.showName;
 		this.showName = showName;
-		getListeners().firePropertyChange(PROPERTY_NAME, previousValue, showName);
+		getListeners().firePropertyChange(PROPERTY_SHOW_NAME, previousValue, showName);
 	}
 
 	public final RGB getColor() {
@@ -59,7 +59,7 @@ public abstract class BlockNode extends Node {
 		super.createProperties(properties);
 
 		properties.add(new ColorPropertyDescriptor(PROPERTY_COLOR, "Color"));
-		properties.add(new CheckboxPropertyDescriptor(PROPERTY_NAME, "Show name"));
+		properties.add(new CheckboxPropertyDescriptor(PROPERTY_SHOW_NAME, "Show name"));
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public abstract class BlockNode extends Node {
 		if (propertyName.equals(PROPERTY_COLOR))
 			return getColor();
 
-		if (propertyName.equals(PROPERTY_NAME))
+		if (propertyName.equals(PROPERTY_SHOW_NAME))
 			return getShowName();
 
 		return super.getPropertyValue(propertyName);
@@ -80,7 +80,7 @@ public abstract class BlockNode extends Node {
 		if (propertyName.equals(PROPERTY_COLOR))
 			setColor((RGB) value);
 
-		if (propertyName.equals(PROPERTY_NAME))
+		if (propertyName.equals(PROPERTY_SHOW_NAME))
 			setShowName((boolean) value);
 	}
 
@@ -173,11 +173,16 @@ public abstract class BlockNode extends Node {
 		if (getSourceConnections().size() == sourceConnections && getTargetConnections().size() == targetConnections)
 			return;
 
-		IMarker marker = file.createMarker(BlockNode.PROCESS_MARKER);
-		marker.setAttribute(IMarker.MESSAGE, "Not all docks are connected");
+		createProblemMarker(file, "Not all docks are connected", IMarker.SEVERITY_WARNING);
+	}
+
+	protected final IMarker createProblemMarker(IResource file, String message, int severity) throws CoreException {
+		IMarker marker = file.createMarker(BlockNode.PROCESS_PROBLEM_MARKER);
+		marker.setAttribute(IMarker.MESSAGE, message);
 		marker.setAttribute(IMarker.LOCATION, getName());
-		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+		marker.setAttribute(IMarker.SEVERITY, severity);
 		marker.setAttribute(NODE_MARKER, getID());
+		return marker;
 	}
 
 	public abstract BlockConverterInfo createBlock();

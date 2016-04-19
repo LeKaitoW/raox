@@ -12,7 +12,7 @@ public class BlockConverterInfo {
 	public Block block;
 	public final Map<String, InputDock> inputDocks = new HashMap<>();
 	public final Map<String, OutputDock> outputDocks = new HashMap<>();
-	
+
 	public boolean isSuccessful = true;
 	public String errorMessage;
 

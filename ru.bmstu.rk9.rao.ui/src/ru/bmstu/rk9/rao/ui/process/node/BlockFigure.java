@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.process;
+package ru.bmstu.rk9.rao.ui.process.node;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +19,10 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.ui.PlatformUI;
 
-public class ProcessFigure extends Figure {
+import ru.bmstu.rk9.rao.ui.process.ProcessColors;
+import ru.bmstu.rk9.rao.ui.process.connection.ConnectionAnchor;
+
+public class BlockFigure extends Figure {
 
 	protected Map<String, ConnectionAnchor> connectionAnchors = new HashMap<>();
 	protected List<ConnectionAnchor> inputConnectionAnchors = new ArrayList<>();
@@ -30,6 +33,10 @@ public class ProcessFigure extends Figure {
 
 	private static final int shapeBorder = 5;
 	private IFigure shape;
+
+	private Docks docks = new Docks();
+	public static final int dockSize = 4;
+	private static final Rectangle dockRectangle = new Rectangle();
 
 	class Docks extends Figure {
 		@Override
@@ -57,11 +64,7 @@ public class ProcessFigure extends Figure {
 		}
 	}
 
-	private Docks docks = new Docks();
-	protected static final int dockSize = 4;
-	private static final Rectangle dockRectangle = new Rectangle();
-
-	public ProcessFigure(IFigure shape) {
+	public BlockFigure(IFigure shape) {
 		this.shape = shape;
 
 		XYLayout layout = new XYLayout();

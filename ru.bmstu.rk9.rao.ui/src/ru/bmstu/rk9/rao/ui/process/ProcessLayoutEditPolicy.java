@@ -6,10 +6,10 @@ import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editpolicies.XYLayoutEditPolicy;
 import org.eclipse.gef.requests.CreateRequest;
 
-import ru.bmstu.rk9.rao.ui.process.command.ChangeConstraintCommand;
-import ru.bmstu.rk9.rao.ui.process.command.ConstraintCommand;
-import ru.bmstu.rk9.rao.ui.process.command.CreateCommand;
-import ru.bmstu.rk9.rao.ui.process.model.ModelPart;
+import ru.bmstu.rk9.rao.ui.gef.Node;
+import ru.bmstu.rk9.rao.ui.gef.commands.ChangeConstraintCommand;
+import ru.bmstu.rk9.rao.ui.gef.commands.CreateCommand;
+import ru.bmstu.rk9.rao.ui.process.model.ModelEditPart;
 
 public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 
@@ -18,31 +18,21 @@ public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 
 	@Override
 	protected Command createChangeConstraintCommand(EditPart child, Object constraint) {
-		ConstraintCommand command = null;
-
 		if (!ProcessEditor.processNodesInfo.containsKey(child.getModel().getClass()))
 			return null;
 
-		command = new ChangeConstraintCommand();
-		command.setModel(child.getModel());
-		command.setConstraint((Rectangle) constraint);
-		return command;
+		return new ChangeConstraintCommand((Node) child.getModel(), (Rectangle) constraint);
 	}
 
 	@Override
 	protected Command getCreateCommand(CreateRequest request) {
-		if (request.getType() == REQ_CREATE && getHost() instanceof ModelPart) {
-			CreateCommand command = new CreateCommand();
-			command.setModel(getHost().getModel());
-			command.setNode(request.getNewObject());
-
+		if (request.getType() == REQ_CREATE && getHost() instanceof ModelEditPart) {
 			Rectangle constraint = (Rectangle) getConstraintFor(request);
 			constraint.x = (constraint.x < 0) ? 0 : constraint.x;
 			constraint.y = (constraint.y < 0) ? 0 : constraint.y;
 			constraint.width = FIGURE_WIDTH;
 			constraint.height = FIGURE_HEIGHT;
-			command.setConstraint(constraint);
-			return command;
+			return new CreateCommand((Node) getHost().getModel(), (Node) request.getNewObject(), constraint);
 		}
 		return null;
 	}

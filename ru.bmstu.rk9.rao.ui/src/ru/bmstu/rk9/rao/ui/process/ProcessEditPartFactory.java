@@ -6,8 +6,10 @@ import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartFactory;
 import org.eclipse.gef.editparts.AbstractEditPart;
 
+import ru.bmstu.rk9.rao.ui.gef.NodeInfo;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
-import ru.bmstu.rk9.rao.ui.process.connection.ConnectionPart;
+import ru.bmstu.rk9.rao.ui.process.connection.ConnectionEditPart;
+import ru.bmstu.rk9.rao.ui.process.node.BlockEditPart;
 import ru.bmstu.rk9.rao.ui.process.node.Node;
 
 public class ProcessEditPartFactory implements EditPartFactory {
@@ -16,27 +18,27 @@ public class ProcessEditPartFactory implements EditPartFactory {
 
 	@Override
 	public EditPart createEditPart(EditPart context, Object model) {
-		AbstractEditPart part = null;
+		AbstractEditPart editPart = null;
 
 		if (model instanceof Connection) {
-			part = new ConnectionPart();
-			part.setModel(model);
-			return part;
+			editPart = new ConnectionEditPart();
+			editPart.setModel(model);
+			return editPart;
 		}
 
-		Map<Class<?>, ProcessNodeInfo> processNodesInfo = ProcessEditor.processNodesInfo;
+		Map<Class<?>, NodeInfo> processNodesInfo = ProcessEditor.processNodesInfo;
 		if (!processNodesInfo.containsKey(model.getClass()))
 			return null;
 
-		part = processNodesInfo.get(model.getClass()).getPartFactory().get();
-		part.setModel(model);
+		editPart = processNodesInfo.get(model.getClass()).getPartFactory().get();
+		editPart.setModel(model);
 
-		if (part instanceof ProcessEditPart) {
-			((ProcessEditPart) part).setID(currentID);
+		if (editPart instanceof BlockEditPart) {
+			((BlockEditPart) editPart).setID(currentID);
 			((Node) model).setID(currentID);
 			currentID++;
 		}
 
-		return part;
+		return editPart;
 	}
 }

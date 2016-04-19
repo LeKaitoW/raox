@@ -6,9 +6,7 @@ import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.editparts.AbstractConnectionEditPart;
 import org.eclipse.gef.editpolicies.ConnectionEndpointEditPolicy;
 
-import ru.bmstu.rk9.rao.ui.process.ConnectionDeleteEditPolicy;
-
-public class ConnectionPart extends AbstractConnectionEditPart {
+public class ConnectionEditPart extends AbstractConnectionEditPart {
 
 	@Override
 	protected IFigure createFigure() {

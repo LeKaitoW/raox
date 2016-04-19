@@ -6,7 +6,7 @@ public class ConnectionDeleteCommand extends Command {
 
 	private Connection connection;
 
-	public void setConnection(Object model) {
+	protected final void setConnection(Object model) {
 		this.connection = (Connection) model;
 	}
 

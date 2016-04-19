@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.process;
+package ru.bmstu.rk9.rao.ui.process.node;
 
 import java.beans.PropertyChangeEvent;
 import java.util.List;
@@ -13,25 +13,21 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
+import ru.bmstu.rk9.rao.ui.process.ProcessDeletePolicy;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
-import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
-import ru.bmstu.rk9.rao.ui.process.node.Node;
+import ru.bmstu.rk9.rao.ui.process.connection.ConnectionAnchor;
+import ru.bmstu.rk9.rao.ui.process.connection.ConnectionPolicy;
 
-public abstract class ProcessEditPart extends EditPart implements NodeEditPart {
+public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 
 	private int ID;
 
-	public int getID() {
+	public final int getID() {
 		return ID;
 	}
 
-	public void setID(int ID) {
+	public final void setID(int ID) {
 		this.ID = ID;
-	}
-
-	@Override
-	public final List<ru.bmstu.rk9.rao.ui.gef.Node> getModelChildren() {
-		return ((ru.bmstu.rk9.rao.ui.gef.Node) getModel()).getChildren();
 	}
 
 	@Override
@@ -43,8 +39,8 @@ public abstract class ProcessEditPart extends EditPart implements NodeEditPart {
 			refreshVisuals();
 		}
 
-		if (evt.getPropertyName().equals(BlockNode.PROPERTY_NAME))
-			((ProcessFigure) getFigure()).setShowName((boolean) evt.getNewValue());
+		if (evt.getPropertyName().equals(BlockNode.PROPERTY_SHOW_NAME))
+			((BlockFigure) getFigure()).setShowName((boolean) evt.getNewValue());
 
 		if (evt.getPropertyName().equals(BlockNode.SOURCE_CONNECTION_UPDATED))
 			refreshSourceConnections();
@@ -56,6 +52,7 @@ public abstract class ProcessEditPart extends EditPart implements NodeEditPart {
 	@Override
 	protected void createEditPolicies() {
 		super.createEditPolicies();
+		installEditPolicy(EditPolicy.COMPONENT_ROLE, new ProcessDeletePolicy());
 		installEditPolicy(EditPolicy.GRAPHICAL_NODE_ROLE, new ConnectionPolicy());
 	}
 
@@ -63,10 +60,10 @@ public abstract class ProcessEditPart extends EditPart implements NodeEditPart {
 	protected void refreshVisuals() {
 		super.refreshVisuals();
 
-		if (!(getFigure() instanceof ProcessFigure))
+		if (!(getFigure() instanceof BlockFigure))
 			return;
 
-		ProcessFigure figure = (ProcessFigure) getFigure();
+		BlockFigure figure = (BlockFigure) getFigure();
 		BlockNode node = (BlockNode) getModel();
 		figure.setForegroundColor(new Color(null, node.getColor()));
 		figure.setShowName(node.getShowName());
@@ -114,11 +111,11 @@ public abstract class ProcessEditPart extends EditPart implements NodeEditPart {
 		return null;
 	}
 
-	final protected String mapConnectionAnchorToDock(ConnectionAnchor connectionAnchor) {
+	public final String mapConnectionAnchorToDock(ConnectionAnchor connectionAnchor) {
 		return getProcessFigure().getConnectionAnchorName(connectionAnchor);
 	}
 
-	protected ProcessFigure getProcessFigure() {
-		return (ProcessFigure) getFigure();
+	protected final BlockFigure getProcessFigure() {
+		return (BlockFigure) getFigure();
 	}
 }

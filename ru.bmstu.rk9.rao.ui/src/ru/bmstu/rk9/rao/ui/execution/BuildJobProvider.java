@@ -195,7 +195,7 @@ public class BuildJobProvider {
 				boolean projectHasErrors;
 				try {
 					boolean raoHasErrors = projectHasErrors(raoFiles, IMarker.PROBLEM, monitor, true);
-					boolean procHasErrors = projectHasErrors(processFiles, BlockNode.PROCESS_MARKER, monitor, false);
+					boolean procHasErrors = projectHasErrors(processFiles, BlockNode.PROCESS_PROBLEM_MARKER, monitor, false);
 					projectHasErrors = raoHasErrors || procHasErrors;
 				} catch (CoreException e) {
 					e.printStackTrace();

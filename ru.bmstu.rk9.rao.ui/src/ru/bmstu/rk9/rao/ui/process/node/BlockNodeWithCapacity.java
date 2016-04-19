@@ -45,14 +45,11 @@ public abstract class BlockNodeWithCapacity extends BlockNode {
 	protected final void validateCapacity(IResource file) throws CoreException {
 		if (capacity.isEmpty())
 			return;
+
 		try {
 			Double.valueOf(capacity);
 		} catch (NumberFormatException e) {
-			IMarker marker = file.createMarker(BlockNode.PROCESS_MARKER);
-			marker.setAttribute(IMarker.MESSAGE, "Wrong capacity");
-			marker.setAttribute(IMarker.LOCATION, this.getName());
-			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-			marker.setAttribute(NODE_MARKER, getID());
+			createProblemMarker(file, "Wrong capacity", IMarker.SEVERITY_ERROR);
 		}
 	}
 
