@@ -23,6 +23,7 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: ru.bmstu.rk9.rao,
+ ru.bmstu.rk9.rao.compiler,
  ru.bmstu.rk9.rao.formatting2,
  ru.bmstu.rk9.rao.jvmmodel,
  ru.bmstu.rk9.rao.naming,
@@ -33,4 +34,5 @@ Export-Package: ru.bmstu.rk9.rao,
  ru.bmstu.rk9.rao.rao.util,
  ru.bmstu.rk9.rao.serializer,
  ru.bmstu.rk9.rao.services,
+ ru.bmstu.rk9.rao.typesystem,
  ru.bmstu.rk9.rao.validation
