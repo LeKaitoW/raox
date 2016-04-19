@@ -86,7 +86,7 @@ public class ExecutionJobProvider {
 
 				try {
 					simulationResult = CurrentSimulator.run();
-				} catch (Exception e) {
+				} catch (Error e) {
 					e.printStackTrace();
 					ConsoleView.addLine("Execution error\n");
 					ConsoleView.addLine("Call stack:");

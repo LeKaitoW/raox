@@ -76,7 +76,7 @@ public class ConsoleView extends ViewPart {
 		redrawText();
 	}
 
-	public static void printStackTrace(Exception e) {
+	public static void printStackTrace(Error e) {
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
 		e.printStackTrace(printWriter);
