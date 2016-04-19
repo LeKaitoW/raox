@@ -24,7 +24,7 @@ public abstract class BlockNode extends Node {
 
 	public static final String SOURCE_CONNECTION_UPDATED = "SourceConnectionUpdated";
 	public static final String TARGET_CONNECTION_UPDATED = "TargetConnectionUpdated";
-	public static final String PROCESS_PROBLEM_MARKER = "ru.bmstu.rk9.rao.ui.process.ProblemMarker";
+	public static final String PROCESS_PROBLEM_MARKER = "ru.bmstu.rk9.rao.ui.ProcessProblemMarker";
 	protected static final String PROPERTY_COLOR = "Color";
 	protected static final String PROPERTY_SHOW_NAME = "ShowName";
 

@@ -1069,7 +1069,7 @@
       </fileTypes>
    </extension>
    <extension
-   		id="process.ProblemMarker"
+   		id="ProcessProblemMarker"
    		point="org.eclipse.core.resources.markers"
    		name="ProcessProblem">
    		<super type="org.eclipse.core.resources.problemmarker"/>
