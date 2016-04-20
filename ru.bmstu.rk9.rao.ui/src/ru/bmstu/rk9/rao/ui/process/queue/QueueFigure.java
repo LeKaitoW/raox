@@ -62,7 +62,5 @@ public class QueueFigure extends BlockFigure {
 				outputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 			}
 		});
-
-		label.setText(QueueNode.name);
 	}
 }

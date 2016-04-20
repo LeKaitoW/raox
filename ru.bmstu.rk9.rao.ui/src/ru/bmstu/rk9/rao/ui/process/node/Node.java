@@ -21,7 +21,7 @@ public class Node extends ru.bmstu.rk9.rao.ui.gef.Node {
 		return name;
 	}
 
-	public final void setName(String name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 }

@@ -45,7 +45,5 @@ public class TerminateFigure extends BlockFigure {
 				inputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 			}
 		});
-
-		label.setText(TerminateNode.name);
 	}
 }

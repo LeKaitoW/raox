@@ -86,7 +86,5 @@ public class HoldFigure extends BlockFigure {
 				outputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 			}
 		});
-
-		label.setText(HoldNode.name);
 	}
 }

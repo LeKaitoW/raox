@@ -62,8 +62,6 @@ public class SeizeFigure extends BlockFigure {
 				outputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 			}
 		});
-
-		label.setText(SeizeNode.name);
 	}
 
 	private static void addArcToPath(Rectangle bounds, Path path) {

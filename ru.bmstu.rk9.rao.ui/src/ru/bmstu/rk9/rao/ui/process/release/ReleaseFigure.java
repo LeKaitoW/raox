@@ -62,8 +62,6 @@ public class ReleaseFigure extends BlockFigure {
 				outputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 			}
 		});
-
-		label.setText(ReleaseNode.name);
 	}
 
 	private static void addArcToPath(Rectangle bounds, Path path) {

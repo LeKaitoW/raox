@@ -44,7 +44,5 @@ public class GenerateFigure extends BlockFigure {
 				outputConnectionAnchor.setOffsetVertical(bounds.height / 2);
 			}
 		});
-
-		label.setText(GenerateNode.name);
 	}
 }

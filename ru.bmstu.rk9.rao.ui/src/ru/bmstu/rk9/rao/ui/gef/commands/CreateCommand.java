@@ -8,7 +8,7 @@ import ru.bmstu.rk9.rao.ui.gef.Node;
 public class CreateCommand extends Command {
 
 	private Node model;
-	private Node node;
+	protected Node node;
 
 	public CreateCommand(Node model, Node node, Rectangle constraint) {
 		this.model = model;

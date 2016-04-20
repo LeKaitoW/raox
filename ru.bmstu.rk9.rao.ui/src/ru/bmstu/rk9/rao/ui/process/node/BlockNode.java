@@ -8,10 +8,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.ColorPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
+import ru.bmstu.rk9.rao.ui.gef.label.LabelNode;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.CheckboxPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
@@ -33,6 +35,30 @@ public abstract class BlockNode extends Node {
 	private final Map<String, Integer> dockNames = new HashMap<>();
 	private RGB color = ProcessColors.BLOCK_COLOR.getRGB();
 	private boolean showName = true;
+	private LabelNode title;
+
+	protected final void setTitle(LabelNode title) {
+		this.title = title;
+		title.setText(getName());
+		getParent().addChild(title);
+
+		Rectangle titleConstraint = getConstraint().getCopy();
+		titleConstraint.setSize(title.getTextBounds());
+		titleConstraint.setX(titleConstraint.x - (titleConstraint.width - getConstraint().width) / 2);
+		titleConstraint.setY(titleConstraint.y - titleConstraint.height);
+		title.setConstraint(titleConstraint);
+	}
+
+	protected final LabelNode getTitle() {
+		return title;
+	}
+
+	@Override
+	public void setName(String name) {
+		super.setName(name);
+		if (title != null)
+			title.setText(getName());
+	}
 
 	public final boolean getShowName() {
 		return showName;

@@ -10,14 +10,9 @@ import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
-import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
-import org.eclipse.jdt.ui.PreferenceConstants;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionAnchor;
@@ -28,12 +23,8 @@ public class BlockFigure extends Figure {
 	protected List<ConnectionAnchor> inputConnectionAnchors = new ArrayList<>();
 	protected List<ConnectionAnchor> outputConnectionAnchors = new ArrayList<>();
 
-	protected Label label = new Label();
-	private Font font;
-
 	private static final int shapeBorder = 5;
 	private IFigure shape;
-
 	private Docks docks = new Docks();
 	public static final int dockSize = 4;
 	private static final Rectangle dockRectangle = new Rectangle();
@@ -69,35 +60,24 @@ public class BlockFigure extends Figure {
 
 		XYLayout layout = new XYLayout();
 		setLayoutManager(layout);
-
 		setOpaque(true);
-
-		Font currentFont = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getFontRegistry()
-				.get(PreferenceConstants.EDITOR_TEXT_FONT);
-		FontData[] currentFontData = currentFont.getFontData();
-		currentFontData[0].setHeight(6);
-		font = new Font(currentFont.getDevice(), currentFontData);
-		label.setFont(getFont());
 
 		add(this.shape);
 		add(docks);
-		add(label);
 
 		addFigureListener(new FigureListener() {
 			@Override
 			public void figureMoved(IFigure figure) {
-				final int labelHeight = shapeBorder * 2;
-
 				Rectangle shapeBounds = figure.getBounds().getCopy();
 				shapeBounds.x = shapeBorder;
-				shapeBounds.y = shapeBorder + labelHeight;
+				shapeBounds.y = shapeBorder;
 				shapeBounds.width -= shapeBounds.x + shapeBorder;
 				shapeBounds.height -= shapeBounds.y + shapeBorder;
 				setConstraint(getShape(), shapeBounds);
 
 				Rectangle docksBounds = figure.getBounds().getCopy();
 				docksBounds.x = 0;
-				docksBounds.y = labelHeight;
+				docksBounds.y = 0;
 				docksBounds.height -= docksBounds.y;
 				setConstraint(docks, docksBounds);
 			}
@@ -108,31 +88,8 @@ public class BlockFigure extends Figure {
 		getParent().setConstraint(this, constraint);
 	}
 
-	@Override
-	public Font getFont() {
-		return font;
-	}
-
 	protected final IFigure getShape() {
 		return shape;
-	}
-
-	@Override
-	final protected void paintFigure(Graphics graphics) {
-		drawName(graphics);
-	}
-
-	public final void setShowName(boolean showName) {
-		label.setVisible(showName);
-	}
-
-	private final void drawName(Graphics graphics) {
-		Rectangle relativeRectangle = getBounds().getCopy();
-		relativeRectangle.setX(0);
-		relativeRectangle.setHeight(10);
-		relativeRectangle.setY(0);
-		setConstraint(label, relativeRectangle);
-		label.setForegroundColor(ProcessColors.LABEL_TEXT_COLOR);
 	}
 
 	public ConnectionAnchor getConnectionAnchor(String dockName) {

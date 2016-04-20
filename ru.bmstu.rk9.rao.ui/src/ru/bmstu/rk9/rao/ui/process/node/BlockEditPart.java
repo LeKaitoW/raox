@@ -4,6 +4,7 @@ import java.beans.PropertyChangeEvent;
 import java.util.List;
 
 import org.eclipse.draw2d.geometry.Point;
+import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.ConnectionEditPart;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.NodeEditPart;
@@ -13,6 +14,8 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
+import ru.bmstu.rk9.rao.ui.gef.Node;
+import ru.bmstu.rk9.rao.ui.gef.label.LabelNode;
 import ru.bmstu.rk9.rao.ui.process.ProcessDeletePolicy;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionAnchor;
@@ -34,13 +37,29 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
 
+		if (evt.getPropertyName().equals(Node.PROPERTY_CONSTRAINT)) {
+			LabelNode title = ((BlockNode) getModel()).getTitle();
+			if (title != null) {
+				Rectangle previousBlockConstraint = (Rectangle) evt.getOldValue();
+				Rectangle currentBlockConstraint = (Rectangle) evt.getNewValue();
+				Rectangle titleConstraint = title.getConstraint().getCopy();
+				titleConstraint.translate(currentBlockConstraint.x - previousBlockConstraint.x,
+						currentBlockConstraint.y - previousBlockConstraint.y);
+				title.setConstraint(titleConstraint);
+			}
+		}
+
 		if (evt.getPropertyName().equals(BlockNode.PROPERTY_COLOR)) {
 			getFigure().setForegroundColor(new Color(null, (RGB) evt.getNewValue()));
 			refreshVisuals();
 		}
 
-		if (evt.getPropertyName().equals(BlockNode.PROPERTY_SHOW_NAME))
-			((BlockFigure) getFigure()).setShowName((boolean) evt.getNewValue());
+		if (evt.getPropertyName().equals(BlockNode.PROPERTY_SHOW_NAME)) {
+			LabelNode title = ((BlockNode) getModel()).getTitle();
+			if (title != null) {
+				title.setVisible((boolean) evt.getNewValue());
+			}
+		}
 
 		if (evt.getPropertyName().equals(BlockNode.SOURCE_CONNECTION_UPDATED))
 			refreshSourceConnections();
@@ -66,7 +85,6 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 		BlockFigure figure = (BlockFigure) getFigure();
 		BlockNode node = (BlockNode) getModel();
 		figure.setForegroundColor(new Color(null, node.getColor()));
-		figure.setShowName(node.getShowName());
 	}
 
 	@Override

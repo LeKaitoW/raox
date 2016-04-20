@@ -10,11 +10,13 @@ import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.commands.ChangeConstraintCommand;
 import ru.bmstu.rk9.rao.ui.gef.commands.CreateCommand;
 import ru.bmstu.rk9.rao.ui.process.model.ModelEditPart;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNodeCreateCommand;
 
 public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 
 	public static final int FIGURE_WIDTH = 50;
-	public static final int FIGURE_HEIGHT = 60;
+	public static final int FIGURE_HEIGHT = FIGURE_WIDTH;
 
 	@Override
 	protected Command createChangeConstraintCommand(EditPart child, Object constraint) {
@@ -32,9 +34,14 @@ public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 			constraint.y = (constraint.y < 0) ? 0 : constraint.y;
 			constraint.width = FIGURE_WIDTH;
 			constraint.height = FIGURE_HEIGHT;
-			return new CreateCommand((Node) getHost().getModel(), (Node) request.getNewObject(), constraint);
+
+			Object node = request.getNewObject();
+			if (node instanceof BlockNode) {
+				return new BlockNodeCreateCommand((Node) getHost().getModel(), (BlockNode) node, constraint);
+			} else {
+				return new CreateCommand((Node) getHost().getModel(), (Node) node, constraint);
+			}
 		}
 		return null;
 	}
-
 }

@@ -63,7 +63,5 @@ public class SelectPathFigure extends BlockFigure {
 				falseOutputConnectionAnchor.setOffsetVertical(bounds.height + dockSize / 2);
 			}
 		});
-
-		label.setText(SelectPathNode.name);
 	}
 }
