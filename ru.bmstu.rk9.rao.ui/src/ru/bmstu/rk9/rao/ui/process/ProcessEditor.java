@@ -189,29 +189,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		SafeRunnable.run(new SafeRunnable() {
-			@Override
-			public void run() throws Exception {
-				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				writeToOutputStream(outputStream);
-				IFile file = ((IFileEditorInput) getEditorInput()).getFile();
-				file.setContents(new ByteArrayInputStream(outputStream.toByteArray()), true, false, monitor);
-				getCommandStack().markSaveLocation();
-			}
-		});
-
-		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
-		try {
-			file.deleteMarkers(BlockNode.PROCESS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
-			for (ru.bmstu.rk9.rao.ui.gef.Node node : model.getChildren()) {
-				if (node instanceof BlockNode) {
-					((BlockNode) node).validateProperty(file);
-				}
-			}
-		} catch (CoreException e) {
-			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Internal error",
-					"Internal error during problem markers creation");
-		}
+		writeModelToFile(monitor);
+		validateModel();
 	}
 
 	@Override
@@ -320,5 +299,33 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		ModelNode model = (ModelNode) objectInputStream.readObject();
 		objectInputStream.close();
 		return model;
+	}
+
+	private void writeModelToFile(IProgressMonitor monitor) {
+		SafeRunnable.run(new SafeRunnable() {
+			@Override
+			public void run() throws Exception {
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+				writeToOutputStream(outputStream);
+				IFile file = ((IFileEditorInput) getEditorInput()).getFile();
+				file.setContents(new ByteArrayInputStream(outputStream.toByteArray()), true, false, monitor);
+				getCommandStack().markSaveLocation();
+			}
+		});
+	}
+
+	private void validateModel() {
+		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
+		try {
+			file.deleteMarkers(BlockNode.PROCESS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
+			for (ru.bmstu.rk9.rao.ui.gef.Node node : model.getChildren()) {
+				if (node instanceof BlockNode) {
+					((BlockNode) node).validateProperty(file);
+				}
+			}
+		} catch (CoreException e) {
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Internal error",
+					"Internal error during problem markers creation");
+		}
 	}
 }
