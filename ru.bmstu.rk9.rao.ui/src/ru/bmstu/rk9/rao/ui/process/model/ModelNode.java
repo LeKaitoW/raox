@@ -1,9 +1,8 @@
 package ru.bmstu.rk9.rao.ui.process.model;
 
 import ru.bmstu.rk9.rao.ui.process.EResourceRetriever;
-import ru.bmstu.rk9.rao.ui.process.node.Node;
 
-public class ModelNode extends Node {
+public class ModelNode extends ru.bmstu.rk9.rao.ui.gef.Node {
 
 	private static final long serialVersionUID = 1;
 

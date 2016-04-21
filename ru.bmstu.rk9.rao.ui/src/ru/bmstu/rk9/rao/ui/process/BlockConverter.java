@@ -8,11 +8,10 @@ import java.util.Map;
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
-import ru.bmstu.rk9.rao.ui.process.node.Node;
 
 public class BlockConverter {
 
-	public static List<Block> convertModelToBlocks(Node model) {
+	public static List<Block> convertModelToBlocks(ru.bmstu.rk9.rao.ui.gef.Node model) {
 		List<ru.bmstu.rk9.rao.ui.gef.Node> children = model.getChildren();
 		List<Block> blocks = new ArrayList<Block>();
 		Map<BlockNode, BlockConverterInfo> blockNodes = new HashMap<>();
