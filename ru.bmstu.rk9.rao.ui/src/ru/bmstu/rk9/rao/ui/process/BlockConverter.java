@@ -6,16 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 import ru.bmstu.rk9.rao.lib.process.Block;
+import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 
 public class BlockConverter {
 
-	public static List<Block> convertModelToBlocks(ru.bmstu.rk9.rao.ui.gef.Node model) {
-		List<ru.bmstu.rk9.rao.ui.gef.Node> children = model.getChildren();
+	public static List<Block> convertModelToBlocks(Node model) {
+		List<Node> children = model.getChildren();
 		List<Block> blocks = new ArrayList<Block>();
 		Map<BlockNode, BlockConverterInfo> blockNodes = new HashMap<>();
-		for (ru.bmstu.rk9.rao.ui.gef.Node node : children) {
+		for (Node node : children) {
 			if (!(node instanceof BlockNode))
 				continue;
 

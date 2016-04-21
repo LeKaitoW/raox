@@ -8,6 +8,7 @@ import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.editparts.ScalableRootEditPart;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
+import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
 import ru.bmstu.rk9.rao.ui.process.ProcessLayoutEditPolicy;
 
@@ -20,8 +21,8 @@ public class ModelEditPart extends EditPart {
 	}
 
 	@Override
-	public final List<ru.bmstu.rk9.rao.ui.gef.Node> getModelChildren() {
-		return ((ru.bmstu.rk9.rao.ui.gef.Node) getModel()).getChildren();
+	public final List<Node> getModelChildren() {
+		return ((Node) getModel()).getChildren();
 	}
 
 	@Override
@@ -33,10 +34,10 @@ public class ModelEditPart extends EditPart {
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
 
-		if (evt.getPropertyName().equals(ru.bmstu.rk9.rao.ui.gef.Node.PROPERTY_ADD))
+		if (evt.getPropertyName().equals(Node.PROPERTY_ADD))
 			refreshChildren();
 
-		if (evt.getPropertyName().equals(ru.bmstu.rk9.rao.ui.gef.Node.PROPERTY_REMOVE))
+		if (evt.getPropertyName().equals(Node.PROPERTY_REMOVE))
 			refreshChildren();
 	}
 }

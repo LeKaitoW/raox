@@ -2,11 +2,12 @@ package ru.bmstu.rk9.rao.ui.process.node;
 
 import org.eclipse.draw2d.geometry.Rectangle;
 
+import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.commands.CreateCommand;
 
 public class BlockNodeCreateCommand extends CreateCommand {
 
-	public BlockNodeCreateCommand(ru.bmstu.rk9.rao.ui.gef.Node model, BlockNode node, Rectangle constraint) {
+	public BlockNodeCreateCommand(Node model, BlockNode node, Rectangle constraint) {
 		super(model, node, constraint);
 	}
 

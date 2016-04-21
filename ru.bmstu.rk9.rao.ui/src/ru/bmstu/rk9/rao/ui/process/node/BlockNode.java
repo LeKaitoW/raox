@@ -14,6 +14,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.ColorPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
+import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.CheckboxPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
@@ -29,6 +30,7 @@ public abstract class BlockNode extends Node {
 	public static final String PROCESS_PROBLEM_MARKER = "ru.bmstu.rk9.rao.ui.ProcessProblemMarker";
 	protected static final String PROPERTY_COLOR = "Color";
 	protected static final String PROPERTY_SHOW_NAME = "ShowName";
+	public static final String BLOCK_NODE_MARKER = "BlockNodeID";
 
 	protected CopyOnWriteArrayList<Connection> sourceConnections = new CopyOnWriteArrayList<Connection>();
 	protected CopyOnWriteArrayList<Connection> targetConnections = new CopyOnWriteArrayList<Connection>();
@@ -36,6 +38,26 @@ public abstract class BlockNode extends Node {
 	private RGB color = ProcessColors.BLOCK_COLOR.getRGB();
 	private boolean showName = true;
 	private BlockTitleNode title;
+	protected int ID;
+	private String name = "Unknown";
+
+	public final int getID() {
+		return ID;
+	}
+
+	public final void setID(int ID) {
+		this.ID = ID;
+	}
+
+	public final String getName() {
+		return name;
+	}
+
+	public final void setName(String name) {
+		this.name = name;
+		if (title != null)
+			title.setText(getName());
+	}
 
 	final void attachTitle(BlockTitleNode title) {
 		this.title = title;
@@ -70,13 +92,6 @@ public abstract class BlockNode extends Node {
 
 	protected final BlockTitleNode getTitle() {
 		return title;
-	}
-
-	@Override
-	public void setName(String name) {
-		super.setName(name);
-		if (title != null)
-			title.setText(getName());
 	}
 
 	public final boolean getShowName() {
@@ -222,11 +237,11 @@ public abstract class BlockNode extends Node {
 	}
 
 	protected final IMarker createProblemMarker(IResource file, String message, int severity) throws CoreException {
-		IMarker marker = file.createMarker(BlockNode.PROCESS_PROBLEM_MARKER);
+		IMarker marker = file.createMarker(PROCESS_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, message);
 		marker.setAttribute(IMarker.LOCATION, getName());
 		marker.setAttribute(IMarker.SEVERITY, severity);
-		marker.setAttribute(NODE_MARKER, getID());
+		marker.setAttribute(BLOCK_NODE_MARKER, getID());
 		return marker;
 	}
 

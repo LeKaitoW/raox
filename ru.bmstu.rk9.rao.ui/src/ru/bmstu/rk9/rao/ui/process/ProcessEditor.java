@@ -57,6 +57,7 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import com.google.inject.Inject;
 
+import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.NodeInfo;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreationFactory;
 import ru.bmstu.rk9.rao.ui.process.generate.GenerateEditPart;
@@ -68,10 +69,9 @@ import ru.bmstu.rk9.rao.ui.process.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 import ru.bmstu.rk9.rao.ui.process.node.BlockEditPart;
 import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNodeFactory;
 import ru.bmstu.rk9.rao.ui.process.node.BlockTitleEditPart;
 import ru.bmstu.rk9.rao.ui.process.node.BlockTitleNode;
-import ru.bmstu.rk9.rao.ui.process.node.Node;
-import ru.bmstu.rk9.rao.ui.process.node.NodeFactory;
 import ru.bmstu.rk9.rao.ui.process.queue.QueueEditPart;
 import ru.bmstu.rk9.rao.ui.process.queue.QueueNode;
 import ru.bmstu.rk9.rao.ui.process.release.ReleaseEditPart;
@@ -147,8 +147,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 				continue;
 
 			String nodeName = processNodesInfo.get(nodeClass).getName();
-			processGroup
-					.add(new CombinedTemplateCreationEntry(nodeName, nodeName, new NodeFactory(nodeClass), null, null));
+			processGroup.add(
+					new CombinedTemplateCreationEntry(nodeName, nodeName, new BlockNodeFactory(nodeClass), null, null));
 		}
 		root.setDefaultEntry(selectionToolEntry);
 		getPalettePreferences().setPaletteState(FlyoutPaletteComposite.STATE_PINNED_OPEN);
@@ -263,11 +263,11 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 						.equals(((IFileEditorInput) ProcessEditor.this.getEditorInput()).getFile()))
 					return;
 
-				int nodeID = marker.getAttributeValue(Node.NODE_MARKER, 0);
+				int blockNodeID = marker.getAttributeValue(BlockNode.BLOCK_NODE_MARKER, 0);
 				ModelEditPart modelPart = (ModelEditPart) getGraphicalViewer().getRootEditPart().getChildren().get(0);
 				List<BlockEditPart> editParts = modelPart.getChildren();
 				for (BlockEditPart editPart : editParts) {
-					if (editPart.getID() == nodeID) {
+					if (editPart.getID() == blockNodeID) {
 						viewer.select(editPart);
 						viewer.reveal(editPart);
 						break;
@@ -320,7 +320,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
 		try {
 			file.deleteMarkers(BlockNode.PROCESS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
-			for (ru.bmstu.rk9.rao.ui.gef.Node node : model.getChildren()) {
+			for (Node node : model.getChildren()) {
 				if (node instanceof BlockNode) {
 					((BlockNode) node).validateProperty(file);
 				}

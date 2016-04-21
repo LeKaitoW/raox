@@ -11,9 +11,9 @@ import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionEditPart;
 import ru.bmstu.rk9.rao.ui.process.model.ModelEditPart;
 import ru.bmstu.rk9.rao.ui.process.node.BlockEditPart;
+import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 import ru.bmstu.rk9.rao.ui.process.node.BlockTitleEditPart;
 import ru.bmstu.rk9.rao.ui.process.node.BlockTitleNode;
-import ru.bmstu.rk9.rao.ui.process.node.Node;
 
 public class ProcessEditPartFactory implements EditPartFactory {
 
@@ -42,7 +42,7 @@ public class ProcessEditPartFactory implements EditPartFactory {
 
 		if (editPart instanceof BlockEditPart) {
 			((BlockEditPart) editPart).setID(currentID);
-			((Node) model).setID(currentID);
+			((BlockNode) model).setID(currentID);
 			currentID++;
 		}
 
