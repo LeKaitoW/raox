@@ -189,16 +189,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		SafeRunnable.run(new SafeRunnable() {
-			@Override
-			public void run() throws Exception {
-				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				writeToOutputStream(outputStream);
-				IFile file = ((IFileEditorInput) getEditorInput()).getFile();
-				file.setContents(new ByteArrayInputStream(outputStream.toByteArray()), true, false, monitor);
-				getCommandStack().markSaveLocation();
-			}
-		});
+		writeModelToFile(monitor);
+		validateModel();
 	}
 
 	@Override
@@ -265,6 +257,10 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 				if (marker == null || marker.getMarker() == null)
 					return;
 
+				if (!marker.getMarker().getResource()
+						.equals(((IFileEditorInput) ProcessEditor.this.getEditorInput()).getFile()))
+					return;
+
 				int nodeID = marker.getAttributeValue(Node.NODE_MARKER, 0);
 				ModelEditPart modelPart = (ModelEditPart) getGraphicalViewer().getRootEditPart().getChildren().get(0);
 				List<BlockEditPart> editParts = modelPart.getChildren();
@@ -293,6 +289,32 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 	@Override
 	public void commandStackChanged(EventObject event) {
+		firePropertyChange(IEditorPart.PROP_DIRTY);
+		super.commandStackChanged(event);
+	}
+
+	public static ModelNode readModelFromFile(IFile file) throws ClassNotFoundException, IOException, CoreException {
+		InputStream inputStream = file.getContents(false);
+		ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+		ModelNode model = (ModelNode) objectInputStream.readObject();
+		objectInputStream.close();
+		return model;
+	}
+
+	private void writeModelToFile(IProgressMonitor monitor) {
+		SafeRunnable.run(new SafeRunnable() {
+			@Override
+			public void run() throws Exception {
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+				writeToOutputStream(outputStream);
+				IFile file = ((IFileEditorInput) getEditorInput()).getFile();
+				file.setContents(new ByteArrayInputStream(outputStream.toByteArray()), true, false, monitor);
+				getCommandStack().markSaveLocation();
+			}
+		});
+	}
+
+	private void validateModel() {
 		IFile file = ((IFileEditorInput) getEditorInput()).getFile();
 		try {
 			file.deleteMarkers(BlockNode.PROCESS_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
@@ -305,15 +327,5 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Internal error",
 					"Internal error during problem markers creation");
 		}
-		firePropertyChange(IEditorPart.PROP_DIRTY);
-		super.commandStackChanged(event);
-	}
-
-	public static ModelNode readModelFromFile(IFile file) throws ClassNotFoundException, IOException, CoreException {
-		InputStream inputStream = file.getContents(false);
-		ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-		ModelNode model = (ModelNode) objectInputStream.readObject();
-		objectInputStream.close();
-		return model;
 	}
 }
