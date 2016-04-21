@@ -5,8 +5,8 @@ import org.eclipse.gef.editpolicies.GraphicalNodeEditPolicy;
 import org.eclipse.gef.requests.CreateConnectionRequest;
 import org.eclipse.gef.requests.ReconnectRequest;
 
-import ru.bmstu.rk9.rao.ui.process.node.BlockEditPart;
-import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
 
 public class ConnectionPolicy extends GraphicalNodeEditPolicy {
 

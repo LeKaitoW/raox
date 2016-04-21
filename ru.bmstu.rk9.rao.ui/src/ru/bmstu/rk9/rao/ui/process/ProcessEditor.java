@@ -59,29 +59,29 @@ import com.google.inject.Inject;
 
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.NodeInfo;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockNodeFactory;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockTitleEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockTitleNode;
+import ru.bmstu.rk9.rao.ui.process.blocks.generate.GenerateEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.generate.GenerateNode;
+import ru.bmstu.rk9.rao.ui.process.blocks.hold.HoldEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.hold.HoldNode;
+import ru.bmstu.rk9.rao.ui.process.blocks.queue.QueueEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.queue.QueueNode;
+import ru.bmstu.rk9.rao.ui.process.blocks.release.ReleaseEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.release.ReleaseNode;
+import ru.bmstu.rk9.rao.ui.process.blocks.seize.SeizeEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.seize.SeizeNode;
+import ru.bmstu.rk9.rao.ui.process.blocks.selectpath.SelectPathEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.selectpath.SelectPathNode;
+import ru.bmstu.rk9.rao.ui.process.blocks.terminate.TerminateEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.terminate.TerminateNode;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreationFactory;
-import ru.bmstu.rk9.rao.ui.process.generate.GenerateEditPart;
-import ru.bmstu.rk9.rao.ui.process.generate.GenerateNode;
-import ru.bmstu.rk9.rao.ui.process.hold.HoldEditPart;
-import ru.bmstu.rk9.rao.ui.process.hold.HoldNode;
 import ru.bmstu.rk9.rao.ui.process.model.ModelEditPart;
 import ru.bmstu.rk9.rao.ui.process.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
-import ru.bmstu.rk9.rao.ui.process.node.BlockEditPart;
-import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
-import ru.bmstu.rk9.rao.ui.process.node.BlockNodeFactory;
-import ru.bmstu.rk9.rao.ui.process.node.BlockTitleEditPart;
-import ru.bmstu.rk9.rao.ui.process.node.BlockTitleNode;
-import ru.bmstu.rk9.rao.ui.process.queue.QueueEditPart;
-import ru.bmstu.rk9.rao.ui.process.queue.QueueNode;
-import ru.bmstu.rk9.rao.ui.process.release.ReleaseEditPart;
-import ru.bmstu.rk9.rao.ui.process.release.ReleaseNode;
-import ru.bmstu.rk9.rao.ui.process.seize.SeizeEditPart;
-import ru.bmstu.rk9.rao.ui.process.seize.SeizeNode;
-import ru.bmstu.rk9.rao.ui.process.selectpath.SelectPathEditPart;
-import ru.bmstu.rk9.rao.ui.process.selectpath.SelectPathNode;
-import ru.bmstu.rk9.rao.ui.process.terminate.TerminateEditPart;
-import ru.bmstu.rk9.rao.ui.process.terminate.TerminateNode;
 
 public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 

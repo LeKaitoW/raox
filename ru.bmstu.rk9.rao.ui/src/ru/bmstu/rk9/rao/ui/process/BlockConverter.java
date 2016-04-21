@@ -7,8 +7,8 @@ import java.util.Map;
 
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.ui.gef.Node;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
-import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
 
 public class BlockConverter {
 

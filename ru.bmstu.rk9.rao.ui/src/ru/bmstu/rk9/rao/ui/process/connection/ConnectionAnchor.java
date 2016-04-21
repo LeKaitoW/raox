@@ -7,7 +7,7 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.PrecisionPoint;
 import org.eclipse.draw2d.geometry.Rectangle;
 
-import ru.bmstu.rk9.rao.ui.process.node.BlockFigure;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockFigure;
 
 public class ConnectionAnchor extends AbstractConnectionAnchor {
 

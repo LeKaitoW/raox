@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import org.eclipse.core.runtime.IAdaptable;
 
-import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
 
 public class Connection implements Serializable, IAdaptable {
 

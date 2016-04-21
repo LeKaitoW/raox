@@ -9,9 +9,9 @@ import org.eclipse.gef.requests.CreateRequest;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.commands.ChangeConstraintCommand;
 import ru.bmstu.rk9.rao.ui.gef.commands.CreateCommand;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockNodeCreateCommand;
 import ru.bmstu.rk9.rao.ui.process.model.ModelEditPart;
-import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
-import ru.bmstu.rk9.rao.ui.process.node.BlockNodeCreateCommand;
 
 public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 

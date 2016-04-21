@@ -2,7 +2,7 @@ package ru.bmstu.rk9.rao.ui.process.connection;
 
 import org.eclipse.gef.commands.Command;
 
-import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
 
 public class ConnectionReconnectCommand extends Command {
 
