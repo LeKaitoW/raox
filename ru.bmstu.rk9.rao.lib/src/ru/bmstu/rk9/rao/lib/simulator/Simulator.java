@@ -103,7 +103,7 @@ public class Simulator implements ISimulator {
 	}
 
 	@Override
-	public SimulationStopCode run() {
+	public SimulationStopCode runSimulator() {
 		database.addSystemEntry(Database.SystemEntryType.SIM_START);
 
 		notifyChange(ExecutionState.EXECUTION_STARTED);

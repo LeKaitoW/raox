@@ -1,8 +1,18 @@
 package ru.bmstu.rk9.rao.ui.player;
 
+import ru.bmstu.rk9.rao.lib.database.Database;
+import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
+import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
+import ru.bmstu.rk9.rao.lib.notification.Notifier;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
+import ru.bmstu.rk9.rao.lib.simulator.ISimulator;
+import ru.bmstu.rk9.rao.lib.simulator.ModelState;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 
-public class Player implements Runnable {
+public class Player implements Runnable , ISimulator {
 
 	private void delay(int time) {
 		try {
@@ -91,5 +101,76 @@ public class Player implements Runnable {
 	private volatile static Integer currentEventNumber = new Integer(1);
 	private JSONArray jsonModelStateObject = new JSONArray();
 	private final Reader reader = new Reader();
+	@Override
+	public void preinitilize(SimulatorPreinitializationInfo info) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void initialize(SimulatorInitializationInfo initializationInfo) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Database getDatabase() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public StaticModelData getStaticModelData() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ModelState getModelState() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setModelState(ModelState modelState) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public double getTime() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void pushEvent(Event event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Notifier<ExecutionState> getExecutionStateNotifier() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void notifyChange(ExecutionState category) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void abortExecution() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public SimulationStopCode runSimulator() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

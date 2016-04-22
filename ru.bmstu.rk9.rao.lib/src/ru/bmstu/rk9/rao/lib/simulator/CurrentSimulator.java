@@ -128,7 +128,7 @@ public class CurrentSimulator {
 	public static SimulationStopCode run() {
 		isRunning = true;
 
-		return stop(currentSimulator.run());
+		return stop(currentSimulator.runSimulator());
 	}
 
 	private static void onFinish(Database.SystemEntryType simFinishType) {

@@ -141,7 +141,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				final = true
 				annotations += RaoEntityCompiler.overrideAnnotation()
 				body = '''
-					JSONArray jsonArray = new JSONArray();
+					ru.bmstu.rk9.rao.lib.json.JSONArray jsonArray = new ru.bmstu.rk9.rao.lib.json.JSONArray();
 					JSONObject jsonParametersObject = new JSONObject();
 					JSONObject jsonObject = new JSONObject();
 

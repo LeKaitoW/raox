@@ -25,7 +25,7 @@ public class Writer {
 	public class StateStorageSubscriber implements Subscriber {
 		public void fireChange() {
 			modelStateStorage.addModelState(CurrentSimulator.getModelState());
-			jsonModelStateArray.put(serializer.dumpResoursestoJSONobject());
+			jsonModelStateArray.put(serializer.dumpResoursesToJSONobject());
 		}
 
 	}
@@ -34,7 +34,7 @@ public class Writer {
 		public void fireChange() {
 			JSONObject jsonModelStateObject = new JSONObject();
 			jsonModelStateObject.put("Model state array", jsonModelStateArray);
-			serializer.dumpResoursestoJSONfile(jsonModelStateObject);
+			serializer.dumpResoursesToJSONfile(jsonModelStateObject);
 		}
 
 	}

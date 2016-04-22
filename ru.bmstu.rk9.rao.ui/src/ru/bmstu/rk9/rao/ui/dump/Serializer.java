@@ -13,7 +13,7 @@ import ru.bmstu.rk9.rao.lib.simulator.ModelState;
 
 public class Serializer {
 
-	public JSONObject dumpResoursestoJSONobject() {
+	public JSONObject dumpResoursesToJSONobject() {
 
 		ModelState modelState = CurrentSimulator.getModelState();
 		Collection<ResourceManager<? extends Resource>> listModelState = modelState.getResourceManagers();
@@ -34,7 +34,7 @@ public class Serializer {
 		return jsonCurrentModelState;
 	}
 
-	public void dumpResoursestoJSONfile(JSONObject jsonObject) {
+	public void dumpResoursesToJSONfile(JSONObject jsonObject) {
 		try (FileWriter file = new FileWriter("/home/timur/JSON/test.json")) {
 			file.write(jsonObject.toString(4));
 			System.out.println("Successfully Copied JSON Object to File...");

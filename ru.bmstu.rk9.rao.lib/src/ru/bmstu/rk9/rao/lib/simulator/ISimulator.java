@@ -30,5 +30,5 @@ public interface ISimulator {
 
 	public void abortExecution();
 
-	public SimulationStopCode run();
+	public SimulationStopCode runSimulator();
 }
