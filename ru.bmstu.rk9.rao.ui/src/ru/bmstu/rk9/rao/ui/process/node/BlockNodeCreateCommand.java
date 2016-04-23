@@ -3,7 +3,6 @@ package ru.bmstu.rk9.rao.ui.process.node;
 import org.eclipse.draw2d.geometry.Rectangle;
 
 import ru.bmstu.rk9.rao.ui.gef.commands.CreateCommand;
-import ru.bmstu.rk9.rao.ui.gef.label.LabelNode;
 
 public class BlockNodeCreateCommand extends CreateCommand {
 
@@ -14,6 +13,6 @@ public class BlockNodeCreateCommand extends CreateCommand {
 	@Override
 	public void execute() {
 		super.execute();
-		((BlockNode) node).setTitle(new LabelNode());
+		((BlockNode) node).setTitle(new BlockTitleNode());
 	}
 }

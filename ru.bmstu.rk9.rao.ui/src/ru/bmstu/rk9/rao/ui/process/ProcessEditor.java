@@ -58,8 +58,6 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import com.google.inject.Inject;
 
 import ru.bmstu.rk9.rao.ui.gef.NodeInfo;
-import ru.bmstu.rk9.rao.ui.gef.label.LabelEditPart;
-import ru.bmstu.rk9.rao.ui.gef.label.LabelNode;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreationFactory;
 import ru.bmstu.rk9.rao.ui.process.generate.GenerateEditPart;
 import ru.bmstu.rk9.rao.ui.process.generate.GenerateNode;
@@ -70,6 +68,8 @@ import ru.bmstu.rk9.rao.ui.process.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 import ru.bmstu.rk9.rao.ui.process.node.BlockEditPart;
 import ru.bmstu.rk9.rao.ui.process.node.BlockNode;
+import ru.bmstu.rk9.rao.ui.process.node.BlockTitleEditPart;
+import ru.bmstu.rk9.rao.ui.process.node.BlockTitleNode;
 import ru.bmstu.rk9.rao.ui.process.node.Node;
 import ru.bmstu.rk9.rao.ui.process.node.NodeFactory;
 import ru.bmstu.rk9.rao.ui.process.queue.QueueEditPart;
@@ -114,8 +114,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 				new NodeInfo(QueueNode.name, () -> new QueueNode(), () -> new QueueEditPart()));
 		processNodesInfo.put(SelectPathNode.class,
 				new NodeInfo(SelectPathNode.name, () -> new SelectPathNode(), () -> new SelectPathEditPart()));
-		processNodesInfo.put(LabelNode.class,
-				new NodeInfo(LabelNode.name, () -> new LabelNode(), () -> new LabelEditPart()));
+		processNodesInfo.put(BlockTitleNode.class,
+				new NodeInfo("", () -> new BlockTitleNode(), () -> new BlockTitleEditPart()));
 	}
 
 	@Override
@@ -143,10 +143,12 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		root.add(processGroup);
 
 		for (Class<?> nodeClass : processNodesInfo.keySet()) {
+			if (!BlockNode.class.isAssignableFrom(nodeClass))
+				continue;
+
 			String nodeName = processNodesInfo.get(nodeClass).getName();
-			if (!nodeClass.equals(ModelNode.class))
-				processGroup.add(
-						new CombinedTemplateCreationEntry(nodeName, nodeName, new NodeFactory(nodeClass), null, null));
+			processGroup
+					.add(new CombinedTemplateCreationEntry(nodeName, nodeName, new NodeFactory(nodeClass), null, null));
 		}
 		root.setDefaultEntry(selectionToolEntry);
 		getPalettePreferences().setPaletteState(FlyoutPaletteComposite.STATE_PINNED_OPEN);
