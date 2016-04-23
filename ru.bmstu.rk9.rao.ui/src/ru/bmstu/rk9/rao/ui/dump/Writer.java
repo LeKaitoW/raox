@@ -5,8 +5,6 @@ import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
-import ru.bmstu.rk9.rao.lib.json.JSONArray;
-import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 
 public class Writer {
@@ -25,16 +23,14 @@ public class Writer {
 	public class StateStorageSubscriber implements Subscriber {
 		public void fireChange() {
 			modelStateStorage.addModelState(CurrentSimulator.getModelState());
-			jsonModelStateArray.put(serializer.dumpResoursesToJSONobject());
 		}
 
 	}
 
 	public class SimulationEndSubscriber implements Subscriber {
 		public void fireChange() {
-			JSONObject jsonModelStateObject = new JSONObject();
-			jsonModelStateObject.put("Model state array", jsonModelStateArray);
-			serializer.dumpResoursesToJSONfile(jsonModelStateObject);
+			stateStorageToString = Serializer.stateStorageToString(modelStateStorage);
+			Serializer.writeStringToJsonFile(stateStorageToString);
 		}
 
 	}
@@ -43,10 +39,9 @@ public class Writer {
 		simulationSubscriberManager.deinitialize();
 	}
 
-	private final JSONArray jsonModelStateArray = new JSONArray();
-	public final SimulationEndSubscriber simulationEndSubscriber = new SimulationEndSubscriber();
-	private final Serializer serializer = new Serializer();
 	private final ModelStateStorage modelStateStorage = new ModelStateStorage();
+	private String stateStorageToString = new String();
+	public final SimulationEndSubscriber simulationEndSubscriber = new SimulationEndSubscriber();
 	private final StateStorageSubscriber stateStorageSubscriber = new StateStorageSubscriber();
 	private final SimulatorSubscriberManager simulationSubscriberManager = new SimulatorSubscriberManager();
 }

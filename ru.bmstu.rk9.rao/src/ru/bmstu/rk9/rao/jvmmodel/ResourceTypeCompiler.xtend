@@ -9,7 +9,6 @@ import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import ru.bmstu.rk9.rao.lib.database.Database.DataType
-import ru.bmstu.rk9.rao.lib.json.JSONObject
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource
 import ru.bmstu.rk9.rao.rao.FieldDeclaration
 import ru.bmstu.rk9.rao.rao.ResourceType
@@ -132,25 +131,6 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				annotations += RaoEntityCompiler.overrideAnnotation()
 				body = '''
 					return "«typeQualifiedName»";
-				'''
-			]
-
-			members += resourceType.toMethod("getResParamsInJSON ", typeRef(JSONObject)) [
-
-				visibility = JvmVisibility.PUBLIC
-				final = true
-				annotations += RaoEntityCompiler.overrideAnnotation()
-				body = '''
-					ru.bmstu.rk9.rao.lib.json.JSONArray jsonArray = new ru.bmstu.rk9.rao.lib.json.JSONArray();
-					JSONObject jsonParametersObject = new JSONObject();
-					JSONObject jsonObject = new JSONObject();
-
-						«FOR param : resourceType.parameters»
-							jsonObject.put("name", "«param.declaration.name»").put("value","_«param.declaration.name»");
-							jsonArray.put(jsonObject);
-						«ENDFOR»
-					jsonParametersObject.put("parameters",jsonArray); 
-					return jsonParametersObject;
 				'''
 			]
 

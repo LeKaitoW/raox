@@ -5,6 +5,7 @@ import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
 import ru.bmstu.rk9.rao.lib.simulator.ISimulator;
@@ -12,7 +13,7 @@ import ru.bmstu.rk9.rao.lib.simulator.ModelState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 
-public class Player implements Runnable , ISimulator {
+public class Player implements Runnable, ISimulator {
 
 	private void delay(int time) {
 		try {
@@ -70,6 +71,8 @@ public class Player implements Runnable , ISimulator {
 	private synchronized void runPlayer(int currentEventNumber, int time, PlayingDirection playingDirection) {
 
 		jsonModelStateObject = getModelData();
+		CurrentSimulator.set(new Player());
+
 
 		while (state != "Stop" && state != "Pause" && (currentEventNumber < (jsonModelStateObject.length() - 1))
 				&& currentEventNumber > 0) {
@@ -92,6 +95,9 @@ public class Player implements Runnable , ISimulator {
 	}
 
 	public void run() {
+		notifyChange(ExecutionState.EXECUTION_STARTED);
+		notifyChange(ExecutionState.TIME_CHANGED);
+		notifyChange(ExecutionState.STATE_CHANGED);
 		runPlayer(currentEventNumber, 1000, PlayingDirection.FORWARD);
 
 		return;
@@ -101,16 +107,17 @@ public class Player implements Runnable , ISimulator {
 	private volatile static Integer currentEventNumber = new Integer(1);
 	private JSONArray jsonModelStateObject = new JSONArray();
 	private final Reader reader = new Reader();
+
 	@Override
 	public void preinitilize(SimulatorPreinitializationInfo info) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void initialize(SimulatorInitializationInfo initializationInfo) {
 		// TODO Auto-generated method stub
-		
+		executionStateNotifier = new Notifier<ExecutionState>(ExecutionState.class);
 	}
 
 	@Override
@@ -134,7 +141,7 @@ public class Player implements Runnable , ISimulator {
 	@Override
 	public void setModelState(ModelState modelState) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -146,25 +153,28 @@ public class Player implements Runnable , ISimulator {
 	@Override
 	public void pushEvent(Event event) {
 		// TODO Auto-generated method stub
-		
+
 	}
+
+	private Notifier<ExecutionState> executionStateNotifier;
 
 	@Override
 	public Notifier<ExecutionState> getExecutionStateNotifier() {
 		// TODO Auto-generated method stub
-		return null;
+		return executionStateNotifier;
 	}
 
 	@Override
 	public void notifyChange(ExecutionState category) {
 		// TODO Auto-generated method stub
-		
+		executionStateNotifier.notifySubscribers(category);
+
 	}
 
 	@Override
 	public void abortExecution() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
