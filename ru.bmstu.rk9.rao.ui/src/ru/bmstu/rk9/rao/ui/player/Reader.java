@@ -1,39 +1,54 @@
 package ru.bmstu.rk9.rao.ui.player;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
-import ru.bmstu.rk9.rao.lib.json.JSONArray;
-import ru.bmstu.rk9.rao.lib.json.JSONObject;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+
+import ru.bmstu.rk9.rao.lib.simulator.ModelState;
 
 public class Reader {
 
-	public JSONArray retrieveJSONobjectfromJSONfile() {
-		String jsonData = "";
-		BufferedReader br = null;
+	public static List<ModelState> retrieveStateStorageFromFile() {
+
+		File myFile = new File("/home/timur/JSON/test.json");
+		FileInputStream fIn;
+		List<ModelState> modelStateStorage = null;
+
 		try {
+			fIn = new FileInputStream(myFile);
+			InputStreamReader isr = new InputStreamReader(fIn);
+			@SuppressWarnings("resource")
+			BufferedReader bufferedReader = new BufferedReader(isr);
+			StringBuilder sb = new StringBuilder();
 			String line;
-			br = new BufferedReader(new FileReader("/home/timur/JSON/test.json"));
-			while ((line = br.readLine()) != null) {
-				jsonData += line + "\n";
+			while ((line = bufferedReader.readLine()) != null) {
+				sb.append(line);
 			}
 
+			String json = sb.toString();
+			Gson gson = new Gson();
+
+			Type collectionType = new TypeToken<ArrayList<ModelState>>() {
+			}.getType();
+
+
+			modelStateStorage = gson.fromJson(json, collectionType);
+			
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} finally {
-			try {
-				if (br != null)
-					br.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-
 		}
-		JSONObject obj = new JSONObject(jsonData);
-		JSONArray jsonModelStateObject = new JSONArray();
-		jsonModelStateObject = obj.getJSONArray("Model state array");
-		return jsonModelStateObject;
+
+		return modelStateStorage;
 
 	}
+
 }

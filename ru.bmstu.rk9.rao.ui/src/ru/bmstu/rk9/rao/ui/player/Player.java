@@ -1,8 +1,10 @@
 package ru.bmstu.rk9.rao.ui.player;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.event.Event;
-import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
@@ -45,9 +47,9 @@ public class Player implements Runnable, ISimulator {
 
 	}
 
-	public JSONArray getModelData() {
+	public List<ModelState> getModelData() {
 
-		return reader.retrieveJSONobjectfromJSONfile();
+		return Reader.retrieveStateStorageFromFile();
 
 	}
 
@@ -70,19 +72,20 @@ public class Player implements Runnable, ISimulator {
 
 	private synchronized void runPlayer(int currentEventNumber, int time, PlayingDirection playingDirection) {
 
-		jsonModelStateObject = getModelData();
+		modelStateStorage = getModelData();
 		CurrentSimulator.set(new Player());
-
-
-		while (state != "Stop" && state != "Pause" && (currentEventNumber < (jsonModelStateObject.length() - 1))
+		
+		while (state != "Stop" && state != "Pause" //&& (currentEventNumber < (jsonModelStateObject.length() - 1))
 				&& currentEventNumber > 0) {
-			Double currentFrameTime = jsonModelStateObject.getJSONObject(currentEventNumber)
-					.getJSONArray("Current resourses").getJSONObject(1).getDouble("time ");
+			//Double currentFrameTime = jsonModelStateObject.getJSONObject(currentEventNumber)
+			//		.getJSONArray("Current resourses").getJSONObject(1).getDouble("time ");
 			delay(time);
-			System.out
+			/*System.out
 					.println("\n" + "Time " + currentFrameTime + "Event number " + currentEventNumber + " Current frame"
 							+ jsonModelStateObject.getJSONObject(currentEventNumber).getJSONArray("Current resourses"));
-
+*/
+			for (ModelState modelState : modelStateStorage){
+			System.out.println("\n" + modelState.toString());}
 			currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
 
 		}
@@ -95,9 +98,9 @@ public class Player implements Runnable, ISimulator {
 	}
 
 	public void run() {
-		notifyChange(ExecutionState.EXECUTION_STARTED);
-		notifyChange(ExecutionState.TIME_CHANGED);
-		notifyChange(ExecutionState.STATE_CHANGED);
+		//notifyChange(ExecutionState.EXECUTION_STARTED);
+		//notifyChange(ExecutionState.TIME_CHANGED);
+		//notifyChange(ExecutionState.STATE_CHANGED);
 		runPlayer(currentEventNumber, 1000, PlayingDirection.FORWARD);
 
 		return;
@@ -105,8 +108,7 @@ public class Player implements Runnable, ISimulator {
 
 	private static volatile String state = new String("");
 	private volatile static Integer currentEventNumber = new Integer(1);
-	private JSONArray jsonModelStateObject = new JSONArray();
-	private final Reader reader = new Reader();
+	private List<ModelState> modelStateStorage = new ArrayList<ModelState>();
 
 	@Override
 	public void preinitilize(SimulatorPreinitializationInfo info) {
