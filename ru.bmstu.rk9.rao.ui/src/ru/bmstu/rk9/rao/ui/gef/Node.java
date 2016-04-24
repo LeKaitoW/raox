@@ -11,7 +11,7 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-public class Node implements Serializable, IAdaptable {
+public abstract class Node implements Serializable, IAdaptable {
 
 	private static final long serialVersionUID = 1;
 
@@ -92,15 +92,11 @@ public class Node implements Serializable, IAdaptable {
 		return null;
 	}
 
-	public void createProperties(List<PropertyDescriptor> properties) {
-	}
+	public abstract void createProperties(List<PropertyDescriptor> properties);
 
-	public Object getPropertyValue(Object propertyName) {
-		return null;
-	}
+	public abstract Object getPropertyValue(Object propertyName);
 
-	public void setPropertyValue(Object propertyName, Object value) {
-	}
+	public abstract void setPropertyValue(Object propertyName, Object value);
 
 	public void onDelete() {
 	}

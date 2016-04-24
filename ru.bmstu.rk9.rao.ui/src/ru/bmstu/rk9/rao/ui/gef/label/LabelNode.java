@@ -87,8 +87,6 @@ public class LabelNode extends Node implements Serializable {
 
 	@Override
 	public void createProperties(List<PropertyDescriptor> properties) {
-		super.createProperties(properties);
-
 		properties.add(new TextPropertyDescriptor(PROPERTY_TEXT, "Text"));
 		properties.add(new ColorPropertyDescriptor(PROPERTY_TEXT_COLOR, "Text color"));
 		properties.add(new ColorPropertyDescriptor(PROPERTY_BACKGROUND_COLOR, "Background color"));
@@ -105,13 +103,11 @@ public class LabelNode extends Node implements Serializable {
 		if (propertyName.equals(PROPERTY_BACKGROUND_COLOR))
 			return getBackgroundColor();
 
-		return super.getPropertyValue(propertyName);
+		return null;
 	}
 
 	@Override
 	public void setPropertyValue(Object propertyName, Object value) {
-		super.setPropertyValue(propertyName, value);
-
 		if (propertyName.equals(PROPERTY_TEXT))
 			setText((String) value);
 

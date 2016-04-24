@@ -116,8 +116,6 @@ public abstract class BlockNode extends Node {
 
 	@Override
 	public void createProperties(List<PropertyDescriptor> properties) {
-		super.createProperties(properties);
-
 		properties.add(new ColorPropertyDescriptor(PROPERTY_COLOR, "Color"));
 		properties.add(new CheckboxPropertyDescriptor(PROPERTY_SHOW_NAME, "Show name"));
 	}
@@ -130,13 +128,11 @@ public abstract class BlockNode extends Node {
 		if (propertyName.equals(PROPERTY_SHOW_NAME))
 			return getShowName();
 
-		return super.getPropertyValue(propertyName);
+		return null;
 	}
 
 	@Override
 	public void setPropertyValue(Object propertyName, Object value) {
-		super.setPropertyValue(propertyName, value);
-
 		if (propertyName.equals(PROPERTY_COLOR))
 			setColor((RGB) value);
 
