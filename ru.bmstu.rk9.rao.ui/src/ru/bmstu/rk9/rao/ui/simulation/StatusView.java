@@ -155,13 +155,15 @@ public class StatusView extends ViewPart {
 		fontListener = new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(PreferenceConstants.EDITOR_TEXT_FONT)) {
+				switch (event.getProperty()) {
+				case PreferenceConstants.EDITOR_TEXT_FONT:
 					Font editorFont = fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT);
 
 					for (Element e : controls.values()) {
 						e.label.setFont(editorFont);
 						e.text.setFont(editorFont);
 					}
+					break;
 				}
 			}
 		};

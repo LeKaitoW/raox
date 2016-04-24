@@ -18,8 +18,10 @@ public class GenerateEditPart extends BlockEditPart {
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
 
-		if (evt.getPropertyName().equals(GenerateNode.PROPERTY_INTERVAL)) {
+		switch (evt.getPropertyName()) {
+		case GenerateNode.PROPERTY_INTERVAL:
 			refreshVisuals();
+			break;
 		}
 	}
 }

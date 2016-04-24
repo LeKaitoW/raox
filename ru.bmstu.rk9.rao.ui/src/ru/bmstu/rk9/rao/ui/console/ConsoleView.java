@@ -101,8 +101,11 @@ public class ConsoleView extends ViewPart {
 		fontListener = new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(PreferenceConstants.EDITOR_TEXT_FONT))
+				switch (event.getProperty()) {
+				case PreferenceConstants.EDITOR_TEXT_FONT:
 					updateTextFont();
+					break;
+				}
 			}
 		};
 		themeManager.addPropertyChangeListener(fontListener);

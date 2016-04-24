@@ -34,10 +34,11 @@ public class ModelEditPart extends EditPart {
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
 
-		if (evt.getPropertyName().equals(Node.PROPERTY_ADD))
+		switch (evt.getPropertyName()) {
+		case Node.PROPERTY_ADD:
+		case Node.PROPERTY_REMOVE:
 			refreshChildren();
-
-		if (evt.getPropertyName().equals(Node.PROPERTY_REMOVE))
-			refreshChildren();
+			break;
+		}
 	}
 }

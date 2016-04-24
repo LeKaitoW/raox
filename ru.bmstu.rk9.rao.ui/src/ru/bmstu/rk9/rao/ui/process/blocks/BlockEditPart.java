@@ -37,35 +37,42 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
 
-		if (evt.getPropertyName().equals(Node.PROPERTY_CONSTRAINT)) {
-			LabelNode title = ((BlockNode) getModel()).getTitle();
-			if (title != null) {
-				Rectangle previousBlockConstraint = (Rectangle) evt.getOldValue();
-				Rectangle currentBlockConstraint = (Rectangle) evt.getNewValue();
-				Rectangle titleConstraint = title.getConstraint().getCopy();
-				titleConstraint.translate(currentBlockConstraint.x - previousBlockConstraint.x,
-						currentBlockConstraint.y - previousBlockConstraint.y);
-				title.setConstraint(titleConstraint);
-			}
-		}
+		LabelNode title;
+		switch (evt.getPropertyName()) {
+		case Node.PROPERTY_CONSTRAINT:
+			title = ((BlockNode) getModel()).getTitle();
+			if (title == null)
+				break;
 
-		if (evt.getPropertyName().equals(BlockNode.PROPERTY_COLOR)) {
+			Rectangle previousBlockConstraint = (Rectangle) evt.getOldValue();
+			Rectangle currentBlockConstraint = (Rectangle) evt.getNewValue();
+			Rectangle titleConstraint = title.getConstraint().getCopy();
+			titleConstraint.translate(currentBlockConstraint.x - previousBlockConstraint.x,
+					currentBlockConstraint.y - previousBlockConstraint.y);
+			title.setConstraint(titleConstraint);
+			break;
+
+		case BlockNode.PROPERTY_COLOR:
 			getFigure().setForegroundColor(new Color(null, (RGB) evt.getNewValue()));
 			refreshVisuals();
-		}
+			break;
 
-		if (evt.getPropertyName().equals(BlockNode.PROPERTY_SHOW_NAME)) {
-			LabelNode title = ((BlockNode) getModel()).getTitle();
-			if (title != null) {
-				title.setVisible((boolean) evt.getNewValue());
-			}
-		}
+		case BlockNode.PROPERTY_SHOW_NAME:
+			title = ((BlockNode) getModel()).getTitle();
+			if (title == null)
+				break;
 
-		if (evt.getPropertyName().equals(BlockNode.SOURCE_CONNECTION_UPDATED))
+			title.setVisible((boolean) evt.getNewValue());
+			break;
+
+		case BlockNode.SOURCE_CONNECTION_UPDATED:
 			refreshSourceConnections();
+			break;
 
-		if (evt.getPropertyName().equals(BlockNode.TARGET_CONNECTION_UPDATED))
+		case BlockNode.TARGET_CONNECTION_UPDATED:
 			refreshTargetConnections();
+			break;
+		}
 	}
 
 	@Override

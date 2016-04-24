@@ -18,8 +18,10 @@ public class HoldEditPart extends BlockEditPart {
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
 
-		if (evt.getPropertyName().equals(HoldNode.PROPERTY_DURATION)) {
+		switch (evt.getPropertyName()) {
+		case HoldNode.PROPERTY_DURATION:
 			refreshVisuals();
+			break;
 		}
 	}
 }

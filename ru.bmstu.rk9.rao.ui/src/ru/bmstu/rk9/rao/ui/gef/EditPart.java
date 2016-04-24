@@ -13,6 +13,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import ru.bmstu.rk9.rao.ui.gef.label.LabelNode;
+
 public abstract class EditPart extends AbstractGraphicalEditPart implements PropertyChangeListener {
 
 	@Override
@@ -26,8 +28,12 @@ public abstract class EditPart extends AbstractGraphicalEditPart implements Prop
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals(Node.PROPERTY_CONSTRAINT))
+
+		switch (evt.getPropertyName()) {
+		case LabelNode.PROPERTY_CONSTRAINT:
 			refreshVisuals();
+			break;
+		}
 	}
 
 	@Override

@@ -38,11 +38,13 @@ public class LabelEditPart extends EditPart {
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
 
-		if (evt.getPropertyName().equals(LabelNode.PROPERTY_TEXT)
-				|| evt.getPropertyName().equals(LabelNode.PROPERTY_TEXT_COLOR)
-				|| evt.getPropertyName().equals(LabelNode.PROPERTY_BACKGROUND_COLOR)
-				|| evt.getPropertyName().equals(LabelNode.PROPERTY_VISIBLE)) {
+		switch (evt.getPropertyName()) {
+		case LabelNode.PROPERTY_TEXT:
+		case LabelNode.PROPERTY_TEXT_COLOR:
+		case LabelNode.PROPERTY_BACKGROUND_COLOR:
+		case LabelNode.PROPERTY_VISIBLE:
 			refreshVisuals();
+			break;
 		}
 	}
 }
