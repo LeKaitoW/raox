@@ -50,18 +50,22 @@ public abstract class BlockNode extends Node {
 		title.setConstraint(titleConstraint);
 	}
 
-	final void detachTitle() {
+	private final void detachTitle() {
 		title = null;
+	}
+
+	final void cleanup() {
+		getParent().removeChild(this);
+		disconnect(getSourceConnections());
+		disconnect(getTargetConnections());
+		detachTitle();
 	}
 
 	@Override
 	public void onDelete() {
-		disconnect(getSourceConnections());
-		disconnect(getTargetConnections());
-
-		title.getParent().removeChild(title);
-		title.detachBlockNode();
-		detachTitle();
+		if (title != null)
+			title.cleanup();
+		cleanup();
 	}
 
 	protected final BlockTitleNode getTitle() {

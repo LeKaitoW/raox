@@ -12,15 +12,19 @@ public class BlockTitleNode extends LabelNode {
 		this.blockNode = blockNode;
 	}
 
-	final void detachBlockNode() {
+	private final void detachBlockNode() {
 		blockNode = null;
+	}
+
+	final void cleanup() {
+		getParent().removeChild(this);
+		detachBlockNode();
 	}
 
 	@Override
 	public void onDelete() {
-		blockNode.getParent().removeChild(blockNode);
-		blockNode.onDelete();
-		blockNode.detachTitle();
-		detachBlockNode();
+		if (blockNode != null)
+			blockNode.cleanup();
+		cleanup();
 	}
 }
