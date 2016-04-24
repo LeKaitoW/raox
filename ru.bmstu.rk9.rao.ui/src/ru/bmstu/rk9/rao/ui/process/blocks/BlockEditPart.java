@@ -15,7 +15,6 @@ import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
 import ru.bmstu.rk9.rao.ui.gef.Node;
-import ru.bmstu.rk9.rao.ui.gef.label.LabelNode;
 import ru.bmstu.rk9.rao.ui.process.ProcessDeletePolicy;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionAnchor;
@@ -37,7 +36,7 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
 
-		LabelNode title;
+		BlockTitleNode title;
 		switch (evt.getPropertyName()) {
 		case Node.PROPERTY_CONSTRAINT:
 			title = ((BlockNode) getModel()).getTitle();
