@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rao.ui.process.node;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -36,16 +37,31 @@ public abstract class BlockNode extends Node {
 	private boolean showName = true;
 	private BlockTitleNode title;
 
-	protected final void setTitle(BlockTitleNode title) {
+	protected final void attachTitle(BlockTitleNode title) {
 		this.title = title;
+		title.attachBlockNode(this);
+
 		title.setText(getName());
-		getParent().addChild(title);
 
 		Rectangle titleConstraint = getConstraint().getCopy();
 		titleConstraint.setSize(title.getTextBounds());
 		titleConstraint.setX(titleConstraint.x - (titleConstraint.width - getConstraint().width) / 2);
 		titleConstraint.setY(titleConstraint.y - titleConstraint.height);
 		title.setConstraint(titleConstraint);
+	}
+
+	protected final void detachTitle() {
+		title = null;
+	}
+
+	@Override
+	public void deleteCommand() {
+		disconnect(getSourceConnections());
+		disconnect(getTargetConnections());
+
+		title.getParent().removeChild(title);
+		title.detachBlockNode();
+		detachTitle();
 	}
 
 	protected final BlockTitleNode getTitle() {
@@ -208,6 +224,17 @@ public abstract class BlockNode extends Node {
 		marker.setAttribute(IMarker.SEVERITY, severity);
 		marker.setAttribute(NODE_MARKER, getID());
 		return marker;
+	}
+
+	private final void disconnect(List<Connection> connections) {
+		if (connections.isEmpty())
+			return;
+
+		Iterator<Connection> iterator = connections.iterator();
+		while (iterator.hasNext()) {
+			Connection connection = iterator.next();
+			connection.disconnect();
+		}
 	}
 
 	public abstract BlockConverterInfo createBlock();

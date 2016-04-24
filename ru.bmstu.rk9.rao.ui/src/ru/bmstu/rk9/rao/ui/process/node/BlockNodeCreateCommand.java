@@ -13,6 +13,9 @@ public class BlockNodeCreateCommand extends CreateCommand {
 	@Override
 	public void execute() {
 		super.execute();
-		((BlockNode) node).setTitle(new BlockTitleNode());
+
+		BlockTitleNode title = new BlockTitleNode();
+		node.getParent().addChild(title);
+		((BlockNode) node).attachTitle(title);
 	}
 }

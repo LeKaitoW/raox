@@ -101,4 +101,7 @@ public class Node implements Serializable, IAdaptable {
 
 	public void setPropertyValue(Object propertyName, Object value) {
 	}
+
+	public void deleteCommand() {
+	}
 }

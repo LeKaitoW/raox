@@ -6,4 +6,21 @@ public class BlockTitleNode extends LabelNode {
 
 	private static final long serialVersionUID = 1L;
 
+	private BlockNode blockNode;
+
+	protected final void attachBlockNode(BlockNode blockNode) {
+		this.blockNode = blockNode;
+	}
+
+	protected final void detachBlockNode() {
+		blockNode = null;
+	}
+
+	@Override
+	public void deleteCommand() {
+		blockNode.getParent().removeChild(blockNode);
+		blockNode.deleteCommand();
+		blockNode.detachTitle();
+		detachBlockNode();
+	}
 }
