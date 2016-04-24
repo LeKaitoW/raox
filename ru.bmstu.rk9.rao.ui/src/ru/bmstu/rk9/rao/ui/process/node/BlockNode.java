@@ -37,7 +37,7 @@ public abstract class BlockNode extends Node {
 	private boolean showName = true;
 	private BlockTitleNode title;
 
-	protected final void attachTitle(BlockTitleNode title) {
+	final void attachTitle(BlockTitleNode title) {
 		this.title = title;
 		title.attachBlockNode(this);
 
@@ -50,7 +50,7 @@ public abstract class BlockNode extends Node {
 		title.setConstraint(titleConstraint);
 	}
 
-	protected final void detachTitle() {
+	final void detachTitle() {
 		title = null;
 	}
 

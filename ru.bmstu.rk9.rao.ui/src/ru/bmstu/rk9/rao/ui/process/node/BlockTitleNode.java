@@ -8,11 +8,11 @@ public class BlockTitleNode extends LabelNode {
 
 	private BlockNode blockNode;
 
-	protected final void attachBlockNode(BlockNode blockNode) {
+	final void attachBlockNode(BlockNode blockNode) {
 		this.blockNode = blockNode;
 	}
 
-	protected final void detachBlockNode() {
+	final void detachBlockNode() {
 		blockNode = null;
 	}
 
