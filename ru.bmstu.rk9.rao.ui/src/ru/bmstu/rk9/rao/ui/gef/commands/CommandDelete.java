@@ -17,7 +17,7 @@ public class CommandDelete extends Command {
 	@Override
 	public void execute() {
 		parentNode.removeChild(node);
-		node.deleteCommand();
+		node.onDelete();
 	}
 
 	@Override

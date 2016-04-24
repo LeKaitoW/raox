@@ -55,7 +55,7 @@ public abstract class BlockNode extends Node {
 	}
 
 	@Override
-	public void deleteCommand() {
+	public void onDelete() {
 		disconnect(getSourceConnections());
 		disconnect(getTargetConnections());
 

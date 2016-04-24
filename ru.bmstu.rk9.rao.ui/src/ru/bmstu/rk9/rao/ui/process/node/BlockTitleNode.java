@@ -17,9 +17,9 @@ public class BlockTitleNode extends LabelNode {
 	}
 
 	@Override
-	public void deleteCommand() {
+	public void onDelete() {
 		blockNode.getParent().removeChild(blockNode);
-		blockNode.deleteCommand();
+		blockNode.onDelete();
 		blockNode.detachTitle();
 		detachBlockNode();
 	}
