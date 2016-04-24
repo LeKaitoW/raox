@@ -20,7 +20,7 @@ public class SelectPathNode extends BlockNode implements Serializable {
 	public static final String DOCK_TRUE_OUT = "TRUE_OUT";
 	public static final String DOCK_FALSE_OUT = "FALSE_OUT";
 	public static String name = "SelectPath";
-	protected static final String PROPERTY_PROBABILITY = "Probability";
+	private static final String PROPERTY_PROBABILITY = "Probability";
 
 	private String probability = "0.5";
 
@@ -61,19 +61,25 @@ public class SelectPathNode extends BlockNode implements Serializable {
 	}
 
 	@Override
-	public Object getPropertyValue(Object propertyName) {
-		if (propertyName.equals(PROPERTY_PROBABILITY))
+	public Object getPropertyValue(String propertyName) {
+
+		switch (propertyName) {
+		case PROPERTY_PROBABILITY:
 			return getProbability();
+		}
 
 		return super.getPropertyValue(propertyName);
 	}
 
 	@Override
-	public void setPropertyValue(Object propertyName, Object value) {
+	public void setPropertyValue(String propertyName, Object value) {
 		super.setPropertyValue(propertyName, value);
 
-		if (propertyName.equals(PROPERTY_PROBABILITY))
+		switch (propertyName) {
+		case PROPERTY_PROBABILITY:
 			setProbability((String) value);
+			break;
+		}
 	}
 
 	private final void validateProbability(IResource file) throws CoreException {

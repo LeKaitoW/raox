@@ -15,7 +15,7 @@ public abstract class BlockNodeWithResource extends BlockNode {
 
 	private static final long serialVersionUID = 1;
 
-	protected static final String PROPERTY_RESOURCE_NAME_INDEX = "ResourceNameIndex";
+	private static final String PROPERTY_RESOURCE_NAME_INDEX = "ResourceNameIndex";
 
 	protected String resourceName = "";
 
@@ -48,18 +48,24 @@ public abstract class BlockNodeWithResource extends BlockNode {
 	}
 
 	@Override
-	public Object getPropertyValue(Object propertyName) {
-		if (propertyName.equals(PROPERTY_RESOURCE_NAME_INDEX))
+	public Object getPropertyValue(String propertyName) {
+
+		switch (propertyName) {
+		case PROPERTY_RESOURCE_NAME_INDEX:
 			return getResourceNameIndex();
+		}
 
 		return super.getPropertyValue(propertyName);
 	}
 
 	@Override
-	public void setPropertyValue(Object propertyName, Object value) {
+	public void setPropertyValue(String propertyName, Object value) {
 		super.setPropertyValue(propertyName, value);
 
-		if (propertyName.equals(PROPERTY_RESOURCE_NAME_INDEX))
+		switch (propertyName) {
+		case PROPERTY_RESOURCE_NAME_INDEX:
 			setResourceNameIndex((int) value);
+			break;
+		}
 	}
 }

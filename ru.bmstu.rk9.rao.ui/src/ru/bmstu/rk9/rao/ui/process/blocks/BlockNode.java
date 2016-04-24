@@ -121,23 +121,32 @@ public abstract class BlockNode extends Node {
 	}
 
 	@Override
-	public Object getPropertyValue(Object propertyName) {
-		if (propertyName.equals(PROPERTY_COLOR))
+	public Object getPropertyValue(String propertyName) {
+
+		switch (propertyName) {
+		case PROPERTY_COLOR:
 			return getColor();
 
-		if (propertyName.equals(PROPERTY_SHOW_NAME))
+		case PROPERTY_SHOW_NAME:
 			return getShowName();
+		}
 
 		return null;
 	}
 
 	@Override
-	public void setPropertyValue(Object propertyName, Object value) {
-		if (propertyName.equals(PROPERTY_COLOR))
-			setColor((RGB) value);
+	public void setPropertyValue(String propertyName, Object value) {
 
-		if (propertyName.equals(PROPERTY_SHOW_NAME))
+		switch (propertyName) {
+		case PROPERTY_COLOR:
+			setColor((RGB) value);
+			break;
+
+		case PROPERTY_SHOW_NAME:
 			setShowName((boolean) value);
+			break;
+		}
+
 	}
 
 	public final boolean addConnection(Connection connection) {

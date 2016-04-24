@@ -17,7 +17,7 @@ public class GenerateNode extends BlockNode {
 
 	public static final String DOCK_OUT = "OUT";
 	public static final String name = "Generate";
-	private static final String PROPERTY_INTERVAL = "Interval";
+	protected static final String PROPERTY_INTERVAL = "Interval";
 
 	private String interval = "";
 
@@ -62,19 +62,25 @@ public class GenerateNode extends BlockNode {
 	}
 
 	@Override
-	public Object getPropertyValue(Object propertyName) {
-		if (propertyName.equals(PROPERTY_INTERVAL))
+	public Object getPropertyValue(String propertyName) {
+
+		switch (propertyName) {
+		case PROPERTY_INTERVAL:
 			return getInterval();
+		}
 
 		return super.getPropertyValue(propertyName);
 	}
 
 	@Override
-	public void setPropertyValue(Object propertyName, Object value) {
+	public void setPropertyValue(String propertyName, Object value) {
 		super.setPropertyValue(propertyName, value);
 
-		if (propertyName.equals(PROPERTY_INTERVAL))
+		switch (propertyName) {
+		case PROPERTY_INTERVAL:
 			setInterval((String) value);
+			break;
+		}
 	}
 
 	@Override

@@ -78,25 +78,32 @@ public class QueueNode extends BlockNode implements Serializable {
 	}
 
 	@Override
-	public Object getPropertyValue(Object propertyName) {
-		if (propertyName.equals(PROPERTY_CAPACITY))
+	public Object getPropertyValue(String propertyName) {
+
+		switch (propertyName) {
+		case PROPERTY_CAPACITY:
 			return getCapacity();
 
-		if (propertyName.equals(PROPERTY_QUEUEING))
+		case PROPERTY_QUEUEING:
 			return getQueueingIndex();
+		}
 
 		return super.getPropertyValue(propertyName);
 	}
 
 	@Override
-	public void setPropertyValue(Object propertyName, Object value) {
+	public void setPropertyValue(String propertyName, Object value) {
 		super.setPropertyValue(propertyName, value);
 
-		if (propertyName.equals(PROPERTY_CAPACITY))
+		switch (propertyName) {
+		case PROPERTY_CAPACITY:
 			setCapacity((String) value);
+			break;
 
-		if (propertyName.equals(PROPERTY_QUEUEING))
+		case PROPERTY_QUEUEING:
 			setQueueing((int) value);
+			break;
+		}
 	}
 
 	private final void validateCapacity(IResource file) throws CoreException {

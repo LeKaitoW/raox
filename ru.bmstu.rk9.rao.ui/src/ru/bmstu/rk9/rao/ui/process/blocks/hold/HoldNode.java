@@ -19,7 +19,7 @@ public class HoldNode extends BlockNode implements Serializable {
 	public static final String DOCK_IN = "IN";
 	public static final String DOCK_OUT = "OUT";
 	public static final String name = "Hold";
-	private static final String PROPERTY_DURATION = "Duration";
+	protected static final String PROPERTY_DURATION = "Duration";
 
 	private String duration = "";
 
@@ -66,19 +66,25 @@ public class HoldNode extends BlockNode implements Serializable {
 	}
 
 	@Override
-	public Object getPropertyValue(Object propertyName) {
-		if (propertyName.equals(PROPERTY_DURATION))
+	public Object getPropertyValue(String propertyName) {
+
+		switch (propertyName) {
+		case PROPERTY_DURATION:
 			return getDuration();
+		}
 
 		return super.getPropertyValue(propertyName);
 	}
 
 	@Override
-	public void setPropertyValue(Object propertyName, Object value) {
+	public void setPropertyValue(String propertyName, Object value) {
 		super.setPropertyValue(propertyName, value);
 
-		if (propertyName.equals(PROPERTY_DURATION))
+		switch (propertyName) {
+		case PROPERTY_DURATION:
 			setDuration((String) value);
+			break;
+		}
 	}
 
 	@Override

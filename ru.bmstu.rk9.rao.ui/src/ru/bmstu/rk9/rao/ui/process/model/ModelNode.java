@@ -27,11 +27,11 @@ public class ModelNode extends Node {
 	}
 
 	@Override
-	public Object getPropertyValue(Object propertyName) {
+	public Object getPropertyValue(String propertyName) {
 		return null;
 	}
 
 	@Override
-	public void setPropertyValue(Object propertyName, Object value) {
+	public void setPropertyValue(String propertyName, Object value) {
 	}
 }

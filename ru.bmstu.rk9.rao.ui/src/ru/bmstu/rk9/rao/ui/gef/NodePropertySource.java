@@ -29,12 +29,12 @@ public class NodePropertySource implements IPropertySource {
 
 	@Override
 	public Object getPropertyValue(Object id) {
-		return node.getPropertyValue(id);
+		return node.getPropertyValue((String) id);
 	}
 
 	@Override
 	public void setPropertyValue(Object id, Object value) {
-		node.setPropertyValue(id, value);
+		node.setPropertyValue((String) id, value);
 	}
 
 	@Override

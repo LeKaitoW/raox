@@ -93,29 +93,38 @@ public class LabelNode extends Node implements Serializable {
 	}
 
 	@Override
-	public Object getPropertyValue(Object propertyName) {
-		if (propertyName.equals(PROPERTY_TEXT))
+	public Object getPropertyValue(String propertyName) {
+
+		switch (propertyName) {
+		case PROPERTY_TEXT:
 			return getText();
 
-		if (propertyName.equals(PROPERTY_TEXT_COLOR))
+		case PROPERTY_TEXT_COLOR:
 			return getTextColor();
 
-		if (propertyName.equals(PROPERTY_BACKGROUND_COLOR))
+		case PROPERTY_BACKGROUND_COLOR:
 			return getBackgroundColor();
+		}
 
 		return null;
 	}
 
 	@Override
-	public void setPropertyValue(Object propertyName, Object value) {
-		if (propertyName.equals(PROPERTY_TEXT))
+	public void setPropertyValue(String propertyName, Object value) {
+
+		switch (propertyName) {
+		case PROPERTY_TEXT:
 			setText((String) value);
+			break;
 
-		if (propertyName.equals(PROPERTY_TEXT_COLOR))
+		case PROPERTY_TEXT_COLOR:
 			setTextColor((RGB) value);
+			break;
 
-		if (propertyName.equals(PROPERTY_BACKGROUND_COLOR))
+		case PROPERTY_BACKGROUND_COLOR:
 			setBackgroundColor((RGB) value);
+			break;
+		}
 	}
 
 	public final Dimension getTextBounds() {
