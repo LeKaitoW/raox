@@ -224,7 +224,7 @@ public abstract class BlockNode extends Node {
 		return getName() + "." + dockName;
 	}
 
-	public final void validateConnections(IResource file, int sourceConnections, int targetConnections)
+	protected final void validateConnections(IResource file, int sourceConnections, int targetConnections)
 			throws CoreException {
 		if (getSourceConnections().size() == sourceConnections && getTargetConnections().size() == targetConnections)
 			return;
