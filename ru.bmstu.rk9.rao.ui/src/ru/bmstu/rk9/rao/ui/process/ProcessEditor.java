@@ -57,6 +57,7 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import com.google.inject.Inject;
 
+import ru.bmstu.rk9.rao.ui.gef.EditPart;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.NodeInfo;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockEditPart;
@@ -265,9 +266,12 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 				int blockNodeID = marker.getAttributeValue(BlockNode.BLOCK_NODE_MARKER, 0);
 				ModelEditPart modelPart = (ModelEditPart) getGraphicalViewer().getRootEditPart().getChildren().get(0);
-				List<BlockEditPart> editParts = modelPart.getChildren();
-				for (BlockEditPart editPart : editParts) {
-					if (editPart.getID() == blockNodeID) {
+				List<EditPart> editParts = modelPart.getChildren();
+				for (EditPart editPart : editParts) {
+					if (!(editPart instanceof BlockEditPart))
+						continue;
+
+					if (((BlockEditPart) editPart).getID() == blockNodeID) {
 						viewer.select(editPart);
 						viewer.reveal(editPart);
 						break;
