@@ -1,11 +1,12 @@
 package ru.bmstu.rk9.rao.ui.process.model;
 
 import org.eclipse.draw2d.Graphics;
-import org.eclipse.draw2d.Layer;
 import org.eclipse.draw2d.XYLayout;
+import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.gef.editparts.GridLayer;
 import org.eclipse.swt.SWT;
 
-public class ModelLayer extends Layer {
+public class ModelLayer extends GridLayer {
 
 	public ModelLayer() {
 		super();
@@ -18,5 +19,15 @@ public class ModelLayer extends Layer {
 		graphics.setAntialias(SWT.ON);
 		graphics.setTextAntialias(SWT.ON);
 		super.paint(graphics);
+	}
+
+	@Override
+	protected void paintGrid(Graphics g) {
+		Rectangle clip = g.getClip(Rectangle.SINGLETON);
+		for (int x = clip.x - clip.x % gridX; x <= clip.x + clip.width; x += gridX) {
+			for (int y = clip.y - clip.y % gridY; y <= clip.y + clip.height; y += gridY) {
+				g.drawPoint(x, y);
+			}
+		}
 	}
 }

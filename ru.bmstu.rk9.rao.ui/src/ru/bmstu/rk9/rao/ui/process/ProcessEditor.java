@@ -237,6 +237,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 			setModel(new ModelNode());
 		viewer.setContents(model);
 		viewer.addDropTargetListener(new ProcessDropTargetListener(viewer));
+		// viewer.setProperty(SnapToGrid.PROPERTY_GRID_VISIBLE, true);
 		viewer.setProperty(SnapToGrid.PROPERTY_GRID_ENABLED, true);
 		viewer.setProperty(SnapToGeometry.PROPERTY_SNAP_ENABLED, true);
 		IViewSite site = null;
