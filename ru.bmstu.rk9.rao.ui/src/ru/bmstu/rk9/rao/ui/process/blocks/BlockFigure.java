@@ -60,7 +60,7 @@ public class BlockFigure extends Figure {
 
 		XYLayout layout = new XYLayout();
 		setLayoutManager(layout);
-		setOpaque(true);
+		setOpaque(false);
 
 		add(this.shape);
 		add(docks);
