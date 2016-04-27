@@ -86,12 +86,15 @@ public class ExecutionJobProvider {
 
 				try {
 					simulationResult = CurrentSimulator.run();
-				} catch (Error e) {
+				} catch (Throwable e) {
 					e.printStackTrace();
 					ConsoleView.addLine("Execution error\n");
 					ConsoleView.addLine("Call stack:");
 					ConsoleView.printStackTrace(e);
 					CurrentSimulator.notifyError();
+
+					if (e instanceof Error)
+						throw e;
 
 					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Execution failed", e);
 				} finally {
