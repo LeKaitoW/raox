@@ -33,7 +33,7 @@ import org.eclipse.gef.palette.MarqueeToolEntry;
 import org.eclipse.gef.palette.PaletteGroup;
 import org.eclipse.gef.palette.PaletteRoot;
 import org.eclipse.gef.palette.PaletteSeparator;
-import org.eclipse.gef.palette.SelectionToolEntry;
+import org.eclipse.gef.palette.PanningSelectionToolEntry;
 import org.eclipse.gef.ui.palette.FlyoutPaletteComposite;
 import org.eclipse.gef.ui.palette.PaletteViewer;
 import org.eclipse.gef.ui.palette.PaletteViewerProvider;
@@ -123,12 +123,13 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	protected PaletteRoot getPaletteRoot() {
 		PaletteRoot root = new PaletteRoot();
 
-		PaletteGroup selectGroup = new PaletteGroup("Selection");
-		root.add(selectGroup);
+		PaletteGroup paletteGroup = new PaletteGroup("Selection");
+		root.add(paletteGroup);
 
-		SelectionToolEntry selectionToolEntry = new SelectionToolEntry();
-		selectGroup.add(selectionToolEntry);
-		selectGroup.add(new MarqueeToolEntry());
+		PanningSelectionToolEntry panningSelectionToolEntry = new PanningSelectionToolEntry();
+		panningSelectionToolEntry.setToolClass(ProcessSelectionTool.class);
+		paletteGroup.add(panningSelectionToolEntry);
+		paletteGroup.add(new MarqueeToolEntry());
 
 		PaletteSeparator separator = new PaletteSeparator();
 		root.add(separator);
@@ -151,7 +152,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 			processGroup.add(
 					new CombinedTemplateCreationEntry(nodeName, nodeName, new BlockNodeFactory(nodeClass), null, null));
 		}
-		root.setDefaultEntry(selectionToolEntry);
+		root.setDefaultEntry(panningSelectionToolEntry);
 		getPalettePreferences().setPaletteState(FlyoutPaletteComposite.STATE_PINNED_OPEN);
 		return root;
 	}

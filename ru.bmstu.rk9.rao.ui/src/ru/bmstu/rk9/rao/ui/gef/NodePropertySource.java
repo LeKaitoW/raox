@@ -3,6 +3,10 @@ package ru.bmstu.rk9.rao.ui.gef;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.ui.IPageLayout;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
@@ -44,5 +48,13 @@ public class NodePropertySource implements IPropertySource {
 
 	@Override
 	public void resetPropertyValue(Object id) {
+	}
+
+	public static void showPropertiesSheet() {
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		try {
+			page.showView(IPageLayout.ID_PROP_SHEET);
+		} catch (PartInitException e) {
+		}
 	}
 }
