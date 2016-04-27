@@ -6,9 +6,9 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.editparts.GridLayer;
 import org.eclipse.swt.SWT;
 
-public class ModelLayer extends GridLayer {
+public class ModelFigure extends GridLayer {
 
-	public ModelLayer() {
+	public ModelFigure() {
 		super();
 		setLayoutManager(new XYLayout());
 	}
