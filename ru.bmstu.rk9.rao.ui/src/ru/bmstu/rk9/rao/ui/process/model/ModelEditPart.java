@@ -36,6 +36,20 @@ public class ModelEditPart extends EditPart {
 	}
 
 	@Override
+	protected void refreshVisuals() {
+		super.refreshVisuals();
+
+		ModelFigure figure = (ModelFigure) getFigure();
+		ModelNode node = (ModelNode) getModel();
+		figure.setShowGrid(node.getShowGrid());
+
+		getViewer().setProperty(SnapToGrid.PROPERTY_GRID_ENABLED, node.getShowGrid());
+		getViewer().setProperty(SnapToGeometry.PROPERTY_SNAP_ENABLED, node.getShowGrid());
+
+		figure.repaint();
+	}
+
+	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		super.propertyChange(evt);
 
@@ -44,13 +58,17 @@ public class ModelEditPart extends EditPart {
 		case Node.PROPERTY_REMOVE:
 			refreshChildren();
 			break;
+
+		case ModelNode.PROPERTY_SHOW_GRID:
+			refreshVisuals();
+			break;
 		}
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Object getAdapter(Class adapter) {
-		if (adapter == SnapToHelper.class) {
+		if (adapter == SnapToHelper.class && ((ModelNode) getModel()).getShowGrid()) {
 			List<Object> snapStrategies = new ArrayList<Object>();
 
 			Boolean snapEnabled = (Boolean) getViewer().getProperty(SnapToGeometry.PROPERTY_SNAP_ENABLED);

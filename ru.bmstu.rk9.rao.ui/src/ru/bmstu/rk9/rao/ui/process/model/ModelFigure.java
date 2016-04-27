@@ -8,9 +8,14 @@ import org.eclipse.swt.SWT;
 
 public class ModelFigure extends GridLayer {
 
+	private boolean showGrid;
+
 	public ModelFigure() {
-		super();
 		setLayoutManager(new XYLayout());
+	}
+
+	public final void setShowGrid(boolean showGrid) {
+		this.showGrid = showGrid;
 	}
 
 	@Override
@@ -23,6 +28,9 @@ public class ModelFigure extends GridLayer {
 
 	@Override
 	protected void paintGrid(Graphics g) {
+		if (!showGrid)
+			return;
+
 		Rectangle clip = g.getClip(Rectangle.SINGLETON);
 		for (int x = clip.x - clip.x % gridX; x <= clip.x + clip.width; x += gridX) {
 			for (int y = clip.y - clip.y % gridY; y <= clip.y + clip.height; y += gridY) {

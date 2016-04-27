@@ -25,8 +25,6 @@ import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.KeyHandler;
 import org.eclipse.gef.KeyStroke;
-import org.eclipse.gef.SnapToGeometry;
-import org.eclipse.gef.SnapToGrid;
 import org.eclipse.gef.dnd.TemplateTransferDragSourceListener;
 import org.eclipse.gef.editparts.ScalableRootEditPart;
 import org.eclipse.gef.palette.CombinedTemplateCreationEntry;
@@ -237,9 +235,6 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 			setModel(new ModelNode());
 		viewer.setContents(model);
 		viewer.addDropTargetListener(new ProcessDropTargetListener(viewer));
-		// viewer.setProperty(SnapToGrid.PROPERTY_GRID_VISIBLE, true);
-		viewer.setProperty(SnapToGrid.PROPERTY_GRID_ENABLED, true);
-		viewer.setProperty(SnapToGeometry.PROPERTY_SNAP_ENABLED, true);
 		IViewSite site = null;
 		try {
 			site = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
