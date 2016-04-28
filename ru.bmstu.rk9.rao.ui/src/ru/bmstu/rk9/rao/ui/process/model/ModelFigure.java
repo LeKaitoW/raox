@@ -12,6 +12,7 @@ public class ModelFigure extends GridLayer {
 
 	public ModelFigure() {
 		setLayoutManager(new XYLayout());
+		setOpaque(false);
 	}
 
 	public final void setShowGrid(boolean showGrid) {
