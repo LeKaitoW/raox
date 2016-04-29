@@ -15,7 +15,6 @@ import org.eclipse.gef.editparts.ScalableRootEditPart;
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
-import ru.bmstu.rk9.rao.ui.process.ProcessGridLayer;
 import ru.bmstu.rk9.rao.ui.process.ProcessLayoutEditPolicy;
 
 public class ModelEditPart extends EditPart {
@@ -40,8 +39,9 @@ public class ModelEditPart extends EditPart {
 		super.refreshVisuals();
 
 		ModelNode node = (ModelNode) getModel();
-		ProcessGridLayer.getProcessGridLayer(this).setShowGrid(node.getShowGrid());
+
 		getViewer().setProperty(SnapToGrid.PROPERTY_GRID_ENABLED, node.getShowGrid());
+		getViewer().setProperty(SnapToGrid.PROPERTY_GRID_VISIBLE, node.getShowGrid());
 		getViewer().setProperty(SnapToGeometry.PROPERTY_SNAP_ENABLED, node.getShowGrid());
 
 		getFigure().repaint();

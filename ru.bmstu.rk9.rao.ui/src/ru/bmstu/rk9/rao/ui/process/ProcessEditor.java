@@ -26,6 +26,7 @@ import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.KeyHandler;
 import org.eclipse.gef.KeyStroke;
 import org.eclipse.gef.dnd.TemplateTransferDragSourceListener;
+import org.eclipse.gef.editparts.GridLayer;
 import org.eclipse.gef.editparts.ScalableRootEditPart;
 import org.eclipse.gef.palette.CombinedTemplateCreationEntry;
 import org.eclipse.gef.palette.ConnectionCreationToolEntry;
@@ -211,16 +212,19 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 		getGraphicalViewer().setRootEditPart(new ScalableRootEditPart() {
 			@Override
+			protected GridLayer createGridLayer() {
+				return new ProcessGridLayer();
+			}
+
+			@Override
 			protected LayeredPane createPrintableLayers() {
 				LayeredPane layers = new LayeredPane();
 
-				layers.add(new ProcessGridLayer(), GRID_LAYER);
+				layers.add(new ModelLayer(), MODEL_LAYER);
 
 				ConnectionLayer connectionLayer = new ConnectionLayer();
 				connectionLayer.setAntialias(SWT.ON);
 				layers.add(connectionLayer, CONNECTION_LAYER);
-
-				layers.add(new ModelLayer(), MODEL_LAYER);
 
 				Layer primaryLayer = new Layer();
 				primaryLayer.setLayoutManager(new StackLayout());
