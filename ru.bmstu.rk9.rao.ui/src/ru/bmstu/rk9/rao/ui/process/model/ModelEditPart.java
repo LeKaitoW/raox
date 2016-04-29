@@ -15,14 +15,14 @@ import org.eclipse.gef.editparts.ScalableRootEditPart;
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
+import ru.bmstu.rk9.rao.ui.process.ProcessGridLayer;
 import ru.bmstu.rk9.rao.ui.process.ProcessLayoutEditPolicy;
 
 public class ModelEditPart extends EditPart {
 
 	@Override
 	protected IFigure createFigure() {
-		IFigure figure = ((ScalableRootEditPart) getRoot()).getLayer(ProcessEditor.MODEL_LAYER);
-		return figure;
+		return ((ScalableRootEditPart) getRoot()).getLayer(ProcessEditor.MODEL_LAYER);
 	}
 
 	@Override
@@ -39,13 +39,12 @@ public class ModelEditPart extends EditPart {
 	protected void refreshVisuals() {
 		super.refreshVisuals();
 
-		ModelFigure figure = (ModelFigure) getFigure();
 		ModelNode node = (ModelNode) getModel();
-		figure.setShowGrid(node.getShowGrid());
-
+		ProcessGridLayer.getProcessGridLayer(this).setShowGrid(node.getShowGrid());
 		getViewer().setProperty(SnapToGrid.PROPERTY_GRID_ENABLED, node.getShowGrid());
 		getViewer().setProperty(SnapToGeometry.PROPERTY_SNAP_ENABLED, node.getShowGrid());
 
+		ModelFigure figure = (ModelFigure) getFigure();
 		figure.repaint();
 	}
 

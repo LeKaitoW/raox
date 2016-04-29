@@ -212,19 +212,21 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		getGraphicalViewer().setRootEditPart(new ScalableRootEditPart() {
 			@Override
 			protected LayeredPane createPrintableLayers() {
-				LayeredPane pane = new LayeredPane();
+				LayeredPane layers = new LayeredPane();
 
-				pane.add(new ModelFigure(), MODEL_LAYER);
+				layers.add(new ProcessGridLayer(), GRID_LAYER);
 
 				ConnectionLayer connectionLayer = new ConnectionLayer();
 				connectionLayer.setAntialias(SWT.ON);
-				pane.add(connectionLayer, CONNECTION_LAYER);
+				layers.add(connectionLayer, CONNECTION_LAYER);
+
+				layers.add(new ModelFigure(), MODEL_LAYER);
 
 				Layer primaryLayer = new Layer();
 				primaryLayer.setLayoutManager(new StackLayout());
-				pane.add(primaryLayer, PRIMARY_LAYER);
+				layers.add(primaryLayer, PRIMARY_LAYER);
 
-				return pane;
+				return layers;
 			}
 		});
 	}
