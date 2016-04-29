@@ -81,7 +81,7 @@ import ru.bmstu.rk9.rao.ui.process.blocks.terminate.TerminateEditPart;
 import ru.bmstu.rk9.rao.ui.process.blocks.terminate.TerminateNode;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreationFactory;
 import ru.bmstu.rk9.rao.ui.process.model.ModelEditPart;
-import ru.bmstu.rk9.rao.ui.process.model.ModelFigure;
+import ru.bmstu.rk9.rao.ui.process.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 
 public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
@@ -220,7 +220,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 				connectionLayer.setAntialias(SWT.ON);
 				layers.add(connectionLayer, CONNECTION_LAYER);
 
-				layers.add(new ModelFigure(), MODEL_LAYER);
+				layers.add(new ModelLayer(), MODEL_LAYER);
 
 				Layer primaryLayer = new Layer();
 				primaryLayer.setLayoutManager(new StackLayout());

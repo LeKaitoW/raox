@@ -44,8 +44,8 @@ public class ModelEditPart extends EditPart {
 		getViewer().setProperty(SnapToGrid.PROPERTY_GRID_ENABLED, node.getShowGrid());
 		getViewer().setProperty(SnapToGeometry.PROPERTY_SNAP_ENABLED, node.getShowGrid());
 
-		ModelFigure figure = (ModelFigure) getFigure();
-		figure.repaint();
+		ModelLayer modelLayer = (ModelLayer) getFigure();
+		modelLayer.repaint();
 	}
 
 	@Override

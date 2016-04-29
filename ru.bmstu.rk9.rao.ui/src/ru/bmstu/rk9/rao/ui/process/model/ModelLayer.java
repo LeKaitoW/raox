@@ -5,9 +5,9 @@ import org.eclipse.draw2d.Layer;
 import org.eclipse.draw2d.XYLayout;
 import org.eclipse.swt.SWT;
 
-public class ModelFigure extends Layer {
+public class ModelLayer extends Layer {
 
-	public ModelFigure() {
+	public ModelLayer() {
 		setLayoutManager(new XYLayout());
 		setOpaque(false);
 	}
