@@ -14,7 +14,6 @@ import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 
-import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionAnchor;
 
 public class BlockFigure extends Figure {
@@ -46,7 +45,7 @@ public class BlockFigure extends Figure {
 			dockRectangle.width = dockSize * 2;
 			dockRectangle.height = dockSize * 2;
 
-			graphics.setBackgroundColor(ProcessColors.MODEL_BACKGROUND_COLOR);
+			graphics.setBackgroundColor(getParent().getBackgroundColor());
 			graphics.fillRectangle(dockRectangle);
 
 			dockRectangle.shrink(1, 1);

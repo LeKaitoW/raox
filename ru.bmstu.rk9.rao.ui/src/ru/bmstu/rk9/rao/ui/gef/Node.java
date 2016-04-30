@@ -58,6 +58,13 @@ public abstract class Node implements Serializable, IAdaptable {
 		this.parent = parent;
 	}
 
+	public final Node getRoot() {
+		Node root = this;
+		while (root.getParent() != null)
+			root = root.getParent();
+		return root;
+	}
+
 	public final PropertyChangeSupport getListeners() {
 		return listeners;
 	}

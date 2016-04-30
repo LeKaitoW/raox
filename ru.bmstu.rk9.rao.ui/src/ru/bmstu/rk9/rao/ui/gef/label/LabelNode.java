@@ -13,6 +13,7 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
 import ru.bmstu.rk9.rao.ui.gef.Node;
+import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 
 public class LabelNode extends Node implements Serializable {
 
@@ -34,7 +35,7 @@ public class LabelNode extends Node implements Serializable {
 	public LabelNode() {
 		text = "text";
 		textColor = DefaultColors.LABEL_TEXT_COLOR.getRGB();
-		backgroundColor = DefaultColors.LABEL_BACKGROUND_COLOR.getRGB();
+		// backgroundColor = DefaultColors.LABEL_BACKGROUND_COLOR.getRGB();
 	}
 
 	public final String getText() {
@@ -68,7 +69,10 @@ public class LabelNode extends Node implements Serializable {
 	}
 
 	public final RGB getBackgroundColor() {
-		return backgroundColor;
+		if (backgroundColor != null)
+			return backgroundColor;
+
+		return ((ModelNode) getRoot()).getBackgroundColor();
 	}
 
 	public final void setBackgroundColor(RGB backgroundColor) {
