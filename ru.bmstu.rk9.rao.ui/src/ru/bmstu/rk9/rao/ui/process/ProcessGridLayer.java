@@ -5,8 +5,8 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.editparts.GridLayer;
 
 public class ProcessGridLayer extends GridLayer {
+
 	public ProcessGridLayer() {
-		super();
 		setOpaque(false);
 	}
 
