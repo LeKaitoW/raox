@@ -20,13 +20,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.ConnectionLayer;
 import org.eclipse.draw2d.Layer;
 import org.eclipse.draw2d.LayeredPane;
+import org.eclipse.draw2d.ScalableLayeredPane;
 import org.eclipse.draw2d.StackLayout;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.KeyHandler;
 import org.eclipse.gef.KeyStroke;
 import org.eclipse.gef.dnd.TemplateTransferDragSourceListener;
-import org.eclipse.gef.editparts.GridLayer;
 import org.eclipse.gef.editparts.ScalableRootEditPart;
 import org.eclipse.gef.palette.CombinedTemplateCreationEntry;
 import org.eclipse.gef.palette.ConnectionCreationToolEntry;
@@ -81,8 +81,8 @@ import ru.bmstu.rk9.rao.ui.process.blocks.selectpath.SelectPathNode;
 import ru.bmstu.rk9.rao.ui.process.blocks.terminate.TerminateEditPart;
 import ru.bmstu.rk9.rao.ui.process.blocks.terminate.TerminateNode;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreationFactory;
+import ru.bmstu.rk9.rao.ui.process.model.ModelBackgroundLayer;
 import ru.bmstu.rk9.rao.ui.process.model.ModelEditPart;
-import ru.bmstu.rk9.rao.ui.process.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 
 public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
@@ -93,7 +93,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 	public static final String ID = "ru.bmstu.rk9.rao.ui.process.editor";
 	public static final Map<Class<?>, NodeInfo> processNodesInfo = new LinkedHashMap<>();
-	public static final String MODEL_LAYER = "Model Layer";
+	public static final String MODEL_BACKGROUND_LAYER = "Model Background Layer";
 	private ModelNode model;
 
 	@Inject
@@ -211,9 +211,14 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		viewer.setKeyHandler(keyHandler);
 
 		getGraphicalViewer().setRootEditPart(new ScalableRootEditPart() {
+
 			@Override
-			protected GridLayer createGridLayer() {
-				return new ProcessGridLayer();
+			protected ScalableLayeredPane createScaledLayers() {
+				ScalableLayeredPane layers = new ScalableLayeredPane();
+				layers.add(new ModelBackgroundLayer(), MODEL_BACKGROUND_LAYER);
+				layers.add(new ProcessGridLayer(), GRID_LAYER);
+				layers.add(getPrintableLayers(), PRINTABLE_LAYERS);
+				return layers;
 			}
 
 			@Override
@@ -223,8 +228,6 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 				ConnectionLayer connectionLayer = new ConnectionLayer();
 				connectionLayer.setAntialias(SWT.ON);
 				layers.add(connectionLayer, CONNECTION_LAYER);
-
-				layers.add(new ModelLayer(), MODEL_LAYER);
 
 				Layer primaryLayer = new Layer();
 				primaryLayer.setLayoutManager(new StackLayout());

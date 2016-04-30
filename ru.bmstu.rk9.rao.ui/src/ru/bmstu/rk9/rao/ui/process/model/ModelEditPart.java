@@ -11,6 +11,7 @@ import org.eclipse.gef.SnapToGeometry;
 import org.eclipse.gef.SnapToGrid;
 import org.eclipse.gef.SnapToHelper;
 import org.eclipse.gef.editparts.ScalableRootEditPart;
+import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
 import ru.bmstu.rk9.rao.ui.gef.Node;
@@ -21,7 +22,7 @@ public class ModelEditPart extends EditPart {
 
 	@Override
 	protected IFigure createFigure() {
-		return ((ScalableRootEditPart) getRoot()).getLayer(ProcessEditor.MODEL_LAYER);
+		return new ModelLayer();
 	}
 
 	@Override
@@ -39,7 +40,9 @@ public class ModelEditPart extends EditPart {
 		super.refreshVisuals();
 
 		ModelNode node = (ModelNode) getModel();
-
+		IFigure modelBackgroundLayer = ((ScalableRootEditPart) getRoot())
+				.getLayer(ProcessEditor.MODEL_BACKGROUND_LAYER);
+		modelBackgroundLayer.setBackgroundColor(new Color(null, node.getBackgroundColor()));
 		getViewer().setProperty(SnapToGrid.PROPERTY_GRID_ENABLED, node.getShowGrid());
 		getViewer().setProperty(SnapToGrid.PROPERTY_GRID_VISIBLE, node.getShowGrid());
 		getViewer().setProperty(SnapToGeometry.PROPERTY_SNAP_ENABLED, node.getShowGrid());
@@ -58,6 +61,7 @@ public class ModelEditPart extends EditPart {
 			break;
 
 		case ModelNode.PROPERTY_SHOW_GRID:
+		case ModelNode.PROPERTY_BACKGROUND_COLOR:
 			refreshVisuals();
 			break;
 		}
