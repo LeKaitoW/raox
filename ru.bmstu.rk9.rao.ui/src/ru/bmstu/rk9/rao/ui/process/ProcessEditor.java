@@ -220,11 +220,11 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 			protected LayeredPane createPrintableLayers() {
 				LayeredPane layers = new LayeredPane();
 
-				layers.add(new ModelLayer(), MODEL_LAYER);
-
 				ConnectionLayer connectionLayer = new ConnectionLayer();
 				connectionLayer.setAntialias(SWT.ON);
 				layers.add(connectionLayer, CONNECTION_LAYER);
+
+				layers.add(new ModelLayer(), MODEL_LAYER);
 
 				Layer primaryLayer = new Layer();
 				primaryLayer.setLayoutManager(new StackLayout());
