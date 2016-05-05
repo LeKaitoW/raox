@@ -35,7 +35,6 @@ public class LabelNode extends Node implements Serializable {
 	public LabelNode() {
 		text = "text";
 		textColor = DefaultColors.LABEL_TEXT_COLOR.getRGB();
-		// backgroundColor = DefaultColors.LABEL_BACKGROUND_COLOR.getRGB();
 	}
 
 	public final String getText() {
@@ -77,7 +76,11 @@ public class LabelNode extends Node implements Serializable {
 
 	public final void setBackgroundColor(RGB backgroundColor) {
 		RGB previousValue = this.backgroundColor;
-		this.backgroundColor = backgroundColor;
+		if (((ModelNode) getRoot()).getBackgroundColor().equals(backgroundColor)) {
+			this.backgroundColor = null;
+		} else {
+			this.backgroundColor = backgroundColor;
+		}
 		getListeners().firePropertyChange(PROPERTY_BACKGROUND_COLOR, previousValue, backgroundColor);
 	}
 
