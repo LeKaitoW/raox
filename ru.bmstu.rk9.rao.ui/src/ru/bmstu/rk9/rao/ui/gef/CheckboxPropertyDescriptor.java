@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.process;
+package ru.bmstu.rk9.rao.ui.gef;
 
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;

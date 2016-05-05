@@ -15,11 +15,11 @@ import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
 import ru.bmstu.rk9.rao.ui.gef.Node;
+import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
 import ru.bmstu.rk9.rao.ui.process.ProcessDeletePolicy;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionAnchor;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionPolicy;
-import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
 
 public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 

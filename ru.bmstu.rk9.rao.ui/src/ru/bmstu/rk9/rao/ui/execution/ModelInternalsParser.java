@@ -40,7 +40,7 @@ import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 import ru.bmstu.rk9.rao.ui.process.BlockConverter;
 import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
-import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
+import ru.bmstu.rk9.rao.ui.process.model.ProcessModelNode;
 
 public class ModelInternalsParser {
 	private final SimulatorPreinitializationInfo simulatorPreinitializationInfo = new SimulatorPreinitializationInfo();
@@ -237,7 +237,7 @@ public class ModelInternalsParser {
 		}
 
 		for (IResource processFile : BuildUtil.getAllFilesInProject(project, "proc")) {
-			ModelNode model = ProcessEditor.readModelFromFile((IFile) processFile);
+			ProcessModelNode model = ProcessEditor.readModelFromFile((IFile) processFile);
 			List<Block> blocks;
 			blocks = BlockConverter.convertModelToBlocks(model);
 

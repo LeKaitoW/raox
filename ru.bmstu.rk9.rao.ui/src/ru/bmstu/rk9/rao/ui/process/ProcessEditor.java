@@ -27,6 +27,7 @@ import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.KeyHandler;
 import org.eclipse.gef.KeyStroke;
 import org.eclipse.gef.dnd.TemplateTransferDragSourceListener;
+import org.eclipse.gef.editparts.GridLayer;
 import org.eclipse.gef.editparts.ScalableRootEditPart;
 import org.eclipse.gef.palette.CombinedTemplateCreationEntry;
 import org.eclipse.gef.palette.ConnectionCreationToolEntry;
@@ -61,6 +62,7 @@ import com.google.inject.Inject;
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.NodeInfo;
+import ru.bmstu.rk9.rao.ui.gef.model.ModelBackgroundLayer;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockEditPart;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNodeFactory;
@@ -81,9 +83,8 @@ import ru.bmstu.rk9.rao.ui.process.blocks.selectpath.SelectPathNode;
 import ru.bmstu.rk9.rao.ui.process.blocks.terminate.TerminateEditPart;
 import ru.bmstu.rk9.rao.ui.process.blocks.terminate.TerminateNode;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreationFactory;
-import ru.bmstu.rk9.rao.ui.process.model.ModelBackgroundLayer;
-import ru.bmstu.rk9.rao.ui.process.model.ModelEditPart;
-import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
+import ru.bmstu.rk9.rao.ui.process.model.ProcessModelEditPart;
+import ru.bmstu.rk9.rao.ui.process.model.ProcessModelNode;
 
 public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
@@ -93,15 +94,14 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 	public static final String ID = "ru.bmstu.rk9.rao.ui.process.editor";
 	public static final Map<Class<?>, NodeInfo> processNodesInfo = new LinkedHashMap<>();
-	public static final String MODEL_BACKGROUND_LAYER = "Model Background Layer";
-	private ModelNode model;
+	private ProcessModelNode model;
 
 	@Inject
 	IResourceSetProvider resourceSetProvider;
 
 	static {
-		processNodesInfo.put(ModelNode.class,
-				new NodeInfo(ModelNode.name, () -> new ModelNode(), () -> new ModelEditPart()));
+		processNodesInfo.put(ProcessModelNode.class,
+				new NodeInfo(ProcessModelNode.name, () -> new ProcessModelNode(), () -> new ProcessModelEditPart()));
 		processNodesInfo.put(GenerateNode.class,
 				new NodeInfo(GenerateNode.name, () -> new GenerateNode(), () -> new GenerateEditPart()));
 		processNodesInfo.put(TerminateNode.class,
@@ -158,13 +158,13 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		return root;
 	}
 
-	private void setModel(ModelNode model) {
+	private void setModel(ProcessModelNode model) {
 		this.model = model;
 		model.setResourceRetriever(new EResourceRetriever(resourceSetProvider,
 				((IFileEditorInput) getEditorInput()).getFile().getProject()));
 	}
 
-	public ModelNode getModel() {
+	public ProcessModelNode getModel() {
 		return model;
 	}
 
@@ -215,10 +215,15 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 			@Override
 			protected ScalableLayeredPane createScaledLayers() {
 				ScalableLayeredPane layers = new ScalableLayeredPane();
-				layers.add(new ModelBackgroundLayer(), MODEL_BACKGROUND_LAYER);
-				layers.add(new ProcessGridLayer(), GRID_LAYER);
+				layers.add(new ModelBackgroundLayer(), ModelBackgroundLayer.MODEL_BACKGROUND_LAYER);
+				layers.add(createGridLayer(), GRID_LAYER);
 				layers.add(getPrintableLayers(), PRINTABLE_LAYERS);
 				return layers;
+			}
+
+			@Override
+			protected GridLayer createGridLayer() {
+				return new ProcessGridLayer();
 			}
 
 			@Override
@@ -242,7 +247,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	protected void initializeGraphicalViewer() {
 		GraphicalViewer viewer = getGraphicalViewer();
 		if (model == null)
-			setModel(new ModelNode());
+			setModel(new ProcessModelNode());
 		viewer.setContents(model);
 		viewer.addDropTargetListener(new ProcessDropTargetListener(viewer));
 		IViewSite site = null;
@@ -275,7 +280,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 					return;
 
 				int blockNodeID = marker.getAttributeValue(BlockNode.BLOCK_NODE_MARKER, 0);
-				ModelEditPart modelPart = (ModelEditPart) getGraphicalViewer().getRootEditPart().getChildren().get(0);
+				ProcessModelEditPart modelPart = (ProcessModelEditPart) getGraphicalViewer().getRootEditPart()
+						.getChildren().get(0);
 				List<EditPart> editParts = modelPart.getChildren();
 				for (EditPart editPart : editParts) {
 					if (!(editPart instanceof BlockEditPart))
@@ -309,10 +315,11 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		super.commandStackChanged(event);
 	}
 
-	public static ModelNode readModelFromFile(IFile file) throws ClassNotFoundException, IOException, CoreException {
+	public static ProcessModelNode readModelFromFile(IFile file)
+			throws ClassNotFoundException, IOException, CoreException {
 		InputStream inputStream = file.getContents(false);
 		ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-		ModelNode model = (ModelNode) objectInputStream.readObject();
+		ProcessModelNode model = (ProcessModelNode) objectInputStream.readObject();
 		objectInputStream.close();
 		return model;
 	}

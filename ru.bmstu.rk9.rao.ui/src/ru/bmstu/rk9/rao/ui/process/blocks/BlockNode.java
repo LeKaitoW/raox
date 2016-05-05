@@ -14,9 +14,9 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.ColorPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
+import ru.bmstu.rk9.rao.ui.gef.CheckboxPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
-import ru.bmstu.rk9.rao.ui.process.CheckboxPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.process.ProcessLogicException;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;

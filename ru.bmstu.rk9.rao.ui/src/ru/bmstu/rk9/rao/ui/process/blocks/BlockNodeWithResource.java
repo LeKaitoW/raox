@@ -9,7 +9,7 @@ import org.eclipse.ui.views.properties.ComboBoxPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
 import ru.bmstu.rk9.rao.ui.process.EResourceRetriever;
-import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
+import ru.bmstu.rk9.rao.ui.process.model.ProcessModelNode;
 
 public abstract class BlockNodeWithResource extends BlockNode {
 
@@ -30,7 +30,7 @@ public abstract class BlockNodeWithResource extends BlockNode {
 	}
 
 	public List<String> getResourcesNames() {
-		EResourceRetriever resourceRetriever = ((ModelNode) getParent()).getResourceRetriever();
+		EResourceRetriever resourceRetriever = ((ProcessModelNode) getParent()).getResourceRetriever();
 		return resourceRetriever.getResourcesNames();
 	}
 

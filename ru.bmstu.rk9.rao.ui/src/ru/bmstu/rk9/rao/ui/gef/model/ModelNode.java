@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.process.model;
+package ru.bmstu.rk9.rao.ui.gef.model;
 
 import java.util.List;
 
@@ -6,20 +6,17 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.ColorPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
+import ru.bmstu.rk9.rao.ui.gef.CheckboxPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
 import ru.bmstu.rk9.rao.ui.gef.Node;
-import ru.bmstu.rk9.rao.ui.process.CheckboxPropertyDescriptor;
-import ru.bmstu.rk9.rao.ui.process.EResourceRetriever;
 
 public class ModelNode extends Node {
 
 	private static final long serialVersionUID = 1;
 
-	public static String name = "Model";
 	protected static final String PROPERTY_SHOW_GRID = "ShowGrid";
 	protected static final String PROPERTY_BACKGROUND_COLOR = "BackgroundColor";
 
-	private transient EResourceRetriever resourceRetriever;
 	private boolean showGrid = true;
 	private RGB backgroundColor = DefaultColors.MODEL_BACKGROUND_COLOR.getRGB();
 
@@ -41,14 +38,6 @@ public class ModelNode extends Node {
 		RGB previousValue = this.backgroundColor;
 		this.backgroundColor = backgroundColor;
 		getListeners().firePropertyChange(PROPERTY_BACKGROUND_COLOR, previousValue, backgroundColor);
-	}
-
-	public final EResourceRetriever getResourceRetriever() {
-		return resourceRetriever;
-	}
-
-	public final void setResourceRetriever(EResourceRetriever resourceRetriever) {
-		this.resourceRetriever = resourceRetriever;
 	}
 
 	@Override

@@ -11,7 +11,7 @@ import ru.bmstu.rk9.rao.ui.gef.commands.ChangeConstraintCommand;
 import ru.bmstu.rk9.rao.ui.gef.commands.CreateCommand;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNodeCreateCommand;
-import ru.bmstu.rk9.rao.ui.process.model.ModelEditPart;
+import ru.bmstu.rk9.rao.ui.process.model.ProcessModelEditPart;
 
 public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 
@@ -28,7 +28,7 @@ public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 
 	@Override
 	protected Command getCreateCommand(CreateRequest request) {
-		if (request.getType() == REQ_CREATE && getHost() instanceof ModelEditPart) {
+		if (request.getType() == REQ_CREATE && getHost() instanceof ProcessModelEditPart) {
 			Rectangle constraint = (Rectangle) getConstraintFor(request);
 			constraint.x = (constraint.x < 0) ? 0 : constraint.x;
 			constraint.y = (constraint.y < 0) ? 0 : constraint.y;

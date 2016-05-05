@@ -13,7 +13,7 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
 import ru.bmstu.rk9.rao.ui.gef.Node;
-import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
+import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
 
 public class LabelNode extends Node implements Serializable {
 

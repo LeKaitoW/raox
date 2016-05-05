@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.process.model;
+package ru.bmstu.rk9.rao.ui.gef.model;
 
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.gef.CompoundSnapToHelper;
-import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.SnapToGeometry;
 import org.eclipse.gef.SnapToGrid;
 import org.eclipse.gef.SnapToHelper;
@@ -17,15 +16,8 @@ import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
 import ru.bmstu.rk9.rao.ui.gef.Node;
-import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
-import ru.bmstu.rk9.rao.ui.process.ProcessLayoutEditPolicy;
 
-public class ModelEditPart extends EditPart {
-
-	@Override
-	protected IFigure createFigure() {
-		return new ModelLayer();
-	}
+public abstract class ModelEditPart extends EditPart {
 
 	@Override
 	public final List<Node> getModelChildren() {
@@ -34,14 +26,13 @@ public class ModelEditPart extends EditPart {
 
 	@Override
 	protected void createEditPolicies() {
-		installEditPolicy(EditPolicy.LAYOUT_ROLE, new ProcessLayoutEditPolicy());
 	}
 
 	@Override
 	protected void refreshVisuals() {
 		ModelNode node = (ModelNode) getModel();
 		IFigure modelBackgroundLayer = ((ScalableRootEditPart) getRoot())
-				.getLayer(ProcessEditor.MODEL_BACKGROUND_LAYER);
+				.getLayer(ModelBackgroundLayer.MODEL_BACKGROUND_LAYER);
 		modelBackgroundLayer.setBackgroundColor(new Color(null, node.getBackgroundColor()));
 		getViewer().setProperty(SnapToGrid.PROPERTY_GRID_ENABLED, node.getShowGrid());
 		getViewer().setProperty(SnapToGrid.PROPERTY_GRID_VISIBLE, node.getShowGrid());
