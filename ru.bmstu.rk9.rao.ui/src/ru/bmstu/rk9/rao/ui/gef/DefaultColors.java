@@ -6,5 +6,4 @@ import org.eclipse.swt.graphics.Color;
 public class DefaultColors {
 	public static final Color MODEL_BACKGROUND_COLOR = ColorConstants.white;
 	public static final Color LABEL_TEXT_COLOR = ColorConstants.black;
-	public static final Color LABEL_BACKGROUND_COLOR = MODEL_BACKGROUND_COLOR;
 }

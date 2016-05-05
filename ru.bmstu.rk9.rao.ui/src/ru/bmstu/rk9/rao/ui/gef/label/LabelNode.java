@@ -26,16 +26,11 @@ public class LabelNode extends Node implements Serializable {
 	public static String name = "Label";
 	private final int border = 5;
 
-	private String text;
-	private RGB textColor;
+	private String text = "text";
+	private RGB textColor = DefaultColors.LABEL_TEXT_COLOR.getRGB();
 	private RGB backgroundColor;
 	private transient Font font;
 	private boolean visible = true;
-
-	public LabelNode() {
-		text = "text";
-		textColor = DefaultColors.LABEL_TEXT_COLOR.getRGB();
-	}
 
 	public final String getText() {
 		return text;
