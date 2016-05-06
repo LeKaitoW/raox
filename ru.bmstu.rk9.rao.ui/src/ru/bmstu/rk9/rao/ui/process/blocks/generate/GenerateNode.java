@@ -8,6 +8,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
+import ru.bmstu.rk9.rao.ui.execution.ModelContentsInfo;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
 
@@ -37,7 +38,7 @@ public class GenerateNode extends BlockNode {
 	}
 
 	@Override
-	public BlockConverterInfo createBlock() {
+	public BlockConverterInfo createBlock(ModelContentsInfo modelContentsInfo) {
 		BlockConverterInfo generateInfo = new BlockConverterInfo();
 		Double interval;
 		try {

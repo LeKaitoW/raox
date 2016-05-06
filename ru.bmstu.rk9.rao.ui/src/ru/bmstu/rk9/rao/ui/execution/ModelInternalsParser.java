@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -25,6 +26,7 @@ import ru.bmstu.rk9.rao.lib.dpt.Edge;
 import ru.bmstu.rk9.rao.lib.dpt.Logic;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
 import ru.bmstu.rk9.rao.lib.event.Event;
+import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
@@ -47,6 +49,7 @@ public class ModelInternalsParser {
 	private final SimulatorInitializationInfo simulatorInitializationInfo = new SimulatorInitializationInfo();
 	private final List<Class<?>> decisionPointClasses = new ArrayList<>();
 	private final List<Field> nameableFields = new ArrayList<>();
+	private final ModelContentsInfo modelContentsInfo = new ModelContentsInfo();
 
 	private URLClassLoader classLoader;
 	private final IProject project;
@@ -221,6 +224,27 @@ public class ModelInternalsParser {
 						new JSONObject().put(ModelStructureConstants.NAME, NamingHelper.createFullNameForField(field)));
 			}
 		}
+
+		for (Method method : modelClass.getDeclaredMethods()) {
+			if (!method.getReturnType().equals(Boolean.TYPE))
+				continue;
+
+			if (method.getParameterCount() > 0)
+				continue;
+
+			Supplier<Boolean> sup = new Supplier<Boolean>() {
+				@Override
+				public Boolean get() {
+					try {
+						return (boolean) method.invoke(null);
+					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						e.printStackTrace();
+						throw new RaoLibException("Internal error invoking function " + method.getName());
+					}
+				}
+			};
+			modelContentsInfo.booleanFunctions.put(modelClass.getName() + "." + method.getName(), sup);
+		}
 	}
 
 	public final void postprocess() throws IllegalArgumentException, IllegalAccessException, InstantiationException,
@@ -239,7 +263,7 @@ public class ModelInternalsParser {
 		for (IResource processFile : BuildUtil.getAllFilesInProject(project, "proc")) {
 			ModelNode model = ProcessEditor.readModelFromFile((IFile) processFile);
 			List<Block> blocks;
-			blocks = BlockConverter.convertModelToBlocks(model);
+			blocks = BlockConverter.convertModelToBlocks(model, modelContentsInfo);
 
 			simulatorInitializationInfo.processBlocks.addAll(blocks);
 		}
