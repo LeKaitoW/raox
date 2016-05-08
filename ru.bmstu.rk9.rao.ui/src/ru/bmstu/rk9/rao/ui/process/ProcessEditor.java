@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.EventObject;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,6 +20,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.ConnectionLayer;
+import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.Layer;
 import org.eclipse.draw2d.LayeredPane;
 import org.eclipse.draw2d.ScalableLayeredPane;
@@ -63,24 +66,33 @@ import ru.bmstu.rk9.rao.ui.gef.EditPart;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.NodeInfo;
 import ru.bmstu.rk9.rao.ui.gef.model.ModelBackgroundLayer;
+import ru.bmstu.rk9.rao.ui.gef.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockEditPart;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNodeFactory;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockTitleEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockTitleFigure;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockTitleNode;
 import ru.bmstu.rk9.rao.ui.process.blocks.generate.GenerateEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.generate.GenerateFigure;
 import ru.bmstu.rk9.rao.ui.process.blocks.generate.GenerateNode;
 import ru.bmstu.rk9.rao.ui.process.blocks.hold.HoldEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.hold.HoldFigure;
 import ru.bmstu.rk9.rao.ui.process.blocks.hold.HoldNode;
 import ru.bmstu.rk9.rao.ui.process.blocks.queue.QueueEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.queue.QueueFigure;
 import ru.bmstu.rk9.rao.ui.process.blocks.queue.QueueNode;
 import ru.bmstu.rk9.rao.ui.process.blocks.release.ReleaseEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.release.ReleaseFigure;
 import ru.bmstu.rk9.rao.ui.process.blocks.release.ReleaseNode;
 import ru.bmstu.rk9.rao.ui.process.blocks.seize.SeizeEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.seize.SeizeFigure;
 import ru.bmstu.rk9.rao.ui.process.blocks.seize.SeizeNode;
 import ru.bmstu.rk9.rao.ui.process.blocks.selectpath.SelectPathEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.selectpath.SelectPathFigure;
 import ru.bmstu.rk9.rao.ui.process.blocks.selectpath.SelectPathNode;
 import ru.bmstu.rk9.rao.ui.process.blocks.terminate.TerminateEditPart;
+import ru.bmstu.rk9.rao.ui.process.blocks.terminate.TerminateFigure;
 import ru.bmstu.rk9.rao.ui.process.blocks.terminate.TerminateNode;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionCreationFactory;
 import ru.bmstu.rk9.rao.ui.process.model.ProcessModelEditPart;
@@ -100,24 +112,36 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	IResourceSetProvider resourceSetProvider;
 
 	static {
-		processNodesInfo.put(ProcessModelNode.class,
-				new NodeInfo(ProcessModelNode.name, () -> new ProcessModelNode(), () -> new ProcessModelEditPart()));
-		processNodesInfo.put(GenerateNode.class,
-				new NodeInfo(GenerateNode.name, () -> new GenerateNode(), () -> new GenerateEditPart()));
-		processNodesInfo.put(TerminateNode.class,
-				new NodeInfo(TerminateNode.name, () -> new TerminateNode(), () -> new TerminateEditPart()));
-		processNodesInfo.put(SeizeNode.class,
-				new NodeInfo(SeizeNode.name, () -> new SeizeNode(), () -> new SeizeEditPart()));
-		processNodesInfo.put(ReleaseNode.class,
-				new NodeInfo(ReleaseNode.name, () -> new ReleaseNode(), () -> new ReleaseEditPart()));
-		processNodesInfo.put(HoldNode.class,
-				new NodeInfo(HoldNode.name, () -> new HoldNode(), () -> new HoldEditPart()));
-		processNodesInfo.put(QueueNode.class,
-				new NodeInfo(QueueNode.name, () -> new QueueNode(), () -> new QueueEditPart()));
-		processNodesInfo.put(SelectPathNode.class,
-				new NodeInfo(SelectPathNode.name, () -> new SelectPathNode(), () -> new SelectPathEditPart()));
-		processNodesInfo.put(BlockTitleNode.class,
-				new NodeInfo("", () -> new BlockTitleNode(), () -> new BlockTitleEditPart()));
+		registerNodeInfo(ProcessModelNode.class, ProcessModelEditPart.class, ModelLayer.class);
+		registerNodeInfo(GenerateNode.class, GenerateEditPart.class, GenerateFigure.class);
+		registerNodeInfo(TerminateNode.class, TerminateEditPart.class, TerminateFigure.class);
+		registerNodeInfo(SeizeNode.class, SeizeEditPart.class, SeizeFigure.class);
+		registerNodeInfo(ReleaseNode.class, ReleaseEditPart.class, ReleaseFigure.class);
+		registerNodeInfo(HoldNode.class, HoldEditPart.class, HoldFigure.class);
+		registerNodeInfo(QueueNode.class, QueueEditPart.class, QueueFigure.class);
+		registerNodeInfo(SelectPathNode.class, SelectPathEditPart.class, SelectPathFigure.class);
+		registerNodeInfo(BlockTitleNode.class, BlockTitleEditPart.class, BlockTitleFigure.class);
+	}
+
+	private static void registerNodeInfo(Class<? extends Node> node, Class<? extends EditPart> editPart,
+			Class<? extends Figure> figure) {
+		try {
+			processNodesInfo.put(node, new NodeInfo(node.getField("name").get(null).toString(),
+					() -> createObject(node), () -> createObject(editPart), () -> createObject(figure)));
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static <T> T createObject(Class<T> node) {
+		try {
+			Constructor<T> constructor = node.getConstructor();
+			return constructor.newInstance();
+		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	@Override

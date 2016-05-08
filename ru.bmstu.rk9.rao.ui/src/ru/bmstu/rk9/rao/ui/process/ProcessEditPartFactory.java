@@ -32,7 +32,7 @@ public class ProcessEditPartFactory implements EditPartFactory {
 		if (!processNodesInfo.containsKey(model.getClass()))
 			return null;
 
-		AbstractEditPart editPart = processNodesInfo.get(model.getClass()).getPartFactory().get();
+		AbstractEditPart editPart = processNodesInfo.get(model.getClass()).getEditPartFactory().get();
 		editPart.setModel(model);
 
 		if (editPart instanceof ProcessModelEditPart) {
