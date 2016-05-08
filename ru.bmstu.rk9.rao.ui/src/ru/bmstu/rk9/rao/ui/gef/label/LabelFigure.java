@@ -7,8 +7,10 @@ public class LabelFigure extends Label {
 
 	@Override
 	final protected void paintFigure(Graphics graphics) {
-		graphics.setBackgroundColor(getBackgroundColor());
-		graphics.fillRectangle(getBounds());
+		if (isOpaque()) {
+			graphics.setBackgroundColor(getBackgroundColor());
+			graphics.fillRectangle(getBounds());
+		}
 		super.paintFigure(graphics);
 	}
 }

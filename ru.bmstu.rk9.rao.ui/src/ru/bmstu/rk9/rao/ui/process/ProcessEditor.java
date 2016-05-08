@@ -106,6 +106,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 	public static final String ID = "ru.bmstu.rk9.rao.ui.process.editor";
 	private static final Map<Class<? extends Node>, NodeInfo> nodesInfo = new LinkedHashMap<>();
+	private static final Map<Class<? extends EditPart>, NodeInfo> nodesInfoByEditPart = new LinkedHashMap<>();
 	private ProcessModelNode model;
 
 	@Inject
@@ -131,11 +132,17 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		return nodesInfo.get(node);
 	}
 
+	public static NodeInfo getNodeInfoByEditPart(Class<? extends EditPart> editPart) {
+		return nodesInfoByEditPart.get(editPart);
+	}
+
 	private static void addNodeInfo(Class<? extends Node> node, Class<? extends EditPart> editPart,
 			Class<? extends Figure> figure) {
 		try {
-			nodesInfo.put(node, new NodeInfo(node.getField("name").get(null).toString(), () -> createObject(node),
-					() -> createObject(editPart), () -> createObject(figure)));
+			NodeInfo nodeInfo = new NodeInfo(node.getField("name").get(null).toString(), () -> createObject(node),
+					() -> createObject(editPart), () -> createObject(figure));
+			nodesInfo.put(node, nodeInfo);
+			nodesInfoByEditPart.put(editPart, nodeInfo);
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}

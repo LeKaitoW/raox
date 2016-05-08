@@ -15,9 +15,10 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Color;
 
+import ru.bmstu.rk9.rao.ui.gef.INodeFigure;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionAnchor;
 
-public class BlockFigure extends Figure {
+public class BlockFigure extends Figure implements INodeFigure {
 
 	protected Map<String, ConnectionAnchor> connectionAnchors = new HashMap<>();
 	protected List<ConnectionAnchor> inputConnectionAnchors = new ArrayList<>();
@@ -171,5 +172,11 @@ public class BlockFigure extends Figure {
 
 	public List<ConnectionAnchor> getTargetConnectionAnchors() {
 		return inputConnectionAnchors;
+	}
+
+	@Override
+	public void assignSettings(IFigure original) {
+		setForegroundColor(original.getForegroundColor());
+		setBackgroundColor(original.getBackgroundColor());
 	}
 }
