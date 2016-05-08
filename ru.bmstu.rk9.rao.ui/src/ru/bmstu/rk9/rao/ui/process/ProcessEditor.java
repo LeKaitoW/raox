@@ -105,29 +105,37 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	}
 
 	public static final String ID = "ru.bmstu.rk9.rao.ui.process.editor";
-	public static final Map<Class<?>, NodeInfo> processNodesInfo = new LinkedHashMap<>();
+	private static final Map<Class<? extends Node>, NodeInfo> nodesInfo = new LinkedHashMap<>();
 	private ProcessModelNode model;
 
 	@Inject
 	IResourceSetProvider resourceSetProvider;
 
 	static {
-		registerNodeInfo(ProcessModelNode.class, ProcessModelEditPart.class, ModelLayer.class);
-		registerNodeInfo(GenerateNode.class, GenerateEditPart.class, GenerateFigure.class);
-		registerNodeInfo(TerminateNode.class, TerminateEditPart.class, TerminateFigure.class);
-		registerNodeInfo(SeizeNode.class, SeizeEditPart.class, SeizeFigure.class);
-		registerNodeInfo(ReleaseNode.class, ReleaseEditPart.class, ReleaseFigure.class);
-		registerNodeInfo(HoldNode.class, HoldEditPart.class, HoldFigure.class);
-		registerNodeInfo(QueueNode.class, QueueEditPart.class, QueueFigure.class);
-		registerNodeInfo(SelectPathNode.class, SelectPathEditPart.class, SelectPathFigure.class);
-		registerNodeInfo(BlockTitleNode.class, BlockTitleEditPart.class, BlockTitleFigure.class);
+		addNodeInfo(ProcessModelNode.class, ProcessModelEditPart.class, ModelLayer.class);
+		addNodeInfo(GenerateNode.class, GenerateEditPart.class, GenerateFigure.class);
+		addNodeInfo(TerminateNode.class, TerminateEditPart.class, TerminateFigure.class);
+		addNodeInfo(SeizeNode.class, SeizeEditPart.class, SeizeFigure.class);
+		addNodeInfo(ReleaseNode.class, ReleaseEditPart.class, ReleaseFigure.class);
+		addNodeInfo(HoldNode.class, HoldEditPart.class, HoldFigure.class);
+		addNodeInfo(QueueNode.class, QueueEditPart.class, QueueFigure.class);
+		addNodeInfo(SelectPathNode.class, SelectPathEditPart.class, SelectPathFigure.class);
+		addNodeInfo(BlockTitleNode.class, BlockTitleEditPart.class, BlockTitleFigure.class);
 	}
 
-	private static void registerNodeInfo(Class<? extends Node> node, Class<? extends EditPart> editPart,
+	public static boolean hasNodeInfo(Class<? extends Node> node) {
+		return getNodeInfo(node) != null;
+	}
+
+	public static NodeInfo getNodeInfo(Class<? extends Node> node) {
+		return nodesInfo.get(node);
+	}
+
+	private static void addNodeInfo(Class<? extends Node> node, Class<? extends EditPart> editPart,
 			Class<? extends Figure> figure) {
 		try {
-			processNodesInfo.put(node, new NodeInfo(node.getField("name").get(null).toString(),
-					() -> createObject(node), () -> createObject(editPart), () -> createObject(figure)));
+			nodesInfo.put(node, new NodeInfo(node.getField("name").get(null).toString(), () -> createObject(node),
+					() -> createObject(editPart), () -> createObject(figure)));
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
@@ -169,13 +177,13 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		PaletteGroup processGroup = new PaletteGroup("Process");
 		root.add(processGroup);
 
-		for (Class<?> nodeClass : processNodesInfo.keySet()) {
-			if (!BlockNode.class.isAssignableFrom(nodeClass))
+		for (Map.Entry<Class<? extends Node>, NodeInfo> node : nodesInfo.entrySet()) {
+			if (!BlockNode.class.isAssignableFrom(node.getKey()))
 				continue;
 
-			String nodeName = processNodesInfo.get(nodeClass).getName();
-			processGroup.add(
-					new CombinedTemplateCreationEntry(nodeName, nodeName, new BlockNodeFactory(nodeClass), null, null));
+			final String nodeName = node.getValue().getName();
+			processGroup.add(new CombinedTemplateCreationEntry(nodeName, nodeName, new BlockNodeFactory(node.getKey()),
+					null, null));
 		}
 		root.setDefaultEntry(panningSelectionToolEntry);
 		getPalettePreferences().setPaletteState(FlyoutPaletteComposite.STATE_PINNED_OPEN);

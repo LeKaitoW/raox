@@ -4,6 +4,7 @@ import org.eclipse.gef.EditPartViewer;
 import org.eclipse.gef.dnd.TemplateTransferDropTargetListener;
 import org.eclipse.gef.requests.CreationFactory;
 
+import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNodeFactory;
 
 public class ProcessDropTargetListener extends TemplateTransferDropTargetListener {
@@ -12,14 +13,15 @@ public class ProcessDropTargetListener extends TemplateTransferDropTargetListene
 		super(viewer);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected CreationFactory getFactory(Object template) {
 		if (template instanceof CreationFactory) {
 			return ((BlockNodeFactory) template);
 		}
 
-		if (template instanceof Class) {
-			return new BlockNodeFactory((Class<?>) template);
+		if (template instanceof Node) {
+			return new BlockNodeFactory((Class<? extends Node>) template);
 		}
 
 		return null;

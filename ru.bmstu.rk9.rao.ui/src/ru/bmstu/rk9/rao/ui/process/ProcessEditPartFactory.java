@@ -1,11 +1,10 @@
 package ru.bmstu.rk9.rao.ui.process;
 
-import java.util.Map;
-
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartFactory;
 import org.eclipse.gef.editparts.AbstractEditPart;
 
+import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.NodeInfo;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockEditPart;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
@@ -28,11 +27,12 @@ public class ProcessEditPartFactory implements EditPartFactory {
 			return editPart;
 		}
 
-		Map<Class<?>, NodeInfo> processNodesInfo = ProcessEditor.processNodesInfo;
-		if (!processNodesInfo.containsKey(model.getClass()))
+		@SuppressWarnings("unchecked")
+		NodeInfo nodeInfo = ProcessEditor.getNodeInfo((Class<? extends Node>) model.getClass());
+		if (nodeInfo == null)
 			return null;
 
-		AbstractEditPart editPart = processNodesInfo.get(model.getClass()).getEditPartFactory().get();
+		AbstractEditPart editPart = nodeInfo.getEditPartFactory().get();
 		editPart.setModel(model);
 
 		if (editPart instanceof ProcessModelEditPart) {

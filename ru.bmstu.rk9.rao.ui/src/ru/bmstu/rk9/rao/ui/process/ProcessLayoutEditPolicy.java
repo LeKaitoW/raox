@@ -24,9 +24,10 @@ public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 		return new ProcessEditPolicy();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected Command createChangeConstraintCommand(EditPart child, Object constraint) {
-		if (!ProcessEditor.processNodesInfo.containsKey(child.getModel().getClass()))
+		if (!ProcessEditor.hasNodeInfo((Class<? extends Node>) child.getModel().getClass()))
 			return null;
 
 		return new ChangeConstraintCommand((Node) child.getModel(), (Rectangle) constraint);
