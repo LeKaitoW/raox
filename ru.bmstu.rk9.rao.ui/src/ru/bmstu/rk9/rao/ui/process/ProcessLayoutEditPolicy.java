@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rao.ui.process;
 
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.EditPart;
+import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editpolicies.XYLayoutEditPolicy;
 import org.eclipse.gef.requests.CreateRequest;
@@ -17,6 +18,11 @@ public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 
 	public static final int FIGURE_WIDTH = 50;
 	public static final int FIGURE_HEIGHT = FIGURE_WIDTH;
+
+	@Override
+	protected EditPolicy createChildEditPolicy(EditPart child) {
+		return new ProcessEditPolicy();
+	}
 
 	@Override
 	protected Command createChangeConstraintCommand(EditPart child, Object constraint) {
