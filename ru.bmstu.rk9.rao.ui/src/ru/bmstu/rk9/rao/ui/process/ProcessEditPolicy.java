@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rao.ui.process;
 import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.RectangleFigure;
 import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Rectangle;
@@ -65,6 +66,10 @@ public class ProcessEditPolicy extends ResizableEditPolicy {
 			return new RGB(255 - rgb.red, 255 - rgb.green, 255 - rgb.blue);
 		}
 	};
+
+	ProcessEditPolicy() {
+		setResizeDirections(PositionConstants.NONE);
+	}
 
 	@Override
 	protected IFigure createDragSourceFeedbackFigure() {
