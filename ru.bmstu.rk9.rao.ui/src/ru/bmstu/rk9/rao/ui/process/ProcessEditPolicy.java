@@ -1,10 +1,10 @@
 package ru.bmstu.rk9.rao.ui.process;
 
+import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PositionConstants;
-import org.eclipse.draw2d.RectangleFigure;
 import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.editpolicies.ResizableEditPolicy;
@@ -20,16 +20,15 @@ import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
 
 public class ProcessEditPolicy extends ResizableEditPolicy {
 
-	private class Shape extends RectangleFigure {
+	private class SelectedRectangle extends Figure {
 
 		IFigure figure;
 		ModelNode modelNode;
 
-		Shape(IFigure figure, ModelNode modelNode) {
+		SelectedRectangle(IFigure figure, ModelNode modelNode) {
 			this.figure = figure;
 			this.modelNode = modelNode;
 
-			setLineStyle(Graphics.LINE_DOT);
 			setLayoutManager(new XYLayout());
 			add(this.figure);
 
@@ -45,20 +44,23 @@ public class ProcessEditPolicy extends ResizableEditPolicy {
 		}
 
 		@Override
-		protected void fillShape(Graphics graphics) {
+		public void paint(Graphics graphics) {
+
 			graphics.setBackgroundColor(new Color(null, invertRgb(modelNode.getBackgroundColor())));
 			graphics.setAlpha(50);
 			graphics.fillRectangle(getBounds());
 			graphics.setAlpha(255);
-			figure.paint(graphics);
-		}
 
-		@Override
-		protected void outlineShape(Graphics graphics) {
+			figure.paint(graphics);
+
+			Rectangle rectangle = getBounds().getCopy();
+			rectangle.width--;
+			rectangle.height--;
 			final int antialiasPrevious = graphics.getAntialias();
 			graphics.setAntialias(SWT.OFF);
+			graphics.setLineStyle(Graphics.LINE_DOT);
 			graphics.setForegroundColor(new Color(null, invertRgb(modelNode.getBackgroundColor())));
-			super.outlineShape(graphics);
+			graphics.drawRectangle(rectangle);
 			graphics.setAntialias(antialiasPrevious);
 		}
 
@@ -85,7 +87,6 @@ public class ProcessEditPolicy extends ResizableEditPolicy {
 		IFigure figure = nodeInfo.getFigureFactory().get();
 		((INodeFigure) figure).assignSettings(editPart.getFigure());
 		figure.setOpaque(false);
-		Shape shape = new Shape(figure, (ModelNode) ((Node) editPart.getModel()).getRoot());
-		return shape;
+		return new SelectedRectangle(figure, (ModelNode) ((Node) editPart.getModel()).getRoot());
 	}
 }
