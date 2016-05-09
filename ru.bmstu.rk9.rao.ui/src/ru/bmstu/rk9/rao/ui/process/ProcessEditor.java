@@ -21,16 +21,20 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.ConnectionLayer;
 import org.eclipse.draw2d.Figure;
+import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Layer;
 import org.eclipse.draw2d.LayeredPane;
 import org.eclipse.draw2d.ScalableLayeredPane;
 import org.eclipse.draw2d.StackLayout;
+import org.eclipse.draw2d.geometry.Dimension;
+import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.DefaultEditDomain;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.KeyHandler;
 import org.eclipse.gef.KeyStroke;
 import org.eclipse.gef.dnd.TemplateTransferDragSourceListener;
 import org.eclipse.gef.editparts.GridLayer;
+import org.eclipse.gef.editparts.GuideLayer;
 import org.eclipse.gef.editparts.ScalableRootEditPart;
 import org.eclipse.gef.palette.CombinedTemplateCreationEntry;
 import org.eclipse.gef.palette.ConnectionCreationToolEntry;
@@ -62,6 +66,7 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
 import com.google.inject.Inject;
 
+import ru.bmstu.rk9.rao.ui.gef.AntialiasedLayer;
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.NodeInfo;
@@ -99,6 +104,20 @@ import ru.bmstu.rk9.rao.ui.process.model.ProcessModelEditPart;
 import ru.bmstu.rk9.rao.ui.process.model.ProcessModelNode;
 
 public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
+
+	class FeedbackLayer extends AntialiasedLayer {
+		FeedbackLayer() {
+			setEnabled(false);
+		}
+
+		@Override
+		public Dimension getPreferredSize(int wHint, int hHint) {
+			Rectangle rect = new Rectangle();
+			for (int i = 0; i < getChildren().size(); i++)
+				rect.union(((IFigure) getChildren().get(i)).getBounds());
+			return rect.getSize();
+		}
+	}
 
 	public ProcessEditor() {
 		setEditDomain(new DefaultEditDomain(this));
@@ -252,6 +271,19 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		getGraphicalViewer().setRootEditPart(new ScalableRootEditPart() {
 
 			@Override
+			protected void createLayers(LayeredPane layeredPane) {
+				layeredPane.add(getScaledLayers(), SCALABLE_LAYERS);
+				layeredPane.add(new Layer() {
+					@Override
+					public Dimension getPreferredSize(int wHint, int hHint) {
+						return new Dimension();
+					}
+				}, HANDLE_LAYER);
+				layeredPane.add(new FeedbackLayer(), FEEDBACK_LAYER);
+				layeredPane.add(new GuideLayer(), GUIDE_LAYER);
+			}
+
+			@Override
 			protected ScalableLayeredPane createScaledLayers() {
 				ScalableLayeredPane layers = new ScalableLayeredPane();
 				layers.add(new ModelBackgroundLayer(), ModelBackgroundLayer.MODEL_BACKGROUND_LAYER);
@@ -273,7 +305,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 				connectionLayer.setAntialias(SWT.ON);
 				layers.add(connectionLayer, CONNECTION_LAYER);
 
-				Layer primaryLayer = new Layer();
+				Layer primaryLayer = new AntialiasedLayer();
 				primaryLayer.setLayoutManager(new StackLayout());
 				layers.add(primaryLayer, PRIMARY_LAYER);
 

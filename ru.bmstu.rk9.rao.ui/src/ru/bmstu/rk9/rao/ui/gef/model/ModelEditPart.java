@@ -66,6 +66,9 @@ public abstract class ModelEditPart extends EditPart {
 
 	@SuppressWarnings("rawtypes")
 	private void refreshChildren(List children) {
+		if (children == null)
+			return;
+
 		for (Iterator child = children.iterator(); child.hasNext();) {
 			AbstractEditPart editPart = (AbstractEditPart) child.next();
 			editPart.refresh();
