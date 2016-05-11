@@ -12,12 +12,12 @@ public class ConnectionCreateCommand extends Command {
 	private String sourceDockName;
 	private String targetDockName;
 
-	protected final void setSource(BlockNode sourceBlockNode, String sourceDockName) {
+	final void setSource(BlockNode sourceBlockNode, String sourceDockName) {
 		this.sourceBlockNode = sourceBlockNode;
 		this.sourceDockName = sourceDockName;
 	}
 
-	protected final void setTarget(BlockNode targetBlockNode, String targetDockName) {
+	final void setTarget(BlockNode targetBlockNode, String targetDockName) {
 		this.targetBlockNode = targetBlockNode;
 		this.targetDockName = targetDockName;
 	}

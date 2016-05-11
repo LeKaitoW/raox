@@ -9,6 +9,7 @@ import ru.bmstu.rk9.rao.ui.gef.INodeFigure;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.NodeInfo;
 import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
 
 public class ProcessEditPolicy extends ResizableEditPolicy {
 
@@ -28,6 +29,9 @@ public class ProcessEditPolicy extends ResizableEditPolicy {
 	private final IFigure createFigure(EditPart editPart) {
 		NodeInfo nodeInfo = ProcessEditor.getNodeInfoByEditPart(editPart.getClass());
 		IFigure figure = nodeInfo.getFigureFactory().get();
+		if (editPart.getModel() instanceof BlockNode) {
+			BlockNode blockNode = (BlockNode) editPart.getModel();
+		}
 		((INodeFigure) figure).assignSettings(editPart.getFigure());
 		figure.setOpaque(false);
 		return new ProcessSelectedRectangle(figure, (ModelNode) ((Node) editPart.getModel()).getRoot());
