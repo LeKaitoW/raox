@@ -112,10 +112,10 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 		@Override
 		public Dimension getPreferredSize(int wHint, int hHint) {
-			Rectangle rect = new Rectangle();
+			Rectangle rectangle = new Rectangle();
 			for (int i = 0; i < getChildren().size(); i++)
-				rect.union(((IFigure) getChildren().get(i)).getBounds());
-			return rect.getSize();
+				rectangle.union(((IFigure) getChildren().get(i)).getBounds());
+			return rectangle.getSize();
 		}
 	}
 
