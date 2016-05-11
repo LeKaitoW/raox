@@ -60,8 +60,9 @@ public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
 		figure.setForegroundColor(new Color(null, node.getColor()));
 		figure.setBackgroundColor(new Color(null, modelNode.getBackgroundColor()));
 
-		addFeedback(figure);
-		return figure;
+		ProcessSelectedRectangle processSelectedRectangle = new ProcessSelectedRectangle(figure, modelNode);
+		addFeedback(processSelectedRectangle);
+		return processSelectedRectangle;
 	}
 
 	@Override
