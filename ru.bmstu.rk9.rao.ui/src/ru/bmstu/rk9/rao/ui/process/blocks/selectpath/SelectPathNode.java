@@ -142,6 +142,9 @@ public class SelectPathNode extends BlockNode implements Serializable {
 	}
 
 	private final void validateProbability(IResource file) throws CoreException {
+		if (SelectPathMode.values()[getModeIndex()] != SelectPathMode.PROBABILITY)
+			return;
+
 		boolean valid = false;
 		try {
 			double probability = Double.valueOf(this.probability);
@@ -153,7 +156,7 @@ public class SelectPathNode extends BlockNode implements Serializable {
 			createProblemMarker(file, "Wrong probability", IMarker.SEVERITY_ERROR);
 	}
 
-	private final void validateFunction(IResource file) throws CoreException {
+	private final void validateCondition(IResource file) throws CoreException {
 		if (SelectPathMode.values()[getModeIndex()] != SelectPathMode.CONDITION)
 			return;
 
@@ -164,7 +167,7 @@ public class SelectPathNode extends BlockNode implements Serializable {
 	@Override
 	public void validateProperty(IResource file) throws CoreException {
 		validateProbability(file);
-		validateFunction(file);
+		validateCondition(file);
 		validateConnections(file, 2, 1);
 	}
 

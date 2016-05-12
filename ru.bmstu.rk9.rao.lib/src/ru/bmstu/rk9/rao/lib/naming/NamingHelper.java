@@ -32,7 +32,7 @@ public class NamingHelper {
 		return name.replace('$', '.');
 	}
 
-	public final static String createFullNameForField(final Member member) {
+	public final static String createFullNameForMember(final Member member) {
 		return changeDollarToDot(member.getDeclaringClass().getName() + "." + member.getName());
 	}
 }

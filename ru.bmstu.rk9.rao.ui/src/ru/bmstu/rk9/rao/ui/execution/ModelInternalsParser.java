@@ -149,7 +149,7 @@ public class ModelInternalsParser {
 			if (Pattern.class.isAssignableFrom(nestedModelClass)) {
 				JSONArray relevantResources = new JSONArray();
 				for (Field field : nestedModelClass.getDeclaredFields()) {
-					String fieldName = NamingHelper.createFullNameForField(field);
+					String fieldName = NamingHelper.createFullNameForMember(field);
 					if (Resource.class.isAssignableFrom(field.getType())) {
 						relevantResources.put(new JSONObject().put(ModelStructureConstants.NAME, fieldName).put(
 								ModelStructureConstants.TYPE,
@@ -220,8 +220,8 @@ public class ModelInternalsParser {
 				if (resourceType == null)
 					throw new RuntimeException("Invalid resource type + " + field.getType());
 
-				resourceType.getJSONArray(ModelStructureConstants.NAMED_RESOURCES).put(
-						new JSONObject().put(ModelStructureConstants.NAME, NamingHelper.createFullNameForField(field)));
+				resourceType.getJSONArray(ModelStructureConstants.NAMED_RESOURCES).put(new JSONObject()
+						.put(ModelStructureConstants.NAME, NamingHelper.createFullNameForMember(field)));
 			}
 		}
 
@@ -243,14 +243,14 @@ public class ModelInternalsParser {
 					}
 				}
 			};
-			modelContentsInfo.booleanFunctions.put(NamingHelper.createFullNameForField(method), supplier);
+			modelContentsInfo.booleanFunctions.put(NamingHelper.createFullNameForMember(method), supplier);
 		}
 	}
 
 	public final void postprocess() throws IllegalArgumentException, IllegalAccessException, InstantiationException,
 			ClassNotFoundException, IOException, CoreException {
 		for (Field field : nameableFields) {
-			String name = NamingHelper.createFullNameForField(field);
+			String name = NamingHelper.createFullNameForMember(field);
 			RaoNameable nameable = (RaoNameable) field.get(null);
 			nameable.setName(name);
 		}
