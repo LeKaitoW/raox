@@ -26,6 +26,8 @@ public class ConnectionCreateCommand extends Command {
 	public boolean canExecute() {
 		if (sourceBlockNode == null || targetBlockNode == null)
 			return false;
+		if (sourceDockName == null || targetDockName == null)
+			return false;
 		if (sourceBlockNode.equals(targetBlockNode))
 			return false;
 		if (sourceBlockNode.getDocksCount(sourceDockName) > 0)
