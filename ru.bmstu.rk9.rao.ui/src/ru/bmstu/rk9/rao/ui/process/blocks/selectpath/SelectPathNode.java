@@ -154,8 +154,11 @@ public class SelectPathNode extends BlockNode implements Serializable {
 	}
 
 	private final void validateFunction(IResource file) throws CoreException {
+		if (SelectPathMode.values()[getModeIndex()] != SelectPathMode.CONDITION)
+			return;
+
 		if (!getBooleanFunctionsNames().contains(condition))
-			createProblemMarker(file, "Wrong function", IMarker.SEVERITY_ERROR);
+			createProblemMarker(file, "Wrong condition", IMarker.SEVERITY_ERROR);
 	}
 
 	@Override
