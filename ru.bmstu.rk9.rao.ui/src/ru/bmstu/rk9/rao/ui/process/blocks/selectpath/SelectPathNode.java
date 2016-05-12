@@ -17,7 +17,7 @@ import ru.bmstu.rk9.rao.ui.execution.ModelContentsInfo;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.EResourceRetriever;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
-import ru.bmstu.rk9.rao.ui.process.model.ModelNode;
+import ru.bmstu.rk9.rao.ui.process.model.ProcessModelNode;
 
 public class SelectPathNode extends BlockNode implements Serializable {
 
@@ -166,7 +166,7 @@ public class SelectPathNode extends BlockNode implements Serializable {
 	}
 
 	public List<String> getBooleanFunctionsNames() {
-		EResourceRetriever resourceRetriever = ((ModelNode) getParent()).getResourceRetriever();
+		EResourceRetriever resourceRetriever = ((ProcessModelNode) getParent()).getResourceRetriever();
 		return resourceRetriever.getBooleanFunctionsNames();
 	}
 }

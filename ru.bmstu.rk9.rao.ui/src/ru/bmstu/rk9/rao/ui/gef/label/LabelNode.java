@@ -13,6 +13,7 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
 import ru.bmstu.rk9.rao.ui.gef.Node;
+import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
 
 public class LabelNode extends Node implements Serializable {
 
@@ -25,17 +26,11 @@ public class LabelNode extends Node implements Serializable {
 	public static String name = "Label";
 	private final int border = 5;
 
-	private String text;
-	private RGB textColor;
+	private String text = "text";
+	private RGB textColor = DefaultColors.LABEL_TEXT_COLOR.getRGB();
 	private RGB backgroundColor;
 	private transient Font font;
 	private boolean visible = true;
-
-	public LabelNode() {
-		text = "text";
-		textColor = DefaultColors.LABEL_TEXT_COLOR.getRGB();
-		backgroundColor = DefaultColors.LABEL_BACKGROUND_COLOR.getRGB();
-	}
 
 	public final String getText() {
 		return text;
@@ -68,12 +63,19 @@ public class LabelNode extends Node implements Serializable {
 	}
 
 	public final RGB getBackgroundColor() {
-		return backgroundColor;
+		if (backgroundColor != null)
+			return backgroundColor;
+
+		return ((ModelNode) getRoot()).getBackgroundColor();
 	}
 
 	public final void setBackgroundColor(RGB backgroundColor) {
 		RGB previousValue = this.backgroundColor;
-		this.backgroundColor = backgroundColor;
+		if (((ModelNode) getRoot()).getBackgroundColor().equals(backgroundColor)) {
+			this.backgroundColor = null;
+		} else {
+			this.backgroundColor = backgroundColor;
+		}
 		getListeners().firePropertyChange(PROPERTY_BACKGROUND_COLOR, previousValue, backgroundColor);
 	}
 

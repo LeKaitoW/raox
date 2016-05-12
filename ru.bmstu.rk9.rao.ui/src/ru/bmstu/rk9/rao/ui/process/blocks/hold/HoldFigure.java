@@ -6,7 +6,6 @@ import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
 
-import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockFigure;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionAnchor;
 
@@ -31,7 +30,7 @@ public class HoldFigure extends BlockFigure {
 		}
 
 		private void drawClock(Graphics graphics, Rectangle bounds, final int hours, final int minutes) {
-			graphics.setBackgroundColor(ProcessColors.MODEL_BACKGROUND_COLOR);
+			graphics.setBackgroundColor(getParent().getBackgroundColor());
 			graphics.fillArc(bounds, 0, 360);
 
 			graphics.setBackgroundColor(getForegroundColor());

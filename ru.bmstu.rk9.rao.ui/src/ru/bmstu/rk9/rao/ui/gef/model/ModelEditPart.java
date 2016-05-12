@@ -1,28 +1,23 @@
-package ru.bmstu.rk9.rao.ui.process.model;
+package ru.bmstu.rk9.rao.ui.gef.model;
 
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.gef.CompoundSnapToHelper;
-import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.SnapToGeometry;
 import org.eclipse.gef.SnapToGrid;
 import org.eclipse.gef.SnapToHelper;
+import org.eclipse.gef.editparts.AbstractEditPart;
 import org.eclipse.gef.editparts.ScalableRootEditPart;
+import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
 import ru.bmstu.rk9.rao.ui.gef.Node;
-import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
-import ru.bmstu.rk9.rao.ui.process.ProcessLayoutEditPolicy;
 
-public class ModelEditPart extends EditPart {
-
-	@Override
-	protected IFigure createFigure() {
-		return ((ScalableRootEditPart) getRoot()).getLayer(ProcessEditor.MODEL_LAYER);
-	}
+public abstract class ModelEditPart extends EditPart {
 
 	@Override
 	public final List<Node> getModelChildren() {
@@ -31,20 +26,21 @@ public class ModelEditPart extends EditPart {
 
 	@Override
 	protected void createEditPolicies() {
-		installEditPolicy(EditPolicy.LAYOUT_ROLE, new ProcessLayoutEditPolicy());
 	}
 
 	@Override
 	protected void refreshVisuals() {
-		super.refreshVisuals();
-
 		ModelNode node = (ModelNode) getModel();
-
+		IFigure modelBackgroundLayer = ((ScalableRootEditPart) getRoot())
+				.getLayer(ModelBackgroundLayer.MODEL_BACKGROUND_LAYER);
+		modelBackgroundLayer.setBackgroundColor(new Color(null, node.getBackgroundColor()));
 		getViewer().setProperty(SnapToGrid.PROPERTY_GRID_ENABLED, node.getShowGrid());
 		getViewer().setProperty(SnapToGrid.PROPERTY_GRID_VISIBLE, node.getShowGrid());
 		getViewer().setProperty(SnapToGeometry.PROPERTY_SNAP_ENABLED, node.getShowGrid());
 
 		getFigure().repaint();
+
+		super.refreshVisuals();
 	}
 
 	@Override
@@ -60,6 +56,23 @@ public class ModelEditPart extends EditPart {
 		case ModelNode.PROPERTY_SHOW_GRID:
 			refreshVisuals();
 			break;
+
+		case ModelNode.PROPERTY_BACKGROUND_COLOR:
+			refreshVisuals();
+			refreshChildren(children);
+			break;
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	private void refreshChildren(List children) {
+		if (children == null)
+			return;
+
+		for (Iterator child = children.iterator(); child.hasNext();) {
+			AbstractEditPart editPart = (AbstractEditPart) child.next();
+			editPart.refresh();
+			refreshChildren(editPart.getChildren());
 		}
 	}
 

@@ -15,6 +15,7 @@ import org.eclipse.swt.graphics.RGB;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
 import ru.bmstu.rk9.rao.ui.gef.Node;
+import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
 import ru.bmstu.rk9.rao.ui.process.ProcessDeletePolicy;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionAnchor;
@@ -91,6 +92,9 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 		BlockFigure figure = (BlockFigure) getFigure();
 		BlockNode node = (BlockNode) getModel();
 		figure.setForegroundColor(new Color(null, node.getColor()));
+
+		ModelNode modelNode = (ModelNode) node.getRoot();
+		figure.setBackgroundColor(new Color(null, modelNode.getBackgroundColor()));
 	}
 
 	@Override

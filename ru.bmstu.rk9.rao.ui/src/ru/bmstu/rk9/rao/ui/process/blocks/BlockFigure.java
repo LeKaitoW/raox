@@ -13,11 +13,12 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.swt.graphics.Color;
 
-import ru.bmstu.rk9.rao.ui.process.ProcessColors;
+import ru.bmstu.rk9.rao.ui.gef.INodeFigure;
 import ru.bmstu.rk9.rao.ui.process.connection.ConnectionAnchor;
 
-public class BlockFigure extends Figure {
+public class BlockFigure extends Figure implements INodeFigure {
 
 	protected Map<String, ConnectionAnchor> connectionAnchors = new HashMap<>();
 	protected List<ConnectionAnchor> inputConnectionAnchors = new ArrayList<>();
@@ -28,10 +29,23 @@ public class BlockFigure extends Figure {
 	private Docks docks = new Docks();
 	public static final int dockSize = 4;
 	private static final Rectangle dockRectangle = new Rectangle();
+	@SuppressWarnings("serial")
+	private static final List<Point> translatePoints = new ArrayList<Point>() {
+		{
+			add(new Point(1, 0));
+			add(new Point(0, 1));
+			add(new Point(-1, 0));
+			add(new Point(-1, 0));
+			add(new Point(0, -1));
+			add(new Point(0, -1));
+			add(new Point(1, 0));
+			add(new Point(1, 0));
+		}
+	};
 
 	class Docks extends Figure {
 		@Override
-		final protected void paintFigure(Graphics graphics) {
+		protected final void paintFigure(Graphics graphics) {
 			Rectangle bounds = getShape().getBounds();
 			for (Entry<String, ConnectionAnchor> entry : connectionAnchors.entrySet()) {
 				final int dockCenterX = bounds.x + entry.getValue().getOffsetHorizontal();
@@ -46,13 +60,14 @@ public class BlockFigure extends Figure {
 			dockRectangle.width = dockSize * 2;
 			dockRectangle.height = dockSize * 2;
 
-			graphics.setBackgroundColor(ProcessColors.MODEL_BACKGROUND_COLOR);
+			graphics.setBackgroundColor(getParent().getBackgroundColor());
 			graphics.fillRectangle(dockRectangle);
 
 			dockRectangle.shrink(1, 1);
 			graphics.setBackgroundColor(getForegroundColor());
 			graphics.fillRectangle(dockRectangle);
 		}
+
 	}
 
 	public BlockFigure(IFigure shape) {
@@ -82,6 +97,22 @@ public class BlockFigure extends Figure {
 				setConstraint(docks, docksBounds);
 			}
 		});
+	}
+
+	@Override
+	protected final void paintFigure(Graphics graphics) {
+		super.paintFigure(graphics);
+
+		Color shapeColor = shape.getForegroundColor();
+
+		shape.setForegroundColor(shape.getBackgroundColor());
+		for (Point translatePoint : translatePoints) {
+			shape.translate(translatePoint.x, translatePoint.y);
+			shape.paint(graphics);
+		}
+
+		shape.translate(-1, 1);
+		shape.setForegroundColor(shapeColor);
 	}
 
 	public void setConstraint(Rectangle constraint) {
@@ -141,5 +172,11 @@ public class BlockFigure extends Figure {
 
 	public List<ConnectionAnchor> getTargetConnectionAnchors() {
 		return inputConnectionAnchors;
+	}
+
+	@Override
+	public void assignSettings(IFigure original) {
+		setForegroundColor(original.getForegroundColor());
+		setBackgroundColor(original.getBackgroundColor());
 	}
 }
