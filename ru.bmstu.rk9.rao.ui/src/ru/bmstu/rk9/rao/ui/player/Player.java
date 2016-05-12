@@ -49,7 +49,7 @@ public class Player implements Runnable, ISimulator {
 
 	public List<ModelState> getModelData() {
 
-		return Reader.retrieveStateStorageFromFile();
+		return Reader.retrieveStateStorage();
 
 	}
 
@@ -74,21 +74,16 @@ public class Player implements Runnable, ISimulator {
 
 		modelStateStorage = getModelData();
 		CurrentSimulator.set(new Player());
-		
-		while (state != "Stop" && state != "Pause" //&& (currentEventNumber < (jsonModelStateObject.length() - 1))
+		while (state != "Stop" && state != "Pause" && currentEventNumber < (modelStateStorage.size() - 1)
 				&& currentEventNumber > 0) {
-			//Double currentFrameTime = jsonModelStateObject.getJSONObject(currentEventNumber)
-			//		.getJSONArray("Current resourses").getJSONObject(1).getDouble("time ");
 			delay(time);
-			/*System.out
-					.println("\n" + "Time " + currentFrameTime + "Event number " + currentEventNumber + " Current frame"
-							+ jsonModelStateObject.getJSONObject(currentEventNumber).getJSONArray("Current resourses"));
-*/
-			for (ModelState modelState : modelStateStorage){
-			System.out.println("\n" + modelState.toString());}
+
+			System.out.println("Event: " + modelStateStorage.get(currentEventNumber));
 			currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
 
 		}
+		System.out.println("Plaing done");
+		currentEventNumber = 1;
 		if (state == "Stop") {
 			Player.currentEventNumber = 1;
 		} else {
@@ -98,9 +93,9 @@ public class Player implements Runnable, ISimulator {
 	}
 
 	public void run() {
-		//notifyChange(ExecutionState.EXECUTION_STARTED);
-		//notifyChange(ExecutionState.TIME_CHANGED);
-		//notifyChange(ExecutionState.STATE_CHANGED);
+		// notifyChange(ExecutionState.EXECUTION_STARTED);
+		// notifyChange(ExecutionState.TIME_CHANGED);
+		// notifyChange(ExecutionState.STATE_CHANGED);
 		runPlayer(currentEventNumber, 1000, PlayingDirection.FORWARD);
 
 		return;

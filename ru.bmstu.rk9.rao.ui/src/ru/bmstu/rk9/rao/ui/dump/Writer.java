@@ -2,8 +2,7 @@ package ru.bmstu.rk9.rao.ui.dump;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-
+import java.util.Collection;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.ModelState;
@@ -33,10 +32,10 @@ public class Writer {
 
 	public class SimulationEndSubscriber implements Subscriber {
 		public void fireChange() {
-
+			
 			String stateStorageToString = new String();
 			stateStorageToString = Serializer.stateStorageToString(modelStateStorage);
-			Serializer.writeStringToJsonFile(stateStorageToString);		
+			Serializer.writeStringToJsonFile(stateStorageToString);
 		}
 
 	}
@@ -45,7 +44,7 @@ public class Writer {
 		simulationSubscriberManager.deinitialize();
 	}
 
-	private final List<ModelState> modelStateStorage = new ArrayList<ModelState>();
+	private final Collection<ModelState> modelStateStorage = new ArrayList<ModelState>();
 	public final SimulationEndSubscriber simulationEndSubscriber = new SimulationEndSubscriber();
 	private final StateStorageSubscriber stateStorageSubscriber = new StateStorageSubscriber();
 	private final SimulatorSubscriberManager simulationSubscriberManager = new SimulatorSubscriberManager();

@@ -15,8 +15,8 @@ public abstract class Resource extends RaoNameable implements Serializable {
 	}
 
 	public final void setNumber(Integer number) {
-		if (this.number != null)
-			throw new RaoLibException("Invalid attempt to set resource number. It is already set to " + number);
+		//if (this.number != null)
+		//	throw new RaoLibException("Invalid attempt to set resource number. It is already set to " + number);
 
 		this.number = number;
 	}

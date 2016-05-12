@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rao.ui.dump;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -9,14 +10,13 @@ import com.google.gson.GsonBuilder;
 
 import ru.bmstu.rk9.rao.lib.simulator.ModelState;
 
-
 public class Serializer {
 
-	public static String stateStorageToString(List<ModelState> modelStateStorage) {
+	public static String stateStorageToString(Collection<ModelState> modelStateStorage) {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String json = gson.toJson(modelStateStorage);
 		return json;
-		
+
 	}
 
 	public static void writeStringToJsonFile(String string) {

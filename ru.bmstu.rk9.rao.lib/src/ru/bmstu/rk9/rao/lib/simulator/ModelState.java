@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
@@ -24,7 +22,7 @@ public class ModelState {
 		}
 	}
 
-	private ModelState() {
+	public ModelState() {
 	}
 
 	@SuppressWarnings("unchecked")
@@ -37,8 +35,8 @@ public class ModelState {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends ComparableResource<T>> void addResource(T resource) {
-		ResourceManager<T> resourceManager = (ResourceManager<T>) resourceManagers.get(resource.getClass());
+	public <T extends ComparableResource> void addResource(T resource) {
+		ResourceManager resourceManager = resourceManagers.get(resource.getClass());
 		if (resourceManager == null)
 			throw new RaoLibException("Attempting to add resource of non-existing type " + resource.getClass());
 
