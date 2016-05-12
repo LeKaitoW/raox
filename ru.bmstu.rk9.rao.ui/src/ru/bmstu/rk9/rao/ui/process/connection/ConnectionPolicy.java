@@ -24,9 +24,12 @@ public class ConnectionPolicy extends GraphicalNodeEditPolicy {
 	protected Command getConnectionCreateCommand(CreateConnectionRequest request) {
 		ConnectionCreateCommand command = new ConnectionCreateCommand();
 		BlockNode sourceBlockNode = getBlockNode();
-		request.setStartCommand(command);
 		ConnectionAnchor connectionAnchor = getBlockEditPart().getSourceConnectionAnchor(request);
 		String sourceDockName = getBlockEditPart().mapConnectionAnchorToDock(connectionAnchor);
+		if (sourceDockName == null)
+			return null;
+		request.setStartCommand(command);
+
 		command.setSource(sourceBlockNode, sourceDockName);
 		return command;
 	}
