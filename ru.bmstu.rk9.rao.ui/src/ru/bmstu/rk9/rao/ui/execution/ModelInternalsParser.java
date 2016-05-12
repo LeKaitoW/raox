@@ -232,7 +232,7 @@ public class ModelInternalsParser {
 			if (method.getParameterCount() > 0)
 				continue;
 
-			Supplier<Boolean> sup = new Supplier<Boolean>() {
+			Supplier<Boolean> supplier = new Supplier<Boolean>() {
 				@Override
 				public Boolean get() {
 					try {
@@ -243,7 +243,7 @@ public class ModelInternalsParser {
 					}
 				}
 			};
-			modelContentsInfo.booleanFunctions.put(modelClass.getName() + "." + method.getName(), sup);
+			modelContentsInfo.booleanFunctions.put(NamingHelper.createFullNameForField(method), supplier);
 		}
 	}
 

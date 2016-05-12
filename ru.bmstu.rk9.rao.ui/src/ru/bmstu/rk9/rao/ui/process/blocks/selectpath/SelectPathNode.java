@@ -12,7 +12,7 @@ import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 import ru.bmstu.rk9.rao.lib.process.SelectPath;
-import ru.bmstu.rk9.rao.lib.process.SelectPath.SelectPathCondition;
+import ru.bmstu.rk9.rao.lib.process.SelectPath.SelectPathMode;
 import ru.bmstu.rk9.rao.ui.execution.ModelContentsInfo;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.EResourceRetriever;
@@ -28,12 +28,12 @@ public class SelectPathNode extends BlockNode implements Serializable {
 	public static final String DOCK_FALSE_OUT = "FALSE_OUT";
 	public static String name = "SelectPath";
 	private static final String PROPERTY_PROBABILITY = "Probability";
-	private static final String PROPERTY_FUNCION = "SelectPathFunction";
-	private static final String PROPERTY_CONDITION = "SelectingPath";
+	private static final String PROPERTY_CONDITION = "SelectPathCondition";
+	private static final String PROPERTY_MODE = "SelectPathMode";
 
 	private String probability = "0.5";
-	private String functionName;
-	private SelectPathCondition condition = SelectPathCondition.PROBABILITY;
+	private String condition;
+	private SelectPathMode mode = SelectPathMode.PROBABILITY;
 
 	public SelectPathNode() {
 		setName(name);
@@ -52,40 +52,46 @@ public class SelectPathNode extends BlockNode implements Serializable {
 		getListeners().firePropertyChange(PROPERTY_PROBABILITY, previousValue, probability);
 	}
 
-	private final int getFunctionIndex() {
-		return getBooleanFunctionsNames().indexOf(functionName);
-	}
-
-	private final void setFunctionIndex(int index) {
-		String previousValue = this.functionName;
-		this.functionName = getBooleanFunctionsNames().get(index);
-		getListeners().firePropertyChange(PROPERTY_FUNCION, previousValue, functionName);
-	}
-
 	private final int getConditionIndex() {
-		return condition.ordinal();
+		return getBooleanFunctionsNames().indexOf(condition);
 	}
 
 	private final void setConditionIndex(int index) {
-		SelectPathCondition previousValue = this.condition;
-		this.condition = SelectPathCondition.values()[index];
+		String previousValue = this.condition;
+		this.condition = getBooleanFunctionsNames().get(index);
 		getListeners().firePropertyChange(PROPERTY_CONDITION, previousValue, condition);
+	}
+
+	private final int getModeIndex() {
+		return mode.ordinal();
+	}
+
+	private final void setModeIndex(int index) {
+		SelectPathMode previousValue = this.mode;
+		this.mode = SelectPathMode.values()[index];
+		getListeners().firePropertyChange(PROPERTY_MODE, previousValue, mode);
 	}
 
 	@Override
 	public BlockConverterInfo createBlock(ModelContentsInfo modelContentsInfo) {
+		BlockConverterInfo selectPathInfo = new BlockConverterInfo();
 		ru.bmstu.rk9.rao.lib.process.SelectPath selectPath = null;
-		switch (condition) {
+		switch (mode) {
 		case PROBABILITY:
 			selectPath = new ru.bmstu.rk9.rao.lib.process.SelectPath(Double.valueOf(this.probability));
 			break;
-		case FUNCTION:
-			Supplier<Boolean> supplier = modelContentsInfo.booleanFunctions.get(functionName);
+		case CONDITION:
+			Supplier<Boolean> supplier = modelContentsInfo.booleanFunctions.get(condition);
+			if (supplier == null) {
+				selectPathInfo.isSuccessful = false;
+				selectPathInfo.errorMessage = "Condition not selected";
+				condition = "";
+				return selectPathInfo;
+			}
 			selectPath = new ru.bmstu.rk9.rao.lib.process.SelectPath(supplier);
 			break;
 		}
 
-		BlockConverterInfo selectPathInfo = new BlockConverterInfo();
 		selectPathInfo.setBlock(selectPath);
 		selectPathInfo.inputDocks.put(DOCK_IN, selectPath.getInputDock());
 		selectPathInfo.outputDocks.put(DOCK_TRUE_OUT, selectPath.getTrueOutputDock());
@@ -98,8 +104,8 @@ public class SelectPathNode extends BlockNode implements Serializable {
 		super.createProperties(properties);
 
 		properties.add(new TextPropertyDescriptor(PROPERTY_PROBABILITY, "Probability"));
-		properties.add(new ComboBoxPropertyDescriptor(PROPERTY_CONDITION, "Condition", SelectPath.getConditionArray()));
-		properties.add(new ComboBoxPropertyDescriptor(PROPERTY_FUNCION, "Function",
+		properties.add(new ComboBoxPropertyDescriptor(PROPERTY_MODE, "Mode", SelectPath.getModeArray()));
+		properties.add(new ComboBoxPropertyDescriptor(PROPERTY_CONDITION, "Condition",
 				getBooleanFunctionsNames().stream().toArray(String[]::new)));
 	}
 
@@ -107,12 +113,12 @@ public class SelectPathNode extends BlockNode implements Serializable {
 	public Object getPropertyValue(String propertyName) {
 
 		switch (propertyName) {
-		case PROPERTY_CONDITION:
-			return getConditionIndex();
+		case PROPERTY_MODE:
+			return getModeIndex();
 		case PROPERTY_PROBABILITY:
 			return getProbability();
-		case PROPERTY_FUNCION:
-			return getFunctionIndex();
+		case PROPERTY_CONDITION:
+			return getConditionIndex();
 		}
 
 		return super.getPropertyValue(propertyName);
@@ -123,14 +129,14 @@ public class SelectPathNode extends BlockNode implements Serializable {
 		super.setPropertyValue(propertyName, value);
 
 		switch (propertyName) {
-		case PROPERTY_CONDITION:
-			setConditionIndex((int) value);
+		case PROPERTY_MODE:
+			setModeIndex((int) value);
 			break;
 		case PROPERTY_PROBABILITY:
 			setProbability((String) value);
 			break;
-		case PROPERTY_FUNCION:
-			setFunctionIndex((int) value);
+		case PROPERTY_CONDITION:
+			setConditionIndex((int) value);
 			break;
 		}
 	}
@@ -148,7 +154,7 @@ public class SelectPathNode extends BlockNode implements Serializable {
 	}
 
 	private final void validateFunction(IResource file) throws CoreException {
-		if (!getBooleanFunctionsNames().contains(functionName))
+		if (!getBooleanFunctionsNames().contains(condition))
 			createProblemMarker(file, "Wrong function", IMarker.SEVERITY_ERROR);
 	}
 

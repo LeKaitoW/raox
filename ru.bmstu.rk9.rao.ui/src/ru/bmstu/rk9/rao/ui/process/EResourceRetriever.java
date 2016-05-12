@@ -60,17 +60,20 @@ public class EResourceRetriever {
 		for (IResource resource : BuildUtil.getAllFilesInProject(project, "rao")) {
 			String raoFileName = resource.getName();
 			raoFileName = raoFileName.substring(0, raoFileName.lastIndexOf("."));
-			String modelClassName = project.getName() + "." + raoFileName;
 
 			URI uri = BuildUtil.getURI(resource);
 			Resource loadedResource = resourceSet.getResource(uri, true);
 			if (loadedResource == null)
 				continue;
+			String modelClassName = project.getName() + "." + raoFileName;
 			List<FunctionDeclaration> functions = SerializationConfigurator
 					.filterAllContents(loadedResource.getAllContents(), FunctionDeclaration.class);
 			for (FunctionDeclaration declaration : functions) {
-				if (declaration.getType().getSimpleName().equals("boolean"))
-					functionsNames.add(modelClassName + "." + declaration.getName());
+				if (!declaration.getType().getSimpleName().equals("boolean"))
+					continue;
+				if (!declaration.getParameters().isEmpty())
+					continue;
+				functionsNames.add(modelClassName + "." + declaration.getName());
 			}
 		}
 		return functionsNames;

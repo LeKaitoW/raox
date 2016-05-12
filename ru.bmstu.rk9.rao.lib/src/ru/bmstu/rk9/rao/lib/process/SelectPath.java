@@ -35,8 +35,8 @@ public class SelectPath implements Block {
 		private final String output;
 	}
 
-	public enum SelectPathCondition {
-		PROBABILITY, FUNCTION
+	public enum SelectPathMode {
+		PROBABILITY, CONDITION
 	}
 
 	public SelectPath(Supplier<Boolean> condition) {
@@ -91,10 +91,10 @@ public class SelectPath implements Block {
 		return BlockStatus.SUCCESS;
 	}
 
-	public static String[] getConditionArray() {
-		List<String> conditionList = new ArrayList<String>();
-		for (SelectPathCondition condition : SelectPathCondition.values())
-			conditionList.add(condition.toString());
-		return conditionList.stream().toArray(String[]::new);
+	public static String[] getModeArray() {
+		List<String> modeList = new ArrayList<String>();
+		for (SelectPathMode mode : SelectPathMode.values())
+			modeList.add(mode.toString());
+		return modeList.stream().toArray(String[]::new);
 	}
 }
