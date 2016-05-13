@@ -1,10 +1,7 @@
 package ru.bmstu.rk9.rao.lib.process;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
-
 import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
@@ -77,13 +74,6 @@ public class Queue implements Block {
 				return BlockStatus.CHECK_AGAIN;
 		}
 		return BlockStatus.NOTHING_TO_DO;
-	}
-
-	public static String[] getQueueingArray() {
-		List<String> queueingList = new ArrayList<String>();
-		for (Queueing queueing : Queueing.values())
-			queueingList.add(queueing.toString());
-		return queueingList.stream().toArray(String[]::new);
 	}
 
 	private void addQueueEntryToDatabase(Transact transact, QueueAction queueAction) {

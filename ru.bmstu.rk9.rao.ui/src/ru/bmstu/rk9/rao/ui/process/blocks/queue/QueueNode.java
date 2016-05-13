@@ -6,13 +6,12 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.ui.views.properties.ComboBoxPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
-import ru.bmstu.rk9.rao.lib.process.Queue;
 import ru.bmstu.rk9.rao.lib.process.Queue.Queueing;
 import ru.bmstu.rk9.rao.ui.execution.ModelContentsInfo;
+import ru.bmstu.rk9.rao.ui.gef.EnumComboBoxPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
 
@@ -45,13 +44,13 @@ public class QueueNode extends BlockNode implements Serializable {
 		getListeners().firePropertyChange(PROPERTY_CAPACITY, previousValue, capacity);
 	}
 
-	private final Integer getQueueingIndex() {
-		return queueing.ordinal();
+	private final Queueing getQueueing() {
+		return queueing;
 	}
 
-	private final void setQueueing(int index) {
+	private final void setQueueing(Queueing queueing) {
 		Queueing previousValue = this.queueing;
-		this.queueing = Queueing.values()[index];
+		this.queueing = queueing;
 		getListeners().firePropertyChange(PROPERTY_QUEUEING, previousValue, queueing);
 	}
 
@@ -75,7 +74,7 @@ public class QueueNode extends BlockNode implements Serializable {
 		super.createProperties(properties);
 
 		properties.add(new TextPropertyDescriptor(PROPERTY_CAPACITY, "Capacity"));
-		properties.add(new ComboBoxPropertyDescriptor(PROPERTY_QUEUEING, "Queueing", Queue.getQueueingArray()));
+		properties.add(new EnumComboBoxPropertyDescriptor<>(PROPERTY_QUEUEING, "Queueing", Queueing.class));
 	}
 
 	@Override
@@ -86,7 +85,7 @@ public class QueueNode extends BlockNode implements Serializable {
 			return getCapacity();
 
 		case PROPERTY_QUEUEING:
-			return getQueueingIndex();
+			return getQueueing();
 		}
 
 		return super.getPropertyValue(propertyName);
@@ -102,7 +101,7 @@ public class QueueNode extends BlockNode implements Serializable {
 			break;
 
 		case PROPERTY_QUEUEING:
-			setQueueing((int) value);
+			setQueueing((Queueing) value);
 			break;
 		}
 	}
