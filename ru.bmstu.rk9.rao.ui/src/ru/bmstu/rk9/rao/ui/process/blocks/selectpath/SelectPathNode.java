@@ -11,9 +11,9 @@ import org.eclipse.ui.views.properties.ComboBoxPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
-import ru.bmstu.rk9.rao.lib.process.SelectPath;
 import ru.bmstu.rk9.rao.lib.process.SelectPath.SelectPathMode;
 import ru.bmstu.rk9.rao.ui.execution.ModelContentsInfo;
+import ru.bmstu.rk9.rao.ui.gef.EnumComboBoxPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.EResourceRetriever;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
@@ -62,13 +62,13 @@ public class SelectPathNode extends BlockNode implements Serializable {
 		getListeners().firePropertyChange(PROPERTY_CONDITION, previousValue, condition);
 	}
 
-	private final int getModeIndex() {
-		return mode.ordinal();
+	private final SelectPathMode getMode() {
+		return mode;
 	}
 
-	private final void setModeIndex(int index) {
+	private final void setMode(SelectPathMode mode) {
 		SelectPathMode previousValue = this.mode;
-		this.mode = SelectPathMode.values()[index];
+		this.mode = mode;
 		getListeners().firePropertyChange(PROPERTY_MODE, previousValue, mode);
 	}
 
@@ -104,7 +104,7 @@ public class SelectPathNode extends BlockNode implements Serializable {
 		super.createProperties(properties);
 
 		properties.add(new TextPropertyDescriptor(PROPERTY_PROBABILITY, "Probability"));
-		properties.add(new ComboBoxPropertyDescriptor(PROPERTY_MODE, "Mode", SelectPath.getModeArray()));
+		properties.add(new EnumComboBoxPropertyDescriptor<>(PROPERTY_MODE, "Mode", SelectPathMode.class));
 		properties.add(new ComboBoxPropertyDescriptor(PROPERTY_CONDITION, "Condition",
 				getBooleanFunctionsNames().stream().toArray(String[]::new)));
 	}
@@ -114,7 +114,7 @@ public class SelectPathNode extends BlockNode implements Serializable {
 
 		switch (propertyName) {
 		case PROPERTY_MODE:
-			return getModeIndex();
+			return getMode();
 		case PROPERTY_PROBABILITY:
 			return getProbability();
 		case PROPERTY_CONDITION:
@@ -130,7 +130,7 @@ public class SelectPathNode extends BlockNode implements Serializable {
 
 		switch (propertyName) {
 		case PROPERTY_MODE:
-			setModeIndex((int) value);
+			setMode((SelectPathMode) value);
 			break;
 		case PROPERTY_PROBABILITY:
 			setProbability((String) value);
@@ -142,7 +142,7 @@ public class SelectPathNode extends BlockNode implements Serializable {
 	}
 
 	private final void validateProbability(IResource file) throws CoreException {
-		if (SelectPathMode.values()[getModeIndex()] != SelectPathMode.PROBABILITY)
+		if (mode != SelectPathMode.PROBABILITY)
 			return;
 
 		boolean valid = false;
@@ -157,7 +157,7 @@ public class SelectPathNode extends BlockNode implements Serializable {
 	}
 
 	private final void validateCondition(IResource file) throws CoreException {
-		if (SelectPathMode.values()[getModeIndex()] != SelectPathMode.CONDITION)
+		if (mode != SelectPathMode.CONDITION)
 			return;
 
 		if (!getBooleanFunctionsNames().contains(condition))
