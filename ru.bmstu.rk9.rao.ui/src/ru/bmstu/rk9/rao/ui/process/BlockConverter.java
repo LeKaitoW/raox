@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import ru.bmstu.rk9.rao.lib.process.Block;
+import ru.bmstu.rk9.rao.ui.execution.ModelContentsInfo;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
 import ru.bmstu.rk9.rao.ui.process.connection.Connection;
 
 public class BlockConverter {
 
-	public static List<Block> convertModelToBlocks(Node model) {
+	public static List<Block> convertModelToBlocks(Node model, ModelContentsInfo modelContentsInfo) {
 		List<Node> children = model.getChildren();
 		List<Block> blocks = new ArrayList<Block>();
 		Map<BlockNode, BlockConverterInfo> blockNodes = new HashMap<>();
@@ -25,7 +26,7 @@ public class BlockConverter {
 			if (blockNodes.containsKey(sourceBlockNode)) {
 				sourceBlockInfo = blockNodes.get(sourceBlockNode);
 			} else {
-				sourceBlockInfo = sourceBlockNode.createBlock();
+				sourceBlockInfo = sourceBlockNode.createBlock(modelContentsInfo);
 				if (!sourceBlockInfo.isSuccessful)
 					throw new ProcessParsingException(sourceBlockInfo.errorMessage);
 				blocks.add(sourceBlockInfo.block);
@@ -38,7 +39,7 @@ public class BlockConverter {
 				if (blockNodes.containsKey(targetBlockNode)) {
 					targetBlockInfo = blockNodes.get(targetBlockNode);
 				} else {
-					targetBlockInfo = targetBlockNode.createBlock();
+					targetBlockInfo = targetBlockNode.createBlock(modelContentsInfo);
 					if (!targetBlockInfo.isSuccessful)
 						throw new ProcessParsingException(targetBlockInfo.errorMessage);
 					blocks.add(targetBlockInfo.block);

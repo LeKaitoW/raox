@@ -14,6 +14,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.ColorPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
+import ru.bmstu.rk9.rao.ui.execution.ModelContentsInfo;
 import ru.bmstu.rk9.rao.ui.gef.CheckboxPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
@@ -261,7 +262,7 @@ public abstract class BlockNode extends Node {
 		}
 	}
 
-	public abstract BlockConverterInfo createBlock();
+	public abstract BlockConverterInfo createBlock(ModelContentsInfo modelContentsInfo);
 
 	public abstract void validateProperty(IResource file) throws CoreException;
 }

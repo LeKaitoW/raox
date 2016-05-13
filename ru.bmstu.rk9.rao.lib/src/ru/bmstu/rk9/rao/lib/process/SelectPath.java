@@ -1,6 +1,8 @@
 package ru.bmstu.rk9.rao.lib.process;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.apache.commons.math3.random.MersenneTwister;
@@ -31,6 +33,10 @@ public class SelectPath implements Block {
 		}
 
 		private final String output;
+	}
+
+	public enum SelectPathMode {
+		PROBABILITY, CONDITION
 	}
 
 	public SelectPath(Supplier<Boolean> condition) {
@@ -85,4 +91,10 @@ public class SelectPath implements Block {
 		return BlockStatus.SUCCESS;
 	}
 
+	public static String[] getModeArray() {
+		List<String> modeList = new ArrayList<String>();
+		for (SelectPathMode mode : SelectPathMode.values())
+			modeList.add(mode.toString());
+		return modeList.stream().toArray(String[]::new);
+	}
 }

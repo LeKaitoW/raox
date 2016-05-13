@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -25,6 +26,7 @@ import ru.bmstu.rk9.rao.lib.dpt.Edge;
 import ru.bmstu.rk9.rao.lib.dpt.Logic;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
 import ru.bmstu.rk9.rao.lib.event.Event;
+import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
@@ -47,6 +49,7 @@ public class ModelInternalsParser {
 	private final SimulatorInitializationInfo simulatorInitializationInfo = new SimulatorInitializationInfo();
 	private final List<Class<?>> decisionPointClasses = new ArrayList<>();
 	private final List<Field> nameableFields = new ArrayList<>();
+	private final ModelContentsInfo modelContentsInfo = new ModelContentsInfo();
 
 	private URLClassLoader classLoader;
 	private final IProject project;
@@ -146,7 +149,7 @@ public class ModelInternalsParser {
 			if (Pattern.class.isAssignableFrom(nestedModelClass)) {
 				JSONArray relevantResources = new JSONArray();
 				for (Field field : nestedModelClass.getDeclaredFields()) {
-					String fieldName = NamingHelper.createFullNameForField(field);
+					String fieldName = NamingHelper.createFullNameForMember(field);
 					if (Resource.class.isAssignableFrom(field.getType())) {
 						relevantResources.put(new JSONObject().put(ModelStructureConstants.NAME, fieldName).put(
 								ModelStructureConstants.TYPE,
@@ -217,16 +220,37 @@ public class ModelInternalsParser {
 				if (resourceType == null)
 					throw new RuntimeException("Invalid resource type + " + field.getType());
 
-				resourceType.getJSONArray(ModelStructureConstants.NAMED_RESOURCES).put(
-						new JSONObject().put(ModelStructureConstants.NAME, NamingHelper.createFullNameForField(field)));
+				resourceType.getJSONArray(ModelStructureConstants.NAMED_RESOURCES).put(new JSONObject()
+						.put(ModelStructureConstants.NAME, NamingHelper.createFullNameForMember(field)));
 			}
+		}
+
+		for (Method method : modelClass.getDeclaredMethods()) {
+			if (!method.getReturnType().equals(Boolean.TYPE))
+				continue;
+
+			if (method.getParameterCount() > 0)
+				continue;
+
+			Supplier<Boolean> supplier = new Supplier<Boolean>() {
+				@Override
+				public Boolean get() {
+					try {
+						return (boolean) method.invoke(null);
+					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						e.printStackTrace();
+						throw new RaoLibException("Internal error invoking function " + method.getName());
+					}
+				}
+			};
+			modelContentsInfo.booleanFunctions.put(NamingHelper.createFullNameForMember(method), supplier);
 		}
 	}
 
 	public final void postprocess() throws IllegalArgumentException, IllegalAccessException, InstantiationException,
 			ClassNotFoundException, IOException, CoreException {
 		for (Field field : nameableFields) {
-			String name = NamingHelper.createFullNameForField(field);
+			String name = NamingHelper.createFullNameForMember(field);
 			RaoNameable nameable = (RaoNameable) field.get(null);
 			nameable.setName(name);
 		}
@@ -239,7 +263,7 @@ public class ModelInternalsParser {
 		for (IResource processFile : BuildUtil.getAllFilesInProject(project, "proc")) {
 			ProcessModelNode model = ProcessEditor.readModelFromFile((IFile) processFile);
 			List<Block> blocks;
-			blocks = BlockConverter.convertModelToBlocks(model);
+			blocks = BlockConverter.convertModelToBlocks(model, modelContentsInfo);
 
 			simulatorInitializationInfo.processBlocks.addAll(blocks);
 		}

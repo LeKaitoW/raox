@@ -12,6 +12,7 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 import ru.bmstu.rk9.rao.lib.process.Queue;
 import ru.bmstu.rk9.rao.lib.process.Queue.Queueing;
+import ru.bmstu.rk9.rao.ui.execution.ModelContentsInfo;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
 
@@ -55,7 +56,7 @@ public class QueueNode extends BlockNode implements Serializable {
 	}
 
 	@Override
-	public BlockConverterInfo createBlock() {
+	public BlockConverterInfo createBlock(ModelContentsInfo modelContentsInfo) {
 		ru.bmstu.rk9.rao.lib.process.Queue queue;
 		if (this.capacity.isEmpty()) {
 			queue = new ru.bmstu.rk9.rao.lib.process.Queue(Integer.MAX_VALUE, this.queueing);

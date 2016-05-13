@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rao.ui.process.blocks.terminate;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
+import ru.bmstu.rk9.rao.ui.execution.ModelContentsInfo;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
 
@@ -19,7 +20,7 @@ public class TerminateNode extends BlockNode {
 	}
 
 	@Override
-	public BlockConverterInfo createBlock() {
+	public BlockConverterInfo createBlock(ModelContentsInfo modelContentsInfo) {
 		ru.bmstu.rk9.rao.lib.process.Terminate terminate = new ru.bmstu.rk9.rao.lib.process.Terminate();
 		BlockConverterInfo terminateInfo = new BlockConverterInfo();
 		terminateInfo.setBlock(terminate);
