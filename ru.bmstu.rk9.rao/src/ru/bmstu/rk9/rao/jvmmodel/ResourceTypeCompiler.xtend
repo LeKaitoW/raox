@@ -184,6 +184,15 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				'''
 			]
 
+			members += resourceType.toMethod("getAny", typeRef) [
+				visibility = JvmVisibility.PUBLIC
+				final = true
+				static = true
+				body = '''
+					return ru.bmstu.rk9.rao.lib.runtime.RaoCollectionExtensions.any(getAll());
+				'''
+			]
+
 			members += resourceType.toMethod("getAll", typeRef(Collection, {
 				typeRef
 			})) [
