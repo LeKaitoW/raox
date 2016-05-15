@@ -1,43 +1,39 @@
-//enum BarberState {free, busy}
-//
-//type BarberShop {
-//	BarberState barberState = BarberState.free;
-//	int queueLength = 0;
-//}
-//
-//resource barberShop = BarberShop.create(*, *);
-//
-//sequence clientInputInterval = int enumerative() {
-//	14, 13, 17, 15, 16, 15, 14, 22, 19
-//}
-//
-//event clientInput() {
-//	clientInput.plan(currentTime + clientInputInterval.next());
-//	if (barberShop.barberState == BarberState.free) {
-//		barberShop.barberState = BarberState.busy;
-//		serviceFinished.plan(currentTime + serviceDuration.next());
-//	} else {
-//		barberShop.queueLength++;
-//	}
-//}
-//
-//sequence serviceDuration = int enumerative() {
-//	18, 12, 14, 15, 14, 15, 13, 14, 17
-//}
-//
-//event serviceFinished() {
-//	if (barberShop.queueLength > 0) {
-//		barberShop.queueLength--;
-//		serviceFinished.plan(currentTime + serviceDuration.next());
-//	} else {
-//		barberShop.barberState = BarberState.free;
-//	}
-//}
-//
-//set init() {
-//	clientInput.plan(clientInputInterval.next());
-//}
-//
-//set terminateCondition() {
-//	return currentTime > 44;
-//}
+enum BarberState {free, busy}
+
+type BarberShop {
+	barber_events.BarberState barberState = BarberState.free;
+	int queueLength = 0;
+}
+
+resource barberShop = BarberShop.create(BarberState.free, 0);
+
+sequence clientInputInterval = new Values(#[14, 13, 17, 15, 16, 15, 14, 22, 19])
+
+event clientInput() {
+	clientInput.plan(currentTime + clientInputInterval.next());
+	if (barberShop.barberState.equals(BarberState.free)) {
+		barberShop.barberState = BarberState.busy;
+		serviceFinished.plan(currentTime + serviceDuration.next());
+	} else {
+		barberShop.queueLength = barberShop.queueLength + 1;
+	}
+}
+
+sequence serviceDuration = new Values (#[18, 12, 14, 15, 14, 15, 13, 14, 17])
+
+event serviceFinished() {
+	if (barberShop.queueLength > 0) {
+		barberShop.queueLength = barberShop.queueLength - 1;
+		serviceFinished.plan(currentTime + serviceDuration.next());
+	} else {
+		barberShop.barberState = BarberState.free;
+	}
+}
+
+set init() {
+	clientInput.plan(clientInputInterval.next());
+}
+
+set terminateCondition() {
+	return currentTime > 44;
+}
