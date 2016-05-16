@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
@@ -23,6 +22,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Display;
 
+import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
 import ru.bmstu.rk9.rao.ui.gef.INodeFigure;
 import ru.bmstu.rk9.rao.ui.gef.model.ModelLayer;
 import ru.bmstu.rk9.rao.ui.process.ProcessColors;
@@ -194,10 +194,15 @@ public class BlockFigure extends Figure implements INodeFigure {
 		setBackgroundColor(original.getBackgroundColor());
 	}
 
+	private final Color generateTransparentColor(Color color) {
+		final int red = color.getRed() == 255 ? color.getRed() - 1 : color.getRed() + 1;
+		return new Color(Display.getCurrent(), red, color.getGreen(), color.getBlue());
+	}
+
 	private final ImageData getPreviewImageData(Dimension size) {
 		IFigure parent = new ModelLayer();
 		parent.setLayoutManager(new XYLayout());
-		Color transparentColor = new Color(Display.getCurrent(), 254, 255, 255);
+		Color transparentColor = generateTransparentColor(DefaultColors.MODEL_BACKGROUND_COLOR);
 		parent.setBackgroundColor(transparentColor);
 		parent.setOpaque(true);
 		parent.setBounds(new Rectangle(0, 0, size.width, size.height));
@@ -205,7 +210,7 @@ public class BlockFigure extends Figure implements INodeFigure {
 		parent.add(this);
 		setBounds(new Rectangle(0, 0, size.width, size.height));
 		setForegroundColor(ProcessColors.BLOCK_COLOR);
-		setBackgroundColor(ColorConstants.white);
+		setBackgroundColor(DefaultColors.MODEL_BACKGROUND_COLOR);
 
 		Image image = new Image(Display.getCurrent(), getBounds().width, getBounds().height);
 		GC imageGC = new GC(image);
