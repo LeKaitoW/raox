@@ -33,6 +33,7 @@ import java.util.Set
 import java.util.HashSet
 import ru.bmstu.rk9.rao.rao.Activity
 import ru.bmstu.rk9.rao.rao.Edge
+import ru.bmstu.rk9.rao.rao.Event
 
 class RaoValidator extends AbstractRaoValidator
 {
@@ -151,30 +152,29 @@ class RaoValidator extends AbstractRaoValidator
 				eObject instanceof Result
 		].toList
 
-				for (eObject : checklist) {
-					if (eObject.nameGeneric.equals(model.nameGeneric))
-						error("Error - object cannot have the same name as model ('" + eObject.nameGeneric + "').",
-							eObject, eObject.getNameStructuralFeature)
+		for (eObject : checklist) {
+			if (eObject.nameGeneric.equals(model.nameGeneric))
+				error("Error - object cannot have the same name as model ('" + eObject.nameGeneric + "').",
+					eObject, eObject.getNameStructuralFeature)
 
-					val name = eObject.fullyQualifiedName
-					if (entities.contains(name)) {
-						if (!duplicates.contains(name))
-							duplicates.add(name)
-					} else
-						entities.add(name)
-				}
+			val name = eObject.fullyQualifiedName
+			if (entities.contains(name)) {
+				if (!duplicates.contains(name))
+					duplicates.add(name)
+			} else
+				entities.add(name)
+		}
 
-				if (!duplicates.empty) {
-					for (eObject : checklist) {
-						val name = eObject.fullyQualifiedName
-						val hasNoName = (name.contains(".") && name.substring(name.lastIndexOf(".") + 1) == "null"
-				)
-						if (!hasNoName && duplicates.contains(name))
-							error("Error - multiple declarations of object '" + name + "'.", eObject,
-								eObject.getNameStructuralFeature)
-					}
-				}
+		if (!duplicates.empty) {
+			for (eObject : checklist) {
+				val name = eObject.fullyQualifiedName
+				val hasNoName = (name.contains(".") && name.substring(name.lastIndexOf(".") + 1) == "null")
+				if (!hasNoName && duplicates.contains(name))
+					error("Error - multiple declarations of object '" + name + "'.", eObject,
+						eObject.getNameStructuralFeature)
 			}
+		}
+	}
 
 	@Check
 	def checkDuplicateNamesForRelevants(Pattern pattern) {
@@ -215,6 +215,77 @@ class RaoValidator extends AbstractRaoValidator
 				}
 			}
 		}
+	}
+
+	enum NameCase {
+		FIRST_LOWER,
+		FIRST_UPPER,
+		DOES_NOT_MATTER
+	}
+
+	@Check
+	def dispatch checkCase(RaoEntity entity) {
+		var NameCase expectedNameCase = NameCase.DOES_NOT_MATTER
+
+		if (entity.name == null || entity.name.isEmpty)
+			return;
+
+		if (entity instanceof ResourceDeclaration
+				|| entity instanceof Sequence
+				|| entity instanceof DefaultMethod)
+			expectedNameCase = NameCase.FIRST_LOWER
+
+		if (entity instanceof ResourceType
+				|| entity instanceof Pattern
+				|| entity instanceof Event
+				|| entity instanceof Logic
+				|| entity instanceof Search
+				|| entity instanceof Frame)
+			expectedNameCase = NameCase.FIRST_UPPER
+
+		checkCaseInternal(entity, entity.name, expectedNameCase, RaoPackage.eINSTANCE.raoEntity_Name)
+	}
+
+	@Check
+	def dispatch checkCase(RelevantResource relevant) {
+		checkCaseInternal(relevant, relevant.name, NameCase.FIRST_LOWER, RaoPackage.eINSTANCE.activity_Name)
+	}
+
+	@Check
+	def dispatch checkCase(DefaultMethod method) {
+		checkCaseInternal(method, method.name, NameCase.FIRST_LOWER, RaoPackage.eINSTANCE.activity_Name)
+	}
+
+	@Check
+	def dispatch checkCase(Activity activity) {
+		checkCaseInternal(activity, activity.name, NameCase.FIRST_LOWER, RaoPackage.eINSTANCE.activity_Name)
+	}
+
+	@Check
+	def dispatch checkCase(Edge edge) {
+		checkCaseInternal(edge, edge.name, NameCase.FIRST_LOWER, RaoPackage.eINSTANCE.activity_Name)
+	}
+
+	def checkCaseInternal(EObject object, String name, NameCase expectedNameCase, EStructuralFeature feature) {
+		var String description
+		var NameCase actualNameCase
+
+		if (expectedNameCase == NameCase.DOES_NOT_MATTER)
+			return;
+
+		if (expectedNameCase == NameCase.FIRST_LOWER)
+			description = "lowercase"
+		else
+			description = "uppercase"
+
+		if (Character.isUpperCase(name.codePointAt(0)))
+			actualNameCase = NameCase.FIRST_UPPER
+		else
+			actualNameCase = NameCase.FIRST_LOWER
+
+		if (expectedNameCase != actualNameCase)
+			error("Error in declaration of \"" + name + "\": should start with " + description + " letter",
+				feature)
 	}
 
 	@Check
