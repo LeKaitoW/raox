@@ -4,6 +4,7 @@ import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Path;
 
@@ -17,7 +18,7 @@ public class SeizeFigure extends BlockFigure {
 		@Override
 		final protected void paintFigure(Graphics graphics) {
 			Path path = new Path(null);
-			addArcToPath(getBounds(), path);
+			Point shift = addArcToPath(getBounds(), path);
 			final float[] points = path.getPathData().points;
 			final float xStart = points[0];
 			final float yStart = points[1];
@@ -25,7 +26,9 @@ public class SeizeFigure extends BlockFigure {
 			path.close();
 
 			graphics.setBackgroundColor(getForegroundColor());
+			graphics.translate(shift.x, shift.y);
 			graphics.fillPath(path);
+			graphics.translate(-shift.x, -shift.y);
 		}
 
 		private static IFigure create() {
@@ -48,25 +51,34 @@ public class SeizeFigure extends BlockFigure {
 			@Override
 			public void figureMoved(IFigure shape) {
 				Path path = new Path(null);
-				addArcToPath(getShape().getBounds(), path);
+				Point shift = addArcToPath(getShape().getBounds(), path);
 				path.close();
 				if (path.getPathData().points.length == 0)
 					return;
-				final int left = (int) path.getPathData().points[0];
+				final int right = (int) path.getPathData().points[0];
 
 				Rectangle bounds = shape.getBounds();
-				inputConnectionAnchor.setOffsetHorizontal(0);
-				inputConnectionAnchor.setOffsetVertical(bounds.height / 2);
+				inputConnectionAnchor.setOffsetHorizontal(shift.x);
+				inputConnectionAnchor.setOffsetVertical(shift.y + bounds.height / 2);
 
-				outputConnectionAnchor.setOffsetHorizontal(left - bounds.x);
-				outputConnectionAnchor.setOffsetVertical(bounds.height / 2);
+				outputConnectionAnchor.setOffsetHorizontal(shift.x + right - bounds.x);
+				outputConnectionAnchor.setOffsetVertical(shift.y + bounds.height / 2);
 			}
 		});
 	}
 
-	private static void addArcToPath(Rectangle bounds, Path path) {
+	private static Point addArcToPath(Rectangle bounds, Path path) {
 		final int startAngle = 60;
 		final int arcAngle = 240;
 		path.addArc(bounds.x, bounds.y, bounds.width, bounds.height, startAngle, arcAngle);
+
+		final Point shift;
+		if (bounds.width == 0) {
+			shift = new Point(0, 0);
+		} else {
+			final float xStart = path.getPathData().points[0];
+			shift = new Point((int) ((bounds.x + bounds.width - xStart) / 2), 0);
+		}
+		return shift;
 	}
 }
