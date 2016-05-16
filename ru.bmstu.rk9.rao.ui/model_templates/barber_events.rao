@@ -1,7 +1,7 @@
 enum BarberState {free, busy}
 
 type BarberShop {
-	barber_events.BarberState barberState = BarberState.free;
+	BarberState barberState = BarberState.free;
 	int queueLength = 0;
 }
 
@@ -19,7 +19,7 @@ event clientInput() {
 	}
 }
 
-sequence serviceDuration = new Values (#[18, 12, 14, 15, 14, 15, 13, 14, 17])
+sequence serviceDuration = new Values(#[18, 12, 14, 15, 14, 15, 13, 14, 17])
 
 event serviceFinished() {
 	if (barberShop.queueLength > 0) {
