@@ -200,15 +200,14 @@ public class BlockFigure extends Figure implements INodeFigure {
 		Color transparentColor = new Color(Display.getCurrent(), 254, 255, 255);
 		parent.setBackgroundColor(transparentColor);
 		parent.setOpaque(true);
-		parent.setBounds(
-				new Rectangle(0, 0, Display.getCurrent().getBounds().width, Display.getCurrent().getBounds().height));
+		parent.setBounds(new Rectangle(0, 0, size.width, size.height));
 
-		IFigure blockFigure = this;
-		parent.add(blockFigure);
-		blockFigure.setBounds(new Rectangle(0, 0, size.width, size.height));
-		blockFigure.setForegroundColor(ProcessColors.BLOCK_COLOR);
-		blockFigure.setBackgroundColor(ColorConstants.white);
-		Image image = new Image(Display.getCurrent(), blockFigure.getBounds().width, blockFigure.getBounds().height);
+		parent.add(this);
+		setBounds(new Rectangle(0, 0, size.width, size.height));
+		setForegroundColor(ProcessColors.BLOCK_COLOR);
+		setBackgroundColor(ColorConstants.white);
+
+		Image image = new Image(Display.getCurrent(), getBounds().width, getBounds().height);
 		GC imageGC = new GC(image);
 		Graphics graphics = new SWTGraphics(imageGC);
 		graphics.setAdvanced(true);
@@ -216,13 +215,16 @@ public class BlockFigure extends Figure implements INodeFigure {
 		graphics.setTextAntialias(SWT.ON);
 		parent.paint(graphics);
 		graphics.setForegroundColor(transparentColor);
-		graphics.drawPoint(0, 0);
+		Point transparentPoint = new Point(0, 0);
+		graphics.drawPoint(transparentPoint.x, transparentPoint.y);
+
 		imageGC.dispose();
 		graphics.dispose();
 		transparentColor.dispose();
+
 		ImageData imageData = image.getImageData();
 		image.dispose();
-		imageData.transparentPixel = imageData.getPixel(0, 0);
+		imageData.transparentPixel = imageData.getPixel(transparentPoint.x, transparentPoint.y);
 		return imageData;
 	}
 
