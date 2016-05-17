@@ -22,7 +22,7 @@ public class DefaultMethodsHelper {
 			this.validatorAction = validatorAction;
 		}
 
-		final String name;
+		public final String name;
 		final ValidatorAction validatorAction;
 	}
 
@@ -35,7 +35,7 @@ public class DefaultMethodsHelper {
 			this.validatorAction = validatorAction;
 		}
 
-		final String name;
+		public final String name;
 		final ValidatorAction validatorAction;
 	}
 
@@ -47,7 +47,7 @@ public class DefaultMethodsHelper {
 			this.validatorAction = validatorAction;
 		}
 
-		final String name;
+		public final String name;
 		final ValidatorAction validatorAction;
 	}
 
@@ -59,7 +59,7 @@ public class DefaultMethodsHelper {
 			this.validatorAction = validatorAction;
 		}
 
-		final String name;
+		public final String name;
 		final ValidatorAction validatorAction;
 	}
 
@@ -71,7 +71,7 @@ public class DefaultMethodsHelper {
 			this.validatorAction = validatorAction;
 		}
 
-		final String name;
+		public final String name;
 		final ValidatorAction validatorAction;
 	}
 }
