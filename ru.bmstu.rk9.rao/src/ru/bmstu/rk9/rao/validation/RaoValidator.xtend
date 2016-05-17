@@ -248,12 +248,7 @@ class RaoValidator extends AbstractRaoValidator
 
 	@Check
 	def dispatch checkCase(RelevantResource relevant) {
-		checkCaseInternal(relevant, relevant.name, NameCase.FIRST_LOWER, RaoPackage.eINSTANCE.activity_Name)
-	}
-
-	@Check
-	def dispatch checkCase(DefaultMethod method) {
-		checkCaseInternal(method, method.name, NameCase.FIRST_LOWER, RaoPackage.eINSTANCE.activity_Name)
+		checkCaseInternal(relevant, relevant.name, NameCase.FIRST_LOWER, RaoPackage.eINSTANCE.relevantResource_Name)
 	}
 
 	@Check
@@ -263,7 +258,7 @@ class RaoValidator extends AbstractRaoValidator
 
 	@Check
 	def dispatch checkCase(Edge edge) {
-		checkCaseInternal(edge, edge.name, NameCase.FIRST_LOWER, RaoPackage.eINSTANCE.activity_Name)
+		checkCaseInternal(edge, edge.name, NameCase.FIRST_LOWER, RaoPackage.eINSTANCE.edge_Name)
 	}
 
 	def checkCaseInternal(EObject object, String name, NameCase expectedNameCase, EStructuralFeature feature) {
