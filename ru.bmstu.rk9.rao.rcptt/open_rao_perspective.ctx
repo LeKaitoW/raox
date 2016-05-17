@@ -1,0 +1,28 @@
+--- RCPTT testcase ---
+Format-Version: 1.0
+Context-Type: org.eclipse.rcptt.ctx.workbench
+Element-Name: open_rao_perspective
+Element-Type: context
+Element-Version: 2.0
+Id: _1P7p0ByGEea5c-Q90PErIw
+Runtime-Version: 2.0.1.201508250612
+Save-Time: 5/18/16 2:40 AM
+
+------=_.description-216f885c-d591-38ce-8ea2-e4f8cb4d6ffa
+Content-Type: text/plain
+Entry-Name: .description
+
+Opens and resets rao perspective.
+------=_.description-216f885c-d591-38ce-8ea2-e4f8cb4d6ffa--
+------=_.q7.content-3d2e0690-ce48-3609-83e0-c704d49f1eaf
+Content-Type: q7/binary
+Entry-Name: .q7.content
+
+UEsDBBQACAgIAAAAIQAAAAAAAAAAAAAAAAAIAAkALmNvbnRlbnRVVAUAAQAAAAB1jsFqwzAQRO/5CqF7
+Vk6htDFRAi2h+FBIT+3NOPLWEbG0YiXH7t9XKTjk0uvOmze72U2uFxfkaMlruYJCCvSGWus7LYf0vXyW
+u+1iQ9wBmt6GiMAmpATRoG/YUvlJfD7mzumVfMIpicnZ8mZ8uBrzho9lvmt5SimUSo3jCOQ6yF719V7N
+yP8zt+YcX5t/iHLUYq9mMPeJUQrfONSSAvqaG6pDfiigSfaSM9tqWa8OT6F4+XnbY/Nolh/r4rDnapTi
+jqwyxwMcXUwD8HkN2QSDhXuZ2i5+AVBLBwg7CZHc1wAAAEUBAABQSwECFAAUAAgICAAAACEAOwmR3NcA
+AABFAQAACAAJAAAAAAAAAAAAAAAAAAAALmNvbnRlbnRVVAUAAQAAAABQSwUGAAAAAAEAAQA/AAAAFgEA
+AAAA
+------=_.q7.content-3d2e0690-ce48-3609-83e0-c704d49f1eaf--
