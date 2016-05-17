@@ -30,6 +30,10 @@ class RaoProposalProvider extends AbstractRaoProposalProvider {
 			toComplete = model
 		}
 
+		if (!(toComplete instanceof Pattern || toComplete instanceof Frame || toComplete instanceof Logic ||
+			toComplete instanceof Search || toComplete instanceof RaoModel))
+			return;
+
 		internalCompleteDefaultMethod_Name(toComplete, context, acceptor)
 	}
 
