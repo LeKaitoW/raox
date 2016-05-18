@@ -21,10 +21,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.draw2d.ConnectionLayer;
 import org.eclipse.draw2d.Figure;
+import org.eclipse.draw2d.FreeformLayer;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Layer;
 import org.eclipse.draw2d.LayeredPane;
-import org.eclipse.draw2d.ScalableLayeredPane;
+import org.eclipse.draw2d.ScalableFreeformLayeredPane;
 import org.eclipse.draw2d.StackLayout;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Rectangle;
@@ -35,7 +36,7 @@ import org.eclipse.gef.KeyStroke;
 import org.eclipse.gef.dnd.TemplateTransferDragSourceListener;
 import org.eclipse.gef.editparts.GridLayer;
 import org.eclipse.gef.editparts.GuideLayer;
-import org.eclipse.gef.editparts.ScalableRootEditPart;
+import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.gef.palette.CombinedTemplateCreationEntry;
 import org.eclipse.gef.palette.ConnectionCreationToolEntry;
 import org.eclipse.gef.palette.MarqueeToolEntry;
@@ -273,12 +274,12 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 				getActionRegistry().getAction(ActionFactory.DELETE.getId()));
 		viewer.setKeyHandler(keyHandler);
 
-		getGraphicalViewer().setRootEditPart(new ScalableRootEditPart() {
+		getGraphicalViewer().setRootEditPart(new ScalableFreeformRootEditPart() {
 
 			@Override
 			protected void createLayers(LayeredPane layeredPane) {
 				layeredPane.add(getScaledLayers(), SCALABLE_LAYERS);
-				layeredPane.add(new Layer() {
+				layeredPane.add(new FreeformLayer() {
 					@Override
 					public Dimension getPreferredSize(int wHint, int hHint) {
 						return new Dimension();
@@ -289,8 +290,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 			}
 
 			@Override
-			protected ScalableLayeredPane createScaledLayers() {
-				ScalableLayeredPane layers = new ScalableLayeredPane();
+			protected ScalableFreeformLayeredPane createScaledLayers() {
+				ScalableFreeformLayeredPane layers = new ScalableFreeformLayeredPane();
 				layers.add(new ModelBackgroundLayer(), ModelBackgroundLayer.MODEL_BACKGROUND_LAYER);
 				layers.add(createGridLayer(), GRID_LAYER);
 				layers.add(getPrintableLayers(), PRINTABLE_LAYERS);
@@ -304,7 +305,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 			@Override
 			protected LayeredPane createPrintableLayers() {
-				LayeredPane layers = new LayeredPane();
+				LayeredPane layers = new ScalableFreeformLayeredPane();
 
 				ConnectionLayer connectionLayer = new ConnectionLayer();
 				connectionLayer.setAntialias(SWT.ON);

@@ -11,7 +11,7 @@ import org.eclipse.gef.SnapToGeometry;
 import org.eclipse.gef.SnapToGrid;
 import org.eclipse.gef.SnapToHelper;
 import org.eclipse.gef.editparts.AbstractEditPart;
-import org.eclipse.gef.editparts.ScalableRootEditPart;
+import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
@@ -31,7 +31,7 @@ public abstract class ModelEditPart extends EditPart {
 	@Override
 	protected void refreshVisuals() {
 		ModelNode node = (ModelNode) getModel();
-		IFigure modelBackgroundLayer = ((ScalableRootEditPart) getRoot())
+		IFigure modelBackgroundLayer = ((ScalableFreeformRootEditPart) getRoot())
 				.getLayer(ModelBackgroundLayer.MODEL_BACKGROUND_LAYER);
 		modelBackgroundLayer.setBackgroundColor(new Color(null, node.getBackgroundColor()));
 		getViewer().setProperty(SnapToGrid.PROPERTY_GRID_ENABLED, node.getShowGrid());
