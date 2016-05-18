@@ -54,6 +54,7 @@ public class NodePropertySource implements IPropertySource {
 		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		try {
 			page.showView(IPageLayout.ID_PROP_SHEET);
+			page.activate(page.getActiveEditor());
 		} catch (PartInitException e) {
 		}
 	}
