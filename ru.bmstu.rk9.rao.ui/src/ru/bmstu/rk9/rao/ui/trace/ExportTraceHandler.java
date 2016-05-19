@@ -11,6 +11,8 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
@@ -66,6 +68,9 @@ public class ExportTraceHandler extends AbstractHandler {
 		Tracer tracer = new Tracer(CurrentSimulator.getStaticModelData());
 
 		PrintWriter writer = initializeWriter(".trc");
+		if (writer == null)
+			return;
+
 		for (Entry entry : CurrentSimulator.getDatabase().getAllEntries()) {
 			TraceOutput output = tracer.parseSerializedData(entry);
 			if (output != null)
@@ -86,7 +91,11 @@ public class ExportTraceHandler extends AbstractHandler {
 		}
 
 		List<TraceOutput> output = legacyTracer.getTraceList();
+
 		PrintWriter writer = initializeWriter(".trc.legacy");
+		if (writer == null)
+			return;
+
 		for (TraceOutput item : output) {
 			writer.println(item.content());
 		}
@@ -95,14 +104,15 @@ public class ExportTraceHandler extends AbstractHandler {
 
 	private final static PrintWriter initializeWriter(String suffix) {
 		IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
-		IPath filePath = workspacePath.append(currentProject.getFullPath()
-				.append(currentProject.getName().substring(0, currentProject.getName().lastIndexOf('.')) + suffix));
+		IPath filePath = workspacePath.append(currentProject.getFullPath().append(currentProject.getName() + suffix));
 
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(filePath.toString(), "UTF-8");
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error",
+					"Failed to initialize trace writer");
 			return null;
 		}
 
