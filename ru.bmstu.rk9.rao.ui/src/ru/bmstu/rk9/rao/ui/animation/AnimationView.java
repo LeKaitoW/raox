@@ -110,7 +110,9 @@ public class AnimationView extends ViewPart {
 			initializeFrames();
 
 		ExecutionMode currentMode = SimulationModeDispatcher.getMode();
-		setAnimationEnabled(currentMode != ExecutionMode.NO_ANIMATION);
+
+		setAnimationEnabled(true);
+		// setAnimationEnabled(currentMode != ExecutionMode.NO_ANIMATION);
 	}
 
 	public static void deinitialize() {
@@ -141,13 +143,14 @@ public class AnimationView extends ViewPart {
 			}
 		}
 	};
-
 	private static PaintListener painter = new PaintListener() {
 		@Override
 		public void paintControl(PaintEvent e) {
+			//realTimeUpdateRunnable.run();
 			if (canDraw()) {
 				if (animationEnabled || !isInitialized)
 					animationContext.drawFrame(e.gc, currentFrame);
+
 			}
 		}
 	};
@@ -190,7 +193,8 @@ public class AnimationView extends ViewPart {
 		Command command = service.getCommand("ru.bmstu.rk9.rao.ui.runtime.setExecutionMode");
 		State state = command.getState("org.eclipse.ui.commands.radioState");
 
-		animationEnabled = !state.getValue().equals("NA");
+		// animationEnabled = !state.getValue().equals("NA");
+		animationEnabled = true;
 
 		AnimationView.parent = parent;
 

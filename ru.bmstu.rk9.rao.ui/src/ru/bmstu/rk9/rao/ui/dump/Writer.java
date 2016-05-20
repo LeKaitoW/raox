@@ -8,6 +8,7 @@ import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.ModelState;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
+import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 
 public class Writer {
@@ -26,6 +27,7 @@ public class Writer {
 	public class StateStorageSubscriber implements Subscriber {
 		public void fireChange() {
 			modelStateStorage.add(CurrentSimulator.getModelState());
+
 		}
 
 	}
@@ -33,9 +35,11 @@ public class Writer {
 	public class SimulationEndSubscriber implements Subscriber {
 		public void fireChange() {
 			
-			String stateStorageToString = new String();
-			stateStorageToString = Serializer.stateStorageToString(modelStateStorage);
-			Serializer.writeStringToJsonFile(stateStorageToString);
+			String stateStorageToString = Serializer.stateStorageToString(modelStateStorage);
+			Serializer.writeStringToJsonStateFile(stateStorageToString);
+			JSONObject modelStructure = CurrentSimulator.getStaticModelData().getModelStructure();
+			String modelStructureString = Serializer.modelStructureToString(modelStructure);
+			Serializer.writeStringToJsonStructureFile(modelStructureString);
 		}
 
 	}

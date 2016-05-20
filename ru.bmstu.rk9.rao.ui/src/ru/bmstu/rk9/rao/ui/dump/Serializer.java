@@ -3,11 +3,11 @@ package ru.bmstu.rk9.rao.ui.dump;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.simulator.ModelState;
 
 public class Serializer {
@@ -19,8 +19,29 @@ public class Serializer {
 
 	}
 
-	public static void writeStringToJsonFile(String string) {
+	public static String modelStructureToString(JSONObject modelStructure) {
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String json = gson.toJson(modelStructure);
+		return json;
+
+	}
+
+	public static void writeStringToJsonStateFile(String string) {
 		try (FileWriter file = new FileWriter("/home/timur/JSON/test.json")) {
+			file.write(string);
+			System.out.println("Successfully Copied JSON Object to File...");
+			System.out.println("\nJSON Object: " + string);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+
+		}
+
+	}
+
+	public static void writeStringToJsonStructureFile(String string) {
+		try (FileWriter file = new FileWriter("/home/timur/JSON/structure.json")) {
 			file.write(string);
 			System.out.println("Successfully Copied JSON Object to File...");
 			System.out.println("\nJSON Object: " + string);

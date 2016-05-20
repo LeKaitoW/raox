@@ -3,7 +3,6 @@ package ru.bmstu.rk9.rao.ui.player;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -19,11 +18,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+
+import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.ModelState;
-import ru.bmstu.rk9.rao.ui.dump.Serializer;
 
 public class Reader {
 
@@ -60,11 +60,36 @@ public class Reader {
 		return modelStateStorage;
 	}
 
+	public static JSONObject retrieveStructure() {
+		File myFile = new File("/home/timur/JSON/structure.json");
+		FileInputStream fIn = null;
+		JSONObject structure = new JSONObject();
+		try {
+			fIn = new FileInputStream(myFile);
+			InputStreamReader isr = new InputStreamReader(fIn);
+			@SuppressWarnings("resource")
+			BufferedReader bufferedReader = new BufferedReader(isr);
+			StringBuilder sb = new StringBuilder();
+			String line;
+			while ((line = bufferedReader.readLine()) != null) {
+				sb.append(line);
+			}
+
+			String json = sb.toString();
+			Gson gson = new Gson();
+			structure = gson.fromJson(json, JSONObject.class);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return structure;
+	}
+
 	public static ModelState retrieveModelStateFromFile(FileInputStream fIn, File myFile, JsonObject data) {
 		ModelState modelState = new ModelState();
 		Gson gson = new Gson();
 		URLClassLoader classLoader;
-		
+
 		try {
 			URL modelURL = new URL("file:////home/timur/runtime-timur/resources/bin/");
 			URL[] urls = new URL[] { modelURL };
@@ -101,7 +126,7 @@ public class Reader {
 			for (ComparableResource object : listObject) {
 				modelState.addResource(object);
 			}
-		
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

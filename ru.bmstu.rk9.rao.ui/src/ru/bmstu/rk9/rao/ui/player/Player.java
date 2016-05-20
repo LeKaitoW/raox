@@ -1,10 +1,18 @@
 package ru.bmstu.rk9.rao.ui.player;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
+
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.event.Event;
+import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
@@ -14,6 +22,8 @@ import ru.bmstu.rk9.rao.lib.simulator.ISimulator;
 import ru.bmstu.rk9.rao.lib.simulator.ModelState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
+import ru.bmstu.rk9.rao.ui.animation.AnimationView;
+import ru.bmstu.rk9.rao.ui.execution.ModelInternalsParser;
 
 public class Player implements Runnable, ISimulator {
 
@@ -53,6 +63,11 @@ public class Player implements Runnable, ISimulator {
 
 	}
 
+	public JSONObject getModelStructure() {
+
+		return Reader.retrieveStructure();
+	}
+
 	public static void stop() {
 		System.out.println("Stop");
 		state = "Stop";
@@ -73,6 +88,8 @@ public class Player implements Runnable, ISimulator {
 	private synchronized void runPlayer(int currentEventNumber, int time, PlayingDirection playingDirection) {
 
 		modelStateStorage = getModelData();
+		modelStructure = getModelStructure();
+
 		CurrentSimulator.set(new Player());
 		while (state != "Stop" && state != "Pause" && currentEventNumber < (modelStateStorage.size() - 1)
 				&& currentEventNumber > 0) {
@@ -80,6 +97,22 @@ public class Player implements Runnable, ISimulator {
 
 			System.out.println("Event: " + modelStateStorage.get(currentEventNumber));
 			currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
+
+			final Display display = PlatformUI.getWorkbench().getDisplay();
+			IProject[] projectsInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+			final ModelInternalsParser parser = new ModelInternalsParser(projectsInWorkspace[0]);
+			try {
+				parser.parse();
+				parser.postprocess();
+
+			} catch (IOException | NoSuchMethodException | SecurityException | InstantiationException
+					| IllegalAccessException | IllegalArgumentException | InvocationTargetException
+					| ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+
+			AnimationView.setAnimationEnabled(true);
+			display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
 
 		}
 		System.out.println("Plaing done");
@@ -93,9 +126,7 @@ public class Player implements Runnable, ISimulator {
 	}
 
 	public void run() {
-		// notifyChange(ExecutionState.EXECUTION_STARTED);
-		// notifyChange(ExecutionState.TIME_CHANGED);
-		// notifyChange(ExecutionState.STATE_CHANGED);
+
 		runPlayer(currentEventNumber, 1000, PlayingDirection.FORWARD);
 
 		return;
@@ -104,6 +135,7 @@ public class Player implements Runnable, ISimulator {
 	private static volatile String state = new String("");
 	private volatile static Integer currentEventNumber = new Integer(1);
 	private List<ModelState> modelStateStorage = new ArrayList<ModelState>();
+	private JSONObject modelStructure = new JSONObject();
 
 	@Override
 	public void preinitilize(SimulatorPreinitializationInfo info) {
@@ -114,7 +146,6 @@ public class Player implements Runnable, ISimulator {
 	@Override
 	public void initialize(SimulatorInitializationInfo initializationInfo) {
 		// TODO Auto-generated method stub
-		executionStateNotifier = new Notifier<ExecutionState>(ExecutionState.class);
 	}
 
 	@Override
