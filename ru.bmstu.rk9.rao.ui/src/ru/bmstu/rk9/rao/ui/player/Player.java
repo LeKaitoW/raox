@@ -39,6 +39,10 @@ public class Player implements Runnable, ISimulator {
 		FORWARD, BACKWARD;
 	};
 
+	private enum PlayerState {
+		STOP, PLAY, PAUSE, INITIALIZED
+	}
+
 	private int PlaingSelector(int currentEventNumber, PlayingDirection playingDirection) {
 
 		switch (playingDirection) {
@@ -59,65 +63,76 @@ public class Player implements Runnable, ISimulator {
 
 	public List<ModelState> getModelData() {
 
-		return Reader.retrieveStateStorage();
+		return reader.retrieveStateStorage();
 
 	}
 
 	public JSONObject getModelStructure() {
 
-		return Reader.retrieveStructure();
+		return reader.retrieveStructure();
 	}
 
 	public static void stop() {
-		System.out.println("Stop");
-		state = "Stop";
+		state = PlayerState.STOP;
 	}
 
 	public static void pause() {
-		System.out.println("Pause");
-		state = "Pause";
+		state = PlayerState.PAUSE;
 	}
 
 	public static void play() {
 		Thread thread = new Thread(new Player());
 		thread.start();
-		System.out.println("Play");
-		state = "Play";
+		state = PlayerState.PLAY;
+	}
+
+	private ModelInternalsParser parseModel(IProject projectsInWorkspace) {
+		final ModelInternalsParser parser = new ModelInternalsParser(projectsInWorkspace);
+		try {
+			parser.parse();
+			parser.postprocess();
+
+		} catch (IOException | NoSuchMethodException | SecurityException | InstantiationException
+				| IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		AnimationView.setAnimationEnabled(true);
+
+		return parser;
+	}
+
+	public static IProject getCurrentProject() {
+		IProject currentProject = projectsInWorkspace[0];
+		return currentProject;
+	}
+
+	public static String getCurrentProjectPath() {
+		String path = getCurrentProject().getLocation().toString();
+		return path;
 	}
 
 	private synchronized void runPlayer(int currentEventNumber, int time, PlayingDirection playingDirection) {
+		CurrentSimulator.set(new Player());
+		final Display display = PlatformUI.getWorkbench().getDisplay();
+		final ModelInternalsParser parser = parseModel(projectsInWorkspace[0]);
+		display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
 
 		modelStateStorage = getModelData();
 		modelStructure = getModelStructure();
 
-		CurrentSimulator.set(new Player());
-		while (state != "Stop" && state != "Pause" && currentEventNumber < (modelStateStorage.size() - 1)
-				&& currentEventNumber > 0) {
+		while (state != PlayerState.STOP && state != PlayerState.PAUSE
+				&& currentEventNumber < (modelStateStorage.size() - 1) && currentEventNumber > 0) {
 			delay(time);
-
+			// FIXME: remove debug print
 			System.out.println("Event: " + modelStateStorage.get(currentEventNumber));
+
 			currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
 
-			final Display display = PlatformUI.getWorkbench().getDisplay();
-			IProject[] projectsInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-			final ModelInternalsParser parser = new ModelInternalsParser(projectsInWorkspace[0]);
-			try {
-				parser.parse();
-				parser.postprocess();
-
-			} catch (IOException | NoSuchMethodException | SecurityException | InstantiationException
-					| IllegalAccessException | IllegalArgumentException | InvocationTargetException
-					| ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-
-			AnimationView.setAnimationEnabled(true);
-			display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
-
 		}
-		System.out.println("Plaing done");
 		currentEventNumber = 1;
-		if (state == "Stop") {
+		if (state == PlayerState.STOP) {
 			Player.currentEventNumber = 1;
 		} else {
 			Player.currentEventNumber = currentEventNumber;
@@ -132,10 +147,12 @@ public class Player implements Runnable, ISimulator {
 		return;
 	}
 
-	private static volatile String state = new String("");
+	private static IProject[] projectsInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+	private static volatile PlayerState state = PlayerState.INITIALIZED;
 	private volatile static Integer currentEventNumber = new Integer(1);
 	private List<ModelState> modelStateStorage = new ArrayList<ModelState>();
 	private JSONObject modelStructure = new JSONObject();
+	private Reader reader = new Reader();
 
 	@Override
 	public void preinitilize(SimulatorPreinitializationInfo info) {

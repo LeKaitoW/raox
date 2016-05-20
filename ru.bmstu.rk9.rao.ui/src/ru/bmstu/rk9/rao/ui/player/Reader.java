@@ -24,19 +24,19 @@ import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.ModelState;
+import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 
 public class Reader {
 
 	@SuppressWarnings("unchecked")
-
-	public static List<ModelState> retrieveStateStorage() {
-		File myFile = new File("/home/timur/JSON/test.json");
-		FileInputStream fIn = null;
+	public List<ModelState> retrieveStateStorage() {
+		File myFile = new File(Player.getCurrentProjectPath() + "/stateStorage.json");
+		FileInputStream fileInputStream = null;
 		List<ModelState> modelStateStorage = new ArrayList<ModelState>();
 		ModelState modelState = new ModelState();
 		try {
-			fIn = new FileInputStream(myFile);
-			InputStreamReader isr = new InputStreamReader(fIn);
+			fileInputStream = new FileInputStream(myFile);
+			InputStreamReader isr = new InputStreamReader(fileInputStream);
 			@SuppressWarnings("resource")
 			BufferedReader bufferedReader = new BufferedReader(isr);
 			StringBuilder sb = new StringBuilder();
@@ -46,27 +46,26 @@ public class Reader {
 			}
 
 			String json = sb.toString();
-
 			JsonParser parser = new JsonParser();
 			JsonArray array = parser.parse(json).getAsJsonArray();
-			for (int i = 0, size = array.size(); i < size; i++) {
-				modelStateStorage.add(retrieveModelStateFromFile(fIn, myFile, (JsonObject) array.get(i)));
+			for (int i = 0; i < array.size(); i++) {
+				modelStateStorage.add(retrieveModelStateFromFile(fileInputStream, myFile, (JsonObject) array.get(i)));
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			ConsoleView.addLine("Invalide JSON with model states");
 		}
 
 		return modelStateStorage;
 	}
 
-	public static JSONObject retrieveStructure() {
-		File myFile = new File("/home/timur/JSON/structure.json");
-		FileInputStream fIn = null;
+	public JSONObject retrieveStructure() {
+		File myFile = new File(Player.getCurrentProjectPath() + "/structure.json");
+		FileInputStream fileInputStream = null;
 		JSONObject structure = new JSONObject();
 		try {
-			fIn = new FileInputStream(myFile);
-			InputStreamReader isr = new InputStreamReader(fIn);
+			fileInputStream = new FileInputStream(myFile);
+			InputStreamReader isr = new InputStreamReader(fileInputStream);
 			@SuppressWarnings("resource")
 			BufferedReader bufferedReader = new BufferedReader(isr);
 			StringBuilder sb = new StringBuilder();
@@ -85,15 +84,18 @@ public class Reader {
 		return structure;
 	}
 
-	public static ModelState retrieveModelStateFromFile(FileInputStream fIn, File myFile, JsonObject data) {
+	private static final int classNameOffset = "class ".length();
+
+	private ModelState retrieveModelStateFromFile(FileInputStream fIn, File myFile, JsonObject data) {
 		ModelState modelState = new ModelState();
 		Gson gson = new Gson();
 		URLClassLoader classLoader;
 
 		try {
-			URL modelURL = new URL("file:////home/timur/runtime-timur/resources/bin/");
+			String resourcesPath = Player.getCurrentProjectPath();
+			URL modelURL = new URL("file:///" + resourcesPath + "/.." + "/resources/bin/");
 			URL[] urls = new URL[] { modelURL };
-			Collection<Class<? extends Resource>> listClass = new ArrayList<Class<? extends Resource>>();
+			Collection<Class<? extends Resource>> listClass = new ArrayList<>();
 			List<ComparableResource> listObject = new ArrayList<>();
 			classLoader = new URLClassLoader(urls, CurrentSimulator.class.getClassLoader());
 
@@ -102,32 +104,21 @@ public class Reader {
 				Set<Map.Entry<String, JsonElement>> resources = entry.getValue().getAsJsonObject().get("resources")
 						.getAsJsonObject().entrySet();
 				for (Map.Entry<String, JsonElement> resource : resources) {
-					try {
-						Class<?> forname = Class.forName(entry.getKey().substring(6), false, classLoader);
-						ComparableResource<?> object = gson.fromJson(resource.getValue(), forname);
-						listObject.add(object);
-					} catch (JsonSyntaxException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					Class<?> resourceClass = Class.forName(entry.getKey().substring(classNameOffset), false,
+							classLoader);
+					ComparableResource<?> comparableResource = gson.fromJson(resource.getValue(), resourceClass);
+					listObject.add(comparableResource);
 				}
-				try {
-					listClass.add(
-							(Class<? extends Resource>) Class.forName(entry.getKey().substring(6), false, classLoader));
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+
+				listClass.add((Class<? extends Resource>) Class.forName(entry.getKey().substring(classNameOffset),
+						false, classLoader));
 			}
 			modelState = new ModelState(listClass);
 			for (ComparableResource object : listObject) {
 				modelState.addResource(object);
 			}
 
-		} catch (IOException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

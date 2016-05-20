@@ -9,6 +9,7 @@ import com.google.gson.GsonBuilder;
 
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.simulator.ModelState;
+import ru.bmstu.rk9.rao.ui.player.Player;
 
 public class Serializer {
 
@@ -27,7 +28,7 @@ public class Serializer {
 	}
 
 	public static void writeStringToJsonStateFile(String string) {
-		try (FileWriter file = new FileWriter("/home/timur/JSON/test.json")) {
+		try (FileWriter file = new FileWriter(Player.getCurrentProjectPath() + "/stateStorage.json")) {
 			file.write(string);
 			System.out.println("Successfully Copied JSON Object to File...");
 			System.out.println("\nJSON Object: " + string);
@@ -41,7 +42,7 @@ public class Serializer {
 	}
 
 	public static void writeStringToJsonStructureFile(String string) {
-		try (FileWriter file = new FileWriter("/home/timur/JSON/structure.json")) {
+		try (FileWriter file = new FileWriter(Player.getCurrentProjectPath() + "/structure.json")) {
 			file.write(string);
 			System.out.println("Successfully Copied JSON Object to File...");
 			System.out.println("\nJSON Object: " + string);
