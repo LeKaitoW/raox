@@ -1,15 +1,16 @@
 package ru.bmstu.rk9.rao.lib.result;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public class ResultManager {
-	private LinkedList<Result> results = new LinkedList<Result>();
+	private List<Result<?>> results = new LinkedList<Result<?>>();
 
-	public void addResult(Result result) {
-		results.add(result);
+	public ResultManager(List<Result<?>> results) {
+		this.results.addAll(results);
 	}
 
-	public LinkedList<Result> getResults() {
+	public List<Result<?>> getResults() {
 		return results;
 	}
 }

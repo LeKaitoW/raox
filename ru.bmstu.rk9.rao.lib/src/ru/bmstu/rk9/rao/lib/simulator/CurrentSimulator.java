@@ -1,11 +1,14 @@
 package ru.bmstu.rk9.rao.lib.simulator;
 
+import java.util.List;
+
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.SystemEntryType;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
+import ru.bmstu.rk9.rao.lib.result.Result;
 
 public class CurrentSimulator {
 	private static ISimulator currentSimulator = null;
@@ -109,6 +112,10 @@ public class CurrentSimulator {
 
 	private static void notifyChange(ExecutionState category) {
 		currentSimulator.notifyChange(category);
+	}
+
+	public static List<Result<?>> getResults() {
+		return currentSimulator.getResults();
 	}
 
 	private static volatile boolean isRunning = false;

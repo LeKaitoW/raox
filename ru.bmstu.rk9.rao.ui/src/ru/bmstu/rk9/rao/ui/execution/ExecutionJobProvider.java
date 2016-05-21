@@ -40,6 +40,7 @@ public class ExecutionJobProvider {
 
 				try {
 					parser.parse();
+
 				} catch (Exception e) {
 					e.printStackTrace();
 					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Model parsing failed", e);
@@ -51,7 +52,6 @@ public class ExecutionJobProvider {
 				ExportTraceHandler.reset();
 				ExportTraceHandler.setCurrentProject(project);
 				SerializationConfigView.initNames();
-				List<Result> results = new LinkedList<Result>();
 
 				CurrentSimulator.set(new Simulator());
 
@@ -116,10 +116,7 @@ public class ExecutionJobProvider {
 					break;
 				}
 
-				for (Result result : results)
-					result.calculate();
-
-				display.asyncExec(() -> ResultsView.setResults(results));
+				display.asyncExec(() -> ResultsView.setResults(CurrentSimulator.getResults()));
 
 				ConsoleView.addLine("Time elapsed: " + String.valueOf(System.currentTimeMillis() - startTime) + "ms");
 

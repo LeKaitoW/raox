@@ -82,69 +82,18 @@ public class ResultsView extends ViewPart {
 	private static Comparator<String> comparator = (a, b) -> Integer.compare(sortList.get(a).value,
 			sortList.get(b).value);
 
-	private static List<Result> results;
+	private static List<Result<?>> results;
 
 	private static boolean viewAsText = prefs.getBoolean("ResultsViewAsText", false);
 
 	private static HashMap<String, TreeItem> models;
 
 	private static void parseResult(JSONObject data) {
-		String fullName = data.getString("name");
-		int modelDot = fullName.indexOf('.');
-
-		String model = fullName.substring(0, modelDot);
-		String name = fullName.substring(modelDot + 1);
-
-		TreeItem modelItem = models.get(model);
-		if (modelItem == null) {
-			modelItem = new TreeItem(tree, SWT.NONE);
-			modelItem.setText(model);
-			models.put(model, modelItem);
-		}
-
-		TreeItem result = new TreeItem(modelItem, SWT.NONE);
-		result.setText(new String[] { name, data.getString("type") });
-
-		String origin = text.getText();
-
-		StyleRange styleRange = new StyleRange();
-		styleRange.start = origin.length();
-		styleRange.fontStyle = SWT.BOLD;
-
-		String[] resultText = {
-				origin + (origin.length() > 0 ? "\n\n" : "") + data.getString("name") + ": " + data.getString("type") };
-
-		styleRange.length = resultText[0].length() - origin.length();
-
-		LinkedList<StyleRange> numberStyles = new LinkedList<StyleRange>();
-
-		data.keySet().stream().filter(e -> sortList.containsKey(e)).sorted(comparator).forEachOrdered(e -> {
-			String[] text = new String[] { sortList.get(e).name, data.get(e).toString() };
-
-			TreeItem child = new TreeItem(result, SWT.NONE);
-			child.setText(text);
-
-			StyleRange numberStyle = new StyleRange();
-			numberStyle.start = resultText[0].length() + text[0].length() + 4;
-			numberStyle.length = text[1].length();
-			numberStyle.fontStyle = SWT.ITALIC;
-			numberStyle.foreground = child.getDisplay().getSystemColor(SWT.COLOR_DARK_BLUE);
-
-			numberStyles.add(numberStyle);
-
-			resultText[0] += "\n\t" + text[0] + ": " + text[1];
-		});
-
-		StyleRange[] styles = text.getStyleRanges();
-		text.setText(resultText[0]);
-		text.setStyleRanges(styles);
-		text.setStyleRange(styleRange);
-
-		for (StyleRange style : numberStyles)
-			text.setStyleRange(style);
+		// FIXME remove debug output
+		System.out.println("parseResult(JSON) method");
 	}
 
-	public static void setResults(List<Result> results) {
+	public static void setResults(List<Result<?>> results) {
 		ResultsView.results = results;
 
 		if (!isInitialized())
@@ -156,9 +105,13 @@ public class ResultsView extends ViewPart {
 			item.dispose();
 
 		text.setText("");
+		// FIXME remove debug output
+		System.out.println("Set results" + (new Integer(results.size())).toString());
 
-		for (Result r : results)
+		for (Result<?> r : results) {
 			parseResult(r.getData());
+			System.out.println("Result");
+		}
 
 		for (TreeItem model : tree.getItems())
 			model.setExpanded(true);

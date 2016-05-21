@@ -20,6 +20,7 @@ RaoEntity
 	| Event
 	| Pattern
 	| Frame
+	| ResultType
 	| Result
 	| DefaultMethod
 	| EnumDeclaration
@@ -124,8 +125,29 @@ FunctionDeclaration:
 ;
 
 // TODO
+ResultType:
+	resultMode = ResultMode? resultType = DatasetOrValue 
+			name = ID '<' evaluateType = JvmTypeReference '>' '('
+		(parameters += FullJvmFormalParameter (
+			',' parameters += FullJvmFormalParameter)*)?
+	')' '{'
+
+		defaultMethods += DefaultMethod*
+	'}'
+;
+
+enum ResultMode
+	: AUTO = 'auto'
+	| MANUAL = 'manual'
+;
+
+enum DatasetOrValue
+	: DATASET = 'dataset'
+	| VALUE = 'value'
+;
+
 Result:
-	'result' name = ID
+	'result' name = ID '=' constructor = XOrExpression ';'?	
 ;
 
 Frame:

@@ -34,6 +34,7 @@ import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -378,7 +379,8 @@ public class Database {
 			resourceIndex = new ResourceIndex(resource.getNumber());
 			resourceNode.setIndex(resourceIndex);
 
-			final int numberOfParameters = CurrentSimulator.getStaticModelData().getNumberOfResourceTypeParameters(typeNumber);
+			final int numberOfParameters = CurrentSimulator.getStaticModelData()
+					.getNumberOfResourceTypeParameters(typeNumber);
 			for (int paramNum = 0; paramNum < numberOfParameters; paramNum++) {
 				final JSONObject parameter = CurrentSimulator.getStaticModelData().getResourceTypeParameter(typeNumber,
 						paramNum);
@@ -405,8 +407,8 @@ public class Database {
 		}
 
 		final ByteBuffer header = ByteBuffer.allocate(EntryType.RESOURCE.HEADER_SIZE);
-		header.put((byte) EntryType.RESOURCE.ordinal()).putDouble(CurrentSimulator.getTime()).put((byte) status.ordinal())
-				.putInt(typeNumber).putInt(resourceIndex.getNumber()).putInt(dptNumber);
+		header.put((byte) EntryType.RESOURCE.ordinal()).putDouble(CurrentSimulator.getTime())
+				.put((byte) status.ordinal()).putInt(typeNumber).putInt(resourceIndex.getNumber()).putInt(dptNumber);
 
 		final ByteBuffer data = resource.serialize();
 
@@ -449,7 +451,8 @@ public class Database {
 			return;
 
 		final ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
-		header.put((byte) EntryType.PATTERN.ordinal()).putDouble(CurrentSimulator.getTime()).put((byte) patternType.ordinal());
+		header.put((byte) EntryType.PATTERN.ordinal()).putDouble(CurrentSimulator.getTime())
+				.put((byte) patternType.ordinal());
 
 		final CollectedDataNode dptNode = indexHelper.getLogic(dptName);
 		final LogicIndex dptIndex = (LogicIndex) dptNode.getIndex();
@@ -611,30 +614,4 @@ public class Database {
 		final private String type;
 	}
 
-	public final void addResultEntry(final Result result) {
-		final String name = result.getName();
-		if (!sensitivityList.contains(name))
-			return;
-
-		final Index index = indexHelper.getResult(name).getIndex();
-
-		final ByteBuffer data = result.serialize();
-		if (!index.isEmpty()) {
-			final ByteBuffer lastResultValue = allEntries
-					.get(index.getEntryNumbers().get(index.getEntryNumbers().size() - 1)).data.duplicate();
-			final ByteBuffer currentResultValue = data.duplicate();
-			currentResultValue.rewind();
-			lastResultValue.rewind();
-			if (currentResultValue.compareTo(lastResultValue) == 0)
-				return;
-		}
-
-		final ByteBuffer header = ByteBuffer.allocate(EntryType.RESULT.HEADER_SIZE);
-		header.put((byte) EntryType.RESULT.ordinal()).putDouble(CurrentSimulator.getTime()).putInt(index.getNumber());
-
-		final Entry entry = new Entry(header, data);
-
-		addEntry(entry);
-		index.getEntryNumbers().add(allEntries.size() - 1);
-	}
 }

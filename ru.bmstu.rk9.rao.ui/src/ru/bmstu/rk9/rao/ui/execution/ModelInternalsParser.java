@@ -34,6 +34,7 @@ import ru.bmstu.rk9.rao.lib.pattern.Operation;
 import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
+import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
@@ -45,7 +46,7 @@ public class ModelInternalsParser {
 	private final List<Class<?>> animationClasses = new ArrayList<>();
 	private final List<Field> nameableFields = new ArrayList<>();
 	private final List<AnimationFrame> animationFrames = new ArrayList<>();
-
+	private final List<Field> resultFields = new ArrayList<>();
 	private URLClassLoader classLoader;
 	private final IProject project;
 
@@ -228,14 +229,16 @@ public class ModelInternalsParser {
 				if (resourceType == null)
 					throw new RuntimeException("Invalid resource type + " + method.getReturnType());
 
-				resourceType.getJSONArray(ModelStructureConstants.NAMED_RESOURCES).put(
-						new JSONObject().put(ModelStructureConstants.NAME, NamingHelper.createFullNameFromInitializeMethod(method)));
+				resourceType.getJSONArray(ModelStructureConstants.NAMED_RESOURCES).put(new JSONObject()
+						.put(ModelStructureConstants.NAME, NamingHelper.createFullNameFromInitializeMethod(method)));
 			}
 		}
 
 		for (Field field : modelClass.getDeclaredFields()) {
 			if (RaoNameable.class.isAssignableFrom(field.getType()))
 				nameableFields.add(field);
+			if (Result.class.isAssignableFrom(field.getType()))
+				resultFields.add(field);
 		}
 	}
 
@@ -244,6 +247,11 @@ public class ModelInternalsParser {
 			String name = NamingHelper.createFullNameForField(field);
 			RaoNameable nameable = (RaoNameable) field.get(null);
 			nameable.setName(name);
+		}
+
+		for (Field resultField : resultFields) {
+			Result<?> result = (Result<?>) resultField.get(null);
+			simulatorInitializationInfo.results.add(result);
 		}
 
 		for (Class<?> decisionPointClass : decisionPointClasses) {
