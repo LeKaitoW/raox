@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.DecisionPointIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.EventIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.LogicIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceParameterIndex;
@@ -20,18 +20,20 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceTypeIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.SearchIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.SearchIndex.SearchInfo;
-import ru.bmstu.rk9.rao.lib.dpt.DecisionPoint;
-import ru.bmstu.rk9.rao.lib.dpt.DecisionPointSearch;
+import ru.bmstu.rk9.rao.lib.dpt.AbstractActivity;
+import ru.bmstu.rk9.rao.lib.dpt.AbstractDecisionPoint;
+import ru.bmstu.rk9.rao.lib.dpt.Search;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
-import ru.bmstu.rk9.rao.lib.modelStructure.ModelStructureCache.ValueType;
-import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
+import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
+import ru.bmstu.rk9.rao.lib.pattern.Operation;
+import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.result.Result;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -39,18 +41,11 @@ public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	public static class TypeSize {
-		public static final int INTEGER = Integer.SIZE / Byte.SIZE;
+		public static final int INT = Integer.SIZE / Byte.SIZE;
 		public static final int DOUBLE = Double.SIZE / Byte.SIZE;
 		public static final int SHORT = Short.SIZE / Byte.SIZE;
 		public static final int LONG = Long.SIZE / Byte.SIZE;
 		public static final int BYTE = 1;
-
-		public static class Rao {
-			public static final int INTEGER = TypeSize.INTEGER;
-			public static final int REAL = TypeSize.DOUBLE;
-			public static final int ENUM = TypeSize.SHORT;
-			public static final int BOOLEAN = TypeSize.BYTE;
-		}
 
 		public static class Internal {
 			public static final int ENTRY_TYPE_SIZE = TypeSize.BYTE;
@@ -61,9 +56,36 @@ public class Database {
 		}
 	}
 
+	public enum DataType {
+		INT(TypeSize.INT), DOUBLE(TypeSize.DOUBLE), BOOLEAN(TypeSize.BYTE), OTHER(0);
+
+		DataType(int size) {
+			this.size = size;
+		}
+
+		public final int getSize() {
+			return size;
+		}
+
+		private final int size;
+	}
+
+	public static final DataType getDataType(Class<?> type) {
+		if (Integer.class.isAssignableFrom(type) || int.class.isAssignableFrom(type))
+			return DataType.INT;
+
+		if (Double.class.isAssignableFrom(type) || double.class.isAssignableFrom(type))
+			return DataType.DOUBLE;
+
+		if (Boolean.class.isAssignableFrom(type) || boolean.class.isAssignableFrom(type))
+			return DataType.BOOLEAN;
+
+		return DataType.OTHER;
+	}
+
 	public enum SerializationCategory {
-		RESOURCES("Resources"), PATTERNS("Patterns"), EVENTS("Events"), DECISION_POINTS("Decision points"), RESULTS(
-				"Results"), SEARCH("Search");
+		RESOURCE("Resources"), PATTERN("Patterns"), EVENT("Events"), LOGIC("Logic"), RESULT("Results"), SEARCH(
+				"Search");
 
 		SerializationCategory(final String name) {
 			this.name = name;
@@ -81,77 +103,62 @@ public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	public Database(final JSONObject modelStructure) {
-		this.modelStructure = modelStructure;
-		indexHelper.initializeModel(modelStructure.getString("name"));
+		String modelName = modelStructure.getString(ModelStructureConstants.NAME);
+		indexHelper.initializeModel(modelName);
 
-		final JSONArray resourceTypes = modelStructure.getJSONArray("resource_types");
+		final JSONArray resourceTypes = modelStructure.getJSONArray(ModelStructureConstants.RESOURCE_TYPES);
 		for (int i = 0; i < resourceTypes.length(); i++) {
 			final JSONObject resourceType = resourceTypes.getJSONObject(i);
 
-			final String name = resourceType.getString("name");
+			final String name = resourceType.getString(ModelStructureConstants.NAME);
 			final CollectedDataNode typeNode = indexHelper.addResourceType(name);
-			final ResourceTypeIndex resourceTypeIndex = new ResourceTypeIndex(i,
-					resourceType.getJSONObject("structure"));
+			final ResourceTypeIndex resourceTypeIndex = new ResourceTypeIndex(i);
 			typeNode.setIndex(resourceTypeIndex);
 		}
 
-		final JSONArray results = modelStructure.getJSONArray("results");
+		final JSONArray results = modelStructure.getJSONArray(ModelStructureConstants.RESULTS);
 		for (int i = 0; i < results.length(); i++) {
 			final JSONObject result = results.getJSONObject(i);
-			final ResultType type = ResultType.getByString(result.getString("type"));
-			indexHelper.addResult(result.getString("name")).setIndex(new ResultIndex(i, type));
+			final ResultType type = ResultType.getByString(result.getString(ModelStructureConstants.TYPE));
+			final String name = modelName + "." + result.getString(ModelStructureConstants.NAME);
+			indexHelper.addResult(name).setIndex(new ResultIndex(i, type));
 		}
 
-		final JSONArray patterns = modelStructure.getJSONArray("patterns");
-		final Map<String, JSONObject> patternsByName = new HashMap<String, JSONObject>();
+		final JSONArray patterns = modelStructure.getJSONArray(ModelStructureConstants.PATTERNS);
 		for (int i = 0; i < patterns.length(); i++) {
 			final JSONObject pattern = patterns.getJSONObject(i);
-			final String name = pattern.getString("name");
-			patternsByName.put(name, pattern);
+			final String name = pattern.getString(ModelStructureConstants.NAME);
+			final CollectedDataNode patternNode = indexHelper.addPattern(name);
+			patternNode.setIndex(new PatternIndex(i));
 		}
 
-		final JSONArray events = modelStructure.getJSONArray("events");
+		final JSONArray events = modelStructure.getJSONArray(ModelStructureConstants.EVENTS);
 		for (int i = 0; i < events.length(); i++) {
 			final JSONObject event = events.getJSONObject(i);
-			final String name = event.getString("name");
+			final String name = event.getString(ModelStructureConstants.NAME);
 			final CollectedDataNode eventNode = indexHelper.addEvent(name);
 			eventNode.setIndex(new EventIndex(i, event));
 		}
 
-		final JSONArray decisionPoints = modelStructure.getJSONArray("decision_points");
-		for (int i = 0; i < decisionPoints.length(); i++) {
-			final JSONObject decisionPoint = decisionPoints.getJSONObject(i);
-			final String type = decisionPoint.getString("type");
-			switch (type) {
-			case "some":
-			case "prior":
-				final CollectedDataNode dptNode = indexHelper.addDecisionPoint(decisionPoint.getString("name"));
-				dptNode.setIndex(new DecisionPointIndex(i));
+		final JSONArray logics = modelStructure.getJSONArray(ModelStructureConstants.LOGICS);
+		for (int i = 0; i < logics.length(); i++) {
+			final JSONObject logic = logics.getJSONObject(i);
+			final String dptName = logic.getString(ModelStructureConstants.NAME);
+			final CollectedDataNode dptNode = indexHelper.addLogic(dptName);
+			dptNode.setIndex(new LogicIndex(i));
+		}
 
-				final JSONArray activities = decisionPoint.getJSONArray("activities");
-				for (int j = 0; j < activities.length(); j++) {
-					final JSONObject activity = activities.getJSONObject(j);
-					final String name = activity.getString("name");
-					dptNode.addChild(name)
-							.setIndex(new PatternIndex(j, patternsByName.get(activity.getString("pattern"))));
-				}
-				break;
-			case "search":
-				indexHelper.addSearch(decisionPoint.getString("name")).setIndex(new SearchIndex(i));
-				break;
-			}
+		final JSONArray searches = modelStructure.getJSONArray(ModelStructureConstants.SEARCHES);
+		for (int i = 0; i < searches.length(); i++) {
+			final JSONObject search = searches.getJSONObject(i);
+			final String dptName = search.getString(ModelStructureConstants.NAME);
+			indexHelper.addSearch(dptName).setIndex(new SearchIndex(i));
 		}
 
 		addSystemEntry(SystemEntryType.TRACE_START);
 
 		for (final String traceName : SerializationObjectsNames.get())
 			addSensitivity(traceName);
-	}
-
-	final JSONObject modelStructure;
-
-	public final JSONObject getModelStructure() {
-		return modelStructure;
 	}
 
 	private final HashSet<String> sensitivityList = new HashSet<String>();
@@ -189,11 +196,11 @@ public class Database {
 
 	public static enum EntryType {
 		SYSTEM(TypeSize.BYTE * 2 + TypeSize.DOUBLE, 0), RESOURCE(
-				TypeSize.BYTE * 2 + TypeSize.INTEGER * 2 + TypeSize.DOUBLE + TypeSize.INTEGER,
-				0), PATTERN(TypeSize.BYTE * 2 + TypeSize.DOUBLE, TypeSize.INTEGER * 4), EVENT(
+				TypeSize.BYTE * 2 + TypeSize.INT * 2 + TypeSize.DOUBLE + TypeSize.INT,
+				0), PATTERN(TypeSize.BYTE * 2 + TypeSize.DOUBLE, TypeSize.INT * 5), EVENT(
 						TypeSize.BYTE * 2 + TypeSize.DOUBLE,
-						TypeSize.INTEGER * 2), SEARCH(TypeSize.BYTE * 2 + TypeSize.INTEGER * 2 + TypeSize.DOUBLE,
-								0), RESULT(TypeSize.BYTE + TypeSize.INTEGER + TypeSize.DOUBLE, 0);
+						TypeSize.INT * 2), SEARCH(TypeSize.BYTE * 2 + TypeSize.INT * 2 + TypeSize.DOUBLE,
+								0), RESULT(TypeSize.BYTE + TypeSize.INT + TypeSize.DOUBLE, 0);
 
 		public final int HEADER_SIZE;
 		final int METADATA_SIZE;
@@ -230,9 +237,9 @@ public class Database {
 		notifier.notifySubscribers(category);
 	}
 
-	private final DbIndexHelper indexHelper = new DbIndexHelper();
+	private final IndexHelper indexHelper = new IndexHelper();
 
-	public final DbIndexHelper getIndexHelper() {
+	public final IndexHelper getIndexHelper() {
 		return indexHelper;
 	}
 
@@ -261,7 +268,7 @@ public class Database {
 	public final void addSystemEntry(final SystemEntryType type) {
 		final ByteBuffer header = ByteBuffer.allocate(EntryType.SYSTEM.HEADER_SIZE);
 
-		header.put((byte) EntryType.SYSTEM.ordinal()).putDouble(Simulator.getTime()).put((byte) type.ordinal());
+		header.put((byte) EntryType.SYSTEM.ordinal()).putDouble(CurrentSimulator.getTime()).put((byte) type.ordinal());
 
 		addEntry(new Entry(header, null));
 	}
@@ -330,7 +337,7 @@ public class Database {
 			else
 				actualStatus = status;
 
-			Simulator.getDatabase().addResourceEntry(resource, actualStatus, sender, dptName);
+			CurrentSimulator.getDatabase().addResourceEntry(resource, actualStatus, sender, dptName);
 		}
 
 		memorizedResourceEntries.clear();
@@ -339,12 +346,8 @@ public class Database {
 	private final void addResourceEntry(final Resource resource, final ResourceEntryType status, final String sender,
 			final String dptName) {
 		final String typeName = resource.getTypeName();
-
 		final CollectedDataNode resourceTypeNode = indexHelper.getResourceType(typeName);
-
-		final ResourceTypeIndex resourceTypeIndex = (ResourceTypeIndex) resourceTypeNode.getIndex();
-
-		ResourceIndex resourceIndex;
+		int typeNumber = CurrentSimulator.getStaticModelData().getResourceTypeNumber(typeName);
 
 		String name = resource.getName();
 		if (name != null) {
@@ -364,6 +367,7 @@ public class Database {
 			}
 		}
 
+		ResourceIndex resourceIndex;
 		boolean shouldSerializeToIndex = true;
 		int dptNumber = -1;
 
@@ -374,15 +378,12 @@ public class Database {
 			resourceIndex = new ResourceIndex(resource.getNumber());
 			resourceNode.setIndex(resourceIndex);
 
-			final JSONArray parameters = resourceTypeIndex.getStructure().getJSONArray("parameters");
-			for (int paramNum = 0; paramNum < parameters.length(); paramNum++) {
-				final JSONObject param = parameters.getJSONObject(paramNum);
-				final ValueCache paramType = new ValueCache(param);
-
-				final int offset = (paramType.getType() != ValueType.STRING) ? param.getInt("offset") : -1;
-
-				resourceNode.addChild(parameters.getJSONObject(paramNum).getString("name"))
-						.setIndex(new ResourceParameterIndex(paramNum, paramType, offset));
+			final int numberOfParameters = CurrentSimulator.getStaticModelData().getNumberOfResourceTypeParameters(typeNumber);
+			for (int paramNum = 0; paramNum < numberOfParameters; paramNum++) {
+				final JSONObject parameter = CurrentSimulator.getStaticModelData().getResourceTypeParameter(typeNumber,
+						paramNum);
+				resourceNode.addChild(parameter.getString(ModelStructureConstants.NAME))
+						.setIndex(new ResourceParameterIndex(paramNum));
 			}
 
 			break;
@@ -404,8 +405,8 @@ public class Database {
 		}
 
 		final ByteBuffer header = ByteBuffer.allocate(EntryType.RESOURCE.HEADER_SIZE);
-		header.put((byte) EntryType.RESOURCE.ordinal()).putDouble(Simulator.getTime()).put((byte) status.ordinal())
-				.putInt(resourceTypeIndex.getNumber()).putInt(resourceIndex.getNumber()).putInt(dptNumber);
+		header.put((byte) EntryType.RESOURCE.ordinal()).putDouble(CurrentSimulator.getTime()).put((byte) status.ordinal())
+				.putInt(typeNumber).putInt(resourceIndex.getNumber()).putInt(dptNumber);
 
 		final ByteBuffer data = resource.serialize();
 
@@ -426,42 +427,44 @@ public class Database {
 	}
 
 	private static class PatternPoolEntry {
-		final DecisionPoint dpt;
-		final DecisionPoint.Activity activity;
+		final AbstractDecisionPoint dpt;
+		final AbstractActivity activity;
 		final int number;
 
-		PatternPoolEntry(final DecisionPoint dpt, final DecisionPoint.Activity activity, final int number) {
+		PatternPoolEntry(final AbstractDecisionPoint dpt, final AbstractActivity activity, final int number) {
 			this.dpt = dpt;
 			this.activity = activity;
 			this.number = number;
 		}
 	}
 
-	private final Map<Rule, PatternPoolEntry> patternPool = new HashMap<Rule, PatternPoolEntry>();
+	private final Map<Pattern, PatternPoolEntry> patternPool = new HashMap<>();
 
-	public final void addDecisionEntry(final DecisionPoint dpt, final DecisionPoint.Activity activity,
-			final PatternType type, final Rule rule) {
-		final String dptName = dpt.getName();
+	public final void addDecisionEntry(final AbstractDecisionPoint dpt, final AbstractActivity activity) {
+		final String dptName = dpt.getTypeName();
+		final Pattern pattern = activity.getPattern();
+		final PatternType patternType = pattern instanceof Rule ? PatternType.RULE : PatternType.OPERATION_BEGIN;
 
-		if (!sensitivityList.contains(dptName) && !sensitivityList.contains(rule.getName()))
+		if (!sensitivityList.contains(dptName) && !sensitivityList.contains(pattern.getTypeName()))
 			return;
 
 		final ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
-		header.put((byte) EntryType.PATTERN.ordinal()).putDouble(Simulator.getTime()).put((byte) type.ordinal());
+		header.put((byte) EntryType.PATTERN.ordinal()).putDouble(CurrentSimulator.getTime()).put((byte) patternType.ordinal());
 
-		final CollectedDataNode dptNode = indexHelper.getDecisionPoint(dptName);
-		final DecisionPointIndex dptIndex = (DecisionPointIndex) dptNode.getIndex();
-		final PatternIndex index = (PatternIndex) dptNode.getChildren().get(activity.getName()).getIndex();
+		final CollectedDataNode dptNode = indexHelper.getLogic(dptName);
+		final LogicIndex dptIndex = (LogicIndex) dptNode.getIndex();
+		final CollectedDataNode patternNode = indexHelper.getPattern(pattern.getTypeName());
+		final PatternIndex index = (PatternIndex) patternNode.getIndex();
 
 		final int number = index.incrementTimesExecuted();
-		if (type == PatternType.OPERATION_BEGIN)
-			patternPool.put(rule, new PatternPoolEntry(dpt, activity, number));
+		if (patternType == PatternType.OPERATION_BEGIN)
+			patternPool.put(pattern, new PatternPoolEntry(dpt, activity, number));
 
-		final int[] relevantResources = rule.getRelevantInfo();
+		final List<Integer> relevantResources = pattern.getRelevantResourcesNumbers();
 
 		final ByteBuffer data = ByteBuffer
-				.allocate(EntryType.PATTERN.METADATA_SIZE + relevantResources.length * TypeSize.INTEGER);
-		data.putInt(dptIndex.getNumber()).putInt(index.getNumber()).putInt(number);
+				.allocate(EntryType.PATTERN.METADATA_SIZE + relevantResources.size() * TypeSize.INT);
+		data.putInt(dptIndex.getNumber()).putInt(activity.getNumber()).putInt(index.getNumber()).putInt(number);
 
 		fillRelevantResources(data, relevantResources);
 
@@ -471,32 +474,35 @@ public class Database {
 		index.getEntryNumbers().add(allEntries.size() - 1);
 	}
 
-	public final void addOperationEndEntry(final Rule rule) {
-		final String name = rule.getName();
+	public final void addOperationEndEntry(final Operation operation) {
+		final String name = operation.getTypeName();
 		if (!sensitivityList.contains(name))
 			return;
 
 		PatternPoolEntry poolEntry = null;
-		DecisionPointIndex dptIndex = null;
+		LogicIndex dptIndex = null;
 
-		poolEntry = patternPool.remove(rule);
+		poolEntry = patternPool.remove(operation);
 		if (poolEntry == null)
 			return;
-		final CollectedDataNode dptNode = indexHelper.getDecisionPoint(poolEntry.dpt.getName());
 
-		dptIndex = (DecisionPointIndex) dptNode.getIndex();
-		final PatternIndex index = (PatternIndex) dptNode.getChildren().get(poolEntry.activity.getName()).getIndex();
+		final CollectedDataNode dptNode = indexHelper.getLogic(poolEntry.dpt.getTypeName());
+		dptIndex = (LogicIndex) dptNode.getIndex();
+
+		final CollectedDataNode patternNode = indexHelper.getPattern(operation.getTypeName());
+		final PatternIndex index = (PatternIndex) patternNode.getIndex();
 
 		final ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
-		header.put((byte) EntryType.PATTERN.ordinal()).putDouble(Simulator.getTime())
+		header.put((byte) EntryType.PATTERN.ordinal()).putDouble(CurrentSimulator.getTime())
 				.put((byte) PatternType.OPERATION_END.ordinal());
 
-		final int[] relevantResources = rule.getRelevantInfo();
+		final List<Integer> relevantResources = operation.getRelevantResourcesNumbers();
 
 		final ByteBuffer data = ByteBuffer
-				.allocate(EntryType.PATTERN.METADATA_SIZE + relevantResources.length * TypeSize.INTEGER);
+				.allocate(EntryType.PATTERN.METADATA_SIZE + relevantResources.size() * TypeSize.INT);
 
-		data.putInt(dptIndex.getNumber()).putInt(index.getNumber()).putInt(poolEntry.number);
+		data.putInt(dptIndex.getNumber()).putInt(poolEntry.activity.getNumber()).putInt(index.getNumber())
+				.putInt(poolEntry.number);
 
 		fillRelevantResources(data, relevantResources);
 
@@ -506,8 +512,8 @@ public class Database {
 		index.getEntryNumbers().add(allEntries.size() - 1);
 	}
 
-	private final void fillRelevantResources(final ByteBuffer data, final int[] relevantResources) {
-		data.putInt(relevantResources.length);
+	private final void fillRelevantResources(final ByteBuffer data, final List<Integer> relevantResources) {
+		data.putInt(relevantResources.size());
 		for (final int number : relevantResources)
 			data.putInt(number);
 	}
@@ -518,15 +524,14 @@ public class Database {
 
 	public final void addEventEntry(final Event event) {
 		final String name = event.getName();
-		if (!sensitivityList.contains(name))
-			return;
 
 		if (!sensitivityList.contains(name))
 			return;
+
 		final EventIndex index = (EventIndex) indexHelper.getEvent(name).getIndex();
 
 		final ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
-		header.put((byte) EntryType.EVENT.ordinal()).putDouble(Simulator.getTime());
+		header.put((byte) EntryType.EVENT.ordinal()).putDouble(CurrentSimulator.getTime());
 
 		final ByteBuffer data = ByteBuffer.allocate(EntryType.EVENT.METADATA_SIZE);
 		data.putInt(index.getNumber()).putInt(index.incrementTimesExecuted());
@@ -545,15 +550,14 @@ public class Database {
 		BEGIN, END, OPEN, SPAWN, DECISION;
 	}
 
-	public final void addSearchEntry(final DecisionPointSearch<?> dpt, final SearchEntryType type,
-			final ByteBuffer data) {
-		final String name = dpt.getName();
+	public final void addSearchEntry(final Search dpt, final SearchEntryType type, final ByteBuffer data) {
+		final String name = dpt.getTypeName();
 
 		final SearchIndex index = (SearchIndex) indexHelper.getSearch(name).getIndex();
 		SearchInfo info = null;
 
 		final ByteBuffer header = ByteBuffer.allocate(EntryType.SEARCH.HEADER_SIZE);
-		header.put((byte) EntryType.SEARCH.ordinal()).put((byte) type.ordinal()).putDouble(Simulator.getTime())
+		header.put((byte) EntryType.SEARCH.ordinal()).put((byte) type.ordinal()).putDouble(CurrentSimulator.getTime())
 				.putInt(index.getNumber()).putInt(index.getSearches().size());
 
 		switch (type) {
@@ -626,7 +630,7 @@ public class Database {
 		}
 
 		final ByteBuffer header = ByteBuffer.allocate(EntryType.RESULT.HEADER_SIZE);
-		header.put((byte) EntryType.RESULT.ordinal()).putDouble(Simulator.getTime()).putInt(index.getNumber());
+		header.put((byte) EntryType.RESULT.ordinal()).putDouble(CurrentSimulator.getTime()).putInt(index.getNumber());
 
 		final Entry entry = new Entry(header, data);
 

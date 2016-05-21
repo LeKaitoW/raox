@@ -14,7 +14,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -36,16 +35,14 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 import org.eclipse.xtext.validation.CheckMode;
 
-import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
 import ru.bmstu.rk9.rao.ui.RaoActivatorExtension;
+import ru.bmstu.rk9.rao.ui.execution.BuildUtil.BundleType;
 
 public class BuildJobProvider {
-	private final IMultipleResourceGenerator generator;
 	private final EclipseResourceFileSystemAccess2 fsa;
 	private final IResourceSetProvider resourceSetProvider;
 	private final EclipseOutputConfigurationProvider outputConfigurationProvider;
 	private final DefaultResourceUIValidatorExtension validatorExtension;
-	private final IEditorPart activeEditor;
 	private final IWorkbenchWindow activeWorkbenchWindow;
 
 	private static IProject recentProject = null;
@@ -53,15 +50,19 @@ public class BuildJobProvider {
 
 	public BuildJobProvider(final IEditorPart activeEditor, final IWorkbenchWindow activeWorkbenchWindow,
 			final EclipseResourceFileSystemAccess2 fsa, final IResourceSetProvider resourceSetProvider,
-			final EclipseOutputConfigurationProvider ocp, final IMultipleResourceGenerator generator,
+			final EclipseOutputConfigurationProvider ocp,
 			final DefaultResourceUIValidatorExtension validatorExtension) {
-		this.activeEditor = activeEditor;
 		this.activeWorkbenchWindow = activeWorkbenchWindow;
 		this.fsa = fsa;
 		this.resourceSetProvider = resourceSetProvider;
 		this.outputConfigurationProvider = ocp;
-		this.generator = generator;
 		this.validatorExtension = validatorExtension;
+
+		IProject projectToBuild = getProjectToBuild(activeWorkbenchWindow, activeEditor);
+		if (projectToBuild == null)
+			return;
+
+		recentProject = projectToBuild;
 	}
 
 	public IProject getBuiltProject() {
@@ -93,17 +94,19 @@ public class BuildJobProvider {
 		return projectToBuild;
 	}
 
-	public final Job createBuildJob() {
-		Job buildJob = new Job("Building Rao model") {
+	public final IProject getProject() {
+		return recentProject;
+	}
+
+	public final Job createPreprocessJob() {
+		Job preprocessJob = new Job("Preprocessing project " + recentProject.getName()) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				final Display display = PlatformUI.getWorkbench().getDisplay();
-				IProject projectToBuild = getProjectToBuild(activeWorkbenchWindow, activeEditor);
-				if (projectToBuild == null) {
+				if (recentProject == null) {
 					return new Status(IStatus.ERROR, pluginId,
 							BuildUtil.createErrorMessage("failed to select project to build"));
 				}
-				recentProject = projectToBuild;
 
 				ISaveableFilter filter = new ISaveableFilter() {
 					@Override
@@ -129,24 +132,78 @@ public class BuildJobProvider {
 				display.syncExec(() -> PlatformUI.getWorkbench().saveAll(activeWorkbenchWindow, activeWorkbenchWindow,
 						filter, true));
 
-				String libErrorMessage = BuildUtil.checkRaoLib(recentProject, monitor);
+				IFolder srcGenFolder = recentProject.getFolder("src-gen");
+				String srcGenErrorMessage = BuildUtil.checkSrcGen(recentProject, srcGenFolder, monitor, false);
+				if (srcGenErrorMessage != null)
+					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(srcGenErrorMessage));
+
+				return Status.OK_STATUS;
+			}
+		};
+
+		preprocessJob.setPriority(Job.BUILD);
+		return preprocessJob;
+	}
+
+	public final Job createRebuildJob() {
+		Job rebuildJob = new Job("Rebuilding project" + recentProject.getName()) {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				String libErrorMessage = BuildUtil.checkLib(recentProject, monitor, BundleType.RAO_LIB);
 				if (libErrorMessage != null)
 					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(libErrorMessage));
+
+				libErrorMessage = BuildUtil.checkLib(recentProject, monitor, BundleType.XBASE_LIB);
+				if (libErrorMessage != null)
+					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(libErrorMessage));
+
+				IFolder srcGenFolder = recentProject.getFolder("src-gen");
+				String srcGenErrorMessage = BuildUtil.checkSrcGen(recentProject, srcGenFolder, monitor, true);
+				if (srcGenErrorMessage != null)
+					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(srcGenErrorMessage));
+
+				fsa.setOutputPath(srcGenFolder.getFullPath().toString());
+				fsa.setMonitor(monitor);
+				fsa.setProject(recentProject);
+
+				Map<String, OutputConfiguration> outputConfigurations = new HashMap<String, OutputConfiguration>();
+
+				for (OutputConfiguration oc : outputConfigurationProvider.getOutputConfigurations(recentProject))
+					outputConfigurations.put(oc.getName(), oc);
+
+				fsa.setOutputConfigurations(outputConfigurations);
+
+				// TODO: Invoke inferrer manually
+				// generator.doGenerate(resourceSet, fsa);
+
+				try {
+					recentProject.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, monitor);
+				} catch (CoreException e) {
+					e.printStackTrace();
+					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage("Failed to build project"),
+							e);
+				}
+
+				return Status.OK_STATUS;
+			}
+		};
+
+		rebuildJob.setPriority(Job.BUILD);
+		return rebuildJob;
+	}
+
+	public final Job createValidateJob() {
+		Job validateJob = new Job("Validating project" + recentProject.getName()) {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				final ResourceSet resourceSet = resourceSetProvider.get(recentProject);
+				boolean projectHasErrors = false;
 
 				final List<IResource> raoFiles = BuildUtil.getAllRaoFilesInProject(recentProject);
 				if (raoFiles.isEmpty()) {
 					return new Status(IStatus.ERROR, pluginId,
 							BuildUtil.createErrorMessage("project contains no rao files"));
 				}
-
-				IFolder srcGenFolder = recentProject.getFolder("src-gen");
-				String srcGenErrorMessage = BuildUtil.checkSrcGen(recentProject, srcGenFolder, monitor);
-				if (srcGenErrorMessage != null)
-					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(srcGenErrorMessage));
-
-				final ResourceSet resourceSet = resourceSetProvider.get(recentProject);
-
-				boolean projectHasErrors = false;
 
 				for (IResource resource : raoFiles) {
 					Resource loadedResource = resourceSet.getResource(BuildUtil.getURI(resource), true);
@@ -159,48 +216,23 @@ public class BuildJobProvider {
 						validatorExtension.updateValidationMarkers((IFile) resource, loadedResource, CheckMode.ALL,
 								monitor);
 						IMarker[] markers = resource.findMarkers(IMarker.PROBLEM, true, 0);
-						if (markers.length > 0) {
-							projectHasErrors = true;
-							break;
+						for (IMarker marker : markers) {
+							int severity = marker.getAttribute(IMarker.SEVERITY, Integer.MAX_VALUE);
+							if (severity == IMarker.SEVERITY_ERROR) {
+								projectHasErrors = true;
+								break;
+							}
 						}
 					} catch (CoreException e) {
 						e.printStackTrace();
 						return new Status(IStatus.ERROR, pluginId,
-								BuildUtil.createErrorMessage("internal error whule calculating model error markers"),
+								BuildUtil.createErrorMessage("internal error while calculating model error markers"),
 								e);
 					}
 				}
 
-				if (projectHasErrors) {
-					try {
-						srcGenFolder.delete(true, new NullProgressMonitor());
-					} catch (CoreException e) {
-						e.printStackTrace();
-					}
+				if (projectHasErrors)
 					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage("model has errors"));
-				}
-
-				fsa.setOutputPath(srcGenFolder.getFullPath().toString());
-
-				fsa.setMonitor(monitor);
-				fsa.setProject(recentProject);
-
-				Map<String, OutputConfiguration> outputConfigurations = new HashMap<String, OutputConfiguration>();
-
-				for (OutputConfiguration oc : outputConfigurationProvider.getOutputConfigurations(recentProject))
-					outputConfigurations.put(oc.getName(), oc);
-
-				fsa.setOutputConfigurations(outputConfigurations);
-
-				generator.doGenerate(resourceSet, fsa);
-
-				try {
-					recentProject.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, monitor);
-				} catch (CoreException e) {
-					e.printStackTrace();
-					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage("could not build project"),
-							e);
-				}
 
 				try {
 					IMarker[] markers = recentProject.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true,
@@ -223,7 +255,7 @@ public class BuildJobProvider {
 			}
 		};
 
-		buildJob.setPriority(Job.BUILD);
-		return buildJob;
+		validateJob.setPriority(Job.BUILD);
+		return validateJob;
 	}
 }

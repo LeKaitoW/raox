@@ -33,8 +33,7 @@ public class ModelExecutionSourceProvider extends AbstractSourceProvider {
 	}
 
 	public static void setSimulationState(IWorkbenchWindow workbenchWindow, String newState) {
-		ISourceProviderService sourceProviderService = workbenchWindow
-				.getService(ISourceProviderService.class);
+		ISourceProviderService sourceProviderService = workbenchWindow.getService(ISourceProviderService.class);
 		ModelExecutionSourceProvider sourceProvider = (ModelExecutionSourceProvider) sourceProviderService
 				.getSourceProvider(ModelExecutionKey);
 

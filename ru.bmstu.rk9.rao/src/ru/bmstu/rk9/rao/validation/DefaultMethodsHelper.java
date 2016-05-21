@@ -22,7 +22,7 @@ public class DefaultMethodsHelper {
 			this.validatorAction = validatorAction;
 		}
 
-		final String name;
+		public final String name;
 		final ValidatorAction validatorAction;
 	}
 
@@ -35,7 +35,7 @@ public class DefaultMethodsHelper {
 			this.validatorAction = validatorAction;
 		}
 
-		final String name;
+		public final String name;
 		final ValidatorAction validatorAction;
 	}
 
@@ -47,7 +47,31 @@ public class DefaultMethodsHelper {
 			this.validatorAction = validatorAction;
 		}
 
-		final String name;
+		public final String name;
+		final ValidatorAction validatorAction;
+	}
+
+	public static enum DptMethodInfo {
+		INIT("init", ValidatorAction.NOTHING);
+
+		DptMethodInfo(String name, ValidatorAction validatorAction) {
+			this.name = name;
+			this.validatorAction = validatorAction;
+		}
+
+		public final String name;
+		final ValidatorAction validatorAction;
+	}
+
+	public static enum FrameMethodInfo {
+		INIT("init", ValidatorAction.NOTHING), DRAW("draw", ValidatorAction.NOTHING);
+
+		FrameMethodInfo(String name, ValidatorAction validatorAction) {
+			this.name = name;
+			this.validatorAction = validatorAction;
+		}
+
+		public final String name;
 		final ValidatorAction validatorAction;
 	}
 }

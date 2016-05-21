@@ -1,9 +1,23 @@
 package ru.bmstu.rk9.rao.lib.animation;
 
-public interface AnimationFrame {
-	public String getName();
+public abstract class AnimationFrame {
+	public AnimationFrame() {
+		init();
+	}
 
-	public void draw(AnimationContext context);
+	protected abstract void init();
 
-	public BackgroundData getBackgroundData();
+	public abstract String getTypeName();
+
+	public abstract void draw(AnimationContext context);
+
+	public final Background getBackground() {
+		return background;
+	}
+
+	public final void setBackground(Background background) {
+		this.background = background;
+	}
+
+	private Background background = new Background(500, 500, RaoColor.WHITE);
 }

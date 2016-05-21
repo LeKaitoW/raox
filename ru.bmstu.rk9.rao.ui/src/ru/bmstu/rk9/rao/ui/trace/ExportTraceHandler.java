@@ -13,7 +13,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceOutput;
 
 //TODO export to location chosen by user
@@ -60,13 +60,13 @@ public class ExportTraceHandler extends AbstractHandler {
 	}
 
 	public final static void exportTraceRegular() {
-		if (!Simulator.isInitialized() || !ready())
+		if (!CurrentSimulator.isInitialized() || !ready())
 			return;
 
-		Tracer tracer = new Tracer();
+		Tracer tracer = new Tracer(CurrentSimulator.getStaticModelData());
 
 		PrintWriter writer = initializeWriter(".trc");
-		for (Entry entry : Simulator.getDatabase().getAllEntries()) {
+		for (Entry entry : CurrentSimulator.getDatabase().getAllEntries()) {
 			TraceOutput output = tracer.parseSerializedData(entry);
 			if (output != null)
 				writer.println(output.content());
@@ -77,7 +77,7 @@ public class ExportTraceHandler extends AbstractHandler {
 	private static LegacyTracer legacyTracer = null;
 
 	public final static void exportTraceLegacy() {
-		if (!Simulator.isInitialized() || !ready())
+		if (!CurrentSimulator.isInitialized() || !ready())
 			return;
 
 		if (legacyTracer == null) {

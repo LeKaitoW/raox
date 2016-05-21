@@ -1,0 +1,33 @@
+--- RCPTT testcase ---
+Format-Version: 1.0
+Contexts: _uIJHwByGEea5c-Q90PErIw
+Element-Name: base_java_project
+Element-Type: testcase
+Element-Version: 3.0
+External-Reference: 
+Id: _Ebu-4AseEeaHrOp-h5dYJw
+Runtime-Version: 2.0.1.201508250612
+Save-Time: 5/18/16 2:42 AM
+Testcase-Type: ecl
+
+------=_.content-0a7243a0-75d3-3d5f-9791-539de0e5b7ac
+Content-Type: text/ecl
+Entry-Name: .content
+
+get-menu "File/New/Project..." | click
+with [get-window "New Project"] {
+    with [get-editbox -after [get-label "Wizards:"]] {
+        key-type Enter
+        set-text "type filter text"
+    }
+    get-tree | select "Java Project"
+    get-button "Next >" | click
+}
+with [get-window "New Java Project"] {
+    get-editbox -after [get-label "Project name:"] | set-text empty
+    get-button Finish | click
+}
+
+get-view "Package Explorer" | get-tree | get-property "getItemCount()" | equals 1 | verify-true
+
+------=_.content-0a7243a0-75d3-3d5f-9791-539de0e5b7ac--

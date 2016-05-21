@@ -14,7 +14,6 @@ import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 
-import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
@@ -24,7 +23,6 @@ import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider;
 import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider.SimulationState;
 
 public class ExecutionManager {
-	private final IMultipleResourceGenerator generator;
 	private final EclipseResourceFileSystemAccess2 fsa;
 	private final IResourceSetProvider resourceSetProvider;
 	private final EclipseOutputConfigurationProvider outputConfigurationProvider;
@@ -48,36 +46,78 @@ public class ExecutionManager {
 
 	public ExecutionManager(final IEditorPart activeEditor, final IWorkbenchWindow activeWorkbenchWindow,
 			final EclipseResourceFileSystemAccess2 fsa, final IResourceSetProvider resourceSetProvider,
-			final EclipseOutputConfigurationProvider ocp, final IMultipleResourceGenerator generator,
+			final EclipseOutputConfigurationProvider ocp,
 			final DefaultResourceUIValidatorExtension validatorExtension) {
 		this.activeEditor = activeEditor;
 		this.activeWorkbenchWindow = activeWorkbenchWindow;
 		this.fsa = fsa;
 		this.resourceSetProvider = resourceSetProvider;
 		this.outputConfigurationProvider = ocp;
-		this.generator = generator;
 		this.validatorExtension = validatorExtension;
 	}
 
 	public final void execute(boolean buildOnly) {
-		Job executionJob = new Job("Building Rao model") {
+		Job executionJob = new Job("Building project") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 						SimulationState.RUNNING.toString());
 				try {
 					BuildJobProvider modelBuilder = new BuildJobProvider(activeEditor, activeWorkbenchWindow, fsa,
-							resourceSetProvider, outputConfigurationProvider, generator, validatorExtension);
-					final Job build = modelBuilder.createBuildJob();
-					build.schedule();
+							resourceSetProvider, outputConfigurationProvider, validatorExtension);
+
+					final Job preprocess = modelBuilder.createPreprocessJob();
+					preprocess.schedule();
 					try {
-						build.join();
+						preprocess.join();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
-						return new Status(IStatus.ERROR, pluginId, "Internal error while finishing build");
+						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
+								SimulationState.STOPPED.toString());
+						return new Status(IStatus.ERROR, pluginId,
+								"Internal error while finishing preprocessing project");
 					}
 
-					if (build.getResult() != Status.OK_STATUS) {
+					if (preprocess.getResult() != Status.OK_STATUS) {
+						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
+								SimulationState.STOPPED.toString());
+						ConsoleView.addLine("Build failed");
+						return new Status(IStatus.CANCEL, pluginId, "Execution cancelled");
+					}
+
+					if (buildOnly) {
+						final Job rebuild = modelBuilder.createRebuildJob();
+						rebuild.schedule();
+						try {
+							rebuild.join();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+							ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
+									SimulationState.STOPPED.toString());
+							return new Status(IStatus.ERROR, pluginId,
+									"Internal error while finishing rebuilding project");
+						}
+
+						if (rebuild.getResult() != Status.OK_STATUS) {
+							ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
+									SimulationState.STOPPED.toString());
+							ConsoleView.addLine("Build failed");
+							return new Status(IStatus.CANCEL, pluginId, "Execution cancelled");
+						}
+					}
+
+					final Job validate = modelBuilder.createValidateJob();
+					validate.schedule();
+					try {
+						validate.join();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
+								SimulationState.STOPPED.toString());
+						return new Status(IStatus.ERROR, pluginId, "Internal error while finishing project validation");
+					}
+
+					if (validate.getResult() != Status.OK_STATUS) {
 						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 								SimulationState.STOPPED.toString());
 						ConsoleView.addLine("Build failed");
@@ -87,12 +127,13 @@ public class ExecutionManager {
 					if (buildOnly) {
 						ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 								SimulationState.STOPPED.toString());
+
 						return Status.OK_STATUS;
 					}
 
 					executionManagerNotifier.notifySubscribers(ExecutionManagerState.BEFORE_RUN);
 
-					final IProject project = modelBuilder.getBuiltProject();
+					final IProject project = modelBuilder.getProject();
 					ExecutionJobProvider modelExecutioner = new ExecutionJobProvider(project);
 					final Job runJob = modelExecutioner.createExecutionJob();
 					runJob.schedule();
