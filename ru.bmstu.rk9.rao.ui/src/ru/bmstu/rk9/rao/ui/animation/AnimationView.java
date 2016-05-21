@@ -146,7 +146,7 @@ public class AnimationView extends ViewPart {
 	private static PaintListener painter = new PaintListener() {
 		@Override
 		public void paintControl(PaintEvent e) {
-			//realTimeUpdateRunnable.run();
+			realTimeUpdateRunnable.run();
 			if (canDraw()) {
 				if (animationEnabled || !isInitialized)
 					animationContext.drawFrame(e.gc, currentFrame);

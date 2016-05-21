@@ -17,7 +17,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
@@ -59,10 +58,10 @@ public class Reader {
 		return modelStateStorage;
 	}
 
-	public JSONObject retrieveStructure() {
+	public JsonObject retrieveStructure() {
 		File myFile = new File(Player.getCurrentProjectPath() + "/structure.json");
 		FileInputStream fileInputStream = null;
-		JSONObject structure = new JSONObject();
+		JsonObject structure = new JsonObject();
 		try {
 			fileInputStream = new FileInputStream(myFile);
 			InputStreamReader isr = new InputStreamReader(fileInputStream);
@@ -76,7 +75,7 @@ public class Reader {
 
 			String json = sb.toString();
 			Gson gson = new Gson();
-			structure = gson.fromJson(json, JSONObject.class);
+			structure = gson.fromJson(json, JsonObject.class);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.EventIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.LogicIndex;
@@ -24,8 +27,6 @@ import ru.bmstu.rk9.rao.lib.dpt.AbstractActivity;
 import ru.bmstu.rk9.rao.lib.dpt.AbstractDecisionPoint;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
 import ru.bmstu.rk9.rao.lib.event.Event;
-import ru.bmstu.rk9.rao.lib.json.JSONArray;
-import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.pattern.Operation;
@@ -102,56 +103,56 @@ public class Database {
 	// ------------------------------ GENERAL ------------------------------ //
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
-	public Database(final JSONObject modelStructure) {
-		String modelName = modelStructure.getString(ModelStructureConstants.NAME);
+	public Database(final JsonObject modelStructure) {
+		String modelName = modelStructure.get(ModelStructureConstants.NAME).getAsString();
 		indexHelper.initializeModel(modelName);
 
-		final JSONArray resourceTypes = modelStructure.getJSONArray(ModelStructureConstants.RESOURCE_TYPES);
-		for (int i = 0; i < resourceTypes.length(); i++) {
-			final JSONObject resourceType = resourceTypes.getJSONObject(i);
+		final JsonArray resourceTypes = modelStructure.get(ModelStructureConstants.RESOURCE_TYPES).getAsJsonArray();
+		for (int i = 0; i < resourceTypes.size(); i++) {
+			final JsonObject resourceType = resourceTypes.get(i).getAsJsonObject();
 
-			final String name = resourceType.getString(ModelStructureConstants.NAME);
+			final String name = resourceType.get(ModelStructureConstants.NAME).getAsString();
 			final CollectedDataNode typeNode = indexHelper.addResourceType(name);
 			final ResourceTypeIndex resourceTypeIndex = new ResourceTypeIndex(i);
 			typeNode.setIndex(resourceTypeIndex);
 		}
 
-		final JSONArray results = modelStructure.getJSONArray(ModelStructureConstants.RESULTS);
-		for (int i = 0; i < results.length(); i++) {
-			final JSONObject result = results.getJSONObject(i);
-			final ResultType type = ResultType.getByString(result.getString(ModelStructureConstants.TYPE));
-			final String name = modelName + "." + result.getString(ModelStructureConstants.NAME);
+		final JsonArray results = modelStructure.get(ModelStructureConstants.RESULTS).getAsJsonArray();
+		for (int i = 0; i < results.size(); i++) {
+			final JsonObject result = results.get(i).getAsJsonObject();
+			final ResultType type = ResultType.getByString(result.get(ModelStructureConstants.TYPE).getAsString());
+			final String name = modelName + "." + result.get(ModelStructureConstants.NAME).getAsString();
 			indexHelper.addResult(name).setIndex(new ResultIndex(i, type));
 		}
 
-		final JSONArray patterns = modelStructure.getJSONArray(ModelStructureConstants.PATTERNS);
-		for (int i = 0; i < patterns.length(); i++) {
-			final JSONObject pattern = patterns.getJSONObject(i);
-			final String name = pattern.getString(ModelStructureConstants.NAME);
+		final JsonArray patterns = modelStructure.get(ModelStructureConstants.PATTERNS).getAsJsonArray();
+		for (int i = 0; i < patterns.size(); i++) {
+			final JsonObject pattern = patterns.get(i).getAsJsonObject();
+			final String name = pattern.get(ModelStructureConstants.NAME).getAsString();
 			final CollectedDataNode patternNode = indexHelper.addPattern(name);
 			patternNode.setIndex(new PatternIndex(i));
 		}
 
-		final JSONArray events = modelStructure.getJSONArray(ModelStructureConstants.EVENTS);
-		for (int i = 0; i < events.length(); i++) {
-			final JSONObject event = events.getJSONObject(i);
-			final String name = event.getString(ModelStructureConstants.NAME);
+		final JsonArray events = modelStructure.get(ModelStructureConstants.EVENTS).getAsJsonArray();
+		for (int i = 0; i < events.size(); i++) {
+			final JsonObject event = events.get(i).getAsJsonObject();
+			final String name = event.get(ModelStructureConstants.NAME).getAsString();
 			final CollectedDataNode eventNode = indexHelper.addEvent(name);
 			eventNode.setIndex(new EventIndex(i, event));
 		}
 
-		final JSONArray logics = modelStructure.getJSONArray(ModelStructureConstants.LOGICS);
-		for (int i = 0; i < logics.length(); i++) {
-			final JSONObject logic = logics.getJSONObject(i);
-			final String dptName = logic.getString(ModelStructureConstants.NAME);
+		final JsonArray logics = modelStructure.get(ModelStructureConstants.LOGICS).getAsJsonArray();
+		for (int i = 0; i < logics.size(); i++) {
+			final JsonObject logic = logics.get(i).getAsJsonObject();
+			final String dptName = logic.get(ModelStructureConstants.NAME).getAsString();
 			final CollectedDataNode dptNode = indexHelper.addLogic(dptName);
 			dptNode.setIndex(new LogicIndex(i));
 		}
 
-		final JSONArray searches = modelStructure.getJSONArray(ModelStructureConstants.SEARCHES);
-		for (int i = 0; i < searches.length(); i++) {
-			final JSONObject search = searches.getJSONObject(i);
-			final String dptName = search.getString(ModelStructureConstants.NAME);
+		final JsonArray searches = modelStructure.get(ModelStructureConstants.SEARCHES).getAsJsonArray();
+		for (int i = 0; i < searches.size(); i++) {
+			final JsonObject search = searches.get(i).getAsJsonObject();
+			final String dptName = search.get(ModelStructureConstants.NAME).getAsString();
 			indexHelper.addSearch(dptName).setIndex(new SearchIndex(i));
 		}
 
@@ -380,9 +381,9 @@ public class Database {
 
 			final int numberOfParameters = CurrentSimulator.getStaticModelData().getNumberOfResourceTypeParameters(typeNumber);
 			for (int paramNum = 0; paramNum < numberOfParameters; paramNum++) {
-				final JSONObject parameter = CurrentSimulator.getStaticModelData().getResourceTypeParameter(typeNumber,
+				final JsonObject parameter = CurrentSimulator.getStaticModelData().getResourceTypeParameter(typeNumber,
 						paramNum);
-				resourceNode.addChild(parameter.getString(ModelStructureConstants.NAME))
+				resourceNode.addChild(parameter.get(ModelStructureConstants.NAME).getAsString())
 						.setIndex(new ResourceParameterIndex(paramNum));
 			}
 

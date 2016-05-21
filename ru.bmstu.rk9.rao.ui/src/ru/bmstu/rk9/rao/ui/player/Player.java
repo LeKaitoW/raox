@@ -10,11 +10,17 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.event.Event;
+import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
@@ -67,7 +73,7 @@ public class Player implements Runnable, ISimulator {
 
 	}
 
-	public JSONObject getModelStructure() {
+	public JsonObject getModelStructure() {
 
 		return reader.retrieveStructure();
 	}
@@ -113,14 +119,24 @@ public class Player implements Runnable, ISimulator {
 		return path;
 	}
 
+	private boolean haveNewData = false;
+
+	private final Subscriber databaseSubscriber = new Subscriber() {
+		@Override
+		public void fireChange() {
+			haveNewData = true;
+		}
+	};
+
 	private synchronized void runPlayer(int currentEventNumber, int time, PlayingDirection playingDirection) {
 		CurrentSimulator.set(new Player());
 		final Display display = PlatformUI.getWorkbench().getDisplay();
-		final ModelInternalsParser parser = parseModel(projectsInWorkspace[0]);
-		display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
+		final ModelInternalsParser parser = parseModel(getCurrentProject());
 
-		modelStateStorage = getModelData();
-		modelStructure = getModelStructure();
+		CurrentSimulator.getDatabase().getNotifier().addSubscriber(databaseSubscriber,
+				Database.NotificationCategory.ENTRY_ADDED);
+
+		display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
 
 		while (state != PlayerState.STOP && state != PlayerState.PAUSE
 				&& currentEventNumber < (modelStateStorage.size() - 1) && currentEventNumber > 0) {
@@ -150,9 +166,11 @@ public class Player implements Runnable, ISimulator {
 	private static IProject[] projectsInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 	private static volatile PlayerState state = PlayerState.INITIALIZED;
 	private volatile static Integer currentEventNumber = new Integer(1);
-	private List<ModelState> modelStateStorage = new ArrayList<ModelState>();
-	private JSONObject modelStructure = new JSONObject();
 	private Reader reader = new Reader();
+	private List<ModelState> modelStateStorage = getModelData();
+	private JsonObject modelStructure = getModelStructure();
+	Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	String json = gson.toJson(modelStructure);
 
 	@Override
 	public void preinitilize(SimulatorPreinitializationInfo info) {
@@ -167,8 +185,11 @@ public class Player implements Runnable, ISimulator {
 
 	@Override
 	public Database getDatabase() {
-		// TODO Auto-generated method stub
-		return null;
+		System.out.println(json);
+
+		Database database = new Database(modelStructure);
+
+		return database;
 	}
 
 	@Override

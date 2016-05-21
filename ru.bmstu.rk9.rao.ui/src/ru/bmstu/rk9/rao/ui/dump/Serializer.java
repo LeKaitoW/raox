@@ -6,6 +6,7 @@ import java.util.Collection;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.simulator.ModelState;
@@ -20,7 +21,7 @@ public class Serializer {
 
 	}
 
-	public static String modelStructureToString(JSONObject modelStructure) {
+	public static String modelStructureToString(JsonObject modelStructure) {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String json = gson.toJson(modelStructure);
 		return json;

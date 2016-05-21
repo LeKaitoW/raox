@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.google.gson.JsonObject;
+
 import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
@@ -137,16 +139,16 @@ public class CollectedDataNode {
 	}
 
 	public static class EventIndex extends Index {
-		public EventIndex(int number, JSONObject structure) {
+		public EventIndex(int number, JsonObject event) {
 			super(number, IndexType.EVENT);
-			this.structure = structure;
+			this.structure = event;
 		}
 
 		public int incrementTimesExecuted() {
 			return timesExecuted++;
 		}
 
-		JSONObject structure;
+		JsonObject structure;
 		int timesExecuted = 0;
 	}
 

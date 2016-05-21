@@ -15,6 +15,11 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.DataType;
@@ -24,8 +29,6 @@ import ru.bmstu.rk9.rao.lib.dpt.Edge;
 import ru.bmstu.rk9.rao.lib.dpt.Logic;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
 import ru.bmstu.rk9.rao.lib.event.Event;
-import ru.bmstu.rk9.rao.lib.json.JSONArray;
-import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.lib.naming.RaoNameable;
@@ -70,7 +73,7 @@ public class ModelInternalsParser {
 
 		classLoader = new URLClassLoader(urls, CurrentSimulator.class.getClassLoader());
 
-		simulatorPreinitializationInfo.modelStructure.put(ModelStructureConstants.NAME, project.getName());
+		simulatorPreinitializationInfo.modelStructure.addProperty(ModelStructureConstants.NAME, project.getName());
 
 		for (IResource raoFile : BuildUtil.getAllRaoFilesInProject(project)) {
 			String raoFileName = raoFile.getName();
@@ -108,90 +111,114 @@ public class ModelInternalsParser {
 			String className = NamingHelper.changeDollarToDot(nestedModelClass.getName());
 
 			if (Event.class.isAssignableFrom(nestedModelClass)) {
-				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.EVENTS)
-						.put(new JSONObject().put(ModelStructureConstants.NAME, className));
+				JsonObject obj = new JsonObject();
+				obj.addProperty(ModelStructureConstants.NAME, className);
+				simulatorPreinitializationInfo.modelStructure.get(ModelStructureConstants.EVENTS).getAsJsonArray()
+						.add(obj);
 				continue;
 			}
 
 			if (ComparableResource.class.isAssignableFrom(nestedModelClass)) {
 				simulatorPreinitializationInfo.resourceClasses.add((Class<? extends Resource>) nestedModelClass);
-				JSONArray parameters = new JSONArray();
+				JsonArray parameters = new JsonArray();
+				JsonObject obj = new JsonObject();
+				Gson gson = new Gson();
 				int offset = 0;
 				int variableWidthParameterIndex = 0;
 				for (Field field : nestedModelClass.getDeclaredFields()) {
 					DataType dataType = Database.getDataType(field.getType());
+					String element = gson.toJson(dataType);
 
-					parameters.put(new JSONObject().put(ModelStructureConstants.NAME, field.getName().substring(1))
-							.put(ModelStructureConstants.TYPE, dataType).put(ModelStructureConstants.OFFSET, offset)
-							.put(ModelStructureConstants.VARIABLE_WIDTH_PARAMETER_INDEX,
-									dataType == DataType.OTHER ? variableWidthParameterIndex : -1));
-
+					obj.addProperty(ModelStructureConstants.NAME, field.getName().substring(1));
+					obj.addProperty(ModelStructureConstants.TYPE, element);
+					obj.addProperty(ModelStructureConstants.OFFSET, offset);
+					obj.addProperty(ModelStructureConstants.VARIABLE_WIDTH_PARAMETER_INDEX,
+							dataType == DataType.OTHER ? variableWidthParameterIndex : -1);
+					parameters.add(obj);
 					if (dataType == DataType.OTHER)
 						variableWidthParameterIndex++;
 					else
 						offset += dataType.getSize();
 				}
-
-				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.RESOURCE_TYPES)
-						.put(new JSONObject().put(ModelStructureConstants.NAME, className)
-								.put(ModelStructureConstants.NAMED_RESOURCES, new JSONArray())
-								.put(ModelStructureConstants.PARAMETERS, parameters)
-								.put(ModelStructureConstants.FINAL_OFFSET, offset));
+				JsonObject data = new JsonObject();
+				data.addProperty(ModelStructureConstants.NAME, className);
+				JsonArray jsonArray = new JsonArray();
+				data.add(ModelStructureConstants.NAMED_RESOURCES, jsonArray);
+				data.add(ModelStructureConstants.PARAMETERS, parameters);
+				data.addProperty(ModelStructureConstants.FINAL_OFFSET, offset);
+				simulatorPreinitializationInfo.modelStructure.get(ModelStructureConstants.RESOURCE_TYPES)
+						.getAsJsonArray().add(data);
 				continue;
 			}
 
 			if (Pattern.class.isAssignableFrom(nestedModelClass)) {
-				JSONArray relevantResources = new JSONArray();
+				JsonArray relevantResources = new JsonArray();
 				for (Field field : nestedModelClass.getDeclaredFields()) {
 					String fieldName = NamingHelper.createFullNameForField(field);
 					if (Resource.class.isAssignableFrom(field.getType())) {
-						relevantResources.put(new JSONObject().put(ModelStructureConstants.NAME, fieldName).put(
-								ModelStructureConstants.TYPE,
-								NamingHelper.changeDollarToDot(field.getType().getName())));
+						JsonObject obj = new JsonObject();
+						obj.addProperty(ModelStructureConstants.NAME, fieldName);
+						obj.addProperty(ModelStructureConstants.TYPE,
+								NamingHelper.changeDollarToDot(field.getType().getName()));
+						relevantResources.add(obj);
 					}
 				}
 
 				String type = Operation.class.isAssignableFrom(nestedModelClass) ? ModelStructureConstants.OPERATION
 						: ModelStructureConstants.RULE;
 
-				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.PATTERNS)
-						.put(new JSONObject().put(ModelStructureConstants.NAME, className)
-								.put(ModelStructureConstants.TYPE, type)
-								.put(ModelStructureConstants.RELEVANT_RESOURCES, relevantResources));
+				JsonObject obj = new JsonObject();
+				obj.addProperty(ModelStructureConstants.NAME, className);
+				obj.addProperty(ModelStructureConstants.TYPE, type);
+				obj.add(ModelStructureConstants.RELEVANT_RESOURCES, relevantResources);
+				simulatorPreinitializationInfo.modelStructure.get(ModelStructureConstants.PATTERNS).getAsJsonArray()
+						.add(obj);
+
 				continue;
 			}
 
 			if (Logic.class.isAssignableFrom(nestedModelClass)) {
 				decisionPointClasses.add(nestedModelClass);
 
-				JSONArray activities = new JSONArray();
+				JsonArray activities = new JsonArray();
 				for (Field field : nestedModelClass.getDeclaredFields()) {
 					String fieldName = field.getName();
+
+					JsonObject obj = new JsonObject();
+					obj.addProperty(ModelStructureConstants.NAME, fieldName);
 					if (Activity.class.isAssignableFrom(field.getType())) {
-						activities.put(new JSONObject().put(ModelStructureConstants.NAME, fieldName));
+						activities.add(obj);
 					}
 				}
 
-				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.LOGICS)
-						.put(new JSONObject().put(ModelStructureConstants.NAME, className)
-								.put(ModelStructureConstants.ACTIVITIES, activities));
+				JsonObject obj = new JsonObject();
+				obj.addProperty(ModelStructureConstants.NAME, className);
+				obj.add(ModelStructureConstants.ACTIVITIES, activities);
+				simulatorPreinitializationInfo.modelStructure.get(ModelStructureConstants.LOGICS).getAsJsonArray()
+						.add(obj);
 				continue;
 			}
 
 			if (Search.class.isAssignableFrom(nestedModelClass)) {
 				decisionPointClasses.add(nestedModelClass);
 
-				JSONArray edges = new JSONArray();
+				JsonArray edges = new JsonArray();
 				for (Field field : nestedModelClass.getDeclaredFields()) {
 					String fieldName = field.getName();
 					if (Edge.class.isAssignableFrom(field.getType())) {
-						edges.put(new JSONObject().put(ModelStructureConstants.NAME, fieldName));
+
+						JsonObject obj = new JsonObject();
+						obj.addProperty(ModelStructureConstants.NAME, fieldName);
+						edges.add(obj);
 					}
 				}
+				JsonObject obj = new JsonObject();
+				obj.addProperty(ModelStructureConstants.NAME, className);
+				obj.add(ModelStructureConstants.EDGES, edges);
 
-				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.SEARCHES)
-						.put(new JSONObject().put(ModelStructureConstants.NAME, className)
-								.put(ModelStructureConstants.EDGES, edges));
+				simulatorPreinitializationInfo.modelStructure.get(ModelStructureConstants.SEARCHES).getAsJsonArray()
+						.add(obj);
+
 				continue;
 			}
 
@@ -206,20 +233,21 @@ public class ModelInternalsParser {
 
 			if (Resource.class.isAssignableFrom(field.getType())) {
 				String typeName = NamingHelper.changeDollarToDot(field.getType().getName());
-				JSONArray resourceTypes = simulatorPreinitializationInfo.modelStructure
-						.getJSONArray(ModelStructureConstants.RESOURCE_TYPES);
-				JSONObject resourceType = null;
-				for (int i = 0; i < resourceTypes.length(); i++) {
-					resourceType = resourceTypes.getJSONObject(i);
-					if (resourceType.getString(ModelStructureConstants.NAME).equals(typeName))
+				JsonArray resourceTypes = simulatorPreinitializationInfo.modelStructure
+						.get(ModelStructureConstants.RESOURCE_TYPES).getAsJsonArray();
+				JsonObject resourceType = null;
+				for (int i = 0; i < resourceTypes.size(); i++) {
+					resourceType = resourceTypes.get(i).getAsJsonObject();
+					if (resourceType.get(ModelStructureConstants.NAME).getAsString().equals(typeName))
 						break;
 				}
 
 				if (resourceType == null)
 					throw new RuntimeException("Invalid resource type + " + field.getType());
+				JsonObject obj = new JsonObject();
+				obj.addProperty(ModelStructureConstants.NAME, NamingHelper.createFullNameForField(field));
+				resourceType.get(ModelStructureConstants.NAMED_RESOURCES).getAsJsonArray().add(obj);
 
-				resourceType.getJSONArray(ModelStructureConstants.NAMED_RESOURCES).put(
-						new JSONObject().put(ModelStructureConstants.NAME, NamingHelper.createFullNameForField(field)));
 			}
 		}
 	}

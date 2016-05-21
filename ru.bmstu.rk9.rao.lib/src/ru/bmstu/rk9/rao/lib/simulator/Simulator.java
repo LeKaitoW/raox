@@ -4,6 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.dpt.DPTManager;
 import ru.bmstu.rk9.rao.lib.event.Event;
@@ -20,7 +23,9 @@ public class Simulator implements ISimulator {
 	public void preinitilize(SimulatorPreinitializationInfo preinitializationInfo) {
 		modelState = new ModelState(preinitializationInfo.resourceClasses);
 		database = new Database(preinitializationInfo.modelStructure);
+
 		staticModelData = new StaticModelData(preinitializationInfo.modelStructure);
+
 	}
 
 	@Override
