@@ -1,0 +1,16 @@
+ES 0.0 Tracing started
+RC 0.0 barber_events.barber_events.barberShop = {free, 0}
+ES 0.0 Simulation started
+EI 14.0 barber_events.barber_events.ClientInput[0]
+RK 14.0 barber_events.barber_events.barberShop = {busy, 0}
+EI 27.0 barber_events.barber_events.ClientInput[1]
+RK 27.0 barber_events.barber_events.barberShop = {busy, 1}
+EI 32.0 barber_events.barber_events.ServiceFinished[0]
+RK 32.0 barber_events.barber_events.barberShop = {busy, 0}
+EI 44.0 barber_events.barber_events.ClientInput[2]
+RK 44.0 barber_events.barber_events.barberShop = {busy, 1}
+EI 44.0 barber_events.barber_events.ServiceFinished[1]
+RK 44.0 barber_events.barber_events.barberShop = {busy, 0}
+EI 58.0 barber_events.barber_events.ServiceFinished[2]
+RK 58.0 barber_events.barber_events.barberShop = {free, 0}
+ES 58.0 Simulation finished: terminate condition
