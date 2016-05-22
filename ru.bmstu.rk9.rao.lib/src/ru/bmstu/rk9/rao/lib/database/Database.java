@@ -57,30 +57,31 @@ public class Database {
 	}
 
 	public enum DataType {
-		INT(TypeSize.INT), DOUBLE(TypeSize.DOUBLE), BOOLEAN(TypeSize.BYTE), OTHER(0);
+		INT(TypeSize.INT, "int", "Integer"), DOUBLE(TypeSize.DOUBLE, "double", "Double"), BOOLEAN(TypeSize.BYTE,
+				"boolean", "Boolean"), OTHER(0, "", "");
 
-		DataType(int size) {
+		DataType(int size, String namePrivitive, String nameObject) {
 			this.size = size;
+			this.namePrimitive = namePrivitive;
+			this.nameObject = nameObject;
 		}
 
 		public final int getSize() {
 			return size;
 		}
 
+		public static final DataType getByName(String name) {
+			for (final DataType t : values()) {
+				if (t.namePrimitive.equals(name) || t.nameObject.equals(name))
+					return t;
+			}
+
+			return DataType.OTHER;
+		}
+
+		private final String namePrimitive;
+		private final String nameObject;
 		private final int size;
-	}
-
-	public static final DataType getDataType(Class<?> type) {
-		if (Integer.class.isAssignableFrom(type) || int.class.isAssignableFrom(type))
-			return DataType.INT;
-
-		if (Double.class.isAssignableFrom(type) || double.class.isAssignableFrom(type))
-			return DataType.DOUBLE;
-
-		if (Boolean.class.isAssignableFrom(type) || boolean.class.isAssignableFrom(type))
-			return DataType.BOOLEAN;
-
-		return DataType.OTHER;
 	}
 
 	public enum SerializationCategory {
@@ -378,7 +379,8 @@ public class Database {
 			resourceIndex = new ResourceIndex(resource.getNumber());
 			resourceNode.setIndex(resourceIndex);
 
-			final int numberOfParameters = CurrentSimulator.getStaticModelData().getNumberOfResourceTypeParameters(typeNumber);
+			final int numberOfParameters = CurrentSimulator.getStaticModelData()
+					.getNumberOfResourceTypeParameters(typeNumber);
 			for (int paramNum = 0; paramNum < numberOfParameters; paramNum++) {
 				final JSONObject parameter = CurrentSimulator.getStaticModelData().getResourceTypeParameter(typeNumber,
 						paramNum);
@@ -405,8 +407,8 @@ public class Database {
 		}
 
 		final ByteBuffer header = ByteBuffer.allocate(EntryType.RESOURCE.HEADER_SIZE);
-		header.put((byte) EntryType.RESOURCE.ordinal()).putDouble(CurrentSimulator.getTime()).put((byte) status.ordinal())
-				.putInt(typeNumber).putInt(resourceIndex.getNumber()).putInt(dptNumber);
+		header.put((byte) EntryType.RESOURCE.ordinal()).putDouble(CurrentSimulator.getTime())
+				.put((byte) status.ordinal()).putInt(typeNumber).putInt(resourceIndex.getNumber()).putInt(dptNumber);
 
 		final ByteBuffer data = resource.serialize();
 
@@ -449,7 +451,8 @@ public class Database {
 			return;
 
 		final ByteBuffer header = ByteBuffer.allocate(EntryType.PATTERN.HEADER_SIZE);
-		header.put((byte) EntryType.PATTERN.ordinal()).putDouble(CurrentSimulator.getTime()).put((byte) patternType.ordinal());
+		header.put((byte) EntryType.PATTERN.ordinal()).putDouble(CurrentSimulator.getTime())
+				.put((byte) patternType.ordinal());
 
 		final CollectedDataNode dptNode = indexHelper.getLogic(dptName);
 		final LogicIndex dptIndex = (LogicIndex) dptNode.getIndex();

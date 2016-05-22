@@ -13,6 +13,7 @@ import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
+import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
 
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
@@ -22,6 +23,7 @@ import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider;
 import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider.SimulationState;
 
+@SuppressWarnings("restriction")
 public class ExecutionManager {
 	private final EclipseResourceFileSystemAccess2 fsa;
 	private final IResourceSetProvider resourceSetProvider;
@@ -29,6 +31,7 @@ public class ExecutionManager {
 	private final DefaultResourceUIValidatorExtension validatorExtension;
 	private final IEditorPart activeEditor;
 	private final IWorkbenchWindow activeWorkbenchWindow;
+	private final IBatchTypeResolver typeResolver;
 
 	private final String pluginId = RaoActivatorExtension.getInstance().getBundle().getSymbolicName();
 
@@ -47,13 +50,14 @@ public class ExecutionManager {
 	public ExecutionManager(final IEditorPart activeEditor, final IWorkbenchWindow activeWorkbenchWindow,
 			final EclipseResourceFileSystemAccess2 fsa, final IResourceSetProvider resourceSetProvider,
 			final EclipseOutputConfigurationProvider ocp,
-			final DefaultResourceUIValidatorExtension validatorExtension) {
+			final DefaultResourceUIValidatorExtension validatorExtension, IBatchTypeResolver typeResolver) {
 		this.activeEditor = activeEditor;
 		this.activeWorkbenchWindow = activeWorkbenchWindow;
 		this.fsa = fsa;
 		this.resourceSetProvider = resourceSetProvider;
 		this.outputConfigurationProvider = ocp;
 		this.validatorExtension = validatorExtension;
+		this.typeResolver = typeResolver;
 	}
 
 	public final void execute(boolean buildOnly) {
@@ -134,7 +138,7 @@ public class ExecutionManager {
 					executionManagerNotifier.notifySubscribers(ExecutionManagerState.BEFORE_RUN);
 
 					final IProject project = modelBuilder.getProject();
-					ExecutionJobProvider modelExecutioner = new ExecutionJobProvider(project);
+					ExecutionJobProvider modelExecutioner = new ExecutionJobProvider(project, resourceSetProvider, typeResolver);
 					final Job runJob = modelExecutioner.createExecutionJob();
 					runJob.schedule();
 					try {
