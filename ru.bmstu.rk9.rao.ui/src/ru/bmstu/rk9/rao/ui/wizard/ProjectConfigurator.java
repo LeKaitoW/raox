@@ -141,13 +141,13 @@ public class ProjectConfigurator {
 		case NO_TEMPLATE:
 			return;
 		case BARBER_SIMPLE:
-			modelTemplatePath = "/model_templates/barber_simple.rao";
+			modelTemplatePath = "/model_templates/barber_simple.rao.template";
 			break;
 		case BARBER_EVENTS:
-			modelTemplatePath = "/model_templates/barber_events.rao";
+			modelTemplatePath = "/model_templates/barber_events.rao.template";
 			break;
 		case BARBER_CLIENTS:
-			modelTemplatePath = "/model_templates/barber_clients.rao";
+			modelTemplatePath = "/model_templates/barber_clients.rao.template";
 			break;
 		default:
 			return;
