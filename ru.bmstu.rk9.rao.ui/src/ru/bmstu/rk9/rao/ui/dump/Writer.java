@@ -4,15 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.google.gson.JsonObject;
-
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.ModelState;
-import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
-import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 
 public class Writer {
@@ -41,10 +37,7 @@ public class Writer {
 
 			String stateStorageToString = Serializer.stateStorageToString(modelStateStorage);
 			Serializer.writeStringToJsonStateFile(stateStorageToString);
-			//JSONObject modelStructure = CurrentSimulator.getStaticModelData().getModelStructure();
-			JsonObject modelStructure = SimulatorPreinitializationInfo.generateModelStructureStrub();
-			String modelStructureString = Serializer.modelStructureToString(modelStructure);
-			Serializer.writeStringToJsonStructureFile(modelStructureString);
+
 		}
 
 	}

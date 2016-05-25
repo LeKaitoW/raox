@@ -6,9 +6,7 @@ import java.util.Collection;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 
-import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.simulator.ModelState;
 import ru.bmstu.rk9.rao.ui.player.Player;
 
@@ -21,29 +19,8 @@ public class Serializer {
 
 	}
 
-	public static String modelStructureToString(JsonObject modelStructure) {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		String json = gson.toJson(modelStructure);
-		return json;
-
-	}
-
 	public static void writeStringToJsonStateFile(String string) {
 		try (FileWriter file = new FileWriter(Player.getCurrentProjectPath() + "/stateStorage.json")) {
-			file.write(string);
-			System.out.println("Successfully Copied JSON Object to File...");
-			System.out.println("\nJSON Object: " + string);
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-
-		}
-
-	}
-
-	public static void writeStringToJsonStructureFile(String string) {
-		try (FileWriter file = new FileWriter(Player.getCurrentProjectPath() + "/structure.json")) {
 			file.write(string);
 			System.out.println("Successfully Copied JSON Object to File...");
 			System.out.println("\nJSON Object: " + string);

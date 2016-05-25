@@ -142,14 +142,15 @@ public class Player implements Runnable, ISimulator {
 				&& currentEventNumber < (modelStateStorage.size() - 1) && currentEventNumber > 0) {
 			delay(time);
 			// FIXME: remove debug print
-			System.out.println("Event: " + modelStateStorage.get(currentEventNumber));
+			System.out.println("time: " + timer + "Event: " + modelStateStorage.get(currentEventNumber));
 
 			currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
-
+			Player.timer++;
 		}
 		currentEventNumber = 1;
 		if (state == PlayerState.STOP) {
-			Player.currentEventNumber = 1;
+			Player.currentEventNumber = 0;
+			Player.timer = 0;
 		} else {
 			Player.currentEventNumber = currentEventNumber;
 		}
@@ -157,9 +158,7 @@ public class Player implements Runnable, ISimulator {
 	}
 
 	public void run() {
-
-		runPlayer(currentEventNumber, 1000, PlayingDirection.FORWARD);
-
+		runPlayer(currentEventNumber, 100, PlayingDirection.FORWARD);
 		return;
 	}
 
@@ -170,16 +169,15 @@ public class Player implements Runnable, ISimulator {
 	private Reader reader = new Reader();
 	private List<ModelState> modelStateStorage = getModelData();
 	private JsonObject modelStructure = getModelStructure();
-	static Database database = null;
-	
-	
-	public void init(){
+	private static Database database = null;
+	private static int timer = 0;
+
+	public void init() {
 		SerializationConfigView.initNames();
 		CurrentSimulator.set(new Player());
 		database = new Database(modelStructure);
-		
-
 	}
+
 	@Override
 	public void preinitilize(SimulatorPreinitializationInfo info) {
 		// TODO Auto-generated method stub
@@ -218,7 +216,7 @@ public class Player implements Runnable, ISimulator {
 	@Override
 	public double getTime() {
 		// TODO Auto-generated method stub
-		return 1;
+		return timer;
 	}
 
 	@Override
