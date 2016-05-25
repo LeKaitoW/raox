@@ -30,6 +30,7 @@ import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.execution.ModelInternalsParser;
+import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 
 public class Player implements Runnable, ISimulator {
 
@@ -75,7 +76,8 @@ public class Player implements Runnable, ISimulator {
 
 	public JsonObject getModelStructure() {
 
-		return reader.retrieveStructure();
+		return parser.getSimulatorPreinitializationInfo().modelStructure;
+
 	}
 
 	public static void stop() {
@@ -129,10 +131,8 @@ public class Player implements Runnable, ISimulator {
 	};
 
 	private synchronized void runPlayer(int currentEventNumber, int time, PlayingDirection playingDirection) {
-		CurrentSimulator.set(new Player());
 		final Display display = PlatformUI.getWorkbench().getDisplay();
-		final ModelInternalsParser parser = parseModel(getCurrentProject());
-
+		init();
 		CurrentSimulator.getDatabase().getNotifier().addSubscriber(databaseSubscriber,
 				Database.NotificationCategory.ENTRY_ADDED);
 
@@ -165,13 +165,21 @@ public class Player implements Runnable, ISimulator {
 
 	private static IProject[] projectsInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 	private static volatile PlayerState state = PlayerState.INITIALIZED;
+	final ModelInternalsParser parser = parseModel(getCurrentProject());
 	private volatile static Integer currentEventNumber = new Integer(1);
 	private Reader reader = new Reader();
 	private List<ModelState> modelStateStorage = getModelData();
 	private JsonObject modelStructure = getModelStructure();
-	Gson gson = new GsonBuilder().setPrettyPrinting().create();
-	String json = gson.toJson(modelStructure);
+	static Database database = null;
+	
+	
+	public void init(){
+		SerializationConfigView.initNames();
+		CurrentSimulator.set(new Player());
+		database = new Database(modelStructure);
+		
 
+	}
 	@Override
 	public void preinitilize(SimulatorPreinitializationInfo info) {
 		// TODO Auto-generated method stub
@@ -185,9 +193,6 @@ public class Player implements Runnable, ISimulator {
 
 	@Override
 	public Database getDatabase() {
-		System.out.println(json);
-
-		Database database = new Database(modelStructure);
 
 		return database;
 	}
@@ -213,7 +218,7 @@ public class Player implements Runnable, ISimulator {
 	@Override
 	public double getTime() {
 		// TODO Auto-generated method stub
-		return 0;
+		return 1;
 	}
 
 	@Override
