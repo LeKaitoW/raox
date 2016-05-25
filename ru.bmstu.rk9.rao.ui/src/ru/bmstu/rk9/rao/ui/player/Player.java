@@ -141,9 +141,6 @@ public class Player implements Runnable, ISimulator {
 		while (state != PlayerState.STOP && state != PlayerState.PAUSE
 				&& currentEventNumber < (modelStateStorage.size() - 1) && currentEventNumber > 0) {
 			delay(time);
-			// FIXME: remove debug print
-			System.out.println("time: " + timer + "Event: " + modelStateStorage.get(currentEventNumber));
-
 			currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
 			Player.timer++;
 		}
