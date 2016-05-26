@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rao.ui.player;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -34,9 +35,25 @@ import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 
 public class Player implements Runnable, ISimulator {
 
-	private void delay(int time) {
+	private static final int scalingFactor = 100;
+
+	private void delay(int currentEventNumber, PlayingDirection playingDirection) {
+		double time = 0;
+		switch (playingDirection) {
+		case FORWARD:
+			time = simulationDelays.get(currentEventNumber);
+			break;
+		case BACKWARD:
+			time = simulationDelays.get(currentEventNumber - 1);
+			break;
+
+		default:
+			System.out.println("Invalid grade");
+		}
+
 		try {
-			Thread.sleep(time);
+			Thread.sleep((long) time * scalingFactor);
+
 		} catch (InterruptedException ex) {
 			Thread.currentThread().interrupt();
 		}
@@ -47,7 +64,7 @@ public class Player implements Runnable, ISimulator {
 	};
 
 	private enum PlayerState {
-		STOP, PLAY, PAUSE, INITIALIZED
+		STOP, PLAY, PAUSE, INITIALIZED, FINISHED
 	}
 
 	private int PlaingSelector(int currentEventNumber, PlayingDirection playingDirection) {
@@ -68,7 +85,25 @@ public class Player implements Runnable, ISimulator {
 
 	}
 
-	public List<ModelState> getModelData() {
+	private Double TimerSelector(Double timer, double simulationDelay, PlayingDirection playingDirection) {
+
+		switch (playingDirection) {
+		case FORWARD:
+			timer += simulationDelay;
+			break;
+		case BACKWARD:
+			timer -= simulationDelay;
+			break;
+
+		default:
+			System.out.println("Invalid grade");
+		}
+
+		return timer;
+
+	}
+
+	public static List<ModelState> getModelData() {
 
 		return reader.retrieveStateStorage();
 
@@ -82,6 +117,7 @@ public class Player implements Runnable, ISimulator {
 
 	public static void stop() {
 		state = PlayerState.STOP;
+
 	}
 
 	public static void pause() {
@@ -89,12 +125,16 @@ public class Player implements Runnable, ISimulator {
 	}
 
 	public static void play() {
+		modelStateStorage = getModelData();
+		simulationDelays = reader.getSimulationDelays();
+
 		Thread thread = new Thread(new Player());
 		thread.start();
 		state = PlayerState.PLAY;
+
 	}
 
-	private ModelInternalsParser parseModel(IProject projectsInWorkspace) {
+	private static ModelInternalsParser parseModel(IProject projectsInWorkspace) {
 		final ModelInternalsParser parser = new ModelInternalsParser(projectsInWorkspace);
 		try {
 			parser.parse();
@@ -130,24 +170,34 @@ public class Player implements Runnable, ISimulator {
 		}
 	};
 
-	private synchronized void runPlayer(int currentEventNumber, int time, PlayingDirection playingDirection) {
-		final Display display = PlatformUI.getWorkbench().getDisplay();
+	private synchronized void runPlayer(int currentEventNumber, PlayingDirection playingDirection) {
 		init();
+		display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
+
+		Player.timer = reader.retrieveTimeStorage().get(currentEventNumber);
+		System.out.println("Player.timer " + Player.timer);
+
 		CurrentSimulator.getDatabase().getNotifier().addSubscriber(databaseSubscriber,
 				Database.NotificationCategory.ENTRY_ADDED);
 
-		display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
+		System.out.println("state " + state + " currentEventNumber " + currentEventNumber + " modelStateStorage.size() "
+				+ modelStateStorage.size() + " ");
 
-		while (state != PlayerState.STOP && state != PlayerState.PAUSE
-				&& currentEventNumber < (modelStateStorage.size() - 1) && currentEventNumber > 0) {
-			delay(time);
+		while (state != PlayerState.STOP && state != PlayerState.PAUSE && state != PlayerState.FINISHED
+				&& currentEventNumber < (modelStateStorage.size() - 1) && currentEventNumber >= 0) {
+			delay(currentEventNumber, playingDirection);
 			currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
-			Player.timer++;
+			Player.timer = TimerSelector(Player.timer, simulationDelays.get(currentEventNumber - 1), playingDirection);
+
+			if (currentEventNumber == modelStateStorage.size() - 1) {
+				currentEventNumber = 0;
+				state = PlayerState.FINISHED;
+			}
 		}
-		currentEventNumber = 1;
 		if (state == PlayerState.STOP) {
 			Player.currentEventNumber = 0;
-			Player.timer = 0;
+			Player.timer = 0.0;
+			display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
 		} else {
 			Player.currentEventNumber = currentEventNumber;
 		}
@@ -155,19 +205,21 @@ public class Player implements Runnable, ISimulator {
 	}
 
 	public void run() {
-		runPlayer(currentEventNumber, 100, PlayingDirection.FORWARD);
+		runPlayer(currentEventNumber, PlayingDirection.FORWARD);
 		return;
 	}
 
+	final static Display display = PlatformUI.getWorkbench().getDisplay();
 	private static IProject[] projectsInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 	private static volatile PlayerState state = PlayerState.INITIALIZED;
-	final ModelInternalsParser parser = parseModel(getCurrentProject());
+	final static ModelInternalsParser parser = parseModel(getCurrentProject());
 	private volatile static Integer currentEventNumber = new Integer(1);
-	private Reader reader = new Reader();
-	private List<ModelState> modelStateStorage = getModelData();
+	private static Reader reader = new Reader();
+	private static List<ModelState> modelStateStorage = new ArrayList<>();
 	private JsonObject modelStructure = getModelStructure();
 	private static Database database = null;
-	private static int timer = 0;
+	private static List<Double> simulationDelays = new ArrayList<>();
+	private static Double timer = 0.0;
 
 	public void init() {
 		SerializationConfigView.initNames();
@@ -212,7 +264,7 @@ public class Player implements Runnable, ISimulator {
 
 	@Override
 	public double getTime() {
-		// TODO Auto-generated method stub
+		System.out.println("timer" + timer);
 		return timer;
 	}
 

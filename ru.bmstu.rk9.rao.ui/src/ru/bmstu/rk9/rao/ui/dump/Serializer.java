@@ -19,8 +19,29 @@ public class Serializer {
 
 	}
 
+	public static String timeStorageToString(Collection<Double> modelStateStorage) {
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String json = gson.toJson(modelStateStorage);
+		return json;
+
+	}
+
 	public static void writeStringToJsonStateFile(String string) {
 		try (FileWriter file = new FileWriter(Player.getCurrentProjectPath() + "/stateStorage.json")) {
+			file.write(string);
+			System.out.println("Successfully Copied JSON Object to File...");
+			System.out.println("\nJSON Object: " + string);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+
+		}
+
+	}
+
+	public static void writeStringToJsonTimeFile(String string) {
+		try (FileWriter file = new FileWriter(Player.getCurrentProjectPath() + "/timeStorage.json")) {
 			file.write(string);
 			System.out.println("Successfully Copied JSON Object to File...");
 			System.out.println("\nJSON Object: " + string);

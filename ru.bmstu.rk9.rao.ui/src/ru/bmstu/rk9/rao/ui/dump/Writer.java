@@ -27,6 +27,7 @@ public class Writer {
 	public class StateStorageSubscriber implements Subscriber {
 		public void fireChange() {
 			modelStateStorage.add(CurrentSimulator.getModelState());
+			timeStorage.add(CurrentSimulator.getTime());
 
 		}
 
@@ -37,6 +38,8 @@ public class Writer {
 
 			String stateStorageToString = Serializer.stateStorageToString(modelStateStorage);
 			Serializer.writeStringToJsonStateFile(stateStorageToString);
+			String timeStorageToString = Serializer.timeStorageToString(timeStorage);
+			Serializer.writeStringToJsonTimeFile(timeStorageToString);
 
 		}
 
@@ -46,6 +49,7 @@ public class Writer {
 		simulationSubscriberManager.deinitialize();
 	}
 
+	private final Collection<Double> timeStorage = new ArrayList<>();
 	private final Collection<ModelState> modelStateStorage = new ArrayList<ModelState>();
 	public final SimulationEndSubscriber simulationEndSubscriber = new SimulationEndSubscriber();
 	private final StateStorageSubscriber stateStorageSubscriber = new StateStorageSubscriber();

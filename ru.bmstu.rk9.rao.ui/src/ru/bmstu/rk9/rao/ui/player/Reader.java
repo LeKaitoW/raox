@@ -5,20 +5,23 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
@@ -48,7 +51,8 @@ public class Reader {
 			JsonParser parser = new JsonParser();
 			JsonArray array = parser.parse(json).getAsJsonArray();
 			for (int i = 0; i < array.size(); i++) {
-				modelStateStorage.add(retrieveModelStateFromFile(fileInputStream, myFile, (JsonObject) array.get(i)));
+				modelStateStorage
+						.add(retrieveModelStateFromFile(fileInputStream, myFile, array.get(i).getAsJsonObject()));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -58,10 +62,10 @@ public class Reader {
 		return modelStateStorage;
 	}
 
-	public JsonObject retrieveStructure() {
-		File myFile = new File(Player.getCurrentProjectPath() + "/structure.json");
+	public List<Double> retrieveTimeStorage() {
+		File myFile = new File(Player.getCurrentProjectPath() + "/timeStorage.json");
 		FileInputStream fileInputStream = null;
-		JsonObject structure = new JsonObject();
+		List<Double> timeStorage = new ArrayList<>();
 		try {
 			fileInputStream = new FileInputStream(myFile);
 			InputStreamReader isr = new InputStreamReader(fileInputStream);
@@ -75,12 +79,32 @@ public class Reader {
 
 			String json = sb.toString();
 			Gson gson = new Gson();
-			structure = gson.fromJson(json, JsonObject.class);
+			Type collectionType = new TypeToken<List<Double>>() {
+			 }.getType();
+			 timeStorage = gson.fromJson(json, collectionType);
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return structure;
+		return timeStorage;
+	}
+
+	public List<Double> getSimulationDelays() {
+
+		List<Double> timeStorage = retrieveTimeStorage();
+		List<Double> simulationDelays = new ArrayList<>();
+
+		Iterator<Double> i = timeStorage.iterator();
+		Double prev = i.next();
+		while (i.hasNext()) {
+			Double curr = i.next();
+			Double delta = curr - prev;
+			simulationDelays.add(delta);
+			prev = curr;
+		}
+		return simulationDelays;
+
 	}
 
 	private static final int classNameOffset = "class ".length();
