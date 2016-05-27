@@ -80,19 +80,20 @@ public class Reader {
 			String json = sb.toString();
 			Gson gson = new Gson();
 			Type collectionType = new TypeToken<List<Double>>() {
-			 }.getType();
-			 timeStorage = gson.fromJson(json, collectionType);
+			}.getType();
+			timeStorage = gson.fromJson(json, collectionType);
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		ConsoleView.addLine("timeStorage contein " + timeStorage.size() + " elements");
 		return timeStorage;
 	}
 
 	public List<Double> getSimulationDelays() {
-
-		List<Double> timeStorage = retrieveTimeStorage();
+		List<Double> timeStorage = new ArrayList<>();
+		timeStorage = retrieveTimeStorage();
 		List<Double> simulationDelays = new ArrayList<>();
 
 		Iterator<Double> i = timeStorage.iterator();

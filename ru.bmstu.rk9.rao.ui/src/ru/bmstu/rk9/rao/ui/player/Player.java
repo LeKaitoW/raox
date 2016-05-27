@@ -30,21 +30,40 @@ import ru.bmstu.rk9.rao.lib.simulator.ModelState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
+import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.execution.ModelInternalsParser;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
+import ru.bmstu.rk9.rao.ui.simulation.StatusView;
 
 public class Player implements Runnable, ISimulator {
 
-	private static final int scalingFactor = 100;
+	private static final int scalingFactor = 50;
 
-	private void delay(int currentEventNumber, PlayingDirection playingDirection) {
+	private int delay(int currentEventNumber, PlayingDirection playingDirection, double simultaneousEventsDelay) {
 		double time = 0;
 		switch (playingDirection) {
 		case FORWARD:
 			time = simulationDelays.get(currentEventNumber);
+			if (time == 0){
+				System.out.println("time before " + time);
+				time += simultaneousEventsDelay;
+				System.out.println("time after " + time);
+
+			}
+			while (time==0){
+				currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
+				time = simulationDelays.get(currentEventNumber);
+			}
 			break;
 		case BACKWARD:
 			time = simulationDelays.get(currentEventNumber - 1);
+			if (time == 0){
+				time += simultaneousEventsDelay;
+			}
+			while (time==0){
+				currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
+				time = simulationDelays.get(currentEventNumber);
+			}
 			break;
 
 		default:
@@ -57,6 +76,7 @@ public class Player implements Runnable, ISimulator {
 		} catch (InterruptedException ex) {
 			Thread.currentThread().interrupt();
 		}
+		return currentEventNumber;
 	}
 
 	public enum PlayingDirection {
@@ -125,6 +145,8 @@ public class Player implements Runnable, ISimulator {
 	}
 
 	public static void play() {
+		modelStateStorage.clear();
+		simulationDelays.clear();
 		modelStateStorage = getModelData();
 		simulationDelays = reader.getSimulationDelays();
 
@@ -170,10 +192,9 @@ public class Player implements Runnable, ISimulator {
 		}
 	};
 
-	private synchronized void runPlayer(int currentEventNumber, PlayingDirection playingDirection) {
+	private synchronized void runPlayer(int currentEventNumber, PlayingDirection playingDirection, double simultaneousEventsDelay) {
 		init();
 		display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
-
 		Player.timer = reader.retrieveTimeStorage().get(currentEventNumber);
 		System.out.println("Player.timer " + Player.timer);
 
@@ -182,10 +203,10 @@ public class Player implements Runnable, ISimulator {
 
 		System.out.println("state " + state + " currentEventNumber " + currentEventNumber + " modelStateStorage.size() "
 				+ modelStateStorage.size() + " ");
-
+		ConsoleView.addLine("Player status " + state);
 		while (state != PlayerState.STOP && state != PlayerState.PAUSE && state != PlayerState.FINISHED
 				&& currentEventNumber < (modelStateStorage.size() - 1) && currentEventNumber >= 0) {
-			delay(currentEventNumber, playingDirection);
+			currentEventNumber = delay(currentEventNumber, playingDirection, simultaneousEventsDelay);
 			currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
 			Player.timer = TimerSelector(Player.timer, simulationDelays.get(currentEventNumber - 1), playingDirection);
 
@@ -198,6 +219,7 @@ public class Player implements Runnable, ISimulator {
 			Player.currentEventNumber = 0;
 			Player.timer = 0.0;
 			display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
+			ConsoleView.clearConsoleText();
 		} else {
 			Player.currentEventNumber = currentEventNumber;
 		}
@@ -205,7 +227,7 @@ public class Player implements Runnable, ISimulator {
 	}
 
 	public void run() {
-		runPlayer(currentEventNumber, PlayingDirection.FORWARD);
+		runPlayer(currentEventNumber, PlayingDirection.FORWARD, 20);
 		return;
 	}
 
@@ -264,7 +286,7 @@ public class Player implements Runnable, ISimulator {
 
 	@Override
 	public double getTime() {
-		System.out.println("timer" + timer);
+	//	System.out.println("timer" + timer);
 		return timer;
 	}
 
