@@ -37,30 +37,28 @@ import ru.bmstu.rk9.rao.ui.simulation.StatusView;
 
 public class Player implements Runnable, ISimulator {
 
-	private static final int scalingFactor = 50;
+	private static final int scalingFactor = 10;
 
 	private int delay(int currentEventNumber, PlayingDirection playingDirection, double simultaneousEventsDelay) {
 		double time = 0;
 		switch (playingDirection) {
 		case FORWARD:
 			time = simulationDelays.get(currentEventNumber);
-			if (time == 0){
-				System.out.println("time before " + time);
+			if (time == 0) {
 				time += simultaneousEventsDelay;
-				System.out.println("time after " + time);
 
 			}
-			while (time==0){
+			while (time == 0) {
 				currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
 				time = simulationDelays.get(currentEventNumber);
 			}
 			break;
 		case BACKWARD:
 			time = simulationDelays.get(currentEventNumber - 1);
-			if (time == 0){
+			if (time == 0) {
 				time += simultaneousEventsDelay;
 			}
-			while (time==0){
+			while (time == 0) {
 				currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
 				time = simulationDelays.get(currentEventNumber);
 			}
@@ -192,11 +190,12 @@ public class Player implements Runnable, ISimulator {
 		}
 	};
 
-	private synchronized void runPlayer(int currentEventNumber, PlayingDirection playingDirection, double simultaneousEventsDelay) {
+	private synchronized void runPlayer(int currentEventNumber, PlayingDirection playingDirection,
+			double simultaneousEventsDelay) {
 		init();
 		display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
-		Player.timer = reader.retrieveTimeStorage().get(currentEventNumber);
-		System.out.println("Player.timer " + Player.timer);
+		Player.simulationTime = reader.retrieveTimeStorage().get(currentEventNumber);
+		System.out.println("Player.timer " + Player.simulationTime);
 
 		CurrentSimulator.getDatabase().getNotifier().addSubscriber(databaseSubscriber,
 				Database.NotificationCategory.ENTRY_ADDED);
@@ -204,11 +203,15 @@ public class Player implements Runnable, ISimulator {
 		System.out.println("state " + state + " currentEventNumber " + currentEventNumber + " modelStateStorage.size() "
 				+ modelStateStorage.size() + " ");
 		ConsoleView.addLine("Player status " + state);
+		Player.computerTimeStart = (double) System.currentTimeMillis();
 		while (state != PlayerState.STOP && state != PlayerState.PAUSE && state != PlayerState.FINISHED
 				&& currentEventNumber < (modelStateStorage.size() - 1) && currentEventNumber >= 0) {
+			Player.computerTime = (double) System.currentTimeMillis() - computerTimeStart;
 			currentEventNumber = delay(currentEventNumber, playingDirection, simultaneousEventsDelay);
 			currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
-			Player.timer = TimerSelector(Player.timer, simulationDelays.get(currentEventNumber - 1), playingDirection);
+
+			Player.simulationTime = TimerSelector(Player.simulationTime, simulationDelays.get(currentEventNumber - 1),
+					playingDirection);
 
 			if (currentEventNumber == modelStateStorage.size() - 1) {
 				currentEventNumber = 0;
@@ -217,7 +220,7 @@ public class Player implements Runnable, ISimulator {
 		}
 		if (state == PlayerState.STOP) {
 			Player.currentEventNumber = 0;
-			Player.timer = 0.0;
+			Player.simulationTime = 0.0;
 			display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
 			ConsoleView.clearConsoleText();
 		} else {
@@ -227,7 +230,7 @@ public class Player implements Runnable, ISimulator {
 	}
 
 	public void run() {
-		runPlayer(currentEventNumber, PlayingDirection.FORWARD, 20);
+		runPlayer(currentEventNumber, PlayingDirection.FORWARD, 10);
 		return;
 	}
 
@@ -241,7 +244,9 @@ public class Player implements Runnable, ISimulator {
 	private JsonObject modelStructure = getModelStructure();
 	private static Database database = null;
 	private static List<Double> simulationDelays = new ArrayList<>();
-	private static Double timer = 0.0;
+	private static Double simulationTime = 0.0;
+	private static Double computerTime = 0.0;
+	private static Double computerTimeStart = 0.0;
 
 	public void init() {
 		SerializationConfigView.initNames();
@@ -286,8 +291,11 @@ public class Player implements Runnable, ISimulator {
 
 	@Override
 	public double getTime() {
-	//	System.out.println("timer" + timer);
-		return timer;
+
+		System.out.println("computerTime " + computerTime * 0.001 + " s");
+		System.out.println("simulationTime " + simulationTime);
+
+		return simulationTime;
 	}
 
 	@Override
