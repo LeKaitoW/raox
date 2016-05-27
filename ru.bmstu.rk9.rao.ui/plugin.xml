@@ -418,6 +418,16 @@
      </command>
      <command
            categoryId="ru.bmstu.rk9.rao.ui.runtime"
+           id="ru.bmstu.rk9.rao.ui.runtime.player.stop"
+           name="Stop Playing Rao Model">
+     </command>
+     <command
+           categoryId="ru.bmstu.rk9.rao.ui.runtime"
+           id="ru.bmstu.rk9.rao.ui.runtime.player.playBackward"
+           name="Play Rao model backward">
+     </command>
+     <command
+           categoryId="ru.bmstu.rk9.rao.ui.runtime"
            id="ru.bmstu.rk9.rao.ui.runtime.stop"
            name="Stop Rao Model">
      </command>
@@ -519,6 +529,10 @@
      <handler
            class="ru.bmstu.rk9.rao.ui.player.handler.PlayHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.player.play">
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rao.ui.player.handler.PlayBackwardHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.player.playBackward">
      </handler>
      <handler
            class="ru.bmstu.rk9.rao.ui.player.handler.StopHandler"
@@ -1130,11 +1144,44 @@
               id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar"
               label="Rao Player Toolbar">
            <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.player.playBackward"
+                 icon="icons/play_backward.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.playBackward"
+                 label="PlayBackward"
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
                  commandId="ru.bmstu.rk9.rao.ui.runtime.player.play"
                  icon="icons/rao_model_run.gif"
                  id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.play"
                  label="Play "
                  style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.player.pause"
+                 icon="icons/rao_pause.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.pause"
+                 label="Pause"
+                 style="push"
+                 tooltip="Pause">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -1168,7 +1215,7 @@
                  <with
                        variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
                     <equals
-                          value="showActions">
+                          value="showPlayerActions">
                     </equals>
                  </with>
               </visibleWhen>
@@ -1235,23 +1282,6 @@
                     name="org.eclipse.ui.commands.radioStateParameter"
                     value="NS">
               </parameter>
-           </command>
-           <command
-                 commandId="ru.bmstu.rk9.rao.ui.runtime.player.pause"
-                 icon="icons/rao_pause.gif"
-                 id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.pause"
-                 label="Pause"
-                 style="push"
-                 tooltip="Pause">
-              <visibleWhen
-                    checkEnabled="false">
-                 <with
-                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
-                    <equals
-                          value="showPlayerActions">
-                    </equals>
-                 </with>
-              </visibleWhen>
            </command>
            <control
                  class="ru.bmstu.rk9.rao.ui.toolbar.ToolbarSeparator">

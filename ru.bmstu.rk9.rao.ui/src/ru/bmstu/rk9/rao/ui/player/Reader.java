@@ -62,6 +62,13 @@ public class Reader {
 		return modelStateStorage;
 	}
 
+	public Integer getLastLastElement() {
+		List<Double> timeStorage = new ArrayList<>();
+		timeStorage = retrieveTimeStorage();
+		return timeStorage.size();
+
+	}
+
 	public List<Double> retrieveTimeStorage() {
 		File myFile = new File(Player.getCurrentProjectPath() + "/timeStorage.json");
 		FileInputStream fileInputStream = null;

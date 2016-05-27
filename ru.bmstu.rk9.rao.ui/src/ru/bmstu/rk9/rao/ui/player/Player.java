@@ -37,7 +37,7 @@ import ru.bmstu.rk9.rao.ui.simulation.StatusView;
 
 public class Player implements Runnable, ISimulator {
 
-	private static final int scalingFactor = 10;
+	private static final int scalingFactor = 50;
 
 	private int delay(int currentEventNumber, PlayingDirection playingDirection, double simultaneousEventsDelay) {
 		double time = 0;
@@ -147,7 +147,20 @@ public class Player implements Runnable, ISimulator {
 		simulationDelays.clear();
 		modelStateStorage = getModelData();
 		simulationDelays = reader.getSimulationDelays();
+		// Player.currentEventNumber = reader.getLastLastElement();
+		direction = PlayingDirection.FORWARD;
+		Thread thread = new Thread(new Player());
+		thread.start();
+		state = PlayerState.PLAY;
 
+	}
+
+	public static void playBackward() {
+		modelStateStorage.clear();
+		simulationDelays.clear();
+		modelStateStorage = getModelData();
+		simulationDelays = reader.getSimulationDelays();
+		direction = PlayingDirection.BACKWARD;
 		Thread thread = new Thread(new Player());
 		thread.start();
 		state = PlayerState.PLAY;
@@ -230,7 +243,7 @@ public class Player implements Runnable, ISimulator {
 	}
 
 	public void run() {
-		runPlayer(currentEventNumber, PlayingDirection.FORWARD, 10);
+		runPlayer(currentEventNumber, direction, 10);
 		return;
 	}
 
@@ -247,6 +260,7 @@ public class Player implements Runnable, ISimulator {
 	private static Double simulationTime = 0.0;
 	private static Double computerTime = 0.0;
 	private static Double computerTimeStart = 0.0;
+	static PlayingDirection direction;
 
 	public void init() {
 		SerializationConfigView.initNames();
@@ -292,8 +306,8 @@ public class Player implements Runnable, ISimulator {
 	@Override
 	public double getTime() {
 
-		System.out.println("computerTime " + computerTime * 0.001 + " s");
-		System.out.println("simulationTime " + simulationTime);
+		// System.out.println("computerTime " + computerTime * 0.001 + " s");
+		// System.out.println("simulationTime " + simulationTime);
 
 		return simulationTime;
 	}
