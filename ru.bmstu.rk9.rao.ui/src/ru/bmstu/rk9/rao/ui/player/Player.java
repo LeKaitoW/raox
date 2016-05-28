@@ -54,7 +54,7 @@ public class Player implements Runnable, ISimulator {
 			}
 			break;
 		case BACKWARD:
-			time = simulationDelays.get(currentEventNumber - 1);
+			time = simulationDelays.get(currentEventNumber);
 			if (time == 0) {
 				time += simultaneousEventsDelay;
 			}
@@ -103,14 +103,16 @@ public class Player implements Runnable, ISimulator {
 
 	}
 
-	private Double TimerSelector(Double timer, double simulationDelay, PlayingDirection playingDirection) {
+	private Double TimerSelector(Double timer, int currentEventNumber, PlayingDirection playingDirection) {
 
 		switch (playingDirection) {
 		case FORWARD:
-			timer += simulationDelay;
+			Double simulationDelayForward = simulationDelays.get(currentEventNumber);
+			timer += simulationDelayForward;
 			break;
 		case BACKWARD:
-			timer -= simulationDelay;
+			Double simulationDelayBackward = simulationDelays.get(currentEventNumber - 1);
+			timer -= simulationDelayBackward;
 			break;
 
 		default:
@@ -134,20 +136,27 @@ public class Player implements Runnable, ISimulator {
 	}
 
 	public static void stop() {
+		Player.currentEventNumber = 0;
+		Player.simulationTime = 0.0;
+		ConsoleView.clearConsoleText();
 		state = PlayerState.STOP;
+		System.out.println("You are pushing stop");
 
 	}
 
 	public static void pause() {
 		state = PlayerState.PAUSE;
+		System.out.println("You are pushing pause");
+
 	}
 
 	public static void play() {
+		System.out.println("You are pushing play");
+
 		modelStateStorage.clear();
 		simulationDelays.clear();
 		modelStateStorage = getModelData();
 		simulationDelays = reader.getSimulationDelays();
-		// Player.currentEventNumber = reader.getLastLastElement();
 		direction = PlayingDirection.FORWARD;
 		Thread thread = new Thread(new Player());
 		thread.start();
@@ -156,6 +165,8 @@ public class Player implements Runnable, ISimulator {
 	}
 
 	public static void playBackward() {
+		System.out.println("You are pushing playBackward");
+
 		modelStateStorage.clear();
 		simulationDelays.clear();
 		modelStateStorage = getModelData();
@@ -208,7 +219,7 @@ public class Player implements Runnable, ISimulator {
 		init();
 		display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
 		Player.simulationTime = reader.retrieveTimeStorage().get(currentEventNumber);
-		System.out.println("Player.timer " + Player.simulationTime);
+		// System.out.println("Player.timer " + Player.simulationTime);
 
 		CurrentSimulator.getDatabase().getNotifier().addSubscriber(databaseSubscriber,
 				Database.NotificationCategory.ENTRY_ADDED);
@@ -221,10 +232,8 @@ public class Player implements Runnable, ISimulator {
 				&& currentEventNumber < (modelStateStorage.size() - 1) && currentEventNumber >= 0) {
 			Player.computerTime = (double) System.currentTimeMillis() - computerTimeStart;
 			currentEventNumber = delay(currentEventNumber, playingDirection, simultaneousEventsDelay);
+			Player.simulationTime = TimerSelector(Player.simulationTime, currentEventNumber, playingDirection);
 			currentEventNumber = PlaingSelector(currentEventNumber, playingDirection);
-
-			Player.simulationTime = TimerSelector(Player.simulationTime, simulationDelays.get(currentEventNumber - 1),
-					playingDirection);
 
 			if (currentEventNumber == modelStateStorage.size() - 1) {
 				currentEventNumber = 0;
@@ -234,8 +243,6 @@ public class Player implements Runnable, ISimulator {
 		if (state == PlayerState.STOP) {
 			Player.currentEventNumber = 0;
 			Player.simulationTime = 0.0;
-			display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
-			ConsoleView.clearConsoleText();
 		} else {
 			Player.currentEventNumber = currentEventNumber;
 		}
@@ -251,7 +258,7 @@ public class Player implements Runnable, ISimulator {
 	private static IProject[] projectsInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 	private static volatile PlayerState state = PlayerState.INITIALIZED;
 	final static ModelInternalsParser parser = parseModel(getCurrentProject());
-	private volatile static Integer currentEventNumber = new Integer(1);
+	private volatile static Integer currentEventNumber = new Integer(0);
 	private static Reader reader = new Reader();
 	private static List<ModelState> modelStateStorage = new ArrayList<>();
 	private JsonObject modelStructure = getModelStructure();
