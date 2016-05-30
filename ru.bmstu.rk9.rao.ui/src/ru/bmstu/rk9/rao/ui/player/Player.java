@@ -27,6 +27,7 @@ import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.execution.ModelInternalsParser;
+import ru.bmstu.rk9.rao.ui.player.gui.PlayerDelaySelectionToolbar;
 import ru.bmstu.rk9.rao.ui.player.gui.PlayerSpeedSelectionToolbar;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 
@@ -227,6 +228,7 @@ public class Player implements Runnable, ISimulator {
 		while (state != PlayerState.STOP && state != PlayerState.PAUSE && state != PlayerState.FINISHED
 				&& currentEventNumber < (modelStateStorage.size() - 1) && currentEventNumber >= 0) {
 			scalingFactor = PlayerSpeedSelectionToolbar.getSpeed();
+			simultaneousEventsDelay  = PlayerDelaySelectionToolbar.getSpeed();
 			System.out.println("scalingFactor " + scalingFactor);
 			Player.computerTime = (double) System.currentTimeMillis() - computerTimeStart;
 			currentEventNumber = delay(currentEventNumber, playingDirection, simultaneousEventsDelay);
@@ -248,7 +250,7 @@ public class Player implements Runnable, ISimulator {
 	}
 
 	public void run() {
-		runPlayer(currentEventNumber, direction, 10);
+		runPlayer(currentEventNumber, direction, simultaneousEventsDelay);
 		return;
 	}
 
@@ -267,6 +269,7 @@ public class Player implements Runnable, ISimulator {
 	private static Double computerTimeStart = 0.0;
 	static PlayingDirection direction;
 	private static int scalingFactor = PlayerSpeedSelectionToolbar.getSpeed();
+	private static double  simultaneousEventsDelay  = PlayerDelaySelectionToolbar.getSpeed(); 
 
 	public void init() {
 		SerializationConfigView.initNames();

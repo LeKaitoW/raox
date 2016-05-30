@@ -1308,6 +1308,18 @@
               </visibleWhen>
            </control>
            <control
+                 class="ru.bmstu.rk9.rao.ui.player.gui.PlayerDelaySelectionToolbar">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </control>
+           <control
                  class="ru.bmstu.rk9.rao.ui.toolbar.ToolbarSeparator">
               <visibleWhen
                     checkEnabled="false">

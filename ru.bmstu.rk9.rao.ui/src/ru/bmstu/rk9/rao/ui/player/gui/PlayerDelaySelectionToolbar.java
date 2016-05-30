@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 
-public class PlayerSpeedSelectionToolbar extends WorkbenchWindowControlContribution {
+public class PlayerDelaySelectionToolbar extends WorkbenchWindowControlContribution {
 	private static volatile int speedValue;
 
 	public static int getSpeed() {
@@ -34,7 +34,7 @@ public class PlayerSpeedSelectionToolbar extends WorkbenchWindowControlContribut
 	}
 
 	public static class RaoSpeedSelector extends Composite {
-		private static final int MIN_VALUE = 1;
+		private static final int MIN_VALUE = 0;
 		private static final int MAX_VALUE = 100;
 
 		private static final int BORDER_SIZE = 1;
@@ -76,7 +76,7 @@ public class PlayerSpeedSelectionToolbar extends WorkbenchWindowControlContribut
 					gc.setAntialias(SWT.ON);
 					final Rectangle widgetArea = getClientArea();
 					final int percentage = (int) (100f * speedValue / (MAX_VALUE - 0));
-					final String text = percentage + "%";
+					final String text = percentage + " sim unit";
 					final Point textSize = gc.stringExtent(text);
 					final Color originalBackground = gc.getBackground();
 
@@ -137,14 +137,14 @@ public class PlayerSpeedSelectionToolbar extends WorkbenchWindowControlContribut
 				}
 			});
 
-			setToolTipText("Playing Speed");
+			setToolTipText("Playing simultaneous events delay");
 		}
 
 		private final Color getBackgroundColor(Device device, double percent, Color[] colors) {
 			final double k0, k1, k2, k3;
 
 			if (percent < YELLOW_SINCE) {
-				k0 = 1 - percent;
+				k0 = 0 - percent;
 				k1 = percent;
 				k2 = 0;
 				k3 = 0;
