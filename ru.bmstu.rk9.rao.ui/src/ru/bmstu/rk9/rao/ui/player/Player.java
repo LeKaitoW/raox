@@ -3,7 +3,6 @@ package ru.bmstu.rk9.rao.ui.player;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -11,14 +10,10 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.event.Event;
-import ru.bmstu.rk9.rao.lib.json.JSONArray;
-import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
@@ -32,12 +27,12 @@ import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.execution.ModelInternalsParser;
+import ru.bmstu.rk9.rao.ui.player.gui.PlayerSpeedSelectionToolbar;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
-import ru.bmstu.rk9.rao.ui.simulation.StatusView;
 
 public class Player implements Runnable, ISimulator {
 
-	private static final int scalingFactor = 50;
+	private static final int dimension = 1;
 
 	private int delay(int currentEventNumber, PlayingDirection playingDirection, double simultaneousEventsDelay) {
 		double time = 0;
@@ -69,7 +64,7 @@ public class Player implements Runnable, ISimulator {
 		}
 
 		try {
-			Thread.sleep((long) time * scalingFactor);
+			Thread.sleep((long) time * 1000 * dimension / scalingFactor);
 
 		} catch (InterruptedException ex) {
 			Thread.currentThread().interrupt();
@@ -205,6 +200,7 @@ public class Player implements Runnable, ISimulator {
 		return path;
 	}
 
+	@SuppressWarnings("unused")
 	private boolean haveNewData = false;
 
 	private final Subscriber databaseSubscriber = new Subscriber() {
@@ -230,6 +226,8 @@ public class Player implements Runnable, ISimulator {
 		Player.computerTimeStart = (double) System.currentTimeMillis();
 		while (state != PlayerState.STOP && state != PlayerState.PAUSE && state != PlayerState.FINISHED
 				&& currentEventNumber < (modelStateStorage.size() - 1) && currentEventNumber >= 0) {
+			scalingFactor = PlayerSpeedSelectionToolbar.getSpeed();
+			System.out.println("scalingFactor " + scalingFactor);
 			Player.computerTime = (double) System.currentTimeMillis() - computerTimeStart;
 			currentEventNumber = delay(currentEventNumber, playingDirection, simultaneousEventsDelay);
 			Player.simulationTime = TimerSelector(Player.simulationTime, currentEventNumber, playingDirection);
@@ -268,6 +266,7 @@ public class Player implements Runnable, ISimulator {
 	private static Double computerTime = 0.0;
 	private static Double computerTimeStart = 0.0;
 	static PlayingDirection direction;
+	private static int scalingFactor = PlayerSpeedSelectionToolbar.getSpeed();
 
 	public void init() {
 		SerializationConfigView.initNames();

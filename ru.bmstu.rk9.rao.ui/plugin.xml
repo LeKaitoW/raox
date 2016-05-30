@@ -1160,11 +1160,12 @@
               </visibleWhen>
            </command>
            <command
-                 commandId="ru.bmstu.rk9.rao.ui.runtime.player.play"
-                 icon="icons/rao_model_run.gif"
-                 id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.play"
-                 label="Play "
-                 style="push">
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.player.pause"
+                 icon="icons/rao_pause.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.pause"
+                 label="Pause"
+                 style="push"
+                 tooltip="Pause">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -1176,12 +1177,11 @@
               </visibleWhen>
            </command>
            <command
-                 commandId="ru.bmstu.rk9.rao.ui.runtime.player.pause"
-                 icon="icons/rao_pause.gif"
-                 id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.pause"
-                 label="Pause"
-                 style="push"
-                 tooltip="Pause">
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.player.play"
+                 icon="icons/rao_model_run.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.play"
+                 label="Play "
+                 style="push">
               <visibleWhen
                     checkEnabled="false">
                  <with
@@ -1296,7 +1296,7 @@
               </visibleWhen>
            </control>
            <control
-                 class="ru.bmstu.rk9.rao.ui.simulation.SpeedSelectionToolbar">
+                 class="ru.bmstu.rk9.rao.ui.player.gui.PlayerSpeedSelectionToolbar">
               <visibleWhen
                     checkEnabled="false">
                  <with
