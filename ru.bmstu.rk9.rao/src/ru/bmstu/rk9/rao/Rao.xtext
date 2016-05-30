@@ -124,10 +124,8 @@ FunctionDeclaration:
 	')' body = XBlockExpression
 ;
 
-// TODO
 ResultType:
-	resultMode = ResultMode? resultType = DatasetOrValue 
-			name = ID '<' evaluateType = JvmTypeReference '>' '('
+	'resultType' name = ID '<' evaluateType = JvmTypeReference '>' '('
 		(parameters += FullJvmFormalParameter (
 			',' parameters += FullJvmFormalParameter)*)?
 	')' '{'
@@ -136,18 +134,8 @@ ResultType:
 	'}'
 ;
 
-enum ResultMode
-	: AUTO = 'auto'
-	| MANUAL = 'manual'
-;
-
-enum DatasetOrValue
-	: DATASET = 'dataset'
-	| VALUE = 'value'
-;
-
 Result:
-	'result' name = ID '=' constructor = XOrExpression ';'?	
+	'result' name = ID '=' constructor = XOrExpression ';'?
 ;
 
 Frame:

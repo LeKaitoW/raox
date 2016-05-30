@@ -1,9 +1,7 @@
 package ru.bmstu.rk9.rao.ui.results;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.HashMap;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -44,8 +42,6 @@ import org.eclipse.ui.themes.ITheme;
 import org.eclipse.ui.themes.IThemeManager;
 import org.osgi.framework.Bundle;
 
-import com.google.common.collect.ImmutableMap;
-
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.result.Result;
 
@@ -54,34 +50,6 @@ public class ResultsView extends ViewPart {
 
 	private static IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode("ru.bmstu.rk9.rao.ui");
 
-	private static class Formatter {
-		static int counter = 0;
-
-		int value;
-		String name;
-	}
-
-	private static Formatter format(String name) {
-		Formatter format = new Formatter();
-
-		format.value = Formatter.counter++;
-		format.name = name;
-
-		return format;
-	}
-
-	private static Map<String, Formatter> sortList = ImmutableMap.<String, Formatter> builder()
-			.put("value", format("Value")).put("last", format("Last value")).put("counter", format("Times registered"))
-			.put("minTrue", format("Shortest true")).put("maxTrue", format("Longest true"))
-			.put("minFalse", format("Shortest false")).put("maxFalse", format("Longest false"))
-			.put("percent", format("Percent true")).put("min", format("Minimum value"))
-			.put("max", format("Maximum value")).put("mean", format("Mean"))
-			.put("deviation", format("Standard deviation")).put("varcoef", format("Coefficient of variation"))
-			.put("median", format("Median")).build();
-
-	private static Comparator<String> comparator = (a, b) -> Integer.compare(sortList.get(a).value,
-			sortList.get(b).value);
-
 	private static List<Result<?>> results;
 
 	private static boolean viewAsText = prefs.getBoolean("ResultsViewAsText", false);
@@ -89,8 +57,62 @@ public class ResultsView extends ViewPart {
 	private static HashMap<String, TreeItem> models;
 
 	private static void parseResult(JSONObject data) {
-		// FIXME remove debug output
-		System.out.println("parseResult(JSON) method");
+		String fullName = data.getString("name");
+		int projDot = fullName.indexOf('.');
+		int modelDot = projDot + 1 + fullName.substring(projDot + 1).indexOf('.');
+
+		String model = fullName.substring(projDot + 1, modelDot);
+		String name = fullName.substring(modelDot + 1);
+
+		TreeItem modelItem = models.get(model);
+		if (modelItem == null) {
+			modelItem = new TreeItem(tree, SWT.NONE);
+			modelItem.setText(model);
+			models.put(model, modelItem);
+		}
+
+		TreeItem result = new TreeItem(modelItem, SWT.NONE);
+		result.setText(new String[] { name, data.getString("type") });
+
+		String origin = text.getText();
+
+		StyleRange styleRange = new StyleRange();
+		styleRange.start = origin.length();
+		styleRange.fontStyle = SWT.BOLD;
+
+		String[] resultText = {
+				origin + (origin.length() > 0 ? "\n\n" : "") + data.getString("name") + ": " + data.getString("type") };
+
+		styleRange.length = resultText[0].length() - origin.length();
+
+		LinkedList<StyleRange> numberStyles = new LinkedList<StyleRange>();
+
+		data.keySet().stream().forEach(e -> {
+			if (e != "type" && e != "name") {
+				String[] text = new String[] { e, data.get(e).toString() };
+
+				TreeItem child = new TreeItem(result, SWT.NONE);
+				child.setText(text);
+
+				StyleRange numberStyle = new StyleRange();
+				numberStyle.start = resultText[0].length() + text[0].length() + 4;
+				numberStyle.length = text[1].length();
+				numberStyle.fontStyle = SWT.ITALIC;
+				numberStyle.foreground = child.getDisplay().getSystemColor(SWT.COLOR_DARK_BLUE);
+
+				numberStyles.add(numberStyle);
+
+				resultText[0] += "\n\t" + text[0] + ": " + text[1];
+			}
+		});
+
+		StyleRange[] styles = text.getStyleRanges();
+		text.setText(resultText[0]);
+		text.setStyleRanges(styles);
+		text.setStyleRange(styleRange);
+
+		for (StyleRange style : numberStyles)
+			text.setStyleRange(style);
 	}
 
 	public static void setResults(List<Result<?>> results) {
@@ -105,12 +127,9 @@ public class ResultsView extends ViewPart {
 			item.dispose();
 
 		text.setText("");
-		// FIXME remove debug output
-		System.out.println("Set results" + (new Integer(results.size())).toString());
 
 		for (Result<?> r : results) {
 			parseResult(r.getData());
-			System.out.println("Result");
 		}
 
 		for (TreeItem model : tree.getItems())

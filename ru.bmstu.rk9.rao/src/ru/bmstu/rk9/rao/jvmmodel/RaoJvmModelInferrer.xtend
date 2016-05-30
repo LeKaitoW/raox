@@ -21,8 +21,8 @@ import ru.bmstu.rk9.rao.rao.Search
 import java.util.Collection
 import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.ResultType
-import ru.bmstu.rk9.rao.rao.DatasetOrValue
-import ru.bmstu.rk9.rao.rao.ResultMode
+import ru.bmstu.rk9.rao.lib.result.ResultMode
+import ru.bmstu.rk9.rao.lib.result.Statistics
 import org.eclipse.xtext.common.types.JvmTypeReference
 
 import static extension ru.bmstu.rk9.rao.jvmmodel.DefaultMethodCompiler.*
@@ -108,28 +108,64 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 
 		members += result.toClass(QualifiedName.create(qualifiedName, result.name)) [
 			static = true
-			superTypes += if (result.resultType == DatasetOrValue.DATASET)
-				typeRef(ru.bmstu.rk9.rao.lib.result.Dataset,{result.evaluateType})
-			else
-				typeRef(ru.bmstu.rk9.rao.lib.result.Value,{result.evaluateType})
+			superTypes += typeRef(ru.bmstu.rk9.rao.lib.result.Result,{result.evaluateType})
 
 			members += result.toConstructor [
 				visibility = JvmVisibility.PRIVATE
 				for (param : result.parameters)
 					parameters += param.toParameter(param.name, param.parameterType)
+				parameters += result.toParameter("resultMode",typeRef(ResultMode))
+				parameters += result.toParameter("statistics",typeRef(Statistics,{result.evaluateType}))
 				body = '''
 					«FOR param : parameters»this.«param.name» = «param.name»;
 					«ENDFOR»
 				'''
 			]
-
-			members += result.toMethod("getResultMode",typeRef(ru.bmstu.rk9.rao.lib.result.ResultMode)) [
+			
+			members += result.toConstructor [
+				visibility = JvmVisibility.PRIVATE
+				for (param : result.parameters)
+					parameters += param.toParameter(param.name, param.parameterType)
+				parameters += result.toParameter("resultMode",typeRef(ResultMode))
 				body = '''
-					«IF result.resultMode == ResultMode.AUTO»
-					return ru.bmstu.rk9.rao.lib.result.ResultMode.AUTO;
-					«ELSE»
-					return ru.bmstu.rk9.rao.lib.result.ResultMode.MANUAL;
-					«ENDIF»
+					this(«FOR param : parameters»«param.name», «ENDFOR»getDefaultStatistics());
+				'''
+			]
+			
+			members += result.toConstructor [
+				visibility = JvmVisibility.PRIVATE
+				for (param : result.parameters)
+					parameters += param.toParameter(param.name, param.parameterType)
+				parameters += result.toParameter("statistics",typeRef(Statistics,{result.evaluateType}))
+				body = '''
+					this(«FOR param : result.parameters»«param.name», «ENDFOR»ResultMode.AUTO, statistics);
+				'''
+				
+			]
+			
+			members += result.toConstructor [
+				visibility = JvmVisibility.PRIVATE
+				for (param : result.parameters)
+					parameters += param.toParameter(param.name, param.parameterType)
+				body = '''
+					this(«FOR param : parameters»«param.name», «ENDFOR»ResultMode.AUTO, getDefaultStatistics());
+				'''
+			]
+
+			members += result.toMethod("getDefaultStatistics",typeRef(Statistics,{result.evaluateType})) [
+				val evaluateType = result.evaluateType.type;
+				visibility = JvmVisibility.PUBLIC
+				final = true
+				static = true
+				body = '''
+					if (Number.class.isAssignableFrom(«evaluateType».class))
+						return new ru.bmstu.rk9.rao.lib.result.StorelessNumericStatistics<«evaluateType»>();
+					else if (Enum.class.isAssignableFrom(«evaluateType».class) ||
+							String.class.isAssignableFrom(«evaluateType».class) ||
+							Boolean.class.isAssignableFrom(«evaluateType».class))
+						return new ru.bmstu.rk9.rao.lib.result.CategoricalStatistics<«evaluateType»>();
+					else
+						return new ru.bmstu.rk9.rao.lib.result.ValueStatistics<«evaluateType»>();
 				'''
 			]
 
@@ -141,7 +177,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				for (method : result.defaultMethods) {
 
 					var JvmTypeReference resultReturnType = typeRef(boolean);
-					
+
 					if (method.name == "evaluate") {
 						resultReturnType = result.evaluateType
 					}
