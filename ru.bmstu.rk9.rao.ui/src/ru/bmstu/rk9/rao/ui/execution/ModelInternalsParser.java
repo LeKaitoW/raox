@@ -47,6 +47,7 @@ public class ModelInternalsParser {
 	private final List<Field> nameableFields = new ArrayList<>();
 	private final List<AnimationFrame> animationFrames = new ArrayList<>();
 	private final List<Field> resultFields = new ArrayList<>();
+	
 	private URLClassLoader classLoader;
 	private final IProject project;
 

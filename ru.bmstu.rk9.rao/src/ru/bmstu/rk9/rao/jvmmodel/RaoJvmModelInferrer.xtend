@@ -108,14 +108,14 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 
 		members += result.toClass(QualifiedName.create(qualifiedName, result.name)) [
 			static = true
-			superTypes += typeRef(ru.bmstu.rk9.rao.lib.result.Result,{result.evaluateType})
+			superTypes += typeRef(ru.bmstu.rk9.rao.lib.result.Result, {result.evaluateType})
 
 			members += result.toConstructor [
 				visibility = JvmVisibility.PRIVATE
 				for (param : result.parameters)
 					parameters += param.toParameter(param.name, param.parameterType)
-				parameters += result.toParameter("resultMode",typeRef(ResultMode))
-				parameters += result.toParameter("statistics",typeRef(Statistics,{result.evaluateType}))
+				parameters += result.toParameter("resultMode", typeRef(ResultMode))
+				parameters += result.toParameter("statistics", typeRef(Statistics, {result.evaluateType}))
 				body = '''
 					«FOR param : parameters»this.«param.name» = «param.name»;
 					«ENDFOR»
@@ -126,7 +126,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				visibility = JvmVisibility.PRIVATE
 				for (param : result.parameters)
 					parameters += param.toParameter(param.name, param.parameterType)
-				parameters += result.toParameter("resultMode",typeRef(ResultMode))
+				parameters += result.toParameter("resultMode", typeRef(ResultMode))
 				body = '''
 					this(«FOR param : parameters»«param.name», «ENDFOR»getDefaultStatistics());
 				'''
@@ -136,7 +136,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				visibility = JvmVisibility.PRIVATE
 				for (param : result.parameters)
 					parameters += param.toParameter(param.name, param.parameterType)
-				parameters += result.toParameter("statistics",typeRef(Statistics,{result.evaluateType}))
+				parameters += result.toParameter("statistics", typeRef(Statistics, {result.evaluateType}))
 				body = '''
 					this(«FOR param : result.parameters»«param.name», «ENDFOR»ResultMode.AUTO, statistics);
 				'''
@@ -152,7 +152,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				'''
 			]
 
-			members += result.toMethod("getDefaultStatistics",typeRef(Statistics,{result.evaluateType})) [
+			members += result.toMethod("getDefaultStatistics", typeRef(Statistics, {result.evaluateType})) [
 				val evaluateType = result.evaluateType.type;
 				visibility = JvmVisibility.PUBLIC
 				final = true

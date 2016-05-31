@@ -39,7 +39,6 @@ public class ExecutionJobProvider {
 
 				try {
 					parser.parse();
-
 				} catch (Exception e) {
 					e.printStackTrace();
 					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Model parsing failed", e);

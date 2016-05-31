@@ -25,7 +25,7 @@ public class ResultManager {
 		}
 	};
 
-	private List<Result<?>> results = new LinkedList<Result<?>>();
+	private final List<Result<?>> results = new LinkedList<Result<?>>();
 
 	public List<Result<?>> getResults() {
 		return results;
