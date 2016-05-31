@@ -8,7 +8,9 @@ public abstract class Result<T> extends RaoNameable {
 
 	public abstract T evaluate();
 
-	public abstract boolean condition();
+	public boolean condition() {
+		return true;
+	};
 
 	public JSONObject getData() {
 		JSONObject datasetData = new JSONObject();

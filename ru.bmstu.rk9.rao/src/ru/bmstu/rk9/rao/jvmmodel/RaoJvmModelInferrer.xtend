@@ -173,35 +173,24 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 				members += param.toField(param.name, param.parameterType)
 
 			if (!isPreIndexingPhase) {
-				var conditionMethodExist = false;
 				for (method : result.defaultMethods) {
 
-					var JvmTypeReference resultReturnType = typeRef(boolean);
+					var JvmTypeReference defaultMethodReturnType;
 
-					if (method.name == "evaluate") {
-						resultReturnType = result.evaluateType
+					switch (method.name) {
+						case "evaluate": {
+							defaultMethodReturnType = result.evaluateType;
+						}
+						case "condition": {
+							defaultMethodReturnType = typeRef(boolean);
+						}
 					}
 
-					if (!conditionMethodExist && method.name == "condition") {
-						conditionMethodExist = true
-					}
-
-					members += method.toMethod(method.name, resultReturnType) [
+					members += method.toMethod(method.name, defaultMethodReturnType) [
 						visibility = JvmVisibility.PUBLIC
 						final = true
 						annotations += overrideAnnotation()
 						body = method.body
-					]
-				}
-
-				if (!conditionMethodExist) {
-					members += result.toMethod("condition", typeRef(boolean)) [
-						visibility = JvmVisibility.PUBLIC
-						final = true
-						annotations += overrideAnnotation()
-						body = '''
-							return true;
-						'''
 					]
 				}
 			}
