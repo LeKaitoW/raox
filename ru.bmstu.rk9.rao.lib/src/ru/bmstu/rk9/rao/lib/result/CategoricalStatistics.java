@@ -24,8 +24,6 @@ public class CategoricalStatistics<T> extends Statistics<T> {
 	}
 
 	public void update(T value, double currentTime) {
-		System.out.print(value.toString() + "update ");
-		System.out.println(currentTime);
 		if (lastValue != value) {
 			if (!statisticsDataset.containsKey(value)) {
 				StatisticsData data = new StatisticsData();
@@ -50,7 +48,6 @@ public class CategoricalStatistics<T> extends Statistics<T> {
 	private HashMap<T, StatisticsData> statisticsDataset = new HashMap<T, StatisticsData>();
 
 	public void addState(T value, double delta) {
-		System.out.println(delta);
 		StatisticsData data = statisticsDataset.get(value);
 		if (data.valueMaxTime < delta) {
 			data.valueMaxTime = delta;
