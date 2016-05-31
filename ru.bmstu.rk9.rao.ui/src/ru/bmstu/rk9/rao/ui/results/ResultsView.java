@@ -87,23 +87,21 @@ public class ResultsView extends ViewPart {
 
 		LinkedList<StyleRange> numberStyles = new LinkedList<StyleRange>();
 
-		data.keySet().stream().forEach(e -> {
-			if (e != "type" && e != "name") {
-				String[] text = new String[] { e, data.get(e).toString() };
+		data.keySet().stream().filter(e -> e != "type" && e != "name").forEach(e -> {
+			String[] text = new String[] { e, data.get(e).toString() };
 
-				TreeItem child = new TreeItem(result, SWT.NONE);
-				child.setText(text);
+			TreeItem child = new TreeItem(result, SWT.NONE);
+			child.setText(text);
 
-				StyleRange numberStyle = new StyleRange();
-				numberStyle.start = resultText[0].length() + text[0].length() + 4;
-				numberStyle.length = text[1].length();
-				numberStyle.fontStyle = SWT.ITALIC;
-				numberStyle.foreground = child.getDisplay().getSystemColor(SWT.COLOR_DARK_BLUE);
+			StyleRange numberStyle = new StyleRange();
+			numberStyle.start = resultText[0].length() + text[0].length() + 4;
+			numberStyle.length = text[1].length();
+			numberStyle.fontStyle = SWT.ITALIC;
+			numberStyle.foreground = child.getDisplay().getSystemColor(SWT.COLOR_DARK_BLUE);
 
-				numberStyles.add(numberStyle);
+			numberStyles.add(numberStyle);
 
-				resultText[0] += "\n\t" + text[0] + ": " + text[1];
-			}
+			resultText[0] += "\n\t" + text[0] + ": " + text[1];
 		});
 
 		StyleRange[] styles = text.getStyleRanges();

@@ -29,9 +29,9 @@ public abstract class Result<T> extends RaoNameable {
 	};
 
 	public void update() {
-		if (condition()) {
-			statistics.update(evaluate(), CurrentSimulator.getTime());
-		}
+		if (!condition()) 
+			return;
+		statistics.update(evaluate(), CurrentSimulator.getTime());
 	};
 
 	protected ResultMode resultMode;
