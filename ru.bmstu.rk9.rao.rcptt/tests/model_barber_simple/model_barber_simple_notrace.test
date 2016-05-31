@@ -1,13 +1,13 @@
 --- RCPTT testcase ---
 Format-Version: 1.0
-Contexts: _uIJHwByGEea5c-Q90PErIw,_1P7p0ByGEea5c-Q90PErIw
-Element-Name: model_barber_events
+Contexts: _uIJHwByGEea5c-Q90PErIw
+Element-Name: model_barber_simple_notrace
 Element-Type: testcase
 Element-Version: 3.0
 External-Reference: 
-Id: _NH8IgBzOEeaxmeQsp9nqWw
+Id: _KwEDEByKEea5c-Q90PErIw
 Runtime-Version: 2.0.1.201508250612
-Save-Time: 5/18/16 10:58 AM
+Save-Time: 5/22/16 3:24 PM
 Testcase-Type: ecl
 
 ------=_.content-0a7243a0-75d3-3d5f-9791-539de0e5b7ac
@@ -24,15 +24,15 @@ with [get-window "New Project"] {
 }
 
 with [get-window "New Rao Project"] {
-    get-group Templates | get-button "Модель простейшей СМО на событиях" | click
+    get-group Templates | get-button "Модель простейшей СМО" | click
     with [get-editbox -after [get-label "Project name:"]] {
-        set-text "barber_events"
+        set-text "barber_simple"
     }
     get-button Finish | click
 }
 
 get-tab-folder -index 4 | get-tab-item Trace | click
-get-button "Execute model barber_events" | click
+get-button "Execute model barber_simple" | click
 
 get-view Trace | get-table | get-property itemCount | equals 3 | verify-true
 

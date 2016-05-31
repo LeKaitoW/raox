@@ -10,6 +10,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.xtext.ui.resource.IResourceSetProvider;
+import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
 
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
@@ -21,19 +23,24 @@ import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 import ru.bmstu.rk9.rao.ui.simulation.StatusView;
 import ru.bmstu.rk9.rao.ui.trace.ExportTraceHandler;
 
+@SuppressWarnings("restriction")
 public class ExecutionJobProvider {
-	public ExecutionJobProvider(final IProject project) {
+	public ExecutionJobProvider(final IProject project, IResourceSetProvider resourceSetProvider, IBatchTypeResolver typeResolver) {
 		this.project = project;
+		this.resourceSetProvider = resourceSetProvider;
+		this.typeResolver = typeResolver;
 	}
 
+	private final IResourceSetProvider resourceSetProvider;
 	private final IProject project;
+	private final IBatchTypeResolver typeResolver;
 
 	public final Job createExecutionJob() {
 		final Job executionJob = new Job(project.getName() + " execution") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				final Display display = PlatformUI.getWorkbench().getDisplay();
-				final ModelInternalsParser parser = new ModelInternalsParser(project);
+				final ModelInternalsParser parser = new ModelInternalsParser(project, resourceSetProvider, typeResolver);
 
 				ConsoleView.clearConsoleText();
 

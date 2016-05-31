@@ -58,30 +58,31 @@ public class Database {
 	}
 
 	public enum DataType {
-		INT(TypeSize.INT), DOUBLE(TypeSize.DOUBLE), BOOLEAN(TypeSize.BYTE), OTHER(0);
+		INT(TypeSize.INT, "int", "Integer"), DOUBLE(TypeSize.DOUBLE, "double", "Double"), BOOLEAN(TypeSize.BYTE,
+				"boolean", "Boolean"), OTHER(0, "", "");
 
-		DataType(int size) {
+		DataType(int size, String namePrivitive, String nameObject) {
 			this.size = size;
+			this.namePrimitive = namePrivitive;
+			this.nameObject = nameObject;
 		}
 
 		public final int getSize() {
 			return size;
 		}
 
+		public static final DataType getByName(String name) {
+			for (final DataType t : values()) {
+				if (t.namePrimitive.equals(name) || t.nameObject.equals(name))
+					return t;
+			}
+
+			return DataType.OTHER;
+		}
+
+		private final String namePrimitive;
+		private final String nameObject;
 		private final int size;
-	}
-
-	public static final DataType getDataType(Class<?> type) {
-		if (Integer.class.isAssignableFrom(type) || int.class.isAssignableFrom(type))
-			return DataType.INT;
-
-		if (Double.class.isAssignableFrom(type) || double.class.isAssignableFrom(type))
-			return DataType.DOUBLE;
-
-		if (Boolean.class.isAssignableFrom(type) || boolean.class.isAssignableFrom(type))
-			return DataType.BOOLEAN;
-
-		return DataType.OTHER;
 	}
 
 	public enum SerializationCategory {
