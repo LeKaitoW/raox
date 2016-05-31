@@ -14,6 +14,7 @@ import ru.bmstu.rk9.rao.rao.RaoModel
 import ru.bmstu.rk9.rao.rao.Logic
 import ru.bmstu.rk9.rao.rao.Search
 import ru.bmstu.rk9.rao.rao.Frame
+import ru.bmstu.rk9.rao.rao.ResultType
 
 class RaoProposalProvider extends AbstractRaoProposalProvider {
 	override completeKeyword(Keyword keyword, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
@@ -31,7 +32,7 @@ class RaoProposalProvider extends AbstractRaoProposalProvider {
 		}
 
 		if (!(toComplete instanceof Pattern || toComplete instanceof Frame || toComplete instanceof Logic ||
-			toComplete instanceof Search || toComplete instanceof RaoModel))
+			toComplete instanceof Search || toComplete instanceof RaoModel || toComplete instanceof ResultType))
 			return;
 
 		internalCompleteDefaultMethod_Name(toComplete, context, acceptor)
@@ -82,6 +83,14 @@ class RaoProposalProvider extends AbstractRaoProposalProvider {
 		ICompletionProposalAcceptor acceptor) {
 
 		for (value : DefaultMethodsHelper.GlobalMethodInfo.values) {
+			acceptor.accept(createCompletionProposal(value.name, context))
+		}
+	}
+
+	def dispatch internalCompleteDefaultMethod_Name(ResultType resultType, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
+
+		for (value : DefaultMethodsHelper.ResultTypeMethodInfo.values) {
 			acceptor.accept(createCompletionProposal(value.name, context))
 		}
 	}
