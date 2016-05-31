@@ -13,6 +13,7 @@ public class CategoricalStatistics<T> extends Statistics<T> {
 		double valueTime;
 	}
 
+	@Override
 	public void updateData(JSONObject data) {
 		addState(lastValue, lastCurrentTime - lastFlipTime);
 		for (Map.Entry<T, StatisticsData> e : statisticsDataset.entrySet()) {
@@ -23,6 +24,7 @@ public class CategoricalStatistics<T> extends Statistics<T> {
 		}
 	}
 
+	@Override
 	public void update(T value, double currentTime) {
 		if (lastValue != value) {
 			if (!statisticsDataset.containsKey(value)) {
@@ -45,7 +47,7 @@ public class CategoricalStatistics<T> extends Statistics<T> {
 	private double lastFlipTime = 0;
 	private double lastCurrentTime = 0;
 
-	private HashMap<T, StatisticsData> statisticsDataset = new HashMap<T, StatisticsData>();
+	final private Map<T, StatisticsData> statisticsDataset = new HashMap<T, StatisticsData>();
 
 	public void addState(T value, double delta) {
 		StatisticsData data = statisticsDataset.get(value);

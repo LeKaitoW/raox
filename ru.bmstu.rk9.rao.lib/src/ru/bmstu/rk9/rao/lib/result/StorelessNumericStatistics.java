@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rao.lib.result;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 
 public class StorelessNumericStatistics<T> extends Statistics<T> {
+	@Override
 	public void updateData(JSONObject data) {
 		data.put("Mean", getMean());
 		data.put("Standard deviation", getStandartDeviation());
@@ -10,6 +11,7 @@ public class StorelessNumericStatistics<T> extends Statistics<T> {
 		data.put("Median", getMedian());
 	}
 	
+	@Override
 	public void update(T value, double currentTime) {
 		next(((Number)value).doubleValue());
 	}
