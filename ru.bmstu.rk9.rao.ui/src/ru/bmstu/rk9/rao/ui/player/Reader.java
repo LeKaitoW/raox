@@ -62,14 +62,13 @@ public class Reader {
 		return modelStateStorage;
 	}
 
-	public Integer getLastLastElement() {
-		List<Double> timeStorage = new ArrayList<>();
-		timeStorage = retrieveTimeStorage();
-		return timeStorage.size();
+	public Double getLastLastTimeStorageElement() {
+
+		return timeStorage.get(timeStorage.size() - 1);
 
 	}
 
-	public List<Double> retrieveTimeStorage() {
+	public static List<Double> retrieveTimeStorage() {
 		File myFile = new File(Player.getCurrentProjectPath() + "/timeStorage.json");
 		FileInputStream fileInputStream = null;
 		List<Double> timeStorage = new ArrayList<>();
@@ -94,15 +93,14 @@ public class Reader {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		ConsoleView.addLine("timeStorage contein " + timeStorage.size() + " elements");
+		ConsoleView.addLine("Reading run information");
 		return timeStorage;
 	}
 
-	public List<Double> getSimulationDelays() {
-		List<Double> timeStorage = new ArrayList<>();
-		timeStorage = retrieveTimeStorage();
-		List<Double> simulationDelays = new ArrayList<>();
+	private static List<Double> timeStorage = retrieveTimeStorage();
 
+	public List<Double> getSimulationDelays() {
+		List<Double> simulationDelays = new ArrayList<>();
 		Iterator<Double> i = timeStorage.iterator();
 		Double prev = i.next();
 		while (i.hasNext()) {

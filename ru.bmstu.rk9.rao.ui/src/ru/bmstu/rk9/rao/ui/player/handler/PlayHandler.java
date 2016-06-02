@@ -9,7 +9,12 @@ import ru.bmstu.rk9.rao.ui.player.Player;
 public class PlayHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		Player.play();
+		if (Player.isInitialized() == false) {
+			Player.initialize();
+		} else {
+			Player.play();
+		}
+
 		return null;
 	}
 
