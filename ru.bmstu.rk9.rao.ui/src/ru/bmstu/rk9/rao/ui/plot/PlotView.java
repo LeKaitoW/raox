@@ -34,10 +34,15 @@ import org.jfree.data.xy.XYSeriesCollection;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.PatternIndex;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceParameterIndex;
+import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceTypeIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
+import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
+import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
@@ -241,7 +246,13 @@ public class PlotView extends ViewPart {
 
 			switch (index.getType()) {
 			case RESOURCE_PARAMETER:
-				return true;
+				ResourceParameterIndex parameterIndex = (ResourceParameterIndex) index;
+				int parameterNumber = parameterIndex.getNumber();
+				ResourceTypeIndex resourceTypeIndex = (ResourceTypeIndex) node.getParent().getParent().getIndex();
+				int resourceTypeNumber = resourceTypeIndex.getNumber();
+				DataType parameterType = CurrentSimulator.getStaticModelData()
+						.getResourceTypeParameterType(resourceTypeNumber, parameterNumber);
+				return parameterType != DataType.OTHER;
 
 			case RESULT:
 				ResultIndex resultIndex = (ResultIndex) index;
@@ -250,8 +261,9 @@ public class PlotView extends ViewPart {
 
 			case PATTERN:
 				PatternIndex patternIndex = (PatternIndex) index;
-				String patternType = patternIndex.getStructrure().getString("type");
-				return patternType.equals("operation");
+				int patternNumber = patternIndex.getNumber();
+				String patternType = CurrentSimulator.getStaticModelData().getPatternType(patternNumber);
+				return patternType.equals(ModelStructureConstants.OPERATION);
 
 			default:
 				return false;

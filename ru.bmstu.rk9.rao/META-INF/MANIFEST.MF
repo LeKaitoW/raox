@@ -6,8 +6,7 @@ Bundle-Version: 2.13.0
 Bundle-SymbolicName: ru.bmstu.rk9.rao;singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext;visibility:=reexport,
- org.eclipse.xtext.xbase;resolution:=optional;visibility:=reexport,
- org.eclipse.xtext.generator;resolution:=optional,
+ org.eclipse.equinox.common;bundle-version="3.5.0",
  org.apache.commons.logging;bundle-version="1.0.4";resolution:=optional,
  org.eclipse.emf.codegen.ecore;resolution:=optional,
  org.eclipse.emf.mwe.utils;resolution:=optional,
@@ -15,24 +14,22 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.eclipse.xtext.util,
  org.eclipse.emf.ecore,
  org.eclipse.emf.common,
+ org.eclipse.xtext.xbase.lib,
  org.antlr.runtime,
  org.eclipse.xtext.common.types,
- org.eclipse.ui,
  org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
- org.eclipse.xtext.xbase.lib,
- org.eclipse.core.runtime
-Import-Package: org.apache.log4j,
- org.eclipse.xtext.xbase.lib
+ org.eclipse.xtext.xbase,
+ ru.bmstu.rk9.rao.lib;bundle-version="2.7.1"
+Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: ru.bmstu.rk9.rao,
- ru.bmstu.rk9.rao.formatting,
- ru.bmstu.rk9.rao.generator,
- ru.bmstu.rk9.rao.parser.antlr,
- ru.bmstu.rk9.rao.parser.antlr.internal,
+ ru.bmstu.rk9.rao.services,
  ru.bmstu.rk9.rao.rao,
  ru.bmstu.rk9.rao.rao.impl,
  ru.bmstu.rk9.rao.rao.util,
- ru.bmstu.rk9.rao.scoping,
  ru.bmstu.rk9.rao.serializer,
- ru.bmstu.rk9.rao.services,
- ru.bmstu.rk9.rao.validation
+ ru.bmstu.rk9.rao.parser.antlr,
+ ru.bmstu.rk9.rao.parser.antlr.internal,
+ ru.bmstu.rk9.rao.validation,
+ ru.bmstu.rk9.rao.formatting2,
+ ru.bmstu.rk9.rao.jvmmodel

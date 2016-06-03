@@ -4,85 +4,68 @@ import java.util.Collection;
 import java.util.Collections;
 
 import java.util.Iterator;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.stream.Collectors;
 
-public class ResourceManager<T extends Resource & ResourceComparison<T>> {
-	private SortedMap<Integer, T> listResources;
-
-	private Map<String, T> named;
-
-	private Integer resourceNumber;
-
-	public int getNextNumber() {
-		return resourceNumber;
-	}
+public class ResourceManager<T extends ComparableResource<T>> {
+	private SortedMap<Integer, T> resources = new ConcurrentSkipListMap<Integer, T>();
+	private Integer numberOfResources = 0;
 
 	public void addResource(T res) {
-		String name = res.getName();
-		Integer number = res.getNumber();
+		Integer number = numberOfResources++;
 
-		if (number.equals(resourceNumber))
-			resourceNumber++;
-		else if (number > resourceNumber)
-			return;
-
-		listResources.put(number, res);
-
-		if (name != null)
-			named.put(name, res);
+		res.setNumber(number);
+		resources.put(number, res);
 	}
 
 	public void eraseResource(T res) {
-		String name = res.getName();
 		Integer number = res.getNumber();
 
-		if (name != null)
-			named.remove(name);
-
-		listResources.remove(number);
-	}
-
-	public T getResource(String name) {
-		return named.get(name);
+		resources.remove(number);
 	}
 
 	public T getResource(int number) {
-		return listResources.get(number);
+		return resources.get(number);
+	}
+
+	public String getValue() {
+		return resources.values().toString();
 	}
 
 	public Collection<T> getAll() {
-		return Collections.unmodifiableCollection(listResources.values());
+		return Collections.unmodifiableCollection(resources.values());
+	}
+
+	public Collection<T> getAccessible() {
+		return Collections.unmodifiableCollection(
+				resources.values().stream().filter((res) -> res.isAccessible()).collect(Collectors.toList()));
 	}
 
 	public ResourceManager() {
-		this.named = new ConcurrentHashMap<String, T>();
-		this.listResources = new ConcurrentSkipListMap<Integer, T>();
-		this.resourceNumber = 0;
+		this.numberOfResources = 0;
 	}
 
-	private ResourceManager(ResourceManager<T> source) {
-		this.named = new ConcurrentHashMap<String, T>(source.named);
-		this.listResources = new ConcurrentSkipListMap<Integer, T>(source.listResources);
-		this.resourceNumber = source.resourceNumber;
-	}
+	public ResourceManager<T> deepCopy() {
+		ResourceManager<T> copy = new ResourceManager<>();
 
-	public ResourceManager<T> copy() {
-		return new ResourceManager<T>(this);
+		copy.numberOfResources = this.numberOfResources;
+		for (Entry<Integer, T> entry : this.resources.entrySet()) {
+			copy.resources.put(entry.getKey(), entry.getValue().deepCopy());
+		}
+
+		return copy;
 	}
 
 	public boolean checkEqual(ResourceManager<T> other) {
-		if (this.listResources.size() != other.listResources.size())
+		if (this.resources.size() != other.resources.size())
 			return false;
 
-		Iterator<T> itThis = this.listResources.values().iterator();
-		Iterator<T> itOther = other.listResources.values().iterator();
+		Iterator<T> itThis = this.resources.values().iterator();
+		Iterator<T> itOther = other.resources.values().iterator();
 
-		for (int i = 0; i < this.listResources.size(); i++) {
+		for (int i = 0; i < this.resources.size(); i++) {
 			T resThis = itThis.next();
 			T resOther = itOther.next();
 

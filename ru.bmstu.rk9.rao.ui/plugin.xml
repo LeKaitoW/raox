@@ -11,6 +11,7 @@
             default="true"
             extensions="rao"
             id="ru.bmstu.rk9.rao.Rao"
+            matchingStrategy="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.xbase.ui.editor.JavaEditorInputMatcher"
             name="Rao Editor">
         </editor>
     </extension>
@@ -248,6 +249,14 @@
 	</extension>
 
    <extension
+         point="org.eclipse.xtext.builder.participant">
+      <participant
+            class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:org.eclipse.xtext.builder.IXtextBuilderParticipant"
+            fileExtensions="rao"
+            >
+      </participant>
+   </extension>
+   <extension
             point="org.eclipse.ui.preferencePages">
         <page
             category="ru.bmstu.rk9.rao.Rao"
@@ -404,6 +413,21 @@
      </command>
      <command
            categoryId="ru.bmstu.rk9.rao.ui.runtime"
+           id="ru.bmstu.rk9.rao.ui.runtime.player.play"
+           name="Play Rao model">
+     </command>
+     <command
+           categoryId="ru.bmstu.rk9.rao.ui.runtime"
+           id="ru.bmstu.rk9.rao.ui.runtime.player.stop"
+           name="Stop Playing Rao Model">
+     </command>
+     <command
+           categoryId="ru.bmstu.rk9.rao.ui.runtime"
+           id="ru.bmstu.rk9.rao.ui.runtime.player.playBackward"
+           name="Play Rao model backward">
+     </command>
+     <command
+           categoryId="ru.bmstu.rk9.rao.ui.runtime"
            id="ru.bmstu.rk9.rao.ui.runtime.stop"
            name="Stop Rao Model">
      </command>
@@ -501,6 +525,22 @@
      <handler
            class="ru.bmstu.rk9.rao.ui.trace.ExportTraceHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.exportTrace">
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rao.ui.player.handler.PlayHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.player.play">
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rao.ui.player.handler.PlayBackwardHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.player.playBackward">
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rao.ui.player.handler.StopHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.player.stop">
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rao.ui.player.handler.PauseHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.player.pause">
      </handler>
   </extension>
   <extension
@@ -928,6 +968,455 @@
            </command>
         </toolbar>
      </menuContribution>
+     <menuContribution
+           locationURI="menu:org.eclipse.ui.main.menu?after=project">
+        <menu
+              icon="icons/model.gif"
+              id="ru.bmstu.rk9.rao.ui.runtime.modelPlayerMenu"
+              label="Model"
+              mnemonic="M">
+           <visibleWhen
+                 checkEnabled="false">
+              <with
+                    variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                 <equals
+                       value="showPlayerActions">
+                 </equals>
+              </with>
+           </visibleWhen>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.build"
+                 id="ru.bmstu.rk9.rao.ui.runtime.menu.build"
+                 label="Build"
+                 mnemonic="B"
+                 style="push">
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.player.play"
+                 icon="icons/rao_model_run.gif"
+                 id="ru.bmstu.rk9.rao.ui.runtime.menu.execute"
+                 label="Play"
+                 mnemonic="P"
+                 style="push">
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.stop"
+                 icon="icons/rao_stop.gif"
+                 id="ru.bmstu.rk9.rao.ui.runtime.menu.stop"
+                 label="Stop"
+                 mnemonic="S"
+                 style="push">
+           </command>
+           <separator
+                 name="ru.bmstu.rk9.rao.ui.runtime.menu.separator1"
+                 visible="true">
+           </separator>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 icon="icons/rao_noanimation.gif"
+                 id="ru.bmstu.rk9.rao.ui.runtime.menu.noAnimation"
+                 label="No Animation"
+                 mnemonic="A"
+                 style="radio">
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="NA">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 icon="icons/rao_fastforward.gif"
+                 id="ru.bmstu.rk9.rao.ui.runtime.menu.fastForward"
+                 label="Fast Forward"
+                 mnemonic="F"
+                 style="radio">
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="FF">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 icon="icons/rao_normalspeed.gif"
+                 id="ru.bmstu.rk9.rao.ui.runtime.menu.normalSpeed"
+                 label="Normal Speed"
+                 mnemonic="N"
+                 style="radio">
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="NS">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 icon="icons/rao_pause.gif"
+                 id="ru.bmstu.rk9.rao.ui.runtime.menu.pause"
+                 label="Pause"
+                 mnemonic="P"
+                 style="radio">
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="P">
+              </parameter>
+           </command>
+           <separator
+                 name="ru.bmstu.rk9.rao.ui.runtime.menu.separator2"
+                 visible="true">
+           </separator>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_inc.png"
+                 label="Increase Simulation Scale"
+                 mnemonic="I"
+                 style="push">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="+">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_inc_four.png"
+                 label="Multiply Simulation Scale by 4"
+                 mnemonic="M"
+                 style="push">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="*">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_dec_four.png"
+                 label="Divide Simulation Scale by 4"
+                 mnemonic="D"
+                 style="push">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="/">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_dec.png"
+                 label="Decrease Simulation Scale"
+                 mnemonic="E"
+                 style="push">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="-">
+              </parameter>
+           </command>
+           <separator
+                 name="ru.bmstu.rk9.rao.ui.runtime.menu.separator3"
+                 visible="true">
+           </separator>
+           <menu
+                 id="ru.bmstu.rk9.rao.ui.runtime.exportTraceOutputMenu"
+                 label="Export Trace Output">
+              <command
+                    commandId="ru.bmstu.rk9.rao.ui.runtime.exportTrace"
+                    id="ru.bmstu.rk9.rao.ui.runtime.menu.exportTraceRegular"
+                    label="Regular"
+                    style="push">
+                 <parameter
+                       name="ru.bmstu.rk9.rao.ui.runtime.exportTraceType"
+                       value="Regular">
+                 </parameter>
+              </command>
+              <command
+                    commandId="ru.bmstu.rk9.rao.ui.runtime.exportTrace"
+                    id="ru.bmstu.rk9.rao.ui.runtime.menu.exportTraceLegacy"
+                    label="Legacy"
+                    style="push">
+                 <parameter
+                       name="ru.bmstu.rk9.rao.ui.runtime.exportTraceType"
+                       value="Legacy">
+                 </parameter>
+              </command>
+           </menu>
+        </menu>
+     </menuContribution>
+     <menuContribution
+           allPopups="false"
+           locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+        <toolbar
+              id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar"
+              label="Rao Player Toolbar">
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.player.playBackward"
+                 icon="icons/play_backward.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.playBackward"
+                 label="PlayBackward"
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.player.pause"
+                 icon="icons/rao_pause.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.pause"
+                 label="Pause"
+                 style="push"
+                 tooltip="Pause">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.player.play"
+                 icon="icons/rao_model_run.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.play"
+                 label="Play "
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.player.stop"
+                 icon="icons/rao_stop.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoPlayerToolbar.stop"
+                 label="Stop"
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <control
+                 class="ru.bmstu.rk9.rao.ui.toolbar.ToolbarSeparator">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </control>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 icon="icons/rao_noanimation.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoToolbar.noAnimation"
+                 label="No Animation"
+                 style="radio"
+                 tooltip="No Animation">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="NA">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 icon="icons/rao_fastforward.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoToolbar.fastForward"
+                 label="Fast Forward"
+                 style="radio"
+                 tooltip="Fast Forward">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="FF">
+              </parameter>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setExecutionMode"
+                 icon="icons/rao_normalspeed.gif"
+                 id="ru.bmstu.rk9.rao.ui.RaoToolbar.normalSpeed"
+                 label="Normal Speed"
+                 style="radio"
+                 tooltip="Normal Speed">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+              <parameter
+                    name="org.eclipse.ui.commands.radioStateParameter"
+                    value="NS">
+              </parameter>
+           </command>
+           <control
+                 class="ru.bmstu.rk9.rao.ui.toolbar.ToolbarSeparator">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </control>
+           <control
+                 class="ru.bmstu.rk9.rao.ui.player.gui.PlayerSpeedSelectionToolbar">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </control>
+           <control
+                 class="ru.bmstu.rk9.rao.ui.player.gui.PlayerDelaySelectionToolbar">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </control>
+           <control
+                 class="ru.bmstu.rk9.rao.ui.toolbar.ToolbarSeparator">
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </control>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_inc.png"
+                 label="Increase Simulation Scale"
+                 mnemonic="I"
+                 style="push"
+                 tooltip="Increase Simulation Scale">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="+">
+              </parameter>
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_inc_four.png"
+                 label="Multiply Simulation Scale by 4"
+                 mnemonic="M"
+                 style="push"
+                 tooltip="Multiply Simulation Scale by 4">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="*">
+              </parameter>
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerwActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_dec_four.png"
+                 label="Divide Simulation Scale by 4"
+                 mnemonic="D"
+                 style="push"
+                 tooltip="Divide Simulation Scale by 4">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="/">
+              </parameter>
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+                    <equals
+                          value="showActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale"
+                 icon="icons/sim_rate_dec.png"
+                 label="Decrease Simulation Scale"
+                 mnemonic="E"
+                 style="push"
+                 tooltip="Decrease Simulation Scale">
+              <parameter
+                    name="ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter"
+                    value="-">
+              </parameter>
+              <visibleWhen
+                    checkEnabled="false">
+                 <with
+                       variable="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions">
+                    <equals
+                          value="showPlayerActions">
+                    </equals>
+                 </with>
+              </visibleWhen>
+           </command>
+        </toolbar>
+     </menuContribution>
   </extension>
   <extension
         point="org.eclipse.ui.perspectives">
@@ -937,6 +1426,12 @@
            id="ru.bmstu.rk9.rao.ui.perspective"
            name="Rao">
      </perspective>
+     <perspective
+           class="ru.bmstu.rk9.rao.ui.player.gui.RaoPlayerPerspective"
+           icon="icons/rao_player.gif"
+           id="ru.bmstu.rk9.rao.ui.player.perspective"
+           name="RaoPlayer">
+     </perspective>
   </extension>
   <extension
         point="org.eclipse.ui.services">
@@ -944,6 +1439,13 @@
            provider="ru.bmstu.rk9.rao.ui.RaoPerspectiveSourceProvider">
         <variable
               name="ru.bmstu.rk9.rao.ui.handlers.showActions"
+              priorityLevel="workbench">
+        </variable>
+     </sourceProvider>
+     <sourceProvider
+           provider="ru.bmstu.rk9.rao.ui.player.gui.RaoPlayerPerspectiveSourceProvider">
+        <variable
+              name="ru.bmstu.rk9.rao.ui.handlers.showPlayerActions"
               priorityLevel="workbench">
         </variable>
      </sourceProvider>
@@ -1043,5 +1545,12 @@
             finalPerspective="ru.bmstu.rk9.rao.ui.perspective">
       </wizard>
   </extension>
+  <extension point="org.eclipse.team.core.fileTypes">
+      <fileTypes
+            extension="rao"
+            type="text">
+      </fileTypes>
+   </extension>
+
 
 </plugin>

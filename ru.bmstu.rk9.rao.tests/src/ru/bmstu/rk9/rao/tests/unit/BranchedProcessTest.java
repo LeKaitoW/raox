@@ -14,19 +14,21 @@ import ru.bmstu.rk9.rao.lib.process.Resource;
 import ru.bmstu.rk9.rao.lib.process.Seize;
 import ru.bmstu.rk9.rao.lib.process.Terminate;
 import ru.bmstu.rk9.rao.lib.process.Test;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
 
 public class BranchedProcessTest {
 
 	@org.junit.Test
 	public void test() {
 		ProcessTestSuite.initEmptySimulation();
-		Simulator.addTerminateCondition(() -> Simulator.getTime() > 60);
-		Simulator.getProcess().addBlocks(generateSituation());
-		SimulationStopCode simulationStopCode = Simulator.run();
-		assertEquals("linear_process_test",
-				SimulationStopCode.TERMINATE_CONDITION, simulationStopCode);
+		SimulatorInitializationInfo initializationInfo = new SimulatorInitializationInfo();
+		initializationInfo.terminateConditions.add(() -> CurrentSimulator.getTime() > 60);
+		initializationInfo.processBlocks.addAll(generateSituation());
+		CurrentSimulator.initialize(initializationInfo);
+		SimulationStopCode simulationStopCode = CurrentSimulator.run();
+		assertEquals("linear_process_test", SimulationStopCode.TERMINATE_CONDITION, simulationStopCode);
 	}
 
 	private List<Block> generateSituation() {
@@ -34,7 +36,7 @@ public class BranchedProcessTest {
 		Generate generate = new Generate(() -> 10);
 		Terminate terminate = new Terminate();
 		Advance advance = new Advance(() -> 15);
-		Resource resource = new Resource();
+		Resource resource = Resource.create();
 		Seize seize = new Seize(resource);
 		Release release = new Release(resource);
 		Queue queue = new Queue();

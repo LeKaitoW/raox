@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class Advance implements Block {
 
@@ -38,17 +38,14 @@ public class Advance implements Block {
 		if (transact == null)
 			return BlockStatus.NOTHING_TO_DO;
 
-		System.out.println(Simulator.getTime() + ": advance body "
-				+ transact.getNumber());
-		Double time = Simulator.getTime() + duration.get();
-		Simulator.pushEvent(new AdvanceEvent(transact, time));
+		System.out.println(CurrentSimulator.getTime() + ": advance body " + transact.getNumber());
+		Double time = CurrentSimulator.getTime() + duration.get();
+		CurrentSimulator.pushEvent(new AdvanceEvent(transact, time));
 		return BlockStatus.SUCCESS;
 
 	}
 
-	private class AdvanceEvent implements Event {
-
-		private double time;
+	private class AdvanceEvent extends Event {
 		private Transact transact;
 
 		public AdvanceEvent(Transact transact, double time) {
@@ -62,17 +59,10 @@ public class Advance implements Block {
 		}
 
 		@Override
-		public double getTime() {
-			return time;
-		}
-
-		@Override
-		public void run() {
+		public void execute() {
 			if (temporaryTransactOnOutput != null)
-				throw new ProcessException(
-						"Transact collision in Advance block");
-			System.out.println(Simulator.getTime() + ": advance run "
-					+ transact.getNumber());
+				throw new ProcessException("Transact collision in Advance block");
+			System.out.println(CurrentSimulator.getTime() + ": advance run " + transact.getNumber());
 			temporaryTransactOnOutput = transact;
 		}
 	}

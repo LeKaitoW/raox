@@ -1,206 +1,57 @@
 package ru.bmstu.rk9.rao.validation
 
-import java.util.List
-import java.util.LinkedList
 import java.util.ArrayList
-
-import java.util.Map
 import java.util.HashMap
-
-import com.google.inject.Inject
-
-import org.eclipse.xtext.validation.Check
-
-import org.eclipse.xtext.resource.IResourceDescription
-import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
-
-import org.eclipse.xtext.resource.IContainer
-
-import org.eclipse.emf.ecore.resource.Resource
-
+import java.util.List
+import java.util.Map
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
-
-import ru.bmstu.rk9.rao.generator.GlobalContext
-
-import static extension ru.bmstu.rk9.rao.generator.RaoNaming.*
-import static extension ru.bmstu.rk9.rao.generator.RaoExpressionCompiler.*
-
-import ru.bmstu.rk9.rao.rao.RaoPackage
-
+import org.eclipse.xtext.validation.Check
+import ru.bmstu.rk9.rao.rao.Constant
+import ru.bmstu.rk9.rao.rao.DefaultMethod
+import ru.bmstu.rk9.rao.rao.Frame
+import ru.bmstu.rk9.rao.rao.FunctionDeclaration
+import ru.bmstu.rk9.rao.rao.Pattern
 import ru.bmstu.rk9.rao.rao.RaoModel
-
+import ru.bmstu.rk9.rao.rao.RaoPackage
+import ru.bmstu.rk9.rao.rao.RelevantResource
 import ru.bmstu.rk9.rao.rao.ResourceType
-
-import ru.bmstu.rk9.rao.rao.ResourceCreateStatement
-
+import ru.bmstu.rk9.rao.rao.ResourceDeclaration
+import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.Sequence
 
-import ru.bmstu.rk9.rao.rao.Constant
-
-import ru.bmstu.rk9.rao.rao.Function
-import ru.bmstu.rk9.rao.rao.FunctionTable
-
-import ru.bmstu.rk9.rao.rao.Pattern
-import ru.bmstu.rk9.rao.rao.Parameter
-import ru.bmstu.rk9.rao.rao.PatternSelectMethod
-import ru.bmstu.rk9.rao.rao.RelevantResource
-import ru.bmstu.rk9.rao.rao.Event
-
-import ru.bmstu.rk9.rao.rao.DecisionPoint
-
-import ru.bmstu.rk9.rao.rao.Frame
-
-import ru.bmstu.rk9.rao.rao.Result
-
-import ru.bmstu.rk9.rao.rao.RaoInt
-import ru.bmstu.rk9.rao.rao.RaoEnum
-import ru.bmstu.rk9.rao.rao.DefaultMethod
-import ru.bmstu.rk9.rao.rao.DecisionPointSome
-import ru.bmstu.rk9.rao.rao.DptSetConditionStatement
-import ru.bmstu.rk9.rao.rao.DptSetPriorityStatement
-import ru.bmstu.rk9.rao.rao.DptSetParentStatement
-import ru.bmstu.rk9.rao.rao.DptEvaluateByStatement
-import ru.bmstu.rk9.rao.rao.DptCompareTopsStatement
-import ru.bmstu.rk9.rao.rao.DptSetTerminateConditionStatement
-import ru.bmstu.rk9.rao.rao.DecisionPointSearch
-import ru.bmstu.rk9.rao.rao.FunctionType
-import ru.bmstu.rk9.rao.rao.PatternType
+import static extension ru.bmstu.rk9.rao.jvmmodel.RaoNaming.*
+import ru.bmstu.rk9.rao.lib.sequence.NumericSequence
+import ru.bmstu.rk9.rao.lib.sequence.ArbitraryTypeSequence
+import ru.bmstu.rk9.rao.rao.Logic
+import ru.bmstu.rk9.rao.rao.Search
+import org.eclipse.xtext.xbase.XNullLiteral
+import org.eclipse.xtext.xbase.XExpression
+import ru.bmstu.rk9.rao.rao.EntityCreation
+import ru.bmstu.rk9.rao.rao.RaoEntity
+import java.util.Set
+import java.util.HashSet
+import ru.bmstu.rk9.rao.rao.Activity
+import ru.bmstu.rk9.rao.rao.Edge
 
 class RaoValidator extends AbstractRaoValidator
 {
-
-	@Inject
-	private ResourceDescriptionsProvider resourceDescriptionsProvider
-
-	@Inject
-	private IContainer.Manager containerManager
-
-	private static List<Resource> resourceIndex = new LinkedList<Resource>
-	private static HashMap<String, GlobalContext> variableIndex = new HashMap<String, GlobalContext>
-
-	@Check
-	def exportResources(RaoModel model)
-	{
-		val index = resourceDescriptionsProvider.createResourceDescriptions
-		val resourceDescription = index.getResourceDescription(model.eResource.URI)
-
-		resourceIndex.clear
-
-		if (resourceDescription == null)
-			return
-		else
-		{
-			for (IContainer container : containerManager.getVisibleContainers(resourceDescription, index))
-				for (IResourceDescription containerResourceDescription : container.getResourceDescriptions())
-				{
-					resourceIndex.add(model.eResource.resourceSet.getResource(containerResourceDescription.URI, true))
-					if (!variableIndex.containsKey(resourceIndex.last.resourceName))
-						variableIndex.put(resourceIndex.last.resourceName, new GlobalContext)
-				}
-
-			if (variableIndex.size != resourceIndex.size)
-			{
-				variableIndex.clear
-				for (resource : resourceIndex)
-					variableIndex.put(resourceIndex.last.resourceName, new GlobalContext)
-			}
-		}
-	}
-
-	@Check
-	def exportResourceCreateStatements(ResourceCreateStatement resourceCreateStatement)
-	{
-		val model = resourceCreateStatement.modelRoot
-		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
-			return
-
-		val resourceIndex = variableIndex.get(model.nameGeneric).resources
-		val resources = model.eAllContents.filter(typeof(ResourceCreateStatement)).toMap[name]
-		for (name : resources.keySet)
-			if (resourceIndex.get(name) == null || name == resourceCreateStatement.name)
-				resourceIndex.put(name, variableIndex.get(model.nameGeneric).newResourceReference(resources.get(name)))
-
-		clearMissing(resourceIndex, resources)
-	}
-
-	@Check
-	def exportSequences(Sequence sequence)
-	{
-		val model = sequence.modelRoot
-		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
-			return
-
-		val sequenceIndex = variableIndex.get(model.nameGeneric).sequences
-		val sequences = model.eAllContents.filter(typeof(Sequence)).toMap[name]
-		for (name : sequences.keySet)
-			if (sequenceIndex.get(name) == null || name == sequence.name)
-				sequenceIndex.put(name, variableIndex.get(model.nameGeneric).newSequenceReference(sequences.get(name)))
-
-		clearMissing(sequenceIndex, sequences)
-	}
-
-	@Check
-	def exportConstants(Constant constant)
-	{
-		val model = constant.modelRoot
-		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
-			return
-
-		val constantIndex = variableIndex.get(model.nameGeneric).constants
-		val constants = model.eAllContents.filter(typeof(Constant)).toMap[name]
-		for (name : constants.keySet)
-			if (constantIndex.get(name) == null || name == constant.name)
-				constantIndex.put(name, variableIndex.get(model.nameGeneric).newConstantReference(constants.get(name)))
-
-		clearMissing(constantIndex, constants)
-	}
-
-	@Check
-	def exportFunctions(Function function)
-	{
-		val model = function.modelRoot
-		if (variableIndex == null || variableIndex.get(model.nameGeneric) == null)
-			return
-
-		val functionIndex = variableIndex.get(model.nameGeneric).functions
-		val functions = model.eAllContents.filter(typeof(Function)).toMap[type.name]
-		for (name : functions.keySet)
-			if (functionIndex.get(name) == null || name == function.type.name)
-				functionIndex.put(name, variableIndex.get(model.nameGeneric).newFunctionReference(functions.get(name)))
-
-		clearMissing(functionIndex, functions)
-	}
-
-	def private clearMissing(Map<String, ?> index, Map<String, ?> model)
-	{
-		if (index.size != model.size)
-		{
-			var iter = index.keySet.iterator
-			while (iter.hasNext)
-			{
-				val next = iter.next
-				if (model.get(next) == null)
-				{
-					index.remove(next)
-					iter = index.keySet.iterator
-				}
-			}
-		}
-	}
-
-	def private checkDefaultMethodCountGeneric(EObject parent,
-			Iterable<DefaultMethod> methods,
-			Map<String, DefaultMethodsHelper.MethodInfo> counts
-	)
-	{
+	def private checkDefaultMethodCountGeneric(
+		EObject parent,
+		Iterable<DefaultMethod> methods,
+		Map<String, DefaultMethodsHelper.MethodInfo> counts
+	) {
 		for (method : methods) {
 			if (!counts.containsKey(method.name))
-				error("Error - incorrect default method name", method,
+				error(
+					"Error - incorrect default method name",
+					method,
 					method.getNameStructuralFeature
 				)
 			else if (counts.get(method.name).count > 0)
-				error("Error - default method cannot be set more than once", method,
+				error(
+					"Error - default method cannot be set more than once",
+					method,
 					method.getNameStructuralFeature
 				)
 			else {
@@ -214,26 +65,23 @@ class RaoValidator extends AbstractRaoValidator
 			if (counts.get(name).count == 0) {
 				switch counts.get(name).action {
 					case WARNING:
-						warning("Warning - default method " + name + " not set",
-								parent,
-								parent.getNameStructuralFeature)
+						warning("Warning - default method " + name + " not set", parent,
+							parent.getNameStructuralFeature)
 					case ERROR:
-						error("Error - default method " + name + " not set",
-								parent,
-								parent.getNameStructuralFeature)
-					default: {}
+						error("Error - default method " + name + " not set", parent, parent.getNameStructuralFeature)
+					default: {
+					}
 				}
 			}
 	}
 
 	@Check
-	def checkDefaultMethodGlobalCount(RaoModel model)
-	{
-		var Map<String, DefaultMethodsHelper.MethodInfo> counts =
-				new HashMap<String, DefaultMethodsHelper.MethodInfo>()
+	def checkDefaultMethodGlobalCount(RaoModel model) {
+		var Map<String, DefaultMethodsHelper.MethodInfo> counts = new HashMap<String, DefaultMethodsHelper.MethodInfo>()
 		for (value : DefaultMethodsHelper.GlobalMethodInfo.values)
-			counts.put(value.name,
-					new DefaultMethodsHelper.MethodInfo(value.validatorAction)
+			counts.put(
+				value.name,
+				new DefaultMethodsHelper.MethodInfo(value.validatorAction)
 			)
 
 		var methods = model.objects.filter(typeof(DefaultMethod))
@@ -241,303 +89,190 @@ class RaoValidator extends AbstractRaoValidator
 	}
 
 	@Check
-	def checkDefaultMethodPatternCount(Pattern pattern)
-	{
-		var Map<String, DefaultMethodsHelper.MethodInfo> counts =
-				new HashMap<String, DefaultMethodsHelper.MethodInfo>()
-		switch (pattern.type)
-		{
+	def checkDefaultMethodPatternCount(Pattern pattern) {
+		var Map<String, DefaultMethodsHelper.MethodInfo> counts = new HashMap<String, DefaultMethodsHelper.MethodInfo>()
+		switch (pattern.type) {
 			case RULE:
 				for (value : DefaultMethodsHelper.RuleMethodInfo.values)
-					counts.put(value.name,
-							new DefaultMethodsHelper.MethodInfo(value.validatorAction))
-			case OPERATION,
-			case KEYBOARD:
+					counts.put(value.name, new DefaultMethodsHelper.MethodInfo(value.validatorAction))
+			case OPERATION:
 				for (value : DefaultMethodsHelper.OperationMethodInfo.values)
-					counts.put(value.name,
-							new DefaultMethodsHelper.MethodInfo(value.validatorAction))
+					counts.put(value.name, new DefaultMethodsHelper.MethodInfo(value.validatorAction))
 		}
 
 		checkDefaultMethodCountGeneric(pattern, pattern.defaultMethods, counts)
 	}
 
 	@Check
-	def checkDuplicateNamesForEntities(RaoModel model)
-	{
+	def checkDefaultMethodLogicCount(Logic logic) {
+		var Map<String, DefaultMethodsHelper.MethodInfo> counts = new HashMap<String, DefaultMethodsHelper.MethodInfo>()
+		for (value : DefaultMethodsHelper.DptMethodInfo.values)
+			counts.put(
+				value.name,
+				new DefaultMethodsHelper.MethodInfo(value.validatorAction)
+			)
+
+		checkDefaultMethodCountGeneric(logic, logic.defaultMethods, counts)
+	}
+
+	@Check
+	def checkDefaultMethodSearchCount(Search search) {
+		var Map<String, DefaultMethodsHelper.MethodInfo> counts = new HashMap<String, DefaultMethodsHelper.MethodInfo>()
+		for (value : DefaultMethodsHelper.DptMethodInfo.values)
+			counts.put(
+				value.name,
+				new DefaultMethodsHelper.MethodInfo(value.validatorAction)
+			)
+
+		checkDefaultMethodCountGeneric(search, search.defaultMethods, counts)
+	}
+
+	@Check
+	def checkDefaultMethodFrameCount(Frame frame) {
+		var Map<String, DefaultMethodsHelper.MethodInfo> counts = new HashMap<String, DefaultMethodsHelper.MethodInfo>()
+		for (value : DefaultMethodsHelper.FrameMethodInfo.values)
+			counts.put(
+				value.name,
+				new DefaultMethodsHelper.MethodInfo(value.validatorAction)
+			)
+
+		checkDefaultMethodCountGeneric(frame, frame.defaultMethods, counts)
+	}
+
+	@Check
+	def checkDuplicateNamesForEntities(RaoModel model) {
 		val List<String> entities = new ArrayList<String>()
 		val List<String> duplicates = new ArrayList<String>()
 
-		val List<EObject> checklist = model.eAllContents.filter[eObject |
-			eObject instanceof ResourceType ||
-			eObject instanceof ResourceCreateStatement ||
-			eObject instanceof Sequence ||
-			eObject instanceof Constant ||
-			eObject instanceof Function ||
-			eObject instanceof Pattern ||
-			eObject instanceof DecisionPoint ||
-			eObject instanceof Frame ||
-			eObject instanceof Result
+		val List<EObject> checklist = model.eAllContents.filter [ eObject |
+			eObject instanceof ResourceType || eObject instanceof ResourceDeclaration || eObject instanceof Sequence ||
+				eObject instanceof Constant || eObject instanceof FunctionDeclaration || eObject instanceof Pattern ||
+				eObject instanceof Logic || eObject instanceof Search || eObject instanceof Frame ||
+				eObject instanceof Result
 		].toList
 
-		for (eObject : checklist)
-		{
-			if (eObject.nameGeneric.equals(model.nameGeneric))
-				error("Error - object cannot have the same name as model ('" + eObject.nameGeneric + "').",
-						eObject, eObject.getNameStructuralFeature)
+				for (eObject : checklist) {
+					if (eObject.nameGeneric.equals(model.nameGeneric))
+						error("Error - object cannot have the same name as model ('" + eObject.nameGeneric + "').",
+							eObject, eObject.getNameStructuralFeature)
 
-			val name = eObject.fullyQualifiedName
-			if (entities.contains(name))
-			{
-				if (!duplicates.contains(name))
-					duplicates.add(name)
-			}
-			else
-				entities.add(name)
-		}
+					val name = eObject.fullyQualifiedName
+					if (entities.contains(name)) {
+						if (!duplicates.contains(name))
+							duplicates.add(name)
+					} else
+						entities.add(name)
+				}
 
-		if (!duplicates.empty)
-			for (eObject : checklist)
-			{
-				val name = eObject.fullyQualifiedName
-				val hasNoName = (name.contains(".")
-					&& name.substring(name.lastIndexOf(".") + 1) == "null"
+				if (!duplicates.empty) {
+					for (eObject : checklist) {
+						val name = eObject.fullyQualifiedName
+						val hasNoName = (name.contains(".") && name.substring(name.lastIndexOf(".") + 1) == "null"
 				)
-				if (!hasNoName && duplicates.contains(name))
-					error("Error - multiple declarations of object '" + name + "'.", eObject,
-						eObject.getNameStructuralFeature)
+						if (!hasNoName && duplicates.contains(name))
+							error("Error - multiple declarations of object '" + name + "'.", eObject,
+								eObject.getNameStructuralFeature)
+					}
+				}
 			}
+
+	@Check
+	def checkDuplicateNamesForRelevants(Pattern pattern) {
+		val Set<String> names = new HashSet<String>()
+		val Set<String> duplicates = new HashSet<String>()
+
+		for (relevant : pattern.relevantResources) {
+			if (names.contains(relevant.name)) {
+				duplicates.add(relevant.name)
+			} else {
+				names.add(relevant.name)
+			}
+		}
+
+		for (tuple : pattern.relevantTuples) {
+			for (name : tuple.names) {
+				if (names.contains(name)) {
+					duplicates.add(name)
+				} else {
+					names.add(name)
+				}
+			}
+		}
+
+		if (!duplicates.empty) {
+			for (relevant : pattern.relevantResources) {
+				val name = relevant.name
+				if (duplicates.contains(name))
+					error("Error - multiple declarations of relevant resource '" + name + "'.", relevant,
+						relevant.getNameStructuralFeature)
+			}
+
+			for (tuple : pattern.relevantTuples) {
+				for (name : tuple.names) {
+					if (duplicates.contains(name))
+						error("Error - multiple declarations of relevant resource '" + name + "'.", tuple,
+							tuple.getNameStructuralFeature)
+				}
+			}
+		}
 	}
 
 	@Check
-	def checkNamesInPatterns(Pattern pattern)
-	{
-		val List<EObject> parameters  = pattern.eAllContents.filter[eObject |
-			eObject instanceof Parameter
-		].toList
-		val List<EObject> relevantResources = pattern.eAllContents.filter[eObject |
-			eObject instanceof RelevantResource].toList
-
-		for (parameter : parameters)
-			if (relevantResources.map[relevantResource | relevantResource.nameGeneric].contains(parameter.nameGeneric))
-				error("Error - parameter name shouldn't match relevant resource name '" + parameter.nameGeneric + "'.", parameter,
-					parameter.getNameStructuralFeature)
-
-		for (relevantResource : relevantResources)
-			if (parameters.map[parameter | parameter.nameGeneric].contains(relevantResource.nameGeneric))
-				error("Error - relevant resource name shouldn't match parameter name '" + relevantResource.nameGeneric + "'.", relevantResource,
-					relevantResource.getNameStructuralFeature)
+	def checkResourceDeclaration(ResourceDeclaration resource) {
+		if (!resource.constructor.actualType.isSubtypeOf(typeof(ru.bmstu.rk9.rao.lib.resource.Resource)))
+			error("Error in declaration of \"" + resource.name + "\": only Rao resources are allowed.",
+				RaoPackage.eINSTANCE.entityCreation_Constructor)
 	}
 
-	def private EStructuralFeature getNameStructuralFeature (EObject object)
-	{
-		switch object
-		{
-			ResourceType:
-				RaoPackage.eINSTANCE.resourceType_Name
+	@Check
+	def checkRelevantResourceDeclaration(RelevantResource relevant) {
+		if (!relevant.value.actualType.isSubtypeOf(typeof(ru.bmstu.rk9.rao.lib.resource.Resource)))
+			error("Error in declaration of \"" + relevant.name + "\": only Rao resources are allowed.",
+				RaoPackage.eINSTANCE.relevantResource_Value)
+	}
 
-			ResourceCreateStatement:
-				RaoPackage.eINSTANCE.META_ResourceReference_Name
+	@Check
+	def checkSequenceDeclaration(Sequence sequence) {
+		if (!sequence.constructor.actualType.isSubtypeOf(typeof(NumericSequence)) &&
+			!sequence.constructor.actualType.isSubtypeOf(typeof(ArbitraryTypeSequence))) {
+			error("Error in declaration of \"" + sequence.name + "\": only Rao sequences are allowed.",
+				RaoPackage.eINSTANCE.entityCreation_Constructor)
+		}
+	}
 
-			Sequence:
-				RaoPackage.eINSTANCE.sequence_Name
+	@Check
+	def checkActivityDeclaration(Activity activity) {
+		if (!activity.constructor.actualType.isSubtypeOf(ru.bmstu.rk9.rao.lib.dpt.Activity)) {
+			error("Error in declaration of \"" + activity.name + "\": must be Activity class subtype.",
+				RaoPackage.eINSTANCE.activity_Constructor)
+		}
+	}
 
-			FunctionType:
-				RaoPackage.eINSTANCE.functionType_Name
+	@Check
+	def checkEdgeDeclaration(Edge edge) {
+		if (!edge.constructor.actualType.isSubtypeOf(ru.bmstu.rk9.rao.lib.dpt.Edge)) {
+			error("Error in declaration of \"" + edge.name + "\": must be Edge class subtype.",
+				RaoPackage.eINSTANCE.edge_Constructor)
+		}
+	}
 
-			Pattern:
-				RaoPackage.eINSTANCE.pattern_Name
+	@Check
+	def checkEntityNotNull(EntityCreation entity) {
+		if (entity.constructor.checkForNull)
+			error("Error in declaration of \"" + entity.name + "\": cannot be null.",
+				RaoPackage.eINSTANCE.entityCreation_Constructor)
+	}
 
-			Event:
-				RaoPackage.eINSTANCE.event_Name
+	def private checkForNull(XExpression expression) {
+		return expression.eClass.instanceClass.equals(typeof(XNullLiteral))
+	}
 
-			DecisionPoint:
-				RaoPackage.eINSTANCE.decisionPoint_Name
-
-			Frame:
-				RaoPackage.eINSTANCE.frame_Name
-
-			Result:
-				RaoPackage.eINSTANCE.result_Name
-
-			Parameter:
-				RaoPackage.eINSTANCE.parameter_Name
-
+	def private EStructuralFeature getNameStructuralFeature(EObject object) {
+		switch object {
+			RaoEntity:
+				RaoPackage.eINSTANCE.raoEntity_Name
 			RelevantResource:
-				RaoPackage.eINSTANCE.META_ResourceReference_Name
-
-			DptSetConditionStatement:
-				RaoPackage.eINSTANCE.dptSetConditionStatement_Name
-
-			DptSetParentStatement:
-				RaoPackage.eINSTANCE.dptSetParentStatement_Name
-
-			DptEvaluateByStatement:
-				RaoPackage.eINSTANCE.dptEvaluateByStatement_Name
-
-			DptSetPriorityStatement:
-				RaoPackage.eINSTANCE.dptSetPriorityStatement_Name
-
-			DptCompareTopsStatement:
-				RaoPackage.eINSTANCE.dptCompareTopsStatement_Name
-
-			DptSetTerminateConditionStatement:
-				RaoPackage.eINSTANCE.dptSetTerminateConditionStatement_Name
-		}
-	}
-
-	@Check
-	def checkForCombinationalChioceMethod(Pattern pattern)
-	{
-		var haveSelectMethods = false
-		var isCombinatorial = false
-
-		for (selectMethod : pattern.eAllContents.toList.filter(typeof(PatternSelectMethod)))
-		{
-			switch selectMethod.eContainer
-			{
-				Pattern: isCombinatorial = true
-				RelevantResource: haveSelectMethods = true
-			}
-		}
-
-		if (haveSelectMethods && isCombinatorial)
-			for (selectMethod : pattern.eAllContents.toList.filter(typeof(PatternSelectMethod)))
-			{
-				switch selectMethod.eContainer
-				{
-					RelevantResource:
-						error("Pattern " + pattern.name + " already uses combinational approach for relevant resources search",
-							selectMethod.eContainer, RaoPackage.eINSTANCE.relevantResource_SelectMethod)}
-			}
-	}
-
-	@Check
-	def checkTableParameters(FunctionTable function)
-	{
-		if (function.parameters == null)
-			return;
-
-		for (parameter : function.parameters)
-		{
-			val actual = parameter.type.resolveAllTypes
-			if (!(actual instanceof RaoEnum || (actual instanceof RaoInt && (actual as RaoInt).range != null)))
-				error("Invalid parameter type. Table function allows enumerative and ranged integer parameters only",
-					parameter, RaoPackage.eINSTANCE.functionParameter_Type)
-		}
-	}
-
-	@Check
-	def checkSearchActivities(DecisionPointSearch search)
-	{
-		for (activity : search.activities)
-			if (activity.pattern.type != PatternType.RULE)
-				error("Only rules are allowed as search activities",
-					activity, RaoPackage.eINSTANCE.decisionPointSearchActivity_Name)
-	}
-
-	//TODO generalize set method for dpt instead of validating its name here
-	@Check
-	def checkDptInitName(DecisionPoint decisionPoint)
-	{
-		if (decisionPoint.initMethodName != null && decisionPoint.initMethodName != "init")
-			error("Invalid default method name \"" + decisionPoint.initMethodName + "\".",
-				decisionPoint, RaoPackage.eINSTANCE.decisionPoint_InitMethodName)
-	}
-
-	@Check
-	def checkDptInitStatements(DecisionPointSome decisionPoint)
-	{
-		var setCondidionStatements = decisionPoint.initStatements.filter(
-				statement | statement instanceof DptSetConditionStatement
-			)
-		var setPriorStatements = decisionPoint.initStatements.filter(
-				statement | statement instanceof DptSetPriorityStatement
-			)
-		var setParentStatements = decisionPoint.initStatements.filter(
-				statement | statement instanceof DptSetParentStatement
-			)
-
-		if (setCondidionStatements.size > 1)
-			for (statement : setCondidionStatements)
-				error("Multiple setCondition() calls are not allowed",
-						statement, statement.getNameStructuralFeature)
-
-		if (setPriorStatements.size > 1)
-			for (statement : setPriorStatements)
-				error("Multiple setPriority() calls are not allowed",
-						statement, statement.getNameStructuralFeature)
-
-		if (setParentStatements.size > 1)
-			for (statement : setParentStatements)
-				error("Multiple setParent() calls are not allowed",
-						statement, statement.getNameStructuralFeature)
-	}
-
-	@Check
-	def checkSearchInitStatements(DecisionPointSearch decisionPoint)
-	{
-		var setConditionStatements = decisionPoint.initStatements.filter(
-				statement | statement instanceof DptSetConditionStatement
-			)
-		var setParentStatements = decisionPoint.initStatements.filter(
-				statement | statement instanceof DptSetParentStatement
-			)
-		var setTerminateConditionStatements = decisionPoint.initStatements.filter(
-				statement | statement instanceof DptSetTerminateConditionStatement
-			)
-		var evaluateByStatements = decisionPoint.initStatements.filter(
-				statement | statement instanceof DptEvaluateByStatement
-			)
-		var compareTopsStatements = decisionPoint.initStatements.filter(
-				statement | statement instanceof DptCompareTopsStatement
-			)
-
-		if (setConditionStatements.size > 1)
-			for (statement : setConditionStatements)
-				error("Multiple setCondition() calls are not allowed",
-						statement, statement.getNameStructuralFeature)
-
-		if (setParentStatements.size > 1)
-			for (statement : setParentStatements)
-				error("Multiple setParent() calls are not allowed",
-						statement, statement.getNameStructuralFeature)
-
-		if (setTerminateConditionStatements.size > 1)
-			for (statement : setTerminateConditionStatements)
-				error("Multiple setTerminateCondition() calls are not allowed",
-						statement, statement.getNameStructuralFeature)
-		else if (setTerminateConditionStatements.empty)
-				error("setTerminateCondition() method must be called explicitly",
-						decisionPoint, decisionPoint.getNameStructuralFeature)
-
-		if (evaluateByStatements.size > 1)
-			for (statement : evaluateByStatements)
-				error("Multiple evaluateBy() calls are not allowed",
-						statement, statement.getNameStructuralFeature)
-		else if (evaluateByStatements.empty)
-				error("evaluateBy() method must be called explicitly",
-						decisionPoint, decisionPoint.getNameStructuralFeature)
-
-		if (compareTopsStatements.size > 1)
-			for (statement : compareTopsStatements)
-				error("Multiple compareTops() calls are not allowed",
-						statement, statement.getNameStructuralFeature)
-		else if (compareTopsStatements.empty)
-				error("compareTops() method must be called explicitly",
-						decisionPoint, decisionPoint.getNameStructuralFeature)
-	}
-
-	@Check
-	def checkSearchPatternType(DecisionPointSearch search)
-	{
-		val activities = search.activities
-
-		for (activity : activities) {
-			val pattern = activity.pattern
-			if (pattern.type != PatternType.RULE) {
-				error("Invalid pattern name: " + pattern.name + " - only Rule pattern type allowed",
-					RaoPackage.eINSTANCE.decisionPoint_Name)
-			}
+				RaoPackage.eINSTANCE.relevantResource_Name
 		}
 	}
 }

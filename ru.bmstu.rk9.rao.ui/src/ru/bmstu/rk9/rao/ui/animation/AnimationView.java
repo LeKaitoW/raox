@@ -28,7 +28,7 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.part.ViewPart;
 
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
-import ru.bmstu.rk9.rao.lib.animation.BackgroundData;
+import ru.bmstu.rk9.rao.lib.animation.Background;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 import ru.bmstu.rk9.rao.ui.simulation.SimulationModeDispatcher;
 import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer.ExecutionMode;
@@ -62,7 +62,7 @@ public class AnimationView extends ViewPart {
 	private static void setCurrentFrame(AnimationFrame frame) {
 		currentFrame = frame;
 
-		BackgroundData backgroundData = frame.getBackgroundData();
+		Background backgroundData = frame.getBackground();
 
 		setFrameSize(backgroundData.width, backgroundData.height);
 
@@ -84,7 +84,7 @@ public class AnimationView extends ViewPart {
 				selectedFrameIndex = 0;
 
 			for (AnimationFrame frame : frames)
-				frameList.add(frame.getName());
+				frameList.add(frame.getTypeName());
 
 			frameList.setEnabled(true);
 			frameList.setSelection(selectedFrameIndex);
@@ -110,7 +110,9 @@ public class AnimationView extends ViewPart {
 			initializeFrames();
 
 		ExecutionMode currentMode = SimulationModeDispatcher.getMode();
-		setAnimationEnabled(currentMode != ExecutionMode.NO_ANIMATION);
+
+		setAnimationEnabled(true);
+		// setAnimationEnabled(currentMode != ExecutionMode.NO_ANIMATION);
 	}
 
 	public static void deinitialize() {
@@ -141,13 +143,14 @@ public class AnimationView extends ViewPart {
 			}
 		}
 	};
-
 	private static PaintListener painter = new PaintListener() {
 		@Override
 		public void paintControl(PaintEvent e) {
+			realTimeUpdateRunnable.run();
 			if (canDraw()) {
 				if (animationEnabled || !isInitialized)
 					animationContext.drawFrame(e.gc, currentFrame);
+
 			}
 		}
 	};
@@ -190,7 +193,8 @@ public class AnimationView extends ViewPart {
 		Command command = service.getCommand("ru.bmstu.rk9.rao.ui.runtime.setExecutionMode");
 		State state = command.getState("org.eclipse.ui.commands.radioState");
 
-		animationEnabled = !state.getValue().equals("NA");
+		// animationEnabled = !state.getValue().equals("NA");
+		animationEnabled = true;
 
 		AnimationView.parent = parent;
 
