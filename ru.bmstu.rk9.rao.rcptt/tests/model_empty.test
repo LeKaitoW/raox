@@ -7,29 +7,12 @@ Element-Version: 3.0
 External-Reference: 
 Id: _09R9oAo9EeawNbbjvXcveA
 Runtime-Version: 2.0.1.201508250612
-Save-Time: 5/18/16 10:59 AM
+Save-Time: 6/9/16 9:56 PM
 Testcase-Type: ecl
 
 ------=_.content-0a7243a0-75d3-3d5f-9791-539de0e5b7ac
 Content-Type: text/ecl
 Entry-Name: .content
 
-get-menu "File/New/Project..." | click
-with [get-window "New Project"] {
-    with [get-editbox -after [get-label "Wizards:"]] {
-        key-type Enter
-        set-text rao
-    }
-    get-button "Next >" | click
-}
-with [get-window "New Rao Project"] {
-    get-editbox -after [get-label "Project name:"] | set-text "empty"
-    get-button Finish | click
-}
-get-tab-folder -index 4 | get-tab-item Trace | click
-get-button "Execute model empty" | click
-
-get-view Trace | get-table | get-property itemCount | equals 3 | verify-true
-
-
+test_model_template_notrace "Пустая модель" "empty"
 ------=_.content-0a7243a0-75d3-3d5f-9791-539de0e5b7ac--

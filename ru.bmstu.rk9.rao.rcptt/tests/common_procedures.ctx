@@ -1,0 +1,123 @@
+--- RCPTT testcase ---
+Format-Version: 1.0
+Context-Type: org.eclipse.rcptt.ctx.ecl
+Element-Name: common_procedures
+Element-Type: context
+Element-Version: 2.0
+Id: __STS4CBFEeazfLC4KGmVkQ
+Runtime-Version: 2.0.1.201508250612
+Save-Time: 6/9/16 10:11 PM
+
+------=_.ecl.context-718f04b4-ed39-33e3-af62-0995e4561998
+Content-Type: text/ecl
+Entry-Name: .ecl.context
+
+proc open_perspective [val perspective_name] {
+	get-menu "Window/Perspective/Open Perspective/Other..." | click
+	with [get-window "Open Perspective"] {
+		get-table | select $perspective_name
+		get-button OK | click
+	}
+}
+
+proc create_rao_project [val template_name] [val project_name] {
+	get-menu "File/New/Project..." | click
+	with [get-window "New Project"] {
+		with [get-editbox -after [get-label "Wizards:"]] {
+			key-type Enter
+			set-text rao
+		}
+		get-button "Next >" | click
+	}
+
+	with [get-window "New Rao Project"] {
+		get-group Templates | get-button $template_name | click
+		with [get-editbox -after [get-label "Project name:"]] {
+			set-text $project_name
+		}
+		get-button Finish | click
+	}
+}
+
+proc open_rao_perspective {
+	open_perspective Rao
+}
+
+proc open_java_perspective {
+	open_perspective "Java (default)"
+}
+
+proc copy_model [val model_name] {
+	to-clipboard [read-file -uri [concat "workspace:/etalon/" $model_name ".rao.template"]]
+
+	with [get-editor [concat $model_name ".rao"]] {
+		get-editbox | get-menu Paste | click
+		get-text-viewer | key-type "M1+s"
+	}
+}
+
+proc enable_monitoring [val model_name] {
+	with [get-view "Monitoring Configuration" | get-tree] {
+		get-item $model_name | check
+	}
+}
+
+proc compare_trace [val model_name] {
+	get-menu "Model/Export Trace Output/Regular" | click
+
+	read-file -uri [concat "workspace:/" $model_name "/" $model_name ".trc"] | equals [read-file -uri [concat "worksp" +
+		"ace:/etalon/" $model_name ".trc.etalon"]] | verify-true
+}
+
+proc execute_model [val model_name] {
+	get-button [concat "Execute model " $model_name] | click
+}
+
+proc test_model_template_notrace [val template_name] [val model_name] {
+	open_rao_perspective
+
+	create_rao_project $template_name $model_name
+
+	execute_model $model_name
+
+	get-view Trace | get-table | get-property itemCount | equals 3 | verify-true
+}
+
+proc test_model_template_trace [val template_name] [val model_name] {
+	open_rao_perspective
+
+	create_rao_project $template_name $model_name
+
+	enable_monitoring $model_name
+
+	execute_model $model_name
+
+	compare_trace $model_name
+}
+
+proc test_model_source_notrace [val model_name] {
+	open_rao_perspective
+
+	create_rao_project "Пустая модель" $model_name
+
+	copy_model $model_name
+
+	execute_model $model_name
+
+	get-view Trace | get-table | get-property itemCount | equals 3 | verify-true
+}
+
+proc test_model_source_trace [val model_name] {
+	open_rao_perspective
+
+	create_rao_project "Пустая модель" $model_name
+
+	copy_model $model_name
+
+	enable_monitoring $model_name
+
+	execute_model $model_name
+
+	compare_trace $model_name
+}
+------=_.ecl.context-718f04b4-ed39-33e3-af62-0995e4561998--
