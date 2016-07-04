@@ -60,10 +60,10 @@ public class Database {
 		INT(TypeSize.INT, "int", "Integer"), DOUBLE(TypeSize.DOUBLE, "double", "Double"), BOOLEAN(TypeSize.BYTE,
 				"boolean", "Boolean"), OTHER(0, "", "");
 
-		DataType(int size, String namePrivitive, String nameObject) {
+		DataType(int size, String namePrivitive, String nameClass) {
 			this.size = size;
 			this.namePrimitive = namePrivitive;
-			this.nameObject = nameObject;
+			this.nameClass = nameClass;
 		}
 
 		public final int getSize() {
@@ -72,7 +72,7 @@ public class Database {
 
 		public static final DataType getByName(String name) {
 			for (final DataType t : values()) {
-				if (t.namePrimitive.equals(name) || t.nameObject.equals(name))
+				if (t.namePrimitive.equals(name) || t.nameClass.equals(name))
 					return t;
 			}
 
@@ -80,7 +80,7 @@ public class Database {
 		}
 
 		private final String namePrimitive;
-		private final String nameObject;
+		private final String nameClass;
 		private final int size;
 	}
 

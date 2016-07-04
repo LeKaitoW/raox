@@ -148,7 +148,8 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 					size = size + param.getSize()
 				}
 				val fixedWidthParametersSize = size
-				val variableWidthParameters = resourceType.parameters.filter[p|!p.isFixedWidth]
+				val variableWidthParameters = resourceType.parameters.filter[!isFixedWidth]
+				val fixedWidthParameters = resourceType.parameters.filter[isFixedWidth]
 
 				body = '''
 					int _totalSize = «fixedWidthParametersSize»;
@@ -166,7 +167,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 
 					ByteBuffer buffer = ByteBuffer.allocate(_totalSize);
 
-					«FOR param : resourceType.parameters.filter[p | p.isFixedWidth]»
+					«FOR param : fixedWidthParameters»
 						buffer.«param.serializeAsFixedWidth»;
 					«ENDFOR»
 
@@ -207,7 +208,8 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 			members += resourceType.toMethod("getAccessible", typeRef(Collection, {
 				typeRef
 			})) [
-				visibility = JvmVisibility.PUBLIC
+				visibility = JvmVisibility.
+					PUBLIC
 				final = true
 				static = true
 				body = '''
@@ -217,39 +219,26 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 		]
 	}
 
-	// TODO cleaner approach?
 	def private static getSize(FieldDeclaration param) {
-		switch param.declaration.parameterType.simpleName {
-			case "int",
-			case "Integer":
-				return 4
-			case "double",
-			case "Double":
-				return 8
-			case "boolean",
-			case "Boolean":
-				return 1
-		}
-
-		return 0
+		return DataType.getByName(param.declaration.parameterType.simpleName).size
 	}
 
 	def private static isFixedWidth(FieldDeclaration param) {
 		return param.getSize != 0
 	}
 
-	// TODO cleaner approach?
 	def private static serializeAsFixedWidth(FieldDeclaration param) {
-		switch param.declaration.parameterType.simpleName {
-			case "int",
-			case "Integer":
+		val type = DataType.getByName(param.declaration.parameterType.
+			simpleName)
+		switch type {
+			case INT:
 				return '''putInt(_«param.declaration.name»)'''
-			case "double",
-			case "Double":
+			case DOUBLE:
 				return '''putDouble(_«param.declaration.name»)'''
-			case "boolean",
-			case "Boolean":
-				return '''put(_«param.declaration.name» ? (byte)1 : (byte)0);'''
+			case BOOLEAN:
+				return '''put(_«param.declaration.name» ? (byte)1 : (byte)0)'''
+			default:
+				return '''/* INTERNAL ERROR: attempting to serialize type «param.declaration.parameterType.simpleName» as fixed width type */'''
 		}
 	}
 }
