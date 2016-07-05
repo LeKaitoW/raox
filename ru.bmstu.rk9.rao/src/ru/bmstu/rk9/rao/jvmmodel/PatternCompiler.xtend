@@ -214,11 +214,11 @@ class PatternCompiler extends RaoEntityCompiler {
 
 	def static private getPatternMethodTypeRef(String name) {
 		switch name {
-			case DefaultMethodsHelper.OperationMethodInfo.BEGIN,
-			case DefaultMethodsHelper.OperationMethodInfo.END,
-			case DefaultMethodsHelper.RuleMethodInfo.EXECUTE:
+			case DefaultMethodsHelper.OperationMethodInfo.BEGIN.name,
+			case DefaultMethodsHelper.OperationMethodInfo.END.name,
+			case DefaultMethodsHelper.RuleMethodInfo.EXECUTE.name:
 				return typeRef(void)
-			case DefaultMethodsHelper.OperationMethodInfo.DURATION:
+			case DefaultMethodsHelper.OperationMethodInfo.DURATION.name:
 				return typeRef(double)
 		}
 
