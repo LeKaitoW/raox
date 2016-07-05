@@ -15,7 +15,7 @@ class EnumCompiler extends RaoEntityCompiler {
 			visibility = JvmVisibility.PUBLIC
 			static = true
 			enumDeclaration.values.forEach [ value |
-				members += enumDeclaration.toEnumerationLiteral(value)
+				members += value.toEnumerationLiteral(value.name)
 			]
 		]
 	}
