@@ -11,8 +11,9 @@ import ru.bmstu.rk9.rao.lib.result.ResultMode
 import ru.bmstu.rk9.rao.lib.result.Statistics
 import ru.bmstu.rk9.rao.validation.DefaultMethodsHelper.ResultTypeMethodInfo
 import org.eclipse.xtext.common.types.JvmTypeReference
+import ru.bmstu.rk9.rao.rao.Result
 
-class ResultTypeCompiler extends RaoEntityCompiler {
+class ResultCompiler extends RaoEntityCompiler {
 	def static asClass(ResultType result, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
 		JvmDeclaredType it, boolean isPreIndexingPhase) {
 			
@@ -106,5 +107,15 @@ class ResultTypeCompiler extends RaoEntityCompiler {
 			}
 		]
 			
+	}
+	
+	def static asField(Result result, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
+		JvmDeclaredType it, boolean isPreIndexingPhase) {
+		return toField(result.name, result.constructor.inferredType) [
+			visibility = JvmVisibility.PUBLIC
+			static = true
+			final = true
+			initializer = result.constructor
+		]
 	}
 }

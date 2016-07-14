@@ -33,7 +33,7 @@ import static extension ru.bmstu.rk9.rao.jvmmodel.PatternCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.ResourceDeclarationCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.ResourceTypeCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.SearchCompiler.*
-import static extension ru.bmstu.rk9.rao.jvmmodel.ResultTypeCompiler.*
+import static extension ru.bmstu.rk9.rao.jvmmodel.ResultCompiler.*
 import static extension ru.bmstu.rk9.rao.naming.RaoNaming.*
 import ru.bmstu.rk9.rao.rao.EntityCreation
 import org.eclipse.xtext.common.types.JvmVisibility
@@ -107,12 +107,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 
 	def dispatch compileRaoEntity(Result result, JvmDeclaredType it, boolean isPreIndexingPhase) {
 		if (!isPreIndexingPhase && result.constructor != null)
-			members += result.toField(result.name, result.constructor.inferredType) [
-				visibility = JvmVisibility.PUBLIC
-				static = true
-				final = true
-				initializer = result.constructor
-			]
+			members += result.asField(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase);
 	}
 
 	def compileResourceInitialization(RaoModel element, JvmDeclaredType it, boolean isPreIndexingPhase) {
