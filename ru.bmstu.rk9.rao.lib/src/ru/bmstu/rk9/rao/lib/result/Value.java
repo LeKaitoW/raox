@@ -35,5 +35,4 @@ public class Value<T> extends Result<T> {
 	public boolean condition() {
 		return condition.get();
 	}
-
 }
