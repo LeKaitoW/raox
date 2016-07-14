@@ -18,12 +18,8 @@ import ru.bmstu.rk9.rao.rao.RaoModel
 import ru.bmstu.rk9.rao.rao.ResourceDeclaration
 import ru.bmstu.rk9.rao.rao.ResourceType
 import ru.bmstu.rk9.rao.rao.Search
-import java.util.Collection
 import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.ResultType
-import ru.bmstu.rk9.rao.lib.result.ResultMode
-import ru.bmstu.rk9.rao.lib.result.Statistics
-import org.eclipse.xtext.common.types.JvmTypeReference
 
 import static extension ru.bmstu.rk9.rao.jvmmodel.DefaultMethodCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.EntityCreationCompiler.*
@@ -37,6 +33,7 @@ import static extension ru.bmstu.rk9.rao.jvmmodel.PatternCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.ResourceDeclarationCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.ResourceTypeCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.SearchCompiler.*
+import static extension ru.bmstu.rk9.rao.jvmmodel.ResultTypeCompiler.*
 import static extension ru.bmstu.rk9.rao.naming.RaoNaming.*
 import ru.bmstu.rk9.rao.rao.EntityCreation
 import org.eclipse.xtext.common.types.JvmVisibility
@@ -105,96 +102,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	def dispatch compileRaoEntity(ResultType result, JvmDeclaredType it, boolean isPreIndexingPhase) {
-
-		members += result.toClass(QualifiedName.create(qualifiedName, result.name)) [
-			static = true
-			superTypes += typeRef(ru.bmstu.rk9.rao.lib.result.Result, {result.evaluateType})
-
-			members += result.toConstructor [
-				visibility = JvmVisibility.PRIVATE
-				for (param : result.parameters)
-					parameters += param.toParameter(param.name, param.parameterType)
-				parameters += result.toParameter("resultMode", typeRef(ResultMode))
-				parameters += result.toParameter("statistics", typeRef(Statistics, {result.evaluateType}))
-				body = '''
-					«FOR param : parameters»this.«param.name» = «param.name»;
-					«ENDFOR»
-				'''
-			]
-			
-			members += result.toConstructor [
-				visibility = JvmVisibility.PRIVATE
-				for (param : result.parameters)
-					parameters += param.toParameter(param.name, param.parameterType)
-				parameters += result.toParameter("resultMode", typeRef(ResultMode))
-				body = '''
-					this(«FOR param : parameters»«param.name», «ENDFOR»getDefaultStatistics());
-				'''
-			]
-			
-			members += result.toConstructor [
-				visibility = JvmVisibility.PRIVATE
-				for (param : result.parameters)
-					parameters += param.toParameter(param.name, param.parameterType)
-				parameters += result.toParameter("statistics", typeRef(Statistics, {result.evaluateType}))
-				body = '''
-					this(«FOR param : result.parameters»«param.name», «ENDFOR»ResultMode.AUTO, statistics);
-				'''
-				
-			]
-			
-			members += result.toConstructor [
-				visibility = JvmVisibility.PRIVATE
-				for (param : result.parameters)
-					parameters += param.toParameter(param.name, param.parameterType)
-				body = '''
-					this(«FOR param : parameters»«param.name», «ENDFOR»ResultMode.AUTO, getDefaultStatistics());
-				'''
-			]
-
-			members += result.toMethod("getDefaultStatistics", typeRef(Statistics, {result.evaluateType})) [
-				val evaluateType = result.evaluateType.type;
-				visibility = JvmVisibility.PUBLIC
-				final = true
-				static = true
-				body = '''
-					if (Number.class.isAssignableFrom(«evaluateType».class))
-						return new ru.bmstu.rk9.rao.lib.result.StorelessNumericStatistics<«evaluateType»>();
-					else if (Enum.class.isAssignableFrom(«evaluateType».class) ||
-							String.class.isAssignableFrom(«evaluateType».class) ||
-							Boolean.class.isAssignableFrom(«evaluateType».class))
-						return new ru.bmstu.rk9.rao.lib.result.CategoricalStatistics<«evaluateType»>();
-					else
-						return new ru.bmstu.rk9.rao.lib.result.ValueStatistics<«evaluateType»>();
-				'''
-			]
-
-			for (param : result.parameters)
-				members += param.toField(param.name, param.parameterType)
-
-			if (!isPreIndexingPhase) {
-				for (method : result.defaultMethods) {
-
-					var JvmTypeReference defaultMethodReturnType;
-
-					switch (method.name) {
-						case "evaluate": {
-							defaultMethodReturnType = result.evaluateType;
-						}
-						case "condition": {
-							defaultMethodReturnType = typeRef(boolean);
-						}
-					}
-
-					members += method.toMethod(method.name, defaultMethodReturnType) [
-						visibility = JvmVisibility.PUBLIC
-						final = true
-						annotations += overrideAnnotation()
-						body = method.body
-					]
-				}
-			}
-		]
+		members += result.asClass(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase);
 	}
 
 	def dispatch compileRaoEntity(Result result, JvmDeclaredType it, boolean isPreIndexingPhase) {
@@ -210,5 +118,4 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 	def compileResourceInitialization(RaoModel element, JvmDeclaredType it, boolean isPreIndexingPhase) {
 		members += element.asGlobalInitializationMethod(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase)
 	}
-
 }
