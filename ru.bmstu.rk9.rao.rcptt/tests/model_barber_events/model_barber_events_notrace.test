@@ -1,47 +1,19 @@
 --- RCPTT testcase ---
 Format-Version: 1.0
-Contexts: _uIJHwByGEea5c-Q90PErIw
+Contexts: _T6b1UCAWEeaQGMj4bM5PKw
 Element-Name: model_barber_events_notrace
 Element-Type: testcase
 Element-Version: 3.0
 External-Reference: 
 Id: _NH8IgBzOEeaxmeQsp9nqWw
 Runtime-Version: 2.0.1.201508250612
-Save-Time: 5/22/16 3:18 PM
+Save-Time: 6/9/16 10:41 PM
 Testcase-Type: ecl
 
 ------=_.content-0a7243a0-75d3-3d5f-9791-539de0e5b7ac
 Content-Type: text/ecl
 Entry-Name: .content
 
-get-menu "Window/Perspective/Open Perspective/Other..." | click
-with [get-window "Open Perspective"] {
-    get-table | select "Rao"
-    get-button OK | click
-}
-
-get-menu "File/New/Project..." | click
-with [get-window "New Project"] {
-    with [get-editbox -after [get-label "Wizards:"]] {
-        key-type Enter
-        set-text rao
-    }
-    get-button "Next >" | click
-}
-
-with [get-window "New Rao Project"] {
-    get-group Templates | get-button "Модель простейшей СМО на событиях" | click
-    with [get-editbox -after [get-label "Project name:"]] {
-        set-text "barber_events"
-    }
-    get-button Finish | click
-}
-
-get-tab-folder -index 4 | get-tab-item Trace | click
-get-button "Execute model barber_events" | click
-
-get-view Trace | get-table | get-property itemCount | equals 3 | verify-true
-
-
+test_model_template_notrace "Модель простейшей СМО на событиях" "barber_events"
 
 ------=_.content-0a7243a0-75d3-3d5f-9791-539de0e5b7ac--

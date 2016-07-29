@@ -1,0 +1,48 @@
+ES 0.0 Tracing started
+RC 0.0 triangular_sequence.triangular_sequence.r = {0.0}
+ES 0.0 Simulation started
+EI 0.0 triangular_sequence.triangular_sequence.E[0]
+RK 0.0 triangular_sequence.triangular_sequence.r = {115.40025338496667}
+EI 5.0 triangular_sequence.triangular_sequence.E[1]
+RK 5.0 triangular_sequence.triangular_sequence.r = {107.64054728612834}
+EI 10.0 triangular_sequence.triangular_sequence.E[2]
+RK 10.0 triangular_sequence.triangular_sequence.r = {114.59969847425738}
+EI 15.0 triangular_sequence.triangular_sequence.E[3]
+RK 15.0 triangular_sequence.triangular_sequence.r = {94.54682732880183}
+EI 20.0 triangular_sequence.triangular_sequence.E[4]
+RK 20.0 triangular_sequence.triangular_sequence.r = {104.42706027059472}
+EI 25.0 triangular_sequence.triangular_sequence.E[5]
+RK 25.0 triangular_sequence.triangular_sequence.r = {104.47427171450671}
+EI 30.0 triangular_sequence.triangular_sequence.E[6]
+RK 30.0 triangular_sequence.triangular_sequence.r = {114.36463836959503}
+EI 35.0 triangular_sequence.triangular_sequence.E[7]
+RK 35.0 triangular_sequence.triangular_sequence.r = {119.41643349425367}
+EI 40.0 triangular_sequence.triangular_sequence.E[8]
+RK 40.0 triangular_sequence.triangular_sequence.r = {84.70339937181379}
+EI 45.0 triangular_sequence.triangular_sequence.E[9]
+RK 45.0 triangular_sequence.triangular_sequence.r = {106.64253263660079}
+EI 50.0 triangular_sequence.triangular_sequence.E[10]
+RK 50.0 triangular_sequence.triangular_sequence.r = {116.26635511026976}
+EI 55.0 triangular_sequence.triangular_sequence.E[11]
+RK 55.0 triangular_sequence.triangular_sequence.r = {117.01394715396606}
+EI 60.0 triangular_sequence.triangular_sequence.E[12]
+RK 60.0 triangular_sequence.triangular_sequence.r = {92.82418911137208}
+EI 65.0 triangular_sequence.triangular_sequence.E[13]
+RK 65.0 triangular_sequence.triangular_sequence.r = {91.69605938369902}
+EI 70.0 triangular_sequence.triangular_sequence.E[14]
+RK 70.0 triangular_sequence.triangular_sequence.r = {118.0117810907254}
+EI 75.0 triangular_sequence.triangular_sequence.E[15]
+RK 75.0 triangular_sequence.triangular_sequence.r = {81.11083465687247}
+EI 80.0 triangular_sequence.triangular_sequence.E[16]
+RK 80.0 triangular_sequence.triangular_sequence.r = {95.83217428030207}
+EI 85.0 triangular_sequence.triangular_sequence.E[17]
+RK 85.0 triangular_sequence.triangular_sequence.r = {121.74779194164307}
+EI 90.0 triangular_sequence.triangular_sequence.E[18]
+RK 90.0 triangular_sequence.triangular_sequence.r = {118.2397137148002}
+EI 95.0 triangular_sequence.triangular_sequence.E[19]
+RK 95.0 triangular_sequence.triangular_sequence.r = {110.36997489654638}
+EI 100.0 triangular_sequence.triangular_sequence.E[20]
+RK 100.0 triangular_sequence.triangular_sequence.r = {105.17561916929645}
+EI 105.0 triangular_sequence.triangular_sequence.E[21]
+RK 105.0 triangular_sequence.triangular_sequence.r = {119.25658136174467}
+ES 105.0 Simulation finished: terminate condition

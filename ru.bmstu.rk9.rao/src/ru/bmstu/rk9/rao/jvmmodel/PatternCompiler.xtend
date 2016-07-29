@@ -10,6 +10,7 @@ import ru.bmstu.rk9.rao.rao.Pattern
 import ru.bmstu.rk9.rao.rao.PatternType
 
 import static extension ru.bmstu.rk9.rao.jvmmodel.TupleInfoFactory.*
+import ru.bmstu.rk9.rao.validation.DefaultMethodsHelper
 
 class PatternCompiler extends RaoEntityCompiler {
 	def static asClass(Pattern pattern, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
@@ -211,14 +212,13 @@ class PatternCompiler extends RaoEntityCompiler {
 		]
 	}
 
-	// FIXME ugly
 	def static private getPatternMethodTypeRef(String name) {
 		switch name {
-			case "execute",
-			case "begin",
-			case "end":
+			case DefaultMethodsHelper.OperationMethodInfo.BEGIN.name,
+			case DefaultMethodsHelper.OperationMethodInfo.END.name,
+			case DefaultMethodsHelper.RuleMethodInfo.EXECUTE.name:
 				return typeRef(void)
-			case "duration":
+			case DefaultMethodsHelper.OperationMethodInfo.DURATION.name:
 				return typeRef(double)
 		}
 

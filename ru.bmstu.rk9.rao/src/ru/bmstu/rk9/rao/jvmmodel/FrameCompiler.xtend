@@ -8,6 +8,7 @@ import ru.bmstu.rk9.rao.rao.Frame;
 import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.common.types.JvmVisibility
 import ru.bmstu.rk9.rao.lib.animation.AnimationContext
+import ru.bmstu.rk9.rao.validation.DefaultMethodsHelper
 
 class FrameCompiler extends RaoEntityCompiler {
 	def static asClass(Frame frame, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
@@ -31,7 +32,7 @@ class FrameCompiler extends RaoEntityCompiler {
 
 			for (method : frame.defaultMethods) {
 				members += method.toMethod(method.name, typeRef(void)) [
-					if (method.name == "draw")
+					if (method.name == DefaultMethodsHelper.FrameMethodInfo.DRAW.name)
 						parameters += frame.toParameter("it", typeRef(AnimationContext))
 					visibility = JvmVisibility.PUBLIC
 					final = true

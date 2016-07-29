@@ -144,8 +144,11 @@ Frame:
 	'}'
 ;
 
+EnumerationLiteral:
+	name = ID;
+
 EnumDeclaration:
-	'enum' name = ID '{' values += ID (',' values += ID)* '}'
+	'enum' name = ID '{' values += EnumerationLiteral (',' values += EnumerationLiteral)* '}'
 ;
 
 DefaultMethod:
