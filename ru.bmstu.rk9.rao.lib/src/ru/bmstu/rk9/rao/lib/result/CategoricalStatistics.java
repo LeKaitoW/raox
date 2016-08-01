@@ -43,7 +43,10 @@ public class CategoricalStatistics<T> extends Statistics<T> {
 			statisticsDataset.put(value, data);
 		}
 
-		addState(lastValue, currentTime - lastFlipTime);
+		if (lastValue != null) {
+			addState(lastValue, currentTime - lastFlipTime);
+		}
+
 		lastValue = value;
 		lastFlipTime = currentTime;
 	}
