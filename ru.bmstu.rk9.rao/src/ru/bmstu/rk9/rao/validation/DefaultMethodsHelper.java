@@ -74,4 +74,16 @@ public class DefaultMethodsHelper {
 		public final String name;
 		final ValidatorAction validatorAction;
 	}
+	
+	public static enum ResultTypeMethodInfo {
+		EVALUATE("evaluate", ValidatorAction.NOTHING), CONDITION("condition", ValidatorAction.NOTHING);
+
+		ResultTypeMethodInfo(String name, ValidatorAction validatorAction) {
+			this.name = name;
+			this.validatorAction = validatorAction;
+		}
+
+		public final String name;
+		final ValidatorAction validatorAction;
+	}
 }

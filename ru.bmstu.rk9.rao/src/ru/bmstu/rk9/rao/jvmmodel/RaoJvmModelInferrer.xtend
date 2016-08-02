@@ -7,7 +7,6 @@ import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import ru.bmstu.rk9.rao.rao.DefaultMethod
-import ru.bmstu.rk9.rao.rao.EntityCreation
 import ru.bmstu.rk9.rao.rao.EnumDeclaration
 import ru.bmstu.rk9.rao.rao.Event
 import ru.bmstu.rk9.rao.rao.Frame
@@ -19,6 +18,8 @@ import ru.bmstu.rk9.rao.rao.RaoModel
 import ru.bmstu.rk9.rao.rao.ResourceDeclaration
 import ru.bmstu.rk9.rao.rao.ResourceType
 import ru.bmstu.rk9.rao.rao.Search
+import ru.bmstu.rk9.rao.rao.Result
+import ru.bmstu.rk9.rao.rao.ResultType
 
 import static extension ru.bmstu.rk9.rao.jvmmodel.DefaultMethodCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.EntityCreationCompiler.*
@@ -32,7 +33,10 @@ import static extension ru.bmstu.rk9.rao.jvmmodel.PatternCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.ResourceDeclarationCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.ResourceTypeCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.SearchCompiler.*
+import static extension ru.bmstu.rk9.rao.jvmmodel.ResultCompiler.*
 import static extension ru.bmstu.rk9.rao.naming.RaoNaming.*
+import ru.bmstu.rk9.rao.rao.EntityCreation
+import org.eclipse.xtext.common.types.JvmVisibility
 
 class RaoJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder jvmTypesBuilder
@@ -95,6 +99,15 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 	def dispatch compileRaoEntity(ResourceDeclaration resource, JvmDeclaredType it, boolean isPreIndexingPhase) {
 		members += resource.asInitializationMethod(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase)
 		members += resource.asGetter(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase)
+	}
+
+	def dispatch compileRaoEntity(ResultType result, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		members += result.asClass(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase);
+	}
+
+	def dispatch compileRaoEntity(Result result, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		if (!isPreIndexingPhase && result.constructor != null)
+			members += result.asField(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase);
 	}
 
 	def compileResourceInitialization(RaoModel element, JvmDeclaredType it, boolean isPreIndexingPhase) {

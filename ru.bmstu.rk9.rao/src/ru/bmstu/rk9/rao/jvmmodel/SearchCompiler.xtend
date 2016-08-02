@@ -8,7 +8,7 @@ import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.common.types.JvmVisibility
 
 class SearchCompiler extends RaoEntityCompiler {
-def static asClass(Search search, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
+	def static asClass(Search search, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
 		JvmDeclaredType it, boolean isPreIndexingPhase) {
 		initializeCurrent(jvmTypesBuilder, typeReferenceBuilder);
 

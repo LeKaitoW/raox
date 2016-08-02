@@ -34,6 +34,7 @@ import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -614,30 +615,4 @@ public class Database {
 		final private String type;
 	}
 
-	public final void addResultEntry(final Result result) {
-		final String name = result.getName();
-		if (!sensitivityList.contains(name))
-			return;
-
-		final Index index = indexHelper.getResult(name).getIndex();
-
-		final ByteBuffer data = result.serialize();
-		if (!index.isEmpty()) {
-			final ByteBuffer lastResultValue = allEntries
-					.get(index.getEntryNumbers().get(index.getEntryNumbers().size() - 1)).data.duplicate();
-			final ByteBuffer currentResultValue = data.duplicate();
-			currentResultValue.rewind();
-			lastResultValue.rewind();
-			if (currentResultValue.compareTo(lastResultValue) == 0)
-				return;
-		}
-
-		final ByteBuffer header = ByteBuffer.allocate(EntryType.RESULT.HEADER_SIZE);
-		header.put((byte) EntryType.RESULT.ordinal()).putDouble(CurrentSimulator.getTime()).putInt(index.getNumber());
-
-		final Entry entry = new Entry(header, data);
-
-		addEntry(entry);
-		index.getEntryNumbers().add(allEntries.size() - 1);
-	}
 }

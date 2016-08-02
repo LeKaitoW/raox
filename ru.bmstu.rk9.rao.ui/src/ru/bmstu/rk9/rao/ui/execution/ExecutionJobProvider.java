@@ -13,7 +13,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
 
-import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
@@ -58,7 +57,6 @@ public class ExecutionJobProvider {
 				ExportTraceHandler.reset();
 				ExportTraceHandler.setCurrentProject(project);
 				SerializationConfigView.initNames();
-				List<Result> results = new LinkedList<Result>();
 
 				CurrentSimulator.set(new Simulator());
 
@@ -123,10 +121,7 @@ public class ExecutionJobProvider {
 					break;
 				}
 
-				for (Result result : results)
-					result.calculate();
-
-				display.asyncExec(() -> ResultsView.setResults(results));
+				display.asyncExec(() -> ResultsView.setResults(CurrentSimulator.getResults()));
 
 				ConsoleView.addLine("Time elapsed: " + String.valueOf(System.currentTimeMillis() - startTime) + "ms");
 

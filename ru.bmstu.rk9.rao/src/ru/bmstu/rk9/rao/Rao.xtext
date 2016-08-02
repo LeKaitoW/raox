@@ -20,6 +20,7 @@ RaoEntity
 	| Event
 	| Pattern
 	| Frame
+	| ResultType
 	| Result
 	| DefaultMethod
 	| EnumDeclaration
@@ -123,9 +124,18 @@ FunctionDeclaration:
 	')' body = XBlockExpression
 ;
 
-// TODO
+ResultType:
+	'resultType' name = ID '<' evaluateType = JvmTypeReference '>' '('
+		(parameters += FullJvmFormalParameter (
+			',' parameters += FullJvmFormalParameter)*)?
+	')' '{'
+
+		defaultMethods += DefaultMethod*
+	'}'
+;
+
 Result:
-	'result' name = ID
+	'result' name = ID '=' constructor = XOrExpression ';'?
 ;
 
 Frame:

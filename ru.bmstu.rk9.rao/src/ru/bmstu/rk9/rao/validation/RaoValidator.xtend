@@ -34,6 +34,7 @@ import java.util.HashSet
 import ru.bmstu.rk9.rao.rao.Activity
 import ru.bmstu.rk9.rao.rao.Edge
 import ru.bmstu.rk9.rao.rao.Event
+import ru.bmstu.rk9.rao.rao.ResultType
 
 class RaoValidator extends AbstractRaoValidator
 {
@@ -126,6 +127,18 @@ class RaoValidator extends AbstractRaoValidator
 			)
 
 		checkDefaultMethodCountGeneric(search, search.defaultMethods, counts)
+	}
+
+	@Check
+	def checkDefaultMethodResultTypeCount(ResultType resultType) {
+		var Map<String, DefaultMethodsHelper.MethodInfo> counts = new HashMap<String, DefaultMethodsHelper.MethodInfo>()
+		for (value : DefaultMethodsHelper.ResultTypeMethodInfo.values)
+			counts.put(
+				value.name,
+				new DefaultMethodsHelper.MethodInfo(value.validatorAction)
+			)
+
+		checkDefaultMethodCountGeneric(resultType, resultType.defaultMethods, counts)
 	}
 
 	@Check
