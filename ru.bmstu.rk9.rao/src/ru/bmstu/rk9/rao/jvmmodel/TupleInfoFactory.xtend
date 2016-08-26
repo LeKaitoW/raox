@@ -42,7 +42,7 @@ class TupleInfoFactory extends RaoEntityCompiler {
 
 			for (name : tuple.names) {
 				val index = tuple.names.indexOf(name)
-				val paramName = "_r" + index
+				val paramName = createTupleParameterName(index)
 				val typeParameter = createTypeParameter(name)
 				val staticTypeParameter = createTypeParameter(name)
 				tupleInfo.genericTupleInfo.typeReferencesArray.set(index, typeRef(typeParameter))
@@ -63,9 +63,17 @@ class TupleInfoFactory extends RaoEntityCompiler {
 		constraint.typeReference = typeRef(ru.bmstu.rk9.rao.lib.resource.ComparableResource, {
 			typeRef(typeParameter)
 		})
-		typeParameter.name = name.toFirstUpper
+		typeParameter.name = ru.bmstu.rk9.rao.jvmmodel.TupleInfoFactory.createTupleGenericTypeName(name)
 		typeParameter.constraints += constraint
 
 		return typeParameter
+	}
+
+	def static createTupleParameterName(int index) {
+		return "__r" + index
+	}
+
+	def static createTupleGenericTypeName(String name) {
+		return "__TupleType" + name.toFirstUpper
 	}
 }

@@ -35,6 +35,7 @@ import ru.bmstu.rk9.rao.rao.Activity
 import ru.bmstu.rk9.rao.rao.Edge
 import ru.bmstu.rk9.rao.rao.Event
 import ru.bmstu.rk9.rao.rao.ResultType
+import ru.bmstu.rk9.rao.rao.RelevantResourceTuple
 
 class RaoValidator extends AbstractRaoValidator
 {
@@ -227,6 +228,14 @@ class RaoValidator extends AbstractRaoValidator
 							tuple.getNameStructuralFeature)
 				}
 			}
+		}
+	}
+
+	@Check
+	def checkRelevantTuplesCount(RelevantResourceTuple tuple) {
+		if (tuple.names.size != tuple.types.size) {
+			error("Error - numbers of names and types declarations should be equal for relevant set", tuple,
+							tuple.getNameStructuralFeature)
 		}
 	}
 

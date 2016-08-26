@@ -1,8 +1,5 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -25,7 +22,8 @@ import ru.bmstu.rk9.rao.ui.trace.ExportTraceHandler;
 
 @SuppressWarnings("restriction")
 public class ExecutionJobProvider {
-	public ExecutionJobProvider(final IProject project, IResourceSetProvider resourceSetProvider, IBatchTypeResolver typeResolver) {
+	public ExecutionJobProvider(final IProject project, IResourceSetProvider resourceSetProvider,
+			IBatchTypeResolver typeResolver) {
 		this.project = project;
 		this.resourceSetProvider = resourceSetProvider;
 		this.typeResolver = typeResolver;
@@ -40,7 +38,8 @@ public class ExecutionJobProvider {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				final Display display = PlatformUI.getWorkbench().getDisplay();
-				final ModelInternalsParser parser = new ModelInternalsParser(project, resourceSetProvider, typeResolver);
+				final ModelInternalsParser parser = new ModelInternalsParser(project, resourceSetProvider,
+						typeResolver);
 
 				ConsoleView.clearConsoleText();
 

@@ -36,7 +36,6 @@ import static extension ru.bmstu.rk9.rao.jvmmodel.SearchCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.ResultCompiler.*
 import static extension ru.bmstu.rk9.rao.naming.RaoNaming.*
 import ru.bmstu.rk9.rao.rao.EntityCreation
-import org.eclipse.xtext.common.types.JvmVisibility
 
 class RaoJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder jvmTypesBuilder

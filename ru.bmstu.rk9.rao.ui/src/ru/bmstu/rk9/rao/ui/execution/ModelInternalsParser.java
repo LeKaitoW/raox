@@ -18,6 +18,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.xtext.common.types.JvmTypeReference;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.xbase.XExpression;
 import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
@@ -34,16 +35,17 @@ import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.lib.naming.RaoNameable;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
-import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.result.Result;
 
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
+import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.rao.PatternType;
 import ru.bmstu.rk9.rao.rao.RaoEntity;
 import ru.bmstu.rk9.rao.rao.RaoModel;
 import ru.bmstu.rk9.rao.rao.RelevantResource;
+import ru.bmstu.rk9.rao.rao.RelevantResourceTuple;
 
 @SuppressWarnings("restriction")
 public class ModelInternalsParser {
@@ -51,10 +53,11 @@ public class ModelInternalsParser {
 	private final SimulatorInitializationInfo simulatorInitializationInfo = new SimulatorInitializationInfo();
 	private final List<Class<?>> decisionPointClasses = new ArrayList<>();
 	private final List<Class<?>> animationClasses = new ArrayList<>();
+	private final List<Class<?>> tupleClasses = new ArrayList<>();
 	private final List<Field> nameableFields = new ArrayList<>();
 	private final List<AnimationFrame> animationFrames = new ArrayList<>();
 	private final List<Field> resultFields = new ArrayList<>();
-	
+
 	private URLClassLoader classLoader;
 	private final IProject project;
 	private final IResourceSetProvider resourceSetProvider;
@@ -181,9 +184,13 @@ public class ModelInternalsParser {
 									NamingHelper.changeDollarToDot(typeReference.getJavaIdentifier())));
 				}
 
-				// TODO
-//				for (RelevantResourceTuple tuple : ((ru.bmstu.rk9.rao.rao.Pattern) entity).getRelevantTuples()) {
-//				}
+				for (RelevantResourceTuple tuple : ((ru.bmstu.rk9.rao.rao.Pattern) entity).getRelevantTuples()) {
+					for (JvmTypeReference tupleType : tuple.getTypes()) {
+						relevantResources.put(new JSONObject().put(ModelStructureConstants.NAME, name).put(
+								ModelStructureConstants.TYPE,
+								NamingHelper.changeDollarToDot(tupleType.getIdentifier())));
+					}
+				}
 
 				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.PATTERNS)
 						.put(new JSONObject().put(ModelStructureConstants.NAME, name)
@@ -284,6 +291,15 @@ public class ModelInternalsParser {
 				animationClasses.add(nestedModelClass);
 				continue;
 			}
+
+			if (Pattern.class.isAssignableFrom(nestedModelClass)) {
+				tupleClasses.add(nestedModelClass);
+				// FIXME this workaround makes sure that nested class in
+				// patterns initialize and get into classloader, proper solution
+				// is needed
+				nestedModelClass.getDeclaredClasses();
+				continue;
+			}
 		}
 
 		for (Field field : modelClass.getDeclaredFields()) {
@@ -294,7 +310,8 @@ public class ModelInternalsParser {
 		}
 	}
 
-	public final void postprocess() throws IllegalArgumentException, IllegalAccessException, InstantiationException {
+	public final void postprocess()
+			throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException {
 		for (Field field : nameableFields) {
 			String name = NamingHelper.createFullNameForField(field);
 			RaoNameable nameable = (RaoNameable) field.get(null);
