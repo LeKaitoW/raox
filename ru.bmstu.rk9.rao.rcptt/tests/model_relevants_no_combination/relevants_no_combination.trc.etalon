@@ -1,0 +1,26 @@
+ES 0.0 Tracing started
+RC 0.0 relevants_no_combination.relevants_no_combination.деталь_1 = {токарная, ожидает_обработки, 10.0}
+RC 0.0 relevants_no_combination.relevants_no_combination.деталь_2 = {токарная, ожидает_обработки, 20.0}
+RC 0.0 relevants_no_combination.relevants_no_combination.деталь_3 = {фрезерная, ожидает_обработки, 40.0}
+RC 0.0 relevants_no_combination.relevants_no_combination.станок_1 = {токарная, свободен}
+RC 0.0 relevants_no_combination.relevants_no_combination.станок_2 = {фрезерная, свободен}
+ES 0.0 Simulation started
+EB 0.0 a[0](relevants_no_combination.relevants_no_combination.деталь_1, relevants_no_combination.relevants_no_combination.станок_1)
+RK 0.0 relevants_no_combination.relevants_no_combination.деталь_1 = {токарная, обрабатывается, 10.0}
+RK 0.0 relevants_no_combination.relevants_no_combination.станок_1 = {токарная, занят}
+EF 10.0 a[0](relevants_no_combination.relevants_no_combination.деталь_1, relevants_no_combination.relevants_no_combination.станок_1)
+RK 10.0 relevants_no_combination.relevants_no_combination.деталь_1 = {токарная, обработана, 10.0}
+RK 10.0 relevants_no_combination.relevants_no_combination.станок_1 = {токарная, свободен}
+EB 10.0 a[1](relevants_no_combination.relevants_no_combination.деталь_2, relevants_no_combination.relevants_no_combination.станок_1)
+RK 10.0 relevants_no_combination.relevants_no_combination.деталь_2 = {токарная, обрабатывается, 20.0}
+RK 10.0 relevants_no_combination.relevants_no_combination.станок_1 = {токарная, занят}
+EB 10.0 a[2](relevants_no_combination.relevants_no_combination.деталь_3, relevants_no_combination.relevants_no_combination.станок_2)
+RK 10.0 relevants_no_combination.relevants_no_combination.деталь_3 = {фрезерная, обрабатывается, 40.0}
+RK 10.0 relevants_no_combination.relevants_no_combination.станок_2 = {фрезерная, занят}
+EF 30.0 a[1](relevants_no_combination.relevants_no_combination.деталь_2, relevants_no_combination.relevants_no_combination.станок_1)
+RK 30.0 relevants_no_combination.relevants_no_combination.деталь_2 = {токарная, обработана, 20.0}
+RK 30.0 relevants_no_combination.relevants_no_combination.станок_1 = {токарная, свободен}
+EF 50.0 a[2](relevants_no_combination.relevants_no_combination.деталь_3, relevants_no_combination.relevants_no_combination.станок_2)
+RK 50.0 relevants_no_combination.relevants_no_combination.деталь_3 = {фрезерная, обработана, 40.0}
+RK 50.0 relevants_no_combination.relevants_no_combination.станок_2 = {фрезерная, свободен}
+ES 50.0 Simulation finished: terminate condition
