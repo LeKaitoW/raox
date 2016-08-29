@@ -232,10 +232,18 @@ class RaoValidator extends AbstractRaoValidator
 	}
 
 	@Check
-	def checkRelevantTuplesCount(RelevantResourceTuple tuple) {
+	def checkNumRelevantTuplesInPattern(Pattern pattern) {
+		if (pattern.relevantTuples.size > 1) {
+			error("Error - only one combinational selection of relevant resources is allowed", pattern,
+				pattern.getNameStructuralFeature)
+		}
+	}
+
+	@Check
+	def checkRelevantsCount(RelevantResourceTuple tuple) {
 		if (tuple.names.size != tuple.types.size) {
 			error("Error - numbers of names and types declarations should be equal for relevant set", tuple,
-							tuple.getNameStructuralFeature)
+				tuple.getNameStructuralFeature)
 		}
 	}
 
