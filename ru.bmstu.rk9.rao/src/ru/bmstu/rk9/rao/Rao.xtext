@@ -107,7 +107,8 @@ RelevantResource:
 ;
 
 RelevantResourceTuple:
-	'relevants' names += ID (',' names += ID)* '=' value = XOrExpression ';'?
+	'relevants' names += ID (',' names += ID)*
+		'=' value = XOrExpression 'of types' types += JvmTypeReference (',' types += JvmTypeReference)* ';'?
 ;
 
 Generator:

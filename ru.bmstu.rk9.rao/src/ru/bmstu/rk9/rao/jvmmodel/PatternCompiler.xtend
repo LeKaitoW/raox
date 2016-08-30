@@ -34,9 +34,7 @@ class PatternCompiler extends RaoEntityCompiler {
 				for (param : pattern.parameters)
 					parameters += param.toParameter(param.name, param.parameterType)
 				body = '''
-					return () -> new «pattern.name»(«FOR param : parameters»«
-							param.name»«
-							IF parameters.indexOf(param) != parameters.size - 1», «ENDIF»«ENDFOR»);
+					return () -> new «pattern.name»(«createEnumerationString(parameters, [name])»);
 				'''
 			]
 
@@ -102,12 +100,11 @@ class PatternCompiler extends RaoEntityCompiler {
 							}
 
 							body = '''
-								java.util.Set<«tupleInfo.genericTupleInfo.genericName»<«FOR p : tuple.names»«p.toUpperCase
-								»«IF tuple.names.indexOf(p) != tuple.names.size - 1», «ENDIF»«ENDFOR»>> combinations = new java.util.HashSet<>();
-								«FOR p : tuple.names»for(«p.toUpperCase» __«p» : «parameters.get(tuple.names.indexOf(p)).name») {
-									«IF tuple.names.indexOf(p) == tuple.names.size - 1»combinations.add(new «tupleInfo.genericTupleInfo.genericName»(«FOR t : tuple.names»__«t
-										»«IF tuple.names.indexOf(t) != tuple.names.size - 1», «ENDIF»«ENDFOR»));«ENDIF»
-									«ENDFOR»«FOR p : tuple.names»}
+								java.util.Set<«tupleInfo.genericTupleInfo.genericName»<«createEnumerationString(tuple.names, [createTupleGenericTypeName])»>> combinations = new java.util.HashSet<>();
+								«FOR name : tuple.names»for(«createTupleGenericTypeName(name)» __«name» : «parameters.get(tuple.names.indexOf(name)).name») {
+									«IF tuple.names.indexOf(name) == tuple.names.size - 1»combinations.add(new «tupleInfo.genericTupleInfo.genericName»(
+										«createEnumerationString(tuple.names, [n | "__" + n])»));«ENDIF»
+									«ENDFOR»«FOR name : tuple.names»}
 								«ENDFOR»
 								return combinations;
 							'''
@@ -134,10 +131,8 @@ class PatternCompiler extends RaoEntityCompiler {
 					]
 					members += resolveMethod
 
-					for (name : tuple.names) {
-						// TODO derive actual resource type
-						members += tuple.toField(name, typeRef(ru.bmstu.rk9.rao.lib.resource.Resource))
-					}
+					for (name: tuple.names)
+						members += tuple.toField(name, tuple.types.get(tuple.names.indexOf(name)))
 				}
 
 				for (method : pattern.defaultMethods) {
@@ -166,7 +161,8 @@ class PatternCompiler extends RaoEntityCompiler {
 						«ENDFOR»
 						«FOR tuple : pattern.relevantTuples»«
 							val tupleInfo = tupleInfoMap.get(tuple)
-							»«tupleInfo.genericTupleInfo.genericName» __«tupleInfo.name» = «tupleInfo.resolveMethodName»();
+							»«tupleInfo.genericTupleInfo.genericName»<«createEnumerationString(tuple.names, [toFirstUpper])
+							»> __«tupleInfo.name» = «tupleInfo.resolveMethodName»();
 							if (__«tupleInfo.name» == null) {
 								finish();
 								return false;

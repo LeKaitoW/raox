@@ -57,9 +57,7 @@ class EventCompiler extends RaoEntityCompiler {
 					parameters += event.toParameter(param.name, param.parameterType)
 
 				body = '''
-					«event.name» event = new «event.name»(«FOR param : parameters»«
-							param.name»«
-							IF parameters.indexOf(param) != parameters.size - 1», «ENDIF»«ENDFOR»);
+					«event.name» event = new «event.name»(«createEnumerationString(parameters, [name])»);
 					ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.pushEvent(event);
 				'''
 			]

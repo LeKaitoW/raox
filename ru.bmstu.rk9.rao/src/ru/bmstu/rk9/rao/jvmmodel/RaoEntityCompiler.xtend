@@ -5,6 +5,8 @@ import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import org.eclipse.xtext.common.types.JvmAnnotationReference
 import org.eclipse.xtext.common.types.impl.TypesFactoryImpl
 import org.eclipse.xtext.common.types.JvmAnnotationType
+import java.util.List
+import java.util.function.Function
 
 abstract class RaoEntityCompiler {
 	protected static extension JvmTypesBuilder currentJvmTypesBuilder;
@@ -20,5 +22,11 @@ abstract class RaoEntityCompiler {
 		val annoType = typeRef(Override).type as JvmAnnotationType
 		anno.setAnnotation(annoType)
 		return anno
+	}
+
+	def protected static <T> createEnumerationString(List<T> objects, Function<T, String> fun) {
+		return '''
+			«FOR o : objects»«fun.apply(o)»«IF objects.indexOf(o) != objects.size - 1», «ENDIF»«ENDFOR»
+		'''
 	}
 }

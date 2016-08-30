@@ -49,9 +49,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				for (param : resourceType.parameters)
 					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType)
 				body = '''
-					«resourceType.name» resource = new «resourceType.name»(«FOR param : parameters»«
-						param.name»«
-						IF parameters.indexOf(param) != parameters.size - 1», «ENDIF»«ENDFOR»);
+					«resourceType.name» resource = new «resourceType.name»(«createEnumerationString(parameters, [name])»);
 					ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.getModelState().addResource(resource);
 					ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.getDatabase().memorizeResourceEntry(resource,
 							ru.bmstu.rk9.rao.lib.database.Database.ResourceEntryType.CREATED);

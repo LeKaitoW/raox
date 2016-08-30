@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.EventIndex;
-import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.LogicIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.PatternIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceIndex;
@@ -32,9 +31,7 @@ import ru.bmstu.rk9.rao.lib.pattern.Operation;
 import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
-import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 
 public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

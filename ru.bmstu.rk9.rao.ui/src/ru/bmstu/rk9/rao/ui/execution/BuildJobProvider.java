@@ -177,7 +177,7 @@ public class BuildJobProvider {
 				// generator.doGenerate(resourceSet, fsa);
 
 				try {
-					recentProject.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, monitor);
+					recentProject.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
 				} catch (CoreException e) {
 					e.printStackTrace();
 					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage("Failed to build project"),
