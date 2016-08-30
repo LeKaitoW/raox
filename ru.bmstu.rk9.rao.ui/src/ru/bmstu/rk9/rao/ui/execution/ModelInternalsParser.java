@@ -33,7 +33,6 @@ import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
-import ru.bmstu.rk9.rao.lib.naming.RaoNameable;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.result.Result;
 
@@ -54,7 +53,6 @@ public class ModelInternalsParser {
 	private final List<Class<?>> decisionPointClasses = new ArrayList<>();
 	private final List<Class<?>> animationClasses = new ArrayList<>();
 	private final List<Class<?>> tupleClasses = new ArrayList<>();
-	private final List<Field> nameableFields = new ArrayList<>();
 	private final List<AnimationFrame> animationFrames = new ArrayList<>();
 	private final List<Field> resultFields = new ArrayList<>();
 
@@ -303,8 +301,6 @@ public class ModelInternalsParser {
 		}
 
 		for (Field field : modelClass.getDeclaredFields()) {
-			if (RaoNameable.class.isAssignableFrom(field.getType()))
-				nameableFields.add(field);
 			if (Result.class.isAssignableFrom(field.getType()))
 				resultFields.add(field);
 		}
@@ -312,14 +308,12 @@ public class ModelInternalsParser {
 
 	public final void postprocess()
 			throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException {
-		for (Field field : nameableFields) {
-			String name = NamingHelper.createFullNameForField(field);
-			RaoNameable nameable = (RaoNameable) field.get(null);
-			nameable.setName(name);
-		}
-
 		for (Field resultField : resultFields) {
+			resultField.setAccessible(true);
 			Result<?> result = (Result<?>) resultField.get(null);
+
+			String name = NamingHelper.createFullNameForField(resultField);
+			result.setName(name);
 			simulatorInitializationInfo.results.add(result);
 		}
 
