@@ -96,8 +96,8 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	def dispatch compileRaoEntity(ResourceDeclaration resource, JvmDeclaredType it, boolean isPreIndexingPhase) {
-		members += resource.asInitializationMethod(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase)
 		members += resource.asGetter(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase)
+		members += resource.asField(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase)
 	}
 
 	def dispatch compileRaoEntity(ResultType result, JvmDeclaredType it, boolean isPreIndexingPhase) {
@@ -111,5 +111,6 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 
 	def compileResourceInitialization(RaoModel element, JvmDeclaredType it, boolean isPreIndexingPhase) {
 		members += element.asGlobalInitializationMethod(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase)
+		members += element.asGlobalInitializationState(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase)
 	}
 }

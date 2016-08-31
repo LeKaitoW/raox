@@ -30,24 +30,39 @@ class ResourceDeclarationCompiler extends RaoEntityCompiler {
 				body = '''
 					«FOR resource : resources»
 						«val resourceQualifiedName = QualifiedName.create(modelQualifiedNamePart, resource.name)»
-						ru.bmstu.rk9.rao.lib.resource.Resource «resource.name» = initialize«resource.name.toFirstUpper»();
+						ru.bmstu.rk9.rao.lib.resource.Resource «resource.name» = «resourceInitialValueName(resource.name)»;
 						«resource.name».setName("«resourceQualifiedName»");
 					«ENDFOR»
+
+					__initialized = true;
 				'''
 			]
 		]
 	}
 
-	def static asInitializationMethod(ResourceDeclaration resource, JvmTypesBuilder jvmTypesBuilder,
+	def static asGlobalInitializationState(RaoModel model, JvmTypesBuilder jvmTypesBuilder,
 		JvmTypeReferenceBuilder typeReferenceBuilder, JvmDeclaredType it, boolean isPreIndexingPhase) {
 
 		initializeCurrent(jvmTypesBuilder, typeReferenceBuilder)
 
-		return resource.toMethod("initialize" + resource.name.toFirstUpper, resource.constructor.inferredType) [
+		return model.toField("__initialized", typeRef(boolean)) [
+			visibility = JvmVisibility.PRIVATE
+			final = false
+			static = true
+			initializer = '''false'''
+		]
+	}
+
+	def static asField(ResourceDeclaration resource, JvmTypesBuilder jvmTypesBuilder,
+		JvmTypeReferenceBuilder typeReferenceBuilder, JvmDeclaredType it, boolean isPreIndexingPhase) {
+
+		initializeCurrent(jvmTypesBuilder, typeReferenceBuilder)
+
+		return resource.toField(resourceInitialValueName(resource.name), resource.constructor.inferredType) [
 			visibility = JvmVisibility.PRIVATE
 			final = true
 			static = true
-			body = resource.constructor
+			initializer = resource.constructor
 		]
 	}
 
@@ -58,15 +73,21 @@ class ResourceDeclarationCompiler extends RaoEntityCompiler {
 		val resourceQualifiedName = QualifiedName.create(qualifiedName, resource.name)
 
 		return resource.toMethod("get" + resource.name.toFirstUpper, resource.constructor.inferredType) [
-			visibility = JvmVisibility.
-				PUBLIC
+			visibility = JvmVisibility.PUBLIC
 			final = true
 			static = true
 			body = '''
-				return («returnType.simpleName») ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.getModelState().getResource(
-						«returnType.simpleName».class,
-						"«resourceQualifiedName»");
+				if (!__initialized)
+					return «resourceInitialValueName(resource.name)»;
+				else
+					return («returnType.simpleName») ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.getModelState().getResource(
+							«returnType.simpleName».class,
+							"«resourceQualifiedName»");
 			'''
 		]
+	}
+
+	def static resourceInitialValueName(String resourceName) {
+		return "__" + resourceName + "InitialValue";
 	}
 }
