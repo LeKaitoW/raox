@@ -15,7 +15,7 @@ import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceType;
 public class TracerUnitTest {
 	@Test
 	public void TracerOutputTest() {
-		Tracer tracer = new Tracer(new StaticModelData(SimulatorPreinitializationInfo.generateModelStructureStrub()));
+		Tracer tracer = new Tracer(new StaticModelData(SimulatorPreinitializationInfo.generateModelStructureStub()));
 
 		final ByteBuffer header = ByteBuffer.allocate(EntryType.SYSTEM.HEADER_SIZE);
 		header.put((byte) EntryType.SYSTEM.ordinal()).putDouble(0).put((byte) SystemEntryType.TRACE_START.ordinal());
