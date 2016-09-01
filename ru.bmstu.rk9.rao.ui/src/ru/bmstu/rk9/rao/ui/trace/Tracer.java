@@ -382,7 +382,7 @@ public class Tracer {
 				final String typeName = staticModelData.getRelevantResourceTypeName(patternNumber, num);
 				final int typeNum = staticModelData.getResourceTypeNumber(typeName);
 				final String name = staticModelData.getResourceName(typeNum, resNum);
-				final String resourceName = name != null ? name : typeName + encloseIndex(resNum);
+				final String resourceName = convertName(name != null ? name : typeName + encloseIndex(resNum));
 
 				relResStringJoiner.add(resourceName);
 			}
