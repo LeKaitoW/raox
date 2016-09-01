@@ -108,9 +108,10 @@ class ResultCompiler extends RaoEntityCompiler {
 		]
 			
 	}
-	
+
 	def static asField(Result result, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
 		JvmDeclaredType it, boolean isPreIndexingPhase) {
+
 		return toField(result.name, result.constructor.inferredType) [
 			visibility = JvmVisibility.PUBLIC
 			static = true
