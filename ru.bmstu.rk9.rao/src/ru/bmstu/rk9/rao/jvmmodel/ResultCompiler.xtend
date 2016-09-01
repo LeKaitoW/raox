@@ -16,7 +16,7 @@ import ru.bmstu.rk9.rao.rao.Result
 class ResultCompiler extends RaoEntityCompiler {
 	def static asClass(ResultType result, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
 		JvmDeclaredType it, boolean isPreIndexingPhase) {
-			
+
 		return result.toClass(QualifiedName.create(qualifiedName, result.name)) [
 			static = true
 			superTypes += typeRef(ru.bmstu.rk9.rao.lib.result.Result, {result.evaluateType})
@@ -32,7 +32,7 @@ class ResultCompiler extends RaoEntityCompiler {
 					«ENDFOR»
 				'''
 			]
-			
+
 			members += result.toConstructor [
 				visibility = JvmVisibility.PUBLIC
 				for (param : result.parameters)
@@ -42,7 +42,7 @@ class ResultCompiler extends RaoEntityCompiler {
 					this(«FOR param : parameters»«param.name», «ENDFOR»getDefaultStatistics());
 				'''
 			]
-			
+
 			members += result.toConstructor [
 				visibility = JvmVisibility.PUBLIC
 				for (param : result.parameters)
@@ -53,7 +53,7 @@ class ResultCompiler extends RaoEntityCompiler {
 				'''
 				
 			]
-			
+
 			members += result.toConstructor [
 				visibility = JvmVisibility.PUBLIC
 				for (param : result.parameters)
@@ -106,13 +106,12 @@ class ResultCompiler extends RaoEntityCompiler {
 				}
 			}
 		]
-			
 	}
 
 	def static asField(Result result, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
 		JvmDeclaredType it, boolean isPreIndexingPhase) {
 
-		return toField(result.name, result.constructor.inferredType) [
+		return result.toField(result.name, result.constructor.inferredType) [
 			visibility = JvmVisibility.PUBLIC
 			static = true
 			final = true
