@@ -1,48 +1,48 @@
 ES 0.0 Tracing started
-RC 0.0 generator_sequence.generator_sequence.r = {}
+RC 0.0 r = {}
 ES 0.0 Simulation started
-EI 0.0 generator_sequence.generator_sequence.GenSeqTestEvent[0]
-RK 0.0 generator_sequence.generator_sequence.r = {rao}
-EI 5.0 generator_sequence.generator_sequence.GenSeqTestEvent[1]
-RK 5.0 generator_sequence.generator_sequence.r = {x}
-EI 10.0 generator_sequence.generator_sequence.GenSeqTestEvent[2]
-RK 10.0 generator_sequence.generator_sequence.r = {forever}
-EI 15.0 generator_sequence.generator_sequence.GenSeqTestEvent[3]
-RK 15.0 generator_sequence.generator_sequence.r = {forever}
-EI 20.0 generator_sequence.generator_sequence.GenSeqTestEvent[4]
-RK 20.0 generator_sequence.generator_sequence.r = {rao}
-EI 25.0 generator_sequence.generator_sequence.GenSeqTestEvent[5]
-RK 25.0 generator_sequence.generator_sequence.r = {x}
-EI 30.0 generator_sequence.generator_sequence.GenSeqTestEvent[6]
-RK 30.0 generator_sequence.generator_sequence.r = {forever}
-EI 35.0 generator_sequence.generator_sequence.GenSeqTestEvent[7]
-RK 35.0 generator_sequence.generator_sequence.r = {forever}
-EI 40.0 generator_sequence.generator_sequence.GenSeqTestEvent[8]
-RK 40.0 generator_sequence.generator_sequence.r = {rao}
-EI 45.0 generator_sequence.generator_sequence.GenSeqTestEvent[9]
-RK 45.0 generator_sequence.generator_sequence.r = {x}
-EI 50.0 generator_sequence.generator_sequence.GenSeqTestEvent[10]
-RK 50.0 generator_sequence.generator_sequence.r = {forever}
-EI 55.0 generator_sequence.generator_sequence.GenSeqTestEvent[11]
-RK 55.0 generator_sequence.generator_sequence.r = {forever}
-EI 60.0 generator_sequence.generator_sequence.GenSeqTestEvent[12]
-RK 60.0 generator_sequence.generator_sequence.r = {rao}
-EI 65.0 generator_sequence.generator_sequence.GenSeqTestEvent[13]
-RK 65.0 generator_sequence.generator_sequence.r = {x}
-EI 70.0 generator_sequence.generator_sequence.GenSeqTestEvent[14]
-RK 70.0 generator_sequence.generator_sequence.r = {forever}
-EI 75.0 generator_sequence.generator_sequence.GenSeqTestEvent[15]
-RK 75.0 generator_sequence.generator_sequence.r = {forever}
-EI 80.0 generator_sequence.generator_sequence.GenSeqTestEvent[16]
-RK 80.0 generator_sequence.generator_sequence.r = {rao}
-EI 85.0 generator_sequence.generator_sequence.GenSeqTestEvent[17]
-RK 85.0 generator_sequence.generator_sequence.r = {x}
-EI 90.0 generator_sequence.generator_sequence.GenSeqTestEvent[18]
-RK 90.0 generator_sequence.generator_sequence.r = {forever}
-EI 95.0 generator_sequence.generator_sequence.GenSeqTestEvent[19]
-RK 95.0 generator_sequence.generator_sequence.r = {forever}
-EI 100.0 generator_sequence.generator_sequence.GenSeqTestEvent[20]
-RK 100.0 generator_sequence.generator_sequence.r = {rao}
-EI 105.0 generator_sequence.generator_sequence.GenSeqTestEvent[21]
-RK 105.0 generator_sequence.generator_sequence.r = {x}
+EI 0.0 GenSeqTestEvent[0]
+RK 0.0 r = {rao}
+EI 5.0 GenSeqTestEvent[1]
+RK 5.0 r = {x}
+EI 10.0 GenSeqTestEvent[2]
+RK 10.0 r = {forever}
+EI 15.0 GenSeqTestEvent[3]
+RK 15.0 r = {forever}
+EI 20.0 GenSeqTestEvent[4]
+RK 20.0 r = {rao}
+EI 25.0 GenSeqTestEvent[5]
+RK 25.0 r = {x}
+EI 30.0 GenSeqTestEvent[6]
+RK 30.0 r = {forever}
+EI 35.0 GenSeqTestEvent[7]
+RK 35.0 r = {forever}
+EI 40.0 GenSeqTestEvent[8]
+RK 40.0 r = {rao}
+EI 45.0 GenSeqTestEvent[9]
+RK 45.0 r = {x}
+EI 50.0 GenSeqTestEvent[10]
+RK 50.0 r = {forever}
+EI 55.0 GenSeqTestEvent[11]
+RK 55.0 r = {forever}
+EI 60.0 GenSeqTestEvent[12]
+RK 60.0 r = {rao}
+EI 65.0 GenSeqTestEvent[13]
+RK 65.0 r = {x}
+EI 70.0 GenSeqTestEvent[14]
+RK 70.0 r = {forever}
+EI 75.0 GenSeqTestEvent[15]
+RK 75.0 r = {forever}
+EI 80.0 GenSeqTestEvent[16]
+RK 80.0 r = {rao}
+EI 85.0 GenSeqTestEvent[17]
+RK 85.0 r = {x}
+EI 90.0 GenSeqTestEvent[18]
+RK 90.0 r = {forever}
+EI 95.0 GenSeqTestEvent[19]
+RK 95.0 r = {forever}
+EI 100.0 GenSeqTestEvent[20]
+RK 100.0 r = {rao}
+EI 105.0 GenSeqTestEvent[21]
+RK 105.0 r = {x}
 ES 105.0 Simulation finished: terminate condition

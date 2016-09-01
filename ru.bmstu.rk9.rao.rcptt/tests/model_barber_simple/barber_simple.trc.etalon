@@ -1,954 +1,954 @@
 ES 0.0 Tracing started
-RC 0.0 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 0}
+RC 0.0 парикмахерская = {Свободен, 0, 0}
 ES 0.0 Simulation started
-EI 64.00600791078857 barber_simple.barber_simple.Событие_прихода_клиента[0]
-RK 64.00600791078857 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 0}
-EB 64.00600791078857 обслуживание_клиента[0](barber_simple.barber_simple.парикмахерская)
-RK 64.00600791078857 barber_simple.barber_simple.парикмахерская = {Занят, 0, 0}
-EF 101.63764567497549 обслуживание_клиента[0](barber_simple.barber_simple.парикмахерская)
-RK 101.63764567497549 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 1}
-EI 102.43731591550352 barber_simple.barber_simple.Событие_прихода_клиента[1]
-RK 102.43731591550352 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 1}
-EB 102.43731591550352 обслуживание_клиента[1](barber_simple.barber_simple.парикмахерская)
-RK 102.43731591550352 barber_simple.barber_simple.парикмахерская = {Занят, 0, 1}
-EF 136.88237007479393 обслуживание_клиента[1](barber_simple.barber_simple.парикмахерская)
-RK 136.88237007479393 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 2}
-EI 163.24034890273626 barber_simple.barber_simple.Событие_прихода_клиента[2]
-RK 163.24034890273626 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 2}
-EB 163.24034890273626 обслуживание_клиента[2](barber_simple.barber_simple.парикмахерская)
-RK 163.24034890273626 barber_simple.barber_simple.парикмахерская = {Занят, 0, 2}
-EI 175.46803810034146 barber_simple.barber_simple.Событие_прихода_клиента[3]
-RK 175.46803810034146 barber_simple.barber_simple.парикмахерская = {Занят, 1, 2}
-EF 200.60513460180525 обслуживание_клиента[2](barber_simple.barber_simple.парикмахерская)
-RK 200.60513460180525 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 3}
-EB 200.60513460180525 обслуживание_клиента[3](barber_simple.barber_simple.парикмахерская)
-RK 200.60513460180525 barber_simple.barber_simple.парикмахерская = {Занят, 0, 3}
-EI 205.842211380707 barber_simple.barber_simple.Событие_прихода_клиента[4]
-RK 205.842211380707 barber_simple.barber_simple.парикмахерская = {Занят, 1, 3}
-EF 227.30009828969426 обслуживание_клиента[3](barber_simple.barber_simple.парикмахерская)
-RK 227.30009828969426 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 4}
-EB 227.30009828969426 обслуживание_клиента[4](barber_simple.barber_simple.парикмахерская)
-RK 227.30009828969426 barber_simple.barber_simple.парикмахерская = {Занят, 0, 4}
-EI 236.32725594405497 barber_simple.barber_simple.Событие_прихода_клиента[5]
-RK 236.32725594405497 barber_simple.barber_simple.парикмахерская = {Занят, 1, 4}
-EF 260.0337066629854 обслуживание_клиента[4](barber_simple.barber_simple.парикмахерская)
-RK 260.0337066629854 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 5}
-EB 260.0337066629854 обслуживание_клиента[5](barber_simple.barber_simple.парикмахерская)
-RK 260.0337066629854 barber_simple.barber_simple.парикмахерская = {Занят, 0, 5}
-EF 292.7941199462651 обслуживание_клиента[5](barber_simple.barber_simple.парикмахерская)
-RK 292.7941199462651 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 6}
-EI 296.22140704946275 barber_simple.barber_simple.Событие_прихода_клиента[6]
-RK 296.22140704946275 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 6}
-EB 296.22140704946275 обслуживание_клиента[6](barber_simple.barber_simple.парикмахерская)
-RK 296.22140704946275 barber_simple.barber_simple.парикмахерская = {Занят, 0, 6}
-EF 333.5051344570901 обслуживание_клиента[6](barber_simple.barber_simple.парикмахерская)
-RK 333.5051344570901 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 7}
-EI 379.52951725797567 barber_simple.barber_simple.Событие_прихода_клиента[7]
-RK 379.52951725797567 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 7}
-EB 379.52951725797567 обслуживание_клиента[7](barber_simple.barber_simple.парикмахерская)
-RK 379.52951725797567 barber_simple.barber_simple.парикмахерская = {Занят, 0, 7}
-EI 383.36811621534684 barber_simple.barber_simple.Событие_прихода_клиента[8]
-RK 383.36811621534684 barber_simple.barber_simple.парикмахерская = {Занят, 1, 7}
-EF 418.28494081373617 обслуживание_клиента[7](barber_simple.barber_simple.парикмахерская)
-RK 418.28494081373617 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 8}
-EB 418.28494081373617 обслуживание_клиента[8](barber_simple.barber_simple.парикмахерская)
-RK 418.28494081373617 barber_simple.barber_simple.парикмахерская = {Занят, 0, 8}
-EI 419.17937046669243 barber_simple.barber_simple.Событие_прихода_клиента[9]
-RK 419.17937046669243 barber_simple.barber_simple.парикмахерская = {Занят, 1, 8}
-EF 440.6870514035923 обслуживание_клиента[8](barber_simple.barber_simple.парикмахерская)
-RK 440.6870514035923 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 9}
-EB 440.6870514035923 обслуживание_клиента[9](barber_simple.barber_simple.парикмахерская)
-RK 440.6870514035923 barber_simple.barber_simple.парикмахерская = {Занят, 0, 9}
-EF 474.62514827434495 обслуживание_клиента[9](barber_simple.barber_simple.парикмахерская)
-RK 474.62514827434495 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 10}
-EI 486.85470956869307 barber_simple.barber_simple.Событие_прихода_клиента[10]
-RK 486.85470956869307 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 10}
-EB 486.85470956869307 обслуживание_клиента[10](barber_simple.barber_simple.парикмахерская)
-RK 486.85470956869307 barber_simple.barber_simple.парикмахерская = {Занят, 0, 10}
-EF 524.7590095469462 обслуживание_клиента[10](barber_simple.barber_simple.парикмахерская)
-RK 524.7590095469462 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 11}
-EI 557.8884124728179 barber_simple.barber_simple.Событие_прихода_клиента[11]
-RK 557.8884124728179 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 11}
-EB 557.8884124728179 обслуживание_клиента[11](barber_simple.barber_simple.парикмахерская)
-RK 557.8884124728179 barber_simple.barber_simple.парикмахерская = {Занят, 0, 11}
-EI 568.1383340641412 barber_simple.barber_simple.Событие_прихода_клиента[12]
-RK 568.1383340641412 barber_simple.barber_simple.парикмахерская = {Занят, 1, 11}
-EI 577.2327880117152 barber_simple.barber_simple.Событие_прихода_клиента[13]
-RK 577.2327880117152 barber_simple.barber_simple.парикмахерская = {Занят, 2, 11}
-EF 596.0146617114847 обслуживание_клиента[11](barber_simple.barber_simple.парикмахерская)
-RK 596.0146617114847 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 12}
-EB 596.0146617114847 обслуживание_клиента[12](barber_simple.barber_simple.парикмахерская)
-RK 596.0146617114847 barber_simple.barber_simple.парикмахерская = {Занят, 1, 12}
-EF 621.80292402917 обслуживание_клиента[12](barber_simple.barber_simple.парикмахерская)
-RK 621.80292402917 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 13}
-EB 621.80292402917 обслуживание_клиента[13](barber_simple.barber_simple.парикмахерская)
-RK 621.80292402917 barber_simple.barber_simple.парикмахерская = {Занят, 0, 13}
-EF 647.0331350600699 обслуживание_клиента[13](barber_simple.barber_simple.парикмахерская)
-RK 647.0331350600699 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 14}
-EI 653.0635817289664 barber_simple.barber_simple.Событие_прихода_клиента[14]
-RK 653.0635817289664 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 14}
-EB 653.0635817289664 обслуживание_клиента[14](barber_simple.barber_simple.парикмахерская)
-RK 653.0635817289664 barber_simple.barber_simple.парикмахерская = {Занят, 0, 14}
-EI 655.1950499337773 barber_simple.barber_simple.Событие_прихода_клиента[15]
-RK 655.1950499337773 barber_simple.barber_simple.парикмахерская = {Занят, 1, 14}
-EI 669.0905575094488 barber_simple.barber_simple.Событие_прихода_клиента[16]
-RK 669.0905575094488 barber_simple.barber_simple.парикмахерская = {Занят, 2, 14}
-EF 691.4667218110031 обслуживание_клиента[14](barber_simple.barber_simple.парикмахерская)
-RK 691.4667218110031 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 15}
-EB 691.4667218110031 обслуживание_клиента[15](barber_simple.barber_simple.парикмахерская)
-RK 691.4667218110031 barber_simple.barber_simple.парикмахерская = {Занят, 1, 15}
-EF 712.8383956640293 обслуживание_клиента[15](barber_simple.barber_simple.парикмахерская)
-RK 712.8383956640293 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 16}
-EB 712.8383956640293 обслуживание_клиента[16](barber_simple.barber_simple.парикмахерская)
-RK 712.8383956640293 barber_simple.barber_simple.парикмахерская = {Занят, 0, 16}
-EF 740.2528537534505 обслуживание_клиента[16](barber_simple.barber_simple.парикмахерская)
-RK 740.2528537534505 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 17}
-EI 767.3279673475558 barber_simple.barber_simple.Событие_прихода_клиента[17]
-RK 767.3279673475558 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 17}
-EB 767.3279673475558 обслуживание_клиента[17](barber_simple.barber_simple.парикмахерская)
-RK 767.3279673475558 barber_simple.barber_simple.парикмахерская = {Занят, 0, 17}
-EF 806.5713124826846 обслуживание_клиента[17](barber_simple.barber_simple.парикмахерская)
-RK 806.5713124826846 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 18}
-EI 844.3105284948588 barber_simple.barber_simple.Событие_прихода_клиента[18]
-RK 844.3105284948588 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 18}
-EB 844.3105284948588 обслуживание_клиента[18](barber_simple.barber_simple.парикмахерская)
-RK 844.3105284948588 barber_simple.barber_simple.парикмахерская = {Занят, 0, 18}
-EF 882.7738136780825 обслуживание_клиента[18](barber_simple.barber_simple.парикмахерская)
-RK 882.7738136780825 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 19}
-EI 890.55316958427 barber_simple.barber_simple.Событие_прихода_клиента[19]
-RK 890.55316958427 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 19}
-EB 890.55316958427 обслуживание_клиента[19](barber_simple.barber_simple.парикмахерская)
-RK 890.55316958427 barber_simple.barber_simple.парикмахерская = {Занят, 0, 19}
-EI 922.7098518052692 barber_simple.barber_simple.Событие_прихода_клиента[20]
-RK 922.7098518052692 barber_simple.barber_simple.парикмахерская = {Занят, 1, 19}
-EF 926.2716375224676 обслуживание_клиента[19](barber_simple.barber_simple.парикмахерская)
-RK 926.2716375224676 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 20}
-EB 926.2716375224676 обслуживание_клиента[20](barber_simple.barber_simple.парикмахерская)
-RK 926.2716375224676 barber_simple.barber_simple.парикмахерская = {Занят, 0, 20}
-EF 959.4244165932698 обслуживание_клиента[20](barber_simple.barber_simple.парикмахерская)
-RK 959.4244165932698 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 21}
-EI 1005.1185092781874 barber_simple.barber_simple.Событие_прихода_клиента[21]
-RK 1005.1185092781874 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 21}
-EB 1005.1185092781874 обслуживание_клиента[21](barber_simple.barber_simple.парикмахерская)
-RK 1005.1185092781874 barber_simple.barber_simple.парикмахерская = {Занят, 0, 21}
-EF 1043.8360532333338 обслуживание_клиента[21](barber_simple.barber_simple.парикмахерская)
-RK 1043.8360532333338 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 22}
-EI 1064.0599280963315 barber_simple.barber_simple.Событие_прихода_клиента[22]
-RK 1064.0599280963315 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 22}
-EB 1064.0599280963315 обслуживание_клиента[22](barber_simple.barber_simple.парикмахерская)
-RK 1064.0599280963315 barber_simple.barber_simple.парикмахерская = {Занят, 0, 22}
-EI 1084.2177977529427 barber_simple.barber_simple.Событие_прихода_клиента[23]
-RK 1084.2177977529427 barber_simple.barber_simple.парикмахерская = {Занят, 1, 22}
-EF 1101.25600844723 обслуживание_клиента[22](barber_simple.barber_simple.парикмахерская)
-RK 1101.25600844723 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 23}
-EB 1101.25600844723 обслуживание_клиента[23](barber_simple.barber_simple.парикмахерская)
-RK 1101.25600844723 barber_simple.barber_simple.парикмахерская = {Занят, 0, 23}
-EI 1124.4997007458371 barber_simple.barber_simple.Событие_прихода_клиента[24]
-RK 1124.4997007458371 barber_simple.barber_simple.парикмахерская = {Занят, 1, 23}
-EF 1131.041559462864 обслуживание_клиента[23](barber_simple.barber_simple.парикмахерская)
-RK 1131.041559462864 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 24}
-EB 1131.041559462864 обслуживание_клиента[24](barber_simple.barber_simple.парикмахерская)
-RK 1131.041559462864 barber_simple.barber_simple.парикмахерская = {Занят, 0, 24}
-EI 1135.2287732769832 barber_simple.barber_simple.Событие_прихода_клиента[25]
-RK 1135.2287732769832 barber_simple.barber_simple.парикмахерская = {Занят, 1, 24}
-EI 1140.9728183945697 barber_simple.barber_simple.Событие_прихода_клиента[26]
-RK 1140.9728183945697 barber_simple.barber_simple.парикмахерская = {Занят, 2, 24}
-EF 1165.8189238884393 обслуживание_клиента[24](barber_simple.barber_simple.парикмахерская)
-RK 1165.8189238884393 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 25}
-EB 1165.8189238884393 обслуживание_клиента[25](barber_simple.barber_simple.парикмахерская)
-RK 1165.8189238884393 barber_simple.barber_simple.парикмахерская = {Занят, 1, 25}
-EF 1191.832368727849 обслуживание_клиента[25](barber_simple.barber_simple.парикмахерская)
-RK 1191.832368727849 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 26}
-EB 1191.832368727849 обслуживание_клиента[26](barber_simple.barber_simple.парикмахерская)
-RK 1191.832368727849 barber_simple.barber_simple.парикмахерская = {Занят, 0, 26}
-EF 1215.3174505739214 обслуживание_клиента[26](barber_simple.barber_simple.парикмахерская)
-RK 1215.3174505739214 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 27}
-EI 1240.7233686546517 barber_simple.barber_simple.Событие_прихода_клиента[27]
-RK 1240.7233686546517 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 27}
-EB 1240.7233686546517 обслуживание_клиента[27](barber_simple.barber_simple.парикмахерская)
-RK 1240.7233686546517 barber_simple.barber_simple.парикмахерская = {Занят, 0, 27}
-EF 1280.003931475623 обслуживание_клиента[27](barber_simple.barber_simple.парикмахерская)
-RK 1280.003931475623 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 28}
-EI 1294.8566639014402 barber_simple.barber_simple.Событие_прихода_клиента[28]
-RK 1294.8566639014402 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 28}
-EB 1294.8566639014402 обслуживание_клиента[28](barber_simple.barber_simple.парикмахерская)
-RK 1294.8566639014402 barber_simple.barber_simple.парикмахерская = {Занят, 0, 28}
-EI 1312.039201556724 barber_simple.barber_simple.Событие_прихода_клиента[29]
-RK 1312.039201556724 barber_simple.barber_simple.парикмахерская = {Занят, 1, 28}
-EI 1325.7093307765422 barber_simple.barber_simple.Событие_прихода_клиента[30]
-RK 1325.7093307765422 barber_simple.barber_simple.парикмахерская = {Занят, 2, 28}
-EF 1331.5653425897046 обслуживание_клиента[28](barber_simple.barber_simple.парикмахерская)
-RK 1331.5653425897046 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 29}
-EB 1331.5653425897046 обслуживание_клиента[29](barber_simple.barber_simple.парикмахерская)
-RK 1331.5653425897046 barber_simple.barber_simple.парикмахерская = {Занят, 1, 29}
-EI 1356.1409427977237 barber_simple.barber_simple.Событие_прихода_клиента[31]
-RK 1356.1409427977237 barber_simple.barber_simple.парикмахерская = {Занят, 2, 29}
-EF 1360.2859091438424 обслуживание_клиента[29](barber_simple.barber_simple.парикмахерская)
-RK 1360.2859091438424 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 30}
-EB 1360.2859091438424 обслуживание_клиента[30](barber_simple.barber_simple.парикмахерская)
-RK 1360.2859091438424 barber_simple.barber_simple.парикмахерская = {Занят, 1, 30}
-EI 1375.5450975843214 barber_simple.barber_simple.Событие_прихода_клиента[32]
-RK 1375.5450975843214 barber_simple.barber_simple.парикмахерская = {Занят, 2, 30}
-EF 1387.6054608909333 обслуживание_клиента[30](barber_simple.barber_simple.парикмахерская)
-RK 1387.6054608909333 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 31}
-EB 1387.6054608909333 обслуживание_клиента[31](barber_simple.barber_simple.парикмахерская)
-RK 1387.6054608909333 barber_simple.barber_simple.парикмахерская = {Занят, 1, 31}
-EI 1387.787068879106 barber_simple.barber_simple.Событие_прихода_клиента[33]
-RK 1387.787068879106 barber_simple.barber_simple.парикмахерская = {Занят, 2, 31}
-EF 1420.3529683670397 обслуживание_клиента[31](barber_simple.barber_simple.парикмахерская)
-RK 1420.3529683670397 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 32}
-EB 1420.3529683670397 обслуживание_клиента[32](barber_simple.barber_simple.парикмахерская)
-RK 1420.3529683670397 barber_simple.barber_simple.парикмахерская = {Занят, 1, 32}
-EI 1428.1542183277597 barber_simple.barber_simple.Событие_прихода_клиента[34]
-RK 1428.1542183277597 barber_simple.barber_simple.парикмахерская = {Занят, 2, 32}
-EI 1447.4930319752887 barber_simple.barber_simple.Событие_прихода_клиента[35]
-RK 1447.4930319752887 barber_simple.barber_simple.парикмахерская = {Занят, 3, 32}
-EF 1449.878642430534 обслуживание_клиента[32](barber_simple.barber_simple.парикмахерская)
-RK 1449.878642430534 barber_simple.barber_simple.парикмахерская = {Свободен, 3, 33}
-EB 1449.878642430534 обслуживание_клиента[33](barber_simple.barber_simple.парикмахерская)
-RK 1449.878642430534 barber_simple.barber_simple.парикмахерская = {Занят, 2, 33}
-EF 1476.5799387383047 обслуживание_клиента[33](barber_simple.barber_simple.парикмахерская)
-RK 1476.5799387383047 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 34}
-EB 1476.5799387383047 обслуживание_клиента[34](barber_simple.barber_simple.парикмахерская)
-RK 1476.5799387383047 barber_simple.barber_simple.парикмахерская = {Занят, 1, 34}
-EF 1511.3721224714325 обслуживание_клиента[34](barber_simple.barber_simple.парикмахерская)
-RK 1511.3721224714325 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 35}
-EB 1511.3721224714325 обслуживание_клиента[35](barber_simple.barber_simple.парикмахерская)
-RK 1511.3721224714325 barber_simple.barber_simple.парикмахерская = {Занят, 0, 35}
-EI 1515.489364267263 barber_simple.barber_simple.Событие_прихода_клиента[36]
-RK 1515.489364267263 barber_simple.barber_simple.парикмахерская = {Занят, 1, 35}
-EI 1525.6353581157566 barber_simple.barber_simple.Событие_прихода_клиента[37]
-RK 1525.6353581157566 barber_simple.barber_simple.парикмахерская = {Занят, 2, 35}
-EF 1540.8749581929785 обслуживание_клиента[35](barber_simple.barber_simple.парикмахерская)
-RK 1540.8749581929785 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 36}
-EB 1540.8749581929785 обслуживание_клиента[36](barber_simple.barber_simple.парикмахерская)
-RK 1540.8749581929785 barber_simple.barber_simple.парикмахерская = {Занят, 1, 36}
-EI 1567.4395587790655 barber_simple.barber_simple.Событие_прихода_клиента[38]
-RK 1567.4395587790655 barber_simple.barber_simple.парикмахерская = {Занят, 2, 36}
-EF 1578.8015621491988 обслуживание_клиента[36](barber_simple.barber_simple.парикмахерская)
-RK 1578.8015621491988 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 37}
-EB 1578.8015621491988 обслуживание_клиента[37](barber_simple.barber_simple.парикмахерская)
-RK 1578.8015621491988 barber_simple.barber_simple.парикмахерская = {Занят, 1, 37}
-EI 1578.900193621329 barber_simple.barber_simple.Событие_прихода_клиента[39]
-RK 1578.900193621329 barber_simple.barber_simple.парикмахерская = {Занят, 2, 37}
-EF 1604.5405059628933 обслуживание_клиента[37](barber_simple.barber_simple.парикмахерская)
-RK 1604.5405059628933 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 38}
-EB 1604.5405059628933 обслуживание_клиента[38](barber_simple.barber_simple.парикмахерская)
-RK 1604.5405059628933 barber_simple.barber_simple.парикмахерская = {Занят, 1, 38}
-EF 1639.5762723973862 обслуживание_клиента[38](barber_simple.barber_simple.парикмахерская)
-RK 1639.5762723973862 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 39}
-EB 1639.5762723973862 обслуживание_клиента[39](barber_simple.barber_simple.парикмахерская)
-RK 1639.5762723973862 barber_simple.barber_simple.парикмахерская = {Занят, 0, 39}
-EF 1665.9266601813586 обслуживание_клиента[39](barber_simple.barber_simple.парикмахерская)
-RK 1665.9266601813586 barber_simple.barber_simple.парикмахерская = {Свободен, 0, 40}
-EI 1708.0378776305731 barber_simple.barber_simple.Событие_прихода_клиента[40]
-RK 1708.0378776305731 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 40}
-EB 1708.0378776305731 обслуживание_клиента[40](barber_simple.barber_simple.парикмахерская)
-RK 1708.0378776305731 barber_simple.barber_simple.парикмахерская = {Занят, 0, 40}
-EI 1727.0360760845479 barber_simple.barber_simple.Событие_прихода_клиента[41]
-RK 1727.0360760845479 barber_simple.barber_simple.парикмахерская = {Занят, 1, 40}
-EI 1737.108727596299 barber_simple.barber_simple.Событие_прихода_клиента[42]
-RK 1737.108727596299 barber_simple.barber_simple.парикмахерская = {Занят, 2, 40}
-EF 1747.7677490457922 обслуживание_клиента[40](barber_simple.barber_simple.парикмахерская)
-RK 1747.7677490457922 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 41}
-EB 1747.7677490457922 обслуживание_клиента[41](barber_simple.barber_simple.парикмахерская)
-RK 1747.7677490457922 barber_simple.barber_simple.парикмахерская = {Занят, 1, 41}
-EI 1766.774132378263 barber_simple.barber_simple.Событие_прихода_клиента[43]
-RK 1766.774132378263 barber_simple.barber_simple.парикмахерская = {Занят, 2, 41}
-EF 1777.1507224849618 обслуживание_клиента[41](barber_simple.barber_simple.парикмахерская)
-RK 1777.1507224849618 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 42}
-EB 1777.1507224849618 обслуживание_клиента[42](barber_simple.barber_simple.парикмахерская)
-RK 1777.1507224849618 barber_simple.barber_simple.парикмахерская = {Занят, 1, 42}
-EF 1802.8547590068326 обслуживание_клиента[42](barber_simple.barber_simple.парикмахерская)
-RK 1802.8547590068326 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 43}
-EB 1802.8547590068326 обслуживание_клиента[43](barber_simple.barber_simple.парикмахерская)
-RK 1802.8547590068326 barber_simple.barber_simple.парикмахерская = {Занят, 0, 43}
-EI 1822.5279999721922 barber_simple.barber_simple.Событие_прихода_клиента[44]
-RK 1822.5279999721922 barber_simple.barber_simple.парикмахерская = {Занят, 1, 43}
-EF 1835.414650392132 обслуживание_клиента[43](barber_simple.barber_simple.парикмахерская)
-RK 1835.414650392132 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 44}
-EB 1835.414650392132 обслуживание_клиента[44](barber_simple.barber_simple.парикмахерская)
-RK 1835.414650392132 barber_simple.barber_simple.парикмахерская = {Занят, 0, 44}
-EI 1870.6360642750526 barber_simple.barber_simple.Событие_прихода_клиента[45]
-RK 1870.6360642750526 barber_simple.barber_simple.парикмахерская = {Занят, 1, 44}
-EF 1872.2964063997488 обслуживание_клиента[44](barber_simple.barber_simple.парикмахерская)
-RK 1872.2964063997488 barber_simple.barber_simple.парикмахерская = {Свободен, 1, 45}
-EB 1872.2964063997488 обслуживание_клиента[45](barber_simple.barber_simple.парикмахерская)
-RK 1872.2964063997488 barber_simple.barber_simple.парикмахерская = {Занят, 0, 45}
-EI 1875.1788021351447 barber_simple.barber_simple.Событие_прихода_клиента[46]
-RK 1875.1788021351447 barber_simple.barber_simple.парикмахерская = {Занят, 1, 45}
-EI 1875.6821810363053 barber_simple.barber_simple.Событие_прихода_клиента[47]
-RK 1875.6821810363053 barber_simple.barber_simple.парикмахерская = {Занят, 2, 45}
-EI 1879.8818977242142 barber_simple.barber_simple.Событие_прихода_клиента[48]
-RK 1879.8818977242142 barber_simple.barber_simple.парикмахерская = {Занят, 3, 45}
-EI 1894.827200945764 barber_simple.barber_simple.Событие_прихода_клиента[49]
-RK 1894.827200945764 barber_simple.barber_simple.парикмахерская = {Занят, 4, 45}
-EF 1908.2729950786377 обслуживание_клиента[45](barber_simple.barber_simple.парикмахерская)
-RK 1908.2729950786377 barber_simple.barber_simple.парикмахерская = {Свободен, 4, 46}
-EB 1908.2729950786377 обслуживание_клиента[46](barber_simple.barber_simple.парикмахерская)
-RK 1908.2729950786377 barber_simple.barber_simple.парикмахерская = {Занят, 3, 46}
-EF 1931.0833413019866 обслуживание_клиента[46](barber_simple.barber_simple.парикмахерская)
-RK 1931.0833413019866 barber_simple.barber_simple.парикмахерская = {Свободен, 3, 47}
-EB 1931.0833413019866 обслуживание_клиента[47](barber_simple.barber_simple.парикмахерская)
-RK 1931.0833413019866 barber_simple.barber_simple.парикмахерская = {Занят, 2, 47}
-EF 1951.4161274693583 обслуживание_клиента[47](barber_simple.barber_simple.парикмахерская)
-RK 1951.4161274693583 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 48}
-EB 1951.4161274693583 обслуживание_клиента[48](barber_simple.barber_simple.парикмахерская)
-RK 1951.4161274693583 barber_simple.barber_simple.парикмахерская = {Занят, 1, 48}
-EI 1951.8685975367819 barber_simple.barber_simple.Событие_прихода_клиента[50]
-RK 1951.8685975367819 barber_simple.barber_simple.парикмахерская = {Занят, 2, 48}
-EI 1954.8252390161306 barber_simple.barber_simple.Событие_прихода_клиента[51]
-RK 1954.8252390161306 barber_simple.barber_simple.парикмахерская = {Занят, 3, 48}
-EF 1974.0287985608072 обслуживание_клиента[48](barber_simple.barber_simple.парикмахерская)
-RK 1974.0287985608072 barber_simple.barber_simple.парикмахерская = {Свободен, 3, 49}
-EB 1974.0287985608072 обслуживание_клиента[49](barber_simple.barber_simple.парикмахерская)
-RK 1974.0287985608072 barber_simple.barber_simple.парикмахерская = {Занят, 2, 49}
-EF 2001.8760483435442 обслуживание_клиента[49](barber_simple.barber_simple.парикмахерская)
-RK 2001.8760483435442 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 50}
-EB 2001.8760483435442 обслуживание_клиента[50](barber_simple.barber_simple.парикмахерская)
-RK 2001.8760483435442 barber_simple.barber_simple.парикмахерская = {Занят, 1, 50}
-EI 2015.2434743429976 barber_simple.barber_simple.Событие_прихода_клиента[52]
-RK 2015.2434743429976 barber_simple.barber_simple.парикмахерская = {Занят, 2, 50}
-EI 2027.8415302248034 barber_simple.barber_simple.Событие_прихода_клиента[53]
-RK 2027.8415302248034 barber_simple.barber_simple.парикмахерская = {Занят, 3, 50}
-EF 2038.888800866458 обслуживание_клиента[50](barber_simple.barber_simple.парикмахерская)
-RK 2038.888800866458 barber_simple.barber_simple.парикмахерская = {Свободен, 3, 51}
-EB 2038.888800866458 обслуживание_клиента[51](barber_simple.barber_simple.парикмахерская)
-RK 2038.888800866458 barber_simple.barber_simple.парикмахерская = {Занят, 2, 51}
-EI 2058.275538519713 barber_simple.barber_simple.Событие_прихода_клиента[54]
-RK 2058.275538519713 barber_simple.barber_simple.парикмахерская = {Занят, 3, 51}
-EF 2060.76587865472 обслуживание_клиента[51](barber_simple.barber_simple.парикмахерская)
-RK 2060.76587865472 barber_simple.barber_simple.парикмахерская = {Свободен, 3, 52}
-EB 2060.76587865472 обслуживание_клиента[52](barber_simple.barber_simple.парикмахерская)
-RK 2060.76587865472 barber_simple.barber_simple.парикмахерская = {Занят, 2, 52}
-EF 2098.096645839522 обслуживание_клиента[52](barber_simple.barber_simple.парикмахерская)
-RK 2098.096645839522 barber_simple.barber_simple.парикмахерская = {Свободен, 2, 53}
-EB 2098.096645839522 обслуживание_клиента[53](barber_simple.barber_simple.парикмахерская)
-RK 2098.096645839522 barber_simple.barber_simple.парикмахерская = {Занят, 1, 53}
-EI 2102.711580186082 barber_simple.barber_simple.Событие_прихода_клиента[55]
-RK 2102.711580186082 barber_simple.barber_simple.парикмахерская = {Занят, 2, 53}
-EI 2109.9020265304416 barber_simple.barber_simple.Событие_прихода_клиента[56]
-RK 2109.9020265304416 barber_simple.barber_simple.парикмахерская = {Занят, 3, 53}
-EI 2110.043857842303 barber_simple.barber_simple.Событие_прихода_клиента[57]
-RK 2110.043857842303 barber_simple.barber_simple.парикмахерская = {Занят, 4, 53}
-EF 2124.954857831176 обслуживание_клиента[53](barber_simple.barber_simple.парикмахерская)
-RK 2124.954857831176 barber_simple.barber_simple.парикмахерская = {Свободен, 4, 54}
-EB 2124.954857831176 обслуживание_клиента[54](barber_simple.barber_simple.парикмахерская)
-RK 2124.954857831176 barber_simple.barber_simple.парикмахерская = {Занят, 3, 54}
-EI 2130.1815686764558 barber_simple.barber_simple.Событие_прихода_клиента[58]
-RK 2130.1815686764558 barber_simple.barber_simple.парикмахерская = {Занят, 4, 54}
-EI 2157.1647320981583 barber_simple.barber_simple.Событие_прихода_клиента[59]
-RK 2157.1647320981583 barber_simple.barber_simple.парикмахерская = {Занят, 5, 54}
-EF 2157.702944582724 обслуживание_клиента[54](barber_simple.barber_simple.парикмахерская)
-RK 2157.702944582724 barber_simple.barber_simple.парикмахерская = {Свободен, 5, 55}
-EB 2157.702944582724 обслуживание_клиента[55](barber_simple.barber_simple.парикмахерская)
-RK 2157.702944582724 barber_simple.barber_simple.парикмахерская = {Занят, 4, 55}
-EI 2173.2446322060064 barber_simple.barber_simple.Событие_прихода_клиента[60]
-RK 2173.2446322060064 barber_simple.barber_simple.парикмахерская = {Занят, 5, 55}
-EI 2184.846665579322 barber_simple.barber_simple.Событие_прихода_клиента[61]
-RK 2184.846665579322 barber_simple.barber_simple.парикмахерская = {Занят, 6, 55}
-EF 2193.1556571585334 обслуживание_клиента[55](barber_simple.barber_simple.парикмахерская)
-RK 2193.1556571585334 barber_simple.barber_simple.парикмахерская = {Свободен, 6, 56}
-EB 2193.1556571585334 обслуживание_клиента[56](barber_simple.barber_simple.парикмахерская)
-RK 2193.1556571585334 barber_simple.barber_simple.парикмахерская = {Занят, 5, 56}
-EF 2217.4180890249013 обслуживание_клиента[56](barber_simple.barber_simple.парикмахерская)
-RK 2217.4180890249013 barber_simple.barber_simple.парикмахерская = {Свободен, 5, 57}
-EB 2217.4180890249013 обслуживание_клиента[57](barber_simple.barber_simple.парикмахерская)
-RK 2217.4180890249013 barber_simple.barber_simple.парикмахерская = {Занят, 4, 57}
-EI 2228.395116873073 barber_simple.barber_simple.Событие_прихода_клиента[62]
-RK 2228.395116873073 barber_simple.barber_simple.парикмахерская = {Занят, 5, 57}
-EF 2237.512420072171 обслуживание_клиента[57](barber_simple.barber_simple.парикмахерская)
-RK 2237.512420072171 barber_simple.barber_simple.парикмахерская = {Свободен, 5, 58}
-EB 2237.512420072171 обслуживание_клиента[58](barber_simple.barber_simple.парикмахерская)
-RK 2237.512420072171 barber_simple.barber_simple.парикмахерская = {Занят, 4, 58}
-EF 2267.2911050724306 обслуживание_клиента[58](barber_simple.barber_simple.парикмахерская)
-RK 2267.2911050724306 barber_simple.barber_simple.парикмахерская = {Свободен, 4, 59}
-EB 2267.2911050724306 обслуживание_клиента[59](barber_simple.barber_simple.парикмахерская)
-RK 2267.2911050724306 barber_simple.barber_simple.парикмахерская = {Занят, 3, 59}
-EI 2268.82566900362 barber_simple.barber_simple.Событие_прихода_клиента[63]
-RK 2268.82566900362 barber_simple.barber_simple.парикмахерская = {Занят, 4, 59}
-EI 2270.428131476592 barber_simple.barber_simple.Событие_прихода_клиента[64]
-RK 2270.428131476592 barber_simple.barber_simple.парикмахерская = {Занят, 5, 59}
-EF 2299.155147102212 обслуживание_клиента[59](barber_simple.barber_simple.парикмахерская)
-RK 2299.155147102212 barber_simple.barber_simple.парикмахерская = {Свободен, 5, 60}
-EB 2299.155147102212 обслуживание_клиента[60](barber_simple.barber_simple.парикмахерская)
-RK 2299.155147102212 barber_simple.barber_simple.парикмахерская = {Занят, 4, 60}
-EI 2302.7953492245174 barber_simple.barber_simple.Событие_прихода_клиента[65]
-RK 2302.7953492245174 barber_simple.barber_simple.парикмахерская = {Занят, 5, 60}
-EI 2312.197754958568 barber_simple.barber_simple.Событие_прихода_клиента[66]
-RK 2312.197754958568 barber_simple.barber_simple.парикмахерская = {Занят, 6, 60}
-EI 2322.3402879696114 barber_simple.barber_simple.Событие_прихода_клиента[67]
-RK 2322.3402879696114 barber_simple.barber_simple.парикмахерская = {Занят, 7, 60}
-EF 2327.453429866786 обслуживание_клиента[60](barber_simple.barber_simple.парикмахерская)
-RK 2327.453429866786 barber_simple.barber_simple.парикмахерская = {Свободен, 7, 61}
-EB 2327.453429866786 обслуживание_клиента[61](barber_simple.barber_simple.парикмахерская)
-RK 2327.453429866786 barber_simple.barber_simple.парикмахерская = {Занят, 6, 61}
-EI 2337.3426313251375 barber_simple.barber_simple.Событие_прихода_клиента[68]
-RK 2337.3426313251375 barber_simple.barber_simple.парикмахерская = {Занят, 7, 61}
-EI 2348.0128197322288 barber_simple.barber_simple.Событие_прихода_клиента[69]
-RK 2348.0128197322288 barber_simple.barber_simple.парикмахерская = {Занят, 8, 61}
-EF 2353.868000779163 обслуживание_клиента[61](barber_simple.barber_simple.парикмахерская)
-RK 2353.868000779163 barber_simple.barber_simple.парикмахерская = {Свободен, 8, 62}
-EB 2353.868000779163 обслуживание_клиента[62](barber_simple.barber_simple.парикмахерская)
-RK 2353.868000779163 barber_simple.barber_simple.парикмахерская = {Занят, 7, 62}
-EI 2360.392472212924 barber_simple.barber_simple.Событие_прихода_клиента[70]
-RK 2360.392472212924 barber_simple.barber_simple.парикмахерская = {Занят, 8, 62}
-EI 2361.3775657533074 barber_simple.barber_simple.Событие_прихода_клиента[71]
-RK 2361.3775657533074 barber_simple.barber_simple.парикмахерская = {Занят, 9, 62}
-EF 2389.1841657247546 обслуживание_клиента[62](barber_simple.barber_simple.парикмахерская)
-RK 2389.1841657247546 barber_simple.barber_simple.парикмахерская = {Свободен, 9, 63}
-EB 2389.1841657247546 обслуживание_клиента[63](barber_simple.barber_simple.парикмахерская)
-RK 2389.1841657247546 barber_simple.barber_simple.парикмахерская = {Занят, 8, 63}
-EI 2395.6596575711246 barber_simple.barber_simple.Событие_прихода_клиента[72]
-RK 2395.6596575711246 barber_simple.barber_simple.парикмахерская = {Занят, 9, 63}
-EI 2408.0046917020995 barber_simple.barber_simple.Событие_прихода_клиента[73]
-RK 2408.0046917020995 barber_simple.barber_simple.парикмахерская = {Занят, 10, 63}
-EF 2423.987344152842 обслуживание_клиента[63](barber_simple.barber_simple.парикмахерская)
-RK 2423.987344152842 barber_simple.barber_simple.парикмахерская = {Свободен, 10, 64}
-EB 2423.987344152842 обслуживание_клиента[64](barber_simple.barber_simple.парикмахерская)
-RK 2423.987344152842 barber_simple.barber_simple.парикмахерская = {Занят, 9, 64}
-EF 2445.0276217069827 обслуживание_клиента[64](barber_simple.barber_simple.парикмахерская)
-RK 2445.0276217069827 barber_simple.barber_simple.парикмахерская = {Свободен, 9, 65}
-EB 2445.0276217069827 обслуживание_клиента[65](barber_simple.barber_simple.парикмахерская)
-RK 2445.0276217069827 barber_simple.barber_simple.парикмахерская = {Занят, 8, 65}
-EI 2458.270241354884 barber_simple.barber_simple.Событие_прихода_клиента[74]
-RK 2458.270241354884 barber_simple.barber_simple.парикмахерская = {Занят, 9, 65}
-EI 2459.2296667330265 barber_simple.barber_simple.Событие_прихода_клиента[75]
-RK 2459.2296667330265 barber_simple.barber_simple.парикмахерская = {Занят, 10, 65}
-EI 2476.4937347242467 barber_simple.barber_simple.Событие_прихода_клиента[76]
-RK 2476.4937347242467 barber_simple.barber_simple.парикмахерская = {Занят, 11, 65}
-EF 2478.2282853334655 обслуживание_клиента[65](barber_simple.barber_simple.парикмахерская)
-RK 2478.2282853334655 barber_simple.barber_simple.парикмахерская = {Свободен, 11, 66}
-EB 2478.2282853334655 обслуживание_клиента[66](barber_simple.barber_simple.парикмахерская)
-RK 2478.2282853334655 barber_simple.barber_simple.парикмахерская = {Занят, 10, 66}
-EI 2491.6546641728614 barber_simple.barber_simple.Событие_прихода_клиента[77]
-RK 2491.6546641728614 barber_simple.barber_simple.парикмахерская = {Занят, 11, 66}
-EF 2503.609333626431 обслуживание_клиента[66](barber_simple.barber_simple.парикмахерская)
-RK 2503.609333626431 barber_simple.barber_simple.парикмахерская = {Свободен, 11, 67}
-EB 2503.609333626431 обслуживание_клиента[67](barber_simple.barber_simple.парикмахерская)
-RK 2503.609333626431 barber_simple.barber_simple.парикмахерская = {Занят, 10, 67}
-EI 2522.5403714060803 barber_simple.barber_simple.Событие_прихода_клиента[78]
-RK 2522.5403714060803 barber_simple.barber_simple.парикмахерская = {Занят, 11, 67}
-EF 2529.346632171983 обслуживание_клиента[67](barber_simple.barber_simple.парикмахерская)
-RK 2529.346632171983 barber_simple.barber_simple.парикмахерская = {Свободен, 11, 68}
-EB 2529.346632171983 обслуживание_клиента[68](barber_simple.barber_simple.парикмахерская)
-RK 2529.346632171983 barber_simple.barber_simple.парикмахерская = {Занят, 10, 68}
-EI 2552.8025169300417 barber_simple.barber_simple.Событие_прихода_клиента[79]
-RK 2552.8025169300417 barber_simple.barber_simple.парикмахерская = {Занят, 11, 68}
-EF 2557.2169664853727 обслуживание_клиента[68](barber_simple.barber_simple.парикмахерская)
-RK 2557.2169664853727 barber_simple.barber_simple.парикмахерская = {Свободен, 11, 69}
-EB 2557.2169664853727 обслуживание_клиента[69](barber_simple.barber_simple.парикмахерская)
-RK 2557.2169664853727 barber_simple.barber_simple.парикмахерская = {Занят, 10, 69}
-EI 2568.4307242261957 barber_simple.barber_simple.Событие_прихода_клиента[80]
-RK 2568.4307242261957 barber_simple.barber_simple.парикмахерская = {Занят, 11, 69}
-EF 2583.202931496539 обслуживание_клиента[69](barber_simple.barber_simple.парикмахерская)
-RK 2583.202931496539 barber_simple.barber_simple.парикмахерская = {Свободен, 11, 70}
-EB 2583.202931496539 обслуживание_клиента[70](barber_simple.barber_simple.парикмахерская)
-RK 2583.202931496539 barber_simple.barber_simple.парикмахерская = {Занят, 10, 70}
-EF 2609.9651206772287 обслуживание_клиента[70](barber_simple.barber_simple.парикмахерская)
-RK 2609.9651206772287 barber_simple.barber_simple.парикмахерская = {Свободен, 10, 71}
-EB 2609.9651206772287 обслуживание_клиента[71](barber_simple.barber_simple.парикмахерская)
-RK 2609.9651206772287 barber_simple.barber_simple.парикмахерская = {Занят, 9, 71}
-EF 2630.6111844340553 обслуживание_клиента[71](barber_simple.barber_simple.парикмахерская)
-RK 2630.6111844340553 barber_simple.barber_simple.парикмахерская = {Свободен, 9, 72}
-EB 2630.6111844340553 обслуживание_клиента[72](barber_simple.barber_simple.парикмахерская)
-RK 2630.6111844340553 barber_simple.barber_simple.парикмахерская = {Занят, 8, 72}
-EI 2650.540185269113 barber_simple.barber_simple.Событие_прихода_клиента[81]
-RK 2650.540185269113 barber_simple.barber_simple.парикмахерская = {Занят, 9, 72}
-EF 2664.232283088566 обслуживание_клиента[72](barber_simple.barber_simple.парикмахерская)
-RK 2664.232283088566 barber_simple.barber_simple.парикмахерская = {Свободен, 9, 73}
-EB 2664.232283088566 обслуживание_клиента[73](barber_simple.barber_simple.парикмахерская)
-RK 2664.232283088566 barber_simple.barber_simple.парикмахерская = {Занят, 8, 73}
-EF 2690.9791877467205 обслуживание_клиента[73](barber_simple.barber_simple.парикмахерская)
-RK 2690.9791877467205 barber_simple.barber_simple.парикмахерская = {Свободен, 8, 74}
-EB 2690.9791877467205 обслуживание_клиента[74](barber_simple.barber_simple.парикмахерская)
-RK 2690.9791877467205 barber_simple.barber_simple.парикмахерская = {Занят, 7, 74}
-EI 2706.0133293697 barber_simple.barber_simple.Событие_прихода_клиента[82]
-RK 2706.0133293697 barber_simple.barber_simple.парикмахерская = {Занят, 8, 74}
-EI 2721.5733341947384 barber_simple.barber_simple.Событие_прихода_клиента[83]
-RK 2721.5733341947384 barber_simple.barber_simple.парикмахерская = {Занят, 9, 74}
-EI 2726.843296164878 barber_simple.barber_simple.Событие_прихода_клиента[84]
-RK 2726.843296164878 barber_simple.barber_simple.парикмахерская = {Занят, 10, 74}
-EF 2727.234965372054 обслуживание_клиента[74](barber_simple.barber_simple.парикмахерская)
-RK 2727.234965372054 barber_simple.barber_simple.парикмахерская = {Свободен, 10, 75}
-EB 2727.234965372054 обслуживание_клиента[75](barber_simple.barber_simple.парикмахерская)
-RK 2727.234965372054 barber_simple.barber_simple.парикмахерская = {Занят, 9, 75}
-EF 2747.864462710216 обслуживание_клиента[75](barber_simple.barber_simple.парикмахерская)
-RK 2747.864462710216 barber_simple.barber_simple.парикмахерская = {Свободен, 9, 76}
-EB 2747.864462710216 обслуживание_клиента[76](barber_simple.barber_simple.парикмахерская)
-RK 2747.864462710216 barber_simple.barber_simple.парикмахерская = {Занят, 8, 76}
-EI 2768.70848560727 barber_simple.barber_simple.Событие_прихода_клиента[85]
-RK 2768.70848560727 barber_simple.barber_simple.парикмахерская = {Занят, 9, 76}
-EF 2776.615641514995 обслуживание_клиента[76](barber_simple.barber_simple.парикмахерская)
-RK 2776.615641514995 barber_simple.barber_simple.парикмахерская = {Свободен, 9, 77}
-EB 2776.615641514995 обслуживание_клиента[77](barber_simple.barber_simple.парикмахерская)
-RK 2776.615641514995 barber_simple.barber_simple.парикмахерская = {Занят, 8, 77}
-EI 2794.5064444243503 barber_simple.barber_simple.Событие_прихода_клиента[86]
-RK 2794.5064444243503 barber_simple.barber_simple.парикмахерская = {Занят, 9, 77}
-EF 2804.549926527663 обслуживание_клиента[77](barber_simple.barber_simple.парикмахерская)
-RK 2804.549926527663 barber_simple.barber_simple.парикмахерская = {Свободен, 9, 78}
-EB 2804.549926527663 обслуживание_клиента[78](barber_simple.barber_simple.парикмахерская)
-RK 2804.549926527663 barber_simple.barber_simple.парикмахерская = {Занят, 8, 78}
-EI 2834.1860554478135 barber_simple.barber_simple.Событие_прихода_клиента[87]
-RK 2834.1860554478135 barber_simple.barber_simple.парикмахерская = {Занят, 9, 78}
-EF 2837.4063847609946 обслуживание_клиента[78](barber_simple.barber_simple.парикмахерская)
-RK 2837.4063847609946 barber_simple.barber_simple.парикмахерская = {Свободен, 9, 79}
-EB 2837.4063847609946 обслуживание_клиента[79](barber_simple.barber_simple.парикмахерская)
-RK 2837.4063847609946 barber_simple.barber_simple.парикмахерская = {Занят, 8, 79}
-EF 2870.1128078223483 обслуживание_клиента[79](barber_simple.barber_simple.парикмахерская)
-RK 2870.1128078223483 barber_simple.barber_simple.парикмахерская = {Свободен, 8, 80}
-EB 2870.1128078223483 обслуживание_клиента[80](barber_simple.barber_simple.парикмахерская)
-RK 2870.1128078223483 barber_simple.barber_simple.парикмахерская = {Занят, 7, 80}
-EI 2891.4310745909775 barber_simple.barber_simple.Событие_прихода_клиента[88]
-RK 2891.4310745909775 barber_simple.barber_simple.парикмахерская = {Занят, 8, 80}
-EF 2898.2335714868 обслуживание_клиента[80](barber_simple.barber_simple.парикмахерская)
-RK 2898.2335714868 barber_simple.barber_simple.парикмахерская = {Свободен, 8, 81}
-EB 2898.2335714868 обслуживание_клиента[81](barber_simple.barber_simple.парикмахерская)
-RK 2898.2335714868 barber_simple.barber_simple.парикмахерская = {Занят, 7, 81}
-EI 2918.008585900433 barber_simple.barber_simple.Событие_прихода_клиента[89]
-RK 2918.008585900433 barber_simple.barber_simple.парикмахерская = {Занят, 8, 81}
-EF 2936.9382612406307 обслуживание_клиента[81](barber_simple.barber_simple.парикмахерская)
-RK 2936.9382612406307 barber_simple.barber_simple.парикмахерская = {Свободен, 8, 82}
-EB 2936.9382612406307 обслуживание_клиента[82](barber_simple.barber_simple.парикмахерская)
-RK 2936.9382612406307 barber_simple.barber_simple.парикмахерская = {Занят, 7, 82}
-EI 2950.766695107719 barber_simple.barber_simple.Событие_прихода_клиента[90]
-RK 2950.766695107719 barber_simple.barber_simple.парикмахерская = {Занят, 8, 82}
-EI 2965.202371770562 barber_simple.barber_simple.Событие_прихода_клиента[91]
-RK 2965.202371770562 barber_simple.barber_simple.парикмахерская = {Занят, 9, 82}
-EF 2973.790701490238 обслуживание_клиента[82](barber_simple.barber_simple.парикмахерская)
-RK 2973.790701490238 barber_simple.barber_simple.парикмахерская = {Свободен, 9, 83}
-EB 2973.790701490238 обслуживание_клиента[83](barber_simple.barber_simple.парикмахерская)
-RK 2973.790701490238 barber_simple.barber_simple.парикмахерская = {Занят, 8, 83}
-EI 2975.558132110566 barber_simple.barber_simple.Событие_прихода_клиента[92]
-RK 2975.558132110566 barber_simple.barber_simple.парикмахерская = {Занят, 9, 83}
-EI 2991.900668563099 barber_simple.barber_simple.Событие_прихода_клиента[93]
-RK 2991.900668563099 barber_simple.barber_simple.парикмахерская = {Занят, 10, 83}
-EI 2995.249263148736 barber_simple.barber_simple.Событие_прихода_клиента[94]
-RK 2995.249263148736 barber_simple.barber_simple.парикмахерская = {Занят, 11, 83}
-EF 3001.884427990543 обслуживание_клиента[83](barber_simple.barber_simple.парикмахерская)
-RK 3001.884427990543 barber_simple.barber_simple.парикмахерская = {Свободен, 11, 84}
-EB 3001.884427990543 обслуживание_клиента[84](barber_simple.barber_simple.парикмахерская)
-RK 3001.884427990543 barber_simple.barber_simple.парикмахерская = {Занят, 10, 84}
-EF 3025.1064553365595 обслуживание_клиента[84](barber_simple.barber_simple.парикмахерская)
-RK 3025.1064553365595 barber_simple.barber_simple.парикмахерская = {Свободен, 10, 85}
-EB 3025.1064553365595 обслуживание_клиента[85](barber_simple.barber_simple.парикмахерская)
-RK 3025.1064553365595 barber_simple.barber_simple.парикмахерская = {Занят, 9, 85}
-EI 3038.5393267936483 barber_simple.barber_simple.Событие_прихода_клиента[95]
-RK 3038.5393267936483 barber_simple.barber_simple.парикмахерская = {Занят, 10, 85}
-EI 3039.1137615965536 barber_simple.barber_simple.Событие_прихода_клиента[96]
-RK 3039.1137615965536 barber_simple.barber_simple.парикмахерская = {Занят, 11, 85}
-EI 3055.20301544587 barber_simple.barber_simple.Событие_прихода_клиента[97]
-RK 3055.20301544587 barber_simple.barber_simple.парикмахерская = {Занят, 12, 85}
-EF 3060.15230360441 обслуживание_клиента[85](barber_simple.barber_simple.парикмахерская)
-RK 3060.15230360441 barber_simple.barber_simple.парикмахерская = {Свободен, 12, 86}
-EB 3060.15230360441 обслуживание_клиента[86](barber_simple.barber_simple.парикмахерская)
-RK 3060.15230360441 barber_simple.barber_simple.парикмахерская = {Занят, 11, 86}
-EI 3065.0039404846466 barber_simple.barber_simple.Событие_прихода_клиента[98]
-RK 3065.0039404846466 barber_simple.barber_simple.парикмахерская = {Занят, 12, 86}
-EI 3065.7323756237106 barber_simple.barber_simple.Событие_прихода_клиента[99]
-RK 3065.7323756237106 barber_simple.barber_simple.парикмахерская = {Занят, 13, 86}
-EF 3091.688486104322 обслуживание_клиента[86](barber_simple.barber_simple.парикмахерская)
-RK 3091.688486104322 barber_simple.barber_simple.парикмахерская = {Свободен, 13, 87}
-EB 3091.688486104322 обслуживание_клиента[87](barber_simple.barber_simple.парикмахерская)
-RK 3091.688486104322 barber_simple.barber_simple.парикмахерская = {Занят, 12, 87}
-EI 3109.6478037765105 barber_simple.barber_simple.Событие_прихода_клиента[100]
-RK 3109.6478037765105 barber_simple.barber_simple.парикмахерская = {Занят, 13, 87}
-EI 3117.393976650318 barber_simple.barber_simple.Событие_прихода_клиента[101]
-RK 3117.393976650318 barber_simple.barber_simple.парикмахерская = {Занят, 14, 87}
-EF 3126.35993921282 обслуживание_клиента[87](barber_simple.barber_simple.парикмахерская)
-RK 3126.35993921282 barber_simple.barber_simple.парикмахерская = {Свободен, 14, 88}
-EB 3126.35993921282 обслуживание_клиента[88](barber_simple.barber_simple.парикмахерская)
-RK 3126.35993921282 barber_simple.barber_simple.парикмахерская = {Занят, 13, 88}
-EI 3132.7857473755466 barber_simple.barber_simple.Событие_прихода_клиента[102]
-RK 3132.7857473755466 barber_simple.barber_simple.парикмахерская = {Занят, 14, 88}
-EI 3147.63074244942 barber_simple.barber_simple.Событие_прихода_клиента[103]
-RK 3147.63074244942 barber_simple.barber_simple.парикмахерская = {Занят, 15, 88}
-EI 3158.705470451933 barber_simple.barber_simple.Событие_прихода_клиента[104]
-RK 3158.705470451933 barber_simple.barber_simple.парикмахерская = {Занят, 16, 88}
-EF 3163.3928987798313 обслуживание_клиента[88](barber_simple.barber_simple.парикмахерская)
-RK 3163.3928987798313 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 89}
-EB 3163.3928987798313 обслуживание_клиента[89](barber_simple.barber_simple.парикмахерская)
-RK 3163.3928987798313 barber_simple.barber_simple.парикмахерская = {Занят, 15, 89}
-EI 3164.2934233096994 barber_simple.barber_simple.Событие_прихода_клиента[105]
-RK 3164.2934233096994 barber_simple.barber_simple.парикмахерская = {Занят, 16, 89}
-EI 3165.628832003694 barber_simple.barber_simple.Событие_прихода_клиента[106]
-RK 3165.628832003694 barber_simple.barber_simple.парикмахерская = {Занят, 17, 89}
-EF 3195.1461813827377 обслуживание_клиента[89](barber_simple.barber_simple.парикмахерская)
-RK 3195.1461813827377 barber_simple.barber_simple.парикмахерская = {Свободен, 17, 90}
-EB 3195.1461813827377 обслуживание_клиента[90](barber_simple.barber_simple.парикмахерская)
-RK 3195.1461813827377 barber_simple.barber_simple.парикмахерская = {Занят, 16, 90}
-EI 3220.7953783550834 barber_simple.barber_simple.Событие_прихода_клиента[107]
-RK 3220.7953783550834 barber_simple.barber_simple.парикмахерская = {Занят, 17, 90}
-EF 3228.434863751633 обслуживание_клиента[90](barber_simple.barber_simple.парикмахерская)
-RK 3228.434863751633 barber_simple.barber_simple.парикмахерская = {Свободен, 17, 91}
-EB 3228.434863751633 обслуживание_клиента[91](barber_simple.barber_simple.парикмахерская)
-RK 3228.434863751633 barber_simple.barber_simple.парикмахерская = {Занят, 16, 91}
-EF 3256.0739045854675 обслуживание_клиента[91](barber_simple.barber_simple.парикмахерская)
-RK 3256.0739045854675 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 92}
-EB 3256.0739045854675 обслуживание_клиента[92](barber_simple.barber_simple.парикмахерская)
-RK 3256.0739045854675 barber_simple.barber_simple.парикмахерская = {Занят, 15, 92}
-EI 3262.599288249712 barber_simple.barber_simple.Событие_прихода_клиента[108]
-RK 3262.599288249712 barber_simple.barber_simple.парикмахерская = {Занят, 16, 92}
-EI 3273.281522759453 barber_simple.barber_simple.Событие_прихода_клиента[109]
-RK 3273.281522759453 barber_simple.barber_simple.парикмахерская = {Занят, 17, 92}
-EF 3281.9122169817083 обслуживание_клиента[92](barber_simple.barber_simple.парикмахерская)
-RK 3281.9122169817083 barber_simple.barber_simple.парикмахерская = {Свободен, 17, 93}
-EB 3281.9122169817083 обслуживание_клиента[93](barber_simple.barber_simple.парикмахерская)
-RK 3281.9122169817083 barber_simple.barber_simple.парикмахерская = {Занят, 16, 93}
-EI 3288.428700950777 barber_simple.barber_simple.Событие_прихода_клиента[110]
-RK 3288.428700950777 barber_simple.barber_simple.парикмахерская = {Занят, 17, 93}
-EF 3310.3124958382123 обслуживание_клиента[93](barber_simple.barber_simple.парикмахерская)
-RK 3310.3124958382123 barber_simple.barber_simple.парикмахерская = {Свободен, 17, 94}
-EB 3310.3124958382123 обслуживание_клиента[94](barber_simple.barber_simple.парикмахерская)
-RK 3310.3124958382123 barber_simple.barber_simple.парикмахерская = {Занят, 16, 94}
-EF 3332.4248114323377 обслуживание_клиента[94](barber_simple.barber_simple.парикмахерская)
-RK 3332.4248114323377 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 95}
-EB 3332.4248114323377 обслуживание_клиента[95](barber_simple.barber_simple.парикмахерская)
-RK 3332.4248114323377 barber_simple.barber_simple.парикмахерская = {Занят, 15, 95}
-EI 3363.8585678231716 barber_simple.barber_simple.Событие_прихода_клиента[111]
-RK 3363.8585678231716 barber_simple.barber_simple.парикмахерская = {Занят, 16, 95}
-EF 3367.7004606447326 обслуживание_клиента[95](barber_simple.barber_simple.парикмахерская)
-RK 3367.7004606447326 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 96}
-EB 3367.7004606447326 обслуживание_клиента[96](barber_simple.barber_simple.парикмахерская)
-RK 3367.7004606447326 barber_simple.barber_simple.парикмахерская = {Занят, 15, 96}
-EI 3378.088160859294 barber_simple.barber_simple.Событие_прихода_клиента[112]
-RK 3378.088160859294 barber_simple.barber_simple.парикмахерская = {Занят, 16, 96}
-EF 3388.079774076863 обслуживание_клиента[96](barber_simple.barber_simple.парикмахерская)
-RK 3388.079774076863 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 97}
-EB 3388.079774076863 обслуживание_клиента[97](barber_simple.barber_simple.парикмахерская)
-RK 3388.079774076863 barber_simple.barber_simple.парикмахерская = {Занят, 15, 97}
-EI 3398.308807449771 barber_simple.barber_simple.Событие_прихода_клиента[113]
-RK 3398.308807449771 barber_simple.barber_simple.парикмахерская = {Занят, 16, 97}
-EI 3403.7920082370715 barber_simple.barber_simple.Событие_прихода_клиента[114]
-RK 3403.7920082370715 barber_simple.barber_simple.парикмахерская = {Занят, 17, 97}
-EF 3416.381704767303 обслуживание_клиента[97](barber_simple.barber_simple.парикмахерская)
-RK 3416.381704767303 barber_simple.barber_simple.парикмахерская = {Свободен, 17, 98}
-EB 3416.381704767303 обслуживание_клиента[98](barber_simple.barber_simple.парикмахерская)
-RK 3416.381704767303 barber_simple.barber_simple.парикмахерская = {Занят, 16, 98}
-EI 3428.1353523040157 barber_simple.barber_simple.Событие_прихода_клиента[115]
-RK 3428.1353523040157 barber_simple.barber_simple.парикмахерская = {Занят, 17, 98}
-EF 3441.9556667088686 обслуживание_клиента[98](barber_simple.barber_simple.парикмахерская)
-RK 3441.9556667088686 barber_simple.barber_simple.парикмахерская = {Свободен, 17, 99}
-EB 3441.9556667088686 обслуживание_клиента[99](barber_simple.barber_simple.парикмахерская)
-RK 3441.9556667088686 barber_simple.barber_simple.парикмахерская = {Занят, 16, 99}
-EF 3462.435441812443 обслуживание_клиента[99](barber_simple.barber_simple.парикмахерская)
-RK 3462.435441812443 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 100}
-EB 3462.435441812443 обслуживание_клиента[100](barber_simple.barber_simple.парикмахерская)
-RK 3462.435441812443 barber_simple.barber_simple.парикмахерская = {Занят, 15, 100}
-EI 3467.8468513626417 barber_simple.barber_simple.Событие_прихода_клиента[116]
-RK 3467.8468513626417 barber_simple.barber_simple.парикмахерская = {Занят, 16, 100}
-EI 3481.732852139984 barber_simple.barber_simple.Событие_прихода_клиента[117]
-RK 3481.732852139984 barber_simple.barber_simple.парикмахерская = {Занят, 17, 100}
-EI 3487.1440286844118 barber_simple.barber_simple.Событие_прихода_клиента[118]
-RK 3487.1440286844118 barber_simple.barber_simple.парикмахерская = {Занят, 18, 100}
-EF 3497.8085530509607 обслуживание_клиента[100](barber_simple.barber_simple.парикмахерская)
-RK 3497.8085530509607 barber_simple.barber_simple.парикмахерская = {Свободен, 18, 101}
-EB 3497.8085530509607 обслуживание_клиента[101](barber_simple.barber_simple.парикмахерская)
-RK 3497.8085530509607 barber_simple.barber_simple.парикмахерская = {Занят, 17, 101}
-EF 3522.3598275036566 обслуживание_клиента[101](barber_simple.barber_simple.парикмахерская)
-RK 3522.3598275036566 barber_simple.barber_simple.парикмахерская = {Свободен, 17, 102}
-EB 3522.3598275036566 обслуживание_клиента[102](barber_simple.barber_simple.парикмахерская)
-RK 3522.3598275036566 barber_simple.barber_simple.парикмахерская = {Занят, 16, 102}
-EF 3550.38659840236 обслуживание_клиента[102](barber_simple.barber_simple.парикмахерская)
-RK 3550.38659840236 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 103}
-EB 3550.38659840236 обслуживание_клиента[103](barber_simple.barber_simple.парикмахерская)
-RK 3550.38659840236 barber_simple.barber_simple.парикмахерская = {Занят, 15, 103}
-EF 3578.1931461818585 обслуживание_клиента[103](barber_simple.barber_simple.парикмахерская)
-RK 3578.1931461818585 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 104}
-EB 3578.1931461818585 обслуживание_клиента[104](barber_simple.barber_simple.парикмахерская)
-RK 3578.1931461818585 barber_simple.barber_simple.парикмахерская = {Занят, 14, 104}
-EI 3581.776839479007 barber_simple.barber_simple.Событие_прихода_клиента[119]
-RK 3581.776839479007 barber_simple.barber_simple.парикмахерская = {Занят, 15, 104}
-EI 3582.1072980992667 barber_simple.barber_simple.Событие_прихода_клиента[120]
-RK 3582.1072980992667 barber_simple.barber_simple.парикмахерская = {Занят, 16, 104}
-EF 3604.3668171751788 обслуживание_клиента[104](barber_simple.barber_simple.парикмахерская)
-RK 3604.3668171751788 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 105}
-EB 3604.3668171751788 обслуживание_клиента[105](barber_simple.barber_simple.парикмахерская)
-RK 3604.3668171751788 barber_simple.barber_simple.парикмахерская = {Занят, 15, 105}
-EI 3609.7137623624585 barber_simple.barber_simple.Событие_прихода_клиента[121]
-RK 3609.7137623624585 barber_simple.barber_simple.парикмахерская = {Занят, 16, 105}
-EF 3627.765746723985 обслуживание_клиента[105](barber_simple.barber_simple.парикмахерская)
-RK 3627.765746723985 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 106}
-EB 3627.765746723985 обслуживание_клиента[106](barber_simple.barber_simple.парикмахерская)
-RK 3627.765746723985 barber_simple.barber_simple.парикмахерская = {Занят, 15, 106}
-EF 3648.6364953242264 обслуживание_клиента[106](barber_simple.barber_simple.парикмахерская)
-RK 3648.6364953242264 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 107}
-EB 3648.6364953242264 обслуживание_клиента[107](barber_simple.barber_simple.парикмахерская)
-RK 3648.6364953242264 barber_simple.barber_simple.парикмахерская = {Занят, 14, 107}
-EF 3685.456602811554 обслуживание_клиента[107](barber_simple.barber_simple.парикмахерская)
-RK 3685.456602811554 barber_simple.barber_simple.парикмахерская = {Свободен, 14, 108}
-EB 3685.456602811554 обслуживание_клиента[108](barber_simple.barber_simple.парикмахерская)
-RK 3685.456602811554 barber_simple.barber_simple.парикмахерская = {Занят, 13, 108}
-EI 3692.009730189075 barber_simple.barber_simple.Событие_прихода_клиента[122]
-RK 3692.009730189075 barber_simple.barber_simple.парикмахерская = {Занят, 14, 108}
-EI 3711.5843769416456 barber_simple.barber_simple.Событие_прихода_клиента[123]
-RK 3711.5843769416456 barber_simple.barber_simple.парикмахерская = {Занят, 15, 108}
-EI 3715.5913751278817 barber_simple.barber_simple.Событие_прихода_клиента[124]
-RK 3715.5913751278817 barber_simple.barber_simple.парикмахерская = {Занят, 16, 108}
-EF 3720.492321131026 обслуживание_клиента[108](barber_simple.barber_simple.парикмахерская)
-RK 3720.492321131026 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 109}
-EB 3720.492321131026 обслуживание_клиента[109](barber_simple.barber_simple.парикмахерская)
-RK 3720.492321131026 barber_simple.barber_simple.парикмахерская = {Занят, 15, 109}
-EI 3733.7168360645283 barber_simple.barber_simple.Событие_прихода_клиента[125]
-RK 3733.7168360645283 barber_simple.barber_simple.парикмахерская = {Занят, 16, 109}
-EI 3743.0396097769103 barber_simple.barber_simple.Событие_прихода_клиента[126]
-RK 3743.0396097769103 barber_simple.barber_simple.парикмахерская = {Занят, 17, 109}
-EI 3745.6268268276217 barber_simple.barber_simple.Событие_прихода_клиента[127]
-RK 3745.6268268276217 barber_simple.barber_simple.парикмахерская = {Занят, 18, 109}
-EF 3746.483912162723 обслуживание_клиента[109](barber_simple.barber_simple.парикмахерская)
-RK 3746.483912162723 barber_simple.barber_simple.парикмахерская = {Свободен, 18, 110}
-EB 3746.483912162723 обслуживание_клиента[110](barber_simple.barber_simple.парикмахерская)
-RK 3746.483912162723 barber_simple.barber_simple.парикмахерская = {Занят, 17, 110}
-EF 3774.412665282607 обслуживание_клиента[110](barber_simple.barber_simple.парикмахерская)
-RK 3774.412665282607 barber_simple.barber_simple.парикмахерская = {Свободен, 17, 111}
-EB 3774.412665282607 обслуживание_клиента[111](barber_simple.barber_simple.парикмахерская)
-RK 3774.412665282607 barber_simple.barber_simple.парикмахерская = {Занят, 16, 111}
-EI 3782.278639210328 barber_simple.barber_simple.Событие_прихода_клиента[128]
-RK 3782.278639210328 barber_simple.barber_simple.парикмахерская = {Занят, 17, 111}
-EI 3799.471775606144 barber_simple.barber_simple.Событие_прихода_клиента[129]
-RK 3799.471775606144 barber_simple.barber_simple.парикмахерская = {Занят, 18, 111}
-EF 3812.794321325314 обслуживание_клиента[111](barber_simple.barber_simple.парикмахерская)
-RK 3812.794321325314 barber_simple.barber_simple.парикмахерская = {Свободен, 18, 112}
-EB 3812.794321325314 обслуживание_клиента[112](barber_simple.barber_simple.парикмахерская)
-RK 3812.794321325314 barber_simple.barber_simple.парикмахерская = {Занят, 17, 112}
-EF 3840.348156793879 обслуживание_клиента[112](barber_simple.barber_simple.парикмахерская)
-RK 3840.348156793879 barber_simple.barber_simple.парикмахерская = {Свободен, 17, 113}
-EB 3840.348156793879 обслуживание_клиента[113](barber_simple.barber_simple.парикмахерская)
-RK 3840.348156793879 barber_simple.barber_simple.парикмахерская = {Занят, 16, 113}
-EF 3870.1550598544018 обслуживание_клиента[113](barber_simple.barber_simple.парикмахерская)
-RK 3870.1550598544018 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 114}
-EB 3870.1550598544018 обслуживание_клиента[114](barber_simple.barber_simple.парикмахерская)
-RK 3870.1550598544018 barber_simple.barber_simple.парикмахерская = {Занят, 15, 114}
-EI 3879.9135059635933 barber_simple.barber_simple.Событие_прихода_клиента[130]
-RK 3879.9135059635933 barber_simple.barber_simple.парикмахерская = {Занят, 16, 114}
-EF 3893.495921533322 обслуживание_клиента[114](barber_simple.barber_simple.парикмахерская)
-RK 3893.495921533322 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 115}
-EB 3893.495921533322 обслуживание_клиента[115](barber_simple.barber_simple.парикмахерская)
-RK 3893.495921533322 barber_simple.barber_simple.парикмахерская = {Занят, 15, 115}
-EF 3924.611605565664 обслуживание_клиента[115](barber_simple.barber_simple.парикмахерская)
-RK 3924.611605565664 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 116}
-EB 3924.611605565664 обслуживание_клиента[116](barber_simple.barber_simple.парикмахерская)
-RK 3924.611605565664 barber_simple.barber_simple.парикмахерская = {Занят, 14, 116}
-EI 3942.609305602833 barber_simple.barber_simple.Событие_прихода_клиента[131]
-RK 3942.609305602833 barber_simple.barber_simple.парикмахерская = {Занят, 15, 116}
-EI 3951.119167910528 barber_simple.barber_simple.Событие_прихода_клиента[132]
-RK 3951.119167910528 barber_simple.barber_simple.парикмахерская = {Занят, 16, 116}
-EF 3959.2887195614076 обслуживание_клиента[116](barber_simple.barber_simple.парикмахерская)
-RK 3959.2887195614076 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 117}
-EB 3959.2887195614076 обслуживание_клиента[117](barber_simple.barber_simple.парикмахерская)
-RK 3959.2887195614076 barber_simple.barber_simple.парикмахерская = {Занят, 15, 117}
-EF 3986.6991887452064 обслуживание_клиента[117](barber_simple.barber_simple.парикмахерская)
-RK 3986.6991887452064 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 118}
-EB 3986.6991887452064 обслуживание_клиента[118](barber_simple.barber_simple.парикмахерская)
-RK 3986.6991887452064 barber_simple.barber_simple.парикмахерская = {Занят, 14, 118}
-EI 3988.2049664782066 barber_simple.barber_simple.Событие_прихода_клиента[133]
-RK 3988.2049664782066 barber_simple.barber_simple.парикмахерская = {Занят, 15, 118}
-EF 4010.0000069808993 обслуживание_клиента[118](barber_simple.barber_simple.парикмахерская)
-RK 4010.0000069808993 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 119}
-EB 4010.0000069808993 обслуживание_клиента[119](barber_simple.barber_simple.парикмахерская)
-RK 4010.0000069808993 barber_simple.barber_simple.парикмахерская = {Занят, 14, 119}
-EI 4027.493553188076 barber_simple.barber_simple.Событие_прихода_клиента[134]
-RK 4027.493553188076 barber_simple.barber_simple.парикмахерская = {Занят, 15, 119}
-EF 4049.1467502075498 обслуживание_клиента[119](barber_simple.barber_simple.парикмахерская)
-RK 4049.1467502075498 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 120}
-EB 4049.1467502075498 обслуживание_клиента[120](barber_simple.barber_simple.парикмахерская)
-RK 4049.1467502075498 barber_simple.barber_simple.парикмахерская = {Занят, 14, 120}
-EI 4059.2698631406133 barber_simple.barber_simple.Событие_прихода_клиента[135]
-RK 4059.2698631406133 barber_simple.barber_simple.парикмахерская = {Занят, 15, 120}
-EF 4069.3658470317855 обслуживание_клиента[120](barber_simple.barber_simple.парикмахерская)
-RK 4069.3658470317855 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 121}
-EB 4069.3658470317855 обслуживание_клиента[121](barber_simple.barber_simple.парикмахерская)
-RK 4069.3658470317855 barber_simple.barber_simple.парикмахерская = {Занят, 14, 121}
-EI 4077.7283121233754 barber_simple.barber_simple.Событие_прихода_клиента[136]
-RK 4077.7283121233754 barber_simple.barber_simple.парикмахерская = {Занят, 15, 121}
-EI 4080.726211707491 barber_simple.barber_simple.Событие_прихода_клиента[137]
-RK 4080.726211707491 barber_simple.barber_simple.парикмахерская = {Занят, 16, 121}
-EF 4101.39718344639 обслуживание_клиента[121](barber_simple.barber_simple.парикмахерская)
-RK 4101.39718344639 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 122}
-EB 4101.39718344639 обслуживание_клиента[122](barber_simple.barber_simple.парикмахерская)
-RK 4101.39718344639 barber_simple.barber_simple.парикмахерская = {Занят, 15, 122}
-EI 4114.3228772448665 barber_simple.barber_simple.Событие_прихода_клиента[138]
-RK 4114.3228772448665 barber_simple.barber_simple.парикмахерская = {Занят, 16, 122}
-EF 4140.109901025231 обслуживание_клиента[122](barber_simple.barber_simple.парикмахерская)
-RK 4140.109901025231 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 123}
-EB 4140.109901025231 обслуживание_клиента[123](barber_simple.barber_simple.парикмахерская)
-RK 4140.109901025231 barber_simple.barber_simple.парикмахерская = {Занят, 15, 123}
-EI 4144.031817515235 barber_simple.barber_simple.Событие_прихода_клиента[139]
-RK 4144.031817515235 barber_simple.barber_simple.парикмахерская = {Занят, 16, 123}
-EI 4144.05101687104 barber_simple.barber_simple.Событие_прихода_клиента[140]
-RK 4144.05101687104 barber_simple.barber_simple.парикмахерская = {Занят, 17, 123}
-EF 4169.694932543521 обслуживание_клиента[123](barber_simple.barber_simple.парикмахерская)
-RK 4169.694932543521 barber_simple.barber_simple.парикмахерская = {Свободен, 17, 124}
-EB 4169.694932543521 обслуживание_клиента[124](barber_simple.barber_simple.парикмахерская)
-RK 4169.694932543521 barber_simple.barber_simple.парикмахерская = {Занят, 16, 124}
-EF 4192.19554877038 обслуживание_клиента[124](barber_simple.barber_simple.парикмахерская)
-RK 4192.19554877038 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 125}
-EB 4192.19554877038 обслуживание_клиента[125](barber_simple.barber_simple.парикмахерская)
-RK 4192.19554877038 barber_simple.barber_simple.парикмахерская = {Занят, 15, 125}
-EF 4221.265123146319 обслуживание_клиента[125](barber_simple.barber_simple.парикмахерская)
-RK 4221.265123146319 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 126}
-EB 4221.265123146319 обслуживание_клиента[126](barber_simple.barber_simple.парикмахерская)
-RK 4221.265123146319 barber_simple.barber_simple.парикмахерская = {Занят, 14, 126}
-EI 4240.917944591069 barber_simple.barber_simple.Событие_прихода_клиента[141]
-RK 4240.917944591069 barber_simple.barber_simple.парикмахерская = {Занят, 15, 126}
-EF 4246.607315336295 обслуживание_клиента[126](barber_simple.barber_simple.парикмахерская)
-RK 4246.607315336295 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 127}
-EB 4246.607315336295 обслуживание_клиента[127](barber_simple.barber_simple.парикмахерская)
-RK 4246.607315336295 barber_simple.barber_simple.парикмахерская = {Занят, 14, 127}
-EI 4252.90290118339 barber_simple.barber_simple.Событие_прихода_клиента[142]
-RK 4252.90290118339 barber_simple.barber_simple.парикмахерская = {Занят, 15, 127}
-EF 4268.259845063627 обслуживание_клиента[127](barber_simple.barber_simple.парикмахерская)
-RK 4268.259845063627 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 128}
-EB 4268.259845063627 обслуживание_клиента[128](barber_simple.barber_simple.парикмахерская)
-RK 4268.259845063627 barber_simple.barber_simple.парикмахерская = {Занят, 14, 128}
-EF 4302.365430643009 обслуживание_клиента[128](barber_simple.barber_simple.парикмахерская)
-RK 4302.365430643009 barber_simple.barber_simple.парикмахерская = {Свободен, 14, 129}
-EB 4302.365430643009 обслуживание_клиента[129](barber_simple.barber_simple.парикмахерская)
-RK 4302.365430643009 barber_simple.barber_simple.парикмахерская = {Занят, 13, 129}
-EI 4320.793287127764 barber_simple.barber_simple.Событие_прихода_клиента[143]
-RK 4320.793287127764 barber_simple.barber_simple.парикмахерская = {Занят, 14, 129}
-EI 4323.983846408892 barber_simple.barber_simple.Событие_прихода_клиента[144]
-RK 4323.983846408892 barber_simple.barber_simple.парикмахерская = {Занят, 15, 129}
-EF 4331.089981419591 обслуживание_клиента[129](barber_simple.barber_simple.парикмахерская)
-RK 4331.089981419591 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 130}
-EB 4331.089981419591 обслуживание_клиента[130](barber_simple.barber_simple.парикмахерская)
-RK 4331.089981419591 barber_simple.barber_simple.парикмахерская = {Занят, 14, 130}
-EI 4365.298683140404 barber_simple.barber_simple.Событие_прихода_клиента[145]
-RK 4365.298683140404 barber_simple.barber_simple.парикмахерская = {Занят, 15, 130}
-EF 4369.720624453769 обслуживание_клиента[130](barber_simple.barber_simple.парикмахерская)
-RK 4369.720624453769 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 131}
-EB 4369.720624453769 обслуживание_клиента[131](barber_simple.barber_simple.парикмахерская)
-RK 4369.720624453769 barber_simple.barber_simple.парикмахерская = {Занят, 14, 131}
-EI 4371.973547858508 barber_simple.barber_simple.Событие_прихода_клиента[146]
-RK 4371.973547858508 barber_simple.barber_simple.парикмахерская = {Занят, 15, 131}
-EI 4383.240173683684 barber_simple.barber_simple.Событие_прихода_клиента[147]
-RK 4383.240173683684 barber_simple.barber_simple.парикмахерская = {Занят, 16, 131}
-EF 4407.246535359444 обслуживание_клиента[131](barber_simple.barber_simple.парикмахерская)
-RK 4407.246535359444 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 132}
-EB 4407.246535359444 обслуживание_клиента[132](barber_simple.barber_simple.парикмахерская)
-RK 4407.246535359444 barber_simple.barber_simple.парикмахерская = {Занят, 15, 132}
-EI 4408.975199706678 barber_simple.barber_simple.Событие_прихода_клиента[148]
-RK 4408.975199706678 barber_simple.barber_simple.парикмахерская = {Занят, 16, 132}
-EF 4432.18611406121 обслуживание_клиента[132](barber_simple.barber_simple.парикмахерская)
-RK 4432.18611406121 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 133}
-EB 4432.18611406121 обслуживание_клиента[133](barber_simple.barber_simple.парикмахерская)
-RK 4432.18611406121 barber_simple.barber_simple.парикмахерская = {Занят, 15, 133}
-EF 4466.376355652831 обслуживание_клиента[133](barber_simple.barber_simple.парикмахерская)
-RK 4466.376355652831 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 134}
-EB 4466.376355652831 обслуживание_клиента[134](barber_simple.barber_simple.парикмахерская)
-RK 4466.376355652831 barber_simple.barber_simple.парикмахерская = {Занят, 14, 134}
-EI 4479.721837705367 barber_simple.barber_simple.Событие_прихода_клиента[149]
-RK 4479.721837705367 barber_simple.barber_simple.парикмахерская = {Занят, 15, 134}
-EF 4500.977901111501 обслуживание_клиента[134](barber_simple.barber_simple.парикмахерская)
-RK 4500.977901111501 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 135}
-EB 4500.977901111501 обслуживание_клиента[135](barber_simple.barber_simple.парикмахерская)
-RK 4500.977901111501 barber_simple.barber_simple.парикмахерская = {Занят, 14, 135}
-EI 4516.594823281437 barber_simple.barber_simple.Событие_прихода_клиента[150]
-RK 4516.594823281437 barber_simple.barber_simple.парикмахерская = {Занят, 15, 135}
-EI 4526.5454219799 barber_simple.barber_simple.Событие_прихода_клиента[151]
-RK 4526.5454219799 barber_simple.barber_simple.парикмахерская = {Занят, 16, 135}
-EI 4533.953691052081 barber_simple.barber_simple.Событие_прихода_клиента[152]
-RK 4533.953691052081 barber_simple.barber_simple.парикмахерская = {Занят, 17, 135}
-EF 4534.043311040856 обслуживание_клиента[135](barber_simple.barber_simple.парикмахерская)
-RK 4534.043311040856 barber_simple.barber_simple.парикмахерская = {Свободен, 17, 136}
-EB 4534.043311040856 обслуживание_клиента[136](barber_simple.barber_simple.парикмахерская)
-RK 4534.043311040856 barber_simple.barber_simple.парикмахерская = {Занят, 16, 136}
-EI 4553.806884548031 barber_simple.barber_simple.Событие_прихода_клиента[153]
-RK 4553.806884548031 barber_simple.barber_simple.парикмахерская = {Занят, 17, 136}
-EF 4563.233537949626 обслуживание_клиента[136](barber_simple.barber_simple.парикмахерская)
-RK 4563.233537949626 barber_simple.barber_simple.парикмахерская = {Свободен, 17, 137}
-EB 4563.233537949626 обслуживание_клиента[137](barber_simple.barber_simple.парикмахерская)
-RK 4563.233537949626 barber_simple.barber_simple.парикмахерская = {Занят, 16, 137}
-EF 4585.135522521295 обслуживание_клиента[137](barber_simple.barber_simple.парикмахерская)
-RK 4585.135522521295 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 138}
-EB 4585.135522521295 обслуживание_клиента[138](barber_simple.barber_simple.парикмахерская)
-RK 4585.135522521295 barber_simple.barber_simple.парикмахерская = {Занят, 15, 138}
-EF 4618.60920127667 обслуживание_клиента[138](barber_simple.barber_simple.парикмахерская)
-RK 4618.60920127667 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 139}
-EB 4618.60920127667 обслуживание_клиента[139](barber_simple.barber_simple.парикмахерская)
-RK 4618.60920127667 barber_simple.barber_simple.парикмахерская = {Занят, 14, 139}
-EI 4622.398719164496 barber_simple.barber_simple.Событие_прихода_клиента[154]
-RK 4622.398719164496 barber_simple.barber_simple.парикмахерская = {Занят, 15, 139}
-EF 4651.179881790321 обслуживание_клиента[139](barber_simple.barber_simple.парикмахерская)
-RK 4651.179881790321 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 140}
-EB 4651.179881790321 обслуживание_клиента[140](barber_simple.barber_simple.парикмахерская)
-RK 4651.179881790321 barber_simple.barber_simple.парикмахерская = {Занят, 14, 140}
-EI 4660.784692386308 barber_simple.barber_simple.Событие_прихода_клиента[155]
-RK 4660.784692386308 barber_simple.barber_simple.парикмахерская = {Занят, 15, 140}
-EF 4671.192677266005 обслуживание_клиента[140](barber_simple.barber_simple.парикмахерская)
-RK 4671.192677266005 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 141}
-EB 4671.192677266005 обслуживание_клиента[141](barber_simple.barber_simple.парикмахерская)
-RK 4671.192677266005 barber_simple.barber_simple.парикмахерская = {Занят, 14, 141}
-EI 4672.786366081973 barber_simple.barber_simple.Событие_прихода_клиента[156]
-RK 4672.786366081973 barber_simple.barber_simple.парикмахерская = {Занят, 15, 141}
-EF 4710.4006546382 обслуживание_клиента[141](barber_simple.barber_simple.парикмахерская)
-RK 4710.4006546382 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 142}
-EB 4710.4006546382 обслуживание_клиента[142](barber_simple.barber_simple.парикмахерская)
-RK 4710.4006546382 barber_simple.barber_simple.парикмахерская = {Занят, 14, 142}
-EF 4736.987529433207 обслуживание_клиента[142](barber_simple.barber_simple.парикмахерская)
-RK 4736.987529433207 barber_simple.barber_simple.парикмахерская = {Свободен, 14, 143}
-EB 4736.987529433207 обслуживание_клиента[143](barber_simple.barber_simple.парикмахерская)
-RK 4736.987529433207 barber_simple.barber_simple.парикмахерская = {Занят, 13, 143}
-EI 4750.778789448414 barber_simple.barber_simple.Событие_прихода_клиента[157]
-RK 4750.778789448414 barber_simple.barber_simple.парикмахерская = {Занят, 14, 143}
-EI 4753.960901260142 barber_simple.barber_simple.Событие_прихода_клиента[158]
-RK 4753.960901260142 barber_simple.barber_simple.парикмахерская = {Занят, 15, 143}
-EI 4754.131733501 barber_simple.barber_simple.Событие_прихода_клиента[159]
-RK 4754.131733501 barber_simple.barber_simple.парикмахерская = {Занят, 16, 143}
-EF 4774.906798153428 обслуживание_клиента[143](barber_simple.barber_simple.парикмахерская)
-RK 4774.906798153428 barber_simple.barber_simple.парикмахерская = {Свободен, 16, 144}
-EB 4774.906798153428 обслуживание_клиента[144](barber_simple.barber_simple.парикмахерская)
-RK 4774.906798153428 barber_simple.barber_simple.парикмахерская = {Занят, 15, 144}
-EF 4796.924635596243 обслуживание_клиента[144](barber_simple.barber_simple.парикмахерская)
-RK 4796.924635596243 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 145}
-EB 4796.924635596243 обслуживание_клиента[145](barber_simple.barber_simple.парикмахерская)
-RK 4796.924635596243 barber_simple.barber_simple.парикмахерская = {Занят, 14, 145}
-EF 4831.878760740783 обслуживание_клиента[145](barber_simple.barber_simple.парикмахерская)
-RK 4831.878760740783 barber_simple.barber_simple.парикмахерская = {Свободен, 14, 146}
-EB 4831.878760740783 обслуживание_клиента[146](barber_simple.barber_simple.парикмахерская)
-RK 4831.878760740783 barber_simple.barber_simple.парикмахерская = {Занят, 13, 146}
-EF 4855.868388408823 обслуживание_клиента[146](barber_simple.barber_simple.парикмахерская)
-RK 4855.868388408823 barber_simple.barber_simple.парикмахерская = {Свободен, 13, 147}
-EB 4855.868388408823 обслуживание_клиента[147](barber_simple.barber_simple.парикмахерская)
-RK 4855.868388408823 barber_simple.barber_simple.парикмахерская = {Занят, 12, 147}
-EI 4862.801919674095 barber_simple.barber_simple.Событие_прихода_клиента[160]
-RK 4862.801919674095 barber_simple.barber_simple.парикмахерская = {Занят, 13, 147}
-EI 4872.569188069628 barber_simple.barber_simple.Событие_прихода_клиента[161]
-RK 4872.569188069628 barber_simple.barber_simple.парикмахерская = {Занят, 14, 147}
-EF 4882.1302185567765 обслуживание_клиента[147](barber_simple.barber_simple.парикмахерская)
-RK 4882.1302185567765 barber_simple.barber_simple.парикмахерская = {Свободен, 14, 148}
-EB 4882.1302185567765 обслуживание_клиента[148](barber_simple.barber_simple.парикмахерская)
-RK 4882.1302185567765 barber_simple.barber_simple.парикмахерская = {Занят, 13, 148}
-EF 4913.648627364607 обслуживание_клиента[148](barber_simple.barber_simple.парикмахерская)
-RK 4913.648627364607 barber_simple.barber_simple.парикмахерская = {Свободен, 13, 149}
-EB 4913.648627364607 обслуживание_клиента[149](barber_simple.barber_simple.парикмахерская)
-RK 4913.648627364607 barber_simple.barber_simple.парикмахерская = {Занят, 12, 149}
-EI 4918.790845041774 barber_simple.barber_simple.Событие_прихода_клиента[162]
-RK 4918.790845041774 barber_simple.barber_simple.парикмахерская = {Занят, 13, 149}
-EI 4922.902558914802 barber_simple.barber_simple.Событие_прихода_клиента[163]
-RK 4922.902558914802 barber_simple.barber_simple.парикмахерская = {Занят, 14, 149}
-EF 4951.756860943506 обслуживание_клиента[149](barber_simple.barber_simple.парикмахерская)
-RK 4951.756860943506 barber_simple.barber_simple.парикмахерская = {Свободен, 14, 150}
-EB 4951.756860943506 обслуживание_клиента[150](barber_simple.barber_simple.парикмахерская)
-RK 4951.756860943506 barber_simple.barber_simple.парикмахерская = {Занят, 13, 150}
-EI 4970.056230034272 barber_simple.barber_simple.Событие_прихода_клиента[164]
-RK 4970.056230034272 barber_simple.barber_simple.парикмахерская = {Занят, 14, 150}
-EI 4983.50381078055 barber_simple.barber_simple.Событие_прихода_клиента[165]
-RK 4983.50381078055 barber_simple.barber_simple.парикмахерская = {Занят, 15, 150}
-EF 4985.905742942007 обслуживание_клиента[150](barber_simple.barber_simple.парикмахерская)
-RK 4985.905742942007 barber_simple.barber_simple.парикмахерская = {Свободен, 15, 151}
-EB 4985.905742942007 обслуживание_клиента[151](barber_simple.barber_simple.парикмахерская)
-RK 4985.905742942007 barber_simple.barber_simple.парикмахерская = {Занят, 14, 151}
-EF 5011.551498903789 обслуживание_клиента[151](barber_simple.barber_simple.парикмахерская)
-RK 5011.551498903789 barber_simple.barber_simple.парикмахерская = {Свободен, 14, 152}
-EB 5011.551498903789 обслуживание_клиента[152](barber_simple.barber_simple.парикмахерская)
-RK 5011.551498903789 barber_simple.barber_simple.парикмахерская = {Занят, 13, 152}
-EF 5035.927783608386 обслуживание_клиента[152](barber_simple.barber_simple.парикмахерская)
-RK 5035.927783608386 barber_simple.barber_simple.парикмахерская = {Свободен, 13, 153}
-EB 5035.927783608386 обслуживание_клиента[153](barber_simple.barber_simple.парикмахерская)
-RK 5035.927783608386 barber_simple.barber_simple.парикмахерская = {Занят, 12, 153}
-EI 5037.04417229909 barber_simple.barber_simple.Событие_прихода_клиента[166]
-RK 5037.04417229909 barber_simple.barber_simple.парикмахерская = {Занят, 13, 153}
-EI 5054.261604716086 barber_simple.barber_simple.Событие_прихода_клиента[167]
-RK 5054.261604716086 barber_simple.barber_simple.парикмахерская = {Занят, 14, 153}
+EI 64.00600791078857 Событие_прихода_клиента[0]
+RK 64.00600791078857 парикмахерская = {Свободен, 1, 0}
+EB 64.00600791078857 обслуживание_клиента[0](парикмахерская)
+RK 64.00600791078857 парикмахерская = {Занят, 0, 0}
+EF 101.63764567497549 обслуживание_клиента[0](парикмахерская)
+RK 101.63764567497549 парикмахерская = {Свободен, 0, 1}
+EI 102.43731591550352 Событие_прихода_клиента[1]
+RK 102.43731591550352 парикмахерская = {Свободен, 1, 1}
+EB 102.43731591550352 обслуживание_клиента[1](парикмахерская)
+RK 102.43731591550352 парикмахерская = {Занят, 0, 1}
+EF 136.88237007479393 обслуживание_клиента[1](парикмахерская)
+RK 136.88237007479393 парикмахерская = {Свободен, 0, 2}
+EI 163.24034890273626 Событие_прихода_клиента[2]
+RK 163.24034890273626 парикмахерская = {Свободен, 1, 2}
+EB 163.24034890273626 обслуживание_клиента[2](парикмахерская)
+RK 163.24034890273626 парикмахерская = {Занят, 0, 2}
+EI 175.46803810034146 Событие_прихода_клиента[3]
+RK 175.46803810034146 парикмахерская = {Занят, 1, 2}
+EF 200.60513460180525 обслуживание_клиента[2](парикмахерская)
+RK 200.60513460180525 парикмахерская = {Свободен, 1, 3}
+EB 200.60513460180525 обслуживание_клиента[3](парикмахерская)
+RK 200.60513460180525 парикмахерская = {Занят, 0, 3}
+EI 205.842211380707 Событие_прихода_клиента[4]
+RK 205.842211380707 парикмахерская = {Занят, 1, 3}
+EF 227.30009828969426 обслуживание_клиента[3](парикмахерская)
+RK 227.30009828969426 парикмахерская = {Свободен, 1, 4}
+EB 227.30009828969426 обслуживание_клиента[4](парикмахерская)
+RK 227.30009828969426 парикмахерская = {Занят, 0, 4}
+EI 236.32725594405497 Событие_прихода_клиента[5]
+RK 236.32725594405497 парикмахерская = {Занят, 1, 4}
+EF 260.0337066629854 обслуживание_клиента[4](парикмахерская)
+RK 260.0337066629854 парикмахерская = {Свободен, 1, 5}
+EB 260.0337066629854 обслуживание_клиента[5](парикмахерская)
+RK 260.0337066629854 парикмахерская = {Занят, 0, 5}
+EF 292.7941199462651 обслуживание_клиента[5](парикмахерская)
+RK 292.7941199462651 парикмахерская = {Свободен, 0, 6}
+EI 296.22140704946275 Событие_прихода_клиента[6]
+RK 296.22140704946275 парикмахерская = {Свободен, 1, 6}
+EB 296.22140704946275 обслуживание_клиента[6](парикмахерская)
+RK 296.22140704946275 парикмахерская = {Занят, 0, 6}
+EF 333.5051344570901 обслуживание_клиента[6](парикмахерская)
+RK 333.5051344570901 парикмахерская = {Свободен, 0, 7}
+EI 379.52951725797567 Событие_прихода_клиента[7]
+RK 379.52951725797567 парикмахерская = {Свободен, 1, 7}
+EB 379.52951725797567 обслуживание_клиента[7](парикмахерская)
+RK 379.52951725797567 парикмахерская = {Занят, 0, 7}
+EI 383.36811621534684 Событие_прихода_клиента[8]
+RK 383.36811621534684 парикмахерская = {Занят, 1, 7}
+EF 418.28494081373617 обслуживание_клиента[7](парикмахерская)
+RK 418.28494081373617 парикмахерская = {Свободен, 1, 8}
+EB 418.28494081373617 обслуживание_клиента[8](парикмахерская)
+RK 418.28494081373617 парикмахерская = {Занят, 0, 8}
+EI 419.17937046669243 Событие_прихода_клиента[9]
+RK 419.17937046669243 парикмахерская = {Занят, 1, 8}
+EF 440.6870514035923 обслуживание_клиента[8](парикмахерская)
+RK 440.6870514035923 парикмахерская = {Свободен, 1, 9}
+EB 440.6870514035923 обслуживание_клиента[9](парикмахерская)
+RK 440.6870514035923 парикмахерская = {Занят, 0, 9}
+EF 474.62514827434495 обслуживание_клиента[9](парикмахерская)
+RK 474.62514827434495 парикмахерская = {Свободен, 0, 10}
+EI 486.85470956869307 Событие_прихода_клиента[10]
+RK 486.85470956869307 парикмахерская = {Свободен, 1, 10}
+EB 486.85470956869307 обслуживание_клиента[10](парикмахерская)
+RK 486.85470956869307 парикмахерская = {Занят, 0, 10}
+EF 524.7590095469462 обслуживание_клиента[10](парикмахерская)
+RK 524.7590095469462 парикмахерская = {Свободен, 0, 11}
+EI 557.8884124728179 Событие_прихода_клиента[11]
+RK 557.8884124728179 парикмахерская = {Свободен, 1, 11}
+EB 557.8884124728179 обслуживание_клиента[11](парикмахерская)
+RK 557.8884124728179 парикмахерская = {Занят, 0, 11}
+EI 568.1383340641412 Событие_прихода_клиента[12]
+RK 568.1383340641412 парикмахерская = {Занят, 1, 11}
+EI 577.2327880117152 Событие_прихода_клиента[13]
+RK 577.2327880117152 парикмахерская = {Занят, 2, 11}
+EF 596.0146617114847 обслуживание_клиента[11](парикмахерская)
+RK 596.0146617114847 парикмахерская = {Свободен, 2, 12}
+EB 596.0146617114847 обслуживание_клиента[12](парикмахерская)
+RK 596.0146617114847 парикмахерская = {Занят, 1, 12}
+EF 621.80292402917 обслуживание_клиента[12](парикмахерская)
+RK 621.80292402917 парикмахерская = {Свободен, 1, 13}
+EB 621.80292402917 обслуживание_клиента[13](парикмахерская)
+RK 621.80292402917 парикмахерская = {Занят, 0, 13}
+EF 647.0331350600699 обслуживание_клиента[13](парикмахерская)
+RK 647.0331350600699 парикмахерская = {Свободен, 0, 14}
+EI 653.0635817289664 Событие_прихода_клиента[14]
+RK 653.0635817289664 парикмахерская = {Свободен, 1, 14}
+EB 653.0635817289664 обслуживание_клиента[14](парикмахерская)
+RK 653.0635817289664 парикмахерская = {Занят, 0, 14}
+EI 655.1950499337773 Событие_прихода_клиента[15]
+RK 655.1950499337773 парикмахерская = {Занят, 1, 14}
+EI 669.0905575094488 Событие_прихода_клиента[16]
+RK 669.0905575094488 парикмахерская = {Занят, 2, 14}
+EF 691.4667218110031 обслуживание_клиента[14](парикмахерская)
+RK 691.4667218110031 парикмахерская = {Свободен, 2, 15}
+EB 691.4667218110031 обслуживание_клиента[15](парикмахерская)
+RK 691.4667218110031 парикмахерская = {Занят, 1, 15}
+EF 712.8383956640293 обслуживание_клиента[15](парикмахерская)
+RK 712.8383956640293 парикмахерская = {Свободен, 1, 16}
+EB 712.8383956640293 обслуживание_клиента[16](парикмахерская)
+RK 712.8383956640293 парикмахерская = {Занят, 0, 16}
+EF 740.2528537534505 обслуживание_клиента[16](парикмахерская)
+RK 740.2528537534505 парикмахерская = {Свободен, 0, 17}
+EI 767.3279673475558 Событие_прихода_клиента[17]
+RK 767.3279673475558 парикмахерская = {Свободен, 1, 17}
+EB 767.3279673475558 обслуживание_клиента[17](парикмахерская)
+RK 767.3279673475558 парикмахерская = {Занят, 0, 17}
+EF 806.5713124826846 обслуживание_клиента[17](парикмахерская)
+RK 806.5713124826846 парикмахерская = {Свободен, 0, 18}
+EI 844.3105284948588 Событие_прихода_клиента[18]
+RK 844.3105284948588 парикмахерская = {Свободен, 1, 18}
+EB 844.3105284948588 обслуживание_клиента[18](парикмахерская)
+RK 844.3105284948588 парикмахерская = {Занят, 0, 18}
+EF 882.7738136780825 обслуживание_клиента[18](парикмахерская)
+RK 882.7738136780825 парикмахерская = {Свободен, 0, 19}
+EI 890.55316958427 Событие_прихода_клиента[19]
+RK 890.55316958427 парикмахерская = {Свободен, 1, 19}
+EB 890.55316958427 обслуживание_клиента[19](парикмахерская)
+RK 890.55316958427 парикмахерская = {Занят, 0, 19}
+EI 922.7098518052692 Событие_прихода_клиента[20]
+RK 922.7098518052692 парикмахерская = {Занят, 1, 19}
+EF 926.2716375224676 обслуживание_клиента[19](парикмахерская)
+RK 926.2716375224676 парикмахерская = {Свободен, 1, 20}
+EB 926.2716375224676 обслуживание_клиента[20](парикмахерская)
+RK 926.2716375224676 парикмахерская = {Занят, 0, 20}
+EF 959.4244165932698 обслуживание_клиента[20](парикмахерская)
+RK 959.4244165932698 парикмахерская = {Свободен, 0, 21}
+EI 1005.1185092781874 Событие_прихода_клиента[21]
+RK 1005.1185092781874 парикмахерская = {Свободен, 1, 21}
+EB 1005.1185092781874 обслуживание_клиента[21](парикмахерская)
+RK 1005.1185092781874 парикмахерская = {Занят, 0, 21}
+EF 1043.8360532333338 обслуживание_клиента[21](парикмахерская)
+RK 1043.8360532333338 парикмахерская = {Свободен, 0, 22}
+EI 1064.0599280963315 Событие_прихода_клиента[22]
+RK 1064.0599280963315 парикмахерская = {Свободен, 1, 22}
+EB 1064.0599280963315 обслуживание_клиента[22](парикмахерская)
+RK 1064.0599280963315 парикмахерская = {Занят, 0, 22}
+EI 1084.2177977529427 Событие_прихода_клиента[23]
+RK 1084.2177977529427 парикмахерская = {Занят, 1, 22}
+EF 1101.25600844723 обслуживание_клиента[22](парикмахерская)
+RK 1101.25600844723 парикмахерская = {Свободен, 1, 23}
+EB 1101.25600844723 обслуживание_клиента[23](парикмахерская)
+RK 1101.25600844723 парикмахерская = {Занят, 0, 23}
+EI 1124.4997007458371 Событие_прихода_клиента[24]
+RK 1124.4997007458371 парикмахерская = {Занят, 1, 23}
+EF 1131.041559462864 обслуживание_клиента[23](парикмахерская)
+RK 1131.041559462864 парикмахерская = {Свободен, 1, 24}
+EB 1131.041559462864 обслуживание_клиента[24](парикмахерская)
+RK 1131.041559462864 парикмахерская = {Занят, 0, 24}
+EI 1135.2287732769832 Событие_прихода_клиента[25]
+RK 1135.2287732769832 парикмахерская = {Занят, 1, 24}
+EI 1140.9728183945697 Событие_прихода_клиента[26]
+RK 1140.9728183945697 парикмахерская = {Занят, 2, 24}
+EF 1165.8189238884393 обслуживание_клиента[24](парикмахерская)
+RK 1165.8189238884393 парикмахерская = {Свободен, 2, 25}
+EB 1165.8189238884393 обслуживание_клиента[25](парикмахерская)
+RK 1165.8189238884393 парикмахерская = {Занят, 1, 25}
+EF 1191.832368727849 обслуживание_клиента[25](парикмахерская)
+RK 1191.832368727849 парикмахерская = {Свободен, 1, 26}
+EB 1191.832368727849 обслуживание_клиента[26](парикмахерская)
+RK 1191.832368727849 парикмахерская = {Занят, 0, 26}
+EF 1215.3174505739214 обслуживание_клиента[26](парикмахерская)
+RK 1215.3174505739214 парикмахерская = {Свободен, 0, 27}
+EI 1240.7233686546517 Событие_прихода_клиента[27]
+RK 1240.7233686546517 парикмахерская = {Свободен, 1, 27}
+EB 1240.7233686546517 обслуживание_клиента[27](парикмахерская)
+RK 1240.7233686546517 парикмахерская = {Занят, 0, 27}
+EF 1280.003931475623 обслуживание_клиента[27](парикмахерская)
+RK 1280.003931475623 парикмахерская = {Свободен, 0, 28}
+EI 1294.8566639014402 Событие_прихода_клиента[28]
+RK 1294.8566639014402 парикмахерская = {Свободен, 1, 28}
+EB 1294.8566639014402 обслуживание_клиента[28](парикмахерская)
+RK 1294.8566639014402 парикмахерская = {Занят, 0, 28}
+EI 1312.039201556724 Событие_прихода_клиента[29]
+RK 1312.039201556724 парикмахерская = {Занят, 1, 28}
+EI 1325.7093307765422 Событие_прихода_клиента[30]
+RK 1325.7093307765422 парикмахерская = {Занят, 2, 28}
+EF 1331.5653425897046 обслуживание_клиента[28](парикмахерская)
+RK 1331.5653425897046 парикмахерская = {Свободен, 2, 29}
+EB 1331.5653425897046 обслуживание_клиента[29](парикмахерская)
+RK 1331.5653425897046 парикмахерская = {Занят, 1, 29}
+EI 1356.1409427977237 Событие_прихода_клиента[31]
+RK 1356.1409427977237 парикмахерская = {Занят, 2, 29}
+EF 1360.2859091438424 обслуживание_клиента[29](парикмахерская)
+RK 1360.2859091438424 парикмахерская = {Свободен, 2, 30}
+EB 1360.2859091438424 обслуживание_клиента[30](парикмахерская)
+RK 1360.2859091438424 парикмахерская = {Занят, 1, 30}
+EI 1375.5450975843214 Событие_прихода_клиента[32]
+RK 1375.5450975843214 парикмахерская = {Занят, 2, 30}
+EF 1387.6054608909333 обслуживание_клиента[30](парикмахерская)
+RK 1387.6054608909333 парикмахерская = {Свободен, 2, 31}
+EB 1387.6054608909333 обслуживание_клиента[31](парикмахерская)
+RK 1387.6054608909333 парикмахерская = {Занят, 1, 31}
+EI 1387.787068879106 Событие_прихода_клиента[33]
+RK 1387.787068879106 парикмахерская = {Занят, 2, 31}
+EF 1420.3529683670397 обслуживание_клиента[31](парикмахерская)
+RK 1420.3529683670397 парикмахерская = {Свободен, 2, 32}
+EB 1420.3529683670397 обслуживание_клиента[32](парикмахерская)
+RK 1420.3529683670397 парикмахерская = {Занят, 1, 32}
+EI 1428.1542183277597 Событие_прихода_клиента[34]
+RK 1428.1542183277597 парикмахерская = {Занят, 2, 32}
+EI 1447.4930319752887 Событие_прихода_клиента[35]
+RK 1447.4930319752887 парикмахерская = {Занят, 3, 32}
+EF 1449.878642430534 обслуживание_клиента[32](парикмахерская)
+RK 1449.878642430534 парикмахерская = {Свободен, 3, 33}
+EB 1449.878642430534 обслуживание_клиента[33](парикмахерская)
+RK 1449.878642430534 парикмахерская = {Занят, 2, 33}
+EF 1476.5799387383047 обслуживание_клиента[33](парикмахерская)
+RK 1476.5799387383047 парикмахерская = {Свободен, 2, 34}
+EB 1476.5799387383047 обслуживание_клиента[34](парикмахерская)
+RK 1476.5799387383047 парикмахерская = {Занят, 1, 34}
+EF 1511.3721224714325 обслуживание_клиента[34](парикмахерская)
+RK 1511.3721224714325 парикмахерская = {Свободен, 1, 35}
+EB 1511.3721224714325 обслуживание_клиента[35](парикмахерская)
+RK 1511.3721224714325 парикмахерская = {Занят, 0, 35}
+EI 1515.489364267263 Событие_прихода_клиента[36]
+RK 1515.489364267263 парикмахерская = {Занят, 1, 35}
+EI 1525.6353581157566 Событие_прихода_клиента[37]
+RK 1525.6353581157566 парикмахерская = {Занят, 2, 35}
+EF 1540.8749581929785 обслуживание_клиента[35](парикмахерская)
+RK 1540.8749581929785 парикмахерская = {Свободен, 2, 36}
+EB 1540.8749581929785 обслуживание_клиента[36](парикмахерская)
+RK 1540.8749581929785 парикмахерская = {Занят, 1, 36}
+EI 1567.4395587790655 Событие_прихода_клиента[38]
+RK 1567.4395587790655 парикмахерская = {Занят, 2, 36}
+EF 1578.8015621491988 обслуживание_клиента[36](парикмахерская)
+RK 1578.8015621491988 парикмахерская = {Свободен, 2, 37}
+EB 1578.8015621491988 обслуживание_клиента[37](парикмахерская)
+RK 1578.8015621491988 парикмахерская = {Занят, 1, 37}
+EI 1578.900193621329 Событие_прихода_клиента[39]
+RK 1578.900193621329 парикмахерская = {Занят, 2, 37}
+EF 1604.5405059628933 обслуживание_клиента[37](парикмахерская)
+RK 1604.5405059628933 парикмахерская = {Свободен, 2, 38}
+EB 1604.5405059628933 обслуживание_клиента[38](парикмахерская)
+RK 1604.5405059628933 парикмахерская = {Занят, 1, 38}
+EF 1639.5762723973862 обслуживание_клиента[38](парикмахерская)
+RK 1639.5762723973862 парикмахерская = {Свободен, 1, 39}
+EB 1639.5762723973862 обслуживание_клиента[39](парикмахерская)
+RK 1639.5762723973862 парикмахерская = {Занят, 0, 39}
+EF 1665.9266601813586 обслуживание_клиента[39](парикмахерская)
+RK 1665.9266601813586 парикмахерская = {Свободен, 0, 40}
+EI 1708.0378776305731 Событие_прихода_клиента[40]
+RK 1708.0378776305731 парикмахерская = {Свободен, 1, 40}
+EB 1708.0378776305731 обслуживание_клиента[40](парикмахерская)
+RK 1708.0378776305731 парикмахерская = {Занят, 0, 40}
+EI 1727.0360760845479 Событие_прихода_клиента[41]
+RK 1727.0360760845479 парикмахерская = {Занят, 1, 40}
+EI 1737.108727596299 Событие_прихода_клиента[42]
+RK 1737.108727596299 парикмахерская = {Занят, 2, 40}
+EF 1747.7677490457922 обслуживание_клиента[40](парикмахерская)
+RK 1747.7677490457922 парикмахерская = {Свободен, 2, 41}
+EB 1747.7677490457922 обслуживание_клиента[41](парикмахерская)
+RK 1747.7677490457922 парикмахерская = {Занят, 1, 41}
+EI 1766.774132378263 Событие_прихода_клиента[43]
+RK 1766.774132378263 парикмахерская = {Занят, 2, 41}
+EF 1777.1507224849618 обслуживание_клиента[41](парикмахерская)
+RK 1777.1507224849618 парикмахерская = {Свободен, 2, 42}
+EB 1777.1507224849618 обслуживание_клиента[42](парикмахерская)
+RK 1777.1507224849618 парикмахерская = {Занят, 1, 42}
+EF 1802.8547590068326 обслуживание_клиента[42](парикмахерская)
+RK 1802.8547590068326 парикмахерская = {Свободен, 1, 43}
+EB 1802.8547590068326 обслуживание_клиента[43](парикмахерская)
+RK 1802.8547590068326 парикмахерская = {Занят, 0, 43}
+EI 1822.5279999721922 Событие_прихода_клиента[44]
+RK 1822.5279999721922 парикмахерская = {Занят, 1, 43}
+EF 1835.414650392132 обслуживание_клиента[43](парикмахерская)
+RK 1835.414650392132 парикмахерская = {Свободен, 1, 44}
+EB 1835.414650392132 обслуживание_клиента[44](парикмахерская)
+RK 1835.414650392132 парикмахерская = {Занят, 0, 44}
+EI 1870.6360642750526 Событие_прихода_клиента[45]
+RK 1870.6360642750526 парикмахерская = {Занят, 1, 44}
+EF 1872.2964063997488 обслуживание_клиента[44](парикмахерская)
+RK 1872.2964063997488 парикмахерская = {Свободен, 1, 45}
+EB 1872.2964063997488 обслуживание_клиента[45](парикмахерская)
+RK 1872.2964063997488 парикмахерская = {Занят, 0, 45}
+EI 1875.1788021351447 Событие_прихода_клиента[46]
+RK 1875.1788021351447 парикмахерская = {Занят, 1, 45}
+EI 1875.6821810363053 Событие_прихода_клиента[47]
+RK 1875.6821810363053 парикмахерская = {Занят, 2, 45}
+EI 1879.8818977242142 Событие_прихода_клиента[48]
+RK 1879.8818977242142 парикмахерская = {Занят, 3, 45}
+EI 1894.827200945764 Событие_прихода_клиента[49]
+RK 1894.827200945764 парикмахерская = {Занят, 4, 45}
+EF 1908.2729950786377 обслуживание_клиента[45](парикмахерская)
+RK 1908.2729950786377 парикмахерская = {Свободен, 4, 46}
+EB 1908.2729950786377 обслуживание_клиента[46](парикмахерская)
+RK 1908.2729950786377 парикмахерская = {Занят, 3, 46}
+EF 1931.0833413019866 обслуживание_клиента[46](парикмахерская)
+RK 1931.0833413019866 парикмахерская = {Свободен, 3, 47}
+EB 1931.0833413019866 обслуживание_клиента[47](парикмахерская)
+RK 1931.0833413019866 парикмахерская = {Занят, 2, 47}
+EF 1951.4161274693583 обслуживание_клиента[47](парикмахерская)
+RK 1951.4161274693583 парикмахерская = {Свободен, 2, 48}
+EB 1951.4161274693583 обслуживание_клиента[48](парикмахерская)
+RK 1951.4161274693583 парикмахерская = {Занят, 1, 48}
+EI 1951.8685975367819 Событие_прихода_клиента[50]
+RK 1951.8685975367819 парикмахерская = {Занят, 2, 48}
+EI 1954.8252390161306 Событие_прихода_клиента[51]
+RK 1954.8252390161306 парикмахерская = {Занят, 3, 48}
+EF 1974.0287985608072 обслуживание_клиента[48](парикмахерская)
+RK 1974.0287985608072 парикмахерская = {Свободен, 3, 49}
+EB 1974.0287985608072 обслуживание_клиента[49](парикмахерская)
+RK 1974.0287985608072 парикмахерская = {Занят, 2, 49}
+EF 2001.8760483435442 обслуживание_клиента[49](парикмахерская)
+RK 2001.8760483435442 парикмахерская = {Свободен, 2, 50}
+EB 2001.8760483435442 обслуживание_клиента[50](парикмахерская)
+RK 2001.8760483435442 парикмахерская = {Занят, 1, 50}
+EI 2015.2434743429976 Событие_прихода_клиента[52]
+RK 2015.2434743429976 парикмахерская = {Занят, 2, 50}
+EI 2027.8415302248034 Событие_прихода_клиента[53]
+RK 2027.8415302248034 парикмахерская = {Занят, 3, 50}
+EF 2038.888800866458 обслуживание_клиента[50](парикмахерская)
+RK 2038.888800866458 парикмахерская = {Свободен, 3, 51}
+EB 2038.888800866458 обслуживание_клиента[51](парикмахерская)
+RK 2038.888800866458 парикмахерская = {Занят, 2, 51}
+EI 2058.275538519713 Событие_прихода_клиента[54]
+RK 2058.275538519713 парикмахерская = {Занят, 3, 51}
+EF 2060.76587865472 обслуживание_клиента[51](парикмахерская)
+RK 2060.76587865472 парикмахерская = {Свободен, 3, 52}
+EB 2060.76587865472 обслуживание_клиента[52](парикмахерская)
+RK 2060.76587865472 парикмахерская = {Занят, 2, 52}
+EF 2098.096645839522 обслуживание_клиента[52](парикмахерская)
+RK 2098.096645839522 парикмахерская = {Свободен, 2, 53}
+EB 2098.096645839522 обслуживание_клиента[53](парикмахерская)
+RK 2098.096645839522 парикмахерская = {Занят, 1, 53}
+EI 2102.711580186082 Событие_прихода_клиента[55]
+RK 2102.711580186082 парикмахерская = {Занят, 2, 53}
+EI 2109.9020265304416 Событие_прихода_клиента[56]
+RK 2109.9020265304416 парикмахерская = {Занят, 3, 53}
+EI 2110.043857842303 Событие_прихода_клиента[57]
+RK 2110.043857842303 парикмахерская = {Занят, 4, 53}
+EF 2124.954857831176 обслуживание_клиента[53](парикмахерская)
+RK 2124.954857831176 парикмахерская = {Свободен, 4, 54}
+EB 2124.954857831176 обслуживание_клиента[54](парикмахерская)
+RK 2124.954857831176 парикмахерская = {Занят, 3, 54}
+EI 2130.1815686764558 Событие_прихода_клиента[58]
+RK 2130.1815686764558 парикмахерская = {Занят, 4, 54}
+EI 2157.1647320981583 Событие_прихода_клиента[59]
+RK 2157.1647320981583 парикмахерская = {Занят, 5, 54}
+EF 2157.702944582724 обслуживание_клиента[54](парикмахерская)
+RK 2157.702944582724 парикмахерская = {Свободен, 5, 55}
+EB 2157.702944582724 обслуживание_клиента[55](парикмахерская)
+RK 2157.702944582724 парикмахерская = {Занят, 4, 55}
+EI 2173.2446322060064 Событие_прихода_клиента[60]
+RK 2173.2446322060064 парикмахерская = {Занят, 5, 55}
+EI 2184.846665579322 Событие_прихода_клиента[61]
+RK 2184.846665579322 парикмахерская = {Занят, 6, 55}
+EF 2193.1556571585334 обслуживание_клиента[55](парикмахерская)
+RK 2193.1556571585334 парикмахерская = {Свободен, 6, 56}
+EB 2193.1556571585334 обслуживание_клиента[56](парикмахерская)
+RK 2193.1556571585334 парикмахерская = {Занят, 5, 56}
+EF 2217.4180890249013 обслуживание_клиента[56](парикмахерская)
+RK 2217.4180890249013 парикмахерская = {Свободен, 5, 57}
+EB 2217.4180890249013 обслуживание_клиента[57](парикмахерская)
+RK 2217.4180890249013 парикмахерская = {Занят, 4, 57}
+EI 2228.395116873073 Событие_прихода_клиента[62]
+RK 2228.395116873073 парикмахерская = {Занят, 5, 57}
+EF 2237.512420072171 обслуживание_клиента[57](парикмахерская)
+RK 2237.512420072171 парикмахерская = {Свободен, 5, 58}
+EB 2237.512420072171 обслуживание_клиента[58](парикмахерская)
+RK 2237.512420072171 парикмахерская = {Занят, 4, 58}
+EF 2267.2911050724306 обслуживание_клиента[58](парикмахерская)
+RK 2267.2911050724306 парикмахерская = {Свободен, 4, 59}
+EB 2267.2911050724306 обслуживание_клиента[59](парикмахерская)
+RK 2267.2911050724306 парикмахерская = {Занят, 3, 59}
+EI 2268.82566900362 Событие_прихода_клиента[63]
+RK 2268.82566900362 парикмахерская = {Занят, 4, 59}
+EI 2270.428131476592 Событие_прихода_клиента[64]
+RK 2270.428131476592 парикмахерская = {Занят, 5, 59}
+EF 2299.155147102212 обслуживание_клиента[59](парикмахерская)
+RK 2299.155147102212 парикмахерская = {Свободен, 5, 60}
+EB 2299.155147102212 обслуживание_клиента[60](парикмахерская)
+RK 2299.155147102212 парикмахерская = {Занят, 4, 60}
+EI 2302.7953492245174 Событие_прихода_клиента[65]
+RK 2302.7953492245174 парикмахерская = {Занят, 5, 60}
+EI 2312.197754958568 Событие_прихода_клиента[66]
+RK 2312.197754958568 парикмахерская = {Занят, 6, 60}
+EI 2322.3402879696114 Событие_прихода_клиента[67]
+RK 2322.3402879696114 парикмахерская = {Занят, 7, 60}
+EF 2327.453429866786 обслуживание_клиента[60](парикмахерская)
+RK 2327.453429866786 парикмахерская = {Свободен, 7, 61}
+EB 2327.453429866786 обслуживание_клиента[61](парикмахерская)
+RK 2327.453429866786 парикмахерская = {Занят, 6, 61}
+EI 2337.3426313251375 Событие_прихода_клиента[68]
+RK 2337.3426313251375 парикмахерская = {Занят, 7, 61}
+EI 2348.0128197322288 Событие_прихода_клиента[69]
+RK 2348.0128197322288 парикмахерская = {Занят, 8, 61}
+EF 2353.868000779163 обслуживание_клиента[61](парикмахерская)
+RK 2353.868000779163 парикмахерская = {Свободен, 8, 62}
+EB 2353.868000779163 обслуживание_клиента[62](парикмахерская)
+RK 2353.868000779163 парикмахерская = {Занят, 7, 62}
+EI 2360.392472212924 Событие_прихода_клиента[70]
+RK 2360.392472212924 парикмахерская = {Занят, 8, 62}
+EI 2361.3775657533074 Событие_прихода_клиента[71]
+RK 2361.3775657533074 парикмахерская = {Занят, 9, 62}
+EF 2389.1841657247546 обслуживание_клиента[62](парикмахерская)
+RK 2389.1841657247546 парикмахерская = {Свободен, 9, 63}
+EB 2389.1841657247546 обслуживание_клиента[63](парикмахерская)
+RK 2389.1841657247546 парикмахерская = {Занят, 8, 63}
+EI 2395.6596575711246 Событие_прихода_клиента[72]
+RK 2395.6596575711246 парикмахерская = {Занят, 9, 63}
+EI 2408.0046917020995 Событие_прихода_клиента[73]
+RK 2408.0046917020995 парикмахерская = {Занят, 10, 63}
+EF 2423.987344152842 обслуживание_клиента[63](парикмахерская)
+RK 2423.987344152842 парикмахерская = {Свободен, 10, 64}
+EB 2423.987344152842 обслуживание_клиента[64](парикмахерская)
+RK 2423.987344152842 парикмахерская = {Занят, 9, 64}
+EF 2445.0276217069827 обслуживание_клиента[64](парикмахерская)
+RK 2445.0276217069827 парикмахерская = {Свободен, 9, 65}
+EB 2445.0276217069827 обслуживание_клиента[65](парикмахерская)
+RK 2445.0276217069827 парикмахерская = {Занят, 8, 65}
+EI 2458.270241354884 Событие_прихода_клиента[74]
+RK 2458.270241354884 парикмахерская = {Занят, 9, 65}
+EI 2459.2296667330265 Событие_прихода_клиента[75]
+RK 2459.2296667330265 парикмахерская = {Занят, 10, 65}
+EI 2476.4937347242467 Событие_прихода_клиента[76]
+RK 2476.4937347242467 парикмахерская = {Занят, 11, 65}
+EF 2478.2282853334655 обслуживание_клиента[65](парикмахерская)
+RK 2478.2282853334655 парикмахерская = {Свободен, 11, 66}
+EB 2478.2282853334655 обслуживание_клиента[66](парикмахерская)
+RK 2478.2282853334655 парикмахерская = {Занят, 10, 66}
+EI 2491.6546641728614 Событие_прихода_клиента[77]
+RK 2491.6546641728614 парикмахерская = {Занят, 11, 66}
+EF 2503.609333626431 обслуживание_клиента[66](парикмахерская)
+RK 2503.609333626431 парикмахерская = {Свободен, 11, 67}
+EB 2503.609333626431 обслуживание_клиента[67](парикмахерская)
+RK 2503.609333626431 парикмахерская = {Занят, 10, 67}
+EI 2522.5403714060803 Событие_прихода_клиента[78]
+RK 2522.5403714060803 парикмахерская = {Занят, 11, 67}
+EF 2529.346632171983 обслуживание_клиента[67](парикмахерская)
+RK 2529.346632171983 парикмахерская = {Свободен, 11, 68}
+EB 2529.346632171983 обслуживание_клиента[68](парикмахерская)
+RK 2529.346632171983 парикмахерская = {Занят, 10, 68}
+EI 2552.8025169300417 Событие_прихода_клиента[79]
+RK 2552.8025169300417 парикмахерская = {Занят, 11, 68}
+EF 2557.2169664853727 обслуживание_клиента[68](парикмахерская)
+RK 2557.2169664853727 парикмахерская = {Свободен, 11, 69}
+EB 2557.2169664853727 обслуживание_клиента[69](парикмахерская)
+RK 2557.2169664853727 парикмахерская = {Занят, 10, 69}
+EI 2568.4307242261957 Событие_прихода_клиента[80]
+RK 2568.4307242261957 парикмахерская = {Занят, 11, 69}
+EF 2583.202931496539 обслуживание_клиента[69](парикмахерская)
+RK 2583.202931496539 парикмахерская = {Свободен, 11, 70}
+EB 2583.202931496539 обслуживание_клиента[70](парикмахерская)
+RK 2583.202931496539 парикмахерская = {Занят, 10, 70}
+EF 2609.9651206772287 обслуживание_клиента[70](парикмахерская)
+RK 2609.9651206772287 парикмахерская = {Свободен, 10, 71}
+EB 2609.9651206772287 обслуживание_клиента[71](парикмахерская)
+RK 2609.9651206772287 парикмахерская = {Занят, 9, 71}
+EF 2630.6111844340553 обслуживание_клиента[71](парикмахерская)
+RK 2630.6111844340553 парикмахерская = {Свободен, 9, 72}
+EB 2630.6111844340553 обслуживание_клиента[72](парикмахерская)
+RK 2630.6111844340553 парикмахерская = {Занят, 8, 72}
+EI 2650.540185269113 Событие_прихода_клиента[81]
+RK 2650.540185269113 парикмахерская = {Занят, 9, 72}
+EF 2664.232283088566 обслуживание_клиента[72](парикмахерская)
+RK 2664.232283088566 парикмахерская = {Свободен, 9, 73}
+EB 2664.232283088566 обслуживание_клиента[73](парикмахерская)
+RK 2664.232283088566 парикмахерская = {Занят, 8, 73}
+EF 2690.9791877467205 обслуживание_клиента[73](парикмахерская)
+RK 2690.9791877467205 парикмахерская = {Свободен, 8, 74}
+EB 2690.9791877467205 обслуживание_клиента[74](парикмахерская)
+RK 2690.9791877467205 парикмахерская = {Занят, 7, 74}
+EI 2706.0133293697 Событие_прихода_клиента[82]
+RK 2706.0133293697 парикмахерская = {Занят, 8, 74}
+EI 2721.5733341947384 Событие_прихода_клиента[83]
+RK 2721.5733341947384 парикмахерская = {Занят, 9, 74}
+EI 2726.843296164878 Событие_прихода_клиента[84]
+RK 2726.843296164878 парикмахерская = {Занят, 10, 74}
+EF 2727.234965372054 обслуживание_клиента[74](парикмахерская)
+RK 2727.234965372054 парикмахерская = {Свободен, 10, 75}
+EB 2727.234965372054 обслуживание_клиента[75](парикмахерская)
+RK 2727.234965372054 парикмахерская = {Занят, 9, 75}
+EF 2747.864462710216 обслуживание_клиента[75](парикмахерская)
+RK 2747.864462710216 парикмахерская = {Свободен, 9, 76}
+EB 2747.864462710216 обслуживание_клиента[76](парикмахерская)
+RK 2747.864462710216 парикмахерская = {Занят, 8, 76}
+EI 2768.70848560727 Событие_прихода_клиента[85]
+RK 2768.70848560727 парикмахерская = {Занят, 9, 76}
+EF 2776.615641514995 обслуживание_клиента[76](парикмахерская)
+RK 2776.615641514995 парикмахерская = {Свободен, 9, 77}
+EB 2776.615641514995 обслуживание_клиента[77](парикмахерская)
+RK 2776.615641514995 парикмахерская = {Занят, 8, 77}
+EI 2794.5064444243503 Событие_прихода_клиента[86]
+RK 2794.5064444243503 парикмахерская = {Занят, 9, 77}
+EF 2804.549926527663 обслуживание_клиента[77](парикмахерская)
+RK 2804.549926527663 парикмахерская = {Свободен, 9, 78}
+EB 2804.549926527663 обслуживание_клиента[78](парикмахерская)
+RK 2804.549926527663 парикмахерская = {Занят, 8, 78}
+EI 2834.1860554478135 Событие_прихода_клиента[87]
+RK 2834.1860554478135 парикмахерская = {Занят, 9, 78}
+EF 2837.4063847609946 обслуживание_клиента[78](парикмахерская)
+RK 2837.4063847609946 парикмахерская = {Свободен, 9, 79}
+EB 2837.4063847609946 обслуживание_клиента[79](парикмахерская)
+RK 2837.4063847609946 парикмахерская = {Занят, 8, 79}
+EF 2870.1128078223483 обслуживание_клиента[79](парикмахерская)
+RK 2870.1128078223483 парикмахерская = {Свободен, 8, 80}
+EB 2870.1128078223483 обслуживание_клиента[80](парикмахерская)
+RK 2870.1128078223483 парикмахерская = {Занят, 7, 80}
+EI 2891.4310745909775 Событие_прихода_клиента[88]
+RK 2891.4310745909775 парикмахерская = {Занят, 8, 80}
+EF 2898.2335714868 обслуживание_клиента[80](парикмахерская)
+RK 2898.2335714868 парикмахерская = {Свободен, 8, 81}
+EB 2898.2335714868 обслуживание_клиента[81](парикмахерская)
+RK 2898.2335714868 парикмахерская = {Занят, 7, 81}
+EI 2918.008585900433 Событие_прихода_клиента[89]
+RK 2918.008585900433 парикмахерская = {Занят, 8, 81}
+EF 2936.9382612406307 обслуживание_клиента[81](парикмахерская)
+RK 2936.9382612406307 парикмахерская = {Свободен, 8, 82}
+EB 2936.9382612406307 обслуживание_клиента[82](парикмахерская)
+RK 2936.9382612406307 парикмахерская = {Занят, 7, 82}
+EI 2950.766695107719 Событие_прихода_клиента[90]
+RK 2950.766695107719 парикмахерская = {Занят, 8, 82}
+EI 2965.202371770562 Событие_прихода_клиента[91]
+RK 2965.202371770562 парикмахерская = {Занят, 9, 82}
+EF 2973.790701490238 обслуживание_клиента[82](парикмахерская)
+RK 2973.790701490238 парикмахерская = {Свободен, 9, 83}
+EB 2973.790701490238 обслуживание_клиента[83](парикмахерская)
+RK 2973.790701490238 парикмахерская = {Занят, 8, 83}
+EI 2975.558132110566 Событие_прихода_клиента[92]
+RK 2975.558132110566 парикмахерская = {Занят, 9, 83}
+EI 2991.900668563099 Событие_прихода_клиента[93]
+RK 2991.900668563099 парикмахерская = {Занят, 10, 83}
+EI 2995.249263148736 Событие_прихода_клиента[94]
+RK 2995.249263148736 парикмахерская = {Занят, 11, 83}
+EF 3001.884427990543 обслуживание_клиента[83](парикмахерская)
+RK 3001.884427990543 парикмахерская = {Свободен, 11, 84}
+EB 3001.884427990543 обслуживание_клиента[84](парикмахерская)
+RK 3001.884427990543 парикмахерская = {Занят, 10, 84}
+EF 3025.1064553365595 обслуживание_клиента[84](парикмахерская)
+RK 3025.1064553365595 парикмахерская = {Свободен, 10, 85}
+EB 3025.1064553365595 обслуживание_клиента[85](парикмахерская)
+RK 3025.1064553365595 парикмахерская = {Занят, 9, 85}
+EI 3038.5393267936483 Событие_прихода_клиента[95]
+RK 3038.5393267936483 парикмахерская = {Занят, 10, 85}
+EI 3039.1137615965536 Событие_прихода_клиента[96]
+RK 3039.1137615965536 парикмахерская = {Занят, 11, 85}
+EI 3055.20301544587 Событие_прихода_клиента[97]
+RK 3055.20301544587 парикмахерская = {Занят, 12, 85}
+EF 3060.15230360441 обслуживание_клиента[85](парикмахерская)
+RK 3060.15230360441 парикмахерская = {Свободен, 12, 86}
+EB 3060.15230360441 обслуживание_клиента[86](парикмахерская)
+RK 3060.15230360441 парикмахерская = {Занят, 11, 86}
+EI 3065.0039404846466 Событие_прихода_клиента[98]
+RK 3065.0039404846466 парикмахерская = {Занят, 12, 86}
+EI 3065.7323756237106 Событие_прихода_клиента[99]
+RK 3065.7323756237106 парикмахерская = {Занят, 13, 86}
+EF 3091.688486104322 обслуживание_клиента[86](парикмахерская)
+RK 3091.688486104322 парикмахерская = {Свободен, 13, 87}
+EB 3091.688486104322 обслуживание_клиента[87](парикмахерская)
+RK 3091.688486104322 парикмахерская = {Занят, 12, 87}
+EI 3109.6478037765105 Событие_прихода_клиента[100]
+RK 3109.6478037765105 парикмахерская = {Занят, 13, 87}
+EI 3117.393976650318 Событие_прихода_клиента[101]
+RK 3117.393976650318 парикмахерская = {Занят, 14, 87}
+EF 3126.35993921282 обслуживание_клиента[87](парикмахерская)
+RK 3126.35993921282 парикмахерская = {Свободен, 14, 88}
+EB 3126.35993921282 обслуживание_клиента[88](парикмахерская)
+RK 3126.35993921282 парикмахерская = {Занят, 13, 88}
+EI 3132.7857473755466 Событие_прихода_клиента[102]
+RK 3132.7857473755466 парикмахерская = {Занят, 14, 88}
+EI 3147.63074244942 Событие_прихода_клиента[103]
+RK 3147.63074244942 парикмахерская = {Занят, 15, 88}
+EI 3158.705470451933 Событие_прихода_клиента[104]
+RK 3158.705470451933 парикмахерская = {Занят, 16, 88}
+EF 3163.3928987798313 обслуживание_клиента[88](парикмахерская)
+RK 3163.3928987798313 парикмахерская = {Свободен, 16, 89}
+EB 3163.3928987798313 обслуживание_клиента[89](парикмахерская)
+RK 3163.3928987798313 парикмахерская = {Занят, 15, 89}
+EI 3164.2934233096994 Событие_прихода_клиента[105]
+RK 3164.2934233096994 парикмахерская = {Занят, 16, 89}
+EI 3165.628832003694 Событие_прихода_клиента[106]
+RK 3165.628832003694 парикмахерская = {Занят, 17, 89}
+EF 3195.1461813827377 обслуживание_клиента[89](парикмахерская)
+RK 3195.1461813827377 парикмахерская = {Свободен, 17, 90}
+EB 3195.1461813827377 обслуживание_клиента[90](парикмахерская)
+RK 3195.1461813827377 парикмахерская = {Занят, 16, 90}
+EI 3220.7953783550834 Событие_прихода_клиента[107]
+RK 3220.7953783550834 парикмахерская = {Занят, 17, 90}
+EF 3228.434863751633 обслуживание_клиента[90](парикмахерская)
+RK 3228.434863751633 парикмахерская = {Свободен, 17, 91}
+EB 3228.434863751633 обслуживание_клиента[91](парикмахерская)
+RK 3228.434863751633 парикмахерская = {Занят, 16, 91}
+EF 3256.0739045854675 обслуживание_клиента[91](парикмахерская)
+RK 3256.0739045854675 парикмахерская = {Свободен, 16, 92}
+EB 3256.0739045854675 обслуживание_клиента[92](парикмахерская)
+RK 3256.0739045854675 парикмахерская = {Занят, 15, 92}
+EI 3262.599288249712 Событие_прихода_клиента[108]
+RK 3262.599288249712 парикмахерская = {Занят, 16, 92}
+EI 3273.281522759453 Событие_прихода_клиента[109]
+RK 3273.281522759453 парикмахерская = {Занят, 17, 92}
+EF 3281.9122169817083 обслуживание_клиента[92](парикмахерская)
+RK 3281.9122169817083 парикмахерская = {Свободен, 17, 93}
+EB 3281.9122169817083 обслуживание_клиента[93](парикмахерская)
+RK 3281.9122169817083 парикмахерская = {Занят, 16, 93}
+EI 3288.428700950777 Событие_прихода_клиента[110]
+RK 3288.428700950777 парикмахерская = {Занят, 17, 93}
+EF 3310.3124958382123 обслуживание_клиента[93](парикмахерская)
+RK 3310.3124958382123 парикмахерская = {Свободен, 17, 94}
+EB 3310.3124958382123 обслуживание_клиента[94](парикмахерская)
+RK 3310.3124958382123 парикмахерская = {Занят, 16, 94}
+EF 3332.4248114323377 обслуживание_клиента[94](парикмахерская)
+RK 3332.4248114323377 парикмахерская = {Свободен, 16, 95}
+EB 3332.4248114323377 обслуживание_клиента[95](парикмахерская)
+RK 3332.4248114323377 парикмахерская = {Занят, 15, 95}
+EI 3363.8585678231716 Событие_прихода_клиента[111]
+RK 3363.8585678231716 парикмахерская = {Занят, 16, 95}
+EF 3367.7004606447326 обслуживание_клиента[95](парикмахерская)
+RK 3367.7004606447326 парикмахерская = {Свободен, 16, 96}
+EB 3367.7004606447326 обслуживание_клиента[96](парикмахерская)
+RK 3367.7004606447326 парикмахерская = {Занят, 15, 96}
+EI 3378.088160859294 Событие_прихода_клиента[112]
+RK 3378.088160859294 парикмахерская = {Занят, 16, 96}
+EF 3388.079774076863 обслуживание_клиента[96](парикмахерская)
+RK 3388.079774076863 парикмахерская = {Свободен, 16, 97}
+EB 3388.079774076863 обслуживание_клиента[97](парикмахерская)
+RK 3388.079774076863 парикмахерская = {Занят, 15, 97}
+EI 3398.308807449771 Событие_прихода_клиента[113]
+RK 3398.308807449771 парикмахерская = {Занят, 16, 97}
+EI 3403.7920082370715 Событие_прихода_клиента[114]
+RK 3403.7920082370715 парикмахерская = {Занят, 17, 97}
+EF 3416.381704767303 обслуживание_клиента[97](парикмахерская)
+RK 3416.381704767303 парикмахерская = {Свободен, 17, 98}
+EB 3416.381704767303 обслуживание_клиента[98](парикмахерская)
+RK 3416.381704767303 парикмахерская = {Занят, 16, 98}
+EI 3428.1353523040157 Событие_прихода_клиента[115]
+RK 3428.1353523040157 парикмахерская = {Занят, 17, 98}
+EF 3441.9556667088686 обслуживание_клиента[98](парикмахерская)
+RK 3441.9556667088686 парикмахерская = {Свободен, 17, 99}
+EB 3441.9556667088686 обслуживание_клиента[99](парикмахерская)
+RK 3441.9556667088686 парикмахерская = {Занят, 16, 99}
+EF 3462.435441812443 обслуживание_клиента[99](парикмахерская)
+RK 3462.435441812443 парикмахерская = {Свободен, 16, 100}
+EB 3462.435441812443 обслуживание_клиента[100](парикмахерская)
+RK 3462.435441812443 парикмахерская = {Занят, 15, 100}
+EI 3467.8468513626417 Событие_прихода_клиента[116]
+RK 3467.8468513626417 парикмахерская = {Занят, 16, 100}
+EI 3481.732852139984 Событие_прихода_клиента[117]
+RK 3481.732852139984 парикмахерская = {Занят, 17, 100}
+EI 3487.1440286844118 Событие_прихода_клиента[118]
+RK 3487.1440286844118 парикмахерская = {Занят, 18, 100}
+EF 3497.8085530509607 обслуживание_клиента[100](парикмахерская)
+RK 3497.8085530509607 парикмахерская = {Свободен, 18, 101}
+EB 3497.8085530509607 обслуживание_клиента[101](парикмахерская)
+RK 3497.8085530509607 парикмахерская = {Занят, 17, 101}
+EF 3522.3598275036566 обслуживание_клиента[101](парикмахерская)
+RK 3522.3598275036566 парикмахерская = {Свободен, 17, 102}
+EB 3522.3598275036566 обслуживание_клиента[102](парикмахерская)
+RK 3522.3598275036566 парикмахерская = {Занят, 16, 102}
+EF 3550.38659840236 обслуживание_клиента[102](парикмахерская)
+RK 3550.38659840236 парикмахерская = {Свободен, 16, 103}
+EB 3550.38659840236 обслуживание_клиента[103](парикмахерская)
+RK 3550.38659840236 парикмахерская = {Занят, 15, 103}
+EF 3578.1931461818585 обслуживание_клиента[103](парикмахерская)
+RK 3578.1931461818585 парикмахерская = {Свободен, 15, 104}
+EB 3578.1931461818585 обслуживание_клиента[104](парикмахерская)
+RK 3578.1931461818585 парикмахерская = {Занят, 14, 104}
+EI 3581.776839479007 Событие_прихода_клиента[119]
+RK 3581.776839479007 парикмахерская = {Занят, 15, 104}
+EI 3582.1072980992667 Событие_прихода_клиента[120]
+RK 3582.1072980992667 парикмахерская = {Занят, 16, 104}
+EF 3604.3668171751788 обслуживание_клиента[104](парикмахерская)
+RK 3604.3668171751788 парикмахерская = {Свободен, 16, 105}
+EB 3604.3668171751788 обслуживание_клиента[105](парикмахерская)
+RK 3604.3668171751788 парикмахерская = {Занят, 15, 105}
+EI 3609.7137623624585 Событие_прихода_клиента[121]
+RK 3609.7137623624585 парикмахерская = {Занят, 16, 105}
+EF 3627.765746723985 обслуживание_клиента[105](парикмахерская)
+RK 3627.765746723985 парикмахерская = {Свободен, 16, 106}
+EB 3627.765746723985 обслуживание_клиента[106](парикмахерская)
+RK 3627.765746723985 парикмахерская = {Занят, 15, 106}
+EF 3648.6364953242264 обслуживание_клиента[106](парикмахерская)
+RK 3648.6364953242264 парикмахерская = {Свободен, 15, 107}
+EB 3648.6364953242264 обслуживание_клиента[107](парикмахерская)
+RK 3648.6364953242264 парикмахерская = {Занят, 14, 107}
+EF 3685.456602811554 обслуживание_клиента[107](парикмахерская)
+RK 3685.456602811554 парикмахерская = {Свободен, 14, 108}
+EB 3685.456602811554 обслуживание_клиента[108](парикмахерская)
+RK 3685.456602811554 парикмахерская = {Занят, 13, 108}
+EI 3692.009730189075 Событие_прихода_клиента[122]
+RK 3692.009730189075 парикмахерская = {Занят, 14, 108}
+EI 3711.5843769416456 Событие_прихода_клиента[123]
+RK 3711.5843769416456 парикмахерская = {Занят, 15, 108}
+EI 3715.5913751278817 Событие_прихода_клиента[124]
+RK 3715.5913751278817 парикмахерская = {Занят, 16, 108}
+EF 3720.492321131026 обслуживание_клиента[108](парикмахерская)
+RK 3720.492321131026 парикмахерская = {Свободен, 16, 109}
+EB 3720.492321131026 обслуживание_клиента[109](парикмахерская)
+RK 3720.492321131026 парикмахерская = {Занят, 15, 109}
+EI 3733.7168360645283 Событие_прихода_клиента[125]
+RK 3733.7168360645283 парикмахерская = {Занят, 16, 109}
+EI 3743.0396097769103 Событие_прихода_клиента[126]
+RK 3743.0396097769103 парикмахерская = {Занят, 17, 109}
+EI 3745.6268268276217 Событие_прихода_клиента[127]
+RK 3745.6268268276217 парикмахерская = {Занят, 18, 109}
+EF 3746.483912162723 обслуживание_клиента[109](парикмахерская)
+RK 3746.483912162723 парикмахерская = {Свободен, 18, 110}
+EB 3746.483912162723 обслуживание_клиента[110](парикмахерская)
+RK 3746.483912162723 парикмахерская = {Занят, 17, 110}
+EF 3774.412665282607 обслуживание_клиента[110](парикмахерская)
+RK 3774.412665282607 парикмахерская = {Свободен, 17, 111}
+EB 3774.412665282607 обслуживание_клиента[111](парикмахерская)
+RK 3774.412665282607 парикмахерская = {Занят, 16, 111}
+EI 3782.278639210328 Событие_прихода_клиента[128]
+RK 3782.278639210328 парикмахерская = {Занят, 17, 111}
+EI 3799.471775606144 Событие_прихода_клиента[129]
+RK 3799.471775606144 парикмахерская = {Занят, 18, 111}
+EF 3812.794321325314 обслуживание_клиента[111](парикмахерская)
+RK 3812.794321325314 парикмахерская = {Свободен, 18, 112}
+EB 3812.794321325314 обслуживание_клиента[112](парикмахерская)
+RK 3812.794321325314 парикмахерская = {Занят, 17, 112}
+EF 3840.348156793879 обслуживание_клиента[112](парикмахерская)
+RK 3840.348156793879 парикмахерская = {Свободен, 17, 113}
+EB 3840.348156793879 обслуживание_клиента[113](парикмахерская)
+RK 3840.348156793879 парикмахерская = {Занят, 16, 113}
+EF 3870.1550598544018 обслуживание_клиента[113](парикмахерская)
+RK 3870.1550598544018 парикмахерская = {Свободен, 16, 114}
+EB 3870.1550598544018 обслуживание_клиента[114](парикмахерская)
+RK 3870.1550598544018 парикмахерская = {Занят, 15, 114}
+EI 3879.9135059635933 Событие_прихода_клиента[130]
+RK 3879.9135059635933 парикмахерская = {Занят, 16, 114}
+EF 3893.495921533322 обслуживание_клиента[114](парикмахерская)
+RK 3893.495921533322 парикмахерская = {Свободен, 16, 115}
+EB 3893.495921533322 обслуживание_клиента[115](парикмахерская)
+RK 3893.495921533322 парикмахерская = {Занят, 15, 115}
+EF 3924.611605565664 обслуживание_клиента[115](парикмахерская)
+RK 3924.611605565664 парикмахерская = {Свободен, 15, 116}
+EB 3924.611605565664 обслуживание_клиента[116](парикмахерская)
+RK 3924.611605565664 парикмахерская = {Занят, 14, 116}
+EI 3942.609305602833 Событие_прихода_клиента[131]
+RK 3942.609305602833 парикмахерская = {Занят, 15, 116}
+EI 3951.119167910528 Событие_прихода_клиента[132]
+RK 3951.119167910528 парикмахерская = {Занят, 16, 116}
+EF 3959.2887195614076 обслуживание_клиента[116](парикмахерская)
+RK 3959.2887195614076 парикмахерская = {Свободен, 16, 117}
+EB 3959.2887195614076 обслуживание_клиента[117](парикмахерская)
+RK 3959.2887195614076 парикмахерская = {Занят, 15, 117}
+EF 3986.6991887452064 обслуживание_клиента[117](парикмахерская)
+RK 3986.6991887452064 парикмахерская = {Свободен, 15, 118}
+EB 3986.6991887452064 обслуживание_клиента[118](парикмахерская)
+RK 3986.6991887452064 парикмахерская = {Занят, 14, 118}
+EI 3988.2049664782066 Событие_прихода_клиента[133]
+RK 3988.2049664782066 парикмахерская = {Занят, 15, 118}
+EF 4010.0000069808993 обслуживание_клиента[118](парикмахерская)
+RK 4010.0000069808993 парикмахерская = {Свободен, 15, 119}
+EB 4010.0000069808993 обслуживание_клиента[119](парикмахерская)
+RK 4010.0000069808993 парикмахерская = {Занят, 14, 119}
+EI 4027.493553188076 Событие_прихода_клиента[134]
+RK 4027.493553188076 парикмахерская = {Занят, 15, 119}
+EF 4049.1467502075498 обслуживание_клиента[119](парикмахерская)
+RK 4049.1467502075498 парикмахерская = {Свободен, 15, 120}
+EB 4049.1467502075498 обслуживание_клиента[120](парикмахерская)
+RK 4049.1467502075498 парикмахерская = {Занят, 14, 120}
+EI 4059.2698631406133 Событие_прихода_клиента[135]
+RK 4059.2698631406133 парикмахерская = {Занят, 15, 120}
+EF 4069.3658470317855 обслуживание_клиента[120](парикмахерская)
+RK 4069.3658470317855 парикмахерская = {Свободен, 15, 121}
+EB 4069.3658470317855 обслуживание_клиента[121](парикмахерская)
+RK 4069.3658470317855 парикмахерская = {Занят, 14, 121}
+EI 4077.7283121233754 Событие_прихода_клиента[136]
+RK 4077.7283121233754 парикмахерская = {Занят, 15, 121}
+EI 4080.726211707491 Событие_прихода_клиента[137]
+RK 4080.726211707491 парикмахерская = {Занят, 16, 121}
+EF 4101.39718344639 обслуживание_клиента[121](парикмахерская)
+RK 4101.39718344639 парикмахерская = {Свободен, 16, 122}
+EB 4101.39718344639 обслуживание_клиента[122](парикмахерская)
+RK 4101.39718344639 парикмахерская = {Занят, 15, 122}
+EI 4114.3228772448665 Событие_прихода_клиента[138]
+RK 4114.3228772448665 парикмахерская = {Занят, 16, 122}
+EF 4140.109901025231 обслуживание_клиента[122](парикмахерская)
+RK 4140.109901025231 парикмахерская = {Свободен, 16, 123}
+EB 4140.109901025231 обслуживание_клиента[123](парикмахерская)
+RK 4140.109901025231 парикмахерская = {Занят, 15, 123}
+EI 4144.031817515235 Событие_прихода_клиента[139]
+RK 4144.031817515235 парикмахерская = {Занят, 16, 123}
+EI 4144.05101687104 Событие_прихода_клиента[140]
+RK 4144.05101687104 парикмахерская = {Занят, 17, 123}
+EF 4169.694932543521 обслуживание_клиента[123](парикмахерская)
+RK 4169.694932543521 парикмахерская = {Свободен, 17, 124}
+EB 4169.694932543521 обслуживание_клиента[124](парикмахерская)
+RK 4169.694932543521 парикмахерская = {Занят, 16, 124}
+EF 4192.19554877038 обслуживание_клиента[124](парикмахерская)
+RK 4192.19554877038 парикмахерская = {Свободен, 16, 125}
+EB 4192.19554877038 обслуживание_клиента[125](парикмахерская)
+RK 4192.19554877038 парикмахерская = {Занят, 15, 125}
+EF 4221.265123146319 обслуживание_клиента[125](парикмахерская)
+RK 4221.265123146319 парикмахерская = {Свободен, 15, 126}
+EB 4221.265123146319 обслуживание_клиента[126](парикмахерская)
+RK 4221.265123146319 парикмахерская = {Занят, 14, 126}
+EI 4240.917944591069 Событие_прихода_клиента[141]
+RK 4240.917944591069 парикмахерская = {Занят, 15, 126}
+EF 4246.607315336295 обслуживание_клиента[126](парикмахерская)
+RK 4246.607315336295 парикмахерская = {Свободен, 15, 127}
+EB 4246.607315336295 обслуживание_клиента[127](парикмахерская)
+RK 4246.607315336295 парикмахерская = {Занят, 14, 127}
+EI 4252.90290118339 Событие_прихода_клиента[142]
+RK 4252.90290118339 парикмахерская = {Занят, 15, 127}
+EF 4268.259845063627 обслуживание_клиента[127](парикмахерская)
+RK 4268.259845063627 парикмахерская = {Свободен, 15, 128}
+EB 4268.259845063627 обслуживание_клиента[128](парикмахерская)
+RK 4268.259845063627 парикмахерская = {Занят, 14, 128}
+EF 4302.365430643009 обслуживание_клиента[128](парикмахерская)
+RK 4302.365430643009 парикмахерская = {Свободен, 14, 129}
+EB 4302.365430643009 обслуживание_клиента[129](парикмахерская)
+RK 4302.365430643009 парикмахерская = {Занят, 13, 129}
+EI 4320.793287127764 Событие_прихода_клиента[143]
+RK 4320.793287127764 парикмахерская = {Занят, 14, 129}
+EI 4323.983846408892 Событие_прихода_клиента[144]
+RK 4323.983846408892 парикмахерская = {Занят, 15, 129}
+EF 4331.089981419591 обслуживание_клиента[129](парикмахерская)
+RK 4331.089981419591 парикмахерская = {Свободен, 15, 130}
+EB 4331.089981419591 обслуживание_клиента[130](парикмахерская)
+RK 4331.089981419591 парикмахерская = {Занят, 14, 130}
+EI 4365.298683140404 Событие_прихода_клиента[145]
+RK 4365.298683140404 парикмахерская = {Занят, 15, 130}
+EF 4369.720624453769 обслуживание_клиента[130](парикмахерская)
+RK 4369.720624453769 парикмахерская = {Свободен, 15, 131}
+EB 4369.720624453769 обслуживание_клиента[131](парикмахерская)
+RK 4369.720624453769 парикмахерская = {Занят, 14, 131}
+EI 4371.973547858508 Событие_прихода_клиента[146]
+RK 4371.973547858508 парикмахерская = {Занят, 15, 131}
+EI 4383.240173683684 Событие_прихода_клиента[147]
+RK 4383.240173683684 парикмахерская = {Занят, 16, 131}
+EF 4407.246535359444 обслуживание_клиента[131](парикмахерская)
+RK 4407.246535359444 парикмахерская = {Свободен, 16, 132}
+EB 4407.246535359444 обслуживание_клиента[132](парикмахерская)
+RK 4407.246535359444 парикмахерская = {Занят, 15, 132}
+EI 4408.975199706678 Событие_прихода_клиента[148]
+RK 4408.975199706678 парикмахерская = {Занят, 16, 132}
+EF 4432.18611406121 обслуживание_клиента[132](парикмахерская)
+RK 4432.18611406121 парикмахерская = {Свободен, 16, 133}
+EB 4432.18611406121 обслуживание_клиента[133](парикмахерская)
+RK 4432.18611406121 парикмахерская = {Занят, 15, 133}
+EF 4466.376355652831 обслуживание_клиента[133](парикмахерская)
+RK 4466.376355652831 парикмахерская = {Свободен, 15, 134}
+EB 4466.376355652831 обслуживание_клиента[134](парикмахерская)
+RK 4466.376355652831 парикмахерская = {Занят, 14, 134}
+EI 4479.721837705367 Событие_прихода_клиента[149]
+RK 4479.721837705367 парикмахерская = {Занят, 15, 134}
+EF 4500.977901111501 обслуживание_клиента[134](парикмахерская)
+RK 4500.977901111501 парикмахерская = {Свободен, 15, 135}
+EB 4500.977901111501 обслуживание_клиента[135](парикмахерская)
+RK 4500.977901111501 парикмахерская = {Занят, 14, 135}
+EI 4516.594823281437 Событие_прихода_клиента[150]
+RK 4516.594823281437 парикмахерская = {Занят, 15, 135}
+EI 4526.5454219799 Событие_прихода_клиента[151]
+RK 4526.5454219799 парикмахерская = {Занят, 16, 135}
+EI 4533.953691052081 Событие_прихода_клиента[152]
+RK 4533.953691052081 парикмахерская = {Занят, 17, 135}
+EF 4534.043311040856 обслуживание_клиента[135](парикмахерская)
+RK 4534.043311040856 парикмахерская = {Свободен, 17, 136}
+EB 4534.043311040856 обслуживание_клиента[136](парикмахерская)
+RK 4534.043311040856 парикмахерская = {Занят, 16, 136}
+EI 4553.806884548031 Событие_прихода_клиента[153]
+RK 4553.806884548031 парикмахерская = {Занят, 17, 136}
+EF 4563.233537949626 обслуживание_клиента[136](парикмахерская)
+RK 4563.233537949626 парикмахерская = {Свободен, 17, 137}
+EB 4563.233537949626 обслуживание_клиента[137](парикмахерская)
+RK 4563.233537949626 парикмахерская = {Занят, 16, 137}
+EF 4585.135522521295 обслуживание_клиента[137](парикмахерская)
+RK 4585.135522521295 парикмахерская = {Свободен, 16, 138}
+EB 4585.135522521295 обслуживание_клиента[138](парикмахерская)
+RK 4585.135522521295 парикмахерская = {Занят, 15, 138}
+EF 4618.60920127667 обслуживание_клиента[138](парикмахерская)
+RK 4618.60920127667 парикмахерская = {Свободен, 15, 139}
+EB 4618.60920127667 обслуживание_клиента[139](парикмахерская)
+RK 4618.60920127667 парикмахерская = {Занят, 14, 139}
+EI 4622.398719164496 Событие_прихода_клиента[154]
+RK 4622.398719164496 парикмахерская = {Занят, 15, 139}
+EF 4651.179881790321 обслуживание_клиента[139](парикмахерская)
+RK 4651.179881790321 парикмахерская = {Свободен, 15, 140}
+EB 4651.179881790321 обслуживание_клиента[140](парикмахерская)
+RK 4651.179881790321 парикмахерская = {Занят, 14, 140}
+EI 4660.784692386308 Событие_прихода_клиента[155]
+RK 4660.784692386308 парикмахерская = {Занят, 15, 140}
+EF 4671.192677266005 обслуживание_клиента[140](парикмахерская)
+RK 4671.192677266005 парикмахерская = {Свободен, 15, 141}
+EB 4671.192677266005 обслуживание_клиента[141](парикмахерская)
+RK 4671.192677266005 парикмахерская = {Занят, 14, 141}
+EI 4672.786366081973 Событие_прихода_клиента[156]
+RK 4672.786366081973 парикмахерская = {Занят, 15, 141}
+EF 4710.4006546382 обслуживание_клиента[141](парикмахерская)
+RK 4710.4006546382 парикмахерская = {Свободен, 15, 142}
+EB 4710.4006546382 обслуживание_клиента[142](парикмахерская)
+RK 4710.4006546382 парикмахерская = {Занят, 14, 142}
+EF 4736.987529433207 обслуживание_клиента[142](парикмахерская)
+RK 4736.987529433207 парикмахерская = {Свободен, 14, 143}
+EB 4736.987529433207 обслуживание_клиента[143](парикмахерская)
+RK 4736.987529433207 парикмахерская = {Занят, 13, 143}
+EI 4750.778789448414 Событие_прихода_клиента[157]
+RK 4750.778789448414 парикмахерская = {Занят, 14, 143}
+EI 4753.960901260142 Событие_прихода_клиента[158]
+RK 4753.960901260142 парикмахерская = {Занят, 15, 143}
+EI 4754.131733501 Событие_прихода_клиента[159]
+RK 4754.131733501 парикмахерская = {Занят, 16, 143}
+EF 4774.906798153428 обслуживание_клиента[143](парикмахерская)
+RK 4774.906798153428 парикмахерская = {Свободен, 16, 144}
+EB 4774.906798153428 обслуживание_клиента[144](парикмахерская)
+RK 4774.906798153428 парикмахерская = {Занят, 15, 144}
+EF 4796.924635596243 обслуживание_клиента[144](парикмахерская)
+RK 4796.924635596243 парикмахерская = {Свободен, 15, 145}
+EB 4796.924635596243 обслуживание_клиента[145](парикмахерская)
+RK 4796.924635596243 парикмахерская = {Занят, 14, 145}
+EF 4831.878760740783 обслуживание_клиента[145](парикмахерская)
+RK 4831.878760740783 парикмахерская = {Свободен, 14, 146}
+EB 4831.878760740783 обслуживание_клиента[146](парикмахерская)
+RK 4831.878760740783 парикмахерская = {Занят, 13, 146}
+EF 4855.868388408823 обслуживание_клиента[146](парикмахерская)
+RK 4855.868388408823 парикмахерская = {Свободен, 13, 147}
+EB 4855.868388408823 обслуживание_клиента[147](парикмахерская)
+RK 4855.868388408823 парикмахерская = {Занят, 12, 147}
+EI 4862.801919674095 Событие_прихода_клиента[160]
+RK 4862.801919674095 парикмахерская = {Занят, 13, 147}
+EI 4872.569188069628 Событие_прихода_клиента[161]
+RK 4872.569188069628 парикмахерская = {Занят, 14, 147}
+EF 4882.1302185567765 обслуживание_клиента[147](парикмахерская)
+RK 4882.1302185567765 парикмахерская = {Свободен, 14, 148}
+EB 4882.1302185567765 обслуживание_клиента[148](парикмахерская)
+RK 4882.1302185567765 парикмахерская = {Занят, 13, 148}
+EF 4913.648627364607 обслуживание_клиента[148](парикмахерская)
+RK 4913.648627364607 парикмахерская = {Свободен, 13, 149}
+EB 4913.648627364607 обслуживание_клиента[149](парикмахерская)
+RK 4913.648627364607 парикмахерская = {Занят, 12, 149}
+EI 4918.790845041774 Событие_прихода_клиента[162]
+RK 4918.790845041774 парикмахерская = {Занят, 13, 149}
+EI 4922.902558914802 Событие_прихода_клиента[163]
+RK 4922.902558914802 парикмахерская = {Занят, 14, 149}
+EF 4951.756860943506 обслуживание_клиента[149](парикмахерская)
+RK 4951.756860943506 парикмахерская = {Свободен, 14, 150}
+EB 4951.756860943506 обслуживание_клиента[150](парикмахерская)
+RK 4951.756860943506 парикмахерская = {Занят, 13, 150}
+EI 4970.056230034272 Событие_прихода_клиента[164]
+RK 4970.056230034272 парикмахерская = {Занят, 14, 150}
+EI 4983.50381078055 Событие_прихода_клиента[165]
+RK 4983.50381078055 парикмахерская = {Занят, 15, 150}
+EF 4985.905742942007 обслуживание_клиента[150](парикмахерская)
+RK 4985.905742942007 парикмахерская = {Свободен, 15, 151}
+EB 4985.905742942007 обслуживание_клиента[151](парикмахерская)
+RK 4985.905742942007 парикмахерская = {Занят, 14, 151}
+EF 5011.551498903789 обслуживание_клиента[151](парикмахерская)
+RK 5011.551498903789 парикмахерская = {Свободен, 14, 152}
+EB 5011.551498903789 обслуживание_клиента[152](парикмахерская)
+RK 5011.551498903789 парикмахерская = {Занят, 13, 152}
+EF 5035.927783608386 обслуживание_клиента[152](парикмахерская)
+RK 5035.927783608386 парикмахерская = {Свободен, 13, 153}
+EB 5035.927783608386 обслуживание_клиента[153](парикмахерская)
+RK 5035.927783608386 парикмахерская = {Занят, 12, 153}
+EI 5037.04417229909 Событие_прихода_клиента[166]
+RK 5037.04417229909 парикмахерская = {Занят, 13, 153}
+EI 5054.261604716086 Событие_прихода_клиента[167]
+RK 5054.261604716086 парикмахерская = {Занят, 14, 153}
 ES 5054.261604716086 Simulation finished: terminate condition

@@ -93,8 +93,11 @@ public class ModelInternalsParser {
 			System.out.println("resource set is null");
 			return;
 		}
+		
+		List<IResource> raoFiles = BuildUtil.getAllRaoFilesInProject(project);
+		simulatorPreinitializationInfo.modelStructure.put(ModelStructureConstants.NUMBER_OF_MODELS, raoFiles.size());
 
-		for (IResource raoFile : BuildUtil.getAllRaoFilesInProject(project)) {
+		for (IResource raoFile : raoFiles) {
 			String raoFileName = raoFile.getName();
 			raoFileName = raoFileName.substring(0, raoFileName.length() - ".rao".length());
 			String modelClassName = project.getName() + "." + raoFileName;

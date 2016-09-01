@@ -79,7 +79,7 @@ public class SerializationConfig {
 
 		public final String getName() {
 			if (!isModel)
-				return NamingHelper.getRelativeElementName(name);
+				return NamingHelper.getLastPart(name);
 			else if (!showFullName)
 				return NamingHelper.getRelativeModelName(name);
 			return name;
@@ -88,7 +88,7 @@ public class SerializationConfig {
 		public final String getModelName() {
 			if (isModel)
 				return NamingHelper.getRelativeModelName(name);
-			return NamingHelper.getNameOfElementModel(name);
+			return NamingHelper.getFirstPart(name);
 		}
 
 		public final boolean isSerialized() {

@@ -1,48 +1,48 @@
 ES 0.0 Tracing started
-RC 0.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {0.0}
+RC 0.0 r = {0.0}
 ES 0.0 Simulation started
-EI 0.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[0]
-RK 0.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {253.41365935378445}
-EI 5.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[1]
-RK 5.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {271.3564025388851}
-EI 10.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[2]
-RK 10.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {175.26936093410166}
-EI 15.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[3]
-RK 15.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {215.48990894392642}
-EI 20.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[4]
-RK 20.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {264.3445153214518}
-EI 25.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[5]
-RK 25.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {274.8725194473743}
-EI 30.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[6]
-RK 30.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {209.7908519077624}
-EI 35.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[7]
-RK 35.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {84.61619233800656}
-EI 40.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[8]
-RK 40.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {87.07083410370026}
-EI 45.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[9]
-RK 45.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {95.85536807141352}
-EI 50.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[10]
-RK 50.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {289.94291233391016}
-EI 55.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[11]
-RK 55.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {140.66554393768754}
-EI 60.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[12]
-RK 60.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {254.20651864100762}
-EI 65.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[13]
-RK 65.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {85.04483356489519}
-EI 70.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[14]
-RK 70.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {213.33368730648348}
-EI 75.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[15]
-RK 75.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {248.0331857028235}
-EI 80.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[16]
-RK 80.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {189.2210780607682}
-EI 85.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[17]
-RK 85.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {297.997047023244}
-EI 90.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[18]
-RK 90.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {219.35056463956798}
-EI 95.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[19]
-RK 95.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {180.51827784342998}
-EI 100.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[20]
-RK 100.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {291.9959713015431}
-EI 105.0 continuous_histogram_sequence.continuous_histogram_sequence.HistTestEvent[21]
-RK 105.0 continuous_histogram_sequence.continuous_histogram_sequence.r = {99.95906187850977}
+EI 0.0 HistTestEvent[0]
+RK 0.0 r = {253.41365935378445}
+EI 5.0 HistTestEvent[1]
+RK 5.0 r = {271.3564025388851}
+EI 10.0 HistTestEvent[2]
+RK 10.0 r = {175.26936093410166}
+EI 15.0 HistTestEvent[3]
+RK 15.0 r = {215.48990894392642}
+EI 20.0 HistTestEvent[4]
+RK 20.0 r = {264.3445153214518}
+EI 25.0 HistTestEvent[5]
+RK 25.0 r = {274.8725194473743}
+EI 30.0 HistTestEvent[6]
+RK 30.0 r = {209.7908519077624}
+EI 35.0 HistTestEvent[7]
+RK 35.0 r = {84.61619233800656}
+EI 40.0 HistTestEvent[8]
+RK 40.0 r = {87.07083410370026}
+EI 45.0 HistTestEvent[9]
+RK 45.0 r = {95.85536807141352}
+EI 50.0 HistTestEvent[10]
+RK 50.0 r = {289.94291233391016}
+EI 55.0 HistTestEvent[11]
+RK 55.0 r = {140.66554393768754}
+EI 60.0 HistTestEvent[12]
+RK 60.0 r = {254.20651864100762}
+EI 65.0 HistTestEvent[13]
+RK 65.0 r = {85.04483356489519}
+EI 70.0 HistTestEvent[14]
+RK 70.0 r = {213.33368730648348}
+EI 75.0 HistTestEvent[15]
+RK 75.0 r = {248.0331857028235}
+EI 80.0 HistTestEvent[16]
+RK 80.0 r = {189.2210780607682}
+EI 85.0 HistTestEvent[17]
+RK 85.0 r = {297.997047023244}
+EI 90.0 HistTestEvent[18]
+RK 90.0 r = {219.35056463956798}
+EI 95.0 HistTestEvent[19]
+RK 95.0 r = {180.51827784342998}
+EI 100.0 HistTestEvent[20]
+RK 100.0 r = {291.9959713015431}
+EI 105.0 HistTestEvent[21]
+RK 105.0 r = {99.95906187850977}
 ES 105.0 Simulation finished: terminate condition
