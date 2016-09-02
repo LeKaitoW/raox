@@ -11,7 +11,7 @@ sequence clientInputInterval = new Values(#[14, 13, 17, 15, 16, 15, 14, 22, 19])
 
 event ClientInput() {
 	ClientInput.plan(currentTime + clientInputInterval.next());
-	if (barberShop.barberState.equals(BarberState.free)) {
+	if (barberShop.barberState == BarberState.free) {
 		barberShop.barberState = BarberState.busy;
 		ServiceFinished.plan(currentTime + serviceDuration.next());
 	} else {
