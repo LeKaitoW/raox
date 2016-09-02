@@ -6,10 +6,9 @@ import org.eclipse.xtext.xbase.lib.Pure;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 
 import com.google.common.annotations.GwtCompatible;
-import com.google.common.base.Objects;
 
 /* NB: This class is mostly a copy of org.eclipse.xtext.xbase.lib.ObjectExtensions class, with the only
- * difference: operator_equals() method has been changed, as original one works buggy for rao code.
+ * difference: operator_equals() and operator_notEquals() methods have been changed, as original ones work buggy for rao code.
  * This class should be updated for every new version of xtext rao project adopts.
  * */
 @GwtCompatible
