@@ -15,13 +15,13 @@ import com.google.common.base.Objects;
 @GwtCompatible
 public class RaoObjectExtensions {
 	@Pure
-	@Inline(value = "(!$3.equal($1, $2))", imported = Objects.class)
+	@Inline(value = "($1 == null ? true : !$1.equals($2))")
 	public static boolean operator_notEquals(Object a, Object b) {
-		return !Objects.equal(a, b);
+		return a == null ? true : !a.equals(b);
 	}
 
 	@Pure
-	@Inline(value = "($1 == null ? false : $1.equals($2))", imported = Objects.class)
+	@Inline(value = "($1 == null ? false : $1.equals($2))")
 	public static boolean operator_equals(Object a, Object b) {
 		return a == null ? false : a.equals(b);
 	}
