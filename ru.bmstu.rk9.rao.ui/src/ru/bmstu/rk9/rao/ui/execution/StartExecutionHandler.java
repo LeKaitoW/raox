@@ -9,16 +9,13 @@ import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
-
-import ru.bmstu.rk9.rao.IMultipleResourceGenerator;
+import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+@SuppressWarnings("restriction")
 public class StartExecutionHandler extends AbstractUIElementUpdatingHandler {
-	@Inject
-	private IMultipleResourceGenerator generator;
-
 	@Inject
 	private Provider<EclipseResourceFileSystemAccess2> fileAccessProvider;
 
@@ -31,6 +28,9 @@ public class StartExecutionHandler extends AbstractUIElementUpdatingHandler {
 	@Inject
 	DefaultResourceUIValidatorExtension validatorExtension;
 
+	@Inject
+	IBatchTypeResolver typeResolver;
+
 	public StartExecutionHandler() {
 		super(UIElementType.EXECUTE);
 	}
@@ -41,8 +41,8 @@ public class StartExecutionHandler extends AbstractUIElementUpdatingHandler {
 		IWorkbenchWindow activeWorkbenchWindow = HandlerUtil.getActiveWorkbenchWindow(event);
 
 		ExecutionManager executionManager = new ExecutionManager(activeEditor, activeWorkbenchWindow,
-				fileAccessProvider.get(), resourceSetProvider, outputConfigurationProvider, generator,
-				validatorExtension);
+				fileAccessProvider.get(), resourceSetProvider, outputConfigurationProvider, validatorExtension,
+				typeResolver);
 		executionManager.execute(false);
 
 		return null;

@@ -2,29 +2,18 @@ package ru.bmstu.rk9.rao.lib.process;
 
 import java.nio.ByteBuffer;
 
-import ru.bmstu.rk9.rao.lib.resource.ResourceComparison;
-import ru.bmstu.rk9.rao.lib.resource.ResourceManager;
+import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
-public class Resource implements ru.bmstu.rk9.rao.lib.resource.Resource,
-		ResourceComparison<Resource> {
+public class Resource extends ComparableResource<Resource> {
+	private Resource() {
+	}
 
-	private static ResourceManager<Resource> resourceManager = new ResourceManager<>();
 	private ResourceState state = ResourceState.UNLOCKED;
-	private Integer number = null;
 
 	@Override
 	public ByteBuffer serialize() {
 		return null;
-	}
-
-	@Override
-	public String getName() {
-		return null;
-	}
-
-	@Override
-	public Integer getNumber() {
-		return number;
 	}
 
 	@Override
@@ -49,14 +38,23 @@ public class Resource implements ru.bmstu.rk9.rao.lib.resource.Resource,
 		return false;
 	}
 
-	public Resource register() {
-		this.number = resourceManager.getNextNumber();
-		resourceManager.addResource(this);
-		return this;
+	public static Resource create() {
+		Resource resource = new Resource();
+		CurrentSimulator.getModelState().addResource(resource);
+		return resource;
 	}
 
 	public boolean isLocked() {
 		return state == ResourceState.LOCKED;
+	}
 
+	@Override
+	public void erase() {
+		CurrentSimulator.getModelState().eraseResource(this);
+	}
+
+	@Override
+	public Resource deepCopy() {
+		return null;
 	}
 }

@@ -1,0 +1,19 @@
+--- RCPTT testcase ---
+Format-Version: 1.0
+Contexts: _XZ-XYG2_EeaTr4imhloaoA
+Element-Name: model_relevants_no_combination_notrace
+Element-Type: testcase
+Element-Version: 3.0
+External-Reference: 
+Id: _XaQEMG2_EeaTr4imhloaoA
+Runtime-Version: 2.0.1.201508250612
+Save-Time: 8/29/16 11:10 AM
+Testcase-Type: ecl
+
+------=_.content-0a7243a0-75d3-3d5f-9791-539de0e5b7ac
+Content-Type: text/ecl
+Entry-Name: .content
+
+test_model_source_notrace "relevants_no_combination"
+
+------=_.content-0a7243a0-75d3-3d5f-9791-539de0e5b7ac--

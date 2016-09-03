@@ -11,7 +11,7 @@ import org.eclipse.swt.graphics.Rectangle;
 
 import ru.bmstu.rk9.rao.lib.animation.AnimationContext;
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
-import ru.bmstu.rk9.rao.lib.animation.BackgroundData;
+import ru.bmstu.rk9.rao.lib.animation.Background;
 import ru.bmstu.rk9.rao.lib.animation.RaoColor;
 
 public class AnimationContextSWT implements AnimationContext {
@@ -25,7 +25,7 @@ public class AnimationContextSWT implements AnimationContext {
 
 	private HashMap<AnimationFrame, Image> storedFrames = new HashMap<AnimationFrame, Image>();
 
-	void drawBackground(BackgroundData backgroundData) {
+	void drawBackground(Background backgroundData) {
 		paintContext.setAlpha(255);
 
 		Color backgroundColor = createColor(backgroundData.color);
@@ -53,7 +53,7 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	private Image drawFrameBuffer(AnimationFrame frame) {
-		BackgroundData backgroundData = frame.getBackgroundData();
+		Background backgroundData = frame.getBackground();
 
 		Rectangle backgroundRectangle = new Rectangle(0, 0, backgroundData.width, backgroundData.height);
 
@@ -90,6 +90,11 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	@Override
+	public void drawText(String text, int x, int y) {
+		drawText(text, x, y, RaoColor.BLACK);
+	}
+
+	@Override
 	public void drawRectangle(int x, int y, int width, int height, RaoColor backgroundRaoColor,
 			RaoColor borderRaoColor) {
 		paintContext.setAlpha(backgroundRaoColor.alpha);
@@ -111,6 +116,11 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	@Override
+	public void drawRectangle(int x, int y, int width, int height) {
+		drawRectangle(x, y, width, height, RaoColor.WHITE, RaoColor.BLACK);
+	}
+
+	@Override
 	public void drawLine(int x1, int y1, int x2, int y2, RaoColor lineRaoColor) {
 		paintContext.setAlpha(lineRaoColor.alpha);
 
@@ -120,6 +130,11 @@ public class AnimationContextSWT implements AnimationContext {
 		paintContext.drawLine(x1, y1, x2, y2);
 
 		lineColor.dispose();
+	}
+
+	@Override
+	public void drawLine(int x1, int y1, int x2, int y2) {
+		drawLine(x1, y1, x2, y2, RaoColor.BLACK);
 	}
 
 	@Override
@@ -143,6 +158,11 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	@Override
+	public void drawCircle(int x, int y, int radius) {
+		drawCircle(x, y, radius, RaoColor.WHITE, RaoColor.BLACK);
+	}
+
+	@Override
 	public void drawEllipse(int x, int y, int width, int height, RaoColor backgroundRaoColor, RaoColor borderRaoColor) {
 		paintContext.setAlpha(backgroundRaoColor.alpha);
 
@@ -160,6 +180,11 @@ public class AnimationContextSWT implements AnimationContext {
 
 		backgroundColor.dispose();
 		borderColor.dispose();
+	}
+
+	@Override
+	public void drawEllipse(int x, int y, int width, int height) {
+		drawEllipse(x, y, width, height, RaoColor.WHITE, RaoColor.BLACK);
 	}
 
 	@Override
@@ -181,6 +206,11 @@ public class AnimationContextSWT implements AnimationContext {
 
 		backgroundColor.dispose();
 		borderColor.dispose();
+	}
+
+	@Override
+	public void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
+		drawTriangle(x1, y1, x2, y2, x3, y3, RaoColor.WHITE, RaoColor.BLACK);
 	}
 
 	Color createColor(RaoColor color) {

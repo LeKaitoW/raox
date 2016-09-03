@@ -1,0 +1,20 @@
+sequence histSeq = new ContinuousHistogram(123456789, 80, #[100 -> 100, 200 -> 20, 300 -> 40]);
+
+type T {
+	double d
+}
+
+resource r = T.create(0)
+
+event HistTestEvent() {
+	r.d = histSeq.next()
+	HistTestEvent.plan(currentTime + 5)
+}
+
+set init() {
+	HistTestEvent.plan(currentTime)
+}
+
+set terminateCondition() {
+	return currentTime > 100
+}

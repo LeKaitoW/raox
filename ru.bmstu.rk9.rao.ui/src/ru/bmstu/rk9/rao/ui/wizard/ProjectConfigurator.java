@@ -44,7 +44,7 @@ public class ProjectConfigurator {
 	public ProjectConfigurator(final ProjectInfo info) {
 		this.info = info;
 		root = ResourcesPlugin.getWorkspace().getRoot();
-		raoProject = root.getProject(info.getProjectName() + "_project");
+		raoProject = root.getProject(info.getProjectName());
 	}
 
 	private final IWorkspaceRoot root;
@@ -110,8 +110,15 @@ public class ProjectConfigurator {
 			libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
 		else
 			libPathBinary = new Path(libPath.getAbsolutePath());
-		IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary, null, null);
+		IPath sourcePath = new Path(libPath.getAbsolutePath());
+		IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary, sourcePath, null);
 		entries.add(libEntry);
+
+		Bundle xbaseLib = Platform.getBundle("org.eclipse.xtext.xbase.lib");
+		File xbaseLibPath = FileLocator.getBundleFile(xbaseLib);
+		IPath xbaseLibPathBinary = new Path(xbaseLibPath.getAbsolutePath());
+		IClasspathEntry xbaseLibEntry = JavaCore.newLibraryEntry(xbaseLibPathBinary, null, null);
+		entries.add(xbaseLibEntry);
 
 		game5JavaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
 	}
@@ -134,13 +141,13 @@ public class ProjectConfigurator {
 		case NO_TEMPLATE:
 			return;
 		case BARBER_SIMPLE:
-			modelTemplatePath = "/model_templates/barber_simple.rao";
+			modelTemplatePath = "/model_templates/barber_simple.rao.template";
 			break;
 		case BARBER_EVENTS:
-			modelTemplatePath = "/model_templates/barber_events.rao";
+			modelTemplatePath = "/model_templates/barber_events.rao.template";
 			break;
 		case BARBER_CLIENTS:
-			modelTemplatePath = "/model_templates/barber_clients.rao";
+			modelTemplatePath = "/model_templates/barber_clients.rao.template";
 			break;
 		default:
 			return;

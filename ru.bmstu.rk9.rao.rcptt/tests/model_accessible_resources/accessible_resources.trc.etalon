@@ -1,0 +1,17 @@
+ES 0.0 Tracing started
+RC 0.0 y1 = {4}
+RC 0.0 y2 = {1}
+ES 0.0 Simulation started
+EB 0.0 a[0](y2, y1)
+EF 1.0 a[0](y2, y1)
+RK 1.0 y2 = {2}
+EB 1.0 a[1](y2, y1)
+EF 2.0 a[1](y2, y1)
+RK 2.0 y2 = {3}
+EB 2.0 a[2](y2, y1)
+EF 3.0 a[2](y2, y1)
+RK 3.0 y2 = {4}
+EB 3.0 a[3](y1, y2)
+EF 4.0 a[3](y1, y2)
+RK 4.0 y1 = {5}
+ES 4.0 Simulation finished: no more events
