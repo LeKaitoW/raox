@@ -34,10 +34,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.PatternIndex;
-import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceParameterIndex;
-import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceTypeIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
-import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
@@ -46,6 +43,7 @@ import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
+import ru.bmstu.rk9.rao.ui.plot.PlotDataParser.DataParserResult;
 import ru.bmstu.rk9.rao.ui.plot.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView.ConditionalMenuItem;
 
@@ -126,7 +124,7 @@ public class PlotView extends ViewPart {
 		XYSeries series = new XYSeries(partNode.getName());
 		dataset.addSeries(series);
 
-		plotXY(dataset, PlotDataParser.getEnumNames(partNode));
+		plotXY(dataset);
 
 		initializeSubscribers();
 	}
@@ -158,7 +156,23 @@ public class PlotView extends ViewPart {
 			if (!readyForInput())
 				return;
 
-			final List<PlotItem> items = plotDataParser.parseEntries();
+			final DataParserResult dataParserResult = plotDataParser.parseEntries();
+			if (dataParserResult.axisChanged) {
+				XYPlot plot = (XYPlot) plotFrame.getChart().getPlot();
+				SymbolAxis rangeAxis;
+				String[] labels = new String[dataParserResult.axisValues.size()];
+				labels = dataParserResult.axisValues.toArray(labels);
+
+				final String fontName = plotFrame.getChart().getTitle().getFont().getName();
+
+				final Font font = new Font(fontName, Font.PLAIN, 10);
+				rangeAxis = new SymbolAxis("", labels);
+				rangeAxis.setAutoRangeIncludesZero(true);
+				plot.setRangeAxis(rangeAxis);
+				rangeAxis.setTickLabelFont(font);
+			}
+
+			final List<PlotItem> items = dataParserResult.dataset;
 			if (!items.isEmpty()) {
 				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame.getChart().getXYPlot()
 						.getDataset();
@@ -184,13 +198,13 @@ public class PlotView extends ViewPart {
 	public void setFocus() {
 	}
 
-	public void plotXY(final XYSeriesCollection dataset, List<String> axisSymbols) {
-		final JFreeChart chart = createChart(dataset, axisSymbols);
+	public void plotXY(final XYSeriesCollection dataset) {
+		final JFreeChart chart = createChart(dataset);
 		plotFrame.setChart(chart);
 		plotFrame.setRangeZoomable(false);
 	}
 
-	private JFreeChart createChart(final XYDataset dataset, final List<String> axisSymbols) {
+	private JFreeChart createChart(final XYDataset dataset) {
 
 		final JFreeChart chart = ChartFactory.createXYStepChart("", "Time", "Value", dataset, PlotOrientation.VERTICAL,
 				true, true, false);
@@ -203,23 +217,9 @@ public class PlotView extends ViewPart {
 		plot.setRangeGridlinePaint(grey);
 		plot.getRenderer().setSeriesStroke(0, new BasicStroke((float) 2.5));
 
-		NumberAxis rangeAxis;
-		if (axisSymbols != null) {
-			String[] enumLabels = new String[axisSymbols.size()];
-			enumLabels = axisSymbols.toArray(enumLabels);
-
-			final String fontName = chart.getTitle().getFont().getName();
-
-			final Font font = new Font(fontName, Font.PLAIN, 10);
-			rangeAxis = new SymbolAxis("", enumLabels);
-			rangeAxis.setAutoRangeIncludesZero(true);
-			plot.setRangeAxis(rangeAxis);
-			rangeAxis.setTickLabelFont(font);
-		} else {
-			rangeAxis = new NumberAxis();
-			rangeAxis.setAutoRangeIncludesZero(true);
-			plot.setRangeAxis(rangeAxis);
-		}
+		NumberAxis rangeAxis = new NumberAxis();
+		rangeAxis.setAutoRangeIncludesZero(true);
+		plot.setRangeAxis(rangeAxis);
 
 		final NumberAxis domainAxis = new NumberAxis();
 		domainAxis.setAutoRangeIncludesZero(true);
@@ -246,13 +246,7 @@ public class PlotView extends ViewPart {
 
 			switch (index.getType()) {
 			case RESOURCE_PARAMETER:
-				ResourceParameterIndex parameterIndex = (ResourceParameterIndex) index;
-				int parameterNumber = parameterIndex.getNumber();
-				ResourceTypeIndex resourceTypeIndex = (ResourceTypeIndex) node.getParent().getParent().getIndex();
-				int resourceTypeNumber = resourceTypeIndex.getNumber();
-				DataType parameterType = CurrentSimulator.getStaticModelData()
-						.getResourceTypeParameterType(resourceTypeNumber, parameterNumber);
-				return parameterType != DataType.OTHER;
+				return true;
 
 			case RESULT:
 				ResultIndex resultIndex = (ResultIndex) index;
