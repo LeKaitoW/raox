@@ -34,7 +34,6 @@ public class PlotDataParser {
 	private int patternCount = 0;
 
 	private final Map<String, Integer> uniqueValues = new LinkedHashMap<>();
-	private int uniqueValueCount = 0;
 
 	public final static class PlotItem {
 		PlotItem(final double x, final double y) {
@@ -199,7 +198,7 @@ public class PlotDataParser {
 				if (uniqueValues.containsKey(descriptor)) {
 					value = uniqueValues.get(descriptor);
 				} else {
-					value = uniqueValueCount++;
+					value = uniqueValues.size();
 					uniqueValues.put(descriptor, value);
 					axisChanged = true;
 					axisValues = Lists.newArrayList(uniqueValues.keySet());
