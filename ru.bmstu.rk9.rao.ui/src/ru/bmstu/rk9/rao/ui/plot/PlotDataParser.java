@@ -1,8 +1,13 @@
 package ru.bmstu.rk9.rao.ui.plot;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Lists;
 
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
@@ -28,6 +33,8 @@ public class PlotDataParser {
 	private int currentItemNumber = 0;
 	private int patternCount = 0;
 
+	private final Map<String, Integer> uniqueValues = new LinkedHashMap<>();
+
 	public final static class PlotItem {
 		PlotItem(final double x, final double y) {
 			this.x = x;
@@ -38,17 +45,29 @@ public class PlotDataParser {
 		final public double y;
 	}
 
-	public final static class ParseInfo {
-		ParseInfo(final List<PlotItem> dataset, final int itemNumber) {
+	public final static class DataParserResult {
+		DataParserResult(final List<PlotItem> dataset, boolean axisChanged, List<String> axisValues) {
 			this.dataset = dataset;
-			this.itemNumber = itemNumber;
+			this.axisChanged = axisChanged;
+			this.axisValues = axisValues;
 		}
 
-		final public List<PlotItem> dataset;
-		final public int itemNumber;
+		public final boolean axisChanged;
+		public final List<String> axisValues;
+		public final List<PlotItem> dataset;
 	}
 
-	public List<PlotItem> parseEntries() {
+	public final static class ParseInfo {
+		ParseInfo(final DataParserResult dataParserResult, int itemNumber) {
+			this.itemNumber = itemNumber;
+			this.dataParserResult = dataParserResult;
+		}
+
+		public final int itemNumber;
+		public final DataParserResult dataParserResult;
+	}
+
+	public DataParserResult parseEntries() {
 		final Index index = node.getIndex();
 		ParseInfo parseInfo;
 
@@ -74,7 +93,7 @@ public class PlotDataParser {
 		}
 		currentItemNumber = parseInfo.itemNumber;
 
-		return parseInfo.dataset;
+		return parseInfo.dataParserResult;
 	}
 
 	private ParseInfo parsePattern(final PatternIndex patternIndex, final int startItemNumber) {
@@ -110,7 +129,7 @@ public class PlotDataParser {
 			currentItemNumber++;
 		}
 
-		return new ParseInfo(dataset, currentItemNumber);
+		return new ParseInfo(new DataParserResult(dataset, false, null), currentItemNumber);
 	}
 
 	private ParseInfo parseResult(final ResultIndex resultIndex, final int startItemNumber) {
@@ -124,7 +143,7 @@ public class PlotDataParser {
 			currentItemNumber++;
 		}
 
-		return new ParseInfo(dataset, currentItemNumber);
+		return new ParseInfo(new DataParserResult(dataset, false, null), currentItemNumber);
 	}
 
 	private ParseInfo parseResourceParameter(final ResourceIndex resourceIndex, final int typeNumber,
@@ -135,6 +154,11 @@ public class PlotDataParser {
 
 		final int parameterOffset = CurrentSimulator.getStaticModelData().getResourceTypeParameterOffset(typeNumber,
 				parameterNumber);
+		final int finalOffset = CurrentSimulator.getStaticModelData().getResourceTypeFinalOffset(typeNumber);
+
+		boolean axisChanged = false;
+		List<String> axisValues = null;
+
 		while (currentItemNumber < entriesNumbers.size()) {
 			int currentEntryNumber = entriesNumbers.get(currentItemNumber);
 			final Entry currentEntry = allEntries.get(currentEntryNumber);
@@ -159,6 +183,29 @@ public class PlotDataParser {
 			case BOOLEAN:
 				item = new PlotItem(time, data.get(parameterOffset) != 0 ? 1 : 0);
 				break;
+			case OTHER:
+				final int index = CurrentSimulator.getStaticModelData().getVariableWidthParameterIndex(typeNumber,
+						parameterNumber);
+				final int stringPosition = data.getInt(finalOffset + index * TypeSize.INT);
+				final int length = data.getInt(stringPosition);
+
+				byte rawString[] = new byte[length];
+				for (int i = 0; i < length; i++)
+					rawString[i] = data.get(stringPosition + TypeSize.INT + i);
+				String descriptor = new String(rawString, StandardCharsets.UTF_8);
+
+				int value;
+				if (uniqueValues.containsKey(descriptor)) {
+					value = uniqueValues.get(descriptor);
+				} else {
+					value = uniqueValues.size();
+					uniqueValues.put(descriptor, value);
+					axisChanged = true;
+					axisValues = Lists.newArrayList(uniqueValues.keySet());
+				}
+				item = new PlotItem(time, value);
+
+				break;
 			default:
 				throw new PlotDataParserException("Unexpected value type: " + dataType);
 			}
@@ -167,28 +214,6 @@ public class PlotDataParser {
 			currentItemNumber++;
 		}
 
-		return new ParseInfo(dataset, currentItemNumber);
-	}
-
-	public static List<String> getEnumNames(final CollectedDataNode node) {
-		List<String> enumNames = null;
-
-		final Index index = node.getIndex();
-		if (index != null) {
-			switch (index.getType()) {
-			case RESOURCE_PARAMETER:
-				// TODO fix this when enums serialization is implemented
-				enumNames = null;
-				break;
-			case RESULT:
-				// TODO fix this when enums serialization is implemented
-				enumNames = new ArrayList<String>();
-				break;
-			default:
-				break;
-			}
-		}
-
-		return enumNames;
+		return new ParseInfo(new DataParserResult(dataset, axisChanged, axisValues), currentItemNumber);
 	}
 }
