@@ -36,10 +36,10 @@ gunzip -c eclipse-dsl-mars-2-linux-gtk-x86_64.tar.gz  | tar xvf -
 cd eclipse
 ./eclipse
 ```
- * Git clone `rdo-xtext` repository
+ * Git clone `raox` repository
 ```bash
 ssh-add ~/.ssh/github.openssh.private.key
-git clone git@github.com:aurusov/rdo-xtext.git
+git clone git@github.com:aurusov/raox.git
 ```
 ## Installing
 ### Setting up the workspace for Eclipse
