@@ -16,7 +16,7 @@ htmlReport=$testResults/results.html
 rm -rf $testResults
 mkdir $testResults
 
-java -jar $runnerPath/plugins/org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar \
+java -jar $runnerPath/plugins/org.eclipse.equinox.launcher_1.3.200.v20160318-1642.jar \
     -application org.eclipse.rcptt.runner.headless \
     -data $runnerWorkspace \
     -aut $autPath \
