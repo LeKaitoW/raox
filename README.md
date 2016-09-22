@@ -2,7 +2,7 @@
 ## Summary
 <img src=docs/rdo-xtext.png><img>
 This project is an implementation of RDO modelling language in Eclipse, using xtext.
-* [About RAO modelling language (rus)](http://www.rdostudio.com/help/help/rdo_lang_rus/html/rdo_intro.htm)
+* [About RAO modelling language (rus)](http://raox.ru/docs/reference/base_types_and_functions.html)
 
 ## Preparing
  * Install [Ubuntu Desktop](http://www.ubuntu.com/download/desktop/) or any other [linux distribution](http://www.linux.com/directory/Distributions/desktop)
