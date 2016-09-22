@@ -1,7 +1,7 @@
 # Rao X
 ## Summary
 <img src=docs/raox.png><img>
-This project is an implementation of RAO modelling language in Eclipse, using [Xbase](https://wiki.eclipse.org/Xbase).
+This project is an implementation of RAO modelling language in [Eclipse](https://eclipse.org), using [Xbase](https://wiki.eclipse.org/Xbase).
 * [About RAO modelling language (rus)](http://raox.ru/docs/reference/base_types_and_functions.html)
 
 ## Preparing
