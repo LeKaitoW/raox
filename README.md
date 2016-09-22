@@ -1,7 +1,7 @@
 # Rao X
 ## Summary
 <img src=docs/raox.png><img>
-This project is an implementation of RDO modelling language in Eclipse, using xtext.
+This project is an implementation of RAO modelling language in Eclipse, using xtext.
 * [About RAO modelling language (rus)](http://raox.ru/docs/reference/base_types_and_functions.html)
 
 ## Preparing
@@ -43,17 +43,17 @@ git clone git@github.com:aurusov/raox.git
 ```
 ## Installing
 ### Setting up the workspace for Eclipse
-* `File` `>` `Import` `>` `General` `>` `Existing Projects into Workspace``>` `Select root directory` `>` `/home/USERNAME/git/rdo-xtext` `>` `Finish`
+* `File` `>` `Import` `>` `General` `>` `Existing Projects into Workspace``>` `Select root directory` `>` `/home/USERNAME/git/raox` `>` `Finish`
 * Wait for the workspace to build and get tons of errors
 * `ru.bmstu.rk9.rao/src/ru.bmstu.rk9.rao/Rao.xtext` `>` `Run As` `>` `Generate Xtext Artifacts` `>` `Proceed`
 * `*ATTENTION* It is recommended to use the ANTLR 3...` press `y`
 ```
-0    [main] INFO  lipse.emf.mwe.utils.StandaloneSetup  - Registering platform uri '/home/drobus/git/rdo-xtext'
+0    [main] INFO  lipse.emf.mwe.utils.StandaloneSetup  - Registering platform uri '/home/drobus/git/raox'
 637  [main] INFO  lipse.emf.mwe.utils.StandaloneSetup  - Adding generated EPackage 'org.eclipse.xtext.common.types.TypesPackage'
-644  [main] INFO  ipse.emf.mwe.utils.DirectoryCleaner  - Cleaning /home/drobus/git/rdo-xtext/ru.bmstu.rk9.rao/../ru.bmstu.rk9.rao/src-gen
-652  [main] INFO  ipse.emf.mwe.utils.DirectoryCleaner  - Cleaning /home/drobus/git/rdo-xtext/ru.bmstu.rk9.rao/../ru.bmstu.rk9.rao/model
-652  [main] INFO  ipse.emf.mwe.utils.DirectoryCleaner  - Cleaning /home/drobus/git/rdo-xtext/ru.bmstu.rk9.rao/../ru.bmstu.rk9.rao.ui/src-gen
-653  [main] INFO  ipse.emf.mwe.utils.DirectoryCleaner  - Cleaning /home/drobus/git/rdo-xtext/ru.bmstu.rk9.rao/../ru.bmstu.rk9.rao.tests/src-gen
+644  [main] INFO  ipse.emf.mwe.utils.DirectoryCleaner  - Cleaning /home/drobus/git/raox/ru.bmstu.rk9.rao/../ru.bmstu.rk9.rao/src-gen
+652  [main] INFO  ipse.emf.mwe.utils.DirectoryCleaner  - Cleaning /home/drobus/git/raox/ru.bmstu.rk9.rao/../ru.bmstu.rk9.rao/model
+652  [main] INFO  ipse.emf.mwe.utils.DirectoryCleaner  - Cleaning /home/drobus/git/raox/ru.bmstu.rk9.rao/../ru.bmstu.rk9.rao.ui/src-gen
+653  [main] INFO  ipse.emf.mwe.utils.DirectoryCleaner  - Cleaning /home/drobus/git/raox/ru.bmstu.rk9.rao/../ru.bmstu.rk9.rao.tests/src-gen
 5720 [main] INFO  clipse.emf.mwe.utils.GenModelHelper  - Registered GenModel 'http://www.bmstu.ru/rk9/rao/Rao' from 'platform:/resource/ru.bmstu.rk9.rao/model/generated/Rao.genmodel'
 27489 [main] INFO  text.generator.junit.Junit4Fragment  - generating Junit4 Test support classes
 27496 [main] INFO  text.generator.junit.Junit4Fragment  - generating Compare Framework infrastructure
