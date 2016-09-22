@@ -9,12 +9,12 @@ import java.util.TreeSet;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class DPTManager implements Subscriber {
 	public DPTManager(Collection<AbstractDecisionPoint> decisionPoints) {
-		Simulator.getExecutionStateNotifier().addSubscriber(this, Simulator.ExecutionState.EXECUTION_ABORTED,
-				EnumSet.of(SubscriptionType.ONE_SHOT));
+		CurrentSimulator.getExecutionStateNotifier().addSubscriber(this,
+				CurrentSimulator.ExecutionState.EXECUTION_ABORTED, EnumSet.of(SubscriptionType.ONE_SHOT));
 
 		this.decisionPoints = new TreeSet<AbstractDecisionPoint>(prioritizer);
 		this.decisionPoints.addAll(decisionPoints);

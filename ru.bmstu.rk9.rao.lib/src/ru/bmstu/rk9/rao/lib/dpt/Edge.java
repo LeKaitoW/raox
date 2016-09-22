@@ -51,13 +51,10 @@ public class Edge extends AbstractActivity {
 	private final Supplier<? extends Rule> ruleFabric;
 
 	public final boolean check() {
-		System.out.println("checking edge");
 		currentRule = ruleFabric.get();
 
-		if (currentRule.selectRelevantResources()) {
-			System.out.println("check true");
+		if (currentRule.selectRelevantResources())
 			return true;
-		}
 
 		return false;
 	}

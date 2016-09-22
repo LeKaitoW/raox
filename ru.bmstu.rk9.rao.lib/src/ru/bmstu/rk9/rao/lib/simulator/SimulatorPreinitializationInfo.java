@@ -10,15 +10,16 @@ import ru.bmstu.rk9.rao.lib.process.Transact;
 
 public class SimulatorPreinitializationInfo {
 	public SimulatorPreinitializationInfo() {
-		modelStructure = generateModelStructureStrub();
+		modelStructure = generateModelStructureStub();
 		resourceClasses.add(Transact.class);
 	}
 
 	public final JSONObject modelStructure;
 	public final List<Class<?>> resourceClasses = new ArrayList<>();
+	public final List<Runnable> resourcePreinitializers = new ArrayList<>();
 
-	public static final JSONObject generateModelStructureStrub() {
-		return new JSONObject().put(ModelStructureConstants.NAME, "")
+	public static final JSONObject generateModelStructureStub() {
+		return new JSONObject().put(ModelStructureConstants.NAME, "").put(ModelStructureConstants.NUMBER_OF_MODELS, 1)
 				.put(ModelStructureConstants.RESOURCE_TYPES, new JSONArray())
 				.put(ModelStructureConstants.RESULTS, new JSONArray())
 				.put(ModelStructureConstants.PATTERNS, new JSONArray())

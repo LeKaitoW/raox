@@ -6,7 +6,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
 import ru.bmstu.rk9.rao.lib.resource.Resource;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.ui.execution.ModelContentsInfo;
 import ru.bmstu.rk9.rao.ui.process.BlockConverterInfo;
 import ru.bmstu.rk9.rao.ui.process.blocks.BlockNodeWithResource;
@@ -27,7 +27,7 @@ public class SeizeNode extends BlockNodeWithResource {
 
 	@Override
 	public BlockConverterInfo createBlock(ModelContentsInfo modelContentsInfo) {
-		Optional<Resource> optional = Simulator.getModelState().getAllResources().stream()
+		Optional<Resource> optional = CurrentSimulator.getModelState().getAllResources().stream()
 				.filter(resource -> resource.getName().equals(resourceName)).findAny();
 		BlockConverterInfo seizeInfo = new BlockConverterInfo();
 		if (!optional.isPresent()) {

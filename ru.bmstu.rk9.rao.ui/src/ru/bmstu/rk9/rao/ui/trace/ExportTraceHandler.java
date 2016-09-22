@@ -9,11 +9,15 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceOutput;
 
 //TODO export to location chosen by user
@@ -54,19 +58,29 @@ public class ExportTraceHandler extends AbstractHandler {
 		case LEGACY:
 			exportTraceLegacy();
 			break;
+		default:
+			return null;
+		}
+
+		try {
+			ResourcesPlugin.getWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
+		} catch (CoreException e) {
 		}
 
 		return null;
 	}
 
 	public final static void exportTraceRegular() {
-		if (!Simulator.isInitialized() || !ready())
+		if (!CurrentSimulator.isInitialized() || !ready())
 			return;
 
-		Tracer tracer = new Tracer(Simulator.getStaticModelData());
+		Tracer tracer = new Tracer(CurrentSimulator.getStaticModelData());
 
 		PrintWriter writer = initializeWriter(".trc");
-		for (Entry entry : Simulator.getDatabase().getAllEntries()) {
+		if (writer == null)
+			return;
+
+		for (Entry entry : CurrentSimulator.getDatabase().getAllEntries()) {
 			TraceOutput output = tracer.parseSerializedData(entry);
 			if (output != null)
 				writer.println(output.content());
@@ -77,7 +91,7 @@ public class ExportTraceHandler extends AbstractHandler {
 	private static LegacyTracer legacyTracer = null;
 
 	public final static void exportTraceLegacy() {
-		if (!Simulator.isInitialized() || !ready())
+		if (!CurrentSimulator.isInitialized() || !ready())
 			return;
 
 		if (legacyTracer == null) {
@@ -86,7 +100,11 @@ public class ExportTraceHandler extends AbstractHandler {
 		}
 
 		List<TraceOutput> output = legacyTracer.getTraceList();
+
 		PrintWriter writer = initializeWriter(".trc.legacy");
+		if (writer == null)
+			return;
+
 		for (TraceOutput item : output) {
 			writer.println(item.content());
 		}
@@ -95,14 +113,15 @@ public class ExportTraceHandler extends AbstractHandler {
 
 	private final static PrintWriter initializeWriter(String suffix) {
 		IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
-		IPath filePath = workspacePath.append(currentProject.getFullPath()
-				.append(currentProject.getName().substring(0, currentProject.getName().lastIndexOf('.')) + suffix));
+		IPath filePath = workspacePath.append(currentProject.getFullPath().append(currentProject.getName() + suffix));
 
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(filePath.toString(), "UTF-8");
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error",
+					"Failed to initialize trace writer");
 			return null;
 		}
 

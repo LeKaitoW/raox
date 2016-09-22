@@ -8,7 +8,7 @@ import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.common.types.JvmVisibility
 
 class SearchCompiler extends RaoEntityCompiler {
-def static asClass(Search search, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
+	def static asClass(Search search, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
 		JvmDeclaredType it, boolean isPreIndexingPhase) {
 		initializeCurrent(jvmTypesBuilder, typeReferenceBuilder);
 
@@ -33,7 +33,7 @@ def static asClass(Search search, JvmTypesBuilder jvmTypesBuilder, JvmTypeRefere
 			members += search.toMethod("initializeEdges", typeRef(void)) [
 				visibility = JvmVisibility.PROTECTED
 				final = true
-				annotations += generateOverrideAnnotation()
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				body = '''
 					«FOR edge : search.edges»
 						this.«edge.name» = initialize«edge.name.toFirstUpper»();
@@ -46,7 +46,7 @@ def static asClass(Search search, JvmTypesBuilder jvmTypesBuilder, JvmTypeRefere
 			members += search.toMethod("getTypeName", typeRef(String)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
-				annotations += generateOverrideAnnotation()
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				body = '''
 					return "«logicQualifiedName»";
 				'''
@@ -56,7 +56,7 @@ def static asClass(Search search, JvmTypesBuilder jvmTypesBuilder, JvmTypeRefere
 				members += method.toMethod(method.name, typeRef(void)) [
 					visibility = JvmVisibility.PUBLIC
 					final = true
-					annotations += generateOverrideAnnotation()
+					annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 					body = method.body
 				]
 			}

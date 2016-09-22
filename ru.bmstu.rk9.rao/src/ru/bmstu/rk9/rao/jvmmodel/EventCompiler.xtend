@@ -35,7 +35,7 @@ class EventCompiler extends RaoEntityCompiler {
 			members += event.toMethod("getName", typeRef(String)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
-				annotations += generateOverrideAnnotation()
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				body = '''
 					return "«eventQualifiedName»";
 				'''
@@ -44,7 +44,7 @@ class EventCompiler extends RaoEntityCompiler {
 			members += event.toMethod("execute", typeRef(void)) [
 				visibility = JvmVisibility.PROTECTED
 				final = true
-				annotations += generateOverrideAnnotation()
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				body = event.body
 			]
 
@@ -57,10 +57,8 @@ class EventCompiler extends RaoEntityCompiler {
 					parameters += event.toParameter(param.name, param.parameterType)
 
 				body = '''
-					«event.name» event = new «event.name»(«FOR param : parameters»«
-							param.name»«
-							IF parameters.indexOf(param) != parameters.size - 1», «ENDIF»«ENDFOR»);
-					ru.bmstu.rk9.rao.lib.simulator.Simulator.pushEvent(event);
+					«event.name» event = new «event.name»(«createEnumerationString(parameters, [name])»);
+					ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.pushEvent(event);
 				'''
 			]
 		]

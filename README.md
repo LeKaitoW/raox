@@ -29,17 +29,17 @@ Java HotSpot(TM) 64-Bit Server VM (build 25.66-b17, mixed mode)
 ```bash
 sudo update-alternatives --config java
 ```
- * Download [Eclipse IDE for Java and DSL Developers](http://www.eclipse.org/downloads/packages/eclipse-ide-java-and-dsl-developers/lunasr2)
+ * Download [Eclipse IDE for Java and DSL Developers](http://www.eclipse.org/downloads/packages/eclipse-ide-java-and-dsl-developers/mars2)
 ```bash
 cd ~/Downloads
-gunzip -c eclipse-dsl-luna-SR2-linux-gtk-x86_64.tar.gz  | tar xvf -
+gunzip -c eclipse-dsl-mars-2-linux-gtk-x86_64.tar.gz  | tar xvf -
 cd eclipse
 ./eclipse
 ```
- * Git clone `rdo-xtext` repository
+ * Git clone `raox` repository
 ```bash
 ssh-add ~/.ssh/github.openssh.private.key
-git clone git@github.com:aurusov/rdo-xtext.git
+git clone git@github.com:aurusov/raox.git
 ```
 ## Installing
 ### Setting up the workspace for Eclipse

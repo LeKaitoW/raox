@@ -15,6 +15,20 @@ Workflow {
 	bean = StandaloneSetup {
 		scanClassPath = true
 		platformUri = "${runtimeProject}/.."
+
+		// use an XtextResourceset throughout the process, which is able to resolve classpath:/ URIs.
+		resourceSet = org.eclipse.xtext.resource.XtextResourceSet : theResourceSet {}
+
+		// add mappings from platform:/resource to classpath:/
+		uriMap = {
+			from = "platform:/resource/org.eclipse.xtext.xbase/"
+			to = "classpath:/"
+		}
+		uriMap = {
+			from = "platform:/resource/org.eclipse.xtext.common.types/"
+			to = "classpath:/"
+		}
+
 		registerGeneratedEPackage = "org.eclipse.xtext.xbase.XbasePackage"
 		registerGenModelFile = "platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"
 	}
@@ -43,13 +57,17 @@ Workflow {
 		projectNameUi = "${projectName}.ui"
 		encoding = encoding
 		language = auto-inject {
+			// make sure we use the resourceSet created during standalone setup.
+			forcedResourceSet = theResourceSet
 			uri = grammarURI
 
 			// Java API to access grammar elements (required by several other fragments)
 			fragment = grammarAccess.GrammarAccessFragment auto-inject {}
 
 			// generates Java API for the generated EPackages
-			fragment = ecore.EMFGeneratorFragment auto-inject {}
+			fragment = ecore.EMFGeneratorFragment auto-inject {
+				javaModelDirectory = "/${projectName}/src-gen"
+			}
 
 			// the old serialization component
 			// fragment = parseTreeConstructor.ParseTreeConstructorFragment auto-inject {}

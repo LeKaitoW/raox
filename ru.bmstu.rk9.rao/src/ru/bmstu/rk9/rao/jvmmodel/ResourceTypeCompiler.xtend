@@ -15,6 +15,7 @@ import ru.bmstu.rk9.rao.lib.database.Database.DataType
 class ResourceTypeCompiler extends RaoEntityCompiler {
 	def static asClass(ResourceType resourceType, JvmTypesBuilder jvmTypesBuilder,
 		JvmTypeReferenceBuilder typeReferenceBuilder, JvmDeclaredType it, boolean isPreIndexingPhase) {
+
 		initializeCurrent(jvmTypesBuilder, typeReferenceBuilder)
 
 		val typeQualifiedName = QualifiedName.create(qualifiedName, resourceType.name)
@@ -48,11 +49,9 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				for (param : resourceType.parameters)
 					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType)
 				body = '''
-					«resourceType.name» resource = new «resourceType.name»(«FOR param : parameters»«
-						param.name»«
-						IF parameters.indexOf(param) != parameters.size - 1», «ENDIF»«ENDFOR»);
-					ru.bmstu.rk9.rao.lib.simulator.Simulator.getModelState().addResource(resource);
-					ru.bmstu.rk9.rao.lib.simulator.Simulator.getDatabase().memorizeResourceEntry(resource,
+					«resourceType.name» resource = new «resourceType.name»(«createEnumerationString(parameters, [name])»);
+					ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.getModelState().addResource(resource);
+					ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.getDatabase().memorizeResourceEntry(resource,
 							ru.bmstu.rk9.rao.lib.database.Database.ResourceEntryType.CREATED);
 					return resource;
 				'''
@@ -61,10 +60,10 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 			members += resourceType.toMethod("erase", typeRef(void)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
-				annotations += generateOverrideAnnotation()
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				body = '''
-					ru.bmstu.rk9.rao.lib.simulator.Simulator.getModelState().eraseResource(this);
-					ru.bmstu.rk9.rao.lib.simulator.Simulator.getDatabase().memorizeResourceEntry(this,
+					ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.getModelState().eraseResource(this);
+					ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.getDatabase().memorizeResourceEntry(this,
 							ru.bmstu.rk9.rao.lib.database.Database.ResourceEntryType.ERASED);
 				'''
 			]
@@ -81,8 +80,13 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				members += param.toMethod("set" + param.declaration.name.toFirstUpper, typeRef(void)) [
 					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType)
 					body = '''
-						this._«param.declaration.name» = «param.declaration.name»;
-						ru.bmstu.rk9.rao.lib.simulator.Simulator.getDatabase().memorizeResourceEntry(this,
+						«resourceType.name» actual = this;
+
+						if (isShallowCopy)
+							actual = ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.getModelState().copyOnWrite(this);
+
+						actual._«param.declaration.name» = «param.declaration.name»;
+						ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.getDatabase().memorizeResourceEntry(actual,
 								ru.bmstu.rk9.rao.lib.database.Database.ResourceEntryType.ALTERED);
 					'''
 				]
@@ -91,7 +95,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 			members += resourceType.toMethod("checkEqual", typeRef(boolean)) [ m |
 				m.visibility = JvmVisibility.PUBLIC
 				m.parameters += resourceType.toParameter("other", typeRef)
-				m.annotations += generateOverrideAnnotation()
+				m.annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				m.body = '''
 					«IF resourceType.parameters.isEmpty»
 						return true;
@@ -110,7 +114,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 
 			members += resourceType.toMethod("deepCopy", typeRef) [
 				visibility = JvmVisibility.PUBLIC
-				annotations += generateOverrideAnnotation
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation
 				body = '''
 					«resourceType.name» copy = new «resourceType.name»();
 					copy.setNumber(this.number);
@@ -126,7 +130,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 			members += resourceType.toMethod("getTypeName", typeRef(String)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
-				annotations += generateOverrideAnnotation()
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				body = '''
 					return "«typeQualifiedName»";
 				'''
@@ -135,14 +139,15 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 			members += resourceType.toMethod("serialize", typeRef(ByteBuffer)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
-				annotations += generateOverrideAnnotation()
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 
 				var size = 0
 				for (param : resourceType.parameters) {
 					size = size + param.getSize()
 				}
 				val fixedWidthParametersSize = size
-				val variableWidthParameters = resourceType.parameters.filter[p|!p.isFixedWidth]
+				val variableWidthParameters = resourceType.parameters.filter[!isFixedWidth]
+				val fixedWidthParameters = resourceType.parameters.filter[isFixedWidth]
 
 				body = '''
 					int _totalSize = «fixedWidthParametersSize»;
@@ -160,7 +165,7 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 
 					ByteBuffer buffer = ByteBuffer.allocate(_totalSize);
 
-					«FOR param : resourceType.parameters.filter[p | p.isFixedWidth]»
+					«FOR param : fixedWidthParameters»
 						buffer.«param.serializeAsFixedWidth»;
 					«ENDFOR»
 
@@ -178,6 +183,15 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				'''
 			]
 
+			members += resourceType.toMethod("getAny", typeRef) [
+				visibility = JvmVisibility.PUBLIC
+				final = true
+				static = true
+				body = '''
+					return ru.bmstu.rk9.rao.lib.runtime.RaoCollectionExtensions.any(getAll());
+				'''
+			]
+
 			members += resourceType.toMethod("getAll", typeRef(Collection, {
 				typeRef
 			})) [
@@ -185,56 +199,44 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 				final = true
 				static = true
 				body = '''
-					return ru.bmstu.rk9.rao.lib.simulator.Simulator.getModelState().getAll(«resourceType.name».class);
+					return ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.getModelState().getAll(«resourceType.name».class);
 				'''
 			]
 
 			members += resourceType.toMethod("getAccessible", typeRef(Collection, {
 				typeRef
 			})) [
-				visibility = JvmVisibility.PUBLIC
+				visibility = JvmVisibility.
+					PUBLIC
 				final = true
 				static = true
 				body = '''
-					return ru.bmstu.rk9.rao.lib.simulator.Simulator.getModelState().getAccessible(«resourceType.name».class);
+					return ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.getModelState().getAccessible(«resourceType.name».class);
 				'''
 			]
 		]
 	}
 
-	// TODO cleaner approach?
 	def private static getSize(FieldDeclaration param) {
-		switch param.declaration.parameterType.simpleName {
-			case "int",
-			case "Integer":
-				return 4
-			case "double",
-			case "Double":
-				return 8
-			case "boolean",
-			case "Boolean":
-				return 1
-		}
-
-		return 0
+		return DataType.getByName(param.declaration.parameterType.simpleName).size
 	}
 
 	def private static isFixedWidth(FieldDeclaration param) {
 		return param.getSize != 0
 	}
 
-	// TODO cleaner approach?
 	def private static serializeAsFixedWidth(FieldDeclaration param) {
-		switch param.declaration.parameterType.simpleName {
-			case "int",
-			case "Integer":
+		val type = DataType.getByName(param.declaration.parameterType.
+			simpleName)
+		switch type {
+			case INT:
 				return '''putInt(_«param.declaration.name»)'''
-			case "double",
-			case "Double":
+			case DOUBLE:
 				return '''putDouble(_«param.declaration.name»)'''
-			case "boolean",
-			case "Boolean":
-				return '''put(_«param.declaration.name» ? (byte)1 : (byte)0);'''
+			case BOOLEAN:
+				return '''put(_«param.declaration.name» ? (byte)1 : (byte)0)'''
+			default:
+				return '''/* INTERNAL ERROR: attempting to serialize type «param.declaration.parameterType.simpleName» as fixed width type */'''
 		}
 	}
 }

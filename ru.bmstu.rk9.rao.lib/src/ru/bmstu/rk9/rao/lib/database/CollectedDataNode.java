@@ -221,7 +221,7 @@ public class CollectedDataNode {
 	}
 
 	public final String getName() {
-		return NamingHelper.getRelativeElementName(name);
+		return NamingHelper.getLastPart(name);
 	}
 
 	private Index index = null;

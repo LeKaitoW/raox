@@ -1,0 +1,48 @@
+ES 0.0 Tracing started
+RC 0.0 r = {0.0}
+ES 0.0 Simulation started
+EI 0.0 GenSeqTestEvent[0]
+RK 0.0 r = {122.89491329256076}
+EI 5.0 GenSeqTestEvent[1]
+RK 5.0 r = {113.33516247787125}
+EI 10.0 GenSeqTestEvent[2]
+RK 10.0 r = {122.09435709720698}
+EI 15.0 GenSeqTestEvent[3]
+RK 15.0 r = {90.08489106366707}
+EI 20.0 GenSeqTestEvent[4]
+RK 20.0 r = {108.20082511987351}
+EI 25.0 GenSeqTestEvent[5]
+RK 25.0 r = {108.28123984983894}
+EI 30.0 GenSeqTestEvent[6]
+RK 30.0 r = {121.85118222288199}
+EI 35.0 GenSeqTestEvent[7]
+RK 35.0 r = {126.26627066728147}
+EI 40.0 GenSeqTestEvent[8]
+RK 40.0 r = {77.20633176956848}
+EI 45.0 GenSeqTestEvent[9]
+RK 45.0 r = {111.81429061225802}
+EI 50.0 GenSeqTestEvent[10]
+RK 50.0 r = {123.71289993475955}
+EI 55.0 GenSeqTestEvent[11]
+RK 55.0 r = {124.37874771600045}
+EI 60.0 GenSeqTestEvent[12]
+RK 60.0 r = {87.36478695305586}
+EI 65.0 GenSeqTestEvent[13]
+RK 65.0 r = {85.69063309269981}
+EI 70.0 GenSeqTestEvent[14]
+RK 70.0 r = {125.20942024611037}
+EI 75.0 GenSeqTestEvent[15]
+RK 75.0 r = {74.11502155907861}
+EI 80.0 GenSeqTestEvent[16]
+RK 80.0 r = {92.24337426826332}
+EI 85.0 GenSeqTestEvent[17]
+RK 85.0 r = {127.7300354053863}
+EI 90.0 GenSeqTestEvent[18]
+RK 90.0 r = {125.38985554967138}
+EI 95.0 GenSeqTestEvent[19]
+RK 95.0 r = {117.15540381459269}
+EI 100.0 GenSeqTestEvent[20]
+RK 100.0 r = {109.4583372124066}
+EI 105.0 GenSeqTestEvent[21]
+RK 105.0 r = {126.15263186543959}
+ES 105.0 Simulation finished: terminate condition

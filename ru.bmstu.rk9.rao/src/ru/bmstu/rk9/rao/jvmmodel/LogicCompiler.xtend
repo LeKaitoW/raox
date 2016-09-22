@@ -33,7 +33,7 @@ class LogicCompiler extends RaoEntityCompiler {
 			members += logic.toMethod("initializeActivities", typeRef(void)) [
 				visibility = JvmVisibility.PROTECTED
 				final = true
-				annotations += generateOverrideAnnotation()
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				body = '''
 					«FOR activity : logic.activities»
 						this.«activity.name» = initialize«activity.name.toFirstUpper»();
@@ -46,7 +46,7 @@ class LogicCompiler extends RaoEntityCompiler {
 			members += logic.toMethod("getTypeName", typeRef(String)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
-				annotations += generateOverrideAnnotation()
+				annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 				body = '''
 					return "«logicQualifiedName»";
 				'''
@@ -56,7 +56,7 @@ class LogicCompiler extends RaoEntityCompiler {
 				members += method.toMethod(method.name, typeRef(void)) [
 					visibility = JvmVisibility.PUBLIC
 					final = true
-					annotations += generateOverrideAnnotation()
+					annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()
 					body = method.body
 				]
 			}

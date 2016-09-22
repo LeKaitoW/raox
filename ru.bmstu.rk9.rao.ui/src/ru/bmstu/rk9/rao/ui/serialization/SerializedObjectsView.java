@@ -38,9 +38,9 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.IndexType;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceIndex;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.graph.GraphPanel;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
@@ -184,7 +184,7 @@ public class SerializedObjectsView extends ViewPart {
 					if (!readyForInput())
 						return;
 
-					CollectedDataNode root = Simulator.getDatabase().getIndexHelper().getTree();
+					CollectedDataNode root = CurrentSimulator.getDatabase().getIndexHelper().getTree();
 
 					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> serializedObjectsTreeViewer.setInput(root));
 				}

@@ -1,0 +1,19 @@
+--- RCPTT testcase ---
+Format-Version: 1.0
+Contexts: _Wuog8C_dEeaiHLjdMokA3g
+Element-Name: continuous_histogram_sequence_notrace
+Element-Type: testcase
+Element-Version: 3.0
+External-Reference: 
+Id: _h429sC_dEeaiHLjdMokA3g
+Runtime-Version: 2.0.1.201508250612
+Save-Time: 6/11/16 5:07 PM
+Testcase-Type: ecl
+
+------=_.content-0a7243a0-75d3-3d5f-9791-539de0e5b7ac
+Content-Type: text/ecl
+Entry-Name: .content
+
+test_model_source_notrace "continuous_histogram_sequence"
+
+------=_.content-0a7243a0-75d3-3d5f-9791-539de0e5b7ac--

@@ -1,9 +1,5 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -11,11 +7,12 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.xtext.ui.resource.IResourceSetProvider;
+import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
 
-import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
-import ru.bmstu.rk9.rao.lib.result.Result;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.process.ProcessParsingException;
@@ -24,21 +21,28 @@ import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 import ru.bmstu.rk9.rao.ui.simulation.StatusView;
 import ru.bmstu.rk9.rao.ui.trace.ExportTraceHandler;
 
+@SuppressWarnings("restriction")
 public class ExecutionJobProvider {
-	public ExecutionJobProvider(final IProject project) {
+	public ExecutionJobProvider(final IProject project, IResourceSetProvider resourceSetProvider,
+			IBatchTypeResolver typeResolver) {
 		this.project = project;
+		this.resourceSetProvider = resourceSetProvider;
+		this.typeResolver = typeResolver;
 	}
 
+	private final IResourceSetProvider resourceSetProvider;
 	private final IProject project;
+	private final IBatchTypeResolver typeResolver;
 
 	public final Job createExecutionJob() {
 		final Job executionJob = new Job(project.getName() + " execution") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				final Display display = PlatformUI.getWorkbench().getDisplay();
+				final ModelInternalsParser parser = new ModelInternalsParser(project, resourceSetProvider,
+						typeResolver);
 
 				ConsoleView.clearConsoleText();
-				final ModelInternalsParser parser = new ModelInternalsParser(project);
 
 				try {
 					parser.parse();
@@ -53,12 +57,11 @@ public class ExecutionJobProvider {
 				ExportTraceHandler.reset();
 				ExportTraceHandler.setCurrentProject(project);
 				SerializationConfigView.initNames();
-				final List<AnimationFrame> frames = new ArrayList<AnimationFrame>();
-				display.syncExec(() -> AnimationView.initialize(frames));
-				List<Result> results = new LinkedList<Result>();
+
+				CurrentSimulator.set(new Simulator());
 
 				try {
-					Simulator.preinitialize(parser.getSimulatorPreinitializationInfo());
+					CurrentSimulator.preinitialize(parser.getSimulatorPreinitializationInfo());
 				} catch (Exception e) {
 					e.printStackTrace();
 					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Simulator preinitialization failed", e);
@@ -73,8 +76,10 @@ public class ExecutionJobProvider {
 					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Model postprocessing failed", e);
 				}
 
+				display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
+
 				try {
-					Simulator.initialize(parser.getSimulatorInitializationInfo());
+					CurrentSimulator.initialize(parser.getSimulatorInitializationInfo());
 				} catch (Exception e) {
 					e.printStackTrace();
 					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Simulator initialization failed", e);
@@ -86,7 +91,22 @@ public class ExecutionJobProvider {
 
 				SimulationStopCode simulationResult;
 
-					simulationResult = Simulator.run();
+				try {
+					simulationResult = CurrentSimulator.run();
+				} catch (Throwable e) {
+					e.printStackTrace();
+					ConsoleView.addLine("Execution error\n");
+					ConsoleView.addLine("Call stack:");
+					ConsoleView.printStackTrace(e);
+					CurrentSimulator.notifyError();
+
+					if (e instanceof Error)
+						throw e;
+
+					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Execution failed", e);
+				} finally {
+					display.syncExec(() -> AnimationView.deinitialize());
+				}
 
 				switch (simulationResult) {
 				case TERMINATE_CONDITION:
@@ -103,10 +123,7 @@ public class ExecutionJobProvider {
 					break;
 				}
 
-				for (Result result : results)
-					result.calculate();
-
-				display.asyncExec(() -> ResultsView.setResults(results));
+				display.asyncExec(() -> ResultsView.setResults(CurrentSimulator.getResults()));
 
 				ConsoleView.addLine("Time elapsed: " + String.valueOf(System.currentTimeMillis() - startTime) + "ms");
 

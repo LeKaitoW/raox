@@ -15,9 +15,9 @@ import ru.bmstu.rk9.rao.lib.process.Terminate;
 import ru.bmstu.rk9.rao.lib.process.SelectPath;
 import ru.bmstu.rk9.rao.lib.process.Queue.Queueing;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator.SimulationStopCode;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
 
 public class BranchedProcessTest {
 
@@ -25,10 +25,10 @@ public class BranchedProcessTest {
 	public void test() {
 		ProcessTestSuite.initEmptySimulation();
 		SimulatorInitializationInfo initializationInfo = new SimulatorInitializationInfo();
-		initializationInfo.terminateConditions.add(() -> Simulator.getTime() > 60);
+		initializationInfo.terminateConditions.add(() -> CurrentSimulator.getTime() > 60);
 		initializationInfo.processBlocks.addAll(generateSituation());
-		Simulator.initialize(initializationInfo);
-		SimulationStopCode simulationStopCode = Simulator.run();
+		CurrentSimulator.initialize(initializationInfo);
+		SimulationStopCode simulationStopCode = CurrentSimulator.run();
 		assertEquals("linear_process_test", SimulationStopCode.TERMINATE_CONDITION, simulationStopCode);
 	}
 

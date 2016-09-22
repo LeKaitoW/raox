@@ -31,4 +31,10 @@ public abstract class Resource extends RaoNameable implements Serializable {
 	}
 
 	protected boolean accessible = true;
+
+	public final boolean isShallowCopy() {
+		return isShallowCopy;
+	}
+
+	protected boolean isShallowCopy = false;
 }

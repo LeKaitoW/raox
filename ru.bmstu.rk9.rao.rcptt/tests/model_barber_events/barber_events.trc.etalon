@@ -1,0 +1,16 @@
+ES 0.0 Tracing started
+RC 0.0 barberShop = {free, 0}
+ES 0.0 Simulation started
+EI 14.0 ClientInput[0]
+RK 14.0 barberShop = {busy, 0}
+EI 27.0 ClientInput[1]
+RK 27.0 barberShop = {busy, 1}
+EI 32.0 ServiceFinished[0]
+RK 32.0 barberShop = {busy, 0}
+EI 44.0 ClientInput[2]
+RK 44.0 barberShop = {busy, 1}
+EI 44.0 ServiceFinished[1]
+RK 44.0 barberShop = {busy, 0}
+EI 58.0 ServiceFinished[2]
+RK 58.0 barberShop = {free, 0}
+ES 58.0 Simulation finished: terminate condition

@@ -8,8 +8,8 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -75,43 +75,42 @@ public class RaoWizardPage extends WizardPage {
 		graphicProcessButton.setText("Графический редактор процессного подхода");
 		templates.put(graphicProcessButton, TemplateType.GRAPHIC_PROCESS);
 
-		projectNameText.addKeyListener(new KeyListener() {
-
+		projectNameText.addModifyListener(new ModifyListener() {
 			@Override
-			public void keyReleased(KeyEvent e) {
-				String projectName = projectNameText.getText();
-				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-				if (projectName.isEmpty()) {
-					setDescription("Enter a project name");
-					setPageComplete(false);
-					return;
-				}
-				if (!isValidJavaIdentifier(projectName)) {
-					setDescription("Project name is not a valid Java identifier.");
-					setPageComplete(false);
-					return;
-				}
-				if (isJavaKeyword(projectName)) {
-					setDescription("Project name can not be a Java keyword.");
-					setPageComplete(false);
-					return;
-				}
-				if (root.getProject(projectName).exists()) {
-					setDescription("A project with this name already exists.");
-					setPageComplete(false);
-					return;
-				}
-				setDescription("Create a Rao project in the workspace.");
-				setPageComplete(true);
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
+			public void modifyText(ModifyEvent e) {
+				validate();
 			}
 		});
 
 		setControl(container);
 		setPageComplete(false);
+	}
+
+	private void validate() {
+		String projectName = projectNameText.getText();
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		if (projectName.isEmpty()) {
+			setDescription("Enter a project name");
+			setPageComplete(false);
+			return;
+		}
+		if (!isValidJavaIdentifier(projectName)) {
+			setDescription("Project name is not a valid Java identifier.");
+			setPageComplete(false);
+			return;
+		}
+		if (isJavaKeyword(projectName)) {
+			setDescription("Project name can not be a Java keyword.");
+			setPageComplete(false);
+			return;
+		}
+		if (root.getProject(projectName).exists()) {
+			setDescription("A project with this name already exists.");
+			setPageComplete(false);
+			return;
+		}
+		setDescription("Create a Rao project in the workspace.");
+		setPageComplete(true);
 	}
 
 	public String getProjectName() {

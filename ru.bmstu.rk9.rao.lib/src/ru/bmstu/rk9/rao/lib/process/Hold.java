@@ -7,7 +7,7 @@ import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class Hold implements Block {
 
@@ -53,15 +53,15 @@ public class Hold implements Block {
 			return BlockStatus.NOTHING_TO_DO;
 
 		addHoldEntryToDatabase(transact, HoldAction.IN);
-		Double time = Simulator.getTime() + duration.get();
-		Simulator.pushEvent(new HoldEvent(transact, time));
+		Double time = CurrentSimulator.getTime() + duration.get();
+		CurrentSimulator.pushEvent(new HoldEvent(transact, time));
 		return BlockStatus.SUCCESS;
 	}
 
 	private void addHoldEntryToDatabase(Transact transact, HoldAction holdAction) {
 		ByteBuffer data = ByteBuffer.allocate(TypeSize.BYTE);
 		data.put((byte) holdAction.ordinal());
-		Simulator.getDatabase().addProcessEntry(ProcessEntryType.HOLD, transact.getNumber(), data);
+		CurrentSimulator.getDatabase().addProcessEntry(ProcessEntryType.HOLD, transact.getNumber(), data);
 	}
 
 	private class HoldEvent extends Event {

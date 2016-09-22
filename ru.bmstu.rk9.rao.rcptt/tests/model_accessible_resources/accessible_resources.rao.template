@@ -1,0 +1,23 @@
+type Y {
+	int a
+}
+
+resource y1 = Y.create(4)
+resource y2 = Y.create(1)
+
+operation Op() {
+	relevant xx = Y.accessible.filter[a < 5].minBySafe[a]
+	relevant yy = Y.accessible.filter[a < 5].minBySafe[a]
+
+	set duration() {
+		return 1;
+	}
+
+	set end() {
+		xx.a = xx.a + 1;
+	}
+}
+
+logic L {
+	activity a = new Activity(Op.create());
+}

@@ -54,6 +54,16 @@ public class ModelState {
 		return (Collection<T>) resourceManagers.get(cl).getAccessible();
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T extends ComparableResource<T>> T getResource(Class<T> cl, String name) {
+		return (T) resourceManagers.get(cl).getResource(name);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends ComparableResource<T>> T getResource(Class<T> cl, int number) {
+		return (T) resourceManagers.get(cl).getResource(number);
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean checkEqual(ModelState other) {
 		if (other == null)
@@ -82,13 +92,27 @@ public class ModelState {
 	}
 
 	public void deploy() {
-		Simulator.setModelState(this);
+		CurrentSimulator.setModelState(this);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends ComparableResource<T>> T copyOnWrite(T resource) {
+		return (T) ((ResourceManager<T>) resourceManagers.get(resource.getClass())).copyOnWrite((T) resource);
 	}
 
 	public ModelState deepCopy() {
+		return copy(false);
+	}
+
+	public ModelState shallowCopy() {
+		return copy(true);
+	}
+
+	private ModelState copy(boolean isShallow) {
 		ModelState copy = new ModelState();
 		for (Entry<Class<?>, ResourceManager<?>> entry : resourceManagers.entrySet()) {
-			copy.resourceManagers.put(entry.getKey(), entry.getValue().deepCopy());
+			copy.resourceManagers.put(entry.getKey(),
+					isShallow ? entry.getValue().shallowCopy() : entry.getValue().deepCopy());
 		}
 
 		return copy;

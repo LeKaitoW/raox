@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class Queue implements Block {
 
@@ -79,7 +79,7 @@ public class Queue implements Block {
 	private void addQueueEntryToDatabase(Transact transact, QueueAction queueAction) {
 		ByteBuffer data = ByteBuffer.allocate(TypeSize.BYTE);
 		data.put((byte) queueAction.ordinal());
-		Simulator.getDatabase().addProcessEntry(ProcessEntryType.QUEUE, transact.getNumber(), data);
+		CurrentSimulator.getDatabase().addProcessEntry(ProcessEntryType.QUEUE, transact.getNumber(), data);
 	}
 }
 

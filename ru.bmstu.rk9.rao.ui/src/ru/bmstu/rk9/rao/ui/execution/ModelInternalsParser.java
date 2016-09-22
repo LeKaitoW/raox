@@ -16,43 +16,67 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+
 import org.eclipse.core.runtime.CoreException;
 
-import ru.bmstu.rk9.rao.lib.database.Database;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.xtext.common.types.JvmTypeReference;
+import org.eclipse.xtext.ui.resource.IResourceSetProvider;
+import org.eclipse.xtext.xbase.XExpression;
+import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
+import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
+
+import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
+
 import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.dpt.AbstractDecisionPoint;
-import ru.bmstu.rk9.rao.lib.dpt.Activity;
-import ru.bmstu.rk9.rao.lib.dpt.Edge;
 import ru.bmstu.rk9.rao.lib.dpt.Logic;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
-import ru.bmstu.rk9.rao.lib.event.Event;
+
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
-import ru.bmstu.rk9.rao.lib.naming.RaoNameable;
-import ru.bmstu.rk9.rao.lib.pattern.Operation;
 import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
-import ru.bmstu.rk9.rao.lib.resource.Resource;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.result.Result;
+
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
+
 import ru.bmstu.rk9.rao.ui.process.BlockConverter;
 import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
 import ru.bmstu.rk9.rao.ui.process.model.ProcessModelNode;
 
+import ru.bmstu.rk9.rao.rao.PatternType;
+import ru.bmstu.rk9.rao.rao.RaoEntity;
+import ru.bmstu.rk9.rao.rao.RaoModel;
+import ru.bmstu.rk9.rao.rao.RelevantResource;
+import ru.bmstu.rk9.rao.rao.RelevantResourceTuple;
+
+@SuppressWarnings("restriction")
 public class ModelInternalsParser {
 	private final SimulatorPreinitializationInfo simulatorPreinitializationInfo = new SimulatorPreinitializationInfo();
 	private final SimulatorInitializationInfo simulatorInitializationInfo = new SimulatorInitializationInfo();
 	private final List<Class<?>> decisionPointClasses = new ArrayList<>();
-	private final List<Field> nameableFields = new ArrayList<>();
+
 	private final ModelContentsInfo modelContentsInfo = new ModelContentsInfo();
+
+	private final List<Class<?>> animationClasses = new ArrayList<>();
+	private final List<Class<?>> tupleClasses = new ArrayList<>();
+	private final List<AnimationFrame> animationFrames = new ArrayList<>();
+	private final List<Field> resultFields = new ArrayList<>();
 
 	private URLClassLoader classLoader;
 	private final IProject project;
+	private final IResourceSetProvider resourceSetProvider;
+	private final IBatchTypeResolver typeResolver;
 
 	public final SimulatorPreinitializationInfo getSimulatorPreinitializationInfo() {
 		return simulatorPreinitializationInfo;
@@ -62,8 +86,11 @@ public class ModelInternalsParser {
 		return simulatorInitializationInfo;
 	}
 
-	public ModelInternalsParser(IProject project) {
+	public ModelInternalsParser(IProject project, IResourceSetProvider resourceSetProvider,
+			IBatchTypeResolver typeResolver) {
 		this.project = project;
+		this.resourceSetProvider = resourceSetProvider;
+		this.typeResolver = typeResolver;
 	}
 
 	public final void parse()
@@ -74,21 +101,43 @@ public class ModelInternalsParser {
 
 		URL[] urls = new URL[] { modelURL };
 
-		classLoader = new URLClassLoader(urls, Simulator.class.getClassLoader());
+		classLoader = new URLClassLoader(urls, CurrentSimulator.class.getClassLoader());
 
 		simulatorPreinitializationInfo.modelStructure.put(ModelStructureConstants.NAME, project.getName());
 
-		for (IResource raoFile : BuildUtil.getAllFilesInProject(project, "rao")) {
+		final ResourceSet resourceSet = resourceSetProvider.get(project);
+		if (resourceSet == null) {
+			System.out.println("resource set is null");
+			return;
+		}
+
+		List<IResource> raoFiles = BuildUtil.getAllFilesInProject(project, "rao");
+		simulatorPreinitializationInfo.modelStructure.put(ModelStructureConstants.NUMBER_OF_MODELS, raoFiles.size());
+
+		for (IResource raoFile : raoFiles) {
 			String raoFileName = raoFile.getName();
 			raoFileName = raoFileName.substring(0, raoFileName.length() - ".rao".length());
 			String modelClassName = project.getName() + "." + raoFileName;
-			parseModel(modelClassName);
 
+			URI uri = BuildUtil.getURI(raoFile);
+			org.eclipse.emf.ecore.resource.Resource modelResource = resourceSet.getResource(uri, true);
+			if (modelResource == null) {
+				System.out.println("model resource is null");
+				continue;
+			}
+
+			EList<EObject> contents = modelResource.getContents();
+			if (contents.isEmpty())
+				continue;
+
+			RaoModel model = (RaoModel) contents.get(0);
+
+			parseModel(model, modelClassName);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public final void parseModel(String modelClassName)
+	public final void parseModel(RaoModel model, String modelClassName)
 			throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
@@ -110,24 +159,95 @@ public class ModelInternalsParser {
 		} catch (ClassNotFoundException classException) {
 		}
 
-		for (Class<?> nestedModelClass : modelClass.getDeclaredClasses()) {
-			String className = NamingHelper.changeDollarToDot(nestedModelClass.getName());
+		try {
+			Class<?> resourcePreinitializer = Class.forName(modelClassName + "$resourcesPreinitializer", false,
+					classLoader);
+			Constructor<?> resourcePreinitializerConstructor = resourcePreinitializer.getDeclaredConstructor();
+			resourcePreinitializerConstructor.setAccessible(true);
+			simulatorPreinitializationInfo.resourcePreinitializers
+					.add((Runnable) resourcePreinitializerConstructor.newInstance());
+		} catch (ClassNotFoundException classException) {
+		}
 
-			if (Event.class.isAssignableFrom(nestedModelClass)) {
+		EList<RaoEntity> entities = model.getObjects();
+		for (RaoEntity entity : entities) {
+			String name = modelClassName + "." + entity.getName();
+
+			if (entity instanceof ru.bmstu.rk9.rao.rao.Event) {
 				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.EVENTS)
-						.put(new JSONObject().put(ModelStructureConstants.NAME, className));
+						.put(new JSONObject().put(ModelStructureConstants.NAME, name));
 				continue;
 			}
 
-			if (ComparableResource.class.isAssignableFrom(nestedModelClass)) {
-				simulatorPreinitializationInfo.resourceClasses.add(nestedModelClass);
+			if (entity instanceof ru.bmstu.rk9.rao.rao.Pattern) {
+				String typeString = null;
+				PatternType type = ((ru.bmstu.rk9.rao.rao.Pattern) entity).getType();
+
+				switch (type) {
+				case OPERATION:
+					typeString = ModelStructureConstants.OPERATION;
+					break;
+				case RULE:
+					typeString = ModelStructureConstants.RULE;
+					break;
+				}
+
+				JSONArray relevantResources = new JSONArray();
+				for (RelevantResource relevant : ((ru.bmstu.rk9.rao.rao.Pattern) entity).getRelevantResources()) {
+					LightweightTypeReference typeReference = typeResolver.resolveTypes(relevant.getValue())
+							.getActualType(relevant.getValue());
+
+					relevantResources.put(
+							new JSONObject().put(ModelStructureConstants.NAME, name).put(ModelStructureConstants.TYPE,
+									NamingHelper.changeDollarToDot(typeReference.getJavaIdentifier())));
+				}
+
+				for (RelevantResourceTuple tuple : ((ru.bmstu.rk9.rao.rao.Pattern) entity).getRelevantTuples()) {
+					for (JvmTypeReference tupleType : tuple.getTypes()) {
+						relevantResources.put(new JSONObject().put(ModelStructureConstants.NAME, name).put(
+								ModelStructureConstants.TYPE,
+								NamingHelper.changeDollarToDot(tupleType.getIdentifier())));
+					}
+				}
+
+				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.PATTERNS)
+						.put(new JSONObject().put(ModelStructureConstants.NAME, name)
+								.put(ModelStructureConstants.TYPE, typeString)
+								.put(ModelStructureConstants.RELEVANT_RESOURCES, relevantResources));
+				continue;
+			}
+
+			if (entity instanceof ru.bmstu.rk9.rao.rao.Logic) {
+				JSONArray activities = new JSONArray();
+				for (ru.bmstu.rk9.rao.rao.Activity activity : ((ru.bmstu.rk9.rao.rao.Logic) entity).getActivities())
+					activities.put(new JSONObject().put(ModelStructureConstants.NAME, activity.getName()));
+
+				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.LOGICS)
+						.put(new JSONObject().put(ModelStructureConstants.NAME, name)
+								.put(ModelStructureConstants.ACTIVITIES, activities));
+				continue;
+			}
+
+			if (entity instanceof ru.bmstu.rk9.rao.rao.Search) {
+				JSONArray edges = new JSONArray();
+				for (ru.bmstu.rk9.rao.rao.Edge edge : ((ru.bmstu.rk9.rao.rao.Search) entity).getEdges())
+					edges.put(new JSONObject().put(ModelStructureConstants.NAME, edge.getName()));
+
+				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.SEARCHES)
+						.put(new JSONObject().put(ModelStructureConstants.NAME, name).put(ModelStructureConstants.EDGES,
+								edges));
+				continue;
+			}
+
+			if (entity instanceof ru.bmstu.rk9.rao.rao.ResourceType) {
 				JSONArray parameters = new JSONArray();
 				int offset = 0;
 				int variableWidthParameterIndex = 0;
-				for (Field field : nestedModelClass.getDeclaredFields()) {
-					DataType dataType = Database.getDataType(field.getType());
+				for (ru.bmstu.rk9.rao.rao.FieldDeclaration field : ((ru.bmstu.rk9.rao.rao.ResourceType) entity)
+						.getParameters()) {
+					DataType dataType = DataType.getByName(field.getDeclaration().getParameterType().getSimpleName());
 
-					parameters.put(new JSONObject().put(ModelStructureConstants.NAME, field.getName().substring(1))
+					parameters.put(new JSONObject().put(ModelStructureConstants.NAME, field.getDeclaration().getName())
 							.put(ModelStructureConstants.TYPE, dataType).put(ModelStructureConstants.OFFSET, offset)
 							.put(ModelStructureConstants.VARIABLE_WIDTH_PARAMETER_INDEX,
 									dataType == DataType.OTHER ? variableWidthParameterIndex : -1));
@@ -139,75 +259,19 @@ public class ModelInternalsParser {
 				}
 
 				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.RESOURCE_TYPES)
-						.put(new JSONObject().put(ModelStructureConstants.NAME, className)
+						.put(new JSONObject().put(ModelStructureConstants.NAME, name)
 								.put(ModelStructureConstants.NAMED_RESOURCES, new JSONArray())
 								.put(ModelStructureConstants.PARAMETERS, parameters)
 								.put(ModelStructureConstants.FINAL_OFFSET, offset));
 				continue;
 			}
 
-			if (Pattern.class.isAssignableFrom(nestedModelClass)) {
-				JSONArray relevantResources = new JSONArray();
-				for (Field field : nestedModelClass.getDeclaredFields()) {
-					String fieldName = NamingHelper.createFullNameForMember(field);
-					if (Resource.class.isAssignableFrom(field.getType())) {
-						relevantResources.put(new JSONObject().put(ModelStructureConstants.NAME, fieldName).put(
-								ModelStructureConstants.TYPE,
-								NamingHelper.changeDollarToDot(field.getType().getName())));
-					}
-				}
+			if (entity instanceof ru.bmstu.rk9.rao.rao.ResourceDeclaration) {
+				XExpression constructor = ((ru.bmstu.rk9.rao.rao.ResourceDeclaration) entity).getConstructor();
+				LightweightTypeReference typeReference = typeResolver.resolveTypes(constructor)
+						.getActualType(constructor);
+				String typeName = NamingHelper.changeDollarToDot(typeReference.getJavaIdentifier());
 
-				String type = Operation.class.isAssignableFrom(nestedModelClass) ? ModelStructureConstants.OPERATION
-						: ModelStructureConstants.RULE;
-
-				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.PATTERNS)
-						.put(new JSONObject().put(ModelStructureConstants.NAME, className)
-								.put(ModelStructureConstants.TYPE, type)
-								.put(ModelStructureConstants.RELEVANT_RESOURCES, relevantResources));
-				continue;
-			}
-
-			if (Logic.class.isAssignableFrom(nestedModelClass)) {
-				decisionPointClasses.add(nestedModelClass);
-
-				JSONArray activities = new JSONArray();
-				for (Field field : nestedModelClass.getDeclaredFields()) {
-					String fieldName = field.getName();
-					if (Activity.class.isAssignableFrom(field.getType())) {
-						activities.put(new JSONObject().put(ModelStructureConstants.NAME, fieldName));
-					}
-				}
-
-				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.LOGICS)
-						.put(new JSONObject().put(ModelStructureConstants.NAME, className)
-								.put(ModelStructureConstants.ACTIVITIES, activities));
-				continue;
-			}
-
-			if (Search.class.isAssignableFrom(nestedModelClass)) {
-				decisionPointClasses.add(nestedModelClass);
-
-				JSONArray edges = new JSONArray();
-				for (Field field : nestedModelClass.getDeclaredFields()) {
-					String fieldName = field.getName();
-					if (Edge.class.isAssignableFrom(field.getType())) {
-						edges.put(new JSONObject().put(ModelStructureConstants.NAME, fieldName));
-					}
-				}
-
-				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.SEARCHES)
-						.put(new JSONObject().put(ModelStructureConstants.NAME, className)
-								.put(ModelStructureConstants.EDGES, edges));
-				continue;
-			}
-		}
-
-		for (Field field : modelClass.getDeclaredFields()) {
-			if (RaoNameable.class.isAssignableFrom(field.getType()))
-				nameableFields.add(field);
-
-			if (Resource.class.isAssignableFrom(field.getType())) {
-				String typeName = NamingHelper.changeDollarToDot(field.getType().getName());
 				JSONArray resourceTypes = simulatorPreinitializationInfo.modelStructure
 						.getJSONArray(ModelStructureConstants.RESOURCE_TYPES);
 				JSONObject resourceType = null;
@@ -218,11 +282,47 @@ public class ModelInternalsParser {
 				}
 
 				if (resourceType == null)
-					throw new RuntimeException("Invalid resource type + " + field.getType());
+					throw new RuntimeException("Invalid resource type + " + typeReference);
 
-				resourceType.getJSONArray(ModelStructureConstants.NAMED_RESOURCES).put(new JSONObject()
-						.put(ModelStructureConstants.NAME, NamingHelper.createFullNameForMember(field)));
+				resourceType.getJSONArray(ModelStructureConstants.NAMED_RESOURCES)
+						.put(new JSONObject().put(ModelStructureConstants.NAME, name));
 			}
+		}
+
+		for (Class<?> nestedModelClass : modelClass.getDeclaredClasses()) {
+			if (ComparableResource.class.isAssignableFrom(nestedModelClass)) {
+				simulatorPreinitializationInfo.resourceClasses.add(nestedModelClass);
+				continue;
+			}
+
+			if (Logic.class.isAssignableFrom(nestedModelClass)) {
+				decisionPointClasses.add(nestedModelClass);
+				continue;
+			}
+
+			if (Search.class.isAssignableFrom(nestedModelClass)) {
+				decisionPointClasses.add(nestedModelClass);
+				continue;
+			}
+
+			if (AnimationFrame.class.isAssignableFrom(nestedModelClass)) {
+				animationClasses.add(nestedModelClass);
+				continue;
+			}
+
+			if (Pattern.class.isAssignableFrom(nestedModelClass)) {
+				tupleClasses.add(nestedModelClass);
+				// FIXME this workaround makes sure that nested class in
+				// patterns initialize and get into classloader, proper solution
+				// is needed
+				nestedModelClass.getDeclaredClasses();
+				continue;
+			}
+		}
+
+		for (Field field : modelClass.getDeclaredFields()) {
+			if (Result.class.isAssignableFrom(field.getType()))
+				resultFields.add(field);
 		}
 
 		for (Method method : modelClass.getDeclaredMethods()) {
@@ -248,11 +348,14 @@ public class ModelInternalsParser {
 	}
 
 	public final void postprocess() throws IllegalArgumentException, IllegalAccessException, InstantiationException,
-			ClassNotFoundException, IOException, CoreException {
-		for (Field field : nameableFields) {
-			String name = NamingHelper.createFullNameForMember(field);
-			RaoNameable nameable = (RaoNameable) field.get(null);
-			nameable.setName(name);
+			InvocationTargetException, ClassNotFoundException, IOException, CoreException {
+		for (Field resultField : resultFields) {
+			resultField.setAccessible(true);
+			Result<?> result = (Result<?>) resultField.get(null);
+
+			String name = NamingHelper.createFullNameForMember(resultField);
+			result.setName(name);
+			simulatorInitializationInfo.results.add(result);
 		}
 
 		for (Class<?> decisionPointClass : decisionPointClasses) {
@@ -267,6 +370,15 @@ public class ModelInternalsParser {
 
 			simulatorInitializationInfo.processBlocks.addAll(blocks);
 		}
+
+		for (Class<?> animationClass : animationClasses) {
+			AnimationFrame frame = (AnimationFrame) animationClass.newInstance();
+			animationFrames.add(frame);
+		}
+	}
+
+	public final List<AnimationFrame> getAnimationFrames() {
+		return animationFrames;
 	}
 
 	public final void closeClassLoader() {

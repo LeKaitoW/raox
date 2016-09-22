@@ -1,0 +1,29 @@
+generator gen<String>(int times) {
+	while (true) {
+		yield("rao");
+		yield("x");
+		for (var i = 0; i < times; i++)
+			yield("forever");
+	}
+}
+
+type T {
+	String s
+}
+
+resource r = T.create("");
+
+sequence genSeq = new gen(2);
+
+event GenSeqTestEvent() {
+	r.s = genSeq.next()
+	GenSeqTestEvent.plan(currentTime + 5)
+}
+
+set init() {
+	GenSeqTestEvent.plan(currentTime)
+}
+
+set terminateCondition() {
+	return currentTime > 100
+}
