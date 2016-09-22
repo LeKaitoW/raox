@@ -54,6 +54,7 @@ public class ProjectConfigurator {
 	public final ProjectWizardStatus initializeProject() {
 		final IServiceLocator serviceLocator = PlatformUI.getWorkbench();
 		final IProgressMonitor iProgressMonitor = serviceLocator.getService(IProgressMonitor.class);
+
 		try {
 			raoProject.create(iProgressMonitor);
 			raoProject.open(iProgressMonitor);
@@ -135,7 +136,18 @@ public class ProjectConfigurator {
 		IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), modelIFile);
 	}
 
-	private final void fillModel(final IFile modelIFile) throws CoreException {
+	private final void createGraphicProcessEditor() throws CoreException, IOException {
+		final String processName = info.getProjectName() + ".proc";
+		final IPath modelIPath = root.getLocation().append(raoProject.getFullPath()).append(processName);
+		final File processFile = new File(modelIPath.toString());
+		final IFile processIFile = raoProject.getFile(processName);
+
+		processFile.createNewFile();
+		raoProject.refreshLocal(IResource.DEPTH_INFINITE, null);
+		IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), processIFile);
+	}
+
+	private final void fillModel(final IFile modelIFile) throws CoreException, IOException {
 		final String modelTemplatePath;
 		switch (info.getTemplate()) {
 		case NO_TEMPLATE:
@@ -149,6 +161,9 @@ public class ProjectConfigurator {
 		case BARBER_CLIENTS:
 			modelTemplatePath = "/model_templates/barber_clients.rao.template";
 			break;
+		case GRAPHIC_PROCESS:
+			createGraphicProcessEditor();
+			return;
 		default:
 			return;
 		}

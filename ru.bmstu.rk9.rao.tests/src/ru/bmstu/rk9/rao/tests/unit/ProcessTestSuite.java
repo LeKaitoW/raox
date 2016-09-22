@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import ru.bmstu.rk9.rao.lib.database.SerializationObjectsNames;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 
 public class ProcessTestSuite {
 	public static void initEmptySimulation() {
 		SerializationObjectsNames.set(new ArrayList<String>());
+		SimulatorPreinitializationInfo info = new SimulatorPreinitializationInfo();
+		info.resourceClasses.add(TestResource.class);
 		CurrentSimulator.set(new Simulator());
-		CurrentSimulator.preinitialize();
+		CurrentSimulator.preinitialize(info);
 	}
 }

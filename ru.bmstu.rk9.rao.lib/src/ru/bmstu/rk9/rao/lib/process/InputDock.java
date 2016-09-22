@@ -12,9 +12,11 @@ public class InputDock {
 	}
 
 	public Transact pullTransact() {
-		for (OutputDock linkedDock : linkedDocks)
-			if (linkedDock.hasTransact())
-				return linkedDock.pullTransact();
+		for (OutputDock linkedDock : linkedDocks) {
+			Transact transact = linkedDock.get();
+			if (transact != null)
+				return transact;
+		}
 		return null;
 	}
 }

@@ -1052,12 +1052,28 @@
             finalPerspective="ru.bmstu.rk9.rao.ui.perspective">
       </wizard>
   </extension>
+  <extension
+        point="org.eclipse.ui.editors">
+     <editor
+           class="ru.bmstu.rk9.rao.ui.RaoExecutableExtensionFactory:ru.bmstu.rk9.rao.ui.process.ProcessEditor"
+           default="true"
+           extensions="proc"
+           id="ru.bmstu.rk9.rao.ui.process.editor"
+           name="Rao Process Editor">
+     </editor>
+  </extension>
   <extension point="org.eclipse.team.core.fileTypes">
       <fileTypes
             extension="rao"
             type="text">
       </fileTypes>
    </extension>
-
-
+   <extension
+   		id="ProcessProblemMarker"
+   		point="org.eclipse.core.resources.markers"
+   		name="ProcessProblem">
+   		<super type="org.eclipse.core.resources.problemmarker"/>
+   		<persistent value="true" />
+   		<attribute name="NodeID"/>
+   </extension>
 </plugin>

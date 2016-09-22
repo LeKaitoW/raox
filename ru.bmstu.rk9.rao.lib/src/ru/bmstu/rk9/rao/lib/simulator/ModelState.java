@@ -1,12 +1,15 @@
 package ru.bmstu.rk9.rao.lib.simulator;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
+import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.resource.ResourceManager;
 
 public class ModelState {
@@ -78,6 +81,14 @@ public class ModelState {
 		}
 
 		return true;
+	}
+
+	public final List<Resource> getAllResources() {
+		List<Resource> resources = new ArrayList<>();
+		for (ResourceManager<?> resourceManager : resourceManagers.values()) {
+			resources.addAll(resourceManager.getAll());
+		}
+		return resources;
 	}
 
 	public void deploy() {

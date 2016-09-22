@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -11,9 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+
+import org.eclipse.core.runtime.CoreException;
+
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -25,21 +30,30 @@ import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
+
 import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.dpt.AbstractDecisionPoint;
 import ru.bmstu.rk9.rao.lib.dpt.Logic;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
+
+import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
+import ru.bmstu.rk9.rao.lib.pattern.Pattern;
+import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.result.Result;
 
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
-import ru.bmstu.rk9.rao.lib.pattern.Pattern;
+
+import ru.bmstu.rk9.rao.ui.process.BlockConverter;
+import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
+import ru.bmstu.rk9.rao.ui.process.model.ProcessModelNode;
+
 import ru.bmstu.rk9.rao.rao.PatternType;
 import ru.bmstu.rk9.rao.rao.RaoEntity;
 import ru.bmstu.rk9.rao.rao.RaoModel;
@@ -51,6 +65,9 @@ public class ModelInternalsParser {
 	private final SimulatorPreinitializationInfo simulatorPreinitializationInfo = new SimulatorPreinitializationInfo();
 	private final SimulatorInitializationInfo simulatorInitializationInfo = new SimulatorInitializationInfo();
 	private final List<Class<?>> decisionPointClasses = new ArrayList<>();
+
+	private final ModelContentsInfo modelContentsInfo = new ModelContentsInfo();
+
 	private final List<Class<?>> animationClasses = new ArrayList<>();
 	private final List<Class<?>> tupleClasses = new ArrayList<>();
 	private final List<AnimationFrame> animationFrames = new ArrayList<>();
@@ -93,8 +110,8 @@ public class ModelInternalsParser {
 			System.out.println("resource set is null");
 			return;
 		}
-		
-		List<IResource> raoFiles = BuildUtil.getAllRaoFilesInProject(project);
+
+		List<IResource> raoFiles = BuildUtil.getAllFilesInProject(project, "rao");
 		simulatorPreinitializationInfo.modelStructure.put(ModelStructureConstants.NUMBER_OF_MODELS, raoFiles.size());
 
 		for (IResource raoFile : raoFiles) {
@@ -307,15 +324,36 @@ public class ModelInternalsParser {
 			if (Result.class.isAssignableFrom(field.getType()))
 				resultFields.add(field);
 		}
+
+		for (Method method : modelClass.getDeclaredMethods()) {
+			if (!method.getReturnType().equals(Boolean.TYPE))
+				continue;
+
+			if (method.getParameterCount() > 0)
+				continue;
+
+			Supplier<Boolean> supplier = new Supplier<Boolean>() {
+				@Override
+				public Boolean get() {
+					try {
+						return (boolean) method.invoke(null);
+					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						e.printStackTrace();
+						throw new RaoLibException("Internal error invoking function " + method.getName());
+					}
+				}
+			};
+			modelContentsInfo.booleanFunctions.put(NamingHelper.createFullNameForMember(method), supplier);
+		}
 	}
 
-	public final void postprocess()
-			throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException {
+	public final void postprocess() throws IllegalArgumentException, IllegalAccessException, InstantiationException,
+			InvocationTargetException, ClassNotFoundException, IOException, CoreException {
 		for (Field resultField : resultFields) {
 			resultField.setAccessible(true);
 			Result<?> result = (Result<?>) resultField.get(null);
 
-			String name = NamingHelper.createFullNameForField(resultField);
+			String name = NamingHelper.createFullNameForMember(resultField);
 			result.setName(name);
 			simulatorInitializationInfo.results.add(result);
 		}
@@ -323,6 +361,14 @@ public class ModelInternalsParser {
 		for (Class<?> decisionPointClass : decisionPointClasses) {
 			AbstractDecisionPoint dpt = (AbstractDecisionPoint) decisionPointClass.newInstance();
 			simulatorInitializationInfo.decisionPoints.add(dpt);
+		}
+
+		for (IResource processFile : BuildUtil.getAllFilesInProject(project, "proc")) {
+			ProcessModelNode model = ProcessEditor.readModelFromFile((IFile) processFile);
+			List<Block> blocks;
+			blocks = BlockConverter.convertModelToBlocks(model, modelContentsInfo);
+
+			simulatorInitializationInfo.processBlocks.addAll(blocks);
 		}
 
 		for (Class<?> animationClass : animationClasses) {

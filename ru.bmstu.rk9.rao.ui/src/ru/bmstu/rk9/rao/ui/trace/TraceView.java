@@ -67,6 +67,7 @@ import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscr
 import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
+import ru.bmstu.rk9.rao.ui.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.trace.TraceView.SearchHelper.SearchResult;
 import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceOutput;
 import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceType;
@@ -547,6 +548,9 @@ class TraceViewLabelProvider implements ILabelProvider, IColorProvider {
 
 		colorByType.put(TraceType.SEARCH_END_FAIL, new TraceColor(new Color(display, 0xF0, 0x4B, 0x30),
 				colorByType.get(TraceType.SEARCH_END_SUCCESS).backgroundColor()));
+
+		colorByType.put(TraceType.PROCESS,
+				new TraceColor(new Color(display, 0x00, 0x00, 0x00), ProcessColors.BLOCK_COLOR));
 	}
 
 	@Override

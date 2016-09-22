@@ -21,6 +21,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.ISaveableFilter;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -30,13 +31,13 @@ import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.xtext.builder.EclipseOutputConfigurationProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
 import org.eclipse.xtext.generator.OutputConfiguration;
-import org.eclipse.xtext.ui.editor.XtextEditor;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 import org.eclipse.xtext.validation.CheckMode;
 
 import ru.bmstu.rk9.rao.ui.RaoActivatorExtension;
 import ru.bmstu.rk9.rao.ui.execution.BuildUtil.BundleType;
+import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
 
 public class BuildJobProvider {
 	private final EclipseResourceFileSystemAccess2 fsa;
@@ -98,8 +99,35 @@ public class BuildJobProvider {
 		return recentProject;
 	}
 
+	private boolean projectHasErrors(List<IResource> files, String problem, IProgressMonitor monitor,
+			boolean areXtextFiles) throws CoreException {
+		boolean projectHasErrors = false;
+		final ResourceSet resourceSet = resourceSetProvider.get(recentProject);
+
+		for (IResource resource : files) {
+			if (areXtextFiles) {
+				Resource loadedResource = resourceSet.getResource(BuildUtil.getURI(resource), true);
+				if (!loadedResource.getErrors().isEmpty()) {
+					projectHasErrors = true;
+					break;
+				}
+				validatorExtension.updateValidationMarkers((IFile) resource, loadedResource, CheckMode.ALL, monitor);
+			}
+			IMarker[] markers = resource.findMarkers(problem, true, 0);
+			for (IMarker marker : markers) {
+				int severity = marker.getAttribute(IMarker.SEVERITY, Integer.MAX_VALUE);
+				if (severity == IMarker.SEVERITY_ERROR) {
+					projectHasErrors = true;
+					break;
+				}
+			}
+		}
+		return projectHasErrors;
+	}
+
 	public final Job createPreprocessJob() {
 		Job preprocessJob = new Job("Preprocessing project " + recentProject.getName()) {
+
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				final Display display = PlatformUI.getWorkbench().getDisplay();
@@ -111,18 +139,22 @@ public class BuildJobProvider {
 				ISaveableFilter filter = new ISaveableFilter() {
 					@Override
 					public boolean select(Saveable saveable, IWorkbenchPart[] containingParts) {
-						if (!saveable.getName().endsWith(".rao"))
+						if (!(saveable.getName().endsWith(".rao") || saveable.getName().endsWith(".proc")))
 							return false;
 
 						if (containingParts.length < 1)
 							return false;
 
 						IWorkbenchPart part = containingParts[0];
-						if (!(part instanceof XtextEditor))
+						if (!(part instanceof IEditorPart))
 							return false;
 
-						XtextEditor editor = (XtextEditor) part;
-						if (editor.getResource().getProject().equals(recentProject))
+						IEditorPart editorPart = (IEditorPart) part;
+						if (!(editorPart.getEditorInput() instanceof IFileEditorInput))
+							return false;
+
+						IFileEditorInput fileInput = (IFileEditorInput) editorPart.getEditorInput();
+						if (fileInput.getFile().getProject().equals(recentProject))
 							return true;
 
 						return false;
@@ -156,6 +188,12 @@ public class BuildJobProvider {
 				libErrorMessage = BuildUtil.checkLib(recentProject, monitor, BundleType.XBASE_LIB);
 				if (libErrorMessage != null)
 					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(libErrorMessage));
+
+				final List<IResource> raoFiles = BuildUtil.getAllFilesInProject(recentProject, "rao");
+				if (raoFiles.isEmpty()) {
+					return new Status(IStatus.ERROR, pluginId,
+							BuildUtil.createErrorMessage("project contains no rao files"));
+				}
 
 				IFolder srcGenFolder = recentProject.getFolder("src-gen");
 				String srcGenErrorMessage = BuildUtil.checkSrcGen(recentProject, srcGenFolder, monitor, true);
@@ -196,39 +234,25 @@ public class BuildJobProvider {
 		Job validateJob = new Job("Validating project" + recentProject.getName()) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				final ResourceSet resourceSet = resourceSetProvider.get(recentProject);
 				boolean projectHasErrors = false;
 
-				final List<IResource> raoFiles = BuildUtil.getAllRaoFilesInProject(recentProject);
+				final List<IResource> raoFiles = BuildUtil.getAllFilesInProject(recentProject, "rao");
 				if (raoFiles.isEmpty()) {
 					return new Status(IStatus.ERROR, pluginId,
 							BuildUtil.createErrorMessage("project contains no rao files"));
 				}
 
-				for (IResource resource : raoFiles) {
-					Resource loadedResource = resourceSet.getResource(BuildUtil.getURI(resource), true);
-					if (!loadedResource.getErrors().isEmpty()) {
-						projectHasErrors = true;
-						break;
-					}
+				final List<IResource> processFiles = BuildUtil.getAllFilesInProject(recentProject, "proc");
 
-					try {
-						validatorExtension.updateValidationMarkers((IFile) resource, loadedResource, CheckMode.ALL,
-								monitor);
-						IMarker[] markers = resource.findMarkers(IMarker.PROBLEM, true, 0);
-						for (IMarker marker : markers) {
-							int severity = marker.getAttribute(IMarker.SEVERITY, Integer.MAX_VALUE);
-							if (severity == IMarker.SEVERITY_ERROR) {
-								projectHasErrors = true;
-								break;
-							}
-						}
-					} catch (CoreException e) {
-						e.printStackTrace();
-						return new Status(IStatus.ERROR, pluginId,
-								BuildUtil.createErrorMessage("internal error while calculating model error markers"),
-								e);
-					}
+				try {
+					boolean raoHasErrors = projectHasErrors(raoFiles, IMarker.PROBLEM, monitor, true);
+					boolean procHasErrors = projectHasErrors(processFiles, BlockNode.PROCESS_PROBLEM_MARKER, monitor,
+							false);
+					projectHasErrors = raoHasErrors || procHasErrors;
+				} catch (CoreException e) {
+					e.printStackTrace();
+					return new Status(IStatus.ERROR, pluginId,
+							BuildUtil.createErrorMessage("internal error while calculating model error markers"), e);
 				}
 
 				if (projectHasErrors)

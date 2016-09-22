@@ -7,15 +7,16 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import ru.bmstu.rk9.rao.lib.process.Advance;
+import ru.bmstu.rk9.rao.lib.process.Hold;
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.process.Generate;
-import ru.bmstu.rk9.rao.lib.process.Link;
+import ru.bmstu.rk9.rao.lib.process.Connection;
 import ru.bmstu.rk9.rao.lib.process.Queue;
 import ru.bmstu.rk9.rao.lib.process.Release;
-import ru.bmstu.rk9.rao.lib.process.Resource;
+import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.process.Seize;
 import ru.bmstu.rk9.rao.lib.process.Terminate;
+import ru.bmstu.rk9.rao.lib.process.Queue.Queueing;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
@@ -35,24 +36,24 @@ public class QueueProcessTest {
 
 	private List<Block> generateSituation() {
 		List<Block> blocks = new ArrayList<Block>();
-		Generate generate = new Generate(() -> 10);
+		Generate generate = new Generate(() -> 10.0);
 		Terminate terminate = new Terminate();
-		Advance advance = new Advance(() -> 15);
-		Resource resource = Resource.create();
+		Hold hold = new Hold(() -> 15.0);
+		Resource resource = TestResource.create();
 		Seize seize = new Seize(resource);
 		Release release = new Release(resource);
-		Queue queue = new Queue();
+		Queue queue = new Queue(Integer.MAX_VALUE, Queueing.FIFO);
 		blocks.add(generate);
 		blocks.add(queue);
 		blocks.add(seize);
-		blocks.add(advance);
+		blocks.add(hold);
 		blocks.add(release);
 		blocks.add(terminate);
-		Link.linkDocks(generate.getOutputDock(), queue.getInputDock());
-		Link.linkDocks(queue.getOutputDock(), seize.getInputDock());
-		Link.linkDocks(seize.getOutputDock(), advance.getInputDock());
-		Link.linkDocks(advance.getOutputDock(), release.getInputDock());
-		Link.linkDocks(release.getOutputDock(), terminate.getInputDock());
+		Connection.linkDocks(generate.getOutputDock(), queue.getInputDock());
+		Connection.linkDocks(queue.getOutputDock(), seize.getInputDock());
+		Connection.linkDocks(seize.getOutputDock(), hold.getInputDock());
+		Connection.linkDocks(hold.getOutputDock(), release.getInputDock());
+		Connection.linkDocks(release.getOutputDock(), terminate.getInputDock());
 
 		return blocks;
 	}

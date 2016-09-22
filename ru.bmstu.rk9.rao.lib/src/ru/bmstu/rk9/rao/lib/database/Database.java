@@ -198,8 +198,9 @@ public class Database {
 				TypeSize.BYTE * 2 + TypeSize.INT * 2 + TypeSize.DOUBLE + TypeSize.INT,
 				0), PATTERN(TypeSize.BYTE * 2 + TypeSize.DOUBLE, TypeSize.INT * 5), EVENT(
 						TypeSize.BYTE * 2 + TypeSize.DOUBLE,
-						TypeSize.INT * 2), SEARCH(TypeSize.BYTE * 2 + TypeSize.INT * 2 + TypeSize.DOUBLE,
-								0), RESULT(TypeSize.BYTE + TypeSize.INT + TypeSize.DOUBLE, 0);
+						TypeSize.INT * 2), SEARCH(TypeSize.BYTE * 2 + TypeSize.INT * 2 + TypeSize.DOUBLE, 0), RESULT(
+								TypeSize.BYTE + TypeSize.INT + TypeSize.DOUBLE,
+								0), PROCESS(TypeSize.BYTE + TypeSize.DOUBLE + TypeSize.BYTE + TypeSize.INT, 0);
 
 		public final int HEADER_SIZE;
 		final int METADATA_SIZE;
@@ -612,4 +613,31 @@ public class Database {
 		final private String type;
 	}
 
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+	// ------------------------- PROCESS ENTRIES --------------------------- //
+	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
+
+	public static enum ProcessEntryType {
+		GENERATE("Generate"), TERMINATE("Terminate"), HOLD("Hold"), SEIZE("Seize"), RELEASE("Release"), QUEUE(
+				"Queue"), SELECT_PATH("SelectPath");
+
+		private ProcessEntryType(final String block) {
+			this.block = block;
+		}
+
+		public String getString() {
+			return block;
+		}
+
+		final private String block;
+	}
+
+	public final void addProcessEntry(final ProcessEntryType processEntryType, final int index, ByteBuffer data) {
+		final ByteBuffer header = ByteBuffer.allocate(EntryType.PROCESS.HEADER_SIZE);
+		header.put((byte) EntryType.PROCESS.ordinal()).putDouble(CurrentSimulator.getTime())
+				.put((byte) processEntryType.ordinal()).putInt(index);
+
+		Entry entry = new Entry(header, data);
+		addEntry(entry);
+	}
 }

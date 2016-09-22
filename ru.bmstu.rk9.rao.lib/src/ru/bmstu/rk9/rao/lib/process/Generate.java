@@ -2,20 +2,22 @@ package ru.bmstu.rk9.rao.lib.process;
 
 import java.util.function.Supplier;
 
+import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class Generate implements Block {
 
-	public Generate(Supplier<Integer> interval) {
+	public Generate(Supplier<Double> interval) {
 		this.interval = interval;
 		CurrentSimulator.pushEvent(new GenerateEvent(interval.get()));
 	}
 
-	private Supplier<Integer> interval;
+	private Supplier<Double> interval;
 	private boolean ready = false;
-	private OutputDock outputDock = new OutputDock();
+	private TransactStorage transactStorage = new TransactStorage();
+	private OutputDock outputDock = () -> transactStorage.pullTransact();
 
 	public OutputDock getOutputDock() {
 		return outputDock;
@@ -26,12 +28,12 @@ public class Generate implements Block {
 		if (!ready)
 			return BlockStatus.NOTHING_TO_DO;
 
-		if (outputDock.hasTransact()) {
+		if (transactStorage.hasTransact()) {
 			return BlockStatus.CHECK_AGAIN;
 		}
 		Transact transact = Transact.create();
-		outputDock.pushTransact(transact);
-		System.out.println(CurrentSimulator.getTime() + ": generate body " + transact.getNumber());
+		transactStorage.pushTransact(transact);
+		CurrentSimulator.getDatabase().addProcessEntry(ProcessEntryType.GENERATE, transact.getNumber(), null);
 
 		Double time = CurrentSimulator.getTime() + interval.get();
 		CurrentSimulator.pushEvent(new GenerateEvent(time));
