@@ -5,11 +5,13 @@ public abstract class AnimationFrame {
 		init();
 	}
 
-	protected abstract void init();
+	protected void init() {
+	}
 
 	public abstract String getTypeName();
 
-	public abstract void draw(AnimationContext context);
+	public void draw(AnimationContext context) {
+	}
 
 	public final Background getBackground() {
 		return background;
