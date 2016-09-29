@@ -36,9 +36,9 @@ public abstract class Logic extends AbstractDecisionPoint {
 		}
 	};
 
-	private Supplier<Double> priority = () -> 0.0;
-	private Supplier<Boolean> condition = () -> true;
-	private Logic parent = null;
+	protected Supplier<Double> priority = () -> 0.0;
+	protected Supplier<Boolean> condition = () -> true;
+	protected Logic parent = null;
 
 	private List<AbstractDecisionPoint> children = new ArrayList<AbstractDecisionPoint>();
 
@@ -85,32 +85,9 @@ public abstract class Logic extends AbstractDecisionPoint {
 		return false;
 	}
 
-	/* API available to user */
-
-	protected void setParent(Logic parent) {
-		this.parent = parent;
-		parent.addChild(this);
-	}
-
-	protected Logic getParent() {
-		return parent;
-	}
-
-	protected void setPriority(Supplier<Double> priority) {
-		this.priority = priority;
-	}
-
 	@Override
 	public Supplier<Double> getPriority() {
 		return priority;
-	}
-
-	protected void setCondition(Supplier<Boolean> condition) {
-		this.condition = condition;
-	}
-
-	protected Supplier<Boolean> getCondition() {
-		return condition;
 	}
 
 	protected void addActivity(Activity a) {
