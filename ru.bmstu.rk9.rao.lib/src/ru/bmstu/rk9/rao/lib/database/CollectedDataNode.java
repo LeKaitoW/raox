@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 
@@ -157,16 +156,9 @@ public class CollectedDataNode {
 	}
 
 	public static class ResultIndex extends Index {
-		public ResultIndex(int number, ResultType type) {
+		public ResultIndex(int number) {
 			super(number, IndexType.RESULT);
-			this.type = type;
 		}
-
-		public final ResultType getResultType() {
-			return type;
-		}
-
-		private final ResultType type;
 	}
 
 	public static class LogicIndex extends Index {

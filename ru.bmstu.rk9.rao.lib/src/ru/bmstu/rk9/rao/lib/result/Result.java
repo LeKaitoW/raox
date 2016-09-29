@@ -31,7 +31,9 @@ public abstract class Result<T> extends RaoNameable {
 	public void update() {
 		if (!condition()) 
 			return;
-		statistics.update(evaluate(), CurrentSimulator.getTime());
+		final T value = evaluate();
+		statistics.update(value, CurrentSimulator.getTime());
+		CurrentSimulator.getDatabase().addResultEntry(this, value);
 	};
 
 	protected ResultMode resultMode;

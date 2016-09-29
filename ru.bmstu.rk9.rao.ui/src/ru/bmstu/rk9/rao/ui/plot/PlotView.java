@@ -249,9 +249,7 @@ public class PlotView extends ViewPart {
 				return true;
 
 			case RESULT:
-				ResultIndex resultIndex = (ResultIndex) index;
-				ResultType resultType = resultIndex.getResultType();
-				return resultType != ResultType.GET_VALUE;
+				return true;
 
 			case PATTERN:
 				PatternIndex patternIndex = (PatternIndex) index;

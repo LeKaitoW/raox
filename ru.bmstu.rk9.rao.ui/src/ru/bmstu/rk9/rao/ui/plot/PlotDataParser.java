@@ -19,6 +19,7 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
+import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.ui.trace.Tracer;
@@ -135,15 +136,55 @@ public class PlotDataParser {
 	private ParseInfo parseResult(final ResultIndex resultIndex, final int startItemNumber) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = resultIndex.getEntryNumbers();
+		final List<Entry> allEntries = CurrentSimulator.getDatabase().getAllEntries();
+
+		boolean axisChanged = false;
+		List<String> axisValues = null;
 
 		while (currentItemNumber < entriesNumbers.size()) {
+			int currentEntryNumber = entriesNumbers.get(currentItemNumber);
+			final Entry currentEntry = allEntries.get(currentEntryNumber);
+			final ByteBuffer data = Tracer.prepareBufferForReading(currentEntry.getData());
+			final ByteBuffer header = Tracer.prepareBufferForReading(currentEntry.getHeader());
+
+			Tracer.skipPart(header, TypeSize.BYTE);
+			final ResultType resultType = ResultType.values()[header.get()];
+			final double time = header.getDouble();
+
 			PlotItem item = null;
-			// TODO implement
+			switch (resultType) {
+			case OTHER:
+				final int length = data.getInt();
+
+				byte rawString[] = new byte[length];
+				for (int i = 0; i < length; i++)
+					rawString[i] = data.get(TypeSize.INT + i);
+				String descriptor = new String(rawString, StandardCharsets.UTF_8);
+
+				int value;
+				if (uniqueValues.containsKey(descriptor)) {
+					value = uniqueValues.get(descriptor);
+				} else {
+					value = uniqueValues.size();
+					uniqueValues.put(descriptor, value);
+					axisChanged = true;
+					axisValues = Lists.newArrayList(uniqueValues.keySet());
+				}
+				item = new PlotItem(time, value);
+				break;
+			case NUMBER:
+				final double dataValue = data.getDouble();
+				item = new PlotItem(time, dataValue);
+				break;
+			default:
+				break;
+			}
+
 			dataset.add(item);
 			currentItemNumber++;
 		}
 
-		return new ParseInfo(new DataParserResult(dataset, false, null), currentItemNumber);
+		return new ParseInfo(new DataParserResult(dataset, axisChanged, axisValues), currentItemNumber);
 	}
 
 	private ParseInfo parseResourceParameter(final ResourceIndex resourceIndex, final int typeNumber,
@@ -158,6 +199,7 @@ public class PlotDataParser {
 
 		boolean axisChanged = false;
 		List<String> axisValues = null;
+		int value;
 
 		while (currentItemNumber < entriesNumbers.size()) {
 			int currentEntryNumber = entriesNumbers.get(currentItemNumber);
@@ -181,7 +223,17 @@ public class PlotDataParser {
 				item = new PlotItem(time, data.getDouble(parameterOffset));
 				break;
 			case BOOLEAN:
-				item = new PlotItem(time, data.get(parameterOffset) != 0 ? 1 : 0);
+				String boolValueStr = data.get(parameterOffset) != 0 ? "true" : "false";
+
+				if (uniqueValues.containsKey(boolValueStr)) {
+					value = uniqueValues.get(boolValueStr);
+				} else {
+					value = uniqueValues.size();
+					uniqueValues.put(boolValueStr, value);
+					axisChanged = true;
+					axisValues = Lists.newArrayList(uniqueValues.keySet());
+				}
+				item = new PlotItem(time, value);
 				break;
 			case OTHER:
 				final int index = CurrentSimulator.getStaticModelData().getVariableWidthParameterIndex(typeNumber,
@@ -194,7 +246,6 @@ public class PlotDataParser {
 					rawString[i] = data.get(stringPosition + TypeSize.INT + i);
 				String descriptor = new String(rawString, StandardCharsets.UTF_8);
 
-				int value;
 				if (uniqueValues.containsKey(descriptor)) {
 					value = uniqueValues.get(descriptor);
 				} else {
