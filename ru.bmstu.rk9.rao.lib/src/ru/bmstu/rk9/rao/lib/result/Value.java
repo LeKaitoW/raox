@@ -4,23 +4,39 @@ import java.util.function.Supplier;
 
 public class Value<T> extends Result<T> {
 
-	public Value(Supplier<T> evaluate, Supplier<Boolean> condition, ResultMode resultMode) {
+	public Value(Supplier<T> evaluate, Supplier<Boolean> condition, ResultMode resultMode, Statistics<T> statistics) {
 		this.evaluate = evaluate;
 		this.condition = condition;
-		this.statistics = new ValueStatistics<>();
 		this.resultMode = resultMode;
+		this.statistics = statistics;
+	}
+
+	public Value(Supplier<T> evaluate, Supplier<Boolean> condition, ResultMode resultMode) {
+		this(evaluate, condition, resultMode, new ValueStatistics<T>());
+	}
+
+	public Value(Supplier<T> evaluate, ResultMode resultMode, Statistics<T> statistics) {
+		this(evaluate, () -> true, resultMode, statistics);
+	}
+
+	public Value(Supplier<T> evaluate, Supplier<Boolean> condition, Statistics<T> statistics) {
+		this(evaluate, condition, ResultMode.AUTO, statistics);
 	}
 
 	public Value(Supplier<T> evaluate, ResultMode resultMode) {
-		this(evaluate, () -> true, resultMode);
+		this(evaluate, () -> true, resultMode, new ValueStatistics<T>());
+	}
+
+	public Value(Supplier<T> evaluate, Statistics<T> statistics) {
+		this(evaluate, () -> true, ResultMode.AUTO, statistics);
 	}
 
 	public Value(Supplier<T> evaluate, Supplier<Boolean> condition) {
-		this(evaluate, condition, ResultMode.AUTO);
+		this(evaluate, condition, ResultMode.AUTO, new ValueStatistics<T>());
 	}
 
 	public Value(Supplier<T> evaluate) {
-		this(evaluate, () -> true, ResultMode.AUTO);
+		this(evaluate, () -> true, ResultMode.AUTO, new ValueStatistics<T>());
 	}
 
 	Supplier<T> evaluate;
