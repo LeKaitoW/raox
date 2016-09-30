@@ -46,6 +46,9 @@ operation CallProcessingPattern() {
     }
 }
 
+sequence newCallInterval = new Exponential(123456789, 1 / 30.0);
+sequence callProcessingTime = new Uniform(123456789, 20, 40);
+
 logic Model {
     activity callProcessing = new Activity(CallProcessingPattern.create());
 }
@@ -66,9 +69,6 @@ resultType QueueLengthCouter&lt;Integer&gt;(TechSupport techSupport) {
     }
 }
 result queueLengthStatistics = new QueueLengthCouter(techSupport);
-
-sequence newCallInterval = new Exponential(123456789, 1 / 30.0);
-sequence callProcessingTime = new Uniform(123456789, 20, 40);
 </code></pre>
 <h3>Описание ресурсов</h3>
 <p>Данная модель так же будет иметь единственный ресурс - службу технической поддержки. Однако параметрами ресурса теперь будет длина очереди, состояние оператора (свободен или занят), а также общее число успешно обслуженных заявок. Для объявления перечислимых значений используется ключевое слово <code>enum</code>.</p>
