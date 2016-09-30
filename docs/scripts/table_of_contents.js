@@ -108,10 +108,6 @@ function getReferenceContents() {
             "title":"Функции"
         },
         {
-            "href":"../reference/table_list.html",
-            "title":"Таблицы и списки"
-        },
-        {
             "href":"../reference/result.html",
             "title":"Результаты моделирования"
         },
