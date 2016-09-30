@@ -23,44 +23,53 @@ type TechSupport {
 
 resource techSupport = TechSupport.create(OperatorState.FREE, 0, 0);
 
-event newCall() {
-    techSupport.queueLength++;
-    newCall.plan(currentTime + newCallInterval.next());
+event NewCall() {
+    techSupport.queueLength = techSupport.queueLength + 1;
+    NewCall.plan(currentTime + newCallInterval.next());
 }
 
-operation callProcessingPattern() {
-    relevant _techSupport = techSupport.select(_techSupport.queueLength > 0
-            and _techSupport.operatorState == OperatorState.FREE);
+operation CallProcessingPattern() {
+    relevant _techSupport = techSupport.onlyif[queueLength > 0 &amp;&amp; operatorState == OperatorState.FREE];
+
+    set begin() {
+        _techSupport.queueLength = _techSupport.queueLength - 1;
+        _techSupport.operatorState = OperatorState.BUSY;
+    }
+
     set duration() {
         return callProcessingTime.next();
     }
-    set begin() {
-        _techSupport.queueLength--;
-        _techSupport.operatorState = OperatorState.BUSY;
-    }
+
     set end() {
-        _techSupport.peopleServed++;
+        _techSupport.peopleServed = _techSupport.peopleServed + 1;
         _techSupport.operatorState = OperatorState.FREE;
     }
 }
 
-dpt model {
-    activity callProcessing checks callProcessingPattern();
+logic Model {
+    activity callProcessing = new Activity(CallProcessingPattern.create());
 }
 
 set init() {
-    newCall.plan(currentTime + newCallInterval.next());
+    NewCall.plan(newCallInterval.next());
 }
 
 set terminateCondition() {
     return currentTime >= 480;
 }
 
-sequence newCallInterval = double exponential(123456789, 1/30.0);
-sequence callProcessingTime = double uniform(123456789, 20, 40);
+result totalPeopleServed = new Value([techSupport.peopleServed]);
 
-result totalPeopleServed = getValue(techSupport.peopleServed);
-result queueLengthStatistics = watchParameter(techSupport.queueLength);</code></pre>
+resultType QueueLengthCouter&lt;Integer&gt;(TechSupport techSupport) {
+    set evaluate() {
+        return techSupport.queueLength;
+    }
+}
+result queueLengthStatistics = new QueueLengthCouter(techSupport);
+
+sequence newCallInterval = new Exponential(123456789, 1 / 30.0);
+sequence callProcessingTime = new Uniform(123456789, 20, 40);
+</code></pre>
 <h3>Описание ресурсов</h3>
 <p>Данная модель так же будет иметь единственный ресурс - службу технической поддержки. Однако параметрами ресурса теперь будет длина очереди, состояние оператора (свободен или занят), а также общее число успешно обслуженных заявок. Для объявления перечислимых значений используется ключевое слово <code>enum</code>.</p>
 <pre><code class="rao">enum OperatorState {FREE, BUSY}
@@ -71,53 +80,134 @@ type TechSupport {
     int peopleServed;
 }
 
-resource techSupport = TechSupport.create(OperatorState.FREE, 0, 0);</code></pre>
+resource techSupport = TechSupport.create(OperatorState.FREE, 0, 0);
+</code></pre>
+
 <h3>Описание последовательностей</h3>
 <p>Равномерное распределение (uniform) задается аналогично тому, как задавалось экспоненциальное в прошлой модели.</p>
-<pre><code class="rao">sequence callProcessingTime = double uniform(123456789, 20, 40);</code></pre>
+<pre><code class="rao">sequence callProcessingTime = new Uniform(123456789, 20, 40);</code></pre>
+
 <h3>Описание действий</h3>
 <p>Процесс обслуживание оператором заявки описывается с помощью действий (операций). Описание операций производится с помощью ключевого слова <code>operation</code>.</p>
-<pre><code class="rao">operation callProcessingPattern() {
+<pre><code class="rao">operation CallProcessingPattern() {
     ...
-}</code></pre>
+}
+</code></pre>
 <p>Как и событию, операции могут быть переданы параметры. Операции имеют событие начала (описывается в теле метода <code>begin()</code>) и событие конца (описывается в теле <code>end()</code>), а также некоторую длительность (задается в <code>duration</code>). В начале операции необходимо уменьшить длину очереди на единицу и выставить оператору состояние "занят".</p>
 <pre><code class="rao">set begin() {
-    _techSupport.queueLength--;
+    _techSupport.queueLength = _techSupport.queueLength - 1;
     _techSupport.operatorState = OperatorState.BUSY;
-}</code></pre>
-<p>В конце нужно вернуть оператора в состояние "свободен" и увеличить счетчик числа обслуженных звонков на единицу.</p>
+}
+</code></pre>
+<p>В конце нужно вернуть оператора в состояние "свободен" и увеличить количество обслуженных звонков на единицу.</p>
 <pre><code class="rao">set end() {
-    _techSupport.peopleServed++;
+    _techSupport.peopleServed = _techSupport.peopleServed + 1;
     _techSupport.operatorState = OperatorState.FREE;
-}</code></pre>
+}
+</code></pre>
 <p>Длительность операции задается с помощью описанного ранее равномерного распределения.</p>
 <pre><code class="rao">set duration() {
     return callProcessingTime.next();
-}</code></pre>
-<p>Операция обслуживание звонка должна выполняться не каждый раз, а только если ресурс, способный производить обслуживание, находится в корректном состоянии, а именно, в очереди есть необслуженные звонки и оператор в данный момент свободен. Эта проверка производится с помощью механизма релевантных ресурсов. Действие будет выполняться только в том случае, если удалось подобрать все релевантные ресурсы по соответствующим условиям. Условия подбора задаются с помощью метода <code>select()</code>, который может следовать после имени конкретного ресурса, либо после имени типа (в этом случае подбор будет происходить среди всех ресурсов данного типа).</p>
-<pre><code class="rao">relevant _techSupport = techSupport.select(_techSupport.queueLength > 0
-    and _techSupport.operatorState == OperatorState.FREE)</code></pre>
-<p>Операции в языке РДО не являются самостоятельными сущностями. Это лишь заготовки, которые должны быть реализованы активностями. Активности проверяются на возможность выполнения каждый раз, когда меняется состояние модели (см. подход сканирования активностей). Список активностей и порядок их сканирования задаются с помощью ключевого слова <code>dpt</code> (decision point).</p>
-<pre><code class="rao">dpt model {
-    activity callProcessing checks callProcessingPattern();
-}</code></pre>
-<p>Связь активности и операции, которую она реализует, задается с помощью ключевого слова <code>checks</code>.</p>
-<h3>Описание собираемых показателей</h3>
-<p>Общее количество обслуженных заявок можно получить, используя описанный ранее результат типа <code>getValue</code>. Для сбора подробной статистики по длине очереди следует использовать результат типа <code>watchParameter</code>.</p>
-<pre><code class="rao">result totalPeopleServed = getValue(techSupport.peopleServed);
-result queueLengthStatistics = watchParameter(techSupport.queueLength)</code></pre>
-<h3>Результаты моделирования</h3>
-<pre><code class="rao">simple.totalPeopleServed: get_value
-    Value: 14
+}
+</code></pre>
+<p>Операция обслуживание звонка должна выполняться не каждый раз, а только если ресурс, способный производить обслуживание, находится в корректном состоянии, а именно, в очереди есть необслуженные звонки и оператор в данный момент свободен. Эта проверка производится с помощью механизма релевантных ресурсов. Действие будет выполняться только в том случае, если удалось подобрать все релевантные ресурсы по соответствующим условиям.</p>
+<pre><code class="rao">relevant _techSupport = techSupport.onlyif[queueLength > 0 && operatorState == OperatorState.FREE];</code></pre>
+<p>Операции в языке РДО не являются самостоятельными сущностями. Это лишь заготовки, которые должны быть реализованы активностями. Активности проверяются на возможность выполнения каждый раз, когда меняется состояние модели (см. подход сканирования активностей). Список активностей и порядок их сканирования задаются с помощью ключевого слова <code>logic</code>.</p>
+<pre><code class="rao">logic Model {
+    activity callProcessing = new Activity(CallProcessingPattern.create());
+}
+</code></pre>
 
-simple.queueLengthStatistics: watch_par
-    Last value: 5
-    Times registered: 36
-    Minimum value: 0
-    Maximum value: 6
-    Mean: 1.0463030677141867
-    Standard deviation: 1.4991507874386485
-    Coefficient of variation: 214.7994355390579</code></pre>
-<p>В данной модели было рассмотрено использование подхода сканирования активностей совместно с событийным подходом для моделирования простой СМО. Было рассмотрено понятие релевантных ресурсов и способ их подбора, а также сбор подробной статистики по какому-либо параметру ресурса.</p>
+<h3>Описание собираемых показателей</h3>
+<p>Общее количество обслуженных заявок можно получить, используя описанный ранее счетчик <code>Value</code>. Для сбора подробной статистики по длине очереди следует использовать счетчик, который наблюдает за целыми величинами.</p>
+<pre><code class="rao">resultType QueueLengthCouter&lt;Integer&gt;(TechSupport techSupport) {
+    set evaluate() {
+        return techSupport.queueLength;
+    }
+}
+result queueLengthStatistics = new QueueLengthCouter(techSupport);
+</code></pre>
+
+<h3>Результаты моделирования</h3>
+<pre><code class="rao">test.test.totalPeopleServed: Value
+    Value: 10
+
+test.test.queueLengthStatistics: QueueLengthCouter
+    Mean: 0.29969570479418256
+    Median: 0.0
+    Standard deviation: 0.4581246438711857
+    varcoef: 70.03042952058173
+</code></pre>
+
+<h3>Трассировка</h3>
+<pre><code class="rao">ES 0.0 Tracing started
+RC 0.0 techSupport = {FREE, 0, 0}
+ES 0.0 Simulation started
+EI 64.00600791078857 NewCall[0]
+RK 64.00600791078857 techSupport = {FREE, 1, 0}
+EB 64.00600791078857 callProcessing[0](techSupport)
+RK 64.00600791078857 techSupport = {BUSY, 0, 0}
+EF 101.63764567497549 callProcessing[0](techSupport)
+RK 101.63764567497549 techSupport = {FREE, 0, 1}
+EI 102.43731591550352 NewCall[1]
+RK 102.43731591550352 techSupport = {FREE, 1, 1}
+EB 102.43731591550352 callProcessing[1](techSupport)
+RK 102.43731591550352 techSupport = {BUSY, 0, 1}
+EF 136.88237007479393 callProcessing[1](techSupport)
+RK 136.88237007479393 techSupport = {FREE, 0, 2}
+EI 163.24034890273626 NewCall[2]
+RK 163.24034890273626 techSupport = {FREE, 1, 2}
+EB 163.24034890273626 callProcessing[2](techSupport)
+RK 163.24034890273626 techSupport = {BUSY, 0, 2}
+EI 175.46803810034146 NewCall[3]
+RK 175.46803810034146 techSupport = {BUSY, 1, 2}
+EF 200.60513460180525 callProcessing[2](techSupport)
+RK 200.60513460180525 techSupport = {FREE, 1, 3}
+EB 200.60513460180525 callProcessing[3](techSupport)
+RK 200.60513460180525 techSupport = {BUSY, 0, 3}
+EI 205.842211380707 NewCall[4]
+RK 205.842211380707 techSupport = {BUSY, 1, 3}
+EF 227.30009828969426 callProcessing[3](techSupport)
+RK 227.30009828969426 techSupport = {FREE, 1, 4}
+EB 227.30009828969426 callProcessing[4](techSupport)
+RK 227.30009828969426 techSupport = {BUSY, 0, 4}
+EI 236.32725594405497 NewCall[5]
+RK 236.32725594405497 techSupport = {BUSY, 1, 4}
+EF 260.0337066629854 callProcessing[4](techSupport)
+RK 260.0337066629854 techSupport = {FREE, 1, 5}
+EB 260.0337066629854 callProcessing[5](techSupport)
+RK 260.0337066629854 techSupport = {BUSY, 0, 5}
+EF 292.7941199462651 callProcessing[5](techSupport)
+RK 292.7941199462651 techSupport = {FREE, 0, 6}
+EI 296.22140704946275 NewCall[6]
+RK 296.22140704946275 techSupport = {FREE, 1, 6}
+EB 296.22140704946275 callProcessing[6](techSupport)
+RK 296.22140704946275 techSupport = {BUSY, 0, 6}
+EF 333.5051344570901 callProcessing[6](techSupport)
+RK 333.5051344570901 techSupport = {FREE, 0, 7}
+EI 379.52951725797567 NewCall[7]
+RK 379.52951725797567 techSupport = {FREE, 1, 7}
+EB 379.52951725797567 callProcessing[7](techSupport)
+RK 379.52951725797567 techSupport = {BUSY, 0, 7}
+EI 383.36811621534684 NewCall[8]
+RK 383.36811621534684 techSupport = {BUSY, 1, 7}
+EF 418.28494081373617 callProcessing[7](techSupport)
+RK 418.28494081373617 techSupport = {FREE, 1, 8}
+EB 418.28494081373617 callProcessing[8](techSupport)
+RK 418.28494081373617 techSupport = {BUSY, 0, 8}
+EI 419.17937046669243 NewCall[9]
+RK 419.17937046669243 techSupport = {BUSY, 1, 8}
+EF 440.6870514035923 callProcessing[8](techSupport)
+RK 440.6870514035923 techSupport = {FREE, 1, 9}
+EB 440.6870514035923 callProcessing[9](techSupport)
+RK 440.6870514035923 techSupport = {BUSY, 0, 9}
+EF 474.62514827434495 callProcessing[9](techSupport)
+RK 474.62514827434495 techSupport = {FREE, 0, 10}
+EI 486.85470956869307 NewCall[10]
+RK 486.85470956869307 techSupport = {FREE, 1, 10}
+ES 486.85470956869307 Simulation finished: terminate condition
+</code></pre>
+
+<p>В данной модели было рассмотрено использование подхода сканирования активностей совместно с событийным подходом для моделирования простой СМО. Было рассмотрено понятие релевантных ресурсов и сбор статистики по параметру ресурса.</p>
 </body>
 </html>
