@@ -19,6 +19,8 @@ import ru.bmstu.rk9.rao.rao.RelevantResourceTuple
 import ru.bmstu.rk9.rao.rao.ResourceDeclaration
 import ru.bmstu.rk9.rao.rao.ResourceType
 import ru.bmstu.rk9.rao.rao.Search
+import ru.bmstu.rk9.rao.rao.Result
+import ru.bmstu.rk9.rao.rao.ResultType
 
 class RaoFormatter extends XbaseFormatter {
 	def dispatch void format(Event event, extension IFormattableDocument document) {
@@ -148,6 +150,23 @@ class RaoFormatter extends XbaseFormatter {
 	def dispatch void format(EntityCreation entityCreation, extension IFormattableDocument document) {
 		entityCreation.append(XbaseFormatterPreferenceKeys.blankLinesAroundExpression)
 		format(entityCreation.constructor, document)
+	}
+
+	def dispatch void format(ResultType resultType, extension IFormattableDocument document) {
+		formatAsBlock(resultType, document)
+
+		for (parameter : resultType.parameters)
+			format(parameter, document)
+
+		for (defaultMethod : resultType.defaultMethods) {
+			defaultMethod.append(XbaseFormatterPreferenceKeys.blankLinesAroundExpression)
+			format(defaultMethod, document)
+		}
+	}
+
+	def dispatch void format(Result result,  extension IFormattableDocument document) {
+		result.append(XbaseFormatterPreferenceKeys.blankLinesAroundExpression)
+		format(result.constructor, document)
 	}
 
 	def formatAsBlock(EObject obj, extension IFormattableDocument document) {
