@@ -25,14 +25,15 @@ github.com style (c) Vasily Polovnyov <vast@whiteants.net>
 .nginx .hljs-title,
 .hljs-subst,
 .hljs-request,
-.hljs-status {
+.hljs-status,
+.hljs-constant {
   color: #7F0055;
   font-weight: bold;
 }
 
 .hljs-number,
 .hljs-hexcolor,
-.ruby .hljs-constant {
+.ruby {
   color: #646464;
 }
 
@@ -121,4 +122,154 @@ github.com style (c) Vasily Polovnyov <vast@whiteants.net>
 
 .hljs-chunk {
   color: #aaa;
+}
+
+
+.hljs-trace-resource-create,
+.hljs-trace-resource-keep,
+.hljs-trace-resource-erase,
+.hljs-trace-system,
+.hljs-trace-operation-begin,
+.hljs-trace-operation-end,
+.hljs-trace-event,
+.hljs-trace-rule,
+.hljs-trace-result,
+.hljs-trace-search-begin,
+.hljs-trace-search-open,
+.hljs-trace-search-spawn-new,
+.hljs-trace-search-spawn-worse,
+.hljs-trace-search-spawn-better,
+.hljs-trace-search-resource-keep,
+.hljs-trace-search-decision,
+.hljs-trace-search-end-aborted,
+.hljs-trace-search-end-condition,
+.hljs-trace-search-end-success,
+.hljs-trace-search-end-fail,
+.hljs-trace-process
+{
+  display: inline-block;
+  width: 100%;
+  padding: 0em;
+  white-space: pre-line;
+  white-space: pre-wrap;       /* Since CSS 2.1 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+.hljs-trace-resource-create
+{
+  color: #237442;
+  background: #96FF96;
+}
+
+.hljs-trace-resource-keep,
+.hljs-trace-search-resource-keep
+{
+  color: #008600;
+  background: #D0FFD0;
+}
+
+.hljs-trace-resource-erase
+{
+  color: #435A43;
+  background: #B4E0B4;
+}
+
+.hljs-trace-system
+{
+  color: #8B0000;
+  background: #FFC0CB;
+}
+
+.hljs-trace-operation-begin
+{
+  color: #344BA2;
+  background: #AAE3FB;
+}
+
+.hljs-trace-operation-end
+{
+  color: #160250;
+  background: #81B0D5;
+}
+
+.hljs-trace-event
+{
+  color: #4F2962;
+  background: #D0D0FF;
+}
+
+.hljs-trace-rule
+{
+  color: #173247;
+  background: #B6CBDB;
+}
+
+.hljs-trace-result
+{
+  color: #000000;
+  background: #F1FBE2;
+}
+
+.hljs-trace-search-begin
+{
+  color: #5A4F37;
+  background: #F8D68D;
+}
+
+.hljs-trace-search-open
+{
+  color: #4B540E;
+  background: #E6F198;
+}
+
+.hljs-trace-search-spawn-new
+{
+  color: #005472;
+  background: #E8E8D7;
+}
+
+.hljs-trace-search-spawn-worse
+{
+  color: #695549;
+  background: #E8E8D7;
+}
+
+.hljs-trace-search-spawn-better
+{
+  color: #8B0000;
+  background: #E8E8D7;
+}
+
+.hljs-trace-search-decision
+{
+  color: #541E09;
+  background: #F7CFB5;
+}
+
+.hljs-trace-search-end-aborted
+{
+  color: #F04B30;
+  background: #E3F0F6;
+}
+
+.hljs-trace-search-end-condition,
+.hljs-trace-search-end-success
+{
+  color: #541E09;
+  background: #F0DEDB;
+}
+
+.hljs-trace-search-end-fail
+{
+  color: #F04B30;
+  background: #F0DEDB;
+}
+
+.hljs-trace-process
+{
+  color: #000000;
+  background: #43B581;
 }

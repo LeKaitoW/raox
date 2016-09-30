@@ -15,11 +15,11 @@
     <i>тело_функции</i>
 }</code></pre>
 <p>Вызов функции имеет следующий вид:</p>
-<pre><code class="rao"><i>имя_функции</i>(<i>список_значений_параметров_функции</i>);</code></pre>
+<pre><code class="rao"><i>имя_функции</i>(<i>список_параметров</i>);</code></pre>
 <p>Вызов одной функции из другой:</p>
 <pre><code class="rao">double длина_линии(double x1, double y1, double x2, double y2) {
-    double y_diff = Math.abs(y2 - y2);
-    double x_diff = Math.abs(x2 - x1);
+    val y_diff = Math.abs(y2 - y2);
+    val x_diff = Math.abs(x2 - x1);
     return Math.sqrt(y_diff * y_diff + x_diff * x_diff);
 }
 
@@ -29,17 +29,84 @@ double периметр_треугольника(
         double x3, double y3) {
     return длина_линии(x1, y1, x2, y2) + длина_линии(x2, y2, x3, y3)
             + длина_линии(x1, y1, x3, y3);
-}</code></pre>
-<p>Подсчет результата в конце моделирования:</p>
-<pre><code class="rao">int определить_победителя() {
-    if (игрок_1.сумма_очков &gt; игрок_2.сумма_очков)
+}
+</code></pre>
+
+<h3>Локальные переменные</h3>
+<pre><code class="rao">double длина_линии(double x1, double y1, double x2, double y2) {
+    val y_diff = Math.abs(y2 - y2); // неизменяемая локальная переменная
+    var x_diff = Math.abs(x2 - x1); // переменная может быть изменена
+    x_diff = 4;
+    return ...;
+}
+</code></pre>
+
+<h3>Циклы</h3>
+<pre><code class="rao">for (var i = 1; i &lt;= 10; i++) {
+}
+</code></pre>
+
+<h3>Ветвление</h3>
+<pre><code class="rao">int fun(String text) {
+    if (text == 'Example_1') {
         return 1;
-    else if (игрок_1.сумма_очков &lt; игрок_2.сумма_очков)
+    }
+    else if (text == 'Example_2') {
         return 2;
-    else
-        return 0;
+    }
+    return 0;
+}
+</code></pre>
+
+<h3>Множественное ветвление</h3>
+<pre><code class="rao">int fun(String text) {
+    switch text {
+        case 'Example_1': {
+            return 1;
+        }
+        case 'Example_2': {
+            return 2;
+        }
+        default: {
+            return 0;
+        }
+    }
+}
+</code></pre>
+
+<h3>Фильтры</h3>
+<p>Булевы функции можно использовать в фильтрах:</p>
+<pre><code class="rao">type Фишки {
+    int номер;
+    int место;
 }
 
-result победитель = getValue(определить_победителя());</code></pre>
+boolean фишка_на_месте(int номер, int место) {
+    return номер == место;
+}
+
+double кол_во_фишек_не_на_месте() {
+    return Фишки.accessible.size - Фишки.accessible.filter[фишка_на_месте(номер, место)].size;
+}
+</code></pre>
+<p>Или передавать ресурс, а не его параметры:</p>
+<pre><code class="rao">boolean фишка_на_месте(Фишки фишка) {
+    return фишка.номер == фишка.место;
+}
+
+double кол_во_фишек_не_на_месте() {
+    return Фишки.accessible.size - Фишки.accessible.filter[фишка | фишка_на_месте(фишка)].size;
+}
+</code></pre>
+<p>Если функция небольшая, то удобно записать её внутри фильтра:</p>
+<pre><code class="rao">double кол_во_фишек_не_на_месте() {
+    return Фишки.accessible.size - Фишки.accessible.filter[фишка | return фишка.номер == фишка.место].size;
+}
+</code></pre>
+<p>Если нет нужны заводить итератор:</p>
+<pre><code class="rao">double кол_во_фишек_не_на_месте() {
+    return Фишки.accessible.size - Фишки.accessible.filter[номер == место].size;
+}
+</code></pre>
 </body>
 </html>
