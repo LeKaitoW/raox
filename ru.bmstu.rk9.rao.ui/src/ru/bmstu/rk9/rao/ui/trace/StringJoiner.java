@@ -8,8 +8,7 @@ public class StringJoiner {
 	private String current = "";
 
 	public enum StringFormat {
-		FUNCTION(", ", "(", ")"), STRUCTURE(", ", "{", "}"), ARRAY(", ", "[",
-				"]"), ENUMERATION(", ", "", "");
+		FUNCTION(", ", "(", ")"), STRUCTURE(", ", "{", "}"), ARRAY(", ", "[", "]"), ENUMERATION(", ", "", "");
 
 		StringFormat(String delimiter, String prefix, String suffix) {
 			this.delimiter = delimiter;

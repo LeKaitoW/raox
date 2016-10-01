@@ -43,7 +43,7 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.IndexType;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
@@ -364,6 +364,7 @@ public class GraphPanel extends JPanel implements GraphApi {
 
 	private final Notifier<GraphEvent> graphEventNotifier = new Notifier<>(GraphEvent.class);
 
+	@Override
 	public final Notifier<GraphEvent> getGraphEventNotifier() {
 		return graphEventNotifier;
 	}
@@ -382,6 +383,7 @@ public class GraphPanel extends JPanel implements GraphApi {
 
 	private GraphInfoWindow graphInfoWindow = null;
 
+	@Override
 	public final GraphInfoWindow getGraphInfoWindow() {
 		return graphInfoWindow;
 	}

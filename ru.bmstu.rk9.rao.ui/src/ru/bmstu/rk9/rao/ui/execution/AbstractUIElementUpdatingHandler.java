@@ -13,8 +13,7 @@ import org.eclipse.ui.menus.UIElement;
 import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider;
 import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider.SimulationState;
 
-public abstract class AbstractUIElementUpdatingHandler extends AbstractHandler
-		implements IElementUpdater {
+public abstract class AbstractUIElementUpdatingHandler extends AbstractHandler implements IElementUpdater {
 	public enum UIElementType {
 		BUILD("Build", "build"), EXECUTE("Execute", "run");
 
@@ -47,35 +46,25 @@ public abstract class AbstractUIElementUpdatingHandler extends AbstractHandler
 	public void updateElement(UIElement element, Map parameters) {
 		String message;
 
-		IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow();
+		IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
 		if (activeWorkbenchWindow == null) {
-			ModelExecutionSourceProvider.setSimulationState(
-					activeWorkbenchWindow, SimulationState.DISABLED.toString());
-			message = elementType.getDescription()
-					+ " Rao model: no active workbench window";
+			ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow, SimulationState.DISABLED.toString());
+			message = elementType.getDescription() + " Rao model: no active workbench window";
 		} else {
-			IEditorPart activeEditor = activeWorkbenchWindow.getActivePage()
-					.getActiveEditor();
+			IEditorPart activeEditor = activeWorkbenchWindow.getActivePage().getActiveEditor();
 
-			IProject projectToBuild = BuildJobProvider.getProjectToBuild(
-					activeWorkbenchWindow, activeEditor);
+			IProject projectToBuild = BuildJobProvider.getProjectToBuild(activeWorkbenchWindow, activeEditor);
 
 			if (projectToBuild == null) {
-				ModelExecutionSourceProvider.setSimulationState(
-						activeWorkbenchWindow,
+				ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 						SimulationState.DISABLED.toString());
-				message = elementType.getDescription()
-						+ " Rao model: cannot select project to "
+				message = elementType.getDescription() + " Rao model: cannot select project to "
 						+ elementType.getTask();
 			} else {
-				message = elementType.getDescription() + " model "
-						+ projectToBuild.getName();
-				if (ModelExecutionSourceProvider.getSimulationState().equals(
-						SimulationState.DISABLED.toString()))
-					ModelExecutionSourceProvider.setSimulationState(
-							activeWorkbenchWindow,
+				message = elementType.getDescription() + " model " + projectToBuild.getName();
+				if (ModelExecutionSourceProvider.getSimulationState().equals(SimulationState.DISABLED.toString()))
+					ModelExecutionSourceProvider.setSimulationState(activeWorkbenchWindow,
 							SimulationState.STOPPED.toString());
 			}
 		}

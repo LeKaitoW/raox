@@ -3,7 +3,7 @@ package ru.bmstu.rk9.rao.lib.event;
 import java.util.PriorityQueue;
 import java.util.Comparator;
 
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class EventScheduler {
 	private static Comparator<Event> comparator = new Comparator<Event>() {
@@ -17,11 +17,10 @@ public class EventScheduler {
 		}
 	};
 
-	private PriorityQueue<Event> eventList = new PriorityQueue<Event>(1,
-			comparator);
+	private PriorityQueue<Event> eventList = new PriorityQueue<Event>(1, comparator);
 
 	public void pushEvent(Event event) {
-		if (event.getTime() >= Simulator.getTime())
+		if (event.getTime() >= CurrentSimulator.getTime())
 			eventList.add(event);
 	}
 

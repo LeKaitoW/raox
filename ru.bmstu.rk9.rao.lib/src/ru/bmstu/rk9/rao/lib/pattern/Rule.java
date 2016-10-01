@@ -1,6 +1,12 @@
 package ru.bmstu.rk9.rao.lib.pattern;
 
+public abstract class Rule extends Pattern {
+	@Override
+	public final void run() {
+		execute();
+		finish();
+	}
 
-public interface Rule extends Pattern {
-	public void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom, String dptName);
+	protected void execute() {
+	}
 }

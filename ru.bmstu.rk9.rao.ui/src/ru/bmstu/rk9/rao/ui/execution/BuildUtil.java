@@ -23,37 +23,48 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.ui.IEditorPart;
 import org.osgi.framework.Bundle;
 
 public class BuildUtil {
-	public static URI getURI(IResource resource) {
-		return URI.createPlatformResourceURI(resource.getProject().getName()
-				+ "/" + resource.getProjectRelativePath(), true);
+
+	public enum BundleType {
+		RAO_LIB("ru.bmstu.rk9.rao.lib"), XBASE_LIB("org.eclipse.xtext.xbase.lib");
+
+		BundleType(String bundleName) {
+			this.name = bundleName;
+		}
+
+		private final String name;
 	}
 
-	public static List<IResource> getAllRaoFilesInProject(IProject project) {
+	public static URI getURI(IResource resource) {
+		return URI.createPlatformResourceURI(resource.getProject().getName() + "/" + resource.getProjectRelativePath(),
+				true);
+	}
+
+	public static List<IResource> getAllFilesInProject(IProject project, String fileExtension) {
 		List<IResource> allRaoFiles = new ArrayList<IResource>();
 		if (!project.isAccessible())
 			return allRaoFiles;
 		IPath path = project.getLocation();
-		recursiveFindRaoFiles(allRaoFiles, path, ResourcesPlugin.getWorkspace()
-				.getRoot());
+		recursiveFindFiles(allRaoFiles, path, ResourcesPlugin.getWorkspace().getRoot(), fileExtension);
 		return allRaoFiles;
 	}
 
-	private static void recursiveFindRaoFiles(List<IResource> allRaoFiles,
-			IPath path, IWorkspaceRoot workspaceRoot) {
+	private static void recursiveFindFiles(List<IResource> allRaoFiles, IPath path, IWorkspaceRoot workspaceRoot,
+			String fileExtension) {
 		IContainer container = workspaceRoot.getContainerForLocation(path);
 		try {
 			IResource[] iResources;
 			iResources = container.members();
 			for (IResource resource : iResources) {
-				if ("rao".equalsIgnoreCase(resource.getFileExtension()))
+				if (fileExtension.equalsIgnoreCase(resource.getFileExtension()))
 					allRaoFiles.add(resource);
 				if (resource.getType() == IResource.FOLDER) {
 					IPath tempPath = resource.getLocation();
-					recursiveFindRaoFiles(allRaoFiles, tempPath, workspaceRoot);
+					recursiveFindFiles(allRaoFiles, tempPath, workspaceRoot, fileExtension);
 				}
 			}
 		} catch (CoreException e) {
@@ -62,32 +73,31 @@ public class BuildUtil {
 	}
 
 	static IProject getProject(IEditorPart activeEditor) {
-		IFile file = (IFile) activeEditor.getEditorInput().getAdapter(
-				IFile.class);
+		IFile file = activeEditor.getEditorInput().getAdapter(IFile.class);
 		if (file == null)
 			return null;
 
 		return file.getProject();
 	}
 
-	static String checkRaoLib(IProject project, IProgressMonitor monitor) {
-		String libBundleName = "ru.bmstu.rk9.rao.lib";
-		Bundle lib = Platform.getBundle(libBundleName);
+	static String checkLib(IProject project, IProgressMonitor monitor, BundleType bundle) {
+		String bundleName = bundle.name;
+		Bundle lib = Platform.getBundle(bundleName);
 		try {
 			File libPath = FileLocator.getBundleFile(lib);
 			if (libPath == null)
-				return "cannot locate bundle " + libBundleName;
+				return "cannot locate bundle " + bundleName;
 
 			IJavaProject jProject = JavaCore.create(project);
 
-			IClasspathEntry[] projectClassPathArray = jProject
-					.getRawClasspath();
+			IClasspathEntry[] projectClassPathArray = jProject.getRawClasspath();
 
 			IPath libPathBinary;
 			if (libPath.isDirectory())
 				libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
 			else
 				libPathBinary = new Path(libPath.getAbsolutePath());
+			IPath sourcePath = new Path(libPath.getAbsolutePath());
 
 			List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
 					Arrays.asList(projectClassPathArray));
@@ -99,59 +109,58 @@ public class BuildUtil {
 				}
 			}
 
-			jProject.setRawClasspath((IClasspathEntry[]) projectClassPathList
-					.toArray(new IClasspathEntry[projectClassPathList.size()]),
+			jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
 					monitor);
 
-			IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary,
-					null, null);
+			IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary, sourcePath, null);
 			projectClassPathList.add(libEntry);
 
-			jProject.setRawClasspath((IClasspathEntry[]) projectClassPathList
-					.toArray(new IClasspathEntry[projectClassPathList.size()]),
+			jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
 					monitor);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "internal error while checking rao lib:\n" + e.getMessage();
+			return "internal error while checking lib:\n" + e.getMessage();
 		}
 
 		return null;
 	}
 
-	static String checkSrcGen(IProject project, IFolder srcGenFolder,
-			IProgressMonitor monitor) {
+	private static void addSrcGenToClassPath(IProject project, IFolder srcGenFolder, IProgressMonitor monitor)
+			throws JavaModelException {
 		IJavaProject jProject = JavaCore.create(project);
-		try {
-			IClasspathEntry[] projectClassPathArray;
-			projectClassPathArray = jProject.getRawClasspath();
-			List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
-					Arrays.asList(projectClassPathArray));
 
-			if (srcGenFolder.exists()) {
+		IClasspathEntry[] projectClassPathArray;
+		projectClassPathArray = jProject.getRawClasspath();
+		List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
+				Arrays.asList(projectClassPathArray));
+
+		boolean srcGenInClasspath = false;
+		for (IClasspathEntry classpathEntry : projectClassPathArray) {
+			if (classpathEntry.getPath().equals(srcGenFolder.getFullPath())) {
+				srcGenInClasspath = true;
+				break;
+			}
+		}
+
+		if (!srcGenInClasspath) {
+			IClasspathEntry libEntry = JavaCore.newSourceEntry(srcGenFolder.getFullPath(), null, null);
+			projectClassPathList.add(libEntry);
+
+			jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
+					monitor);
+		}
+	}
+
+	static String checkSrcGen(IProject project, IFolder srcGenFolder, IProgressMonitor monitor, boolean clean) {
+		try {
+			if (!srcGenFolder.exists()) {
+				srcGenFolder.create(true, true, new NullProgressMonitor());
+			} else if (clean) {
 				for (IResource resource : srcGenFolder.members(true))
 					resource.delete(true, new NullProgressMonitor());
-			} else {
-				srcGenFolder.create(true, true, new NullProgressMonitor());
 			}
 
-			boolean srcGenInClasspath = false;
-			for (IClasspathEntry classpathEntry : projectClassPathArray) {
-				if (classpathEntry.getPath().equals(srcGenFolder.getFullPath())) {
-					srcGenInClasspath = true;
-					break;
-				}
-			}
-
-			if (!srcGenInClasspath) {
-				IClasspathEntry libEntry = JavaCore.newSourceEntry(
-						srcGenFolder.getFullPath(), null, null);
-				projectClassPathList.add(libEntry);
-
-				jProject.setRawClasspath(
-						(IClasspathEntry[]) projectClassPathList
-								.toArray(new IClasspathEntry[projectClassPathList
-										.size()]), monitor);
-			}
+			addSrcGenToClassPath(project, srcGenFolder, monitor);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "internal error while checking src-gen:\n" + e.getMessage();

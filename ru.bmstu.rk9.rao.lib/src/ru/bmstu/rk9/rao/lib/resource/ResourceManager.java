@@ -4,86 +4,92 @@ import java.util.Collection;
 import java.util.Collections;
 
 import java.util.Iterator;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.stream.Collectors;
 
-public class ResourceManager<T extends Resource & ResourceComparison<T>> {
-	private SortedMap<Integer, T> listResources;
+import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 
-	private Map<String, T> named;
+public class ResourceManager<T extends ComparableResource<T>> {
+	private SortedMap<Integer, T> resources = new ConcurrentSkipListMap<Integer, T>();
+	private Integer numberOfResources = 0;
 
-	private Integer resourceNumber;
-
-	public int getNextNumber() {
-		return resourceNumber;
+	public ResourceManager() {
+		this.numberOfResources = 0;
 	}
 
 	public void addResource(T res) {
-		String name = res.getName();
-		Integer number = res.getNumber();
+		Integer number = numberOfResources++;
 
-		if (number.equals(resourceNumber))
-			resourceNumber++;
-		else if (number > resourceNumber)
-			return;
-
-		listResources.put(number, res);
-
-		if (name != null)
-			named.put(name, res);
+		res.setNumber(number);
+		resources.put(number, res);
 	}
 
 	public void eraseResource(T res) {
-		String name = res.getName();
 		Integer number = res.getNumber();
 
-		if (name != null)
-			named.remove(name);
-
-		listResources.remove(number);
-	}
-
-	public T getResource(String name) {
-		return named.get(name);
+		resources.remove(number);
 	}
 
 	public T getResource(int number) {
-		return listResources.get(number);
+		return resources.get(number);
+	}
+
+	// TODO do we need more efficient way to get by name?
+	public T getResource(String name) {
+		Collection<T> resources = getAll().stream().filter(r -> r.getName().equals(name)).collect(Collectors.toList());
+		if (resources.size() != 1)
+			throw new RaoLibException(
+					"Exactly one resource with name \"" + name + "\" should exist, instead found " + resources.size());
+
+		return resources.iterator().next();
 	}
 
 	public Collection<T> getAll() {
-		return Collections.unmodifiableCollection(listResources.values());
+		return Collections.unmodifiableCollection(resources.values());
 	}
 
-	public ResourceManager() {
-		this.named = new ConcurrentHashMap<String, T>();
-		this.listResources = new ConcurrentSkipListMap<Integer, T>();
-		this.resourceNumber = 0;
+	public Collection<T> getAccessible() {
+		return Collections.unmodifiableCollection(
+				resources.values().stream().filter((res) -> res.isAccessible()).collect(Collectors.toList()));
 	}
 
-	private ResourceManager(ResourceManager<T> source) {
-		this.named = new ConcurrentHashMap<String, T>(source.named);
-		this.listResources = new ConcurrentSkipListMap<Integer, T>(
-				source.listResources);
-		this.resourceNumber = source.resourceNumber;
+	public T copyOnWrite(T resource) {
+		resource.isShallowCopy = false;
+		T copy = resource.deepCopy();
+		resources.put(resource.number, copy);
+		return copy;
 	}
 
-	public ResourceManager<T> copy() {
-		return new ResourceManager<T>(this);
+	public ResourceManager<T> deepCopy() {
+		return copy(false);
+	}
+
+	public ResourceManager<T> shallowCopy() {
+		return copy(true);
+	}
+
+	private ResourceManager<T> copy(boolean isShallow) {
+		ResourceManager<T> copy = new ResourceManager<>();
+
+		copy.numberOfResources = this.numberOfResources;
+		for (Entry<Integer, T> entry : this.resources.entrySet()) {
+			copy.resources.put(entry.getKey(),
+					isShallow ? entry.getValue().shallowCopy() : entry.getValue().deepCopy());
+		}
+
+		return copy;
 	}
 
 	public boolean checkEqual(ResourceManager<T> other) {
-		if (this.listResources.size() != other.listResources.size())
+		if (this.resources.size() != other.resources.size())
 			return false;
 
-		Iterator<T> itThis = this.listResources.values().iterator();
-		Iterator<T> itOther = other.listResources.values().iterator();
+		Iterator<T> itThis = this.resources.values().iterator();
+		Iterator<T> itOther = other.resources.values().iterator();
 
-		for (int i = 0; i < this.listResources.size(); i++) {
+		for (int i = 0; i < this.resources.size(); i++) {
 			T resThis = itThis.next();
 			T resOther = itOther.next();
 

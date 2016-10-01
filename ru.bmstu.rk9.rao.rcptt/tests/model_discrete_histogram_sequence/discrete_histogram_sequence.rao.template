@@ -1,0 +1,26 @@
+enum E {
+	Rao,
+	X
+}
+
+type T {
+	E e
+}
+
+resource r = T.create(E.Rao)
+
+sequence histSeq = new DiscreteHistogram<E>(123456789,
+	#[E.Rao -> 100, E.X -> 20])
+
+event HistTestEvent() {
+	r.e = histSeq.next()
+	HistTestEvent.plan(currentTime + 1)
+}
+
+set init() {
+	HistTestEvent.plan(currentTime)
+}
+
+set terminateCondition() {
+	return currentTime > 100
+}

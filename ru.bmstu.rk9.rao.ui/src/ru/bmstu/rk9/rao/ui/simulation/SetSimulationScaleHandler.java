@@ -21,14 +21,12 @@ public class SetSimulationScaleHandler extends AbstractHandler {
 	}
 
 	private static void updateStatusView() {
-		StatusView.setValue("Simulation scale".intern(), 15,
-				scaleFormatter.format(simulationScale));
+		StatusView.setValue("Simulation scale".intern(), 15, scaleFormatter.format(simulationScale));
 	}
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		switch (event
-				.getParameter("ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter")) {
+		switch (event.getParameter("ru.bmstu.rk9.rao.ui.runtime.setSimulationScaleParameter")) {
 		case "+":
 			simulationScale *= 1.5;
 			break;

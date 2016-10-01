@@ -1,0 +1,20 @@
+type T {
+	double d
+}
+
+resource r = T.create(0);
+
+sequence normal = new Normal(123456789, 100, 30)
+
+event GenSeqTestEvent() {
+	r.d = normal.next()
+	GenSeqTestEvent.plan(currentTime + 5)
+}
+
+set init() {
+	GenSeqTestEvent.plan(currentTime)
+}
+
+set terminateCondition() {
+	return currentTime > 100
+}

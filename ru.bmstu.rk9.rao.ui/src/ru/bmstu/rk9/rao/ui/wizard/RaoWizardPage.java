@@ -8,8 +8,8 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -43,14 +43,12 @@ public class RaoWizardPage extends WizardPage {
 		projectNameLabel.setText("Project name:");
 
 		projectNameText = new Text(container, SWT.BORDER | SWT.SINGLE);
-		final GridData projectNameData = new GridData(SWT.FILL, SWT.CENTER,
-				true, false);
+		final GridData projectNameData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		projectNameText.setLayoutData(projectNameData);
 		projectNameText.setFocus();
 
 		final Group templateGroup = new Group(container, SWT.SHADOW_IN);
-		final GridData templateData = new GridData(SWT.FILL, SWT.CENTER, true,
-				false);
+		final GridData templateData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		templateData.horizontalSpan = 2;
 		templateGroup.setLayoutData(templateData);
 		templateGroup.setText("Templates");
@@ -73,43 +71,42 @@ public class RaoWizardPage extends WizardPage {
 		barberClientsButton.setText("Модель простейшей СМО с клиентами");
 		templates.put(barberClientsButton, TemplateType.BARBER_CLIENTS);
 
-		projectNameText.addKeyListener(new KeyListener() {
-
+		projectNameText.addModifyListener(new ModifyListener() {
 			@Override
-			public void keyReleased(KeyEvent e) {
-				String projectName = projectNameText.getText();
-				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-				if (projectName.isEmpty()) {
-					setDescription("Enter a project name");
-					setPageComplete(false);
-					return;
-				}
-				if (!isValidJavaIdentifier(projectName)) {
-					setDescription("Project name is not a valid Java identifier.");
-					setPageComplete(false);
-					return;
-				}
-				if (isJavaKeyword(projectName)) {
-					setDescription("Project name can not be a Java keyword.");
-					setPageComplete(false);
-					return;
-				}
-				if (root.getProject(projectName + "_project").exists()) {
-					setDescription("A project with this name already exists.");
-					setPageComplete(false);
-					return;
-				}
-				setDescription("Create a Rao project in the workspace.");
-				setPageComplete(true);
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
+			public void modifyText(ModifyEvent e) {
+				validate();
 			}
 		});
 
 		setControl(container);
 		setPageComplete(false);
+	}
+
+	private void validate() {
+		String projectName = projectNameText.getText();
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		if (projectName.isEmpty()) {
+			setDescription("Enter a project name");
+			setPageComplete(false);
+			return;
+		}
+		if (!isValidJavaIdentifier(projectName)) {
+			setDescription("Project name is not a valid Java identifier.");
+			setPageComplete(false);
+			return;
+		}
+		if (isJavaKeyword(projectName)) {
+			setDescription("Project name can not be a Java keyword.");
+			setPageComplete(false);
+			return;
+		}
+		if (root.getProject(projectName).exists()) {
+			setDescription("A project with this name already exists.");
+			setPageComplete(false);
+			return;
+		}
+		setDescription("Create a Rao project in the workspace.");
+		setPageComplete(true);
 	}
 
 	public String getProjectName() {
@@ -137,15 +134,12 @@ public class RaoWizardPage extends WizardPage {
 	}
 
 	private static boolean isJavaKeyword(String keyword) {
-		final String keywords[] = { "abstract", "assert", "boolean", "break",
-				"byte", "case", "catch", "char", "class", "const", "continue",
-				"default", "do", "double", "else", "enum", "extends", "false",
-				"final", "finally", "float", "for", "goto", "if", "implements",
-				"import", "instanceof", "int", "interface", "long", "native",
-				"new", "null", "package", "private", "protected", "public",
-				"return", "short", "static", "strictfp", "super", "switch",
-				"synchronized", "this", "throw", "throws", "transient", "true",
-				"try", "void", "volatile", "while" };
+		final String keywords[] = { "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class",
+				"const", "continue", "default", "do", "double", "else", "enum", "extends", "false", "final", "finally",
+				"float", "for", "goto", "if", "implements", "import", "instanceof", "int", "interface", "long",
+				"native", "new", "null", "package", "private", "protected", "public", "return", "short", "static",
+				"strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try",
+				"void", "volatile", "while" };
 		return (Arrays.binarySearch(keywords, keyword) >= 0);
 	}
 }

@@ -1,0 +1,20 @@
+type T {
+	String s
+}
+
+resource r = T.create("")
+
+sequence listSeq = new Values<String>(#["hello", ",", " ", "world", "!"]);
+
+event ListSeqTestEvent() {
+	r.s = listSeq.next();
+	ListSeqTestEvent.plan(currentTime + 5);
+}
+
+set init() {
+	ListSeqTestEvent.plan(currentTime);
+}
+
+set terminateCondition() {
+	return currentTime > 100
+}

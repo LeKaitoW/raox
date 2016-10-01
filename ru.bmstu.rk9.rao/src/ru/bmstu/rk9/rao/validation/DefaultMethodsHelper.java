@@ -15,21 +15,19 @@ public class DefaultMethodsHelper {
 	}
 
 	public static enum GlobalMethodInfo {
-		INIT("init", ValidatorAction.NOTHING), TERMINATE_CONDITION(
-				"terminateCondition", ValidatorAction.NOTHING);
+		INIT("init", ValidatorAction.NOTHING), TERMINATE_CONDITION("terminateCondition", ValidatorAction.NOTHING);
 
 		GlobalMethodInfo(String name, ValidatorAction validatorAction) {
 			this.name = name;
 			this.validatorAction = validatorAction;
 		}
 
-		final String name;
+		public final String name;
 		final ValidatorAction validatorAction;
 	}
 
 	public static enum OperationMethodInfo {
-		BEGIN("begin", ValidatorAction.NOTHING), END("end",
-				ValidatorAction.NOTHING), DURATION("duration",
+		BEGIN("begin", ValidatorAction.NOTHING), END("end", ValidatorAction.NOTHING), DURATION("duration",
 				ValidatorAction.NOTHING);
 
 		OperationMethodInfo(String name, ValidatorAction validatorAction) {
@@ -37,7 +35,7 @@ public class DefaultMethodsHelper {
 			this.validatorAction = validatorAction;
 		}
 
-		final String name;
+		public final String name;
 		final ValidatorAction validatorAction;
 	}
 
@@ -49,7 +47,43 @@ public class DefaultMethodsHelper {
 			this.validatorAction = validatorAction;
 		}
 
-		final String name;
+		public final String name;
+		final ValidatorAction validatorAction;
+	}
+
+	public static enum DptMethodInfo {
+		INIT("init", ValidatorAction.NOTHING);
+
+		DptMethodInfo(String name, ValidatorAction validatorAction) {
+			this.name = name;
+			this.validatorAction = validatorAction;
+		}
+
+		public final String name;
+		final ValidatorAction validatorAction;
+	}
+
+	public static enum FrameMethodInfo {
+		INIT("init", ValidatorAction.NOTHING), DRAW("draw", ValidatorAction.NOTHING);
+
+		FrameMethodInfo(String name, ValidatorAction validatorAction) {
+			this.name = name;
+			this.validatorAction = validatorAction;
+		}
+
+		public final String name;
+		final ValidatorAction validatorAction;
+	}
+	
+	public static enum ResultTypeMethodInfo {
+		EVALUATE("evaluate", ValidatorAction.NOTHING), CONDITION("condition", ValidatorAction.NOTHING);
+
+		ResultTypeMethodInfo(String name, ValidatorAction validatorAction) {
+			this.name = name;
+			this.validatorAction = validatorAction;
+		}
+
+		public final String name;
 		final ValidatorAction validatorAction;
 	}
 }
