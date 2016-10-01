@@ -2,7 +2,7 @@ package ru.bmstu.rk9.rao.lib.result;
 
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 
-public class StorelessNumericStatistics<T> extends Statistics<T> {
+public class StorelessNumericStatistics<T extends Number> extends Statistics<T> {
 	@Override
 	public void updateData(JSONObject data) {
 		data.put("Mean", getMean());
@@ -13,7 +13,7 @@ public class StorelessNumericStatistics<T> extends Statistics<T> {
 	
 	@Override
 	public void update(T value, double currentTime) {
-		next(((Number)value).doubleValue());
+		next(value.doubleValue());
 	}
 	
 	private int sum;

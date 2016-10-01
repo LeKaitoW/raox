@@ -292,6 +292,7 @@ public class ModelInternalsParser {
 			if (entity instanceof ru.bmstu.rk9.rao.rao.Result) {
 				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.RESULTS)
 						.put(new JSONObject().put(ModelStructureConstants.NAME, name));
+				continue;
 			}
 		}
 
