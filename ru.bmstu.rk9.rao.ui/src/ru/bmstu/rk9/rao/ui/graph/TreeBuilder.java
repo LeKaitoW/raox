@@ -11,15 +11,19 @@ import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
+import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.ui.trace.StringJoiner;
 import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
 import ru.bmstu.rk9.rao.ui.trace.Tracer;
 
 public class TreeBuilder {
-	TreeBuilder(int dptNumber) {
+	TreeBuilder(int dptNumber, boolean useShortNames) {
 		this.dptNumber = dptNumber;
+		this.useShortNames = useShortNames;
 	}
+
+	private final boolean useShortNames;
 
 	public final boolean updateTree() {
 		List<Entry> entries = CurrentSimulator.getDatabase().getAllEntries();
@@ -133,7 +137,7 @@ public class TreeBuilder {
 					final String name = CurrentSimulator.getStaticModelData().getResourceName(typeNum, resNum);
 					final String resourceName = name != null ? name : typeName + Tracer.encloseIndex(resNum);
 
-					relResStringJoiner.add(resourceName);
+					relResStringJoiner.add(NamingHelper.convertName(resourceName, useShortNames));
 				}
 
 				Node parentNode = nodeByNumber.get(parentNumber);

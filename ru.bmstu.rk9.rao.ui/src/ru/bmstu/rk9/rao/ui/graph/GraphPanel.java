@@ -41,8 +41,10 @@ import com.mxgraph.view.mxGraph;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.IndexType;
+import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
@@ -135,7 +137,9 @@ public class GraphPanel extends JPanel implements GraphApi {
 
 		setProportions();
 
-		treeBuilder = new TreeBuilder(dptNum);
+		final boolean useShortNames = CurrentSimulator.getStaticModelData().getModelStructure()
+				.getInt(ModelStructureConstants.NUMBER_OF_MODELS) == 1;
+		treeBuilder = new TreeBuilder(dptNum, useShortNames);
 		isFinished = treeBuilder.updateTree();
 
 		graph = new mxGraph();
