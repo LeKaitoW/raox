@@ -148,8 +148,9 @@ public class PlotDataParser {
 			final ByteBuffer header = Tracer.prepareBufferForReading(currentEntry.getHeader());
 
 			Tracer.skipPart(header, TypeSize.BYTE);
-			final ResultType resultType = ResultType.values()[header.get()];
+			Tracer.skipPart(header, TypeSize.INT);
 			final double time = header.getDouble();
+			final ResultType resultType = ResultType.values()[header.get()];
 
 			PlotItem item = null;
 			switch (resultType) {

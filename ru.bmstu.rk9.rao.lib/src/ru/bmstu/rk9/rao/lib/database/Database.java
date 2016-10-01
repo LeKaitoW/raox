@@ -200,7 +200,7 @@ public class Database {
 				0), PATTERN(TypeSize.BYTE * 2 + TypeSize.DOUBLE, TypeSize.INT * 5), EVENT(
 						TypeSize.BYTE * 2 + TypeSize.DOUBLE,
 						TypeSize.INT * 2), SEARCH(TypeSize.BYTE * 2 + TypeSize.INT * 2 + TypeSize.DOUBLE, 0), RESULT(
-								TypeSize.BYTE + TypeSize.BYTE + TypeSize.DOUBLE,
+								TypeSize.BYTE + TypeSize.INT + TypeSize.DOUBLE + TypeSize.BYTE,
 								0), PROCESS(TypeSize.BYTE + TypeSize.DOUBLE + TypeSize.BYTE + TypeSize.INT, 0);
 
 		public final int HEADER_SIZE;
@@ -603,7 +603,7 @@ public class Database {
 		final ResultIndex index = (ResultIndex) indexHelper.getResult(name).getIndex();
 
 		final ByteBuffer header = ByteBuffer.allocate(EntryType.RESULT.HEADER_SIZE);
-		header.put((byte) EntryType.RESULT.ordinal());
+		header.put((byte) EntryType.RESULT.ordinal()).putInt(index.getNumber()).putDouble(CurrentSimulator.getTime());
 
 		ByteBuffer data;
 		if (value instanceof Number) {
@@ -620,7 +620,6 @@ public class Database {
 			data.putInt(valueBytesLen);
 			data.put(valueBytes);
 		}
-		header.putDouble(CurrentSimulator.getTime());
 
 		final Entry entry = new Entry(header, data);
 
