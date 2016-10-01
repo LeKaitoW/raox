@@ -47,15 +47,50 @@ public class PlotDataParser {
 	}
 
 	public final static class DataParserResult {
-		DataParserResult(final List<PlotItem> dataset, boolean axisChanged, List<String> axisValues) {
+		DataParserResult(final List<PlotItem> dataset, AxisHelper axisHelper) {
 			this.dataset = dataset;
+			this.axisHelper = axisHelper;
+		}
+
+		public final List<PlotItem> dataset;
+		public final AxisHelper axisHelper;
+	}
+
+	public final static class AxisHelper {
+		AxisHelper(boolean axisChanged, List<String> axisValues) {
 			this.axisChanged = axisChanged;
 			this.axisValues = axisValues;
 		}
 
 		public final boolean axisChanged;
 		public final List<String> axisValues;
-		public final List<PlotItem> dataset;
+	}
+
+	private final static class SymbolAxisEntry {
+		SymbolAxisEntry(int value, AxisHelper axisHelper) {
+			this.value = value;
+			this.axisHelper = axisHelper;
+		}
+
+		public final int value;
+		public final AxisHelper axisHelper;
+	}
+
+	private SymbolAxisEntry stringToSymbolAxisEntry(String descriptor) {
+		boolean axisChanged = false;
+		List<String> axisValues = null;
+
+		int value;
+		if (uniqueValues.containsKey(descriptor)) {
+			value = uniqueValues.get(descriptor);
+		} else {
+			value = uniqueValues.size();
+			uniqueValues.put(descriptor, value);
+			axisChanged = true;
+			axisValues = Lists.newArrayList(uniqueValues.keySet());
+		}
+
+		return new SymbolAxisEntry(value, new AxisHelper(axisChanged, axisValues));
 	}
 
 	public final static class ParseInfo {
@@ -130,7 +165,7 @@ public class PlotDataParser {
 			currentItemNumber++;
 		}
 
-		return new ParseInfo(new DataParserResult(dataset, false, null), currentItemNumber);
+		return new ParseInfo(new DataParserResult(dataset, new AxisHelper(false, null)), currentItemNumber);
 	}
 
 	private ParseInfo parseResult(final ResultIndex resultIndex, final int startItemNumber) {
@@ -138,8 +173,7 @@ public class PlotDataParser {
 		final List<Integer> entriesNumbers = resultIndex.getEntryNumbers();
 		final List<Entry> allEntries = CurrentSimulator.getDatabase().getAllEntries();
 
-		boolean axisChanged = false;
-		List<String> axisValues = null;
+		AxisHelper axisHelper = new AxisHelper(false, null);
 
 		while (currentItemNumber < entriesNumbers.size()) {
 			int currentEntryNumber = entriesNumbers.get(currentItemNumber);
@@ -162,16 +196,10 @@ public class PlotDataParser {
 					rawString[i] = data.get(TypeSize.INT + i);
 				String descriptor = new String(rawString, StandardCharsets.UTF_8);
 
-				int value;
-				if (uniqueValues.containsKey(descriptor)) {
-					value = uniqueValues.get(descriptor);
-				} else {
-					value = uniqueValues.size();
-					uniqueValues.put(descriptor, value);
-					axisChanged = true;
-					axisValues = Lists.newArrayList(uniqueValues.keySet());
-				}
-				item = new PlotItem(time, value);
+				SymbolAxisEntry entry = stringToSymbolAxisEntry(descriptor);
+				axisHelper = entry.axisHelper.axisChanged ? entry.axisHelper : axisHelper;
+
+				item = new PlotItem(time, entry.value);
 				break;
 			case NUMBER:
 				final double dataValue = data.getDouble();
@@ -185,7 +213,7 @@ public class PlotDataParser {
 			currentItemNumber++;
 		}
 
-		return new ParseInfo(new DataParserResult(dataset, axisChanged, axisValues), currentItemNumber);
+		return new ParseInfo(new DataParserResult(dataset, axisHelper), currentItemNumber);
 	}
 
 	private ParseInfo parseResourceParameter(final ResourceIndex resourceIndex, final int typeNumber,
@@ -198,9 +226,7 @@ public class PlotDataParser {
 				parameterNumber);
 		final int finalOffset = CurrentSimulator.getStaticModelData().getResourceTypeFinalOffset(typeNumber);
 
-		boolean axisChanged = false;
-		List<String> axisValues = null;
-		int value;
+		AxisHelper axisHelper = new AxisHelper(false, null);
 
 		while (currentItemNumber < entriesNumbers.size()) {
 			int currentEntryNumber = entriesNumbers.get(currentItemNumber);
@@ -226,15 +252,10 @@ public class PlotDataParser {
 			case BOOLEAN:
 				String boolValueStr = data.get(parameterOffset) != 0 ? "true" : "false";
 
-				if (uniqueValues.containsKey(boolValueStr)) {
-					value = uniqueValues.get(boolValueStr);
-				} else {
-					value = uniqueValues.size();
-					uniqueValues.put(boolValueStr, value);
-					axisChanged = true;
-					axisValues = Lists.newArrayList(uniqueValues.keySet());
-				}
-				item = new PlotItem(time, value);
+				SymbolAxisEntry boolValueEntry = stringToSymbolAxisEntry(boolValueStr);
+				axisHelper = boolValueEntry.axisHelper.axisChanged ? boolValueEntry.axisHelper : axisHelper;
+
+				item = new PlotItem(time, boolValueEntry.value);
 				break;
 			case OTHER:
 				final int index = CurrentSimulator.getStaticModelData().getVariableWidthParameterIndex(typeNumber,
@@ -247,15 +268,10 @@ public class PlotDataParser {
 					rawString[i] = data.get(stringPosition + TypeSize.INT + i);
 				String descriptor = new String(rawString, StandardCharsets.UTF_8);
 
-				if (uniqueValues.containsKey(descriptor)) {
-					value = uniqueValues.get(descriptor);
-				} else {
-					value = uniqueValues.size();
-					uniqueValues.put(descriptor, value);
-					axisChanged = true;
-					axisValues = Lists.newArrayList(uniqueValues.keySet());
-				}
-				item = new PlotItem(time, value);
+				SymbolAxisEntry entry = stringToSymbolAxisEntry(descriptor);
+				axisHelper = entry.axisHelper.axisChanged ? entry.axisHelper : axisHelper;
+
+				item = new PlotItem(time, entry.value);
 
 				break;
 			default:
@@ -266,6 +282,6 @@ public class PlotDataParser {
 			currentItemNumber++;
 		}
 
-		return new ParseInfo(new DataParserResult(dataset, axisChanged, axisValues), currentItemNumber);
+		return new ParseInfo(new DataParserResult(dataset, axisHelper), currentItemNumber);
 	}
 }

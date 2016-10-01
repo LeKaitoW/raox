@@ -34,8 +34,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.PatternIndex;
-import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
-import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
@@ -157,11 +155,11 @@ public class PlotView extends ViewPart {
 				return;
 
 			final DataParserResult dataParserResult = plotDataParser.parseEntries();
-			if (dataParserResult.axisChanged) {
+			if (dataParserResult.axisHelper.axisChanged) {
 				XYPlot plot = (XYPlot) plotFrame.getChart().getPlot();
 				SymbolAxis rangeAxis;
-				String[] labels = new String[dataParserResult.axisValues.size()];
-				labels = dataParserResult.axisValues.toArray(labels);
+				String[] labels = new String[dataParserResult.axisHelper.axisValues.size()];
+				labels = dataParserResult.axisHelper.axisValues.toArray(labels);
 
 				final String fontName = plotFrame.getChart().getTitle().getFont().getName();
 
