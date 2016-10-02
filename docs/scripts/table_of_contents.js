@@ -152,6 +152,10 @@ function getUserGuideContents() {
         {
             "href":"../user_guide/model_import.html",
             "title":"Импорт модели"
+        },
+        {
+            "href":"../user_guide/show_animation.html",
+            "title":"Включить анимацию"
         }
     ];
 
