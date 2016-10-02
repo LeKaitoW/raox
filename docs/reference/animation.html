@@ -10,56 +10,97 @@
 </head>
 <body>
 <h2>Анимация</h2>
-<p>Описание кадра анимации имеет следующий вид:</p>
-<pre><code class="rao">frame <i>имя_кадра</i> {
-    <i>тело_кадра</i>
-}</code></pre>
-<p>В модели может быть несколько кадров. В процессе прогона отображается выбранный из списка. В теле кадра с помощью процедурного языка и специальных функций для отрисовки описывается изображение.</p>
-<h3>Функции для отрисовки</h3>
+<p>В модели может быть несколько кадров. В процессе прогона отображается выбранный из списка. Описание кадра анимации имеет следующий вид:</p>
+<pre><code class="rao">frame <i>Имя_кадра</i> {
+    set init() {
+        <i>блок_инициализации</i>
+    }
+    set draw() {
+        <i>тело_кадра</i>
+    }
+}
+</code></pre>
+<h3>Блок инициализации</h3>
+<p>Используется для задания фона и размеров фрейма:</p>
+<pre><code class="rao">set init() {
+    background = new Background(800, 600, RaoColor.WHITE)
+}
+</code></pre>
+
+<h3>Тело кадра</h3>
+<p>В теле кадра, с помощью процедурного языка и специальных функций для отрисовки, описывается изображение.</p>
 <table style="width:100%">
     <tr>
-        <th width="20%">Сигнатура</th>
-        <th width="30%">Описание</th>
+        <th width="30%">Сигнатура</th>
+        <th width="20%">Описание</th>
         <th width="50%">Параметры</th>
     </tr>
     <tr>
-        <td><pre><code class="rao">Color(
-        int r,
-        int g,
-        int b
-        [, int alpha])</code></pre></td>
-        <td>Задание цвета в модели <a href="https://ru.wikipedia.org/wiki/RGB">RGB</a></td>
+        <td><pre><code class="rao">new RaoColor(int r, int g, int b)
+
+new RaoColor(int r, int g, int b, int alpha)</code></pre></td>
+        <td>Создает цвет в модели <a href="https://ru.wikipedia.org/wiki/RGB">RGB</a></td>
         <td>
             <table style="width:100%">
                 <tr>
-                    <td width="35%"><code class="rao">r</code></td>
+                    <td width="20%"><code class="rao">r</code></td>
                     <td>интенсивность красного цвета в интервале от 0 до 255</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">g</code></td>
+                    <td><code class="rao">g</code></td>
                     <td>интенсивность зеленого цвета в интервале от 0 до 255</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">b</code></td>
+                    <td><code class="rao">b</code></td>
                     <td>интенсивность синего цвета от в интервале 0 до 255</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">alpha</code></td>
-                    <td><a href="https://en.wikipedia.org/wiki/RGBA_Color_space">прозрачность</a> в интервале от 0 до 255</td>
+                    <td><code class="rao">alpha</code></td>
+                    <td><a href="https://en.wikipedia.org/wiki/RGBA_color_space">прозрачность</a> в интервале от 0 до 255</td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <table style="windth:100%">
+                            <tr>
+                                <td colspan="2">Встроенные цвета</td>
+                            </tr>
+                            <tr>
+                                <td width=50%>
+<pre><code class="rao">RaoColor.WHITE
+RaoColor.BLUE
+RaoColor.CYAN
+RaoColor.GRAY
+RaoColor.GREEN
+RaoColor.MAGENTA
+RaoColor.RED
+RaoColor.YELLOW
+</code></pre>
+                                </td>
+                                <td>
+<pre><code class="rao">RaoColor.BLACK
+RaoColor.DARK_BLUE
+RaoColor.DARK_CYAN
+RaoColor.DARK_GRAY
+RaoColor.DARK_GREEN
+RaoColor.DARK_MAGENTA
+RaoColor.DARK_RED
+RaoColor.DARK_YELLOW
+</code></pre>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
                 </tr>
             </table>
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">background(
-        int width,
-        int height,
-        Color c)</code></pre></td>
-        <td>Задание фона кадра. Должна вызываться первой.</td>
+        <td><pre><code class="rao">new Background(int width, int height, RaoColor color)</code></pre></td>
+        <td>Определяет фона кадра. Должна вызываться в <code class="rao">init()</code>.</td>
         <td>
             <table style="width:100%">
                 <tr>
-                    <td width="35%"><code class="rao">width</code></td>
+                    <td width="20%"><code class="rao">width</code></td>
                     <td>ширина кадра</td>
                 </tr>
                 <tr>
@@ -67,346 +108,329 @@
                     <td>высота кадра</td>
                 </tr>
                 <tr>
-                    <td><code class="rao">c</code></td>
+                    <td><code class="rao">color</code></td>
                     <td>цвет кадра</td>
                 </tr>
             </table>
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">text(
-        String text,
-        double x,
-        double y,
-        Color textColor
-        [, double width, alignment a])</code></pre></td>
-        <td>Отрисовка текста</td>
+        <td><pre><code class="rao">drawText(String text, double x, double y)
+  
+drawText(String text, double x, double y,
+  RaoColor color)
+    
+drawText(String text, double x, double y,
+  RaoColor color, double width, Alignment alignment)</code></pre></td>
+        <td>Выводит текст</td>
         <td>
             <table style="width:100%">
                 <tr>
-                    <td width="35%"><code class="rao">text</code></td>
+                    <td width="20%"><code class="rao">text</code></td>
                     <td>текст</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">x</code></td>
+                    <td><code class="rao">x</code></td>
                     <td>координата <code>x</code> верхнего левого угла панели текста</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">y</code></td>
+                    <td><code class="rao">y</code></td>
                     <td>координата <code>y</code> верхнего левого угла панели текста</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">textColor</code></td>
+                    <td><code class="rao">color</code></td>
                     <td>цвет текста</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">width</code></td>
+                    <td><code class="rao">width</code></td>
                     <td>ширина панели текста, по которой производится выравнивание</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">alignment</code></td>
-                    <td>выравнивание текста в панели, задается одним из значений <code class="rao">left</code>, <code class="rao">center</code> или <code class="rao">right</code></td>
+                    <td><code class="rao">alignment</code></td>
+                    <td>выравнивание текста в панели, задается одним из значений <pre><code class="rao">Alignment.LEFT
+Alignment.RIGHT
+Alignment.CENTER</code></pre></td>
                 </tr>
             </table>
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">line(
-        double x1,
-        double y1,
-        double x2,
-        double y2,
-        Color c)</code></pre></td>
-        <td>Отрисовка отрезка</td>
+        <td><pre><code class="rao">drawLine(double x1, double y1, double x2, double y2)
+
+drawLine(double x1, double y1, double x2, double y2,
+  RaoColor color)</code></pre></td>
+        <td>Выводит отрезок</td>
         <td>
             <table style="width:100%">
                 <tr>
-                    <td width="35%"><code class="rao">x1</code></td>
+                    <td width="20%"><code class="rao">x1</code></td>
                     <td>координата <code>x</code> первой точки отрезка</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">y1</code></td>
+                    <td><code class="rao">y1</code></td>
                     <td>координата <code>y</code> первой точки отрезка</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">x2</code></td>
+                    <td><code class="rao">x2</code></td>
                     <td>координата <code>x</code> второй точки отрезка</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">y2</code></td>
+                    <td><code class="rao">y2</code></td>
                     <td>координата <code>y</code> второй точки отрезка</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">c</code></td>
+                    <td><code class="rao">color</code></td>
                     <td>цвет отрезка</td>
                 </tr>
             </table>
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">rectangle(
-        double x,
-        double y,
-        double width,
-        double height,
-        Color fillColor,
-        Color borderColor)</code></pre></td>
-        <td>Отрисовка прямоугольника</td>
+        <td><pre><code class="rao">drawRectangle(double x, double y,
+  double width, double height)
+        
+drawRectangle(double x, double y,
+  double width, double height,
+  RaoColor fillColor,
+  RaoColor borderColor)</code></pre></td>
+        <td>Выводит прямоугольник</td>
         <td>
             <table style="width:100%">
                 <tr>
-                    <td width="35%"><code class="rao">x</code></td>
+                    <td width="20%"><code class="rao">x</code></td>
                     <td>координата <code>x</code> левой верхней точки прямоугольника</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">y</code></td>
+                    <td><code class="rao">y</code></td>
                     <td>координата <code>y</code> левой верхней точки прямоугольника</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">width</code></td>
+                    <td><code class="rao">width</code></td>
                     <td>ширина прямоугольника</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">height</code></td>
+                    <td><code class="rao">height</code></td>
                     <td>высота прямоугольника</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">fillColor</code></td>
+                    <td><code class="rao">fillColor</code></td>
                     <td>цвет фона прямоугольника</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">borderColor</code></td>
+                    <td><code class="rao">borderColor</code></td>
                     <td>цвет границы прямоугольника</td>
                 </tr>
             </table>
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">circle(
-        double x,
-        double y,
-        double radius,
-        Color fillColor,
-        Color borderColor)</code></pre></td>
-        <td>Отрисовка круга</td>
+        <td><pre><code class="rao">drawTriangle(double x1, double y1,
+  double x2, double y2,
+  double x3, double y3)
+  
+drawTriangle(double x1, double y1,
+  double x2, double y2,
+  double x3, double y3,
+  RaoColor fillColor, RaoColor borderColor)</code></pre></td>
+        <td>Выводит треугольник</td>
         <td>
             <table style="width:100%">
                 <tr>
-                    <td width="35%"><code class="rao">x</code></td>
+                    <td width="20%"><code class="rao">x1</code></td>
+                    <td>координата <code>x</code> первой вершины треугольника</td>
+                </tr>
+                <tr>
+                    <td><code class="rao">y1</code></td>
+                    <td>координата <code>y</code> первой вершины треугольника</td>
+                </tr>
+                <tr>
+                    <td><code class="rao">x2</code></td>
+                    <td>координата <code>x</code> второй вершины треугольника</td>
+                </tr>
+                <tr>
+                    <td><code class="rao">y2</code></td>
+                    <td>координата <code>y</code> второй вершины треугольника</td>
+                </tr>
+                <tr>
+                    <td><code class="rao">x3</code></td>
+                    <td>координата <code>x</code> третьей вершины треугольника</td>
+                </tr>
+                <tr>
+                    <td><code class="rao">y3</code></td>
+                    <td>координата <code>y</code> третьей вершины треугольника</td>
+                </tr>
+                <tr>
+                    <td><code class="rao">fillColor</code></td>
+                    <td>цвет фона треугольника</td>
+                </tr>
+                <tr>
+                    <td><code class="rao">borderColor</code></td>
+                    <td>цвет границы треугольника</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">drawCircle(double x, double y, double radius)
+
+drawCircle(double x, double y, double radius,
+  RaoColor fillColor, RaoColor borderColor)</code></pre></td>
+        <td>Выводит круг</td>
+        <td>
+            <table style="width:100%">
+                <tr>
+                    <td width="20%"><code class="rao">x</code></td>
                     <td>координата <code>x</code> центра круга</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">y</code></td>
+                    <td><code class="rao">y</code></td>
                     <td>координата <code>y</code> центра круга</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">radius</code></td>
+                    <td><code class="rao">radius</code></td>
                     <td>радиус круга</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">fillColor</code></td>
+                    <td><code class="rao">fillColor</code></td>
                     <td>цвет фона круга</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">borderColor</code></td>
+                    <td><code class="rao">borderColor</code></td>
                     <td>цвет границы круга</td>
                 </tr>
             </table>
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">ellipse(
-        double x,
-        double y,
-        double width,
-        double height,
-        Color fillColor,
-        Color borderColor)</code></pre></td>
-        <td>Отрисовка эллипса</td>
+        <td><pre><code class="rao">drawEllipse(double x, double y,
+  double width, double height)
+
+drawEllipse(double x, double y,
+  double width, double height,
+  RaoColor fillColor, RaoColor borderColor)</code></pre></td>
+        <td>Выводит эллипс</td>
         <td>
             <table style="width:100%">
                 <tr>
-                    <td width="35%"><code class="rao">x</code></td>
+                    <td width="20%"><code class="rao">x</code></td>
                     <td>координата <code>x</code> левого верхнего угла прямоугольника, в который вписан эллипс</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">y</code></td>
+                    <td><code class="rao">y</code></td>
                     <td>координата <code>y</code> левого верхнего угла прямоугольника, в который вписан эллипс</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">width</code></td>
+                    <td><code class="rao">width</code></td>
                     <td>длина горизонтальной оси эллипса</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">height</code></td>
+                    <td><code class="rao">height</code></td>
                     <td>длина вертикальной оси эллипса</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">fillColor</code></td>
+                    <td><code class="rao">fillColor</code></td>
                     <td>цвет фона эллипса</td>
                 </tr>
                 <tr>
-                    <td width="35%"><code class="rao">borderColor</code></td>
+                    <td><code class="rao">borderColor</code></td>
                     <td>цвет границы эллипса</td>
                 </tr>
             </table>
         </td>
     </tr>
-    <tr>
-        <td><pre><code class="rao">triangle(
-        double x1,
-        double y1,
-        double x2,
-        double y2,
-        double x3,
-        double y3,
-        Color fillColor,
-        Color borderColor)</code></pre></td>
-        <td>Отрисовка треугольника</td>
-        <td>
-            <table style="width:100%">
-                <tr>
-                    <td width="35%"><code class="rao">x1</code></td>
-                    <td>координата <code>x</code> первой вершины треугольника</td>
-                </tr>
-                <tr>
-                    <td width="35%"><code class="rao">y1</code></td>
-                    <td>координата <code>y</code> первой вершины треугольника</td>
-                </tr>
-                <tr>
-                    <td width="35%"><code class="rao">x2</code></td>
-                    <td>координата <code>x</code> второй вершины треугольника</td>
-                </tr>
-                <tr>
-                    <td width="35%"><code class="rao">y2</code></td>
-                    <td>координата <code>y</code> второй вершины треугольника</td>
-                </tr>
-                <tr>
-                    <td width="35%"><code class="rao">x3</code></td>
-                    <td>координата <code>x</code> третьей вершины треугольника</td>
-                </tr>
-                <tr>
-                    <td width="35%"><code class="rao">y3</code></td>
-                    <td>координата <code>y</code> третьей вершины треугольника</td>
-                </tr>
-                <tr>
-                    <td width="35%"><code class="rao">fillColor</code></td>
-                    <td>цвет фона треугольника</td>
-                </tr>
-                <tr>
-                    <td width="35%"><code class="rao">borderColor</code></td>
-                    <td>цвет границы треугольника</td>
-                </tr>
-            </table>
-        </td>
-    </tr>
 </table>
-<h3>Встроенные цвета</h3>
-<p>Помимо явного задания цвета в модели RGB, возможен выбор одного из встроенных цветов.</p>
-<pre><code class="rao">Color.VALUE</code></pre>
-<p>Список доступных встроенных цветов:</p>
-<ul>
-    <li>BLACK</li>
-    <li>BLUE</li>
-    <li>CYAN</li>
-    <li>DARK_BLUE</li>
-    <li>DARK_CYAN</li>
-    <li>DARK_GRAY</li>
-    <li>DARK_GREEN</li>
-    <li>DARK_MAGENTA</li>
-    <li>DARK_RED</li>
-    <li>DARK_YELLOW</li>
-    <li>GRAY</li>
-    <li>GREEN</li>
-    <li>MAGENTA</li>
-    <li>RED</li>
-    <li>WHITE</li>
-    <li>YELLOW</li>
-</ul>
+
 <h3>Пример</h3>
-<pre><code class="rao">event timer() {
-    timer.plan(currentTime + 1);
+<pre><code class="rao">event Timer() {
+    Timer.plan(currentTime + 1);
 }
 
 set init() {
-    timer.plan(currentTime + 1);
+    Timer.plan(currentTime + 1);
 }
 
 set terminateCondition() {
     return currentTime > 200;
 }
 
-frame whosthat {
-    background(300, 300, Color.WHITE);
+frame WhosThat {
+    set init() {
+        background = new Background(300, 300, RaoColor.WHITE);
+    }
 
-    double dy = Math.abs(4 - currentTime % 8);
-    double dx = Math.abs(8 - currentTime % 16);
+    set draw() {
+        val dy = Math.abs(4 - currentTime % 8) as int;
+        val dx = Math.abs(8 - currentTime % 16) as int;
+        val bodyColor = new RaoColor(255, 153, 188);
+        val mouthColor = new RaoColor(242, 245, 207);
 
-    /* tail */
-    triangle(255, 170 + dy, 290, 40 + dy, 200, 150 + dy, Color(255, 153, 188), Color(255, 153, 188));
-    line(255, 170 + dy, 290, 40 + dy, Color.BLACK);
+        /* tail */
+        drawTriangle(255 + dx, 170 + dy, 290, 40 + dy, 200, 150 + dy, bodyColor, bodyColor);
+        drawLine(255 + dx, 170 + dy, 290, 40 + dy, RaoColor.BLACK);
 
-    triangle(100, 20 + dy, 290, 40 + dy, 275, 75 + dy, Color(255, 153, 188), Color(255, 153, 188));
-    triangle(100, 20 + dy, 140, 24 + dy, 130, 30 + dy, Color.WHITE, Color.WHITE);
-    line(100, 20 + dy, 290, 40 + dy, Color.BLACK);
-    line(100, 20 + dy, 265, 72 + dy, Color.BLACK);
+        drawTriangle(100 + dx, 20 + dy, 290, 40 + dy, 275, 75 + dy, bodyColor, bodyColor);
+        drawTriangle(100 + dx, 20 + dy, 140, 24 + dy, 130, 30 + dy, RaoColor.WHITE, RaoColor.WHITE);
+        drawLine(100 + dx, 20 + dy, 290, 40 + dy, RaoColor.BLACK);
+        drawLine(100 + dx, 20 + dy, 265, 72 + dy, RaoColor.BLACK);
 
-    triangle(250, 220 + dy, 270, 40 + dy, 200, 150 + dy, Color(255, 153, 188), Color(255, 153, 188));
-    line(250, 68 + dy, 220, 120 + dy, Color.BLACK);
+        drawTriangle(250 + dx, 220 + dy, 270, 40 + dy, 200, 150 + dy, bodyColor, bodyColor);
+        drawLine(250 + dx, 68 + dy, 220, 120 + dy, RaoColor.BLACK);
 
-    /* right back leg */
-    triangle(220, 220 + dy, 245 + dx, 255 + dy, 260, 183 + dy, Color(255, 153, 188), Color(255, 153, 188));
+        /* right back leg */
+        drawTriangle(220 + dx, 220 + dy, 245 + dx, 255 + dy, 260, 183 + dy, bodyColor, bodyColor);
 
-    /* body */
-    ellipse(30, 100 + dy, 230, 150, Color(255, 153, 188), Color.BLACK);
+        /* body */
+        drawEllipse(30 + dx, 100 + dy, 230, 150, bodyColor, RaoColor.BLACK);
 
-    /* right back leg partially-behind effect */
-    triangle(240, 220 + dy, 245 + dx, 255 + dy, 260, 183 + dy, Color(255, 153, 188), Color(255, 153, 188));
-    triangle(233, 243 + dy, 245 + dx, 255 + dy, 255, 245 + dy, Color.WHITE, Color.WHITE);
-    line(226, 228 + dy, 245 + dx, 255 + dy, Color.BLACK);
-    line(245 + dx, 255 + dy, 260, 183 + dy, Color.BLACK);
+        /* right back leg partially-behind effect */
+        drawTriangle(240 + dx, 220 + dy, 245 + dx, 255 + dy, 260, 183 + dy, bodyColor, bodyColor);
+        drawTriangle(233 + dx, 243 + dy, 245 + dx, 255 + dy, 255, 245 + dy, RaoColor.WHITE, RaoColor.WHITE);
+        drawLine(226 + dx, 228 + dy, 245 + dx, 255 + dy, RaoColor.BLACK);
+        drawLine(245 + dx * 2, 255 + dy, 260, 183 + dy, RaoColor.BLACK);
 
-    /* left ear */
-    circle(35, 150 + dy, 40, Color(255, 153, 188), Color.BLACK);
+        /* left ear */
+        drawCircle(35 + dx, 150 + dy, 40, bodyColor, RaoColor.BLACK);
 
-    /* head */
-    ellipse(7, 127 + dy, 135, 125, Color(255, 153, 188), Color.BLACK);
+        /* head */
+        drawEllipse(7 + dx, 127 + dy, 135, 125, bodyColor, RaoColor.BLACK);
 
-    /* right ear */
-    circle(120, 150 + dy, 40, Color(255, 153, 188), Color.BLACK);
-    circle(120, 150 + dy, 20, Color(255, 153, 188), Color.BLACK);
+        /* right ear */
+        drawCircle(120 + dx, 150 + dy, 40, bodyColor, RaoColor.BLACK);
+        drawCircle(120 + dx, 150 + dy, 20, bodyColor, RaoColor.BLACK);
 
-    /* left eye */
-    circle(23, 180 + dy, 30, Color.WHITE, Color.BLACK);
-    circle(28, 180 + dy, 2, Color.BLACK, Color.BLACK);
+        /* left eye */
+        drawCircle(23 + dx, 180 + dy, 30, RaoColor.WHITE, RaoColor.BLACK);
+        drawCircle(28 + dx, 180 + dy, 2, RaoColor.BLACK, RaoColor.BLACK);
 
-    /* right eye */
-    circle(80, 180 + dy, 30, Color.WHITE, Color.BLACK);
-    circle(78, 180 + dy, 2, Color.BLACK, Color.BLACK);
+        /* right eye */
+        drawCircle(80 + dx, 180 + dy, 30, RaoColor.WHITE, RaoColor.BLACK);
+        drawCircle(78 + dx, 180 + dy, 2, RaoColor.BLACK, RaoColor.BLACK);
 
-    /* left front leg */
-    triangle(10, 225 + dy, 1 - dx, 265 + dy, 80, 225 + dy, Color(255, 153, 188), Color(255, 153, 188));
-    triangle(0, 255 + dy, 1 - dx, 265 + dy, 15, 258 + dy, Color.WHITE, Color.WHITE);
-    line(10, 225 + dy, 1 - dx, 265 + dy, Color.BLACK);
-    line(1 - dx, 265 + dy, 80, 225 + dy, Color.BLACK);
+        /* left front leg */
+        drawTriangle(10 + dx, 225 + dy, 1 - dx, 265 + dy, 80, 225 + dy, bodyColor, bodyColor);
+        drawTriangle(0 + dx, 255 + dy, 1 - dx, 265 + dy, 15, 258 + dy, RaoColor.WHITE, RaoColor.WHITE);
+        drawLine(10 + dx, 225 + dy, 1 - dx, 265 + dy, RaoColor.BLACK);
+        drawLine(1, 265 + dy, 80, 225 + dy, RaoColor.BLACK);
 
-    /* mouth area */
-    ellipse(1, 188 + dy, 100, 70, Color(242, 245, 207), Color.BLACK);
-    triangle(10, 225 + dy, 45, 250 + dy, 70, 225 + dy, Color(255, 153, 188), Color.BLACK);
+        /* mouth area */
+        drawEllipse(1 + dx, 188 + dy, 100, 70, mouthColor, RaoColor.BLACK);
+        drawTriangle(10 + dx, 225 + dy, 45, 250 + dy, 70, 225 + dy, bodyColor, RaoColor.BLACK);
 
-    /* nose */
-    line(20, 214 + dy, 27, 217 + dy, Color.BLACK);
-    line(38, 217 + dy, 44, 214 + dy, Color.BLACK);
+        /* nose */
+        drawLine(20 + dx, 214 + dy, 27, 217 + dy, RaoColor.BLACK);
+        drawLine(38 + dx, 217 + dy, 44, 214 + dy, RaoColor.BLACK);
 
-    /* teeth */
-    triangle(15, 225 + dy, 20, 230 + dy, 25, 225 + dy, Color.WHITE, Color.BLACK);
-    triangle(50, 225 + dy, 55, 230 + dy, 60, 225 + dy, Color.WHITE, Color.BLACK);
+        /* teeth */
+        drawTriangle(15 + dx, 225 + dy, 20 + dx, 230 + dy, 25 + dx, 225 + dy, RaoColor.WHITE, RaoColor.BLACK);
+        drawTriangle(50 + dx, 225 + dy, 55 + dx, 230 + dy, 60 + dx, 225 + dy, RaoColor.WHITE, RaoColor.BLACK);
 
-    /* right front leg */
-    triangle(135, 240 + dy, 170 + dx, 275 + dy, 175, 225 + dy, Color(255, 153, 188), Color(255, 153, 188));
-    triangle(159, 265 + dy, 170 + dx, 275 + dy, 176, 260 + dy, Color.WHITE, Color.WHITE);
-    line(135, 240 + dy, 170 + dx, 275 + dy, Color.BLACK);
-    line(175, 225 + dy, 170 + dx, 275 + dy, Color.BLACK);
-}</code></pre>
+        /* right front leg */
+        drawTriangle(135 + dx, 240 + dy, 170 + dx, 275 + dy, 175, 225 + dy, bodyColor, bodyColor);
+        drawTriangle(159 + dx, 265 + dy, 170 + dx, 275 + dy, 176, 260 + dy, RaoColor.WHITE, RaoColor.WHITE);
+        drawLine(135 + dx, 240 + dy, 170 + dx, 275 + dy, RaoColor.BLACK);
+        drawLine(175 + dx, 225 + dy, 170 + dx, 275 + dy, RaoColor.BLACK);
+    }
+}
+</code></pre>
 </body>
 </html>
