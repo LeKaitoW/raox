@@ -1,0 +1,169 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../styles/rao_general.css">
+<link rel="stylesheet" href="../styles/rao_highlight.css">
+<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+<script src="../scripts/thirdparty/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script src="../scripts/thirdparty/jquery-2.1.4.min.js"></script>
+<script src="../scripts/table_of_contents.js"></script>
+</head>
+<body>
+<h2>Трассировка</h2>
+<p>В процессе моделирования можно протоколировать запуск событий и операций, изменение параметров ресурсов, сбор показателей и др. Этот отчет называется трассировкой.</p>
+<h3>Системные события</h3>
+<table style="width:100%">
+    <tr>
+        <th width="35%">Общий вид</th>
+        <th width="30%">Пример</th>
+        <th>Описание</th>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">ES &lt;время&gt; Tracing started</code></pre></td>
+        <td><pre><code class="rao">ES 0.0 Tracing started</code></pre></td>
+        <td>Инициализация модели, создание ресурсов.</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">ES &lt;время&gt; Simulation started</code></pre></td>
+        <td><pre><code class="rao">ES 0.0 Simulation started</code></pre></td>
+        <td>Модуль запущена, начинается моделирование.</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">ES &lt;время&gt; Simulation finished: &lt;причина остановки&gt;</code></pre></td>
+        <td><pre><code class="rao">ES 486.0 Simulation finished: terminate condition</code></pre></td>
+        <td>Модель завершилась. Возможные причины:<br>
+            <table style="width:100%">
+                <tr>
+                    <td><code>terminate condition</code></td>
+                    <td>сработало терминальное условие конца моделирования</td>
+                </tr>
+                <tr>
+                    <td><code>no more events</code></td>
+                    <td>больше невозможно выполнить ни одно событие</td>
+                </tr>
+                <tr>
+                    <td><code>user interrupt</code></td>
+                    <td>модель остановлена пользователем</td>
+                </tr>
+                <tr>
+                    <td><code>runtime error</code></td>
+                    <td>в процессе моделирования возникала ошибка</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<h3>События, операции и продукции</h3>
+<table style="width:100%">
+    <tr>
+        <td width="35%"><pre><code class="rao">EI &lt;время&gt; &lt;событие&gt;[индекс]</code></pre></td>
+        <td width="30%"><pre><code class="rao">EI 64.0 NewCall[0]</code></pre></td>
+        <td>Запуск события. Индекс увеличивается с каждым запуском.</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">EB &lt;время&gt; &lt;активность&gt;[индекс](ресурсы)</code></pre></td>
+        <td><pre><code class="rao">EB 227.0 callProcessing[4](techSupport)</code></pre></td>
+        <td>Запуск события начала активности (операции). Ресурсы - это те ресурсы модели, которые выбраны в качестве релевантных.</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">EF &lt;время&gt; &lt;активность&gt;[индекс](ресурсы)</code></pre></td>
+        <td><pre><code class="rao">EF 260.0 callProcessing[4](techSupport)</code></pre></td>
+        <td>Запуск события конца активности (операции).</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">ER &lt;время&gt; &lt;активность&gt;[индекс](ресурсы)</code></pre></td>
+        <td><pre><code class="rao">ER 59.0 возврат_робота[12](робот_1)</code></pre></td>
+        <td>Запуск продукционного правила.</td>
+    </tr>
+</table>
+
+<h3>Ресурсы</h3>
+<table style="width:100%">
+    <tr>
+        <td width="35%"><pre><code class="rao">RC &lt;время&gt; &lt;ресурс&gt; = {параметры}</code></pre></td>
+        <td width="30%"><pre><code class="rao">RC 0.0 techSupport = {FREE, 0, 0}</code></pre></td>
+        <td>Создание ресурса.</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">RK &lt;время&gt; &lt;ресурс&gt; = {параметры}</code></pre></td>
+        <td><pre><code class="rao">RK 379.0 techSupport = {BUSY, 0, 7}</code></pre></td>
+        <td>Изменение параметров.</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">RE &lt;время&gt; &lt;Тип ресурса&gt;[индекс] = {параметры}</code></pre></td>
+        <td><pre><code class="rao">RE 4786.0 Клиенты[158] = {Тип2, Уходит}</code></pre></td>
+        <td>Удаление ресурса. Индекс - уникальный номер ресурса в системе. Используется совместно с типом для идентификации ресурса, если у него нет имени.</td>
+    </tr>
+</table>
+
+<h3>Показатели</h3>
+<table style="width:100%">
+    <tr>
+        <td width="35%"><pre><code class="rao">V &lt;время&gt; &lt;показатель&gt; = значение</code></pre></td>
+        <td width="30%"><pre><code class="rao">V 5054.0 длина_очереди = 14.0</code></pre></td>
+        <td>Значение собираемого показателя на указанный момент времени.</td>
+    </tr>
+</table>
+
+<h3>Поиск решения на графе</h3>
+<table style="width:100%">
+    <tr>
+        <td width="35%"><pre><code class="rao">SB &lt;время&gt; &lt;Имя поиска&gt;</code></pre></td>
+        <td width="30%"><pre><code class="rao">SB 0.0 Расстановка_фишек</code></pre></td>
+        <td>Запустился поиск на графе.</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">SO [индекс]</code></pre></td>
+        <td><pre><code class="rao">SO [1]</code></pre></td>
+        <td>Начинает раскрываться указанная вершина (порождаются её потомки).</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">STN [родитель]->[потомок] &lt;правило&gt;(ресурсы) = стоимость_правила, [f = g + h]</code></pre></td>
+        <td><pre><code class="rao">STN [0]->[1] перемещение_влево(фишка1, дырка) = 1.0, [3.0 = 1.0 + 2.0]</code></pre></td>
+        <td>Порождается новая вершина. Она не имеет аналогов в графе. Вершина включается в граф. Указан индекс вершины предка, продукционное правило, породившее вершину, и стоимость его применения. <code>g</code> - стоимость пути от исходной вершины к только что порожденной. <code>h</code> - оценочная стоимость оставшейся части пути, от текущей вершины до конечной. <code>f</code> - общая оценочная стоимость пути от исходной вершины к целевой, проходящего через текущую вершину.</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">STD [родитель]->[потомок] &lt;правило&gt;(ресурсы) = стоимость_правила, [f = g + h]</code></pre></td>
+        <td><pre><code class="rao">STD [1]->[3] перемещение_вправо(фишка1, дырка) = 1.0, [5.0 = 2.0 + 3.0]</code></pre></td>
+        <td>Порожденная вершина имеет копию в графе. У копии меньшая стоимость пути. Текущая вершина отбрасывается, в граф не включается.</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">STR [родитель]->[потомок] &lt;правило&gt;(ресурсы) = стоимость_правила, [f = g + h]</code></pre></td>
+        <td><pre><code class="rao">STR [1]->[3] перемещение_вправо(фишка1, дырка) = 1.0, [5.0 = 2.0 + 3.0]</code></pre></td>
+        <td>Вершина с таким состоянием уже есть в графе, и она перезаписывается, поскольку вновь найденный путь имеет меньшую стоимость.</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">SRK &lt;время&gt; &lt;ресурс&gt; = {параметры}</code></pre></td>
+        <td><pre><code class="rao">SRK 0.0 фишка1 = {1, 2}</code></pre></td>
+        <td>Продукционное правило изменяет ресурс.</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">SD [индекс] &lt;правило&gt;(ресурсы)</code></pre></td>
+        <td><pre><code class="rao">SD [1] перемещение_влево(фишка1, дырка)</code></pre></td>
+        <td>Вершина с указанным индексом включена в решение.</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">SES &lt;время&gt; solution cost = стоимость_решения, nodes opened = количество_раскрытых_вершин, nodes total = количество_вершин_в_графе, nodes added = количество_включавшихся_в_граф_вершин, nodes spawned = количество_порожденных_вершин</code></pre></td>
+        <td><pre><code class="rao">SES 0.0 solution cost = 3.0, nodes opened = 7, nodes total = 11, nodes added = 11, nodes spawned = 15</code></pre></td>
+        <td>Решение найдено. Выводится статистика по вершинам графа.</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">SEC &lt;время&gt; solution cost = ...</code></pre></td>
+        <td><pre><code class="rao">SEC 0.0 solution cost = 0.0, nodes opened = 0, nodes total = 0, nodes added = 0, nodes spawned = 0</code></pre></td>
+        <td>Решение найдено. Для точки одновременно выполнены условия запускаи остановки.</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">SEN &lt;время&gt; solution cost = ...</code></pre></td>
+        <td><pre><code class="rao">SEN 0.0 solution cost = 21.0, nodes opened = 360, nodes total = 360, nodes added = 360, nodes spawned = 840</code></pre></td>
+        <td>Решение не найдено. Просмотрены все вершины графа.</td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">SEA &lt;время&gt; solution cost = ...</code></pre></td>
+        <td><pre><code class="rao">SEA 0.0 solution cost = 3.0, nodes opened = 7, nodes total = 11, nodes added = 11, nodes spawned = 15</code></pre></td>
+        <td>Процедура поиска прервана пользователем.</td>
+    </tr>
+</table>
+
+</body>
+</html>
