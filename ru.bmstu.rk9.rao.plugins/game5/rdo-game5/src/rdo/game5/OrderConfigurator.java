@@ -16,12 +16,10 @@ public class OrderConfigurator {
 	private static final int tilesCountY = 2;
 
 	@SuppressWarnings("unchecked")
-	public static void setInOrder(JSONObject object) throws IOException,
-			ParseException {
+	public static void setInOrder(JSONObject object) throws IOException, ParseException {
 		JSONParser parser = new JSONParser();
-		final String configPath = "/model_template/config.json";
 		InputStream inputStream = Game5View.class.getClassLoader()
-				.getResourceAsStream(configPath);
+				.getResourceAsStream(Game5ProjectConfigurator.configTemplatePath);
 		InputStreamReader reader = new InputStreamReader(inputStream);
 		JSONObject templateObject = (JSONObject) parser.parse(reader);
 		JSONArray templateOrder = (JSONArray) templateObject.get("places");
@@ -36,17 +34,13 @@ public class OrderConfigurator {
 		JSONArray order = inverseOrderPlaces(places);
 		do {
 			Collections.shuffle(order);
-		} while (!solvable.equals(String.valueOf(isSolvable(tilesCountX,
-				tilesCountY, order))));
+		} while (!solvable.equals(String.valueOf(isSolvable(tilesCountX, tilesCountY, order))));
 		return inverseOrderPlaces(order);
 	}
 
-	private static boolean isSolvable(int tilesCountX, int tilesCountY,
-			JSONArray order) {
+	private static boolean isSolvable(int tilesCountX, int tilesCountY, JSONArray order) {
 
-		final int freePlaceRow = order.indexOf(String.valueOf(tilesCountX
-				* tilesCountY))
-				/ tilesCountX + 1;
+		final int freePlaceRow = order.indexOf(String.valueOf(tilesCountX * tilesCountY)) / tilesCountX + 1;
 		int sum = 0;
 		for (int i = 0; i < tilesCountX * tilesCountY; i++) {
 			int tileIndex = Integer.valueOf(order.get(i).toString());
@@ -69,10 +63,7 @@ public class OrderConfigurator {
 	public static String convertPlacesToString(JSONArray places) {
 		String order = Integer.toString(places.indexOf(String.valueOf(1)) + 1);
 		for (int i = 1; i < places.size(); i++) {
-			order = order
-					+ " "
-					+ Integer
-							.toString(places.indexOf(String.valueOf(i + 1)) + 1);
+			order = order + " " + Integer.toString(places.indexOf(String.valueOf(i + 1)) + 1);
 		}
 		return order;
 	}
@@ -94,8 +85,7 @@ public class OrderConfigurator {
 	public static JSONArray inverseOrderPlaces(JSONArray position) {
 		JSONArray inversePosition = new JSONArray();
 		for (int i = 1; i < position.size() + 1; i++)
-			inversePosition.add(String.valueOf(position.indexOf(String
-					.valueOf(i)) + 1));
+			inversePosition.add(String.valueOf(position.indexOf(String.valueOf(i)) + 1));
 		return inversePosition;
 	}
 
