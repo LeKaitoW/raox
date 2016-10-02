@@ -30,6 +30,13 @@ public class NamingHelper {
 				+ nameGeneric;
 	}
 
+	public final static String convertName(final String name, boolean useShortName) {
+		if (useShortName)
+			return getLastPart(name);
+		else
+			return stripFirstPart(name);
+	}
+
 	public final static String changeDollarToDot(final String name) {
 		return name.replace('$', '.');
 	}
