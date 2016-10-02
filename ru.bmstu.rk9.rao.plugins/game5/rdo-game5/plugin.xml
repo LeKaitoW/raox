@@ -50,18 +50,20 @@
 			extensions="json">
 		</editor>
 	</extension>
- <extension
-       point="org.eclipse.ui.newWizards">
-       <category
-       		id="ru.bmstu.rk9.rao.wizard"
-       		name="Rao">
-       </category>
-       <wizard
+	<extension
+		point="org.eclipse.ui.newWizards">
+		<category
+			id="ru.bmstu.rk9.rao.wizard"
+			name="Rao">
+		</category>
+		<wizard
 			name="Rao Game5 Project"
-       		class="rdo.game5.Game5Wizard"
-       		id="rdo.game5.Game5Wizard"
-       		category="ru.bmstu.rk9.rao.wizard"
-       		project="true">
-       </wizard>
- </extension>
+			class="rdo.game5.Game5Wizard"
+			id="rdo.game5.Game5Wizard"
+			icon="icons/rao_old.gif"
+			category="ru.bmstu.rk9.rao.wizard"
+			project="true"
+			finalPerspective="ru.bmstu.rk9.rao.ui.perspective">
+		</wizard>
+	</extension>
 </plugin>

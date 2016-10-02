@@ -1,15 +1,18 @@
 package rdo.game5;
 
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
+import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 
 import rdo.game5.Game5ProjectConfigurator.ProjectWizardStatus;
 
-public class Game5Wizard extends Wizard implements IWorkbenchWizard {
+public class Game5Wizard extends BasicNewProjectResourceWizard implements IWorkbenchWizard, IExecutableExtension {
 
 	protected Game5WizardPage wizardPage;
+	private IConfigurationElement configurationElement;
 
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
@@ -17,10 +20,10 @@ public class Game5Wizard extends Wizard implements IWorkbenchWizard {
 
 	@Override
 	public boolean performFinish() {
-		final ProjectWizardStatus status = Game5ProjectConfigurator
-				.initializeProject(wizardPage.getProjectName());
+		final ProjectWizardStatus status = Game5ProjectConfigurator.initializeProject(wizardPage.getProjectName());
 		switch (status) {
 		case SUCCESS:
+			updatePerspective(configurationElement);
 			return true;
 		case UNDEFINED_ERROR:
 			return false;
@@ -38,5 +41,10 @@ public class Game5Wizard extends Wizard implements IWorkbenchWizard {
 	@Override
 	public String getWindowTitle() {
 		return "New Rao Game5 Project";
+	}
+
+	@Override
+	public void setInitializationData(IConfigurationElement cfig, String propertyName, Object data) {
+		configurationElement = cfig;
 	}
 }
