@@ -147,7 +147,8 @@ public class Tracer {
 		final String typeName = staticModelData.getResourceTypeName(typeNum);
 		final int resNum = header.getInt();
 		final String name = staticModelData.getResourceName(typeNum, resNum);
-		final String resourceName = convertName(name != null ? name : typeName + encloseIndex(resNum));
+		final String resourceName = NamingHelper.convertName(name != null ? name : typeName + encloseIndex(resNum),
+				useShortNames);
 
 		return new TraceOutput(traceType, new StringJoiner(delimiter).add(traceType.toString()).add(time)
 				.add(resourceName).add("=").add(parseResourceParameters(data, typeNum)).getString());
@@ -234,7 +235,8 @@ public class Tracer {
 			final String typeName = staticModelData.getRelevantResourceTypeName(patternNumber, num);
 			final int typeNum = staticModelData.getResourceTypeNumber(typeName);
 			final String name = staticModelData.getResourceName(typeNum, resNum);
-			String resourceName = convertName(name != null ? name : typeName + encloseIndex(resNum));
+			String resourceName = NamingHelper.convertName(name != null ? name : typeName + encloseIndex(resNum),
+					useShortNames);
 
 			relResStringJoiner.add(resourceName);
 		}
@@ -264,7 +266,7 @@ public class Tracer {
 
 		int eventNumber = data.getInt();
 		int actionNumber = data.getInt();
-		String eventName = convertName(staticModelData.getEventName(eventNumber));
+		final String eventName = NamingHelper.convertName(staticModelData.getEventName(eventNumber), useShortNames);
 		stringJoiner.add(eventName + encloseIndex(actionNumber));
 		return stringJoiner.getString();
 	}
@@ -287,7 +289,8 @@ public class Tracer {
 		switch (entryType) {
 		case BEGIN: {
 			traceType = TraceType.SEARCH_BEGIN;
-			stringJoiner.add(traceType.toString()).add(time).add(convertName(staticModelData.getSearchName(dptNumber)));
+			stringJoiner.add(traceType.toString()).add(time)
+					.add(NamingHelper.convertName(staticModelData.getSearchName(dptNumber), useShortNames));
 			break;
 		}
 		case END: {
@@ -363,7 +366,8 @@ public class Tracer {
 				final String typeName = staticModelData.getRelevantResourceTypeName(patternNumber, num);
 				final int typeNum = staticModelData.getResourceTypeNumber(typeName);
 				final String name = staticModelData.getResourceName(typeNum, resNum);
-				final String resourceName = convertName(name != null ? name : typeName + encloseIndex(resNum));
+				final String resourceName = NamingHelper
+						.convertName(name != null ? name : typeName + encloseIndex(resNum), useShortNames);
 
 				relResStringJoiner.add(resourceName);
 			}
@@ -388,7 +392,8 @@ public class Tracer {
 				final String typeName = staticModelData.getRelevantResourceTypeName(patternNumber, num);
 				final int typeNum = staticModelData.getResourceTypeNumber(typeName);
 				final String name = staticModelData.getResourceName(typeNum, resNum);
-				final String resourceName = convertName(name != null ? name : typeName + encloseIndex(resNum));
+				final String resourceName = NamingHelper
+						.convertName(name != null ? name : typeName + encloseIndex(resNum), useShortNames);
 
 				relResStringJoiner.add(resourceName);
 			}
@@ -415,7 +420,7 @@ public class Tracer {
 		skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
 		final int resultNum = header.getInt();
-		String resultName = convertName(staticModelData.getResultName(resultNum));
+		String resultName = NamingHelper.convertName(staticModelData.getResultName(resultNum), useShortNames);
 
 		return new TraceOutput(TraceType.RESULT, new StringJoiner(delimiter).add(TraceType.RESULT.toString()).add(time)
 				.add(resultName).add("=").add(parseResultParameter(data, resultNum)).getString());
@@ -489,12 +494,5 @@ public class Tracer {
 
 	public final static ByteBuffer prepareBufferForReading(final ByteBuffer buffer) {
 		return (ByteBuffer) buffer.duplicate().rewind();
-	}
-
-	private final String convertName(String name) {
-		if (useShortNames)
-			return NamingHelper.getLastPart(name);
-		else
-			return NamingHelper.stripFirstPart(name);
 	}
 }
