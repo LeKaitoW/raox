@@ -88,8 +88,8 @@ function getReferenceContents() {
             "title":"Образцы"
         },
         {
-            "href":"../reference/dpt.html",
-            "title":"Точки принятия решений"
+            "href":"../reference/logic.html",
+            "title":"Группы активностей"
         },
         {
             "href":"../reference/search.html",
@@ -106,10 +106,6 @@ function getReferenceContents() {
         {
             "href":"../reference/function.html",
             "title":"Функции"
-        },
-        {
-            "href":"../reference/table_list.html",
-            "title":"Таблицы и списки"
         },
         {
             "href":"../reference/result.html",

@@ -1,10 +1,6 @@
 package ru.bmstu.rk9.rao.lib.animation;
 
 public interface AnimationContext {
-	public enum Alignment {
-		LEFT, CENTER, RIGHT
-	}
-
 	public void drawText(String text, int x, int y, RaoColor textColor, int width, Alignment alignment);
 
 	public void drawText(String text, int x, int y, RaoColor textColor);

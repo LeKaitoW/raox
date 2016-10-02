@@ -133,6 +133,9 @@ public abstract class Search extends AbstractDecisionPoint {
 
 	@Override
 	public boolean check() {
+		if (startCondition != null && !startCondition.get())
+			return false;
+
 		time = System.currentTimeMillis();
 		memory = Runtime.getRuntime().freeMemory();
 
@@ -145,7 +148,7 @@ public abstract class Search extends AbstractDecisionPoint {
 		if (!allowSearch)
 			return stop(StopCode.ABORTED);
 
-		if (startCondition != null && !startCondition.get() || terminateCondition.get())
+		if (terminateCondition.get())
 			return stop(StopCode.CONDITION);
 
 		nodesOpen.clear();

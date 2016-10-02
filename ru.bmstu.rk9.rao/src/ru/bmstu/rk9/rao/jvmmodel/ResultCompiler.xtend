@@ -17,16 +17,22 @@ class ResultCompiler extends RaoEntityCompiler {
 	def static asClass(ResultType result, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
 		JvmDeclaredType it, boolean isPreIndexingPhase) {
 
+		initializeCurrent(jvmTypesBuilder, typeReferenceBuilder)
+
 		return result.toClass(QualifiedName.create(qualifiedName, result.name)) [
 			static = true
-			superTypes += typeRef(ru.bmstu.rk9.rao.lib.result.Result, {result.evaluateType})
+			superTypes += typeRef(ru.bmstu.rk9.rao.lib.result.Result, {
+				result.evaluateType
+			})
 
 			members += result.toConstructor [
 				visibility = JvmVisibility.PUBLIC
 				for (param : result.parameters)
 					parameters += param.toParameter(param.name, param.parameterType)
 				parameters += result.toParameter("resultMode", typeRef(ResultMode))
-				parameters += result.toParameter("statistics", typeRef(Statistics, {result.evaluateType}))
+				parameters += result.toParameter("statistics", typeRef(Statistics, {
+					result.evaluateType
+				}))
 				body = '''
 					«FOR param : parameters»this.«param.name» = «param.name»;
 					«ENDFOR»
@@ -47,11 +53,13 @@ class ResultCompiler extends RaoEntityCompiler {
 				visibility = JvmVisibility.PUBLIC
 				for (param : result.parameters)
 					parameters += param.toParameter(param.name, param.parameterType)
-				parameters += result.toParameter("statistics", typeRef(Statistics, {result.evaluateType}))
+				parameters += result.toParameter("statistics", typeRef(Statistics, {
+					result.evaluateType
+				}))
 				body = '''
 					this(«FOR param : result.parameters»«param.name», «ENDFOR»ResultMode.AUTO, statistics);
 				'''
-				
+
 			]
 
 			members += result.toConstructor [
@@ -63,7 +71,9 @@ class ResultCompiler extends RaoEntityCompiler {
 				'''
 			]
 
-			members += result.toMethod("getDefaultStatistics", typeRef(Statistics, {result.evaluateType})) [
+			members += result.toMethod("getDefaultStatistics", typeRef(Statistics, {
+				result.evaluateType
+			})) [
 				val evaluateType = result.evaluateType.type;
 				visibility = JvmVisibility.PUBLIC
 				final = true
@@ -110,6 +120,8 @@ class ResultCompiler extends RaoEntityCompiler {
 
 	def static asField(Result result, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
 		JvmDeclaredType it, boolean isPreIndexingPhase) {
+
+		initializeCurrent(jvmTypesBuilder, typeReferenceBuilder)
 
 		return result.toField(result.name, result.constructor.inferredType) [
 			visibility = JvmVisibility.PUBLIC
