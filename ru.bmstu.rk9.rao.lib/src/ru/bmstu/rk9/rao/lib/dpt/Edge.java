@@ -5,10 +5,6 @@ import java.util.function.Supplier;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
 
 public class Edge extends AbstractActivity {
-	public enum ApplyOrder {
-		BEFORE, AFTER
-	}
-
 	public Edge(Supplier<? extends Rule> ruleFabric, double value) {
 		this(ruleFabric, () -> value);
 	}

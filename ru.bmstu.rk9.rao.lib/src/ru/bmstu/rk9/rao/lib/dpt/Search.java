@@ -202,7 +202,7 @@ public abstract class Search extends AbstractDecisionPoint {
 
 			SpawnStatus spawnStatus = SpawnStatus.NEW;
 
-			if (edge.applyOrder == Edge.ApplyOrder.BEFORE)
+			if (edge.applyOrder == ApplyOrder.BEFORE)
 				value = edge.calculateValue();
 
 			newChild.state = parentStateCopy;
@@ -211,7 +211,7 @@ public abstract class Search extends AbstractDecisionPoint {
 			Rule executed = edge.execute();
 			newChild.edgeInfo = new EdgeInfo(edgeNumber, executed);
 
-			if (edge.applyOrder == Edge.ApplyOrder.AFTER)
+			if (edge.applyOrder == ApplyOrder.AFTER)
 				value = edge.calculateValue();
 
 			newChild.g = parent.g + value;

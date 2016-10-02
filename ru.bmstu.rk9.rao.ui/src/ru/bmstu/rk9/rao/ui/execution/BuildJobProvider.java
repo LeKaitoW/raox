@@ -37,7 +37,7 @@ import org.eclipse.xtext.validation.CheckMode;
 
 import ru.bmstu.rk9.rao.ui.RaoActivatorExtension;
 import ru.bmstu.rk9.rao.ui.execution.BuildUtil.BundleType;
-import ru.bmstu.rk9.rao.ui.process.blocks.BlockNode;
+import ru.bmstu.rk9.rao.ui.gef.process.blocks.BlockNode;
 
 public class BuildJobProvider {
 	private final EclipseResourceFileSystemAccess2 fsa;
