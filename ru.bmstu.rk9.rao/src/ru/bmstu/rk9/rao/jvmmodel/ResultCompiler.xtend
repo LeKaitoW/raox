@@ -21,7 +21,7 @@ class ResultCompiler extends RaoEntityCompiler {
 
 		return result.toClass(QualifiedName.create(qualifiedName, result.name)) [
 			static = true
-			superTypes += typeRef(ru.bmstu.rk9.rao.lib.result.Result, {
+			superTypes += typeRef(ru.bmstu.rk9.rao.lib.result.AbstractResult, {
 				result.evaluateType
 			})
 

@@ -4,7 +4,7 @@ import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.naming.RaoNameable;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
-public abstract class Result<T> extends RaoNameable {
+public abstract class AbstractResult<T> extends RaoNameable {
 
 	public abstract T evaluate();
 

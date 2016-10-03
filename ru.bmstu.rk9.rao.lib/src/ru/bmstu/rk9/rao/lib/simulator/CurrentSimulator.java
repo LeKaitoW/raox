@@ -8,7 +8,7 @@ import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
-import ru.bmstu.rk9.rao.lib.result.Result;
+import ru.bmstu.rk9.rao.lib.result.AbstractResult;
 
 public class CurrentSimulator {
 	private static ISimulator currentSimulator = null;
@@ -114,7 +114,7 @@ public class CurrentSimulator {
 		currentSimulator.notifyChange(category);
 	}
 
-	public static List<Result<?>> getResults() {
+	public static List<AbstractResult<?>> getResults() {
 		return currentSimulator.getResults();
 	}
 

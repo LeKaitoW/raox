@@ -2,7 +2,7 @@ package ru.bmstu.rk9.rao.lib.result;
 
 import java.util.function.Supplier;
 
-public class Value<T> extends Result<T> {
+public class Value<T> extends AbstractResult<T> {
 
 	public Value(Supplier<T> evaluate, Supplier<Boolean> condition, ResultMode resultMode, Statistics<T> statistics) {
 		this.evaluate = evaluate;
