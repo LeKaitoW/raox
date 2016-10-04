@@ -2,11 +2,11 @@ package ru.bmstu.rk9.rao.lib.result;
 
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 
-public class ValueStatistics<T> extends Statistics<T> {
+public class LastValueStatistics<T> extends Statistics<T> {
 
 	@Override
 	public void updateData(JSONObject data) {
-		data.put("Value", value);
+		data.put("Last value", value);
 	}
 
 	@Override

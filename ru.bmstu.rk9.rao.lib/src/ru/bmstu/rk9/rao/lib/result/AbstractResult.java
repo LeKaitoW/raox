@@ -47,6 +47,6 @@ public abstract class AbstractResult<T> extends RaoNameable {
 				|| Boolean.class.isAssignableFrom(genericClass))
 			return new CategoricalStatistics<E>();
 		else
-			return new ValueStatistics<E>();
+			return new LastValueStatistics<E>();
 	}
 }
