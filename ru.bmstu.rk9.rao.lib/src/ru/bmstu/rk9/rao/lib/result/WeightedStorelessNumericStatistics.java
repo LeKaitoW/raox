@@ -7,6 +7,7 @@ public class WeightedStorelessNumericStatistics<T extends Number> extends Statis
 	@Override
 	public void updateData(JSONObject data) {
 		addValue(lastValue, lastCurrentTime);
+		data.put("Last value", getLastValue());
 		data.put("Mean", getMean());
 		data.put("Standard deviation", getStandartDeviation());
 		data.put("varcoef", getCoefficientOfVariation());
@@ -16,7 +17,7 @@ public class WeightedStorelessNumericStatistics<T extends Number> extends Statis
 	@Override
 	public void update(T value, double currentTime) {
 		double nextValue = value.doubleValue();
-		if (lastValue != nextValue) {
+		if (lastValue != nextValue && !Double.isNaN(nextValue)) {
 			addValue(nextValue, currentTime);
 		}
 		lastValue = nextValue;
@@ -25,7 +26,7 @@ public class WeightedStorelessNumericStatistics<T extends Number> extends Statis
 
 	private boolean started = false;
 
-	private double lastValue;
+	private double lastValue = Double.NaN;
 
 	private double lastWeight;
 
@@ -77,5 +78,9 @@ public class WeightedStorelessNumericStatistics<T extends Number> extends Statis
 
 	private double getMedian() {
 		return median;
+	}
+
+	private double getLastValue() {
+		return lastValue;
 	}
 }
