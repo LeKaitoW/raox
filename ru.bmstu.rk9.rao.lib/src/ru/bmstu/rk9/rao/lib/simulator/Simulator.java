@@ -8,6 +8,7 @@ import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.dpt.DPTManager;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.event.EventScheduler;
+import ru.bmstu.rk9.rao.lib.logger.Logger;
 import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.process.Process;
@@ -23,6 +24,7 @@ public class Simulator implements ISimulator {
 		modelState = new ModelState(preinitializationInfo.resourceClasses);
 		database = new Database(preinitializationInfo.modelStructure);
 		staticModelData = new StaticModelData(preinitializationInfo.modelStructure);
+		logger = new Logger();
 
 		for (Runnable resourcePreinitializer : preinitializationInfo.resourcePreinitializers)
 			resourcePreinitializer.run();
@@ -95,6 +97,13 @@ public class Simulator implements ISimulator {
 	@Override
 	public List<Result<?>> getResults() {
 		return resultManager.getResults();
+	}
+
+	private Logger logger;
+
+	@Override
+	public Logger getLogger() {
+		return logger;
 	}
 
 	private Notifier<ExecutionState> executionStateNotifier;

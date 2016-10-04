@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rao.ui.console;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.resource.FontRegistry;
@@ -20,6 +21,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.themes.ITheme;
 import org.eclipse.ui.themes.IThemeManager;
+
+import ru.bmstu.rk9.rao.lib.logger.Logger;
+import ru.bmstu.rk9.rao.lib.logger.LoggerSubscriberManager.LoggerSubscriberInfo;
+import ru.bmstu.rk9.rao.lib.logger.LoggerSubscriberManager;
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class ConsoleView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.ConsoleView"; //$NON-NLS-1$
@@ -52,7 +59,39 @@ public class ConsoleView extends ViewPart {
 
 		registerTextFontUpdateListener();
 		updateTextFont();
+
+		initializeSubscribers();
 	}
+
+	@Override
+	public void dispose() {
+		deinitializeSubscribers();
+		themeManager.removePropertyChangeListener(fontListener);
+		super.dispose();
+	}
+
+	private final void initializeSubscribers() {
+		loggerSubscriberManager.initialize(
+				Arrays.asList(new LoggerSubscriberInfo(loggingSubscriber, Logger.NotificationCategory.NEW_LOG_ENTRY)));
+	}
+
+	private final void deinitializeSubscribers() {
+		loggerSubscriberManager.deinitialize();
+	}
+
+	private LoggerSubscriberManager loggerSubscriberManager = new LoggerSubscriberManager();
+
+	private final Subscriber loggingSubscriber = new Subscriber() {
+		@Override
+		public void fireChange() {
+			Logger logger = CurrentSimulator.getLogger();
+			String line;
+
+			while ((line = logger.poll()) != null) {
+				addLine(line);
+			}
+		}
+	};
 
 	private void updateTextFont() {
 		IThemeManager themeManager = PlatformUI.getWorkbench().getThemeManager();
@@ -112,13 +151,6 @@ public class ConsoleView extends ViewPart {
 	}
 
 	@Override
-	public void dispose() {
-		themeManager.removePropertyChangeListener(fontListener);
-		super.dispose();
-	}
-
-	@Override
 	public void setFocus() {
 	}
-
 }
