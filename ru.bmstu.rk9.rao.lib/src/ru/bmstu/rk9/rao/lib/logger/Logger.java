@@ -6,15 +6,15 @@ import java.util.Queue;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 
 public class Logger {
-	public final void log(Object o) {
-		logQueue.add(o.toString());
+	public final void log(Object object) {
+		messages.add(object.toString());
 		notifyChange(NotificationCategory.NEW_LOG_ENTRY);
 	}
 
-	Queue<String> logQueue = new LinkedList<>();
+	Queue<String> messages = new LinkedList<>();
 
 	public final String poll() {
-		return logQueue.poll();
+		return messages.poll();
 	}
 
 	public enum NotificationCategory {
