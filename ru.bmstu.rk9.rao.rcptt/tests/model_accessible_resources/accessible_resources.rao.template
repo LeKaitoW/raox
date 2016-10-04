@@ -9,11 +9,11 @@ operation Op() {
 	relevant xx = Y.accessible.filter[a < 5].minBySafe[a]
 	relevant yy = Y.accessible.filter[a < 5].minBySafe[a]
 
-	set duration() {
+	def duration() {
 		return 1;
 	}
 
-	set end() {
+	def end() {
 		xx.a = xx.a + 1;
 	}
 }

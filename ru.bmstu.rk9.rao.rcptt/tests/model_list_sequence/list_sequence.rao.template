@@ -11,10 +11,10 @@ event ListSeqTestEvent() {
 	ListSeqTestEvent.plan(currentTime + 5);
 }
 
-set init() {
+def init() {
 	ListSeqTestEvent.plan(currentTime);
 }
 
-set terminateCondition() {
+def terminateCondition() {
 	return currentTime > 100
 }
