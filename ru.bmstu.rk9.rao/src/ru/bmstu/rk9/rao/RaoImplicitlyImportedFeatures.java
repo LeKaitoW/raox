@@ -7,6 +7,7 @@ import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures;
 
 import com.google.common.collect.Lists;
 
+import ru.bmstu.rk9.rao.lib.runtime.LoggerExtensions;
 import ru.bmstu.rk9.rao.lib.runtime.RaoCollectionExtensions;
 import ru.bmstu.rk9.rao.lib.runtime.RaoFactory;
 import ru.bmstu.rk9.rao.lib.runtime.RaoObjectExtensions;
@@ -35,6 +36,7 @@ public class RaoImplicitlyImportedFeatures extends ImplicitlyImportedFeatures {
 	}
 
 	private List<Class<?>> getRaoExtensionClasses() {
-		return Lists.<Class<?>> newArrayList(RaoRuntime.class, RaoCollectionExtensions.class, RaoFactory.class);
+		return Lists.<Class<?>>newArrayList(RaoRuntime.class, RaoCollectionExtensions.class, RaoFactory.class,
+				LoggerExtensions.class);
 	}
 }
