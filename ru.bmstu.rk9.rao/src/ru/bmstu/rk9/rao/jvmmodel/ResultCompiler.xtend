@@ -25,6 +25,8 @@ class ResultCompiler extends RaoEntityCompiler {
 				result.evaluateType
 			})
 
+			val evaluateType = result.evaluateType.type;
+
 			members += result.toConstructor [
 				visibility = JvmVisibility.PUBLIC
 				for (param : result.parameters)
@@ -45,7 +47,7 @@ class ResultCompiler extends RaoEntityCompiler {
 					parameters += param.toParameter(param.name, param.parameterType)
 				parameters += result.toParameter("resultMode", typeRef(ResultMode))
 				body = '''
-					this(«FOR param : parameters»«param.name», «ENDFOR»getDefaultStatistics());
+					this(«FOR param : parameters»«param.name», «ENDFOR»getDefaultStatistics(«evaluateType».class));
 				'''
 			]
 
@@ -67,26 +69,7 @@ class ResultCompiler extends RaoEntityCompiler {
 				for (param : result.parameters)
 					parameters += param.toParameter(param.name, param.parameterType)
 				body = '''
-					this(«FOR param : parameters»«param.name», «ENDFOR»ResultMode.AUTO, getDefaultStatistics());
-				'''
-			]
-
-			members += result.toMethod("getDefaultStatistics", typeRef(Statistics, {
-				result.evaluateType
-			})) [
-				val evaluateType = result.evaluateType.type;
-				visibility = JvmVisibility.PUBLIC
-				final = true
-				static = true
-				body = '''
-					if (Number.class.isAssignableFrom(«evaluateType».class))
-						return new ru.bmstu.rk9.rao.lib.result.WeightedStorelessNumericStatistics();
-					else if (Enum.class.isAssignableFrom(«evaluateType».class) ||
-							String.class.isAssignableFrom(«evaluateType».class) ||
-							Boolean.class.isAssignableFrom(«evaluateType».class))
-						return new ru.bmstu.rk9.rao.lib.result.CategoricalStatistics<«evaluateType»>();
-					else
-						return new ru.bmstu.rk9.rao.lib.result.ValueStatistics<«evaluateType»>();
+					this(«FOR param : parameters»«param.name», «ENDFOR»ResultMode.AUTO, getDefaultStatistics(«evaluateType».class));
 				'''
 			]
 

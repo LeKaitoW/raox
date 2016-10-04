@@ -29,7 +29,7 @@ public abstract class AbstractResult<T> extends RaoNameable {
 	};
 
 	public void update() {
-		if (!condition()) 
+		if (!condition())
 			return;
 		final T value = evaluate();
 		statistics.update(value, CurrentSimulator.getTime());
@@ -40,4 +40,13 @@ public abstract class AbstractResult<T> extends RaoNameable {
 
 	protected Statistics<T> statistics;
 
+	public static final <E> Statistics<E> getDefaultStatistics(Class<E> genericClass) {
+		if (Number.class.isAssignableFrom(genericClass))
+			return new WeightedStorelessNumericStatistics();
+		else if (Enum.class.isAssignableFrom(genericClass) || String.class.isAssignableFrom(genericClass)
+				|| Boolean.class.isAssignableFrom(genericClass))
+			return new CategoricalStatistics<E>();
+		else
+			return new ValueStatistics<E>();
+	}
 }
