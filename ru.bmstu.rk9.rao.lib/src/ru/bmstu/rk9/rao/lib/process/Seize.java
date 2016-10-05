@@ -43,7 +43,7 @@ public class Seize implements Block {
 		data.putInt(resourceTypeNumber).putInt(resource.getNumber());
 		CurrentSimulator.getDatabase().addProcessEntry(ProcessEntryType.SEIZE, transact.getNumber(), data);
 		transactStorage.pushTransact(transact);
-		resource.setAccessible(false);
+		resource.take();
 		return BlockStatus.SUCCESS;
 	}
 }

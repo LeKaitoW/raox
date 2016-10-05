@@ -44,7 +44,7 @@ public class Release implements Block {
 		CurrentSimulator.getDatabase().addProcessEntry(ProcessEntryType.RELEASE, transact.getNumber(), data);
 
 		transactStorage.pushTransact(transact);
-		resource.setAccessible(true);
+		resource.put();
 		return BlockStatus.SUCCESS;
 	}
 }

@@ -156,7 +156,7 @@ class PatternCompiler extends RaoEntityCompiler {
 								finish();
 								return false;
 							}
-							this.«relevant.name».setAccessible(false);
+							this.«relevant.name».take();
 							this.relevantResourcesNumbers.add(this.«relevant.name».getNumber());
 						«ENDFOR»
 						«FOR tuple : pattern.relevantTuples»«
@@ -169,7 +169,7 @@ class PatternCompiler extends RaoEntityCompiler {
 							} else {
 								«FOR name : tuple.names»
 									this.«name» = __«tupleInfo.name».«tupleInfo.tupleElementsInfo.get(tuple.names.indexOf(name)).name»;
-									this.«name».setAccessible(false);
+									this.«name».take();
 									this.relevantResourcesNumbers.add(this.«name».getNumber());
 								«ENDFOR»
 							}
@@ -186,12 +186,12 @@ class PatternCompiler extends RaoEntityCompiler {
 					body = '''
 						«FOR relevant : pattern.relevantResources»
 							if (this.«relevant.name» != null)
-								this.«relevant.name».setAccessible(true);
+								this.«relevant.name».put();
 						«ENDFOR»
 						«FOR tuple : pattern.relevantTuples»
 							«FOR name : tuple.names»
 								if (this.«name» != null)
-									this.«name».setAccessible(true);
+									this.«name».put();
 							«ENDFOR»
 						«ENDFOR»
 					'''
