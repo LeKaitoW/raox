@@ -31,16 +31,16 @@ event NewCall() {
 operation CallProcessingPattern() {
     relevant _techSupport = techSupport.onlyif[queueLength > 0 &amp;&amp; operatorState == OperatorState.FREE];
 
-    set begin() {
+    def begin() {
         _techSupport.queueLength = _techSupport.queueLength - 1;
         _techSupport.operatorState = OperatorState.BUSY;
     }
 
-    set duration() {
+    def duration() {
         return callProcessingTime.next();
     }
 
-    set end() {
+    def end() {
         _techSupport.peopleServed = _techSupport.peopleServed + 1;
         _techSupport.operatorState = OperatorState.FREE;
     }
@@ -53,18 +53,18 @@ logic Model {
     activity callProcessing = new Activity(CallProcessingPattern.create());
 }
 
-set init() {
+def init() {
     NewCall.plan(newCallInterval.next());
 }
 
-set terminateCondition() {
+def terminateCondition() {
     return currentTime >= 480;
 }
 
 result totalPeopleServed = new Value([techSupport.peopleServed]);
 
 resultType QueueLengthCouter&lt;Integer&gt;(TechSupport techSupport) {
-    set evaluate() {
+    def evaluate() {
         return techSupport.queueLength;
     }
 }
@@ -94,19 +94,19 @@ resource techSupport = TechSupport.create(OperatorState.FREE, 0, 0);
 }
 </code></pre>
 <p>Как и событию, операции могут быть переданы параметры. Операции имеют событие начала (описывается в теле метода <code>begin()</code>) и событие конца (описывается в теле <code>end()</code>), а также некоторую длительность (задается в <code>duration</code>). В начале операции необходимо уменьшить длину очереди на единицу и выставить оператору состояние "занят".</p>
-<pre><code class="rao">set begin() {
+<pre><code class="rao">def begin() {
     _techSupport.queueLength = _techSupport.queueLength - 1;
     _techSupport.operatorState = OperatorState.BUSY;
 }
 </code></pre>
 <p>В конце нужно вернуть оператора в состояние "свободен" и увеличить количество обслуженных звонков на единицу.</p>
-<pre><code class="rao">set end() {
+<pre><code class="rao">def end() {
     _techSupport.peopleServed = _techSupport.peopleServed + 1;
     _techSupport.operatorState = OperatorState.FREE;
 }
 </code></pre>
 <p>Длительность операции задается с помощью описанного ранее равномерного распределения.</p>
-<pre><code class="rao">set duration() {
+<pre><code class="rao">def duration() {
     return callProcessingTime.next();
 }
 </code></pre>
@@ -121,7 +121,7 @@ resource techSupport = TechSupport.create(OperatorState.FREE, 0, 0);
 <h3>Описание собираемых показателей</h3>
 <p>Общее количество обслуженных заявок можно получить, используя описанный ранее счетчик <code>Value</code>. Для сбора подробной статистики по длине очереди следует использовать счетчик, который наблюдает за целыми величинами.</p>
 <pre><code class="rao">resultType QueueLengthCouter&lt;Integer&gt;(TechSupport techSupport) {
-    set evaluate() {
+    def evaluate() {
         return techSupport.queueLength;
     }
 }
