@@ -108,7 +108,7 @@ RelevantResource:
 
 RelevantResourceTuple:
 	'relevants' names += ID (',' names += ID)*
-		'=' value = XOrExpression 'of types' types += JvmTypeReference (',' types += JvmTypeReference)* ';'?
+		'=' value = XOrExpression 'of' 'types' types += JvmTypeReference (',' types += JvmTypeReference)* ';'?
 ;
 
 Generator:
@@ -153,7 +153,7 @@ EnumDeclaration:
 ;
 
 DefaultMethod:
-	'set' name = ID '(' ')'
+	'def' name = ID '(' ')'
 		body = XBlockExpression
 ;
 

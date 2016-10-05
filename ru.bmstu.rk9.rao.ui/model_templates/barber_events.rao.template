@@ -30,10 +30,10 @@ event ServiceFinished() {
 	}
 }
 
-set init() {
+def init() {
 	ClientInput.plan(clientInputInterval.next());
 }
 
-set terminateCondition() {
+def terminateCondition() {
 	return currentTime > 44;
 }
