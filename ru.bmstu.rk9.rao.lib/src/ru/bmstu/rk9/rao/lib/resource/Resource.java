@@ -22,15 +22,19 @@ public abstract class Resource extends RaoNameable implements Serializable {
 
 	protected Integer number = null;
 
-	public final void setAccessible(boolean accessible) {
-		this.accessible = accessible;
+	public final void take() {
+		refcounter++;
+	}
+
+	public final void put() {
+		refcounter--;
 	}
 
 	public final boolean isAccessible() {
-		return accessible;
+		return refcounter == 0;
 	}
 
-	protected boolean accessible = true;
+	protected int refcounter = 0;
 
 	public final boolean isShallowCopy() {
 		return isShallowCopy;
