@@ -7,15 +7,15 @@ resource y1 = Y.create(0)
 operation Op1() {
 	relevant xx = Y.accessible.filter[a < 20].any
 
-	set duration() {
+	def duration() {
 		return 20;
 	}
 
-	set begin() {
+	def begin() {
 		xx.a = xx.a + 1
 	}
 
-	set end() {
+	def end() {
 		xx.a = xx.a + 10
 	}
 }
@@ -32,3 +32,4 @@ logic L {
 	activity a = new Activity(Op1.create())
 	activity b = new Activity(Op2.create())
 }
+
