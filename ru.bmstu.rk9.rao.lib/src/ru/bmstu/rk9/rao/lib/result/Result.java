@@ -12,40 +12,37 @@ public class Result<T> extends AbstractResult<T> {
 		this.statistics = statistics;
 	}
 
-	public static final <E> Result<E> create(Class<E> genericClass, Supplier<E> evaluate, Supplier<Boolean> condition,
-			ResultMode resultMode, Statistics<E> statistics) {
-		return new Result<E>(evaluate, condition, resultMode, statistics);
+	public Result(Class<T> genericClass, Supplier<T> evaluate, Supplier<Boolean> condition, ResultMode resultMode,
+			Statistics<T> statistics) {
+		this(evaluate, condition, resultMode, statistics);
 	}
 
-	public static final <E> Result<E> create(Class<E> genericClass, Supplier<E> evaluate, Supplier<Boolean> condition,
-			ResultMode resultMode) {
-		return new Result<E>(evaluate, condition, resultMode, getDefaultStatistics(genericClass));
+	public Result(Class<T> genericClass, Supplier<T> evaluate, Supplier<Boolean> condition, ResultMode resultMode) {
+		this(evaluate, condition, resultMode, getDefaultStatistics(genericClass));
 	}
 
-	public static final <E> Result<E> create(Class<E> genericClass, Supplier<E> evaluate, ResultMode resultMode,
-			Statistics<E> statistics) {
-		return new Result<E>(evaluate, () -> true, resultMode, statistics);
+	public Result(Class<T> genericClass, Supplier<T> evaluate, ResultMode resultMode, Statistics<T> statistics) {
+		this(evaluate, () -> true, resultMode, statistics);
 	}
 
-	public static final <E> Result<E> create(Class<E> genericClass, Supplier<E> evaluate, Supplier<Boolean> condition,
-			Statistics<E> statistics) {
-		return new Result<E>(evaluate, condition, ResultMode.AUTO, statistics);
+	public Result(Class<T> genericClass, Supplier<T> evaluate, Supplier<Boolean> condition, Statistics<T> statistics) {
+		this(evaluate, condition, ResultMode.AUTO, statistics);
 	}
 
-	public static final <E> Result<E> create(Class<E> genericClass, Supplier<E> evaluate, ResultMode resultMode) {
-		return new Result<E>(evaluate, () -> true, resultMode, getDefaultStatistics(genericClass));
+	public Result(Class<T> genericClass, Supplier<T> evaluate, ResultMode resultMode) {
+		this(evaluate, () -> true, resultMode, getDefaultStatistics(genericClass));
 	}
 
-	public static final <E> Result<E> create(Class<E> genericClass, Supplier<E> evaluate, Statistics<E> statistics) {
-		return new Result<E>(evaluate, () -> true, ResultMode.AUTO, statistics);
+	public Result(Class<T> genericClass, Supplier<T> evaluate, Statistics<T> statistics) {
+		this(evaluate, () -> true, ResultMode.AUTO, statistics);
 	}
 
-	public static final <E> Result<E> create(Class<E> genericClass, Supplier<E> evaluate, Supplier<Boolean> condition) {
-		return new Result<E>(evaluate, condition, ResultMode.AUTO, getDefaultStatistics(genericClass));
+	public Result(Class<T> genericClass, Supplier<T> evaluate, Supplier<Boolean> condition) {
+		this(evaluate, condition, ResultMode.AUTO, getDefaultStatistics(genericClass));
 	}
 
-	public static final <E> Result<E> create(Class<E> genericClass, Supplier<E> evaluate) {
-		return new Result<E>(evaluate, () -> true, ResultMode.AUTO, getDefaultStatistics(genericClass));
+	public Result(Class<T> genericClass, Supplier<T> evaluate) {
+		this(evaluate, () -> true, ResultMode.AUTO, getDefaultStatistics(genericClass));
 	}
 
 	Supplier<T> evaluate;
