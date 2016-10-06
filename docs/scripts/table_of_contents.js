@@ -11,7 +11,7 @@ function fillContents(ul, contents) {
     }
 }
 
-function generateSidebar(referenceContents, tutorialContents, userGuideContents) {
+function generateSidebar(referenceContents, tutorialContents, userGuideContents, debugContents) {
     var body = $("body");
 
     var wrapper = $("<div>");
@@ -36,7 +36,7 @@ function generateSidebar(referenceContents, tutorialContents, userGuideContents)
     var commonList = $("<ul>");
 
     var referenceList = $("<li>");
-    referenceList.html("Справка по грамматике");
+    referenceList.html("Грамматика");
     var referenceNestedList = $("<ul>");
 
     var tutorialList = $("<li>");
@@ -46,6 +46,10 @@ function generateSidebar(referenceContents, tutorialContents, userGuideContents)
     var userGuideList = $("<li>");
     userGuideList.html("Руководство пользователя");
     var userGuideNestedList = $("<ul>");
+
+    var debugList = $("<li>");
+    debugList.html("Отладка моделей");
+    var debugNestedList = $("<ul>");
 
     fillContents(referenceNestedList, referenceContents);
     referenceNestedList.appendTo(referenceList);
@@ -58,6 +62,10 @@ function generateSidebar(referenceContents, tutorialContents, userGuideContents)
     fillContents(userGuideNestedList, userGuideContents);
     userGuideNestedList.appendTo(userGuideList);
     userGuideList.appendTo(commonList);
+
+    fillContents(debugNestedList, debugContents);
+    debugNestedList.appendTo(debugList);
+    debugList.appendTo(commonList);
 
     header.appendTo(sidebarNav);
     commonList.appendTo(sidebarNav);
@@ -152,6 +160,21 @@ function getUserGuideContents() {
         {
             "href":"../user_guide/model_import.html",
             "title":"Импорт модели"
+        },
+        {
+            "href":"../user_guide/show_animation.html",
+            "title":"Включить анимацию"
+        }
+    ];
+
+    return contents;
+}
+
+function getDebugContents() {
+    var contents = [
+        {
+            "href":"../debug/trace.html",
+            "title":"Трассировка"
         }
     ];
 
@@ -159,5 +182,5 @@ function getUserGuideContents() {
 }
 
 $(document).ready(function() {
-    generateSidebar(getReferenceContents(), getTutorialContents(), getUserGuideContents());
+    generateSidebar(getReferenceContents(), getTutorialContents(), getUserGuideContents(), getDebugContents());
 });

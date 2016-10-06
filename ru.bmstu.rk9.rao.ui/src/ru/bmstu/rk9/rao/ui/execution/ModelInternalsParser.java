@@ -49,11 +49,9 @@ import ru.bmstu.rk9.rao.lib.result.AbstractResult;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
-
-import ru.bmstu.rk9.rao.ui.process.BlockConverter;
-import ru.bmstu.rk9.rao.ui.process.ProcessEditor;
-import ru.bmstu.rk9.rao.ui.process.model.ProcessModelNode;
-
+import ru.bmstu.rk9.rao.ui.gef.process.BlockConverter;
+import ru.bmstu.rk9.rao.ui.gef.process.ProcessEditor;
+import ru.bmstu.rk9.rao.ui.gef.process.model.ProcessModelNode;
 import ru.bmstu.rk9.rao.rao.PatternType;
 import ru.bmstu.rk9.rao.rao.RaoEntity;
 import ru.bmstu.rk9.rao.rao.RaoModel;

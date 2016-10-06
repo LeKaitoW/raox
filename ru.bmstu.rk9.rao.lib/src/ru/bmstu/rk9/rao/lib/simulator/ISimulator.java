@@ -4,6 +4,7 @@ import java.util.List;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.event.Event;
+import ru.bmstu.rk9.rao.lib.logger.Logger;
 import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.result.AbstractResult;
@@ -36,4 +37,6 @@ public interface ISimulator {
 	public SimulationStopCode run();
 
 	public List<AbstractResult<?>> getResults();
+
+	public Logger getLogger();
 }

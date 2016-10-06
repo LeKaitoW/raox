@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Rao X Language
-Bundle-Vendor: rdostudio.com
+Bundle-Vendor: raox.ru
 Bundle-Version: 3.1.2
 Bundle-SymbolicName: ru.bmstu.rk9.rao;singleton:=true
 Bundle-ActivationPolicy: lazy

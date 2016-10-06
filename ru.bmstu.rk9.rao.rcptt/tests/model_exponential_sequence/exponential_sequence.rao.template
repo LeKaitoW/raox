@@ -11,10 +11,10 @@ event E() {
 	E.plan(currentTime + 5)
 }
 
-set init() {
+def init() {
 	E.plan(currentTime)
 }
 
-set terminateCondition() {
+def terminateCondition() {
 	return currentTime > 100
 }

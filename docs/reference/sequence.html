@@ -125,11 +125,11 @@ event Событие_прихода_клиента() {
     Событие_прихода_клиента.plan(currentTime + интервал_прихода.next(1/30.0));
 }
 
-set init() {
+def init() {
     Событие_прихода_клиента.plan(0);
 }
 
-set terminateCondition() {
+def terminateCondition() {
     return currentTime >= 100;
 }
 </code></pre>
@@ -157,11 +157,11 @@ event Event() {
     Event.plan(currentTime + system.time);
 }
 
-set init() {
+def init() {
     Event.plan(0);
 }
 
-set terminateCondition() {
+def terminateCondition() {
     return currentTime >= 10;
 }
 </code></pre>
@@ -202,11 +202,11 @@ event Событие_прихода_клиента() {
 sequence случайный_тип_клиента = new DiscreteHistogram&lt;Тип_клиента&gt;(1234567,
     #[Тип_клиента.Тип1 -> 7.0, Тип_клиента.Тип2 -> 3.0]);
 
-set init() {
+def init() {
     Событие_прихода_клиента.plan(0);
 }
 
-set terminateCondition() {
+def terminateCondition() {
     return currentTime >= 40;
 }
 </code></pre>
@@ -238,11 +238,11 @@ event Event() {
     Event.plan(currentTime + system.time);
 }
 
-set init() {
+def init() {
     Event.plan(0);
 }
 
-set terminateCondition() {
+def terminateCondition() {
     return currentTime >= 500;
 }
 </code></pre>

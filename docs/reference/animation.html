@@ -12,17 +12,17 @@
 <h2>Анимация</h2>
 <p>В модели может быть несколько кадров. В процессе прогона отображается выбранный из списка. Описание кадра анимации имеет следующий вид:</p>
 <pre><code class="rao">frame <i>Имя_кадра</i> {
-    set init() {
+    def init() {
         <i>блок_инициализации</i>
     }
-    set draw() {
+    def draw() {
         <i>тело_кадра</i>
     }
 }
 </code></pre>
 <h3>Блок инициализации</h3>
 <p>Используется для задания фона и размеров фрейма:</p>
-<pre><code class="rao">set init() {
+<pre><code class="rao">def init() {
     background = new Background(800, 600, RaoColor.WHITE)
 }
 </code></pre>
@@ -345,20 +345,20 @@ drawEllipse(double x, double y,
     Timer.plan(currentTime + 1);
 }
 
-set init() {
+def init() {
     Timer.plan(currentTime + 1);
 }
 
-set terminateCondition() {
+def terminateCondition() {
     return currentTime > 200;
 }
 
 frame WhosThat {
-    set init() {
+    def init() {
         background = new Background(300, 300, RaoColor.WHITE);
     }
 
-    set draw() {
+    def draw() {
         val dy = Math.abs(4 - currentTime % 8) as int;
         val dx = Math.abs(8 - currentTime % 16) as int;
         val bodyColor = new RaoColor(255, 153, 188);

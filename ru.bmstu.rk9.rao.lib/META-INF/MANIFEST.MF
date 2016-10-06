@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Rao X Library
 Bundle-SymbolicName: ru.bmstu.rk9.rao.lib;singleton:=true
 Bundle-Version: 3.1.2
-Bundle-Vendor: rdostudio.com
+Bundle-Vendor: raox.ru
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: ru.bmstu.rk9.rao.lib.animation,
  ru.bmstu.rk9.rao.lib.database,
@@ -11,6 +11,7 @@ Export-Package: ru.bmstu.rk9.rao.lib.animation,
  ru.bmstu.rk9.rao.lib.event,
  ru.bmstu.rk9.rao.lib.exception,
  ru.bmstu.rk9.rao.lib.json,
+ ru.bmstu.rk9.rao.lib.logger,
  ru.bmstu.rk9.rao.lib.modeldata,
  ru.bmstu.rk9.rao.lib.naming,
  ru.bmstu.rk9.rao.lib.notification,

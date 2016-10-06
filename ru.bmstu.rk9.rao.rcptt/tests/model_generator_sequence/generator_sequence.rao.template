@@ -20,10 +20,10 @@ event GenSeqTestEvent() {
 	GenSeqTestEvent.plan(currentTime + 5)
 }
 
-set init() {
+def init() {
 	GenSeqTestEvent.plan(currentTime)
 }
 
-set terminateCondition() {
+def terminateCondition() {
 	return currentTime > 100
 }

@@ -6,6 +6,7 @@ import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.SystemEntryType;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
+import ru.bmstu.rk9.rao.lib.logger.Logger;
 import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.result.AbstractResult;
@@ -100,6 +101,10 @@ public class CurrentSimulator {
 
 	public static void pushEvent(Event event) {
 		currentSimulator.pushEvent(event);
+	}
+
+	public static Logger getLogger() {
+		return currentSimulator.getLogger();
 	}
 
 	public enum ExecutionState {

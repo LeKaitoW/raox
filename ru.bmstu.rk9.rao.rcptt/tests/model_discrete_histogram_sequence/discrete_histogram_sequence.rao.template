@@ -17,10 +17,10 @@ event HistTestEvent() {
 	HistTestEvent.plan(currentTime + 1)
 }
 
-set init() {
+def init() {
 	HistTestEvent.plan(currentTime)
 }
 
-set terminateCondition() {
+def terminateCondition() {
 	return currentTime > 100
 }

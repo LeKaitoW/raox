@@ -1,0 +1,35 @@
+type Y {
+	int a
+}
+
+resource y1 = Y.create(0)
+
+operation Op1() {
+	relevant xx = Y.accessible.filter[a < 20].any
+
+	def duration() {
+		return 20;
+	}
+
+	def begin() {
+		xx.a = xx.a + 1
+	}
+
+	def end() {
+		xx.a = xx.a + 10
+	}
+}
+
+operation Op2() {
+	relevant xx = Y.all.filter[a < 2].any
+
+	set begin() {
+		xx.a = xx.a + 1
+	}
+}
+
+logic L {
+	activity a = new Activity(Op1.create())
+	activity b = new Activity(Op2.create())
+}
+
