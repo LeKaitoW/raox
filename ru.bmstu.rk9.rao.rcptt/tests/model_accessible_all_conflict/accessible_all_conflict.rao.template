@@ -23,7 +23,7 @@ operation Op1() {
 operation Op2() {
 	relevant xx = Y.all.filter[a < 2].any
 
-	set begin() {
+	def begin() {
 		xx.a = xx.a + 1
 	}
 }
