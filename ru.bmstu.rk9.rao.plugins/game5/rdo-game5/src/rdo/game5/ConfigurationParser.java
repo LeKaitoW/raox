@@ -30,47 +30,36 @@ public class ConfigurationParser {
 		return object;
 	}
 
-	public static String parseConfig(JSONObject object) {
+	public static String getResourcesCode(JSONObject object) {
 		final JSONArray places = (JSONArray) object.get("places");
-		final String configuration = String
-				.format("resource фишка1 = Фишка.create(1, %1$s)\n"
-						+ "resource фишка2 = Фишка.create(2, %2$s)\n"
-						+ "resource фишка3 = Фишка.create(3, %3$s)\n"
-						+ "resource фишка4 = Фишка.create(4, %4$s)\n"
-						+ "resource фишка5 = Фишка.create(5, %5$s)\n"
-						+ "resource дырка = Дырка.create(%6$s)\n"
-						+ "\n"
-						+ "search Расстановка_фишек {\n"
-						+ "\tedge перемещение_вправо = new Edge(Перемещение_фишки.create(Место_дырки.СПРАВА, 1), %10$s, ApplyOrder.%9$s)\n"
-						+ "\tedge перемещение_влево = new Edge(Перемещение_фишки.create(Место_дырки.СЛЕВА, -1), %12$s, ApplyOrder.%11$s)\n"
-						+ "\tedge перемещение_вверх = new Edge(Перемещение_фишки.create(Место_дырки.СВЕРХУ, -3), %14$s, ApplyOrder.%13$s)\n"
-						+ "\tedge перемещение_вниз = new Edge(Перемещение_фишки.create(Место_дырки.СНИЗУ, 3), %16$s, ApplyOrder.%15$s)\n"
-						+ "\n"
-						+ "\tset init() {\n"
-						+ "\t\tstartCondition = [Фишка.all.exists[номер != место]]\n"
-						+ "\t\tterminateCondition = [Фишка.all.forall[номер == место]]\n"
-						+ "\t\tcompareTops = %7$s\n"
-						+ "\t\theuristic = [(%8$s) as double]\n"
-						+ "\t}\n"
-						+ "}\n%17$s",
-						places.get(0),
-						places.get(1),
-						places.get(2),
-						places.get(3),
-						places.get(4),
-						places.get(5),
-						object.get("compare"),
-						object.get("heuristic"),
-						object.get("computeRight").toString().toUpperCase(),
-						object.get("costRight"),
-						object.get("computeLeft").toString().toUpperCase(),
-						object.get("costLeft"),
-						object.get("computeUp").toString().toUpperCase(),
-						object.get("costUp"),
-						object.get("computeDown").toString().toUpperCase(),
-						object.get("costDown"),
-						object.get("code").equals("") ? "" : "\n"
-								+ object.get("code") + "\n");
-		return configuration;
+		final String code = "resource фишка1 = Фишка.create(1, " + places.get(0) + ")\n"
+				+ "resource фишка2 = Фишка.create(2, " + places.get(1) + ")\n" + "resource фишка3 = Фишка.create(3, "
+				+ places.get(2) + ")\n" + "resource фишка4 = Фишка.create(4, " + places.get(3) + ")\n"
+				+ "resource фишка5 = Фишка.create(5, " + places.get(4) + ")\n" + "resource дырка = Дырка.create("
+				+ places.get(5) + ")\n" + "\n";
+		return code;
+	}
+
+	public static String getSearchCode(JSONObject object) {
+		final String code = "search Расстановка_фишек {\n"
+				+ "\tedge перемещение_вправо = new Edge(Перемещение_фишки.create(Место_дырки.СПРАВА, 1), "
+				+ object.get("costRight") + ", ApplyOrder." + object.get("computeRight").toString().toUpperCase()
+				+ ")\n" + "\tedge перемещение_влево = new Edge(Перемещение_фишки.create(Место_дырки.СЛЕВА, -1), "
+				+ object.get("costLeft") + ", ApplyOrder." + object.get("computeLeft").toString().toUpperCase() + ")\n"
+				+ "\tedge перемещение_вверх = new Edge(Перемещение_фишки.create(Место_дырки.СВЕРХУ, -3), "
+				+ object.get("costUp") + ", ApplyOrder." + object.get("computeUp").toString().toUpperCase() + ")\n"
+				+ "\tedge перемещение_вниз = new Edge(Перемещение_фишки.create(Место_дырки.СНИЗУ, 3), "
+				+ object.get("costDown") + ", ApplyOrder." + object.get("computeDown").toString().toUpperCase() + ")\n"
+				+ "\n" + "\tset init() {\n" + "\t\tstartCondition = [Фишка.all.exists[номер != место]]\n"
+				+ "\t\tterminateCondition = [Фишка.all.forall[номер == место]]\n" + "\t\tcompareTops = "
+				+ object.get("compare") + "\n" + "\t\theuristic = [(" + object.get("heuristic") + ") as double]\n"
+				+ "\t}\n" + "}";
+
+		return code;
+	}
+
+	public static String getCustomCode(JSONObject object) {
+		final String code = object.get("code").equals("") ? "" : "\n" + object.get("code") + "\n";
+		return code;
 	}
 }

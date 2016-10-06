@@ -1,12 +1,8 @@
 package rdo.game5;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +32,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.xtext.ui.XtextProjectHelper;
-import org.json.simple.JSONObject;
 import org.osgi.framework.Bundle;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -54,7 +49,6 @@ public class Game5ProjectConfigurator {
 	private static final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 
 	public static final ProjectWizardStatus initializeProject(String projectName) {
-
 		final IServiceLocator serviceLocator = PlatformUI.getWorkbench();
 		final IProgressMonitor iProgressMonitor = (IProgressMonitor) serviceLocator.getService(IProgressMonitor.class);
 		game5Project = root.getProject(projectName);
@@ -74,7 +68,6 @@ public class Game5ProjectConfigurator {
 	}
 
 	private static final void configureProject() throws CoreException, BackingStoreException, IOException {
-
 		IProjectDescription description;
 		IJavaProject game5JavaProject;
 		ProjectScope projectScope;
@@ -129,28 +122,14 @@ public class Game5ProjectConfigurator {
 		game5JavaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
 	}
 
-	@SuppressWarnings("resource")
 	private static void createModelFile(IFile configIFile) throws IOException, CoreException {
-
 		final String modelName = modelPath;
 		IPath modelIPath = root.getLocation().append(game5Project.getFullPath()).append(modelName);
 		File modelFile = new File(modelIPath.toString());
-		IFile modelIFile = game5Project.getFile(modelName);
-
 		modelFile.createNewFile();
-		InputStream inputStream = Game5ProjectConfigurator.class.getClassLoader()
-				.getResourceAsStream(modelTemplatePath);
-		modelIFile.create(inputStream, true, null);
-		OutputStream outputStream = new FileOutputStream(
-				configIFile.getLocation().removeLastSegments(1).append(modelPath).toString(), true);
-		PrintStream printStream = new PrintStream(outputStream, true, StandardCharsets.UTF_8.name());
-		final JSONObject object = ConfigurationParser.parseObject(configIFile);
-		final String configuration = ConfigurationParser.parseConfig(object);
-		printStream.print(configuration);
 	}
 
 	private static final IFile createConfigFile() throws IOException, CoreException {
-
 		final String configName = "game5.json";
 		IPath configIPath = root.getLocation().append(game5Project.getFullPath().append(configName));
 		final File configFile = new File(configIPath.toString());

@@ -110,6 +110,14 @@ public class Game5View extends EditorPart {
 		final IFile configIFile = input.getFile();
 		setPartName(configIFile.getProject().getName());
 		object = ConfigurationParser.parseObject(configIFile);
+		try {
+			fillModelFile(configIFile);
+		} catch (IOException | CoreException e) {
+			e.printStackTrace();
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error",
+					"Internal error occured while saving file:\n" + e.getMessage());
+			throw new Game5Exception(e);
+		}
 
 		final GridLayout gridLayout = new GridLayout(5, false);
 		composite.setLayout(gridLayout);
@@ -528,7 +536,6 @@ public class Game5View extends EditorPart {
 		}
 
 		heuristicList.addKeyListener(new ConfigurationKeyListener("heuristic", () -> heuristicList.getText()));
-
 		scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
@@ -536,25 +543,19 @@ public class Game5View extends EditorPart {
 	public void setFocus() {
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void doSave(IProgressMonitor arg0) {
-		object.put("code", editor.getEditablePart());
 		try {
 			IFile configIFile = (IFile) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 					.getActiveEditor().getEditorInput().getAdapter(IFile.class);
-			OutputStream outputStream = new FileOutputStream(configIFile.getRawLocation().toString());
-			PrintStream printStream = new PrintStream(outputStream, true, StandardCharsets.UTF_8.name());
-			printStream.print(object.toString());
-			printStream.close();
 			fillModelFile(configIFile);
-			configIFile.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		} catch (IOException | CoreException e) {
 			e.printStackTrace();
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error",
 					"Internal error occured while saving file:\n" + e.getMessage());
 			throw new Game5Exception(e);
 		}
+
 		setDirty(false);
 	}
 
@@ -591,17 +592,25 @@ public class Game5View extends EditorPart {
 		firePropertyChange(IEditorPart.PROP_DIRTY);
 	}
 
-	private static final void fillModelFile(IFile configIFile) throws IOException {
+	private static final void fillModelFile(IFile configIFile) throws IOException, CoreException {
+		OutputStream outputStream = null;
 		final InputStream inputStream = Game5ProjectConfigurator.class.getClassLoader()
 				.getResourceAsStream(Game5ProjectConfigurator.modelTemplatePath);
-		OutputStream outputStream = null;
 
 		try {
+			OutputStream configOutputStream = new FileOutputStream(configIFile.getRawLocation().toString());
+			PrintStream outputPrintStream = new PrintStream(configOutputStream, true, StandardCharsets.UTF_8.name());
+			outputPrintStream.print(object.toString());
+			outputPrintStream.close();
+
 			InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8.name());
 			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 			outputStream = new FileOutputStream(configIFile.getLocation().removeLastSegments(1)
 					.append(Game5ProjectConfigurator.modelPath).toString());
 			PrintStream printStream = new PrintStream(outputStream, true, StandardCharsets.UTF_8.name());
+
+			final String resourcesCode = ConfigurationParser.getResourcesCode(object);
+			printStream.print(resourcesCode);
 
 			String modelTemplateCode = bufferedReader.readLine();
 			while (modelTemplateCode != null) {
@@ -609,9 +618,15 @@ public class Game5View extends EditorPart {
 				modelTemplateCode = bufferedReader.readLine();
 			}
 
-			final String configuration = ConfigurationParser.parseConfig(object);
-			printStream.print(configuration);
+			final String searchCode = ConfigurationParser.getSearchCode(object);
+			printStream.print(searchCode);
+
+			final String customCode = ConfigurationParser.getCustomCode(object);
+			printStream.print(customCode);
+
 			printStream.close();
+
+			configIFile.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		} finally {
 			inputStream.close();
 			if (outputStream != null) {
@@ -619,6 +634,7 @@ public class Game5View extends EditorPart {
 				outputStream.close();
 			}
 		}
+
 	}
 
 	public class ConfigurationListener implements SelectionListener {
