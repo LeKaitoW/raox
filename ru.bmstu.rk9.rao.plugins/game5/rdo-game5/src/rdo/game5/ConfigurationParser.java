@@ -50,7 +50,7 @@ public class ConfigurationParser {
 				+ object.get("costUp") + ", ApplyOrder." + object.get("computeUp").toString().toUpperCase() + ")\n"
 				+ "\tedge перемещение_вниз = new Edge(Перемещение_фишки.create(Место_дырки.СНИЗУ, 3), "
 				+ object.get("costDown") + ", ApplyOrder." + object.get("computeDown").toString().toUpperCase() + ")\n"
-				+ "\n" + "\tset init() {\n" + "\t\tstartCondition = [Фишка.all.exists[номер != место]]\n"
+				+ "\n" + "\tdef init() {\n" + "\t\tstartCondition = [Фишка.all.exists[номер != место]]\n"
 				+ "\t\tterminateCondition = [Фишка.all.forall[номер == место]]\n" + "\t\tcompareTops = "
 				+ object.get("compare") + "\n" + "\t\theuristic = [(" + object.get("heuristic") + ") as double]\n"
 				+ "\t}\n" + "}";
