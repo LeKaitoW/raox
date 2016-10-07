@@ -168,6 +168,39 @@ public class ModelInternalsParser {
 		}
 
 		EList<RaoEntity> entities = model.getObjects();
+
+		for (RaoEntity entity : entities) {
+			if (!(entity instanceof ru.bmstu.rk9.rao.rao.ResourceType))
+				continue;
+
+			String name = modelClassName + "." + entity.getName();
+
+			JSONArray parameters = new JSONArray();
+			int offset = 0;
+			int variableWidthParameterIndex = 0;
+			for (ru.bmstu.rk9.rao.rao.FieldDeclaration field : ((ru.bmstu.rk9.rao.rao.ResourceType) entity)
+					.getParameters()) {
+				DataType dataType = DataType.getByName(field.getDeclaration().getParameterType().getSimpleName());
+
+				parameters.put(new JSONObject().put(ModelStructureConstants.NAME, field.getDeclaration().getName())
+						.put(ModelStructureConstants.TYPE, dataType).put(ModelStructureConstants.OFFSET, offset)
+						.put(ModelStructureConstants.VARIABLE_WIDTH_PARAMETER_INDEX,
+								dataType == DataType.OTHER ? variableWidthParameterIndex : -1));
+
+				if (dataType == DataType.OTHER)
+					variableWidthParameterIndex++;
+				else
+					offset += dataType.getSize();
+			}
+
+			simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.RESOURCE_TYPES)
+					.put(new JSONObject().put(ModelStructureConstants.NAME, name)
+							.put(ModelStructureConstants.NAMED_RESOURCES, new JSONArray())
+							.put(ModelStructureConstants.PARAMETERS, parameters)
+							.put(ModelStructureConstants.FINAL_OFFSET, offset));
+
+		}
+
 		for (RaoEntity entity : entities) {
 			String name = modelClassName + "." + entity.getName();
 
@@ -234,33 +267,6 @@ public class ModelInternalsParser {
 				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.SEARCHES)
 						.put(new JSONObject().put(ModelStructureConstants.NAME, name).put(ModelStructureConstants.EDGES,
 								edges));
-				continue;
-			}
-
-			if (entity instanceof ru.bmstu.rk9.rao.rao.ResourceType) {
-				JSONArray parameters = new JSONArray();
-				int offset = 0;
-				int variableWidthParameterIndex = 0;
-				for (ru.bmstu.rk9.rao.rao.FieldDeclaration field : ((ru.bmstu.rk9.rao.rao.ResourceType) entity)
-						.getParameters()) {
-					DataType dataType = DataType.getByName(field.getDeclaration().getParameterType().getSimpleName());
-
-					parameters.put(new JSONObject().put(ModelStructureConstants.NAME, field.getDeclaration().getName())
-							.put(ModelStructureConstants.TYPE, dataType).put(ModelStructureConstants.OFFSET, offset)
-							.put(ModelStructureConstants.VARIABLE_WIDTH_PARAMETER_INDEX,
-									dataType == DataType.OTHER ? variableWidthParameterIndex : -1));
-
-					if (dataType == DataType.OTHER)
-						variableWidthParameterIndex++;
-					else
-						offset += dataType.getSize();
-				}
-
-				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.RESOURCE_TYPES)
-						.put(new JSONObject().put(ModelStructureConstants.NAME, name)
-								.put(ModelStructureConstants.NAMED_RESOURCES, new JSONArray())
-								.put(ModelStructureConstants.PARAMETERS, parameters)
-								.put(ModelStructureConstants.FINAL_OFFSET, offset));
 				continue;
 			}
 
