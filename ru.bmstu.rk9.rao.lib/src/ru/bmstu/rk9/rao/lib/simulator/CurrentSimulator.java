@@ -2,6 +2,8 @@ package ru.bmstu.rk9.rao.lib.simulator;
 
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
+
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.SystemEntryType;
 import ru.bmstu.rk9.rao.lib.event.Event;
@@ -173,5 +175,9 @@ public class CurrentSimulator {
 
 		onFinish(simFinishType);
 		return code;
+	}
+
+	public static IProject getProject() {
+		return currentSimulator.getProject();
 	}
 }

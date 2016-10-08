@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.eclipse.core.resources.IProject;
+
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.dpt.DPTManager;
 import ru.bmstu.rk9.rao.lib.event.Event;
@@ -19,6 +21,13 @@ import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
 
 public class Simulator implements ISimulator {
+	public Simulator() {
+	}
+
+	public Simulator(IProject project) {
+		this.project = project;
+	}
+
 	@Override
 	public void preinitilize(SimulatorPreinitializationInfo preinitializationInfo) {
 		modelState = new ModelState(preinitializationInfo.resourceClasses);
@@ -169,5 +178,12 @@ public class Simulator implements ISimulator {
 			if (c.get())
 				return true;
 		return false;
+	}
+
+	IProject project = null;
+
+	@Override
+	public IProject getProject() {
+		return project;
 	}
 }

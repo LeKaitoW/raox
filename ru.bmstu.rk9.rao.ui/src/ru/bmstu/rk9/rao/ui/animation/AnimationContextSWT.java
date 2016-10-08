@@ -2,18 +2,20 @@ package ru.bmstu.rk9.rao.ui.animation;
 
 import java.util.HashMap;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Display;
 
 import ru.bmstu.rk9.rao.lib.animation.Alignment;
 import ru.bmstu.rk9.rao.lib.animation.AnimationContext;
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
 import ru.bmstu.rk9.rao.lib.animation.Background;
 import ru.bmstu.rk9.rao.lib.animation.RaoColor;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class AnimationContextSWT implements AnimationContext {
 	private Display display;
@@ -216,5 +218,29 @@ public class AnimationContextSWT implements AnimationContext {
 
 	Color createColor(RaoColor color) {
 		return new Color(display, color.r, color.g, color.b);
+	}
+
+	private HashMap<String, Image> images = new HashMap<String, Image>();
+
+	private final Image getOrCreateImage(String name) {
+		Image image = images.get(name);
+		if (image == null) {
+			image = new Image(display, ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/"
+					+ CurrentSimulator.getProject().getName() + "/" + name);
+			images.put(name, image);
+		}
+		return image;
+	}
+
+	@Override
+	public void drawImage(String name, int x, int y) {
+		paintContext.drawImage(getOrCreateImage(name), x, y);
+	}
+
+	@Override
+	public void drawImage(String name, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY,
+			int destWidth, int destHeight) {
+		paintContext.drawImage(getOrCreateImage(name), srcX, srcY, srcWidth, srcHeight, destX, destY, destWidth,
+				destHeight);
 	}
 }

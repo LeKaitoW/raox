@@ -11,8 +11,8 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
 
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
+import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
 import ru.bmstu.rk9.rao.ui.gef.process.ProcessParsingException;
@@ -58,7 +58,7 @@ public class ExecutionJobProvider {
 				ExportTraceHandler.setCurrentProject(project);
 				SerializationConfigView.initNames();
 
-				CurrentSimulator.set(new Simulator());
+				CurrentSimulator.set(new Simulator(project));
 
 				try {
 					CurrentSimulator.preinitialize(parser.getSimulatorPreinitializationInfo());
