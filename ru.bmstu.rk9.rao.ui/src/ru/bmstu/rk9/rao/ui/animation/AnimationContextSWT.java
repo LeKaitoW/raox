@@ -250,6 +250,13 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	@Override
+	public void drawImage(String name, int destX, int destY, int destWidth, int destHeight) {
+		final Image image = getOrCreateImage(name);
+		paintContext.drawImage(image, 0, 0, image.getBounds().width, image.getBounds().height, destX, destY, destWidth,
+				destHeight);
+	}
+
+	@Override
 	public void drawImage(String name, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY,
 			int destWidth, int destHeight) {
 		paintContext.drawImage(getOrCreateImage(name), srcX, srcY, srcWidth, srcHeight, destX, destY, destWidth,
