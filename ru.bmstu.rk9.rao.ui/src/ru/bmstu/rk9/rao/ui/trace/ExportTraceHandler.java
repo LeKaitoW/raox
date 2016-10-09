@@ -8,7 +8,6 @@ import java.util.List;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -17,6 +16,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
+import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceOutput;
 
@@ -71,7 +71,7 @@ public class ExportTraceHandler extends AbstractHandler {
 	}
 
 	public final static void exportTraceRegular() {
-		if (!CurrentSimulator.isInitialized() || !ready())
+		if (!ready())
 			return;
 
 		Tracer tracer = new Tracer(CurrentSimulator.getStaticModelData());
@@ -91,7 +91,7 @@ public class ExportTraceHandler extends AbstractHandler {
 	private static LegacyTracer legacyTracer = null;
 
 	public final static void exportTraceLegacy() {
-		if (!CurrentSimulator.isInitialized() || !ready())
+		if (!ready())
 			return;
 
 		if (legacyTracer == null) {
@@ -112,8 +112,11 @@ public class ExportTraceHandler extends AbstractHandler {
 	}
 
 	private final static PrintWriter initializeWriter(String suffix) {
-		IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
-		IPath filePath = workspacePath.append(currentProject.getFullPath().append(currentProject.getName() + suffix));
+
+		final IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+		final String projectName = CurrentSimulator.getStaticModelData().getModelStructure()
+				.getString(ModelStructureConstants.NAME);
+		IPath filePath = workspacePath.append(projectName).append(projectName + suffix);
 
 		PrintWriter writer = null;
 		try {
@@ -129,17 +132,10 @@ public class ExportTraceHandler extends AbstractHandler {
 	}
 
 	private final static boolean ready() {
-		return (currentProject != null);
+		return CurrentSimulator.isInitialized() && !CurrentSimulator.getDatabase().getAllEntries().isEmpty();
 	}
 
 	public final static void reset() {
-		currentProject = null;
 		legacyTracer = null;
-	}
-
-	private static IProject currentProject = null;
-
-	public final static void setCurrentProject(IProject project) {
-		currentProject = project;
 	}
 }
