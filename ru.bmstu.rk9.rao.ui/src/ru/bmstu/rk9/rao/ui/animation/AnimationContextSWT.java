@@ -1,19 +1,24 @@
 package ru.bmstu.rk9.rao.ui.animation;
 
 import java.util.HashMap;
+import java.util.Map;
 
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Display;
 
 import ru.bmstu.rk9.rao.lib.animation.Alignment;
 import ru.bmstu.rk9.rao.lib.animation.AnimationContext;
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
 import ru.bmstu.rk9.rao.lib.animation.Background;
 import ru.bmstu.rk9.rao.lib.animation.RaoColor;
+import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class AnimationContextSWT implements AnimationContext {
 	private Display display;
@@ -51,6 +56,13 @@ public class AnimationContextSWT implements AnimationContext {
 			lastStored.dispose();
 
 		storedFrames.put(frame, drawFrameBuffer(frame));
+	}
+
+	void dispose() {
+		for (Map.Entry<String, Image> image : images.entrySet()) {
+			image.getValue().dispose();
+		}
+		images.clear();
 	}
 
 	private Image drawFrameBuffer(AnimationFrame frame) {
@@ -216,5 +228,38 @@ public class AnimationContextSWT implements AnimationContext {
 
 	Color createColor(RaoColor color) {
 		return new Color(display, color.r, color.g, color.b);
+	}
+
+	private final Map<String, Image> images = new HashMap<String, Image>();
+
+	private final Image getOrCreateImage(String name) {
+		Image image = images.get(name);
+		if (image == null) {
+			final IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+			final String projectName = CurrentSimulator.getStaticModelData().getModelStructure()
+					.getString(ModelStructureConstants.NAME);
+			image = new Image(display, workspacePath.append(projectName).append(name).toString());
+			images.put(name, image);
+		}
+		return image;
+	}
+
+	@Override
+	public void drawImage(String name, int x, int y) {
+		paintContext.drawImage(getOrCreateImage(name), x, y);
+	}
+
+	@Override
+	public void drawImage(String name, int destX, int destY, int destWidth, int destHeight) {
+		final Image image = getOrCreateImage(name);
+		paintContext.drawImage(image, 0, 0, image.getBounds().width, image.getBounds().height, destX, destY, destWidth,
+				destHeight);
+	}
+
+	@Override
+	public void drawImage(String name, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY,
+			int destWidth, int destHeight) {
+		paintContext.drawImage(getOrCreateImage(name), srcX, srcY, srcWidth, srcHeight, destX, destY, destWidth,
+				destHeight);
 	}
 }

@@ -27,4 +27,11 @@ public interface AnimationContext {
 			RaoColor borderColour);
 
 	public void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3);
+
+	public void drawImage(String name, int x, int y);
+
+	public void drawImage(String name, int destX, int destY, int destWidth, int destHeight);
+
+	public void drawImage(String name, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY,
+			int destWidth, int destHeight);
 }
