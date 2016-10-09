@@ -115,13 +115,13 @@ RaoColor.DARK_YELLOW
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">drawText(String text, double x, double y)
+        <td><pre><code class="rao">drawText(String text, int x, int y)
 
-drawText(String text, double x, double y,
+drawText(String text, int x, int y,
   RaoColor color)
 
-drawText(String text, double x, double y,
-  RaoColor color, double width, Alignment alignment)</code></pre></td>
+drawText(String text, int x, int y,
+  RaoColor color, int width, Alignment alignment)</code></pre></td>
         <td>Выводит текст</td>
         <td>
             <table style="width:100%">
@@ -155,9 +155,9 @@ Alignment.CENTER</code></pre></td>
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">drawLine(double x1, double y1, double x2, double y2)
+        <td><pre><code class="rao">drawLine(int x1, int y1, int x2, int y2)
 
-drawLine(double x1, double y1, double x2, double y2,
+drawLine(int x1, int y1, int x2, int y2,
   RaoColor color)</code></pre></td>
         <td>Выводит отрезок</td>
         <td>
@@ -186,11 +186,11 @@ drawLine(double x1, double y1, double x2, double y2,
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">drawRectangle(double x, double y,
-  double width, double height)
+        <td><pre><code class="rao">drawRectangle(int x, int y,
+  int width, int height)
 
-drawRectangle(double x, double y,
-  double width, double height,
+drawRectangle(int x, int y,
+  int width, int height,
   RaoColor fillColor,
   RaoColor borderColor)</code></pre></td>
         <td>Выводит прямоугольник</td>
@@ -224,13 +224,13 @@ drawRectangle(double x, double y,
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">drawTriangle(double x1, double y1,
-  double x2, double y2,
-  double x3, double y3)
+        <td><pre><code class="rao">drawTriangle(int x1, int y1,
+  int x2, int y2,
+  int x3, int y3)
 
-drawTriangle(double x1, double y1,
-  double x2, double y2,
-  double x3, double y3,
+drawTriangle(int x1, int y1,
+  int x2, int y2,
+  int x3, int y3,
   RaoColor fillColor, RaoColor borderColor)</code></pre></td>
         <td>Выводит треугольник</td>
         <td>
@@ -271,9 +271,9 @@ drawTriangle(double x1, double y1,
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">drawCircle(double x, double y, double radius)
+        <td><pre><code class="rao">drawCircle(int x, int y, int radius)
 
-drawCircle(double x, double y, double radius,
+drawCircle(int x, int y, int radius,
   RaoColor fillColor, RaoColor borderColor)</code></pre></td>
         <td>Выводит круг</td>
         <td>
@@ -302,11 +302,11 @@ drawCircle(double x, double y, double radius,
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">drawEllipse(double x, double y,
-  double width, double height)
+        <td><pre><code class="rao">drawEllipse(int x, int y,
+  int width, int height)
 
-drawEllipse(double x, double y,
-  double width, double height,
+drawEllipse(int x, int y,
+  int width, int height,
   RaoColor fillColor, RaoColor borderColor)</code></pre></td>
         <td>Выводит эллипс</td>
         <td>
@@ -334,6 +334,49 @@ drawEllipse(double x, double y,
                 <tr>
                     <td><code class="rao">borderColor</code></td>
                     <td>цвет границы эллипса</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td><pre><code class="rao">drawImage(String name,
+  int x, int y)
+
+drawImage(String name,
+  int srcX, int srcY,
+  int srcWidth, int srcHeight,
+  int destX, int destY,
+  int destWidth, int destHeight)</code></pre></td>
+        <td>Выводит изображение</td>
+        <td>
+            <table style="width:100%">
+                <tr>
+                    <td width="20%"><code class="rao">name</code></td>
+                    <td>имя файла</td>
+                </tr>
+                <tr>
+                    <td width="20%"><code class="rao">x</code></td>
+                    <td>координата <code>x</code> левого верхнего угла изображения</td>
+                </tr>
+                <tr>
+                    <td><code class="rao">y</code></td>
+                    <td>координата <code>y</code> левого верхнего угла изображения</td>
+                </tr>
+                <tr>
+                    <td>
+<code>srcX</code><br>
+<code>srcY</code><br>
+<code>srcWidth</code><br>
+<code>srcHeight</code></td>
+                    <td>часть исходного изображения</td>
+                </tr>
+                <tr>
+                    <td>
+<code>destX</code><br>
+<code>destY</code><br>
+<code>destWidth</code><br>
+<code>destHeight</code></td>
+                    <td>прямоугольная область на экране</td>
                 </tr>
             </table>
         </td>
