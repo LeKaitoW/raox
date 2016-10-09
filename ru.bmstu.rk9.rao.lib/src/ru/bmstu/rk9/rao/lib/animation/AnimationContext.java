@@ -30,6 +30,6 @@ public interface AnimationContext {
 
 	public void drawImage(String name, int x, int y);
 
-	void drawImage(String name, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY, int destWidth,
+	public void drawImage(String name, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY, int destWidth,
 			int destHeight);
 }

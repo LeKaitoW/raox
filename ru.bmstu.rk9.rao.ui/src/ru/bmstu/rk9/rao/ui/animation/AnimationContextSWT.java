@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rao.ui.animation;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.swt.SWT;
@@ -53,6 +54,13 @@ public class AnimationContextSWT implements AnimationContext {
 			lastStored.dispose();
 
 		storedFrames.put(frame, drawFrameBuffer(frame));
+	}
+
+	void dispose() {
+		for (Map.Entry<String, Image> image : images.entrySet()) {
+			image.getValue().dispose();
+		}
+		images.clear();
 	}
 
 	private Image drawFrameBuffer(AnimationFrame frame) {
@@ -220,7 +228,7 @@ public class AnimationContextSWT implements AnimationContext {
 		return new Color(display, color.r, color.g, color.b);
 	}
 
-	private HashMap<String, Image> images = new HashMap<String, Image>();
+	private final Map<String, Image> images = new HashMap<String, Image>();
 
 	private final Image getOrCreateImage(String name) {
 		Image image = images.get(name);
