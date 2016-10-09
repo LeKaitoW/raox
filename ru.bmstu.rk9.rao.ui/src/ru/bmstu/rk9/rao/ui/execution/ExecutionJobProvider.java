@@ -55,10 +55,9 @@ public class ExecutionJobProvider {
 
 				// TODO mess directly below, generalize in some way?
 				ExportTraceHandler.reset();
-				ExportTraceHandler.setCurrentProject(project);
 				SerializationConfigView.initNames();
 
-				CurrentSimulator.set(new Simulator(project));
+				CurrentSimulator.set(new Simulator());
 
 				try {
 					CurrentSimulator.preinitialize(parser.getSimulatorPreinitializationInfo());
