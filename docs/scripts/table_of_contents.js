@@ -175,6 +175,10 @@ function getDebugContents() {
         {
             "href":"../debug/trace.html",
             "title":"Трассировка"
+        },
+        {
+            "href":"../debug/logger.html",
+            "title":"Логирование"
         }
     ];
 
