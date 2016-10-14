@@ -36,12 +36,12 @@ public class ConfigurationParser {
 				+ "resource фишка2 = Фишка.create(2, " + places.get(1) + ")\n" + "resource фишка3 = Фишка.create(3, "
 				+ places.get(2) + ")\n" + "resource фишка4 = Фишка.create(4, " + places.get(3) + ")\n"
 				+ "resource фишка5 = Фишка.create(5, " + places.get(4) + ")\n" + "resource дырка = Дырка.create("
-				+ places.get(5) + ")\n" + "\n";
+				+ places.get(5) + ")\n";
 		return code;
 	}
 
 	public static String getSearchCode(JSONObject object) {
-		final String code = "search Расстановка_фишек {\n"
+		final String code = "\nsearch Расстановка_фишек {\n"
 				+ "\tedge перемещение_вправо = new Edge(Перемещение_фишки.create(Место_дырки.СПРАВА, 1), "
 				+ object.get("costRight") + ", ApplyOrder." + object.get("computeRight").toString().toUpperCase()
 				+ ")\n" + "\tedge перемещение_влево = new Edge(Перемещение_фишки.create(Место_дырки.СЛЕВА, -1), "
@@ -53,7 +53,7 @@ public class ConfigurationParser {
 				+ "\n" + "\tdef init() {\n" + "\t\tstartCondition = [Фишка.all.exists[номер != место]]\n"
 				+ "\t\tterminateCondition = [Фишка.all.forall[номер == место]]\n" + "\t\tcompareTops = "
 				+ object.get("compare") + "\n" + "\t\theuristic = [(" + object.get("heuristic") + ") as double]\n"
-				+ "\t}\n" + "}";
+				+ "\t}\n" + "}\n";
 
 		return code;
 	}

@@ -36,7 +36,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.service.prefs.BackingStoreException;
 
 public class Game5ProjectConfigurator {
-
 	public static final String modelPath = "/game_5.rao";
 	public static final String modelTemplatePath = "/model_template/game_5.rao.template";
 	public static final String configTemplatePath = "/model_template/config.json";
@@ -56,8 +55,8 @@ public class Game5ProjectConfigurator {
 			game5Project.create(iProgressMonitor);
 			game5Project.open(iProgressMonitor);
 			configureProject();
-			final IFile configIFile = createConfigFile();
-			createModelFile(configIFile);
+			createModelFile(modelPath);
+			createConfigFile();
 			return ProjectWizardStatus.SUCCESS;
 		} catch (CoreException | IOException | BackingStoreException e) {
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error",
@@ -122,14 +121,13 @@ public class Game5ProjectConfigurator {
 		game5JavaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
 	}
 
-	private static void createModelFile(IFile configIFile) throws IOException, CoreException {
-		final String modelName = modelPath;
-		IPath modelIPath = root.getLocation().append(game5Project.getFullPath()).append(modelName);
+	private static void createModelFile(String path) throws IOException, CoreException {
+		IPath modelIPath = root.getLocation().append(game5Project.getFullPath()).append(path);
 		File modelFile = new File(modelIPath.toString());
 		modelFile.createNewFile();
 	}
 
-	private static final IFile createConfigFile() throws IOException, CoreException {
+	private static final void createConfigFile() throws IOException, CoreException {
 		final String configName = "game5.json";
 		IPath configIPath = root.getLocation().append(game5Project.getFullPath().append(configName));
 		final File configFile = new File(configIPath.toString());
@@ -140,6 +138,5 @@ public class Game5ProjectConfigurator {
 				.getResourceAsStream(configTemplatePath);
 		configIFile.create(inputStream, true, null);
 		page.openEditor(new FileEditorInput(configIFile), Game5View.ID);
-		return configIFile;
 	}
 }
