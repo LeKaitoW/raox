@@ -14,6 +14,7 @@ import java.util.function.Supplier;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 
@@ -91,11 +92,21 @@ public class ModelInternalsParser {
 		this.typeResolver = typeResolver;
 	}
 
-	public final void parse()
-			throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException, ClassNotFoundException, MalformedURLException {
-		URL modelURL = new URL("file:///" + ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/"
-				+ project.getName() + "/bin/");
+	public final void parse() throws NoSuchMethodException, SecurityException, InstantiationException,
+			IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException,
+			MalformedURLException, CoreException {
+		IProjectDescription description = project.getDescription();
+		java.net.URI locationURI = description.getLocationURI();
+		boolean useDefaultLocation = (locationURI == null);
+		String location;
+
+		if (useDefaultLocation)
+			location = "file:///" + ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/"
+					+ project.getName();
+		else
+			location = locationURI.toURL().toString();
+
+		URL modelURL = new URL(location + "/bin/");
 
 		URL[] urls = new URL[] { modelURL };
 
