@@ -13,7 +13,8 @@
 	<name>Package binaries</name>
 
 	<properties>
-		<assembly-descriptor>jars-only.xml</assembly-descriptor>
+		<assembly-descriptor1>lib-jar-without-version.xml</assembly-descriptor1>
+		<assembly-descriptor2>jars-only.xml</assembly-descriptor2>
 		<set_rao_perspective-token>-product</set_rao_perspective-token>
 		<set_rao_perspective-value>
 -perspective${line.separator}
@@ -89,7 +90,10 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.5.5</version>
 				<configuration>
-					<descriptor>${assembly-descriptor}</descriptor>
+					<descriptors>
+						<descriptor>${assembly-descriptor1}</descriptor>
+						<descriptor>${assembly-descriptor2}</descriptor>
+					</descriptors>
 					<finalName>raox</finalName>
 				</configuration>
 				<executions>
