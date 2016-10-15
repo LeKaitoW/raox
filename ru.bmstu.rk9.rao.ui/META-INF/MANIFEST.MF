@@ -129,5 +129,15 @@ Export-Package: com.mxgraph.analysis,
    ru.bmstu.rk9.rao.lib.notification,
    org.eclipse.ui.part",
  ru.bmstu.rk9.rao.ui.wizard
-Bundle-ClassPath: .,thirdparty/jgraphx/lib/jgraphx.jar,thirdparty/jfreechart/lib/jcommon-1.0.23.jar,thirdparty/jfreechart/lib/jfreechart-1.0.19-experimental.jar,thirdparty/jfreechart/lib/jfreechart-1.0.19-swt.jar,thirdparty/jfreechart/lib/jfreechart-1.0.19.jar
+Bundle-ClassPath: .,
+ thirdparty/jgraphx/lib/jgraphx.jar,
+ thirdparty/jfreechart/lib/jcommon-1.0.23.jar,
+ thirdparty/jfreechart/lib/jfreechart-1.0.19-experimental.jar,
+ thirdparty/jfreechart/lib/jfreechart-1.0.19-swt.jar,
+ thirdparty/jfreechart/lib/jfreechart-1.0.19.jar,
+ thirdparty/javax-servlet/lib/javax.servlet-api-3.0.1.jar,
+ thirdparty/jetty-server/lib/jetty-server-9.4.0-SNAPSHOT.jar,
+ thirdparty/jetty-util/lib/jetty-util-9.4.0-SNAPSHOT.jar,
+ thirdparty/jetty-http/lib/jetty-http-9.4.0-SNAPSHOT.jar,
+ thirdparty/jetty-io/lib/jetty-io-9.4.0-SNAPSHOT.jar
 Bundle-Activator: ru.bmstu.rk9.rao.ui.RaoActivatorExtension

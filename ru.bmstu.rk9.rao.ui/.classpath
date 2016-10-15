@@ -14,5 +14,10 @@
 	<classpathentry exported="true" kind="lib" path="thirdparty/jfreechart/lib/jfreechart-1.0.19.jar" sourcepath="thirdparty/jfreechart/source/source.zip"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="lib" path="thirdparty/javax-servlet/lib/javax.servlet-api-3.0.1.jar" sourcepath="thirdparty/javax-servlet/source/javax.servlet-api-3.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jetty-server/lib/jetty-server-9.4.0-SNAPSHOT.jar" sourcepath="thirdparty/jetty-server/source/jetty-server-9.4.0-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jetty-util/lib/jetty-util-9.4.0-SNAPSHOT.jar" sourcepath="thirdparty/jetty-util/source/jetty-util-9.4.0-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jetty-http/lib/jetty-http-9.4.0-SNAPSHOT.jar" sourcepath="thirdparty/jetty-http/source/jetty-http-9.4.0-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jetty-io/lib/jetty-io-9.4.0-SNAPSHOT.jar" sourcepath="thirdparty/jetty-io/source/jetty-io-9.4.0-SNAPSHOT-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
