@@ -58,17 +58,9 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.services.IServiceLocator;
-import org.eclipse.xtext.resource.XtextResource;
-import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditor;
-import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorFactory;
-import org.eclipse.xtext.ui.editor.embedded.EmbeddedEditorModelAccess;
-import org.eclipse.xtext.ui.editor.model.IXtextDocument;
-import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-
-import com.google.inject.Injector;
 
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
@@ -80,12 +72,10 @@ import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 
-@SuppressWarnings("restriction")
 public class Game5View extends EditorPart {
 
 	protected static boolean dirty = false;
 	public static final String ID = "rdo-game5.Game5View";
-	private static EmbeddedEditorModelAccess editor;
 	private static JSONObject object;
 	private final List<TileButton> tiles = new ArrayList<>();
 	private final int tilesCountX = 3;
@@ -372,30 +362,6 @@ public class Game5View extends EditorPart {
 			}
 		});
 
-		final Group editorGroup = new Group(composite, SWT.SHADOW_IN);
-		editorGroup.setText("Heuristic code:");
-		editorGroup.setBackground(color);
-		editorGroup.setLayout(gridLayout);
-		final GridData editorGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		editorGridData.horizontalSpan = 5;
-		editorGroup.setLayoutData(editorGridData);
-
-		final Injector injector = ru.bmstu.rk9.rao.ui.RaoActivatorExtension.getInstance()
-				.getInjector(ru.bmstu.rk9.rao.ui.RaoActivatorExtension.RU_BMSTU_RK9_RAO_RAO);
-		final EmbeddedEditorFactory factory = injector.getInstance(EmbeddedEditorFactory.class);
-		final EditedResourceProvider resourceProvider = injector.getInstance(EditedResourceProvider.class);
-		final EmbeddedEditor embeddedEditor = factory.newEditor(resourceProvider).showErrorAndWarningAnnotations()
-				.withParent(editorGroup);
-		editor = embeddedEditor.createPartialEditor("", object.get("code").toString(), "", false);
-
-		IXtextDocument document = embeddedEditor.getDocument();
-		document.addModelListener(new IXtextModelListener() {
-			@Override
-			public void modelChanged(XtextResource resource) {
-				setDirty(true);
-			}
-		});
-
 		heuristicList.addSelectionListener(new ConfigurationListener("heuristic", () -> heuristicList.getText()));
 
 		leftCost.addKeyListener(new ConfigurationKeyListener("costLeft", () -> leftCost.getText()));
@@ -579,10 +545,6 @@ public class Game5View extends EditorPart {
 		return false;
 	}
 
-	public static final EmbeddedEditorModelAccess getEditor() {
-		return editor;
-	}
-
 	public static final JSONObject getConfigurations() {
 		return object;
 	}
@@ -620,9 +582,6 @@ public class Game5View extends EditorPart {
 
 			final String searchCode = ConfigurationParser.getSearchCode(object);
 			printStream.print(searchCode);
-
-			final String customCode = ConfigurationParser.getCustomCode(object);
-			printStream.print(customCode);
 
 			printStream.close();
 

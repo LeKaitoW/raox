@@ -57,9 +57,4 @@ public class ConfigurationParser {
 
 		return code;
 	}
-
-	public static String getCustomCode(JSONObject object) {
-		final String code = object.get("code").equals("") ? "" : "\n" + object.get("code") + "\n";
-		return code;
-	}
 }

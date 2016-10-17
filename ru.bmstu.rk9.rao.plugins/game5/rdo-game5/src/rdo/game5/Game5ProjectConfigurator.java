@@ -1,5 +1,6 @@
 package rdo.game5;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,11 +33,14 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.xtext.ui.XtextProjectHelper;
+import org.eclipse.xtext.ui.editor.XtextEditor;
 import org.osgi.framework.Bundle;
 import org.osgi.service.prefs.BackingStoreException;
 
 public class Game5ProjectConfigurator {
 	public static final String modelPath = "/game_5.rao";
+	public static final String configPath = "/game_5.json";
+	public static final String heuristicsPath = "/heuristics.rao";
 	public static final String modelTemplatePath = "/model_template/game_5.rao.template";
 	public static final String configTemplatePath = "/model_template/config.json";
 
@@ -51,12 +55,17 @@ public class Game5ProjectConfigurator {
 		final IServiceLocator serviceLocator = PlatformUI.getWorkbench();
 		final IProgressMonitor iProgressMonitor = (IProgressMonitor) serviceLocator.getService(IProgressMonitor.class);
 		game5Project = root.getProject(projectName);
+
 		try {
 			game5Project.create(iProgressMonitor);
 			game5Project.open(iProgressMonitor);
 			configureProject();
-			createModelFile(modelPath);
-			createConfigFile();
+			createFile(modelPath);
+			createFile(configPath);
+			createFile(heuristicsPath);
+			openFile(heuristicsPath, null,
+					PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(heuristicsPath).getId());
+			openFile(configPath, configTemplatePath, Game5View.ID);
 			return ProjectWizardStatus.SUCCESS;
 		} catch (CoreException | IOException | BackingStoreException e) {
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error",
@@ -121,22 +130,24 @@ public class Game5ProjectConfigurator {
 		game5JavaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
 	}
 
-	private static void createModelFile(String path) throws IOException, CoreException {
-		IPath modelIPath = root.getLocation().append(game5Project.getFullPath()).append(path);
-		File modelFile = new File(modelIPath.toString());
-		modelFile.createNewFile();
+	private static void createFile(String name) throws IOException, CoreException {
+		IPath path = root.getLocation().append(game5Project.getFullPath()).append(name);
+		File file = new File(path.toString());
+		file.createNewFile();
 	}
 
-	private static final void createConfigFile() throws IOException, CoreException {
-		final String configName = "game5.json";
-		IPath configIPath = root.getLocation().append(game5Project.getFullPath().append(configName));
-		final File configFile = new File(configIPath.toString());
+	private static void openFile(String name, String template, String editorID) throws IOException, CoreException {
 		final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		configFile.createNewFile();
-		IFile configIFile = game5Project.getFile(configName);
-		InputStream inputStream = Game5ProjectConfigurator.class.getClassLoader()
-				.getResourceAsStream(configTemplatePath);
-		configIFile.create(inputStream, true, null);
-		page.openEditor(new FileEditorInput(configIFile), Game5View.ID);
+		IFile file = game5Project.getFile(name);
+		InputStream inputStream;
+
+		if (template != null) {
+			inputStream = Game5ProjectConfigurator.class.getClassLoader().getResourceAsStream(template);
+		} else {
+			inputStream = new ByteArrayInputStream("".getBytes());
+		}
+
+		file.create(inputStream, true, null);
+		page.openEditor(new FileEditorInput(file), editorID);
 	}
 }
