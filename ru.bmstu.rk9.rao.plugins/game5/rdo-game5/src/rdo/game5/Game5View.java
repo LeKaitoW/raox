@@ -31,6 +31,8 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -501,7 +503,7 @@ public class Game5View extends EditorPart {
 			});
 		}
 
-		heuristicList.addKeyListener(new ConfigurationKeyListener("heuristic", () -> heuristicList.getText()));
+		heuristicList.addModifyListener(new ConfigurationModifyListener("heuristic", () -> heuristicList.getText()));
 		scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
@@ -636,6 +638,23 @@ public class Game5View extends EditorPart {
 
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
+		}
+	}
+
+	public class ConfigurationModifyListener implements ModifyListener {
+		public ConfigurationModifyListener(String key, Supplier<String> value) {
+			this.key = key;
+			this.value = value;
+		}
+
+		private final String key;
+		private final Supplier<String> value;
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void modifyText(ModifyEvent e) {
+			object.put(key, value.get());
+			setDirty(true);
 		}
 	}
 
