@@ -31,7 +31,7 @@
 								<resource>
 									<directory>${basedir}/../rdo-game5/target</directory>
 									<includes>
-										<include>rdo-game5*.jar</include>
+										<include>ru.bmstu.rk9.raox.plugins.game5*.jar</include>
 									</includes>
 								</resource>
 							</resources>
