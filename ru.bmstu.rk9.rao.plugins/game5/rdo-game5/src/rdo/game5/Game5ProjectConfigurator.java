@@ -37,9 +37,10 @@ import org.osgi.framework.Bundle;
 import org.osgi.service.prefs.BackingStoreException;
 
 public class Game5ProjectConfigurator {
-	public static final String modelPath = "/game_5.rao";
-	public static final String configPath = "/game_5.json";
-	public static final String heuristicsPath = "/heuristics.rao";
+	public static final String modelPath = "game_5.rao";
+	public static final String configPath = "game_5.json";
+	public static final String heuristicsPath = "heuristics.rao";
+
 	public static final String modelTemplatePath = "/model_template/game_5.rao.template";
 	public static final String configTemplatePath = "/model_template/config.json";
 
@@ -59,12 +60,18 @@ public class Game5ProjectConfigurator {
 			game5Project.create(iProgressMonitor);
 			game5Project.open(iProgressMonitor);
 			configureProject();
+
 			createFile(modelPath);
-			createFile(configPath);
+
 			createFile(heuristicsPath);
-			openFile(heuristicsPath, null,
+			openFile(heuristicsPath, new ByteArrayInputStream("".getBytes()),
 					PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(heuristicsPath).getId());
-			openFile(configPath, configTemplatePath, Game5View.ID);
+
+			createFile(configPath);
+			openFile(configPath,
+					Game5ProjectConfigurator.class.getClassLoader().getResourceAsStream(configTemplatePath),
+					Game5View.ID);
+
 			return ProjectWizardStatus.SUCCESS;
 		} catch (CoreException | IOException | BackingStoreException e) {
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error",
@@ -135,17 +142,10 @@ public class Game5ProjectConfigurator {
 		file.createNewFile();
 	}
 
-	private static void openFile(String name, String template, String editorID) throws IOException, CoreException {
+	private static void openFile(String name, InputStream inputStream, String editorID)
+			throws IOException, CoreException {
 		final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IFile file = game5Project.getFile(name);
-		InputStream inputStream;
-
-		if (template != null) {
-			inputStream = Game5ProjectConfigurator.class.getClassLoader().getResourceAsStream(template);
-		} else {
-			inputStream = new ByteArrayInputStream("".getBytes());
-		}
-
 		file.create(inputStream, true, null);
 		page.openEditor(new FileEditorInput(file), editorID);
 	}
