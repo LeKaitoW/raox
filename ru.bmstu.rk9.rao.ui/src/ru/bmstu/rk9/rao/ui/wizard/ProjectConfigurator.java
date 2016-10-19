@@ -15,9 +15,11 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -30,6 +32,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.xtext.ui.XtextProjectHelper;
+import org.osgi.framework.Bundle;
 import org.osgi.service.prefs.BackingStoreException;
 
 public class ProjectConfigurator {
@@ -101,7 +104,22 @@ public class ProjectConfigurator {
 		final IClasspathEntry srcEntry = JavaCore.newSourceEntry(sourceFolderPath);
 		entries.add(srcEntry);
 
-		entries.add(JavaCore.newVariableEntry(new Path("ECLIPSE_HOME/dropins/ru.bmstu.rk9.rao.lib.jar"), null, null));
+		final Bundle raoxLib = Platform.getBundle("ru.bmstu.rk9.rao.lib");
+		final File raoxLibPath = FileLocator.getBundleFile(raoxLib);
+		if (raoxLibPath.toString().contains("dropins")) {
+			entries.add(
+					JavaCore.newVariableEntry(new Path("ECLIPSE_HOME/dropins/ru.bmstu.rk9.rao.lib.jar"), null, null));
+		} else {
+			IPath raoxLibPathBinary;
+			if (raoxLibPath.isDirectory())
+				raoxLibPathBinary = new Path(raoxLibPath.getAbsolutePath() + "/bin/");
+			else
+				raoxLibPathBinary = new Path(raoxLibPath.getAbsolutePath());
+			final IPath raoxSourcePath = new Path(raoxLibPath.getAbsolutePath());
+			final IClasspathEntry raoxLibEntry = JavaCore.newLibraryEntry(raoxLibPathBinary, raoxSourcePath, null);
+			entries.add(raoxLibEntry);
+		}
+
 		entries.add(JavaCore.newContainerEntry(new Path("org.eclipse.xtend.XTEND_CONTAINER")));
 
 		game5JavaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
