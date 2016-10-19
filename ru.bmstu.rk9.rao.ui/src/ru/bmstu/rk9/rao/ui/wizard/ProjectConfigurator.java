@@ -15,25 +15,21 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
-import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.xtext.ui.XtextProjectHelper;
-import org.osgi.framework.Bundle;
 import org.osgi.service.prefs.BackingStoreException;
+
+import ru.bmstu.rk9.rao.ui.execution.BuildUtil;
+import ru.bmstu.rk9.rao.ui.execution.BuildUtil.BuildUtilException;
 
 public class ProjectConfigurator {
 
@@ -61,7 +57,7 @@ public class ProjectConfigurator {
 			configureProject();
 			createModelFile();
 			return ProjectWizardStatus.SUCCESS;
-		} catch (CoreException | BackingStoreException | IOException e) {
+		} catch (CoreException | BackingStoreException | IOException | BuildUtilException e) {
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error",
 					"Failed to create project:\n" + e.getMessage());
 			e.printStackTrace();
@@ -69,60 +65,28 @@ public class ProjectConfigurator {
 		}
 	}
 
-	private final void configureProject() throws BackingStoreException, CoreException, IOException {
-		final IProjectDescription description;
-		final IJavaProject game5JavaProject;
-		final ProjectScope projectScope;
-		final IEclipsePreferences projectNode;
-
-		projectScope = new ProjectScope(raoProject);
-		projectNode = projectScope.getNode("org.eclipse.core.resources");
+	private final void configureProject() throws BackingStoreException, CoreException, BuildUtilException {
+		final ProjectScope projectScope = new ProjectScope(raoProject);
+		final IEclipsePreferences projectNode = projectScope.getNode("org.eclipse.core.resources");
 		projectNode.node("encoding").put("<project>", "UTF-8");
 		projectNode.flush();
 
-		description = raoProject.getDescription();
+		final IProjectDescription description = raoProject.getDescription();
 		description.setNatureIds(new String[] { JavaCore.NATURE_ID, XtextProjectHelper.NATURE_ID });
 		raoProject.setDescription(description, null);
 
-		game5JavaProject = JavaCore.create(raoProject);
 		final IFolder sourceFolder = raoProject.getFolder("src-gen");
 		sourceFolder.create(false, true, null);
 
-		final List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
-		final IExecutionEnvironmentsManager executionEnvironmentsManager = JavaRuntime
-				.getExecutionEnvironmentsManager();
-		final IExecutionEnvironment[] executionEnvironments = executionEnvironmentsManager.getExecutionEnvironments();
+		final List<IClasspathEntry> classpaths = new ArrayList<IClasspathEntry>();
 
-		final String JSEVersion = "JavaSE-1.8";
-		for (IExecutionEnvironment iExecutionEnvironment : executionEnvironments) {
-			if (iExecutionEnvironment.getId().equals(JSEVersion)) {
-				entries.add(JavaCore.newContainerEntry(JavaRuntime.newJREContainerPath(iExecutionEnvironment)));
-				break;
-			}
-		}
-		final IPath sourceFolderPath = sourceFolder.getFullPath();
-		final IClasspathEntry srcEntry = JavaCore.newSourceEntry(sourceFolderPath);
-		entries.add(srcEntry);
+		classpaths.add(JavaCore.newSourceEntry(sourceFolder.getFullPath()));
+		classpaths.add(BuildUtil.getJavaSeClasspathEntry());
+		classpaths.add(BuildUtil.getRaoxClasspathEntry());
+		classpaths.add(BuildUtil.getXtendClasspathEntry());
 
-		final Bundle raoxLib = Platform.getBundle("ru.bmstu.rk9.rao.lib");
-		final File raoxLibPath = FileLocator.getBundleFile(raoxLib);
-		if (raoxLibPath.toString().contains("dropins")) {
-			entries.add(
-					JavaCore.newVariableEntry(new Path("ECLIPSE_HOME/dropins/ru.bmstu.rk9.rao.lib.jar"), null, null));
-		} else {
-			IPath raoxLibPathBinary;
-			if (raoxLibPath.isDirectory())
-				raoxLibPathBinary = new Path(raoxLibPath.getAbsolutePath() + "/bin/");
-			else
-				raoxLibPathBinary = new Path(raoxLibPath.getAbsolutePath());
-			final IPath raoxSourcePath = new Path(raoxLibPath.getAbsolutePath());
-			final IClasspathEntry raoxLibEntry = JavaCore.newLibraryEntry(raoxLibPathBinary, raoxSourcePath, null);
-			entries.add(raoxLibEntry);
-		}
-
-		entries.add(JavaCore.newContainerEntry(new Path("org.eclipse.xtend.XTEND_CONTAINER")));
-
-		game5JavaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
+		final IJavaProject game5JavaProject = JavaCore.create(raoProject);
+		game5JavaProject.setRawClasspath(classpaths.toArray(new IClasspathEntry[classpaths.size()]), null);
 	}
 
 	private final void createModelFile() throws CoreException, IOException {

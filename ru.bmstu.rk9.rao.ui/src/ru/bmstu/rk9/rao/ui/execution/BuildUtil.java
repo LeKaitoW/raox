@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,19 +25,26 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
+import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
 import org.eclipse.ui.IEditorPart;
 import org.osgi.framework.Bundle;
 
 public class BuildUtil {
 
 	public enum BundleType {
-		RAO_LIB("ru.bmstu.rk9.rao.lib"), XBASE_LIB("org.eclipse.xtext.xbase.lib");
+		RAOX_LIB("ru.bmstu.rk9.rao.lib");
 
-		BundleType(String bundleName) {
-			this.name = bundleName;
+		BundleType(final String name) {
+			this.name = name;
 		}
 
 		private final String name;
+	}
+
+	public enum Mode {
+		PRODUCTION, DEVELOPMENT;
 	}
 
 	public static URI getURI(IResource resource) {
@@ -80,49 +88,92 @@ public class BuildUtil {
 		return file.getProject();
 	}
 
-	static String checkLib(IProject project, IProgressMonitor monitor, BundleType bundle) {
-		String bundleName = bundle.name;
-		Bundle lib = Platform.getBundle(bundleName);
+	static Mode getMode(final String libraryPath) {
+		return libraryPath.contains("dropins") ? Mode.PRODUCTION : Mode.DEVELOPMENT;
+	}
+
+	@SuppressWarnings("serial")
+	public static class BuildUtilException extends Exception {
+		public BuildUtilException(final String message) {
+			super(message);
+		}
+	}
+
+	public static IClasspathEntry getJavaSeClasspathEntry() throws BuildUtilException {
+		final IExecutionEnvironmentsManager executionEnvironmentsManager = JavaRuntime
+				.getExecutionEnvironmentsManager();
+		final IExecutionEnvironment[] executionEnvironments = executionEnvironmentsManager.getExecutionEnvironments();
+		final String JavaSeVersion = "JavaSE-1.8";
+		for (IExecutionEnvironment executionEnvironment : executionEnvironments)
+			if (executionEnvironment.getId().equals(JavaSeVersion))
+				return JavaCore.newContainerEntry(JavaRuntime.newJREContainerPath(executionEnvironment));
+
+		throw new BuildUtilException(JavaSeVersion + " not found");
+	}
+
+	public static IClasspathEntry getRaoxClasspathEntry() throws BuildUtilException {
+		final Bundle bundle = Platform.getBundle(BundleType.RAOX_LIB.name);
 		try {
-			File libPath = FileLocator.getBundleFile(lib);
-			if (libPath == null)
-				return "cannot locate bundle " + bundleName;
+			final File libraryPath = FileLocator.getBundleFile(bundle);
+			if (libraryPath == null)
+				throw new BuildUtilException("Cannot locate bundle " + BundleType.RAOX_LIB.name);
 
-			IJavaProject jProject = JavaCore.create(project);
+			switch (getMode(libraryPath.toString())) {
+			case PRODUCTION:
+				return JavaCore.newVariableEntry(new Path("ECLIPSE_HOME/dropins/" + BundleType.RAOX_LIB.name + ".jar"),
+						null, null);
 
-			IClasspathEntry[] projectClassPathArray = jProject.getRawClasspath();
+			case DEVELOPMENT:
+				final IPath libraryPathBinary = new Path(
+						libraryPath.getAbsolutePath() + (libraryPath.isDirectory() ? "/bin/" : ""));
+				final IPath sourcePath = new Path(libraryPath.getAbsolutePath());
+				return JavaCore.newLibraryEntry(libraryPathBinary, sourcePath, null);
 
-			IPath libPathBinary;
-			if (libPath.isDirectory())
-				libPathBinary = new Path(libPath.getAbsolutePath() + "/bin/");
-			else
-				libPathBinary = new Path(libPath.getAbsolutePath());
-			IPath sourcePath = new Path(libPath.getAbsolutePath());
+			default:
+				throw new BuildUtilException("Undefined mode for bundle " + BundleType.RAOX_LIB.name);
+			}
 
-			List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new BuildUtilException(
+					"Classpath error for bundle " + BundleType.RAOX_LIB.name + ":\n" + e.getMessage());
+		}
+	}
+
+	public static IClasspathEntry getXtendClasspathEntry() {
+		return JavaCore.newContainerEntry(new Path("org.eclipse.xtend.XTEND_CONTAINER"));
+	}
+
+	static String setupRaoxClasspath(IProject project, IProgressMonitor monitor) {
+		try {
+			final IClasspathEntry raoxClasspathEntry = getRaoxClasspathEntry();
+			if (getMode(raoxClasspathEntry.getPath().toString()) == Mode.PRODUCTION)
+				return null;
+
+			final IJavaProject jProject = JavaCore.create(project);
+			final IClasspathEntry[] projectClassPathArray = jProject.getRawClasspath();
+			final List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
 					Arrays.asList(projectClassPathArray));
 
 			for (IClasspathEntry classpathEntry : projectClassPathList) {
-				if (classpathEntry.getPath().equals(libPathBinary)) {
+				if (classpathEntry.getPath().equals(raoxClasspathEntry.getPath())) {
 					projectClassPathList.remove(classpathEntry);
 					break;
 				}
 			}
 
+			projectClassPathList.add(raoxClasspathEntry);
 			jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
 					monitor);
+			return null;
 
-			IClasspathEntry libEntry = JavaCore.newLibraryEntry(libPathBinary, sourcePath, null);
-			projectClassPathList.add(libEntry);
-
-			jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
-					monitor);
-		} catch (Exception e) {
+		} catch (BuildUtilException e) {
 			e.printStackTrace();
-			return "internal error while checking lib:\n" + e.getMessage();
+			return e.getMessage();
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+			return "Internal error while checking library " + BundleType.RAOX_LIB.name + ":\n" + e.getMessage();
 		}
-
-		return null;
 	}
 
 	private static void addSrcGenToClassPath(IProject project, IFolder srcGenFolder, IProgressMonitor monitor)
