@@ -191,6 +191,24 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 				<version>2.10</version>
 				<executions>
 					<execution>
+						<id>copy-rename</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>ru.bmstu.rk9.rao</groupId>
+									<artifactId>ru.bmstu.rk9.rao.lib</artifactId>
+									<version>LATEST</version>
+									<outputDirectory>${basedir}/target/plugins</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+							<stripVersion>true</stripVersion>
+						</configuration>
+					</execution>
+					<execution>
 						<id>copy</id>
 						<phase>package</phase>
 						<goals>
