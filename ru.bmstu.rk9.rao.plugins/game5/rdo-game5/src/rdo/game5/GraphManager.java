@@ -89,24 +89,24 @@ public class GraphManager {
 		for (int i = rules.size() - 1; i >= 0; i--) {
 			final int holeIndex = nodeOrder.indexOf("6");
 			switch (rules.get(i)) {
-			case "Перемещение_влево":
+			case "перемещение_влево":
 				nodeOrder.set(holeIndex, nodeOrder.get(holeIndex + 1));
 				nodeOrder.set(holeIndex + 1, "6");
 				break;
-			case "Перемещение_вправо":
+			case "перемещение_вправо":
 				nodeOrder.set(holeIndex, nodeOrder.get(holeIndex - 1));
 				nodeOrder.set(holeIndex - 1, "6");
 				break;
-			case "Перемещение_вверх":
+			case "перемещение_вверх":
 				nodeOrder.set(holeIndex, nodeOrder.get(holeIndex + 3));
 				nodeOrder.set(holeIndex + 3, "6");
 				break;
-			case "Перемещение_вниз":
+			case "перемещение_вниз":
 				nodeOrder.set(holeIndex, nodeOrder.get(holeIndex - 3));
 				nodeOrder.set(holeIndex - 3, "6");
 				break;
 			default:
-				break;
+				throw new Game5Exception("Unknown rule name " + rules.get(i));
 			}
 		}
 		return nodeOrder;
