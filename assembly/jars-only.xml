@@ -8,5 +8,9 @@
 			<directory>${basedir}/target/plugins</directory>
 			<outputDirectory>./</outputDirectory>
 		</fileSet>
+		<fileSet>
+			<directory>${basedir}/target/raox-copy-rename/raox</directory>
+			<outputDirectory>./</outputDirectory>
+		</fileSet>
 	</fileSets>
 </assembly>

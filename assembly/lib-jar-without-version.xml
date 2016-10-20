@@ -1,0 +1,13 @@
+<assembly>
+	<formats>
+		<format>dir</format>
+	</formats>
+	<id>copy-rename</id>
+	<files>
+		<file>
+			<source>${basedir}/target/plugins/ru.bmstu.rk9.rao.lib-${project.version}.jar</source>
+			<outputDirectory>/</outputDirectory>
+			<destName>ru.bmstu.rk9.rao.lib.jar</destName>
+		</file>
+	</files>
+</assembly>
