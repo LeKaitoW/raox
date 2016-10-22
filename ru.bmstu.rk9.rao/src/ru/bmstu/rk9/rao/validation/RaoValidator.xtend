@@ -353,6 +353,13 @@ class RaoValidator extends AbstractRaoValidator
 	}
 
 	@Check
+	def checkResultDeclaration(Result result) {
+		if (!result.constructor.actualType.isSubtypeOf(typeof(ru.bmstu.rk9.rao.lib.result.Result)))
+			error("Error in declaration of \"" + result.name + "\": only Rao results are allowed.",
+				RaoPackage.eINSTANCE.result_Constructor)
+	}
+
+	@Check
 	def checkEntityNotNull(EntityCreation entity) {
 		if (entity.constructor.checkForNull)
 			error("Error in declaration of \"" + entity.name + "\": cannot be null.",
