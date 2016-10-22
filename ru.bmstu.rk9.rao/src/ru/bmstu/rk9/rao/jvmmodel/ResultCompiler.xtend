@@ -1,91 +1,51 @@
 package ru.bmstu.rk9.rao.jvmmodel
 
 import ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler
-import ru.bmstu.rk9.rao.rao.ResultType
+import ru.bmstu.rk9.rao.rao.DataSource
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import org.eclipse.xtext.common.types.JvmDeclaredType
 import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.common.types.JvmVisibility
-import ru.bmstu.rk9.rao.lib.result.ResultMode
-import ru.bmstu.rk9.rao.lib.result.Statistics
-import ru.bmstu.rk9.rao.validation.DefaultMethodsHelper.ResultTypeMethodInfo
+import ru.bmstu.rk9.rao.validation.DefaultMethodsHelper.DataSourceMethodInfo
 import org.eclipse.xtext.common.types.JvmTypeReference
 import ru.bmstu.rk9.rao.rao.Result
 
 class ResultCompiler extends RaoEntityCompiler {
-	def static asClass(ResultType result, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
+	def static asClass(DataSource dataSource, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
 		JvmDeclaredType it, boolean isPreIndexingPhase) {
 
 		initializeCurrent(jvmTypesBuilder, typeReferenceBuilder)
 
-		return result.toClass(QualifiedName.create(qualifiedName, result.name)) [
+		return dataSource.toClass(QualifiedName.create(qualifiedName, dataSource.name)) [
 			static = true
-			superTypes += typeRef(ru.bmstu.rk9.rao.lib.result.AbstractResult, {
-				result.evaluateType
+			superTypes += typeRef(ru.bmstu.rk9.rao.lib.result.AbstractDataSource, {
+				dataSource.evaluateType
 			})
 
-			val evaluateType = result.evaluateType.type;
-
-			members += result.toConstructor [
+			members += dataSource.toConstructor [
 				visibility = JvmVisibility.PUBLIC
-				for (param : result.parameters)
+				for (param : dataSource.parameters)
 					parameters += param.toParameter(param.name, param.parameterType)
-				parameters += result.toParameter("resultMode", typeRef(ResultMode))
-				parameters += result.toParameter("statistics", typeRef(Statistics, {
-					result.evaluateType
-				}))
 				body = '''
 					«FOR param : parameters»this.«param.name» = «param.name»;
 					«ENDFOR»
 				'''
 			]
 
-			members += result.toConstructor [
-				visibility = JvmVisibility.PUBLIC
-				for (param : result.parameters)
-					parameters += param.toParameter(param.name, param.parameterType)
-				parameters += result.toParameter("resultMode", typeRef(ResultMode))
-				body = '''
-					this(«FOR param : parameters»«param.name», «ENDFOR»getDefaultStatistics(«evaluateType».class));
-				'''
-			]
-
-			members += result.toConstructor [
-				visibility = JvmVisibility.PUBLIC
-				for (param : result.parameters)
-					parameters += param.toParameter(param.name, param.parameterType)
-				parameters += result.toParameter("statistics", typeRef(Statistics, {
-					result.evaluateType
-				}))
-				body = '''
-					this(«FOR param : result.parameters»«param.name», «ENDFOR»ResultMode.AUTO, statistics);
-				'''
-
-			]
-
-			members += result.toConstructor [
-				visibility = JvmVisibility.PUBLIC
-				for (param : result.parameters)
-					parameters += param.toParameter(param.name, param.parameterType)
-				body = '''
-					this(«FOR param : parameters»«param.name», «ENDFOR»ResultMode.AUTO, getDefaultStatistics(«evaluateType».class));
-				'''
-			]
-
-			for (param : result.parameters)
+			for (param : dataSource.parameters)
 				members += param.toField(param.name, param.parameterType)
 
 			if (!isPreIndexingPhase) {
-				for (method : result.defaultMethods) {
+				for (method : dataSource.defaultMethods) {
 
 					var JvmTypeReference defaultMethodReturnType;
 
 					switch (method.name) {
-						case ResultTypeMethodInfo.EVALUATE.name: {
-							defaultMethodReturnType = result.evaluateType;
+						case DataSourceMethodInfo.EVALUATE.name: {
+							defaultMethodReturnType = dataSource.evaluateType;
 						}
-						case ResultTypeMethodInfo.CONDITION.name: {
+						case DataSourceMethodInfo.CONDITION.name: {
 							defaultMethodReturnType = typeRef(boolean);
 						}
 					}

@@ -19,7 +19,7 @@ import ru.bmstu.rk9.rao.rao.ResourceDeclaration
 import ru.bmstu.rk9.rao.rao.ResourceType
 import ru.bmstu.rk9.rao.rao.Search
 import ru.bmstu.rk9.rao.rao.Result
-import ru.bmstu.rk9.rao.rao.ResultType
+import ru.bmstu.rk9.rao.rao.DataSource
 
 import static extension ru.bmstu.rk9.rao.jvmmodel.DefaultMethodCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.EntityCreationCompiler.*
@@ -100,8 +100,8 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 		members += resource.asField(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase)
 	}
 
-	def dispatch compileRaoEntity(ResultType result, JvmDeclaredType it, boolean isPreIndexingPhase) {
-		members += result.asClass(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase);
+	def dispatch compileRaoEntity(DataSource dataSource, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		members += dataSource.asClass(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase);
 	}
 
 	def dispatch compileRaoEntity(Result result, JvmDeclaredType it, boolean isPreIndexingPhase) {

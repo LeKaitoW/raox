@@ -20,7 +20,7 @@ import ru.bmstu.rk9.rao.rao.ResourceDeclaration
 import ru.bmstu.rk9.rao.rao.ResourceType
 import ru.bmstu.rk9.rao.rao.Search
 import ru.bmstu.rk9.rao.rao.Result
-import ru.bmstu.rk9.rao.rao.ResultType
+import ru.bmstu.rk9.rao.rao.DataSource
 
 class RaoFormatter extends XbaseFormatter {
 	def dispatch void format(Event event, extension IFormattableDocument document) {
@@ -152,13 +152,13 @@ class RaoFormatter extends XbaseFormatter {
 		format(entityCreation.constructor, document)
 	}
 
-	def dispatch void format(ResultType resultType, extension IFormattableDocument document) {
-		formatAsBlock(resultType, document)
+	def dispatch void format(DataSource dataSource, extension IFormattableDocument document) {
+		formatAsBlock(dataSource, document)
 
-		for (parameter : resultType.parameters)
+		for (parameter : dataSource.parameters)
 			format(parameter, document)
 
-		for (defaultMethod : resultType.defaultMethods) {
+		for (defaultMethod : dataSource.defaultMethods) {
 			defaultMethod.append(XbaseFormatterPreferenceKeys.blankLinesAroundExpression)
 			format(defaultMethod, document)
 		}
