@@ -8,7 +8,7 @@ import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class ResultManager {
 
-	public ResultManager(List<AbstractResult<?>> results) {
+	public ResultManager(List<Result<?>> results) {
 		this.results.addAll(results);
 		CurrentSimulator.getExecutionStateNotifier().addSubscriber(this.stateChangedSubscriber,
 				CurrentSimulator.ExecutionState.STATE_CHANGED);
@@ -18,16 +18,16 @@ public class ResultManager {
 
 		@Override
 		public void fireChange() {
-			for (AbstractResult<?> result : results) {
-				if (result.resultMode == ResultMode.AUTO)
+			for (Result<?> result : results) {
+				if (result.getResultMode() == ResultMode.AUTO)
 					result.update();
 			}
 		}
 	};
 
-	private final List<AbstractResult<?>> results = new LinkedList<AbstractResult<?>>();
+	private final List<Result<?>> results = new LinkedList<Result<?>>();
 
-	public List<AbstractResult<?>> getResults() {
+	public List<Result<?>> getResults() {
 		return results;
 	}
 }

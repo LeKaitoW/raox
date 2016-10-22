@@ -43,14 +43,14 @@ import org.eclipse.ui.themes.IThemeManager;
 import org.osgi.framework.Bundle;
 
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
-import ru.bmstu.rk9.rao.lib.result.AbstractResult;
+import ru.bmstu.rk9.rao.lib.result.Result;
 
 public class ResultsView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.ResultsView"; //$NON-NLS-1$
 
 	private static IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode("ru.bmstu.rk9.rao.ui");
 
-	private static List<AbstractResult<?>> results;
+	private static List<Result<?>> results;
 
 	private static boolean viewAsText = prefs.getBoolean("ResultsViewAsText", false);
 
@@ -113,7 +113,7 @@ public class ResultsView extends ViewPart {
 			text.setStyleRange(style);
 	}
 
-	public static void setResults(List<AbstractResult<?>> results) {
+	public static void setResults(List<Result<?>> results) {
 		ResultsView.results = results;
 
 		if (!isInitialized())
@@ -126,7 +126,7 @@ public class ResultsView extends ViewPart {
 
 		text.setText("");
 
-		for (AbstractResult<?> r : results) {
+		for (Result<?> r : results) {
 			parseResult(r.getData());
 		}
 

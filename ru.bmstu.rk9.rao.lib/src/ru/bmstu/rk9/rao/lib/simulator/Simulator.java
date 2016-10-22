@@ -13,7 +13,7 @@ import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
 import ru.bmstu.rk9.rao.lib.process.Process;
 import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
-import ru.bmstu.rk9.rao.lib.result.AbstractResult;
+import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.result.ResultManager;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
@@ -95,7 +95,7 @@ public class Simulator implements ISimulator {
 	private ResultManager resultManager;
 
 	@Override
-	public List<AbstractResult<?>> getResults() {
+	public List<Result<?>> getResults() {
 		return resultManager.getResults();
 	}
 

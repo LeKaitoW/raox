@@ -31,7 +31,7 @@ import ru.bmstu.rk9.rao.lib.pattern.Operation;
 import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
-import ru.bmstu.rk9.rao.lib.result.AbstractResult;
+import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class Database {
@@ -595,7 +595,7 @@ public class Database {
 		NUMBER, OTHER;
 	}
 
-	public final <T> void addResultEntry(final AbstractResult<T> result, T value) {
+	public final <T> void addResultEntry(final Result<T> result, T value) {
 		final String name = result.getName();
 		if (!sensitivityList.contains(name))
 			return;
