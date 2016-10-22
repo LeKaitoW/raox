@@ -10,8 +10,10 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -20,6 +22,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -29,7 +32,9 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.osgi.framework.Bundle;
+import org.osgi.service.prefs.BackingStoreException;
 
 public class BuildUtil {
 
@@ -88,6 +93,50 @@ public class BuildUtil {
 		return file.getProject();
 	}
 
+	public static void initializeProjectSetup(IProject project) throws BuildUtilException {
+		final ProjectScope projectScope = new ProjectScope(project);
+		final IEclipsePreferences projectNode = projectScope.getNode("org.eclipse.core.resources");
+		projectNode.node("encoding").put("<project>", "UTF-8");
+		try {
+			projectNode.flush();
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+			throw new BuildUtilException("Project encoding initialization failed" + ":\n" + e.getMessage());
+		}
+
+		try {
+			final IProjectDescription description = project.getDescription();
+			description.setNatureIds(new String[] { JavaCore.NATURE_ID, XtextProjectHelper.NATURE_ID });
+			project.setDescription(description, null);
+		} catch (CoreException e) {
+			e.printStackTrace();
+			throw new BuildUtilException("Project description failed" + ":\n" + e.getMessage());
+		}
+
+		final IFolder sourceFolder = project.getFolder("src-gen");
+		try {
+			sourceFolder.create(false, true, null);
+		} catch (CoreException e) {
+			e.printStackTrace();
+			throw new BuildUtilException("Project source folder failed" + ":\n" + e.getMessage());
+		}
+
+		final List<IClasspathEntry> classpaths = new ArrayList<IClasspathEntry>();
+
+		classpaths.add(JavaCore.newSourceEntry(sourceFolder.getFullPath()));
+		classpaths.add(BuildUtil.getJavaSeClasspathEntry());
+		classpaths.add(BuildUtil.getRaoxClasspathEntry());
+		classpaths.add(BuildUtil.getXtendClasspathEntry());
+
+		final IJavaProject javaProject = JavaCore.create(project);
+		try {
+			javaProject.setRawClasspath(classpaths.toArray(new IClasspathEntry[classpaths.size()]), null);
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+			throw new BuildUtilException("Project set classpath failed" + ":\n" + e.getMessage());
+		}
+	}
+
 	static Mode getMode(final String libraryPath) {
 		return libraryPath.contains("dropins") ? Mode.PRODUCTION : Mode.DEVELOPMENT;
 	}
@@ -99,7 +148,7 @@ public class BuildUtil {
 		}
 	}
 
-	public static IClasspathEntry getJavaSeClasspathEntry() throws BuildUtilException {
+	private static IClasspathEntry getJavaSeClasspathEntry() throws BuildUtilException {
 		final IExecutionEnvironmentsManager executionEnvironmentsManager = JavaRuntime
 				.getExecutionEnvironmentsManager();
 		final IExecutionEnvironment[] executionEnvironments = executionEnvironmentsManager.getExecutionEnvironments();
@@ -111,7 +160,7 @@ public class BuildUtil {
 		throw new BuildUtilException(JavaSeVersion + " not found");
 	}
 
-	public static IClasspathEntry getRaoxClasspathEntry() throws BuildUtilException {
+	private static IClasspathEntry getRaoxClasspathEntry() throws BuildUtilException {
 		final Bundle bundle = Platform.getBundle(BundleType.RAOX_LIB.name);
 		try {
 			final File libraryPath = FileLocator.getBundleFile(bundle);
@@ -140,7 +189,7 @@ public class BuildUtil {
 		}
 	}
 
-	public static IClasspathEntry getXtendClasspathEntry() {
+	private static IClasspathEntry getXtendClasspathEntry() {
 		return JavaCore.newContainerEntry(new Path("org.eclipse.xtend.XTEND_CONTAINER"));
 	}
 
