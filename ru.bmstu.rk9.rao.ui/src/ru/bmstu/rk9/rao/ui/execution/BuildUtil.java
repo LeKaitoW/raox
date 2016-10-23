@@ -201,21 +201,25 @@ public class BuildUtil {
 					Arrays.asList(javaProject.getRawClasspath()));
 
 			boolean updateXtendClasspath = false;
+			boolean updateRaoxClasspath = false;
 			Iterator<IClasspathEntry> it = classpaths.iterator();
 			while (it.hasNext()) {
 				final String path = it.next().getPath().toString();
-				if (path.contains(BundleType.RAOX_LIB.name)) {
-					it.remove();
-				} else if (path.contains("org.eclipse.xtext.xbase.lib")) {
+				if (path.contains("org.eclipse.xtext.xbase.lib")) {
 					it.remove();
 					updateXtendClasspath = true;
+				} else if (path.contains(BundleType.RAOX_LIB.name)) {
+					it.remove();
+					updateRaoxClasspath = true;
 				}
 			}
 
 			if (updateXtendClasspath)
 				classpaths.add(getXtendClasspathEntry());
 
-			classpaths.add(getRaoxClasspathEntry());
+			if (updateRaoxClasspath)
+				classpaths.add(getRaoxClasspathEntry());
+
 			javaProject.setRawClasspath(classpaths.toArray(new IClasspathEntry[classpaths.size()]), monitor);
 
 		} catch (JavaModelException e) {
