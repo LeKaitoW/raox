@@ -1,4 +1,4 @@
-package rdo.game5;
+package ru.bmstu.rk9.raox.plugin.game5;
 
 import java.util.Arrays;
 
@@ -21,7 +21,7 @@ public class Game5WizardPage extends WizardPage {
 
 	protected Game5WizardPage(String pageName) {
 		super(pageName);
-		setTitle("Create a Rao Game5 Project");
+		setTitle("Create a Rao X Game5 Project");
 		setDescription("Enter a project name");
 	}
 
@@ -33,10 +33,8 @@ public class Game5WizardPage extends WizardPage {
 		final Label projectNameLabel = new Label(container, SWT.NONE);
 		projectNameLabel.setText("Project name:");
 
-		projectNameText = new Text(container, SWT.BORDER
-				| SWT.SINGLE);
-		final GridData projectNameData = new GridData(SWT.FILL, SWT.CENTER,
-				true, false);
+		projectNameText = new Text(container, SWT.BORDER | SWT.SINGLE);
+		final GridData projectNameData = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		projectNameText.setLayoutData(projectNameData);
 		projectNameText.setFocus();
 
@@ -62,7 +60,7 @@ public class Game5WizardPage extends WizardPage {
 					return;
 				}
 				if (projectName.equals("model")) {
-					setDescription("\"model\" is an invalid name for Rao project");
+					setDescription("\"model\" is an invalid name for Rao X project");
 					setPageComplete(false);
 					return;
 				}
@@ -71,7 +69,7 @@ public class Game5WizardPage extends WizardPage {
 					setPageComplete(false);
 					return;
 				}
-				setDescription("Create a Rao Game5 project in the workspace.");
+				setDescription("Create a Rao X Game5 project in the workspace.");
 				setPageComplete(true);
 			}
 
@@ -97,18 +95,15 @@ public class Game5WizardPage extends WizardPage {
 	}
 
 	private static boolean isJavaKeyword(String keyword) {
-		final String keywords[] = { "abstract", "assert", "boolean", "break",
-				"byte", "case", "catch", "char", "class", "const", "continue",
-				"default", "do", "double", "else", "enum", "extends", "false",
-				"final", "finally", "float", "for", "goto", "if", "implements",
-				"import", "instanceof", "int", "interface", "long", "native",
-				"new", "null", "package", "private", "protected", "public",
-				"return", "short", "static", "strictfp", "super", "switch",
-				"synchronized", "this", "throw", "throws", "transient", "true",
-				"try", "void", "volatile", "while" };
+		final String keywords[] = { "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class",
+				"const", "continue", "default", "do", "double", "else", "enum", "extends", "false", "final", "finally",
+				"float", "for", "goto", "if", "implements", "import", "instanceof", "int", "interface", "long",
+				"native", "new", "null", "package", "private", "protected", "public", "return", "short", "static",
+				"strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try",
+				"void", "volatile", "while" };
 		return (Arrays.binarySearch(keywords, keyword) >= 0);
 	}
-	
+
 	public String getProjectName() {
 		return projectNameText.getText();
 	}

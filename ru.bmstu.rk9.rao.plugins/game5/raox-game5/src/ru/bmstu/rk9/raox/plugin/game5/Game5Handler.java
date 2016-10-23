@@ -1,4 +1,4 @@
-package rdo.game5;
+package ru.bmstu.rk9.raox.plugin.game5;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;

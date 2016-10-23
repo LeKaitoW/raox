@@ -4,7 +4,7 @@
 
 	<parent>
 		<relativePath>../pom.xml</relativePath>
-		<groupId>ru.bmstu.rk9.raox.plugins.game5</groupId>
+		<groupId>ru.bmstu.rk9.raox.plugin.game5</groupId>
 		<artifactId>parent</artifactId>
 		<version>2.0.0</version>
 	</parent>
@@ -29,9 +29,9 @@
 							<outputDirectory>${basedir}/target/plugins</outputDirectory>
 							<resources>
 								<resource>
-									<directory>${basedir}/../rdo-game5/target</directory>
+									<directory>${basedir}/../raox-game5/target</directory>
 									<includes>
-										<include>ru.bmstu.rk9.raox.plugins.game5*.jar</include>
+										<include>ru.bmstu.rk9.raox.plugin.game5*.jar</include>
 									</includes>
 								</resource>
 							</resources>

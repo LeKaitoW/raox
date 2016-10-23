@@ -1,4 +1,4 @@
-package rdo.game5;
+package ru.bmstu.rk9.raox.plugin.game5;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -6,7 +6,7 @@
 		<menuContribution
 			locationURI="menu:org.eclipse.ui.main.menu?after=additions">
 			<menu
-				id="rdo.game5.menu"
+				id="raox.game5.menu"
 				label="Plugins">
 				<visibleWhen
 					checkEnabled="false">
@@ -18,8 +18,8 @@
 					</with>
 				</visibleWhen>
 				<command
-					commandId="rdo.game5"
-					id="rdo.game5"
+					commandId="raox.game5"
+					id="raox.game5"
 					label="Game5"
 					style="push">
 				</command>
@@ -30,22 +30,22 @@
 		point="org.eclipse.ui.commands">
 		<command
 			description="Run Game5"
-			id="rdo.game5"
+			id="raox.game5"
 			name="Game 5">
 		</command>
 	</extension>
 	<extension
 		point="org.eclipse.ui.handlers">
 		<handler
-			class="rdo.game5.Game5Handler"
-			commandId="rdo.game5">
+			class="ru.bmstu.rk9.raox.plugin.game5.Game5Handler"
+			commandId="raox.game5">
 		</handler>
 	</extension>
 	<extension
 		point="org.eclipse.ui.editors">
 		<editor
-			class="rdo.game5.Game5View"
-			id="rdo-game5.Game5View"
+			class="ru.bmstu.rk9.raox.plugin.game5.Game5View"
+			id="raox-game5.Game5View"
 			name="Game5 View"
 			extensions="json">
 		</editor>
@@ -54,12 +54,12 @@
 		point="org.eclipse.ui.newWizards">
 		<category
 			id="ru.bmstu.rk9.rao.wizard"
-			name="Rao">
+			name="Rao X">
 		</category>
 		<wizard
-			name="Rao Game5 Project"
-			class="rdo.game5.Game5Wizard"
-			id="rdo.game5.Game5Wizard"
+			name="Rao X Game5 Project"
+			class="ru.bmstu.rk9.raox.plugin.game5.Game5Wizard"
+			id="raox.game5.Game5Wizard"
 			icon="icons/raox-game5.png"
 			category="ru.bmstu.rk9.rao.wizard"
 			project="true"

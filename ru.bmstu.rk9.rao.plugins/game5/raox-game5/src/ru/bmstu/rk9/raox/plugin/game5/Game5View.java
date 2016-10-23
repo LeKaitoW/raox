@@ -1,4 +1,4 @@
-package rdo.game5;
+package ru.bmstu.rk9.raox.plugin.game5;
 
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
@@ -77,7 +77,7 @@ import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 public class Game5View extends EditorPart {
 
 	protected static boolean dirty = false;
-	public static final String ID = "rdo-game5.Game5View";
+	public static final String ID = "raox-game5.Game5View";
 	private static JSONObject object;
 	private final List<TileButton> tiles = new ArrayList<>();
 	private final int tilesCountX = 3;
