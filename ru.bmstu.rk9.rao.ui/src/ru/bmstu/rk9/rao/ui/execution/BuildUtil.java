@@ -125,8 +125,8 @@ public class BuildUtil {
 
 		classpaths.add(JavaCore.newSourceEntry(sourceFolder.getFullPath()));
 		classpaths.add(BuildUtil.getJavaSeClasspathEntry());
-		classpaths.add(BuildUtil.getRaoxClasspathEntry());
 		classpaths.add(BuildUtil.getXtendClasspathEntry());
+		classpaths.add(BuildUtil.getRaoxClasspathEntry());
 
 		final IJavaProject javaProject = JavaCore.create(project);
 		try {
