@@ -180,7 +180,7 @@ public class BuildJobProvider {
 		Job rebuildJob = new Job("Rebuilding project" + recentProject.getName()) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				final String errorMessage = BuildUtil.setupRaoxClasspath(recentProject, monitor);
+				final String errorMessage = BuildUtil.setupClasspaths(recentProject, monitor);
 				if (errorMessage != null)
 					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(errorMessage));
 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
@@ -193,18 +194,26 @@ public class BuildUtil {
 		return JavaCore.newContainerEntry(new Path("org.eclipse.xtend.XTEND_CONTAINER"));
 	}
 
-	static String setupRaoxClasspath(IProject project, IProgressMonitor monitor) {
+	static String setupClasspaths(IProject project, IProgressMonitor monitor) {
 		try {
 			final IJavaProject javaProject = JavaCore.create(project);
 			final List<IClasspathEntry> classpaths = new ArrayList<IClasspathEntry>(
 					Arrays.asList(javaProject.getRawClasspath()));
 
-			for (IClasspathEntry classpath : classpaths) {
-				if (classpath.getPath().toString().contains(BundleType.RAOX_LIB.name)) {
-					classpaths.remove(classpath);
-					break;
+			boolean updateXtendClasspath = false;
+			Iterator<IClasspathEntry> it = classpaths.iterator();
+			while (it.hasNext()) {
+				final String path = it.next().getPath().toString();
+				if (path.contains(BundleType.RAOX_LIB.name)) {
+					it.remove();
+				} else if (path.contains("org.eclipse.xtext.xbase.lib")) {
+					it.remove();
+					updateXtendClasspath = true;
 				}
 			}
+
+			if (updateXtendClasspath)
+				classpaths.add(getXtendClasspathEntry());
 
 			classpaths.add(getRaoxClasspathEntry());
 			javaProject.setRawClasspath(classpaths.toArray(new IClasspathEntry[classpaths.size()]), monitor);
