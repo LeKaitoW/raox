@@ -194,7 +194,7 @@ public class BuildUtil {
 		return JavaCore.newContainerEntry(new Path("org.eclipse.xtend.XTEND_CONTAINER"));
 	}
 
-	static String setupClasspaths(IProject project, IProgressMonitor monitor) {
+	static void updateClasspaths(IProject project, IProgressMonitor monitor) throws BuildUtilException {
 		try {
 			final IJavaProject javaProject = JavaCore.create(project);
 			final List<IClasspathEntry> classpaths = new ArrayList<IClasspathEntry>(
@@ -217,14 +217,11 @@ public class BuildUtil {
 
 			classpaths.add(getRaoxClasspathEntry());
 			javaProject.setRawClasspath(classpaths.toArray(new IClasspathEntry[classpaths.size()]), monitor);
-			return null;
 
-		} catch (BuildUtilException e) {
-			e.printStackTrace();
-			return e.getMessage();
 		} catch (JavaModelException e) {
 			e.printStackTrace();
-			return "Internal error while checking library " + BundleType.RAOX_LIB.name + ":\n" + e.getMessage();
+			throw new BuildUtilException(
+					"Internal error while checking library " + BundleType.RAOX_LIB.name + ":\n" + e.getMessage());
 		}
 	}
 
