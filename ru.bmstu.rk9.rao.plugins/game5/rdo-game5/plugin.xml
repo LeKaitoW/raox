@@ -60,7 +60,7 @@
 			name="Rao Game5 Project"
 			class="rdo.game5.Game5Wizard"
 			id="rdo.game5.Game5Wizard"
-			icon="icons/rao_old.gif"
+			icon="icons/raox-game5.png"
 			category="ru.bmstu.rk9.rao.wizard"
 			project="true"
 			finalPerspective="ru.bmstu.rk9.rao.ui.perspective">
