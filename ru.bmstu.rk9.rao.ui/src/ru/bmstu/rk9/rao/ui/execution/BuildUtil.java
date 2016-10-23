@@ -195,25 +195,19 @@ public class BuildUtil {
 
 	static String setupRaoxClasspath(IProject project, IProgressMonitor monitor) {
 		try {
-			final IClasspathEntry raoxClasspathEntry = getRaoxClasspathEntry();
-			if (getMode(raoxClasspathEntry.getPath().toString()) == Mode.PRODUCTION)
-				return null;
+			final IJavaProject javaProject = JavaCore.create(project);
+			final List<IClasspathEntry> classpaths = new ArrayList<IClasspathEntry>(
+					Arrays.asList(javaProject.getRawClasspath()));
 
-			final IJavaProject jProject = JavaCore.create(project);
-			final IClasspathEntry[] projectClassPathArray = jProject.getRawClasspath();
-			final List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
-					Arrays.asList(projectClassPathArray));
-
-			for (IClasspathEntry classpathEntry : projectClassPathList) {
-				if (classpathEntry.getPath().equals(raoxClasspathEntry.getPath())) {
-					projectClassPathList.remove(classpathEntry);
+			for (IClasspathEntry classpath : classpaths) {
+				if (classpath.getPath().toString().contains(BundleType.RAOX_LIB.name)) {
+					classpaths.remove(classpath);
 					break;
 				}
 			}
 
-			projectClassPathList.add(raoxClasspathEntry);
-			jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
-					monitor);
+			classpaths.add(getRaoxClasspathEntry());
+			javaProject.setRawClasspath(classpaths.toArray(new IClasspathEntry[classpaths.size()]), monitor);
 			return null;
 
 		} catch (BuildUtilException e) {
