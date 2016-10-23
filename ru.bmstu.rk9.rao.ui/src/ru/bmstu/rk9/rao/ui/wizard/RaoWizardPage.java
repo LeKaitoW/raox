@@ -28,7 +28,7 @@ public class RaoWizardPage extends WizardPage {
 
 	public RaoWizardPage(String pageName) {
 		super(pageName);
-		setTitle("Create a Rao Project");
+		setTitle("Create a Rao X Project");
 		setDescription("Enter a project name");
 	}
 
@@ -105,7 +105,7 @@ public class RaoWizardPage extends WizardPage {
 			setPageComplete(false);
 			return;
 		}
-		setDescription("Create a Rao project in the workspace.");
+		setDescription("Create a Rao X project in the workspace.");
 		setPageComplete(true);
 	}
 
