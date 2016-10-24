@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rao.lib.modeldata;
 public class ModelStructureConstants {
 	public static final String NUMBER_OF_MODELS = "number_of_models";
 	public static final String NAME = "name";
+	public static final String LOCATION = "location";
 	public static final String TYPE = "type";
 	public static final String STRUCTURE = "structure";
 	public static final String PARAMETERS = "parameters";

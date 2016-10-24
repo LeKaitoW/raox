@@ -3,8 +3,8 @@ package ru.bmstu.rk9.rao.ui.animation;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
@@ -235,10 +235,9 @@ public class AnimationContextSWT implements AnimationContext {
 	private final Image getOrCreateImage(String name) {
 		Image image = images.get(name);
 		if (image == null) {
-			final IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
-			final String projectName = CurrentSimulator.getStaticModelData().getModelStructure()
-					.getString(ModelStructureConstants.NAME);
-			image = new Image(display, workspacePath.append(projectName).append(name).toString());
+			final IPath projectLocation = new Path(CurrentSimulator.getStaticModelData().getModelStructure()
+					.getString(ModelStructureConstants.LOCATION));
+			image = new Image(display, projectLocation.append(name).toString());
 			images.put(name, image);
 		}
 		return image;
