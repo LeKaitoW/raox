@@ -1040,10 +1040,10 @@
         point="org.eclipse.ui.newWizards">
         <category
           id="ru.bmstu.rk9.rao.wizard"
-          name="Rao">
+          name="Rao X">
       </category>
       <wizard
-            name="Rao Project"
+            name="Rao X Project"
             class="ru.bmstu.rk9.rao.ui.wizard.RaoWizard"
             id="ru.bmstu.rk9.rao.ui.wizard.RaoWizard"
             icon="icons/rao_old.gif"

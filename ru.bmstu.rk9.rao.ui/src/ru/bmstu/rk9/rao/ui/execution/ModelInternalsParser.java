@@ -17,9 +17,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
-
 import org.eclipse.core.runtime.CoreException;
-
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -31,12 +29,10 @@ import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
 import org.eclipse.xtext.xbase.typesystem.references.LightweightTypeReference;
 
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
-
 import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.dpt.AbstractDecisionPoint;
 import ru.bmstu.rk9.rao.lib.dpt.Logic;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
-
 import ru.bmstu.rk9.rao.lib.exception.RaoLibException;
 import ru.bmstu.rk9.rao.lib.json.JSONArray;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
@@ -46,18 +42,17 @@ import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.result.Result;
-
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
-import ru.bmstu.rk9.rao.ui.gef.process.BlockConverter;
-import ru.bmstu.rk9.rao.ui.gef.process.ProcessEditor;
-import ru.bmstu.rk9.rao.ui.gef.process.model.ProcessModelNode;
 import ru.bmstu.rk9.rao.rao.PatternType;
 import ru.bmstu.rk9.rao.rao.RaoEntity;
 import ru.bmstu.rk9.rao.rao.RaoModel;
 import ru.bmstu.rk9.rao.rao.RelevantResource;
 import ru.bmstu.rk9.rao.rao.RelevantResourceTuple;
+import ru.bmstu.rk9.rao.ui.gef.process.BlockConverter;
+import ru.bmstu.rk9.rao.ui.gef.process.ProcessEditor;
+import ru.bmstu.rk9.rao.ui.gef.process.model.ProcessModelNode;
 
 @SuppressWarnings("restriction")
 public class ModelInternalsParser {
@@ -113,6 +108,8 @@ public class ModelInternalsParser {
 		classLoader = new URLClassLoader(urls, CurrentSimulator.class.getClassLoader());
 
 		simulatorPreinitializationInfo.modelStructure.put(ModelStructureConstants.NAME, project.getName());
+		simulatorPreinitializationInfo.modelStructure.put(ModelStructureConstants.LOCATION,
+				project.getLocation().toString());
 
 		final ResourceSet resourceSet = resourceSetProvider.get(project);
 		if (resourceSet == null) {

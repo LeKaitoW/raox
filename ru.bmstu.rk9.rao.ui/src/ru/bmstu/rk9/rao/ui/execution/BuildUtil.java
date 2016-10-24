@@ -4,14 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -20,6 +23,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -29,7 +33,9 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.osgi.framework.Bundle;
+import org.osgi.service.prefs.BackingStoreException;
 
 public class BuildUtil {
 
@@ -88,6 +94,50 @@ public class BuildUtil {
 		return file.getProject();
 	}
 
+	public static void initializeProjectSetup(IProject project) throws BuildUtilException {
+		final ProjectScope projectScope = new ProjectScope(project);
+		final IEclipsePreferences projectNode = projectScope.getNode("org.eclipse.core.resources");
+		projectNode.node("encoding").put("<project>", "UTF-8");
+		try {
+			projectNode.flush();
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+			throw new BuildUtilException("Project encoding initialization failed" + ":\n" + e.getMessage());
+		}
+
+		try {
+			final IProjectDescription description = project.getDescription();
+			description.setNatureIds(new String[] { JavaCore.NATURE_ID, XtextProjectHelper.NATURE_ID });
+			project.setDescription(description, null);
+		} catch (CoreException e) {
+			e.printStackTrace();
+			throw new BuildUtilException("Project description failed" + ":\n" + e.getMessage());
+		}
+
+		final IFolder sourceFolder = project.getFolder("src-gen");
+		try {
+			sourceFolder.create(false, true, null);
+		} catch (CoreException e) {
+			e.printStackTrace();
+			throw new BuildUtilException("Project source folder failed" + ":\n" + e.getMessage());
+		}
+
+		final List<IClasspathEntry> classpaths = new ArrayList<IClasspathEntry>();
+
+		classpaths.add(JavaCore.newSourceEntry(sourceFolder.getFullPath()));
+		classpaths.add(BuildUtil.getJavaSeClasspathEntry());
+		classpaths.add(BuildUtil.getXtendClasspathEntry());
+		classpaths.add(BuildUtil.getRaoxClasspathEntry());
+
+		final IJavaProject javaProject = JavaCore.create(project);
+		try {
+			javaProject.setRawClasspath(classpaths.toArray(new IClasspathEntry[classpaths.size()]), null);
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+			throw new BuildUtilException("Project set classpath failed" + ":\n" + e.getMessage());
+		}
+	}
+
 	static Mode getMode(final String libraryPath) {
 		return libraryPath.contains("dropins") ? Mode.PRODUCTION : Mode.DEVELOPMENT;
 	}
@@ -99,7 +149,7 @@ public class BuildUtil {
 		}
 	}
 
-	public static IClasspathEntry getJavaSeClasspathEntry() throws BuildUtilException {
+	private static IClasspathEntry getJavaSeClasspathEntry() throws BuildUtilException {
 		final IExecutionEnvironmentsManager executionEnvironmentsManager = JavaRuntime
 				.getExecutionEnvironmentsManager();
 		final IExecutionEnvironment[] executionEnvironments = executionEnvironmentsManager.getExecutionEnvironments();
@@ -111,7 +161,7 @@ public class BuildUtil {
 		throw new BuildUtilException(JavaSeVersion + " not found");
 	}
 
-	public static IClasspathEntry getRaoxClasspathEntry() throws BuildUtilException {
+	private static IClasspathEntry getRaoxClasspathEntry() throws BuildUtilException {
 		final Bundle bundle = Platform.getBundle(BundleType.RAOX_LIB.name);
 		try {
 			final File libraryPath = FileLocator.getBundleFile(bundle);
@@ -140,39 +190,42 @@ public class BuildUtil {
 		}
 	}
 
-	public static IClasspathEntry getXtendClasspathEntry() {
+	private static IClasspathEntry getXtendClasspathEntry() {
 		return JavaCore.newContainerEntry(new Path("org.eclipse.xtend.XTEND_CONTAINER"));
 	}
 
-	static String setupRaoxClasspath(IProject project, IProgressMonitor monitor) {
+	static void updateClasspaths(IProject project, IProgressMonitor monitor) throws BuildUtilException {
 		try {
-			final IClasspathEntry raoxClasspathEntry = getRaoxClasspathEntry();
-			if (getMode(raoxClasspathEntry.getPath().toString()) == Mode.PRODUCTION)
-				return null;
+			final IJavaProject javaProject = JavaCore.create(project);
+			final List<IClasspathEntry> classpaths = new ArrayList<IClasspathEntry>(
+					Arrays.asList(javaProject.getRawClasspath()));
 
-			final IJavaProject jProject = JavaCore.create(project);
-			final IClasspathEntry[] projectClassPathArray = jProject.getRawClasspath();
-			final List<IClasspathEntry> projectClassPathList = new ArrayList<IClasspathEntry>(
-					Arrays.asList(projectClassPathArray));
-
-			for (IClasspathEntry classpathEntry : projectClassPathList) {
-				if (classpathEntry.getPath().equals(raoxClasspathEntry.getPath())) {
-					projectClassPathList.remove(classpathEntry);
-					break;
+			boolean updateXtendClasspath = false;
+			boolean updateRaoxClasspath = false;
+			Iterator<IClasspathEntry> it = classpaths.iterator();
+			while (it.hasNext()) {
+				final String path = it.next().getPath().toString();
+				if (path.contains("org.eclipse.xtext.xbase.lib")) {
+					it.remove();
+					updateXtendClasspath = true;
+				} else if (path.contains(BundleType.RAOX_LIB.name)) {
+					it.remove();
+					updateRaoxClasspath = true;
 				}
 			}
 
-			projectClassPathList.add(raoxClasspathEntry);
-			jProject.setRawClasspath(projectClassPathList.toArray(new IClasspathEntry[projectClassPathList.size()]),
-					monitor);
-			return null;
+			if (updateXtendClasspath)
+				classpaths.add(getXtendClasspathEntry());
 
-		} catch (BuildUtilException e) {
-			e.printStackTrace();
-			return e.getMessage();
+			if (updateRaoxClasspath)
+				classpaths.add(getRaoxClasspathEntry());
+
+			javaProject.setRawClasspath(classpaths.toArray(new IClasspathEntry[classpaths.size()]), monitor);
+
 		} catch (JavaModelException e) {
 			e.printStackTrace();
-			return "Internal error while checking library " + BundleType.RAOX_LIB.name + ":\n" + e.getMessage();
+			throw new BuildUtilException(
+					"Internal error while checking library " + BundleType.RAOX_LIB.name + ":\n" + e.getMessage());
 		}
 	}
 

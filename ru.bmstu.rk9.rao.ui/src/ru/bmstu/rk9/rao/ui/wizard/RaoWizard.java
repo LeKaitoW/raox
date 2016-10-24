@@ -41,7 +41,7 @@ public class RaoWizard extends BasicNewProjectResourceWizard implements IWorkben
 
 	@Override
 	public String getWindowTitle() {
-		return "New Rao Project";
+		return "New Rao X Project";
 	}
 
 	@Override
