@@ -235,8 +235,8 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 									<outputDirectory>${basedir}/target/plugins</outputDirectory>
 								</artifactItem>
 								<artifactItem>
-									<groupId>ru.bmstu.rk9.raox.plugins.game5</groupId>
-									<artifactId>ru.bmstu.rk9.raox.plugins.game5</artifactId>
+									<groupId>ru.bmstu.rk9.raox.plugin.game5</groupId>
+									<artifactId>ru.bmstu.rk9.raox.plugin.game5</artifactId>
 									<version>LATEST</version>
 									<outputDirectory>${basedir}/target/plugins</outputDirectory>
 								</artifactItem>
