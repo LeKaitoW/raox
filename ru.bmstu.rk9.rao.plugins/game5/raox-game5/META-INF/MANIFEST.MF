@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Rao X Game5
 Bundle-Vendor: raox.ru
 Bundle-SymbolicName: ru.bmstu.rk9.raox.plugin.game5;singleton:=true
-Bundle-Version: 2.0.0
+Bundle-Version: 2.1.0
 Bundle-Activator: ru.bmstu.rk9.raox.plugin.game5.Game5Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
