@@ -298,6 +298,13 @@ public class ModelInternalsParser {
 
 				resourceType.getJSONArray(ModelStructureConstants.NAMED_RESOURCES)
 						.put(new JSONObject().put(ModelStructureConstants.NAME, name));
+				continue;
+			}
+
+			if (entity instanceof ru.bmstu.rk9.rao.rao.Result) {
+				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.RESULTS)
+						.put(new JSONObject().put(ModelStructureConstants.NAME, name));
+				continue;
 			}
 		}
 

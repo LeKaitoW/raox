@@ -19,6 +19,7 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResultIndex;
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
+import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.ui.trace.Tracer;
@@ -46,15 +47,50 @@ public class PlotDataParser {
 	}
 
 	public final static class DataParserResult {
-		DataParserResult(final List<PlotItem> dataset, boolean axisChanged, List<String> axisValues) {
+		DataParserResult(final List<PlotItem> dataset, AxisHelper axisHelper) {
 			this.dataset = dataset;
+			this.axisHelper = axisHelper;
+		}
+
+		public final List<PlotItem> dataset;
+		public final AxisHelper axisHelper;
+	}
+
+	public final static class AxisHelper {
+		AxisHelper(boolean axisChanged, List<String> axisValues) {
 			this.axisChanged = axisChanged;
 			this.axisValues = axisValues;
 		}
 
 		public final boolean axisChanged;
 		public final List<String> axisValues;
-		public final List<PlotItem> dataset;
+	}
+
+	private final static class SymbolAxisEntry {
+		SymbolAxisEntry(int value, AxisHelper axisHelper) {
+			this.value = value;
+			this.axisHelper = axisHelper;
+		}
+
+		public final int value;
+		public final AxisHelper axisHelper;
+	}
+
+	private SymbolAxisEntry stringToSymbolAxisEntry(String descriptor) {
+		boolean axisChanged = false;
+		List<String> axisValues = null;
+
+		int value;
+		if (uniqueValues.containsKey(descriptor)) {
+			value = uniqueValues.get(descriptor);
+		} else {
+			value = uniqueValues.size();
+			uniqueValues.put(descriptor, value);
+			axisChanged = true;
+			axisValues = Lists.newArrayList(uniqueValues.keySet());
+		}
+
+		return new SymbolAxisEntry(value, new AxisHelper(axisChanged, axisValues));
 	}
 
 	public final static class ParseInfo {
@@ -129,21 +165,55 @@ public class PlotDataParser {
 			currentItemNumber++;
 		}
 
-		return new ParseInfo(new DataParserResult(dataset, false, null), currentItemNumber);
+		return new ParseInfo(new DataParserResult(dataset, new AxisHelper(false, null)), currentItemNumber);
 	}
 
 	private ParseInfo parseResult(final ResultIndex resultIndex, final int startItemNumber) {
 		final List<PlotItem> dataset = new ArrayList<PlotItem>();
 		final List<Integer> entriesNumbers = resultIndex.getEntryNumbers();
+		final List<Entry> allEntries = CurrentSimulator.getDatabase().getAllEntries();
+
+		AxisHelper axisHelper = new AxisHelper(false, null);
 
 		while (currentItemNumber < entriesNumbers.size()) {
+			int currentEntryNumber = entriesNumbers.get(currentItemNumber);
+			final Entry currentEntry = allEntries.get(currentEntryNumber);
+			final ByteBuffer data = Tracer.prepareBufferForReading(currentEntry.getData());
+			final ByteBuffer header = Tracer.prepareBufferForReading(currentEntry.getHeader());
+
+			Tracer.skipPart(header, TypeSize.BYTE);
+			Tracer.skipPart(header, TypeSize.INT);
+			final double time = header.getDouble();
+			final ResultType resultType = ResultType.values()[header.get()];
+
 			PlotItem item = null;
-			// TODO implement
+			switch (resultType) {
+			case OTHER:
+				final int length = data.getInt();
+
+				byte rawString[] = new byte[length];
+				for (int i = 0; i < length; i++)
+					rawString[i] = data.get(TypeSize.INT + i);
+				String descriptor = new String(rawString, StandardCharsets.UTF_8);
+
+				SymbolAxisEntry entry = stringToSymbolAxisEntry(descriptor);
+				axisHelper = entry.axisHelper.axisChanged ? entry.axisHelper : axisHelper;
+
+				item = new PlotItem(time, entry.value);
+				break;
+			case NUMBER:
+				final double dataValue = data.getDouble();
+				item = new PlotItem(time, dataValue);
+				break;
+			default:
+				break;
+			}
+
 			dataset.add(item);
 			currentItemNumber++;
 		}
 
-		return new ParseInfo(new DataParserResult(dataset, false, null), currentItemNumber);
+		return new ParseInfo(new DataParserResult(dataset, axisHelper), currentItemNumber);
 	}
 
 	private ParseInfo parseResourceParameter(final ResourceIndex resourceIndex, final int typeNumber,
@@ -156,8 +226,7 @@ public class PlotDataParser {
 				parameterNumber);
 		final int finalOffset = CurrentSimulator.getStaticModelData().getResourceTypeFinalOffset(typeNumber);
 
-		boolean axisChanged = false;
-		List<String> axisValues = null;
+		AxisHelper axisHelper = new AxisHelper(false, null);
 
 		while (currentItemNumber < entriesNumbers.size()) {
 			int currentEntryNumber = entriesNumbers.get(currentItemNumber);
@@ -181,7 +250,12 @@ public class PlotDataParser {
 				item = new PlotItem(time, data.getDouble(parameterOffset));
 				break;
 			case BOOLEAN:
-				item = new PlotItem(time, data.get(parameterOffset) != 0 ? 1 : 0);
+				String boolValueStr = data.get(parameterOffset) != 0 ? "true" : "false";
+
+				SymbolAxisEntry boolValueEntry = stringToSymbolAxisEntry(boolValueStr);
+				axisHelper = boolValueEntry.axisHelper.axisChanged ? boolValueEntry.axisHelper : axisHelper;
+
+				item = new PlotItem(time, boolValueEntry.value);
 				break;
 			case OTHER:
 				final int index = CurrentSimulator.getStaticModelData().getVariableWidthParameterIndex(typeNumber,
@@ -194,16 +268,10 @@ public class PlotDataParser {
 					rawString[i] = data.get(stringPosition + TypeSize.INT + i);
 				String descriptor = new String(rawString, StandardCharsets.UTF_8);
 
-				int value;
-				if (uniqueValues.containsKey(descriptor)) {
-					value = uniqueValues.get(descriptor);
-				} else {
-					value = uniqueValues.size();
-					uniqueValues.put(descriptor, value);
-					axisChanged = true;
-					axisValues = Lists.newArrayList(uniqueValues.keySet());
-				}
-				item = new PlotItem(time, value);
+				SymbolAxisEntry entry = stringToSymbolAxisEntry(descriptor);
+				axisHelper = entry.axisHelper.axisChanged ? entry.axisHelper : axisHelper;
+
+				item = new PlotItem(time, entry.value);
 
 				break;
 			default:
@@ -214,6 +282,6 @@ public class PlotDataParser {
 			currentItemNumber++;
 		}
 
-		return new ParseInfo(new DataParserResult(dataset, axisChanged, axisValues), currentItemNumber);
+		return new ParseInfo(new DataParserResult(dataset, axisHelper), currentItemNumber);
 	}
 }

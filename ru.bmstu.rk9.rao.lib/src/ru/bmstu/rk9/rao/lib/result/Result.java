@@ -4,38 +4,48 @@ import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.naming.RaoNameable;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
-public abstract class Result<T> extends RaoNameable {
+public class Result<T> extends RaoNameable {
 
-	public abstract T evaluate();
+	public Result(AbstractDataSource<T> dataSource, ResultMode resultMode, Statistics<T> statistics) {
+		this.dataSource = dataSource;
+		this.resultMode = resultMode;
+		this.statistics = statistics;
+	}
 
-	public boolean condition() {
-		return true;
-	};
+	public Result(AbstractDataSource<T> dataSource, Statistics<T> statistics) {
+		this(dataSource, ResultMode.AUTO, statistics);
+	}
 
-	public JSONObject getData() {
+	public Result(AbstractDataSource<T> dataSource, ResultMode resultMode) {
+		this(dataSource, resultMode, dataSource.getDefaultStatistics());
+	}
+
+	public Result(AbstractDataSource<T> dataSource) {
+		this(dataSource, ResultMode.AUTO, dataSource.getDefaultStatistics());
+	}
+
+	public final JSONObject getData() {
 		JSONObject datasetData = new JSONObject();
 		datasetData.put("name", getName());
-		datasetData.put("type", this.getClass().getSimpleName());
 		statistics.updateData(datasetData);
 		return datasetData;
 	};
 
-	public void setStatistics(Statistics<T> statistics) {
-		this.statistics = statistics;
-	}
-
-	public Statistics<T> getStatistics() {
-		return statistics;
-	};
-
-	public void update() {
-		if (!condition()) 
+	public final void update() {
+		if (!dataSource.condition())
 			return;
-		statistics.update(evaluate(), CurrentSimulator.getTime());
+		final T value = dataSource.evaluate();
+		statistics.update(value, CurrentSimulator.getTime());
+		CurrentSimulator.getDatabase().addResultEntry(this, value);
 	};
 
-	protected ResultMode resultMode;
+	private final ResultMode resultMode;
 
-	protected Statistics<T> statistics;
+	private final Statistics<T> statistics;
 
+	private final AbstractDataSource<T> dataSource;
+
+	public final ResultMode getResultMode() {
+		return resultMode;
+	}
 }

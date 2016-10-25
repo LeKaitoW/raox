@@ -7,16 +7,16 @@ public class WeightedStorelessNumericStatistics<T extends Number> extends Statis
 	@Override
 	public void updateData(JSONObject data) {
 		addValue(lastValue, lastCurrentTime);
+		data.put("Last value", getLastValue());
 		data.put("Mean", getMean());
 		data.put("Standard deviation", getStandartDeviation());
 		data.put("varcoef", getCoefficientOfVariation());
-		data.put("Median", getMedian());
 	}
 
 	@Override
 	public void update(T value, double currentTime) {
 		double nextValue = value.doubleValue();
-		if (lastValue != nextValue) {
+		if (lastValue != nextValue && !Double.isNaN(nextValue)) {
 			addValue(nextValue, currentTime);
 		}
 		lastValue = nextValue;
@@ -24,20 +24,14 @@ public class WeightedStorelessNumericStatistics<T extends Number> extends Statis
 	}
 
 	private boolean started = false;
-
-	private double lastValue;
-
+	private double lastValue = Double.NaN;
 	private double lastWeight;
-
 	private double lastCurrentTime;
-
 	private double weightSum;
-
 	private double mean;
-
 	private double variance;
 
-	private void addValue(double nextValue, double nextWeight) {
+	private final void addValue(double nextValue, double nextWeight) {
 		if (started) {
 			double x = lastValue;
 			double weight = nextWeight - lastWeight;
@@ -61,21 +55,19 @@ public class WeightedStorelessNumericStatistics<T extends Number> extends Statis
 		lastWeight = nextWeight;
 	}
 
-	private double getMean() {
+	private final double getMean() {
 		return mean;
 	}
 
-	private double getStandartDeviation() {
+	private final double getStandartDeviation() {
 		return Math.sqrt(variance / weightSum);
 	}
 
-	private double getCoefficientOfVariation() {
+	private final double getCoefficientOfVariation() {
 		return variance / weightSum / mean * 100d;
 	}
 
-	private double median;
-
-	private double getMedian() {
-		return median;
+	private final double getLastValue() {
+		return lastValue;
 	}
 }

@@ -8,6 +8,7 @@ import ru.bmstu.rk9.rao.lib.database.Database.DataType;
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
 import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
+import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
@@ -418,17 +419,31 @@ public class Tracer {
 		final ByteBuffer data = prepareBufferForReading(entry.getData());
 
 		skipPart(header, TypeSize.BYTE);
-		final double time = header.getDouble();
 		final int resultNum = header.getInt();
 		String resultName = NamingHelper.convertName(staticModelData.getResultName(resultNum), useShortNames);
+		final double time = header.getDouble();
+		final ResultType resultType = ResultType.values()[header.get()];
+
+		String stringValue = null;
+		switch (resultType) {
+		case OTHER:
+			final int length = data.getInt();
+
+			byte rawString[] = new byte[length];
+			for (int i = 0; i < length; i++)
+				rawString[i] = data.get(TypeSize.INT + i);
+			stringValue = new String(rawString, StandardCharsets.UTF_8);
+			break;
+		case NUMBER:
+			final double dataValue = data.getDouble();
+			stringValue = String.valueOf(dataValue);
+			break;
+		default:
+			break;
+		}
 
 		return new TraceOutput(TraceType.RESULT, new StringJoiner(delimiter).add(TraceType.RESULT.toString()).add(time)
-				.add(resultName).add("=").add(parseResultParameter(data, resultNum)).getString());
-	}
-
-	private String parseResultParameter(final ByteBuffer data, final int resultNum) {
-		// TODO implement
-		return "";
+				.add(resultName).add("=").add(stringValue).getString());
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
