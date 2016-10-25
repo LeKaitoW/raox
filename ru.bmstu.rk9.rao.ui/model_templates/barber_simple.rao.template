@@ -47,6 +47,6 @@ def terminateCondition() {
 
 result занятость_парикмахера = new Result([парикмахерская.состояние_парикмахера]);
 result длина_очереди = new Result([парикмахерская.количество_в_очереди]);
-result Всего_обслужено = new Result([парикмахерская.количество_обслуженных], new LastValueStatistics());
-result Пропускная_способность = new Result([парикмахерская.количество_обслуженных / currentTime * 60]);
-result Длительность_работы = new Result([currentTime / 60], new LastValueStatistics());
+result всего_обслужено = new Result([парикмахерская.количество_обслуженных], new LastValueStatistics());
+result пропускная_способность = new Result([парикмахерская.количество_обслуженных / currentTime * 60]);
+result длительность_работы = new Result([currentTime / 60], new LastValueStatistics());
