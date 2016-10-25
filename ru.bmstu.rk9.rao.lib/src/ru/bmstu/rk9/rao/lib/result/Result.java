@@ -27,7 +27,6 @@ public class Result<T> extends RaoNameable {
 	public final JSONObject getData() {
 		JSONObject datasetData = new JSONObject();
 		datasetData.put("name", getName());
-		datasetData.put("type", this.getClass().getSimpleName());
 		statistics.updateData(datasetData);
 		return datasetData;
 	};
