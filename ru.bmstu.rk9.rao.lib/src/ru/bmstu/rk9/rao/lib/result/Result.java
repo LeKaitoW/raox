@@ -24,7 +24,7 @@ public class Result<T> extends RaoNameable {
 		this(dataSource, ResultMode.AUTO, dataSource.getDefaultStatistics());
 	}
 
-	public JSONObject getData() {
+	public final JSONObject getData() {
 		JSONObject datasetData = new JSONObject();
 		datasetData.put("name", getName());
 		datasetData.put("type", this.getClass().getSimpleName());
@@ -32,7 +32,7 @@ public class Result<T> extends RaoNameable {
 		return datasetData;
 	};
 
-	public void update() {
+	public final void update() {
 		if (!dataSource.condition())
 			return;
 		final T value = dataSource.evaluate();
@@ -40,13 +40,13 @@ public class Result<T> extends RaoNameable {
 		CurrentSimulator.getDatabase().addResultEntry(this, value);
 	};
 
-	private ResultMode resultMode;
+	private final ResultMode resultMode;
 
-	private Statistics<T> statistics;
+	private final Statistics<T> statistics;
 
-	private AbstractDataSource<T> dataSource;
+	private final AbstractDataSource<T> dataSource;
 
-	public ResultMode getResultMode() {
+	public final ResultMode getResultMode() {
 		return resultMode;
 	}
 }

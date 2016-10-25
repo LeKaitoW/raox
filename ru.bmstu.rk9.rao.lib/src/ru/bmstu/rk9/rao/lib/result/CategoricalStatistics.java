@@ -59,7 +59,7 @@ public class CategoricalStatistics<T> extends Statistics<T> {
 
 	private final Map<T, StatisticsData> statisticsDataset = new HashMap<T, StatisticsData>();
 
-	private void addState(T value, double delta) {
+	private final void addState(T value, double delta) {
 		fullTime += delta;
 		StatisticsData data = statisticsDataset.get(value);
 		if (data.valueMaxTime < delta) {

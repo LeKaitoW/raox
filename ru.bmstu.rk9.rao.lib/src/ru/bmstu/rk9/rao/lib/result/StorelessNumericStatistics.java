@@ -3,13 +3,13 @@ package ru.bmstu.rk9.rao.lib.result;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 
 public class StorelessNumericStatistics<T extends Number> extends Statistics<T> {
+
 	@Override
 	public void updateData(JSONObject data) {
 		data.put("Last value", getLastValue());
 		data.put("Mean", getMean());
 		data.put("Standard deviation", getStandartDeviation());
 		data.put("varcoef", getCoefficientOfVariation());
-		data.put("Median", getMedian());
 	}
 
 	@Override
@@ -18,13 +18,11 @@ public class StorelessNumericStatistics<T extends Number> extends Statistics<T> 
 	}
 
 	private int sum = 0;
-
 	private double mean = 0;
 	private double variance;
-
 	private double lastValue = Double.NaN;
 
-	private void next(double value) {
+	private final void next(double value) {
 		double lastMean = mean;
 
 		mean = 1d / ++sum * (value - lastMean) + lastMean;
@@ -32,25 +30,19 @@ public class StorelessNumericStatistics<T extends Number> extends Statistics<T> 
 		lastValue = value;
 	}
 
-	private double getMean() {
+	private final double getMean() {
 		return mean;
 	}
 
-	private double getStandartDeviation() {
+	private final double getStandartDeviation() {
 		return Math.sqrt(variance / sum);
 	}
 
-	private double getCoefficientOfVariation() {
+	private final double getCoefficientOfVariation() {
 		return variance / sum / mean * 100d;
 	}
 
-	private double median;
-
-	private double getMedian() {
-		return median;
-	}
-
-	private double getLastValue() {
+	private final double getLastValue() {
 		return lastValue;
 	}
 }
