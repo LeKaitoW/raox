@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import ru.bmstu.rk9.rao.lib.database.Database.ResultType;
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
-import ru.bmstu.rk9.rao.lib.modelStructure.ValueCache;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 
 public class CollectedDataNode {
@@ -125,20 +123,14 @@ public class CollectedDataNode {
 	}
 
 	public static class PatternIndex extends Index {
-		public PatternIndex(int number, JSONObject structure) {
+		public PatternIndex(int number) {
 			super(number, IndexType.PATTERN);
-			this.structure = structure;
-		}
-
-		public JSONObject getStructrure() {
-			return structure;
 		}
 
 		public int incrementTimesExecuted() {
 			return timesExecuted++;
 		}
 
-		JSONObject structure;
 		int timesExecuted = 0;
 
 	}
@@ -158,54 +150,27 @@ public class CollectedDataNode {
 	}
 
 	public static class ResourceTypeIndex extends Index {
-		public ResourceTypeIndex(int number, JSONObject structure) {
+		public ResourceTypeIndex(int number) {
 			super(number, IndexType.RESOURCE_TYPE);
-			this.structure = structure;
 		}
-
-		public JSONObject getStructure() {
-			return structure;
-		}
-
-		private final JSONObject structure;
 	}
 
 	public static class ResultIndex extends Index {
-		public ResultIndex(int number, ResultType type) {
+		public ResultIndex(int number) {
 			super(number, IndexType.RESULT);
-			this.type = type;
 		}
-
-		public final ResultType getResultType() {
-			return type;
-		}
-
-		private final ResultType type;
 	}
 
-	public static class DecisionPointIndex extends Index {
-		public DecisionPointIndex(int number) {
+	public static class LogicIndex extends Index {
+		public LogicIndex(int number) {
 			super(number, IndexType.DECISION_POINT);
 		}
 	}
 
 	public static class ResourceParameterIndex extends Index {
-		public ResourceParameterIndex(int number, ValueCache cache, int offset) {
+		public ResourceParameterIndex(int number) {
 			super(number, IndexType.RESOURCE_PARAMETER);
-			this.cache = cache;
-			this.offset = offset;
 		}
-
-		public final ValueCache getValueCache() {
-			return cache;
-		}
-
-		public final int getOffset() {
-			return offset;
-		}
-
-		private final ValueCache cache;
-		private final int offset;
 	}
 
 	public CollectedDataNode(String name, CollectedDataNode parent) {
@@ -248,7 +213,7 @@ public class CollectedDataNode {
 	}
 
 	public final String getName() {
-		return NamingHelper.getRelativeElementName(name);
+		return NamingHelper.getLastPart(name);
 	}
 
 	private Index index = null;

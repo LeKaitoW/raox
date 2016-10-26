@@ -1,16 +1,24 @@
 package ru.bmstu.rk9.rao.ui.animation;
 
 import java.util.HashMap;
+import java.util.Map;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Display;
 
+import ru.bmstu.rk9.rao.lib.animation.Alignment;
 import ru.bmstu.rk9.rao.lib.animation.AnimationContext;
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
+import ru.bmstu.rk9.rao.lib.animation.Background;
+import ru.bmstu.rk9.rao.lib.animation.RaoColor;
+import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class AnimationContextSWT implements AnimationContext {
 	private Display display;
@@ -23,13 +31,13 @@ public class AnimationContextSWT implements AnimationContext {
 
 	private HashMap<AnimationFrame, Image> storedFrames = new HashMap<AnimationFrame, Image>();
 
-	void drawBackground(int[] backgroundData) {
+	void drawBackground(Background backgroundData) {
 		paintContext.setAlpha(255);
 
-		Color backgroundColor = createColor(backgroundData, 2);
+		Color backgroundColor = createColor(backgroundData.color);
 
 		paintContext.setBackground(backgroundColor);
-		paintContext.fillRectangle(0, 0, backgroundData[0], backgroundData[1]);
+		paintContext.fillRectangle(0, 0, backgroundData.width, backgroundData.height);
 
 		backgroundColor.dispose();
 	}
@@ -50,11 +58,17 @@ public class AnimationContextSWT implements AnimationContext {
 		storedFrames.put(frame, drawFrameBuffer(frame));
 	}
 
-	private Image drawFrameBuffer(AnimationFrame frame) {
-		int[] backgroundData = frame.getBackgroundData();
+	void dispose() {
+		for (Map.Entry<String, Image> image : images.entrySet()) {
+			image.getValue().dispose();
+		}
+		images.clear();
+	}
 
-		Rectangle backgroundRectangle = new Rectangle(0, 0, backgroundData[0],
-				backgroundData[1]);
+	private Image drawFrameBuffer(AnimationFrame frame) {
+		Background backgroundData = frame.getBackground();
+
+		Rectangle backgroundRectangle = new Rectangle(0, 0, backgroundData.width, backgroundData.height);
 
 		Image image = new Image(display, backgroundRectangle);
 
@@ -70,43 +84,44 @@ public class AnimationContextSWT implements AnimationContext {
 		return image;
 	}
 
+	// TODO handle alignment
 	@Override
-	public void drawText(int x, int y, int width, int height,
-			int[] backgroundColour, int[] textColor, Alignment alignment,
-			String text) {
-		paintContext.setAlpha(backgroundColour[3]);
+	public void drawText(String text, int x, int y, RaoColor textRaoColor, int width, Alignment alignment) {
+		paintContext.setAlpha(textRaoColor.alpha);
 
-		Color backgroundColor = createColor(backgroundColour, 0);
-
-		paintContext.setBackground(backgroundColor);
-		paintContext.fillRectangle(x, y, width, height);
-
-		paintContext.setAlpha(textColor[3]);
-
-		Color foregroundColor = createColor(textColor, 0);
+		Color foregroundColor = createColor(textRaoColor);
 
 		paintContext.setForeground(foregroundColor);
 		paintContext.drawText(text, x, y, true);
 
-		backgroundColor.dispose();
 		foregroundColor.dispose();
 	}
 
 	@Override
-	public void drawRectangle(int x, int y, int width, int height,
-			int[] backgroundColour, int[] borderColour) {
-		paintContext.setAlpha(backgroundColour[3]);
+	public void drawText(String text, int x, int y, RaoColor textColor) {
+		drawText(text, x, y, textColor, 0, Alignment.LEFT);
+	}
 
-		Color backgroundColor = createColor(backgroundColour, 0);
+	@Override
+	public void drawText(String text, int x, int y) {
+		drawText(text, x, y, RaoColor.BLACK);
+	}
+
+	@Override
+	public void drawRectangle(int x, int y, int width, int height, RaoColor backgroundRaoColor,
+			RaoColor borderRaoColor) {
+		paintContext.setAlpha(backgroundRaoColor.alpha);
+
+		Color backgroundColor = createColor(backgroundRaoColor);
 
 		paintContext.setBackground(backgroundColor);
 		paintContext.fillRectangle(x, y, width, height);
 
-		paintContext.setAlpha(borderColour[3]);
+		paintContext.setAlpha(borderRaoColor.alpha);
 
-		Color borderColor = createColor(borderColour, 0);
+		Color borderColor = createColor(borderRaoColor);
 
-		paintContext.setBackground(borderColor);
+		paintContext.setForeground(borderColor);
 		paintContext.drawRectangle(x, y, width, height);
 
 		backgroundColor.dispose();
@@ -114,32 +129,41 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	@Override
-	public void drawLine(int x1, int y1, int x2, int y2, int[] lineColour) {
-		paintContext.setAlpha(lineColour[3]);
+	public void drawRectangle(int x, int y, int width, int height) {
+		drawRectangle(x, y, width, height, RaoColor.WHITE, RaoColor.BLACK);
+	}
 
-		Color lineColor = createColor(lineColour, 0);
+	@Override
+	public void drawLine(int x1, int y1, int x2, int y2, RaoColor lineRaoColor) {
+		paintContext.setAlpha(lineRaoColor.alpha);
 
-		paintContext.setBackground(lineColor);
+		Color lineColor = createColor(lineRaoColor);
+
+		paintContext.setForeground(lineColor);
 		paintContext.drawLine(x1, y1, x2, y2);
 
 		lineColor.dispose();
 	}
 
 	@Override
-	public void drawCircle(int x, int y, int radius, int[] backgroundColour,
-			int[] borderColour) {
-		paintContext.setAlpha(backgroundColour[3]);
+	public void drawLine(int x1, int y1, int x2, int y2) {
+		drawLine(x1, y1, x2, y2, RaoColor.BLACK);
+	}
 
-		Color backgroundColor = createColor(backgroundColour, 0);
+	@Override
+	public void drawCircle(int x, int y, int radius, RaoColor backgroundRaoColor, RaoColor borderRaoColor) {
+		paintContext.setAlpha(backgroundRaoColor.alpha);
+
+		Color backgroundColor = createColor(backgroundRaoColor);
 
 		paintContext.setBackground(backgroundColor);
 		paintContext.fillOval(x - radius / 2, y - radius / 2, radius, radius);
 
-		paintContext.setAlpha(borderColour[3]);
+		paintContext.setAlpha(borderRaoColor.alpha);
 
-		Color borderColor = createColor(borderColour, 0);
+		Color borderColor = createColor(borderRaoColor);
 
-		paintContext.setBackground(borderColor);
+		paintContext.setForeground(borderColor);
 		paintContext.drawOval(x - radius / 2, y - radius / 2, radius, radius);
 
 		backgroundColor.dispose();
@@ -147,20 +171,24 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	@Override
-	public void drawEllipse(int x, int y, int width, int height,
-			int[] backgroundColour, int[] borderColour) {
-		paintContext.setAlpha(backgroundColour[3]);
+	public void drawCircle(int x, int y, int radius) {
+		drawCircle(x, y, radius, RaoColor.WHITE, RaoColor.BLACK);
+	}
 
-		Color backgroundColor = createColor(backgroundColour, 0);
+	@Override
+	public void drawEllipse(int x, int y, int width, int height, RaoColor backgroundRaoColor, RaoColor borderRaoColor) {
+		paintContext.setAlpha(backgroundRaoColor.alpha);
+
+		Color backgroundColor = createColor(backgroundRaoColor);
 
 		paintContext.setBackground(backgroundColor);
 		paintContext.fillOval(x, y, width, height);
 
-		paintContext.setAlpha(borderColour[3]);
+		paintContext.setAlpha(borderRaoColor.alpha);
 
-		Color borderColor = createColor(borderColour, 0);
+		Color borderColor = createColor(borderRaoColor);
 
-		paintContext.setBackground(borderColor);
+		paintContext.setForeground(borderColor);
 		paintContext.drawOval(x, y, width, height);
 
 		backgroundColor.dispose();
@@ -168,28 +196,69 @@ public class AnimationContextSWT implements AnimationContext {
 	}
 
 	@Override
-	public void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3,
-			int[] backgroundColour, int[] borderColour) {
-		paintContext.setAlpha(backgroundColour[3]);
+	public void drawEllipse(int x, int y, int width, int height) {
+		drawEllipse(x, y, width, height, RaoColor.WHITE, RaoColor.BLACK);
+	}
 
-		Color backgroundColor = createColor(backgroundColour, 0);
+	@Override
+	public void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, RaoColor backgroundRaoColor,
+			RaoColor borderRaoColor) {
+		paintContext.setAlpha(backgroundRaoColor.alpha);
+
+		Color backgroundColor = createColor(backgroundRaoColor);
 
 		paintContext.setBackground(backgroundColor);
 		paintContext.fillPolygon(new int[] { x1, y1, x2, y2, x3, y3 });
 
-		paintContext.setAlpha(borderColour[3]);
+		paintContext.setAlpha(borderRaoColor.alpha);
 
-		Color borderColor = createColor(borderColour, 0);
+		Color borderColor = createColor(borderRaoColor);
 
-		paintContext.setBackground(borderColor);
+		paintContext.setForeground(borderColor);
 		paintContext.drawPolygon(new int[] { x1, y1, x2, y2, x3, y3 });
 
 		backgroundColor.dispose();
 		borderColor.dispose();
 	}
 
-	Color createColor(int[] components, int offset) {
-		return new Color(display, components[offset], components[offset + 1],
-				components[offset + 2]);
+	@Override
+	public void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
+		drawTriangle(x1, y1, x2, y2, x3, y3, RaoColor.WHITE, RaoColor.BLACK);
+	}
+
+	Color createColor(RaoColor color) {
+		return new Color(display, color.r, color.g, color.b);
+	}
+
+	private final Map<String, Image> images = new HashMap<String, Image>();
+
+	private final Image getOrCreateImage(String name) {
+		Image image = images.get(name);
+		if (image == null) {
+			final IPath projectLocation = new Path(CurrentSimulator.getStaticModelData().getModelStructure()
+					.getString(ModelStructureConstants.LOCATION));
+			image = new Image(display, projectLocation.append(name).toString());
+			images.put(name, image);
+		}
+		return image;
+	}
+
+	@Override
+	public void drawImage(String name, int x, int y) {
+		paintContext.drawImage(getOrCreateImage(name), x, y);
+	}
+
+	@Override
+	public void drawImage(String name, int destX, int destY, int destWidth, int destHeight) {
+		final Image image = getOrCreateImage(name);
+		paintContext.drawImage(image, 0, 0, image.getBounds().width, image.getBounds().height, destX, destY, destWidth,
+				destHeight);
+	}
+
+	@Override
+	public void drawImage(String name, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY,
+			int destWidth, int destHeight) {
+		paintContext.drawImage(getOrCreateImage(name), srcX, srcY, srcWidth, srcHeight, destX, destY, destWidth,
+				destHeight);
 	}
 }

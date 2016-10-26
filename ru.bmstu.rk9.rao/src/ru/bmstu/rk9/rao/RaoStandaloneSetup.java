@@ -4,8 +4,8 @@
 package ru.bmstu.rk9.rao;
 
 /**
- * Initialization support for running Xtext languages
- * without equinox extension registry
+ * Initialization support for running Xtext languages without equinox extension
+ * registry
  */
 public class RaoStandaloneSetup extends RaoStandaloneSetupGenerated {
 

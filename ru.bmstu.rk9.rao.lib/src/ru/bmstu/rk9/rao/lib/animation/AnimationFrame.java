@@ -1,17 +1,25 @@
 package ru.bmstu.rk9.rao.lib.animation;
 
+public abstract class AnimationFrame {
+	public AnimationFrame() {
+		init();
+	}
 
-public interface AnimationFrame {
-	public String getName();
+	protected void init() {
+	}
 
-	public void draw(AnimationContext context);
+	public abstract String getTypeName();
 
-	/**
-	 * Returns size and color of frame's background packed in array.
-	 * Data format is<br>
-	 * <blockquote><pre>{@code [width, height, R, G, B]}</pre></blockquote>
-	 * <i>Note: background image should be drawn in </i>{@code draw(...)}
-	 * <i>method by the frame itself.</i>
-	 */
-	public int[] getBackgroundData();
+	public void draw(AnimationContext context) {
+	}
+
+	public final Background getBackground() {
+		return background;
+	}
+
+	public final void setBackground(Background background) {
+		this.background = background;
+	}
+
+	private Background background = new Background(500, 500, RaoColor.WHITE);
 }

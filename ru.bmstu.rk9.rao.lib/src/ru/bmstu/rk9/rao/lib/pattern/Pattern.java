@@ -1,13 +1,15 @@
 package ru.bmstu.rk9.rao.lib.pattern;
 
-import ru.bmstu.rk9.rao.lib.database.Database;
+import java.util.ArrayList;
+import java.util.List;
 
-public interface Pattern {
+import ru.bmstu.rk9.rao.lib.database.Database;
+import ru.bmstu.rk9.rao.lib.database.SerializationConstants;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
+
+public abstract class Pattern {
 	public static enum ExecutedFrom {
-		SOME    (null),
-		PRIOR   (null),
-		SEARCH  (Database.ResourceEntryType.SEARCH),
-		SOLUTION(Database.ResourceEntryType.SOLUTION);
+		SEARCH(Database.ResourceEntryType.SEARCH), SOLUTION(Database.ResourceEntryType.SOLUTION);
 
 		public final Database.ResourceEntryType resourceSpecialStatus;
 
@@ -16,7 +18,22 @@ public interface Pattern {
 		}
 	}
 
-	public String getName();
+	public abstract void run();
 
-	public int[] getRelevantInfo();
+	public abstract void finish();
+
+	public abstract boolean selectRelevantResources();
+
+	public abstract String getTypeName();
+
+	protected final List<Integer> relevantResourcesNumbers = new ArrayList<Integer>();
+
+	public final List<Integer> getRelevantResourcesNumbers() {
+		return relevantResourcesNumbers;
+	}
+
+	public final void addResourceEntriesToDatabase(Pattern.ExecutedFrom executedFrom, String dptName) {
+		CurrentSimulator.getDatabase().addMemorizedResourceEntries(
+				this.getTypeName() + "." + SerializationConstants.CREATED_RESOURCES, executedFrom, dptName);
+	}
 }

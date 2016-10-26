@@ -14,8 +14,7 @@ public class SimpleChoiceFrom<P, T, PT> {
 		public boolean check(P resources, T res, PT parameters);
 	}
 
-	public static abstract class ChoiceMethod<P, T, PT> implements
-			Comparator<T> {
+	public static abstract class ChoiceMethod<P, T, PT> implements Comparator<T> {
 		protected P resources;
 		protected PT parameters;
 
@@ -28,8 +27,7 @@ public class SimpleChoiceFrom<P, T, PT> {
 	private Checker<P, T, PT> checker;
 	private ChoiceMethod<P, T, PT> comparator;
 
-	public SimpleChoiceFrom(Checker<P, T, PT> checker,
-			ChoiceMethod<P, T, PT> comparator) {
+	public SimpleChoiceFrom(Checker<P, T, PT> checker, ChoiceMethod<P, T, PT> comparator) {
 		this.checker = checker;
 		if (comparator != null) {
 			this.comparator = comparator;
@@ -40,8 +38,7 @@ public class SimpleChoiceFrom<P, T, PT> {
 
 	private Queue<T> matchingList;
 
-	public Collection<T> findAll(P resources, Collection<T> reslist,
-			PT parameters) {
+	public Collection<T> findAll(P resources, Collection<T> reslist, PT parameters) {
 		matchingList.clear();
 		if (comparator != null)
 			comparator.setPattern(resources, parameters);

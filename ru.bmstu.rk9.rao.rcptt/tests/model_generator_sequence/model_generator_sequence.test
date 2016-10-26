@@ -1,0 +1,19 @@
+--- RCPTT testcase ---
+Format-Version: 1.0
+Contexts: _EuHEUC_pEeaOzqCrkZ6Spg
+Element-Name: model_generator_sequence
+Element-Type: testcase
+Element-Version: 3.0
+External-Reference: 
+Id: _CS9QgC_pEeaOzqCrkZ6Spg
+Runtime-Version: 2.0.1.201508250612
+Save-Time: 6/11/16 7:25 PM
+Testcase-Type: ecl
+
+------=_.content-0a7243a0-75d3-3d5f-9791-539de0e5b7ac
+Content-Type: text/ecl
+Entry-Name: .content
+
+test_model_source_trace "generator_sequence"
+
+------=_.content-0a7243a0-75d3-3d5f-9791-539de0e5b7ac--

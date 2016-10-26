@@ -54,13 +54,11 @@ public class StatusView extends ViewPart {
 			label = new Label(this, SWT.NONE);
 			label.setText(name + ":");
 
-			GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER)
-					.applyTo(label);
+			GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).applyTo(label);
 
 			text = new Text(this, SWT.SINGLE | SWT.READ_ONLY | SWT.FLAT);
 
-			GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER)
-					.grab(true, false).applyTo(text);
+			GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).grab(true, false).applyTo(text);
 		}
 	}
 
@@ -142,8 +140,7 @@ public class StatusView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL
-				| SWT.V_SCROLL);
+		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 
 		themeManager = PlatformUI.getWorkbench().getThemeManager();
 		ITheme currentTheme = themeManager.getCurrentTheme();
@@ -151,23 +148,22 @@ public class StatusView extends ViewPart {
 		editorFont = fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT);
 
 		composite = new Composite(scrolledComposite, SWT.NONE);
-		scrolledCompositeLayout = RowLayoutFactory.fillDefaults()
-				.type(SWT.VERTICAL).wrap(false).margins(5, 5).spacing(2)
-				.create();
+		scrolledCompositeLayout = RowLayoutFactory.fillDefaults().type(SWT.VERTICAL).wrap(false).margins(5, 5)
+				.spacing(2).create();
 		composite.setLayout(scrolledCompositeLayout);
 
 		fontListener = new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(
-						PreferenceConstants.EDITOR_TEXT_FONT)) {
-					Font editorFont = fontRegistry
-							.get(PreferenceConstants.EDITOR_TEXT_FONT);
+				switch (event.getProperty()) {
+				case PreferenceConstants.EDITOR_TEXT_FONT:
+					Font editorFont = fontRegistry.get(PreferenceConstants.EDITOR_TEXT_FONT);
 
 					for (Element e : controls.values()) {
 						e.label.setFont(editorFont);
 						e.text.setFont(editorFont);
 					}
+					break;
 				}
 			}
 		};
@@ -202,8 +198,7 @@ public class StatusView extends ViewPart {
 	}
 
 	private final void initializeSubscribers() {
-		realTimeSubscriberManager.initialize(Arrays
-				.asList(realTimeUpdateRunnable));
+		realTimeSubscriberManager.initialize(Arrays.asList(realTimeUpdateRunnable));
 	}
 
 	private final void deinitializeSubscribers() {
@@ -221,8 +216,7 @@ public class StatusView extends ViewPart {
 			int x = sizeL.x + sizeT.x;
 			h = x > h ? x : h;
 
-			v += scrolledCompositeLayout.spacing + sizeL.y > sizeT.y ? sizeL.y
-					: sizeT.y;
+			v += scrolledCompositeLayout.spacing + sizeL.y > sizeT.y ? sizeL.y : sizeT.y;
 		}
 		h += scrolledCompositeLayout.marginWidth * 2;
 		v += scrolledCompositeLayout.marginHeight * 2;
@@ -240,13 +234,8 @@ public class StatusView extends ViewPart {
 	public static final Runnable realTimeUpdateRunnable = new Runnable() {
 		@Override
 		public void run() {
-			StatusView
-					.setValue(
-							"Time elapsed".intern(),
-							5,
-							realTimeFormatter.format((System
-									.currentTimeMillis() - startTime) / 1000d)
-									+ "s");
+			StatusView.setValue("Time elapsed".intern(), 5,
+					realTimeFormatter.format((System.currentTimeMillis() - startTime) / 1000d) + "s");
 		}
 	};
 

@@ -28,6 +28,7 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.part.ViewPart;
 
 import ru.bmstu.rk9.rao.lib.animation.AnimationFrame;
+import ru.bmstu.rk9.rao.lib.animation.Background;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 import ru.bmstu.rk9.rao.ui.simulation.SimulationModeDispatcher;
 import ru.bmstu.rk9.rao.ui.simulation.SimulationSynchronizer.ExecutionMode;
@@ -61,9 +62,9 @@ public class AnimationView extends ViewPart {
 	private static void setCurrentFrame(AnimationFrame frame) {
 		currentFrame = frame;
 
-		int[] backgroundData = frame.getBackgroundData();
+		Background backgroundData = frame.getBackground();
 
-		setFrameSize(backgroundData[0], backgroundData[1]);
+		setFrameSize(backgroundData.width, backgroundData.height);
 
 		frameView.redraw();
 	}
@@ -83,7 +84,7 @@ public class AnimationView extends ViewPart {
 				selectedFrameIndex = 0;
 
 			for (AnimationFrame frame : frames)
-				frameList.add(frame.getName());
+				frameList.add(frame.getTypeName());
 
 			frameList.setEnabled(true);
 			frameList.setSelection(selectedFrameIndex);
@@ -101,8 +102,7 @@ public class AnimationView extends ViewPart {
 		isInitialized = true;
 		selectedFrameIndex = 0;
 
-		animationContext = new AnimationContextSWT(PlatformUI.getWorkbench()
-				.getDisplay());
+		animationContext = new AnimationContextSWT(PlatformUI.getWorkbench().getDisplay());
 
 		AnimationView.frames = new ArrayList<AnimationFrame>(frames);
 
@@ -114,10 +114,14 @@ public class AnimationView extends ViewPart {
 	}
 
 	public static void deinitialize() {
-		if (frames != null)
+		if (!isInitialized)
+			return;
+		if (frames != null) {
 			for (AnimationFrame frame : frames)
 				animationContext.prepareFrame(frame);
+		}
 
+		animationContext.dispose();
 		isInitialized = false;
 
 		if (isInitialized())
@@ -163,15 +167,14 @@ public class AnimationView extends ViewPart {
 		}
 	};
 
-	private static int lastListWidth = InstanceScope.INSTANCE.getNode(
-			"ru.bmstu.rk9.rao.ui").getInt("AnimationViewFrameListSize", 120);
+	private static int lastListWidth = InstanceScope.INSTANCE.getNode("ru.bmstu.rk9.rao.ui")
+			.getInt("AnimationViewFrameListSize", 120);
 
 	private static Listener sashListener = new Listener() {
 		@Override
 		public void handleEvent(Event event) {
 			Rectangle listRectangle = frameList.getBounds();
-			int newListHint = event.x + listSize.widthHint
-					- listRectangle.width - listRectangle.x;
+			int newListHint = event.x + listSize.widthHint - listRectangle.width - listRectangle.x;
 
 			if (newListHint > 20) {
 				listSize.widthHint = newListHint;
@@ -184,24 +187,20 @@ public class AnimationView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		ICommandService service = (ICommandService) PlatformUI.getWorkbench()
-				.getService(ICommandService.class);
+		ICommandService service = PlatformUI.getWorkbench().getService(ICommandService.class);
 
-		Command command = service
-				.getCommand("ru.bmstu.rk9.rao.ui.runtime.setExecutionMode");
+		Command command = service.getCommand("ru.bmstu.rk9.rao.ui.runtime.setExecutionMode");
 		State state = command.getState("org.eclipse.ui.commands.radioState");
 
 		animationEnabled = !state.getValue().equals("NA");
 
 		AnimationView.parent = parent;
 
-		GridLayoutFactory.fillDefaults().numColumns(3).spacing(0, 0)
-				.extendedMargins(1, 1, 2, 1).applyTo(parent);
+		GridLayoutFactory.fillDefaults().numColumns(3).spacing(0, 0).extendedMargins(1, 1, 2, 1).applyTo(parent);
 
 		frameList = new List(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 
-		listSize = GridDataFactory.fillDefaults().grab(false, true)
-				.hint(lastListWidth, SWT.DEFAULT).create();
+		listSize = GridDataFactory.fillDefaults().grab(false, true).hint(lastListWidth, SWT.DEFAULT).create();
 		frameList.setLayoutData(listSize);
 
 		frameList.add("No frames");
@@ -215,30 +214,23 @@ public class AnimationView extends ViewPart {
 
 		sash.addListener(SWT.Selection, sashListener);
 
-		GridDataFactory.fillDefaults().grab(false, true).hint(4, SWT.DEFAULT)
-				.applyTo(sash);
+		GridDataFactory.fillDefaults().grab(false, true).hint(4, SWT.DEFAULT).applyTo(sash);
 
-		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL
-				| SWT.V_SCROLL | SWT.BORDER);
+		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 
-		GridDataFactory.fillDefaults().grab(true, true)
-				.applyTo(scrolledComposite);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(scrolledComposite);
 
-		Composite scrolledCompositeInner = new Composite(scrolledComposite,
-				SWT.NONE);
+		Composite scrolledCompositeInner = new Composite(scrolledComposite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(scrolledCompositeInner);
 
-		Composite frameViewComposite = new Composite(scrolledCompositeInner,
-				SWT.NONE);
+		Composite frameViewComposite = new Composite(scrolledCompositeInner, SWT.NONE);
 
-		frameSize = GridDataFactory.fillDefaults()
-				.align(SWT.CENTER, SWT.CENTER).grab(true, true).create();
+		frameSize = GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.CENTER).grab(true, true).create();
 		frameViewComposite.setLayoutData(frameSize);
 		frameViewComposite.setLayout(new FillLayout());
 		frameViewComposite.setBackgroundMode(SWT.INHERIT_NONE);
 
-		frameView = new Canvas(frameViewComposite, SWT.BORDER
-				| SWT.NO_BACKGROUND);
+		frameView = new Canvas(frameViewComposite, SWT.BORDER | SWT.NO_BACKGROUND);
 		frameView.addPaintListener(painter);
 
 		scrolledComposite.setContent(scrolledCompositeInner);
@@ -250,8 +242,7 @@ public class AnimationView extends ViewPart {
 		if (frames != null)
 			initializeFrames();
 
-		realTimeSubscriberManager.initialize(Arrays
-				.asList(realTimeUpdateRunnable));
+		realTimeSubscriberManager.initialize(Arrays.asList(realTimeUpdateRunnable));
 	}
 
 	@Override
@@ -260,14 +251,12 @@ public class AnimationView extends ViewPart {
 
 	private static boolean isInitialized = false;
 
-	private static boolean isInitialized() {
-		return frameList != null && !frameList.isDisposed()
-				&& frameView != null && !frameView.isDisposed();
+	static boolean isInitialized() {
+		return frameList != null && !frameList.isDisposed() && frameView != null && !frameView.isDisposed();
 	}
 
 	private static boolean canDraw() {
-		return isInitialized() && animationContext != null
-				&& currentFrame != null;
+		return isInitialized() && animationContext != null && currentFrame != null;
 	}
 
 	private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();

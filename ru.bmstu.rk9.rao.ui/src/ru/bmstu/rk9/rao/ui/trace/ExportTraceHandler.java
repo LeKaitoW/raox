@@ -8,13 +8,16 @@ import java.util.List;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.PlatformUI;
 
 import ru.bmstu.rk9.rao.lib.database.Database.Entry;
-import ru.bmstu.rk9.rao.lib.simulator.Simulator;
+import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.ui.trace.Tracer.TraceOutput;
 
 //TODO export to location chosen by user
@@ -47,8 +50,7 @@ public class ExportTraceHandler extends AbstractHandler {
 		if (!ready())
 			return null;
 
-		ExportType type = ExportType.getByString(event
-				.getParameter("ru.bmstu.rk9.rao.ui.runtime.exportTraceType"));
+		ExportType type = ExportType.getByString(event.getParameter("ru.bmstu.rk9.rao.ui.runtime.exportTraceType"));
 		switch (type) {
 		case REGULAR:
 			exportTraceRegular();
@@ -56,19 +58,29 @@ public class ExportTraceHandler extends AbstractHandler {
 		case LEGACY:
 			exportTraceLegacy();
 			break;
+		default:
+			return null;
+		}
+
+		try {
+			ResourcesPlugin.getWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
+		} catch (CoreException e) {
 		}
 
 		return null;
 	}
 
 	public final static void exportTraceRegular() {
-		if (!Simulator.isInitialized() || !ready())
+		if (!ready())
 			return;
 
-		Tracer tracer = new Tracer();
+		Tracer tracer = new Tracer(CurrentSimulator.getStaticModelData());
 
 		PrintWriter writer = initializeWriter(".trc");
-		for (Entry entry : Simulator.getDatabase().getAllEntries()) {
+		if (writer == null)
+			return;
+
+		for (Entry entry : CurrentSimulator.getDatabase().getAllEntries()) {
 			TraceOutput output = tracer.parseSerializedData(entry);
 			if (output != null)
 				writer.println(output.content());
@@ -79,7 +91,7 @@ public class ExportTraceHandler extends AbstractHandler {
 	private static LegacyTracer legacyTracer = null;
 
 	public final static void exportTraceLegacy() {
-		if (!Simulator.isInitialized() || !ready())
+		if (!ready())
 			return;
 
 		if (legacyTracer == null) {
@@ -88,7 +100,11 @@ public class ExportTraceHandler extends AbstractHandler {
 		}
 
 		List<TraceOutput> output = legacyTracer.getTraceList();
+
 		PrintWriter writer = initializeWriter(".trc.legacy");
+		if (writer == null)
+			return;
+
 		for (TraceOutput item : output) {
 			writer.println(item.content());
 		}
@@ -96,18 +112,19 @@ public class ExportTraceHandler extends AbstractHandler {
 	}
 
 	private final static PrintWriter initializeWriter(String suffix) {
-		IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot()
-				.getLocation();
-		IPath filePath = workspacePath.append(currentProject.getFullPath()
-				.append(currentModel.getName().substring(0,
-						currentModel.getName().lastIndexOf('.'))
-						+ suffix));
+
+		final IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+		final String projectName = CurrentSimulator.getStaticModelData().getModelStructure()
+				.getString(ModelStructureConstants.NAME);
+		IPath filePath = workspacePath.append(projectName).append(projectName + suffix);
 
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(filePath.toString(), "UTF-8");
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error",
+					"Failed to initialize trace writer");
 			return null;
 		}
 
@@ -115,24 +132,10 @@ public class ExportTraceHandler extends AbstractHandler {
 	}
 
 	private final static boolean ready() {
-		return (currentProject != null && currentModel != null);
+		return CurrentSimulator.isInitialized() && !CurrentSimulator.getDatabase().getAllEntries().isEmpty();
 	}
 
 	public final static void reset() {
-		currentProject = null;
-		currentModel = null;
 		legacyTracer = null;
-	}
-
-	private static IProject currentProject = null;
-
-	public final static void setCurrentProject(IProject project) {
-		currentProject = project;
-	}
-
-	private static IFile currentModel = null;
-
-	public final static void setCurrentModel(IFile model) {
-		currentModel = model;
 	}
 }

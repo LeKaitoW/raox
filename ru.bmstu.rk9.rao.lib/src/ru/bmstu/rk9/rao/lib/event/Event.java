@@ -1,10 +1,23 @@
 package ru.bmstu.rk9.rao.lib.event;
 
-public interface Event {
+import ru.bmstu.rk9.rao.lib.database.SerializationConstants;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
-	public String getName();
+public abstract class Event {
+	protected double time;
 
-	public double getTime();
+	public final double getTime() {
+		return time;
+	}
 
-	public void run();
+	public abstract String getName();
+
+	public final void run() {
+		execute();
+		CurrentSimulator.getDatabase().addEventEntry(this);
+		CurrentSimulator.getDatabase().addMemorizedResourceEntries(
+				this.getName() + "." + SerializationConstants.CREATED_RESOURCES, null, null);
+	}
+
+	protected abstract void execute();
 }

@@ -10,18 +10,15 @@ import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 
 public class SerializationConfig {
 	public static class SerializationNode {
-		public SerializationNode(final String name,
-				final SerializationNode parent) {
+		public SerializationNode(final String name, final SerializationNode parent) {
 			this(name, parent, false, false);
 		}
 
-		public SerializationNode(final String name,
-				final SerializationNode parent, boolean serializationState) {
+		public SerializationNode(final String name, final SerializationNode parent, boolean serializationState) {
 			this(name, parent, serializationState, false);
 		}
 
-		public SerializationNode(final String name,
-				final SerializationNode parent, boolean serializationState,
+		public SerializationNode(final String name, final SerializationNode parent, boolean serializationState,
 				boolean isModel) {
 			this.name = name;
 			this.parent = parent;
@@ -45,13 +42,11 @@ public class SerializationConfig {
 			return addChild(name, false, false);
 		}
 
-		public final SerializationNode addChild(final String name,
-				boolean serializationState) {
+		public final SerializationNode addChild(final String name, boolean serializationState) {
 			return addChild(name, serializationState, false);
 		}
 
-		public final SerializationNode addChild(final String name,
-				boolean serializationState, boolean isModel) {
+		public final SerializationNode addChild(final String name, boolean serializationState, boolean isModel) {
 			final int number = findName(name);
 			if (number != -1) {
 				SerializationNode child = children.get(number);
@@ -59,8 +54,7 @@ public class SerializationConfig {
 				return child;
 			}
 
-			SerializationNode child = new SerializationNode(name, this,
-					serializationState, isModel);
+			SerializationNode child = new SerializationNode(name, this, serializationState, isModel);
 			children.add(child);
 			return child;
 		}
@@ -85,7 +79,7 @@ public class SerializationConfig {
 
 		public final String getName() {
 			if (!isModel)
-				return NamingHelper.getRelativeElementName(name);
+				return NamingHelper.getLastPart(name);
 			else if (!showFullName)
 				return NamingHelper.getRelativeModelName(name);
 			return name;
@@ -94,7 +88,7 @@ public class SerializationConfig {
 		public final String getModelName() {
 			if (isModel)
 				return NamingHelper.getRelativeModelName(name);
-			return NamingHelper.getNameOfElementModel(name);
+			return NamingHelper.getFirstPart(name);
 		}
 
 		public final boolean isSerialized() {
@@ -139,8 +133,7 @@ public class SerializationConfig {
 			Iterator<SerializationNode> it = children.iterator();
 			while (it.hasNext()) {
 				SerializationNode child = it.next();
-				if (!child.getModelName().equals(modelName)
-						|| (!child.isSerialized && !child.isModel)) {
+				if (!child.getModelName().equals(modelName) || (!child.isSerialized && !child.isModel)) {
 					child.children.clear();
 					it.remove();
 				} else {
@@ -187,12 +180,10 @@ public class SerializationConfig {
 		root.children.clear();
 	}
 
-	public final List<SerializationNode> findModelsWithSameName(
-			final String modelName) {
+	public final List<SerializationNode> findModelsWithSameName(final String modelName) {
 		List<SerializationNode> models = new ArrayList<SerializationNode>();
 		for (SerializationNode c : root.getVisibleChildren())
-			if (NamingHelper.getRelativeModelName(c.getFullName()).equals(
-					NamingHelper.getRelativeModelName(modelName)))
+			if (NamingHelper.getRelativeModelName(c.getFullName()).equals(NamingHelper.getRelativeModelName(modelName)))
 				models.add(c);
 		return models;
 	}
@@ -201,8 +192,7 @@ public class SerializationConfig {
 		for (SerializationNode c : root.getVisibleChildren())
 			if (c.getFullName().equals(modelName))
 				return c;
-		throw new SerializationException("Model name \"" + modelName
-				+ "\" not found");
+		throw new SerializationException("Model name \"" + modelName + "\" not found");
 	}
 
 	public final void removeModel(final SerializationNode modelNode) {
@@ -216,8 +206,7 @@ public class SerializationConfig {
 		SerializationObjectsNames.set(names);
 	}
 
-	private final void fillNames(final SerializationNode node,
-			List<String> names) {
+	private final void fillNames(final SerializationNode node, List<String> names) {
 		for (SerializationNode child : node.getVisibleChildren()) {
 			if (child.isSerialized())
 				names.add(child.getFullName());

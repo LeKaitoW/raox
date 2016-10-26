@@ -13,12 +13,12 @@
 <p>Определены последовательности шести типов:</p>
 <table style="width:100%">
     <tr>
-        <th width="20%">Сигнатура</th>
-        <th width="40%">Описание</th>
-        <th width="40%">Параметры</th>
+        <th width="50%">Сигнатура</th>
+        <th>Описание</th>
+        <th>Параметры</th>
     </tr>
     <tr>
-        <td><pre><code class="rao">uniform(double a, double b)</code></pre></td>
+        <td><pre><code class="rao">Uniform(long seed, double a, double b)</code></pre></td>
         <td><a href="https://ru.wikipedia.org/wiki/%D0%9D%D0%B5%D0%BF%D1%80%D0%B5%D1%80%D1%8B%D0%B2%D0%BD%D0%BE%D0%B5_%D1%80%D0%B0%D0%B2%D0%BD%D0%BE%D0%BC%D0%B5%D1%80%D0%BD%D0%BE%D0%B5_%D1%80%D0%B0%D1%81%D0%BF%D1%80%D0%B5%D0%B4%D0%B5%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5">Равномерное распределение</a></td>
         <td>
             <table style="width:100%">
@@ -34,7 +34,7 @@
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">exponential(double rate)</code></pre></td>
+        <td><pre><code class="rao">Exponential(long seed, double rate)</code></pre></td>
         <td><a href="https://ru.wikipedia.org/wiki/%D0%AD%D0%BA%D1%81%D0%BF%D0%BE%D0%BD%D0%B5%D0%BD%D1%86%D0%B8%D0%B0%D0%BB%D1%8C%D0%BD%D0%BE%D0%B5_%D1%80%D0%B0%D1%81%D0%BF%D1%80%D0%B5%D0%B4%D0%B5%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5">Экспоненциальное распределение</a></td>
         <td>
             <table style="width:100%">
@@ -46,7 +46,7 @@
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">normal(double mean, double variance)</code></pre></td>
+        <td><pre><code class="rao">Normal(long seed, double mean, double variance)</code></pre></td>
         <td><a href="https://ru.wikipedia.org/wiki/%D0%9D%D0%BE%D1%80%D0%BC%D0%B0%D0%BB%D1%8C%D0%BD%D0%BE%D0%B5_%D1%80%D0%B0%D1%81%D0%BF%D1%80%D0%B5%D0%B4%D0%B5%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5">Нормальное распределение</a></td>
         <td>
             <table style="width:100%">
@@ -62,7 +62,7 @@
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">triangular(double a, double b, double c)</code></pre></td>
+        <td><pre><code class="rao">Triangular(long seed, double a, double b, double c)</code></pre></td>
         <td><a href="https://en.wikipedia.org/wiki/Triangular_distribution">Треугольное распределение</a></td>
         <td>
             <table style="width:100%">
@@ -82,93 +82,180 @@
         </td>
     </tr>
     <tr>
-        <td><pre><code class="rao">histogram()</code></pre></td>
-        <td>Закон распределения, заданный <a href="https://en.wikipedia.org/wiki/Histogram">гистограммой</a></td>
-        <td>&nbsp;</td>
-    </tr>
-    <tr>
-        <td><pre><code class="rao">enumerative()</code></pre></td>
+        <td><pre><code class="rao">Values(#[<i>список_значений</i>])</code></pre></td>
         <td>Последовательность из заданных явно значений</td>
         <td>&nbsp;</td>
     </tr>
+    <tr>
+        <td><pre><code class="rao">DiscreteHistogram(long seed, #[<i>список_пар</i>])
+ContinuousHistogram(long seed, #[<i>список_пар</i>])
+ContinuousHistogram(long seed, double offset, #[<i>список_пар</i>])</code></pre></td>
+        <td>Закон распределения, заданный <a href="https://en.wikipedia.org/wiki/Histogram">гистограммой</a>, для дискретных (множество целых значений, значений перечислимого типа тип и др.) и непрерывных значений</td>
+        <td>
+            <table style="width:100%">
+                <tr>
+                    <td width="25%"><code class="rao">список_пар</code></td>
+                    <td>значение -> высота столбца</td>
+                </tr>
+                <tr>
+                    <td><code class="rao">offset</code></td>
+                    <td>смещение гистограммы</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
 </table>
-<p>Описание последовательностей осуществляется с помощью ключевого слова <code class="rao">sequence</code>.</p>
+<p>Параметр <code class="rao">seed</code> влияет на вычисление первого и последующих значений последовательности. Если его поменять, то последовательность цифр изменится, но не изменится закон, по которому они распределены.</p>
 <h3>Стандартные распределения</h3>
-<p>При задании одного из стандартных распределений (<code class="rao">uniform</code>, <code class="rao">exponential</code>, <code class="rao">normal</code>, <code class="rao">triangular</code>) тело последовательности, не указывается.</p>
-<pre><code class="rao">sequence <i>имя_последовательности</i> = <i>тип_возвращаемого_значения</i> <i>тип_распределения</i>(<i>база_генератора</i>, [<i>параметры_последовательности</i>]);</code></pre>
-<p>База генератора задается целым числом. Параметры, описывающие характеристики стандартных последовательностей, могут задаваться при ее создании - в этом случае, при вызове последовательности их указывать не обязательно.</p>
-<p>Дискретное равномерное распределение на интервале [1, 6]:</p>
-<pre><code class="rao">sequence бросок_шестигранника = int uniform(123456789, 1, 6);
-
-event ход_игрока_1 {
-    игрок_1.сумма_очков += бросок_шестигранника.next();
-}</code></pre>
-<p>Дискретное равномерное распределение с перезаданием интервала:</p>
-<pre><code class="rao">sequence бросок_многогранника = int uniform(123456789);
-
-event ход_игрока_2(int число_граней) {
-    игрок_2.сумма_очков += бросок_многогранника.next(1, число_граней);
-}</code></pre>
-<p>Непрерывное нормальное распределение с математическим ожиданием 0 и среднеквадратическим отклонением 1:</p>
-<pre><code class="rao">sequence отклонение_при_стрельбе = double normal(123456789, 0, 1);
-
-boolean проверка_попадания(double координата_цели, double размер_цели) {
-    double координата_попадания = координата_цели + отклонение_при_стрельбе.next();
-    double размер_цели_max = координата_цели + размер_цели / 2;
-    double размер_цели_min = координата_цели - размер_цели / 2;
-    if (размер_цели_max &lt;= координата_попадания &#38;&#38; размер_цели_min >= координата_попадания)
-        return true;
-
-    return false;
-}</code></pre>
-<p>Непрерывное экспоненциальное распределение с интенсивностью 1/30:</p>
-<pre><code class="rao">sequence интервал_поступления_заказа = double exponential(123456789, 1/30.0);
-
-event поступление_заказа() {
-    поставщик_1.число_заказов++;
-    поступление_заказа.plan(currentTime + интервал_поступления_заказа.next());
+<p>При задании одного из стандартных распределений (<code class="rao">Uniform</code>, <code class="rao">Exponential</code>, <code class="rao">Normal</code>, <code class="rao">Triangular</code>) тело последовательности, не указывается.</p>
+<pre><code class="rao">sequence <i>имя_последовательности</i> = new <i>Распределение</i>(<i>база_генератора</i>, <i>параметры</i>);</code></pre>
+<p>База генератора задается целым числом, параметры - вещественными:</p>
+<pre><code class="rao">sequence интервал_прихода = new Exponential(123456789, 1/30.0);
+sequence длительность_обслуживания = new Uniform(123456789, 20, 40);
+</code></pre>
+<p>Чтобы получить очередное значение последовательности вызывается метод <code class="rao">next()</code>:</p>
+<pre><code class="rao">event Событие_прихода_клиента() {
+    Событие_прихода_клиента.plan(currentTime + интервал_прихода.next());
 }
 </code></pre>
-<p>Непрерывное треугольное распределение на интервале [10, 20] с модой, равной 18 и возможностью перезадания интервала:</p>
-<pre><code class="rao">sequence время_обработки_заказа = double triangular(123456789, 10, 20, 18);
+<p>Параметры закона распределения могут быть заданы не в конструкторе, а в методе <code class="rao">next(<i>параметры</i>)</code>:</p>
+<pre><code class="rao">sequence интервал_прихода = new Exponential(123456789);
 
-operation обработка_заказа() {
-    relevant поставщик = Поставщик.select(any).withMin(ожидаемое_время_обработки);
+event Событие_прихода_клиента() {
+    Событие_прихода_клиента.plan(currentTime + интервал_прихода.next(1/30.0));
+}
 
-    set duration() {
-        return время_обработки_заказа.next(10, 20, поставщик.ожидаемое_время_обработки);
-    }
+def init() {
+    Событие_прихода_клиента.plan(0);
+}
 
-    // тело образца
-    // ...
-}</code></pre>
+def terminateCondition() {
+    return currentTime >= 100;
+}
+</code></pre>
+<pre><code class="rao">ES 0.0 Tracing started
+ES 0.0 Simulation started
+EI 0.0 Событие_прихода_клиента[0]
+EI 64.00600791078857 Событие_прихода_клиента[1]
+EI 102.43731591550352 Событие_прихода_клиента[2]
+ES 102.43731591550352 Simulation finished: terminate condition
+</code></pre>
+
 <h3>Последовательность из значений, заданных явно</h3>
-<p>Последовательности типа <code class="rao">enumerative</code> позволяют перечислить все возможные значения распределения непосредственно в теле последовательности.</p>
-<pre><code class="rao">sequence <i>имя_последовательности</i> = <i>тип_возвращаемого_значения</i> enumerative() {
-    <i>список_возможных_значений_последовательности</i>
-}</code></pre>
-<p>Возможные значение последовательности задаются через запятую. Вызовы метода <code class="rao">next()</code> возвращают значения именно в том порядке, в котором они заданы. После последнего значения будет возвращено первое.</p>
-<pre><code class="rao">sequence время_обработки = int enumerative() {
-    18, 12, 14, 15, 14, 15, 13, 14, 17
-}</code></pre>
+<p>Существует возможность явно перечислить значения последовательности:</p>
+<pre><code class="rao">sequence clientInputInterval = new Values(#[14, 13, 17, 15, 16, 15, 14, 22, 19])</code></pre>
+<p>Вызовы метода <code class="rao">next()</code> возвращают значения именно в том порядке, в котором они заданы. После последнего значения будет возвращено первое.</p>
+<pre><code class="rao">type System {
+    int time;
+}
+resource system = System.create(0);
+
+sequence times = new Values(#[1, 2, 4])
+
+event Event() {
+    system.time = times.next();
+    Event.plan(currentTime + system.time);
+}
+
+def init() {
+    Event.plan(0);
+}
+
+def terminateCondition() {
+    return currentTime >= 10;
+}
+</code></pre>
+<pre><code class="rao">ES 0.0 Tracing started
+RC 0.0 system = {0}
+ES 0.0 Simulation started
+EI 0.0 Event[0]
+RK 0.0 system = {1}
+EI 1.0 Event[1]
+RK 1.0 system = {2}
+EI 3.0 Event[2]
+RK 3.0 system = {4}
+EI 7.0 Event[3]
+RK 7.0 system = {1}
+EI 8.0 Event[4]
+RK 8.0 system = {2}
+EI 10.0 Event[5]
+RK 10.0 system = {4}
+ES 10.0 Simulation finished: terminate condition
+</code></pre>
+
 <h3>Задание последовательности гистограммой</h3>
-<p>Последовательности типа <code class="rao">histogram</code> позволяют задать распределение с помощью гистограммы.</p>
-<pre><code class="rao">sequence <i>имя_последовательности</i> = <i>тип_возвращаемого_значения</i> histrogram(<i>база_генератора</i>) {
-    <i>тело_последовательности</i>
-}</code></pre>
+<h4>Дискретная гистограммная последовательность</h4>
+<p>Значению перечислимого типа ставится в соответствие относительная частота его выпадения. Сумма относительных частот всех значений не обязательно должна быть равна единице:</p>
+<pre><code class="rao">enum Тип_клиента {Тип1, Тип2}
+enum Состояние_клиента {Пришел, Начал_стрижку}
+
+type Клиенты {
+    Тип_клиента тип;
+    Состояние_клиента состояние;
+}
+
+event Событие_прихода_клиента() {
+    Событие_прихода_клиента.plan(currentTime + 10);
+    Клиенты.create(случайный_тип_клиента.next(), Состояние_клиента.Пришел);
+}
+
+sequence случайный_тип_клиента = new DiscreteHistogram&lt;Тип_клиента&gt;(1234567,
+    #[Тип_клиента.Тип1 -> 7.0, Тип_клиента.Тип2 -> 3.0]);
+
+def init() {
+    Событие_прихода_клиента.plan(0);
+}
+
+def terminateCondition() {
+    return currentTime >= 40;
+}
+</code></pre>
+<pre><code class="rao">ES 0.0 Tracing started
+ES 0.0 Simulation started
+EI 0.0 Событие_прихода_клиента[0]
+RC 0.0 Клиенты[0] = {Тип1, Пришел}
+EI 10.0 Событие_прихода_клиента[1]
+RC 10.0 Клиенты[1] = {Тип1, Пришел}
+EI 20.0 Событие_прихода_клиента[2]
+RC 20.0 Клиенты[2] = {Тип1, Пришел}
+EI 30.0 Событие_прихода_клиента[3]
+RC 30.0 Клиенты[3] = {Тип2, Пришел}
+EI 40.0 Событие_прихода_клиента[4]
+RC 40.0 Клиенты[4] = {Тип1, Пришел}
+ES 40.0 Simulation finished: terminate condition
+</code></pre>
+<h4>Непрерывная гистограммная последовательность</h4>
 <p>В теле последовательности задаются границы диапазона и соответствующие им относительные частоты. Нижняя граница каждого диапазона должна быть равна верхней границе предыдущего диапазона. Сумма относительных частот всех диапазонов не обязательно должна быть равна единице.</p>
-<pre><code class="rao">sequence время_обработки = int histrogram(123456789) {
-    10.0 12.0 10
-    12.0 14.0 20
-    14.0 18.0 40
-    18.0 20.0 10
-}</code></pre>
-<p>Для последовательностей перечислимого типа задаются не диапазоны, а конкретные значения перечислимого типа:</p>
-<pre><code class="rao">sequence тип = EnumType histrogram(123456789) {
-    EnumType.A 10
-    EnumType.B 20
-    EnumType.C 40
-    EnumType.D 10
-}</code></pre>
+<pre><code class="rao">type System {
+    double time;
+}
+resource system = System.create(0);
+
+sequence times = new ContinuousHistogram(123456789, 80, #[100 -> 50, 200 -> 30, 300 -> 40]);
+
+event Event() {
+    system.time = times.next();
+    Event.plan(currentTime + system.time);
+}
+
+def init() {
+    Event.plan(0);
+}
+
+def terminateCondition() {
+    return currentTime >= 500;
+}
+</code></pre>
+<pre><code class="rao">ES 0.0 Tracing started
+RC 0.0 system = {0.0}
+ES 0.0 Simulation started
+EI 0.0 Event[0]
+RK 0.0 system = {253.41365935378445}
+EI 253.41365935378445 Event[1]
+RK 253.41365935378445 system = {271.3564025388851}
+EI 524.7700618926696 Event[2]
+RK 524.7700618926696 system = {175.26936093410166}
+ES 524.7700618926696 Simulation finished: terminate condition
+</code></pre>
 </body>
 </html>

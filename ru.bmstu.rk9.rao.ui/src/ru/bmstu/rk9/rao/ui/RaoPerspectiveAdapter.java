@@ -13,19 +13,15 @@ import org.eclipse.ui.PerspectiveAdapter;
 public class RaoPerspectiveAdapter extends PerspectiveAdapter {
 
 	@Override
-	public void perspectiveActivated(IWorkbenchPage page,
-			IPerspectiveDescriptor perspectiveDescriptor) {
+	public void perspectiveActivated(IWorkbenchPage page, IPerspectiveDescriptor perspectiveDescriptor) {
 		super.perspectiveActivated(page, perspectiveDescriptor);
 		boolean RaoPerspective = false;
-		if (perspectiveDescriptor.getId().equals(
-				"ru.bmstu.rk9.rao.ui.perspective")) {
+		if (perspectiveDescriptor.getId().equals("ru.bmstu.rk9.rao.ui.perspective")) {
 			RaoPerspective = true;
 		}
 
-		IWorkbenchWindow window = PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow();
-		ISourceProviderService service = (ISourceProviderService) window
-				.getService(ISourceProviderService.class);
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		ISourceProviderService service = window.getService(ISourceProviderService.class);
 		RaoPerspectiveSourceProvider sourceProvider = (RaoPerspectiveSourceProvider) service
 				.getSourceProvider(RaoPerspectiveSourceProvider.RaoPerspectiveKey);
 
@@ -35,7 +31,7 @@ public class RaoPerspectiveAdapter extends PerspectiveAdapter {
 			sourceProvider.perspectiveChanged(false);
 	}
 
-	public void perspectiveDeactivated(IWorkbenchPage page,
-			IPerspectiveDescriptor perspective) {
+	@Override
+	public void perspectiveDeactivated(IWorkbenchPage page, IPerspectiveDescriptor perspective) {
 	}
 }

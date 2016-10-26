@@ -1,215 +1,173 @@
 package ru.bmstu.rk9.rao.lib.simulator;
 
 import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Supplier;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
-import ru.bmstu.rk9.rao.lib.database.Database.SystemEntryType;
 import ru.bmstu.rk9.rao.lib.dpt.DPTManager;
-import ru.bmstu.rk9.rao.lib.dpt.DecisionPoint;
 import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.event.EventScheduler;
-import ru.bmstu.rk9.rao.lib.json.JSONObject;
-import ru.bmstu.rk9.rao.lib.modelStructure.ModelStructureCache;
+import ru.bmstu.rk9.rao.lib.logger.Logger;
+import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
 import ru.bmstu.rk9.rao.lib.notification.Notifier;
+import ru.bmstu.rk9.rao.lib.process.Process;
+import ru.bmstu.rk9.rao.lib.process.Process.ProcessStatus;
 import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.result.ResultManager;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
 
-public class Simulator {
-	private static Simulator INSTANCE = null;
+public class Simulator implements ISimulator {
+	@Override
+	public void preinitilize(SimulatorPreinitializationInfo preinitializationInfo) {
+		modelState = new ModelState(preinitializationInfo.resourceClasses);
+		database = new Database(preinitializationInfo.modelStructure);
+		staticModelData = new StaticModelData(preinitializationInfo.modelStructure);
+		logger = new Logger();
 
-	public static synchronized void initSimulation(JSONObject modelStructure) {
-		if (isRunning)
-			throw new SimulatorException("Simulation is already initialized");
-
-		setSimulationState(SimulatorState.DEINITIALIZED);
-
-		INSTANCE = new Simulator();
-
-		INSTANCE.executionStateNotifier = new Notifier<ExecutionState>(
-				ExecutionState.class);
-		INSTANCE.dptManager = new DPTManager();
-		INSTANCE.database = new Database(modelStructure);
-		INSTANCE.modelStructureCache = new ModelStructureCache();
-
-		setSimulationState(SimulatorState.INITIALIZED);
+		for (Runnable resourcePreinitializer : preinitializationInfo.resourcePreinitializers)
+			resourcePreinitializer.run();
 	}
 
-	private static SimulatorState simulatorState = SimulatorState.DEINITIALIZED;
+	@Override
+	public void initialize(SimulatorInitializationInfo initializationInfo) {
+		executionStateNotifier = new Notifier<ExecutionState>(ExecutionState.class);
+		dptManager = new DPTManager(initializationInfo.decisionPoints);
+		processManager = new Process(initializationInfo.processBlocks);
+		resultManager = new ResultManager(initializationInfo.results);
 
-	public enum SimulatorState {
-		INITIALIZED, DEINITIALIZED
-	};
+		for (Supplier<Boolean> terminateCondition : initializationInfo.terminateConditions)
+			terminateList.add(terminateCondition);
 
-	private static final void setSimulationState(SimulatorState simulatorState) {
-		if (simulatorState == Simulator.simulatorState)
-			return;
+		for (Runnable init : initializationInfo.initList)
+			init.run();
 
-		Simulator.simulatorState = simulatorState;
-		simulatorStateNotifier.notifySubscribers(simulatorState);
-	}
-
-	public static final void notifyError() {
-		setSimulationState(SimulatorState.DEINITIALIZED);
-	}
-
-	private static final Notifier<SimulatorState> simulatorStateNotifier = new Notifier<SimulatorState>(
-			SimulatorState.class);
-
-	public static final Notifier<SimulatorState> getSimulatorStateNotifier() {
-		return simulatorStateNotifier;
-	}
-
-	public static boolean isInitialized() {
-		return simulatorState == SimulatorState.INITIALIZED;
-	}
-
-	public static boolean isRunning() {
-		return isRunning;
+		database.addMemorizedResourceEntries(null, null, null);
 	}
 
 	private Database database;
 
-	public static Database getDatabase() {
-		return INSTANCE.database;
+	@Override
+	public Database getDatabase() {
+		return database;
 	}
 
-	private ModelStructureCache modelStructureCache;
+	private StaticModelData staticModelData;
 
-	public static ModelStructureCache getModelStructureCache() {
-		return INSTANCE.modelStructureCache;
+	@Override
+	public StaticModelData getStaticModelData() {
+		return staticModelData;
+	}
+
+	private ModelState modelState;
+
+	@Override
+	public ModelState getModelState() {
+		return modelState;
+	}
+
+	@Override
+	public void setModelState(ModelState modelState) {
+		this.modelState = modelState;
 	}
 
 	private volatile double time = 0;
 
-	public static double getTime() {
-		return INSTANCE.time;
+	@Override
+	public double getTime() {
+		return time;
 	}
 
 	private EventScheduler eventScheduler = new EventScheduler();
 
-	public static void pushEvent(Event event) {
-		INSTANCE.eventScheduler.pushEvent(event);
+	@Override
+	public void pushEvent(Event event) {
+		eventScheduler.pushEvent(event);
 	}
 
-	private LinkedList<TerminateCondition> terminateList = new LinkedList<TerminateCondition>();
-
-	public static void addTerminateCondition(TerminateCondition c) {
-		INSTANCE.terminateList.add(c);
-	}
+	private List<Supplier<Boolean>> terminateList = new LinkedList<>();
 
 	private DPTManager dptManager;
 
-	public static void addDecisionPoint(DecisionPoint dpt) {
-		INSTANCE.dptManager.addDecisionPoint(dpt);
+	private Process processManager;
+
+	private ResultManager resultManager;
+
+	@Override
+	public List<Result<?>> getResults() {
+		return resultManager.getResults();
 	}
 
-	private ResultManager resultManager = new ResultManager();
+	private Logger logger;
 
-	public static void addResult(Result result) {
-		INSTANCE.resultManager.addResult(result);
+	@Override
+	public Logger getLogger() {
+		return logger;
 	}
-
-	public static LinkedList<Result> getResults() {
-		return INSTANCE.resultManager.getResults();
-	}
-
-	public enum ExecutionState {
-		EXECUTION_STARTED, EXECUTION_COMPLETED, EXECUTION_ABORTED, STATE_CHANGED, TIME_CHANGED, SEARCH_STEP
-	};
 
 	private Notifier<ExecutionState> executionStateNotifier;
 
-	public static Notifier<ExecutionState> getExecutionStateNotifier() {
-		return INSTANCE.executionStateNotifier;
+	@Override
+	public Notifier<ExecutionState> getExecutionStateNotifier() {
+		return executionStateNotifier;
 	}
 
-	private static void notifyChange(ExecutionState category) {
-		INSTANCE.executionStateNotifier.notifySubscribers(category);
+	@Override
+	public void notifyChange(ExecutionState category) {
+		executionStateNotifier.notifySubscribers(category);
 	}
-
-	private boolean checkTerminate() {
-		for (TerminateCondition c : terminateList)
-			if (c.check())
-				return true;
-		return false;
-	}
-
-	private static volatile boolean isRunning = false;
 
 	private volatile boolean executionAborted = false;
 
-	public static synchronized void stopExecution() {
-		if (simulatorState != SimulatorState.INITIALIZED)
-			return;
-
-		INSTANCE.executionAborted = true;
-		notifyChange(ExecutionState.EXECUTION_ABORTED);
+	@Override
+	public void abortExecution() {
+		executionAborted = true;
 	}
 
-	private int checkDPT() {
-		while (dptManager.checkDPT() && !executionAborted) {
-			notifyChange(ExecutionState.STATE_CHANGED);
-
-			if (checkTerminate())
-				return 1;
-		}
-
-		if (executionAborted)
-			return -1;
-		return 0;
-	}
-
-	public static int run() {
-		isRunning = true;
-
-		INSTANCE.database.addSystemEntry(Database.SystemEntryType.SIM_START);
+	@Override
+	public SimulationStopCode run() {
+		database.addSystemEntry(Database.SystemEntryType.SIM_START);
 
 		notifyChange(ExecutionState.EXECUTION_STARTED);
 		notifyChange(ExecutionState.TIME_CHANGED);
 		notifyChange(ExecutionState.STATE_CHANGED);
 
-		int dptCheck = INSTANCE.checkDPT();
-		if (dptCheck != 0)
-			return stop(dptCheck);
+		while (!executionAborted) {
+			if (checkTerminate())
+				return SimulationStopCode.TERMINATE_CONDITION;
 
-		while (INSTANCE.eventScheduler.haveEvents()) {
-			Event current = INSTANCE.eventScheduler.popEvent();
+			if (dptManager.checkDPT()) {
+				notifyChange(ExecutionState.STATE_CHANGED);
+				continue;
+			}
 
-			INSTANCE.time = current.getTime();
-			current.run();
+			ProcessStatus processStatus = processManager.scan();
+			if (processStatus == ProcessStatus.SUCCESS) {
+				notifyChange(ExecutionState.STATE_CHANGED);
+				continue;
+			} else if (processStatus == ProcessStatus.FAILURE) {
+				return SimulationStopCode.RUNTIME_ERROR;
+			}
+
+			if (!eventScheduler.haveEvents())
+				return SimulationStopCode.NO_MORE_EVENTS;
+
+			Event event = eventScheduler.popEvent();
+			time = event.getTime();
+			event.run();
 
 			notifyChange(ExecutionState.TIME_CHANGED);
 			notifyChange(ExecutionState.STATE_CHANGED);
-
-			if (INSTANCE.checkTerminate())
-				return stop(1);
-
-			dptCheck = INSTANCE.checkDPT();
-			if (dptCheck != 0)
-				return stop(dptCheck);
 		}
-		return stop(0);
+
+		return SimulationStopCode.USER_INTERRUPT;
 	}
 
-	private static int stop(int code) {
-		Database.SystemEntryType simFinishType;
-		switch (code) {
-		case -1:
-			simFinishType = SystemEntryType.ABORT;
-			break;
-		case 0:
-			simFinishType = SystemEntryType.NO_MORE_EVENTS;
-			break;
-		case 1:
-			simFinishType = SystemEntryType.NORMAL_TERMINATION;
-			break;
-		default:
-			simFinishType = SystemEntryType.RUN_TIME_ERROR;
-			break;
-		}
-		INSTANCE.database.addSystemEntry(simFinishType);
-		notifyChange(ExecutionState.EXECUTION_COMPLETED);
-		isRunning = false;
-		return code;
+	private boolean checkTerminate() {
+		for (Supplier<Boolean> c : terminateList)
+			if (c.get())
+				return true;
+		return false;
 	}
 }

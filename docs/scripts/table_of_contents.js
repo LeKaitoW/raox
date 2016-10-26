@@ -11,7 +11,7 @@ function fillContents(ul, contents) {
     }
 }
 
-function generateSidebar(referenceContents, tutorialContents) {
+function generateSidebar(referenceContents, tutorialContents, userGuideContents, debugContents) {
     var body = $("body");
 
     var wrapper = $("<div>");
@@ -36,12 +36,20 @@ function generateSidebar(referenceContents, tutorialContents) {
     var commonList = $("<ul>");
 
     var referenceList = $("<li>");
-    referenceList.html("Справка по грамматике");
+    referenceList.html("Грамматика");
     var referenceNestedList = $("<ul>");
 
     var tutorialList = $("<li>");
     tutorialList.html("Руководство по изучению языка");
     var tutorialNestedList = $("<ul>");
+
+    var userGuideList = $("<li>");
+    userGuideList.html("Руководство пользователя");
+    var userGuideNestedList = $("<ul>");
+
+    var debugList = $("<li>");
+    debugList.html("Отладка моделей");
+    var debugNestedList = $("<ul>");
 
     fillContents(referenceNestedList, referenceContents);
     referenceNestedList.appendTo(referenceList);
@@ -50,6 +58,14 @@ function generateSidebar(referenceContents, tutorialContents) {
     fillContents(tutorialNestedList, tutorialContents);
     tutorialNestedList.appendTo(tutorialList);
     tutorialList.appendTo(commonList);
+
+    fillContents(userGuideNestedList, userGuideContents);
+    userGuideNestedList.appendTo(userGuideList);
+    userGuideList.appendTo(commonList);
+
+    fillContents(debugNestedList, debugContents);
+    debugNestedList.appendTo(debugList);
+    debugList.appendTo(commonList);
 
     header.appendTo(sidebarNav);
     commonList.appendTo(sidebarNav);
@@ -80,8 +96,8 @@ function getReferenceContents() {
             "title":"Образцы"
         },
         {
-            "href":"../reference/dpt.html",
-            "title":"Точки принятия решений"
+            "href":"../reference/logic.html",
+            "title":"Группы активностей"
         },
         {
             "href":"../reference/search.html",
@@ -100,12 +116,12 @@ function getReferenceContents() {
             "title":"Функции"
         },
         {
-            "href":"../reference/table_list.html",
-            "title":"Таблицы и списки"
-        },
-        {
             "href":"../reference/result.html",
             "title":"Результаты моделирования"
+        },
+        {
+            "href":"../reference/animation.html",
+            "title":"Анимация"
         }
     ];
 
@@ -127,6 +143,48 @@ function getTutorialContents() {
     return contents;
 }
 
+function getUserGuideContents() {
+    var contents = [
+        {
+            "href":"../user_guide/first_run.html",
+            "title":"Первый запуск"
+        },
+        {
+            "href":"../user_guide/model_create.html",
+            "title":"Создание модели"
+        },
+        {
+            "href":"../user_guide/model_run.html",
+            "title":"Запуск модели"
+        },
+        {
+            "href":"../user_guide/model_import.html",
+            "title":"Импорт модели"
+        },
+        {
+            "href":"../user_guide/show_animation.html",
+            "title":"Включить анимацию"
+        }
+    ];
+
+    return contents;
+}
+
+function getDebugContents() {
+    var contents = [
+        {
+            "href":"../debug/trace.html",
+            "title":"Трассировка"
+        },
+        {
+            "href":"../debug/logger.html",
+            "title":"Логирование"
+        }
+    ];
+
+    return contents;
+}
+
 $(document).ready(function() {
-    generateSidebar(getReferenceContents(), getTutorialContents());
+    generateSidebar(getReferenceContents(), getTutorialContents(), getUserGuideContents(), getDebugContents());
 });

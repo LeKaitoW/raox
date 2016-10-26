@@ -1,0 +1,20 @@
+type T {
+	double d
+}
+
+resource r = T.create(0);
+
+sequence exponential = new Exponential(123456789, 100)
+
+event E() {
+	r.d = exponential.next()
+	E.plan(currentTime + 5)
+}
+
+def init() {
+	E.plan(currentTime)
+}
+
+def terminateCondition() {
+	return currentTime > 100
+}
