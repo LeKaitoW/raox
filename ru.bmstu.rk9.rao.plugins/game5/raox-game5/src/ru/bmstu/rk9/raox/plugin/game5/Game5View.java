@@ -399,7 +399,6 @@ public class Game5View extends EditorPart {
 			public void widgetSelected(SelectionEvent event) {
 				try {
 					IServiceLocator serviceLocator = PlatformUI.getWorkbench();
-					doSave((IProgressMonitor) serviceLocator.getService(IProgressMonitor.class));
 					((SerializationConfigView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 							.showView(SerializationConfigView.ID)).setCheckedStateForAll();
 
