@@ -19,11 +19,14 @@ public class PlotFrame extends ChartComposite implements KeyListener {
 	private double verticalMaximum;
 	private double horizontalRatio;
 	private double verticalRatio;
+	private boolean flagY, flagX;
+	PlotMouseWheelListener PMWL = new PlotMouseWheelListener();
 
 	public PlotFrame(final Composite comp, final int style) {
 		super(comp, style, null, ChartComposite.DEFAULT_WIDTH, ChartComposite.DEFAULT_HEIGHT, 0, 0, Integer.MAX_VALUE,
 				Integer.MAX_VALUE, ChartComposite.DEFAULT_BUFFER_USED, true, true, true, true, true);
 		addSWTListener(this);
+		addMouseWheelListener(new PlotMouseWheelListener());
 	}
 
 	public final void setSliders(final Slider horizontalSlider, final Slider verticalSlider) {
@@ -92,13 +95,37 @@ public class PlotFrame extends ChartComposite implements KeyListener {
 	public void keyPressed(KeyEvent e) {
 		if (e.keyCode == SWT.SHIFT) {
 			this.setRangeZoomable(true);
+
 		}
+		if (e.keyCode == SWT.CTRL) {
+			this.setDomainZoomable(true);
+
+		}
+		System.out.println("keyPressed");
+		sendFlags(isRangeZoomable(), isDomainZoomable());
+
+	}
+
+	public void sendFlags(boolean FlagX, boolean FlagY) {
+		this.flagY = FlagY;
+		this.flagX = FlagX;
+	}
+
+	public boolean getFlagX() {
+		return flagX;
+	}
+
+	public boolean getFlagY() {
+		return flagY;
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		if (e.keyCode == SWT.SHIFT) {
 			this.setRangeZoomable(false);
+		}
+		if (e.keyCode == SWT.CTRL) {
+			this.setDomainZoomable(false);
 		}
 	}
 
