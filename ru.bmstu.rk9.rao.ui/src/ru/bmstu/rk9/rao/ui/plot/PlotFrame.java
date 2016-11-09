@@ -96,12 +96,11 @@ public class PlotFrame extends ChartComposite implements KeyListener {
 		if (e.keyCode == SWT.SHIFT) {
 			this.setRangeZoomable(true);
 
-		}
-		if (e.keyCode == SWT.CTRL) {
+		} else if (e.keyCode == SWT.CTRL) {
 			this.setDomainZoomable(true);
 
 		}
-		System.out.println("keyPressed");
+
 		sendFlags(isRangeZoomable(), isDomainZoomable());
 
 	}
@@ -123,8 +122,7 @@ public class PlotFrame extends ChartComposite implements KeyListener {
 	public void keyReleased(KeyEvent e) {
 		if (e.keyCode == SWT.SHIFT) {
 			this.setRangeZoomable(false);
-		}
-		if (e.keyCode == SWT.CTRL) {
+		} else if (e.keyCode == SWT.CTRL) {
 			this.setDomainZoomable(false);
 		}
 	}

@@ -5,23 +5,21 @@ import org.eclipse.swt.events.MouseWheelListener;
 
 public class PlotMouseWheelListener implements MouseWheelListener {
 
-	boolean flagX = false, flagY = false;
-
 	@Override
 	public void mouseScrolled(MouseEvent e) {
 
 		PlotFrame plotFrame = (PlotFrame) e.widget;
 
-		if ((e.count > 0) && (plotFrame.getFlagX() == true)) {
+		if (e.count > 0 && plotFrame.getFlagX()) {
 			plotFrame.zoomInRange(e.x, e.y);
 		}
-		if ((e.count < 0) && (plotFrame.getFlagX() == true)) {
+		if (e.count < 0 && plotFrame.getFlagX()) {
 			plotFrame.zoomOutRange(e.x, e.y);
 		}
-		if ((e.count > 0) && (plotFrame.getFlagY() == true)) {
+		if (e.count > 0 && plotFrame.getFlagY()) {
 			plotFrame.zoomInDomain(e.x, e.y);
 		}
-		if ((e.count < 0) && (plotFrame.getFlagY() == true)) {
+		if (e.count < 0 && plotFrame.getFlagY()) {
 			plotFrame.zoomOutDomain(e.x, e.y);
 		}
 	}
