@@ -6,7 +6,7 @@
 		<relativePath>../pom.xml</relativePath>
 		<groupId>ru.bmstu.rk9.raox.plugin.game5</groupId>
 		<artifactId>parent</artifactId>
-		<version>2.1.0</version>
+		<version>2.1.1</version>
 	</parent>
 
 	<artifactId>assembly</artifactId>
