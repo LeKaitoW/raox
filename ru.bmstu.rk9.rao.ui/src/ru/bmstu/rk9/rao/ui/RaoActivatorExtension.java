@@ -37,7 +37,6 @@ import ru.bmstu.rk9.rao.ui.simulation.SetSimulationScaleHandler;
 import ru.bmstu.rk9.rao.ui.simulation.SpeedSelectionToolbar;
 import ru.bmstu.rk9.rao.ui.thinclient.EmbeddedThinClientServer;
 
-
 public class RaoActivatorExtension extends RaoActivator {
 	private MessageDialog closeDialog = new MessageDialog(Display.getDefault().getActiveShell(), "Error", null,
 			"Simulation should be stopped prior to shutdown!", MessageDialog.ERROR,
@@ -51,9 +50,9 @@ public class RaoActivatorExtension extends RaoActivator {
 
 		IWorkbench workbench = PlatformUI.getWorkbench();
 		ICommandService commandService = workbench.getService(ICommandService.class);
-		
+
 		EmbeddedThinClientServer.startServer();
-		
+
 		workbench.addWorkbenchListener(workbenchListener);
 		commandService.addExecutionListener(commandExecutionListener);
 		workbench.addWindowListener(new IWindowListener() {
@@ -63,8 +62,7 @@ public class RaoActivatorExtension extends RaoActivator {
 				if (partService == null)
 					return;
 				partService.addPartListener(partListener);
-				
-				
+
 			}
 
 			@Override
