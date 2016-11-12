@@ -8,10 +8,5 @@
 	<classpathentry kind="lib" path="thirdparty/jetty/jetty-util/lib/jetty-util-9.4.0-SNAPSHOT.jar" sourcepath="thirdparty/jetty/jetty-util/source/jetty-util-9.4.0-SNAPSHOT-sources.jar"/>
 	<classpathentry kind="lib" path="thirdparty/javax-servlet/lib/javax.servlet-api-3.0.1.jar" sourcepath="thirdparty/javax-servlet/source/javax.servlet-api-3.0.1-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/ru.bmstu.rk9.rao.lib">
-		<accessrules>
-			<accessrule kind="accessible" pattern="*"/>
-		</accessrules>
-	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

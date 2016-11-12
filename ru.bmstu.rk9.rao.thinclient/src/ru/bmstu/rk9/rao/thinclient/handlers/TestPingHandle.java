@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.thinclient;
+package ru.bmstu.rk9.rao.thinclient.handlers;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -10,10 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
-import ru.bmstu.rk9.rao.lib.runtime.RaoRuntime;
-import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
-
-public class CurrentTimeHandle extends AbstractHandler {
+public class TestPingHandle extends AbstractHandler {
 
 	@Override
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
@@ -21,10 +18,8 @@ public class CurrentTimeHandle extends AbstractHandler {
 		response.setContentType("text/html; charset=utf-8");
 		response.setStatus(HttpServletResponse.SC_OK);
 		PrintWriter out = response.getWriter();
-		if (CurrentSimulator.isRunning() == true)
-			out.println(RaoRuntime.getCurrentTime());
-		else
-			out.println("сервер недоступен");
+
+		out.println("200");
 
 		baseRequest.setHandled(true);
 	}

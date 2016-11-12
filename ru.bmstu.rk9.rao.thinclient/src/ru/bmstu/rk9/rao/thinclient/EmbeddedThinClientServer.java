@@ -2,26 +2,43 @@ package ru.bmstu.rk9.rao.thinclient;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 
+import ru.bmstu.rk9.rao.thinclient.handlers.CurrentTime;
+import ru.bmstu.rk9.rao.thinclient.handlers.TestPingHandle;
+
 public class EmbeddedThinClientServer {
+
+	static Server server = new Server(9002);
+
 	public static void startServer() throws Exception {
-		Server server = new Server(9002);
 
-		ContextHandler currentTimeContext = new ContextHandler("/time");
-		currentTimeContext.setHandler(new CurrentTimeHandle());
-		currentTimeContext.setAllowNullPathInfo(true);
+		ContextHandler currentTimeContext = createHandler(new CurrentTime(), "/currentTime");
 
-		ContextHandler pingContext = new ContextHandler("/ping");
-		pingContext.setHandler(new TestPingHandle());
-		pingContext.setAllowNullPathInfo(true);
+		ContextHandler pingContext = createHandler(new TestPingHandle(), "/ping");
 
-		ContextHandlerCollection contexts = new ContextHandlerCollection();
-		contexts.setHandlers(new Handler[] { currentTimeContext, pingContext });
+		ContextHandlerCollection handlers = new ContextHandlerCollection();
+		handlers.setHandlers(new Handler[] { currentTimeContext, pingContext });
 
-		server.setHandler(contexts);
+		server.setHandler(handlers);
 		server.start();
+
+	}
+
+	static private ContextHandler createHandler(AbstractHandler handlerClass, String handlerName) {
+
+		ContextHandler builtHandler = new ContextHandler(handlerName);
+		builtHandler.setHandler(handlerClass);
+		builtHandler.setAllowNullPathInfo(true);
+		return builtHandler;
+
+	}
+
+	public static void stopServer() throws Exception {
+
+		server.stop();
 
 	}
 

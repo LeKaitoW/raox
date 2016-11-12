@@ -94,6 +94,8 @@ public class RaoActivatorExtension extends RaoActivator {
 	public void stop(BundleContext context) throws Exception {
 		deinitializeUiComponents();
 
+		EmbeddedThinClientServer.stopServer();
+
 		super.stop(context);
 	}
 
