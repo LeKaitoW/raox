@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.thinclient;
+package ru.bmstu.rk9.rao.thinclient;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;

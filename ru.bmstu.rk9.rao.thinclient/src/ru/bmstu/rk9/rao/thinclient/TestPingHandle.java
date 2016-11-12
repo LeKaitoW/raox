@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.thinclient;
+package ru.bmstu.rk9.rao.thinclient;
 
 import java.io.IOException;
 import java.io.PrintWriter;

@@ -25,6 +25,7 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.services.ISourceProviderService;
 import org.osgi.framework.BundleContext;
 
+import ru.bmstu.rk9.rao.thinclient.EmbeddedThinClientServer;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.internal.RaoActivator;
 import ru.bmstu.rk9.rao.ui.plot.PlotView;
@@ -35,7 +36,6 @@ import ru.bmstu.rk9.rao.ui.simulation.ModelExecutionSourceProvider.SimulationSta
 import ru.bmstu.rk9.rao.ui.simulation.RuntimeComponents;
 import ru.bmstu.rk9.rao.ui.simulation.SetSimulationScaleHandler;
 import ru.bmstu.rk9.rao.ui.simulation.SpeedSelectionToolbar;
-import ru.bmstu.rk9.rao.ui.thinclient.EmbeddedThinClientServer;
 
 public class RaoActivatorExtension extends RaoActivator {
 	private MessageDialog closeDialog = new MessageDialog(Display.getDefault().getActiveShell(), "Error", null,

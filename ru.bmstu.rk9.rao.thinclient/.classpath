@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="thirdparty/jetty/jetty-http/lib/jetty-http-9.4.0-SNAPSHOT.jar" sourcepath="thirdparty/jetty/jetty-http/source/jetty-http-9.4.0-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jetty/jetty-io/lib/jetty-io-9.4.0-SNAPSHOT.jar" sourcepath="thirdparty/jetty/jetty-io/source/jetty-io-9.4.0-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jetty/jetty-server/lib/jetty-server-9.4.0-SNAPSHOT.jar" sourcepath="thirdparty/jetty/jetty-server/source/jetty-server-9.4.0-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jetty/jetty-util/lib/jetty-util-9.4.0-SNAPSHOT.jar" sourcepath="thirdparty/jetty/jetty-util/source/jetty-util-9.4.0-SNAPSHOT-sources.jar"/>
+	<classpathentry kind="lib" path="thirdparty/javax-servlet/lib/javax.servlet-api-3.0.1.jar" sourcepath="thirdparty/javax-servlet/source/javax.servlet-api-3.0.1-sources.jar"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ru.bmstu.rk9.rao.lib">
+		<accessrules>
+			<accessrule kind="accessible" pattern="*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
