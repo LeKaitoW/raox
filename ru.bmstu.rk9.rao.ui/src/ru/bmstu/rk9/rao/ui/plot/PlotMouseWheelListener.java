@@ -10,18 +10,24 @@ public class PlotMouseWheelListener implements MouseWheelListener {
 
 		PlotFrame plotFrame = (PlotFrame) e.widget;
 
-		if (e.count > 0 && plotFrame.getFlagX()) {
+		if (e.count > 0 && plotFrame.isRangeZoomable()) {
 			plotFrame.zoomInRange(e.x, e.y);
 		}
-		if (e.count < 0 && plotFrame.getFlagX()) {
+		if (e.count < 0 && plotFrame.isRangeZoomable()) {
 			plotFrame.zoomOutRange(e.x, e.y);
 		}
-		if (e.count > 0 && plotFrame.getFlagY()) {
+		if (e.count > 0 && plotFrame.isDomainZoomable()) {
 			plotFrame.zoomInDomain(e.x, e.y);
 		}
-		if (e.count < 0 && plotFrame.getFlagY()) {
+		if (e.count < 0 && plotFrame.isDomainZoomable()) {
 			plotFrame.zoomOutDomain(e.x, e.y);
 		}
-	}
+		if (e.count > 0 && plotFrame.isDomainZoomable() && plotFrame.isRangeZoomable()) {
+			plotFrame.zoomInBoth(e.x, e.y);
+		}
+		if (e.count < 0 && plotFrame.isDomainZoomable() && plotFrame.isRangeZoomable()) {
+			plotFrame.zoomOutBoth(e.x, e.y);
+		}
 
+	}
 }
