@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Slider;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.experimental.chart.swt.ChartComposite;
 
-public class PlotFrame extends ChartComposite implements KeyListener {
+public class PlotFrame extends ChartComposite {
 
 	private Slider horizontalSlider;
 	private Slider verticalSlider;
@@ -20,11 +20,38 @@ public class PlotFrame extends ChartComposite implements KeyListener {
 	private double horizontalRatio;
 	private double verticalRatio;
 
+	public class KeyInfo implements KeyListener {
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+			if (e.keyCode == SWT.SHIFT) {
+				setRangeZoomable(true);
+				System.out.println("Shift");
+			} else if (e.keyCode == SWT.CTRL) {
+				setDomainZoomable(true);
+				System.out.println("CtRL");
+			}
+
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e) {
+			if (e.keyCode == SWT.SHIFT) {
+				setRangeZoomable(false);
+			} else if (e.keyCode == SWT.CTRL) {
+				setDomainZoomable(false);
+			}
+
+		}
+
+	}
+
 	public PlotFrame(final Composite comp, final int style) {
 		super(comp, style, null, ChartComposite.DEFAULT_WIDTH, ChartComposite.DEFAULT_HEIGHT, 0, 0, Integer.MAX_VALUE,
 				Integer.MAX_VALUE, ChartComposite.DEFAULT_BUFFER_USED, true, true, true, true, true);
 		addSWTListener(this);
 		addMouseWheelListener(new PlotMouseWheelListener());
+		addKeyListener(new KeyInfo());
 
 	}
 
@@ -90,28 +117,20 @@ public class PlotFrame extends ChartComposite implements KeyListener {
 		}
 	}
 
-	@Override
-	public void keyPressed(KeyEvent e) {
-		if (e.keyCode == SWT.SHIFT) {
-			this.setRangeZoomable(true);
-			System.out.println("Shift");
-		} else if (e.keyCode == SWT.CTRL) {
-			this.setDomainZoomable(true);
-			System.out.println("CtRL");
-		}
-
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-		if (e.keyCode == SWT.SHIFT) {
-			this.setRangeZoomable(false);
-		} else if (e.keyCode == SWT.CTRL) {
-			this.setDomainZoomable(false);
-		}
-
-	}
-
+	/*
+	 * @Override public void keyPressed(KeyEvent e) { if (e.keyCode ==
+	 * SWT.SHIFT) { this.setRangeZoomable(true); System.out.println("Shift"); }
+	 * else if (e.keyCode == SWT.CTRL) { this.setDomainZoomable(true);
+	 * System.out.println("CtRL"); }
+	 *
+	 * }
+	 *
+	 * @Override public void keyReleased(KeyEvent e) { if (e.keyCode ==
+	 * SWT.SHIFT) { this.setRangeZoomable(false); } else if (e.keyCode ==
+	 * SWT.CTRL) { this.setDomainZoomable(false); }
+	 *
+	 * }
+	 */
 	@Override
 	public void zoom(Rectangle selection) {
 		super.zoom(selection);
