@@ -43,11 +43,11 @@ public class TreeBuilder {
 			this.label = String.valueOf(index);
 		}
 
-		public final Node parent;
+		public Node parent;
 		public final List<Node> children = new ArrayList<Node>();
 		public final int index;
 
-		public int depthLevel;
+		public int depth;
 		public double g;
 		public double h;
 		public int ruleNumber;
@@ -63,12 +63,12 @@ public class TreeBuilder {
 		}
 	}
 
-	private boolean parseEntry(Entry entry) {
+	private boolean parseEntry(final Entry entry) {
 		boolean isFinished = false;
 
 		final EntryType entryType = EntryType.values()[entry.getHeader().get(TypeSize.Internal.ENTRY_TYPE_OFFSET)];
 		if (entryType != EntryType.SEARCH)
-			return false;
+			return isFinished;
 
 		final ByteBuffer header = Tracer.prepareBufferForReading(entry.getHeader());
 
@@ -78,18 +78,19 @@ public class TreeBuilder {
 		final int dptNumber = header.getInt();
 
 		if (dptNumber != this.dptNumber)
-			return false;
+			return isFinished;
 
 		switch (searchEntryType) {
 		case BEGIN: {
-			Node treeNode = new Node(null, 0);
-			treeNode.depthLevel = 1;
-			graphInfo.depth = 1;
-			widthByLevel.put(1, 1);
-			nodeByNumber.add(treeNode);
-			lastAddedNodeIndex = treeNode.index;
+			final Node node = new Node(null, 0);
+			node.depth = 1;
+			graphInfo.depth = node.depth;
+			widthByLevel.put(node.depth, 1);
+			nodeByNumber.add(node);
+			lastAddedNodeIndex = node.index;
 			break;
 		}
+
 		case END: {
 			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
 			Tracer.skipPart(data, TypeSize.BYTE + TypeSize.LONG * 2);
@@ -108,66 +109,78 @@ public class TreeBuilder {
 			isFinished = true;
 			break;
 		}
+
 		case OPEN:
 			break;
+
 		case SPAWN: {
 			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
 			final Search.SpawnStatus spawnStatus = Search.SpawnStatus.values()[data.get()];
 			switch (spawnStatus) {
-			case NEW:
-			case BETTER: {
+			case NEW: {
 				final int nodeNumber = data.getInt();
 				final int parentNumber = data.getInt();
 				final double g = data.getDouble();
 				final double h = data.getDouble();
-				final int ruleNum = data.getInt();
+				final int ruleNumber = data.getInt();
 				final int patternNumber = data.getInt();
 				final double ruleCost = data.getDouble();
 
-				final int numberOfRelevantResources = CurrentSimulator.getStaticModelData()
-						.getNumberOfRelevantResources(patternNumber);
+				final Node parentNode = nodeByNumber.get(parentNumber);
+				final Node node = new Node(parentNode, nodeNumber);
 
-				StringJoiner relResStringJoiner = new StringJoiner(StringFormat.ENUMERATION);
+				parentNode.children.add(node);
+				node.g = g;
+				node.h = h;
+				node.ruleNumber = ruleNumber;
+				node.ruleName = CurrentSimulator.getStaticModelData().getEdgeName(dptNumber, ruleNumber);
+				node.relevantResources = getRelevantResources(data, patternNumber);
+				node.ruleCost = ruleCost;
+				node.depth = node.parent.depth + 1;
 
-				for (int num = 0; num < numberOfRelevantResources; num++) {
-					final int resNum = data.getInt();
-					final String typeName = CurrentSimulator.getStaticModelData()
-							.getRelevantResourceTypeName(patternNumber, num);
-					final int typeNum = CurrentSimulator.getStaticModelData().getResourceTypeNumber(typeName);
-					final String name = CurrentSimulator.getStaticModelData().getResourceName(typeNum, resNum);
-					final String resourceName = name != null ? name : typeName + Tracer.encloseIndex(resNum);
+				updateGraphInfo(node);
 
-					relResStringJoiner.add(NamingHelper.convertName(resourceName, useShortNames));
-				}
-
-				Node parentNode = nodeByNumber.get(parentNumber);
-				Node treeNode = new Node(parentNode, nodeNumber);
-				parentNode.children.add(treeNode);
-				treeNode.g = g;
-				treeNode.h = h;
-				treeNode.ruleNumber = ruleNum;
-				treeNode.ruleName = CurrentSimulator.getStaticModelData().getEdgeName(dptNumber, ruleNum);
-				treeNode.relevantResources = relResStringJoiner.getString();
-				treeNode.ruleCost = ruleCost;
-
-				treeNode.depthLevel = treeNode.parent.depthLevel + 1;
-				if (widthByLevel.containsKey(treeNode.depthLevel))
-					widthByLevel.put(treeNode.depthLevel, widthByLevel.get(treeNode.depthLevel) + 1);
-				else
-					widthByLevel.put(treeNode.depthLevel, 1);
-
-				if (treeNode.depthLevel > graphInfo.depth)
-					graphInfo.depth = treeNode.depthLevel;
-
-				nodeByNumber.add(treeNode);
-				lastAddedNodeIndex = treeNode.index;
+				nodeByNumber.add(node);
+				lastAddedNodeIndex = node.index;
 				break;
 			}
+
+			case BETTER: {
+				final int nodeNumber = data.getInt();
+				final int parentNumber = data.getInt();
+				final double g = data.getDouble();
+				data.getDouble();
+				final int ruleNumber = data.getInt();
+				final int patternNumber = data.getInt();
+				data.getDouble();
+
+				final Node node = nodeByNumber.get(nodeNumber);
+				final Node parentNode = nodeByNumber.get(parentNumber);
+
+				parentChanges.add(new ParentChange(node, node.parent, parentNode));
+
+				if (widthByLevel.containsKey(node.depth))
+					widthByLevel.put(node.depth, widthByLevel.get(node.depth) - 1);
+
+				node.parent.children.remove(node);
+				node.parent = parentNode;
+				parentNode.children.add(node);
+				node.g = g;
+				node.ruleNumber = ruleNumber;
+				node.ruleName = CurrentSimulator.getStaticModelData().getEdgeName(dptNumber, ruleNumber);
+				node.relevantResources = getRelevantResources(data, patternNumber);
+				node.depth = node.parent.depth + 1;
+
+				updateGraphInfo(node);
+				break;
+			}
+
 			case WORSE:
 				break;
 			}
 			break;
 		}
+
 		case DECISION: {
 			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
 			final int number = data.getInt();
@@ -179,6 +192,35 @@ public class TreeBuilder {
 		}
 
 		return isFinished;
+	}
+
+	private final String getRelevantResources(final ByteBuffer data, final int patternNumber) {
+		final int numberOfRelevantResources = CurrentSimulator.getStaticModelData()
+				.getNumberOfRelevantResources(patternNumber);
+
+		final StringJoiner relResStringJoiner = new StringJoiner(StringFormat.ENUMERATION);
+
+		for (int num = 0; num < numberOfRelevantResources; num++) {
+			final int resNum = data.getInt();
+			final String typeName = CurrentSimulator.getStaticModelData().getRelevantResourceTypeName(patternNumber,
+					num);
+			final int typeNum = CurrentSimulator.getStaticModelData().getResourceTypeNumber(typeName);
+			final String name = CurrentSimulator.getStaticModelData().getResourceName(typeNum, resNum);
+			final String resourceName = name != null ? name : typeName + Tracer.encloseIndex(resNum);
+
+			relResStringJoiner.add(NamingHelper.convertName(resourceName, useShortNames));
+		}
+		return relResStringJoiner.getString();
+	}
+
+	private final void updateGraphInfo(final Node node) {
+		if (widthByLevel.containsKey(node.depth))
+			widthByLevel.put(node.depth, widthByLevel.get(node.depth) + 1);
+		else
+			widthByLevel.put(node.depth, 1);
+
+		if (graphInfo.depth < node.depth)
+			graphInfo.depth = node.depth;
 	}
 
 	private final int calculateTreeWidth() {
@@ -197,6 +239,20 @@ public class TreeBuilder {
 	final GraphInfo graphInfo = new GraphInfo();
 	int lastAddedNodeIndex = -1;
 	private boolean solutionFound = false;
+
+	class ParentChange {
+		Node node;
+		Node worseParent;
+		Node betterParent;
+
+		ParentChange(final Node node, final Node worseParent, final Node betterParent) {
+			this.node = node;
+			this.worseParent = worseParent;
+			this.betterParent = betterParent;
+		}
+	}
+
+	final List<ParentChange> parentChanges = new ArrayList<ParentChange>();
 
 	private int entryNumber = 0;
 	private final int dptNumber;

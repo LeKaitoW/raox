@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rao.lib.dpt;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -16,10 +17,10 @@ import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.notification.Subscription.SubscriptionType;
 import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
-import ru.bmstu.rk9.rao.lib.simulator.ModelState;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulatorState;
+import ru.bmstu.rk9.rao.lib.simulator.ModelState;
 
 public abstract class Search extends AbstractDecisionPoint {
 	public Search() {
@@ -96,7 +97,8 @@ public abstract class Search extends AbstractDecisionPoint {
 		}
 
 		final int number;
-		final GraphNode parent;
+		GraphNode parent;
+		final List<GraphNode> children = new ArrayList<GraphNode>();
 
 		EdgeInfo edgeInfo;
 
@@ -218,18 +220,24 @@ public abstract class Search extends AbstractDecisionPoint {
 			newChild.h = heuristic.get();
 
 			add_child: {
-				compare_tops: if (compareTops) {
+				if (compareTops) {
 					for (Collection<GraphNode> nodesList : Arrays.asList(nodesOpen, nodesClosed)) {
 						for (GraphNode node : nodesList) {
-							if (newChild.state.checkEqual(node.state)) {
-								if (newChild.g < node.g) {
-									nodesList.remove(node);
-									spawnStatus = SpawnStatus.BETTER;
-									break compare_tops;
-								} else {
-									spawnStatus = SpawnStatus.WORSE;
-									break add_child;
-								}
+							if (!newChild.state.checkEqual(node.state))
+								continue;
+
+							if (newChild.g < node.g) {
+								if (node.parent != null)
+									node.parent.children.remove(node);
+								node.parent = newChild.parent;
+								node.edgeInfo = newChild.edgeInfo;
+								reduceСost(node, node.g - newChild.g);
+								newChild = node;
+								spawnStatus = SpawnStatus.BETTER;
+								break add_child;
+							} else {
+								spawnStatus = SpawnStatus.WORSE;
+								break add_child;
 							}
 						}
 					}
@@ -246,6 +254,14 @@ public abstract class Search extends AbstractDecisionPoint {
 		}
 
 		return children;
+
+	}
+
+	private final void reduceСost(GraphNode node, double delta) {
+		node.g -= delta;
+		for (final GraphNode child : node.children) {
+			reduceСost(child, delta);
+		}
 	}
 
 	public static enum StopCode {
