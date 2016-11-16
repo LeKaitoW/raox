@@ -3,6 +3,8 @@ package ru.bmstu.rk9.rao.ui.plot;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Rectangle;
@@ -20,16 +22,15 @@ public class PlotFrame extends ChartComposite {
 	private double horizontalRatio;
 	private double verticalRatio;
 
-	public class KeyInfo implements KeyListener {
-
+	class KeyInfo implements KeyListener {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			if (e.keyCode == SWT.SHIFT) {
 				setRangeZoomable(true);
-				System.out.println("Shift");
+
 			} else if (e.keyCode == SWT.CTRL) {
 				setDomainZoomable(true);
-				System.out.println("CtRL");
+
 			}
 
 		}
@@ -46,12 +47,38 @@ public class PlotFrame extends ChartComposite {
 
 	}
 
+	class PlotMouseWheelListeneR implements MouseWheelListener {
+
+		@Override
+		public void mouseScrolled(MouseEvent e) {
+
+			if (e.count > 0 && isRangeZoomable()) {
+				zoomInRange(e.x, e.y);
+			}
+			if (e.count < 0 && isRangeZoomable()) {
+				zoomOutRange(e.x, e.y);
+			}
+			if (e.count > 0 && isDomainZoomable()) {
+				zoomInDomain(e.x, e.y);
+			}
+			if (e.count < 0 && isDomainZoomable()) {
+				zoomOutDomain(e.x, e.y);
+			}
+			if (e.count > 0 && isDomainZoomable() && isRangeZoomable()) {
+				zoomInBoth(e.x, e.y);
+			}
+			if (e.count < 0 && isDomainZoomable() && isRangeZoomable()) {
+				zoomOutBoth(e.x, e.y);
+			}
+
+		}
+	}
+
 	public PlotFrame(final Composite comp, final int style) {
 		super(comp, style, null, ChartComposite.DEFAULT_WIDTH, ChartComposite.DEFAULT_HEIGHT, 0, 0, Integer.MAX_VALUE,
 				Integer.MAX_VALUE, ChartComposite.DEFAULT_BUFFER_USED, true, true, true, true, true);
-		addSWTListener(this);
-		addMouseWheelListener(new PlotMouseWheelListener());
-		addKeyListener(new KeyInfo());
+		addSWTListener(new KeyInfo());
+		addMouseWheelListener(new PlotMouseWheelListeneR());
 
 	}
 
@@ -117,20 +144,6 @@ public class PlotFrame extends ChartComposite {
 		}
 	}
 
-	/*
-	 * @Override public void keyPressed(KeyEvent e) { if (e.keyCode ==
-	 * SWT.SHIFT) { this.setRangeZoomable(true); System.out.println("Shift"); }
-	 * else if (e.keyCode == SWT.CTRL) { this.setDomainZoomable(true);
-	 * System.out.println("CtRL"); }
-	 *
-	 * }
-	 *
-	 * @Override public void keyReleased(KeyEvent e) { if (e.keyCode ==
-	 * SWT.SHIFT) { this.setRangeZoomable(false); } else if (e.keyCode ==
-	 * SWT.CTRL) { this.setDomainZoomable(false); }
-	 *
-	 * }
-	 */
 	@Override
 	public void zoom(Rectangle selection) {
 		super.zoom(selection);
@@ -151,4 +164,5 @@ public class PlotFrame extends ChartComposite {
 		verticalSlider.setEnabled(false);
 		verticalSlider.setVisible(false);
 	}
+
 }

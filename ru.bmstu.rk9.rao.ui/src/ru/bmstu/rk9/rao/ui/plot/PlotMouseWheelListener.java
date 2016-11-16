@@ -7,7 +7,7 @@ public class PlotMouseWheelListener implements MouseWheelListener {
 
 	@Override
 	public void mouseScrolled(MouseEvent e) {
-
+		System.out.println("Yep");
 		PlotFrame plotFrame = (PlotFrame) e.widget;
 
 		if (e.count > 0 && plotFrame.isRangeZoomable()) {
