@@ -506,8 +506,8 @@ public class GraphPanel extends JPanel implements GraphApi {
 		GraphInfo info = treeBuilder.graphInfo;
 
 		graphInfoList.add(new InfoElement("Solution cost", String.valueOf(info.solutionCost)));
-		graphInfoList.add(new InfoElement("Nodes opened", String.valueOf(info.numOpened)));
-		graphInfoList.add(new InfoElement("Nodes total", String.valueOf(info.numNodes)));
+		graphInfoList.add(new InfoElement("Nodes opened", String.valueOf(info.countOpened)));
+		graphInfoList.add(new InfoElement("Nodes total", String.valueOf(info.countTotal)));
 		graphInfoList.add(new InfoElement("Max depth", String.valueOf(info.depth)));
 		graphInfoList.add(new InfoElement("Max width", String.valueOf(info.width)));
 

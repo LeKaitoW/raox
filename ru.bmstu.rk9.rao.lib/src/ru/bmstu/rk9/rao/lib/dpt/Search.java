@@ -129,8 +129,8 @@ public abstract class Search extends AbstractDecisionPoint {
 	private long memory;
 	private long time;
 
-	private int totalSpawned;
-	private int totalAdded;
+	private int countAdded;
+	private int countSpawned;
 
 	@Override
 	public boolean check() {
@@ -140,8 +140,8 @@ public abstract class Search extends AbstractDecisionPoint {
 		time = System.currentTimeMillis();
 		memory = Runtime.getRuntime().freeMemory();
 
-		totalSpawned = 0;
-		totalAdded = 0;
+		countSpawned = 0;
+		countAdded = 0;
 
 		serializeStart();
 
@@ -154,7 +154,7 @@ public abstract class Search extends AbstractDecisionPoint {
 		nodesOpen.clear();
 		nodesClosed.clear();
 
-		head = new GraphNode(totalAdded++, null);
+		head = new GraphNode(countAdded++, null);
 		head.state = CurrentSimulator.getModelState();
 		nodesOpen.add(head);
 
@@ -195,9 +195,9 @@ public abstract class Search extends AbstractDecisionPoint {
 			if (!edge.check())
 				continue;
 
-			GraphNode newChild = new GraphNode(totalAdded, parent);
+			GraphNode newChild = new GraphNode(countAdded, parent);
 
-			totalSpawned++;
+			countSpawned++;
 
 			SpawnStatus spawnStatus = SpawnStatus.NEW;
 
@@ -241,7 +241,7 @@ public abstract class Search extends AbstractDecisionPoint {
 				}
 
 				children.add(newChild);
-				totalAdded++;
+				countAdded++;
 			}
 
 			serializeTops(newChild, spawnStatus, value);
@@ -359,7 +359,7 @@ public abstract class Search extends AbstractDecisionPoint {
 
 		data.put((byte) code.ordinal()).putLong(System.currentTimeMillis() - time)
 				.putLong(memory - Runtime.getRuntime().freeMemory()).putDouble(finalCost).putInt(nodesClosed.size())
-				.putInt(nodesOpen.size() + nodesClosed.size()).putInt(totalAdded).putInt(totalSpawned);
+				.putInt(nodesOpen.size()).putInt(countSpawned);
 
 		CurrentSimulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.END, data);
 	}

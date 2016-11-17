@@ -316,14 +316,14 @@ public class Tracer {
 
 			skipPart(data, TypeSize.LONG * 2);
 			final double finalCost = data.getDouble();
-			final int totalOpened = data.getInt();
-			final int totalNodes = data.getInt();
-			final int totalAdded = data.getInt();
-			final int totalSpawned = data.getInt();
+			final int countOpened = data.getInt();
+			final int countOpen = data.getInt();
+			final int countSpawned = data.getInt();
 			stringJoiner.add(traceType.toString()).add(time)
-					.add(new StringJoiner(StringFormat.ENUMERATION).add("solution cost = " + finalCost)
-							.add("nodes opened = " + totalOpened).add("nodes total = " + totalNodes)
-							.add("nodes added = " + totalAdded).add("nodes spawned = " + totalSpawned).getString());
+					.add(new StringJoiner(StringFormat.ENUMERATION)
+							.add("solution cost = " + finalCost).add("total nodes = " + (countOpened + countOpen) + " ("
+									+ countOpened + " opened + " + countOpen + " open)")
+							.add("nodes spawned = " + countSpawned).getString());
 			break;
 		}
 		case OPEN: {

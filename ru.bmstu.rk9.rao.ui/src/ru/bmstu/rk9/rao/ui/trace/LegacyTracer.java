@@ -412,13 +412,12 @@ public class LegacyTracer {
 			final long timeMillis = data.getLong();
 			final long mem = data.getLong();
 			final double finalCost = data.getDouble();
-			final int totalOpened = data.getInt();
-			final int totalNodes = data.getInt();
-			final int totalAdded = data.getInt();
-			final int totalSpawned = data.getInt();
+			final int countOpened = data.getInt();
+			final int countOpen = data.getInt();
+			final int countSpawned = data.getInt();
 			stringJoiner.add(traceType.toString()).add(realFormatter.format(time)).add(timeMillis).add(mem)
-					.add(realFormatter.format(finalCost)).add(totalOpened).add(totalNodes).add(totalAdded)
-					.add(totalSpawned);
+					.add(realFormatter.format(finalCost)).add(countOpened).add(countOpened + countOpen)
+					.add(countOpened + countOpen).add(countSpawned);
 			break;
 		}
 		case OPEN: {
