@@ -225,9 +225,9 @@ public class TreeBuilder {
 	private boolean solutionFound = false;
 
 	class ParentChange {
-		Node node;
-		Node worseParent;
-		Node betterParent;
+		final Node node;
+		final Node worseParent;
+		final Node betterParent;
 
 		ParentChange(final Node node, final Node worseParent, final Node betterParent) {
 			this.node = node;
