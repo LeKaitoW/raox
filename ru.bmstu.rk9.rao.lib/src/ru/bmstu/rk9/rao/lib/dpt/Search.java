@@ -129,7 +129,6 @@ public abstract class Search extends AbstractDecisionPoint {
 	private long memory;
 	private long time;
 
-	private int totalOpened;
 	private int totalSpawned;
 	private int totalAdded;
 
@@ -141,7 +140,6 @@ public abstract class Search extends AbstractDecisionPoint {
 		time = System.currentTimeMillis();
 		memory = Runtime.getRuntime().freeMemory();
 
-		totalOpened = 0;
 		totalSpawned = 0;
 		totalAdded = 0;
 
@@ -168,7 +166,6 @@ public abstract class Search extends AbstractDecisionPoint {
 			nodesClosed.add(current);
 			current.state.deploy();
 
-			totalOpened++;
 			serializeOpen(current);
 
 			if (terminateCondition.get())
@@ -361,7 +358,7 @@ public abstract class Search extends AbstractDecisionPoint {
 				+ Database.TypeSize.INT * 4 + Database.TypeSize.LONG * 2);
 
 		data.put((byte) code.ordinal()).putLong(System.currentTimeMillis() - time)
-				.putLong(memory - Runtime.getRuntime().freeMemory()).putDouble(finalCost).putInt(totalOpened)
+				.putLong(memory - Runtime.getRuntime().freeMemory()).putDouble(finalCost).putInt(nodesClosed.size())
 				.putInt(nodesOpen.size() + nodesClosed.size()).putInt(totalAdded).putInt(totalSpawned);
 
 		CurrentSimulator.getDatabase().addSearchEntry(this, Database.SearchEntryType.END, data);
