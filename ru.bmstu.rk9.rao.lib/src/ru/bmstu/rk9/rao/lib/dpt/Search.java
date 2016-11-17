@@ -288,7 +288,7 @@ public abstract class Search extends AbstractDecisionPoint {
 			break;
 		case FAIL:
 		default:
-			finalCost = current.g;
+			finalCost = 0;
 			break;
 		}
 
