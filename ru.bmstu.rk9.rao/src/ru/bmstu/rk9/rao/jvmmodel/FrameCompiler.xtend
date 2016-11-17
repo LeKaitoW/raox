@@ -34,6 +34,8 @@ class FrameCompiler extends RaoEntityCompiler {
 				members += method.toMethod(method.name, typeRef(void)) [
 					if (method.name == DefaultMethodsHelper.FrameMethodInfo.DRAW.name)
 						parameters += frame.toParameter("it", typeRef(AnimationContext))
+					for (param : method.parameters)
+						parameters += method.toParameter(param.name, param.parameterType)
 					visibility = JvmVisibility.PUBLIC
 					final = true
 					annotations += ru.bmstu.rk9.rao.jvmmodel.RaoEntityCompiler.overrideAnnotation()

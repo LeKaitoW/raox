@@ -36,14 +36,21 @@ import ru.bmstu.rk9.rao.rao.Edge
 import ru.bmstu.rk9.rao.rao.Event
 import ru.bmstu.rk9.rao.rao.DataSource
 import ru.bmstu.rk9.rao.rao.RelevantResourceTuple
+import ru.bmstu.rk9.rao.validation.DefaultMethodsHelper.MethodInfo
 
-class RaoValidator extends AbstractRaoValidator
-{
+class RaoValidator extends AbstractRaoValidator {
+
 	def private checkDefaultMethodCountGeneric(
 		EObject parent,
 		Iterable<DefaultMethod> methods,
-		Map<String, DefaultMethodsHelper.MethodInfo> counts
+		DefaultMethodsHelper.AbstractMethodInfo[] methodInfos
 	) {
+		var Map<String, MethodInfo> counts = new HashMap<String, MethodInfo>()
+		for (value : methodInfos)
+			counts.put(
+				value.name,
+				new MethodInfo(value.validatorAction, value.parameters)
+			)
 		for (method : methods) {
 			if (!counts.containsKey(method.name))
 				error(
@@ -58,6 +65,17 @@ class RaoValidator extends AbstractRaoValidator
 					method.getNameStructuralFeature
 				)
 			else {
+				var defaultParameters = counts.get(method.name).parameters;
+				val parameterString = newArrayList();
+				for (parameter : method.parameters) {
+					parameterString.add(parameter.parameterType.simpleName + " " + parameter.name);
+				}
+				if (!defaultParameters.toString.equals(parameterString.toString))
+					error(
+						"Error - incorrect default method parameters. Parameters should be " + defaultParameters.toString,
+						method,
+						method.getNameStructuralFeature
+					)
 				var count = counts.get(method.name)
 				count.count++
 				counts.put(method.name, count)
@@ -80,78 +98,39 @@ class RaoValidator extends AbstractRaoValidator
 
 	@Check
 	def checkDefaultMethodGlobalCount(RaoModel model) {
-		var Map<String, DefaultMethodsHelper.MethodInfo> counts = new HashMap<String, DefaultMethodsHelper.MethodInfo>()
-		for (value : DefaultMethodsHelper.GlobalMethodInfo.values)
-			counts.put(
-				value.name,
-				new DefaultMethodsHelper.MethodInfo(value.validatorAction)
-			)
-
 		var methods = model.objects.filter(typeof(DefaultMethod))
-		checkDefaultMethodCountGeneric(model, methods, counts)
+		checkDefaultMethodCountGeneric(model, methods, DefaultMethodsHelper.GlobalMethodInfo.values)
 	}
 
 	@Check
 	def checkDefaultMethodPatternCount(Pattern pattern) {
-		var Map<String, DefaultMethodsHelper.MethodInfo> counts = new HashMap<String, DefaultMethodsHelper.MethodInfo>()
 		switch (pattern.type) {
 			case RULE:
-				for (value : DefaultMethodsHelper.RuleMethodInfo.values)
-					counts.put(value.name, new DefaultMethodsHelper.MethodInfo(value.validatorAction))
+				checkDefaultMethodCountGeneric(pattern, pattern.defaultMethods, DefaultMethodsHelper.RuleMethodInfo.values)
 			case OPERATION:
-				for (value : DefaultMethodsHelper.OperationMethodInfo.values)
-					counts.put(value.name, new DefaultMethodsHelper.MethodInfo(value.validatorAction))
+				checkDefaultMethodCountGeneric(pattern, pattern.defaultMethods,
+					DefaultMethodsHelper.OperationMethodInfo.values)
 		}
-
-		checkDefaultMethodCountGeneric(pattern, pattern.defaultMethods, counts)
 	}
 
 	@Check
 	def checkDefaultMethodLogicCount(Logic logic) {
-		var Map<String, DefaultMethodsHelper.MethodInfo> counts = new HashMap<String, DefaultMethodsHelper.MethodInfo>()
-		for (value : DefaultMethodsHelper.DptMethodInfo.values)
-			counts.put(
-				value.name,
-				new DefaultMethodsHelper.MethodInfo(value.validatorAction)
-			)
-
-		checkDefaultMethodCountGeneric(logic, logic.defaultMethods, counts)
+		checkDefaultMethodCountGeneric(logic, logic.defaultMethods, DefaultMethodsHelper.DptMethodInfo.values)
 	}
 
 	@Check
 	def checkDefaultMethodSearchCount(Search search) {
-		var Map<String, DefaultMethodsHelper.MethodInfo> counts = new HashMap<String, DefaultMethodsHelper.MethodInfo>()
-		for (value : DefaultMethodsHelper.DptMethodInfo.values)
-			counts.put(
-				value.name,
-				new DefaultMethodsHelper.MethodInfo(value.validatorAction)
-			)
-
-		checkDefaultMethodCountGeneric(search, search.defaultMethods, counts)
+		checkDefaultMethodCountGeneric(search, search.defaultMethods, DefaultMethodsHelper.DptMethodInfo.values)
 	}
 
 	@Check
 	def checkDefaultMethodDataSourceCount(DataSource dataSource) {
-		var Map<String, DefaultMethodsHelper.MethodInfo> counts = new HashMap<String, DefaultMethodsHelper.MethodInfo>()
-		for (value : DefaultMethodsHelper.DataSourceMethodInfo.values)
-			counts.put(
-				value.name,
-				new DefaultMethodsHelper.MethodInfo(value.validatorAction)
-			)
-
-		checkDefaultMethodCountGeneric(dataSource, dataSource.defaultMethods, counts)
+		checkDefaultMethodCountGeneric(dataSource, dataSource.defaultMethods, DefaultMethodsHelper.DataSourceMethodInfo.values)
 	}
 
 	@Check
 	def checkDefaultMethodFrameCount(Frame frame) {
-		var Map<String, DefaultMethodsHelper.MethodInfo> counts = new HashMap<String, DefaultMethodsHelper.MethodInfo>()
-		for (value : DefaultMethodsHelper.FrameMethodInfo.values)
-			counts.put(
-				value.name,
-				new DefaultMethodsHelper.MethodInfo(value.validatorAction)
-			)
-
-		checkDefaultMethodCountGeneric(frame, frame.defaultMethods, counts)
+		checkDefaultMethodCountGeneric(frame, frame.defaultMethods, DefaultMethodsHelper.FrameMethodInfo.values)
 	}
 
 	@Check
