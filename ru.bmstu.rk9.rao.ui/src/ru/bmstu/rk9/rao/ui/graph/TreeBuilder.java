@@ -117,7 +117,8 @@ public class TreeBuilder {
 			final ByteBuffer data = Tracer.prepareBufferForReading(entry.getData());
 			final Search.SpawnStatus spawnStatus = Search.SpawnStatus.values()[data.get()];
 			switch (spawnStatus) {
-			case NEW: {
+			case NEW:
+			case BETTER: {
 				final int nodeNumber = data.getInt();
 				final int parentNumber = data.getInt();
 				final double g = data.getDouble();
@@ -127,51 +128,34 @@ public class TreeBuilder {
 				final double ruleCost = data.getDouble();
 
 				final Node parentNode = nodeByNumber.get(parentNumber);
-				final Node node = new Node(parentNode, nodeNumber);
+
+				final Node node;
+				if (spawnStatus == Search.SpawnStatus.NEW) {
+					node = new Node(parentNode, nodeNumber);
+					nodeByNumber.add(node);
+					lastAddedNodeIndex = node.index;
+				} else {
+					node = nodeByNumber.get(nodeNumber);
+					parentChanges.add(new ParentChange(node, node.parent, parentNode));
+
+					if (widthByLevel.containsKey(node.depth))
+						widthByLevel.put(node.depth, widthByLevel.get(node.depth) - 1);
+
+					node.parent.children.remove(node);
+					node.parent = parentNode;
+				}
 
 				parentNode.children.add(node);
 				node.g = g;
 				node.h = h;
 				node.ruleNumber = ruleNumber;
 				node.ruleName = CurrentSimulator.getStaticModelData().getEdgeName(dptNumber, ruleNumber);
-				node.relevantResources = getRelevantResources(data, patternNumber);
 				node.ruleCost = ruleCost;
-				node.depth = node.parent.depth + 1;
-
-				updateGraphInfo(node);
-
-				nodeByNumber.add(node);
-				lastAddedNodeIndex = node.index;
-				break;
-			}
-
-			case BETTER: {
-				final int nodeNumber = data.getInt();
-				final int parentNumber = data.getInt();
-				final double g = data.getDouble();
-				data.getDouble();
-				final int ruleNumber = data.getInt();
-				final int patternNumber = data.getInt();
-				data.getDouble();
-
-				final Node node = nodeByNumber.get(nodeNumber);
-				final Node parentNode = nodeByNumber.get(parentNumber);
-
-				parentChanges.add(new ParentChange(node, node.parent, parentNode));
-
-				if (widthByLevel.containsKey(node.depth))
-					widthByLevel.put(node.depth, widthByLevel.get(node.depth) - 1);
-
-				node.parent.children.remove(node);
-				node.parent = parentNode;
-				parentNode.children.add(node);
-				node.g = g;
-				node.ruleNumber = ruleNumber;
-				node.ruleName = CurrentSimulator.getStaticModelData().getEdgeName(dptNumber, ruleNumber);
 				node.relevantResources = getRelevantResources(data, patternNumber);
 				node.depth = node.parent.depth + 1;
 
 				updateGraphInfo(node);
+
 				break;
 			}
 
