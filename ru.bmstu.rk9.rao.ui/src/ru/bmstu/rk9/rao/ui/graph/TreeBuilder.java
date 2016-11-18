@@ -96,12 +96,12 @@ public class TreeBuilder {
 			Tracer.skipPart(data, TypeSize.BYTE + TypeSize.LONG * 2);
 
 			final double finalCost = data.getDouble();
-			final int countOpened = data.getInt();
+			final int countClosed = data.getInt();
 			final int countOpen = data.getInt();
 
 			graphInfo.solutionCost = finalCost;
-			graphInfo.countOpened = countOpened;
-			graphInfo.countTotal = countOpened + countOpen;
+			graphInfo.countClosed = countClosed;
+			graphInfo.countTotal = countClosed + countOpen;
 			graphInfo.width = calculateTreeWidth();
 
 			if (solutionFound)
@@ -243,7 +243,7 @@ public class TreeBuilder {
 
 	public class GraphInfo {
 		public double solutionCost;
-		public int countOpened;
+		public int countClosed;
 		public int countTotal;
 		public int depth;
 		public int width;
