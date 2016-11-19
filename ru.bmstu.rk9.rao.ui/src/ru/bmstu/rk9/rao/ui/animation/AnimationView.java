@@ -123,10 +123,12 @@ public class AnimationView extends ViewPart {
 	public static void deinitialize() {
 		if (!isInitialized)
 			return;
-		if (frames != null)
+		if (frames != null) {
 			for (AnimationFrame frame : frames)
 				animationContext.prepareFrame(frame);
+		}
 
+		animationContext.dispose();
 		isInitialized = false;
 
 		if (isInitialized())
