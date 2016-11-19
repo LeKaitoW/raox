@@ -22,7 +22,23 @@ public class PlotFrame extends ChartComposite {
 	private double horizontalRatio;
 	private double verticalRatio;
 
-	class KeyInfo implements KeyListener {
+	@Override
+	public void setDomainZoomable(boolean zoomable) {
+		super.setDomainZoomable(zoomable);
+		if (horizontalSlider != null) {
+			updateSliders();
+		}
+	}
+
+	@Override
+	public void setRangeZoomable(boolean zoomable) {
+		super.setRangeZoomable(zoomable);
+		if (verticalSlider != null) {
+			updateSliders();
+		}
+	}
+
+	class PlotKeyListener implements KeyListener {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			if (e.keyCode == SWT.SHIFT) {
@@ -31,6 +47,9 @@ public class PlotFrame extends ChartComposite {
 			} else if (e.keyCode == SWT.CTRL) {
 				setDomainZoomable(true);
 
+			}
+			if (e.keyCode == SWT.SPACE) {
+				restoreAutoBounds();
 			}
 
 		}
@@ -51,17 +70,19 @@ public class PlotFrame extends ChartComposite {
 
 		@Override
 		public void mouseScrolled(MouseEvent e) {
+			System.out.println("" + getScaleY());
+			System.out.println("" + getScaleX());
 
-			if (e.count > 0 && isRangeZoomable()) {
+			if (e.count > 0 && isRangeZoomable() && getScaleY() >= 0.5) {
 				zoomInRange(e.x, e.y);
 			}
-			if (e.count < 0 && isRangeZoomable()) {
+			if (e.count < 0 && isRangeZoomable() && getScaleY() <= 5) {
 				zoomOutRange(e.x, e.y);
 			}
-			if (e.count > 0 && isDomainZoomable()) {
+			if (e.count > 0 && isDomainZoomable() && getScaleX() >= 0.5) {
 				zoomInDomain(e.x, e.y);
 			}
-			if (e.count < 0 && isDomainZoomable()) {
+			if (e.count < 0 && isDomainZoomable() && getScaleX() <= 5) {
 				zoomOutDomain(e.x, e.y);
 			}
 			if (e.count > 0 && isDomainZoomable() && isRangeZoomable()) {
@@ -77,9 +98,12 @@ public class PlotFrame extends ChartComposite {
 	public PlotFrame(final Composite comp, final int style) {
 		super(comp, style, null, ChartComposite.DEFAULT_WIDTH, ChartComposite.DEFAULT_HEIGHT, 0, 0, Integer.MAX_VALUE,
 				Integer.MAX_VALUE, ChartComposite.DEFAULT_BUFFER_USED, true, true, true, true, true);
-		addSWTListener(new KeyInfo());
+		addSWTListener(new PlotKeyListener());
 		addMouseWheelListener(new PlotMouseWheelListeneR());
-
+		setZoomInFactor(0.75);
+		setZoomOutFactor(1.25);
+		setDomainZoomable(false);
+		setRangeZoomable(false);
 	}
 
 	public final void setSliders(final Slider horizontalSlider, final Slider verticalSlider) {
@@ -127,12 +151,19 @@ public class PlotFrame extends ChartComposite {
 		final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
 		final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
 
-		horizontalRatio = horizontalSlider.getMaximum() / horizontalMaximum;
-		horizontalSlider.setThumb(
-				(int) Math.round((domainAxis.getUpperBound() - domainAxis.getLowerBound()) * horizontalRatio));
-		horizontalSlider.setSelection((int) Math.round(domainAxis.getLowerBound() * horizontalRatio));
+		if (horizontalMaximum - domainAxis.getRange().getUpperBound() > 0.001) {
+			horizontalSlider.setVisible(true);
+			horizontalSlider.setEnabled(true);
+			horizontalRatio = horizontalSlider.getMaximum() / horizontalMaximum;
+			horizontalSlider.setThumb(
+					(int) Math.round((domainAxis.getUpperBound() - domainAxis.getLowerBound()) * horizontalRatio));
+			horizontalSlider.setSelection((int) Math.round(domainAxis.getLowerBound() * horizontalRatio));
+		} else {
+			horizontalSlider.setVisible(false);
+			horizontalSlider.setEnabled(false);
 
-		if (verticalMaximum > rangeAxis.getRange().getUpperBound()) {
+		}
+		if (verticalMaximum - rangeAxis.getRange().getUpperBound() > 0.001) {
 			verticalSlider.setVisible(true);
 			verticalSlider.setEnabled(true);
 
@@ -141,6 +172,10 @@ public class PlotFrame extends ChartComposite {
 					(int) Math.round((rangeAxis.getUpperBound() - rangeAxis.getLowerBound()) * verticalRatio));
 			verticalSlider
 					.setSelection((int) Math.round((verticalMaximum - rangeAxis.getUpperBound()) * verticalRatio));
+		} else {
+			verticalSlider.setVisible(false);
+			verticalSlider.setEnabled(false);
+
 		}
 	}
 
