@@ -143,13 +143,18 @@ public class DefaultMethodsHelper {
 	}
 
 	public static enum FrameMethodInfo implements AbstractMethodInfo {
-		INIT("init", ValidatorAction.NOTHING, new String[] {}), DRAW("draw", ValidatorAction.NOTHING, new String[] {}),
-				MOUSE_UP("mouseUp", ValidatorAction.NOTHING, new String[] { "int x", "int y", "int button", "int stateMask" }),
-				MOUSE_DOWN("mouseDown", ValidatorAction.NOTHING, new String[] { "int x", "int y", "int button", "int stateMask" }),
-				MOUSE_DOUBLECLICK("mouseDoubleClick", ValidatorAction.NOTHING, new String[] { "int x", "int y", "int button", "int stateMask" }),
-				MOUSE_SCROLLED("mouseScrolled", ValidatorAction.NOTHING, new String[] { "int count", "double x", "double y" }),
-				KEY_RELEASED("keyReleased", ValidatorAction.NOTHING, new String[] { "int keyCode", "int stateMask" }),
-				KEY_PRESSED("keyPressed", ValidatorAction.NOTHING, new String[] { "int keyCode", "int stateMask" });
+		INIT("init", ValidatorAction.NOTHING, new String[] {}), //
+		DRAW("draw", ValidatorAction.NOTHING, new String[] {}), //
+		MOUSE_DOWN("mouseDown", ValidatorAction.NOTHING,
+				new String[] { "int x", "int y", "int button", "int stateMask" }), //
+		MOUSE_UP("mouseUp", ValidatorAction.NOTHING, new String[] { "int x", "int y", "int button", "int stateMask" }), //
+		MOUSE_MOVE("mouseMove", ValidatorAction.NOTHING,
+				new String[] { "int x", "int y", "int button", "int stateMask" }), //
+		MOUSE_DOUBLECLICK("mouseDoubleClick", ValidatorAction.NOTHING,
+				new String[] { "int x", "int y", "int button", "int stateMask" }), //
+		MOUSE_SCROLLED("mouseScrolled", ValidatorAction.NOTHING, new String[] { "int count", "double x", "double y" }), //
+		KEY_RELEASED("keyReleased", ValidatorAction.NOTHING, new String[] { "int keyCode", "int stateMask" }), //
+		KEY_PRESSED("keyPressed", ValidatorAction.NOTHING, new String[] { "int keyCode", "int stateMask" });
 
 		FrameMethodInfo(String name, ValidatorAction validatorAction, String[] parameters) {
 			this.name = name;
