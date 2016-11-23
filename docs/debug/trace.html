@@ -144,23 +144,23 @@
         <td>Вершина с указанным индексом включена в решение.</td>
     </tr>
     <tr>
-        <td><pre><code class="rao">SES &lt;время&gt; solution cost = стоимость_решения, nodes opened = количество_раскрытых_вершин, nodes total = количество_вершин_в_графе, nodes added = количество_включавшихся_в_граф_вершин, nodes spawned = количество_порожденных_вершин</code></pre></td>
-        <td><pre><code class="rao">SES 0.0 solution cost = 3.0, nodes opened = 7, nodes total = 11, nodes added = 11, nodes spawned = 15</code></pre></td>
+        <td><pre><code class="rao">SES &lt;время&gt; solution cost = стоимость_решения, total nodes = количество_вершин_в_графе (количество_раскрытых_вершин closed + количество_не_раскрытых_вершин open), nodes spawned = количество_порожденных_вершин</code></pre></td>
+        <td><pre><code class="rao">SES 0.0 solution cost = 17.0, total nodes = 234 (185 closed + 49 open), nodes spawned = 433</code></pre></td>
         <td>Решение найдено. Выводится статистика по вершинам графа.</td>
     </tr>
     <tr>
         <td><pre><code class="rao">SEC &lt;время&gt; solution cost = ...</code></pre></td>
-        <td><pre><code class="rao">SEC 0.0 solution cost = 0.0, nodes opened = 0, nodes total = 0, nodes added = 0, nodes spawned = 0</code></pre></td>
-        <td>Решение найдено. Для точки одновременно выполнены условия запускаи остановки.</td>
+        <td><pre><code class="rao">SEC 0.0 solution cost = 0.0, total nodes = 0 (0 closed + 0 open), nodes spawned = 0</code></pre></td>
+        <td>Решение найдено. Для точки одновременно выполнены условия запуска и остановки.</td>
     </tr>
     <tr>
         <td><pre><code class="rao">SEN &lt;время&gt; solution cost = ...</code></pre></td>
-        <td><pre><code class="rao">SEN 0.0 solution cost = 21.0, nodes opened = 360, nodes total = 360, nodes added = 360, nodes spawned = 840</code></pre></td>
+        <td><pre><code class="rao">SEN 0.0 solution cost = 0.0, total nodes = 360 (360 closed + 0 open), nodes spawned = 840</code></pre></td>
         <td>Решение не найдено. Просмотрены все вершины графа.</td>
     </tr>
     <tr>
         <td><pre><code class="rao">SEA &lt;время&gt; solution cost = ...</code></pre></td>
-        <td><pre><code class="rao">SEA 0.0 solution cost = 3.0, nodes opened = 7, nodes total = 11, nodes added = 11, nodes spawned = 15</code></pre></td>
+        <td><pre><code class="rao">SEA 0.0 solution cost = 10.0, total nodes = 134 (85 closed + 49 open), nodes spawned = 280</code></pre></td>
         <td>Процедура поиска прервана пользователем.</td>
     </tr>
 </table>
