@@ -8,16 +8,19 @@ public abstract class AnimationFrame {
 	protected void init() {
 	}
 
+	public void mouseDown(int x, int y, int button, int stateMask) {
+	}
+
 	public void mouseUp(int x, int y, int button, int stateMask) {
 	}
 
-	public void mouseDown(int x, int y, int button, int stateMask) {
+	public void mouseMove(int x, int y, int button, int stateMask) {
 	}
 
 	public void mouseDoubleClick(int x, int y, int button, int stateMask) {
 	}
 
-	public void mouseScrolled(int count, double x, double y) {
+	public void mouseScrolled(int x, int y, int count) {
 	}
 
 	public void keyReleased(int keyCode, int stateMask) {
