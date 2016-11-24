@@ -15,8 +15,27 @@
     def init() {
         <i>блок_инициализации</i>
     }
+
     def draw() {
         <i>тело_кадра</i>
+    }
+
+    // Уведомления от мыши
+    def mouseDown(int x, int y, int button, int stateMask) {
+    }
+    def mouseUp(int x, int y, int button, int stateMask) {
+    }
+    def mouseMove(int x, int y, int button, int stateMask) {
+    }
+    def mouseDoubleClick(int x, int y, int button, int stateMask) {
+    }
+    def mouseScrolled(int x, int y, int count) {
+    }
+
+    // Уведомления от клавиатуры
+    def keyReleased(int keyCode, int stateMask) {
+    }
+    def keyPressed(int keyCode, int stateMask) {
     }
 }
 </code></pre>
@@ -397,7 +416,7 @@ def init() {
 }
 
 def terminateCondition() {
-    return currentTime >= 200;
+    return currentTime &gt;= 200;
 }
 
 frame WhosThat {
@@ -480,5 +499,175 @@ frame WhosThat {
 }
 </code></pre>
 <img src="https://github.com/aurusov/raox-models/blob/master/tutorial/animation/whos_that/screenshots/whos_that.gif?raw=true" alt="WhosThat"/>
+<h3>Уведомления от мыши и клавиатуры</h3>
+<ul>
+	<li>
+		<a href="http://help.eclipse.org/neon/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fapi%2Forg%2Feclipse%2Fswt%2Fevents%2FMouseEvent.html&anchor=field.summary">описание</a> параметров мыши
+<pre><code class="rao">def mouseDown       (int x, int y, int button, int stateMask)
+def mouseUp         (int x, int y, int button, int stateMask)
+def mouseMove       (int x, int y, int button, int stateMask)
+def mouseDoubleClick(int x, int y, int button, int stateMask)
+def mouseScrolled   (int x, int y, int count)
+</code></pre>
+	</li>
+	<li>
+		<a href="http://help.eclipse.org/neon/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fapi%2Forg%2Feclipse%2Fswt%2Fevents%2FKeyEvent.html&anchor=field.summary">описание</a> параметров клавиатуры
+<pre><code class="rao">def keyReleased(int keyCode, int stateMask)
+def keyPressed (int keyCode, int stateMask)
+</code></pre>
+	</li>
+</ul>
+<h3>Пример, <a href="https://github.com/aurusov/raox-models/tree/master/tutorial/animation/bird">скачать</a></h3>
+<pre><code class="rao">constant bg_forest_b_width = 1280;
+constant bg_forest_b_height = 381;
+constant bg_forest_c_height = 360;
+constant width = bg_forest_b_width;
+constant height = bg_forest_b_height;
+
+type Sprite {
+    int bg_forest_b_left;
+    int bg_forest_c_left;
+    int bird_x;
+    int bird_y;
+    String bird_sprite_image;
+}
+
+type Mouse {
+    boolean down;
+    int x;
+    int y;
+}
+
+sequence birdSpriteNames = new Values(
+    #["img/bird/frame-1.png", "img/bird/frame-2.png", "img/bird/frame-3.png", "img/bird/frame-4.png",
+        "img/bird/frame-5.png", "img/bird/frame-6.png", "img/bird/frame-7.png", "img/bird/frame-8.png"]);
+sequence bird_dx = new Uniform(123456789, -1, 1);
+
+resource sprite = Sprite.create(0, 0, 100, 20, birdSpriteNames.next());
+resource mouse = Mouse.create(false, 0, 0);
+
+int sign(int value) {
+    if (value == 0)
+        return 0
+    else if (value &gt; 0)
+        return 1
+    else
+        return -1
+}
+
+event Timer() {
+    if (sprite.bg_forest_b_left &lt;= 0)
+        sprite.bg_forest_b_left = width
+    else
+        sprite.bg_forest_b_left = sprite.bg_forest_b_left - 1
+
+    if (sprite.bg_forest_c_left &lt;= 0)
+        sprite.bg_forest_c_left = width
+    else
+        sprite.bg_forest_c_left = sprite.bg_forest_c_left - 2
+
+    val bird_dx_current = bird_dx.next()
+    if (bird_dx_current &gt; 0.3)
+        sprite.bird_y = sprite.bird_y + 1
+    else if (bird_dx_current &lt; -0.3)
+        sprite.bird_y = sprite.bird_y - 1
+
+    if (mouse.down) {
+        sprite.bird_x = sprite.bird_x + sign(mouse.x - sprite.bird_x);
+        sprite.bird_y = sprite.bird_y + sign(mouse.y - sprite.bird_y);
+    }
+
+    if (sprite.bird_x &lt; 0)
+        sprite.bird_x = 0
+    if (sprite.bird_x &gt; 200)
+        sprite.bird_x = 200
+    if (sprite.bird_y &lt; 0)
+        sprite.bird_y = 0
+    if (sprite.bird_y &gt; 100)
+        sprite.bird_y = 100
+
+    if (currentTime % 3 == 0)
+        sprite.bird_sprite_image = birdSpriteNames.next()
+
+    Timer.plan(currentTime + 1)
+}
+
+def init() {
+    Timer.plan(currentTime + 1)
+}
+
+def terminateCondition() {
+    return currentTime &gt;= 1000000
+}
+
+frame Bird {
+    def init() {
+        background = new Background(width, height, new RaoColor(206, 230, 207))
+    }
+
+    def draw() {
+        drawImage("img/background/bg_forest_b.png", 0, 0, width - sprite.bg_forest_b_left, bg_forest_b_height,
+            sprite.bg_forest_b_left, 0, width - sprite.bg_forest_b_left, bg_forest_b_height)
+        drawImage("img/background/bg_forest_b.png", width - sprite.bg_forest_b_left, 0, sprite.bg_forest_b_left,
+            bg_forest_b_height, 0, 0, sprite.bg_forest_b_left + 1, bg_forest_b_height)
+
+        drawImage(sprite.bird_sprite_image, sprite.bird_x, sprite.bird_y, 50, 34)
+
+        drawImage("img/background/bg_forest_c.png", 0, 0, width - sprite.bg_forest_c_left, bg_forest_c_height,
+            sprite.bg_forest_c_left, height - bg_forest_c_height, width - sprite.bg_forest_c_left, bg_forest_c_height)
+        drawImage("img/background/bg_forest_c.png", width - sprite.bg_forest_c_left, 0, sprite.bg_forest_c_left,
+            bg_forest_c_height, 0, height - bg_forest_c_height, sprite.bg_forest_c_left + 1, bg_forest_c_height)
+    }
+
+    def mouseDown(int x, int y, int button, int stateMask) {
+        mouse.down = true
+    }
+
+    def mouseUp(int x, int y, int button, int stateMask) {
+        mouse.down = false
+    }
+
+    def mouseMove(int x, int y, int button, int stateMask) {
+        mouse.x = x
+        mouse.y = y
+    }
+
+    def keyPressed(int keyCode, int stateMask) {
+        switch (keyCode) {
+            case (1 &lt;&lt; 24) + 1: {
+                mouse.down = true
+                mouse.x = sprite.bird_x
+                mouse.y = sprite.bird_y - 100
+            }
+            case (1 &lt;&lt; 24) + 2: {
+                mouse.down = true
+                mouse.x = sprite.bird_x
+                mouse.y = sprite.bird_y + 100
+            }
+            case (1 &lt;&lt; 24) + 3: {
+                mouse.down = true
+                mouse.x = sprite.bird_x - 100
+                mouse.y = sprite.bird_y
+            }
+            case (1 &lt;&lt; 24) + 4: {
+                mouse.down = true
+                mouse.x = sprite.bird_x + 100
+                mouse.y = sprite.bird_y
+            }
+        }
+    }
+
+    def keyReleased(int keyCode, int stateMask) {
+        switch (keyCode) {
+            case (1 &lt;&lt; 24) + 1,
+            case (1 &lt;&lt; 24) + 2,
+            case (1 &lt;&lt; 24) + 3,
+            case (1 &lt;&lt; 24) + 4:
+                mouse.down = false
+        }
+    }
+}
+</code></pre>
+<img src="https://github.com/aurusov/raox-models/blob/master/tutorial/animation/bird/screenshots/bird.gif?raw=true" alt="bird"/>
 </body>
 </html>
