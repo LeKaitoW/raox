@@ -279,7 +279,7 @@ public class AnimationView extends ViewPart {
 
 			@Override
 			public void mouseScrolled(MouseEvent e) {
-				currentFrame.mouseScrolled(e.count, e.x, e.y);
+				currentFrame.mouseScrolled(e.x, e.y, e.count);
 			}
 		});
 

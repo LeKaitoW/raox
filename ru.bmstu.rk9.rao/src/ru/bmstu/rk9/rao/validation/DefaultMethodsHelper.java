@@ -152,7 +152,7 @@ public class DefaultMethodsHelper {
 				new String[] { "int x", "int y", "int button", "int stateMask" }), //
 		MOUSE_DOUBLECLICK("mouseDoubleClick", ValidatorAction.NOTHING,
 				new String[] { "int x", "int y", "int button", "int stateMask" }), //
-		MOUSE_SCROLLED("mouseScrolled", ValidatorAction.NOTHING, new String[] { "int count", "double x", "double y" }), //
+		MOUSE_SCROLLED("mouseScrolled", ValidatorAction.NOTHING, new String[] { "int x", "int y", "int count" }), //
 		KEY_RELEASED("keyReleased", ValidatorAction.NOTHING, new String[] { "int keyCode", "int stateMask" }), //
 		KEY_PRESSED("keyPressed", ValidatorAction.NOTHING, new String[] { "int keyCode", "int stateMask" });
 

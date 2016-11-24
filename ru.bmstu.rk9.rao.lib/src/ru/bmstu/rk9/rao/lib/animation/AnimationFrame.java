@@ -20,7 +20,7 @@ public abstract class AnimationFrame {
 	public void mouseDoubleClick(int x, int y, int button, int stateMask) {
 	}
 
-	public void mouseScrolled(int count, double x, double y) {
+	public void mouseScrolled(int x, int y, int count) {
 	}
 
 	public void keyReleased(int keyCode, int stateMask) {
