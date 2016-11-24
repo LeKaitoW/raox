@@ -152,7 +152,10 @@ EnumDeclaration:
 ;
 
 DefaultMethod:
-	'def' name = ID '(' ')'
+	'def' name = ID '('
+		(parameters += FullJvmFormalParameter (
+			',' parameters += FullJvmFormalParameter)*)?
+	')'
 		body = XBlockExpression
 ;
 

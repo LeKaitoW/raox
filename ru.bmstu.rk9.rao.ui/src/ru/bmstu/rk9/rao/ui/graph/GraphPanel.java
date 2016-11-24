@@ -52,6 +52,7 @@ import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
 import ru.bmstu.rk9.rao.ui.graph.GraphInfoWindow.InfoElement;
 import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.GraphInfo;
 import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.Node;
+import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.ParentChange;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView.ConditionalMenuItem;
 
@@ -145,7 +146,7 @@ public class GraphPanel extends JPanel implements GraphApi {
 		graph = new mxGraph();
 		graph.getModel().beginUpdate();
 		try {
-			drawNewVertices();
+			updateVertices();
 			if (isFinished)
 				onFinish();
 		} finally {
@@ -324,7 +325,7 @@ public class GraphPanel extends JPanel implements GraphApi {
 			graph.getModel().beginUpdate();
 			isFinished = treeBuilder.updateTree();
 			try {
-				drawNewVertices();
+				updateVertices();
 				mxRectangle graphBounds = graph.getBoundsForCells(vertexByNode.values().toArray(), false, false, false);
 				if (graphBounds == null)
 					return;
@@ -505,8 +506,8 @@ public class GraphPanel extends JPanel implements GraphApi {
 		GraphInfo info = treeBuilder.graphInfo;
 
 		graphInfoList.add(new InfoElement("Solution cost", String.valueOf(info.solutionCost)));
-		graphInfoList.add(new InfoElement("Nodes opened", String.valueOf(info.numOpened)));
-		graphInfoList.add(new InfoElement("Nodes total", String.valueOf(info.numNodes)));
+		graphInfoList.add(new InfoElement("Nodes closed", String.valueOf(info.countClosed)));
+		graphInfoList.add(new InfoElement("Nodes total", String.valueOf(info.countTotal)));
 		graphInfoList.add(new InfoElement("Max depth", String.valueOf(info.depth)));
 		graphInfoList.add(new InfoElement("Max width", String.valueOf(info.width)));
 
@@ -538,22 +539,32 @@ public class GraphPanel extends JPanel implements GraphApi {
 	final Map<Node, mxCell> vertexByNode = new HashMap<Node, mxCell>();
 	private int lastAddedVertexIndex = -1;
 
-	private final void drawNewVertices() {
-		int lastAddedNodeIndex = treeBuilder.lastAddedNodeIndex;
+	private final void updateVertices() {
+		final int lastAddedNodeIndex = treeBuilder.lastAddedNodeIndex;
 
 		while (lastAddedVertexIndex < lastAddedNodeIndex) {
 			lastAddedVertexIndex++;
 
-			Node node = treeBuilder.nodeByNumber.get(lastAddedVertexIndex);
-			mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, node, getAbsoluteX(0.5),
+			final Node node = treeBuilder.nodeByNumber.get(lastAddedVertexIndex);
+			final mxCell vertex = (mxCell) graph.insertVertex(graph.getDefaultParent(), null, node, getAbsoluteX(0.5),
 					getAbsoluteY(0.05), nodeSize, nodeSize, regularCellStyle);
 			vertexByNode.put(node, vertex);
 			updateTypicalDimensions(node);
 
-			if (node.parent != null)
+			if (node.parent != null) {
 				graph.insertEdge(graph.getDefaultParent(), null, null, vertexByNode.get(node.parent),
 						vertexByNode.get(node), edgeStyle);
+			}
 		}
+
+		for (ParentChange parentChange : treeBuilder.parentChanges) {
+			final Object[] edges = graph.getEdgesBetween(vertexByNode.get(parentChange.node),
+					vertexByNode.get(parentChange.worseParent));
+			graph.removeCells(edges, false);
+			graph.insertEdge(graph.getDefaultParent(), null, null, vertexByNode.get(parentChange.betterParent),
+					vertexByNode.get(parentChange.node), edgeStyle);
+		}
+		treeBuilder.parentChanges.clear();
 	}
 
 	private final void colorNodes() {

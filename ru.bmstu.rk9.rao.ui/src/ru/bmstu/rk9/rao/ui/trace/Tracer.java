@@ -13,10 +13,10 @@ import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.dpt.Search;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.modeldata.StaticModelData;
+import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.lib.process.Hold.HoldAction;
 import ru.bmstu.rk9.rao.lib.process.Queue.QueueAction;
 import ru.bmstu.rk9.rao.lib.process.SelectPath.SelectPathOutputs;
-import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
 
 public class Tracer {
@@ -316,14 +316,14 @@ public class Tracer {
 
 			skipPart(data, TypeSize.LONG * 2);
 			final double finalCost = data.getDouble();
-			final int totalOpened = data.getInt();
-			final int totalNodes = data.getInt();
-			final int totalAdded = data.getInt();
-			final int totalSpawned = data.getInt();
+			final int countClosed = data.getInt();
+			final int countOpen = data.getInt();
+			final int countSpawned = data.getInt();
 			stringJoiner.add(traceType.toString()).add(time)
-					.add(new StringJoiner(StringFormat.ENUMERATION).add("solution cost = " + finalCost)
-							.add("nodes opened = " + totalOpened).add("nodes total = " + totalNodes)
-							.add("nodes added = " + totalAdded).add("nodes spawned = " + totalSpawned).getString());
+					.add(new StringJoiner(StringFormat.ENUMERATION)
+							.add("solution cost = " + finalCost).add("total nodes = " + (countClosed + countOpen) + " ("
+									+ countClosed + " closed + " + countOpen + " open)")
+							.add("nodes spawned = " + countSpawned).getString());
 			break;
 		}
 		case OPEN: {
