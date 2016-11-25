@@ -7,7 +7,7 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 
 import ru.bmstu.rk9.rao.thinclient.handlers.CurrentTime;
-import ru.bmstu.rk9.rao.thinclient.handlers.TestPingHandle;
+import ru.bmstu.rk9.rao.thinclient.handlers.Ping;
 
 public class EmbeddedThinClientServer {
 
@@ -17,7 +17,7 @@ public class EmbeddedThinClientServer {
 
 		ContextHandler currentTimeContext = createHandler(new CurrentTime(), "/currentTime");
 
-		ContextHandler pingContext = createHandler(new TestPingHandle(), "/ping");
+		ContextHandler pingContext = createHandler(new Ping(), "/ping");
 
 		ContextHandlerCollection handlers = new ContextHandlerCollection();
 		handlers.setHandlers(new Handler[] { currentTimeContext, pingContext });

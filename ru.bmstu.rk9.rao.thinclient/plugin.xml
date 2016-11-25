@@ -38,17 +38,4 @@
    </runtime>
    <requires>
    </requires>
-
-
-<!-- adding resource factories -->
-
-
-
-	<!-- marker definitions for ru.bmstu.rk9.rao.Rao -->
-
-
-	<!-- Quick Outline -->
-    <!-- quickfix marker resolution generator for ru.bmstu.rk9.rao.Rao -->
-   	<!-- Rename Refactoring -->
-
 </plugin>
