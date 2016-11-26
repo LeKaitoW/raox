@@ -16,4 +16,5 @@ Bundle-ClassPath: .,
  thirdparty/jetty/jetty-io/lib/jetty-io-9.4.0-SNAPSHOT.jar,
  thirdparty/jetty/jetty-server/lib/jetty-server-9.4.0-SNAPSHOT.jar,
  thirdparty/jetty/jetty-util/lib/jetty-util-9.4.0-SNAPSHOT.jar,
- thirdparty/javax-servlet/lib/javax.servlet-api-3.0.1.jar
+ thirdparty/javax-servlet/lib/javax.servlet-api-3.0.1.jar,
+ thirdparty/gson/lib/gson-2.8.0.jar

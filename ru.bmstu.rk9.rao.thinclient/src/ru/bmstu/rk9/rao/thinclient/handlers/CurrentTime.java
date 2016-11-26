@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
+import com.google.gson.JsonObject;
+
 import ru.bmstu.rk9.rao.lib.runtime.RaoRuntime;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
@@ -22,9 +24,12 @@ public class CurrentTime extends AbstractHandler {
 		response.setContentType("text/html; charset=utf-8");
 		response.setStatus(HttpServletResponse.SC_OK);
 
+		JsonObject currentTime = new JsonObject();
+		currentTime.addProperty("currentTime", RaoRuntime.getCurrentTime());
+
 		PrintWriter writer = response.getWriter();
 		if (CurrentSimulator.isRunning() == true)
-			writer.println(RaoRuntime.getCurrentTime());
+			writer.println(currentTime);
 		else
 			writer.println("Модель не запущена");
 
