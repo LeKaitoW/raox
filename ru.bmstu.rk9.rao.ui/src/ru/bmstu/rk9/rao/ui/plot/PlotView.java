@@ -27,7 +27,6 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.SymbolAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -211,17 +210,7 @@ public class PlotView extends ViewPart {
 				true, true, false);
 
 		final XYPlot plot = (XYPlot) chart.getPlot();
-		XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
-		/*
-		 * StandardXYToolTipGenerator tooltipGenerator = new
-		 * StandardXYToolTipGenerator() {
-		 * 
-		 * @Override public String generateToolTip(XYDataset dataset, int
-		 * series, int item) { return "Series " + series + " Item: " + item +
-		 * " Value: " + dataset.getXValue(series, item) + ";" +
-		 * dataset.getYValue(series, item); } };
-		 * renderer.setBaseToolTipGenerator(tooltipGenerator);
-		 */
+
 		Color white = new Color(0xFF, 0XFF, 0xFF);
 		plot.setBackgroundPaint(white);
 		Color grey = new Color(0x99, 0x99, 0x99);
