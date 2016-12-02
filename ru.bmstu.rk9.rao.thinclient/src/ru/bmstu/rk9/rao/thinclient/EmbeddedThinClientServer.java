@@ -1,19 +1,26 @@
 package ru.bmstu.rk9.rao.thinclient;
 
+import java.io.File;
+
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.xml.XmlConfiguration;
 
 import ru.bmstu.rk9.rao.thinclient.handlers.CurrentTime;
 import ru.bmstu.rk9.rao.thinclient.handlers.Ping;
 
 public class EmbeddedThinClientServer {
 
-	static Server server = new Server(9002);
+	static Server server = new Server();
 
 	public static void startServer() throws Exception {
+
+		XmlConfiguration configuration = new XmlConfiguration(
+				new File("../raox/ru.bmstu.rk9.rao.thinclient/jetty/jetty.xml").toURI().toURL());
+		configuration.configure(server);
 
 		ContextHandler currentTimeContext = createHandler(new CurrentTime(), "/currentTime");
 
@@ -24,7 +31,6 @@ public class EmbeddedThinClientServer {
 
 		server.setHandler(handlers);
 		server.start();
-
 	}
 
 	static private ContextHandler createHandler(AbstractHandler handlerClass, String handlerName) {

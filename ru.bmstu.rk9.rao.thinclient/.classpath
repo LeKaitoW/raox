@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="thirdparty/javax-servlet/lib/javax.servlet-api-3.0.1.jar" sourcepath="thirdparty/javax-servlet/source/javax.servlet-api-3.0.1-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="lib" path="thirdparty/gson/lib/gson-2.8.0.jar" sourcepath="thirdparty/gson/source/gson-2.8.0-sources.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jetty/jetty-xml/lib/jetty-xml-9.4.0.RC0.jar" sourcepath="thirdparty/jetty/jetty-xml/src/jetty-xml-9.4.0.RC0-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
