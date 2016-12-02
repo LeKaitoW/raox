@@ -3,6 +3,7 @@ package ru.bmstu.rk9.rao.ui.plot;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.geom.Ellipse2D;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -200,7 +201,7 @@ public class PlotView extends ViewPart {
 	public void plotXY(final XYSeriesCollection dataset) {
 		final JFreeChart chart = createChart(dataset);
 		plotFrame.setChart(chart);
-
+		plotFrame.setDomainZoomable(false);
 		plotFrame.setRangeZoomable(false);
 	}
 
@@ -217,7 +218,7 @@ public class PlotView extends ViewPart {
 		plot.setDomainGridlinePaint(grey);
 		plot.setRangeGridlinePaint(grey);
 		plot.getRenderer().setSeriesStroke(0, new BasicStroke((float) 2.5));
-
+		plot.getRenderer().setSeriesShape(0, new Ellipse2D.Double(0, 0, 5, 5));
 		NumberAxis rangeAxis = new NumberAxis();
 		rangeAxis.setAutoRangeIncludesZero(true);
 		plot.setRangeAxis(rangeAxis);

@@ -1,7 +1,9 @@
 package ru.bmstu.rk9.rao.ui.plot;
 
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 
+import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
@@ -14,11 +16,12 @@ import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Slider;
-import org.eclipse.swt.widgets.ToolTip;
+import org.jfree.chart.annotations.XYShapeAnnotation;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.experimental.chart.swt.ChartComposite;
@@ -76,7 +79,7 @@ public class PlotFrame extends ChartComposite {
 		return new Point((int) Math.round(screenX), (int) Math.round(screenY));
 	}
 
-	final ToolTip toolTip;
+	final DefaultToolTip toolTip;
 
 	class PlotMouseMoveListener implements MouseMoveListener {
 
@@ -91,33 +94,69 @@ public class PlotFrame extends ChartComposite {
 			int itemsCount = dataset.getItemCount(0);
 			if (itemsCount > 0) {
 				Point2D plotCoords = swtToPlot(e.x, e.y);
-				double previousDistance = Double.MAX_VALUE;
+				Point2D swtCoords = new Point2D.Double(e.x, e.y);
+
+				double previousPlotDistance = Double.MAX_VALUE;
 				int currentIndex = -1;
 				for (int index = 0; index < itemsCount; index++) {
 					double valueX = dataset.getXValue(0, index);
 					double valueY = dataset.getYValue(0, index);
-					double distance = plotCoords.distance(valueX, valueY);
-					if (distance < previousDistance && distance < 10) {
-						previousDistance = distance;
+					double Plotdistance = plotCoords.distance(valueX, valueY);
+					Point swtCoordsNext = plotToSwt(valueX, valueY);
+					double Swtdistance = swtCoords.distance(swtCoordsNext.x, swtCoordsNext.y);
+					if (Plotdistance != previousPlotDistance && Swtdistance < 40) {
+						previousPlotDistance = Plotdistance;
 						currentIndex = index;
 					}
 
 				}
 
 				if (currentIndex >= 0 && (currentIndex != previousIndex)) {
+					getChart().getXYPlot().clearAnnotations();
 					previousIndex = currentIndex;
-					double valueX = dataset.getXValue(0, currentIndex), valueY = dataset.getYValue(0, currentIndex);
+					Rectangle rectangle = PlotFrame.this.getScreenDataArea();
+					final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
+					final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
+					double width_in_axis_units = domainAxis.getUpperBound() - domainAxis.getLowerBound();
+					double height_in_axis_units = rangeAxis.getUpperBound() - rangeAxis.getLowerBound();
+					double valueX = dataset.getXValue(0, currentIndex);
+					double valueY = dataset.getYValue(0, currentIndex);
 					Point widgetPoint = plotToSwt(valueX, valueY);
+					double radiusOfCircleX = 5 * width_in_axis_units / rectangle.width;
+					double radiusOfCircleY = 5 * height_in_axis_units / rectangle.height;
+					Ellipse2D Circle = new Ellipse2D.Float((float) (valueX - radiusOfCircleX),
+							(float) (valueY - radiusOfCircleY), (float) (2 * radiusOfCircleX),
+							(float) (2 * radiusOfCircleY));
+
+					/*
+					 * Ellipse CirclE = new Ellipse();
+					 * org.eclipse.draw2d.geometry.Point widjetPointforCircle =
+					 * plotToSwt(valueX-(int)radiusOfCircleX,
+					 * valueY-(int)radiusOfCircleY);
+					 * CirclE.setSize(2*(int)radiusOfCircleX,2*(int)
+					 * radiusOfCircleY) ;
+					 * CirclE.setLocation(widjetPointforCircle);
+					 *
+					 * abstract class Circle extends Graphics2D {
+					 *
+					 * @Override public void fill(Shape s) {
+					 *
+					 * }
+					 *
+					 * }
+					 */
+					XYShapeAnnotation annotation = new XYShapeAnnotation(Circle);
+					getChart().getXYPlot().addAnnotation(annotation, false);
+
 					Rectangle screenDataArea = getScreenDataArea();
 					if (new Rectangle(screenDataArea.x - 1, screenDataArea.y - 1, screenDataArea.width + 2,
 							screenDataArea.height + 2).contains(widgetPoint)) {
-						Point displayPoint = toDisplay(widgetPoint);
-						toolTip.setLocation(displayPoint);
-						toolTip.setText("x: " + valueX + " y: " + valueY);
+						toolTip.setText(String.format("x: %.3f y: %.3f", valueX, valueY));
+						toolTip.show(widgetPoint);
 
-						toolTip.setVisible(true);
 					} else {
-						toolTip.setVisible(false);
+						toolTip.hide();
+						getChart().getXYPlot().clearAnnotations();
 					}
 
 				}
@@ -226,8 +265,12 @@ public class PlotFrame extends ChartComposite {
 		setZoomOutFactor(1.25);
 		setDomainZoomable(false);
 		setRangeZoomable(false);
-		toolTip = new ToolTip(comp.getShell(), SWT.BALLOON);
-		toolTip.setVisible(false);
+		toolTip = new DefaultToolTip(this, SWT.BALLOON, false);
+
+		toolTip.setBackgroundColor(new Color(comp.getDisplay(), 255, 255, 255));
+		toolTip.setForegroundColor(new Color(comp.getDisplay(), 128, 128, 128));
+		toolTip.setRespectDisplayBounds(true);
+		toolTip.setShift(new Point(0, -50));
 
 	}
 
