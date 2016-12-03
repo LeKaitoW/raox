@@ -3,7 +3,6 @@ package ru.bmstu.rk9.rao.ui.plot;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.geom.Ellipse2D;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +25,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.SymbolAxis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYDataset;
@@ -177,10 +177,19 @@ public class PlotView extends ViewPart {
 				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame.getChart().getXYPlot()
 						.getDataset();
 				final XYSeries newSeries = newDataset.getSeries(0);
+				if (items.size() == 1) {
+					final ValueAxis domainAxis = plotFrame.getChart().getXYPlot().getDomainAxis();
+					// final ValueAxis rangeAxis =
+					// plotFrame.getChart().getXYPlot().getRangeAxis();
+					double width_in_axis_units = domainAxis.getUpperBound() - domainAxis.getLowerBound();
+					PlotDataParser.PlotItem ITEM = new PlotDataParser.PlotItem(width_in_axis_units, 0);
+					items.add(ITEM);
+				}
 				for (int i = 0; i < items.size(); i++) {
 					final PlotItem item = items.get(i);
 					newSeries.add(item.x, item.y);
 				}
+
 				plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
 				plotFrame.updateSliders();
 			}
@@ -218,7 +227,6 @@ public class PlotView extends ViewPart {
 		plot.setDomainGridlinePaint(grey);
 		plot.setRangeGridlinePaint(grey);
 		plot.getRenderer().setSeriesStroke(0, new BasicStroke((float) 2.5));
-		plot.getRenderer().setSeriesShape(0, new Ellipse2D.Double(0, 0, 5, 5));
 		NumberAxis rangeAxis = new NumberAxis();
 		rangeAxis.setAutoRangeIncludesZero(true);
 		plot.setRangeAxis(rangeAxis);
