@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.ui.plot;
 
+import java.awt.BasicStroke;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 
@@ -35,22 +36,6 @@ public class PlotFrame extends ChartComposite {
 	private double horizontalRatio;
 	private double verticalRatio;
 
-	@Override
-	public void setDomainZoomable(boolean zoomable) {
-		super.setDomainZoomable(zoomable);
-		if (horizontalSlider != null) {
-			updateSliders();
-		}
-	}
-
-	@Override
-	public void setRangeZoomable(boolean zoomable) {
-		super.setRangeZoomable(zoomable);
-		if (verticalSlider != null) {
-			updateSliders();
-		}
-	}
-
 	Point2D swtToPlot(int x, int y) {
 		Rectangle rectangle = PlotFrame.this.getScreenDataArea();
 		final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
@@ -85,6 +70,12 @@ public class PlotFrame extends ChartComposite {
 
 		int previousIndex = -1;
 
+		private int distance(Point x1, Point x2) {
+
+			return (int) Math.sqrt(Math.pow((x1.x - x2.x), 2) + Math.pow((x1.y - x2.y), 2));
+
+		}
+
 		@Override
 		public void mouseMove(MouseEvent e) {
 			System.out.println("x: " + e.x + " y:" + e.y);
@@ -94,17 +85,13 @@ public class PlotFrame extends ChartComposite {
 			int itemsCount = dataset.getItemCount(0);
 			if (itemsCount > 0) {
 				Point2D plotCoords = swtToPlot(e.x, e.y);
-				Point2D swtCoords = new Point2D.Double(e.x, e.y);
-
 				double previousPlotDistance = Double.MAX_VALUE;
 				int currentIndex = -1;
 				for (int index = 0; index < itemsCount; index++) {
 					double valueX = dataset.getXValue(0, index);
 					double valueY = dataset.getYValue(0, index);
 					double Plotdistance = plotCoords.distance(valueX, valueY);
-					Point swtCoordsNext = plotToSwt(valueX, valueY);
-					double Swtdistance = swtCoords.distance(swtCoordsNext.x, swtCoordsNext.y);
-					if (Plotdistance != previousPlotDistance && Swtdistance < 40) {
+					if (Plotdistance < previousPlotDistance) {
 						previousPlotDistance = Plotdistance;
 						currentIndex = index;
 					}
@@ -114,43 +101,30 @@ public class PlotFrame extends ChartComposite {
 				if (currentIndex >= 0 && (currentIndex != previousIndex)) {
 					getChart().getXYPlot().clearAnnotations();
 					previousIndex = currentIndex;
+					double valueX = dataset.getXValue(0, currentIndex);
+					double valueY = dataset.getYValue(0, currentIndex);
+					Point widgetPoint = plotToSwt(valueX, valueY);
+					Point mousePoint = new Point(e.x, e.y);
+					int distanceToMouse = distance(widgetPoint, mousePoint);
+
 					Rectangle rectangle = PlotFrame.this.getScreenDataArea();
+
 					final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
 					final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
 					double width_in_axis_units = domainAxis.getUpperBound() - domainAxis.getLowerBound();
 					double height_in_axis_units = rangeAxis.getUpperBound() - rangeAxis.getLowerBound();
-					double valueX = dataset.getXValue(0, currentIndex);
-					double valueY = dataset.getYValue(0, currentIndex);
-					Point widgetPoint = plotToSwt(valueX, valueY);
 					double radiusOfCircleX = 5 * width_in_axis_units / rectangle.width;
 					double radiusOfCircleY = 5 * height_in_axis_units / rectangle.height;
 					Ellipse2D Circle = new Ellipse2D.Float((float) (valueX - radiusOfCircleX),
 							(float) (valueY - radiusOfCircleY), (float) (2 * radiusOfCircleX),
 							(float) (2 * radiusOfCircleY));
-
-					/*
-					 * Ellipse CirclE = new Ellipse();
-					 * org.eclipse.draw2d.geometry.Point widjetPointforCircle =
-					 * plotToSwt(valueX-(int)radiusOfCircleX,
-					 * valueY-(int)radiusOfCircleY);
-					 * CirclE.setSize(2*(int)radiusOfCircleX,2*(int)
-					 * radiusOfCircleY) ;
-					 * CirclE.setLocation(widjetPointforCircle);
-					 *
-					 * abstract class Circle extends Graphics2D {
-					 *
-					 * @Override public void fill(Shape s) {
-					 *
-					 * }
-					 *
-					 * }
-					 */
-					XYShapeAnnotation annotation = new XYShapeAnnotation(Circle);
+					XYShapeAnnotation annotation = new XYShapeAnnotation(Circle, new BasicStroke(2.5f),
+							java.awt.Color.red, java.awt.Color.red);
 					getChart().getXYPlot().addAnnotation(annotation, false);
 
 					Rectangle screenDataArea = getScreenDataArea();
 					if (new Rectangle(screenDataArea.x - 1, screenDataArea.y - 1, screenDataArea.width + 2,
-							screenDataArea.height + 2).contains(widgetPoint)) {
+							screenDataArea.height + 2).contains(mousePoint) && distanceToMouse < 25) {
 						toolTip.setText(String.format("x: %.3f y: %.3f", valueX, valueY));
 						toolTip.show(widgetPoint);
 
@@ -250,7 +224,7 @@ public class PlotFrame extends ChartComposite {
 			if (e.count < 0 && isDomainZoomable() && isRangeZoomable()) {
 				zoomOutBoth(e.x, e.y);
 			}
-			updateSliders();
+
 		}
 	}
 
@@ -311,6 +285,30 @@ public class PlotFrame extends ChartComposite {
 		final double freeSpaceCoefficient = 1.05;
 		this.horizontalMaximum = horizontalMaximum * freeSpaceCoefficient;
 		this.verticalMaximum = verticalMaximum * freeSpaceCoefficient;
+	}
+
+	@Override
+	public void zoomInDomain(double x, double y) {
+		super.zoomInDomain(x, y);
+		updateSliders();
+	}
+
+	@Override
+	public void zoomInRange(double x, double y) {
+		super.zoomInRange(x, y);
+		updateSliders();
+	}
+
+	@Override
+	public void zoomOutDomain(double x, double y) {
+		super.zoomOutDomain(x, y);
+		updateSliders();
+	}
+
+	@Override
+	public void zoomOutRange(double x, double y) {
+		super.zoomOutRange(x, y);
+		updateSliders();
 	}
 
 	public final void updateSliders() {
