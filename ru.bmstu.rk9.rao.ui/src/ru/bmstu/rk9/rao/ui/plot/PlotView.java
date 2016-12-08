@@ -25,9 +25,9 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.SymbolAxis;
-import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -132,7 +132,14 @@ public class PlotView extends ViewPart {
 	private final void initializeSubscribers() {
 		simulatorSubscriberManager.initialize(
 				Arrays.asList(new SimulatorSubscriberInfo(commonSubcriber, ExecutionState.EXECUTION_STARTED),
-						new SimulatorSubscriberInfo(commonSubcriber, ExecutionState.EXECUTION_COMPLETED)));
+						new SimulatorSubscriberInfo(endSubscriber,
+								ExecutionState.EXECUTION_COMPLETED)/*
+																	 * , new
+																	 * SimulatorSubscriberInfo
+																	 * (commonSubcriber,
+																	 * ExecutionState.
+																	 * EXECUTION_COMPLETED)
+																	 */));
 		realTimeSubscriberManager.initialize(Arrays.asList(realTimeUpdateRunnable));
 	}
 
@@ -150,7 +157,14 @@ public class PlotView extends ViewPart {
 		return plotFrame != null && !plotFrame.isDisposed();
 	}
 
-	private final Runnable realTimeUpdateRunnable = new Runnable() {
+	private class RealTimeUpdateRunnable implements Runnable {
+
+		private final boolean isLastEntry;
+
+		RealTimeUpdateRunnable(boolean isLastEntry) {
+			this.isLastEntry = isLastEntry;
+		}
+
 		@Override
 		public void run() {
 			if (!readyForInput())
@@ -177,14 +191,6 @@ public class PlotView extends ViewPart {
 				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame.getChart().getXYPlot()
 						.getDataset();
 				final XYSeries newSeries = newDataset.getSeries(0);
-				if (items.size() == 1) {
-					final ValueAxis domainAxis = plotFrame.getChart().getXYPlot().getDomainAxis();
-					// final ValueAxis rangeAxis =
-					// plotFrame.getChart().getXYPlot().getRangeAxis();
-					double width_in_axis_units = domainAxis.getUpperBound() - domainAxis.getLowerBound();
-					PlotDataParser.PlotItem ITEM = new PlotDataParser.PlotItem(width_in_axis_units, 0);
-					items.add(ITEM);
-				}
 				for (int i = 0; i < items.size(); i++) {
 					final PlotItem item = items.get(i);
 					newSeries.add(item.x, item.y);
@@ -193,8 +199,33 @@ public class PlotView extends ViewPart {
 				plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
 				plotFrame.updateSliders();
 			}
+			if (isLastEntry) {
+				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame.getChart().getXYPlot()
+						.getDataset();
+				final XYSeries newSeries = newDataset.getSeries(0);
+				if (newSeries.getItemCount() == 2) {
+					@SuppressWarnings("unchecked")
+					List<XYDataItem> seriesitems = newSeries.getItems();
+					if (seriesitems.get(0).equals(seriesitems.get(1))) {
+						newSeries.add(CurrentSimulator.getTime(), seriesitems.get(1).getY());
+						plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
+						plotFrame.updateSliders();
+					}
+
+				} else if (newSeries.getItemCount() == 1) {
+					@SuppressWarnings("unchecked")
+					List<XYDataItem> seriesitems = newSeries.getItems();
+					newSeries.add(CurrentSimulator.getTime(), seriesitems.get(0).getY());
+					plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
+					plotFrame.updateSliders();
+
+				}
+			}
+
 		}
 	};
+
+	private final RealTimeUpdateRunnable realTimeUpdateRunnable = new RealTimeUpdateRunnable(false);
 
 	private final Subscriber commonSubcriber = new Subscriber() {
 		@Override
@@ -202,9 +233,17 @@ public class PlotView extends ViewPart {
 			PlatformUI.getWorkbench().getDisplay().asyncExec(realTimeUpdateRunnable);
 		}
 	};
+	private final Subscriber endSubscriber = new Subscriber() {
+
+		@Override
+		public void fireChange() {
+			PlatformUI.getWorkbench().getDisplay().asyncExec(new RealTimeUpdateRunnable(true));
+		}
+	};
 
 	@Override
 	public void setFocus() {
+
 	}
 
 	public void plotXY(final XYSeriesCollection dataset) {
@@ -227,6 +266,7 @@ public class PlotView extends ViewPart {
 		plot.setDomainGridlinePaint(grey);
 		plot.setRangeGridlinePaint(grey);
 		plot.getRenderer().setSeriesStroke(0, new BasicStroke((float) 2.5));
+
 		NumberAxis rangeAxis = new NumberAxis();
 		rangeAxis.setAutoRangeIncludesZero(true);
 		plot.setRangeAxis(rangeAxis);
