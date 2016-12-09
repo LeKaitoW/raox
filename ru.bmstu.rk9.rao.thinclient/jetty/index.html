@@ -17,18 +17,24 @@
 					});
 				}
 				
-				$(document).ready(function(){
-					$.get('/models', function(data) { 					
-						$("div.modelsHolder").html(JSON.stringify(data));
-					});
+				$(document).ready(function(){				
+					$.get('/models', function(data) {
+						var models = data.models;
+						$.each(models, function(key, value) {
+							$('select.modelsHolder')
+								.append($('<option>', { value : key })
+								.text(JSON.stringify(value.name).replace(/['"]+/g, '')));
+						});
+					});					
 				});
+				
 			</script>
 	</head>
 	<body>
 		<h1>Current time</h1>
 		<div class="currentTimeHolder"></div>
 		<h1>Models</h1>
-		<div class="modelsHolder"></div>
+		<select class='modelsHolder'></select>
 
 	</body>
 </html>
