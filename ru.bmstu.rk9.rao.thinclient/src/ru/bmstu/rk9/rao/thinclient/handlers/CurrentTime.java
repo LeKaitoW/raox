@@ -24,17 +24,15 @@ public class CurrentTime extends AbstractHandler {
 		response.setContentType("application/json; charset=utf-8");
 		response.setStatus(HttpServletResponse.SC_OK);
 
-		JsonObject currentTime = new JsonObject();
-
-		JsonObject modelState = new JsonObject();
+		JsonObject result = new JsonObject();
 
 		PrintWriter writer = response.getWriter();
 		if (CurrentSimulator.isRunning() == true) {
-			currentTime.addProperty("currentTime", RaoRuntime.getCurrentTime());
-			writer.println(currentTime);
+			result.addProperty("currentTime", RaoRuntime.getCurrentTime());
+			writer.println(result);
 		} else {
-			modelState.addProperty("modelState", "Модель не запущена");
-			writer.println(modelState);
+			result.addProperty("modelState", "Модель не запущена");
+			writer.println(result);
 		}
 
 		baseRequest.setHandled(true);
