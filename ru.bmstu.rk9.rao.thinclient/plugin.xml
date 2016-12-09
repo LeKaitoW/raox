@@ -2,8 +2,7 @@
 <?eclipse version="3.0"?>
 
 <plugin
-   id="ru.bmstu.rk9.rao.thinclient"
->
+   id="ru.bmstu.rk9.rao.thinclient">
    <runtime>
       <library name=".">
          <export
@@ -36,6 +35,4 @@
          </export>
       </library>
    </runtime>
-   <requires>
-   </requires>
 </plugin>

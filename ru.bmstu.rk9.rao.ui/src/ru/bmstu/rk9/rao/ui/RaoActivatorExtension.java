@@ -62,7 +62,6 @@ public class RaoActivatorExtension extends RaoActivator {
 				if (partService == null)
 					return;
 				partService.addPartListener(partListener);
-
 			}
 
 			@Override

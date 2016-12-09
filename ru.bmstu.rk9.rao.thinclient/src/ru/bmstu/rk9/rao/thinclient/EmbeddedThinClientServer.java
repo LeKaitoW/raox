@@ -42,19 +42,15 @@ public class EmbeddedThinClientServer {
 		server.start();
 	}
 
-	static private ContextHandler createHandler(AbstractHandler handlerClass, String handlerName) {
+	private static ContextHandler createHandler(AbstractHandler handlerClass, String handlerName) {
 
 		ContextHandler builtHandler = new ContextHandler(handlerName);
 		builtHandler.setHandler(handlerClass);
 		builtHandler.setAllowNullPathInfo(true);
 		return builtHandler;
-
 	}
 
 	public static void stopServer() throws Exception {
-
 		server.stop();
-
 	}
-
 }

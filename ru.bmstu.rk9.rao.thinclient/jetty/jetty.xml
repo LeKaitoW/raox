@@ -2,12 +2,14 @@
 <!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
  
 <Configure id="server" class="org.eclipse.jetty.server.Server"> 
- <Call name="addConnector">
+  <Call name="addConnector">
     <Arg>
       <New id="httpConnector" class="org.eclipse.jetty.server.ServerConnector">
-        <Arg name="server"><Ref refid="server" /></Arg>
+        <Arg name="server">
+          <Ref refid="server" />
+        </Arg>
         <Set name="port">9002</Set>
       </New>
     </Arg>
   </Call>
- </Configure>
+</Configure>

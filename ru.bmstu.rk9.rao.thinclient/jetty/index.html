@@ -2,34 +2,33 @@
 <html>
 	<head>
 		<title>CurrentTime</title>
-			<script	  src="https://code.jquery.com/jquery-3.1.1.js"
+			<script src="https://code.jquery.com/jquery-3.1.1.js"
 				  	integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
-					crossorigin="anonymous"></script>
+					crossorigin="anonymous">
+			</script>
 			<script type="text/javascript">
-				$(document).ready(function(){
-					setInterval('refreshTime()', 1000); // Refresh every 1 second
+				$(document).ready(function() {
+					setInterval('refreshTime()', 1000);
 				});
 				
 				function refreshTime(){
 					$.get('/currentTime', function(data) { 					
-						$("div.timeHolder").html(JSON.stringify(data));
-					} );
+						$("div.currentTimeHolder").html(JSON.stringify(data));
+					});
 				}
 				
 				$(document).ready(function(){
 					$.get('/models', function(data) { 					
 						$("div.modelsHolder").html(JSON.stringify(data));
-					} );
+					});
 				});
 			</script>
 	</head>
 	<body>
-
-		<h1>CurrentTime</h1>
-		<div class="timeHolder"></div>
+		<h1>Current time</h1>
+		<div class="currentTimeHolder"></div>
 		<h1>Models</h1>
 		<div class="modelsHolder"></div>
 
 	</body>
 </html>
-
