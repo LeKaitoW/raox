@@ -1,31 +1,50 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>CurrentTime</title>
-			<script src="https://code.jquery.com/jquery-3.1.1.js"
-				  	integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
-					crossorigin="anonymous">
-			</script>
+		<title>RaoxThinClient</title>
+			<script src="https://code.jquery.com/jquery-3.1.1.js"></script>
 			<script type="text/javascript">
 				$(document).ready(function() {
 					setInterval('refreshTime()', 1000);
 				});
 				
-				function refreshTime(){
+				function refreshTime() {
 					$.get('/currentTime', function(data) { 					
 						$("div.currentTimeHolder").html(JSON.stringify(data));
 					});
 				}
 				
-				$(document).ready(function(){				
+				$(document).ready(function() {				
 					$.get('/models', function(data) {
 						var models = data.models;
 						$.each(models, function(key, value) {
-							$('select.modelsHolder')
-								.append($('<option>', { value : key })
+							$('#modelsHolder')
+								.append($('<option>', { value : JSON.stringify(value.name).replace(/['"]+/g, '') })
 								.text(JSON.stringify(value.name).replace(/['"]+/g, '')));
 						});
 					});					
+				});
+				
+				$(function(){
+					$("#getModelResults").click(function() {
+						$.get('/modelResults', function(data) { 					
+							$("#modelResultsHolder").html(JSON.stringify(data));
+						});
+					});
+				});
+				
+				$(function(){
+					$("#sendModelName").click(function() {
+						var model = {
+							name: $("#modelsHolder").val()
+						}
+						$.ajax( {
+							url: "/startModel",
+							type: "post",
+							dataType: "json",
+							data: model
+						});
+					});
 				});
 				
 			</script>
@@ -34,7 +53,15 @@
 		<h1>Current time</h1>
 		<div class="currentTimeHolder"></div>
 		<h1>Models</h1>
-		<select class='modelsHolder'></select>
+		<select id='modelsHolder'></select>
+		<div id="sendModelName">
+			<h3>Run chosen model</h3>
+		</div>
+		<div id="getModelResults">
+			<h3>Get modelling results</h3>
+		</div>
+		<div id="modelResultsHolder"></div>
+		
 
 	</body>
 </html>
