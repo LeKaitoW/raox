@@ -11,6 +11,7 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.xml.XmlConfiguration;
 
 import ru.bmstu.rk9.rao.thinclient.handlers.CurrentTime;
+import ru.bmstu.rk9.rao.thinclient.handlers.ModelResults;
 import ru.bmstu.rk9.rao.thinclient.handlers.Models;
 import ru.bmstu.rk9.rao.thinclient.handlers.Ping;
 
@@ -35,8 +36,11 @@ public class EmbeddedThinClientServer {
 
 		ContextHandler modelsContext = createHandler(new Models(), "/models");
 
+		ContextHandler modelResultsContext = createHandler(new ModelResults(), "/modelResults");
+
 		HandlerList handlers = new HandlerList();
-		handlers.setHandlers(new Handler[] { currentTimeContext, pingContext, modelsContext, resourceHandler });
+		handlers.setHandlers(
+				new Handler[] { currentTimeContext, pingContext, modelsContext, modelResultsContext, resourceHandler });
 
 		server.setHandler(handlers);
 		server.start();
