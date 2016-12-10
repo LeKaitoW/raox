@@ -20,7 +20,7 @@ RaoEntity
 	| Event
 	| Pattern
 	| Frame
-	| ResultType
+	| DataSource
 	| Result
 	| DefaultMethod
 	| EnumDeclaration
@@ -125,12 +125,11 @@ FunctionDeclaration:
 	')' body = XBlockExpression
 ;
 
-ResultType:
-	'resultType' name = ID '<' evaluateType = JvmTypeReference '>' '('
+DataSource:
+	'dataSource' name = ID '<' evaluateType = JvmTypeReference '>' '('
 		(parameters += FullJvmFormalParameter (
 			',' parameters += FullJvmFormalParameter)*)?
 	')' '{'
-
 		defaultMethods += DefaultMethod*
 	'}'
 ;
@@ -153,7 +152,10 @@ EnumDeclaration:
 ;
 
 DefaultMethod:
-	'def' name = ID '(' ')'
+	'def' name = ID '('
+		(parameters += FullJvmFormalParameter (
+			',' parameters += FullJvmFormalParameter)*)?
+	')'
 		body = XBlockExpression
 ;
 

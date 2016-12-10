@@ -12,15 +12,15 @@
 <h2>Модель подсчета количества звонков в службу технической поддержки</h2>
 <h3>Постановка задачи</h3>
 <p>Пусть в службу технической поддержки поступают звонки. Интервал между звонками задается экспоненциальным законом с интенсивностью &#955; = 1/30 [1/мин]. Необходимо подсчитать, сколько звонков поступит за рабочий день (8 часов).</p>
-<h3>Полный код модели</h3>
+<h3>Полный код модели, <a href="https://github.com/aurusov/raox-models/tree/master/tutorial/call_center/call_center_call_count">скачать</a></h3>
 <pre><code class="rao">type TechSupport {
-    int callCount;
+    int callsCount;
 }
 
 resource techSupport = TechSupport.create(0);
 
 event NewCall() {
-    techSupport.callCount = techSupport.callCount + 1;
+    techSupport.callsCount = techSupport.callsCount + 1;
     NewCall.plan(currentTime + newCallInterval.next());
 }
 
@@ -34,13 +34,13 @@ def terminateCondition() {
 
 sequence newCallInterval = new Exponential(123456789, 1 / 30.0);
 
-result totalCallCount = new Value([techSupport.callCount]);
+result totalCallsCount = new Result([techSupport.callsCount]);
 </code></pre>
 
 <h3>Описание ресурсов</h3>
 <p>База данных модели будет представлена единственным ресурсом - службой технической поддержки. Для него в простейшей модели необходимо задать только один параметр: число поступивших заявок. Определение нового типа ресурса осуществляется с помощью ключевого слова <code>type</code>. После чего следует список параметров ресурса. Параметры разделяются точками с запятыми.</p>
 <pre><code class="rao">type TechSupport {
-    int callCount;
+    int callsCount;
 }
 </code></pre>
 <p>Создание нового ресурса производится с помощью ключевого слова <code>resource</code> и вызова метода <code>create()</code> у желаемого типа. В метод <code>create()</code> передаются начальные значения параметров ресурса.</p>
@@ -53,7 +53,7 @@ result totalCallCount = new Value([techSupport.callCount]);
 <p>Для описания логики функционирования модели необходимо определить случайные события (поступление нового звонка), происходящие в системе.</p>
 <p>События описываются с помощью ключевого слова <code>event</code>.</p>
 <pre><code class="rao">event NewCall() {
-    techSupport.callCount = techSupport.callCount + 1;
+    techSupport.callsCount = techSupport.callsCount + 1;
     NewCall.plan(currentTime + newCallInterval.next());
 }
 </code></pre>
@@ -71,12 +71,15 @@ result totalCallCount = new Value([techSupport.callCount]);
 }
 </code></pre>
 <h3>Описание собираемых показателей</h3>
-<p>Простейшим примером собираемого показателя будет получение общего количества звонков в конце моделирования. Результаты моделирования описываются с помощью ключевого слова <code>result</code>. Для получения значения в конце моделирования используется счетчик <code>Value</code>.</p>
-<pre><code class="rao">result totalCallCount = new Value([techSupport.callCount]);</code></pre>
+<p>Результаты моделирования описываются с помощью ключевого слова <code>result</code>. Наблюдаемое значение можно указать в квадратных скобках.</p>
+<pre><code class="rao">result totalCallsCount = new Result([techSupport.c]);</code></pre>
 <h3>Результаты моделирования</h3>
 <p>Собранные показатели отображаются в окне результатов. Для данной модели можно увидеть, что за рабочий день в службу технической поддержки поступило 11 звонков.</p>
-<pre><code class="rao">test.test.totalCallCount: Value
-    Value: 11
+<pre><code class="rao">call_center.call_center.totalCallsCount
+    Mean: 5.017775238751459
+    Last value: 11.0
+    Standard deviation: 3.3714584527889433
+    varcoef: 226.52931943022475
 </code></pre>
 
 <h3>Трассировка</h3>
@@ -84,31 +87,43 @@ result totalCallCount = new Value([techSupport.callCount]);
 <pre><code class="rao">ES 0.0 Tracing started
 RC 0.0 techSupport = {0}
 ES 0.0 Simulation started
+V  0.0 totalCallsCount = 0.0
 EI 64.00600791078857 NewCall[0]
 RK 64.00600791078857 techSupport = {1}
+V  64.00600791078857 totalCallsCount = 1.0
 EI 102.43731591550352 NewCall[1]
 RK 102.43731591550352 techSupport = {2}
+V  102.43731591550352 totalCallsCount = 2.0
 EI 163.24034890273626 NewCall[2]
 RK 163.24034890273626 techSupport = {3}
+V  163.24034890273626 totalCallsCount = 3.0
 EI 175.46803810034146 NewCall[3]
 RK 175.46803810034146 techSupport = {4}
+V  175.46803810034146 totalCallsCount = 4.0
 EI 205.842211380707 NewCall[4]
 RK 205.842211380707 techSupport = {5}
+V  205.842211380707 totalCallsCount = 5.0
 EI 236.32725594405497 NewCall[5]
 RK 236.32725594405497 techSupport = {6}
+V  236.32725594405497 totalCallsCount = 6.0
 EI 296.22140704946275 NewCall[6]
 RK 296.22140704946275 techSupport = {7}
+V  296.22140704946275 totalCallsCount = 7.0
 EI 379.52951725797567 NewCall[7]
 RK 379.52951725797567 techSupport = {8}
+V  379.52951725797567 totalCallsCount = 8.0
 EI 383.36811621534684 NewCall[8]
 RK 383.36811621534684 techSupport = {9}
+V  383.36811621534684 totalCallsCount = 9.0
 EI 419.17937046669243 NewCall[9]
 RK 419.17937046669243 techSupport = {10}
+V  419.17937046669243 totalCallsCount = 10.0
 EI 486.85470956869307 NewCall[10]
 RK 486.85470956869307 techSupport = {11}
+V  486.85470956869307 totalCallsCount = 11.0
 ES 486.85470956869307 Simulation finished: terminate condition
 </code></pre>
 
-<p>В данной модели было разобрано описание и создание ресурсов, описание и планирование событий, инициализация модели и сбор простейших показателей. В рассмотренной модели звонки приходят и подсчитываются, но их обслуживание не моделируется. Первая полноценная модель с моделированием обслуживания звонков будет рассмотрена в <a href="../tutorial/model_2_single_operator.html">следующем разделе</a>.</p>
+<p>В данной модели было разобрано описание и создание ресурсов, описание и планирование событий, инициализация модели и сбор простейших показателей. В рассмотренной модели звонки приходят и подсчитываются, но их обслуживание не моделируется. Первая полноценная модель с моделированием обслуживания звонков будет рассмотрена в <a href="call_center_single_operator.html">следующем разделе</a>.</p>
 </body>
 </html>

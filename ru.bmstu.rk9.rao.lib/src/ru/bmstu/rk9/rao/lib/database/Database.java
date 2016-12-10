@@ -31,6 +31,7 @@ import ru.bmstu.rk9.rao.lib.pattern.Operation;
 import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
+import ru.bmstu.rk9.rao.lib.result.Result;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class Database {
@@ -118,9 +119,9 @@ public class Database {
 		final JSONArray results = modelStructure.getJSONArray(ModelStructureConstants.RESULTS);
 		for (int i = 0; i < results.length(); i++) {
 			final JSONObject result = results.getJSONObject(i);
-			final ResultType type = ResultType.getByString(result.getString(ModelStructureConstants.TYPE));
-			final String name = modelName + "." + result.getString(ModelStructureConstants.NAME);
-			indexHelper.addResult(name).setIndex(new ResultIndex(i, type));
+			final String name = result.getString(ModelStructureConstants.NAME);
+			final CollectedDataNode resultNode = indexHelper.addResult(name);
+			resultNode.setIndex(new ResultIndex(i));
 		}
 
 		final JSONArray patterns = modelStructure.getJSONArray(ModelStructureConstants.PATTERNS);
@@ -199,7 +200,7 @@ public class Database {
 				0), PATTERN(TypeSize.BYTE * 2 + TypeSize.DOUBLE, TypeSize.INT * 5), EVENT(
 						TypeSize.BYTE * 2 + TypeSize.DOUBLE,
 						TypeSize.INT * 2), SEARCH(TypeSize.BYTE * 2 + TypeSize.INT * 2 + TypeSize.DOUBLE, 0), RESULT(
-								TypeSize.BYTE + TypeSize.INT + TypeSize.DOUBLE,
+								TypeSize.BYTE + TypeSize.INT + TypeSize.DOUBLE + TypeSize.BYTE,
 								0), PROCESS(TypeSize.BYTE + TypeSize.DOUBLE + TypeSize.BYTE + TypeSize.INT, 0);
 
 		public final int HEADER_SIZE;
@@ -591,26 +592,39 @@ public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	public static enum ResultType {
-		GET_VALUE("getValue"), WATCH_PAR("watchParameter"), WATCH_QUANT("watchQuantity"), WATCH_STATE(
-				"watchState"), WATCH_VALUE("watchValue");
+		NUMBER, OTHER;
+	}
 
-		ResultType(final String type) {
-			this.type = type;
+	public final <T> void addResultEntry(final Result<T> result, T value) {
+		final String name = result.getName();
+		if (!sensitivityList.contains(name))
+			return;
+
+		final ResultIndex index = (ResultIndex) indexHelper.getResult(name).getIndex();
+
+		final ByteBuffer header = ByteBuffer.allocate(EntryType.RESULT.HEADER_SIZE);
+		header.put((byte) EntryType.RESULT.ordinal()).putInt(index.getNumber()).putDouble(CurrentSimulator.getTime());
+
+		ByteBuffer data;
+		if (value instanceof Number) {
+			header.put((byte) ResultType.NUMBER.ordinal());
+			data = ByteBuffer.allocate(TypeSize.DOUBLE);
+			data.putDouble(((Number) value).doubleValue());
+		} else {
+			header.put((byte) ResultType.OTHER.ordinal());
+			String valueStr = value.toString();
+			byte[] valueBytes = valueStr.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+			int valueBytesLen = valueBytes.length;
+			data = ByteBuffer.allocate(TypeSize.INT + TypeSize.BYTE * valueBytesLen);
+
+			data.putInt(valueBytesLen);
+			data.put(valueBytes);
 		}
 
-		static final ResultType getByString(final String type) {
-			for (final ResultType t : values()) {
-				if (t.type.equals(type))
-					return t;
-			}
-			throw new DatabaseException("Unexpected result type: " + type);
-		}
+		final Entry entry = new Entry(header, data);
 
-		public String getString() {
-			return type;
-		}
-
-		final private String type;
+		addEntry(entry);
+		index.getEntryNumbers().add(allEntries.size() - 1);
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

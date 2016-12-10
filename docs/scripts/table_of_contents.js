@@ -131,11 +131,11 @@ function getReferenceContents() {
 function getTutorialContents() {
     var contents = [
         {
-            "href":"../tutorial/model_1_call_count.html",
+            "href":"../tutorial/call_center_call_count.html",
             "title":"Модель подсчета количества звонков в службу технической поддержки"
         },
         {
-            "href":"../tutorial/model_2_single_operator.html",
+            "href":"../tutorial/call_center_single_operator.html",
             "title":"Модель службы технической поддержки с одним оператором"
         }
     ];

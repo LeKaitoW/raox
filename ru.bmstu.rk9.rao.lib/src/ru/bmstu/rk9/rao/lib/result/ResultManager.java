@@ -19,7 +19,7 @@ public class ResultManager {
 		@Override
 		public void fireChange() {
 			for (Result<?> result : results) {
-				if (result.resultMode == ResultMode.AUTO)
+				if (result.getResultMode() == ResultMode.AUTO)
 					result.update();
 			}
 		}

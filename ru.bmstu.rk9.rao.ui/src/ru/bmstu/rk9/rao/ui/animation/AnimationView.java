@@ -10,6 +10,12 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -232,6 +238,50 @@ public class AnimationView extends ViewPart {
 
 		frameView = new Canvas(frameViewComposite, SWT.BORDER | SWT.NO_BACKGROUND);
 		frameView.addPaintListener(painter);
+		frameView.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseUp(MouseEvent e) {
+				currentFrame.mouseUp(e.x, e.y, e.button, e.stateMask);
+			}
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				currentFrame.mouseDown(e.x, e.y, e.button, e.stateMask);
+			}
+
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				currentFrame.mouseDoubleClick(e.x, e.y, e.button, e.stateMask);
+
+			}
+		});
+
+		frameView.addMouseMoveListener(new MouseMoveListener() {
+			@Override
+			public void mouseMove(MouseEvent e) {
+				currentFrame.mouseMove(e.x, e.y, e.button, e.stateMask);
+			}
+		});
+
+		frameView.addKeyListener(new KeyListener() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				currentFrame.keyReleased(e.keyCode, e.stateMask);
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				currentFrame.keyPressed(e.keyCode, e.stateMask);
+			}
+		});
+
+		frameView.addMouseWheelListener(new MouseWheelListener() {
+
+			@Override
+			public void mouseScrolled(MouseEvent e) {
+				currentFrame.mouseScrolled(e.x, e.y, e.count);
+			}
+		});
 
 		scrolledComposite.setContent(scrolledCompositeInner);
 		scrolledComposite.setExpandHorizontal(true);

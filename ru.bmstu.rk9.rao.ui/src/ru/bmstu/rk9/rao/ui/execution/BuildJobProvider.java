@@ -36,7 +36,7 @@ import org.eclipse.xtext.ui.validation.DefaultResourceUIValidatorExtension;
 import org.eclipse.xtext.validation.CheckMode;
 
 import ru.bmstu.rk9.rao.ui.RaoActivatorExtension;
-import ru.bmstu.rk9.rao.ui.execution.BuildUtil.BundleType;
+import ru.bmstu.rk9.rao.ui.execution.BuildUtil.BuildUtilException;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.BlockNode;
 
 public class BuildJobProvider {
@@ -181,13 +181,12 @@ public class BuildJobProvider {
 		Job rebuildJob = new Job("Rebuilding project" + recentProject.getName()) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				String libErrorMessage = BuildUtil.checkLib(recentProject, monitor, BundleType.RAO_LIB);
-				if (libErrorMessage != null)
-					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(libErrorMessage));
-
-				libErrorMessage = BuildUtil.checkLib(recentProject, monitor, BundleType.XBASE_LIB);
-				if (libErrorMessage != null)
-					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(libErrorMessage));
+				try {
+					BuildUtil.updateClasspaths(recentProject, monitor);
+				} catch (BuildUtilException e) {
+					e.printStackTrace();
+					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage(e.getMessage()));
+				}
 
 				final List<IResource> raoFiles = BuildUtil.getAllFilesInProject(recentProject, "rao");
 				if (raoFiles.isEmpty()) {

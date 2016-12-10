@@ -30,7 +30,7 @@ proc create_rao_project [val template_name] [val project_name] {
 		get-button "Next >" | click
 	}
 
-	with [get-window "New Rao Project"] {
+	with [get-window "New Rao X Project"] {
 		get-group Templates | get-button $template_name | click
 		with [get-editbox -after [get-label "Project name:"]] {
 			set-text $project_name

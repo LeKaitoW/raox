@@ -14,7 +14,8 @@ import ru.bmstu.rk9.rao.rao.RaoModel
 import ru.bmstu.rk9.rao.rao.Logic
 import ru.bmstu.rk9.rao.rao.Search
 import ru.bmstu.rk9.rao.rao.Frame
-import ru.bmstu.rk9.rao.rao.ResultType
+import ru.bmstu.rk9.rao.rao.DataSource
+import ru.bmstu.rk9.rao.validation.DefaultMethodsHelper.AbstractMethodInfo
 
 class RaoProposalProvider extends AbstractRaoProposalProvider {
 	override completeKeyword(Keyword keyword, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
@@ -32,7 +33,7 @@ class RaoProposalProvider extends AbstractRaoProposalProvider {
 		}
 
 		if (!(toComplete instanceof Pattern || toComplete instanceof Frame || toComplete instanceof Logic ||
-			toComplete instanceof Search || toComplete instanceof RaoModel || toComplete instanceof ResultType))
+			toComplete instanceof Search || toComplete instanceof RaoModel || toComplete instanceof DataSource))
 			return;
 
 		internalCompleteDefaultMethod_Name(toComplete, context, acceptor)
@@ -44,12 +45,12 @@ class RaoProposalProvider extends AbstractRaoProposalProvider {
 		switch (pattern.type) {
 			case OPERATION: {
 				for (value : DefaultMethodsHelper.OperationMethodInfo.values) {
-					acceptor.accept(createCompletionProposal(value.name, context))
+					acceptor.accept(createMethodCompletionProposal(value, context))
 				}
 			}
 			case RULE: {
 				for (value : DefaultMethodsHelper.RuleMethodInfo.values) {
-					acceptor.accept(createCompletionProposal(value.name, context))
+					acceptor.accept(createMethodCompletionProposal(value, context))
 				}
 			}
 		}
@@ -59,7 +60,7 @@ class RaoProposalProvider extends AbstractRaoProposalProvider {
 		ICompletionProposalAcceptor acceptor) {
 
 		for (value : DefaultMethodsHelper.FrameMethodInfo.values) {
-			acceptor.accept(createCompletionProposal(value.name, context))
+			acceptor.accept(createMethodCompletionProposal(value, context))
 		}
 	}
 
@@ -67,7 +68,7 @@ class RaoProposalProvider extends AbstractRaoProposalProvider {
 		ICompletionProposalAcceptor acceptor) {
 
 		for (value : DefaultMethodsHelper.DptMethodInfo.values) {
-			acceptor.accept(createCompletionProposal(value.name, context))
+			acceptor.accept(createMethodCompletionProposal(value, context))
 		}
 	}
 
@@ -75,7 +76,7 @@ class RaoProposalProvider extends AbstractRaoProposalProvider {
 		ICompletionProposalAcceptor acceptor) {
 
 		for (value : DefaultMethodsHelper.DptMethodInfo.values) {
-			acceptor.accept(createCompletionProposal(value.name, context))
+			acceptor.accept(createMethodCompletionProposal(value, context))
 		}
 	}
 
@@ -83,15 +84,20 @@ class RaoProposalProvider extends AbstractRaoProposalProvider {
 		ICompletionProposalAcceptor acceptor) {
 
 		for (value : DefaultMethodsHelper.GlobalMethodInfo.values) {
-			acceptor.accept(createCompletionProposal(value.name, context))
+			acceptor.accept(createMethodCompletionProposal(value, context))
 		}
 	}
 
-	def dispatch internalCompleteDefaultMethod_Name(ResultType resultType, ContentAssistContext context,
+	def dispatch internalCompleteDefaultMethod_Name(DataSource dataSource, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
 
-		for (value : DefaultMethodsHelper.ResultTypeMethodInfo.values) {
-			acceptor.accept(createCompletionProposal(value.name, context))
+		for (value : DefaultMethodsHelper.DataSourceMethodInfo.values) {
+			acceptor.accept(createMethodCompletionProposal(value, context))
 		}
+	}
+
+	def createMethodCompletionProposal(AbstractMethodInfo method, ContentAssistContext context) {
+		return createCompletionProposal(method.name +
+			method.parameters.toString.replace("[", "(").replace("]", ")"), context);
 	}
 }

@@ -6,84 +6,209 @@ public class DefaultMethodsHelper {
 	};
 
 	public static class MethodInfo {
-		MethodInfo(ValidatorAction action) {
+		MethodInfo(ValidatorAction action, String[] parameters) {
 			this.action = action;
+			this.parameters = parameters;
 		}
 
 		int count = 0;
 		ValidatorAction action;
+		String[] parameters;
 	}
 
-	public static enum GlobalMethodInfo {
-		INIT("init", ValidatorAction.NOTHING), TERMINATE_CONDITION("terminateCondition", ValidatorAction.NOTHING);
+	public static interface AbstractMethodInfo {
+		public String getName();
 
-		GlobalMethodInfo(String name, ValidatorAction validatorAction) {
+		public ValidatorAction getValidatorAction();
+
+		public String[] getParameters();
+	}
+
+	public static enum GlobalMethodInfo implements AbstractMethodInfo {
+		INIT("init", ValidatorAction.NOTHING, new String[] {}), TERMINATE_CONDITION("terminateCondition",
+				ValidatorAction.NOTHING, new String[] {});
+
+		GlobalMethodInfo(String name, ValidatorAction validatorAction, String[] parameters) {
 			this.name = name;
 			this.validatorAction = validatorAction;
+			this.parameters = parameters;
 		}
 
 		public final String name;
 		final ValidatorAction validatorAction;
+		public final String[] parameters;
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public ValidatorAction getValidatorAction() {
+			return validatorAction;
+		}
+
+		@Override
+		public String[] getParameters() {
+			return parameters;
+		}
 	}
 
-	public static enum OperationMethodInfo {
-		BEGIN("begin", ValidatorAction.NOTHING), END("end", ValidatorAction.NOTHING), DURATION("duration",
-				ValidatorAction.NOTHING);
+	public static enum OperationMethodInfo implements AbstractMethodInfo {
+		BEGIN("begin", ValidatorAction.NOTHING, new String[] {}), END("end", ValidatorAction.NOTHING,
+				new String[] {}), DURATION("duration", ValidatorAction.NOTHING, new String[] {});
 
-		OperationMethodInfo(String name, ValidatorAction validatorAction) {
+		OperationMethodInfo(String name, ValidatorAction validatorAction, String[] parameters) {
 			this.name = name;
 			this.validatorAction = validatorAction;
+			this.parameters = parameters;
 		}
 
 		public final String name;
 		final ValidatorAction validatorAction;
+		public final String[] parameters;
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public ValidatorAction getValidatorAction() {
+			return validatorAction;
+		}
+
+		@Override
+		public String[] getParameters() {
+			return parameters;
+		}
 	}
 
-	public static enum RuleMethodInfo {
-		EXECUTE("execute", ValidatorAction.NOTHING);
+	public static enum RuleMethodInfo implements AbstractMethodInfo {
+		EXECUTE("execute", ValidatorAction.NOTHING, new String[] {});
 
-		RuleMethodInfo(String name, ValidatorAction validatorAction) {
+		RuleMethodInfo(String name, ValidatorAction validatorAction, String[] parameters) {
 			this.name = name;
 			this.validatorAction = validatorAction;
+			this.parameters = parameters;
 		}
 
 		public final String name;
 		final ValidatorAction validatorAction;
+		public final String[] parameters;
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public ValidatorAction getValidatorAction() {
+			return validatorAction;
+		}
+
+		@Override
+		public String[] getParameters() {
+			return parameters;
+		}
 	}
 
-	public static enum DptMethodInfo {
-		INIT("init", ValidatorAction.NOTHING);
+	public static enum DptMethodInfo implements AbstractMethodInfo {
+		INIT("init", ValidatorAction.NOTHING, new String[] {});
 
-		DptMethodInfo(String name, ValidatorAction validatorAction) {
+		DptMethodInfo(String name, ValidatorAction validatorAction, String[] parameters) {
 			this.name = name;
 			this.validatorAction = validatorAction;
+			this.parameters = parameters;
 		}
 
 		public final String name;
 		final ValidatorAction validatorAction;
+		public final String[] parameters;
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public ValidatorAction getValidatorAction() {
+			return validatorAction;
+		}
+
+		@Override
+		public String[] getParameters() {
+			return parameters;
+		}
 	}
 
-	public static enum FrameMethodInfo {
-		INIT("init", ValidatorAction.NOTHING), DRAW("draw", ValidatorAction.NOTHING);
+	public static enum FrameMethodInfo implements AbstractMethodInfo {
+		INIT("init", ValidatorAction.NOTHING, new String[] {}), //
+		DRAW("draw", ValidatorAction.NOTHING, new String[] {}), //
+		MOUSE_DOWN("mouseDown", ValidatorAction.NOTHING,
+				new String[] { "int x", "int y", "int button", "int stateMask" }), //
+		MOUSE_UP("mouseUp", ValidatorAction.NOTHING, new String[] { "int x", "int y", "int button", "int stateMask" }), //
+		MOUSE_MOVE("mouseMove", ValidatorAction.NOTHING,
+				new String[] { "int x", "int y", "int button", "int stateMask" }), //
+		MOUSE_DOUBLECLICK("mouseDoubleClick", ValidatorAction.NOTHING,
+				new String[] { "int x", "int y", "int button", "int stateMask" }), //
+		MOUSE_SCROLLED("mouseScrolled", ValidatorAction.NOTHING, new String[] { "int x", "int y", "int count" }), //
+		KEY_RELEASED("keyReleased", ValidatorAction.NOTHING, new String[] { "int keyCode", "int stateMask" }), //
+		KEY_PRESSED("keyPressed", ValidatorAction.NOTHING, new String[] { "int keyCode", "int stateMask" });
 
-		FrameMethodInfo(String name, ValidatorAction validatorAction) {
+		FrameMethodInfo(String name, ValidatorAction validatorAction, String[] parameters) {
 			this.name = name;
 			this.validatorAction = validatorAction;
+			this.parameters = parameters;
 		}
 
 		public final String name;
 		final ValidatorAction validatorAction;
-	}
-	
-	public static enum ResultTypeMethodInfo {
-		EVALUATE("evaluate", ValidatorAction.NOTHING), CONDITION("condition", ValidatorAction.NOTHING);
+		public final String[] parameters;
 
-		ResultTypeMethodInfo(String name, ValidatorAction validatorAction) {
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public ValidatorAction getValidatorAction() {
+			return validatorAction;
+		}
+
+		@Override
+		public String[] getParameters() {
+			return parameters;
+		}
+	}
+
+	public static enum DataSourceMethodInfo implements AbstractMethodInfo {
+		EVALUATE("evaluate", ValidatorAction.NOTHING, new String[] {}), CONDITION("condition", ValidatorAction.NOTHING,
+				new String[] {});
+
+		DataSourceMethodInfo(String name, ValidatorAction validatorAction, String[] parameters) {
 			this.name = name;
 			this.validatorAction = validatorAction;
+			this.parameters = parameters;
 		}
 
 		public final String name;
 		final ValidatorAction validatorAction;
+		public final String[] parameters;
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public ValidatorAction getValidatorAction() {
+			return validatorAction;
+		}
+
+		@Override
+		public String[] getParameters() {
+			return parameters;
+		}
 	}
 }

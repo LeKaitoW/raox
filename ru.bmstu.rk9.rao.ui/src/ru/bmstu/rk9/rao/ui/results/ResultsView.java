@@ -72,7 +72,7 @@ public class ResultsView extends ViewPart {
 		}
 
 		TreeItem result = new TreeItem(modelItem, SWT.NONE);
-		result.setText(new String[] { name, data.getString("type") });
+		result.setText(new String[] { name });
 
 		String origin = text.getText();
 
@@ -80,8 +80,7 @@ public class ResultsView extends ViewPart {
 		styleRange.start = origin.length();
 		styleRange.fontStyle = SWT.BOLD;
 
-		String[] resultText = {
-				origin + (origin.length() > 0 ? "\n\n" : "") + data.getString("name") + ": " + data.getString("type") };
+		String[] resultText = { origin + (origin.length() > 0 ? "\n\n" : "") + data.getString("name") };
 
 		styleRange.length = resultText[0].length() - origin.length();
 
