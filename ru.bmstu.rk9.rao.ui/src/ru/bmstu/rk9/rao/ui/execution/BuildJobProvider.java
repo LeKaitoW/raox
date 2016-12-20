@@ -99,21 +99,32 @@ public class BuildJobProvider {
 		return recentProject;
 	}
 
+	@SuppressWarnings("unused")
+	private final void updateValidationMarkers(IResource file, Resource loadedResource, IProgressMonitor monitor) {
+		validatorExtension.updateValidationMarkers((IFile) file, loadedResource, CheckMode.ALL, monitor);
+	}
+
 	private boolean projectHasErrors(List<IResource> files, String problem, IProgressMonitor monitor,
 			boolean areXtextFiles) throws CoreException {
 		boolean projectHasErrors = false;
-		final ResourceSet resourceSet = resourceSetProvider.get(recentProject);
-
-		for (IResource resource : files) {
+		for (IResource file : files) {
 			if (areXtextFiles) {
-				Resource loadedResource = resourceSet.getResource(BuildUtil.getURI(resource), true);
+				final ResourceSet resourceSet = resourceSetProvider.get(recentProject);
+				Resource loadedResource = resourceSet.getResource(BuildUtil.getURI(file), true);
 				if (!loadedResource.getErrors().isEmpty()) {
 					projectHasErrors = true;
 					break;
 				}
-				validatorExtension.updateValidationMarkers((IFile) resource, loadedResource, CheckMode.ALL, monitor);
+				/*
+				 * FIXME: Validation markers update is commented out due to the
+				 * fact that it significantly slows down start of models, that
+				 * require long compilation. This code should be restored after
+				 * issue with slow model compilation is resolved.
+				 */
+//				updateValidationMarkers(file, loadedResource, monitor);
 			}
-			IMarker[] markers = resource.findMarkers(problem, true, 0);
+
+			IMarker[] markers = file.findMarkers(problem, true, 0);
 			for (IMarker marker : markers) {
 				int severity = marker.getAttribute(IMarker.SEVERITY, Integer.MAX_VALUE);
 				if (severity == IMarker.SEVERITY_ERROR) {
