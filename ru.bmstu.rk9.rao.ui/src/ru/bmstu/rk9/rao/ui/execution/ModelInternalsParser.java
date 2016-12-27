@@ -41,7 +41,7 @@ import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
-import ru.bmstu.rk9.rao.lib.result.Result;
+import ru.bmstu.rk9.rao.lib.result.AbstractResult;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
@@ -340,7 +340,7 @@ public class ModelInternalsParser {
 		}
 
 		for (Field field : modelClass.getDeclaredFields()) {
-			if (Result.class.isAssignableFrom(field.getType()))
+			if (AbstractResult.class.isAssignableFrom(field.getType()))
 				resultFields.add(field);
 		}
 
@@ -370,7 +370,7 @@ public class ModelInternalsParser {
 			InvocationTargetException, ClassNotFoundException, IOException, CoreException {
 		for (Field resultField : resultFields) {
 			resultField.setAccessible(true);
-			Result<?> result = (Result<?>) resultField.get(null);
+			AbstractResult<?> result = (AbstractResult<?>) resultField.get(null);
 
 			String name = NamingHelper.createFullNameForMember(resultField);
 			result.setName(name);
