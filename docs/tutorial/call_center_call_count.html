@@ -14,65 +14,65 @@
 <p>Пусть в службу технической поддержки поступают звонки. Интервал между звонками задается экспоненциальным законом с интенсивностью &#955; = 1/30 [1/мин]. Необходимо подсчитать, сколько звонков поступит за рабочий день (8 часов).</p>
 <h3>Полный код модели, <a href="https://github.com/aurusov/raox-models/tree/master/tutorial/call_center/call_center_call_count">скачать</a></h3>
 <pre><code class="rao">type TechSupport {
-    int callsCount;
+    int callsCount
 }
 
-resource techSupport = TechSupport.create(0);
+resource techSupport = TechSupport.create(0)
 
 event NewCall() {
-    techSupport.callsCount = techSupport.callsCount + 1;
-    NewCall.plan(currentTime + newCallInterval.next());
+    techSupport.callsCount = techSupport.callsCount + 1
+    NewCall.plan(currentTime + newCallInterval.next())
 }
 
 def init() {
-    NewCall.plan(newCallInterval.next());
+    NewCall.plan(newCallInterval.next())
 }
 
 def terminateCondition() {
-    return currentTime >= 480;
+    return currentTime >= 480
 }
 
-sequence newCallInterval = new Exponential(123456789, 1 / 30.0);
+sequence newCallInterval = new Exponential(123456789, 1 / 30.0)
 
-result totalCallsCount = new Result([techSupport.callsCount]);
+result totalCallsCount = Result.create([techSupport.callsCount])
 </code></pre>
 
 <h3>Описание ресурсов</h3>
 <p>База данных модели будет представлена единственным ресурсом - службой технической поддержки. Для него в простейшей модели необходимо задать только один параметр: число поступивших заявок. Определение нового типа ресурса осуществляется с помощью ключевого слова <code>type</code>. После чего следует список параметров ресурса. Параметры разделяются точками с запятыми.</p>
 <pre><code class="rao">type TechSupport {
-    int callsCount;
+    int callsCount
 }
 </code></pre>
 <p>Создание нового ресурса производится с помощью ключевого слова <code>resource</code> и вызова метода <code>create()</code> у желаемого типа. В метод <code>create()</code> передаются начальные значения параметров ресурса.</p>
-<pre><code class="rao">resource techSupport = TechSupport.create(0);</code></pre>
+<pre><code class="rao">resource techSupport = TechSupport.create(0)</code></pre>
 <h3>Описание последовательностей</h3>
 <p>Для модели задано одно случайное распределение: для описания интервала между двумя последовательными звонками. Последовательности описываются в РДО с помощью ключевого слова <code>sequence</code>.</p>
-<pre><code class="rao">sequence newCallInterval = new Exponential(123456789, 1 / 30.0);</code></pre>
+<pre><code class="rao">sequence newCallInterval = new Exponential(123456789, 1 / 30.0)</code></pre>
 <p>Для создания последовательности необходимо задать тип последовательности (здесь <code>Exponential</code>), начальное значение базы генератора и параметры закона (в данном случае &#955;).</p>
 <h3>Описание событий</h3>
 <p>Для описания логики функционирования модели необходимо определить случайные события (поступление нового звонка), происходящие в системе.</p>
 <p>События описываются с помощью ключевого слова <code>event</code>.</p>
 <pre><code class="rao">event NewCall() {
-    techSupport.callsCount = techSupport.callsCount + 1;
-    NewCall.plan(currentTime + newCallInterval.next());
+    techSupport.callsCount = techSupport.callsCount + 1
+    NewCall.plan(currentTime + newCallInterval.next())
 }
 </code></pre>
 <p>Событию могут быть переданы параметры, но в данном случае их нет и потому скобки после имени пустые. В теле события описываются действия, которые выполняются при его наступлении. В данной модели во время поступления нового звонка счетчик увеличивается на единицу. И происходит планирование следующего звонка, см. ниже.</p>
 <h3>Инициализация модели</h3>
 <p>Для того, чтобы модель смогла функционировать, необходимо периодически планировать событие поступления нового звонка. Чтобы модель смогла начать работу, первый раз событие должно быть запланировано до начала прогона модели. Действия, которые необходимо произвести до начала прогона, описываются в глобальном методе <code>init()</code>, который так же можно переопределить с помощью ключевого слова <code>def</code>.</p>
 <pre><code class="rao">def init() {
-    NewCall.plan(newCallInterval.next());
+    NewCall.plan(newCallInterval.next())
 }
 </code></pre>
 <p>Планирование событий выполняется с помощью метода <code>plan(double time)</code>, которому в качестве параметра передается момент времени, в который должно быть выполнено событие. Глобальный параметр <code>currentTime</code> позволяет получить текущее модельное время. Для получения интервала по случайному распределению, вызывается метод <code>next()</code> (получить следующее значение) описанной ранее последовательности <code>newCallInterval</code>. Метод <code>plan()</code> планирует событие только один раз, поэтому для моделирования постоянного прихода звонков его также необходимо вызывать в его теле.</p>
 <p>Условие завершение модели задается в методе <code>terminateCondition()</code>.</p>
 <pre><code class="rao">def terminateCondition() {
-    return currentTime >= 480;
+    return currentTime >= 480
 }
 </code></pre>
 <h3>Описание собираемых показателей</h3>
 <p>Результаты моделирования описываются с помощью ключевого слова <code>result</code>. Наблюдаемое значение можно указать в квадратных скобках.</p>
-<pre><code class="rao">result totalCallsCount = new Result([techSupport.c]);</code></pre>
+<pre><code class="rao">result totalCallsCount = Result.create([techSupport.callsCount])</code></pre>
 <h3>Результаты моделирования</h3>
 <p>Собранные показатели отображаются в окне результатов. Для данной модели можно увидеть, что за рабочий день в службу технической поддержки поступило 11 звонков.</p>
 <pre><code class="rao">call_center.call_center.totalCallsCount

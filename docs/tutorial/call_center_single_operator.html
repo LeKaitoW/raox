@@ -16,106 +16,106 @@
 <pre><code class="rao">enum OperatorState {FREE, BUSY}
 
 type TechSupport {
-    OperatorState operatorState;
-    int queueLength;
-    int peopleServed;
+    OperatorState operatorState
+    int queueLength
+    int peopleServed
 }
 
-resource techSupport = TechSupport.create(OperatorState.FREE, 0, 0);
+resource techSupport = TechSupport.create(OperatorState.FREE, 0, 0)
 
 event NewCall() {
-    techSupport.queueLength = techSupport.queueLength + 1;
-    NewCall.plan(currentTime + newCallInterval.next());
+    techSupport.queueLength = techSupport.queueLength + 1
+    NewCall.plan(currentTime + newCallInterval.next())
 }
 
-operation CallProcessingPattern() {
-    relevant _techSupport = techSupport.onlyif[queueLength > 0 &amp;&amp; operatorState == OperatorState.FREE];
+operation CallProcessing() {
+    relevant techSupport_ = techSupport.onlyif[queueLength > 0 &amp;&amp; operatorState == OperatorState.FREE]
 
     def begin() {
-        _techSupport.queueLength = _techSupport.queueLength - 1;
-        _techSupport.operatorState = OperatorState.BUSY;
+        techSupport_.queueLength = techSupport_.queueLength - 1
+        techSupport_.operatorState = OperatorState.BUSY
     }
 
     def duration() {
-        return callProcessingTime.next();
+        return callProcessingTime.next()
     }
 
     def end() {
-        _techSupport.peopleServed = _techSupport.peopleServed + 1;
-        _techSupport.operatorState = OperatorState.FREE;
+        techSupport_.peopleServed = techSupport_.peopleServed + 1
+        techSupport_.operatorState = OperatorState.FREE
     }
 }
 
-sequence newCallInterval = new Exponential(123456789, 1 / 30.0);
-sequence callProcessingTime = new Uniform(123456789, 20, 40);
+sequence newCallInterval = new Exponential(123456789, 1 / 30.0)
+sequence callProcessingTime = new Uniform(123456789, 20, 40)
 
 logic Model {
-    activity callProcessing = new Activity(CallProcessingPattern.create());
+    activity callProcessing = new Activity(CallProcessing.create())
 }
 
 def init() {
-    NewCall.plan(newCallInterval.next());
+    NewCall.plan(newCallInterval.next())
 }
 
 def terminateCondition() {
-    return currentTime >= 480;
+    return currentTime >= 480
 }
 
-result totalPeopleServed = new Result([techSupport.peopleServed]);
-result queueLengthStatistics = new Result([techSupport.queueLength]);
+result totalPeopleServed = Result.create([techSupport.peopleServed])
+result queueLengthStatistics = Result.create([techSupport.queueLength])
 </code></pre>
 <h3>Описание ресурсов</h3>
 <p>Данная модель так же будет иметь единственный ресурс - службу технической поддержки. Однако параметрами ресурса теперь будет длина очереди, состояние оператора (свободен или занят), а также общее число успешно обслуженных заявок. Для объявления перечислимых значений используется ключевое слово <code>enum</code>.</p>
 <pre><code class="rao">enum OperatorState {FREE, BUSY}
 
 type TechSupport {
-    OperatorState operatorState;
-    int queueLength;
-    int peopleServed;
+    OperatorState operatorState
+    int queueLength
+    int peopleServed
 }
 
-resource techSupport = TechSupport.create(OperatorState.FREE, 0, 0);
+resource techSupport = TechSupport.create(OperatorState.FREE, 0, 0)
 </code></pre>
 
 <h3>Описание последовательностей</h3>
 <p>Равномерное распределение (uniform) задается аналогично тому, как задавалось экспоненциальное в прошлой модели.</p>
-<pre><code class="rao">sequence callProcessingTime = new Uniform(123456789, 20, 40);</code></pre>
+<pre><code class="rao">sequence callProcessingTime = new Uniform(123456789, 20, 40)</code></pre>
 
 <h3>Описание действий</h3>
 <p>Процесс обслуживание оператором заявки описывается с помощью действий (операций). Описание операций производится с помощью ключевого слова <code>operation</code>.</p>
-<pre><code class="rao">operation CallProcessingPattern() {
+<pre><code class="rao">operation CallProcessing() {
     ...
 }
 </code></pre>
 <p>Как и событию, операции могут быть переданы параметры. Операции имеют событие начала (описывается в теле метода <code>begin()</code>) и событие конца (описывается в теле <code>end()</code>), а также некоторую длительность (задается в <code>duration</code>). В начале операции необходимо уменьшить длину очереди на единицу и выставить оператору состояние "занят".</p>
 <pre><code class="rao">def begin() {
-    _techSupport.queueLength = _techSupport.queueLength - 1;
-    _techSupport.operatorState = OperatorState.BUSY;
+    techSupport_.queueLength = techSupport_.queueLength - 1
+    techSupport_.operatorState = OperatorState.BUSY
 }
 </code></pre>
 <p>В конце нужно вернуть оператора в состояние "свободен" и увеличить количество обслуженных звонков на единицу.</p>
 <pre><code class="rao">def end() {
-    _techSupport.peopleServed = _techSupport.peopleServed + 1;
-    _techSupport.operatorState = OperatorState.FREE;
+    techSupport_.peopleServed = techSupport_.peopleServed + 1
+    techSupport_.operatorState = OperatorState.FREE
 }
 </code></pre>
 <p>Длительность операции задается с помощью описанного ранее равномерного распределения.</p>
 <pre><code class="rao">def duration() {
-    return callProcessingTime.next();
+    return callProcessingTime.next()
 }
 </code></pre>
 <p>Операция обслуживание звонка должна выполняться не каждый раз, а только если ресурс, способный производить обслуживание, находится в корректном состоянии, а именно, в очереди есть необслуженные звонки и оператор в данный момент свободен. Эта проверка производится с помощью механизма релевантных ресурсов. Действие будет выполняться только в том случае, если удалось подобрать все релевантные ресурсы по соответствующим условиям.</p>
-<pre><code class="rao">relevant _techSupport = techSupport.onlyif[queueLength > 0 && operatorState == OperatorState.FREE];</code></pre>
+<pre><code class="rao">relevant techSupport_ = techSupport.onlyif[queueLength > 0 && operatorState == OperatorState.FREE]</code></pre>
 <p>Операции в языке РДО не являются самостоятельными сущностями. Это лишь заготовки, которые должны быть реализованы активностями. Активности проверяются на возможность выполнения каждый раз, когда меняется состояние модели (см. подход сканирования активностей). Список активностей и порядок их сканирования задаются с помощью ключевого слова <code>logic</code>.</p>
 <pre><code class="rao">logic Model {
-    activity callProcessing = new Activity(CallProcessingPattern.create());
+    activity callProcessing = new Activity(CallProcessing.create())
 }
 </code></pre>
 
 <h3>Описание собираемых показателей</h3>
 <p>Общее количество обслуженных заявок можно получить, наблюдая за <code>techSupport.peopleServed</code>. Для сбора подробной статистики по длине очереди - <code>techSupport.queueLength</code>.</p>
-<pre><code class="rao">result totalPeopleServed = new Result([techSupport.peopleServed]);
-result queueLengthStatistics = new Result([techSupport.queueLength]);
+<pre><code class="rao">result totalPeopleServed = Result.create([techSupport.peopleServed])
+result queueLengthStatistics = Result.create([techSupport.queueLength])
 </code></pre>
 
 <h3>Результаты моделирования</h3>
