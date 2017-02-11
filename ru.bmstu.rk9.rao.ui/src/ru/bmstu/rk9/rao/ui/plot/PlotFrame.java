@@ -33,6 +33,37 @@ public class PlotFrame extends ChartComposite {
 	private double horizontalRatio;
 	private double verticalRatio;
 
+	public PlotFrame(final Composite comp, final int style) {
+		super(comp, style, null, ChartComposite.DEFAULT_WIDTH, ChartComposite.DEFAULT_HEIGHT, 0, 0, Integer.MAX_VALUE,
+				Integer.MAX_VALUE, ChartComposite.DEFAULT_BUFFER_USED, true, true, true, true, true);
+		addSWTListener(new PlotKeyListener());
+		addMouseWheelListener(new PlotMouseWheelListener());
+		addSWTListener(new PlotMouseMoveListener());
+		setZoomInFactor(0.75);
+		setZoomOutFactor(1.25);
+		toolTip = new DefaultToolTip(this, SWT.BALLOON, false);
+		toolTip.setBackgroundColor(new Color(comp.getDisplay(), 255, 255, 255));
+		toolTip.setForegroundColor(new Color(comp.getDisplay(), 128, 128, 128));
+		toolTip.setRespectDisplayBounds(false);
+		toolTip.setShift(new Point(0, -50));
+		toolTip.setHideDelay(0);
+		toolTip.setHideOnMouseDown(false);
+		toolTip.setPopupDelay(0);
+	}
+
+	private final Point plotToSwt(double x, double y) {
+		Rectangle rectangle = PlotFrame.this.getScreenDataArea();
+		final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
+		final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
+		double width_in_axis_units = domainAxis.getUpperBound() - domainAxis.getLowerBound();
+		double height_in_axis_units = rangeAxis.getUpperBound() - rangeAxis.getLowerBound();
+		double relativeX = (x - domainAxis.getLowerBound()) / width_in_axis_units;
+		double relativeY = (rangeAxis.getUpperBound() - y) / height_in_axis_units;
+		double screenX = relativeX * rectangle.width + rectangle.x;
+		double screenY = relativeY * rectangle.height + rectangle.y;
+		return new Point((int) Math.round(screenX), (int) Math.round(screenY));
+	}
+
 	private final Point2D swtToPlot(int x, int y) {
 		Rectangle rectangle = PlotFrame.this.getScreenDataArea();
 		final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
@@ -47,26 +78,11 @@ public class PlotFrame extends ChartComposite {
 		return new Point2D.Double(x_plot, y_plot);
 	}
 
-	private final Point plotToSwt(double x, double y) {
-		Rectangle rectangle = PlotFrame.this.getScreenDataArea();
-		final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
-		final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
-		double width_in_axis_units = domainAxis.getUpperBound() - domainAxis.getLowerBound();
-		double height_in_axis_units = rangeAxis.getUpperBound() - rangeAxis.getLowerBound();
-		double relativeX = (x - domainAxis.getLowerBound()) / width_in_axis_units;
-		double relativeY = (rangeAxis.getUpperBound() - y) / height_in_axis_units;
-		double screenX = relativeX * rectangle.width + rectangle.x;
-		double screenY = relativeY * rectangle.height + rectangle.y;
-
-		return new Point((int) Math.round(screenX), (int) Math.round(screenY));
-	}
-
 	final DefaultToolTip toolTip;
 
 	class PlotMouseMoveListener implements MouseMoveListener {
-
+		boolean tooltipIsOn = false;
 		int previousIndex = -1;
-		volatile boolean tooltipWasShown = false;
 		int distanceToMouse = 0;
 		Point widgetPoint = null;
 		double valueX;
@@ -80,22 +96,25 @@ public class PlotFrame extends ChartComposite {
 		public void mouseMove(MouseEvent e) {
 			Point mousePoint = new Point(Math.round(e.x), Math.round(e.y));
 			XYDataset dataset = getChart().getXYPlot().getDataset();
-
 			Paint bckg = getChart().getXYPlot().getBackgroundPaint();
+
 			java.awt.Color bckgColor = java.awt.Color.BLACK;
+
 			if (bckg instanceof java.awt.Color) {
 				bckgColor = (java.awt.Color) bckg;
 			}
-
 			int itemsCount = dataset.getItemCount(0);
+
 			if (itemsCount > 0) {
 				double previousDistance = Double.MAX_VALUE;
 				int currentIndex = -1;
+
 				for (int index = 0; index < itemsCount; index++) {
 					valueX = dataset.getXValue(0, index);
 					valueY = dataset.getYValue(0, index);
 					widgetPoint = plotToSwt(valueX, valueY);
 					distanceToMouse = distance(widgetPoint, mousePoint);
+
 					if (distanceToMouse < previousDistance) {
 						previousDistance = distanceToMouse;
 						currentIndex = index;
@@ -106,12 +125,15 @@ public class PlotFrame extends ChartComposite {
 				valueY = dataset.getYValue(0, currentIndex);
 				widgetPoint = plotToSwt(valueX, valueY);
 				distanceToMouse = distance(widgetPoint, mousePoint);
+				Rectangle screenDataArea = getScreenDataArea();
+				Rectangle realAreaOfPlot = new Rectangle(screenDataArea.x - 1, screenDataArea.y - 1,
+						screenDataArea.width + 2, screenDataArea.height + 2);
 
-				if (currentIndex >= 0 && (currentIndex != previousIndex || !tooltipWasShown)) {
+				if (currentIndex >= 0 && realAreaOfPlot.contains(mousePoint) && distanceToMouse < 50
+						&& (tooltipIsOn == false || previousIndex != currentIndex)) {
 					getChart().getXYPlot().clearAnnotations();
-					System.out.println(mousePoint + " " + e.x);
+					tooltipIsOn = true;
 					previousIndex = currentIndex;
-					System.out.println(distanceToMouse + " " + widgetPoint + " " + mousePoint);
 					Rectangle rectangle = PlotFrame.this.getScreenDataArea();
 					final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
 					final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
@@ -123,31 +145,24 @@ public class PlotFrame extends ChartComposite {
 							(float) (valueY - radiusOfCircleY), (float) (2 * radiusOfCircleX),
 							(float) (2 * radiusOfCircleY));
 					Paint seriesPaint = getChart().getXYPlot().getRenderer().getSeriesPaint(0);
-
 					java.awt.Color seriesColor = java.awt.Color.GREEN;
+
 					if (seriesPaint instanceof java.awt.Color) {
 						seriesColor = (java.awt.Color) seriesPaint;
 					}
-
 					XYShapeAnnotation annotation = new XYShapeAnnotation(Circle, new BasicStroke(3.0f), seriesColor,
 							bckgColor);
 					getChart().getXYPlot().addAnnotation(annotation, false);
-					Rectangle screenDataArea = getScreenDataArea();
+					toolTip.setText(String.format("%.3f%n%.3f", valueY, valueX));
+					toolTip.show(widgetPoint);
+				}
 
-					if (new Rectangle(screenDataArea.x - 1, screenDataArea.y - 1, screenDataArea.width + 2,
-							screenDataArea.height + 2).contains(mousePoint) && distanceToMouse < 50) {
-						toolTip.setText(String.format("%.3f%n%.3f", valueY, valueX));
-						toolTip.show(widgetPoint);
-						tooltipWasShown = true;
-
-					} else {
-						toolTip.hide();
-						tooltipWasShown = false;
-						getChart().getXYPlot().clearAnnotations();
-					}
+				if ((distanceToMouse > 50 || !realAreaOfPlot.contains(mousePoint)) && tooltipIsOn == true) {
+					toolTip.hide();
+					tooltipIsOn = false;
+					getChart().getXYPlot().clearAnnotations();
 				}
 			}
-
 		}
 	}
 
@@ -205,25 +220,6 @@ public class PlotFrame extends ChartComposite {
 		}
 	}
 
-	public PlotFrame(final Composite comp, final int style) {
-		super(comp, style, null, ChartComposite.DEFAULT_WIDTH, ChartComposite.DEFAULT_HEIGHT, 0, 0, Integer.MAX_VALUE,
-				Integer.MAX_VALUE, ChartComposite.DEFAULT_BUFFER_USED, true, true, true, true, true);
-		addSWTListener(new PlotKeyListener());
-		addMouseWheelListener(new PlotMouseWheelListener());
-		addSWTListener(new PlotMouseMoveListener());
-		setZoomInFactor(0.75);
-		setZoomOutFactor(1.25);
-		toolTip = new DefaultToolTip(this, SWT.BALLOON, false);
-		toolTip.setBackgroundColor(new Color(comp.getDisplay(), 255, 255, 255));
-		toolTip.setForegroundColor(new Color(comp.getDisplay(), 128, 128, 128));
-		toolTip.setRespectDisplayBounds(true);
-		toolTip.setShift(new Point(0, -50));
-		toolTip.setHideDelay(0);
-		toolTip.setHideOnMouseDown(false);
-		toolTip.setPopupDelay(0);
-
-	}
-
 	public final void setSliders(final Slider horizontalSlider, final Slider verticalSlider) {
 		this.horizontalSlider = horizontalSlider;
 		this.verticalSlider = verticalSlider;
@@ -268,30 +264,36 @@ public class PlotFrame extends ChartComposite {
 	public void zoomInDomain(double x, double y) {
 		super.zoomInDomain(x, y);
 		updateSliders();
+		getChart().getXYPlot().clearAnnotations();
 	}
 
 	@Override
 	public void zoomInRange(double x, double y) {
 		super.zoomInRange(x, y);
 		updateSliders();
+		getChart().getXYPlot().clearAnnotations();
 	}
 
 	@Override
 	public void zoomOutDomain(double x, double y) {
 		super.zoomOutDomain(x, y);
 		updateSliders();
+		getChart().getXYPlot().clearAnnotations();
 	}
 
 	@Override
 	public void zoomOutRange(double x, double y) {
 		super.zoomOutRange(x, y);
 		updateSliders();
+		getChart().getXYPlot().clearAnnotations();
 	}
 
 	public final void updateSliders() {
+		getChart().getXYPlot().clearAnnotations();
 		final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
 		final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
 		final double sliderConst = 0.001;
+
 		if (horizontalMaximum - domainAxis.getRange().getUpperBound() > sliderConst) {
 			horizontalSlider.setVisible(true);
 			horizontalSlider.setEnabled(true);
@@ -302,8 +304,8 @@ public class PlotFrame extends ChartComposite {
 		} else {
 			horizontalSlider.setVisible(false);
 			horizontalSlider.setEnabled(false);
-
 		}
+
 		if (verticalMaximum - rangeAxis.getRange().getUpperBound() > sliderConst) {
 			verticalSlider.setVisible(true);
 			verticalSlider.setEnabled(true);

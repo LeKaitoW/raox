@@ -124,22 +124,13 @@ public class PlotView extends ViewPart {
 		dataset.addSeries(series);
 
 		plotXY(dataset);
-
 		initializeSubscribers();
-
 	}
 
 	private final void initializeSubscribers() {
 		simulatorSubscriberManager.initialize(
 				Arrays.asList(new SimulatorSubscriberInfo(commonSubcriber, ExecutionState.EXECUTION_STARTED),
-						new SimulatorSubscriberInfo(endSubscriber,
-								ExecutionState.EXECUTION_COMPLETED)/*
-																	 * , new
-																	 * SimulatorSubscriberInfo
-																	 * (commonSubcriber,
-																	 * ExecutionState.
-																	 * EXECUTION_COMPLETED)
-																	 */));
+						new SimulatorSubscriberInfo(endSubscriber, ExecutionState.EXECUTION_COMPLETED)));
 		realTimeSubscriberManager.initialize(Arrays.asList(realTimeUpdateRunnable));
 	}
 
@@ -157,12 +148,17 @@ public class PlotView extends ViewPart {
 		return plotFrame != null && !plotFrame.isDisposed();
 	}
 
+	// private boolean isLastEntry;
 	private class RealTimeUpdateRunnable implements Runnable {
 
-		private final boolean isLastEntry;
+		private boolean isLastEntry;
 
 		RealTimeUpdateRunnable(boolean isLastEntry) {
 			this.isLastEntry = isLastEntry;
+		}
+
+		private void changeLastValueFlag() {
+			isLastEntry = true;
 		}
 
 		@Override
@@ -199,6 +195,7 @@ public class PlotView extends ViewPart {
 				plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
 				plotFrame.updateSliders();
 			}
+
 			if (isLastEntry) {
 				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame.getChart().getXYPlot()
 						.getDataset();
@@ -218,7 +215,6 @@ public class PlotView extends ViewPart {
 					newSeries.add(CurrentSimulator.getTime(), seriesitems.get(0).getY());
 					plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
 					plotFrame.updateSliders();
-
 				}
 			}
 
@@ -233,11 +229,12 @@ public class PlotView extends ViewPart {
 			PlatformUI.getWorkbench().getDisplay().asyncExec(realTimeUpdateRunnable);
 		}
 	};
-	private final Subscriber endSubscriber = new Subscriber() {
 
+	private final Subscriber endSubscriber = new Subscriber() {
 		@Override
 		public void fireChange() {
-			PlatformUI.getWorkbench().getDisplay().asyncExec(new RealTimeUpdateRunnable(true));
+			realTimeUpdateRunnable.changeLastValueFlag();
+			PlatformUI.getWorkbench().getDisplay().asyncExec(realTimeUpdateRunnable);
 		}
 	};
 
