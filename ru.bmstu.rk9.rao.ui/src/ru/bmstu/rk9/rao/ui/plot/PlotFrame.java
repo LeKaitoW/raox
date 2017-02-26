@@ -34,7 +34,7 @@ public class PlotFrame extends ChartComposite {
 	private double verticalMaximum;
 	private double horizontalRatio;
 	private double verticalRatio;
-	final ExtendedToolTip toolTip;
+	private final ExtendedToolTip toolTip;
 
 	public PlotFrame(final Composite comp, final int style) {
 		super(comp, style, null, ChartComposite.DEFAULT_WIDTH, ChartComposite.DEFAULT_HEIGHT, 0, 0, Integer.MAX_VALUE,
@@ -67,8 +67,8 @@ public class PlotFrame extends ChartComposite {
 		return new Point((int) Math.round(screenX), (int) Math.round(screenY));
 	}
 
-	public class ExtendedToolTip extends DefaultToolTip {
-		private boolean is_active = false;
+	class ExtendedToolTip extends DefaultToolTip {
+		private boolean isActive = false;
 
 		public ExtendedToolTip(Control control, int style, boolean manualActivation) {
 			super(control, style, manualActivation);
@@ -141,9 +141,9 @@ public class PlotFrame extends ChartComposite {
 						screenDataArea.width + 2 * border, screenDataArea.height + 2 * border);
 
 				if (currentIndex >= 0 && realAreaOfPlot.contains(mousePoint) && distanceToMouse < max_hint_distance
-						&& (toolTip.is_active == false || previousIndex != currentIndex)) {
+						&& (toolTip.isActive == false || previousIndex != currentIndex)) {
 					getChart().getXYPlot().clearAnnotations();
-					toolTip.is_active = true;
+					toolTip.isActive = true;
 					previousIndex = currentIndex;
 					Rectangle rectangle = PlotFrame.this.getScreenDataArea();
 					final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
@@ -167,9 +167,9 @@ public class PlotFrame extends ChartComposite {
 
 					final String tooltipText;
 					if (rangeAxis instanceof SymbolAxis) {
-						int valueY_id = (int) (valueY + 0.01);
-						SymbolAxis symbolRangeAxis = (SymbolAxis) rangeAxis;
-						tooltipText = String.format("%s%n%.3f", symbolRangeAxis.getSymbols()[valueY_id], valueX);
+						int valueYId = (int) (valueY + 0.01);
+						final SymbolAxis symbolRangeAxis = (SymbolAxis) rangeAxis;
+						tooltipText = String.format("%s%n%.3f", symbolRangeAxis.getSymbols()[valueYId], valueX);
 					} else {
 						tooltipText = String.format("%.3f%n%.3f", valueY, valueX);
 					}
@@ -178,9 +178,9 @@ public class PlotFrame extends ChartComposite {
 				}
 
 				if ((distanceToMouse > max_hint_distance || !realAreaOfPlot.contains(mousePoint))
-						&& toolTip.is_active == true) {
+						&& toolTip.isActive == true) {
 					toolTip.hide();
-					toolTip.is_active = false;
+					toolTip.isActive = false;
 					getChart().getXYPlot().clearAnnotations();
 				}
 			}
