@@ -148,7 +148,6 @@ public class PlotView extends ViewPart {
 		return plotFrame != null && !plotFrame.isDisposed();
 	}
 
-	// private boolean isLastEntry;
 	private class RealTimeUpdateRunnable implements Runnable {
 
 		private boolean isLastEntry;

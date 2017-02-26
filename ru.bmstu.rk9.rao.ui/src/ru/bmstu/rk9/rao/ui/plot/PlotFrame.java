@@ -18,8 +18,10 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Slider;
 import org.jfree.chart.annotations.XYShapeAnnotation;
+import org.jfree.chart.axis.SymbolAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.experimental.chart.swt.ChartComposite;
@@ -32,6 +34,7 @@ public class PlotFrame extends ChartComposite {
 	private double verticalMaximum;
 	private double horizontalRatio;
 	private double verticalRatio;
+	final ExtendedToolTip toolTip;
 
 	public PlotFrame(final Composite comp, final int style) {
 		super(comp, style, null, ChartComposite.DEFAULT_WIDTH, ChartComposite.DEFAULT_HEIGHT, 0, 0, Integer.MAX_VALUE,
@@ -41,7 +44,7 @@ public class PlotFrame extends ChartComposite {
 		addSWTListener(new PlotMouseMoveListener());
 		setZoomInFactor(0.75);
 		setZoomOutFactor(1.25);
-		toolTip = new DefaultToolTip(this, SWT.BALLOON, false);
+		toolTip = new ExtendedToolTip(this, org.eclipse.swt.SWT.BALLOON, false);
 		toolTip.setBackgroundColor(new Color(comp.getDisplay(), 255, 255, 255));
 		toolTip.setForegroundColor(new Color(comp.getDisplay(), 128, 128, 128));
 		toolTip.setRespectDisplayBounds(false);
@@ -64,6 +67,14 @@ public class PlotFrame extends ChartComposite {
 		return new Point((int) Math.round(screenX), (int) Math.round(screenY));
 	}
 
+	public class ExtendedToolTip extends DefaultToolTip {
+		private boolean is_active = false;
+
+		public ExtendedToolTip(Control control, int style, boolean manualActivation) {
+			super(control, style, manualActivation);
+		}
+	}
+
 	private final Point2D swtToPlot(int x, int y) {
 		Rectangle rectangle = PlotFrame.this.getScreenDataArea();
 		final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
@@ -78,26 +89,26 @@ public class PlotFrame extends ChartComposite {
 		return new Point2D.Double(x_plot, y_plot);
 	}
 
-	final DefaultToolTip toolTip;
-
 	class PlotMouseMoveListener implements MouseMoveListener {
-		boolean tooltipIsOn = false;
+
+		final int max_hint_distance = 50;
 		int previousIndex = -1;
 		int distanceToMouse = 0;
 		Point widgetPoint = null;
 		double valueX;
 		double valueY;
+		final int border = 1;
 
-		final private int distance(Point x1, Point x2) {
+		final private int getDistance(Point x1, Point x2) {
 			return (int) Math.sqrt(Math.pow((x1.x - x2.x), 2) + Math.pow((x1.y - x2.y), 2));
 		}
 
 		@Override
 		public void mouseMove(MouseEvent e) {
+
 			Point mousePoint = new Point(Math.round(e.x), Math.round(e.y));
 			XYDataset dataset = getChart().getXYPlot().getDataset();
 			Paint bckg = getChart().getXYPlot().getBackgroundPaint();
-
 			java.awt.Color bckgColor = java.awt.Color.BLACK;
 
 			if (bckg instanceof java.awt.Color) {
@@ -113,7 +124,7 @@ public class PlotFrame extends ChartComposite {
 					valueX = dataset.getXValue(0, index);
 					valueY = dataset.getYValue(0, index);
 					widgetPoint = plotToSwt(valueX, valueY);
-					distanceToMouse = distance(widgetPoint, mousePoint);
+					distanceToMouse = getDistance(widgetPoint, mousePoint);
 
 					if (distanceToMouse < previousDistance) {
 						previousDistance = distanceToMouse;
@@ -124,15 +135,15 @@ public class PlotFrame extends ChartComposite {
 				valueX = dataset.getXValue(0, currentIndex);
 				valueY = dataset.getYValue(0, currentIndex);
 				widgetPoint = plotToSwt(valueX, valueY);
-				distanceToMouse = distance(widgetPoint, mousePoint);
+				distanceToMouse = getDistance(widgetPoint, mousePoint);
 				Rectangle screenDataArea = getScreenDataArea();
-				Rectangle realAreaOfPlot = new Rectangle(screenDataArea.x - 1, screenDataArea.y - 1,
-						screenDataArea.width + 2, screenDataArea.height + 2);
+				Rectangle realAreaOfPlot = new Rectangle(screenDataArea.x - border, screenDataArea.y - border,
+						screenDataArea.width + 2 * border, screenDataArea.height + 2 * border);
 
-				if (currentIndex >= 0 && realAreaOfPlot.contains(mousePoint) && distanceToMouse < 50
-						&& (tooltipIsOn == false || previousIndex != currentIndex)) {
+				if (currentIndex >= 0 && realAreaOfPlot.contains(mousePoint) && distanceToMouse < max_hint_distance
+						&& (toolTip.is_active == false || previousIndex != currentIndex)) {
 					getChart().getXYPlot().clearAnnotations();
-					tooltipIsOn = true;
+					toolTip.is_active = true;
 					previousIndex = currentIndex;
 					Rectangle rectangle = PlotFrame.this.getScreenDataArea();
 					final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
@@ -153,13 +164,23 @@ public class PlotFrame extends ChartComposite {
 					XYShapeAnnotation annotation = new XYShapeAnnotation(Circle, new BasicStroke(3.0f), seriesColor,
 							bckgColor);
 					getChart().getXYPlot().addAnnotation(annotation, false);
-					toolTip.setText(String.format("%.3f%n%.3f", valueY, valueX));
+
+					final String tooltipText;
+					if (rangeAxis instanceof SymbolAxis) {
+						int valueY_id = (int) (valueY + 0.01);
+						SymbolAxis symbolRangeAxis = (SymbolAxis) rangeAxis;
+						tooltipText = String.format("%s%n%.3f", symbolRangeAxis.getSymbols()[valueY_id], valueX);
+					} else {
+						tooltipText = String.format("%.3f%n%.3f", valueY, valueX);
+					}
+					toolTip.setText(tooltipText);
 					toolTip.show(widgetPoint);
 				}
 
-				if ((distanceToMouse > 50 || !realAreaOfPlot.contains(mousePoint)) && tooltipIsOn == true) {
+				if ((distanceToMouse > max_hint_distance || !realAreaOfPlot.contains(mousePoint))
+						&& toolTip.is_active == true) {
 					toolTip.hide();
-					tooltipIsOn = false;
+					toolTip.is_active = false;
 					getChart().getXYPlot().clearAnnotations();
 				}
 			}
