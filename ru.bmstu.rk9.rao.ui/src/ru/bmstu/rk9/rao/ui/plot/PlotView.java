@@ -47,7 +47,6 @@ import ru.bmstu.rk9.rao.ui.plot.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView.ConditionalMenuItem;
 
 public class PlotView extends ViewPart {
-
 	public static final String ID = "ru.bmstu.rk9.rao.ui.PlotView";
 	private final static Map<CollectedDataNode, Integer> openedPlotMap = new HashMap<CollectedDataNode, Integer>();
 	private static int secondaryID = 0;
@@ -149,7 +148,6 @@ public class PlotView extends ViewPart {
 	}
 
 	private class RealTimeUpdateRunnable implements Runnable {
-
 		private boolean isLastEntry;
 
 		RealTimeUpdateRunnable(boolean isLastEntry) {
@@ -166,6 +164,7 @@ public class PlotView extends ViewPart {
 				return;
 
 			final DataParserResult dataParserResult = plotDataParser.parseEntries();
+
 			if (dataParserResult.axisHelper.axisChanged) {
 				XYPlot plot = (XYPlot) plotFrame.getChart().getPlot();
 				SymbolAxis rangeAxis;
@@ -182,6 +181,7 @@ public class PlotView extends ViewPart {
 			}
 
 			final List<PlotItem> items = dataParserResult.dataset;
+
 			if (!items.isEmpty()) {
 				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame.getChart().getXYPlot()
 						.getDataset();
@@ -207,7 +207,6 @@ public class PlotView extends ViewPart {
 						plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
 						plotFrame.updateSliders();
 					}
-
 				} else if (newSeries.getItemCount() == 1) {
 					@SuppressWarnings("unchecked")
 					List<XYDataItem> seriesitems = newSeries.getItems();
@@ -216,7 +215,6 @@ public class PlotView extends ViewPart {
 					plotFrame.updateSliders();
 				}
 			}
-
 		}
 	};
 
@@ -239,7 +237,6 @@ public class PlotView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-
 	}
 
 	public void plotXY(final XYSeriesCollection dataset) {
@@ -250,7 +247,6 @@ public class PlotView extends ViewPart {
 	}
 
 	private JFreeChart createChart(final XYDataset dataset) {
-
 		final JFreeChart chart = ChartFactory.createXYStepChart("", "Time", "Value", dataset, PlotOrientation.VERTICAL,
 				true, true, false);
 
@@ -279,7 +275,6 @@ public class PlotView extends ViewPart {
 	}
 
 	static private class PlotMenuItem extends ConditionalMenuItem {
-
 		public PlotMenuItem(Menu parent) {
 			super(parent, "Plot");
 		}
@@ -287,22 +282,20 @@ public class PlotView extends ViewPart {
 		@Override
 		public boolean isEnabled(CollectedDataNode node) {
 			Index index = node.getIndex();
+
 			if (index == null)
 				return false;
 
 			switch (index.getType()) {
 			case RESOURCE_PARAMETER:
 				return true;
-
 			case RESULT:
 				return true;
-
 			case PATTERN:
 				PatternIndex patternIndex = (PatternIndex) index;
 				int patternNumber = patternIndex.getNumber();
 				String patternType = CurrentSimulator.getStaticModelData().getPatternType(patternNumber);
 				return patternType.equals(ModelStructureConstants.OPERATION);
-
 			default:
 				return false;
 			}
