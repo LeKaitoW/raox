@@ -90,13 +90,13 @@ public class PlotFrame extends ChartComposite {
 	}
 
 	class PlotMouseMoveListener implements MouseMoveListener {
-		final int maxHintDistance = 50;
+		final static int MAX_HINT_DISTANCE = 50;
 		int previousIndex = -1;
 		int distanceToMouse = 0;
 		Point widgetPoint = null;
 		double valueX;
 		double valueY;
-		final int border = 1;
+		final static int BORDER = 1;
 
 		final private int getDistance(Point x1, Point x2) {
 			return (int) Math.sqrt(Math.pow((x1.x - x2.x), 2) + Math.pow((x1.y - x2.y), 2));
@@ -131,10 +131,10 @@ public class PlotFrame extends ChartComposite {
 				widgetPoint = plotToSwt(valueX, valueY);
 				distanceToMouse = getDistance(widgetPoint, mousePoint);
 				Rectangle screenDataArea = getScreenDataArea();
-				Rectangle realAreaOfPlot = new Rectangle(screenDataArea.x - border, screenDataArea.y - border,
-						screenDataArea.width + 2 * border, screenDataArea.height + 2 * border);
+				Rectangle realAreaOfPlot = new Rectangle(screenDataArea.x - BORDER, screenDataArea.y - BORDER,
+						screenDataArea.width + 2 * BORDER, screenDataArea.height + 2 * BORDER);
 
-				if (currentIndex >= 0 && realAreaOfPlot.contains(mousePoint) && distanceToMouse < maxHintDistance
+				if (currentIndex >= 0 && realAreaOfPlot.contains(mousePoint) && distanceToMouse < MAX_HINT_DISTANCE
 						&& (toolTip.isActive == false || previousIndex != currentIndex)) {
 					getChart().getXYPlot().clearAnnotations();
 					toolTip.isActive = true;
@@ -168,7 +168,7 @@ public class PlotFrame extends ChartComposite {
 					toolTip.show(widgetPoint);
 				}
 
-				if ((distanceToMouse > maxHintDistance || !realAreaOfPlot.contains(mousePoint))
+				if ((distanceToMouse > MAX_HINT_DISTANCE || !realAreaOfPlot.contains(mousePoint))
 						&& toolTip.isActive == true) {
 					toolTip.hide();
 					toolTip.isActive = false;
@@ -293,9 +293,9 @@ public class PlotFrame extends ChartComposite {
 		getChart().getXYPlot().clearAnnotations();
 		final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
 		final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
-		final double sliderConst = 0.001;
+		final double SLIDER_CONST = 0.001;
 
-		if (horizontalMaximum - domainAxis.getRange().getUpperBound() > sliderConst) {
+		if (horizontalMaximum - domainAxis.getRange().getUpperBound() > SLIDER_CONST) {
 			horizontalSlider.setVisible(true);
 			horizontalSlider.setEnabled(true);
 			horizontalRatio = horizontalSlider.getMaximum() / horizontalMaximum;
@@ -307,7 +307,7 @@ public class PlotFrame extends ChartComposite {
 			horizontalSlider.setEnabled(false);
 		}
 
-		if (verticalMaximum - rangeAxis.getRange().getUpperBound() > sliderConst) {
+		if (verticalMaximum - rangeAxis.getRange().getUpperBound() > SLIDER_CONST) {
 			verticalSlider.setVisible(true);
 			verticalSlider.setEnabled(true);
 			verticalRatio = verticalSlider.getMaximum() / verticalMaximum;
