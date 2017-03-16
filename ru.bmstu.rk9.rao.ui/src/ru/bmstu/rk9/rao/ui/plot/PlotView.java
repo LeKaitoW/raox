@@ -3,19 +3,25 @@ package ru.bmstu.rk9.rao.ui.plot;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -113,6 +119,97 @@ public class PlotView extends ViewPart {
 		});
 	}
 
+	public static class FilteredResult {
+		final List<PlotItem> filtered;
+		final boolean recalcHappened;
+
+		FilteredResult(List<PlotItem> filtered, boolean recalc) {
+			this.filtered = filtered;
+			this.recalcHappened = recalc;
+		}
+
+		List<PlotItem> getFiltered() {
+			return filtered;
+		}
+
+		boolean isRecalcHappened() {
+			return recalcHappened;
+		}
+
+	}
+
+	private static final FilteredResult empty = new FilteredResult(Collections.emptyList(), false);
+
+	public class ProxyDataSet {
+		List<PlotItem> items = new ArrayList<>();
+		List<PlotItem> filtered = new ArrayList<>();
+		Rectangle windowSize = new Rectangle(1, 1, 1, 1);
+		double increment = 1.0;
+
+		public FilteredResult workAsProxy(List<PlotItem> newItems, Rectangle currentWindowSize) {
+
+			boolean needRecalc = false;
+
+			if (!windowSize.equals(currentWindowSize)) {
+				windowSize = currentWindowSize;
+				needRecalc = true;
+			}
+
+			if (!needRecalc && ((newItems == null) || (newItems.size() == 0))) {
+				return empty;
+			}
+
+			int last = items.size() - 1;
+			items.addAll(newItems);
+			boolean recalcHappened;
+			if (!needRecalc && (windowSize.width > (newItems.size() / increment) + filtered.size())) {
+				recalcHappened = false;
+				addFilteredPortion(last);
+			} else {
+				last = -1;
+				recalcHappened = true;
+				recalc(); //
+			}
+			return new FilteredResult(
+					filtered.size() > 0 ? filtered.subList(last + 1, filtered.size() - 1) : Collections.emptyList(),
+					recalcHappened);
+		}
+
+		public void reset() {
+			items.clear();
+			if (filtered != items) {
+				filtered.clear();
+			}
+		}
+
+		private void addFilteredPortion(int portionStartId) {
+			int current = filtered.size() - 1;
+			for (int pasteId = portionStartId; pasteId < items.size(); pasteId++) {
+				int next = (int) (pasteId * increment);
+				if (next > current) {
+					current = next;
+					filtered.add(items.get(pasteId));
+				}
+			}
+		}
+
+		private void recalc() {
+			int maxElemsTmp = windowSize.width / 2;
+			filtered = new ArrayList<PlotDataParser.PlotItem>(maxElemsTmp);
+			if (items.size() < maxElemsTmp) {
+				filtered.addAll(items);
+			} else {
+				increment = (double) maxElemsTmp / (items.size());
+				addFilteredPortion(0);
+			}
+		}
+
+		List<PlotItem> getFiltered() {
+			return filtered;
+		}
+
+	}
+
 	private final void initialize(CollectedDataNode node) {
 		partNode = node;
 		setPartName(partNode.getName());
@@ -123,6 +220,16 @@ public class PlotView extends ViewPart {
 		dataset.addSeries(series);
 
 		plotXY(dataset);
+
+		proxyDataSet.workAsProxy(Collections.emptyList(), plotFrame.getScreenDataArea());
+		Shell activeShell = getSite().getWorkbenchWindow().getShell();
+		activeShell.addControlListener(new ControlAdapter() {
+			@Override
+			public void controlResized(ControlEvent e) {
+				redrawPlot(proxyDataSet.workAsProxy(Collections.emptyList(), plotFrame.getScreenDataArea()));
+			}
+		});
+
 		initializeSubscribers();
 	}
 
@@ -140,14 +247,31 @@ public class PlotView extends ViewPart {
 
 	private final SimulatorSubscriberManager simulatorSubscriberManager = new SimulatorSubscriberManager();
 	private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
-
 	private PlotDataParser plotDataParser;
 
 	private final boolean readyForInput() {
 		return plotFrame != null && !plotFrame.isDisposed();
 	}
 
+	private ProxyDataSet proxyDataSet = new ProxyDataSet();
+
+	private void redrawPlot(FilteredResult filtered) {
+		final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame.getChart().getXYPlot().getDataset();
+		final XYSeries newSeries = newDataset.getSeries(0);
+		if (filtered.recalcHappened) {
+			newSeries.clear();
+		}
+		filtered.getFiltered();
+		for (PlotItem item : filtered.getFiltered()) {
+			newSeries.add(item.x, item.y);
+		}
+
+		plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
+		plotFrame.updateSliders();
+	}
+
 	private class RealTimeUpdateRunnable implements Runnable {
+
 		private boolean isLastEntry;
 
 		RealTimeUpdateRunnable(boolean isLastEntry) {
@@ -164,7 +288,6 @@ public class PlotView extends ViewPart {
 				return;
 
 			final DataParserResult dataParserResult = plotDataParser.parseEntries();
-
 			if (dataParserResult.axisHelper.axisChanged) {
 				XYPlot plot = (XYPlot) plotFrame.getChart().getPlot();
 				SymbolAxis rangeAxis;
@@ -183,16 +306,9 @@ public class PlotView extends ViewPart {
 			final List<PlotItem> items = dataParserResult.dataset;
 
 			if (!items.isEmpty()) {
-				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame.getChart().getXYPlot()
-						.getDataset();
-				final XYSeries newSeries = newDataset.getSeries(0);
-				for (int i = 0; i < items.size(); i++) {
-					final PlotItem item = items.get(i);
-					newSeries.add(item.x, item.y);
-				}
 
-				plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
-				plotFrame.updateSliders();
+				FilteredResult filtered = proxyDataSet.workAsProxy(items, plotFrame.getScreenDataArea());
+				redrawPlot(filtered);
 			}
 
 			if (isLastEntry) {
@@ -207,6 +323,7 @@ public class PlotView extends ViewPart {
 						plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
 						plotFrame.updateSliders();
 					}
+
 				} else if (newSeries.getItemCount() == 1) {
 					@SuppressWarnings("unchecked")
 					List<XYDataItem> seriesitems = newSeries.getItems();
@@ -282,7 +399,6 @@ public class PlotView extends ViewPart {
 		@Override
 		public boolean isEnabled(CollectedDataNode node) {
 			Index index = node.getIndex();
-
 			if (index == null)
 				return false;
 

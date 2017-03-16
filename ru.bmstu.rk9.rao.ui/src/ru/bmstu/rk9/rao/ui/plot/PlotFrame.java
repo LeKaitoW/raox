@@ -107,7 +107,7 @@ public class PlotFrame extends ChartComposite {
 			Point mousePoint = new Point(Math.round(e.x), Math.round(e.y));
 			XYDataset dataset = getChart().getXYPlot().getDataset();
 			int itemsCount = dataset.getItemCount(0);
-			java.awt.Color backGroundColor = (java.awt.Color) getChart().getXYPlot().getBackgroundPaint();
+			java.awt.Color backgroundColor = (java.awt.Color) getChart().getXYPlot().getBackgroundPaint();
 
 			if (itemsCount > 0) {
 				double previousDistance = Double.MAX_VALUE;
@@ -152,7 +152,7 @@ public class PlotFrame extends ChartComposite {
 							(float) (2 * radiusOfCircleY));
 					Paint seriesColor = getChart().getXYPlot().getRenderer().getSeriesPaint(0);
 					XYShapeAnnotation annotation = new XYShapeAnnotation(Circle, new BasicStroke(3.0f), seriesColor,
-							backGroundColor);
+							backgroundColor);
 					getChart().getXYPlot().addAnnotation(annotation, false);
 					final String tooltipText;
 
