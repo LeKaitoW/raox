@@ -107,7 +107,7 @@ public class PlotFrame extends ChartComposite {
 			Point mousePoint = new Point(Math.round(e.x), Math.round(e.y));
 			XYDataset dataset = getChart().getXYPlot().getDataset();
 			int itemsCount = dataset.getItemCount(0);
-			java.awt.Color backGroundColor = (java.awt.Color) getChart().getXYPlot().getBackgroundPaint();
+			java.awt.Color backgroundColor = (java.awt.Color) getChart().getXYPlot().getBackgroundPaint();
 
 			if (itemsCount > 0) {
 				double previousDistance = Double.MAX_VALUE;
@@ -152,7 +152,7 @@ public class PlotFrame extends ChartComposite {
 							(float) (2 * radiusOfCircleY));
 					Paint seriesColor = getChart().getXYPlot().getRenderer().getSeriesPaint(0);
 					XYShapeAnnotation annotation = new XYShapeAnnotation(Circle, new BasicStroke(3.0f), seriesColor,
-							backGroundColor);
+							backgroundColor);
 					getChart().getXYPlot().addAnnotation(annotation, false);
 					final String tooltipText;
 
@@ -293,9 +293,9 @@ public class PlotFrame extends ChartComposite {
 		getChart().getXYPlot().clearAnnotations();
 		final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
 		final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
-		final double SLIDER_CONST = 0.001;
+		final double SLIDER_EPSILON = 0.001;
 
-		if (horizontalMaximum - domainAxis.getRange().getUpperBound() > SLIDER_CONST) {
+		if (Math.abs(horizontalMaximum - domainAxis.getRange().getUpperBound()) > SLIDER_EPSILON) {
 			horizontalSlider.setVisible(true);
 			horizontalSlider.setEnabled(true);
 			horizontalRatio = horizontalSlider.getMaximum() / horizontalMaximum;
@@ -307,7 +307,7 @@ public class PlotFrame extends ChartComposite {
 			horizontalSlider.setEnabled(false);
 		}
 
-		if (verticalMaximum - rangeAxis.getRange().getUpperBound() > SLIDER_CONST) {
+		if (Math.abs(verticalMaximum - rangeAxis.getRange().getUpperBound()) > SLIDER_EPSILON) {
 			verticalSlider.setVisible(true);
 			verticalSlider.setEnabled(true);
 			verticalRatio = verticalSlider.getMaximum() / verticalMaximum;
