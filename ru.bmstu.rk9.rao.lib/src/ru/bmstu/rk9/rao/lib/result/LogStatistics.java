@@ -9,25 +9,23 @@ import ru.bmstu.rk9.rao.lib.json.JSONObject;
 
 public class LogStatistics<T> extends Statistics<T> {
 
-	public static String defaultDelimeter = "; ";
-	private boolean outputInitialized;
+	public final static String defaultDelimeter = "; ";
 	private String delimeter;
 	private File logFile;
-	private final BufferedWriter out;
+	private BufferedWriter logFileBuffer = null;
 
 	public LogStatistics(String FileName, String delimeter) {
 		this.logFile = new File(FileName);
 		this.delimeter = delimeter;
-		this.outputInitialized = true;
 
-		FileWriter fileWriter = null;
+		FileWriter logFileWriter = null;
 		try {
-			fileWriter = new FileWriter(logFile.getAbsoluteFile());
+			logFileWriter = new FileWriter(logFile.getAbsoluteFile());
 		} catch (IOException e) {
-			outputInitialized = false;
 			e.printStackTrace();
+			return;
 		}
-		out = new BufferedWriter(fileWriter);
+		logFileBuffer = new BufferedWriter(logFileWriter);
 	}
 
 	public LogStatistics(String FileName) {
@@ -36,17 +34,18 @@ public class LogStatistics<T> extends Statistics<T> {
 
 	@Override
 	public void updateData(JSONObject data) {
-		data.put("Log file", outputInitialized ? logFile.getAbsolutePath() : "Error: output file cannot be written");
+		data.put("Log file",
+				logFileBuffer != null ? logFile.getAbsolutePath() : "Error: output file cannot be written");
 	}
 
 	@Override
 	public void update(T value, double currentTime) {
-		if (!outputInitialized)
+		if (logFileBuffer == null)
 			return;
 
 		try {
-			out.write(String.valueOf(currentTime) + delimeter + value.toString());
-			out.newLine();
+			logFileBuffer.write(String.valueOf(currentTime) + delimeter + value.toString());
+			logFileBuffer.newLine();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -54,13 +53,14 @@ public class LogStatistics<T> extends Statistics<T> {
 
 	@Override
 	public void prepareData() {
-		if (!outputInitialized)
+		if (logFileBuffer == null)
 			return;
 
 		try {
-			out.close();
+			logFileBuffer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		logFileBuffer = null;
 	}
 }
