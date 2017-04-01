@@ -21,7 +21,6 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleEdge;
 
 public class XYFilteringStepRenderer extends XYStepRenderer {
-
 	public XYFilteringStepRenderer(XYToolTipGenerator toolTipGenerator, XYURLGenerator urlGenerator) {
 		super(toolTipGenerator, urlGenerator);
 	}
@@ -100,23 +99,6 @@ public class XYFilteringStepRenderer extends XYStepRenderer {
 		}
 	}
 
-	/**
-	 * A utility method that draws a line but only if none of the coordinates
-	 * are NaN values.
-	 *
-	 * @param g2
-	 *            the graphics target.
-	 * @param line
-	 *            the line object.
-	 * @param x0
-	 *            the x-coordinate for the starting point of the line.
-	 * @param y0
-	 *            the y-coordinate for the starting point of the line.
-	 * @param x1
-	 *            the x-coordinate for the ending point of the line.
-	 * @param y1
-	 *            the y-coordinate for the ending point of the line.
-	 */
 	private void drawLine(Graphics2D g2, Line2D line, double x0, double y0, double x1, double y1) {
 		if (Double.isNaN(x0) || Double.isNaN(x1) || Double.isNaN(y0) || Double.isNaN(y1)) {
 			return;

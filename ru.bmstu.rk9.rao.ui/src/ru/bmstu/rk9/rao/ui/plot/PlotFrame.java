@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Paint;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.util.Collection;
 
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.swt.SWT;
@@ -23,6 +24,7 @@ import org.eclipse.swt.widgets.Slider;
 import org.jfree.chart.annotations.XYShapeAnnotation;
 import org.jfree.chart.axis.SymbolAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.experimental.chart.swt.ChartComposite;
 
@@ -105,6 +107,14 @@ public class PlotFrame extends ChartComposite {
 		@Override
 		public void mouseMove(MouseEvent e) {
 			Point mousePoint = new Point(Math.round(e.x), Math.round(e.y));
+			if (getChart() == null) {
+				return;
+			}
+			XYPlot plot = getChart().getXYPlot();
+			if (plot == null) {
+				return;
+			}
+
 			XYDataset dataset = getChart().getXYPlot().getDataset();
 			int itemsCount = dataset.getItemCount(0);
 			java.awt.Color backgroundColor = (java.awt.Color) getChart().getXYPlot().getBackgroundPaint();
@@ -112,67 +122,84 @@ public class PlotFrame extends ChartComposite {
 			if (itemsCount > 0) {
 				double previousDistance = Double.MAX_VALUE;
 				int currentIndex = -1;
+				XYPlotWithFiltering filteredPlot = plot instanceof XYPlotWithFiltering ? (XYPlotWithFiltering) plot
+						: null;
+				if (filteredPlot != null && filteredPlot.getProxyDataSet().getFilteredMap() != null) {
+					Collection<Integer> filteredPoints = filteredPlot.getProxyDataSet().getFilteredMap().keySet();
+					for (Integer index : filteredPoints) {
+						valueX = dataset.getXValue(0, index);
+						valueY = dataset.getYValue(0, index);
+						widgetPoint = plotToSwt(valueX, valueY);
+						distanceToMouse = getDistance(widgetPoint, mousePoint);
 
-				for (int index = 0; index < itemsCount; index++) {
-					valueX = dataset.getXValue(0, index);
-					valueY = dataset.getYValue(0, index);
+						if (distanceToMouse < previousDistance) {
+							previousDistance = distanceToMouse;
+							currentIndex = index;
+						}
+					}
+				} else {
+					for (int index = 0; index < itemsCount; index++) {
+						valueX = dataset.getXValue(0, index);
+						valueY = dataset.getYValue(0, index);
+						widgetPoint = plotToSwt(valueX, valueY);
+						distanceToMouse = getDistance(widgetPoint, mousePoint);
+
+						if (distanceToMouse < previousDistance) {
+							previousDistance = distanceToMouse;
+							currentIndex = index;
+						}
+					}
+				}
+				if (currentIndex >= 0) {
+					mousePoint = new Point(Math.round(e.x), Math.round(e.y));
+					valueX = dataset.getXValue(0, currentIndex);
+					valueY = dataset.getYValue(0, currentIndex);
 					widgetPoint = plotToSwt(valueX, valueY);
 					distanceToMouse = getDistance(widgetPoint, mousePoint);
+					Rectangle screenDataArea = getScreenDataArea();
+					Rectangle realAreaOfPlot = new Rectangle(screenDataArea.x - BORDER, screenDataArea.y - BORDER,
+							screenDataArea.width + 2 * BORDER, screenDataArea.height + 2 * BORDER);
 
-					if (distanceToMouse < previousDistance) {
-						previousDistance = distanceToMouse;
-						currentIndex = index;
-					}
-				}
+					if (realAreaOfPlot.contains(mousePoint) && distanceToMouse < MAX_HINT_DISTANCE
+							&& (toolTip.isActive == false || previousIndex != currentIndex)) {
+						getChart().getXYPlot().clearAnnotations();
+						toolTip.isActive = true;
+						previousIndex = currentIndex;
+						Rectangle rectangle = PlotFrame.this.getScreenDataArea();
+						final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
+						final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
+						double widthInAxisUnits = domainAxis.getUpperBound() - domainAxis.getLowerBound();
+						double heightInAxisUnits = rangeAxis.getUpperBound() - rangeAxis.getLowerBound();
+						double radiusOfCircleX = 5 * widthInAxisUnits / rectangle.width;
+						double radiusOfCircleY = 5 * heightInAxisUnits / rectangle.height;
 
-				mousePoint = new Point(Math.round(e.x), Math.round(e.y));
-				valueX = dataset.getXValue(0, currentIndex);
-				valueY = dataset.getYValue(0, currentIndex);
-				widgetPoint = plotToSwt(valueX, valueY);
-				distanceToMouse = getDistance(widgetPoint, mousePoint);
-				Rectangle screenDataArea = getScreenDataArea();
-				Rectangle realAreaOfPlot = new Rectangle(screenDataArea.x - BORDER, screenDataArea.y - BORDER,
-						screenDataArea.width + 2 * BORDER, screenDataArea.height + 2 * BORDER);
+						Ellipse2D Circle = new Ellipse2D.Float((float) (valueX - radiusOfCircleX),
+								(float) (valueY - radiusOfCircleY), (float) (2 * radiusOfCircleX),
+								(float) (2 * radiusOfCircleY));
+						Paint seriesColor = getChart().getXYPlot().getRenderer().getSeriesPaint(0);
+						XYShapeAnnotation annotation = new XYShapeAnnotation(Circle, new BasicStroke(3.0f), seriesColor,
+								backgroundColor);
+						getChart().getXYPlot().addAnnotation(annotation, false);
+						final String tooltipText;
 
-				if (currentIndex >= 0 && realAreaOfPlot.contains(mousePoint) && distanceToMouse < MAX_HINT_DISTANCE
-						&& (toolTip.isActive == false || previousIndex != currentIndex)) {
-					getChart().getXYPlot().clearAnnotations();
-					toolTip.isActive = true;
-					previousIndex = currentIndex;
-					Rectangle rectangle = PlotFrame.this.getScreenDataArea();
-					final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
-					final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
-					double widthInAxisUnits = domainAxis.getUpperBound() - domainAxis.getLowerBound();
-					double heightInAxisUnits = rangeAxis.getUpperBound() - rangeAxis.getLowerBound();
-					double radiusOfCircleX = 5 * widthInAxisUnits / rectangle.width;
-					double radiusOfCircleY = 5 * heightInAxisUnits / rectangle.height;
+						if (rangeAxis instanceof SymbolAxis) {
+							int valueYId = (int) Math.round(valueY);
+							final SymbolAxis symbolRangeAxis = (SymbolAxis) rangeAxis;
+							tooltipText = String.format("%s%n%.3f", symbolRangeAxis.getSymbols()[valueYId], valueX);
+						} else {
+							tooltipText = String.format("%.3f%n%.3f", valueY, valueX);
+						}
 
-					Ellipse2D Circle = new Ellipse2D.Float((float) (valueX - radiusOfCircleX),
-							(float) (valueY - radiusOfCircleY), (float) (2 * radiusOfCircleX),
-							(float) (2 * radiusOfCircleY));
-					Paint seriesColor = getChart().getXYPlot().getRenderer().getSeriesPaint(0);
-					XYShapeAnnotation annotation = new XYShapeAnnotation(Circle, new BasicStroke(3.0f), seriesColor,
-							backgroundColor);
-					getChart().getXYPlot().addAnnotation(annotation, false);
-					final String tooltipText;
-
-					if (rangeAxis instanceof SymbolAxis) {
-						int valueYId = (int) Math.round(valueY);
-						final SymbolAxis symbolRangeAxis = (SymbolAxis) rangeAxis;
-						tooltipText = String.format("%s%n%.3f", symbolRangeAxis.getSymbols()[valueYId], valueX);
-					} else {
-						tooltipText = String.format("%.3f%n%.3f", valueY, valueX);
+						toolTip.setText(tooltipText);
+						toolTip.show(widgetPoint);
 					}
 
-					toolTip.setText(tooltipText);
-					toolTip.show(widgetPoint);
-				}
-
-				if ((distanceToMouse > MAX_HINT_DISTANCE || !realAreaOfPlot.contains(mousePoint))
-						&& toolTip.isActive == true) {
-					toolTip.hide();
-					toolTip.isActive = false;
-					getChart().getXYPlot().clearAnnotations();
+					if ((distanceToMouse > MAX_HINT_DISTANCE || !realAreaOfPlot.contains(mousePoint))
+							&& toolTip.isActive == true) {
+						toolTip.hide();
+						toolTip.isActive = false;
+						getChart().getXYPlot().clearAnnotations();
+					}
 				}
 			}
 		}

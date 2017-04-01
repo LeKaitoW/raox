@@ -121,20 +121,8 @@ public class PlotView extends ViewPart {
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		XYSeries series = new XYSeries(partNode.getName());
 		dataset.addSeries(series);
-
 		plotXY(dataset);
-
-		// proxyDataSet.workAsProxy(Collections.emptyList(),
-		// plotFrame.getScreenDataArea());
 		Shell activeShell = getSite().getWorkbenchWindow().getShell();
-		/*
-		 * activeShell.addControlListener(new ControlAdapter() {
-		 *
-		 * @Override public void controlResized(ControlEvent e) {
-		 * redrawPlot(proxyDataSet.workAsProxy(Collections.emptyList(),
-		 * plotFrame.getScreenDataArea())); } });
-		 */
-
 		initializeSubscribers();
 	}
 
@@ -157,8 +145,6 @@ public class PlotView extends ViewPart {
 	private final boolean readyForInput() {
 		return plotFrame != null && !plotFrame.isDisposed();
 	}
-
-	// private ProxyDataSet proxyDataSet = new ProxyDataSet();
 
 	private class RealTimeUpdateRunnable implements Runnable {
 
@@ -263,9 +249,9 @@ public class PlotView extends ViewPart {
 
 	private JFreeChart createChart(final XYDataset dataset) {
 		final JFreeChart chart = FilteringPlotFactory.createXYStepChart("", "Time", "Value", dataset,
-				PlotOrientation.VERTICAL, true, true, false);
+				PlotOrientation.VERTICAL, true, false, false);
 
-		final XYPlot plot = (XYPlot) chart.getPlot();
+		final XYPlot plot = chart.getXYPlot();
 
 		Color white = new Color(0xFF, 0XFF, 0xFF);
 		plot.setBackgroundPaint(white);

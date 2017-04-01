@@ -28,24 +28,35 @@ public class XYPlotWithFiltering extends XYPlot {
 		super(dataset, domainAxis, rangeAxis, renderer);
 	}
 
-	ProxyDataSet proxy = new ProxyDataSet();
+	private ProxyDataSet proxy = new ProxyDataSet();
+
+	public ProxyDataSet getProxyDataSet() {
+		return proxy;
+	}
 
 	public class ProxyDataSet {
 		HashMap<Integer, Integer> filteredMap = null;
 
+		public HashMap<Integer, Integer> getFilteredMap() {
+			return filteredMap;
+		}
+
 		double increment = 1.0;
 		int previousFirst;
 		int previousLast;
-
-		private static final int DEFAULT_PARTS_COUNT = 20;
-		int currentPartCount = DEFAULT_PARTS_COUNT;
+		int previousPartCount = 0;
+		int currentPartCount = 1;
 
 		void setPlotWidth(int width) {
-			this.currentPartCount = width / 2;
+			int newPartCount = width / 2;
+			if (((double) Math.max(currentPartCount, newPartCount))
+					/ ((double) Math.min(currentPartCount, newPartCount)) > 2) {
+				this.currentPartCount = newPartCount;
+			}
 		}
 
 		public Map<Integer, Integer> workAsProxy(XYDataset items, int series, int first, int last) {
-			if (previousFirst == first && previousLast == last) {
+			if (previousFirst == first && previousLast == last && previousPartCount == currentPartCount) {
 				return filteredMap;
 			}
 
@@ -53,11 +64,13 @@ public class XYPlotWithFiltering extends XYPlot {
 				return null;
 			}
 			int prevFiltered = first;
-
 			double groupSize = (last - first) / (double) currentPartCount;
 			filteredMap = new LinkedHashMap<>();
-			for (int i = 0; i < currentPartCount; i++) {
+			previousFirst = first;
+			previousLast = last;
+			previousPartCount = currentPartCount;
 
+			for (int i = 0; i < currentPartCount; i++) {
 				int innerBegin = (int) (first + (groupSize * i));
 				int innerEnd = (int) (first + (groupSize * (i + 1)));
 				double sumVal = 0.0;
@@ -67,6 +80,7 @@ public class XYPlotWithFiltering extends XYPlot {
 				sumVal = sumVal / (innerEnd - innerBegin);
 				double nearest = Double.MAX_VALUE;
 				int nearestIndex = innerBegin;
+
 				for (int inner = innerBegin; inner < innerEnd; inner++) {
 					double nearestCandidate = Math.abs(items.getYValue(series, inner) - sumVal);
 					if (nearestCandidate < nearest) {
@@ -110,8 +124,8 @@ public class XYPlotWithFiltering extends XYPlot {
 			proxy.setPlotWidth(dataArea.getBounds().width);
 			XYItemRendererState state = renderer.initialise(g2, dataArea, this, dataset, info);
 			int passCount = renderer.getPassCount();
-
 			SeriesRenderingOrder seriesOrder = getSeriesRenderingOrder();
+
 			if (seriesOrder == SeriesRenderingOrder.REVERSE) {
 				for (int pass = 0; pass < passCount; pass++) {
 					int seriesCount = dataset.getSeriesCount();
@@ -129,6 +143,7 @@ public class XYPlotWithFiltering extends XYPlot {
 						}
 						state.startSeriesPass(dataset, series, firstItem, lastItem, pass, passCount);
 						Map<Integer, Integer> filteredMap = proxy.workAsProxy(dataset, series, firstItem, lastItem);
+
 						if (renderer instanceof XYFilteringStepRenderer) {
 							((XYFilteringStepRenderer) renderer).setFilteredMap(filteredMap);
 						}
@@ -147,7 +162,6 @@ public class XYPlotWithFiltering extends XYPlot {
 					}
 				}
 			} else {
-
 				for (int pass = 0; pass < passCount; pass++) {
 					int seriesCount = dataset.getSeriesCount();
 					for (int series = 0; series < seriesCount; series++) {
@@ -163,6 +177,7 @@ public class XYPlotWithFiltering extends XYPlot {
 							lastItem = Math.min(itemBounds[1] + 1, lastItem);
 						}
 						state.startSeriesPass(dataset, series, firstItem, lastItem, pass, passCount);
+
 						for (int item = firstItem; item <= lastItem; item++) {
 							renderer.drawItem(g2, state, dataArea, info, this, xAxis, yAxis, dataset, series, item,
 									crosshairState, pass);
@@ -174,5 +189,4 @@ public class XYPlotWithFiltering extends XYPlot {
 		}
 		return foundData;
 	}
-
 }

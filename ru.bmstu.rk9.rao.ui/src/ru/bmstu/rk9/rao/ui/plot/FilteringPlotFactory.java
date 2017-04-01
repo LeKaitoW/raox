@@ -33,14 +33,15 @@ public class FilteringPlotFactory {
 			urlGenerator = new StandardXYURLGenerator();
 		}
 		XYItemRenderer renderer = new XYFilteringStepRenderer(toolTipGenerator, urlGenerator);
-
 		XYPlotWithFiltering plot = new XYPlotWithFiltering(dataset, xAxis, yAxis, null);
+
 		plot.setRenderer(renderer);
 		plot.setOrientation(orientation);
 		plot.setDomainCrosshairVisible(false);
 		plot.setRangeCrosshairVisible(false);
 		JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, legend);
 		ChartFactory.getChartTheme().apply(chart);
+
 		return chart;
 	}
 }
