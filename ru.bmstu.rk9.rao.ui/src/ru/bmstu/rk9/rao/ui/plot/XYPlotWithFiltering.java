@@ -2,7 +2,6 @@ package ru.bmstu.rk9.rao.ui.plot;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -35,9 +34,9 @@ public class XYPlotWithFiltering extends XYPlot {
 	}
 
 	public class ProxyDataSet {
-		HashMap<Integer, Integer> filteredMap = null;
+		final LinkedHashMap<Integer, Integer> filteredMap = new LinkedHashMap<>();
 
-		public HashMap<Integer, Integer> getFilteredMap() {
+		public Map<Integer, Integer> getFilteredMap() {
 			return filteredMap;
 		}
 
@@ -59,13 +58,13 @@ public class XYPlotWithFiltering extends XYPlot {
 			if (previousFirst == first && previousLast == last && previousPartCount == currentPartCount) {
 				return filteredMap;
 			}
-
+			filteredMap.clear();
 			if (last - first < currentPartCount) {
-				return null;
+				return filteredMap;
 			}
 			int prevFiltered = first;
 			double groupSize = (last - first) / (double) currentPartCount;
-			filteredMap = new LinkedHashMap<>();
+
 			previousFirst = first;
 			previousLast = last;
 			previousPartCount = currentPartCount;
@@ -147,7 +146,7 @@ public class XYPlotWithFiltering extends XYPlot {
 						if (renderer instanceof XYFilteringStepRenderer) {
 							((XYFilteringStepRenderer) renderer).setFilteredMap(filteredMap);
 						}
-						if (filteredMap == null || !(renderer instanceof XYFilteringStepRenderer)) {
+						if (filteredMap.size() == 0 || !(renderer instanceof XYFilteringStepRenderer)) {
 							for (int item = firstItem; item <= lastItem; item++) {
 								renderer.drawItem(g2, state, dataArea, info, this, xAxis, yAxis, dataset, series, item,
 										crosshairState, pass);

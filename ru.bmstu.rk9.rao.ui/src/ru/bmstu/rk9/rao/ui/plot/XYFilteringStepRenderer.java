@@ -5,6 +5,7 @@ import java.awt.Paint;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jfree.chart.axis.ValueAxis;
@@ -25,7 +26,7 @@ public class XYFilteringStepRenderer extends XYStepRenderer {
 		super(toolTipGenerator, urlGenerator);
 	}
 
-	private Map<Integer, Integer> filteredLinesMap;
+	private Map<Integer, Integer> filteredLinesMap = new LinkedHashMap<>();
 
 	@Override
 	public void drawItem(Graphics2D g2, XYItemRendererState state, Rectangle2D dataArea, PlotRenderingInfo info,
@@ -52,8 +53,12 @@ public class XYFilteringStepRenderer extends XYStepRenderer {
 		double transY1 = (Double.isNaN(y1) ? Double.NaN : rangeAxis.valueToJava2D(y1, dataArea, yAxisLocation));
 
 		if (pass == 0 && item > 0) {
-			double x0 = dataset.getXValue(series, filteredLinesMap == null ? item - 1 : filteredLinesMap.get(item));
-			double y0 = dataset.getYValue(series, filteredLinesMap == null ? item - 1 : filteredLinesMap.get(item));
+			Integer prevPoint = filteredLinesMap.size() > 0 ? filteredLinesMap.get(item) : null;
+			if (prevPoint == null) {
+				prevPoint = item - 1;
+			}
+			double x0 = dataset.getXValue(series, prevPoint);
+			double y0 = dataset.getYValue(series, prevPoint);
 			double transX0 = domainAxis.valueToJava2D(x0, dataArea, xAxisLocation);
 			double transY0 = (Double.isNaN(y0) ? Double.NaN : rangeAxis.valueToJava2D(y0, dataArea, yAxisLocation));
 

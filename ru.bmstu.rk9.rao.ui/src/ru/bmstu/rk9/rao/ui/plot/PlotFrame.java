@@ -124,7 +124,7 @@ public class PlotFrame extends ChartComposite {
 				int currentIndex = -1;
 				XYPlotWithFiltering filteredPlot = plot instanceof XYPlotWithFiltering ? (XYPlotWithFiltering) plot
 						: null;
-				if (filteredPlot != null && filteredPlot.getProxyDataSet().getFilteredMap() != null) {
+				if (filteredPlot != null && filteredPlot.getProxyDataSet().getFilteredMap().size() > 0) {
 					Collection<Integer> filteredPoints = filteredPlot.getProxyDataSet().getFilteredMap().keySet();
 					for (Integer index : filteredPoints) {
 						valueX = dataset.getXValue(0, index);
