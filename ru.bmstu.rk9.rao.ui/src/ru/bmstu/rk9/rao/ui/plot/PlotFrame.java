@@ -13,7 +13,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -67,7 +67,7 @@ public class PlotFrame extends ChartComposite {
 		return new Point((int) Math.round(screenX), (int) Math.round(screenY));
 	}
 
-	class ExtendedToolTip extends DefaultToolTip {
+	 private class ExtendedToolTip extends DefaultToolTip {
 		private boolean isActive = false;
 
 		public ExtendedToolTip(Control control, int style, boolean manualActivation) {
@@ -89,7 +89,7 @@ public class PlotFrame extends ChartComposite {
 		return new Point2D.Double(xPlot, yPlot);
 	}
 
-	class PlotMouseMoveListener implements MouseMoveListener {
+	private class PlotMouseMoveListener implements MouseMoveListener {
 		final static int MAX_HINT_DISTANCE = 50;
 		int previousIndex = -1;
 		int distanceToMouse = 0;
@@ -178,7 +178,7 @@ public class PlotFrame extends ChartComposite {
 		}
 	}
 
-	class PlotKeyListener implements KeyListener {
+	private class PlotKeyListener implements KeyListener {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			switch (e.keyCode) {
@@ -203,7 +203,7 @@ public class PlotFrame extends ChartComposite {
 		}
 	}
 
-	class PlotMouseWheelListener implements MouseWheelListener {
+	private class PlotMouseWheelListener implements MouseWheelListener {
 		@Override
 		public void mouseScrolled(MouseEvent e) {
 			if (e.count > 0 && isRangeZoomable())
@@ -218,7 +218,29 @@ public class PlotFrame extends ChartComposite {
 				zoomInBoth(e.x, e.y);
 			if (e.count < 0 && isDomainZoomable() && isRangeZoomable())
 				zoomOutBoth(e.x, e.y);
+
+			if (!isDomainZoomable() && !isRangeZoomable()
+					&& horizontalSlider.isVisible()
+					&& horizontalSlider.getThumb() < 100) {
+				horizontalSlider.setSelection(horizontalSlider.getSelection() - e.count);
+				horizontalSelected();
+			}
+
 		}
+	}
+
+	private final void horizontalSelected() {
+		getChart().getXYPlot().getDomainAxis().setLowerBound(horizontalSlider.getSelection() / horizontalRatio);
+		getChart().getXYPlot().getDomainAxis().setUpperBound(
+				(horizontalSlider.getThumb() + horizontalSlider.getSelection()) / horizontalRatio);
+	}
+
+	private final void verticalSelected() {
+		getChart().getXYPlot().getRangeAxis().setLowerBound(
+				(verticalSlider.getMaximum() - verticalSlider.getSelection() - verticalSlider.getThumb())
+						/ verticalRatio);
+		getChart().getXYPlot().getRangeAxis()
+				.setUpperBound((verticalSlider.getMaximum() - verticalSlider.getSelection()) / verticalRatio);
 	}
 
 	public final void setSliders(final Slider horizontalSlider, final Slider verticalSlider) {
@@ -226,31 +248,17 @@ public class PlotFrame extends ChartComposite {
 		this.verticalSlider = verticalSlider;
 		horizontalSlider.setMinimum(0);
 		verticalSlider.setMinimum(0);
-		this.horizontalSlider.addSelectionListener(new SelectionListener() {
+		this.horizontalSlider.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getChart().getXYPlot().getDomainAxis().setLowerBound(horizontalSlider.getSelection() / horizontalRatio);
-				getChart().getXYPlot().getDomainAxis().setUpperBound(
-						(horizontalSlider.getThumb() + horizontalSlider.getSelection()) / horizontalRatio);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
+				horizontalSelected();
 			}
 		});
 
-		this.verticalSlider.addSelectionListener(new SelectionListener() {
+		this.verticalSlider.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getChart().getXYPlot().getRangeAxis().setLowerBound(
-						(verticalSlider.getMaximum() - verticalSlider.getSelection() - verticalSlider.getThumb())
-								/ verticalRatio);
-				getChart().getXYPlot().getRangeAxis()
-						.setUpperBound((verticalSlider.getMaximum() - verticalSlider.getSelection()) / verticalRatio);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
+				verticalSelected();
 			}
 		});
 	}
