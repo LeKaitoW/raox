@@ -53,7 +53,7 @@ public class PlotFrame extends ChartComposite {
 		toolTip.setPopupDelay(0);
 	}
 
-	private final Point plotToSwt(double x, double y) {
+	private Point plotToSwt(double x, double y) {
 		Rectangle rectangle = PlotFrame.this.getScreenDataArea();
 		final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
 		final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
@@ -70,12 +70,12 @@ public class PlotFrame extends ChartComposite {
 	 private class ExtendedToolTip extends DefaultToolTip {
 		private boolean isActive = false;
 
-		public ExtendedToolTip(Control control, int style, boolean manualActivation) {
+		ExtendedToolTip(Control control, int style, boolean manualActivation) {
 			super(control, style, manualActivation);
 		}
 	}
 
-	private final Point2D swtToPlot(int x, int y) {
+	private Point2D swtToPlot(int x, int y) {
 		Rectangle rectangle = PlotFrame.this.getScreenDataArea();
 		final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
 		final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
@@ -98,7 +98,7 @@ public class PlotFrame extends ChartComposite {
 		double valueY;
 		final static int BORDER = 1;
 
-		final private int getDistance(Point x1, Point x2) {
+		private int getDistance(Point x1, Point x2) {
 			return (int) Math.sqrt(Math.pow((x1.x - x2.x), 2) + Math.pow((x1.y - x2.y), 2));
 		}
 
@@ -229,13 +229,13 @@ public class PlotFrame extends ChartComposite {
 		}
 	}
 
-	private final void horizontalSelected() {
+	private void horizontalSelected() {
 		getChart().getXYPlot().getDomainAxis().setLowerBound(horizontalSlider.getSelection() / horizontalRatio);
 		getChart().getXYPlot().getDomainAxis().setUpperBound(
 				(horizontalSlider.getThumb() + horizontalSlider.getSelection()) / horizontalRatio);
 	}
 
-	private final void verticalSelected() {
+	private void verticalSelected() {
 		getChart().getXYPlot().getRangeAxis().setLowerBound(
 				(verticalSlider.getMaximum() - verticalSlider.getSelection() - verticalSlider.getThumb())
 						/ verticalRatio);
