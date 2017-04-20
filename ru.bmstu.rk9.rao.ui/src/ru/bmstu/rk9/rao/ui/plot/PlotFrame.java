@@ -218,10 +218,10 @@ public class PlotFrame extends ChartComposite {
 				zoomInBoth(e.x, e.y);
 			if (e.count < 0 && isDomainZoomable() && isRangeZoomable())
 				zoomOutBoth(e.x, e.y);
-
+			
 			if (!isDomainZoomable() && !isRangeZoomable()
 					&& horizontalSlider.isVisible()
-					&& horizontalSlider.getThumb() < 100) {
+					&& horizontalSlider.getThumb() < horizontalSlider.getMaximum()) {
 				horizontalSlider.setSelection(horizontalSlider.getSelection() - e.count);
 				horizontalSelected();
 			}
