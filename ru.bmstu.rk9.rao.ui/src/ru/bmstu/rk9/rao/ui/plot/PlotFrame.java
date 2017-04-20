@@ -12,8 +12,8 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseWheelListener;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -67,7 +67,7 @@ public class PlotFrame extends ChartComposite {
 		return new Point((int) Math.round(screenX), (int) Math.round(screenY));
 	}
 
-	 private class ExtendedToolTip extends DefaultToolTip {
+	private class ExtendedToolTip extends DefaultToolTip {
 		private boolean isActive = false;
 
 		ExtendedToolTip(Control control, int style, boolean manualActivation) {
@@ -218,9 +218,8 @@ public class PlotFrame extends ChartComposite {
 				zoomInBoth(e.x, e.y);
 			if (e.count < 0 && isDomainZoomable() && isRangeZoomable())
 				zoomOutBoth(e.x, e.y);
-			
-			if (!isDomainZoomable() && !isRangeZoomable()
-					&& horizontalSlider.isVisible()
+
+			if (!isDomainZoomable() && !isRangeZoomable() && horizontalSlider.isVisible()
 					&& horizontalSlider.getThumb() < horizontalSlider.getMaximum()) {
 				horizontalSlider.setSelection(horizontalSlider.getSelection() - e.count);
 				horizontalSelected();
@@ -231,13 +230,13 @@ public class PlotFrame extends ChartComposite {
 
 	private void horizontalSelected() {
 		getChart().getXYPlot().getDomainAxis().setLowerBound(horizontalSlider.getSelection() / horizontalRatio);
-		getChart().getXYPlot().getDomainAxis().setUpperBound(
-				(horizontalSlider.getThumb() + horizontalSlider.getSelection()) / horizontalRatio);
+		getChart().getXYPlot().getDomainAxis()
+				.setUpperBound((horizontalSlider.getThumb() + horizontalSlider.getSelection()) / horizontalRatio);
 	}
 
 	private void verticalSelected() {
-		getChart().getXYPlot().getRangeAxis().setLowerBound(
-				(verticalSlider.getMaximum() - verticalSlider.getSelection() - verticalSlider.getThumb())
+		getChart().getXYPlot().getRangeAxis()
+				.setLowerBound((verticalSlider.getMaximum() - verticalSlider.getSelection() - verticalSlider.getThumb())
 						/ verticalRatio);
 		getChart().getXYPlot().getRangeAxis()
 				.setUpperBound((verticalSlider.getMaximum() - verticalSlider.getSelection()) / verticalRatio);
