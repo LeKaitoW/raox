@@ -147,7 +147,6 @@ public class PlotView extends ViewPart {
 	}
 
 	private class RealTimeUpdateRunnable implements Runnable {
-
 		private boolean isLastEntry;
 
 		RealTimeUpdateRunnable(boolean isLastEntry) {
@@ -182,14 +181,17 @@ public class PlotView extends ViewPart {
 			final List<PlotItem> items = dataParserResult.dataset;
 
 			if (!items.isEmpty()) {
-
 				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame.getChart().getXYPlot()
 						.getDataset();
 				final XYSeries newSeries = newDataset.getSeries(0);
+				List<PlotItem> startItems = items.subList(0, items.size() - 1);
 
-				for (PlotItem item : items) {
-					newSeries.add(item.x, item.y);
+				for (PlotItem item : startItems) {
+					newSeries.add(item.x, item.y, false);
 				}
+
+				PlotItem lastItem = items.get(items.size() - 1);
+				newSeries.add(lastItem.x, lastItem.y, true);
 
 				plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
 				plotFrame.updateSliders();
@@ -199,15 +201,16 @@ public class PlotView extends ViewPart {
 				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame.getChart().getXYPlot()
 						.getDataset();
 				final XYSeries newSeries = newDataset.getSeries(0);
+
 				if (newSeries.getItemCount() == 2) {
 					@SuppressWarnings("unchecked")
 					List<XYDataItem> seriesitems = newSeries.getItems();
+
 					if (seriesitems.get(0).equals(seriesitems.get(1))) {
 						newSeries.add(CurrentSimulator.getTime(), seriesitems.get(1).getY());
 						plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
 						plotFrame.updateSliders();
 					}
-
 				} else if (newSeries.getItemCount() == 1) {
 					@SuppressWarnings("unchecked")
 					List<XYDataItem> seriesitems = newSeries.getItems();
