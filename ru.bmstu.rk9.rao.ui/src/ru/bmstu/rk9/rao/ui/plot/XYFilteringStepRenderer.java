@@ -53,12 +53,12 @@ public class XYFilteringStepRenderer extends XYStepRenderer {
 		double transY1 = (Double.isNaN(y1) ? Double.NaN : rangeAxis.valueToJava2D(y1, dataArea, yAxisLocation));
 
 		if (pass == 0 && item > 0) {
-			Integer prevPoint = filteredLinesMap.size() > 0 ? filteredLinesMap.get(item) : null;
-			if (prevPoint == null) {
-				prevPoint = item - 1;
+			Integer previousPoint = filteredLinesMap.size() > 0 ? filteredLinesMap.get(item) : null;
+			if (previousPoint == null) {
+				previousPoint = item - 1;
 			}
-			double x0 = dataset.getXValue(series, prevPoint);
-			double y0 = dataset.getYValue(series, prevPoint);
+			double x0 = dataset.getXValue(series, previousPoint);
+			double y0 = dataset.getYValue(series, previousPoint);
 			double transX0 = domainAxis.valueToJava2D(x0, dataArea, xAxisLocation);
 			double transY0 = (Double.isNaN(y0) ? Double.NaN : rangeAxis.valueToJava2D(y0, dataArea, yAxisLocation));
 

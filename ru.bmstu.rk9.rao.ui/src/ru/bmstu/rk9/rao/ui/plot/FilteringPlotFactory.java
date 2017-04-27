@@ -17,21 +17,22 @@ public class FilteringPlotFactory {
 
 	public static JFreeChart createXYStepChart(String title, String xAxisLabel, String yAxisLabel, XYDataset dataset,
 			PlotOrientation orientation, boolean legend, boolean tooltips, boolean urls) {
-
 		ParamChecks.nullNotPermitted(orientation, "orientation");
 		DateAxis xAxis = new DateAxis(xAxisLabel);
 		NumberAxis yAxis = new NumberAxis(yAxisLabel);
 		yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
 		XYToolTipGenerator toolTipGenerator = null;
+
 		if (tooltips) {
 			toolTipGenerator = new StandardXYToolTipGenerator();
 		}
 
 		XYURLGenerator urlGenerator = null;
+
 		if (urls) {
 			urlGenerator = new StandardXYURLGenerator();
 		}
+
 		XYItemRenderer renderer = new XYFilteringStepRenderer(toolTipGenerator, urlGenerator);
 		XYPlotWithFiltering plot = new XYPlotWithFiltering(dataset, xAxis, yAxis, null);
 
