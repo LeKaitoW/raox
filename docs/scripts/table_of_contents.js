@@ -12,9 +12,11 @@ function fillContents(ul, contents) {
 }
 
 function generateSidebar(referenceContents, tutorialContents, userGuideContents, debugContents) {
-    var body = $("body");
+    isNavbarPresent = true;
 
-    var wrapper = $("<div>");
+    body = $("body");
+
+    wrapper = $("<div>");
     wrapper.attr("id", "wrapper");
 
     var sidebarWrapper = $("<div>");
@@ -185,6 +187,78 @@ function getDebugContents() {
     return contents;
 }
 
+let isNavbarHidden = false;
+const MIN_WINDOW_WIDTH = 900;
+const TRANSITION_TIME = 400;
+
+function hideNavbar(burgerButton) {
+    burgerButton.html('show');
+    $('#sidebar-wrapper').hide(TRANSITION_TIME);
+    $('#sidebar-wrapper').removeClass('sidebar-wrapper-full');
+    $('#page-content-wrapper').show(TRANSITION_TIME);
+    isNavbarHidden = true;
+}
+
+function showNavbar(burgerButton) {
+    burgerButton.html('hide');
+    $('#sidebar-wrapper').show(TRANSITION_TIME);
+    $('#sidebar-wrapper').addClass('sidebar-wrapper-full');//sometimes misfires
+    $('#page-content-wrapper').hide(TRANSITION_TIME);
+    isNavbarHidden = false;
+}
+
+function createButton() {
+    let burgerButton = $('<button>');
+    burgerButton.addClass('burger-button');
+    burgerButton.html('show');
+    burgerButton.click(() => {
+        if (isNavbarHidden) {
+            showNavbar(burgerButton);
+        } else {
+            hideNavbar(burgerButton);
+        }
+    });
+
+    $("body").append(burgerButton);
+
+    return burgerButton
+}
+
+let isBurgerHidden = true;
+
+function transformToMobile(burgerButton) {
+    $('#sidebar-wrapper').hide(TRANSITION_TIME);
+    isBurgerHidden = false;
+    burgerButton.show(TRANSITION_TIME);
+    burgerButton.html('show');
+    $('.page-content').addClass('page-content-wrapper-full');
+    isNavbarHidden = true;
+}
+
+function transformToDesktop(burgerButton) {
+    $('#sidebar-wrapper').removeClass('sidebar-wrapper-full');
+    $('#sidebar-wrapper').show(TRANSITION_TIME);
+    isBurgerHidden = true;
+    burgerButton.hide(TRANSITION_TIME);
+    $('.page-content').removeClass('page-content-wrapper-full');
+    $('#page-content-wrapper').show(TRANSITION_TIME);
+}
+
 $(document).ready(function() {
     generateSidebar(getReferenceContents(), getTutorialContents(), getUserGuideContents(), getDebugContents());
+    let burgerButton = createButton();
+    burgerButton.hide();
+
+    if (window.innerWidth < MIN_WINDOW_WIDTH) {
+        transformToMobile(burgerButton);
+    }
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth < MIN_WINDOW_WIDTH && isBurgerHidden) {
+          transformToMobile(burgerButton);
+        }
+        if (window.innerWidth > MIN_WINDOW_WIDTH && !isBurgerHidden) {
+          transformToDesktop(burgerButton);
+        }
+    });
 });

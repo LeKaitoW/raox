@@ -1,17 +1,23 @@
-#wrapper {
-  padding-left: 270px;
-}
-
 #sidebar-wrapper {
-  margin-left: -270px;
-  left: 270px;
-  width: 270px;
+  margin-left: 0px;
+  left: 0px;
+  width: 18%;
   background: #fff;
   position: fixed;
   height: 100%;
+  margin-top: 0px;
   border-right: 1px solid gray;
   overflow-y: auto;
   overflow-x: hidden;
+  z-index: 100;
+}
+
+.sidebar-wrapper-full {
+  width: 100% !important;
+}
+
+.page-content-wrapper-full {
+  margin-left: 0px !important;
 }
 
 #page-content-wrapper {
@@ -21,12 +27,25 @@
 
 .sidebar-nav {
   position: absolute;
-  width: 250px;
   margin-left: 10px;
   margin-right: 10px;
 }
 
 .page-content {
-  margin-left: 10px;
+  margin-left: 19%;
   margin-right: 10px;
+}
+
+.burger-button {
+  font-size: 20px;
+  position: fixed;
+  top: 5px;
+  color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(230, 230, 230, 0.6);
+  border-radius: 5px;
+  border-width: 0px;
+  cursor: pointer;
+  right: 10px;
+  width: 80px;
+  z-index: 101;
 }
