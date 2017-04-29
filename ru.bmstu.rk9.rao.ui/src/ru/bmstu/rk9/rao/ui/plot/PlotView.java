@@ -109,18 +109,18 @@ public class PlotView extends ViewPart {
 		public void show(CollectedDataNode node) {
 
 			FileDialog fileDialog = new FileDialog(getDisplay().getActiveShell(), SWT.SAVE);
-			fileDialog.setText("Save");
+			fileDialog.setText("Export to JSON");
 			fileDialog.setFilterPath("C:/");
-			String[] filterExt = { "*.txt", "*.doc", ".rtf", "*.*" };
-			fileDialog.setFilterExtensions(filterExt);
-			String selected = fileDialog.open();
-			if (selected != null && selected.length() > 0) {
+			String[] filterExtensions = { "*.txt", "*.doc", ".rtf", "*.*" };
+			fileDialog.setFilterExtensions(filterExtensions);
+			String selectedPathAndName = fileDialog.open();
+			if (selectedPathAndName != null && selectedPathAndName.length() > 0) {
 				PlotDataParser parser = new PlotDataParser(node);
 				DataParserResult result = parser.parseEntries();
 				Gson gson = new GsonBuilder().setPrettyPrinting().create();
 				String data = gson.toJson(result);
 				try (Writer writer = new BufferedWriter(
-						new OutputStreamWriter(new FileOutputStream(selected), "UTF-8"))) {
+						new OutputStreamWriter(new FileOutputStream(selectedPathAndName), "UTF-8"))) {
 					writer.write(data);
 				} catch (IOException e) {
 					e.printStackTrace();
