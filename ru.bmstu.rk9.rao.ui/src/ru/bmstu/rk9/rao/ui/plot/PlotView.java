@@ -3,6 +3,11 @@ package ru.bmstu.rk9.rao.ui.plot;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +20,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.ui.IWorkbenchPage;
@@ -230,6 +236,61 @@ public class PlotView extends ViewPart {
 		return chart;
 	}
 
+	static private class ExportCSVMenuItem extends ConditionalMenuItem {
+		public ExportCSVMenuItem(Menu parent) {
+			super(parent, "Export to CSV");
+		}
+
+		@Override
+		public boolean isEnabled(CollectedDataNode node) {
+			Index index = node.getIndex();
+
+			if (PlotView.getOpenedPlotMap().containsKey(node)) {
+				if (index == null)
+					return false;
+
+				switch (index.getType()) {
+				case RESOURCE_PARAMETER:
+					return true;
+				case RESULT:
+					return true;
+				case PATTERN:
+					PatternIndex patternIndex = (PatternIndex) index;
+					int patternNumber = patternIndex.getNumber();
+					String patternType = CurrentSimulator.getStaticModelData().getPatternType(patternNumber);
+					return patternType.equals(ModelStructureConstants.OPERATION);
+				default:
+					return false;
+				}
+			} else
+				return false;
+		}
+
+		@Override
+		public void show(CollectedDataNode node) {
+			FileDialog fileDialog = new FileDialog(getDisplay().getActiveShell(), SWT.SAVE);
+			fileDialog.setText("Save");
+			String[] filterExt = { "*.csv", "*.txt" };
+			fileDialog.setFilterExtensions(filterExt);
+
+			String filename = fileDialog.open();
+			if (filename != null && filename.length() > 0) {
+				PlotDataParser parser = new PlotDataParser(node);
+				DataParserResult result = parser.parseEntries();
+
+				try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+						new FileOutputStream(filename), "UTF-8"))) {
+					writer.write("x,y\n");
+					for (PlotItem pi : result.dataset) {
+						writer.write(String.valueOf(pi.x) + "," + String.valueOf(pi.y) + "\n");
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
 	static private class PlotMenuItem extends ConditionalMenuItem {
 
 		public PlotMenuItem(Menu parent) {
@@ -278,6 +339,10 @@ public class PlotView extends ViewPart {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	static public ConditionalMenuItem createConditionalMenuItemExportCSV(Menu parent) {
+		return new ExportCSVMenuItem(parent);
 	}
 
 	static public ConditionalMenuItem createConditionalMenuItem(Menu parent) {
