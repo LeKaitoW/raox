@@ -3,6 +3,11 @@ package ru.bmstu.rk9.rao.ui.plot;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +20,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.ui.IWorkbenchPage;
@@ -31,6 +37,9 @@ import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
@@ -64,6 +73,60 @@ public class PlotView extends ViewPart {
 
 	public PlotFrame getFrame() {
 		return plotFrame;
+	}
+
+	static private class ExportMenuItem extends ConditionalMenuItem {
+		public ExportMenuItem(Menu parent) {
+			super(parent, "Export to JSON");
+		}
+
+		@Override
+		public boolean isEnabled(CollectedDataNode node) {
+			Index index = node.getIndex();
+
+			if (PlotView.getOpenedPlotMap().containsKey(node)) {
+				if (index == null)
+					return false;
+
+				switch (index.getType()) {
+				case RESOURCE_PARAMETER:
+					return true;
+				case RESULT:
+					return true;
+				case PATTERN:
+					PatternIndex patternIndex = (PatternIndex) index;
+					int patternNumber = patternIndex.getNumber();
+					String patternType = CurrentSimulator.getStaticModelData().getPatternType(patternNumber);
+					return patternType.equals(ModelStructureConstants.OPERATION);
+				default:
+					return false;
+				}
+			} else
+				return false;
+		}
+
+		@Override
+		public void show(CollectedDataNode node) {
+
+			FileDialog fileDialog = new FileDialog(getDisplay().getActiveShell(), SWT.SAVE);
+			fileDialog.setText("Export to JSON");
+			String[] filter = { "*.json", "*.*" };
+			fileDialog.setFilterExtensions(filter);
+			String fileName = fileDialog.open();
+			if (fileName != null && fileName.length() > 0) {
+				PlotDataParser parser = new PlotDataParser(node);
+				DataParserResult result = parser.parseEntries();
+				List<PlotItem> dataset = result.dataset;
+				Gson gson = new GsonBuilder().setPrettyPrinting().create();
+				String data = gson.toJson(dataset);
+				try (Writer writer = new BufferedWriter(
+						new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"))) {
+					writer.write(data);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -319,6 +382,10 @@ public class PlotView extends ViewPart {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	static public ConditionalMenuItem createConditionalMenuItemExport(Menu parent) {
+		return new ExportMenuItem(parent);
 	}
 
 	static public ConditionalMenuItem createConditionalMenuItem(Menu parent) {
