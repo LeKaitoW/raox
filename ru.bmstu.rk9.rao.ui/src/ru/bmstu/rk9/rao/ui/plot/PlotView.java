@@ -110,17 +110,17 @@ public class PlotView extends ViewPart {
 
 			FileDialog fileDialog = new FileDialog(getDisplay().getActiveShell(), SWT.SAVE);
 			fileDialog.setText("Export to JSON");
-			fileDialog.setFilterPath("C:/");
-			String[] filterExtensions = { "*.txt", "*.doc", ".rtf", "*.*" };
-			fileDialog.setFilterExtensions(filterExtensions);
-			String selectedPathAndName = fileDialog.open();
-			if (selectedPathAndName != null && selectedPathAndName.length() > 0) {
+			String[] filter = { "*.json", "*.*" };
+			fileDialog.setFilterExtensions(filter);
+			String fileName = fileDialog.open();
+			if (fileName != null && fileName.length() > 0) {
 				PlotDataParser parser = new PlotDataParser(node);
 				DataParserResult result = parser.parseEntries();
+				List<PlotItem> dataset = result.dataset;
 				Gson gson = new GsonBuilder().setPrettyPrinting().create();
-				String data = gson.toJson(result);
+				String data = gson.toJson(dataset);
 				try (Writer writer = new BufferedWriter(
-						new OutputStreamWriter(new FileOutputStream(selectedPathAndName), "UTF-8"))) {
+						new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"))) {
 					writer.write(data);
 				} catch (IOException e) {
 					e.printStackTrace();
