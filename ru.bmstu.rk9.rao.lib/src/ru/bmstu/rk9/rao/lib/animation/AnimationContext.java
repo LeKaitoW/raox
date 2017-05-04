@@ -1,11 +1,11 @@
 package ru.bmstu.rk9.rao.lib.animation;
 
 public interface AnimationContext {
-	public void drawText(String text, int x, int y, RaoColor textColor, int width, Alignment alignment);
+	public void drawText(Object object, int x, int y, RaoColor textColor, int width, Alignment alignment);
 
-	public void drawText(String text, int x, int y, RaoColor textColor);
+	public void drawText(Object object, int x, int y, RaoColor textColor);
 
-	public void drawText(String text, int x, int y);
+	public void drawText(Object object, int x, int y);
 
 	public void drawRectangle(int x, int y, int width, int height, RaoColor backgroundColour, RaoColor borderColour);
 
