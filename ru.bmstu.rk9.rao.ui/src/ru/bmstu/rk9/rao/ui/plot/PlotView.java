@@ -75,8 +75,8 @@ public class PlotView extends ViewPart {
 		return plotFrame;
 	}
 
-	static private class ExportJSONMenuItem extends ConditionalMenuItem {
-		public ExportJSONMenuItem(Menu parent) {
+	static private class ExportJsonMenuItem extends ConditionalMenuItem {
+		public ExportJsonMenuItem(Menu parent) {
 			super(parent, "Export to JSON");
 		}
 
@@ -337,8 +337,8 @@ public class PlotView extends ViewPart {
 		return chart;
 	}
 
-	static private class ExportCSVMenuItem extends ConditionalMenuItem {
-		public ExportCSVMenuItem(Menu parent) {
+	static private class ExportCsvMenuItem extends ConditionalMenuItem {
+		public ExportCsvMenuItem(Menu parent) {
 			super(parent, "Export to CSV");
 		}
 
@@ -440,11 +440,11 @@ public class PlotView extends ViewPart {
 	}
 
 	static public ConditionalMenuItem createConditionalMenuItemExportCSV(Menu parent) {
-		return new ExportCSVMenuItem(parent);
+		return new ExportCsvMenuItem(parent);
 	}
 
 	static public ConditionalMenuItem createConditionalMenuItemExport(Menu parent) {
-		return new ExportJSONMenuItem(parent);
+		return new ExportJsonMenuItem(parent);
 	}
 
 	static public ConditionalMenuItem createConditionalMenuItem(Menu parent) {
