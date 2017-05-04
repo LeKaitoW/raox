@@ -33,9 +33,13 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.SymbolAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.Index;
@@ -52,7 +56,6 @@ import ru.bmstu.rk9.rao.ui.plot.PlotDataParser.PlotItem;
 import ru.bmstu.rk9.rao.ui.serialization.SerializedObjectsView.ConditionalMenuItem;
 
 public class PlotView extends ViewPart {
-
 	public static final String ID = "ru.bmstu.rk9.rao.ui.PlotView";
 	private final static Map<CollectedDataNode, Integer> openedPlotMap = new HashMap<CollectedDataNode, Integer>();
 	private static int secondaryID = 0;
@@ -70,6 +73,60 @@ public class PlotView extends ViewPart {
 
 	public PlotFrame getFrame() {
 		return plotFrame;
+	}
+
+	static private class ExportMenuItem extends ConditionalMenuItem {
+		public ExportMenuItem(Menu parent) {
+			super(parent, "Export to JSON");
+		}
+
+		@Override
+		public boolean isEnabled(CollectedDataNode node) {
+			Index index = node.getIndex();
+
+			if (PlotView.getOpenedPlotMap().containsKey(node)) {
+				if (index == null)
+					return false;
+
+				switch (index.getType()) {
+				case RESOURCE_PARAMETER:
+					return true;
+				case RESULT:
+					return true;
+				case PATTERN:
+					PatternIndex patternIndex = (PatternIndex) index;
+					int patternNumber = patternIndex.getNumber();
+					String patternType = CurrentSimulator.getStaticModelData().getPatternType(patternNumber);
+					return patternType.equals(ModelStructureConstants.OPERATION);
+				default:
+					return false;
+				}
+			} else
+				return false;
+		}
+
+		@Override
+		public void show(CollectedDataNode node) {
+
+			FileDialog fileDialog = new FileDialog(getDisplay().getActiveShell(), SWT.SAVE);
+			fileDialog.setText("Export to JSON");
+			String[] filter = { "*.json", "*.*" };
+			fileDialog.setFilterExtensions(filter);
+			String fileName = fileDialog.open();
+			if (fileName != null && fileName.length() > 0) {
+				PlotDataParser parser = new PlotDataParser(node);
+				DataParserResult result = parser.parseEntries();
+				List<PlotItem> dataset = result.dataset;
+				Gson gson = new GsonBuilder().setPrettyPrinting().create();
+				String data = gson.toJson(dataset);
+				try (Writer writer = new BufferedWriter(
+						new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"))) {
+					writer.write(data);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -129,14 +186,13 @@ public class PlotView extends ViewPart {
 		dataset.addSeries(series);
 
 		plotXY(dataset);
-
 		initializeSubscribers();
 	}
 
 	private final void initializeSubscribers() {
 		simulatorSubscriberManager.initialize(
 				Arrays.asList(new SimulatorSubscriberInfo(commonSubcriber, ExecutionState.EXECUTION_STARTED),
-						new SimulatorSubscriberInfo(commonSubcriber, ExecutionState.EXECUTION_COMPLETED)));
+						new SimulatorSubscriberInfo(endSubscriber, ExecutionState.EXECUTION_COMPLETED)));
 		realTimeSubscriberManager.initialize(Arrays.asList(realTimeUpdateRunnable));
 	}
 
@@ -154,13 +210,24 @@ public class PlotView extends ViewPart {
 		return plotFrame != null && !plotFrame.isDisposed();
 	}
 
-	private final Runnable realTimeUpdateRunnable = new Runnable() {
+	private class RealTimeUpdateRunnable implements Runnable {
+		private boolean isLastEntry;
+
+		RealTimeUpdateRunnable(boolean isLastEntry) {
+			this.isLastEntry = isLastEntry;
+		}
+
+		private void changeLastValueFlag() {
+			isLastEntry = true;
+		}
+
 		@Override
 		public void run() {
 			if (!readyForInput())
 				return;
 
 			final DataParserResult dataParserResult = plotDataParser.parseEntries();
+
 			if (dataParserResult.axisHelper.axisChanged) {
 				XYPlot plot = (XYPlot) plotFrame.getChart().getPlot();
 				SymbolAxis rangeAxis;
@@ -177,6 +244,7 @@ public class PlotView extends ViewPart {
 			}
 
 			final List<PlotItem> items = dataParserResult.dataset;
+
 			if (!items.isEmpty()) {
 				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame.getChart().getXYPlot()
 						.getDataset();
@@ -185,15 +253,47 @@ public class PlotView extends ViewPart {
 					final PlotItem item = items.get(i);
 					newSeries.add(item.x, item.y);
 				}
+
 				plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
 				plotFrame.updateSliders();
+			}
+
+			if (isLastEntry) {
+				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame.getChart().getXYPlot()
+						.getDataset();
+				final XYSeries newSeries = newDataset.getSeries(0);
+				if (newSeries.getItemCount() == 2) {
+					@SuppressWarnings("unchecked")
+					List<XYDataItem> seriesitems = newSeries.getItems();
+					if (seriesitems.get(0).equals(seriesitems.get(1))) {
+						newSeries.add(CurrentSimulator.getTime(), seriesitems.get(1).getY());
+						plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
+						plotFrame.updateSliders();
+					}
+				} else if (newSeries.getItemCount() == 1) {
+					@SuppressWarnings("unchecked")
+					List<XYDataItem> seriesitems = newSeries.getItems();
+					newSeries.add(CurrentSimulator.getTime(), seriesitems.get(0).getY());
+					plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
+					plotFrame.updateSliders();
+				}
 			}
 		}
 	};
 
+	private final RealTimeUpdateRunnable realTimeUpdateRunnable = new RealTimeUpdateRunnable(false);
+
 	private final Subscriber commonSubcriber = new Subscriber() {
 		@Override
 		public void fireChange() {
+			PlatformUI.getWorkbench().getDisplay().asyncExec(realTimeUpdateRunnable);
+		}
+	};
+
+	private final Subscriber endSubscriber = new Subscriber() {
+		@Override
+		public void fireChange() {
+			realTimeUpdateRunnable.changeLastValueFlag();
 			PlatformUI.getWorkbench().getDisplay().asyncExec(realTimeUpdateRunnable);
 		}
 	};
@@ -205,15 +305,16 @@ public class PlotView extends ViewPart {
 	public void plotXY(final XYSeriesCollection dataset) {
 		final JFreeChart chart = createChart(dataset);
 		plotFrame.setChart(chart);
+		plotFrame.setDomainZoomable(false);
 		plotFrame.setRangeZoomable(false);
 	}
 
 	private JFreeChart createChart(final XYDataset dataset) {
-
 		final JFreeChart chart = ChartFactory.createXYStepChart("", "Time", "Value", dataset, PlotOrientation.VERTICAL,
 				true, true, false);
 
 		final XYPlot plot = (XYPlot) chart.getPlot();
+
 		Color white = new Color(0xFF, 0XFF, 0xFF);
 		plot.setBackgroundPaint(white);
 		Color grey = new Color(0x99, 0x99, 0x99);
@@ -292,7 +393,6 @@ public class PlotView extends ViewPart {
 	}
 
 	static private class PlotMenuItem extends ConditionalMenuItem {
-
 		public PlotMenuItem(Menu parent) {
 			super(parent, "Plot");
 		}
@@ -300,22 +400,20 @@ public class PlotView extends ViewPart {
 		@Override
 		public boolean isEnabled(CollectedDataNode node) {
 			Index index = node.getIndex();
+
 			if (index == null)
 				return false;
 
 			switch (index.getType()) {
 			case RESOURCE_PARAMETER:
 				return true;
-
 			case RESULT:
 				return true;
-
 			case PATTERN:
 				PatternIndex patternIndex = (PatternIndex) index;
 				int patternNumber = patternIndex.getNumber();
 				String patternType = CurrentSimulator.getStaticModelData().getPatternType(patternNumber);
 				return patternType.equals(ModelStructureConstants.OPERATION);
-
 			default:
 				return false;
 			}
@@ -343,6 +441,10 @@ public class PlotView extends ViewPart {
 
 	static public ConditionalMenuItem createConditionalMenuItemExportCSV(Menu parent) {
 		return new ExportCSVMenuItem(parent);
+	}
+
+	static public ConditionalMenuItem createConditionalMenuItemExport(Menu parent) {
+		return new ExportMenuItem(parent);
 	}
 
 	static public ConditionalMenuItem createConditionalMenuItem(Menu parent) {

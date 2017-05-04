@@ -86,25 +86,25 @@ public class AnimationContextSWT implements AnimationContext {
 
 	// TODO handle alignment
 	@Override
-	public void drawText(String text, int x, int y, RaoColor textRaoColor, int width, Alignment alignment) {
+	public void drawText(Object object, int x, int y, RaoColor textRaoColor, int width, Alignment alignment) {
 		paintContext.setAlpha(textRaoColor.alpha);
 
 		Color foregroundColor = createColor(textRaoColor);
 
 		paintContext.setForeground(foregroundColor);
-		paintContext.drawText(text, x, y, true);
+		paintContext.drawText(object.toString(), x, y, true);
 
 		foregroundColor.dispose();
 	}
 
 	@Override
-	public void drawText(String text, int x, int y, RaoColor textColor) {
-		drawText(text, x, y, textColor, 0, Alignment.LEFT);
+	public void drawText(Object object, int x, int y, RaoColor textColor) {
+		drawText(object, x, y, textColor, 0, Alignment.LEFT);
 	}
 
 	@Override
-	public void drawText(String text, int x, int y) {
-		drawText(text, x, y, RaoColor.BLACK);
+	public void drawText(Object object, int x, int y) {
+		drawText(object, x, y, RaoColor.BLACK);
 	}
 
 	@Override

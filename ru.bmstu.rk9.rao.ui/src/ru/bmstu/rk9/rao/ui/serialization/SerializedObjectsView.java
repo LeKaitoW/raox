@@ -39,8 +39,8 @@ import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.IndexType;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.ResourceIndex;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
-import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.graph.GraphPanel;
 import ru.bmstu.rk9.rao.ui.notification.RealTimeSubscriberManager;
@@ -101,6 +101,7 @@ public class SerializedObjectsView extends ViewPart {
 		conditionalMenuItems.add(PlotView.createConditionalMenuItem(popupMenu));
 		conditionalMenuItems.add(GraphPanel.createConditionalMenuItem(popupMenu));
 		conditionalMenuItems.add(PlotView.createConditionalMenuItemExportCSV(popupMenu));
+		conditionalMenuItems.add(PlotView.createConditionalMenuItemExport(popupMenu));
 		serializedObjectsTreeViewer.getTree().setMenu(popupMenu);
 
 		serializedObjectsTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
