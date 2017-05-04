@@ -36,16 +36,47 @@
   margin-right: 10px;
 }
 
-.navbar-button {
-  font-size: 30px;
-  position: fixed;
-  top: 5px;
-  color: rgba(0, 0, 0, 0.8);
-  background-color: rgba(230, 230, 230, 0.6);
-  border-radius: 5px;
-  border-width: 0px;
-  cursor: pointer;
-  right: 10px;
-  width: 50px;
-  z-index: 101;
+@media screen and (min-device-width: 1080px) {
+  .navbar-button {
+    font-size: 18px;
+    position: fixed;
+    top: 5px;
+    color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(230, 230, 230, 0.6);
+    border-radius: 5px;
+    border-width: 0px;
+    cursor: pointer;
+    right: 10px;
+    width: 30px;
+    z-index: 101;
+  }
+}
+
+@media screen and (max-device-width: 1080px) {
+  .navbar-button {
+    font-size: 60px;
+    position: fixed;
+    top: 20px;
+    color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(230, 230, 230, 0.6);
+    border-radius: 10px;
+    border-width: 0px;
+    cursor: pointer;
+    right: 20px;
+    width: 100px;
+    z-index: 101;
+  }
+
+  .sidebar-nav {
+    font-size: 24pt;
+  }
+
+  .sidebar-nav h2 {
+    font-size: 28pt;
+  }
+
+  pre code {
+    font-size: 24pt;
+    line-height: 30pt;
+  }
 }

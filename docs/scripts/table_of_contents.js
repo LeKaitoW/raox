@@ -248,9 +248,9 @@ function transformToDesktop(navbarButton) {
 }
 
 function setDisplayMode(navbarButton) {
-    if (window.innerWidth < MOBILE_SCREEN_THRESHOLD && !isNavbarButtonVisible) {
+    if (window.innerWidth < MOBILE_SCREEN_THRESHOLD) {
         transformToMobile(navbarButton);
-    } else if (window.innerWidth > MOBILE_SCREEN_THRESHOLD && isNavbarButtonVisible) {
+    } else {
         transformToDesktop(navbarButton);
     }
 }
@@ -263,6 +263,8 @@ $(document).ready(function() {
     setDisplayMode(navbarButton);
 
     window.addEventListener('resize', function() {
-        setDisplayMode(navbarButton);
+        if ((window.innerWidth < MOBILE_SCREEN_THRESHOLD && !isNavbarButtonVisible) ||
+                (window.innerWidth > MOBILE_SCREEN_THRESHOLD && isNavbarButtonVisible))
+            setDisplayMode(navbarButton);
     });
 });
