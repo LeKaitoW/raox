@@ -1,3 +1,8 @@
+var isNavbarHidden = false;
+var isBurgerHidden = true;
+const MIN_WINDOW_WIDTH = 900;
+const TRANSITION_TIME = 400;
+
 function fillContents(ul, contents) {
     for (var i = 0; i < contents.length; i++) {
         var li = $("<li>");
@@ -187,10 +192,6 @@ function getDebugContents() {
     return contents;
 }
 
-let isNavbarHidden = false;
-const MIN_WINDOW_WIDTH = 900;
-const TRANSITION_TIME = 400;
-
 function hideNavbar(burgerButton) {
     burgerButton.html('show');
     $('#sidebar-wrapper').hide(TRANSITION_TIME);
@@ -208,10 +209,10 @@ function showNavbar(burgerButton) {
 }
 
 function createButton() {
-    let burgerButton = $('<button>');
+    var burgerButton = $('<button>');
     burgerButton.addClass('burger-button');
     burgerButton.html('show');
-    burgerButton.click(() => {
+    burgerButton.click(function() {
         if (isNavbarHidden) {
             showNavbar(burgerButton);
         } else {
@@ -221,10 +222,8 @@ function createButton() {
 
     $("body").append(burgerButton);
 
-    return burgerButton
+    return burgerButton;
 }
-
-let isBurgerHidden = true;
 
 function transformToMobile(burgerButton) {
     $('#sidebar-wrapper').hide(TRANSITION_TIME);
@@ -246,14 +245,14 @@ function transformToDesktop(burgerButton) {
 
 $(document).ready(function() {
     generateSidebar(getReferenceContents(), getTutorialContents(), getUserGuideContents(), getDebugContents());
-    let burgerButton = createButton();
+    var burgerButton = createButton();
     burgerButton.hide();
 
     if (window.innerWidth < MIN_WINDOW_WIDTH) {
         transformToMobile(burgerButton);
     }
 
-    window.addEventListener('resize', () => {
+    window.addEventListener('resize', function() {
         if (window.innerWidth < MIN_WINDOW_WIDTH && isBurgerHidden) {
           transformToMobile(burgerButton);
         }
