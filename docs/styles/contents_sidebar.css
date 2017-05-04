@@ -26,7 +26,6 @@
 }
 
 .sidebar-nav {
-  font-size: 12pt;
   position: absolute;
   margin-left: 10px;
   margin-right: 10px;
@@ -37,7 +36,7 @@
   margin-right: 10px;
 }
 
-.burger-button {
+.navbar-button {
   font-size: 30px;
   position: fixed;
   top: 5px;

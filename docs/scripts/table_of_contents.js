@@ -1,7 +1,7 @@
-var isNavbarHidden = false;
-var isBurgerHidden = true;
-const MIN_WINDOW_WIDTH = 900;
-const TRANSITION_TIME = 400;
+var isNavbarVisible = true;
+var isNavbarButtonVisible = false;
+const MOBILE_SCREEN_THRESHOLD = 1080;
+const ANIMATION_TRANSITION_TIME = 400;
 
 function fillContents(ul, contents) {
     for (var i = 0; i < contents.length; i++) {
@@ -192,76 +192,77 @@ function getDebugContents() {
     return contents;
 }
 
-function hideNavbar(burgerButton) {
-    burgerButton.fadeOut(TRANSITION_TIME, function() {
-      $(this).html('☰').fadeIn(TRANSITION_TIME);
+function hideNavbar(navbarButton) {
+    navbarButton.fadeOut(ANIMATION_TRANSITION_TIME, function() {
+      $(this).html('☰').fadeIn(ANIMATION_TRANSITION_TIME);
     });
-    $('#sidebar-wrapper').hide(TRANSITION_TIME);
+    $('#sidebar-wrapper').hide(ANIMATION_TRANSITION_TIME);
     $('#sidebar-wrapper').removeClass('sidebar-wrapper-full');
-    $('#page-content-wrapper').show(TRANSITION_TIME);
-    isNavbarHidden = true;
+    $('#page-content-wrapper').show(ANIMATION_TRANSITION_TIME);
+    isNavbarVisible = false;
 }
 
-function showNavbar(burgerButton) {
-    burgerButton.fadeOut(TRANSITION_TIME, function() {
-      $(this).html('⨯').fadeIn(TRANSITION_TIME);
+function showNavbar(navbarButton) {
+    navbarButton.fadeOut(ANIMATION_TRANSITION_TIME, function() {
+      $(this).html('⨯').fadeIn(ANIMATION_TRANSITION_TIME);
     });
-    $('#sidebar-wrapper').show(TRANSITION_TIME);
+    $('#sidebar-wrapper').show(ANIMATION_TRANSITION_TIME);
     $('#sidebar-wrapper').addClass('sidebar-wrapper-full');
-    $('#page-content-wrapper').hide(TRANSITION_TIME);
-    isNavbarHidden = false;
+    $('#page-content-wrapper').hide(ANIMATION_TRANSITION_TIME);
+    isNavbarVisible = true;
 }
 
 function createButton() {
-    var burgerButton = $('<button>');
-    burgerButton.addClass('burger-button');
-    burgerButton.html('☰');
-    burgerButton.click(function() {
-        if (isNavbarHidden) {
-            showNavbar(burgerButton);
+    var navbarButton = $('<button>');
+    navbarButton.addClass('navbar-button');
+    navbarButton.html('☰');
+    navbarButton.click(function() {
+        if (!isNavbarVisible) {
+            showNavbar(navbarButton);
         } else {
-            hideNavbar(burgerButton);
+            hideNavbar(navbarButton);
         }
     });
 
-    $("body").append(burgerButton);
+    $("body").append(navbarButton);
 
-    return burgerButton;
+    return navbarButton;
 }
 
-function transformToMobile(burgerButton) {
-    $('#sidebar-wrapper').hide(TRANSITION_TIME);
-    isBurgerHidden = false;
-    burgerButton.show(TRANSITION_TIME);
-    burgerButton.html('☰');
+function transformToMobile(navbarButton) {
+    $('#sidebar-wrapper').hide(ANIMATION_TRANSITION_TIME);
+    isNavbarButtonVisible = true;
+    navbarButton.show(ANIMATION_TRANSITION_TIME);
+    navbarButton.html('☰');
     $('.page-content').addClass('page-content-wrapper-full');
-    isNavbarHidden = true;
+    isNavbarVisible = false;
 }
 
-function transformToDesktop(burgerButton) {
+function transformToDesktop(navbarButton) {
     $('#sidebar-wrapper').removeClass('sidebar-wrapper-full');
-    $('#sidebar-wrapper').show(TRANSITION_TIME);
-    isBurgerHidden = true;
-    burgerButton.hide(TRANSITION_TIME);
+    $('#sidebar-wrapper').show(ANIMATION_TRANSITION_TIME);
+    isNavbarButtonVisible = false;
+    navbarButton.hide(ANIMATION_TRANSITION_TIME);
     $('.page-content').removeClass('page-content-wrapper-full');
-    $('#page-content-wrapper').show(TRANSITION_TIME);
+    $('#page-content-wrapper').show(ANIMATION_TRANSITION_TIME);
+}
+
+function setDisplayMode(navbarButton) {
+    if (window.innerWidth < MOBILE_SCREEN_THRESHOLD && !isNavbarButtonVisible) {
+        transformToMobile(navbarButton);
+    } else if (window.innerWidth > MOBILE_SCREEN_THRESHOLD && isNavbarButtonVisible) {
+        transformToDesktop(navbarButton);
+    }
 }
 
 $(document).ready(function() {
     generateSidebar(getReferenceContents(), getTutorialContents(), getUserGuideContents(), getDebugContents());
-    var burgerButton = createButton();
-    burgerButton.hide();
+    var navbarButton = createButton();
+    navbarButton.hide();
 
-    if (window.innerWidth < MIN_WINDOW_WIDTH) {
-        transformToMobile(burgerButton);
-    }
+    setDisplayMode(navbarButton);
 
     window.addEventListener('resize', function() {
-        if (window.innerWidth < MIN_WINDOW_WIDTH && isBurgerHidden) {
-          transformToMobile(burgerButton);
-        }
-        if (window.innerWidth > MIN_WINDOW_WIDTH && !isBurgerHidden) {
-          transformToDesktop(burgerButton);
-        }
+        setDisplayMode(navbarButton);
     });
 });
