@@ -270,16 +270,16 @@ public class PlotView extends ViewPart {
 		public void show(CollectedDataNode node) {
 			FileDialog fileDialog = new FileDialog(getDisplay().getActiveShell(), SWT.SAVE);
 			fileDialog.setText("Save");
-			String[] filterExt = { "*.csv", "*.txt" };
-			fileDialog.setFilterExtensions(filterExt);
+			String[] filter = { "*.csv", "*.*" };
+			fileDialog.setFilterExtensions(filter);
 
-			String filename = fileDialog.open();
-			if (filename != null && filename.length() > 0) {
+			String fileName = fileDialog.open();
+			if (fileName != null && fileName.length() > 0) {
 				PlotDataParser parser = new PlotDataParser(node);
 				DataParserResult result = parser.parseEntries();
 
 				try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-						new FileOutputStream(filename), "UTF-8"))) {
+						new FileOutputStream(fileName), "UTF-8"))) {
 					writer.write("x,y\n");
 					for (PlotItem pi : result.dataset) {
 						writer.write(String.valueOf(pi.x) + "," + String.valueOf(pi.y) + "\n");
