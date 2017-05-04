@@ -193,7 +193,9 @@ function getDebugContents() {
 }
 
 function hideNavbar(burgerButton) {
-    burgerButton.html('show');
+    burgerButton.fadeOut(TRANSITION_TIME, function() {
+      $(this).html('☰').fadeIn(TRANSITION_TIME);
+    });
     $('#sidebar-wrapper').hide(TRANSITION_TIME);
     $('#sidebar-wrapper').removeClass('sidebar-wrapper-full');
     $('#page-content-wrapper').show(TRANSITION_TIME);
@@ -201,9 +203,11 @@ function hideNavbar(burgerButton) {
 }
 
 function showNavbar(burgerButton) {
-    burgerButton.html('hide');
+    burgerButton.fadeOut(TRANSITION_TIME, function() {
+      $(this).html('⨯').fadeIn(TRANSITION_TIME);
+    });
     $('#sidebar-wrapper').show(TRANSITION_TIME);
-    $('#sidebar-wrapper').addClass('sidebar-wrapper-full');//sometimes misfires
+    $('#sidebar-wrapper').addClass('sidebar-wrapper-full');
     $('#page-content-wrapper').hide(TRANSITION_TIME);
     isNavbarHidden = false;
 }
@@ -211,7 +215,7 @@ function showNavbar(burgerButton) {
 function createButton() {
     var burgerButton = $('<button>');
     burgerButton.addClass('burger-button');
-    burgerButton.html('show');
+    burgerButton.html('☰');
     burgerButton.click(function() {
         if (isNavbarHidden) {
             showNavbar(burgerButton);
@@ -229,7 +233,7 @@ function transformToMobile(burgerButton) {
     $('#sidebar-wrapper').hide(TRANSITION_TIME);
     isBurgerHidden = false;
     burgerButton.show(TRANSITION_TIME);
-    burgerButton.html('show');
+    burgerButton.html('☰');
     $('.page-content').addClass('page-content-wrapper-full');
     isNavbarHidden = true;
 }

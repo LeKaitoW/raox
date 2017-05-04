@@ -1,7 +1,7 @@
 #sidebar-wrapper {
   margin-left: 0px;
   left: 0px;
-  width: 18%;
+  width: 290px;
   background: #fff;
   position: fixed;
   height: 100%;
@@ -26,18 +26,19 @@
 }
 
 .sidebar-nav {
+  font-size: 12pt;
   position: absolute;
   margin-left: 10px;
   margin-right: 10px;
 }
 
 .page-content {
-  margin-left: 19%;
+  margin-left: 290px;
   margin-right: 10px;
 }
 
 .burger-button {
-  font-size: 18px;
+  font-size: 30px;
   position: fixed;
   top: 5px;
   color: rgba(0, 0, 0, 0.8);
@@ -46,6 +47,6 @@
   border-width: 0px;
   cursor: pointer;
   right: 10px;
-  width: 80px;
+  width: 50px;
   z-index: 101;
 }
