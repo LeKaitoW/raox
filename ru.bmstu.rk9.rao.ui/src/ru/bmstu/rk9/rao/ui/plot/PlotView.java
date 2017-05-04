@@ -370,7 +370,7 @@ public class PlotView extends ViewPart {
 		@Override
 		public void show(CollectedDataNode node) {
 			FileDialog fileDialog = new FileDialog(getDisplay().getActiveShell(), SWT.SAVE);
-			fileDialog.setText("Save");
+			fileDialog.setText("Export to CSV");
 			String[] filter = { "*.csv", "*.*" };
 			fileDialog.setFilterExtensions(filter);
 
