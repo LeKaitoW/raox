@@ -384,12 +384,11 @@ public class ModelInternalsParser {
 
 		for (IResource processFile : BuildUtil.getAllFilesInProject(project, "proc")) {
 			ProcessModelNode model = ProcessEditor.readModelFromFile((IFile) processFile);
-			List<Block> blocks;
-			blocks = BlockConverter.convertModelToBlocks(model, modelContentsInfo);
-
+			if (model == null) model = new ProcessModelNode();
+			List<Block> blocks = BlockConverter.convertModelToBlocks(model, modelContentsInfo);
 			simulatorInitializationInfo.processBlocks.addAll(blocks);
 		}
-
+		
 		for (Class<?> animationClass : animationClasses) {
 			AnimationFrame frame = (AnimationFrame) animationClass.newInstance();
 			animationFrames.add(frame);
