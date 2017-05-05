@@ -284,10 +284,11 @@ public class PlotView extends ViewPart {
 	}
 
 	private abstract static class ExportMenuItem extends ConditionalMenuItem {
-		public String export_type;
+		public String export_format;
 
-		public ExportMenuItem(Menu parent, String name) {
-			super(parent, name);
+		public ExportMenuItem(Menu parent, String export_format) {
+			super(parent, "Export to " + export_format.toUpperCase());
+			this.export_format = export_format;
 		}
 
 		@Override
@@ -321,8 +322,8 @@ public class PlotView extends ViewPart {
 		@Override
 		public void show(CollectedDataNode node) {
 			FileDialog fileDialog = new FileDialog(getDisplay().getActiveShell(), SWT.SAVE);
-			fileDialog.setText("Export to " + this.export_type.toUpperCase());
-			String[] filter = { "*." + this.export_type, "*.*" };
+			fileDialog.setText("Export to " + export_format.toUpperCase());
+			String[] filter = { "*." + export_format.toLowerCase(), "*.*" };
 			fileDialog.setFilterExtensions(filter);
 
 			String fileName = fileDialog.open();
@@ -342,8 +343,7 @@ public class PlotView extends ViewPart {
 
 	static private class ExportCsvMenuItem extends ExportMenuItem {
 		public ExportCsvMenuItem(Menu parent) {
-			super(parent, "Export to CSV");
-			this.export_type = "csv";
+			super(parent, "csv");
 		}
 
 		@Override
@@ -357,8 +357,7 @@ public class PlotView extends ViewPart {
 
 	static private class ExportJsonMenuItem extends ExportMenuItem {
 		public ExportJsonMenuItem(Menu parent) {
-			super(parent, "Export to JSON");
-			this.export_type = "json";
+			super(parent, "json");
 		}
 
 		@Override
