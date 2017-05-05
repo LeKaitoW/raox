@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
@@ -223,7 +222,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	}
 
 	private void setModel(ProcessModelNode model) {
-		if (model == null) return; 
+		if (model == null)
+			return;
 		this.model = model;
 		model.setResourceRetriever(new EResourceRetriever(resourceSetProvider,
 				((IFileEditorInput) getEditorInput()).getFile().getProject()));
@@ -394,9 +394,9 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	public static ProcessModelNode readModelFromFile(IFile file)
 			throws ClassNotFoundException, IOException, CoreException {
 		ProcessModelNode model;
-		try(ObjectInputStream objectInputStream = new ObjectInputStream(file.getContents(false))) {
+		try (ObjectInputStream objectInputStream = new ObjectInputStream(file.getContents(false))) {
 			model = (ProcessModelNode) objectInputStream.readObject();
-		} catch(EOFException e) {
+		} catch (EOFException e) {
 			model = null;
 		}
 		return model;
