@@ -75,60 +75,6 @@ public class PlotView extends ViewPart {
 		return plotFrame;
 	}
 
-	static private class ExportJsonMenuItem extends ConditionalMenuItem {
-		public ExportJsonMenuItem(Menu parent) {
-			super(parent, "Export to JSON");
-		}
-
-		@Override
-		public boolean isEnabled(CollectedDataNode node) {
-			Index index = node.getIndex();
-
-			if (PlotView.getOpenedPlotMap().containsKey(node)) {
-				if (index == null)
-					return false;
-
-				switch (index.getType()) {
-				case RESOURCE_PARAMETER:
-					return true;
-				case RESULT:
-					return true;
-				case PATTERN:
-					PatternIndex patternIndex = (PatternIndex) index;
-					int patternNumber = patternIndex.getNumber();
-					String patternType = CurrentSimulator.getStaticModelData().getPatternType(patternNumber);
-					return patternType.equals(ModelStructureConstants.OPERATION);
-				default:
-					return false;
-				}
-			} else
-				return false;
-		}
-
-		@Override
-		public void show(CollectedDataNode node) {
-
-			FileDialog fileDialog = new FileDialog(getDisplay().getActiveShell(), SWT.SAVE);
-			fileDialog.setText("Export to JSON");
-			String[] filter = { "*.json", "*.*" };
-			fileDialog.setFilterExtensions(filter);
-			String fileName = fileDialog.open();
-			if (fileName != null && fileName.length() > 0) {
-				PlotDataParser parser = new PlotDataParser(node);
-				DataParserResult result = parser.parseEntries();
-				List<PlotItem> dataset = result.dataset;
-				Gson gson = new GsonBuilder().setPrettyPrinting().create();
-				String data = gson.toJson(dataset);
-				try (Writer writer = new BufferedWriter(
-						new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"))) {
-					writer.write(data);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
 	@Override
 	public void createPartControl(Composite parent) {
 		plotFrame = new PlotFrame(parent, SWT.NONE);
@@ -337,9 +283,11 @@ public class PlotView extends ViewPart {
 		return chart;
 	}
 
-	static private class ExportCsvMenuItem extends ConditionalMenuItem {
-		public ExportCsvMenuItem(Menu parent) {
-			super(parent, "Export to CSV");
+	private abstract static class ExportMenuItem extends ConditionalMenuItem {
+	    public String export_type;
+
+		public ExportMenuItem(Menu parent, String name) {
+			super(parent, name);
 		}
 
 		@Override
@@ -367,11 +315,13 @@ public class PlotView extends ViewPart {
 				return false;
 		}
 
+		abstract protected void write(Writer writer, List<PlotItem> dataset) throws IOException;
+
 		@Override
 		public void show(CollectedDataNode node) {
 			FileDialog fileDialog = new FileDialog(getDisplay().getActiveShell(), SWT.SAVE);
-			fileDialog.setText("Export to CSV");
-			String[] filter = { "*.csv", "*.*" };
+			fileDialog.setText("Export to " + this.export_type.toUpperCase());
+			String[] filter = { "*." + this.export_type, "*.*" };
 			fileDialog.setFilterExtensions(filter);
 
 			String fileName = fileDialog.open();
@@ -381,15 +331,41 @@ public class PlotView extends ViewPart {
 
 				try (Writer writer = new BufferedWriter(new OutputStreamWriter(
 						new FileOutputStream(fileName), "UTF-8"))) {
-					writer.write("x,y\n");
-					for (PlotItem pi : result.dataset) {
-						writer.write(String.valueOf(pi.x) + "," + String.valueOf(pi.y) + "\n");
-					}
+					write(writer, result.dataset);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}
+	}
+
+	static private class ExportCsvMenuItem extends ExportMenuItem {
+	    public ExportCsvMenuItem(Menu parent) {
+			super(parent, "Export to CSV");
+			this.export_type = "csv";
+		}
+
+	    @Override
+	    protected void write(Writer writer, List<PlotItem> dataset) throws IOException {
+			writer.write("x,y\n");
+			for (PlotItem pi : dataset) {
+				writer.write(String.valueOf(pi.x) + "," + String.valueOf(pi.y) + "\n");
+			}
+	    }
+	}
+
+	static private class ExportJsonMenuItem extends ExportMenuItem {
+		public ExportJsonMenuItem(Menu parent) {
+			super(parent, "Export to JSON");
+			this.export_type = "json";
+		}
+
+	    @Override
+	    protected void write(Writer writer, List<PlotItem> dataset) throws IOException {
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			String data = gson.toJson(dataset);
+			writer.write(data);
+	    }
 	}
 
 	static private class PlotMenuItem extends ConditionalMenuItem {
