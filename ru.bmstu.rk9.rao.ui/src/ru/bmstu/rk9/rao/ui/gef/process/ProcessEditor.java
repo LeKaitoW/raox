@@ -222,8 +222,6 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	}
 
 	private void setModel(ProcessModelNode model) {
-		if (model == null)
-			return;
 		this.model = model;
 		model.setResourceRetriever(new EResourceRetriever(resourceSetProvider,
 				((IFileEditorInput) getEditorInput()).getFile().getProject()));
@@ -239,11 +237,15 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		IFile file = ((IFileEditorInput) input).getFile();
 		setPartName(file.getName());
 		try {
-			setModel(readModelFromFile(file));
+			ProcessModelNode model = readModelFromFile(file);
+
+			if (model == null)
+				return;
+			setModel(model);
 
 			if (getGraphicalViewer() != null)
 				getGraphicalViewer().setContents(getModel());
-		} catch (Exception e) {
+		} catch (IOException | CoreException | ClassNotFoundException e) {
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Failed to open",
 					"Invalid file format");
 		}
