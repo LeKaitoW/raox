@@ -284,11 +284,11 @@ public class PlotView extends ViewPart {
 	}
 
 	private abstract static class ExportMenuItem extends ConditionalMenuItem {
-		public String export_format;
+		private String exportFormat;
 
-		public ExportMenuItem(Menu parent, String export_format) {
-			super(parent, "Export to " + export_format.toUpperCase());
-			this.export_format = export_format;
+		public ExportMenuItem(Menu parent, String exportFormat) {
+			super(parent, "Export to " + exportFormat.toUpperCase());
+			this.exportFormat = exportFormat;
 		}
 
 		@Override
@@ -322,8 +322,8 @@ public class PlotView extends ViewPart {
 		@Override
 		public void show(CollectedDataNode node) {
 			FileDialog fileDialog = new FileDialog(getDisplay().getActiveShell(), SWT.SAVE);
-			fileDialog.setText("Export to " + export_format.toUpperCase());
-			String[] filter = { "*." + export_format.toLowerCase(), "*.*" };
+			fileDialog.setText("Export to " + exportFormat.toUpperCase());
+			String[] filter = { "*." + exportFormat.toLowerCase(), "*.*" };
 			fileDialog.setFilterExtensions(filter);
 
 			String fileName = fileDialog.open();
