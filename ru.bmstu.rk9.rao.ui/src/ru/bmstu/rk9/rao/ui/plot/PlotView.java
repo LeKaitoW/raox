@@ -415,11 +415,11 @@ public class PlotView extends ViewPart {
 		}
 	}
 
-	static public ConditionalMenuItem createConditionalMenuItemExportCSV(Menu parent) {
+	static public ConditionalMenuItem createConditionalMenuItemExportCsv(Menu parent) {
 		return new ExportCsvMenuItem(parent);
 	}
 
-	static public ConditionalMenuItem createConditionalMenuItemExport(Menu parent) {
+	static public ConditionalMenuItem createConditionalMenuItemExportJson(Menu parent) {
 		return new ExportJsonMenuItem(parent);
 	}
 

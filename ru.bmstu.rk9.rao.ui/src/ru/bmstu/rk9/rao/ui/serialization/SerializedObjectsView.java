@@ -100,8 +100,8 @@ public class SerializedObjectsView extends ViewPart {
 		serializedObjectsTree.setMenu(popupMenu);
 		conditionalMenuItems.add(PlotView.createConditionalMenuItem(popupMenu));
 		conditionalMenuItems.add(GraphPanel.createConditionalMenuItem(popupMenu));
-		conditionalMenuItems.add(PlotView.createConditionalMenuItemExportCSV(popupMenu));
-		conditionalMenuItems.add(PlotView.createConditionalMenuItemExport(popupMenu));
+		conditionalMenuItems.add(PlotView.createConditionalMenuItemExportCsv(popupMenu));
+		conditionalMenuItems.add(PlotView.createConditionalMenuItemExportJson(popupMenu));
 		serializedObjectsTreeViewer.getTree().setMenu(popupMenu);
 
 		serializedObjectsTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
