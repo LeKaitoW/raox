@@ -311,8 +311,9 @@ public class PlotView extends ViewPart {
 				default:
 					return false;
 				}
-			} else
+			} else {
 				return false;
+			}
 		}
 
 		abstract protected void write(Writer writer, List<PlotItem> dataset) throws IOException;
