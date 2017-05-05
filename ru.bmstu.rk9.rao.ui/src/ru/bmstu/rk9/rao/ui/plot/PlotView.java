@@ -75,60 +75,6 @@ public class PlotView extends ViewPart {
 		return plotFrame;
 	}
 
-	static private class ExportMenuItem extends ConditionalMenuItem {
-		public ExportMenuItem(Menu parent) {
-			super(parent, "Export to JSON");
-		}
-
-		@Override
-		public boolean isEnabled(CollectedDataNode node) {
-			Index index = node.getIndex();
-
-			if (PlotView.getOpenedPlotMap().containsKey(node)) {
-				if (index == null)
-					return false;
-
-				switch (index.getType()) {
-				case RESOURCE_PARAMETER:
-					return true;
-				case RESULT:
-					return true;
-				case PATTERN:
-					PatternIndex patternIndex = (PatternIndex) index;
-					int patternNumber = patternIndex.getNumber();
-					String patternType = CurrentSimulator.getStaticModelData().getPatternType(patternNumber);
-					return patternType.equals(ModelStructureConstants.OPERATION);
-				default:
-					return false;
-				}
-			} else
-				return false;
-		}
-
-		@Override
-		public void show(CollectedDataNode node) {
-
-			FileDialog fileDialog = new FileDialog(getDisplay().getActiveShell(), SWT.SAVE);
-			fileDialog.setText("Export to JSON");
-			String[] filter = { "*.json", "*.*" };
-			fileDialog.setFilterExtensions(filter);
-			String fileName = fileDialog.open();
-			if (fileName != null && fileName.length() > 0) {
-				PlotDataParser parser = new PlotDataParser(node);
-				DataParserResult result = parser.parseEntries();
-				List<PlotItem> dataset = result.dataset;
-				Gson gson = new GsonBuilder().setPrettyPrinting().create();
-				String data = gson.toJson(dataset);
-				try (Writer writer = new BufferedWriter(
-						new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"))) {
-					writer.write(data);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
 	@Override
 	public void createPartControl(Composite parent) {
 		plotFrame = new PlotFrame(parent, SWT.NONE);
@@ -337,6 +283,91 @@ public class PlotView extends ViewPart {
 		return chart;
 	}
 
+	private abstract static class ExportMenuItem extends ConditionalMenuItem {
+		private String exportFormat;
+
+		public ExportMenuItem(Menu parent, String exportFormat) {
+			super(parent, "Export to " + exportFormat.toUpperCase());
+			this.exportFormat = exportFormat;
+		}
+
+		@Override
+		public boolean isEnabled(CollectedDataNode node) {
+			Index index = node.getIndex();
+
+			if (PlotView.getOpenedPlotMap().containsKey(node)) {
+				if (index == null)
+					return false;
+
+				switch (index.getType()) {
+				case RESOURCE_PARAMETER:
+					return true;
+				case RESULT:
+					return true;
+				case PATTERN:
+					PatternIndex patternIndex = (PatternIndex) index;
+					int patternNumber = patternIndex.getNumber();
+					String patternType = CurrentSimulator.getStaticModelData().getPatternType(patternNumber);
+					return patternType.equals(ModelStructureConstants.OPERATION);
+				default:
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
+
+		abstract protected void write(Writer writer, List<PlotItem> dataset) throws IOException;
+
+		@Override
+		public void show(CollectedDataNode node) {
+			FileDialog fileDialog = new FileDialog(getDisplay().getActiveShell(), SWT.SAVE);
+			fileDialog.setText("Export to " + exportFormat.toUpperCase());
+			String[] filter = { "*." + exportFormat.toLowerCase(), "*.*" };
+			fileDialog.setFilterExtensions(filter);
+
+			String fileName = fileDialog.open();
+			if (fileName != null && fileName.length() > 0) {
+				PlotDataParser parser = new PlotDataParser(node);
+				DataParserResult result = parser.parseEntries();
+
+				try (Writer writer = new BufferedWriter(
+						new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"))) {
+					write(writer, result.dataset);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	static private class ExportCsvMenuItem extends ExportMenuItem {
+		public ExportCsvMenuItem(Menu parent) {
+			super(parent, "csv");
+		}
+
+		@Override
+		protected void write(Writer writer, List<PlotItem> dataset) throws IOException {
+			writer.write("x,y\n");
+			for (PlotItem pi : dataset) {
+				writer.write(String.valueOf(pi.x) + "," + String.valueOf(pi.y) + "\n");
+			}
+		}
+	}
+
+	static private class ExportJsonMenuItem extends ExportMenuItem {
+		public ExportJsonMenuItem(Menu parent) {
+			super(parent, "json");
+		}
+
+		@Override
+		protected void write(Writer writer, List<PlotItem> dataset) throws IOException {
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			String data = gson.toJson(dataset);
+			writer.write(data);
+		}
+	}
+
 	static private class PlotMenuItem extends ConditionalMenuItem {
 		public PlotMenuItem(Menu parent) {
 			super(parent, "Plot");
@@ -384,8 +415,12 @@ public class PlotView extends ViewPart {
 		}
 	}
 
-	static public ConditionalMenuItem createConditionalMenuItemExport(Menu parent) {
-		return new ExportMenuItem(parent);
+	static public ConditionalMenuItem createConditionalMenuItemExportCsv(Menu parent) {
+		return new ExportCsvMenuItem(parent);
+	}
+
+	static public ConditionalMenuItem createConditionalMenuItemExportJson(Menu parent) {
+		return new ExportJsonMenuItem(parent);
 	}
 
 	static public ConditionalMenuItem createConditionalMenuItem(Menu parent) {
