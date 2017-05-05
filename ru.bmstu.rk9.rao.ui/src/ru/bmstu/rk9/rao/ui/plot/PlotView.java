@@ -284,7 +284,7 @@ public class PlotView extends ViewPart {
 	}
 
 	private abstract static class ExportMenuItem extends ConditionalMenuItem {
-	    public String export_type;
+		public String export_type;
 
 		public ExportMenuItem(Menu parent, String name) {
 			super(parent, name);
@@ -329,8 +329,8 @@ public class PlotView extends ViewPart {
 				PlotDataParser parser = new PlotDataParser(node);
 				DataParserResult result = parser.parseEntries();
 
-				try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-						new FileOutputStream(fileName), "UTF-8"))) {
+				try (Writer writer = new BufferedWriter(
+						new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"))) {
 					write(writer, result.dataset);
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -340,18 +340,18 @@ public class PlotView extends ViewPart {
 	}
 
 	static private class ExportCsvMenuItem extends ExportMenuItem {
-	    public ExportCsvMenuItem(Menu parent) {
+		public ExportCsvMenuItem(Menu parent) {
 			super(parent, "Export to CSV");
 			this.export_type = "csv";
 		}
 
-	    @Override
-	    protected void write(Writer writer, List<PlotItem> dataset) throws IOException {
+		@Override
+		protected void write(Writer writer, List<PlotItem> dataset) throws IOException {
 			writer.write("x,y\n");
 			for (PlotItem pi : dataset) {
 				writer.write(String.valueOf(pi.x) + "," + String.valueOf(pi.y) + "\n");
 			}
-	    }
+		}
 	}
 
 	static private class ExportJsonMenuItem extends ExportMenuItem {
@@ -360,12 +360,12 @@ public class PlotView extends ViewPart {
 			this.export_type = "json";
 		}
 
-	    @Override
-	    protected void write(Writer writer, List<PlotItem> dataset) throws IOException {
+		@Override
+		protected void write(Writer writer, List<PlotItem> dataset) throws IOException {
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			String data = gson.toJson(dataset);
 			writer.write(data);
-	    }
+		}
 	}
 
 	static private class PlotMenuItem extends ConditionalMenuItem {
