@@ -1,3 +1,6 @@
+let isNavbarPresent;
+const MIN_WINDOW_WIDTH = 300;
+
 function fillContents(ul, contents) {
     for (var i = 0; i < contents.length; i++) {
         var li = $("<li>");
@@ -12,9 +15,16 @@ function fillContents(ul, contents) {
 }
 
 function generateSidebar(referenceContents, tutorialContents, userGuideContents, debugContents) {
-    var body = $("body");
+    if (window.innerWidth < MIN_WINDOW_WIDTH) {
+        isNavbarPresent = false;
+        return;
+    }
 
-    var wrapper = $("<div>");
+    isNavbarPresent = true;
+
+    body = $("body");
+
+    wrapper = $("<div>");
     wrapper.attr("id", "wrapper");
 
     var sidebarWrapper = $("<div>");
@@ -187,4 +197,19 @@ function getDebugContents() {
 
 $(document).ready(function() {
     generateSidebar(getReferenceContents(), getTutorialContents(), getUserGuideContents(), getDebugContents());
+    window.addEventListener('resize', () => {
+        if (window.innerWidth < MIN_WINDOW_WIDTH && isNavbarPresent) {
+        isNavbarPresent = false;
+            $('#sidebar-wrapper').hide(500);
+            $('.page-content').css('margin-left', '0%');
+        }
+        if (window.innerWidth > MIN_WINDOW_WIDTH && !isNavbarPresent) {
+        isNavbarPresent = false;
+            $('#sidebar-wrapper').show(500);
+            isNavbarPresent = true;
+            $('.page-content').css('margin-left', '33%');
+        }
+    });
 });
+
+

@@ -1,17 +1,15 @@
-#wrapper {
-  padding-left: 270px;
-}
-
 #sidebar-wrapper {
-  margin-left: -270px;
-  left: 270px;
-  width: 270px;
+  margin-left: -30%;
+  left: 30%;
+  width: 30%;
   background: #fff;
   position: fixed;
-  height: 100%;
+  height: 101%;
+  margin-top: -10px;
   border-right: 1px solid gray;
   overflow-y: auto;
   overflow-x: hidden;
+  z-index: 100;
 }
 
 #page-content-wrapper {
@@ -21,12 +19,11 @@
 
 .sidebar-nav {
   position: absolute;
-  width: 250px;
   margin-left: 10px;
   margin-right: 10px;
 }
 
 .page-content {
-  margin-left: 10px;
+  margin-left: 31%;
   margin-right: 10px;
 }
