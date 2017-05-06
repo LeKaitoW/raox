@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
@@ -238,13 +237,15 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		IFile file = ((IFileEditorInput) input).getFile();
 		setPartName(file.getName());
 		try {
-			setModel(readModelFromFile(file));
+			ProcessModelNode model = readModelFromFile(file);
+
+			if (model == null)
+				return;
+			setModel(model);
 
 			if (getGraphicalViewer() != null)
 				getGraphicalViewer().setContents(getModel());
-		} catch (EOFException e) {
-			// http://stackoverflow.com/a/18451336
-		} catch (Exception e) {
+		} catch (IOException | CoreException | ClassNotFoundException e) {
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Failed to open",
 					"Invalid file format");
 		}
@@ -394,10 +395,12 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 
 	public static ProcessModelNode readModelFromFile(IFile file)
 			throws ClassNotFoundException, IOException, CoreException {
-		InputStream inputStream = file.getContents(false);
-		ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-		ProcessModelNode model = (ProcessModelNode) objectInputStream.readObject();
-		objectInputStream.close();
+		ProcessModelNode model;
+		try (ObjectInputStream objectInputStream = new ObjectInputStream(file.getContents(false))) {
+			model = (ProcessModelNode) objectInputStream.readObject();
+		} catch (EOFException e) {
+			model = null;
+		}
 		return model;
 	}
 
