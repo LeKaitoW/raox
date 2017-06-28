@@ -25,6 +25,7 @@ import org.jfree.chart.annotations.XYShapeAnnotation;
 import org.jfree.chart.axis.SymbolAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.RendererUtilities;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.experimental.chart.swt.ChartComposite;
 
@@ -36,6 +37,8 @@ public class PlotFrame extends ChartComposite {
 	private double horizontalRatio;
 	private double verticalRatio;
 	private final ExtendedToolTip toolTip;
+	private final int toolTipYShift = -50;
+	private final int toolTipXShift = 0;
 
 	public PlotFrame(final Composite comp, final int style) {
 		super(comp, style, null, ChartComposite.DEFAULT_WIDTH, ChartComposite.DEFAULT_HEIGHT, 0, 0, Integer.MAX_VALUE,
@@ -49,7 +52,7 @@ public class PlotFrame extends ChartComposite {
 		toolTip.setBackgroundColor(new Color(comp.getDisplay(), 255, 255, 255));
 		toolTip.setForegroundColor(new Color(comp.getDisplay(), 128, 128, 128));
 		toolTip.setRespectDisplayBounds(false);
-		toolTip.setShift(new Point(0, -50));
+		toolTip.setShift(new Point(toolTipXShift, toolTipYShift));
 		toolTip.setHideDelay(0);
 		toolTip.setHideOnMouseDown(false);
 		toolTip.setPopupDelay(0);
@@ -106,24 +109,31 @@ public class PlotFrame extends ChartComposite {
 
 		@Override
 		public void mouseMove(MouseEvent e) {
-			Point mousePoint = new Point(Math.round(e.x), Math.round(e.y));
-			if (getChart() == null) {
+			if (getChart() == null)
 				return;
-			}
 			XYPlot plot = getChart().getXYPlot();
-			if (plot == null) {
+			if (plot == null)
 				return;
-			}
 
-			XYDataset dataset = getChart().getXYPlot().getDataset();
-			int itemsCount = dataset.getItemCount(0);
+			Point mousePoint = new Point(Math.round(e.x), Math.round(e.y));
+			final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
+			final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
+			final XYDataset dataset = getChart().getXYPlot().getDataset();
+
 			java.awt.Color backgroundColor = (java.awt.Color) getChart().getXYPlot().getBackgroundPaint();
+			int[] itemBounds = RendererUtilities.findLiveItems(dataset, 0, domainAxis.getLowerBound(),
+					domainAxis.getUpperBound());
+			int upperSeriesBound = itemBounds[1];
+			int lowerSeriesBound = Math.max(itemBounds[0] - 1, 0);
+			upperSeriesBound = Math.min(itemBounds[1] + 1, upperSeriesBound);
+			int itemsCount = upperSeriesBound - lowerSeriesBound;
 
 			if (itemsCount > 0) {
 				double previousDistance = Double.MAX_VALUE;
 				int currentIndex = -1;
 				XYPlotWithFiltering filteredPlot = plot instanceof XYPlotWithFiltering ? (XYPlotWithFiltering) plot
 						: null;
+
 				if (filteredPlot != null && filteredPlot.getProxyDataSet().getFilteredMap().size() > 0) {
 					Collection<Integer> filteredPoints = filteredPlot.getProxyDataSet().getFilteredMap().keySet();
 					for (Integer index : filteredPoints) {
@@ -138,7 +148,7 @@ public class PlotFrame extends ChartComposite {
 						}
 					}
 				} else {
-					for (int index = 0; index < itemsCount; index++) {
+					for (int index = lowerSeriesBound; index < upperSeriesBound; index++) {
 						valueX = dataset.getXValue(0, index);
 						valueY = dataset.getYValue(0, index);
 						widgetPoint = plotToSwt(valueX, valueY);
@@ -150,6 +160,7 @@ public class PlotFrame extends ChartComposite {
 						}
 					}
 				}
+
 				if (currentIndex >= 0) {
 					mousePoint = new Point(Math.round(e.x), Math.round(e.y));
 					valueX = dataset.getXValue(0, currentIndex);
@@ -166,16 +177,14 @@ public class PlotFrame extends ChartComposite {
 						toolTip.isActive = true;
 						previousIndex = currentIndex;
 						Rectangle rectangle = PlotFrame.this.getScreenDataArea();
-						final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
-						final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
+
 						double widthInAxisUnits = domainAxis.getUpperBound() - domainAxis.getLowerBound();
 						double heightInAxisUnits = rangeAxis.getUpperBound() - rangeAxis.getLowerBound();
 						double radiusOfCircleX = 5 * widthInAxisUnits / rectangle.width;
 						double radiusOfCircleY = 5 * heightInAxisUnits / rectangle.height;
 
-						Ellipse2D Circle = new Ellipse2D.Float((float) (valueX - radiusOfCircleX),
-								(float) (valueY - radiusOfCircleY), (float) (2 * radiusOfCircleX),
-								(float) (2 * radiusOfCircleY));
+						Ellipse2D Circle = new Ellipse2D.Double((valueX - radiusOfCircleX), (valueY - radiusOfCircleY),
+								(2 * radiusOfCircleX), (2 * radiusOfCircleY));
 						Paint seriesColor = getChart().getXYPlot().getRenderer().getSeriesPaint(0);
 						XYShapeAnnotation annotation = new XYShapeAnnotation(Circle, new BasicStroke(3.0f), seriesColor,
 								backgroundColor);
@@ -320,9 +329,9 @@ public class PlotFrame extends ChartComposite {
 		getChart().getXYPlot().clearAnnotations();
 		final ValueAxis domainAxis = getChart().getXYPlot().getDomainAxis();
 		final ValueAxis rangeAxis = getChart().getXYPlot().getRangeAxis();
-		final double SLIDER_CONST = 0.001;
+		final double SLIDER_EPSILON = 0.001;
 
-		if (horizontalMaximum - domainAxis.getRange().getUpperBound() > SLIDER_CONST) {
+		if (Math.abs(horizontalMaximum - domainAxis.getRange().getUpperBound()) > SLIDER_EPSILON) {
 			horizontalSlider.setVisible(true);
 			horizontalSlider.setEnabled(true);
 			horizontalRatio = horizontalSlider.getMaximum() / horizontalMaximum;
@@ -334,7 +343,7 @@ public class PlotFrame extends ChartComposite {
 			horizontalSlider.setEnabled(false);
 		}
 
-		if (verticalMaximum - rangeAxis.getRange().getUpperBound() > SLIDER_CONST) {
+		if (Math.abs(verticalMaximum - rangeAxis.getRange().getUpperBound()) > SLIDER_EPSILON) {
 			verticalSlider.setVisible(true);
 			verticalSlider.setEnabled(true);
 			verticalRatio = verticalSlider.getMaximum() / verticalMaximum;
