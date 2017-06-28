@@ -18,6 +18,7 @@ import org.jfree.data.xy.XYDataset;
 
 public class XYPlotWithFiltering extends XYPlot {
 	private static final long serialVersionUID = 7074889297801956906L;
+	private ProxyDataSet proxyDataSet = new ProxyDataSet();
 
 	public XYPlotWithFiltering() {
 		super();
@@ -27,10 +28,8 @@ public class XYPlotWithFiltering extends XYPlot {
 		super(dataset, domainAxis, rangeAxis, renderer);
 	}
 
-	private ProxyDataSet proxy = new ProxyDataSet();
-
 	public ProxyDataSet getProxyDataSet() {
-		return proxy;
+		return proxyDataSet;
 	}
 
 	public class ProxyDataSet {
@@ -49,46 +48,47 @@ public class XYPlotWithFiltering extends XYPlot {
 		void setPlotWidth(int width) {
 			int newPartCount = width / 2;
 			if (((double) Math.max(currentPartCount, newPartCount))
-					/ ((double) Math.min(currentPartCount, newPartCount)) > 2) {
+					/ ((double) Math.min(currentPartCount, newPartCount)) > 2)
 				this.currentPartCount = newPartCount;
-			}
 		}
 
-		public Map<Integer, Integer> workAsProxy(XYDataset items, int series, int first, int last) {
-			if (previousFirst == first && previousLast == last && previousPartCount == currentPartCount) {
+		public Map<Integer, Integer> workAsProxy(XYDataset items, int seriesIndex, int firstItemIndex,
+				int lastItemIndex) {
+			if (previousFirst == firstItemIndex && previousLast == lastItemIndex
+					&& previousPartCount == currentPartCount)
 				return filteredMap;
-			}
-			filteredMap.clear();
-			if (last - first < currentPartCount) {
-				return filteredMap;
-			}
-			int prevFiltered = first;
-			double groupSize = (last - first) / (double) currentPartCount;
 
-			previousFirst = first;
-			previousLast = last;
+			filteredMap.clear();
+			if (lastItemIndex - firstItemIndex < currentPartCount)
+				return filteredMap;
+
+			int previousFiltered = firstItemIndex;
+			double groupSize = (lastItemIndex - firstItemIndex) / (double) currentPartCount;
+
+			previousFirst = firstItemIndex;
+			previousLast = lastItemIndex;
 			previousPartCount = currentPartCount;
 
-			for (int i = 0; i < currentPartCount; i++) {
-				int innerBegin = (int) (first + (groupSize * i));
-				int innerEnd = (int) (first + (groupSize * (i + 1)));
-				double sumVal = 0.0;
-				for (int inner = innerBegin; inner < innerEnd; inner++) {
-					sumVal += items.getYValue(series, inner);
+			for (int groupIndex = 0; groupIndex < currentPartCount; groupIndex++) {
+				int firstGroupItemIndex = (int) (firstItemIndex + (groupSize * groupIndex));
+				int lastGroupItemIndex = (int) (firstItemIndex + (groupSize * (groupIndex + 1)));
+				double sumValue = 0.0;
+				for (int groupItemIndex = firstGroupItemIndex; groupItemIndex < lastGroupItemIndex; groupItemIndex++) {
+					sumValue += items.getYValue(seriesIndex, groupItemIndex);
 				}
-				sumVal = sumVal / (innerEnd - innerBegin);
-				double nearest = Double.MAX_VALUE;
-				int nearestIndex = innerBegin;
+				sumValue = sumValue / (lastGroupItemIndex - firstGroupItemIndex);
+				double nearestPlotItem = Double.MAX_VALUE;
+				int nearestIndex = firstGroupItemIndex;
 
-				for (int inner = innerBegin; inner < innerEnd; inner++) {
-					double nearestCandidate = Math.abs(items.getYValue(series, inner) - sumVal);
-					if (nearestCandidate < nearest) {
-						nearestIndex = inner;
-						nearest = nearestCandidate;
+				for (int groupItemIndex = firstGroupItemIndex; groupItemIndex < lastGroupItemIndex; groupItemIndex++) {
+					double nearestCandidate = Math.abs(items.getYValue(seriesIndex, groupItemIndex) - sumValue);
+					if (nearestCandidate < nearestPlotItem) {
+						nearestIndex = groupItemIndex;
+						nearestPlotItem = nearestCandidate;
 					}
 				}
-				filteredMap.put(nearestIndex, prevFiltered);
-				prevFiltered = nearestIndex;
+				filteredMap.put(nearestIndex, previousFiltered);
+				previousFiltered = nearestIndex;
 			}
 			return filteredMap;
 		}
@@ -101,63 +101,66 @@ public class XYPlotWithFiltering extends XYPlot {
 	}
 
 	@Override
-	public boolean render(Graphics2D g2, Rectangle2D dataArea, int index, PlotRenderingInfo info,
+	public boolean render(Graphics2D graphics2D, Rectangle2D dataArea, int datasetIndex, PlotRenderingInfo info,
 			CrosshairState crosshairState) {
+		boolean hasData = false;
+		final XYDataset dataset = getDataset(datasetIndex);
 
-		boolean foundData = false;
-		XYDataset dataset = getDataset(index);
 		if (!DatasetUtilities.isEmptyOrNull(dataset)) {
-			foundData = true;
-			ValueAxis xAxis = getDomainAxisForDataset(index);
-			ValueAxis yAxis = getRangeAxisForDataset(index);
-			if (xAxis == null || yAxis == null) {
-				return foundData;
-			}
-			XYItemRenderer renderer = getRenderer(index);
+			hasData = true;
+			final ValueAxis xAxis = getDomainAxisForDataset(datasetIndex);
+			final ValueAxis yAxis = getRangeAxisForDataset(datasetIndex);
+			if (xAxis == null || yAxis == null)
+				return hasData;
+
+			XYItemRenderer renderer = getRenderer(datasetIndex);
+
 			if (renderer == null) {
 				renderer = getRenderer();
-				if (renderer == null) {
-					return foundData;
-				}
+				if (renderer == null)
+					return hasData;
 			}
-			proxy.setPlotWidth(dataArea.getBounds().width);
-			XYItemRendererState state = renderer.initialise(g2, dataArea, this, dataset, info);
+
+			proxyDataSet.setPlotWidth(dataArea.getBounds().width);
+			final XYItemRendererState state = renderer.initialise(graphics2D, dataArea, this, dataset, info);
 			int passCount = renderer.getPassCount();
-			SeriesRenderingOrder seriesOrder = getSeriesRenderingOrder();
+			final SeriesRenderingOrder seriesOrder = getSeriesRenderingOrder();
 
 			if (seriesOrder == SeriesRenderingOrder.REVERSE) {
-				for (int pass = 0; pass < passCount; pass++) {
+				for (int passIndex = 0; passIndex < passCount; passIndex++) {
 					int seriesCount = dataset.getSeriesCount();
-					for (int series = seriesCount - 1; series >= 0; series--) {
+					for (int seriesIndex = seriesCount - 1; seriesIndex >= 0; seriesIndex--) {
 						int firstItem = 0;
-						int lastItem = dataset.getItemCount(series) - 1;
-						if (lastItem == -1) {
+						int lastItem = dataset.getItemCount(seriesIndex) - 1;
+
+						if (lastItem == -1)
 							continue;
-						}
+
 						if (state.getProcessVisibleItemsOnly()) {
-							int[] itemBounds = RendererUtilities.findLiveItems(dataset, series, xAxis.getLowerBound(),
-									xAxis.getUpperBound());
+							int[] itemBounds = RendererUtilities.findLiveItems(dataset, seriesIndex,
+									xAxis.getLowerBound(), xAxis.getUpperBound());
 							firstItem = Math.max(itemBounds[0] - 1, 0);
 							lastItem = Math.min(itemBounds[1] + 1, lastItem);
 						}
-						state.startSeriesPass(dataset, series, firstItem, lastItem, pass, passCount);
-						Map<Integer, Integer> filteredMap = proxy.workAsProxy(dataset, series, firstItem, lastItem);
+						state.startSeriesPass(dataset, seriesIndex, firstItem, lastItem, passIndex, passCount);
+						Map<Integer, Integer> filteredMap = proxyDataSet.workAsProxy(dataset, seriesIndex, firstItem,
+								lastItem);
 
-						if (renderer instanceof XYFilteringStepRenderer) {
+						if (renderer instanceof XYFilteringStepRenderer)
 							((XYFilteringStepRenderer) renderer).setFilteredMap(filteredMap);
-						}
+
 						if (filteredMap.size() == 0 || !(renderer instanceof XYFilteringStepRenderer)) {
-							for (int item = firstItem; item <= lastItem; item++) {
-								renderer.drawItem(g2, state, dataArea, info, this, xAxis, yAxis, dataset, series, item,
-										crosshairState, pass);
+							for (int itemIndex = firstItem; itemIndex <= lastItem; itemIndex++) {
+								renderer.drawItem(graphics2D, state, dataArea, info, this, xAxis, yAxis, dataset,
+										seriesIndex, itemIndex, crosshairState, passIndex);
 							}
 						} else {
-							for (Integer item : filteredMap.keySet()) {
-								renderer.drawItem(g2, state, dataArea, info, this, xAxis, yAxis, dataset, series, item,
-										crosshairState, pass);
+							for (Integer itemIndex : filteredMap.keySet()) {
+								renderer.drawItem(graphics2D, state, dataArea, info, this, xAxis, yAxis, dataset,
+										seriesIndex, itemIndex, crosshairState, passIndex);
 							}
 						}
-						state.endSeriesPass(dataset, series, firstItem, lastItem, pass, passCount);
+						state.endSeriesPass(dataset, seriesIndex, firstItem, lastItem, passIndex, passCount);
 					}
 				}
 			} else {
@@ -166,9 +169,9 @@ public class XYPlotWithFiltering extends XYPlot {
 					for (int series = 0; series < seriesCount; series++) {
 						int firstItem = 0;
 						int lastItem = dataset.getItemCount(series) - 1;
-						if (lastItem == -1) {
+						if (lastItem == -1)
 							continue;
-						}
+
 						if (state.getProcessVisibleItemsOnly()) {
 							int[] itemBounds = RendererUtilities.findLiveItems(dataset, series, xAxis.getLowerBound(),
 									xAxis.getUpperBound());
@@ -177,15 +180,15 @@ public class XYPlotWithFiltering extends XYPlot {
 						}
 						state.startSeriesPass(dataset, series, firstItem, lastItem, pass, passCount);
 
-						for (int item = firstItem; item <= lastItem; item++) {
-							renderer.drawItem(g2, state, dataArea, info, this, xAxis, yAxis, dataset, series, item,
-									crosshairState, pass);
+						for (int itemIndex = firstItem; itemIndex <= lastItem; itemIndex++) {
+							renderer.drawItem(graphics2D, state, dataArea, info, this, xAxis, yAxis, dataset, series,
+									itemIndex, crosshairState, pass);
 						}
 						state.endSeriesPass(dataset, series, firstItem, lastItem, pass, passCount);
 					}
 				}
 			}
 		}
-		return foundData;
+		return hasData;
 	}
 }

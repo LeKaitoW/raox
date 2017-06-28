@@ -104,9 +104,8 @@ public class PlotView extends ViewPart {
 
 			@Override
 			public void widgetDisposed(DisposeEvent event) {
-				if (!openedPlotMap.isEmpty() && openedPlotMap.containsKey(partNode)) {
+				if (!openedPlotMap.isEmpty() && openedPlotMap.containsKey(partNode))
 					openedPlotMap.remove(partNode);
-				}
 				deinitializeSubscribers();
 			}
 		});

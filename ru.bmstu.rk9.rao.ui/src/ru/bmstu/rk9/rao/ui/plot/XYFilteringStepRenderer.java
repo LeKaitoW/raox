@@ -29,78 +29,77 @@ public class XYFilteringStepRenderer extends XYStepRenderer {
 	private Map<Integer, Integer> filteredLinesMap = new LinkedHashMap<>();
 
 	@Override
-	public void drawItem(Graphics2D g2, XYItemRendererState state, Rectangle2D dataArea, PlotRenderingInfo info,
-			XYPlot plot, ValueAxis domainAxis, ValueAxis rangeAxis, XYDataset dataset, int series, int item,
-			CrosshairState crosshairState, int pass) {
+	public void drawItem(Graphics2D graphics2D, XYItemRendererState state, Rectangle2D dataArea, PlotRenderingInfo info,
+			XYPlot plot, ValueAxis domainAxis, ValueAxis rangeAxis, XYDataset dataset, int seriesIndex, int itemIndex,
+			CrosshairState crosshairState, int passIndex) {
 
-		if (!getItemVisible(series, item)) {
+		if (!getItemVisible(seriesIndex, itemIndex))
 			return;
-		}
 
-		PlotOrientation orientation = plot.getOrientation();
+		final PlotOrientation orientation = plot.getOrientation();
 
-		Paint seriesPaint = getItemPaint(series, item);
-		Stroke seriesStroke = getItemStroke(series, item);
-		g2.setPaint(seriesPaint);
-		g2.setStroke(seriesStroke);
+		final Paint seriesPaint = getItemPaint(seriesIndex, itemIndex);
+		final Stroke seriesStroke = getItemStroke(seriesIndex, itemIndex);
+		graphics2D.setPaint(seriesPaint);
+		graphics2D.setStroke(seriesStroke);
 
-		double x1 = dataset.getXValue(series, item);
-		double y1 = dataset.getYValue(series, item);
+		final RectangleEdge xAxisLocation = plot.getDomainAxisEdge();
+		final RectangleEdge yAxisLocation = plot.getRangeAxisEdge();
+		double valueX1 = dataset.getXValue(seriesIndex, itemIndex);
+		double valueY1 = dataset.getYValue(seriesIndex, itemIndex);
+		double screenX1 = domainAxis.valueToJava2D(valueX1, dataArea, xAxisLocation);
+		double screenY1 = (Double.isNaN(valueY1) ? Double.NaN
+				: rangeAxis.valueToJava2D(valueY1, dataArea, yAxisLocation));
 
-		RectangleEdge xAxisLocation = plot.getDomainAxisEdge();
-		RectangleEdge yAxisLocation = plot.getRangeAxisEdge();
-		double transX1 = domainAxis.valueToJava2D(x1, dataArea, xAxisLocation);
-		double transY1 = (Double.isNaN(y1) ? Double.NaN : rangeAxis.valueToJava2D(y1, dataArea, yAxisLocation));
+		if (passIndex == 0 && itemIndex > 0) {
+			Integer previousPoint = filteredLinesMap.size() > 0 ? filteredLinesMap.get(itemIndex) : null;
+			if (previousPoint == null)
+				previousPoint = itemIndex - 1;
 
-		if (pass == 0 && item > 0) {
-			Integer previousPoint = filteredLinesMap.size() > 0 ? filteredLinesMap.get(item) : null;
-			if (previousPoint == null) {
-				previousPoint = item - 1;
-			}
-			double x0 = dataset.getXValue(series, previousPoint);
-			double y0 = dataset.getYValue(series, previousPoint);
-			double transX0 = domainAxis.valueToJava2D(x0, dataArea, xAxisLocation);
-			double transY0 = (Double.isNaN(y0) ? Double.NaN : rangeAxis.valueToJava2D(y0, dataArea, yAxisLocation));
+			double valueX0 = dataset.getXValue(seriesIndex, previousPoint);
+			double valueY0 = dataset.getYValue(seriesIndex, previousPoint);
+			double screenX0 = domainAxis.valueToJava2D(valueX0, dataArea, xAxisLocation);
+			double screenY0 = (Double.isNaN(valueY0) ? Double.NaN
+					: rangeAxis.valueToJava2D(valueY0, dataArea, yAxisLocation));
 
-			if (orientation == PlotOrientation.HORIZONTAL) {
-				if (transY0 == transY1) {
-					drawLine(g2, state.workingLine, transY0, transX0, transY1, transX1);
-				} else {
-					double transXs = transX0 + (getStepPoint() * (transX1 - transX0));
-					drawLine(g2, state.workingLine, transY0, transX0, transY0, transXs);
-					drawLine(g2, state.workingLine, transY0, transXs, transY1, transXs);
-					drawLine(g2, state.workingLine, transY1, transXs, transY1, transX1);
+			if (orientation.isHorizontal()) {
+				if (screenY0 == screenY1)
+					drawLine(graphics2D, state.workingLine, screenY0, screenX0, screenY1, screenX1);
+				else {
+					double screenXFromStep = screenX0 + (getStepPoint() * (screenX1 - screenX0));
+					drawLine(graphics2D, state.workingLine, screenY0, screenX0, screenY0, screenXFromStep);
+					drawLine(graphics2D, state.workingLine, screenY0, screenXFromStep, screenY1, screenXFromStep);
+					drawLine(graphics2D, state.workingLine, screenY1, screenXFromStep, screenY1, screenX1);
 				}
-			} else if (orientation == PlotOrientation.VERTICAL) {
-				if (transY0 == transY1) {
-					drawLine(g2, state.workingLine, transX0, transY0, transX1, transY1);
-				} else {
-					double transXs = transX0 + (getStepPoint() * (transX1 - transX0));
-					drawLine(g2, state.workingLine, transX0, transY0, transXs, transY0);
-					drawLine(g2, state.workingLine, transXs, transY0, transXs, transY1);
-					drawLine(g2, state.workingLine, transXs, transY1, transX1, transY1);
+			} else if (orientation.isVertical()) {
+				if (screenY0 == screenY1)
+					drawLine(graphics2D, state.workingLine, screenX0, screenY0, screenX1, screenY1);
+				else {
+					double screenXFromStep = screenX0 + (getStepPoint() * (screenX1 - screenX0));
+					drawLine(graphics2D, state.workingLine, screenX0, screenY0, screenXFromStep, screenY0);
+					drawLine(graphics2D, state.workingLine, screenXFromStep, screenY0, screenXFromStep, screenY1);
+					drawLine(graphics2D, state.workingLine, screenXFromStep, screenY1, screenX1, screenY1);
 				}
 			}
 			int domainAxisIndex = plot.getDomainAxisIndex(domainAxis);
 			int rangeAxisIndex = plot.getRangeAxisIndex(rangeAxis);
-			updateCrosshairValues(crosshairState, x1, y1, domainAxisIndex, rangeAxisIndex, transX1, transY1,
+			updateCrosshairValues(crosshairState, valueX1, valueY1, domainAxisIndex, rangeAxisIndex, screenX1, screenY1,
 					orientation);
 
 			EntityCollection entities = state.getEntityCollection();
-			if (entities != null) {
-				addEntity(entities, null, dataset, series, item, transX1, transY1);
-			}
+			if (entities != null)
+				addEntity(entities, null, dataset, seriesIndex, itemIndex, screenX1, screenY1);
 		}
 	}
 
-	private void drawLine(Graphics2D g2, Line2D line, double x0, double y0, double x1, double y1) {
+	private void drawLine(Graphics2D graphics2D, Line2D line, double x0, double y0, double x1, double y1) {
 		if (Double.isNaN(x0) || Double.isNaN(x1) || Double.isNaN(y0) || Double.isNaN(y1))
 			return;
-		else if (Double.isInfinite(x0) || Double.isInfinite(x1) || Double.isInfinite(y0) || Double.isInfinite(y1))
+		if (Double.isInfinite(x0) || Double.isInfinite(x1) || Double.isInfinite(y0) || Double.isInfinite(y1))
 			return;
 
 		line.setLine(x0, y0, x1, y1);
-		g2.draw(line);
+		graphics2D.draw(line);
 	}
 
 	public Map<Integer, Integer> getFilteredMap() {
