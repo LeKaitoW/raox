@@ -16,7 +16,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -101,8 +100,8 @@ public class PlotView extends ViewPart {
 		verticalSlider.setEnabled(false);
 		verticalSlider.setVisible(false);
 		plotFrame.setSliders(horizontalSlider, verticalSlider);
-
 		plotFrame.addDisposeListener(new DisposeListener() {
+
 			@Override
 			public void widgetDisposed(DisposeEvent event) {
 				if (!openedPlotMap.isEmpty() && openedPlotMap.containsKey(partNode)) {
@@ -122,7 +121,6 @@ public class PlotView extends ViewPart {
 		XYSeries series = new XYSeries(partNode.getName());
 		dataset.addSeries(series);
 		plotXY(dataset);
-		Shell activeShell = getSite().getWorkbenchWindow().getShell();
 		initializeSubscribers();
 	}
 
@@ -186,9 +184,8 @@ public class PlotView extends ViewPart {
 				final XYSeries newSeries = newDataset.getSeries(0);
 				List<PlotItem> startItems = items.subList(0, items.size() - 1);
 
-				for (PlotItem item : startItems) {
+				for (PlotItem item : startItems)
 					newSeries.add(item.x, item.y, false);
-				}
 
 				PlotItem lastItem = items.get(items.size() - 1);
 				newSeries.add(lastItem.x, lastItem.y, true);
