@@ -91,23 +91,14 @@ public class XYFilteringStepRenderer extends XYStepRenderer {
 				addEntity(entities, null, dataset, series, item, transX1, transY1);
 			}
 		}
-		if (pass == 1) {
-			if (isItemLabelVisible(series, item)) {
-				double xx = transX1;
-				double yy = transY1;
-				if (orientation == PlotOrientation.HORIZONTAL) {
-					xx = transY1;
-					yy = transX1;
-				}
-				drawItemLabel(g2, orientation, dataset, series, item, xx, yy, (y1 < 0.0));
-			}
-		}
 	}
 
 	private void drawLine(Graphics2D g2, Line2D line, double x0, double y0, double x1, double y1) {
-		if (Double.isNaN(x0) || Double.isNaN(x1) || Double.isNaN(y0) || Double.isNaN(y1)) {
+		if (Double.isNaN(x0) || Double.isNaN(x1) || Double.isNaN(y0) || Double.isNaN(y1))
 			return;
-		}
+		else if (Double.isInfinite(x0) || Double.isInfinite(x1) || Double.isInfinite(y0) || Double.isInfinite(y1))
+			return;
+
 		line.setLine(x0, y0, x1, y1);
 		g2.draw(line);
 	}

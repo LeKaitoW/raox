@@ -121,10 +121,11 @@ public class PlotFrame extends ChartComposite {
 			final XYDataset dataset = getChart().getXYPlot().getDataset();
 
 			java.awt.Color backgroundColor = (java.awt.Color) getChart().getXYPlot().getBackgroundPaint();
+			int upperSeriesBound = dataset.getItemCount(0);
+			int lowerSeriesBound = 0;
 			int[] itemBounds = RendererUtilities.findLiveItems(dataset, 0, domainAxis.getLowerBound(),
 					domainAxis.getUpperBound());
-			int upperSeriesBound = itemBounds[1];
-			int lowerSeriesBound = Math.max(itemBounds[0] - 1, 0);
+			lowerSeriesBound = Math.max(itemBounds[0] - 1, 0);
 			upperSeriesBound = Math.min(itemBounds[1] + 1, upperSeriesBound);
 			int itemsCount = upperSeriesBound - lowerSeriesBound;
 
@@ -195,9 +196,8 @@ public class PlotFrame extends ChartComposite {
 							int valueYId = (int) Math.round(valueY);
 							final SymbolAxis symbolRangeAxis = (SymbolAxis) rangeAxis;
 							tooltipText = String.format("%s%n%.3f", symbolRangeAxis.getSymbols()[valueYId], valueX);
-						} else {
+						} else
 							tooltipText = String.format("%.3f%n%.3f", valueY, valueX);
-						}
 
 						toolTip.setText(tooltipText);
 						toolTip.show(widgetPoint);

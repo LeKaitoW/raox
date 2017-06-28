@@ -18,9 +18,8 @@ public class FilteringPlotFactory {
 		yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
 		final XYItemRenderer renderer = new XYFilteringStepRenderer(null, null);
-		final XYPlotWithFiltering plot = new XYPlotWithFiltering(dataset, xAxis, yAxis, null);
+		final XYPlotWithFiltering plot = new XYPlotWithFiltering(dataset, xAxis, yAxis, renderer);
 
-		plot.setRenderer(renderer);
 		plot.setOrientation(orientation);
 		plot.setDomainCrosshairVisible(false);
 		plot.setRangeCrosshairVisible(false);
