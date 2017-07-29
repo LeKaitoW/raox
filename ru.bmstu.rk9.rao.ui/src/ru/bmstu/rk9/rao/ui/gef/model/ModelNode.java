@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rao.ui.gef.model;
 
 import java.util.List;
 
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.ColorPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
@@ -9,6 +10,7 @@ import org.eclipse.ui.views.properties.PropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.gef.CheckboxPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
 import ru.bmstu.rk9.rao.ui.gef.Node;
+import ru.bmstu.rk9.rao.ui.gef.label.FontPropertyDescriptor;
 
 public class ModelNode extends Node {
 
@@ -16,9 +18,11 @@ public class ModelNode extends Node {
 
 	protected static final String PROPERTY_SHOW_GRID = "ShowGrid";
 	protected static final String PROPERTY_BACKGROUND_COLOR = "BackgroundColor";
+	protected static final String PROPERTY_GLOBAL_FONT = "GlobalFont";
 
 	private boolean showGrid = true;
 	private RGB backgroundColor = DefaultColors.MODEL_BACKGROUND_COLOR.getRGB();
+	private transient Font globalFont;
 
 	public final boolean getShowGrid() {
 		return showGrid;
@@ -40,10 +44,21 @@ public class ModelNode extends Node {
 		getListeners().firePropertyChange(PROPERTY_BACKGROUND_COLOR, previousValue, backgroundColor);
 	}
 
+	public final Font getGlobalFont() {
+		return globalFont;
+	}
+
+	public final void setGlobalFont(Font font) {
+		Font previousValue = this.globalFont;
+		this.globalFont = font;
+		getListeners().firePropertyChange(PROPERTY_GLOBAL_FONT, previousValue, font);
+	}
+
 	@Override
 	public void createProperties(List<PropertyDescriptor> properties) {
 		properties.add(new CheckboxPropertyDescriptor(PROPERTY_SHOW_GRID, "Show Grid"));
 		properties.add(new ColorPropertyDescriptor(PROPERTY_BACKGROUND_COLOR, "Background color"));
+		properties.add(new FontPropertyDescriptor(PROPERTY_GLOBAL_FONT, "Global font"));
 	}
 
 	@Override
@@ -54,6 +69,9 @@ public class ModelNode extends Node {
 
 		case PROPERTY_BACKGROUND_COLOR:
 			return getBackgroundColor();
+
+		case PROPERTY_GLOBAL_FONT:
+			return getGlobalFont();
 		}
 
 		return null;
@@ -68,6 +86,10 @@ public class ModelNode extends Node {
 
 		case PROPERTY_BACKGROUND_COLOR:
 			setBackgroundColor((RGB) value);
+			break;
+
+		case PROPERTY_GLOBAL_FONT:
+			setGlobalFont((Font) value);
 			break;
 		}
 	}

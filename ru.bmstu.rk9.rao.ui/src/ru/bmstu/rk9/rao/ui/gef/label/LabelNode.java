@@ -22,6 +22,7 @@ public class LabelNode extends Node implements Serializable {
 	protected static final String PROPERTY_TEXT = "Text";
 	protected static final String PROPERTY_TEXT_COLOR = "Text color";
 	protected static final String PROPERTY_BACKGROUND_COLOR = "Background color";
+	protected static final String PROPERTY_FONT = "Font";
 	protected static final String PROPERTY_VISIBLE = "Visible";
 	public static String name = "Label";
 	private final int border = 5;
@@ -84,7 +85,9 @@ public class LabelNode extends Node implements Serializable {
 	}
 
 	public final void setFont(Font font) {
+		Font previousValue = this.font;
 		this.font = font;
+		getListeners().firePropertyChange(PROPERTY_FONT, previousValue, font);
 	}
 
 	@Override
@@ -92,6 +95,7 @@ public class LabelNode extends Node implements Serializable {
 		properties.add(new TextPropertyDescriptor(PROPERTY_TEXT, "Text"));
 		properties.add(new ColorPropertyDescriptor(PROPERTY_TEXT_COLOR, "Text color"));
 		properties.add(new ColorPropertyDescriptor(PROPERTY_BACKGROUND_COLOR, "Background color"));
+		properties.add(new FontPropertyDescriptor(PROPERTY_FONT, "Font"));
 	}
 
 	@Override
@@ -106,8 +110,10 @@ public class LabelNode extends Node implements Serializable {
 
 		case PROPERTY_BACKGROUND_COLOR:
 			return getBackgroundColor();
-		}
 
+		case PROPERTY_FONT:
+			return getFont();
+		}
 		return null;
 	}
 
@@ -125,6 +131,9 @@ public class LabelNode extends Node implements Serializable {
 
 		case PROPERTY_BACKGROUND_COLOR:
 			setBackgroundColor((RGB) value);
+			break;
+		case PROPERTY_FONT:
+			setFont((Font) value);
 			break;
 		}
 	}

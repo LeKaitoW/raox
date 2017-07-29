@@ -43,6 +43,7 @@ public class LabelEditPart extends EditPart {
 		case LabelNode.PROPERTY_TEXT_COLOR:
 		case LabelNode.PROPERTY_BACKGROUND_COLOR:
 		case LabelNode.PROPERTY_VISIBLE:
+		case LabelNode.PROPERTY_FONT:
 			refreshVisuals();
 			break;
 		}
