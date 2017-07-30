@@ -33,4 +33,18 @@ public class FontDialogCellEditor extends DialogCellEditor {
 		}
 		return getValue();
 	}
+
+	@Override
+	protected void updateContents(Object value) {
+		if (getDefaultLabel() == null) {
+			return;
+		}
+		String text = "";
+		if (value != null) {
+			Font font = (Font) value;
+			text = FontLabelProvider.formatFont(font);
+		}
+		getDefaultLabel().setText(text);
+	}
+
 }

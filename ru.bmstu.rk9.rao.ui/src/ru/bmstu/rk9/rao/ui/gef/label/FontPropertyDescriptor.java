@@ -8,8 +8,7 @@ public class FontPropertyDescriptor extends PropertyDescriptor {
 
 	public FontPropertyDescriptor(Object id, String displayName) {
 		super(id, displayName);
-		// TODO предположительно здесь устанавливается формат шрифта
-		// setLabelProvider(new FontDataLabelProvider());
+		setLabelProvider(new FontLabelProvider());
 	}
 
 	@Override
