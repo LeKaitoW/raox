@@ -9,7 +9,9 @@ import org.eclipse.ui.views.properties.PropertyDescriptor;
 
 import ru.bmstu.rk9.rao.ui.gef.CheckboxPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
+import ru.bmstu.rk9.rao.ui.gef.DefaultFonts;
 import ru.bmstu.rk9.rao.ui.gef.Node;
+import ru.bmstu.rk9.rao.ui.gef.SerializableFont;
 import ru.bmstu.rk9.rao.ui.gef.label.FontPropertyDescriptor;
 
 public class ModelNode extends Node {
@@ -22,7 +24,7 @@ public class ModelNode extends Node {
 
 	private boolean showGrid = true;
 	private RGB backgroundColor = DefaultColors.MODEL_BACKGROUND_COLOR.getRGB();
-	private transient Font globalFont;
+	private SerializableFont globalFont = DefaultFonts.DEFAULT_FONT;
 
 	public final boolean getShowGrid() {
 		return showGrid;
@@ -45,12 +47,17 @@ public class ModelNode extends Node {
 	}
 
 	public final Font getGlobalFont() {
-		return globalFont;
+		// В старых версиях после десериализации данное поле может быть null,
+		// тогда устанавливаем дефолтное
+		if (globalFont == null) {
+			globalFont = DefaultFonts.DEFAULT_FONT;
+		}
+		return globalFont.getFont();
 	}
 
 	public final void setGlobalFont(Font font) {
-		Font previousValue = this.globalFont;
-		this.globalFont = font;
+		Font previousValue = getGlobalFont();
+		this.globalFont = new SerializableFont(font);
 		getListeners().firePropertyChange(PROPERTY_GLOBAL_FONT, previousValue, font);
 	}
 

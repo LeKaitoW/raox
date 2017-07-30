@@ -12,7 +12,9 @@ import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
+import ru.bmstu.rk9.rao.ui.gef.DefaultFonts;
 import ru.bmstu.rk9.rao.ui.gef.Node;
+import ru.bmstu.rk9.rao.ui.gef.SerializableFont;
 import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
 
 public class LabelNode extends Node implements Serializable {
@@ -30,7 +32,7 @@ public class LabelNode extends Node implements Serializable {
 	private String text = "text";
 	private RGB textColor = DefaultColors.LABEL_TEXT_COLOR.getRGB();
 	private RGB backgroundColor;
-	private transient Font font;
+	private SerializableFont font = DefaultFonts.DEFAULT_FONT;
 	private boolean visible = true;
 
 	public final String getText() {
@@ -81,12 +83,17 @@ public class LabelNode extends Node implements Serializable {
 	}
 
 	public final Font getFont() {
-		return font;
+		// В старых версиях после десериализации данное поле может быть null,
+		// тогда устанавливаем дефолтное
+		if (font == null) {
+			font = DefaultFonts.DEFAULT_FONT;
+		}
+		return font.getFont();
 	}
 
 	public final void setFont(Font font) {
-		Font previousValue = this.font;
-		this.font = font;
+		Font previousValue = getFont();
+		this.font = new SerializableFont(font);
 		getListeners().firePropertyChange(PROPERTY_FONT, previousValue, font);
 	}
 
