@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rao.ui.gef;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -21,6 +22,11 @@ public final class SerializableFont implements Serializable {
 		for (int i = 0; i < fontData.length; i++) {
 			serializableFontData[i] = new SerializableFontData(fontData[i]);
 		}
+	}
+
+	public SerializableFont(FontData fontData) {
+		SerializableFontData serializableFontData = new SerializableFontData(fontData);
+		this.serializableFontData = new SerializableFontData[] { serializableFontData };
 	}
 
 	public SerializableFont(SerializableFontData[] fontData) {
@@ -46,4 +52,32 @@ public final class SerializableFont implements Serializable {
 		return fontDataArray;
 
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(serializableFontData);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SerializableFont other = (SerializableFont) obj;
+		if (!Arrays.equals(serializableFontData, other.serializableFontData))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return Arrays.toString(serializableFontData);
+	}
+
 }

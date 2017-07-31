@@ -1,11 +1,12 @@
 package ru.bmstu.rk9.rao.ui.gef.label;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.Serializable;
 import java.util.List;
 
 import org.eclipse.draw2d.FigureUtilities;
 import org.eclipse.draw2d.geometry.Dimension;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.ColorPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
@@ -17,7 +18,11 @@ import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.SerializableFont;
 import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
 
-public class LabelNode extends Node implements Serializable {
+/**
+ * @author mikhailmineev
+ *
+ */
+public class LabelNode extends Node implements Serializable, PropertyChangeListener {
 
 	private static final long serialVersionUID = 1;
 
@@ -82,18 +87,18 @@ public class LabelNode extends Node implements Serializable {
 		getListeners().firePropertyChange(PROPERTY_BACKGROUND_COLOR, previousValue, backgroundColor);
 	}
 
-	public final Font getFont() {
+	public final SerializableFont getFont() {
 		// В старых версиях после десериализации данное поле может быть null,
 		// тогда устанавливаем дефолтное
 		if (font == null) {
 			font = DefaultFonts.DEFAULT_FONT;
 		}
-		return font.getFont();
+		return font;
 	}
 
-	public final void setFont(Font font) {
-		Font previousValue = getFont();
-		this.font = new SerializableFont(font);
+	public final void setFont(SerializableFont font) {
+		SerializableFont previousValue = getFont();
+		this.font = font;
 		getListeners().firePropertyChange(PROPERTY_FONT, previousValue, font);
 	}
 
@@ -139,15 +144,40 @@ public class LabelNode extends Node implements Serializable {
 		case PROPERTY_BACKGROUND_COLOR:
 			setBackgroundColor((RGB) value);
 			break;
+
 		case PROPERTY_FONT:
-			setFont((Font) value);
+			setFont((SerializableFont) value);
 			break;
 		}
 	}
 
 	public final Dimension getTextBounds() {
-		Dimension dimension = FigureUtilities.getStringExtents(getText(), getFont());
+		Dimension dimension = FigureUtilities.getStringExtents(getText(), getFont().getFont());
 		dimension.expand(border * 2, border * 2);
 		return dimension;
+	}
+
+	@Override
+	public void onDelete() {
+		// Все субклассы данного должны вызывать метод super.onDelete()
+		// поскольку в нем происходит отписка от наблюдателя
+		ModelNode modelNode = (ModelNode) getRoot();
+		modelNode.removePropertyChangeListener(this);
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		switch (evt.getPropertyName()) {
+		case ModelNode.PROPERTY_GLOBAL_FONT:
+			SerializableFont oldGlovalFont = (SerializableFont) evt.getOldValue();
+			SerializableFont newGlovalFont = (SerializableFont) evt.getNewValue();
+			SerializableFont localFont = getFont();
+			if (localFont.equals(oldGlovalFont)) {
+				// Наш шрифт совпадал со старым глобальным, так что меняем
+				setFont(newGlovalFont);
+			}
+			break;
+		}
+
 	}
 }

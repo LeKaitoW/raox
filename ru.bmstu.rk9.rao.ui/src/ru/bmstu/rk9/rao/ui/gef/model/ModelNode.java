@@ -2,7 +2,6 @@ package ru.bmstu.rk9.rao.ui.gef.model;
 
 import java.util.List;
 
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.ColorPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
@@ -20,7 +19,7 @@ public class ModelNode extends Node {
 
 	protected static final String PROPERTY_SHOW_GRID = "ShowGrid";
 	protected static final String PROPERTY_BACKGROUND_COLOR = "BackgroundColor";
-	protected static final String PROPERTY_GLOBAL_FONT = "GlobalFont";
+	public static final String PROPERTY_GLOBAL_FONT = "GlobalFont";
 
 	private boolean showGrid = true;
 	private RGB backgroundColor = DefaultColors.MODEL_BACKGROUND_COLOR.getRGB();
@@ -46,18 +45,18 @@ public class ModelNode extends Node {
 		getListeners().firePropertyChange(PROPERTY_BACKGROUND_COLOR, previousValue, backgroundColor);
 	}
 
-	public final Font getGlobalFont() {
+	public final SerializableFont getGlobalFont() {
 		// В старых версиях после десериализации данное поле может быть null,
 		// тогда устанавливаем дефолтное
 		if (globalFont == null) {
 			globalFont = DefaultFonts.DEFAULT_FONT;
 		}
-		return globalFont.getFont();
+		return globalFont;
 	}
 
-	public final void setGlobalFont(Font font) {
-		Font previousValue = getGlobalFont();
-		this.globalFont = new SerializableFont(font);
+	public final void setGlobalFont(SerializableFont font) {
+		SerializableFont previousValue = getGlobalFont();
+		this.globalFont = font;
 		getListeners().firePropertyChange(PROPERTY_GLOBAL_FONT, previousValue, font);
 	}
 
@@ -96,7 +95,7 @@ public class ModelNode extends Node {
 			break;
 
 		case PROPERTY_GLOBAL_FONT:
-			setGlobalFont((Font) value);
+			setGlobalFont((SerializableFont) value);
 			break;
 		}
 	}

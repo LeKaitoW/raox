@@ -6,6 +6,9 @@ import org.eclipse.gef.editparts.AbstractEditPart;
 
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.NodeInfo;
+import ru.bmstu.rk9.rao.ui.gef.label.LabelEditPart;
+import ru.bmstu.rk9.rao.ui.gef.label.LabelNode;
+import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.BlockEditPart;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.BlockNode;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.BlockTitleEditPart;
@@ -43,6 +46,13 @@ public class ProcessEditPartFactory implements EditPartFactory {
 			((BlockEditPart) editPart).setID(currentID);
 			((BlockNode) model).setID(currentID);
 			currentID++;
+		}
+
+		if (editPart instanceof LabelEditPart) {
+			// Подписываем все LabelNode на изменения шрифта в ModelNode
+			LabelNode labelNode = ((LabelNode) model);
+			ModelNode modelNode = (ModelNode) labelNode.getRoot();
+			modelNode.addPropertyChangeListener(labelNode);
 		}
 
 		if (editPart instanceof BlockTitleEditPart) {

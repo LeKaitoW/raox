@@ -23,6 +23,7 @@ public class BlockTitleNode extends LabelNode {
 
 	@Override
 	public void onDelete() {
+		super.onDelete();
 		if (blockNode != null)
 			blockNode.cleanup();
 		cleanup();
