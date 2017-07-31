@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rao.ui.gef.font;
 
 import java.io.Serializable;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 
@@ -42,6 +43,20 @@ public final class SerializableFontData implements Serializable {
 
 	public int getStyle() {
 		return style;
+	}
+
+	public String getTextStyle() {
+		String text = "";
+		if ((SWT.BOLD & style) == SWT.BOLD) {
+			text += "Bold ";
+		}
+		if ((SWT.ITALIC & style) == SWT.ITALIC) {
+			text += "Italic ";
+		}
+		if ((1 << 5 & style) == 1 << 5) {
+			text += "Oblique ";
+		}
+		return text.trim();
 	}
 
 	public FontData getFontData() {
@@ -88,6 +103,6 @@ public final class SerializableFontData implements Serializable {
 
 	@Override
 	public String toString() {
-		return name + " " + height + " " + Integer.toBinaryString(style);
+		return name + " " + getTextStyle() + " " + height;
 	}
 }
