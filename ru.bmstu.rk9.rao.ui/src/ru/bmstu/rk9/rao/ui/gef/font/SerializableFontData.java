@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rao.ui.gef.font;
 
 import java.io.Serializable;
 
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 
 public final class SerializableFontData implements Serializable {
@@ -11,15 +12,24 @@ public final class SerializableFontData implements Serializable {
 	private String name;
 	private int height;
 	private int style;
+	private transient Font font;
+
+	public SerializableFontData(Font font) {
+		this(font.getFontData());
+	}
+
+	public SerializableFontData(FontData[] fontData) {
+		this(fontData[0]);
+	}
+
+	public SerializableFontData(FontData fontData) {
+		this(fontData.getName(), fontData.getHeight(), fontData.getStyle());
+	}
 
 	public SerializableFontData(String name, int height, int style) {
 		this.name = name;
 		this.height = height;
 		this.style = style;
-	}
-
-	public SerializableFontData(FontData fontData) {
-		this(fontData.getName(), fontData.getHeight(), fontData.getStyle());
 	}
 
 	public String getName() {
@@ -36,6 +46,13 @@ public final class SerializableFontData implements Serializable {
 
 	public FontData getFontData() {
 		return new FontData(getName(), getHeight(), getStyle());
+	}
+
+	public Font getFont() {
+		if (font == null) {
+			font = new Font(null, getFontData());
+		}
+		return font;
 	}
 
 	@Override

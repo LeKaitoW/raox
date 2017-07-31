@@ -16,7 +16,7 @@ import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
 import ru.bmstu.rk9.rao.ui.gef.DefaultFonts;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.font.FontPropertyDescriptor;
-import ru.bmstu.rk9.rao.ui.gef.font.SerializableFont;
+import ru.bmstu.rk9.rao.ui.gef.font.SerializableFontData;
 import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
 
 /**
@@ -38,7 +38,7 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 	private String text = "text";
 	private RGB textColor = DefaultColors.LABEL_TEXT_COLOR.getRGB();
 	private RGB backgroundColor;
-	private SerializableFont font = DefaultFonts.DEFAULT_FONT;
+	private SerializableFontData font = DefaultFonts.DEFAULT_FONT;
 	private boolean visible = true;
 
 	public final String getText() {
@@ -88,7 +88,7 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 		getListeners().firePropertyChange(PROPERTY_BACKGROUND_COLOR, previousValue, backgroundColor);
 	}
 
-	public final SerializableFont getFont() {
+	public final SerializableFontData getFont() {
 		// В старых версиях после десериализации данное поле может быть null,
 		// тогда устанавливаем дефолтное
 		if (font == null) {
@@ -97,8 +97,8 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 		return font;
 	}
 
-	public final void setFont(SerializableFont font) {
-		SerializableFont previousValue = getFont();
+	public final void setFont(SerializableFontData font) {
+		SerializableFontData previousValue = getFont();
 		this.font = font;
 		getListeners().firePropertyChange(PROPERTY_FONT, previousValue, font);
 	}
@@ -147,7 +147,7 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 			break;
 
 		case PROPERTY_FONT:
-			setFont((SerializableFont) value);
+			setFont((SerializableFontData) value);
 			break;
 		}
 	}
@@ -170,9 +170,9 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 	public void propertyChange(PropertyChangeEvent evt) {
 		switch (evt.getPropertyName()) {
 		case ModelNode.PROPERTY_GLOBAL_FONT:
-			SerializableFont oldGlovalFont = (SerializableFont) evt.getOldValue();
-			SerializableFont newGlovalFont = (SerializableFont) evt.getNewValue();
-			SerializableFont localFont = getFont();
+			SerializableFontData oldGlovalFont = (SerializableFontData) evt.getOldValue();
+			SerializableFontData newGlovalFont = (SerializableFontData) evt.getNewValue();
+			SerializableFontData localFont = getFont();
 			if (localFont.equals(oldGlovalFont)) {
 				// Наш шрифт совпадал со старым глобальным, так что меняем
 				setFont(newGlovalFont);

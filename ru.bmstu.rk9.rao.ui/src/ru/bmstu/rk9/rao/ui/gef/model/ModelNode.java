@@ -11,7 +11,7 @@ import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
 import ru.bmstu.rk9.rao.ui.gef.DefaultFonts;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.font.FontPropertyDescriptor;
-import ru.bmstu.rk9.rao.ui.gef.font.SerializableFont;
+import ru.bmstu.rk9.rao.ui.gef.font.SerializableFontData;
 
 public class ModelNode extends Node {
 
@@ -23,7 +23,7 @@ public class ModelNode extends Node {
 
 	private boolean showGrid = true;
 	private RGB backgroundColor = DefaultColors.MODEL_BACKGROUND_COLOR.getRGB();
-	private SerializableFont globalFont = DefaultFonts.DEFAULT_FONT;
+	private SerializableFontData globalFont = DefaultFonts.DEFAULT_FONT;
 
 	public final boolean getShowGrid() {
 		return showGrid;
@@ -45,7 +45,7 @@ public class ModelNode extends Node {
 		getListeners().firePropertyChange(PROPERTY_BACKGROUND_COLOR, previousValue, backgroundColor);
 	}
 
-	public final SerializableFont getGlobalFont() {
+	public final SerializableFontData getGlobalFont() {
 		// В старых версиях после десериализации данное поле может быть null,
 		// тогда устанавливаем дефолтное
 		if (globalFont == null) {
@@ -54,8 +54,8 @@ public class ModelNode extends Node {
 		return globalFont;
 	}
 
-	public final void setGlobalFont(SerializableFont font) {
-		SerializableFont previousValue = getGlobalFont();
+	public final void setGlobalFont(SerializableFontData font) {
+		SerializableFontData previousValue = getGlobalFont();
 		this.globalFont = font;
 		getListeners().firePropertyChange(PROPERTY_GLOBAL_FONT, previousValue, font);
 	}
@@ -95,7 +95,7 @@ public class ModelNode extends Node {
 			break;
 
 		case PROPERTY_GLOBAL_FONT:
-			setGlobalFont((SerializableFont) value);
+			setGlobalFont((SerializableFontData) value);
 			break;
 		}
 	}
