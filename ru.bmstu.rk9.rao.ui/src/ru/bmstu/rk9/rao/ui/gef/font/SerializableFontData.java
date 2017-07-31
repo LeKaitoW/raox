@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.gef;
+package ru.bmstu.rk9.rao.ui.gef.font;
 
 import java.io.Serializable;
 

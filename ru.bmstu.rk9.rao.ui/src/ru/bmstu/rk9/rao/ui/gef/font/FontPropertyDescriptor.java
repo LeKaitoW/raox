@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.rao.ui.gef.label;
+package ru.bmstu.rk9.rao.ui.gef.font;
 
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.swt.widgets.Composite;

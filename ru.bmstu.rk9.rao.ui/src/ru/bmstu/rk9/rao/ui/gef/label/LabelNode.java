@@ -15,7 +15,8 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
 import ru.bmstu.rk9.rao.ui.gef.DefaultFonts;
 import ru.bmstu.rk9.rao.ui.gef.Node;
-import ru.bmstu.rk9.rao.ui.gef.SerializableFont;
+import ru.bmstu.rk9.rao.ui.gef.font.FontPropertyDescriptor;
+import ru.bmstu.rk9.rao.ui.gef.font.SerializableFont;
 import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
 
 /**

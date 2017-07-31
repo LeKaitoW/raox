@@ -1,12 +1,10 @@
-package ru.bmstu.rk9.rao.ui.gef.label;
+package ru.bmstu.rk9.rao.ui.gef.font;
 
 import org.eclipse.jface.viewers.DialogCellEditor;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FontDialog;
-
-import ru.bmstu.rk9.rao.ui.gef.SerializableFont;
 
 public class FontDialogCellEditor extends DialogCellEditor {
 

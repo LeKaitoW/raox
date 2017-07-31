@@ -10,8 +10,8 @@ import ru.bmstu.rk9.rao.ui.gef.CheckboxPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
 import ru.bmstu.rk9.rao.ui.gef.DefaultFonts;
 import ru.bmstu.rk9.rao.ui.gef.Node;
-import ru.bmstu.rk9.rao.ui.gef.SerializableFont;
-import ru.bmstu.rk9.rao.ui.gef.label.FontPropertyDescriptor;
+import ru.bmstu.rk9.rao.ui.gef.font.FontPropertyDescriptor;
+import ru.bmstu.rk9.rao.ui.gef.font.SerializableFont;
 
 public class ModelNode extends Node {
 
