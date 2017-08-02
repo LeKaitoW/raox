@@ -3,10 +3,14 @@ package ru.bmstu.rk9.rao.ui.gef.label;
 import java.beans.PropertyChangeEvent;
 
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.geometry.Dimension;
+import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
+import ru.bmstu.rk9.rao.ui.gef.alignment.Alignment;
+import ru.bmstu.rk9.rao.ui.gef.font.SerializableFontData;
 
 public class LabelEditPart extends EditPart {
 
@@ -30,7 +34,8 @@ public class LabelEditPart extends EditPart {
 		figure.setVisible(node.getVisible());
 
 		Rectangle constraint = node.getConstraint().getCopy();
-		constraint.setSize(node.getTextBounds());
+		Dimension newDimension = node.getTextBounds();
+		constraint.setSize(newDimension);
 		figure.getParent().setConstraint(figure, constraint);
 	}
 
@@ -43,9 +48,21 @@ public class LabelEditPart extends EditPart {
 		case LabelNode.PROPERTY_TEXT_COLOR:
 		case LabelNode.PROPERTY_BACKGROUND_COLOR:
 		case LabelNode.PROPERTY_VISIBLE:
-		case LabelNode.PROPERTY_FONT:
 			refreshVisuals();
 			break;
+		case LabelNode.PROPERTY_FONT:
+			SerializableFontData previousFont = (SerializableFontData) evt.getOldValue();
+			LabelNode node = (LabelNode) getModel();
+			Alignment alignment = node.getAlignment();
+			Rectangle constraint = node.getConstraint().getCopy();
+			Dimension oldDimension = node.getTextBounds(previousFont);
+			Dimension newDimension = node.getTextBounds();
+			Point delta = alignment.translation(oldDimension, newDimension);
+			constraint.translate(delta);
+			node.setConstraint(constraint);
+			refreshVisuals();
+			break;
+
 		}
 	}
 }

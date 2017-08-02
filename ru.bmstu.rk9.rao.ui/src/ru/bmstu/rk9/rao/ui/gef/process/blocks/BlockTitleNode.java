@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.ui.gef.process.blocks;
 
+import ru.bmstu.rk9.rao.ui.gef.alignment.Alignment;
 import ru.bmstu.rk9.rao.ui.gef.label.LabelNode;
 
 public class BlockTitleNode extends LabelNode {
@@ -27,5 +28,10 @@ public class BlockTitleNode extends LabelNode {
 		if (blockNode != null)
 			blockNode.cleanup();
 		cleanup();
+	}
+
+	@Override
+	protected Alignment getDefaultAlignment() {
+		return Alignment.defaultForBlockTitleNode;
 	}
 }

@@ -42,7 +42,7 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 	private RGB textColor = DefaultColors.LABEL_TEXT_COLOR.getRGB();
 	private RGB backgroundColor;
 	private SerializableFontData font = DefaultFonts.DEFAULT_FONT;
-	private Alignment alignment = Alignment.defaultAlignment;
+	private Alignment alignment = getDefaultAlignment();
 	private boolean visible = true;
 
 	public final String getText() {
@@ -111,7 +111,7 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 		// В старых версиях после десериализации данное поле может быть null,
 		// тогда устанавливаем дефолтное
 		if (alignment == null) {
-			alignment = Alignment.defaultAlignment;
+			alignment = getDefaultAlignment();
 		}
 		return alignment;
 	}
@@ -120,6 +120,10 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 		SerializableFontData previousValue = getFont();
 		this.alignment = alignment;
 		getListeners().firePropertyChange(PROPERTY_ALIGNMENT, previousValue, font);
+	}
+
+	protected Alignment getDefaultAlignment() {
+		return Alignment.defaultAlignment;
 	}
 
 	@Override
@@ -179,10 +183,14 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 		}
 	}
 
-	public final Dimension getTextBounds() {
-		Dimension dimension = FigureUtilities.getStringExtents(getText(), getFont().getFont());
+	public final Dimension getTextBounds(SerializableFontData serializableFontData) {
+		Dimension dimension = FigureUtilities.getStringExtents(getText(), serializableFontData.getFont());
 		dimension.expand(border * 2, border * 2);
 		return dimension;
+	}
+
+	public final Dimension getTextBounds() {
+		return getTextBounds(getFont());
 	}
 
 	@Override
