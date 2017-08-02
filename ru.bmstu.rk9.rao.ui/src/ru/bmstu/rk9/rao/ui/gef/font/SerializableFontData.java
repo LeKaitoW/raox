@@ -103,6 +103,6 @@ public final class SerializableFontData implements Serializable {
 
 	@Override
 	public String toString() {
-		return name + " " + getTextStyle() + " " + height;
+		return name + " " + height + " " + getTextStyle();
 	}
 }
