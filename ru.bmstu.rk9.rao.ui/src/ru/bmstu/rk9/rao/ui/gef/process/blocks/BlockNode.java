@@ -86,8 +86,14 @@ public abstract class BlockNode extends Node {
 
 	@Override
 	public void onDelete() {
-		if (title != null)
-			title.cleanup();
+		if (title != null) {
+			// Когда удаляется блок, то метод onDelete заголовка сам не
+			// вызывается, а в нем происходит отписка от прослушивания изменений
+			// глобального шрифта
+			title.onDelete();
+			// Данный метод вызывается в верхнем, и здесь не нужен
+			// title.cleanup();
+		}
 		cleanup();
 	}
 
