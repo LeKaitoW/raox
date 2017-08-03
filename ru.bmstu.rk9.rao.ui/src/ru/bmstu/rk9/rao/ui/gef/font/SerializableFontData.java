@@ -5,6 +5,7 @@ import java.io.Serializable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.widgets.Display;
 
 public final class SerializableFontData implements Serializable {
 
@@ -14,6 +15,10 @@ public final class SerializableFontData implements Serializable {
 	private int height;
 	private int style;
 	private transient Font font;
+
+	public SerializableFontData() {
+		this(Display.getDefault().getSystemFont());
+	}
 
 	public SerializableFontData(Font font) {
 		this(font.getFontData());
@@ -27,7 +32,7 @@ public final class SerializableFontData implements Serializable {
 		this(fontData.getName(), fontData.getHeight(), fontData.getStyle());
 	}
 
-	public SerializableFontData(String name, int height, int style) {
+	private SerializableFontData(String name, int height, int style) {
 		this.name = name;
 		this.height = height;
 		this.style = style;
