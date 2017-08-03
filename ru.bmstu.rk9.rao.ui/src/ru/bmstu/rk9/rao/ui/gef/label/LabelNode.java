@@ -13,7 +13,6 @@ import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
-import ru.bmstu.rk9.rao.ui.gef.DefaultFonts;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.alignment.Alignment;
 import ru.bmstu.rk9.rao.ui.gef.alignment.AlignmentPropertyDescriptor;
@@ -21,10 +20,6 @@ import ru.bmstu.rk9.rao.ui.gef.font.FontPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.gef.font.SerializableFontData;
 import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
 
-/**
- * @author mikhailmineev
- *
- */
 public class LabelNode extends Node implements Serializable, PropertyChangeListener {
 
 	private static final long serialVersionUID = 1;
@@ -41,7 +36,7 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 	private String text = "text";
 	private RGB textColor = DefaultColors.LABEL_TEXT_COLOR.getRGB();
 	private RGB backgroundColor;
-	private SerializableFontData font = DefaultFonts.DEFAULT_FONT;
+	private SerializableFontData font;
 	private Alignment alignment = getDefaultAlignment();
 	private boolean visible = true;
 
@@ -93,33 +88,37 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 	}
 
 	public final SerializableFontData getFont() {
-		// В старых версиях после десериализации данное поле может быть null,
-		// тогда устанавливаем дефолтное
-		if (font == null) {
-			font = DefaultFonts.DEFAULT_FONT;
-		}
-		return font;
+		if (font != null)
+			return font;
+
+		return ((ModelNode) getRoot()).getGlobalFont();
 	}
 
 	public final void setFont(SerializableFontData font) {
 		SerializableFontData previousValue = getFont();
-		this.font = font;
+		if (((ModelNode) getRoot()).getGlobalFont().equals(font)) {
+			this.font = null;
+		} else {
+			this.font = font;
+		}
 		getListeners().firePropertyChange(PROPERTY_FONT, previousValue, font);
 	}
 
 	public final Alignment getAlignment() {
-		// В старых версиях после десериализации данное поле может быть null,
-		// тогда устанавливаем дефолтное
-		if (alignment == null) {
-			alignment = getDefaultAlignment();
-		}
-		return alignment;
+		if (alignment != null)
+			return alignment;
+
+		return getDefaultAlignment();
 	}
 
 	public final void setAlignment(Alignment alignment) {
-		SerializableFontData previousValue = getFont();
-		this.alignment = alignment;
-		getListeners().firePropertyChange(PROPERTY_ALIGNMENT, previousValue, font);
+		Alignment previousValue = getAlignment();
+		if (getDefaultAlignment().equals(alignment)) {
+			this.alignment = null;
+		} else {
+			this.alignment = alignment;
+		}
+		getListeners().firePropertyChange(PROPERTY_ALIGNMENT, previousValue, alignment);
 	}
 
 	protected Alignment getDefaultAlignment() {
