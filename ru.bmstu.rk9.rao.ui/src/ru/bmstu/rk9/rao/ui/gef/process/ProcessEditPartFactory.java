@@ -11,7 +11,6 @@ import ru.bmstu.rk9.rao.ui.gef.label.LabelNode;
 import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.BlockEditPart;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.BlockNode;
-import ru.bmstu.rk9.rao.ui.gef.process.blocks.BlockTitleEditPart;
 import ru.bmstu.rk9.rao.ui.gef.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.gef.process.connection.ConnectionEditPart;
 import ru.bmstu.rk9.rao.ui.gef.process.model.ProcessModelEditPart;
@@ -53,12 +52,6 @@ public class ProcessEditPartFactory implements EditPartFactory {
 			LabelNode labelNode = ((LabelNode) model);
 			ModelNode modelNode = (ModelNode) labelNode.getRoot();
 			modelNode.addPropertyChangeListener(labelNode);
-		}
-
-		if (editPart instanceof BlockTitleEditPart) {
-			// Шрифт задается теперь как дефолтный в DefaultFonts
-			// ((BlockTitleNode)
-			// model).setFont(modelEditPart.getFigure().getFont());
 		}
 
 		return editPart;
