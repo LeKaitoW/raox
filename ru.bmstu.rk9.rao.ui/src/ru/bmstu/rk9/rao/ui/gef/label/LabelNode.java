@@ -88,20 +88,23 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 	}
 
 	public final SerializableFontData getFont() {
-		if (font != null)
-			return font;
-
-		return ((ModelNode) getRoot()).getGlobalFont();
+		// Вариант с передачей шрифта от модели не работает, поскольку при
+		// изменении глобального шрифта проверяется, совпадал ли данный шрифт с
+		// новым глобальным, но в том случае локальный шрифт уже будет
+		// измененным, потому надежнее просто запоминать шрифт
+		if (font == null)
+			font = getDefaultFont();
+		return font;
 	}
 
 	public final void setFont(SerializableFontData font) {
 		SerializableFontData previousValue = getFont();
-		if (((ModelNode) getRoot()).getGlobalFont().equals(font)) {
-			this.font = null;
-		} else {
-			this.font = font;
-		}
+		this.font = font;
 		getListeners().firePropertyChange(PROPERTY_FONT, previousValue, font);
+	}
+
+	private SerializableFontData getDefaultFont() {
+		return ((ModelNode) getRoot()).getGlobalFont();
 	}
 
 	public final Alignment getAlignment() {
