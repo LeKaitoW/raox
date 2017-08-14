@@ -105,6 +105,9 @@ public abstract class Node implements Serializable, IAdaptable {
 
 	public abstract void setPropertyValue(String propertyName, Object value);
 
+	public void afterAssignedToEditPart() {
+	}
+
 	public void onDelete() {
 	}
 }

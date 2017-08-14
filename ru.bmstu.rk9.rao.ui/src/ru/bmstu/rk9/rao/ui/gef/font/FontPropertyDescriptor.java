@@ -8,7 +8,6 @@ public class FontPropertyDescriptor extends PropertyDescriptor {
 
 	public FontPropertyDescriptor(Object id, String displayName) {
 		super(id, displayName);
-		// setLabelProvider(new FontLabelProvider());
 	}
 
 	@Override

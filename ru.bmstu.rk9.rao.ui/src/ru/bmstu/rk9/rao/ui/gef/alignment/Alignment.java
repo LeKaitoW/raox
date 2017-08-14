@@ -74,10 +74,4 @@ public enum Alignment {
 	}
 
 	public abstract Point translation(Dimension oldDimension, Dimension newDimension);
-
-	public static final Alignment defaultAlignment = FIRST_LINE_START;
-	public static final Alignment defaultForBlockTitleNode = PAGE_END;
-	public static final Alignment[] ordered = { FIRST_LINE_START, PAGE_START, FIRST_LINE_END, LINE_START, CENTER,
-			LINE_END, LAST_LINE_START, PAGE_END, LAST_LINE_END };
-
 }

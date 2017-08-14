@@ -14,21 +14,16 @@ public class FontDialogCellEditor extends DialogCellEditor {
 
 	@Override
 	protected Object openDialogBox(Control cellEditorWindow) {
-		FontDialog ftDialog = new FontDialog(cellEditorWindow.getShell());
+		FontDialog fontDialog = new FontDialog(cellEditorWindow.getShell());
 		// String value = (String) getValue();
 
 		if (getValue() != null) {
-			SerializableFontData font = (SerializableFontData) getValue();
-			FontData[] fontData = new FontData[] { font.getFontData() };
-			ftDialog.setFontList(fontData);
+			SerializableFontData serializableFontData = (SerializableFontData) getValue();
+			final FontData[] fontDatas = new FontData[] { serializableFontData.getFontData() };
+			fontDialog.setFontList(fontDatas);
 		}
-		FontData fData = ftDialog.open();
-
-		if (fData != null) {
-			SerializableFontData font = new SerializableFontData(fData);
-			return font;
-		}
-		return getValue();
+		final FontData fontData = fontDialog.open();
+		return fontData == null ? getValue() : new SerializableFontData(fontData);
 	}
 
 }

@@ -27,15 +27,14 @@ public class LabelEditPart extends EditPart {
 		LabelNode node = (LabelNode) getModel();
 		LabelFigure figure = (LabelFigure) getFigure();
 
-		figure.setFont(node.getFont().getFont());
+		figure.setFont(node.getFont().getSwtFont());
 		figure.setText(node.getText());
 		figure.setForegroundColor(new Color(null, node.getTextColor()));
 		figure.setBackgroundColor(new Color(null, node.getBackgroundColor()));
 		figure.setVisible(node.getVisible());
 
 		Rectangle constraint = node.getConstraint().getCopy();
-		Dimension newDimension = node.getTextBounds();
-		constraint.setSize(newDimension);
+		constraint.setSize(node.getTextBounds());
 		figure.getParent().setConstraint(figure, constraint);
 	}
 

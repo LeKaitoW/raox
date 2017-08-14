@@ -99,12 +99,12 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 
 	public final void setFont(SerializableFontData font) {
 		SerializableFontData previousValue = getFont();
-		this.font = font;
+		this.font = font == null ? getDefaultFont() : font;
 		getListeners().firePropertyChange(PROPERTY_FONT, previousValue, font);
 	}
 
 	private SerializableFontData getDefaultFont() {
-		return ((ModelNode) getRoot()).getGlobalFont();
+		return ((ModelNode) getRoot()).getFont();
 	}
 
 	public final Alignment getAlignment() {
@@ -125,7 +125,7 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 	}
 
 	protected Alignment getDefaultAlignment() {
-		return Alignment.defaultAlignment;
+		return Alignment.FIRST_LINE_START;
 	}
 
 	@Override
@@ -186,7 +186,7 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 	}
 
 	public final Dimension getTextBounds(SerializableFontData serializableFontData) {
-		Dimension dimension = FigureUtilities.getStringExtents(getText(), serializableFontData.getFont());
+		Dimension dimension = FigureUtilities.getStringExtents(getText(), serializableFontData.getSwtFont());
 		dimension.expand(border * 2, border * 2);
 		return dimension;
 	}
@@ -195,10 +195,23 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 		return getTextBounds(getFont());
 	}
 
+	/**
+	 * Все субклассы, переопределяющие данный метод, должны вызывать
+	 * <code>super.afterCreate()</code> поскольку в нем происходит подписка к
+	 * наблюдателю
+	 */
+	@Override
+	public void afterAssignedToEditPart() {
+		((ModelNode) getRoot()).addPropertyChangeListener(this);
+	}
+
+	/**
+	 * Все субклассы, переопределяющие данный метод, должны вызывать
+	 * <code>super.onDelete()</code> поскольку в нем происходит отписка от
+	 * наблюдателя
+	 */
 	@Override
 	public void onDelete() {
-		// Все субклассы данного должны вызывать метод super.onDelete()
-		// поскольку в нем происходит отписка от наблюдателя
 		ModelNode modelNode = (ModelNode) getRoot();
 		modelNode.removePropertyChangeListener(this);
 	}
@@ -206,13 +219,12 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		switch (evt.getPropertyName()) {
-		case ModelNode.PROPERTY_GLOBAL_FONT:
+		case ModelNode.PROPERTY_FONT:
 			SerializableFontData oldGlovalFont = (SerializableFontData) evt.getOldValue();
-			SerializableFontData newGlovalFont = (SerializableFontData) evt.getNewValue();
 			SerializableFontData localFont = getFont();
 			if (localFont.equals(oldGlovalFont)) {
 				// Наш шрифт совпадал со старым глобальным, так что меняем
-				setFont(newGlovalFont);
+				setFont(null);
 			}
 			break;
 		}

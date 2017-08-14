@@ -33,37 +33,38 @@ public class AlignmentDialog extends Dialog {
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite container = (Composite) super.createDialogArea(parent);
+		AlignmentDialog dialog = this;
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 3;
 		gridLayout.makeColumnsEqualWidth = true;
 		container.setLayout(gridLayout);
-		// Массив всех кнопок
-		List<Button> buttons = new ArrayList<>(9);
-		// Данные по ячейке, в которой будет кнопка
+
+		List<Button> buttons = new ArrayList<>(Alignment.values().length);
+
 		GridData gridData = new GridData();
 		gridData.horizontalAlignment = GridData.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		gridData.grabExcessVerticalSpace = true;
-		for (Alignment alignmentVariant : Alignment.ordered) {
+		for (Alignment alignmentVariant : Alignment.values()) {
 			Button button = new Button(container, SWT.TOGGLE);
 			button.setLayoutData(gridData);
 			button.setText(alignmentVariant.getDescription());
 			buttons.add(button);
-			// Устанавливаем кнопку, совпадающую с alignment нажатой
-			if (alignmentVariant.equals(alignment)) {
+
+			if (dialog.alignment == alignmentVariant) {
 				button.setSelection(true);
 			}
 			button.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					// Не даем разжать кнопку
+
 					if (alignment == alignmentVariant) {
 						button.setSelection(true);
 						return;
 					}
-					// Назначаем новое выравнивание
+
 					alignment = alignmentVariant;
-					// Убираем у остальных кнопок состояние нажато
+
 					for (Button deselectButton : buttons) {
 						if (!button.equals(deselectButton))
 							deselectButton.setSelection(false);

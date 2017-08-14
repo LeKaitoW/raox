@@ -1,11 +1,12 @@
 package ru.bmstu.rk9.rao.ui.gef.font;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.widgets.Display;
 
 public final class SerializableFontData implements Serializable {
 
@@ -15,10 +16,6 @@ public final class SerializableFontData implements Serializable {
 	private int height;
 	private int style;
 	private transient Font font;
-
-	public SerializableFontData() {
-		this(Display.getDefault().getSystemFont());
-	}
 
 	public SerializableFontData(Font font) {
 		this(font.getFontData());
@@ -51,27 +48,31 @@ public final class SerializableFontData implements Serializable {
 	}
 
 	public String getTextStyle() {
-		String text = "";
+		if (style == SWT.NORMAL)
+			return "Normal";
+
+		List<String> list = new ArrayList<>();
+
 		if ((SWT.BOLD & style) == SWT.BOLD) {
-			text += "Bold ";
+			list.add("Bold");
 		}
 		if ((SWT.ITALIC & style) == SWT.ITALIC) {
-			text += "Italic ";
+			list.add("Italic");
 		}
 		if ((1 << 5 & style) == 1 << 5) {
-			text += "Oblique ";
+			list.add("Oblique");
 		}
-		return text.trim();
+		return String.join(" ", list);
 	}
 
 	public FontData getFontData() {
 		return new FontData(getName(), getHeight(), getStyle());
 	}
 
-	public Font getFont() {
-		if (font == null) {
+	public Font getSwtFont() {
+		if (font == null)
 			font = new Font(null, getFontData());
-		}
+
 		return font;
 	}
 
@@ -96,10 +97,7 @@ public final class SerializableFontData implements Serializable {
 		SerializableFontData other = (SerializableFontData) obj;
 		if (height != other.height)
 			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
+		if (name != null && !name.equals(other.name))
 			return false;
 		if (style != other.style)
 			return false;

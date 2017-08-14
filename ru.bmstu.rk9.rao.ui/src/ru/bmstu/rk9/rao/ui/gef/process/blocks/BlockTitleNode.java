@@ -32,6 +32,6 @@ public class BlockTitleNode extends LabelNode {
 
 	@Override
 	protected Alignment getDefaultAlignment() {
-		return Alignment.defaultForBlockTitleNode;
+		return Alignment.PAGE_END;
 	}
 }

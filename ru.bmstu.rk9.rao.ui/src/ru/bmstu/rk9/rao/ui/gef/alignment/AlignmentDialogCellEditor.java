@@ -13,15 +13,15 @@ public class AlignmentDialogCellEditor extends DialogCellEditor {
 
 	@Override
 	protected Object openDialogBox(Control cellEditorWindow) {
-		AlignmentDialog alDialog = new AlignmentDialog(cellEditorWindow.getShell());
+		AlignmentDialog alignmentDialog = new AlignmentDialog(cellEditorWindow.getShell());
 
 		if (getValue() != null) {
 			Alignment alignment = (Alignment) getValue();
-			alDialog.setAlignment(alignment);
+			alignmentDialog.setAlignment(alignment);
 		}
 
-		if (alDialog.open() == Window.OK) {
-			return alDialog.getAlignment();
+		if (alignmentDialog.open() == Window.OK) {
+			return alignmentDialog.getAlignment();
 		}
 		return getValue();
 	}
@@ -31,12 +31,9 @@ public class AlignmentDialogCellEditor extends DialogCellEditor {
 		if (getDefaultLabel() == null) {
 			return;
 		}
-
-		String text = "";
 		if (value != null) {
-			text = ((Alignment) value).getDescription();
+			getDefaultLabel().setText(((Alignment) value).getDescription());
 		}
-		getDefaultLabel().setText(text);
 	}
 
 }
