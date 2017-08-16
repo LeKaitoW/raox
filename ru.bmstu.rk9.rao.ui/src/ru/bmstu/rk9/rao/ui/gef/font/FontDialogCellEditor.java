@@ -18,12 +18,12 @@ public class FontDialogCellEditor extends DialogCellEditor {
 		// String value = (String) getValue();
 
 		if (getValue() != null) {
-			SerializableFontData serializableFontData = (SerializableFontData) getValue();
+			Font serializableFontData = (Font) getValue();
 			final FontData[] fontDatas = new FontData[] { serializableFontData.getFontData() };
 			fontDialog.setFontList(fontDatas);
 		}
 		final FontData fontData = fontDialog.open();
-		return fontData == null ? getValue() : new SerializableFontData(fontData);
+		return fontData == null ? getValue() : new Font(fontData);
 	}
 
 }

@@ -11,7 +11,7 @@ import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
 import ru.bmstu.rk9.rao.ui.gef.DefaultFonts;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.font.FontPropertyDescriptor;
-import ru.bmstu.rk9.rao.ui.gef.font.SerializableFontData;
+import ru.bmstu.rk9.rao.ui.gef.font.Font;
 
 public class ModelNode extends Node {
 
@@ -23,7 +23,7 @@ public class ModelNode extends Node {
 
 	private boolean showGrid = true;
 	private RGB backgroundColor = DefaultColors.MODEL_BACKGROUND_COLOR.getRGB();
-	private SerializableFontData font = DefaultFonts.DEFAULT_FONT;
+	private Font font = DefaultFonts.DEFAULT_FONT;
 
 	public final boolean getShowGrid() {
 		return showGrid;
@@ -45,12 +45,12 @@ public class ModelNode extends Node {
 		getListeners().firePropertyChange(PROPERTY_BACKGROUND_COLOR, previousValue, backgroundColor);
 	}
 
-	public final SerializableFontData getFont() {
+	public final Font getFont() {
 		return font;
 	}
 
-	public final void setFont(SerializableFontData font) {
-		SerializableFontData previousValue = getFont();
+	public final void setFont(Font font) {
+		Font previousValue = getFont();
 		this.font = font == null ? DefaultFonts.DEFAULT_FONT : font;
 		getListeners().firePropertyChange(PROPERTY_FONT, previousValue, font);
 	}
@@ -90,7 +90,7 @@ public class ModelNode extends Node {
 			break;
 
 		case PROPERTY_FONT:
-			setFont((SerializableFontData) value);
+			setFont((Font) value);
 			break;
 		}
 	}

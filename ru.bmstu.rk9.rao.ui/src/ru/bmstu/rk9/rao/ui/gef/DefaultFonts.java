@@ -2,7 +2,7 @@ package ru.bmstu.rk9.rao.ui.gef;
 
 import org.eclipse.swt.widgets.Display;
 
-import ru.bmstu.rk9.rao.ui.gef.font.SerializableFontData;
+import ru.bmstu.rk9.rao.ui.gef.font.Font;
 
 public final class DefaultFonts {
 
@@ -12,6 +12,6 @@ public final class DefaultFonts {
 	private DefaultFonts() {
 	}
 
-	public static final SerializableFontData DEFAULT_FONT = new SerializableFontData(
+	public static final Font DEFAULT_FONT = new Font(
 			Display.getDefault().getSystemFont());
 }

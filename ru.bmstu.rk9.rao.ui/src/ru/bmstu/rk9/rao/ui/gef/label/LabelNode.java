@@ -16,7 +16,7 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
 import ru.bmstu.rk9.rao.ui.gef.Node;
 import ru.bmstu.rk9.rao.ui.gef.font.FontPropertyDescriptor;
-import ru.bmstu.rk9.rao.ui.gef.font.SerializableFontData;
+import ru.bmstu.rk9.rao.ui.gef.font.Font;
 import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
 
 public class LabelNode extends Node implements Serializable, PropertyChangeListener {
@@ -35,7 +35,7 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 	private String text = "text";
 	private RGB textColor = DefaultColors.LABEL_TEXT_COLOR.getRGB();
 	private RGB backgroundColor;
-	private SerializableFontData font;
+	private Font font;
 	private boolean visible = true;
 
 	public final String getText() {
@@ -85,7 +85,7 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 		getListeners().firePropertyChange(PROPERTY_BACKGROUND_COLOR, previousValue, backgroundColor);
 	}
 
-	public final SerializableFontData getFont() {
+	public final Font getFont() {
 		// Вариант с передачей шрифта от модели не работает, поскольку при
 		// изменении глобального шрифта проверяется, совпадал ли данный шрифт с
 		// новым глобальным, но в том случае локальный шрифт уже будет
@@ -95,13 +95,13 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 		return font;
 	}
 
-	public final void setFont(SerializableFontData font) {
-		SerializableFontData previousValue = getFont();
+	public final void setFont(Font font) {
+		Font previousValue = getFont();
 		this.font = font == null ? getDefaultFont() : font;
 		getListeners().firePropertyChange(PROPERTY_FONT, previousValue, font);
 	}
 
-	private SerializableFontData getDefaultFont() {
+	private Font getDefaultFont() {
 		return ((ModelNode) getRoot()).getFont();
 	}
 
@@ -153,12 +153,12 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 			break;
 
 		case PROPERTY_FONT:
-			setFont((SerializableFontData) value);
+			setFont((Font) value);
 			break;
 		}
 	}
 
-	public final Dimension getTextBounds(SerializableFontData serializableFontData) {
+	public final Dimension getTextBounds(Font serializableFontData) {
 		Dimension dimension = FigureUtilities.getStringExtents(getText(), serializableFontData.getSwtFont());
 		dimension.expand(border * 2, border * 2);
 		return dimension;
@@ -193,8 +193,8 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 	public void propertyChange(PropertyChangeEvent evt) {
 		switch (evt.getPropertyName()) {
 		case ModelNode.PROPERTY_FONT:
-			SerializableFontData oldGlovalFont = (SerializableFontData) evt.getOldValue();
-			SerializableFontData localFont = getFont();
+			Font oldGlovalFont = (Font) evt.getOldValue();
+			Font localFont = getFont();
 			if (localFont.equals(oldGlovalFont)) {
 				// Наш шрифт совпадал со старым глобальным, так что меняем
 				setFont(null);
