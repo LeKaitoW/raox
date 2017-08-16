@@ -32,7 +32,6 @@ public class BlockTitleNode extends LabelNode {
 		cleanup();
 	}
 
-	@Override
 	public Point getTranslation(Dimension oldDimension, Dimension newDimension) {
 		return new Point(oldDimension.width / 2 - newDimension.width / 2, oldDimension.height - newDimension.height);
 	}

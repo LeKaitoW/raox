@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.eclipse.draw2d.FigureUtilities;
 import org.eclipse.draw2d.geometry.Dimension;
-import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.ColorPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
@@ -15,8 +14,8 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
 import ru.bmstu.rk9.rao.ui.gef.Node;
-import ru.bmstu.rk9.rao.ui.gef.font.FontPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.gef.font.Font;
+import ru.bmstu.rk9.rao.ui.gef.font.FontPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
 
 public class LabelNode extends Node implements Serializable, PropertyChangeListener {
@@ -26,7 +25,7 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 	protected static final String PROPERTY_TEXT = "Text";
 	protected static final String PROPERTY_TEXT_COLOR = "Text color";
 	protected static final String PROPERTY_BACKGROUND_COLOR = "Background color";
-	protected static final String PROPERTY_FONT = "Font";
+	public static final String PROPERTY_FONT = "Font";
 	protected static final String PROPERTY_ALIGNMENT = "Alignment";
 	protected static final String PROPERTY_VISIBLE = "Visible";
 	public static String name = "Label";
@@ -103,10 +102,6 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 
 	private Font getDefaultFont() {
 		return ((ModelNode) getRoot()).getFont();
-	}
-
-	public Point getTranslation(Dimension oldDimension, Dimension newDimension) {
-		return new Point(0, 0);
 	}
 
 	@Override
