@@ -9,7 +9,6 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Color;
 
 import ru.bmstu.rk9.rao.ui.gef.EditPart;
-import ru.bmstu.rk9.rao.ui.gef.alignment.Alignment;
 import ru.bmstu.rk9.rao.ui.gef.font.SerializableFontData;
 
 public class LabelEditPart extends EditPart {
@@ -52,11 +51,10 @@ public class LabelEditPart extends EditPart {
 		case LabelNode.PROPERTY_FONT:
 			SerializableFontData previousFont = (SerializableFontData) evt.getOldValue();
 			LabelNode node = (LabelNode) getModel();
-			Alignment alignment = node.getAlignment();
 			Rectangle constraint = node.getConstraint().getCopy();
 			Dimension oldDimension = node.getTextBounds(previousFont);
 			Dimension newDimension = node.getTextBounds();
-			Point delta = alignment.translation(oldDimension, newDimension);
+			Point delta = node.getTranslation(oldDimension, newDimension);
 			constraint.translate(delta);
 			node.setConstraint(constraint);
 			refreshVisuals();

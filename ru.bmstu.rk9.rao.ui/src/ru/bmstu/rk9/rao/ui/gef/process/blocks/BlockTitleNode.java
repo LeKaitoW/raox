@@ -1,6 +1,8 @@
 package ru.bmstu.rk9.rao.ui.gef.process.blocks;
 
-import ru.bmstu.rk9.rao.ui.gef.alignment.Alignment;
+import org.eclipse.draw2d.geometry.Dimension;
+import org.eclipse.draw2d.geometry.Point;
+
 import ru.bmstu.rk9.rao.ui.gef.label.LabelNode;
 
 public class BlockTitleNode extends LabelNode {
@@ -31,7 +33,7 @@ public class BlockTitleNode extends LabelNode {
 	}
 
 	@Override
-	protected Alignment getDefaultAlignment() {
-		return Alignment.PAGE_END;
+	public Point getTranslation(Dimension oldDimension, Dimension newDimension) {
+		return new Point(oldDimension.width / 2 - newDimension.width / 2, oldDimension.height - newDimension.height);
 	}
 }

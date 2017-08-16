@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.eclipse.draw2d.FigureUtilities;
 import org.eclipse.draw2d.geometry.Dimension;
+import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.ColorPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
@@ -14,8 +15,6 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
 import ru.bmstu.rk9.rao.ui.gef.Node;
-import ru.bmstu.rk9.rao.ui.gef.alignment.Alignment;
-import ru.bmstu.rk9.rao.ui.gef.alignment.AlignmentPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.gef.font.FontPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.gef.font.SerializableFontData;
 import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
@@ -37,7 +36,6 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 	private RGB textColor = DefaultColors.LABEL_TEXT_COLOR.getRGB();
 	private RGB backgroundColor;
 	private SerializableFontData font;
-	private Alignment alignment = getDefaultAlignment();
 	private boolean visible = true;
 
 	public final String getText() {
@@ -107,25 +105,8 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 		return ((ModelNode) getRoot()).getFont();
 	}
 
-	public final Alignment getAlignment() {
-		if (alignment != null)
-			return alignment;
-
-		return getDefaultAlignment();
-	}
-
-	public final void setAlignment(Alignment alignment) {
-		Alignment previousValue = getAlignment();
-		if (getDefaultAlignment().equals(alignment)) {
-			this.alignment = null;
-		} else {
-			this.alignment = alignment;
-		}
-		getListeners().firePropertyChange(PROPERTY_ALIGNMENT, previousValue, alignment);
-	}
-
-	protected Alignment getDefaultAlignment() {
-		return Alignment.FIRST_LINE_START;
+	public Point getTranslation(Dimension oldDimension, Dimension newDimension) {
+		return new Point(0, 0);
 	}
 
 	@Override
@@ -134,7 +115,6 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 		properties.add(new ColorPropertyDescriptor(PROPERTY_TEXT_COLOR, "Text color"));
 		properties.add(new ColorPropertyDescriptor(PROPERTY_BACKGROUND_COLOR, "Background color"));
 		properties.add(new FontPropertyDescriptor(PROPERTY_FONT, "Font"));
-		properties.add(new AlignmentPropertyDescriptor(PROPERTY_ALIGNMENT, "Alignment"));
 	}
 
 	@Override
@@ -152,9 +132,6 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 
 		case PROPERTY_FONT:
 			return getFont();
-
-		case PROPERTY_ALIGNMENT:
-			return getAlignment();
 		}
 		return null;
 	}
@@ -177,10 +154,6 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 
 		case PROPERTY_FONT:
 			setFont((SerializableFontData) value);
-			break;
-
-		case PROPERTY_ALIGNMENT:
-			setAlignment((Alignment) value);
 			break;
 		}
 	}
