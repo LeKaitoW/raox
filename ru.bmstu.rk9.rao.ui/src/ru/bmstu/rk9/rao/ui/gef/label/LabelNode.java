@@ -169,7 +169,7 @@ public class LabelNode extends Node implements Serializable, PropertyChangeListe
 	 * наблюдателю
 	 */
 	@Override
-	public void afterAssignedToEditPart() {
+	public void assignedToParent() {
 		((ModelNode) getRoot()).addPropertyChangeListener(this);
 	}
 

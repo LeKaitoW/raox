@@ -33,10 +33,6 @@ public class ProcessEditPartFactory implements EditPartFactory {
 		AbstractEditPart editPart = nodeInfo.getEditPartFactory().get();
 		editPart.setModel(model);
 
-		if (model instanceof Node) {
-			((Node) model).afterAssignedToEditPart();
-		}
-
 		if (editPart instanceof ProcessModelEditPart) {
 			modelEditPart = (ProcessModelEditPart) editPart;
 			return editPart;
