@@ -128,6 +128,7 @@ public class BuildUtil {
 		classpaths.add(BuildUtil.getJavaSeClasspathEntry());
 		classpaths.add(BuildUtil.getXtendClasspathEntry());
 		classpaths.add(BuildUtil.getRaoxClasspathEntry());
+		classpaths.add(BuildUtil.getQuerydslClasspathEntry());
 
 		final IJavaProject javaProject = JavaCore.create(project);
 		try {
@@ -190,6 +191,37 @@ public class BuildUtil {
 		}
 	}
 
+	// TODO Подумать, как убрать повторяющийся код с getRaoxClasspathEntry()
+	private static IClasspathEntry getQuerydslClasspathEntry() throws BuildUtilException {
+		final Bundle bundle = Platform.getBundle(BundleType.RAOX_LIB.name);
+		try {
+			final File libraryPath = FileLocator.getBundleFile(bundle);
+			if (libraryPath == null)
+				throw new BuildUtilException("Cannot locate bundle " + BundleType.RAOX_LIB.name);
+
+			switch (getMode(libraryPath.toString())) {
+			case PRODUCTION:
+				// TODO Решить, как лучше быть с данной библиотекой (Возможно лучше обернуть эту
+				// штуку в eclipse plugin и обращаться как в getRaoxClasspathEntry())
+				return JavaCore.newLibraryEntry(
+						new Path("ECLIPSE_HOME/dropins/querydsl-jpa-4.1.3-apt-hibernate-one-jar.jar"), null, null);
+
+			case DEVELOPMENT:
+				final IPath libraryPathBinary = new Path(libraryPath.getAbsolutePath()
+						+ "/thirdparty/querydsl/lib/querydsl-jpa-4.1.3-apt-hibernate-one-jar.jar");
+				return JavaCore.newLibraryEntry(libraryPathBinary, null, null);
+
+			default:
+				throw new BuildUtilException("Undefined mode for bundle " + BundleType.RAOX_LIB.name);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new BuildUtilException(
+					"Classpath error for bundle " + BundleType.RAOX_LIB.name + ":\n" + e.getMessage());
+		}
+	}
+
 	private static IClasspathEntry getXtendClasspathEntry() {
 		return JavaCore.newContainerEntry(new Path("org.eclipse.xtend.XTEND_CONTAINER"));
 	}
@@ -200,8 +232,15 @@ public class BuildUtil {
 			final List<IClasspathEntry> classpaths = new ArrayList<IClasspathEntry>(
 					Arrays.asList(javaProject.getRawClasspath()));
 
+			// TODO Спросить о смысле данной выборки, тут всегда станет true у переменных
+			// Данная штука перезаписывает запись, когда она есть и совпадает с предыдущей,
+			// это нелогично
+			// При том, что если запись остутсвовала, то она и никогда не появится
 			boolean updateXtendClasspath = false;
 			boolean updateRaoxClasspath = false;
+			// TODO Оставил пока так, чтобы при перегенерации подтягивалась библиотека с
+			// querydsl
+			boolean updateQuerydslClasspath = true;
 			Iterator<IClasspathEntry> it = classpaths.iterator();
 			while (it.hasNext()) {
 				final String path = it.next().getPath().toString();
@@ -219,6 +258,9 @@ public class BuildUtil {
 
 			if (updateRaoxClasspath)
 				classpaths.add(getRaoxClasspathEntry());
+
+			if (updateQuerydslClasspath)
+				classpaths.add(getQuerydslClasspathEntry());
 
 			javaProject.setRawClasspath(classpaths.toArray(new IClasspathEntry[classpaths.size()]), monitor);
 
