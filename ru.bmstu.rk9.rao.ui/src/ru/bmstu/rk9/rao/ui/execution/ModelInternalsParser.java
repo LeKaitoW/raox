@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -39,6 +40,7 @@ import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.lib.pattern.Pattern;
+import ru.bmstu.rk9.rao.lib.persistence.QueryGenerator;
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.result.AbstractResult;
@@ -119,6 +121,16 @@ public class ModelInternalsParser {
 
 		List<IResource> raoFiles = BuildUtil.getAllFilesInProject(project, "rao");
 		simulatorPreinitializationInfo.modelStructure.put(ModelStructureConstants.NUMBER_OF_MODELS, raoFiles.size());
+
+		// TODO Нормальная инициализация модели данных
+		Class<?> domainClass = Class.forName("domain.Part", true, classLoader);
+		Class.forName("service.PartService", true, classLoader);
+		Class.forName("service.PersistenceUnitInfoImpl", true, classLoader);
+
+		// TODO Переместить генерацию в место получше
+
+		QueryGenerator.generate(domainClass, new File(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()
+				+ "/" + project.getName() + "/src-gen/"), classLoader);
 
 		for (IResource raoFile : raoFiles) {
 			String raoFileName = raoFile.getName();
