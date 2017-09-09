@@ -125,10 +125,8 @@ public class ModelInternalsParser {
 		// TODO Нормальная инициализация модели данных
 		Class<?> domainClass = Class.forName("domain.Part", true, classLoader);
 		Class.forName("service.PartService", true, classLoader);
-		Class.forName("service.PersistenceUnitInfoImpl", true, classLoader);
 
 		// TODO Переместить генерацию в место получше
-
 		QueryGenerator.generate(domainClass, new File(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()
 				+ "/" + project.getName() + "/src-gen/"), classLoader);
 

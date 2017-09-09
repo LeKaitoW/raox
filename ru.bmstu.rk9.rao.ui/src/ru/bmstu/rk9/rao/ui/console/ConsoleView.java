@@ -122,6 +122,8 @@ public class ConsoleView extends ViewPart {
 		appendText(stringWriter.toString());
 	}
 
+	// При частом вызове log в модели
+	// Окно лога не более не скроллится
 	public static void redrawText() {
 		if (styledText != null && !styledText.isDisposed())
 			styledText.getDisplay().asyncExec(new Runnable() {
