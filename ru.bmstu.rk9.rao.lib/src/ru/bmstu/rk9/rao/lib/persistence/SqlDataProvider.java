@@ -19,11 +19,11 @@ public final class SqlDataProvider implements DataProvider {
 	private static final String PROPERTY_PERSISTENCE_DRIVER = "javax.persistence.jdbc.driver";
 	private static final String PROPERTY_PERSISTENCE_LOADED_CLASSES = org.hibernate.jpa.AvailableSettings.LOADED_CLASSES;
 
-	private String driver = "com.mysql.jdbc.Driver";
-	private String url = "jdbc:mysql://mikhailmineev.ru:3306/corpterminal";
 	private String persistenceUnitName = "default";
-	private String user = "jpademo";
-	private String password = "5xYB2e6T5Jo7ajA";
+	private String driver = "com.mysql.jdbc.Driver";
+	private final String url;
+	private final String user;
+	private final String password;
 	private List<Class<?>> loadedClasses = new ArrayList<>();
 
 	public SqlDataProvider(String url, String user, String password) {
