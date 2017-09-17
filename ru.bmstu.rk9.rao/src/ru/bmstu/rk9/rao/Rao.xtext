@@ -28,11 +28,13 @@ RaoEntity
 	| Search
 	| EntityCreation
 	| ResourceDeclaration
+	| DataEntity
 ;
 
 EntityCreation
 	: Sequence
 	| Constant
+	| DataProvider
 ;
 
 ResourceDeclaration:
@@ -157,6 +159,18 @@ DefaultMethod:
 			',' parameters += FullJvmFormalParameter)*)?
 	')'
 		body = XBlockExpression
+;
+
+// Persistence related
+
+DataProvider:
+	'dataprovider' name = ID '=' constructor = XOrExpression ';'?
+;
+
+DataEntity:
+	'dataentity' name = ID '{'
+		(parameters += FieldDeclaration)*
+	'}'
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

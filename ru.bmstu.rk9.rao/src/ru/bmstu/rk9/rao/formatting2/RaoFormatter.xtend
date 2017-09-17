@@ -21,6 +21,7 @@ import ru.bmstu.rk9.rao.rao.ResourceType
 import ru.bmstu.rk9.rao.rao.Search
 import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.DataSource
+import ru.bmstu.rk9.rao.rao.DataEntity
 
 class RaoFormatter extends XbaseFormatter {
 	def dispatch void format(Event event, extension IFormattableDocument document) {
@@ -187,4 +188,16 @@ class RaoFormatter extends XbaseFormatter {
 		defaultMethod.append(XbaseFormatterPreferenceKeys.blankLinesAroundExpression)
 		format(defaultMethod.body, document)
 	}
+	
+	// Persistence related
+	
+	def dispatch void format(DataEntity type, extension IFormattableDocument document) {
+		formatAsBlock(type, document)
+
+		for (parameter : type.parameters) {
+			parameter.append(XbaseFormatterPreferenceKeys.blankLinesAroundExpression)
+			format(parameter, document)
+		}
+	}
+	
 }

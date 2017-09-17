@@ -13,14 +13,8 @@ import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
 
 /**
- * Кастомный класс для конфигурации Persistence, чтобы избежать необходимости
- * использовать persistence.xml
- * <p>
- * Основу взял со <a href=
- * "https://stackoverflow.com/questions/1989672/create-jpa-entitymanager-without-persistence-xml-configuration-file">stackowerflow</a>
- * 
- * @author MMineev
- *
+ * <a href=
+ * "https://stackoverflow.com/questions/1989672/create-jpa-entitymanager-without-persistence-xml-configuration-file">Stackowerflow</a>
  */
 public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 

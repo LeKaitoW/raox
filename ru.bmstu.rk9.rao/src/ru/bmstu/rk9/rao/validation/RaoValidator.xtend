@@ -37,6 +37,8 @@ import ru.bmstu.rk9.rao.rao.Event
 import ru.bmstu.rk9.rao.rao.DataSource
 import ru.bmstu.rk9.rao.rao.RelevantResourceTuple
 import ru.bmstu.rk9.rao.validation.DefaultMethodsHelper.MethodInfo
+import ru.bmstu.rk9.rao.rao.DataProvider
+import ru.bmstu.rk9.rao.rao.DataEntity
 
 class RaoValidator extends AbstractRaoValidator {
 
@@ -142,7 +144,7 @@ class RaoValidator extends AbstractRaoValidator {
 			eObject instanceof ResourceType || eObject instanceof ResourceDeclaration || eObject instanceof Sequence ||
 				eObject instanceof Constant || eObject instanceof FunctionDeclaration || eObject instanceof Pattern ||
 				eObject instanceof Logic || eObject instanceof Search || eObject instanceof Frame ||
-				eObject instanceof Result
+				eObject instanceof Result || eObject instanceof DataProvider || eObject instanceof DataEntity
 		].toList
 
 		for (eObject : checklist) {
@@ -357,4 +359,16 @@ class RaoValidator extends AbstractRaoValidator {
 				RaoPackage.eINSTANCE.relevantResource_Name
 		}
 	}
+	
+	// Persistence related
+
+	@Check
+	def checkEntityManagerDeclaration(DataProvider dataProvider) {
+		if (!dataProvider.constructor.actualType.isSubtypeOf(typeof(ru.bmstu.rk9.rao.lib.persistence.DataProvider))) {
+			error("Error in declaration of \"" + dataProvider.name + "\": only Rao data providers are allowed.",
+				RaoPackage.eINSTANCE.entityCreation_Constructor)
+		}
+	}
+	
+	
 }

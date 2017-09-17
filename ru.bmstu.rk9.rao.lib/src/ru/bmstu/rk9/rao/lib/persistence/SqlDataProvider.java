@@ -11,7 +11,7 @@ import javax.persistence.spi.PersistenceUnitInfo;
 
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
-public final class RaoEntityManager {
+public final class SqlDataProvider implements DataProvider {
 
 	private static final String PROPERTY_PERSISTENCE_PASSWORD = "javax.persistence.jdbc.password";
 	private static final String PROPERTY_PERSISTENCE_USER = "javax.persistence.jdbc.user";
@@ -21,42 +21,33 @@ public final class RaoEntityManager {
 
 	private String driver = "com.mysql.jdbc.Driver";
 	private String url = "jdbc:mysql://mikhailmineev.ru:3306/corpterminal";
-	private String persistenceUnitName = "corpterminal";
+	private String persistenceUnitName = "default";
 	private String user = "jpademo";
 	private String password = "5xYB2e6T5Jo7ajA";
 	private List<Class<?>> loadedClasses = new ArrayList<>();
 
-	public RaoEntityManager setDriver(String driver) {
+	public SqlDataProvider(String url, String user, String password) {
+		this.url = url;
+		this.user = user;
+		this.password = password;
+	}
+
+	public SqlDataProvider setDriver(String driver) {
 		this.driver = driver;
 		return this;
 	}
 
-	public RaoEntityManager setUrl(String url) {
-		this.url = url;
-		return this;
-	}
-
-	public RaoEntityManager setPersistenceUnitName(String persistenceUnitName) {
+	public SqlDataProvider setPersistenceUnitName(String persistenceUnitName) {
 		this.persistenceUnitName = persistenceUnitName;
 		return this;
 	}
 
-	public RaoEntityManager setUser(String user) {
-		this.user = user;
-		return this;
-	}
-
-	public RaoEntityManager setPassword(String password) {
-		this.password = password;
-		return this;
-	}
-
-	public RaoEntityManager addLoadedClasses(Class<?> loadedClass) {
+	public SqlDataProvider addLoadedClasses(Class<?> loadedClass) {
 		this.loadedClasses.add(loadedClass);
 		return this;
 	}
 
-	public EntityManager createEntityManager() {
+	public EntityManager getEntityManager() {
 		Map<String, Object> properties = new HashMap<>();
 
 		properties.put(PROPERTY_PERSISTENCE_DRIVER, driver);
