@@ -6,6 +6,7 @@ import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
+import ru.bmstu.rk9.rao.rao.DataEntity
 import ru.bmstu.rk9.rao.rao.DefaultMethod
 import ru.bmstu.rk9.rao.rao.EnumDeclaration
 import ru.bmstu.rk9.rao.rao.Event
@@ -21,6 +22,7 @@ import ru.bmstu.rk9.rao.rao.Search
 import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.DataSource
 
+import static extension ru.bmstu.rk9.rao.jvmmodel.DataEntityCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.DefaultMethodCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.EntityCreationCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.EnumCompiler.*
@@ -107,6 +109,11 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 	def dispatch compileRaoEntity(Result result, JvmDeclaredType it, boolean isPreIndexingPhase) {
 		if (!isPreIndexingPhase && result.constructor != null)
 			members += result.asField(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase);
+	}
+
+	// persistence related
+	def dispatch compileRaoEntity(DataEntity dataEntity, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		members += dataEntity.asClass(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase)
 	}
 
 	def compileResourceInitialization(RaoModel element, JvmDeclaredType it, boolean isPreIndexingPhase) {
