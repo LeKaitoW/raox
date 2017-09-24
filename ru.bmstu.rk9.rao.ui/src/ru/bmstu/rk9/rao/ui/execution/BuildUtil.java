@@ -192,7 +192,6 @@ public class BuildUtil {
 		}
 	}
 
-	// TODO Подумать, как убрать повторяющийся код с getRaoxClasspathEntry()
 	private static IClasspathEntry getQuerydslClasspathEntry() throws BuildUtilException {
 		final Bundle bundle = Platform.getBundle(BundleType.RAOX_LIB.name);
 		try {
@@ -250,11 +249,9 @@ public class BuildUtil {
 
 			boolean updateXtendClasspath = false;
 			boolean updateRaoxClasspath = false;
-			// TODO Оставил пока так, чтобы при перегенерации подтягивалась
-			// библиотека с querydsl
+			// Данные элементы должны поддягиваться при ребилде, если их не было
+			// ранее
 			boolean updateQuerydslClasspath = true;
-			// Нужно проверять наличие папки с сорцами, иначе она не доавится в
-			// старых проектах
 			boolean updateJavaCodeClasspath = true;
 			Iterator<IClasspathEntry> it = classpaths.iterator();
 			while (it.hasNext()) {

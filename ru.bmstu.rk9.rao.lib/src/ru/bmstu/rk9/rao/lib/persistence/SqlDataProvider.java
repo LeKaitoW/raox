@@ -12,6 +12,8 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
+import com.querydsl.jpa.impl.JPAQuery;
+
 public final class SqlDataProvider implements DataProvider {
 
 	private static final String PROPERTY_PERSISTENCE_PASSWORD = "javax.persistence.jdbc.password";
@@ -27,6 +29,8 @@ public final class SqlDataProvider implements DataProvider {
 	private final String password;
 	private final List<Class<?>> entities;
 
+	private EntityManager entityManager;
+
 	public SqlDataProvider(String driver, String url, String user, String password, Class<?>... entities) {
 		this.driver = driver;
 		this.url = url;
@@ -40,7 +44,19 @@ public final class SqlDataProvider implements DataProvider {
 		return this;
 	}
 
-	public EntityManager getEntityManager() throws ClassNotFoundException {
+	public <T> JPAQuery<T> getQuery() {
+		JPAQuery<T> query = new JPAQuery<T>(getEntityManager());
+		return query;
+	}
+
+	public EntityManager getEntityManager() {
+		if (entityManager == null) {
+			entityManager = createEntityManager();
+		}
+		return entityManager;
+	}
+
+	private EntityManager createEntityManager() {
 		Map<String, Object> properties = new HashMap<>();
 
 		properties.put(PROPERTY_PERSISTENCE_DRIVER, driver);

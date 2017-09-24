@@ -41,6 +41,7 @@ import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.lib.pattern.Pattern;
+import ru.bmstu.rk9.rao.lib.persistence.QueryGenerator;
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.result.AbstractResult;
@@ -123,11 +124,6 @@ public class ModelInternalsParser {
 
 		List<IResource> raoFiles = BuildUtil.getAllFilesInProject(project, "rao");
 		simulatorPreinitializationInfo.modelStructure.put(ModelStructureConstants.NUMBER_OF_MODELS, raoFiles.size());
-
-		// TODO Переместить генерацию в место получше
-		// QueryGenerator.generate(domainClass, new
-		// File(ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()
-		// + "/" + project.getName() + "/src-gen/"), classLoader);
 
 		for (IResource raoFile : raoFiles) {
 			String raoFileName = raoFile.getName();
@@ -421,19 +417,24 @@ public class ModelInternalsParser {
 	private void loadDomainModelClasses(String location, ClassLoader classLoader)
 			throws URISyntaxException, ClassNotFoundException {
 		File entitiesRoot = new File(new java.net.URI(location + "/java/domain/"));
+		File queryGenerateTarget = new File(new java.net.URI(location + "/src-gen/"));
 		if (!entitiesRoot.exists())
 			return;
 		if (!entitiesRoot.isDirectory())
 			throw new IllegalStateException(
 					"Path to domain entity classes is not a folder: " + entitiesRoot.getAbsolutePath());
 
+		QueryGenerator queryGenerator = new QueryGenerator(classLoader, queryGenerateTarget);
 		File[] entityFiles = entitiesRoot.listFiles();
 		for (File entity : entityFiles) {
 			if (entity.isFile()) {
-				String name = entity.getName();
-				name = name.substring(0, name.lastIndexOf('.'));
-				name = "domain." + name;
-				Class.forName(name, true, classLoader);
+				String fileName = entity.getName();
+				String className = fileName.substring(0, fileName.lastIndexOf('.'));
+				String fullClassName = "domain." + className;
+				Class<?> entityClass = Class.forName(fullClassName, true, classLoader);
+				queryGenerator.generate(entityClass);
+				String fullQueryClassName = "domain.Q" + className;
+				Class.forName(fullQueryClassName, true, classLoader);
 			}
 		}
 	}

@@ -22,8 +22,7 @@ public class RaoXImportSectionNamespaceScopeProvider extends XImportSectionNames
 			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "sequence"),
 			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "dpt"),
 			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "animation"),
-			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "result"),
-			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "persistence"));
+			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "result"));
 
 	@Override
 	protected List<ImportNormalizer> internalGetImportedNamespaceResolvers(EObject context, boolean ignoreCase) {
