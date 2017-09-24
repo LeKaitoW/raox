@@ -5,8 +5,7 @@ Bundle-SymbolicName: ru.bmstu.rk9.rao.lib;singleton:=true
 Bundle-Version: 3.7.0
 Bundle-Vendor: raox.ru
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: javax.persistence,
- ru.bmstu.rk9.rao.lib.animation,
+Export-Package: ru.bmstu.rk9.rao.lib.animation,
  ru.bmstu.rk9.rao.lib.database,
  ru.bmstu.rk9.rao.lib.dpt,
  ru.bmstu.rk9.rao.lib.event,

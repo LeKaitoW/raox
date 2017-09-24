@@ -12,10 +12,8 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
 
-/**
- * <a href=
- * "https://stackoverflow.com/questions/1989672/create-jpa-entitymanager-without-persistence-xml-configuration-file">Stackowerflow</a>
- */
+// Persistence loading without META-INF/persistence.xml
+// https://stackoverflow.com/questions/1989672/create-jpa-entitymanager-without-persistence-xml-configuration-file
 public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
 	private static final String PERSISTENCE_PROVIDER = "org.hibernate.jpa.HibernatePersistenceProvider";
