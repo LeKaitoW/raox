@@ -22,7 +22,8 @@ public class RaoXImportSectionNamespaceScopeProvider extends XImportSectionNames
 			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "sequence"),
 			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "dpt"),
 			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "animation"),
-			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "result"));
+			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "result"),
+			QualifiedName.create("ru", "bmstu", "rk9", "rao", "lib", "persistence"));
 
 	@Override
 	protected List<ImportNormalizer> internalGetImportedNamespaceResolvers(EObject context, boolean ignoreCase) {
@@ -41,8 +42,7 @@ public class RaoXImportSectionNamespaceScopeProvider extends XImportSectionNames
 			String prefix = platformString.substring(1, platformString.length() - ".rao".length()).replace("/", ".");
 
 			for (RaoEntity object : model.getObjects()) {
-				if (object instanceof ResourceType || object instanceof EnumDeclaration
-						|| object instanceof EnumDeclaration) {
+				if (object instanceof ResourceType || object instanceof EnumDeclaration) {
 					ImportNormalizer resolver = createImportedNamespaceResolver(prefix + "." + object.getName(),
 							ignoreCase);
 					if (resolver != null)

@@ -28,7 +28,6 @@ RaoEntity
 	| Search
 	| EntityCreation
 	| ResourceDeclaration
-	| DataEntity
 ;
 
 EntityCreation
@@ -161,16 +160,8 @@ DefaultMethod:
 		body = XBlockExpression
 ;
 
-// Persistence related
-
 DataProvider:
 	'dataprovider' name = ID '=' constructor = XOrExpression ';'?
-;
-
-DataEntity:
-	'dataentity' name = ID '{'
-		(parameters += FieldDeclaration)*
-	'}'
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

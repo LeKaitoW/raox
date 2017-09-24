@@ -1,11 +1,13 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -89,7 +91,7 @@ public class ModelInternalsParser {
 
 	public final void parse() throws NoSuchMethodException, SecurityException, InstantiationException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException,
-			MalformedURLException, CoreException {
+			MalformedURLException, CoreException, URISyntaxException {
 		IProjectDescription description = project.getDescription();
 		java.net.URI locationURI = description.getLocationURI();
 		boolean useDefaultLocation = (locationURI == null);
@@ -106,6 +108,8 @@ public class ModelInternalsParser {
 		URL[] urls = new URL[] { modelURL };
 
 		classLoader = new URLClassLoader(urls, CurrentSimulator.class.getClassLoader());
+
+		loadDomainModelClasses(location, classLoader);
 
 		simulatorPreinitializationInfo.modelStructure.put(ModelStructureConstants.NAME, project.getName());
 		simulatorPreinitializationInfo.modelStructure.put(ModelStructureConstants.LOCATION,
@@ -410,6 +414,26 @@ public class ModelInternalsParser {
 			try {
 				classLoader.close();
 			} catch (IOException e) {
+			}
+		}
+	}
+
+	private void loadDomainModelClasses(String location, ClassLoader classLoader)
+			throws URISyntaxException, ClassNotFoundException {
+		File entitiesRoot = new File(new java.net.URI(location + "/java/domain/"));
+		if (!entitiesRoot.exists())
+			return;
+		if (!entitiesRoot.isDirectory())
+			throw new IllegalStateException(
+					"Path to domain entity classes is not a folder: " + entitiesRoot.getAbsolutePath());
+
+		File[] entityFiles = entitiesRoot.listFiles();
+		for (File entity : entityFiles) {
+			if (entity.isFile()) {
+				String name = entity.getName();
+				name = name.substring(0, name.lastIndexOf('.'));
+				name = "domain." + name;
+				Class.forName(name, true, classLoader);
 			}
 		}
 	}

@@ -125,6 +125,7 @@ public class BuildUtil {
 		final List<IClasspathEntry> classpaths = new ArrayList<IClasspathEntry>();
 
 		classpaths.add(JavaCore.newSourceEntry(sourceFolder.getFullPath()));
+		classpaths.add(BuildUtil.getJavaCodeEntry(project));
 		classpaths.add(BuildUtil.getJavaSeClasspathEntry());
 		classpaths.add(BuildUtil.getXtendClasspathEntry());
 		classpaths.add(BuildUtil.getRaoxClasspathEntry());
@@ -201,8 +202,10 @@ public class BuildUtil {
 
 			switch (getMode(libraryPath.toString())) {
 			case PRODUCTION:
-				// TODO Решить, как лучше быть с данной библиотекой (Возможно лучше обернуть эту
-				// штуку в eclipse plugin и обращаться как в getRaoxClasspathEntry())
+				// TODO Решить, как лучше быть с данной библиотекой (Возможно
+				// лучше обернуть эту
+				// штуку в eclipse plugin и обращаться как в
+				// getRaoxClasspathEntry())
 				return JavaCore.newLibraryEntry(
 						new Path("ECLIPSE_HOME/dropins/querydsl-jpa-4.1.3-apt-hibernate-one-jar.jar"), null, null);
 
@@ -222,6 +225,19 @@ public class BuildUtil {
 		}
 	}
 
+	private static IClasspathEntry getJavaCodeEntry(IProject project) throws BuildUtilException {
+		final IFolder javaCodeFolder = project.getFolder("java");
+		final IFolder javaDomainFolder = project.getFolder("java/domain");
+		try {
+			if (!javaDomainFolder.exists())
+				javaDomainFolder.create(false, true, null);
+		} catch (CoreException e) {
+			e.printStackTrace();
+			throw new BuildUtilException("Project java code folder failed" + ":\n" + e.getMessage());
+		}
+		return JavaCore.newSourceEntry(javaCodeFolder.getFullPath());
+	}
+
 	private static IClasspathEntry getXtendClasspathEntry() {
 		return JavaCore.newContainerEntry(new Path("org.eclipse.xtend.XTEND_CONTAINER"));
 	}
@@ -232,26 +248,31 @@ public class BuildUtil {
 			final List<IClasspathEntry> classpaths = new ArrayList<IClasspathEntry>(
 					Arrays.asList(javaProject.getRawClasspath()));
 
-			// TODO Спросить о смысле данной выборки, тут всегда станет true у переменных
-			// Данная штука перезаписывает запись, когда она есть и совпадает с предыдущей,
-			// это нелогично
-			// При том, что если запись остутсвовала, то она и никогда не появится
 			boolean updateXtendClasspath = false;
 			boolean updateRaoxClasspath = false;
-			// TODO Оставил пока так, чтобы при перегенерации подтягивалась библиотека с
-			// querydsl
+			// TODO Оставил пока так, чтобы при перегенерации подтягивалась
+			// библиотека с querydsl
 			boolean updateQuerydslClasspath = true;
+			// Нужно проверять наличие папки с сорцами, иначе она не доавится в
+			// старых проектах
+			boolean updateJavaCodeClasspath = true;
 			Iterator<IClasspathEntry> it = classpaths.iterator();
 			while (it.hasNext()) {
-				final String path = it.next().getPath().toString();
+				final IClasspathEntry entry = it.next();
+				final String path = entry.getPath().toString();
 				if (path.contains("org.eclipse.xtext.xbase.lib")) {
 					it.remove();
 					updateXtendClasspath = true;
 				} else if (path.contains(BundleType.RAOX_LIB.name)) {
 					it.remove();
 					updateRaoxClasspath = true;
+				} else if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE && path.contains("java")) {
+					updateJavaCodeClasspath = false;
 				}
 			}
+
+			if (updateJavaCodeClasspath)
+				classpaths.add(BuildUtil.getJavaCodeEntry(project));
 
 			if (updateXtendClasspath)
 				classpaths.add(getXtendClasspathEntry());

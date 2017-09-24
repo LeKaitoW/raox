@@ -38,7 +38,6 @@ import ru.bmstu.rk9.rao.rao.DataSource
 import ru.bmstu.rk9.rao.rao.RelevantResourceTuple
 import ru.bmstu.rk9.rao.validation.DefaultMethodsHelper.MethodInfo
 import ru.bmstu.rk9.rao.rao.DataProvider
-import ru.bmstu.rk9.rao.rao.DataEntity
 
 class RaoValidator extends AbstractRaoValidator {
 
@@ -144,7 +143,7 @@ class RaoValidator extends AbstractRaoValidator {
 			eObject instanceof ResourceType || eObject instanceof ResourceDeclaration || eObject instanceof Sequence ||
 				eObject instanceof Constant || eObject instanceof FunctionDeclaration || eObject instanceof Pattern ||
 				eObject instanceof Logic || eObject instanceof Search || eObject instanceof Frame ||
-				eObject instanceof Result || eObject instanceof DataProvider || eObject instanceof DataEntity
+				eObject instanceof Result || eObject instanceof DataProvider
 		].toList
 
 		for (eObject : checklist) {
