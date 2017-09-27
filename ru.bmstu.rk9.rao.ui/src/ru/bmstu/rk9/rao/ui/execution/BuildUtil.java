@@ -40,13 +40,16 @@ import org.osgi.service.prefs.BackingStoreException;
 public class BuildUtil {
 
 	public enum BundleType {
-		RAOX_LIB("ru.bmstu.rk9.rao.lib");
+		RAOX_LIB("ru.bmstu.rk9.rao.lib", "/bin/"), QUERYDSL_LIB("ru.bmstu.rk9.rao.querydsl",
+				"/thirdparty/querydsl/lib/querydsl-jpa-4.1.3-apt-hibernate-one-jar.jar");
 
-		BundleType(final String name) {
+		BundleType(final String name, final String developmentPath) {
 			this.name = name;
+			this.developmentPath = developmentPath;
 		}
 
 		private final String name;
+		private final String developmentPath;
 	}
 
 	public enum Mode {
@@ -163,65 +166,40 @@ public class BuildUtil {
 		throw new BuildUtilException(JavaSeVersion + " not found");
 	}
 
-	private static IClasspathEntry getRaoxClasspathEntry() throws BuildUtilException {
-		final Bundle bundle = Platform.getBundle(BundleType.RAOX_LIB.name);
+	private static IClasspathEntry getExternalEntry(BundleType bundleType) throws BuildUtilException {
+		final Bundle bundle = Platform.getBundle(bundleType.name);
 		try {
 			final File libraryPath = FileLocator.getBundleFile(bundle);
 			if (libraryPath == null)
-				throw new BuildUtilException("Cannot locate bundle " + BundleType.RAOX_LIB.name);
+				throw new BuildUtilException("Cannot locate bundle " + bundleType.name);
 
 			switch (getMode(libraryPath.toString())) {
 			case PRODUCTION:
-				return JavaCore.newVariableEntry(new Path("ECLIPSE_HOME/dropins/" + BundleType.RAOX_LIB.name + ".jar"),
-						null, null);
+				return JavaCore.newVariableEntry(new Path("ECLIPSE_HOME/dropins/" + bundleType.name + ".jar"), null,
+						null);
 
 			case DEVELOPMENT:
 				final IPath libraryPathBinary = new Path(
-						libraryPath.getAbsolutePath() + (libraryPath.isDirectory() ? "/bin/" : ""));
+						libraryPath.getAbsolutePath() + (libraryPath.isDirectory() ? bundleType.developmentPath : ""));
 				final IPath sourcePath = new Path(libraryPath.getAbsolutePath());
 				return JavaCore.newLibraryEntry(libraryPathBinary, sourcePath, null);
 
 			default:
-				throw new BuildUtilException("Undefined mode for bundle " + BundleType.RAOX_LIB.name);
+				throw new BuildUtilException("Undefined mode for bundle " + bundleType.name);
 			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new BuildUtilException(
-					"Classpath error for bundle " + BundleType.RAOX_LIB.name + ":\n" + e.getMessage());
+			throw new BuildUtilException("Classpath error for bundle " + bundleType.name + ":\n" + e.getMessage());
 		}
 	}
 
+	private static IClasspathEntry getRaoxClasspathEntry() throws BuildUtilException {
+		return getExternalEntry(BundleType.RAOX_LIB);
+	}
+
 	private static IClasspathEntry getQuerydslClasspathEntry() throws BuildUtilException {
-		final Bundle bundle = Platform.getBundle(BundleType.RAOX_LIB.name);
-		try {
-			final File libraryPath = FileLocator.getBundleFile(bundle);
-			if (libraryPath == null)
-				throw new BuildUtilException("Cannot locate bundle " + BundleType.RAOX_LIB.name);
-
-			switch (getMode(libraryPath.toString())) {
-			case PRODUCTION:
-				// TODO Решить, как лучше быть с данной библиотекой (Возможно
-				// лучше обернуть эту
-				// штуку в eclipse plugin и обращаться как в
-				// getRaoxClasspathEntry())
-				return JavaCore.newLibraryEntry(
-						new Path("ECLIPSE_HOME/dropins/querydsl-jpa-4.1.3-apt-hibernate-one-jar.jar"), null, null);
-
-			case DEVELOPMENT:
-				final IPath libraryPathBinary = new Path(libraryPath.getAbsolutePath()
-						+ "/thirdparty/querydsl/lib/querydsl-jpa-4.1.3-apt-hibernate-one-jar.jar");
-				return JavaCore.newLibraryEntry(libraryPathBinary, null, null);
-
-			default:
-				throw new BuildUtilException("Undefined mode for bundle " + BundleType.RAOX_LIB.name);
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new BuildUtilException(
-					"Classpath error for bundle " + BundleType.RAOX_LIB.name + ":\n" + e.getMessage());
-		}
+		return getExternalEntry(BundleType.QUERYDSL_LIB);
 	}
 
 	private static IClasspathEntry getJavaCodeEntry(IProject project) throws BuildUtilException {
@@ -263,8 +241,12 @@ public class BuildUtil {
 				} else if (path.contains(BundleType.RAOX_LIB.name)) {
 					it.remove();
 					updateRaoxClasspath = true;
+				} else if (path.contains(BundleType.QUERYDSL_LIB.name)) {
+					it.remove();
+					updateQuerydslClasspath = true;
 				} else if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE && path.contains("java")) {
-					updateJavaCodeClasspath = false;
+					it.remove();
+					updateJavaCodeClasspath = true;
 				}
 			}
 
