@@ -2,6 +2,12 @@ package ru.bmstu.rk9.rao.ui.execution;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -36,6 +42,9 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.osgi.framework.Bundle;
 import org.osgi.service.prefs.BackingStoreException;
+
+import ru.bmstu.rk9.rao.lib.persistence.QueryGenerator;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class BuildUtil {
 
@@ -317,5 +326,92 @@ public class BuildUtil {
 
 	static String createErrorMessage(String message) {
 		return "Build failed: " + message;
+	}
+
+	private static String getProjectLocation(IProject project) throws MalformedURLException, CoreException {
+		IProjectDescription description = project.getDescription();
+		java.net.URI locationURI = description.getLocationURI();
+		boolean useDefaultLocation = (locationURI == null);
+		if (useDefaultLocation)
+			return "file:///" + ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/"
+					+ project.getName();
+		else
+			return locationURI.toURL().toString();
+	}
+
+	static void loadJavaClasses(IProject project, ClassLoader classLoader)
+			throws URISyntaxException, ClassNotFoundException, CoreException, IOException {
+		String location = getProjectLocation(project);
+		java.net.URI entitiesRoot = new java.net.URI(location + "/java/domain/");
+
+		Files.walk(Paths.get(entitiesRoot)).filter(Files::isRegularFile).forEach((path) -> {
+			System.out.println(path);
+			/*
+			 * TODO реализовать String fileName = entity.getName(); String className =
+			 * fileName.substring(0, fileName.lastIndexOf('.')); String fullClassName =
+			 * "domain." + className; Class.forName(fullClassName, true, classLoader);
+			 */
+		});
+	}
+
+	static void loadQueryDslClasses(IProject project, ClassLoader classLoader)
+			throws URISyntaxException, ClassNotFoundException, CoreException, IOException {
+		String location = getProjectLocation(project);
+		java.net.URI entitiesRoot = new java.net.URI(location + "/java/domain/");
+		Files.walk(Paths.get(entitiesRoot)).filter(Files::isRegularFile).forEach((path) -> {
+			System.out.println(path);
+			// TODO Проверить наличие @Entity поскольку могут быть спец классы, но не
+			// @Entity и
+			// отвязаться от папки domain
+			/*
+			 * TODO реализовать String fileName = entity.getName(); String className =
+			 * fileName.substring(0, fileName.lastIndexOf('.')); String fullQueryClassName =
+			 * "domain.Q" + className; Class.forName(fullQueryClassName, true, classLoader);
+			 */
+		});
+	}
+
+	/**
+	 * @param project
+	 * @param classLoader
+	 * @return {@code true} if any Query class was generated, needed to prevent
+	 *         double compilation if useless, otherwise {@code false}
+	 * @throws ClassNotFoundException
+	 * @throws URISyntaxException
+	 * @throws CoreException
+	 * @throws IOException
+	 */
+	static boolean generateQueryDslCode(IProject project, ClassLoader classLoader)
+			throws ClassNotFoundException, URISyntaxException, CoreException, IOException {
+		loadJavaClasses(project, classLoader);
+		String location = getProjectLocation(project);
+		java.net.URI entitiesRoot = new java.net.URI(location + "/java/domain/");
+		File queryGenerateTarget = new File(new java.net.URI(location + "/src-gen/"));
+		QueryGenerator queryGenerator = new QueryGenerator(classLoader, queryGenerateTarget);
+		Files.walk(Paths.get(entitiesRoot)).filter(Files::isRegularFile).forEach((path) -> {
+			System.out.println(path);
+			// TODO Проверить наличие @Entity поскольку могут быть спец классы, но не
+			// @Entity и
+			// отвязаться от папки domain
+			// TODO Возвращять true только если был сгененен хоть один класс
+			/*
+			 * TODO реализовать String fileName = entity.getName(); String className =
+			 * fileName.substring(0, fileName.lastIndexOf('.')); String fullClassName =
+			 * "domain." + className; Class<?> entityClass = Class.forName(fullClassName,
+			 * true, classLoader); queryGenerator.generate(entityClass); String
+			 * fullQueryClassName = "domain.Q" + className;
+			 * Class.forName(fullQueryClassName, true, classLoader);
+			 */
+		});
+		return false;
+	}
+
+	static URLClassLoader createClassLoader(IProject project) throws CoreException, MalformedURLException {
+		String location = getProjectLocation(project);
+
+		URL modelURL = new URL(location + "/bin/");
+
+		URL[] urls = new URL[] { modelURL };
+		return new URLClassLoader(urls, CurrentSimulator.class.getClassLoader());
 	}
 }

@@ -1,14 +1,11 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +13,7 @@ import java.util.function.Supplier;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -41,11 +36,9 @@ import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.lib.pattern.Pattern;
-import ru.bmstu.rk9.rao.lib.persistence.QueryGenerator;
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.result.AbstractResult;
-import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 import ru.bmstu.rk9.rao.rao.PatternType;
@@ -92,25 +85,10 @@ public class ModelInternalsParser {
 
 	public final void parse() throws NoSuchMethodException, SecurityException, InstantiationException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException,
-			MalformedURLException, CoreException, URISyntaxException {
-		IProjectDescription description = project.getDescription();
-		java.net.URI locationURI = description.getLocationURI();
-		boolean useDefaultLocation = (locationURI == null);
-		String location;
-
-		if (useDefaultLocation)
-			location = "file:///" + ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/"
-					+ project.getName();
-		else
-			location = locationURI.toURL().toString();
-
-		URL modelURL = new URL(location + "/bin/");
-
-		URL[] urls = new URL[] { modelURL };
-
-		classLoader = new URLClassLoader(urls, CurrentSimulator.class.getClassLoader());
-
-		loadDomainModelClasses(location, classLoader);
+			CoreException, URISyntaxException, IOException {
+		classLoader = BuildUtil.createClassLoader(project);
+		BuildUtil.loadJavaClasses(project, classLoader);
+		BuildUtil.loadQueryDslClasses(project, classLoader);
 
 		simulatorPreinitializationInfo.modelStructure.put(ModelStructureConstants.NAME, project.getName());
 		simulatorPreinitializationInfo.modelStructure.put(ModelStructureConstants.LOCATION,
@@ -410,31 +388,6 @@ public class ModelInternalsParser {
 			try {
 				classLoader.close();
 			} catch (IOException e) {
-			}
-		}
-	}
-
-	private void loadDomainModelClasses(String location, ClassLoader classLoader)
-			throws URISyntaxException, ClassNotFoundException {
-		File entitiesRoot = new File(new java.net.URI(location + "/java/domain/"));
-		File queryGenerateTarget = new File(new java.net.URI(location + "/src-gen/"));
-		if (!entitiesRoot.exists())
-			return;
-		if (!entitiesRoot.isDirectory())
-			throw new IllegalStateException(
-					"Path to domain entity classes is not a folder: " + entitiesRoot.getAbsolutePath());
-
-		QueryGenerator queryGenerator = new QueryGenerator(classLoader, queryGenerateTarget);
-		File[] entityFiles = entitiesRoot.listFiles();
-		for (File entity : entityFiles) {
-			if (entity.isFile()) {
-				String fileName = entity.getName();
-				String className = fileName.substring(0, fileName.lastIndexOf('.'));
-				String fullClassName = "domain." + className;
-				Class<?> entityClass = Class.forName(fullClassName, true, classLoader);
-				queryGenerator.generate(entityClass);
-				String fullQueryClassName = "domain.Q" + className;
-				Class.forName(fullQueryClassName, true, classLoader);
 			}
 		}
 	}

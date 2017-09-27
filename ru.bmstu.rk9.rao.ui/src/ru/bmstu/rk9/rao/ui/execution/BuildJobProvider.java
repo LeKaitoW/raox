@@ -1,5 +1,8 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,12 +119,11 @@ public class BuildJobProvider {
 					break;
 				}
 				/*
-				 * FIXME: Validation markers update is commented out due to the
-				 * fact that it significantly slows down start of models, that
-				 * require long compilation. This code should be restored after
-				 * issue with slow model compilation is resolved.
+				 * FIXME: Validation markers update is commented out due to the fact that it
+				 * significantly slows down start of models, that require long compilation. This
+				 * code should be restored after issue with slow model compilation is resolved.
 				 */
-//				updateValidationMarkers(file, loadedResource, monitor);
+				// updateValidationMarkers(file, loadedResource, monitor);
 			}
 
 			IMarker[] markers = file.findMarkers(problem, true, 0);
@@ -225,8 +227,16 @@ public class BuildJobProvider {
 				// generator.doGenerate(resourceSet, fsa);
 
 				try {
+					// TODO Здесь компиляются java классы
 					recentProject.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-				} catch (CoreException e) {
+					// TODO Здесь генерятся querydsl классы
+					URLClassLoader classLoader = BuildUtil.createClassLoader(recentProject);
+					boolean compilationNeeded = BuildUtil.generateQueryDslCode(recentProject, classLoader);
+					classLoader.close();
+					// TODO Здесь снова компиляются java классы
+					if (compilationNeeded)
+						recentProject.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
+				} catch (CoreException | ClassNotFoundException | URISyntaxException | IOException e) {
 					e.printStackTrace();
 					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage("Failed to build project"),
 							e);
