@@ -9,6 +9,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 
@@ -86,22 +87,24 @@ public class AnimationContextSWT implements AnimationContext {
 
 	@Override
 	public void drawText(Object object, int x, int y, RaoColor textRaoColor, int width, Alignment alignment) {
-		Point size = paintContext.textExtent(text);
+		final String text = object.toString();
+
+		Point textSize = paintContext.textExtent(text);
 		switch (alignment) {
 		case LEFT:
 			break;
 		case CENTER:
-			x -= size.x / 2;
+			x += width / 2 - textSize.x / 2;
 			break;
 		case RIGHT:
-			x -= size.x;
+			x += width - textSize.x;
 			break;
 		}
 
 		paintContext.setAlpha(textRaoColor.alpha);
-		Color foregroundColor = createColor(textRaoColor);
+		final Color foregroundColor = createColor(textRaoColor);
 		paintContext.setForeground(foregroundColor);
-		paintContext.drawText(object.toString(), x, y, true);
+		paintContext.drawText(text, x, y, true);
 		foregroundColor.dispose();
 	}
 
