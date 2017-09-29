@@ -27,7 +27,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.SymbolAxis;
@@ -110,13 +109,12 @@ public class PlotView extends ViewPart {
 		verticalSlider.setEnabled(false);
 		verticalSlider.setVisible(false);
 		plotFrame.setSliders(horizontalSlider, verticalSlider);
-
 		plotFrame.addDisposeListener(new DisposeListener() {
+
 			@Override
 			public void widgetDisposed(DisposeEvent event) {
-				if (!openedPlotMap.isEmpty() && openedPlotMap.containsKey(partNode)) {
+				if (!openedPlotMap.isEmpty() && openedPlotMap.containsKey(partNode))
 					openedPlotMap.remove(partNode);
-				}
 				deinitializeSubscribers();
 			}
 		});
@@ -130,7 +128,6 @@ public class PlotView extends ViewPart {
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		XYSeries series = new XYSeries(partNode.getName());
 		dataset.addSeries(series);
-
 		plotXY(dataset);
 		initializeSubscribers();
 	}
@@ -149,7 +146,6 @@ public class PlotView extends ViewPart {
 
 	private final SimulatorSubscriberManager simulatorSubscriberManager = new SimulatorSubscriberManager();
 	private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
-
 	private PlotDataParser plotDataParser;
 
 	private final boolean readyForInput() {
@@ -173,7 +169,6 @@ public class PlotView extends ViewPart {
 				return;
 
 			final DataParserResult dataParserResult = plotDataParser.parseEntries();
-
 			if (dataParserResult.axisHelper.axisChanged) {
 				XYPlot plot = (XYPlot) plotFrame.getChart().getPlot();
 				SymbolAxis rangeAxis;
@@ -195,10 +190,13 @@ public class PlotView extends ViewPart {
 				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame.getChart().getXYPlot()
 						.getDataset();
 				final XYSeries newSeries = newDataset.getSeries(0);
-				for (int i = 0; i < items.size(); i++) {
-					final PlotItem item = items.get(i);
-					newSeries.add(item.x, item.y);
-				}
+				List<PlotItem> startItems = items.subList(0, items.size() - 1);
+
+				for (PlotItem item : startItems)
+					newSeries.add(item.x, item.y, false);
+
+				PlotItem lastItem = items.get(items.size() - 1);
+				newSeries.add(lastItem.x, lastItem.y, true);
 
 				plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
 				plotFrame.updateSliders();
@@ -208,9 +206,11 @@ public class PlotView extends ViewPart {
 				final XYSeriesCollection newDataset = (XYSeriesCollection) plotFrame.getChart().getXYPlot()
 						.getDataset();
 				final XYSeries newSeries = newDataset.getSeries(0);
+
 				if (newSeries.getItemCount() == 2) {
 					@SuppressWarnings("unchecked")
 					List<XYDataItem> seriesitems = newSeries.getItems();
+
 					if (seriesitems.get(0).equals(seriesitems.get(1))) {
 						newSeries.add(CurrentSimulator.getTime(), seriesitems.get(1).getY());
 						plotFrame.setChartMaximum(newSeries.getMaxX(), newSeries.getMaxY());
@@ -256,10 +256,10 @@ public class PlotView extends ViewPart {
 	}
 
 	private JFreeChart createChart(final XYDataset dataset) {
-		final JFreeChart chart = ChartFactory.createXYStepChart("", "Time", "Value", dataset, PlotOrientation.VERTICAL,
-				true, true, false);
+		final JFreeChart chart = FilteringPlotFactory.createXYStepChart("", "Time", "Value", dataset,
+				PlotOrientation.VERTICAL, true, false, false);
 
-		final XYPlot plot = (XYPlot) chart.getPlot();
+		final XYPlot plot = chart.getXYPlot();
 
 		Color white = new Color(0xFF, 0XFF, 0xFF);
 		plot.setBackgroundPaint(white);
@@ -376,7 +376,6 @@ public class PlotView extends ViewPart {
 		@Override
 		public boolean isEnabled(CollectedDataNode node) {
 			Index index = node.getIndex();
-
 			if (index == null)
 				return false;
 
