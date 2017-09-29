@@ -15,8 +15,6 @@ public class CategoricalStatistics<T> extends Statistics<T> {
 
 	@Override
 	public void updateData(JSONObject data) {
-		if (lastValue != null)
-			addState(lastValue, lastCurrentTime - lastFlipTime);
 		for (Map.Entry<T, StatisticsData> e : statisticsDataset.entrySet()) {
 			StatisticsData statisticsData = e.getValue();
 			data.put("Longest \"" + e.getKey().toString() + "\"", statisticsData.valueMaxTime);
@@ -50,6 +48,12 @@ public class CategoricalStatistics<T> extends Statistics<T> {
 
 		lastValue = value;
 		lastFlipTime = currentTime;
+	}
+
+	@Override
+	public void prepareData() {
+		if (lastValue != null)
+			addState(lastValue, lastCurrentTime - lastFlipTime);
 	}
 
 	private T lastValue = null;
