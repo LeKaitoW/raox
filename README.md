@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/aurusov/raox.svg?branch=release%2F3.8.0-travis)](https://travis-ci.org/aurusov/raox)
+
 # Rao X
 ## Summary
 <img src=docs/raox.png><img>
