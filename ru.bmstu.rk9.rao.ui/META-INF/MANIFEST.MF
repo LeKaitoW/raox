@@ -27,7 +27,8 @@ Require-Bundle: ru.bmstu.rk9.rao;visibility:=reexport,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.jdt.launching;bundle-version="3.7.100",
  org.eclipse.gef,
- org.eclipse.ui.workbench
+ org.eclipse.ui.workbench,
+ ru.bmstu.rk9.rao.thinclient
 Import-Package: org.apache.log4j,
  org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -129,5 +130,10 @@ Export-Package: com.mxgraph.analysis,
    ru.bmstu.rk9.rao.lib.notification,
    org.eclipse.ui.part",
  ru.bmstu.rk9.rao.ui.wizard
-Bundle-ClassPath: .,thirdparty/jgraphx/lib/jgraphx.jar,thirdparty/jfreechart/lib/jcommon-1.0.23.jar,thirdparty/jfreechart/lib/jfreechart-1.0.19-experimental.jar,thirdparty/jfreechart/lib/jfreechart-1.0.19-swt.jar,thirdparty/jfreechart/lib/jfreechart-1.0.19.jar
+Bundle-ClassPath: .,
+ thirdparty/jgraphx/lib/jgraphx.jar,
+ thirdparty/jfreechart/lib/jcommon-1.0.23.jar,
+ thirdparty/jfreechart/lib/jfreechart-1.0.19-experimental.jar,
+ thirdparty/jfreechart/lib/jfreechart-1.0.19-swt.jar,
+ thirdparty/jfreechart/lib/jfreechart-1.0.19.jar
 Bundle-Activator: ru.bmstu.rk9.rao.ui.RaoActivatorExtension

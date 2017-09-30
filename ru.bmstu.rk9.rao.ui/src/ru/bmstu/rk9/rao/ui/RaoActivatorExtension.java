@@ -25,6 +25,7 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.services.ISourceProviderService;
 import org.osgi.framework.BundleContext;
 
+import ru.bmstu.rk9.rao.thinclient.EmbeddedThinClientServer;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.internal.RaoActivator;
 import ru.bmstu.rk9.rao.ui.plot.PlotView;
@@ -49,6 +50,8 @@ public class RaoActivatorExtension extends RaoActivator {
 
 		IWorkbench workbench = PlatformUI.getWorkbench();
 		ICommandService commandService = workbench.getService(ICommandService.class);
+
+		EmbeddedThinClientServer.startServer();
 
 		workbench.addWorkbenchListener(workbenchListener);
 		commandService.addExecutionListener(commandExecutionListener);
@@ -89,6 +92,8 @@ public class RaoActivatorExtension extends RaoActivator {
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		deinitializeUiComponents();
+
+		EmbeddedThinClientServer.stopServer();
 
 		super.stop(context);
 	}

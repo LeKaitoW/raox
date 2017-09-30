@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Rao X UI
+Bundle-Vendor: raox.ru
+Bundle-Version: 3.3.0
+Bundle-SymbolicName: ru.bmstu.rk9.rao.thinclient;singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: ru.bmstu.rk9.rao;visibility:=reexport,
+ ru.bmstu.rk9.rao.lib;bundle-version="0.1.0";visibility:=reexport,
+ org.eclipse.equinox.common;bundle-version="3.8.0"
+Import-Package: org.apache.log4j,
+ org.eclipse.core.internal.resources,
+ org.eclipse.core.resources,
+ org.eclipse.xtext.xbase.lib
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: ru.bmstu.rk9.rao.thinclient;uses:="org.eclipse.jetty.server"
+Bundle-ClassPath: .,
+ thirdparty/jetty/jetty-http/lib/jetty-http-9.4.0-SNAPSHOT.jar,
+ thirdparty/jetty/jetty-io/lib/jetty-io-9.4.0-SNAPSHOT.jar,
+ thirdparty/jetty/jetty-server/lib/jetty-server-9.4.0-SNAPSHOT.jar,
+ thirdparty/jetty/jetty-util/lib/jetty-util-9.4.0-SNAPSHOT.jar,
+ thirdparty/javax-servlet/lib/javax.servlet-api-3.0.1.jar,
+ thirdparty/gson/lib/gson-2.8.0.jar,
+ thirdparty/jetty/jetty-xml/lib/jetty-xml-9.4.0.RC0.jar
