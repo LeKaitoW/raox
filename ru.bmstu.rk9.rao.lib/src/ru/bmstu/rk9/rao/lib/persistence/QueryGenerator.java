@@ -19,8 +19,6 @@ public final class QueryGenerator {
 	public QueryGenerator(ClassLoader classLoader, File exportPath) {
 		exporter = new GenericExporter(classLoader);
 		exporter.setKeywords(Keywords.JPA);
-		// Данные обявления нужны, иначе будут использованы свои аннотации от
-		// QueryDSL, чего не надо
 		exporter.setEntityAnnotation(Entity.class);
 		exporter.setEmbeddableAnnotation(Embeddable.class);
 		exporter.setEmbeddedAnnotation(Embedded.class);

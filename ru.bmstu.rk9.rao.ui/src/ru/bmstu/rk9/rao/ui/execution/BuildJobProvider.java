@@ -119,11 +119,14 @@ public class BuildJobProvider {
 					break;
 				}
 				/*
-				 * FIXME: Validation markers update is commented out due to the fact that it
-				 * significantly slows down start of models, that require long compilation. This
-				 * code should be restored after issue with slow model compilation is resolved.
+				 * FIXME: Validation markers update is commented out due to the
+				 * fact that it significantly slows down start of models, that
+				 * require long compilation. This code should be restored after
+				 * issue with slow model compilation is resolved.
 				 */
-				// updateValidationMarkers(file, loadedResource, monitor);
+				// Uncommented because projects with java files need to be
+				// updated
+				updateValidationMarkers(file, loadedResource, monitor);
 			}
 
 			IMarker[] markers = file.findMarkers(problem, true, 0);
@@ -227,16 +230,13 @@ public class BuildJobProvider {
 				// generator.doGenerate(resourceSet, fsa);
 
 				try {
-					// TODO Здесь компиляются java классы
 					recentProject.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-					// TODO Здесь генерятся querydsl классы
 					URLClassLoader classLoader = BuildUtil.createClassLoader(recentProject);
 					boolean compilationNeeded = BuildUtil.generateQueryDslCode(recentProject, classLoader);
 					classLoader.close();
-					// TODO Здесь снова компиляются java классы
 					if (compilationNeeded)
 						recentProject.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-				} catch (CoreException | ClassNotFoundException | URISyntaxException | IOException e) {
+				} catch (CoreException | URISyntaxException | IOException | ClassNotFoundException e) {
 					e.printStackTrace();
 					return new Status(IStatus.ERROR, pluginId, BuildUtil.createErrorMessage("Failed to build project"),
 							e);

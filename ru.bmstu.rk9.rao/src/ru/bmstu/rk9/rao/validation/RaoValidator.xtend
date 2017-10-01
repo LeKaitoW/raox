@@ -359,8 +359,6 @@ class RaoValidator extends AbstractRaoValidator {
 		}
 	}
 	
-	// Persistence related
-
 	@Check
 	def checkEntityManagerDeclaration(DataProvider dataProvider) {
 		if (!dataProvider.constructor.actualType.isSubtypeOf(typeof(ru.bmstu.rk9.rao.lib.persistence.DataProvider))) {

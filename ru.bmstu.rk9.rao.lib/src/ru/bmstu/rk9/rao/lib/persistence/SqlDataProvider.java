@@ -9,7 +9,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
-import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
 import com.querydsl.jpa.impl.JPAQuery;
@@ -65,11 +64,9 @@ public final class SqlDataProvider implements DataProvider {
 		properties.put(PROPERTY_PERSISTENCE_USER, user);
 		properties.put(PROPERTY_PERSISTENCE_PASSWORD, password);
 
-		properties.put(AvailableSettings.SHOW_SQL, true);
-
 		try {
 			// https://stackoverflow.com/questions/27304580/mapping-entities-from-outside-classpath-loaded-dynamically
-			if (entities.size() > 0)
+			if (!entities.isEmpty())
 				Thread.currentThread().setContextClassLoader(entities.get(0).getClassLoader());
 
 			PersistenceUnitInfo persistenceUnitInfo = new PersistenceUnitInfoImpl(persistenceUnitName);
