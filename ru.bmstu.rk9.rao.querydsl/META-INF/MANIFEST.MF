@@ -83,6 +83,7 @@ Export-Package: antlr,
  javassist.util.proxy,
  javax.annotation.concurrent,
  javax.annotation.meta,
+ javax.inject,
  javax.json,
  javax.json.spi,
  javax.json.stream,
@@ -720,4 +721,3 @@ Export-Package: antlr,
  org.w3c.dom.views,
  org.xml.sax.ext
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.slf4j.api;bundle-version="1.7.2"
