@@ -1,1 +1,6 @@
 language: java
+
+after_success:
+  - export MAVEN_OPTS="-Xmx512M"
+  - cd deploy/assembly
+  - mvn initialize -N -Pset-raox-version
