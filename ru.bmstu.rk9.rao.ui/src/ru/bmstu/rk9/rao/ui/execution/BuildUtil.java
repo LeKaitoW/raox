@@ -6,13 +6,14 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.persistence.Entity;
+
+import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -48,6 +49,8 @@ import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class BuildUtil {
 
+	private static final Logger logger = Logger.getLogger(BuildUtil.class);
+
 	public enum BundleType {
 		RAOX_LIB("ru.bmstu.rk9.rao.lib", "/bin/"), QUERYDSL_LIB("ru.bmstu.rk9.rao.querydsl",
 				"/thirdparty/querydsl/lib/querydsl-jpa-4.1.3-apt-hibernate-one-jar.jar");
@@ -57,8 +60,8 @@ public class BuildUtil {
 			this.developmentPath = developmentPath;
 		}
 
-		private final String name;
-		private final String developmentPath;
+		final String name;
+		final String developmentPath;
 	}
 
 	public enum Mode {
@@ -213,13 +216,12 @@ public class BuildUtil {
 
 	private static IClasspathEntry getJavaCodeEntry(IProject project) throws BuildUtilException {
 		final IFolder javaCodeFolder = project.getFolder("java");
-		final IFolder javaDomainFolder = project.getFolder("java/domain");
 		try {
-			if (!javaDomainFolder.exists())
-				javaDomainFolder.create(false, true, null);
+			if (!javaCodeFolder.exists())
+				javaCodeFolder.create(false, true, null);
 		} catch (CoreException e) {
 			e.printStackTrace();
-			throw new BuildUtilException("Project java code folder failed" + ":\n" + e.getMessage());
+			throw new BuildUtilException("Project java code folder creation failed" + ":\n" + e.getMessage());
 		}
 		return JavaCore.newSourceEntry(javaCodeFolder.getFullPath());
 	}
@@ -236,10 +238,6 @@ public class BuildUtil {
 
 			boolean updateXtendClasspath = false;
 			boolean updateRaoxClasspath = false;
-			// Данные элементы должны поддягиваться при ребилде, если их не было
-			// ранее
-			boolean updateQuerydslClasspath = true;
-			boolean updateJavaCodeClasspath = true;
 			Iterator<IClasspathEntry> it = classpaths.iterator();
 			while (it.hasNext()) {
 				final IClasspathEntry entry = it.next();
@@ -252,15 +250,12 @@ public class BuildUtil {
 					updateRaoxClasspath = true;
 				} else if (path.contains(BundleType.QUERYDSL_LIB.name)) {
 					it.remove();
-					updateQuerydslClasspath = true;
 				} else if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE && path.contains("java")) {
 					it.remove();
-					updateJavaCodeClasspath = true;
 				}
 			}
 
-			if (updateJavaCodeClasspath)
-				classpaths.add(BuildUtil.getJavaCodeEntry(project));
+			classpaths.add(BuildUtil.getJavaCodeEntry(project));
 
 			if (updateXtendClasspath)
 				classpaths.add(getXtendClasspathEntry());
@@ -268,8 +263,7 @@ public class BuildUtil {
 			if (updateRaoxClasspath)
 				classpaths.add(getRaoxClasspathEntry());
 
-			if (updateQuerydslClasspath)
-				classpaths.add(getQuerydslClasspathEntry());
+			classpaths.add(getQuerydslClasspathEntry());
 
 			javaProject.setRawClasspath(classpaths.toArray(new IClasspathEntry[classpaths.size()]), monitor);
 
@@ -328,7 +322,7 @@ public class BuildUtil {
 		return "Build failed: " + message;
 	}
 
-	private static String getProjectLocation(IProject project) throws MalformedURLException, CoreException {
+	public static String getProjectLocation(IProject project) throws MalformedURLException, CoreException {
 		IProjectDescription description = project.getDescription();
 		java.net.URI locationURI = description.getLocationURI();
 		boolean useDefaultLocation = (locationURI == null);
@@ -340,78 +334,97 @@ public class BuildUtil {
 	}
 
 	static void loadJavaClasses(IProject project, ClassLoader classLoader)
-			throws URISyntaxException, ClassNotFoundException, CoreException, IOException {
-		String location = getProjectLocation(project);
-		java.net.URI entitiesRoot = new java.net.URI(location + "/java/domain/");
+			throws URISyntaxException, CoreException, IOException, ClassNotFoundException {
+		IPath root = project.getFolder("java").getLocation();
+		List<IResource> resources = new ArrayList<IResource>();
+		recursiveFindFiles(resources, root, ResourcesPlugin.getWorkspace().getRoot(), "java");
 
-		Files.walk(Paths.get(entitiesRoot)).filter(Files::isRegularFile).forEach((path) -> {
-			System.out.println(path);
-			/*
-			 * TODO реализовать String fileName = entity.getName(); String className =
-			 * fileName.substring(0, fileName.lastIndexOf('.')); String fullClassName =
-			 * "domain." + className; Class.forName(fullClassName, true, classLoader);
-			 */
-		});
+		for (IResource resource : resources) {
+			String relative = resource.getLocation().makeRelativeTo(root).toString();
+			String className = relative.replace(".java", "").replace('/', '.');
+			Class.forName(className, true, classLoader);
+			logger.debug("Loaded class " + className);
+		}
 	}
 
 	static void loadQueryDslClasses(IProject project, ClassLoader classLoader)
-			throws URISyntaxException, ClassNotFoundException, CoreException, IOException {
-		String location = getProjectLocation(project);
-		java.net.URI entitiesRoot = new java.net.URI(location + "/java/domain/");
-		Files.walk(Paths.get(entitiesRoot)).filter(Files::isRegularFile).forEach((path) -> {
-			System.out.println(path);
-			// TODO Проверить наличие @Entity поскольку могут быть спец классы, но не
-			// @Entity и
-			// отвязаться от папки domain
-			/*
-			 * TODO реализовать String fileName = entity.getName(); String className =
-			 * fileName.substring(0, fileName.lastIndexOf('.')); String fullQueryClassName =
-			 * "domain.Q" + className; Class.forName(fullQueryClassName, true, classLoader);
-			 */
-		});
+			throws URISyntaxException, CoreException, IOException, ClassNotFoundException {
+		IPath root = project.getFolder("java").getLocation();
+		List<IResource> resources = new ArrayList<IResource>();
+		recursiveFindFiles(resources, root, ResourcesPlugin.getWorkspace().getRoot(), "java");
+
+		for (IResource resource : resources) {
+			String relative = resource.getLocation().makeRelativeTo(root).toString();
+			String className = relative.replace(".java", "").replace('/', '.');
+			Class<?> entityClass = Class.forName(className, true, classLoader);
+			logger.debug("Loaded class " + className);
+			@SuppressWarnings("unchecked")
+			Class<Entity> entityAnnotationClass = (Class<Entity>) Class.forName(Entity.class.getCanonicalName(), true,
+					classLoader);
+			if (!entityClass.isAnnotationPresent(entityAnnotationClass))
+				continue;
+			String queryClassName = className.replaceAll("\\.(?!.*\\.)", ".Q");
+			Class.forName(queryClassName, true, classLoader);
+			logger.debug("Loaded class " + queryClassName);
+		}
 	}
 
-	/**
-	 * @param project
-	 * @param classLoader
-	 * @return {@code true} if any Query class was generated, needed to prevent
-	 *         double compilation if useless, otherwise {@code false}
-	 * @throws ClassNotFoundException
-	 * @throws URISyntaxException
-	 * @throws CoreException
-	 * @throws IOException
-	 */
 	static boolean generateQueryDslCode(IProject project, ClassLoader classLoader)
-			throws ClassNotFoundException, URISyntaxException, CoreException, IOException {
+			throws URISyntaxException, CoreException, IOException, ClassNotFoundException {
 		loadJavaClasses(project, classLoader);
-		String location = getProjectLocation(project);
-		java.net.URI entitiesRoot = new java.net.URI(location + "/java/domain/");
-		File queryGenerateTarget = new File(new java.net.URI(location + "/src-gen/"));
-		QueryGenerator queryGenerator = new QueryGenerator(classLoader, queryGenerateTarget);
-		Files.walk(Paths.get(entitiesRoot)).filter(Files::isRegularFile).forEach((path) -> {
-			System.out.println(path);
-			// TODO Проверить наличие @Entity поскольку могут быть спец классы, но не
-			// @Entity и
-			// отвязаться от папки domain
-			// TODO Возвращять true только если был сгененен хоть один класс
-			/*
-			 * TODO реализовать String fileName = entity.getName(); String className =
-			 * fileName.substring(0, fileName.lastIndexOf('.')); String fullClassName =
-			 * "domain." + className; Class<?> entityClass = Class.forName(fullClassName,
-			 * true, classLoader); queryGenerator.generate(entityClass); String
-			 * fullQueryClassName = "domain.Q" + className;
-			 * Class.forName(fullQueryClassName, true, classLoader);
-			 */
-		});
-		return false;
+		IPath root = project.getFolder("java").getLocation();
+		IPath target = project.getFolder("src-gen").getLocation();
+		QueryGenerator queryGenerator = new QueryGenerator(classLoader, target.toFile());
+
+		List<IResource> resources = new ArrayList<IResource>();
+		recursiveFindFiles(resources, root, ResourcesPlugin.getWorkspace().getRoot(), "java");
+
+		boolean generatedAny = false;
+		for (IResource resource : resources) {
+			String relative = resource.getLocation().makeRelativeTo(root).toString();
+			String className = relative.replace(".java", "").replace('/', '.');
+			Class<?> entityClass = Class.forName(className, true, classLoader);
+			@SuppressWarnings("unchecked")
+			Class<Entity> entityAnnotationClass = (Class<Entity>) Class.forName(Entity.class.getCanonicalName(), true,
+					classLoader);
+			if (!entityClass.isAnnotationPresent(entityAnnotationClass))
+				continue;
+			queryGenerator.generate(entityClass);
+			logger.debug("Generated Query class for " + className);
+			generatedAny = true;
+		}
+		return generatedAny;
 	}
 
 	static URLClassLoader createClassLoader(IProject project) throws CoreException, MalformedURLException {
 		String location = getProjectLocation(project);
 
 		URL modelURL = new URL(location + "/bin/");
+		List<URL> urls = new ArrayList<>();
+		urls.add(modelURL);
 
-		URL[] urls = new URL[] { modelURL };
-		return new URLClassLoader(urls, CurrentSimulator.class.getClassLoader());
+		final IJavaProject javaProject = JavaCore.create(project);
+		IClasspathEntry[] classpaths = javaProject.getRawClasspath();
+		for (IClasspathEntry classpath : classpaths) {
+			IPath path = classpath.getPath();
+			if (classpath.getEntryKind() != IClasspathEntry.CPE_LIBRARY)
+				continue;
+			if (path.toString().contains(BundleType.QUERYDSL_LIB.name))
+				continue;
+			if (path.toString().contains(BundleType.RAOX_LIB.name))
+				continue;
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IResource res = root.findMember(path);
+			// https://stackoverflow.com/questions/30714015/absolute-filesystem-path-for-an-iclasspathentry
+			String absolutePath;
+			if (res == null) {
+				absolutePath = path.toOSString();
+			} else {
+				absolutePath = res.getLocation().toOSString();
+			}
+			urls.add(new File(absolutePath).toURI().toURL());
+		}
+
+		return new URLClassLoader(urls.toArray(new URL[urls.size()]), CurrentSimulator.class.getClassLoader());
 	}
 }

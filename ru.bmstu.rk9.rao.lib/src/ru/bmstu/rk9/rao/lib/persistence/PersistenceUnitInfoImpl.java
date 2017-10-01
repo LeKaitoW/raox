@@ -18,9 +18,11 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
 	private static final String PERSISTENCE_PROVIDER = "org.hibernate.jpa.HibernatePersistenceProvider";
 	private final String persistenceUnitName;
+	private final ClassLoader classLoader;
 
-	public PersistenceUnitInfoImpl(String persistenceUnitName) {
+	public PersistenceUnitInfoImpl(String persistenceUnitName, ClassLoader classLoader) {
 		this.persistenceUnitName = persistenceUnitName;
+		this.classLoader = classLoader;
 	}
 
 	@Override
@@ -75,12 +77,12 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
 	@Override
 	public SharedCacheMode getSharedCacheMode() {
-		return null;
+		return SharedCacheMode.UNSPECIFIED;
 	}
 
 	@Override
 	public ValidationMode getValidationMode() {
-		return null;
+		return ValidationMode.AUTO;
 	}
 
 	@Override
@@ -95,7 +97,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
 	@Override
 	public ClassLoader getClassLoader() {
-		return null;
+		return classLoader;
 	}
 
 	@Override
