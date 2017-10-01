@@ -9,7 +9,7 @@ mvn clean package -Declipse-path=../../../../eclipses/eclipse-dsl-mars-1-linux-g
 `mvn initialize -N -Pset-raox-version` - Запускает вспомогательную команду, которая конфигурирует правильное название архива в последующей сборке.
 
 `mvn clean package [-Declipse-path=<path-to-eclipse-root>] [-Dtarget-os=linux|win|mac] [-Dtarget-bitness=x64|x86]` - Запускает сборку, результатом которой является готовый к развертыванию архив, содержащий ```eclipse``` и подставленные в папку `dropins` плагины
-- [aurusov/rdo-xtext](https://github.com/aurusov/rdo-xtext)
+- [aurusov/raox](https://github.com/aurusov/raox)
 - [aurusov/raox-game5](https://github.com/aurusov/raox-game5)
 
 Параметр `eclipse-path` указывает путь до корневой папки `eclipse`. Значение `<path-to-eclipse-root>` задается абсолютным путем или относительно папки `assembly`.
