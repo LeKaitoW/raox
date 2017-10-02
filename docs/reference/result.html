@@ -98,7 +98,7 @@ result <i>имя_результата</i> = Result.create(<i>источник_д
 </table>
 <h4>Отличие взвешенной и обычной статистик для числовых значений</h4>
 <p>Применим WeightedStorelessNumericStatistics и StorelessNumericStatistics к одному и тому же источнику данных</p>
-<img src="../resources/pic/numeric_statistics_comparison.png" alt="numeric_statistics_comparison"/>
+<img src="../resources/images/numeric_statistics_comparison.png" alt="numeric_statistics_comparison"/>
 <p>Отличие обусловленно тем, что очередь в 2 человека была дольше остальных значений 0 и 1, а в качестве весового коэффициента применяется времянной промежуток устойчивого значения. Это актуально для таких показателей, как длина очереди и коэффициент загрузки. Если же статистику необходимо собирать не учитывая весовой коэффициент времени, а только по факту вхождения, например, время обслуживания, следут использовать StorelessNumericStatistics, необходимо также учитывать, что при автоматическом подсчете результаты обновляются по каждому событию, что может влиять на статистику.</p>
 <h3>Примеры собираемых показателей</h3>
 <p>Рассмотрим сбор показателей на примере модели парикмахерской (<a href="https://github.com/aurusov/raox-models/tree/master/barber/barber_simple">скачать</a>):</p>
