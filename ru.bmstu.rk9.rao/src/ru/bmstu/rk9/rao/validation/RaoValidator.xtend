@@ -8,6 +8,8 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.xtext.validation.Check
 import ru.bmstu.rk9.rao.rao.Constant
+import ru.bmstu.rk9.rao.rao.Cursor
+import ru.bmstu.rk9.rao.rao.DataProvider
 import ru.bmstu.rk9.rao.rao.DefaultMethod
 import ru.bmstu.rk9.rao.rao.Frame
 import ru.bmstu.rk9.rao.rao.FunctionDeclaration
@@ -19,6 +21,7 @@ import ru.bmstu.rk9.rao.rao.ResourceType
 import ru.bmstu.rk9.rao.rao.ResourceDeclaration
 import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.Sequence
+import ru.bmstu.rk9.rao.rao.Variable
 
 import static extension ru.bmstu.rk9.rao.naming.RaoNaming.*
 import ru.bmstu.rk9.rao.lib.sequence.NumericSequence
@@ -37,7 +40,6 @@ import ru.bmstu.rk9.rao.rao.Event
 import ru.bmstu.rk9.rao.rao.DataSource
 import ru.bmstu.rk9.rao.rao.RelevantResourceTuple
 import ru.bmstu.rk9.rao.validation.DefaultMethodsHelper.MethodInfo
-import ru.bmstu.rk9.rao.rao.DataProvider
 
 class RaoValidator extends AbstractRaoValidator {
 
@@ -143,7 +145,7 @@ class RaoValidator extends AbstractRaoValidator {
 			eObject instanceof ResourceType || eObject instanceof ResourceDeclaration || eObject instanceof Sequence ||
 				eObject instanceof Constant || eObject instanceof FunctionDeclaration || eObject instanceof Pattern ||
 				eObject instanceof Logic || eObject instanceof Search || eObject instanceof Frame ||
-				eObject instanceof Result || eObject instanceof DataProvider
+				eObject instanceof Result || eObject instanceof DataProvider || eObject instanceof Variable || eObject instanceof Cursor
 		].toList
 
 		for (eObject : checklist) {
@@ -359,8 +361,14 @@ class RaoValidator extends AbstractRaoValidator {
 		}
 	}
 	
-	// Persistence related
-
+	@Check
+	def checkCursorDeclaration(Cursor cursor) {
+		if (!cursor.constructor.actualType.isSubtypeOf(typeof(java.util.Iterator))) {
+			error("Error in declaration of \"" + cursor.name + "\": only java.util.Iterator is allowed.",
+				RaoPackage.eINSTANCE.mutableEntity_Constructor)
+		}
+	}
+	
 	@Check
 	def checkEntityManagerDeclaration(DataProvider dataProvider) {
 		if (!dataProvider.constructor.actualType.isSubtypeOf(typeof(ru.bmstu.rk9.rao.lib.persistence.DataProvider))) {
