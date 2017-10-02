@@ -87,7 +87,6 @@ public class ModelInternalsParser {
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException, ClassNotFoundException,
 			CoreException, URISyntaxException, IOException {
 		classLoader = BuildUtil.createClassLoader(project);
-		BuildUtil.loadJavaClasses(project, classLoader);
 		BuildUtil.loadQueryDslClasses(project, classLoader);
 
 		simulatorPreinitializationInfo.modelStructure.put(ModelStructureConstants.NAME, project.getName());

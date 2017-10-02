@@ -227,13 +227,10 @@ public class BuildJobProvider {
 				// generator.doGenerate(resourceSet, fsa);
 
 				try {
-					// TODO Здесь компиляются java классы
 					recentProject.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-					// TODO Здесь генерятся querydsl классы
 					URLClassLoader classLoader = BuildUtil.createClassLoader(recentProject);
 					boolean compilationNeeded = BuildUtil.generateQueryDslCode(recentProject, classLoader);
 					classLoader.close();
-					// TODO Здесь снова компиляются java классы
 					if (compilationNeeded)
 						recentProject.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
 				} catch (CoreException | ClassNotFoundException | URISyntaxException | IOException e) {

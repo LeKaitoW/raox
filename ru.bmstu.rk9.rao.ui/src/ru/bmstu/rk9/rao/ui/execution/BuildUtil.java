@@ -333,23 +333,10 @@ public class BuildUtil {
 			return locationURI.toURL().toString();
 	}
 
-	static void loadJavaClasses(IProject project, ClassLoader classLoader)
-			throws URISyntaxException, CoreException, IOException, ClassNotFoundException {
-		IPath root = project.getFolder("java").getLocation();
-		List<IResource> resources = new ArrayList<IResource>();
-		recursiveFindFiles(resources, root, ResourcesPlugin.getWorkspace().getRoot(), "java");
-
-		for (IResource resource : resources) {
-			String relative = resource.getLocation().makeRelativeTo(root).toString();
-			String className = relative.replace(".java", "").replace('/', '.');
-			Class.forName(className, true, classLoader);
-			logger.debug("Loaded class " + className);
-		}
-	}
-
 	static void loadQueryDslClasses(IProject project, ClassLoader classLoader)
 			throws URISyntaxException, CoreException, IOException, ClassNotFoundException {
 		IPath root = project.getFolder("java").getLocation();
+
 		List<IResource> resources = new ArrayList<IResource>();
 		recursiveFindFiles(resources, root, ResourcesPlugin.getWorkspace().getRoot(), "java");
 
@@ -371,7 +358,6 @@ public class BuildUtil {
 
 	static boolean generateQueryDslCode(IProject project, ClassLoader classLoader)
 			throws URISyntaxException, CoreException, IOException, ClassNotFoundException {
-		loadJavaClasses(project, classLoader);
 		IPath root = project.getFolder("java").getLocation();
 		IPath target = project.getFolder("src-gen").getLocation();
 		QueryGenerator queryGenerator = new QueryGenerator(classLoader, target.toFile());
@@ -402,28 +388,6 @@ public class BuildUtil {
 		URL modelURL = new URL(location + "/bin/");
 		List<URL> urls = new ArrayList<>();
 		urls.add(modelURL);
-
-		final IJavaProject javaProject = JavaCore.create(project);
-		IClasspathEntry[] classpaths = javaProject.getRawClasspath();
-		for (IClasspathEntry classpath : classpaths) {
-			IPath path = classpath.getPath();
-			if (classpath.getEntryKind() != IClasspathEntry.CPE_LIBRARY)
-				continue;
-			if (path.toString().contains(BundleType.QUERYDSL_LIB.name))
-				continue;
-			if (path.toString().contains(BundleType.RAOX_LIB.name))
-				continue;
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			IResource res = root.findMember(path);
-			// https://stackoverflow.com/questions/30714015/absolute-filesystem-path-for-an-iclasspathentry
-			String absolutePath;
-			if (res == null) {
-				absolutePath = path.toOSString();
-			} else {
-				absolutePath = res.getLocation().toOSString();
-			}
-			urls.add(new File(absolutePath).toURI().toURL());
-		}
 
 		return new URLClassLoader(urls.toArray(new URL[urls.size()]), CurrentSimulator.class.getClassLoader());
 	}
