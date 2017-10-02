@@ -1,6 +1,6 @@
-#Сборка через maven
+# Сборка через maven
 
-##Общие положения
+## Общие положения
 ```
 [export MAVEN_OPTS="-Xmx512M"]
 [mvn initialize -N -Pset-git-version]
@@ -42,7 +42,7 @@ mvn deploy -Drepository-url=<url-to-repository-root>
     - ```assembly\target\plugins\ru.bmstu.rk9.rao.ui-<version>-sources.jar```
     - ```assembly\target\plugins\ru.bmstu.rk9.rao-<version>-sources.jar```
 
-##Автосборка на Дженкинсе
+## Автосборка на Дженкинсе
 ### Только джарники
 ```
 export MAVEN_OPTS="-Xmx512M"
@@ -58,5 +58,5 @@ cd assembly
 mvn initialize -N -Pset-raox-version
 mvn clean package -Declipse-path=../../../../eclipses/eclipse-dsl-mars-1-linux-gtk-x64 -Dtarget-os=linux -Dtarget-bitness=x64
 ```
-##Продвижение версии
+## Продвижение версии
 Продвижение версии можно посмотреть на [gitflow.md](/gitflow.md) в разделе ```release/version```
