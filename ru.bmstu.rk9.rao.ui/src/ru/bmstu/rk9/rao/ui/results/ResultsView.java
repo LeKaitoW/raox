@@ -44,6 +44,7 @@ import org.osgi.framework.Bundle;
 
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.result.AbstractResult;
+import ru.bmstu.rk9.rao.ui.export.ExportResultsHandler;
 
 public class ResultsView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.ResultsView"; //$NON-NLS-1$
@@ -171,15 +172,13 @@ public class ResultsView extends ViewPart {
 				setText("View as tree");
 				setImageDescriptor(tree);
 				composite.setContent(ResultsView.text);
-
-				setTreeActions(false);
 			} else {
 				setText("View as text");
 				setImageDescriptor(text);
 				composite.setContent(ResultsView.tree);
-
-				setTreeActions(true);
 			}
+
+			switchActionsSet(viewAsText);
 		}
 
 		@Override
@@ -249,15 +248,35 @@ public class ResultsView extends ViewPart {
 		};
 	};
 
-	private static void setTreeActions(boolean state) {
-		if (state) {
-			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionExpandAll);
-			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionCollapseAll);
-			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionCollapseModels);
-		} else {
+	private static final String EXPORT_RESULTS_ID = "ResultsView.actions.exportResults";
+	private static Action actionExportResults = new Action() {
+		{
+			setId(EXPORT_RESULTS_ID);
+
+			setText("Export Results");
+			setImageDescriptor(ImageDescriptor.createFromURL(FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rao.ui"),
+					new Path("icons/clipboard-list.png"), null)));
+		}
+
+		@Override
+		public void run() {
+			ExportResultsHandler.exportResults();
+		}
+	};
+
+	private static void switchActionsSet(boolean viewAsText) {
+		if (viewAsText) {
 			toolbarMgr.remove(EXPAND_ALL_ID);
 			toolbarMgr.remove(COLLAPSE_ALL_ID);
 			toolbarMgr.remove(COLLAPSE_MODELS_ID);
+
+			toolbarMgr.insertAfter(TREE_TEXT_SWITCH_ID, actionExportResults);
+		} else {
+			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionExpandAll);
+			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionCollapseAll);
+			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionCollapseModels);
+
+			toolbarMgr.remove(EXPORT_RESULTS_ID);
 		}
 
 		actionBars.updateActionBars();
