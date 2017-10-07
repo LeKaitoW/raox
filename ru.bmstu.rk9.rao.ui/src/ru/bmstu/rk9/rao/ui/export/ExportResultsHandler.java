@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.CoreException;
 
 import ru.bmstu.rk9.rao.lib.result.AbstractResult;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
+import ru.bmstu.rk9.rao.ui.results.ResultsParser;
 
 public class ExportResultsHandler extends AbstractHandler {
 
@@ -21,11 +22,6 @@ public class ExportResultsHandler extends AbstractHandler {
 			return null;
 
 		exportResults();
-
-		try {
-			ResourcesPlugin.getWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
-		} catch (CoreException e) {
-		}
 
 		return null;
 	}
@@ -40,10 +36,13 @@ public class ExportResultsHandler extends AbstractHandler {
 		if (writer == null)
 			return;
 
-		for (AbstractResult<?> result : results) {
-			writer.println(result.getData().toString());
-		}
+		writer.println(ResultsParser.parseAsString(results));
 		writer.close();
+
+		try {
+			ResourcesPlugin.getWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
+		} catch (CoreException e) {
+		}
 	}
 
 	private final static boolean ready() {
