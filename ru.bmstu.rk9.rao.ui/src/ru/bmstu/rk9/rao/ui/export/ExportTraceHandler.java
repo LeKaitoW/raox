@@ -45,6 +45,12 @@ public class ExportTraceHandler extends AbstractHandler {
 			return null;
 
 		ExportType type = ExportType.getByString(event.getParameter("ru.bmstu.rk9.rao.ui.runtime.exportTraceType"));
+		exportTrace(type);
+
+		return null;
+	}
+
+	public final static void exportTrace(ExportType type) {
 		switch (type) {
 		case REGULAR:
 			exportTraceRegular();
@@ -53,18 +59,16 @@ public class ExportTraceHandler extends AbstractHandler {
 			exportTraceLegacy();
 			break;
 		default:
-			return null;
+			return;
 		}
 
 		try {
 			ResourcesPlugin.getWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
 		} catch (CoreException e) {
 		}
-
-		return null;
 	}
 
-	public final static void exportTraceRegular() {
+	private final static void exportTraceRegular() {
 		if (!ready())
 			return;
 
@@ -84,7 +88,7 @@ public class ExportTraceHandler extends AbstractHandler {
 
 	private static LegacyTracer legacyTracer = null;
 
-	public final static void exportTraceLegacy() {
+	private final static void exportTraceLegacy() {
 		if (!ready())
 			return;
 

@@ -253,7 +253,7 @@ public class TraceView extends ViewPart {
 
 			@Override
 			public void run() {
-				ExportTraceHandler.exportTraceRegular();
+				ExportTraceHandler.exportTrace(ExportTraceHandler.ExportType.REGULAR);
 			}
 		});
 	}
