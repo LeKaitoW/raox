@@ -119,11 +119,14 @@ public class BuildJobProvider {
 					break;
 				}
 				/*
-				 * FIXME: Validation markers update is commented out due to the fact that it
-				 * significantly slows down start of models, that require long compilation. This
-				 * code should be restored after issue with slow model compilation is resolved.
+				 * FIXME: Validation markers update is commented out due to the
+				 * fact that it significantly slows down start of models, that
+				 * require long compilation. This code should be restored after
+				 * issue with slow model compilation is resolved.
 				 */
-				// updateValidationMarkers(file, loadedResource, monitor);
+				// Пришлось раскомментить, поскоьку модели с Query классами не
+				// валидируются
+				updateValidationMarkers(file, loadedResource, monitor);
 			}
 
 			IMarker[] markers = file.findMarkers(problem, true, 0);
