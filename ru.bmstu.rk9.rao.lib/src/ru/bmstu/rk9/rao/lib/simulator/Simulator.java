@@ -79,6 +79,11 @@ public class Simulator implements ISimulator {
 		return time;
 	}
 
+	@Override
+	public void resetTime() {
+		time = 0;
+	}
+
 	private EventScheduler eventScheduler = new EventScheduler();
 
 	@Override

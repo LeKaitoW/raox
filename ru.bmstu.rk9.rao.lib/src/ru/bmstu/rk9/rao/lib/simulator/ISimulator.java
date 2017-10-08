@@ -26,6 +26,8 @@ public interface ISimulator {
 
 	public double getTime();
 
+	public void resetTime();
+
 	public void pushEvent(Event event);
 
 	public Notifier<ExecutionState> getExecutionStateNotifier();
