@@ -92,7 +92,7 @@ public class ResultsParser {
 			nameStyleRange.fontStyle = SWT.BOLD;
 
 			if (resultParsedText.length() > 0)
-				resultParsedText.append("\n\n");
+				resultParsedText.append(System.lineSeparator()).append(System.lineSeparator());
 			resultParsedText.append(data.getString("name"));
 
 			nameStyleRange.length = resultParsedText.length() - nameStyleRange.start;
@@ -109,7 +109,7 @@ public class ResultsParser {
 
 				styles.add(numberStyle);
 
-				resultParsedText.append("\n\t" + text[0] + ": " + text[1]);
+				resultParsedText.append(System.lineSeparator()).append("  " + text[0] + ": " + text[1]);
 			});
 		}
 
