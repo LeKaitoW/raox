@@ -1,4 +1,4 @@
-
+@echo off
 
 pushd %~dp0
 set current_dir=%CD%
