@@ -16,11 +16,10 @@ import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class RaoExportPrintWriter {
 	final static PrintWriter initializeWriter(String suffix) {
-
-		final IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
 		final String projectName = CurrentSimulator.getStaticModelData().getModelStructure()
 				.getString(ModelStructureConstants.NAME);
-		IPath filePath = workspacePath.append(projectName).append(projectName + suffix);
+		final IPath projectPath = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName).getLocation();
+		IPath filePath = projectPath.append(projectName + suffix);
 
 		PrintWriter writer = null;
 		try {
@@ -28,7 +27,7 @@ public class RaoExportPrintWriter {
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error",
-					"Failed to initialize trace writer");
+					"Failed to initialize file writer");
 			return null;
 		}
 
