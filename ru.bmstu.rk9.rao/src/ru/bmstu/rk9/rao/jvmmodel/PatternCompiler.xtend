@@ -161,7 +161,7 @@ class PatternCompiler extends RaoEntityCompiler {
 						«ENDFOR»
 						«FOR tuple : pattern.relevantTuples»«
 							val tupleInfo = tupleInfoMap.get(tuple)
-							»«tupleInfo.genericTupleInfo.genericName»<«createEnumerationString(tuple.names, [toFirstUpper])
+							»«tupleInfo.genericTupleInfo.genericName»<«createEnumerationString(tuple.types, [simpleName])
 							»> __«tupleInfo.name» = «tupleInfo.resolveMethodName»();
 							if (__«tupleInfo.name» == null) {
 								finish();
