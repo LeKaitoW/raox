@@ -1,92 +1,92 @@
 results.results.numeric_atr_default_stats
-  Mean: 0.392717839545189
   Last value: 1.0
+  Mean: 0.392717839545189
   Standard deviation: 0.8398414340374101
   varcoef: 179.60315608347923
 
 results.results.numeric_atr_weight_stats
-  Mean: 0.392717839545189
   Last value: 1.0
+  Mean: 0.392717839545189
   Standard deviation: 0.8398414340374101
   varcoef: 179.60315608347923
 
 results.results.numeric_atr_weight_stats_auto
-  Mean: 0.392717839545189
   Last value: 1.0
+  Mean: 0.392717839545189
   Standard deviation: 0.8398414340374101
   varcoef: 179.60315608347923
 
 results.results.numeric_datasource_default_stats
-  Mean: 0.392717839545189
   Last value: 1.0
+  Mean: 0.392717839545189
   Standard deviation: 0.8398414340374101
   varcoef: 179.60315608347923
 
 results.results.numeric_datasource_weight_stats
-  Mean: 0.392717839545189
   Last value: 1.0
+  Mean: 0.392717839545189
   Standard deviation: 0.8398414340374101
   varcoef: 179.60315608347923
 
 results.results.numeric_datasource_weight_stats_auto
-  Mean: 0.392717839545189
   Last value: 1.0
+  Mean: 0.392717839545189
   Standard deviation: 0.8398414340374101
   varcoef: 179.60315608347923
 
 results.results.numeric_calc_default_stats_auto
-  Mean: 1.6417442991563107
   Last value: 1.9706142615780737
+  Mean: 1.6417442991563107
   Standard deviation: 0.380489249175758
   varcoef: 8.818186170205077
 
 results.results.num_atr_storeless_manual
-  Mean: 52.79076108626151
   Last value: 62.44670590194746
+  Mean: 52.79076108626151
   Standard deviation: 12.707401719345885
   varcoef: 305.8831794316724
 
 results.results.storeless_manual
-  Mean: 44.72866923390436
   Last value: 62.44670590194746
+  Mean: 44.72866923390436
   Standard deviation: 12.012097603955388
   varcoef: 322.5906142934797
 
-results.results.aaa
-  Mean: 10.874820030992899
+results.results.barber_serviced_100_5000
   Last value: 23.0
+  Mean: 10.874820030992899
   Standard deviation: 7.120588052700966
   varcoef: 466.2401223355091
 
 results.results.cat_atr_default_stats
-  Persent of "Busy": 0.14519153005533506
+  Longest "Vacant": 593.1580216562998
+  Shortest "Vacant": 0.0
+  Time of "Vacant": 4320.425629027425
+  Persent of "Vacant": 0.8548084699446651
+  Longest "Busy": 38.7554235557605
   Shortest "Busy": 20.113564512364064
   Time of "Busy": 733.8359756886616
-  Longest "Vacant": 593.1580216562998
-  Persent of "Vacant": 0.8548084699446651
-  Time of "Vacant": 4320.425629027425
-  Longest "Busy": 38.7554235557605
-  Shortest "Vacant": 0.0
+  Persent of "Busy": 0.14519153005533506
 
 results.results.cat_atr_weight_stats
-  Persent of "Busy": 0.14519153005533506
+  Longest "Vacant": 593.1580216562998
+  Shortest "Vacant": 0.0
+  Time of "Vacant": 4320.425629027425
+  Persent of "Vacant": 0.8548084699446651
+  Longest "Busy": 38.7554235557605
   Shortest "Busy": 20.113564512364064
   Time of "Busy": 733.8359756886616
-  Longest "Vacant": 593.1580216562998
-  Persent of "Vacant": 0.8548084699446651
-  Time of "Vacant": 4320.425629027425
-  Longest "Busy": 38.7554235557605
-  Shortest "Vacant": 0.0
+  Persent of "Busy": 0.14519153005533506
 
 results.results.categorical_manual
-  Time of "Male": 682.4962979107099
+  Longest "Female": 544.9267334985104
+  Shortest "Female": 6.6748647181038905
   Time of "Female": 4290.541866477591
   Persent of "Female": 0.8627606957054873
-  Persent of "Male": 0.13723930429451248
-  Shortest "Male": 1.6024624729720927
-  Longest "Female": 544.9267334985104
   Longest "Male": 150.616388233595
-  Shortest "Female": 6.6748647181038905
+  Shortest "Male": 1.6024624729720927
+  Time of "Male": 682.4962979107099
+  Persent of "Male": 0.13723930429451248
 
 results.results.last_value_enum
   Last value: Busy

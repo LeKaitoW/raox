@@ -113,7 +113,7 @@ result numeric_calc_default_stats_auto = Result.create([(barber_1.serviced + bar
 result num_atr_storeless_manual = Result.create([barber_2.last_service_duration], ResultMode.MANUAL, new StorelessNumericStatistics())
 result storeless_manual = Result.create(new StorelessNumericStatistics())
 
-result aaa = Result.create(new barber_serviced(barber_1, 100.0, 5000.0))
+result barber_serviced_100_5000 = Result.create(new barber_serviced(barber_1, 100.0, 5000.0))
 
 result cat_atr_default_stats = Result.create([barber_1.barber_state])
 result cat_atr_weight_stats = Result.create([barber_1.barber_state], new CategoricalStatistics())

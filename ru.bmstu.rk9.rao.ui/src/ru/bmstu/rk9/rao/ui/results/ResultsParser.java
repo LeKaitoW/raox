@@ -72,7 +72,7 @@ public class ResultsParser {
 		TreeItem resultTreeItem = new TreeItem(modelItem, SWT.NONE);
 		resultTreeItem.setText(new String[] { name });
 
-		data.keySet().stream().filter(e -> e != "type" && e != "name").forEach(e -> {
+		data.keySet().stream().sequential().filter(e -> e != "type" && e != "name").forEach(e -> {
 			String[] text = new String[] { e, data.get(e).toString() };
 
 			TreeItem child = new TreeItem(resultTreeItem, SWT.NONE);
@@ -98,7 +98,7 @@ public class ResultsParser {
 			nameStyleRange.length = resultParsedText.length() - nameStyleRange.start;
 			styles.add(nameStyleRange);
 
-			data.keySet().stream().filter(e -> e != "type" && e != "name").forEach(e -> {
+			data.keySet().stream().sequential().filter(e -> e != "type" && e != "name").forEach(e -> {
 				String[] text = new String[] { e, data.get(e).toString() };
 
 				StyleRange numberStyle = new StyleRange();
