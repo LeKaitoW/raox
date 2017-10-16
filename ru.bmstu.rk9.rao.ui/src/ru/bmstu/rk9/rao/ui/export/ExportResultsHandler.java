@@ -32,7 +32,7 @@ public class ExportResultsHandler extends AbstractHandler {
 
 		List<AbstractResult<?>> results = CurrentSimulator.getResults();
 
-		PrintWriter writer = RaoExportPrintWriter.initializeWriter(".res");
+		PrintWriter writer = ExportPrintWriter.initializeWriter(".res");
 		if (writer == null)
 			return;
 

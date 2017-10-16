@@ -74,7 +74,7 @@ public class ExportTraceHandler extends AbstractHandler {
 
 		Tracer tracer = new Tracer(CurrentSimulator.getStaticModelData());
 
-		PrintWriter writer = RaoExportPrintWriter.initializeWriter(".trc");
+		PrintWriter writer = ExportPrintWriter.initializeWriter(".trc");
 		if (writer == null)
 			return;
 
@@ -99,7 +99,7 @@ public class ExportTraceHandler extends AbstractHandler {
 
 		List<TraceOutput> output = legacyTracer.getTraceList();
 
-		PrintWriter writer = RaoExportPrintWriter.initializeWriter(".trc.legacy");
+		PrintWriter writer = ExportPrintWriter.initializeWriter(".trc.legacy");
 		if (writer == null)
 			return;
 

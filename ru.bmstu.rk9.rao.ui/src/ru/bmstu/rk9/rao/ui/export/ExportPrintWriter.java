@@ -14,12 +14,12 @@ import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 //TODO export to location chosen by user
 
-public class RaoExportPrintWriter {
+public class ExportPrintWriter {
 	final static PrintWriter initializeWriter(String suffix) {
 		final String projectName = CurrentSimulator.getStaticModelData().getModelStructure()
 				.getString(ModelStructureConstants.NAME);
 		final IPath projectPath = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName).getLocation();
-		IPath filePath = projectPath.append(projectName + suffix);
+		final IPath filePath = projectPath.append(projectName + suffix);
 
 		PrintWriter writer = null;
 		try {
