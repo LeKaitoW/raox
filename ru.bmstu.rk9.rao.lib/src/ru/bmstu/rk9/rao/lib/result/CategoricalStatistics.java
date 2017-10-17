@@ -1,6 +1,6 @@
 package ru.bmstu.rk9.rao.lib.result;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
@@ -61,7 +61,7 @@ public class CategoricalStatistics<T> extends Statistics<T> {
 	private double lastCurrentTime = 0;
 	private double fullTime = 0;
 
-	private final Map<T, StatisticsData> statisticsDataset = new HashMap<T, StatisticsData>();
+	private final Map<T, StatisticsData> statisticsDataset = new LinkedHashMap<T, StatisticsData>();
 
 	private final void addState(T value, double delta) {
 		fullTime += delta;
