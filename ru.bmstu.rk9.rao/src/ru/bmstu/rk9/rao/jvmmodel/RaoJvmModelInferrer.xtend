@@ -14,7 +14,6 @@ import ru.bmstu.rk9.rao.rao.Frame
 import ru.bmstu.rk9.rao.rao.FunctionDeclaration
 import ru.bmstu.rk9.rao.rao.Generator
 import ru.bmstu.rk9.rao.rao.Logic
-import ru.bmstu.rk9.rao.rao.MutableEntity
 import ru.bmstu.rk9.rao.rao.Pattern
 import ru.bmstu.rk9.rao.rao.RaoModel
 import ru.bmstu.rk9.rao.rao.ResourceDeclaration
@@ -31,7 +30,6 @@ import static extension ru.bmstu.rk9.rao.jvmmodel.FrameCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.FunctionCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.GeneratorCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.LogicCompiler.*
-import static extension ru.bmstu.rk9.rao.jvmmodel.MutableEntityCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.PatternCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.ResourceDeclarationCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.ResourceTypeCompiler.*
@@ -53,11 +51,6 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	def dispatch compileRaoEntity(EntityCreation entity, JvmDeclaredType it, boolean isPreIndexingPhase) {
-		if (!isPreIndexingPhase && entity.constructor != null)
-			members += entity.asField(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase)
-	}
-	
-	def dispatch compileRaoEntity(MutableEntity entity, JvmDeclaredType it, boolean isPreIndexingPhase) {
 		if (!isPreIndexingPhase && entity.constructor != null)
 			members += entity.asField(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase)
 	}

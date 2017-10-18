@@ -27,7 +27,6 @@ RaoEntity
 	| Logic
 	| Search
 	| EntityCreation
-	| MutableEntity
 	| ResourceDeclaration
 ;
 
@@ -37,11 +36,6 @@ EntityCreation
 	| Constant
 	| DataProvider
 ;
-
-MutableEntity
-	: Cursor
-	| Variable
-	;
 
 ResourceDeclaration:
 	'resource' name = ID '=' constructor = XOrExpression ';'?
@@ -169,14 +163,6 @@ DefaultMethod:
 
 DataProvider:
 	'dataprovider' name = ID '=' constructor = XOrExpression ';'?
-;
-
-Cursor:
-	'cursor' name = ID '=' constructor = XOrExpression ';'?
-;
-
-Variable:
-	'variable' name = ID '=' constructor = XOrExpression ';'?
 ;
 
 // ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //

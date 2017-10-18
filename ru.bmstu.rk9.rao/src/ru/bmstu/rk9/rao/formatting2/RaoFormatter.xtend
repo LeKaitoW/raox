@@ -13,7 +13,6 @@ import ru.bmstu.rk9.rao.rao.Frame
 import ru.bmstu.rk9.rao.rao.FunctionDeclaration
 import ru.bmstu.rk9.rao.rao.Generator
 import ru.bmstu.rk9.rao.rao.Logic
-import ru.bmstu.rk9.rao.rao.MutableEntity
 import ru.bmstu.rk9.rao.rao.Pattern
 import ru.bmstu.rk9.rao.rao.RelevantResource
 import ru.bmstu.rk9.rao.rao.RelevantResourceTuple
@@ -151,11 +150,6 @@ class RaoFormatter extends XbaseFormatter {
 	def dispatch void format(EntityCreation entityCreation, extension IFormattableDocument document) {
 		entityCreation.append(XbaseFormatterPreferenceKeys.blankLinesAroundExpression)
 		format(entityCreation.constructor, document)
-	}
-	
-	def dispatch void format(MutableEntity mutableEntity, extension IFormattableDocument document) {
-		mutableEntity.append(XbaseFormatterPreferenceKeys.blankLinesAroundExpression)
-		format(mutableEntity.constructor, document)
 	}
 
 	def dispatch void format(DataSource dataSource, extension IFormattableDocument document) {
