@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.persistence.Entity;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -47,6 +48,8 @@ import ru.bmstu.rk9.rao.lib.persistence.QueryGenerator;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class BuildUtil {
+
+	private static final Logger logger = Logger.getLogger(BuildUtil.class);
 
 	public enum BundleType {
 		RAOX_LIB("ru.bmstu.rk9.rao.lib", "/bin/"), QUERYDSL_LIB("ru.bmstu.rk9.rao.querydsl",
@@ -319,21 +322,6 @@ public class BuildUtil {
 		return "Build failed: " + message;
 	}
 
-	private static List<String> getJavaClassNames(IProject project) {
-		IPath root = project.getFolder("java").getLocation();
-
-		List<IResource> resources = new ArrayList<>();
-		recursiveFindFiles(resources, root, ResourcesPlugin.getWorkspace().getRoot(), "java");
-
-		List<String> classNames = new ArrayList<>();
-		for (IResource resource : resources) {
-			String relative = resource.getLocation().makeRelativeTo(root).toString();
-			String className = relative.replace(".java", "").replace('/', '.');
-			classNames.add(className);
-		}
-		return classNames;
-	}
-
 	public static String getProjectLocation(IProject project) throws MalformedURLException, CoreException {
 		IProjectDescription description = project.getDescription();
 		java.net.URI locationURI = description.getLocationURI();
@@ -345,10 +333,18 @@ public class BuildUtil {
 			return locationURI.toURL().toString();
 	}
 
-	static void loadJavaAndQueryDslClasses(IProject project, ClassLoader classLoader)
+	static void loadQueryDslClasses(IProject project, ClassLoader classLoader)
 			throws URISyntaxException, CoreException, IOException, ClassNotFoundException {
-		for (String className : getJavaClassNames(project)) {
+		IPath root = project.getFolder("java").getLocation();
+
+		List<IResource> resources = new ArrayList<IResource>();
+		recursiveFindFiles(resources, root, ResourcesPlugin.getWorkspace().getRoot(), "java");
+
+		for (IResource resource : resources) {
+			String relative = resource.getLocation().makeRelativeTo(root).toString();
+			String className = relative.replace(".java", "").replace('/', '.');
 			Class<?> entityClass = Class.forName(className, true, classLoader);
+			logger.debug("Loaded class " + className);
 			@SuppressWarnings("unchecked")
 			Class<Entity> entityAnnotationClass = (Class<Entity>) Class.forName(Entity.class.getCanonicalName(), true,
 					classLoader);
@@ -356,16 +352,23 @@ public class BuildUtil {
 				continue;
 			String queryClassName = className.replaceAll("\\.(?!.*\\.)", ".Q");
 			Class.forName(queryClassName, true, classLoader);
+			logger.debug("Loaded class " + queryClassName);
 		}
 	}
 
 	static boolean generateQueryDslCode(IProject project, ClassLoader classLoader)
 			throws URISyntaxException, CoreException, IOException, ClassNotFoundException {
+		IPath root = project.getFolder("java").getLocation();
 		IPath target = project.getFolder("src-gen").getLocation();
 		QueryGenerator queryGenerator = new QueryGenerator(classLoader, target.toFile());
 
+		List<IResource> resources = new ArrayList<IResource>();
+		recursiveFindFiles(resources, root, ResourcesPlugin.getWorkspace().getRoot(), "java");
+
 		boolean generatedAny = false;
-		for (String className : getJavaClassNames(project)) {
+		for (IResource resource : resources) {
+			String relative = resource.getLocation().makeRelativeTo(root).toString();
+			String className = relative.replace(".java", "").replace('/', '.');
 			Class<?> entityClass = Class.forName(className, true, classLoader);
 			@SuppressWarnings("unchecked")
 			Class<Entity> entityAnnotationClass = (Class<Entity>) Class.forName(Entity.class.getCanonicalName(), true,
@@ -373,6 +376,7 @@ public class BuildUtil {
 			if (!entityClass.isAnnotationPresent(entityAnnotationClass))
 				continue;
 			queryGenerator.generate(entityClass);
+			logger.debug("Generated Query class for " + className);
 			generatedAny = true;
 		}
 		return generatedAny;
