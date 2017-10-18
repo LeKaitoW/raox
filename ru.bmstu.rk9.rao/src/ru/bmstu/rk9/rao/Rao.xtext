@@ -38,6 +38,11 @@ EntityCreation
 	| DataProvider
 ;
 
+MutableEntity
+	: Cursor
+	| Variable
+	;
+
 ResourceDeclaration:
 	'resource' name = ID '=' constructor = XOrExpression ';'?
 ;
@@ -166,7 +171,11 @@ DataProvider:
 	'dataprovider' name = ID '=' constructor = XOrExpression ';'?
 ;
 
-MutableEntity:
+Cursor:
+	'cursor' name = ID '=' constructor = XOrExpression ';'?
+;
+
+Variable:
 	'variable' name = ID '=' constructor = XOrExpression ';'?
 ;
 
