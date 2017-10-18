@@ -99,10 +99,6 @@ public class CurrentSimulator {
 		return currentSimulator.getTime();
 	}
 
-	public static synchronized void resetTime() {
-		currentSimulator.resetTime();
-	}
-
 	public static void pushEvent(Event event) {
 		currentSimulator.pushEvent(event);
 	}
