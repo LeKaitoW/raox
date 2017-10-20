@@ -1,0 +1,6 @@
+bin/
+.metadata/
+.recommenders/
+assembly/target
+raox-game5/target
+
