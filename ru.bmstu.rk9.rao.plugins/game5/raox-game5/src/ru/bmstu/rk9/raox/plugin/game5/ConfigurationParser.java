@@ -30,16 +30,25 @@ public class ConfigurationParser {
 		return object;
 	}
 
+	private static String get2DPosition(int position) {
+		final int width = 3;
+		final int x = (position - 1) % width + 1;
+		final int y = (position - 1) / width + 1;
+		return Integer.toString(x) + ", " + Integer.toString(y);
+	}
+
 	public static String getResourcesCode(JSONObject object) {
 		final JSONArray places = (JSONArray) object.get("places");
 		String code = "";
 
-		code += "resource фишка1 = Фишки.create(1, " + places.get(0) + ")\n";
-		code += "resource фишка2 = Фишки.create(2, " + places.get(1) + ")\n";
-		code += "resource фишка3 = Фишки.create(3, " + places.get(2) + ")\n";
-		code += "resource фишка4 = Фишки.create(4, " + places.get(3) + ")\n";
-		code += "resource фишка5 = Фишки.create(5, " + places.get(4) + ")\n";
-		code += "resource дырка = Дырка.create(" + places.get(5) + ")\n";
+		for (int index = 0; index < places.size(); index++) {
+			final String resourceId = Integer.toString(index + 1);
+			final String resourceName = index == 5 ? "hole" : "block" + resourceId;
+			code += "resource " + resourceName + " = Block.create(" + resourceId + ", new Point("
+					+ get2DPosition(Integer.valueOf((String) places.get(index))) + "))";
+			if (index != places.size() - 1)
+				code += "\n";
+		}
 
 		return code;
 	}
@@ -59,23 +68,23 @@ public class ConfigurationParser {
 
 		String code = "";
 
-		code += "search Расстановка_фишек {\n";
-		code += "\t" + "edge перемещение_вправо = new Edge(Перемещение_фишки.create(Место_дырки.СПРАВА, 1), "
-				+ costRight + ", ApplyOrder." + computeRight + ")\n";
-		code += "\t" + "edge перемещение_влево = new Edge(Перемещение_фишки.create(Место_дырки.СЛЕВА, -1), " + costLeft
-				+ ", ApplyOrder." + computeLeft + ")\n";
-		code += "\t" + "edge перемещение_вверх = new Edge(Перемещение_фишки.create(Место_дырки.СВЕРХУ, -3), " + costUp
-				+ ", ApplyOrder." + computeUp + ")\n";
-		code += "\t" + "edge перемещение_вниз = new Edge(Перемещение_фишки.create(Место_дырки.СНИЗУ, 3), " + costDown
-				+ ", ApplyOrder." + computeDown + ")\n";
+		code += "search Game5 {\n";
+		code += "\t" + "edge right = new Edge(Move.create(HolePosition.RIGHT), " + costRight + ", ApplyOrder."
+				+ computeRight + ")\n";
+		code += "\t" + "edge left = new Edge(Move.create(HolePosition.LEFT), " + costLeft + ", ApplyOrder."
+				+ computeLeft + ")\n";
+		code += "\t" + "edge up = new Edge(Move.create(HolePosition.UP), " + costUp + ", ApplyOrder." + computeUp
+				+ ")\n";
+		code += "\t" + "edge down = new Edge(Move.create(HolePosition.DOWN), " + costDown + ", ApplyOrder."
+				+ computeDown + ")\n";
 		code += "\n";
 		code += "\t" + "def init() {\n";
-		code += "\t\t" + "startCondition = [Фишки.all.exists[номер != место]]\n";
-		code += "\t\t" + "terminateCondition = [Фишки.all.forall[номер == место]]\n";
+		code += "\t\t" + "startCondition = [Block.all.exists[index != getPositionIndex(position)]]\n";
+		code += "\t\t" + "terminateCondition = [Block.all.forall[index == getPositionIndex(position)]]\n";
 		code += "\t\t" + "compareTops = " + object.get("compare") + "\n";
 		code += "\t\t" + "heuristic = [(" + object.get("heuristic") + ") as double]\n";
 		code += "\t" + "}\n";
-		code += "}\n";
+		code += "}";
 
 		return code;
 	}

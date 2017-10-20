@@ -3,7 +3,7 @@
 	"places":["1","2","3","4","5","6"],
 	"solvable":"all",
 	"compare":true,
-	"heuristic":"Поиск_в_ширину()",
+	"heuristic":"breadthFirst()",
 	"computeLeft":"After",
 	"computeRight":"After",
 	"computeUp":"After",

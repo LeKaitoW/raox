@@ -10,16 +10,16 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.PlatformUI;
 import org.json.simple.JSONArray;
 
-import ru.bmstu.rk9.rao.lib.notification.Subscriber;
-import ru.bmstu.rk9.rao.ui.graph.GraphPanel;
-import ru.bmstu.rk9.rao.ui.graph.GraphPanel.GraphEvent;
-import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.Node;
-
 import com.mxgraph.model.mxCell;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.view.mxGraphSelectionModel;
+
+import ru.bmstu.rk9.rao.lib.notification.Subscriber;
+import ru.bmstu.rk9.rao.ui.graph.GraphPanel;
+import ru.bmstu.rk9.rao.ui.graph.GraphPanel.GraphEvent;
+import ru.bmstu.rk9.rao.ui.graph.TreeBuilder.Node;
 
 public class GraphManager {
 
@@ -27,10 +27,8 @@ public class GraphManager {
 		this.graphPanel = graph;
 		this.initialOrder = order;
 		this.currentOrder = order;
-		this.graphPanel.getGraph().getSelectionModel()
-				.addListener(mxEvent.CHANGE, selectionListener);
-		graph.getGraphEventNotifier().addSubscriber(addBoardSubscriber,
-				GraphEvent.GRAPHINFO_WINDOW_OPENED);
+		this.graphPanel.getGraph().getSelectionModel().addListener(mxEvent.CHANGE, selectionListener);
+		graph.getGraphEventNotifier().addSubscriber(addBoardSubscriber, GraphEvent.GRAPHINFO_WINDOW_OPENED);
 	}
 
 	private final int tilesCountX = 3;
@@ -89,19 +87,19 @@ public class GraphManager {
 		for (int i = rules.size() - 1; i >= 0; i--) {
 			final int holeIndex = nodeOrder.indexOf("6");
 			switch (rules.get(i)) {
-			case "перемещение_влево":
+			case "left":
 				nodeOrder.set(holeIndex, nodeOrder.get(holeIndex + 1));
 				nodeOrder.set(holeIndex + 1, "6");
 				break;
-			case "перемещение_вправо":
+			case "right":
 				nodeOrder.set(holeIndex, nodeOrder.get(holeIndex - 1));
 				nodeOrder.set(holeIndex - 1, "6");
 				break;
-			case "перемещение_вверх":
+			case "up":
 				nodeOrder.set(holeIndex, nodeOrder.get(holeIndex + 3));
 				nodeOrder.set(holeIndex + 3, "6");
 				break;
-			case "перемещение_вниз":
+			case "down":
 				nodeOrder.set(holeIndex, nodeOrder.get(holeIndex - 3));
 				nodeOrder.set(holeIndex - 3, "6");
 				break;
@@ -115,8 +113,7 @@ public class GraphManager {
 	private final void createBoard(final Group boardGroup) {
 		tiles.clear();
 		for (int i = 0; i < tilesCountX * tilesCountY; i++) {
-			tiles.add(new TileButton(boardGroup, SWT.NONE, currentOrder.get(i)
-					.toString(), i + 1));
+			tiles.add(new TileButton(boardGroup, SWT.NONE, currentOrder.get(i).toString(), i + 1));
 		}
 	}
 

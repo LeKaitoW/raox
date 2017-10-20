@@ -231,11 +231,11 @@ public class Game5View extends EditorPart {
 		heuristicGridData.widthHint = setOrderGroup.getBorderWidth() + shuffleGroup.getBorderWidth();
 		heuristicSelection.setLayoutData(heuristicGridData);
 		final Combo heuristicList = new Combo(heuristicSelection, SWT.BORDER | SWT.DROP_DOWN | SWT.V_SCROLL);
-		final String zeroHeuristic = "Поиск_в_ширину()";
+		final String zeroHeuristic = "breadthFirst()";
 		heuristicList.add(zeroHeuristic);
-		final String tilesHeuristic = "Кол_во_фишек_не_на_месте()";
+		final String tilesHeuristic = "getNotPlacedBlocks()";
 		heuristicList.add(tilesHeuristic);
-		final String manhattanDistanceHeuristic = "Расстояния_фишек_до_мест()";
+		final String manhattanDistanceHeuristic = "getTaxicabLength()";
 		heuristicList.add(manhattanDistanceHeuristic);
 		heuristicList.setText((String) object.get("heuristic"));
 
@@ -402,7 +402,7 @@ public class Game5View extends EditorPart {
 					((SerializationConfigView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 							.showView(SerializationConfigView.ID)).setCheckedStateForAll();
 
-					ICommandService commandService = (ICommandService) serviceLocator.getService(ICommandService.class);
+					ICommandService commandService = serviceLocator.getService(ICommandService.class);
 					Command command = commandService.getCommand("ru.bmstu.rk9.rao.ui.runtime.execute");
 
 					ExecutionManager.registerBeforeRunSubcriber(() -> {
@@ -513,8 +513,8 @@ public class Game5View extends EditorPart {
 	@Override
 	public void doSave(IProgressMonitor arg0) {
 		try {
-			IFile configIFile = (IFile) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.getActiveEditor().getEditorInput().getAdapter(IFile.class);
+			IFile configIFile = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor()
+					.getEditorInput().getAdapter(IFile.class);
 			fillModelFile(configIFile);
 		} catch (IOException | CoreException e) {
 			e.printStackTrace();
@@ -556,42 +556,42 @@ public class Game5View extends EditorPart {
 	}
 
 	private static final void fillModelFile(IFile configIFile) throws IOException, CoreException {
-		OutputStream outputStream = null;
-		final InputStream inputStream = Game5ProjectConfigurator.class.getClassLoader()
+		OutputStream modelOutputStream = null;
+		final InputStream modelTemplateStream = Game5ProjectConfigurator.class.getClassLoader()
 				.getResourceAsStream(Game5ProjectConfigurator.modelTemplatePath);
 
 		try {
-			OutputStream configOutputStream = new FileOutputStream(configIFile.getRawLocation().toString());
-			PrintStream outputPrintStream = new PrintStream(configOutputStream, true, StandardCharsets.UTF_8.name());
-			outputPrintStream.print(object.toString());
-			outputPrintStream.close();
-
-			InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8.name());
-			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-			outputStream = new FileOutputStream(configIFile.getLocation().removeLastSegments(1)
-					.append(Game5ProjectConfigurator.modelPath).toString());
-			PrintStream printStream = new PrintStream(outputStream, true, StandardCharsets.UTF_8.name());
-
-			final String resourcesCode = ConfigurationParser.getResourcesCode(object);
-			printStream.print(resourcesCode);
-
-			String modelTemplateCode = bufferedReader.readLine();
-			while (modelTemplateCode != null) {
-				printStream.println(modelTemplateCode);
-				modelTemplateCode = bufferedReader.readLine();
+			InputStreamReader modelTemplateStreamReader = new InputStreamReader(modelTemplateStream,
+					StandardCharsets.UTF_8.name());
+			BufferedReader modelTemplateBufferedReader = new BufferedReader(modelTemplateStreamReader);
+			String modelTemplate = "";
+			String modelTemplateLine = modelTemplateBufferedReader.readLine();
+			while (modelTemplateLine != null) {
+				modelTemplate += modelTemplateLine + "\n";
+				modelTemplateLine = modelTemplateBufferedReader.readLine();
 			}
 
-			final String searchCode = ConfigurationParser.getSearchCode(object);
-			printStream.print(searchCode);
+			OutputStream configOutputStream = new FileOutputStream(configIFile.getRawLocation().toString());
+			PrintStream congifPrintStream = new PrintStream(configOutputStream, true, StandardCharsets.UTF_8.name());
+			congifPrintStream.print(object.toString());
+			congifPrintStream.close();
 
-			printStream.close();
+			modelOutputStream = new FileOutputStream(configIFile.getLocation().removeLastSegments(1)
+					.append(Game5ProjectConfigurator.modelPath).toString());
+			PrintStream modelPrintStream = new PrintStream(modelOutputStream, true, StandardCharsets.UTF_8.name());
+
+			final String modelResources = ConfigurationParser.getResourcesCode(object);
+			final String modelSearch = ConfigurationParser.getSearchCode(object);
+
+			modelPrintStream.print(String.format(modelTemplate, modelResources, modelSearch));
+			modelPrintStream.close();
 
 			configIFile.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		} finally {
-			inputStream.close();
-			if (outputStream != null) {
-				outputStream.flush();
-				outputStream.close();
+			modelTemplateStream.close();
+			if (modelOutputStream != null) {
+				modelOutputStream.flush();
+				modelOutputStream.close();
 			}
 		}
 
