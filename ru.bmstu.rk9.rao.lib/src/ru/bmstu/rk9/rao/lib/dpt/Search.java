@@ -228,7 +228,7 @@ public abstract class Search extends AbstractDecisionPoint {
 									node.parent.children.remove(node);
 								node.parent = newChild.parent;
 								node.edgeInfo = newChild.edgeInfo;
-								reduceСost(node, node.g - newChild.g);
+								reduceCost(node, node.g - newChild.g);
 								newChild = node;
 								spawnStatus = SpawnStatus.BETTER;
 								break add_child;
@@ -254,10 +254,10 @@ public abstract class Search extends AbstractDecisionPoint {
 
 	}
 
-	private final void reduceСost(GraphNode node, double delta) {
+	private final void reduceCost(GraphNode node, double delta) {
 		node.g -= delta;
 		for (final GraphNode child : node.children) {
-			reduceСost(child, delta);
+			reduceCost(child, delta);
 		}
 	}
 

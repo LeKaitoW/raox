@@ -5,8 +5,8 @@ Element-Name: common_procedures
 Element-Type: context
 Element-Version: 2.0
 Id: __STS4CBFEeazfLC4KGmVkQ
-Runtime-Version: 2.0.1.201508250612
-Save-Time: 6/9/16 10:11 PM
+Runtime-Version: 2.1.0.201606221726
+Save-Time: 10/9/17 10:34 PM
 
 ------=_.ecl.context-718f04b4-ed39-33e3-af62-0995e4561998
 Content-Type: text/ecl
@@ -69,6 +69,16 @@ proc compare_trace [val model_name] {
 		"ace:/etalon/" $model_name ".trc.etalon"]] | verify-true
 }
 
+proc compare_results [val model_name] {
+	get-menu "Model/Export Results" | click
+
+	read-file -uri [concat "workspace:/etalon/" $model_name ".res.etalon"] | equals [read-file -uri [concat "workspac" +
+		"e:/" $model_name "/" $model_name ".res"]] | verify-true
+
+	read-file -uri [concat "workspace:/" $model_name "/" $model_name ".res"] | equals [read-file -uri [concat "worksp" +
+		"ace:/etalon/" $model_name ".res.etalon"]] | verify-true
+}
+
 proc execute_model [val model_name] {
 	get-button [concat "Execute model " $model_name] | click
 }
@@ -119,5 +129,19 @@ proc test_model_source_trace [val model_name] {
 	execute_model $model_name
 
 	compare_trace $model_name
+}
+
+proc test_model_source_results [val model_name] {
+	open_rao_perspective
+
+	create_rao_project "Пустая модель" $model_name
+
+	copy_model $model_name
+
+	enable_monitoring $model_name
+
+	execute_model $model_name
+
+	compare_results $model_name
 }
 ------=_.ecl.context-718f04b4-ed39-33e3-af62-0995e4561998--
