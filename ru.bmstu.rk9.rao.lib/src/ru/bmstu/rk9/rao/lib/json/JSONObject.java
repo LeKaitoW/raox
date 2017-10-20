@@ -32,8 +32,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -140,7 +140,7 @@ public class JSONObject {
     /**
      * The map where the JSONObject's properties are kept.
      */
-    private final Map<String, Object> map;
+    private final LinkedHashMap<String, Object> map;
 
     /**
      * It is sometimes more convenient and less ambiguous to have a
@@ -154,7 +154,7 @@ public class JSONObject {
      * Construct an empty JSONObject.
      */
     public JSONObject() {
-        this.map = new HashMap<String, Object>();
+        this.map = new LinkedHashMap<String, Object>();
     }
 
     /**
@@ -244,8 +244,8 @@ public class JSONObject {
      *            the JSONObject.
      * @throws JSONException
      */
-    public JSONObject(Map<String, Object> map) {
-        this.map = new HashMap<String, Object>();
+    public JSONObject(LinkedHashMap<String, Object> map) {
+        this.map = new LinkedHashMap<String, Object>();
         if (map != null) {
             Iterator<Entry<String, Object>> i = map.entrySet().iterator();
             while (i.hasNext()) {
@@ -1119,7 +1119,7 @@ public class JSONObject {
      * @return this.
      * @throws JSONException
      */
-    public JSONObject put(String key, Map<String, Object> value) throws JSONException {
+    public JSONObject put(String key, LinkedHashMap<String, Object> value) throws JSONException {
         this.put(key, new JSONObject(value));
         return this;
     }

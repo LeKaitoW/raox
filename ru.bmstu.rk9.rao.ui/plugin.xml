@@ -460,6 +460,11 @@
               optional="false">
         </commandParameter>
      </command>
+     <command
+           categoryId="ru.bmstu.rk9.rao.ui.runtime"
+           id="ru.bmstu.rk9.rao.ui.runtime.exportResults"
+           name="Export Results">
+     </command>
   </extension>
   <extension
         point="org.eclipse.ui.handlers">
@@ -508,8 +513,12 @@
            commandId="ru.bmstu.rk9.rao.ui.runtime.setSimulationScale">
      </handler>
      <handler
-           class="ru.bmstu.rk9.rao.ui.trace.ExportTraceHandler"
+           class="ru.bmstu.rk9.rao.ui.export.ExportTraceHandler"
            commandId="ru.bmstu.rk9.rao.ui.runtime.exportTrace">
+     </handler>
+     <handler
+           class="ru.bmstu.rk9.rao.ui.export.ExportResultsHandler"
+           commandId="ru.bmstu.rk9.rao.ui.runtime.exportResults">
      </handler>
   </extension>
   <extension
@@ -681,6 +690,12 @@
                  </parameter>
               </command>
            </menu>
+           <command
+                 commandId="ru.bmstu.rk9.rao.ui.runtime.exportResults"
+                 id="ru.bmstu.rk9.rao.ui.runtime.menu.exportResults"
+                 label="Export Results"
+                 style="push">
+           </command>
         </menu>
      </menuContribution>
      <menuContribution
