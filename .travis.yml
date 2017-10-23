@@ -1,7 +1,15 @@
 language: java
 
-after_success:
-  - export MAVEN_OPTS="-Xmx512M"
-  - cd deploy/assembly
-  - mvn initialize -N -Pset-raox-version
- 
+install:
+- curl -s http://ftp-stud.fht-esslingen.de/pub/Mirrors/eclipse/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-win32.zip 2>/dev/null > temp.html
+
+script:
+- export MAVEN_OPTS="-Xmx512M"
+- mvn initialize -N -Pset-git-version
+- mvn package
+
+addons:
+  artifacts:
+    s3_region: "eu-west-1"
+    paths:
+    - assembly/target/raox-3.9.0.zip
