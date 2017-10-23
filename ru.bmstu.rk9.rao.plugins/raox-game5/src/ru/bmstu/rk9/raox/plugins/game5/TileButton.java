@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.raox.plugin.game5;
+package ru.bmstu.rk9.raox.plugins.game5;
 
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.resource.FontRegistry;

@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.raox.plugin.game5;
+package ru.bmstu.rk9.raox.plugins.game5;
 
 @SuppressWarnings("serial")
 public class Game5Exception extends RuntimeException {

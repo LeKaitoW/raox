@@ -1,4 +1,4 @@
-package ru.bmstu.rk9.raox.plugin.game5;
+package ru.bmstu.rk9.raox.plugins.game5;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
@@ -7,7 +7,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 
-import ru.bmstu.rk9.raox.plugin.game5.Game5ProjectConfigurator.ProjectWizardStatus;
+import ru.bmstu.rk9.raox.plugins.game5.Game5ProjectConfigurator.ProjectWizardStatus;
 
 public class Game5Wizard extends BasicNewProjectResourceWizard implements IWorkbenchWizard, IExecutableExtension {
 
