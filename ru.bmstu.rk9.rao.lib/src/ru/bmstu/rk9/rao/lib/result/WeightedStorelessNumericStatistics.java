@@ -6,8 +6,7 @@ public class WeightedStorelessNumericStatistics<T extends Number> extends Statis
 
 	@Override
 	public void updateData(JSONObject data) {
-		addValue(lastValue, lastCurrentTime);
-		data.put("Last value", getLastValue());
+		data.put("Last value", Double.isFinite(getLastValue()) ? getLastValue() : "null");
 		data.put("Mean", getMean());
 		data.put("Standard deviation", getStandartDeviation());
 		data.put("varcoef", getCoefficientOfVariation());
@@ -21,6 +20,12 @@ public class WeightedStorelessNumericStatistics<T extends Number> extends Statis
 		}
 		lastValue = nextValue;
 		lastCurrentTime = currentTime;
+	}
+
+	@Override
+	public void prepareData() {
+		if (Double.isFinite(lastValue))
+			addValue(lastValue, lastCurrentTime);
 	}
 
 	private boolean started = false;

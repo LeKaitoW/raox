@@ -9,6 +9,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 
@@ -84,27 +85,37 @@ public class AnimationContextSWT implements AnimationContext {
 		return image;
 	}
 
-	// TODO handle alignment
 	@Override
-	public void drawText(String text, int x, int y, RaoColor textRaoColor, int width, Alignment alignment) {
+	public void drawText(Object object, int x, int y, RaoColor textRaoColor, int width, Alignment alignment) {
+		final String text = object.toString();
+
+		Point textSize = paintContext.textExtent(text);
+		switch (alignment) {
+		case LEFT:
+			break;
+		case CENTER:
+			x += width / 2 - textSize.x / 2;
+			break;
+		case RIGHT:
+			x += width - textSize.x;
+			break;
+		}
+
 		paintContext.setAlpha(textRaoColor.alpha);
-
-		Color foregroundColor = createColor(textRaoColor);
-
+		final Color foregroundColor = createColor(textRaoColor);
 		paintContext.setForeground(foregroundColor);
 		paintContext.drawText(text, x, y, true);
-
 		foregroundColor.dispose();
 	}
 
 	@Override
-	public void drawText(String text, int x, int y, RaoColor textColor) {
-		drawText(text, x, y, textColor, 0, Alignment.LEFT);
+	public void drawText(Object object, int x, int y, RaoColor textColor) {
+		drawText(object, x, y, textColor, 0, Alignment.LEFT);
 	}
 
 	@Override
-	public void drawText(String text, int x, int y) {
-		drawText(text, x, y, RaoColor.BLACK);
+	public void drawText(Object object, int x, int y) {
+		drawText(object, x, y, RaoColor.BLACK);
 	}
 
 	@Override

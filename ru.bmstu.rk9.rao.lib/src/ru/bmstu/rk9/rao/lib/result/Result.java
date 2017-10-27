@@ -1,51 +1,25 @@
 package ru.bmstu.rk9.rao.lib.result;
 
-import ru.bmstu.rk9.rao.lib.json.JSONObject;
-import ru.bmstu.rk9.rao.lib.naming.RaoNameable;
-import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
+public class Result {
 
-public class Result<T> extends RaoNameable {
-
-	public Result(AbstractDataSource<T> dataSource, ResultMode resultMode, Statistics<T> statistics) {
-		this.dataSource = dataSource;
-		this.resultMode = resultMode;
-		this.statistics = statistics;
+	static public <T> UpdatableResult<T> create(Statistics<T> statistics) {
+		return new UpdatableResult<T>(statistics);
 	}
 
-	public Result(AbstractDataSource<T> dataSource, Statistics<T> statistics) {
-		this(dataSource, ResultMode.AUTO, statistics);
+	static public <T> EvaluatableResult<T> create(AbstractDataSource<T> dataSource, ResultMode resultMode,
+			Statistics<T> statistics) {
+		return new EvaluatableResult<T>(dataSource, resultMode, statistics);
 	}
 
-	public Result(AbstractDataSource<T> dataSource, ResultMode resultMode) {
-		this(dataSource, resultMode, dataSource.getDefaultStatistics());
+	static public <T> EvaluatableResult<T> create(AbstractDataSource<T> dataSource, Statistics<T> statistics) {
+		return new EvaluatableResult<T>(dataSource, ResultMode.AUTO, statistics);
 	}
 
-	public Result(AbstractDataSource<T> dataSource) {
-		this(dataSource, ResultMode.AUTO, dataSource.getDefaultStatistics());
+	static public <T> EvaluatableResult<T> create(AbstractDataSource<T> dataSource, ResultMode resultMode) {
+		return new EvaluatableResult<T>(dataSource, resultMode, dataSource.getDefaultStatistics());
 	}
 
-	public final JSONObject getData() {
-		JSONObject datasetData = new JSONObject();
-		datasetData.put("name", getName());
-		statistics.updateData(datasetData);
-		return datasetData;
-	};
-
-	public final void update() {
-		if (!dataSource.condition())
-			return;
-		final T value = dataSource.evaluate();
-		statistics.update(value, CurrentSimulator.getTime());
-		CurrentSimulator.getDatabase().addResultEntry(this, value);
-	};
-
-	private final ResultMode resultMode;
-
-	private final Statistics<T> statistics;
-
-	private final AbstractDataSource<T> dataSource;
-
-	public final ResultMode getResultMode() {
-		return resultMode;
+	static public <T> EvaluatableResult<T> create(AbstractDataSource<T> dataSource) {
+		return new EvaluatableResult<T>(dataSource, ResultMode.AUTO, dataSource.getDefaultStatistics());
 	}
 }

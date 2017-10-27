@@ -1,0 +1,26 @@
+<assembly>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<id>eclipse-${raox-version}${target-os-property}${target-bitness-property}</id>
+	<fileSets>
+		<fileSet>
+			<directory>${eclipse-archive-root-path}</directory>
+			<outputDirectory>./</outputDirectory>
+			<excludes>
+				<exclude>./${eclipse-content-relative-path}/eclipse.ini</exclude>
+			</excludes>
+		</fileSet>
+		<fileSet>
+			<directory>${basedir}/target</directory>
+			<outputDirectory>./${eclipse-content-relative-path}</outputDirectory>
+			<includes>
+				<include>eclipse.ini</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>${basedir}/target/plugins</directory>
+			<outputDirectory>${eclipse-content-relative-path}/dropins</outputDirectory>
+		</fileSet>
+	</fileSets>
+</assembly>

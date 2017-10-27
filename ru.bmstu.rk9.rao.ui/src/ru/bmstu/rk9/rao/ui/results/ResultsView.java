@@ -1,7 +1,5 @@
 package ru.bmstu.rk9.rao.ui.results;
 
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -22,7 +20,6 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -42,92 +39,27 @@ import org.eclipse.ui.themes.ITheme;
 import org.eclipse.ui.themes.IThemeManager;
 import org.osgi.framework.Bundle;
 
-import ru.bmstu.rk9.rao.lib.json.JSONObject;
-import ru.bmstu.rk9.rao.lib.result.Result;
+import ru.bmstu.rk9.rao.lib.result.AbstractResult;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
+import ru.bmstu.rk9.rao.ui.export.ExportResultsHandler;
 
 public class ResultsView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.ResultsView"; //$NON-NLS-1$
 
 	private static IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode("ru.bmstu.rk9.rao.ui");
 
-	private static List<Result<?>> results;
+	private static List<AbstractResult<?>> results;
 
 	private static boolean viewAsText = prefs.getBoolean("ResultsViewAsText", false);
 
-	private static HashMap<String, TreeItem> models;
-
-	private static void parseResult(JSONObject data) {
-		String fullName = data.getString("name");
-		int projDot = fullName.indexOf('.');
-		int modelDot = projDot + 1 + fullName.substring(projDot + 1).indexOf('.');
-
-		String model = fullName.substring(projDot + 1, modelDot);
-		String name = fullName.substring(modelDot + 1);
-
-		TreeItem modelItem = models.get(model);
-		if (modelItem == null) {
-			modelItem = new TreeItem(tree, SWT.NONE);
-			modelItem.setText(model);
-			models.put(model, modelItem);
-		}
-
-		TreeItem result = new TreeItem(modelItem, SWT.NONE);
-		result.setText(new String[] { name });
-
-		String origin = text.getText();
-
-		StyleRange styleRange = new StyleRange();
-		styleRange.start = origin.length();
-		styleRange.fontStyle = SWT.BOLD;
-
-		String[] resultText = { origin + (origin.length() > 0 ? "\n\n" : "") + data.getString("name") };
-
-		styleRange.length = resultText[0].length() - origin.length();
-
-		LinkedList<StyleRange> numberStyles = new LinkedList<StyleRange>();
-
-		data.keySet().stream().filter(e -> e != "type" && e != "name").forEach(e -> {
-			String[] text = new String[] { e, data.get(e).toString() };
-
-			TreeItem child = new TreeItem(result, SWT.NONE);
-			child.setText(text);
-
-			StyleRange numberStyle = new StyleRange();
-			numberStyle.start = resultText[0].length() + text[0].length() + 4;
-			numberStyle.length = text[1].length();
-			numberStyle.fontStyle = SWT.ITALIC;
-			numberStyle.foreground = child.getDisplay().getSystemColor(SWT.COLOR_DARK_BLUE);
-
-			numberStyles.add(numberStyle);
-
-			resultText[0] += "\n\t" + text[0] + ": " + text[1];
-		});
-
-		StyleRange[] styles = text.getStyleRanges();
-		text.setText(resultText[0]);
-		text.setStyleRanges(styles);
-		text.setStyleRange(styleRange);
-
-		for (StyleRange style : numberStyles)
-			text.setStyleRange(style);
-	}
-
-	public static void setResults(List<Result<?>> results) {
-		ResultsView.results = results;
+	public static void update() {
+		ResultsView.results = CurrentSimulator.getResults();
 
 		if (!isInitialized())
 			return;
 
-		models = new HashMap<String, TreeItem>();
-
-		for (TreeItem item : tree.getItems())
-			item.dispose();
-
-		text.setText("");
-
-		for (Result<?> r : results) {
-			parseResult(r.getData());
-		}
+		ResultsParser.updateResultTextView(text, results);
+		ResultsParser.updateResultTreeView(tree, results);
 
 		for (TreeItem model : tree.getItems())
 			model.setExpanded(true);
@@ -171,15 +103,13 @@ public class ResultsView extends ViewPart {
 				setText("View as tree");
 				setImageDescriptor(tree);
 				composite.setContent(ResultsView.text);
-
-				setTreeActions(false);
 			} else {
 				setText("View as text");
 				setImageDescriptor(text);
 				composite.setContent(ResultsView.tree);
-
-				setTreeActions(true);
 			}
+
+			switchActionsSet(viewAsText);
 		}
 
 		@Override
@@ -249,15 +179,35 @@ public class ResultsView extends ViewPart {
 		};
 	};
 
-	private static void setTreeActions(boolean state) {
-		if (state) {
-			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionExpandAll);
-			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionCollapseAll);
-			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionCollapseModels);
-		} else {
+	private static final String EXPORT_RESULTS_ID = "ResultsView.actions.exportResults";
+	private static Action actionExportResults = new Action() {
+		{
+			setId(EXPORT_RESULTS_ID);
+
+			setText("Export Results");
+			setImageDescriptor(ImageDescriptor.createFromURL(FileLocator.find(Platform.getBundle("ru.bmstu.rk9.rao.ui"),
+					new Path("icons/clipboard-list.png"), null)));
+		}
+
+		@Override
+		public void run() {
+			ExportResultsHandler.exportResults();
+		}
+	};
+
+	private static void switchActionsSet(boolean viewAsText) {
+		if (viewAsText) {
 			toolbarMgr.remove(EXPAND_ALL_ID);
 			toolbarMgr.remove(COLLAPSE_ALL_ID);
 			toolbarMgr.remove(COLLAPSE_MODELS_ID);
+
+			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionExportResults);
+		} else {
+			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionExpandAll);
+			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionCollapseAll);
+			toolbarMgr.insertBefore(TREE_TEXT_SWITCH_ID, actionCollapseModels);
+
+			toolbarMgr.remove(EXPORT_RESULTS_ID);
 		}
 
 		actionBars.updateActionBars();
@@ -363,7 +313,7 @@ public class ResultsView extends ViewPart {
 		actionTreeTextSwitch.updateLook();
 
 		if (results != null)
-			setResults(results);
+			update();
 	}
 
 	private void updateTextFont() {

@@ -1,0 +1,65 @@
+import java.awt.Point
+import java.awt.Dimension
+
+constant boardSize = new Dimension(3, 3)
+
+enum HolePosition {RIGHT, LEFT, UP, DOWN, UNDEFINED}
+
+type Block {
+	int index
+	Point position
+}
+
+%s
+
+rule Move(HolePosition holePosition) {
+	relevant _block = Block.all.filter[getHolePosition(position) == holePosition].any()
+	relevant _hole = hole
+
+	def execute() {
+		val Point position = new Point(_hole.position)
+		_hole.position = _block.position
+		_block.position = position
+	}
+}
+
+HolePosition getHolePosition(Point block_position) {
+	if (block_position.x == hole.position.x && block_position.y - 1 == hole.position.y)
+		return HolePosition.UP
+
+	if (block_position.x == hole.position.x && block_position.y + 1 == hole.position.y)
+		return HolePosition.DOWN
+
+	if (block_position.y == hole.position.y && block_position.x + 1 == hole.position.x)
+		return HolePosition.RIGHT
+
+	if (block_position.y == hole.position.y && block_position.x - 1 == hole.position.x)
+		return HolePosition.LEFT
+
+	return HolePosition.UNDEFINED
+}
+
+int getPositionIndex(Point position) {
+	return (position.y - 1) * boardSize.width + position.x
+}
+
+Point get2DPosition(int index) {
+	return new Point((index - 1) %% boardSize.width + 1, (index - 1) / boardSize.width + 1)
+}
+
+int getNotPlacedBlocks() {
+	return Block.all.filter[index != hole.index && index != getPositionIndex(position)].size
+}
+
+int breadthFirst() {
+	return 0
+}
+
+int getTaxicabLength() {
+	return Block.all.stream.mapToInt[
+		val positionTo = get2DPosition(index)
+		return Math.abs(positionTo.x - position.x) + Math.abs(positionTo.y - position.y) 
+	].sum
+}
+
+%s

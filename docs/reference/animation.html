@@ -408,93 +408,93 @@ drawImage(String name,
 
 <h3>Пример, <a href="https://github.com/aurusov/raox-models/tree/master/tutorial/animation/whos_that">скачать</a></h3>
 <pre><code class="rao">event Timer() {
-    Timer.plan(currentTime + 1);
+    Timer.plan(currentTime + 1)
 }
 
 def init() {
-    Timer.plan(currentTime + 1);
+    Timer.plan(currentTime + 1)
 }
 
 def terminateCondition() {
-    return currentTime &gt;= 200;
+    return currentTime &gt;= 200
 }
 
 frame WhosThat {
     def init() {
-        background = new Background(300, 300, RaoColor.WHITE);
+        background = new Background(300, 300, RaoColor.WHITE)
     }
 
     def draw() {
-        val dy = Math.abs(4 - currentTime % 8) as int;
-        val dx = Math.abs(8 - currentTime % 16) as int;
-        val bodyColor = new RaoColor(255, 153, 188);
-        val mouthColor = new RaoColor(242, 245, 207);
+        val dy = Math.abs(4 - currentTime % 8) as int
+        val dx = Math.abs(8 - currentTime % 16) as int
+        val bodyColor = new RaoColor(255, 153, 188)
+        val mouthColor = new RaoColor(242, 245, 207)
 
         /* tail */
-        drawTriangle(255 + dx, 170 + dy, 290, 40 + dy, 200, 150 + dy, bodyColor, bodyColor);
-        drawLine(255 + dx, 170 + dy, 290, 40 + dy, RaoColor.BLACK);
+        drawTriangle(255 + dx, 170 + dy, 290, 40 + dy, 200, 150 + dy, bodyColor, bodyColor)
+        drawLine(255 + dx, 170 + dy, 290, 40 + dy, RaoColor.BLACK)
 
-        drawTriangle(100 + dx, 20 + dy, 290, 40 + dy, 275, 75 + dy, bodyColor, bodyColor);
-        drawTriangle(100 + dx, 20 + dy, 140, 24 + dy, 130, 30 + dy, RaoColor.WHITE, RaoColor.WHITE);
-        drawLine(100 + dx, 20 + dy, 290, 40 + dy, RaoColor.BLACK);
-        drawLine(100 + dx, 20 + dy, 265, 72 + dy, RaoColor.BLACK);
+        drawTriangle(100 + dx, 20 + dy, 290, 40 + dy, 275, 75 + dy, bodyColor, bodyColor)
+        drawTriangle(100 + dx, 20 + dy, 140, 24 + dy, 130, 30 + dy, RaoColor.WHITE, RaoColor.WHITE)
+        drawLine(100 + dx, 20 + dy, 290, 40 + dy, RaoColor.BLACK)
+        drawLine(100 + dx, 20 + dy, 265, 72 + dy, RaoColor.BLACK)
 
-        drawTriangle(250 + dx, 220 + dy, 270, 40 + dy, 200, 150 + dy, bodyColor, bodyColor);
-        drawLine(250 + dx, 68 + dy, 220, 120 + dy, RaoColor.BLACK);
+        drawTriangle(250 + dx, 220 + dy, 270, 40 + dy, 200, 150 + dy, bodyColor, bodyColor)
+        drawLine(250 + dx, 68 + dy, 220, 120 + dy, RaoColor.BLACK)
 
         /* right back leg */
-        drawTriangle(220 + dx, 220 + dy, 245 + dx, 255 + dy, 260, 183 + dy, bodyColor, bodyColor);
+        drawTriangle(220 + dx, 220 + dy, 245 + dx, 255 + dy, 260, 183 + dy, bodyColor, bodyColor)
 
         /* body */
-        drawEllipse(30 + dx, 100 + dy, 230, 150, bodyColor, RaoColor.BLACK);
+        drawEllipse(30 + dx, 100 + dy, 230, 150, bodyColor, RaoColor.BLACK)
 
         /* right back leg partially-behind effect */
-        drawTriangle(240 + dx, 220 + dy, 245 + dx, 255 + dy, 260, 183 + dy, bodyColor, bodyColor);
-        drawTriangle(233 + dx, 243 + dy, 245 + dx, 255 + dy, 255, 245 + dy, RaoColor.WHITE, RaoColor.WHITE);
-        drawLine(226 + dx, 228 + dy, 245 + dx, 255 + dy, RaoColor.BLACK);
-        drawLine(245 + dx * 2, 255 + dy, 260, 183 + dy, RaoColor.BLACK);
+        drawTriangle(240 + dx, 220 + dy, 245 + dx, 255 + dy, 260, 183 + dy, bodyColor, bodyColor)
+        drawTriangle(233 + dx, 243 + dy, 245 + dx, 255 + dy, 255, 245 + dy, RaoColor.WHITE, RaoColor.WHITE)
+        drawLine(226 + dx, 228 + dy, 245 + dx, 255 + dy, RaoColor.BLACK)
+        drawLine(245 + dx * 2, 255 + dy, 260, 183 + dy, RaoColor.BLACK)
 
         /* left ear */
-        drawCircle(35 + dx, 150 + dy, 40, bodyColor, RaoColor.BLACK);
+        drawCircle(35 + dx, 150 + dy, 40, bodyColor, RaoColor.BLACK)
 
         /* head */
-        drawEllipse(7 + dx, 127 + dy, 135, 125, bodyColor, RaoColor.BLACK);
+        drawEllipse(7 + dx, 127 + dy, 135, 125, bodyColor, RaoColor.BLACK)
 
         /* right ear */
-        drawCircle(120 + dx, 150 + dy, 40, bodyColor, RaoColor.BLACK);
-        drawCircle(120 + dx, 150 + dy, 20, bodyColor, RaoColor.BLACK);
+        drawCircle(120 + dx, 150 + dy, 40, bodyColor, RaoColor.BLACK)
+        drawCircle(120 + dx, 150 + dy, 20, bodyColor, RaoColor.BLACK)
 
         /* left eye */
-        drawCircle(23 + dx, 180 + dy, 30, RaoColor.WHITE, RaoColor.BLACK);
-        drawCircle(28 + dx, 180 + dy, 2, RaoColor.BLACK, RaoColor.BLACK);
+        drawCircle(23 + dx, 180 + dy, 30, RaoColor.WHITE, RaoColor.BLACK)
+        drawCircle(28 + dx, 180 + dy, 2, RaoColor.BLACK, RaoColor.BLACK)
 
         /* right eye */
-        drawCircle(80 + dx, 180 + dy, 30, RaoColor.WHITE, RaoColor.BLACK);
-        drawCircle(78 + dx, 180 + dy, 2, RaoColor.BLACK, RaoColor.BLACK);
+        drawCircle(80 + dx, 180 + dy, 30, RaoColor.WHITE, RaoColor.BLACK)
+        drawCircle(78 + dx, 180 + dy, 2, RaoColor.BLACK, RaoColor.BLACK)
 
         /* left front leg */
-        drawTriangle(10 + dx, 225 + dy, 1 - dx, 265 + dy, 80, 225 + dy, bodyColor, bodyColor);
-        drawTriangle(0 + dx, 255 + dy, 1 - dx, 265 + dy, 15, 258 + dy, RaoColor.WHITE, RaoColor.WHITE);
-        drawLine(10 + dx, 225 + dy, 1 - dx, 265 + dy, RaoColor.BLACK);
-        drawLine(1, 265 + dy, 80, 225 + dy, RaoColor.BLACK);
+        drawTriangle(10 + dx, 225 + dy, 1 - dx, 265 + dy, 80, 225 + dy, bodyColor, bodyColor)
+        drawTriangle(0 + dx, 255 + dy, 1 - dx, 265 + dy, 15, 258 + dy, RaoColor.WHITE, RaoColor.WHITE)
+        drawLine(10 + dx, 225 + dy, 1 - dx, 265 + dy, RaoColor.BLACK)
+        drawLine(1, 265 + dy, 80, 225 + dy, RaoColor.BLACK)
 
         /* mouth area */
-        drawEllipse(1 + dx, 188 + dy, 100, 70, mouthColor, RaoColor.BLACK);
-        drawTriangle(10 + dx, 225 + dy, 45, 250 + dy, 70, 225 + dy, bodyColor, RaoColor.BLACK);
+        drawEllipse(1 + dx, 188 + dy, 100, 70, mouthColor, RaoColor.BLACK)
+        drawTriangle(10 + dx, 225 + dy, 45, 250 + dy, 70, 225 + dy, bodyColor, RaoColor.BLACK)
 
         /* nose */
-        drawLine(20 + dx, 214 + dy, 27, 217 + dy, RaoColor.BLACK);
-        drawLine(38 + dx, 217 + dy, 44, 214 + dy, RaoColor.BLACK);
+        drawLine(20 + dx, 214 + dy, 27, 217 + dy, RaoColor.BLACK)
+        drawLine(38 + dx, 217 + dy, 44, 214 + dy, RaoColor.BLACK)
 
         /* teeth */
-        drawTriangle(15 + dx, 225 + dy, 20 + dx, 230 + dy, 25 + dx, 225 + dy, RaoColor.WHITE, RaoColor.BLACK);
-        drawTriangle(50 + dx, 225 + dy, 55 + dx, 230 + dy, 60 + dx, 225 + dy, RaoColor.WHITE, RaoColor.BLACK);
+        drawTriangle(15 + dx, 225 + dy, 20 + dx, 230 + dy, 25 + dx, 225 + dy, RaoColor.WHITE, RaoColor.BLACK)
+        drawTriangle(50 + dx, 225 + dy, 55 + dx, 230 + dy, 60 + dx, 225 + dy, RaoColor.WHITE, RaoColor.BLACK)
 
         /* right front leg */
-        drawTriangle(135 + dx, 240 + dy, 170 + dx, 275 + dy, 175, 225 + dy, bodyColor, bodyColor);
-        drawTriangle(159 + dx, 265 + dy, 170 + dx, 275 + dy, 176, 260 + dy, RaoColor.WHITE, RaoColor.WHITE);
-        drawLine(135 + dx, 240 + dy, 170 + dx, 275 + dy, RaoColor.BLACK);
-        drawLine(175 + dx, 225 + dy, 170 + dx, 275 + dy, RaoColor.BLACK);
+        drawTriangle(135 + dx, 240 + dy, 170 + dx, 275 + dy, 175, 225 + dy, bodyColor, bodyColor)
+        drawTriangle(159 + dx, 265 + dy, 170 + dx, 275 + dy, 176, 260 + dy, RaoColor.WHITE, RaoColor.WHITE)
+        drawLine(135 + dx, 240 + dy, 170 + dx, 275 + dy, RaoColor.BLACK)
+        drawLine(175 + dx, 225 + dy, 170 + dx, 275 + dy, RaoColor.BLACK)
     }
 }
 </code></pre>
@@ -518,33 +518,33 @@ def keyPressed (int keyCode, int stateMask)
 	</li>
 </ul>
 <h3>Пример, <a href="https://github.com/aurusov/raox-models/tree/master/tutorial/animation/bird">скачать</a></h3>
-<pre><code class="rao">constant bg_forest_b_width = 1280;
-constant bg_forest_b_height = 381;
-constant bg_forest_c_height = 360;
-constant width = bg_forest_b_width;
-constant height = bg_forest_b_height;
+<pre><code class="rao">constant bg_forest_b_width = 1280
+constant bg_forest_b_height = 381
+constant bg_forest_c_height = 360
+constant width = bg_forest_b_width
+constant height = bg_forest_b_height
 
 type Sprite {
-    int bg_forest_b_left;
-    int bg_forest_c_left;
-    int bird_x;
-    int bird_y;
-    String bird_sprite_image;
+    int bg_forest_b_left
+    int bg_forest_c_left
+    int bird_x
+    int bird_y
+    String bird_sprite_image
 }
 
 type Mouse {
-    boolean down;
-    int x;
-    int y;
+    boolean down
+    int x
+    int y
 }
 
 sequence birdSpriteNames = new Values(
     #["img/bird/frame-1.png", "img/bird/frame-2.png", "img/bird/frame-3.png", "img/bird/frame-4.png",
-        "img/bird/frame-5.png", "img/bird/frame-6.png", "img/bird/frame-7.png", "img/bird/frame-8.png"]);
-sequence bird_dx = new Uniform(123456789, -1, 1);
+        "img/bird/frame-5.png", "img/bird/frame-6.png", "img/bird/frame-7.png", "img/bird/frame-8.png"])
+sequence bird_dx = new Uniform(123456789, -1, 1)
 
-resource sprite = Sprite.create(0, 0, 100, 20, birdSpriteNames.next());
-resource mouse = Mouse.create(false, 0, 0);
+resource sprite = Sprite.create(0, 0, 100, 20, birdSpriteNames.next())
+resource mouse = Mouse.create(false, 0, 0)
 
 int sign(int value) {
     if (value == 0)
@@ -573,8 +573,8 @@ event Timer() {
         sprite.bird_y = sprite.bird_y - 1
 
     if (mouse.down) {
-        sprite.bird_x = sprite.bird_x + sign(mouse.x - sprite.bird_x);
-        sprite.bird_y = sprite.bird_y + sign(mouse.y - sprite.bird_y);
+        sprite.bird_x = sprite.bird_x + sign(mouse.x - sprite.bird_x)
+        sprite.bird_y = sprite.bird_y + sign(mouse.y - sprite.bird_y)
     }
 
     if (sprite.bird_x &lt; 0)

@@ -333,8 +333,8 @@ class RaoValidator extends AbstractRaoValidator {
 
 	@Check
 	def checkResultDeclaration(Result result) {
-		if (!result.constructor.actualType.isSubtypeOf(typeof(ru.bmstu.rk9.rao.lib.result.Result)))
-			error("Error in declaration of \"" + result.name + "\": only Rao results are allowed.",
+		if (!result.constructor.actualType.isSubtypeOf(typeof(ru.bmstu.rk9.rao.lib.result.AbstractResult)))
+			error("Error in declaration of \"" + result.name + "\": only Rao results are allowed. Use Result.create() method",
 				RaoPackage.eINSTANCE.result_Constructor)
 	}
 

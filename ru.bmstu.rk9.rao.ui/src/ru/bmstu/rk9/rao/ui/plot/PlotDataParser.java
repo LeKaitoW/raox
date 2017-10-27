@@ -25,7 +25,6 @@ import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.ui.trace.Tracer;
 
 public class PlotDataParser {
-
 	public PlotDataParser(final CollectedDataNode node) {
 		this.node = node;
 	}

@@ -14,10 +14,10 @@
 <pre><code class="rao">log(object)</code></pre>
 <p>У объекта автоматически вызывается метод <code>toString()</code>. Пример</p>
 <pre><code class="rao">type TechSupport {
-    int callCount;
+    int callCount
 }
 
-resource techSupport = TechSupport.create(0);
+resource techSupport = TechSupport.create(0)
 sequence newCallInterval = new Exponential(123456789, 1 / 30.0)
 
 event NewCall() {

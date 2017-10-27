@@ -17,7 +17,7 @@
     <i>тело_функции</i>
 }</code></pre>
 <p>Вызов функции имеет следующий вид:</p>
-<pre><code class="rao"><i>имя_функции</i>(<i>список_параметров</i>);</code></pre>
+<pre><code class="rao"><i>имя_функции</i>(<i>список_параметров</i>)</code></pre>
 <p>Вызов одной функции из другой:</p>
 <pre><code class="rao">double длина_линии(double x1, double y1, double x2, double y2) {
     val y_diff = Math.abs(y2 - y2)
@@ -77,8 +77,8 @@ double периметр_треугольника(
 <h3>Фильтры</h3>
 <p>Булевы функции можно использовать в фильтрах:</p>
 <pre><code class="rao">type Фишки {
-    int номер;
-    int место;
+    int номер
+    int место
 }
 
 boolean фишка_на_месте(int номер, int место) {
@@ -103,7 +103,7 @@ double кол_во_фишек_не_на_месте() {
     return Фишки.accessible.size - Фишки.accessible.filter[фишка | return фишка.номер == фишка.место].size
 }
 </code></pre>
-<p>Если нет нужны заводить итератор:</p>
+<p>Можно не задавать итератор (<code>фишка</code>). Тогда параметры ресурса будут сразу доступны:</p>
 <pre><code class="rao">double кол_во_фишек_не_на_месте() {
     return Фишки.accessible.size - Фишки.accessible.filter[номер == место].size
 }

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension
+		point="org.eclipse.ui.menus">
+		<menuContribution
+			locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+			<menu
+				id="raox.game5.menu"
+				label="Plugins">
+				<visibleWhen
+					checkEnabled="false">
+					<with
+						variable="ru.bmstu.rk9.rao.ui.handlers.showActions">
+						<equals
+							value="showActions">
+						</equals>
+					</with>
+				</visibleWhen>
+				<command
+					commandId="raox.game5"
+					id="raox.game5"
+					label="Game5"
+					style="push">
+				</command>
+			</menu>
+		</menuContribution>
+	</extension>
+	<extension
+		point="org.eclipse.ui.commands">
+		<command
+			description="Run Game5"
+			id="raox.game5"
+			name="Game 5">
+		</command>
+	</extension>
+	<extension
+		point="org.eclipse.ui.handlers">
+		<handler
+			class="ru.bmstu.rk9.raox.plugins.game5.Game5Handler"
+			commandId="raox.game5">
+		</handler>
+	</extension>
+	<extension
+		point="org.eclipse.ui.editors">
+		<editor
+			class="ru.bmstu.rk9.raox.plugins.game5.Game5View"
+			id="raox-game5.Game5View"
+			name="Game5 View"
+			extensions="json">
+		</editor>
+	</extension>
+	<extension
+		point="org.eclipse.ui.newWizards">
+		<category
+			id="ru.bmstu.rk9.rao.wizard"
+			name="Rao X">
+		</category>
+		<wizard
+			name="Rao X Game5 Project"
+			class="ru.bmstu.rk9.raox.plugins.game5.Game5Wizard"
+			id="raox.game5.Game5Wizard"
+			icon="icons/raox-game5.png"
+			category="ru.bmstu.rk9.rao.wizard"
+			project="true"
+			finalPerspective="ru.bmstu.rk9.rao.ui.perspective">
+		</wizard>
+	</extension>
+</plugin>

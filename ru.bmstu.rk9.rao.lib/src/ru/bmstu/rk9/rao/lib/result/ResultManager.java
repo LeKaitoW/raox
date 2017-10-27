@@ -8,26 +8,41 @@ import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
 public class ResultManager {
 
-	public ResultManager(List<Result<?>> results) {
+	public ResultManager(List<AbstractResult<?>> results) {
 		this.results.addAll(results);
 		CurrentSimulator.getExecutionStateNotifier().addSubscriber(this.stateChangedSubscriber,
 				CurrentSimulator.ExecutionState.STATE_CHANGED);
+		CurrentSimulator.getExecutionStateNotifier().addSubscriber(this.executionCompletedSubscriber,
+				CurrentSimulator.ExecutionState.EXECUTION_COMPLETED);
 	}
 
 	private final Subscriber stateChangedSubscriber = new Subscriber() {
 
 		@Override
 		public void fireChange() {
-			for (Result<?> result : results) {
+			for (AbstractResult<?> abstractResult : results) {
+				if (!(abstractResult instanceof EvaluatableResult))
+					continue;
+				EvaluatableResult<?> result = (EvaluatableResult<?>) abstractResult;
 				if (result.getResultMode() == ResultMode.AUTO)
 					result.update();
 			}
 		}
 	};
 
-	private final List<Result<?>> results = new LinkedList<Result<?>>();
+	private final Subscriber executionCompletedSubscriber = new Subscriber() {
 
-	public List<Result<?>> getResults() {
+		@Override
+		public void fireChange() {
+			for (AbstractResult<?> abstractResult : results) {
+				abstractResult.prepareData();
+			}
+		}
+	};
+
+	private final List<AbstractResult<?>> results = new LinkedList<AbstractResult<?>>();
+
+	public List<AbstractResult<?>> getResults() {
 		return results;
 	}
 }

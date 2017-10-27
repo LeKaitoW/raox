@@ -11,8 +11,8 @@ public class LastValueStatistics<T> extends Statistics<T> {
 
 	@Override
 	public void update(T value, double currentTime) {
-		this.value = value;	
+		this.value = value;
 	}
-	
+
 	private T value;
 }
