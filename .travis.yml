@@ -1,11 +1,12 @@
 language: java
 
 env:
-  - win_x64_archive=eclipse-dsl-oxygen-1a-win32-x86_64.zip
-  - win_x86_archive=eclipse-dsl-oxygen-1a-win32.zip
-  - linux_x64_archive=eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz
-  - linux_x86_archive=eclipse-dsl-oxygen-1a-linux-gtk.tar.gz
-  - eclipse_for_test=eclipse_for_test
+  global:
+    - win_x64_archive=eclipse-dsl-oxygen-1a-win32-x86_64.zip
+    - win_x86_archive=eclipse-dsl-oxygen-1a-win32.zip
+    - linux_x64_archive=eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz
+    - linux_x86_archive=eclipse-dsl-oxygen-1a-linux-gtk.tar.gz
+    - eclipse_for_test=eclipse_for_test
 
 install:
 - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz&r=1" -o $eclipse_for_test
