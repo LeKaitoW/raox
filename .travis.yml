@@ -2,20 +2,28 @@ language: java
 
 env:
   global:
-    - win_x64_archive=eclipse-dsl-oxygen-1a-win32-x86_64.zip
-    - win_x86_archive=eclipse-dsl-oxygen-1a-win32.zip
-    - linux_x64_archive=eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz
-    - linux_x86_archive=eclipse-dsl-oxygen-1a-linux-gtk.tar.gz
+    - win_x64_eclipse=eclipse-dsl-oxygen-1a-win32-x86_64
+    - win_x64_archive=$win_x64_eclipse.zip
+    - win_x86_eclipse=eclipse-dsl-oxygen-1a-win32
+    - win_x86_archive=$win_x86_eclipse.zip
+    - linux_x64_eclipse=eclipse-dsl-oxygen-1a-linux-gtk-x86_64
+    - linux_x64_archive=$linux_x64_eclipse.tar.gz
+    - linux_x86_eclipse=eclipse-dsl-oxygen-1a-linux-gtk
+    - linux_x86_archive=$linux_x86_eclipse.tar.gz
     - eclipse_for_test=eclipse_for_test
+    - eclipse_for_test_archive=$eclipse_for_test.tar.gz
 
 install:
-- curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz&r=1" -o $eclipse_for_test
-- tar -xzf $eclipse_for_test
+- echo $eclipse_for_test_archive
+- curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz&r=1" -o $eclipse_for_test_archive
+- tar -xzf $eclipse_for_test -d $eclipse_for_test
+- ls
 
 script:
 - export MAVEN_OPTS="-Xmx512M"
 - mvn initialize -N -Pset-git-version
 - mvn package
+- echo $eclipse_for_test_archive
 
 before_deploy:
   - 
@@ -23,12 +31,12 @@ before_deploy:
   - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-win32.zip&r=1" -o $win_x86_archive
   - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz&r=1" -o $linux_x64_archive
   - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk.tar.gz&r=1" -o $linux_x86_archive
-  - unzip $win_x86_archive -d $win_x86_archive
-  - unzip $win_x64_archive -d $win_x64_archive
+  - unzip $win_x86_archive -d $win_x86_eclipse
+  - unzip $win_x64_archive -d $win_x64_eclipse
   - mkdir $linux_x86_archive
-  - tar -xzf $linux_x86_archive -C $linux_x86_archive
+  - tar -xzf $linux_x86_archive -C $linux_x86_eclipse
   - mkdir $linux_x64_archive
-  - tar -xzf $linux_x64_archive -C $linux_x64_archive
+  - tar -xzf $linux_x64_archive -C $linux_x64_eclipse
   - ls -R
 
 deploy:
