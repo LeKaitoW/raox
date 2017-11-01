@@ -16,7 +16,7 @@ env:
 install:
 - echo $eclipse_for_test_archive
 - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz&r=1" -o $eclipse_for_test_archive
-- tar -xzf $eclipse_for_test -d $eclipse_for_test
+- tar -xzf $eclipse_for_test_archive -C $eclipse_for_test
 - ls
 
 script:
