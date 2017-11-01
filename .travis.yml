@@ -1,6 +1,6 @@
 language: java
 
-env
+env:
   - win_x64_archive=eclipse-dsl-oxygen-1a-win32-x86_64.zip
   - win_x86_archive=eclipse-dsl-oxygen-1a-win32.zip
   - linux_x64_archive=eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz
