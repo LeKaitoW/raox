@@ -1,15 +1,42 @@
 language: java
 
+env
+  - win_x64_archive=eclipse-dsl-oxygen-1a-win32-x86_64.zip
+  - win_x86_archive=eclipse-dsl-oxygen-1a-win32.zip
+  - linux_x64_archive=eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz
+  - linux_x86_archive=eclipse-dsl-oxygen-1a-linux-gtk.tar.gz
+  - eclipse_for_test=eclipse_for_test
+
 install:
-- curl -s http://ftp-stud.fht-esslingen.de/pub/Mirrors/eclipse/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-win32.zip 2>/dev/null > temp.html
+- curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz&r=1" -o $eclipse_for_test
+- tar -xzf $eclipse_for_test
 
 script:
 - export MAVEN_OPTS="-Xmx512M"
 - mvn initialize -N -Pset-git-version
 - mvn package
 
-addons:
-  artifacts:
-    s3_region: "eu-west-1"
-    paths:
-    - assembly/target/raox-3.9.0.zip
+before_deploy:
+  - 
+  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-win32-x86_64.zip&r=1" -o $win_x64_archive
+  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-win32.zip&r=1" -o $win_x86_archive
+  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz&r=1" -o $linux_x64_archive
+  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk.tar.gz&r=1" -o $linux_x86_archive
+  - unzip $win_x86_archive
+  - unzip $win_x64_archive
+  - tar -xzf $linux_x86_archive
+  - tar -xzf $linux_x64_archive
+  - ls
+
+deploy:
+  provider: releases
+  api_key:
+    secure: YOUR_API_KEY_ENCRYPTED
+  file_glob: true
+  file:
+  - assembly/target/raox-*.zip
+  - deploy/target/raox-*.zip
+  skip_cleanup: true
+  on:
+    tags: true
+

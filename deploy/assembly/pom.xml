@@ -58,41 +58,6 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 			</properties>
 		</profile>
 		<profile>
-			<id>set-raox-version</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>versions-maven-plugin</artifactId>
-						<version>2.2</version>
-						<configuration>
-							<properties>
-								<property>
-									<name>raox-version</name>
-									<dependencies>
-										<dependency>
-											<groupId>ru.bmstu.rk9.rao</groupId>
-											<artifactId>ru.bmstu.rk9.rao.lib</artifactId>
-										</dependency>
-									</dependencies>
-								</property>
-							</properties>
-							<generateBackupPoms>false</generateBackupPoms>
-						</configuration>
-						<executions>
-							<execution>
-								<phase>initialize</phase>
-								<goals>
-									<goal>update-properties</goal>
-								</goals>
-								
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
 			<id>package-as-eclipse-dropins</id>
 			<activation>
 				<property>
@@ -176,10 +141,6 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 			<id>eclipse</id>
 			<layout>p2</layout>
 			<url>http://download.eclipse.org/releases/mars/201506241002/</url>
-		</repository>
-		<repository>
-			<id>raox-repo</id>
-			<url>http://raox.rk9.bmstu.ru/nexus/content/repositories/raox-m2/</url>
 		</repository>
 	</repositories>
 
