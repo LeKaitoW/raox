@@ -14,10 +14,9 @@ env:
     - eclipse_for_test_archive=$eclipse_for_test.tar.gz
 
 install:
-- echo $eclipse_for_test_archive
 - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz&r=1" -o $eclipse_for_test_archive
+- mkdir $eclipse_for_test
 - tar -xzf $eclipse_for_test_archive -C $eclipse_for_test
-- ls
 
 script:
 - export MAVEN_OPTS="-Xmx512M"
