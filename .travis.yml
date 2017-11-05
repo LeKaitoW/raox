@@ -30,9 +30,9 @@ before_deploy:
   - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk.tar.gz&r=1" -o $linux_x86_archive --retry 5
   - unzip $win_x86_archive -d $win_x86_eclipse
   - unzip $win_x64_archive -d $win_x64_eclipse
-  - mkdir $linux_x86_archive
+  - mkdir $linux_x86_eclipse
   - tar -xzf $linux_x86_archive -C $linux_x86_eclipse
-  - mkdir $linux_x64_archive
+  - mkdir $linux_x64_eclipse
   - tar -xzf $linux_x64_archive -C $linux_x64_eclipse
   - cd assembly
   - mvn package -Declipse-archive-root-path=../$linux_x86_eclipse -Dtarget-os=linux -Dtarget-bitness=x86
