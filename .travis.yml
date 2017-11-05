@@ -12,6 +12,7 @@ env:
     - linux_x86_archive=$linux_x86_eclipse.tar.gz
     - eclipse_for_test=eclipse_for_test
     - eclipse_for_test_archive=$eclipse_for_test.tar.gz
+    - MAVEN_OPTS="-Xmx1024M"
 
 install:
 - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz&r=1" -o $eclipse_for_test_archive
@@ -19,33 +20,33 @@ install:
 - tar -xzf $eclipse_for_test_archive -C $eclipse_for_test
 
 script:
-- export MAVEN_OPTS="-Xmx512M"
 - mvn initialize -N -Pset-git-version
 - mvn package
-- echo $eclipse_for_test_archive
 
 before_deploy:
-  - 
-  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-win32-x86_64.zip&r=1" -o $win_x64_archive
-  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-win32.zip&r=1" -o $win_x86_archive
-  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz&r=1" -o $linux_x64_archive
-  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk.tar.gz&r=1" -o $linux_x86_archive
+  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-win32-x86_64.zip&r=1" -o $win_x64_archive --retry 5
+  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-win32.zip&r=1" -o $win_x86_archive --retry 5
+  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz&r=1" -o $linux_x64_archive --retry 5
+  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk.tar.gz&r=1" -o $linux_x86_archive --retry 5
   - unzip $win_x86_archive -d $win_x86_eclipse
   - unzip $win_x64_archive -d $win_x64_eclipse
   - mkdir $linux_x86_archive
   - tar -xzf $linux_x86_archive -C $linux_x86_eclipse
   - mkdir $linux_x64_archive
   - tar -xzf $linux_x64_archive -C $linux_x64_eclipse
-  - ls -R
+  - cd assembly
+  - mvn package -Declipse-archive-root-path=../$linux_x86_eclipse -Dtarget-os=linux -Dtarget-bitness=x86
+  - mvn package -Declipse-archive-root-path=../$linux_x64_eclipse -Dtarget-os=linux -Dtarget-bitness=x64
+  - mvn package -Declipse-archive-root-path=../$win_x86_eclipse -Dtarget-os=win -Dtarget-bitness=x86
+  - mvn package -Declipse-archive-root-path=../$win_x64_eclipse -Dtarget-os=win -Dtarget-bitness=x64
 
 deploy:
   provider: releases
   api_key:
-    secure: YOUR_API_KEY_ENCRYPTED
+    secure: "TSv9JYOGFk0pNp85No63933Fe99m2M4fRjAKeXUyOKlcm37QgUJooCy0wnWFACiaFcBOZN7eCR6FF51Fc1LEsn0d6zxl08WTCkcEIWzIn7DKBoMd6vKIgj69VGwqoIXq7093uG3KDeHmnYI/f9WggdH5fAx8iHWNh2W19AxpPNlQFiKDZV5KDr/3H06vkQAIbsqKKDMmL5Ehz9ymBDtNGPJSqL2GfYGzsv2XpHWHor5lX8PGMGBCBd2qOBo+q9XJrk8lwAGqF5tNU1JBtSCAd+NbPjhQNwQzRn2yOSc0jJv/hKQ2EeqvdJPRVxahGkf+wunxPHKAVhXr/IAX6RqHumVOHvh41ht93TJF2sytCapTEPjNbeeuGIynccVZdgSq4kses4tc3hFW5OJoADIkAZEvEqYi0+3ILd9oqGu0aWZkwimVVbSWRRPXKGg6ADx1eV/WCI36r2logTnMFCVMhGT0/wU03ergqwrdYl1kSHm2W/5jpUhqme/BdUJN0jAJHX3+InfLL9jAmPnbbmXMV0hdME0SPvB+DaSUyj+ngqzyyUy7/L0dxkTWydEDvNfyXJ18VTGaGFbQ9r/TXkjsfNlTjcD1i2oB9eCXyo8vl9MrGnAl197AdJFonSznCrWB5/f/+zjMsYmQobnPTAsCIIqcjmAg7hp+zt6nikPYo60="
   file_glob: true
   file:
   - assembly/target/raox-*.zip
-  - deploy/target/raox-*.zip
   skip_cleanup: true
   on:
     tags: true
