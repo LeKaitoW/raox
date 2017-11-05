@@ -12,28 +12,36 @@ env:
     - linux_x86_archive=$linux_x86_eclipse.tar.gz
     - eclipse_for_test=eclipse_for_test
     - eclipse_for_test_archive=$eclipse_for_test.tar.gz
+    - rcptt_runner=rcptt_runner
+    - rcptt_runner_archive=$rcptt_runner.zip
     - MAVEN_OPTS="-Xmx1024M"
 
 install:
 - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz&r=1" -o $eclipse_for_test_archive
 - mkdir $eclipse_for_test
 - tar -xzf $eclipse_for_test_archive -C $eclipse_for_test
+- curl -sL "http://www.eclipse.org/downloads/download.php?file=/rcptt/release/2.2.0/runner/rcptt.runner-2.2.0.zip&r=1" -o $rcptt_runner_archive
+- unzip $rcptt_runner_archive -d $rcptt_runner
 
 script:
 - mvn initialize -N -Pset-git-version
 - mvn package
 
+after_script:
+cp assembly/target/plugins/* $eclipse_for_test/eclipse/plugins/
+./ru.bmstu.rk9.rao.rcptt/run_tests.sh $rcptt_runner/eclipse $eclipse_for_test/eclipse
+
 before_deploy:
   - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-win32-x86_64.zip&r=1" -o $win_x64_archive --retry 5
-  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-win32.zip&r=1" -o $win_x86_archive --retry 5
-  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz&r=1" -o $linux_x64_archive --retry 5
-  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk.tar.gz&r=1" -o $linux_x86_archive --retry 5
-  - unzip $win_x86_archive -d $win_x86_eclipse
   - unzip $win_x64_archive -d $win_x64_eclipse
-  - mkdir $linux_x86_eclipse
-  - tar -xzf $linux_x86_archive -C $linux_x86_eclipse
+  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-win32.zip&r=1" -o $win_x86_archive --retry 5
+  - unzip $win_x86_archive -d $win_x86_eclipse
+  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk-x86_64.tar.gz&r=1" -o $linux_x64_archive --retry 5
   - mkdir $linux_x64_eclipse
   - tar -xzf $linux_x64_archive -C $linux_x64_eclipse
+  - curl -sL "http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/1a/eclipse-dsl-oxygen-1a-linux-gtk.tar.gz&r=1" -o $linux_x86_archive --retry 5
+  - mkdir $linux_x86_eclipse
+  - tar -xzf $linux_x86_archive -C $linux_x86_eclipse
   - cd assembly
   - mvn package -Declipse-archive-root-path=../$linux_x86_eclipse -Dtarget-os=linux -Dtarget-bitness=x86
   - mvn package -Declipse-archive-root-path=../$linux_x64_eclipse -Dtarget-os=linux -Dtarget-bitness=x64
