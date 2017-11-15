@@ -125,3 +125,42 @@ Pass 35 (35) processed. 0 failed. spent: 4:17, 0:00 mins remaining. rao_perspect
 Process terminated. Shut down AUTs
 Finished at Tue Oct 25 19:17:55 MSK 2016
 ```
+
+## Как добавить регрессионный тест
+
+- Установить [RCPTT UI testing tool](https://marketplace.eclipse.org/content/rcptt-eclipse-ui-testing-tool)
+
+Состав тестировочной среды
+- Общий контекст **common_procedures.ctx**, в котором хранятся вспомогательные функции-скрипты
+- Тесты
+  - Подготовительный контекст ***_prepare.ctx**, в котором описано рабочее пространство теста
+  - Непосредственно тесты ***.test**, в которых описаны вызовы функций-скриптов из **common_procedures.ctx**
+  - Вспомогательные файлы, например,  шаблон модели или эталоны трассировки
+  
+  Чтобы добавить новый тест необхожимо:
+  - Добавить в проекте папку для теста
+  - Добавить все необходимые вспомогательные файлы
+  - Добавить подготовительный контекст и в редакторе во вкладке **workspace** включить в него вспомогательные файлы
+  - Добавить и описать тест
+    - В редакторе во вкладке **context** включить базовый и подготовительные контексты
+    - В редакторе во вкладке **script** вызвать или описать функцию-скрипт, или записать последовательность использую кнопку **Record**
+    
+  Список доступных функций-сриптов:
+  Функция-скрипт              | Параметры        | Описание
+------------------------------------------------------
+open_perspective            | perspective_name | Открытие перспективы **perspective_name**
+create_rao_project          | template_name    | Создание проекта Rao X из шаблона **template_name**
+open_rao_perspective        |                  | Открытие перспективы Rao
+open_java_perspective       |                  | Открытие перспективы Java
+copy_model                  | model_name       | Включение трассировки для модели **model_name**
+compare_trace               | model_name       | Копирование исходного текста модели **model_name** из файла **model_name**
+compare_result              | model_name       | Копирование исходного текста модели **model_name** из файла **model_name**
+enable_monitoring           | model_name       | Валидация совпадения трассировки для модели **model_name** с эталоном из **model_name**
+execute_model               | model_name       | Запуск модели **model_name**
+test_model_template_notrace | template_name    | Запуск тестового запуска модели из шаблона **template_name**
+test_model_template_trace   | template_name    | Запуск тестового запуска модели из шаблона **template_name** с валидацией трассировки
+test_model_source_notrace   | model_name       | Запуск тестового запуска модели с текстом исходного кода из файла **model_name**
+test_model_source_trace     | model_name       | Запуск тестового запуска модели с текстом исходного кода из файла **model_name** с валидацией трассировки
+test_model_source_result    | model_name       | Запуск тестового запуска модели с текстом исходного кода из файла **model_name** с валидацией результатов
+
+Функции-скрипты можно описать [вручную](https://www.eclipse.org/rcptt/documentation/userguide/procedures/) или используя кнопку **Record**  

@@ -12,6 +12,8 @@ public class ResultManager {
 		this.results.addAll(results);
 		CurrentSimulator.getExecutionStateNotifier().addSubscriber(this.stateChangedSubscriber,
 				CurrentSimulator.ExecutionState.STATE_CHANGED);
+		CurrentSimulator.getExecutionStateNotifier().addSubscriber(this.executionCompletedSubscriber,
+				CurrentSimulator.ExecutionState.EXECUTION_COMPLETED);
 	}
 
 	private final Subscriber stateChangedSubscriber = new Subscriber() {
@@ -24,6 +26,16 @@ public class ResultManager {
 				EvaluatableResult<?> result = (EvaluatableResult<?>) abstractResult;
 				if (result.getResultMode() == ResultMode.AUTO)
 					result.update();
+			}
+		}
+	};
+
+	private final Subscriber executionCompletedSubscriber = new Subscriber() {
+
+		@Override
+		public void fireChange() {
+			for (AbstractResult<?> abstractResult : results) {
+				abstractResult.prepareData();
 			}
 		}
 	};

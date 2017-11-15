@@ -1,6 +1,6 @@
 package ru.bmstu.rk9.rao.lib.result;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.bmstu.rk9.rao.lib.json.JSONObject;
@@ -15,8 +15,6 @@ public class CategoricalStatistics<T> extends Statistics<T> {
 
 	@Override
 	public void updateData(JSONObject data) {
-		if (lastValue != null)
-			addState(lastValue, lastCurrentTime - lastFlipTime);
 		for (Map.Entry<T, StatisticsData> e : statisticsDataset.entrySet()) {
 			StatisticsData statisticsData = e.getValue();
 			data.put("Longest \"" + e.getKey().toString() + "\"", statisticsData.valueMaxTime);
@@ -52,12 +50,18 @@ public class CategoricalStatistics<T> extends Statistics<T> {
 		lastFlipTime = currentTime;
 	}
 
+	@Override
+	public void prepareData() {
+		if (lastValue != null)
+			addState(lastValue, lastCurrentTime - lastFlipTime);
+	}
+
 	private T lastValue = null;
 	private double lastFlipTime = 0;
 	private double lastCurrentTime = 0;
 	private double fullTime = 0;
 
-	private final Map<T, StatisticsData> statisticsDataset = new HashMap<T, StatisticsData>();
+	private final Map<T, StatisticsData> statisticsDataset = new LinkedHashMap<T, StatisticsData>();
 
 	private final void addState(T value, double delta) {
 		fullTime += delta;

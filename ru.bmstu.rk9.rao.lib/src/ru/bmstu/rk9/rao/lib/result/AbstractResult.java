@@ -22,5 +22,9 @@ public class AbstractResult<T> extends RaoNameable {
 		CurrentSimulator.getDatabase().addResultEntry(this, value);
 	};
 
+	public final void prepareData() {
+		statistics.prepareData();
+	}
+
 	protected final Statistics<T> statistics;
 }

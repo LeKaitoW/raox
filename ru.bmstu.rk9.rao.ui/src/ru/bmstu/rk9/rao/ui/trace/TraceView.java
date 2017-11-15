@@ -64,6 +64,7 @@ import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulatorState;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
+import ru.bmstu.rk9.rao.ui.export.ExportTraceHandler;
 import ru.bmstu.rk9.rao.ui.gef.process.ProcessColors;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl;
 import ru.bmstu.rk9.rao.ui.graph.GraphControl.FrameInfo;
@@ -252,7 +253,7 @@ public class TraceView extends ViewPart {
 
 			@Override
 			public void run() {
-				ExportTraceHandler.exportTraceRegular();
+				ExportTraceHandler.exportTrace(ExportTraceHandler.ExportType.REGULAR);
 			}
 		});
 	}

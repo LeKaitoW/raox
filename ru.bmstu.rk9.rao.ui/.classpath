@@ -12,6 +12,7 @@
 	<classpathentry exported="true" kind="lib" path="thirdparty/jfreechart/lib/jfreechart-1.0.19-experimental.jar" sourcepath="thirdparty/jfreechart/source/experimental.zip"/>
 	<classpathentry exported="true" kind="lib" path="thirdparty/jfreechart/lib/jfreechart-1.0.19-swt.jar" sourcepath="thirdparty/jfreechart/source/swt.zip"/>
 	<classpathentry exported="true" kind="lib" path="thirdparty/jfreechart/lib/jfreechart-1.0.19.jar" sourcepath="thirdparty/jfreechart/source/source.zip"/>
+	<classpathentry exported="true" kind="lib" path="thirdparty/gson/lib/gson-2.6.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>

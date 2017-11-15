@@ -16,7 +16,6 @@ public class EvaluatableResult<T> extends AbstractResult<T> {
 		final T value = dataSource.evaluate();
 		double time = CurrentSimulator.getTime();
 		update(value, time);
-		CurrentSimulator.getDatabase().addResultEntry(this, value);
 	};
 
 	private final ResultMode resultMode;

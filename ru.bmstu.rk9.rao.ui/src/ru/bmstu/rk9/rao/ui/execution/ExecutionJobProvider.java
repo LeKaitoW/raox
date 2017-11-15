@@ -15,11 +15,11 @@ import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
 import ru.bmstu.rk9.rao.ui.animation.AnimationView;
 import ru.bmstu.rk9.rao.ui.console.ConsoleView;
+import ru.bmstu.rk9.rao.ui.export.ExportTraceHandler;
 import ru.bmstu.rk9.rao.ui.gef.process.ProcessParsingException;
 import ru.bmstu.rk9.rao.ui.results.ResultsView;
 import ru.bmstu.rk9.rao.ui.serialization.SerializationConfigView;
 import ru.bmstu.rk9.rao.ui.simulation.StatusView;
-import ru.bmstu.rk9.rao.ui.trace.ExportTraceHandler;
 
 @SuppressWarnings("restriction")
 public class ExecutionJobProvider {
@@ -122,7 +122,7 @@ public class ExecutionJobProvider {
 					break;
 				}
 
-				display.asyncExec(() -> ResultsView.setResults(CurrentSimulator.getResults()));
+				display.asyncExec(() -> ResultsView.update());
 
 				ConsoleView.addLine("Time elapsed: " + String.valueOf(System.currentTimeMillis() - startTime) + "ms");
 
