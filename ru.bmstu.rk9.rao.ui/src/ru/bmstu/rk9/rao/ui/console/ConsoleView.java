@@ -33,7 +33,7 @@ public class ConsoleView extends ViewPart {
 
 	private static StyledText styledText;
 
-	private static String text = "";
+	private static StringBuffer text = new StringBuffer();
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -101,17 +101,17 @@ public class ConsoleView extends ViewPart {
 	}
 
 	public static void clearConsoleText() {
-		text = "";
+		text.setLength(0);
 		redrawText();
 	}
 
 	public static void addLine(String line) {
-		text = text + line + "\n";
+		text.append(line).append('\n');
 		redrawText();
 	}
 
 	public static void appendText(String add) {
-		text = text + add;
+		text.append(add);
 		redrawText();
 	}
 
@@ -122,14 +122,25 @@ public class ConsoleView extends ViewPart {
 		appendText(stringWriter.toString());
 	}
 
+	private static final Object lock = new Object();
+	private static boolean waiting = false;
+
 	public static void redrawText() {
 		if (styledText != null && !styledText.isDisposed())
-			styledText.getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					styledText.setText(text);
+			if (!waiting) {
+				synchronized (lock) {
+					styledText.getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							synchronized (lock) {
+								styledText.setText(text.toString());
+								waiting = false;
+							}
+						}
+					});
+					waiting = true;
 				}
-			});
+			}
 	}
 
 	private static IThemeManager themeManager;
