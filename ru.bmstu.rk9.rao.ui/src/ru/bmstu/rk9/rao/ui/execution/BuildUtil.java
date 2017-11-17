@@ -380,10 +380,28 @@ public class BuildUtil {
 
 	static URLClassLoader createClassLoader(IProject project) throws CoreException, MalformedURLException {
 		String location = getProjectLocation(project);
-
-		URL modelURL = new URL(location + "/bin/");
+		IJavaProject javaProject = JavaCore.create(project);
 		List<URL> urls = new ArrayList<>();
-		urls.add(modelURL);
+
+		URL modelUrl = new URL(location + "/bin/");
+		urls.add(modelUrl);
+
+		for (IClasspathEntry entry : javaProject.getRawClasspath()) {
+			IPath path = entry.getPath();
+			String stringPath = path.toString();
+			if (entry.getEntryKind() != IClasspathEntry.CPE_LIBRARY)
+				continue;
+			if (stringPath.contains(BundleType.RAOX_LIB.name))
+				continue;
+			if (stringPath.contains(BundleType.QUERYDSL_LIB.name))
+				continue;
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IResource res = root.findMember(path);
+			if (res != null) {
+				stringPath = res.getLocation().toString();
+			}
+			urls.add(new File(stringPath).toURI().toURL());
+		}
 
 		return new URLClassLoader(urls.toArray(new URL[urls.size()]), CurrentSimulator.class.getClassLoader());
 	}
