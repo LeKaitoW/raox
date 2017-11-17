@@ -137,7 +137,6 @@ public class BuildUtil {
 		final List<IClasspathEntry> classpaths = new ArrayList<IClasspathEntry>();
 
 		classpaths.add(JavaCore.newSourceEntry(sourceFolder.getFullPath()));
-		classpaths.add(BuildUtil.getJavaCodeEntry(project));
 		classpaths.add(BuildUtil.getJavaSeClasspathEntry());
 		classpaths.add(BuildUtil.getXtendClasspathEntry());
 		classpaths.add(BuildUtil.getRaoxClasspathEntry());
@@ -211,18 +210,6 @@ public class BuildUtil {
 		return getExternalEntry(BundleType.QUERYDSL_LIB);
 	}
 
-	private static IClasspathEntry getJavaCodeEntry(IProject project) throws BuildUtilException {
-		final IFolder javaCodeFolder = project.getFolder("java");
-		try {
-			if (!javaCodeFolder.exists())
-				javaCodeFolder.create(false, true, null);
-		} catch (CoreException e) {
-			e.printStackTrace();
-			throw new BuildUtilException("Project java code folder creation failed" + ":\n" + e.getMessage());
-		}
-		return JavaCore.newSourceEntry(javaCodeFolder.getFullPath());
-	}
-
 	private static IClasspathEntry getXtendClasspathEntry() {
 		return JavaCore.newContainerEntry(new Path("org.eclipse.xtend.XTEND_CONTAINER"));
 	}
@@ -247,12 +234,8 @@ public class BuildUtil {
 					updateRaoxClasspath = true;
 				} else if (path.contains(BundleType.QUERYDSL_LIB.name)) {
 					it.remove();
-				} else if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE && path.contains("java")) {
-					it.remove();
 				}
 			}
-
-			classpaths.add(BuildUtil.getJavaCodeEntry(project));
 
 			if (updateXtendClasspath)
 				classpaths.add(getXtendClasspathEntry());
@@ -319,18 +302,30 @@ public class BuildUtil {
 		return "Build failed: " + message;
 	}
 
-	private static List<String> getJavaClassNames(IProject project) {
-		IPath root = project.getFolder("java").getLocation();
-
-		List<IResource> resources = new ArrayList<>();
-		recursiveFindFiles(resources, root, ResourcesPlugin.getWorkspace().getRoot(), "java");
-
+	private static List<String> getJavaClassNames(IProject project) throws JavaModelException {
+		IJavaProject javaProject = JavaCore.create(project);
 		List<String> classNames = new ArrayList<>();
-		for (IResource resource : resources) {
-			String relative = resource.getLocation().makeRelativeTo(root).toString();
-			String className = relative.replace(".java", "").replace('/', '.');
-			classNames.add(className);
+
+		for (IClasspathEntry entry : javaProject.getRawClasspath()) {
+			IPath path = entry.getPath();
+			String stringPath = path.toString();
+			if (entry.getEntryKind() != IClasspathEntry.CPE_SOURCE)
+				continue;
+			if (stringPath.endsWith("src-gen"))
+				continue;
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IResource res = root.findMember(path);
+
+			List<IResource> resources = new ArrayList<>();
+			IPath sources = res.getLocation();
+			recursiveFindFiles(resources, sources, ResourcesPlugin.getWorkspace().getRoot(), "java");
+			for (IResource resource : resources) {
+				String relative = resource.getLocation().makeRelativeTo(sources).toString();
+				String className = relative.replace(".java", "").replace('/', '.');
+				classNames.add(className);
+			}
 		}
+
 		return classNames;
 	}
 
