@@ -63,6 +63,12 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 										<include>ru.bmstu.rk9.raox.plugins.game5*jar</include>
 									</includes>
 								</resource>
+								<resource>
+									<directory>${basedir}/../ru.bmstu.rk9.rao.querydsl/target</directory>
+									<includes>
+										<include>ru.bmstu.rk9.rao.querydsl*.jar</include>
+									</includes>
+								</resource>
 							</resources>
 						</configuration>
 					</execution>

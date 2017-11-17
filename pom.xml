@@ -13,6 +13,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		<module>ru.bmstu.rk9.rao.tests</module>
 		<module>ru.bmstu.rk9.rao.ui</module>
 		<module>ru.bmstu.rk9.rao.plugins</module>
+		<module>ru.bmstu.rk9.rao.querydsl</module>
 		<module>assembly</module>
 	</modules>
 
