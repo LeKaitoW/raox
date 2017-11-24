@@ -46,6 +46,12 @@ public class Simulator implements ISimulator {
 		database.addMemorizedResourceEntries(null, null, null);
 	}
 
+	@Override
+	public void finish(SimulatorFinishInfo finishInfo) {
+		for (Runnable finish : finishInfo.finishList)
+			finish.run();
+	}
+
 	private Database database;
 
 	@Override

@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
+import java.util.ArrayList;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -100,6 +102,16 @@ public class ExecutionJobProvider {
 						return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Execution failed", e);
 					} finally {
 						display.syncExec(() -> AnimationView.deinitialize());
+					}
+
+					ArrayList<Double> list = new ArrayList<>();
+					list.stream().mapToDouble(f -> f);
+
+					try {
+						CurrentSimulator.finish(parser.getSimulatorFinishInfo());
+					} catch (Exception e) {
+						e.printStackTrace();
+						return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Simulator finish failed", e);
 					}
 
 					switch (simulationResult) {

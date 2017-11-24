@@ -18,6 +18,8 @@ class DefaultMethodCompiler extends RaoEntityCompiler {
 				return method.initAsClass(it, isPreIndexingPhase)
 			case DefaultMethodsHelper.GlobalMethodInfo.TERMINATE_CONDITION.name:
 				return method.terminateAsClass(it, isPreIndexingPhase)
+			case DefaultMethodsHelper.GlobalMethodInfo.FINISH.name:
+				return method.initAsClass(it, isPreIndexingPhase)
 		}
 	}
 

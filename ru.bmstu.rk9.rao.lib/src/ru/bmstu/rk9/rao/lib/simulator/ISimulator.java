@@ -16,6 +16,8 @@ public interface ISimulator {
 
 	public void initialize(SimulatorInitializationInfo initializationInfo);
 
+	public void finish(SimulatorFinishInfo finishInfo);
+
 	public Database getDatabase();
 
 	public StaticModelData getStaticModelData();

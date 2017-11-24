@@ -45,6 +45,13 @@ public class CurrentSimulator {
 		setCurrentSimulatorState(SimulatorState.INITIALIZED);
 	}
 
+	public static synchronized void finish(SimulatorFinishInfo finishInfo) {
+		if (currentSimulatorState != SimulatorState.INITIALIZED)
+			throw new RaoLibException("Simulation wasn't correctly initialized");
+
+		currentSimulator.finish(finishInfo);
+	}
+
 	private static SimulatorState currentSimulatorState = SimulatorState.DEINITIALIZED;
 
 	public enum SimulatorState {

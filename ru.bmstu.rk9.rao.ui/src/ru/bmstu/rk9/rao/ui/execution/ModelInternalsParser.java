@@ -39,6 +39,7 @@ import ru.bmstu.rk9.rao.lib.pattern.Pattern;
 import ru.bmstu.rk9.rao.lib.process.Block;
 import ru.bmstu.rk9.rao.lib.resource.ComparableResource;
 import ru.bmstu.rk9.rao.lib.result.AbstractResult;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorFinishInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorPreinitializationInfo;
 import ru.bmstu.rk9.rao.rao.PatternType;
@@ -54,6 +55,7 @@ import ru.bmstu.rk9.rao.ui.gef.process.model.ProcessModelNode;
 public class ModelInternalsParser {
 	private final SimulatorPreinitializationInfo simulatorPreinitializationInfo = new SimulatorPreinitializationInfo();
 	private final SimulatorInitializationInfo simulatorInitializationInfo = new SimulatorInitializationInfo();
+	private final SimulatorFinishInfo simulatorFinishInfo = new SimulatorFinishInfo();
 	private final List<Class<?>> decisionPointClasses = new ArrayList<>();
 
 	private final ModelContentsInfo modelContentsInfo = new ModelContentsInfo();
@@ -74,6 +76,10 @@ public class ModelInternalsParser {
 
 	public final SimulatorInitializationInfo getSimulatorInitializationInfo() {
 		return simulatorInitializationInfo;
+	}
+
+	public SimulatorFinishInfo getSimulatorFinishInfo() {
+		return simulatorFinishInfo;
 	}
 
 	public ModelInternalsParser(IProject project, IResourceSetProvider resourceSetProvider,
@@ -154,6 +160,14 @@ public class ModelInternalsParser {
 			resourcePreinitializerConstructor.setAccessible(true);
 			simulatorPreinitializationInfo.resourcePreinitializers
 					.add((Runnable) resourcePreinitializerConstructor.newInstance());
+		} catch (ClassNotFoundException classException) {
+		}
+
+		try {
+			Class<?> finish = Class.forName(modelClassName + "$finish", false, classLoader);
+			Constructor<?> finishConstructor = finish.getDeclaredConstructor();
+			finishConstructor.setAccessible(true);
+			simulatorFinishInfo.finishList.add((Runnable) finishConstructor.newInstance());
 		} catch (ClassNotFoundException classException) {
 		}
 
