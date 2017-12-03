@@ -33,6 +33,8 @@ import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 public class ConsoleView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.ConsoleView"; //$NON-NLS-1$
 
+	private static final int REFRESH_INTERVAL = 500;
+
 	private static StyledText styledText;
 
 	private static StringBuffer text = new StringBuffer();
@@ -42,7 +44,7 @@ public class ConsoleView extends ViewPart {
 	static {
 		Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(() -> {
 			redrawText();
-		}, 0, 500, TimeUnit.MILLISECONDS);
+		}, 0, REFRESH_INTERVAL, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
