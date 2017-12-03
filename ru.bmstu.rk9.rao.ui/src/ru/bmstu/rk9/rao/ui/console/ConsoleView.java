@@ -3,6 +3,8 @@ package ru.bmstu.rk9.rao.ui.console;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.resource.FontRegistry;
@@ -34,6 +36,14 @@ public class ConsoleView extends ViewPart {
 	private static StyledText styledText;
 
 	private static StringBuffer text = new StringBuffer();
+
+	private static int lastLength = 0;
+
+	static {
+		Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(() -> {
+			redrawText();
+		}, 0, 500, TimeUnit.MILLISECONDS);
+	}
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -102,17 +112,14 @@ public class ConsoleView extends ViewPart {
 
 	public static void clearConsoleText() {
 		text.setLength(0);
-		redrawText();
 	}
 
 	public static void addLine(String line) {
 		text.append(line).append('\n');
-		redrawText();
 	}
 
 	public static void appendText(String add) {
 		text.append(add);
-		redrawText();
 	}
 
 	public static void printStackTrace(Throwable e) {
@@ -123,24 +130,23 @@ public class ConsoleView extends ViewPart {
 	}
 
 	private static final Object lock = new Object();
-	private static boolean waiting = false;
 
-	public static void redrawText() {
-		if (styledText != null && !styledText.isDisposed())
-			if (!waiting) {
-				synchronized (lock) {
-					styledText.getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							synchronized (lock) {
-								styledText.setText(text.toString());
-								waiting = false;
-							}
+	private static void redrawText() {
+		synchronized (lock) {
+			int currentLength = text.length();
+			if (styledText != null && !styledText.isDisposed() && lastLength != currentLength) {
+				lastLength = currentLength;
+				styledText.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						synchronized (lock) {
+							styledText.setText(text.toString());
+							styledText.setTopIndex(styledText.getLineCount() - 1);
 						}
-					});
-					waiting = true;
-				}
+					}
+				});
 			}
+		}
 	}
 
 	private static IThemeManager themeManager;
