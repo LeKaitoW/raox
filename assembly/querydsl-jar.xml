@@ -1,0 +1,13 @@
+<assembly>
+	<formats>
+		<format>dir</format>
+	</formats>
+	<id>copy-rename</id>
+	<files>
+		<file>
+			<source>../ru.bmstu.rk9.rao.querydsl/thirdparty/querydsl/lib/querydsl-jpa-4.1.3-apt-hibernate-one-jar.jar</source>
+			<outputDirectory>/</outputDirectory>
+			<destName>ru.bmstu.rk9.rao.querydsl.jar</destName>
+		</file>
+	</files>
+</assembly>

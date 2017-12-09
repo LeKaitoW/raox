@@ -14,7 +14,8 @@
 
 	<properties>
 		<assembly-descriptor1>lib-jar-without-version.xml</assembly-descriptor1>
-		<assembly-descriptor2>jars-only.xml</assembly-descriptor2>
+		<assembly-descriptor2>querydsl-jar.xml</assembly-descriptor2>
+		<assembly-descriptor3>jars-only.xml</assembly-descriptor3>
 		<set_rao_perspective-token>-product</set_rao_perspective-token>
 		<set_rao_perspective-value>
 -perspective${line.separator}
@@ -105,6 +106,7 @@ ru.bmstu.rk9.rao.ui.perspective${line.separator}
 					<descriptors>
 						<descriptor>${assembly-descriptor1}</descriptor>
 						<descriptor>${assembly-descriptor2}</descriptor>
+						<descriptor>${assembly-descriptor3}</descriptor>
 					</descriptors>
 					<finalName>raox</finalName>
 				</configuration>
