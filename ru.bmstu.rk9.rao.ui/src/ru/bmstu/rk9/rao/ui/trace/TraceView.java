@@ -35,6 +35,8 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -60,9 +62,9 @@ import ru.bmstu.rk9.rao.lib.database.Database.EntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.notification.Subscriber;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
-import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.ExecutionState;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulatorState;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager;
 import ru.bmstu.rk9.rao.lib.simulator.SimulatorSubscriberManager.SimulatorSubscriberInfo;
 import ru.bmstu.rk9.rao.ui.export.ExportTraceHandler;
 import ru.bmstu.rk9.rao.ui.gef.process.ProcessColors;
@@ -123,6 +125,14 @@ public class TraceView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		viewer = new TableViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.VIRTUAL);
+
+		// This updates size of the column and sets correct horizontal slider width
+		viewer.getTable().addPaintListener(new PaintListener() {
+			@Override
+			public void paintControl(PaintEvent e) {
+				viewer.getTable().getColumn(0).pack();
+			}
+		});
 
 		TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
 		TableColumnLayout tableLayout = new TableColumnLayout();
