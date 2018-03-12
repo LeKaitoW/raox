@@ -25,8 +25,9 @@ public class DefaultMethodsHelper {
 	}
 
 	public static enum GlobalMethodInfo implements AbstractMethodInfo {
-		INIT("init", ValidatorAction.NOTHING, new String[] {}), TERMINATE_CONDITION("terminateCondition",
-				ValidatorAction.NOTHING, new String[] {}), FINISH("finish", ValidatorAction.NOTHING, new String[] {});
+		EXPERIMENTS("experiments", ValidatorAction.NOTHING, new String[] {}), INIT("init", ValidatorAction.NOTHING,
+				new String[] {}), TERMINATE_CONDITION("terminateCondition", ValidatorAction.NOTHING,
+						new String[] {}), FINISH("finish", ValidatorAction.NOTHING, new String[] {});
 
 		GlobalMethodInfo(String name, ValidatorAction validatorAction, String[] parameters) {
 			this.name = name;
