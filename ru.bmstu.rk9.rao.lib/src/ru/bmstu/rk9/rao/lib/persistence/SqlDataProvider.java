@@ -10,6 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import org.hibernate.Session;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
 import com.querydsl.jpa.impl.JPAQuery;
@@ -44,6 +45,11 @@ public final class SqlDataProvider implements DataProvider {
 	public SqlDataProvider setPersistenceUnitName(String persistenceUnitName) {
 		this.persistenceUnitName = persistenceUnitName;
 		return this;
+	}
+
+	public void clear() {
+		Session session = getEntityManager().unwrap(Session.class);
+		session.clear();
 	}
 
 	public <T> JPAQuery<T> getQuery() {
