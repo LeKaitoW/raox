@@ -147,19 +147,17 @@ public class ExecutionJobProvider {
 
 							ConsoleView.addLine(
 									"Time elapsed: " + String.valueOf(System.currentTimeMillis() - startTime) + "ms");
-
-							throw new ExecutionAbortException(Status.OK_STATUS);
+							CurrentSimulator.resetSimulationTime();
 						}
 					};
 					ModelExecution.setStart(start);
 
 					try {
 						simulatorInitializationInfo.getExperiments().run();
+						return Status.OK_STATUS;
 					} catch (ExecutionAbortException e) {
 						return e.getStatus();
 					}
-
-					return Status.OK_STATUS;
 
 				} catch (Exception e) {
 					e.printStackTrace();

@@ -176,4 +176,9 @@ public class Simulator implements ISimulator {
 				return true;
 		return false;
 	}
+
+	@Override
+	public void resetSimulationTime() {
+		time = 0;
+	}
 }
