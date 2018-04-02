@@ -181,8 +181,4 @@ public class CurrentSimulator {
 		onFinish(simFinishType);
 		return code;
 	}
-
-	public static synchronized void resetSimulationTime() {
-		currentSimulator.resetSimulationTime();
-	}
 }

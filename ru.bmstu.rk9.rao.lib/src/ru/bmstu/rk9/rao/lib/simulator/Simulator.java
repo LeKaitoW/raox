@@ -50,6 +50,11 @@ public class Simulator implements ISimulator {
 	public void finish(SimulatorFinishInfo finishInfo) {
 		for (Runnable finish : finishInfo.finishList)
 			finish.run();
+		while (eventScheduler.haveEvents()) {
+			eventScheduler.popEvent();
+		}
+		time = 0;
+
 	}
 
 	private Database database;
@@ -175,10 +180,5 @@ public class Simulator implements ISimulator {
 			if (c.get())
 				return true;
 		return false;
-	}
-
-	@Override
-	public void resetSimulationTime() {
-		time = 0;
 	}
 }

@@ -147,7 +147,6 @@ public class ExecutionJobProvider {
 
 							ConsoleView.addLine(
 									"Time elapsed: " + String.valueOf(System.currentTimeMillis() - startTime) + "ms");
-							CurrentSimulator.resetSimulationTime();
 						}
 					};
 					ModelExecution.setStart(start);
