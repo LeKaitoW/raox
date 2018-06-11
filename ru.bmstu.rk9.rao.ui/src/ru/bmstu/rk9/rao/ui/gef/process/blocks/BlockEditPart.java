@@ -6,9 +6,11 @@ import java.util.List;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.ConnectionEditPart;
+import org.eclipse.gef.DragTracker;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.NodeEditPart;
 import org.eclipse.gef.Request;
+import org.eclipse.gef.RequestConstants;
 import org.eclipse.gef.requests.DropRequest;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
@@ -20,6 +22,7 @@ import ru.bmstu.rk9.rao.ui.gef.process.ProcessDeletePolicy;
 import ru.bmstu.rk9.rao.ui.gef.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.gef.process.connection.ConnectionAnchor;
 import ru.bmstu.rk9.rao.ui.gef.process.connection.ConnectionPolicy;
+import ru.bmstu.rk9.rao.ui.gef.process.connection.DoubleClickConnectionDragCreationTool;
 
 public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 
@@ -139,6 +142,14 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 		return null;
 	}
 
+	public boolean isConnected() {
+		Node node = (Node) getModel();
+		if (node instanceof BlockNode) {
+			return ((BlockNode) node).isConnected();
+		}
+		return false;
+	}
+
 	public final String mapConnectionAnchorToDock(ConnectionAnchor connectionAnchor) {
 		return getProcessFigure().getConnectionAnchorName(connectionAnchor);
 	}
@@ -146,4 +157,13 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 	protected final BlockFigure getProcessFigure() {
 		return (BlockFigure) getFigure();
 	}
+
+	@Override
+	public DragTracker getDragTracker(Request request) {
+		if (request.getType().equals(RequestConstants.REQ_OPEN) && !isConnected()) {
+			return new DoubleClickConnectionDragCreationTool();
+		}
+		return super.getDragTracker(request);
+	}
+
 }

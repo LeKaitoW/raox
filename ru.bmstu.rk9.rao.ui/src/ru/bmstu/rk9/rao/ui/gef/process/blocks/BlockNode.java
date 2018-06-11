@@ -41,6 +41,7 @@ public abstract class BlockNode extends Node {
 	private BlockTitleNode title;
 	protected int ID;
 	private String name = "Unknown";
+	private boolean connected;
 
 	public final int getID() {
 		return ID;
@@ -155,6 +156,7 @@ public abstract class BlockNode extends Node {
 			if (!sourceConnections.contains(connection)) {
 				if (sourceConnections.add(connection)) {
 					getListeners().firePropertyChange(SOURCE_CONNECTION_UPDATED, null, connection);
+					connected = true;
 					return true;
 				}
 				return false;
@@ -176,6 +178,7 @@ public abstract class BlockNode extends Node {
 			if (sourceConnections.contains(connection)) {
 				if (sourceConnections.remove(connection)) {
 					getListeners().firePropertyChange(SOURCE_CONNECTION_UPDATED, null, connection);
+					connected = false;
 					return true;
 				}
 				return false;
@@ -265,4 +268,8 @@ public abstract class BlockNode extends Node {
 	public abstract BlockConverterInfo createBlock(ModelContentsInfo modelContentsInfo);
 
 	public abstract void validateProperty(IResource file) throws CoreException;
+
+	public boolean isConnected() {
+		return connected;
+	}
 }

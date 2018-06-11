@@ -51,5 +51,6 @@ public abstract class EditPart extends AbstractGraphicalEditPart implements Prop
 	public void performRequest(Request request) {
 		if (request.getType().equals(RequestConstants.REQ_OPEN))
 			NodePropertySource.showPropertiesSheet();
+		super.performRequest(request);
 	}
 }
