@@ -8,15 +8,24 @@ import org.eclipse.gef.editpolicies.ConnectionEndpointEditPolicy;
 
 public class ConnectionEditPart extends AbstractConnectionEditPart {
 
+	boolean visible = true;
+
 	@Override
 	protected IFigure createFigure() {
-		PolylineConnection connection = new PolylineConnection();
-		return connection;
+		if (visible) {
+			return new PolylineConnection();
+		} else {
+			return new ConnectionEmptyFigure();
+		}
 	}
 
 	@Override
 	protected void createEditPolicies() {
 		installEditPolicy(EditPolicy.CONNECTION_ROLE, new ConnectionDeleteEditPolicy());
 		installEditPolicy(EditPolicy.CONNECTION_ENDPOINTS_ROLE, new ConnectionEndpointEditPolicy());
+	}
+
+	public void setVisible(boolean value) {
+		this.visible = value;
 	}
 }

@@ -17,7 +17,7 @@ import ru.bmstu.rk9.rao.ui.gef.commands.ChangeConstraintCommand;
 import ru.bmstu.rk9.rao.ui.gef.commands.CreateCommand;
 import ru.bmstu.rk9.rao.ui.gef.model.ModelNode;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.BlockNode;
-import ru.bmstu.rk9.rao.ui.gef.process.blocks.BlockNodeCreateCommand;
+import ru.bmstu.rk9.rao.ui.gef.process.commands.BlockNodeCreateCommand;
 import ru.bmstu.rk9.rao.ui.gef.process.model.ProcessModelEditPart;
 
 public class ProcessLayoutEditPolicy extends XYLayoutEditPolicy {
