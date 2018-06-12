@@ -92,6 +92,7 @@ public class ProcessEditPartFactory implements EditPartFactory {
 					String targetDockName = currentEditPart.mapRequestToTargetDock(request);
 					Connection connection = new Connection(key, currentNode, sourceDockName, targetDockName);
 					connection.connect();
+					break;
 				}
 			}
 		}

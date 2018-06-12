@@ -10,7 +10,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.EventObject;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -269,8 +268,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	protected void configureGraphicalViewer() {
 		super.configureGraphicalViewer();
 		GraphicalViewer viewer = getGraphicalViewer();
-		viewer.setEditPartFactory(new ProcessEditPartFactory(
-				() -> new HashMap<Node, org.eclipse.gef.EditPart>(viewer.getEditPartRegistry())));
+		viewer.setEditPartFactory(new ProcessEditPartFactory(() -> viewer.getEditPartRegistry()));
 
 		KeyHandler keyHandler = new KeyHandler();
 		keyHandler.put(KeyStroke.getPressed(SWT.DEL, 127, 0),
