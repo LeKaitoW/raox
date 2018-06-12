@@ -7,11 +7,14 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.ConnectionEditPart;
 import org.eclipse.gef.DragTracker;
+import org.eclipse.gef.EditPartViewer;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.NodeEditPart;
 import org.eclipse.gef.Request;
 import org.eclipse.gef.RequestConstants;
 import org.eclipse.gef.requests.DropRequest;
+import org.eclipse.gef.tools.ConnectionDragCreationTool;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
@@ -22,7 +25,6 @@ import ru.bmstu.rk9.rao.ui.gef.process.ProcessDeletePolicy;
 import ru.bmstu.rk9.rao.ui.gef.process.connection.Connection;
 import ru.bmstu.rk9.rao.ui.gef.process.connection.ConnectionAnchor;
 import ru.bmstu.rk9.rao.ui.gef.process.connection.ConnectionPolicy;
-import ru.bmstu.rk9.rao.ui.gef.process.connection.DoubleClickConnectionDragCreationTool;
 
 public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 
@@ -154,14 +156,35 @@ public abstract class BlockEditPart extends EditPart implements NodeEditPart {
 		return getProcessFigure().getConnectionAnchorName(connectionAnchor);
 	}
 
-	protected final BlockFigure getProcessFigure() {
+	public final String mapRequestToSourceDock(Request request) {
+		return getProcessFigure().getConnectionAnchorName(getSourceConnectionAnchor(request));
+	}
+
+	public final String mapRequestToTargetDock(Request request) {
+		return getProcessFigure().getConnectionAnchorName(getTargetConnectionAnchor(request));
+	}
+
+	public final BlockFigure getProcessFigure() {
 		return (BlockFigure) getFigure();
+	}
+
+	public boolean haveInputs() {
+		return !getProcessFigure().inputConnectionAnchors.isEmpty();
+	}
+
+	public boolean haveOutputs() {
+		return !getProcessFigure().outputConnectionAnchors.isEmpty();
 	}
 
 	@Override
 	public DragTracker getDragTracker(Request request) {
-		if (request.getType().equals(RequestConstants.REQ_OPEN) && !isConnected()) {
-			return new DoubleClickConnectionDragCreationTool();
+		if (request.getType().equals(RequestConstants.REQ_OPEN) && haveOutputs() && !isConnected()) {
+			return new ConnectionDragCreationTool() {
+				@Override
+				public void mouseDoubleClick(MouseEvent me, EditPartViewer viewer) {
+					super.mouseDown(me, viewer);
+				}
+			};
 		}
 		return super.getDragTracker(request);
 	}

@@ -9,6 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.ColorPropertyDescriptor;
@@ -42,6 +43,7 @@ public abstract class BlockNode extends Node {
 	protected int ID;
 	private String name = "Unknown";
 	private boolean connected;
+	private Point dropLocation;
 
 	public final int getID() {
 		return ID;
@@ -271,5 +273,13 @@ public abstract class BlockNode extends Node {
 
 	public boolean isConnected() {
 		return connected;
+	}
+
+	public void setDropLocation(Point location) {
+		dropLocation = location;
+	}
+
+	public Point getDropLocation() {
+		return dropLocation;
 	}
 }
