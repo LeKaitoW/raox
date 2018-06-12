@@ -9,6 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.views.properties.ColorPropertyDescriptor;
@@ -41,6 +42,8 @@ public abstract class BlockNode extends Node {
 	private BlockTitleNode title;
 	protected int ID;
 	private String name = "Unknown";
+	private boolean connected;
+	private Point dropLocation;
 
 	public final int getID() {
 		return ID;
@@ -155,6 +158,7 @@ public abstract class BlockNode extends Node {
 			if (!sourceConnections.contains(connection)) {
 				if (sourceConnections.add(connection)) {
 					getListeners().firePropertyChange(SOURCE_CONNECTION_UPDATED, null, connection);
+					connected = true;
 					return true;
 				}
 				return false;
@@ -176,6 +180,7 @@ public abstract class BlockNode extends Node {
 			if (sourceConnections.contains(connection)) {
 				if (sourceConnections.remove(connection)) {
 					getListeners().firePropertyChange(SOURCE_CONNECTION_UPDATED, null, connection);
+					connected = false;
 					return true;
 				}
 				return false;
@@ -265,4 +270,16 @@ public abstract class BlockNode extends Node {
 	public abstract BlockConverterInfo createBlock(ModelContentsInfo modelContentsInfo);
 
 	public abstract void validateProperty(IResource file) throws CoreException;
+
+	public boolean isConnected() {
+		return connected;
+	}
+
+	public void setDropLocation(Point location) {
+		dropLocation = location;
+	}
+
+	public Point getDropLocation() {
+		return dropLocation;
+	}
 }
