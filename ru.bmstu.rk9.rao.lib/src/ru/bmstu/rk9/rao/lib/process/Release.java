@@ -8,16 +8,17 @@ import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
-public class Release implements Block {
+public class Release extends Block {
 
-	public Release(Resource resource) {
+	public Release(int ID, Resource resource) {
+		super(ID);
 		this.resource = resource;
 	}
 
 	private Resource resource;
 	private InputDock inputDock = new InputDock();
 	private TransactStorage transactStorage = new TransactStorage();
-	private OutputDock outputDock = () -> transactStorage.pullTransact();
+	private OutputDock outputDock = (int ID) -> transactStorage.pullTransact();
 
 	public InputDock getInputDock() {
 		return inputDock;
@@ -31,7 +32,7 @@ public class Release implements Block {
 	public BlockStatus check() {
 		if (transactStorage.hasTransact())
 			return BlockStatus.CHECK_AGAIN;
-		Transact transact = inputDock.pullTransact();
+		Transact transact = inputDock.pullTransact(ID);
 		if (transact == null)
 			return BlockStatus.NOTHING_TO_DO;
 		if (resource.isAccessible()) {

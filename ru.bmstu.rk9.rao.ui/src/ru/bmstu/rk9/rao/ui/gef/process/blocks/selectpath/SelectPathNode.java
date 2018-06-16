@@ -78,7 +78,7 @@ public class SelectPathNode extends BlockNode implements Serializable {
 		ru.bmstu.rk9.rao.lib.process.SelectPath selectPath = null;
 		switch (mode) {
 		case PROBABILITY:
-			selectPath = new ru.bmstu.rk9.rao.lib.process.SelectPath(Double.valueOf(this.probability));
+			selectPath = new ru.bmstu.rk9.rao.lib.process.SelectPath(ID, Double.valueOf(this.probability));
 			break;
 		case CONDITION:
 			Supplier<Boolean> supplier = modelContentsInfo.booleanFunctions.get(condition);
@@ -88,7 +88,7 @@ public class SelectPathNode extends BlockNode implements Serializable {
 				condition = "";
 				return selectPathInfo;
 			}
-			selectPath = new ru.bmstu.rk9.rao.lib.process.SelectPath(supplier);
+			selectPath = new ru.bmstu.rk9.rao.lib.process.SelectPath(ID, supplier);
 			break;
 		}
 

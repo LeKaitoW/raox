@@ -10,13 +10,13 @@ import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
-public class SelectPath implements Block {
+public class SelectPath extends Block {
 
 	private TransactStorage trueOutputTransactStorage = new TransactStorage();
 	private TransactStorage falseOutputTransactStorage = new TransactStorage();
 	private InputDock inputDock = new InputDock();
-	private OutputDock trueOutputDock = () -> trueOutputTransactStorage.pullTransact();
-	private OutputDock falseOutputDock = () -> falseOutputTransactStorage.pullTransact();
+	private OutputDock trueOutputDock = (int ID) -> trueOutputTransactStorage.pullTransact();
+	private OutputDock falseOutputDock = (int ID) -> falseOutputTransactStorage.pullTransact();
 	private Supplier<Boolean> condition;
 
 	public static enum SelectPathOutputs {
@@ -37,11 +37,13 @@ public class SelectPath implements Block {
 		PROBABILITY, CONDITION
 	}
 
-	public SelectPath(Supplier<Boolean> condition) {
+	public SelectPath(int ID, Supplier<Boolean> condition) {
+		super(ID);
 		this.condition = condition;
 	}
 
-	public SelectPath(double probability) {
+	public SelectPath(int ID, double probability) {
+		super(ID);
 		Supplier<Boolean> condition = new Supplier<Boolean>() {
 
 			private final MersenneTwister generator = new MersenneTwister();
@@ -68,7 +70,7 @@ public class SelectPath implements Block {
 
 	@Override
 	public BlockStatus check() {
-		Transact transact = inputDock.pullTransact();
+		Transact transact = inputDock.pullTransact(ID);
 		if (transact == null)
 			return BlockStatus.NOTHING_TO_DO;
 

@@ -52,7 +52,7 @@ public class HoldNode extends BlockNode implements Serializable {
 			System.out.println(holdInfo.errorMessage);
 			return holdInfo;
 		}
-		ru.bmstu.rk9.rao.lib.process.Hold hold = new ru.bmstu.rk9.rao.lib.process.Hold(() -> duration);
+		ru.bmstu.rk9.rao.lib.process.Hold hold = new ru.bmstu.rk9.rao.lib.process.Hold(ID, () -> duration);
 		holdInfo.setBlock(hold);
 		holdInfo.inputDocks.put(DOCK_IN, hold.getInputDock());
 		holdInfo.outputDocks.put(DOCK_OUT, hold.getOutputDock());
