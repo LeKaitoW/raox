@@ -37,7 +37,7 @@ public class ReleaseNode extends BlockNodeWithResource {
 			return releaseInfo;
 		}
 		Resource seizedResource = optional.get();
-		ru.bmstu.rk9.rao.lib.process.Release release = new ru.bmstu.rk9.rao.lib.process.Release(seizedResource);
+		ru.bmstu.rk9.rao.lib.process.Release release = new ru.bmstu.rk9.rao.lib.process.Release(ID, seizedResource);
 		releaseInfo.setBlock(release);
 		releaseInfo.inputDocks.put(DOCK_IN, release.getInputDock());
 		releaseInfo.outputDocks.put(DOCK_OUT, release.getOutputDock());

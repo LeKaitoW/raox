@@ -4,10 +4,14 @@ import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
-public class TeleportOut implements Block {
+public class TeleportOut extends Block {
 	private InputDock inputDock = new InputDock();
 	private TransactStorage transactStorage = new TransactStorage();
-	private OutputDock outputDock = () -> transactStorage.pullTransact();
+	private OutputDock outputDock = (int ID) -> transactStorage.pullTransact();
+
+	public TeleportOut(int ID) {
+		super(ID);
+	}
 
 	public InputDock getInputDock() {
 		return inputDock;
@@ -23,7 +27,7 @@ public class TeleportOut implements Block {
 			return BlockStatus.CHECK_AGAIN;
 		}
 
-		Transact transact = inputDock.pullTransact();
+		Transact transact = inputDock.pullTransact(ID);
 		if (transact == null)
 			return BlockStatus.NOTHING_TO_DO;
 

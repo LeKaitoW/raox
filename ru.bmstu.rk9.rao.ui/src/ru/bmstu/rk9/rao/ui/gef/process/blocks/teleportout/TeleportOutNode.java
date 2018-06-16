@@ -40,7 +40,7 @@ public class TeleportOutNode extends BlockNode implements Serializable {
 	public BlockConverterInfo createBlock(ModelContentsInfo modelContentsInfo) {
 		BlockConverterInfo teleportInfo = new BlockConverterInfo();
 
-		ru.bmstu.rk9.rao.lib.process.TeleportOut teleportOut = new ru.bmstu.rk9.rao.lib.process.TeleportOut();
+		ru.bmstu.rk9.rao.lib.process.TeleportOut teleportOut = new ru.bmstu.rk9.rao.lib.process.TeleportOut(ID);
 		teleportInfo.setBlock(teleportOut);
 		teleportInfo.inputDocks.put(DOCK_IN, teleportOut.getInputDock());
 		teleportInfo.outputDocks.put(DOCK_OUT, teleportOut.getOutputDock());
@@ -85,6 +85,6 @@ public class TeleportOutNode extends BlockNode implements Serializable {
 	public void onDelete() {
 		super.onDelete();
 
-		TeleportHelper.nodes.add(this);
+		TeleportHelper.nodes.remove(this);
 	}
 }

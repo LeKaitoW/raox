@@ -11,9 +11,9 @@ public class InputDock {
 		linkedDocks.add(outputDock);
 	}
 
-	public Transact pullTransact() {
+	public Transact pullTransact(int ID) {
 		for (OutputDock linkedDock : linkedDocks) {
-			Transact transact = linkedDock.get();
+			Transact transact = linkedDock.apply(ID);
 			if (transact != null)
 				return transact;
 		}

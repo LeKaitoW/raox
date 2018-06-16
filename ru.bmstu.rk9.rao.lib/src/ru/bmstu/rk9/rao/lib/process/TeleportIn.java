@@ -1,14 +1,21 @@
 package ru.bmstu.rk9.rao.lib.process;
 
+import java.util.Collection;
+
 import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
-public class TeleportIn implements Block {
+public class TeleportIn extends Block {
 
 	private InputDock inputDock = new InputDock();
-	private TransactStorage transactStorage = new TransactStorage();
-	private OutputDock outputDock = () -> transactStorage.pullTransact();
+	private TeleportTransactStorage transactStorage;
+	private OutputDock outputDock = (int ID) -> transactStorage.pullTransact(ID);
+
+	public TeleportIn(int ID, Collection<Integer> linkedIds) {
+		super(ID);
+		transactStorage = new TeleportTransactStorage(linkedIds);
+	}
 
 	public InputDock getInputDock() {
 		return inputDock;
@@ -24,7 +31,7 @@ public class TeleportIn implements Block {
 			return BlockStatus.CHECK_AGAIN;
 		}
 
-		Transact transact = inputDock.pullTransact();
+		Transact transact = inputDock.pullTransact(ID);
 		if (transact == null)
 			return BlockStatus.NOTHING_TO_DO;
 

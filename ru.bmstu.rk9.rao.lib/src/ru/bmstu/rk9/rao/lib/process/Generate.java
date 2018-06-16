@@ -7,9 +7,10 @@ import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
-public class Generate implements Block {
+public class Generate extends Block {
 
-	public Generate(Supplier<Double> interval) {
+	public Generate(int ID, Supplier<Double> interval) {
+		super(ID);
 		this.interval = interval;
 		CurrentSimulator.pushEvent(new GenerateEvent(interval.get()));
 	}
@@ -17,7 +18,7 @@ public class Generate implements Block {
 	private Supplier<Double> interval;
 	private boolean ready = false;
 	private TransactStorage transactStorage = new TransactStorage();
-	private OutputDock outputDock = () -> transactStorage.pullTransact();
+	private OutputDock outputDock = (int ID) -> transactStorage.pullTransact();
 
 	public OutputDock getOutputDock() {
 		return outputDock;

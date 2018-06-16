@@ -21,7 +21,7 @@ public class TerminateNode extends BlockNode {
 
 	@Override
 	public BlockConverterInfo createBlock(ModelContentsInfo modelContentsInfo) {
-		ru.bmstu.rk9.rao.lib.process.Terminate terminate = new ru.bmstu.rk9.rao.lib.process.Terminate();
+		ru.bmstu.rk9.rao.lib.process.Terminate terminate = new ru.bmstu.rk9.rao.lib.process.Terminate(ID);
 		BlockConverterInfo terminateInfo = new BlockConverterInfo();
 		terminateInfo.setBlock(terminate);
 		terminateInfo.inputDocks.put(DOCK_IN, terminate.getInputDock());
