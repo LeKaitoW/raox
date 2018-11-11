@@ -3,6 +3,8 @@ package ru.bmstu.rk9.rao.ui.console;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.resource.FontRegistry;
@@ -31,15 +33,24 @@ import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 public class ConsoleView extends ViewPart {
 	public static final String ID = "ru.bmstu.rk9.rao.ui.ConsoleView"; //$NON-NLS-1$
 
+	private static final int REFRESH_INTERVAL = 500;
+
 	private static StyledText styledText;
 
-	private static String text = "";
+	private static StringBuffer text = new StringBuffer();
+
+	private static int lastLength = 0;
+
+	static {
+		Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(() -> {
+			redrawText();
+		}, 0, REFRESH_INTERVAL, TimeUnit.MILLISECONDS);
+	}
 
 	@Override
 	public void createPartControl(Composite parent) {
 		styledText = new StyledText(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		styledText.setAlwaysShowScrollBars(false);
-		redrawText();
 		styledText.setEditable(false);
 		styledText.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true));
 		styledText.setLeftMargin(2);
@@ -101,18 +112,15 @@ public class ConsoleView extends ViewPart {
 	}
 
 	public static void clearConsoleText() {
-		text = "";
-		redrawText();
+		text.setLength(0);
 	}
 
 	public static void addLine(String line) {
-		text = text + line + "\n";
-		redrawText();
+		text.append(line).append('\n');
 	}
 
 	public static void appendText(String add) {
-		text = text + add;
-		redrawText();
+		text.append(add);
 	}
 
 	public static void printStackTrace(Throwable e) {
@@ -122,14 +130,24 @@ public class ConsoleView extends ViewPart {
 		appendText(stringWriter.toString());
 	}
 
-	public static void redrawText() {
-		if (styledText != null && !styledText.isDisposed())
-			styledText.getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					styledText.setText(text);
-				}
-			});
+	private static final Object lock = new Object();
+
+	private static void redrawText() {
+		synchronized (lock) {
+			int currentLength = text.length();
+			if (styledText != null && !styledText.isDisposed() && lastLength != currentLength) {
+				lastLength = currentLength;
+				styledText.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						synchronized (lock) {
+							styledText.setText(text.toString());
+							styledText.setTopIndex(styledText.getLineCount() - 1);
+						}
+					}
+				});
+			}
+		}
 	}
 
 	private static IThemeManager themeManager;
