@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rao.ui.simulation;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.function.Function;
 
 import org.eclipse.ui.PlatformUI;
 
@@ -79,13 +80,16 @@ public class SimulationSynchronizer {
 		private double actualTimeScale = 0;
 
 		private DecimalFormat scaleFormatter = new DecimalFormat("0.######");
-		private DecimalFormat timeFormatter = new DecimalFormat("0.0#####");
+		private DecimalFormat defaultTimeFormatter = new DecimalFormat("0.0#####");
+		private Function<Double, String> defaultTimeFormatterFunction = defaultTimeFormatter::format;
 
 		private final SimulatorSubscriberManager simulatorSubscriberManager = new SimulatorSubscriberManager();
 		private final RealTimeSubscriberManager realTimeSubscriberManager = new RealTimeSubscriberManager();
 
 		private Runnable updater = () -> {
-			StatusView.setValue("Simulation time".intern(), 20, timeFormatter.format(CurrentSimulator.getTime()));
+			String simulationTime = CurrentSimulator.formatTime(CurrentSimulator.getTime(),
+					defaultTimeFormatterFunction);
+			StatusView.setValue("Simulation time".intern(), 20, simulationTime);
 			StatusView.setValue("Actual scale".intern(), 10, scaleFormatter.format(60060d / actualTimeScale));
 		};
 

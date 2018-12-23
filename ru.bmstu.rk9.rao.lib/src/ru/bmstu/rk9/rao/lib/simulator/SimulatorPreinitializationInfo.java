@@ -14,6 +14,10 @@ public class SimulatorPreinitializationInfo {
 		resourceClasses.add(Transact.class);
 	}
 
+	/*
+	 * TODO Fix bad practice, fields should be private and modified through getters
+	 * and setters
+	 */
 	public final JSONObject modelStructure;
 	public final List<Class<?>> resourceClasses = new ArrayList<>();
 	public final List<Runnable> resourcePreinitializers = new ArrayList<>();

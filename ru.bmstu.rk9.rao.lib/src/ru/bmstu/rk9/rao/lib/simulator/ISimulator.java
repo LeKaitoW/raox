@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rao.lib.simulator;
 
 import java.util.List;
+import java.util.function.Function;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.event.Event;
@@ -25,6 +26,8 @@ public interface ISimulator {
 	public void setModelState(ModelState modelState);
 
 	public double getTime();
+
+	String formatTime(double time, Function<Double, String> defaultFormatter);
 
 	public void pushEvent(Event event);
 
