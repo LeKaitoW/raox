@@ -20,7 +20,7 @@ class DefaultMethodCompiler extends RaoEntityCompiler {
 			case DefaultMethodsHelper.GlobalMethodInfo.TERMINATE_CONDITION.name:
 				return method.asSupplier(it, Boolean, isPreIndexingPhase)
 			case DefaultMethodsHelper.GlobalMethodInfo.TIME_FORMAT.name:
-				return method.asFunction(it, Double, String, isPreIndexingPhase)
+				return method.asFunction(it, Double, "time", String, isPreIndexingPhase)
 			case DefaultMethodsHelper.GlobalMethodInfo.TIME_START.name:
 				return method.asSupplier(it, Double, isPreIndexingPhase)
 		}
@@ -57,8 +57,8 @@ class DefaultMethodCompiler extends RaoEntityCompiler {
 		]
 	}
 
-	def private static asFunction(DefaultMethod method, JvmDeclaredType it, Class<?> type, Class<?> returnType,
-		boolean isPreIndexingPhase) {
+	def private static asFunction(DefaultMethod method, JvmDeclaredType it, Class<?> type, String argumentName,
+		Class<?> returnType, boolean isPreIndexingPhase) {
 		{
 			typeRef(returnType)
 			typeRef(type)
@@ -75,7 +75,7 @@ class DefaultMethodCompiler extends RaoEntityCompiler {
 				visibility = JvmVisibility.PUBLIC
 				final = true
 				annotations += overrideAnnotation
-				parameters += method.toParameter("t", typeRef(type))
+				parameters += method.toParameter(argumentName, typeRef(type))
 				body = method.body
 			]
 		]

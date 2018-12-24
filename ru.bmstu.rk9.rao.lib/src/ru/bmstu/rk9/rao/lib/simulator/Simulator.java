@@ -39,6 +39,7 @@ public class Simulator implements ISimulator {
 		resultManager = new ResultManager(initializationInfo.results);
 		time = initializationInfo.getTimeStart();
 		timeFormatter = initializationInfo.getTimeFormatter();
+		database.setTimeFormatter(timeFormatter);
 
 		for (Supplier<Boolean> terminateCondition : initializationInfo.terminateConditions)
 			terminateList.add(terminateCondition);

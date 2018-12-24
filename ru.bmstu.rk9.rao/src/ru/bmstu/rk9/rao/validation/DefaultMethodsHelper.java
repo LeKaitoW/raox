@@ -27,7 +27,7 @@ public class DefaultMethodsHelper {
 	public static enum GlobalMethodInfo implements AbstractMethodInfo {
 		INIT("init", ValidatorAction.NOTHING, new String[] {}),
 		TERMINATE_CONDITION("terminateCondition", ValidatorAction.NOTHING, new String[] {}),
-		TIME_FORMAT("timeFormat", ValidatorAction.NOTHING, new String[] { "double currentTime" }),
+		TIME_FORMAT("timeFormat", ValidatorAction.NOTHING, new String[] { "double time" }),
 		TIME_START("timeStart", ValidatorAction.NOTHING, new String[] {});
 
 		GlobalMethodInfo(String name, ValidatorAction validatorAction, String[] parameters) {

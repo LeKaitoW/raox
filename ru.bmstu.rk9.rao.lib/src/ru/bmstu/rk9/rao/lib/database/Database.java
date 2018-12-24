@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.EventIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.LogicIndex;
@@ -33,6 +34,7 @@ import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.result.AbstractResult;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 
 public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -159,6 +161,16 @@ public class Database {
 
 		for (final String traceName : SerializationObjectsNames.get())
 			addSensitivity(traceName);
+	}
+
+	private Function<Double, String> timeFormatter = SimulatorInitializationInfo.DEFAULT_TIME_FORMATTER;
+
+	public Function<Double, String> getTimeFormatter() {
+		return timeFormatter;
+	}
+
+	public void setTimeFormatter(Function<Double, String> timeFormatter) {
+		this.timeFormatter = timeFormatter;
 	}
 
 	private final HashSet<String> sensitivityList = new HashSet<String>();
