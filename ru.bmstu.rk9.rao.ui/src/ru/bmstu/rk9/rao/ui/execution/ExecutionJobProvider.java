@@ -46,87 +46,89 @@ public class ExecutionJobProvider {
 
 				try {
 					parser.parse();
+
+					// TODO mess directly below, generalize in some way?
+					ExportTraceHandler.reset();
+					SerializationConfigView.initNames();
+
+					CurrentSimulator.set(new Simulator());
+
+					try {
+						CurrentSimulator.preinitialize(parser.getSimulatorPreinitializationInfo());
+					} catch (Exception e) {
+						e.printStackTrace();
+						return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Simulator preinitialization failed",
+								e);
+					}
+
+					try {
+						parser.postprocess();
+					} catch (ProcessParsingException e) {
+						return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "invalid block parameter", e);
+					} catch (Exception e) {
+						e.printStackTrace();
+						return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Model postprocessing failed", e);
+					}
+
+					display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
+
+					try {
+						CurrentSimulator.initialize(parser.getSimulatorInitializationInfo());
+					} catch (Exception e) {
+						e.printStackTrace();
+						return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Simulator initialization failed", e);
+					}
+
+					final long startTime = System.currentTimeMillis();
+					StatusView.setStartTime(startTime);
+					ConsoleView.addLine("Started model " + project.getName());
+
+					SimulationStopCode simulationResult;
+
+					try {
+						simulationResult = CurrentSimulator.run();
+					} catch (Throwable e) {
+						e.printStackTrace();
+						ConsoleView.addLine("Execution error\n");
+						ConsoleView.addLine("Call stack:");
+						ConsoleView.printStackTrace(e);
+						CurrentSimulator.notifyError();
+
+						if (e instanceof Error)
+							throw e;
+
+						return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Execution failed", e);
+					} finally {
+						display.syncExec(() -> AnimationView.deinitialize());
+					}
+
+					switch (simulationResult) {
+					case TERMINATE_CONDITION:
+						ConsoleView.addLine("Stopped by terminate condition");
+						break;
+					case USER_INTERRUPT:
+						ConsoleView.addLine("Model terminated by user");
+						break;
+					case NO_MORE_EVENTS:
+						ConsoleView.addLine("No more events");
+						break;
+					default:
+						ConsoleView.addLine("Runtime error");
+						break;
+					}
+
+					display.asyncExec(() -> ResultsView.update());
+
+					ConsoleView
+							.addLine("Time elapsed: " + String.valueOf(System.currentTimeMillis() - startTime) + "ms");
+
+					return Status.OK_STATUS;
 				} catch (Exception e) {
 					e.printStackTrace();
 					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Model parsing failed", e);
 				} finally {
 					parser.closeClassLoader();
 				}
-
-				// TODO mess directly below, generalize in some way?
-				ExportTraceHandler.reset();
-				SerializationConfigView.initNames();
-
-				CurrentSimulator.set(new Simulator());
-
-				try {
-					CurrentSimulator.preinitialize(parser.getSimulatorPreinitializationInfo());
-				} catch (Exception e) {
-					e.printStackTrace();
-					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Simulator preinitialization failed", e);
-				}
-
-				try {
-					parser.postprocess();
-				} catch (ProcessParsingException e) {
-					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "invalid block parameter", e);
-				} catch (Exception e) {
-					e.printStackTrace();
-					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Model postprocessing failed", e);
-				}
-
-				display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
-
-				try {
-					CurrentSimulator.initialize(parser.getSimulatorInitializationInfo());
-				} catch (Exception e) {
-					e.printStackTrace();
-					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Simulator initialization failed", e);
-				}
-
-				final long startTime = System.currentTimeMillis();
-				StatusView.setStartTime(startTime);
-				ConsoleView.addLine("Started model " + project.getName());
-
-				SimulationStopCode simulationResult;
-
-				try {
-					simulationResult = CurrentSimulator.run();
-				} catch (Throwable e) {
-					e.printStackTrace();
-					ConsoleView.addLine("Execution error\n");
-					ConsoleView.addLine("Call stack:");
-					ConsoleView.printStackTrace(e);
-					CurrentSimulator.notifyError();
-
-					if (e instanceof Error)
-						throw e;
-
-					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Execution failed", e);
-				} finally {
-					display.syncExec(() -> AnimationView.deinitialize());
-				}
-
-				switch (simulationResult) {
-				case TERMINATE_CONDITION:
-					ConsoleView.addLine("Stopped by terminate condition");
-					break;
-				case USER_INTERRUPT:
-					ConsoleView.addLine("Model terminated by user");
-					break;
-				case NO_MORE_EVENTS:
-					ConsoleView.addLine("No more events");
-					break;
-				default:
-					ConsoleView.addLine("Runtime error");
-					break;
-				}
-
-				display.asyncExec(() -> ResultsView.update());
-
-				ConsoleView.addLine("Time elapsed: " + String.valueOf(System.currentTimeMillis() - startTime) + "ms");
-
-				return Status.OK_STATUS;
 			}
 
 			@Override
