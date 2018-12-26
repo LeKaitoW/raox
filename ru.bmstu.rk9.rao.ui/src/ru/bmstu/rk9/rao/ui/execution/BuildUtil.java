@@ -2,6 +2,8 @@ package ru.bmstu.rk9.rao.ui.execution;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -275,5 +277,30 @@ public class BuildUtil {
 
 	static String createErrorMessage(String message) {
 		return "Build failed: " + message;
+	}
+
+	static URL[] addJavaProjectLibraries(URL modelUrl, IProject project) throws CoreException, MalformedURLException {
+		IJavaProject javaProject = JavaCore.create(project);
+		List<URL> urls = new ArrayList<>();
+
+		urls.add(modelUrl);
+
+		IClasspathEntry[] resolvedClasspath = javaProject.getResolvedClasspath(true);
+		for (IClasspathEntry entry : resolvedClasspath) {
+			IPath path = entry.getPath();
+			String stringPath = path.toString();
+			if (entry.getEntryKind() != IClasspathEntry.CPE_LIBRARY)
+				continue;
+			if (stringPath.contains(BundleType.RAOX_LIB.name))
+				continue;
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IResource res = root.findMember(path);
+			if (res != null) {
+				stringPath = res.getLocation().toString();
+			}
+			urls.add(new File(stringPath).toURI().toURL());
+		}
+
+		return urls.toArray(new URL[urls.size()]);
 	}
 }
