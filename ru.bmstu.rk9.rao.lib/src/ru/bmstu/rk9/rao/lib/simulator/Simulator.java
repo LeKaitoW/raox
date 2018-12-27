@@ -36,6 +36,7 @@ public class Simulator implements ISimulator {
 		dptManager = new DPTManager(initializationInfo.decisionPoints);
 		processManager = new Process(initializationInfo.processBlocks);
 		resultManager = new ResultManager(initializationInfo.results);
+		experiments = initializationInfo.getExperiments();
 
 		for (Supplier<Boolean> terminateCondition : initializationInfo.terminateConditions)
 			terminateList.add(terminateCondition);
@@ -125,8 +126,16 @@ public class Simulator implements ISimulator {
 		executionAborted = true;
 	}
 
+	private Runnable experiments;
+
+	@Override
+	public void runExperiments() {
+		experiments.run();
+	}
+
 	@Override
 	public SimulationStopCode run() {
+		time = 0;
 		database.addSystemEntry(Database.SystemEntryType.SIM_START);
 
 		notifyChange(ExecutionState.EXECUTION_STARTED);

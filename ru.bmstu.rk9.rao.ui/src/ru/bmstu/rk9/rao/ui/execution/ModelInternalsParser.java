@@ -150,6 +150,14 @@ public class ModelInternalsParser {
 		Class<?> modelClass = Class.forName(modelClassName, false, classLoader);
 
 		try {
+			Class<?> experiments = Class.forName(modelClassName + "$experiments", false, classLoader);
+			Constructor<?> experimentsConstructor = experiments.getDeclaredConstructor();
+			experimentsConstructor.setAccessible(true);
+			simulatorInitializationInfo.setExperiments((Runnable) experimentsConstructor.newInstance());
+		} catch (ClassNotFoundException classException) {
+		}
+
+		try {
 			Class<?> init = Class.forName(modelClassName + "$init", false, classLoader);
 			Constructor<?> initConstructor = init.getDeclaredConstructor();
 			initConstructor.setAccessible(true);

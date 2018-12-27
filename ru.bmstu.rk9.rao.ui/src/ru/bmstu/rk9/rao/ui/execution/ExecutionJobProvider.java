@@ -10,6 +10,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.xbase.typesystem.IBatchTypeResolver;
 
+import ru.bmstu.rk9.rao.lib.runtime.Experiments;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
 import ru.bmstu.rk9.rao.lib.simulator.Simulator;
@@ -84,49 +85,59 @@ public class ExecutionJobProvider {
 					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Simulator initialization failed", e);
 				}
 
-				final long startTime = System.currentTimeMillis();
-				StatusView.setStartTime(startTime);
-				ConsoleView.addLine("Started model " + project.getName());
+				Runnable start = () -> {
+					final long startTime = System.currentTimeMillis();
+					StatusView.setStartTime(startTime);
+					ConsoleView.addLine("Started model " + project.getName());
 
-				SimulationStopCode simulationResult;
+					SimulationStopCode simulationResult;
 
+					try {
+						simulationResult = CurrentSimulator.run();
+					} catch (Throwable e) {
+						e.printStackTrace();
+						ConsoleView.addLine("Execution error\n");
+						ConsoleView.addLine("Call stack:");
+						ConsoleView.printStackTrace(e);
+						CurrentSimulator.notifyError();
+
+						if (e instanceof Error)
+							throw e;
+
+						IStatus status = new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Execution failed", e);
+						throw new ExecutionException(status);
+					} finally {
+						display.syncExec(() -> AnimationView.deinitialize());
+					}
+
+					switch (simulationResult) {
+					case TERMINATE_CONDITION:
+						ConsoleView.addLine("Stopped by terminate condition");
+						break;
+					case USER_INTERRUPT:
+						ConsoleView.addLine("Model terminated by user");
+						break;
+					case NO_MORE_EVENTS:
+						ConsoleView.addLine("No more events");
+						break;
+					default:
+						ConsoleView.addLine("Runtime error");
+						break;
+					}
+
+					display.asyncExec(() -> ResultsView.update());
+
+					ConsoleView
+							.addLine("Time elapsed: " + String.valueOf(System.currentTimeMillis() - startTime) + "ms");
+
+				};
+				Experiments.setStart(start);
 				try {
-					simulationResult = CurrentSimulator.run();
-				} catch (Throwable e) {
-					e.printStackTrace();
-					ConsoleView.addLine("Execution error\n");
-					ConsoleView.addLine("Call stack:");
-					ConsoleView.printStackTrace(e);
-					CurrentSimulator.notifyError();
-
-					if (e instanceof Error)
-						throw e;
-
-					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Execution failed", e);
-				} finally {
-					display.syncExec(() -> AnimationView.deinitialize());
+					CurrentSimulator.runExperiments();
+					return Status.OK_STATUS;
+				} catch (ExecutionException e) {
+					return e.getStatus();
 				}
-
-				switch (simulationResult) {
-				case TERMINATE_CONDITION:
-					ConsoleView.addLine("Stopped by terminate condition");
-					break;
-				case USER_INTERRUPT:
-					ConsoleView.addLine("Model terminated by user");
-					break;
-				case NO_MORE_EVENTS:
-					ConsoleView.addLine("No more events");
-					break;
-				default:
-					ConsoleView.addLine("Runtime error");
-					break;
-				}
-
-				display.asyncExec(() -> ResultsView.update());
-
-				ConsoleView.addLine("Time elapsed: " + String.valueOf(System.currentTimeMillis() - startTime) + "ms");
-
-				return Status.OK_STATUS;
 			}
 
 			@Override
