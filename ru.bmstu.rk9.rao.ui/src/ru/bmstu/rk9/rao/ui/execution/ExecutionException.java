@@ -10,6 +10,7 @@ public class ExecutionException extends RuntimeException {
 
 	public ExecutionException(IStatus status) {
 		super(status.toString(), status.getException());
+		this.status = status;
 	}
 
 	public IStatus getStatus() {
