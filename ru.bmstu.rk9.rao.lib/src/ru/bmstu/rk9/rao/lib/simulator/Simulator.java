@@ -21,26 +21,26 @@ import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
 public class Simulator implements ISimulator {
 	@Override
 	public void preinitilize(SimulatorPreinitializationInfo preinitializationInfo) {
-		modelState = new ModelState(preinitializationInfo.resourceClasses);
-		database = new Database(preinitializationInfo.modelStructure);
-		staticModelData = new StaticModelData(preinitializationInfo.modelStructure);
+		modelState = new ModelState(preinitializationInfo.getResourceClasses());
+		database = new Database(preinitializationInfo.getModelStructure());
+		staticModelData = new StaticModelData(preinitializationInfo.getModelStructure());
 		logger = new Logger();
 
-		for (Runnable resourcePreinitializer : preinitializationInfo.resourcePreinitializers)
+		for (Runnable resourcePreinitializer : preinitializationInfo.getResourcePreinitializers())
 			resourcePreinitializer.run();
 	}
 
 	@Override
 	public void initialize(SimulatorInitializationInfo initializationInfo) {
 		executionStateNotifier = new Notifier<ExecutionState>(ExecutionState.class);
-		dptManager = new DPTManager(initializationInfo.decisionPoints);
-		processManager = new Process(initializationInfo.processBlocks);
-		resultManager = new ResultManager(initializationInfo.results);
+		dptManager = new DPTManager(initializationInfo.getDecisionPoints());
+		processManager = new Process(initializationInfo.getProcessBlocks());
+		resultManager = new ResultManager(initializationInfo.getResults());
 
-		for (Supplier<Boolean> terminateCondition : initializationInfo.terminateConditions)
+		for (Supplier<Boolean> terminateCondition : initializationInfo.getTerminateConditions())
 			terminateList.add(terminateCondition);
 
-		for (Runnable init : initializationInfo.initList)
+		for (Runnable init : initializationInfo.getInitList())
 			init.run();
 
 		database.addMemorizedResourceEntries(null, null, null);
