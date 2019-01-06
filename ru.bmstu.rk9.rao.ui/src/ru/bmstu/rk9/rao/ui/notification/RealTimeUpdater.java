@@ -42,7 +42,7 @@ public class RealTimeUpdater {
 
 	private final void start() {
 		display = PlatformUI.getWorkbench().getDisplay();
-		CurrentSimulator.getDatabase().getNotifier().addSubscriber(databaseSubscriber,
+		CurrentSimulator.getDatabase().getNotifier().addSubscriberIfNotExists(databaseSubscriber,
 				Database.NotificationCategory.ENTRY_ADDED);
 
 		timer = new Timer();
@@ -66,8 +66,6 @@ public class RealTimeUpdater {
 		timer = null;
 		timerTask = null;
 		scheduledActions.clear();
-		CurrentSimulator.getDatabase().getNotifier().removeSubscriber(databaseSubscriber,
-				Database.NotificationCategory.ENTRY_ADDED);
 	}
 
 	private boolean haveNewData = false;

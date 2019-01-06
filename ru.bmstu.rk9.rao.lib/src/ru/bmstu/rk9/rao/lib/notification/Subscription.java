@@ -18,6 +18,12 @@ public class Subscription {
 					"Cannot add subscriber" + subscriber + ", it is already present in subscription");
 	}
 
+	void addSubscriberIfNotExists(Subscriber subscriber, EnumSet<SubscriptionType> flags) {
+		if (!subscribers.containsKey(subscriber)) {
+			addSubscriber(subscriber, flags);
+		}
+	}
+
 	void removeSubscriber(Subscriber subscriber) {
 		if (subscribers.remove(subscriber) == null)
 			throw new NotifierException(

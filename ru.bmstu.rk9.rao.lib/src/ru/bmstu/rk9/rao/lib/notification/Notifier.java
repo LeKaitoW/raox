@@ -45,6 +45,24 @@ public class Notifier<Category extends Enum<Category>> {
 
 		subscriptionState.subscription.addSubscriber(subscriber, subscriptionFlags);
 
+		addPostActions(subscriber, subscriptionFlags, subscriptionState);
+	}
+
+	public void addSubscriberIfNotExists(Subscriber subscriber, Category category) {
+		addSubscriberIfNotExists(subscriber, category, EnumSet.noneOf(SubscriptionType.class));
+	}
+
+	public void addSubscriberIfNotExists(Subscriber subscriber, Category category,
+			EnumSet<SubscriptionType> subscriptionFlags) {
+		SubscriptionState subscriptionState = subscriptionStates.get(category);
+
+		subscriptionState.subscription.addSubscriberIfNotExists(subscriber, subscriptionFlags);
+
+		addPostActions(subscriber, subscriptionFlags, subscriptionState);
+	}
+
+	private void addPostActions(Subscriber subscriber, EnumSet<SubscriptionType> subscriptionFlags,
+			SubscriptionState subscriptionState) {
 		if (!subscriptionFlags.contains(SubscriptionType.IGNORE_ACCUMULATED) && subscriptionState.hadNotifications)
 			subscriber.fireChange();
 	}
