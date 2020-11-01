@@ -33,6 +33,11 @@ RaoEntity
 EntityCreation
 	: Sequence
 	| Constant
+	| Range
+;
+
+Range:
+	'range' name = ID '=' constructor = XOrExpression ';'?
 ;
 
 ResourceDeclaration:
@@ -53,8 +58,8 @@ ResourceType:
 	'}'
 ;
 
-FieldDeclaration
-	: declaration = FullJvmFormalParameter ('=' default = XOrExpression)? ';'?
+FieldDeclaration:
+	declaration = FullJvmFormalParameter ('=' default = XOrExpression)? ';'?
 ;
 
 Event:
