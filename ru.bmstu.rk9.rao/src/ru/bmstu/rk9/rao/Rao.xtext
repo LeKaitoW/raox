@@ -28,16 +28,29 @@ RaoEntity
 	| Search
 	| EntityCreation
 	| ResourceDeclaration
+	| VarConst
 ;
 
 EntityCreation
 	: Sequence
 	| Constant
-	| Range
 ;
 
-Range:
-	'range' name = ID '=' constructor = XOrExpression ';'?
+VarConst:
+	'varconst' name = ID '=' '[' 
+		start = Number ','
+		stop = Number ','
+		step = Number (','
+			lambda = LambdaExpression
+		)? ']'
+;
+
+LambdaExpression:
+	'(' param = [VarConst|IDORTHIS] (',' params += [VarConst])* ')' '->' body = XBlockExpression
+;
+
+IDORTHIS:
+	ID | 'this'
 ;
 
 ResourceDeclaration:
@@ -58,8 +71,8 @@ ResourceType:
 	'}'
 ;
 
-FieldDeclaration:
-	declaration = FullJvmFormalParameter ('=' default = XOrExpression)? ';'?
+FieldDeclaration
+	: declaration = FullJvmFormalParameter ('=' default = XOrExpression)? ';'?
 ;
 
 Event:
