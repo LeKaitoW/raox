@@ -46,7 +46,7 @@ VarConst:
 ;
 
 LambdaExpression:
-	'(' param = [VarConst|IDORTHIS] (',' params += [VarConst])* ')' '->' body = XBlockExpression
+	'(' parameters += [VarConst|IDORTHIS] (',' parameters += [VarConst])* ')' '->' body = XBlockExpression
 ;
 
 IDORTHIS:

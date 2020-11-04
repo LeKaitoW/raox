@@ -34,8 +34,10 @@ import static extension ru.bmstu.rk9.rao.jvmmodel.ResourceDeclarationCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.ResourceTypeCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.SearchCompiler.*
 import static extension ru.bmstu.rk9.rao.jvmmodel.ResultCompiler.*
+import static extension ru.bmstu.rk9.rao.jvmmodel.VarConstCompiler.*
 import static extension ru.bmstu.rk9.rao.naming.RaoNaming.*
 import ru.bmstu.rk9.rao.rao.EntityCreation
+import ru.bmstu.rk9.rao.rao.VarConst
 
 class RaoJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder jvmTypesBuilder
@@ -53,6 +55,10 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 	def dispatch compileRaoEntity(EntityCreation entity, JvmDeclaredType it, boolean isPreIndexingPhase) {
 		if (!isPreIndexingPhase && entity.constructor != null)
 			members += entity.asField(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase)
+	}
+	
+	def dispatch compileRaoEntity(VarConst varconst, JvmDeclaredType it, boolean isPreIndexingPhase) {
+		members += varconst.asClass(jvmTypesBuilder, _typeReferenceBuilder, it, isPreIndexingPhase)
 	}
 
 	def dispatch compileRaoEntity(EnumDeclaration enumDeclaration, JvmDeclaredType it, boolean isPreIndexingPhase) {
