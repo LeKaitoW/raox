@@ -38,21 +38,24 @@ EntityCreation
 
 VarConst:
 	'varconst' name = ID '=' '[' 
-		start = Number ','
-		stop = Number ','
-		step = Number (','
+		start = RaoNumberLiteral ','
+		stop = RaoNumberLiteral ','
+		step = RaoNumberLiteral (','
 			lambda = LambdaExpression
 		)? ']'
 ;
 
 LambdaExpression:
-	'(' parameters += [VarConst|IDORTHIS] (',' parameters += [VarConst])* ')' '->' body = XBlockExpression
+	'(' parameters += [VarConst] (',' parameters += [VarConst])* ')' '->' body = XBlockExpression
 ;
 
 IDORTHIS:
 	ID | 'this'
 ;
 
+RaoNumberLiteral returns types::JvmFormalParameter:
+	{RaoNumberLiteralvalue} value =Number;
+	
 ResourceDeclaration:
 	'resource' name = ID '=' constructor = XOrExpression ';'?
 ;
