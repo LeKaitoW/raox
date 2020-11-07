@@ -46,11 +46,7 @@ VarConst:
 ;
 
 LambdaExpression:
-	'(' parameters += [VarConst] (',' parameters += [VarConst])* ')' '->' body = XBlockExpression
-;
-
-IDORTHIS:
-	ID | 'this'
+	'(' parameters += JvmFormalParameter (',' parameters += JvmFormalParameter)* ')' '->' body = XBlockExpression
 ;
 
 RaoNumberLiteral returns types::JvmFormalParameter:
