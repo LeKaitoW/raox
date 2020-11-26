@@ -9,5 +9,7 @@ public abstract class VarConst {
 	private LambdaExpression lambda;
 	
 	public abstract String getName();
-//	checkValue method u dont need
+	
+//	checkValue method creates in VarConstCompiler.xtend
+//	and getAllDependencies method too
 }

@@ -9,6 +9,7 @@ import ru.bmstu.rk9.rao.rao.VarConst
 import java.util.ArrayList
 import org.eclipse.xtext.common.types.impl.JvmFormalParameterImplCustom
 import java.util.Arrays
+import java.util.HashMap
 
 class VarConstCompiler extends RaoEntityCompiler {
 	def static asClass(VarConst varconst, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
@@ -50,6 +51,26 @@ class VarConstCompiler extends RaoEntityCompiler {
 			
 			members += varconst.toMethod("checkValue", typeRef(Boolean)) [
 				visibility = JvmVisibility.PUBLIC
+				
+				var mapArg = new JvmFormalParameterImplCustom()
+				mapArg.name = "args"
+				mapArg.parameterType = typeRef(HashMap, typeRef(String), typeRef(Double))
+				parameters += mapArg
+				
+				body = '''
+					«FOR param : varconst.lambda.parameters»
+						Double «param.name»;
+					«ENDFOR»
+					
+					«FOR param : varconst.lambda.parameters»
+						«param.name» = args.get("«param.name»");
+					«ENDFOR»
+					
+					return this.checkLambda(«FOR o : varconst.lambda.parameters»«o.name»«IF varconst.lambda.parameters.indexOf(o) != varconst.lambda.parameters.size - 1», «ENDIF»«ENDFOR»);
+				''' 
+			]
+			
+			members += varconst.toMethod("checkLambda", typeRef(Boolean)) [
 				if (varconst.lambda !== null)
 				{
 					for (param : varconst.lambda.parameters) {
@@ -71,14 +92,12 @@ class VarConstCompiler extends RaoEntityCompiler {
 				visibility = JvmVisibility.PUBLIC
 				if (varconst.lambda !== null)
 				{
-//					autist feature
-//					idk how to import Arrays in normal way, so I add Arrays variable in case 
-//					xtend do it automatically
+//					«»
 					body = '''
-	«««				«»
 						return new ArrayList<String>(«Arrays».asList(new String[] {«FOR o : varconst.lambda.parameters»"«o.name»"«IF varconst.lambda.parameters.indexOf(o) != varconst.lambda.parameters.size - 1», «ENDIF»«ENDFOR»}));
 					'''
 				}
+//				empty list if !lambda
 				else {
 					body = '''
 						return null;
