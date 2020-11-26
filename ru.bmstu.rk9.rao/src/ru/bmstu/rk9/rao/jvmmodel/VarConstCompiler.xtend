@@ -57,22 +57,27 @@ class VarConstCompiler extends RaoEntityCompiler {
 				mapArg.parameterType = typeRef(HashMap, typeRef(String), typeRef(Double))
 				parameters += mapArg
 				
-				body = '''
-					«FOR param : varconst.lambda.parameters»
-						Double «param.name»;
-					«ENDFOR»
-					
-					«FOR param : varconst.lambda.parameters»
-						«param.name» = args.get("«param.name»");
-					«ENDFOR»
-					
-					return this.checkLambda(«FOR o : varconst.lambda.parameters»«o.name»«IF varconst.lambda.parameters.indexOf(o) != varconst.lambda.parameters.size - 1», «ENDIF»«ENDFOR»);
-				''' 
+				if (varconst.lambda !== null) {
+					body = '''
+						«FOR param : varconst.lambda.parameters»
+							Double «param.name»;
+						«ENDFOR»
+						
+						«FOR param : varconst.lambda.parameters»
+							«param.name» = args.get("«param.name»");
+						«ENDFOR»
+						
+						return this.checkLambda(«FOR o : varconst.lambda.parameters»«o.name»«IF varconst.lambda.parameters.indexOf(o) != varconst.lambda.parameters.size - 1», «ENDIF»«ENDFOR»);
+					''' 
+				}
+				else
+					body = '''
+						return true;
+					'''
 			]
 			
-			members += varconst.toMethod("checkLambda", typeRef(Boolean)) [
-				if (varconst.lambda !== null)
-				{
+			if (varconst.lambda !== null) {
+				members += varconst.toMethod("checkLambda", typeRef(Boolean)) [
 					for (param : varconst.lambda.parameters) {
 						var tmp = new JvmFormalParameterImplCustom()
 						tmp.name = param.name
@@ -80,13 +85,8 @@ class VarConstCompiler extends RaoEntityCompiler {
 						parameters += tmp
 					}
 					body = varconst.lambda.body
-				}
-				else {
-					body = '''
-						return true;
-					'''
-				}
-			]
+				]
+			}
 			
 			members += varconst.toMethod("getAllDependencies", typeRef(ArrayList, typeRef(String))) [
 				visibility = JvmVisibility.PUBLIC
