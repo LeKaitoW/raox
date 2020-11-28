@@ -1,5 +1,7 @@
 package ru.bmstu.rk9.rao.lib.varconst;
 
+import java.util.HashMap;
+
 import ru.bmstu.rk9.rao.lib.lambdaexpression.LambdaExpression;
 
 public abstract class VarConst {
@@ -9,7 +11,7 @@ public abstract class VarConst {
 	private LambdaExpression lambda;
 	
 	public abstract String getName();
+	public abstract Boolean checkValue(HashMap<String, Double> args);
 	
-//	checkValue method creates in VarConstCompiler.xtend
-//	and getAllDependencies method too
+//	getAllDependencies method creates in VarConstCompiler.xtend
 }

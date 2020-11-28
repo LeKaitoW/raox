@@ -37,6 +37,7 @@ import ru.bmstu.rk9.rao.rao.Event
 import ru.bmstu.rk9.rao.rao.DataSource
 import ru.bmstu.rk9.rao.rao.RelevantResourceTuple
 import ru.bmstu.rk9.rao.validation.DefaultMethodsHelper.MethodInfo
+import ru.bmstu.rk9.rao.rao.VarConst
 
 class RaoValidator extends AbstractRaoValidator {
 
@@ -142,7 +143,7 @@ class RaoValidator extends AbstractRaoValidator {
 			eObject instanceof ResourceType || eObject instanceof ResourceDeclaration || eObject instanceof Sequence ||
 				eObject instanceof Constant || eObject instanceof FunctionDeclaration || eObject instanceof Pattern ||
 				eObject instanceof Logic || eObject instanceof Search || eObject instanceof Frame ||
-				eObject instanceof Result
+				eObject instanceof Result || eObject instanceof VarConst
 		].toList
 
 		for (eObject : checklist) {
@@ -241,6 +242,7 @@ class RaoValidator extends AbstractRaoValidator {
 
 		if (entity instanceof ResourceDeclaration
 				|| entity instanceof Sequence
+				|| entity instanceof VarConst
 				|| entity instanceof DefaultMethod)
 			expectedNameCase = NameCase.FIRST_LOWER
 
@@ -344,6 +346,11 @@ class RaoValidator extends AbstractRaoValidator {
 			error("Error in declaration of \"" + entity.name + "\": cannot be null.",
 				RaoPackage.eINSTANCE.entityCreation_Constructor)
 	}
+	
+//	@Check 
+//	def checkVarConstParams(VarConst varconst) {
+//		if (varconst.start. < varconst.stop && )
+//	}
 
 	def private checkForNull(XExpression expression) {
 		return expression.eClass.instanceClass.equals(typeof(XNullLiteral))
