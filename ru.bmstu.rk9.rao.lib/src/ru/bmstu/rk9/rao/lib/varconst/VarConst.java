@@ -1,5 +1,6 @@
 package ru.bmstu.rk9.rao.lib.varconst;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import ru.bmstu.rk9.rao.lib.lambdaexpression.LambdaExpression;
@@ -12,6 +13,17 @@ public abstract class VarConst {
 	
 	public abstract String getName();
 	public abstract Boolean checkValue(HashMap<String, Double> args);
+	public abstract ArrayList<String> getallDependencies();
 	
-//	getAllDependencies method creates in VarConstCompiler.xtend
+	public Double getStart() {
+		return this.start;
+	}
+	
+	public Double getStop() {
+		return this.stop;
+	}
+	
+	public Double getStep() {
+		return this.step;
+	}
 }

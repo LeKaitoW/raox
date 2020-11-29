@@ -12,38 +12,38 @@ import java.util.Arrays
 import java.util.HashMap
 
 class VarConstCompiler extends RaoEntityCompiler {
+	
 	def static asClass(VarConst varconst, JvmTypesBuilder jvmTypesBuilder, JvmTypeReferenceBuilder typeReferenceBuilder,
 		JvmDeclaredType it, boolean isPreIndexingPhase) {
 		initializeCurrent(jvmTypesBuilder, typeReferenceBuilder);
 		
-		val vcQualifiedName = QualifiedName.create(qualifiedName, varconst.name)
+		val vcQualifiedName = QualifiedName.create(qualifiedName, varconst.name + "VarConst")
 		
 		return varconst.toClass(vcQualifiedName) [
 			static = true
 			superTypes += typeRef(ru.bmstu.rk9.rao.lib.varconst.VarConst)
+			
+			var tmp = new JvmFormalParameterImplCustom()
+			for (name : Arrays.asList("start", "stop", "step"))
+				members += tmp.toField(name, typeRef(Double))
+				
+			if (varconst.lambda !== null)
+				members += varconst.lambda.toField("lambda", typeRef(ru.bmstu.rk9.rao.lib.lambdaexpression.LambdaExpression))
 
 			members += varconst.toConstructor [
 				visibility = JvmVisibility.PRIVATE
-				parameters += varconst.start.toParameter("start", typeRef(Double))
-				parameters += varconst.stop.toParameter("stop", typeRef(Double))
-				parameters += varconst.step.toParameter("step", typeRef(Double))
-				if (varconst.lambda !== null)
-					parameters += varconst.lambda.toParameter("lambda", typeRef(ru.bmstu.rk9.rao.lib.lambdaexpression.LambdaExpression))
+				
 				body = '''
-					«FOR param : parameters»this.«param.name» = «param.name»;
-					«ENDFOR»
+					start = «Double.valueOf(varconst.start)»;
+					stop = «Double.valueOf(varconst.stop)»;
+					step = «Double.valueOf(varconst.step)»;
 				'''
 			]
-			
-			members += varconst.start.toField("start", typeRef(Double))
-			members += varconst.stop.toField("stop", typeRef(Double))
-			members += varconst.step.toField("step", typeRef(Double))
-			if (varconst.lambda !== null)
-				members += varconst.lambda.toField("lambda", typeRef(ru.bmstu.rk9.rao.lib.lambdaexpression.LambdaExpression))
 			
 			members += varconst.toMethod("getName", typeRef(String)) [
 				visibility = JvmVisibility.PUBLIC
 				final = true
+				
 				body = '''
 					return "«vcQualifiedName»";
 				'''
@@ -79,10 +79,10 @@ class VarConstCompiler extends RaoEntityCompiler {
 			if (varconst.lambda !== null) {
 				members += varconst.toMethod("checkLambda", typeRef(Boolean)) [
 					for (param : varconst.lambda.parameters) {
-						var tmp = new JvmFormalParameterImplCustom()
-						tmp.name = param.name
-						tmp.parameterType = typeRef(Double)
-						parameters += tmp
+						var cur = new JvmFormalParameterImplCustom()
+						cur.name = param.name
+						cur.parameterType = typeRef(Double)
+						parameters += cur
 					}
 					body = varconst.lambda.body
 				]
@@ -92,15 +92,13 @@ class VarConstCompiler extends RaoEntityCompiler {
 				visibility = JvmVisibility.PUBLIC
 				if (varconst.lambda !== null)
 				{
-//					«»
 					body = '''
 						return new ArrayList<String>(«Arrays».asList(new String[] {«FOR o : varconst.lambda.parameters»"«o.name»"«IF varconst.lambda.parameters.indexOf(o) != varconst.lambda.parameters.size - 1», «ENDIF»«ENDFOR»}));
 					'''
 				}
-//				empty list if !lambda
 				else {
 					body = '''
-						return null;
+						return new ArrayList<String>();
 					'''
 				}
 			]
