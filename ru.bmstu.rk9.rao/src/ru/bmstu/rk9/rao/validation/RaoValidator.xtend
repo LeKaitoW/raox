@@ -38,6 +38,8 @@ import ru.bmstu.rk9.rao.rao.DataSource
 import ru.bmstu.rk9.rao.rao.RelevantResourceTuple
 import ru.bmstu.rk9.rao.validation.DefaultMethodsHelper.MethodInfo
 import ru.bmstu.rk9.rao.rao.VarConst
+import ru.bmstu.rk9.rao.rao.LambdaExpression
+import org.eclipse.xtext.xbase.XBlockExpression
 
 class RaoValidator extends AbstractRaoValidator {
 
@@ -347,13 +349,48 @@ class RaoValidator extends AbstractRaoValidator {
 				RaoPackage.eINSTANCE.entityCreation_Constructor)
 	}
 	
-//	@Check 
-//	def checkVarConstParams(VarConst varconst) {
-//		if (varconst.start. < varconst.stop && )
-//	}
+	@Check
+	def checkLambdaNotNull(VarConst varconst) {
+		if (varconst.lambda !== null && (varconst.lambda.body.checkForNull || varconst.lambda.body.checkForEmpty))
+			error("Error in declaration of \"" + varconst.name + "\": lambda's body isn't set up.",
+				RaoPackage.eINSTANCE.varConst_Lambda)
+	}
+	
+	@Check 
+	def checkVarConstParams(VarConst varconst) {
+		if (Double.valueOf(varconst.start) < Double.valueOf(varconst.stop) && 
+				Double.valueOf(varconst.step) <= 0) 
+			error("Error in declaration of \"" + varconst.name + "\": step cannot be negative or equals to zero, if start < stop",
+				RaoPackage.eINSTANCE.varConst_Step)
+				
+		if (Double.valueOf(varconst.start) > Double.valueOf(varconst.stop) && 
+				Double.valueOf(varconst.step) >= 0) 
+			error("Error in declaration of \"" + varconst.name + "\": step cannot be positive or equals to zero, if start > stop",
+				RaoPackage.eINSTANCE.varConst_Step)
+	}
+	
+	@Check
+	def checkLambdaSelfReference(VarConst varconst) {
+		if (varconst.lambda !== null) {
+			
+			var isContains = 0
+			
+			for (param : varconst.lambda.parameters) {
+				if (param.name == varconst.name)
+					isContains++
+			}
+			if (isContains == 0)
+				error("Error in declaration of \"" + varconst.name + "\": lambda should take itself in args",
+				RaoPackage.eINSTANCE.varConst_Lambda)
+		}
+	}
 
 	def private checkForNull(XExpression expression) {
 		return expression.eClass.instanceClass.equals(typeof(XNullLiteral))
+	}
+	
+	def private checkForEmpty(XExpression expression) {
+		return expression.toString.replaceAll("[\\p{Ps}\\p{Pe}]", "").strip().equals("")
 	}
 
 	def private EStructuralFeature getNameStructuralFeature(EObject object) {

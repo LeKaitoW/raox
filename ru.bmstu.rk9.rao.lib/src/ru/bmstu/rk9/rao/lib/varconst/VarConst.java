@@ -13,7 +13,7 @@ public abstract class VarConst {
 	
 	public abstract String getName();
 	public abstract Boolean checkValue(HashMap<String, Double> args);
-	public abstract ArrayList<String> getallDependencies();
+	public abstract ArrayList<String> getAllDependencies();
 	
 	public Double getStart() {
 		return this.start;
