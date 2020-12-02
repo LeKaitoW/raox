@@ -38,8 +38,6 @@ import ru.bmstu.rk9.rao.rao.DataSource
 import ru.bmstu.rk9.rao.rao.RelevantResourceTuple
 import ru.bmstu.rk9.rao.validation.DefaultMethodsHelper.MethodInfo
 import ru.bmstu.rk9.rao.rao.VarConst
-import ru.bmstu.rk9.rao.rao.LambdaExpression
-import org.eclipse.xtext.xbase.XBlockExpression
 
 class RaoValidator extends AbstractRaoValidator {
 
@@ -134,6 +132,30 @@ class RaoValidator extends AbstractRaoValidator {
 	@Check
 	def checkDefaultMethodFrameCount(Frame frame) {
 		checkDefaultMethodCountGeneric(frame, frame.defaultMethods, DefaultMethodsHelper.FrameMethodInfo.values)
+	}
+
+	@Check
+	def checkVarConstDependencies(RaoModel model) {
+		var vcList = model.objects.filter(typeof(VarConst)).toList
+		
+		val List<String> vcNames = new ArrayList<String>()
+		
+		for (vc : vcList)
+			vcNames.add(vc.nameGeneric)
+		
+		for (vc : vcList) {
+			if (vc.lambda !== null) {
+				for (param : vc.lambda.parameters) {
+					if (!vcNames.contains(param.name) ||
+							vcNames.indexOf(param.name) > vcNames.indexOf(vc.nameGeneric)
+					) {
+						error("Error - lambda of \"" + vc.nameGeneric + "\" takes reference of undefined VarConst object",
+								param, param.nameStructuralFeature
+						)
+					}
+				}
+			}
+		}
 	}
 
 	@Check

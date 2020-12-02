@@ -21,7 +21,6 @@ import ru.bmstu.rk9.rao.rao.Search
 import ru.bmstu.rk9.rao.rao.Result
 import ru.bmstu.rk9.rao.rao.EntityCreation
 import ru.bmstu.rk9.rao.rao.VarConst
-import ru.bmstu.rk9.rao.rao.LambdaExpression
 import ru.bmstu.rk9.rao.rao.DataSource
 
 import static extension ru.bmstu.rk9.rao.jvmmodel.DefaultMethodCompiler.*
@@ -48,7 +47,7 @@ class RaoJvmModelInferrer extends AbstractModelInferrer {
 			for (entity : element.objects) {
 				entity.compileRaoEntity(it, isPreIndexingPhase)
 			}
-
+			
 			element.compileResourceInitialization(it, isPreIndexingPhase)
 		]
 	}
