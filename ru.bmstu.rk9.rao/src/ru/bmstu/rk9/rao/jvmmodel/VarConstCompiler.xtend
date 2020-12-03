@@ -31,7 +31,7 @@ class VarConstCompiler extends RaoEntityCompiler {
 				members += varconst.lambda.toField("lambda", typeRef(ru.bmstu.rk9.rao.lib.lambdaexpression.LambdaExpression))
 
 			members += varconst.toConstructor [
-				visibility = JvmVisibility.PRIVATE
+				visibility = JvmVisibility.PUBLIC
 				
 				body = '''
 					start = «Double.valueOf(varconst.start)»;
@@ -78,6 +78,8 @@ class VarConstCompiler extends RaoEntityCompiler {
 			
 			if (varconst.lambda !== null) {
 				members += varconst.toMethod("checkLambda", typeRef(Boolean)) [
+					visibility = JvmVisibility.PRIVATE
+					
 					for (param : varconst.lambda.parameters) {
 						var cur = new JvmFormalParameterImplCustom()
 						cur.name = param.name
