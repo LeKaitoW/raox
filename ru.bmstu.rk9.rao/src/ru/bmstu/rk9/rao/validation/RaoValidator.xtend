@@ -37,6 +37,7 @@ import ru.bmstu.rk9.rao.rao.Event
 import ru.bmstu.rk9.rao.rao.DataSource
 import ru.bmstu.rk9.rao.rao.RelevantResourceTuple
 import ru.bmstu.rk9.rao.validation.DefaultMethodsHelper.MethodInfo
+import ru.bmstu.rk9.rao.rao.VarConst
 
 class RaoValidator extends AbstractRaoValidator {
 
@@ -134,6 +135,30 @@ class RaoValidator extends AbstractRaoValidator {
 	}
 
 	@Check
+	def checkVarConstDependencies(RaoModel model) {
+		var vcList = model.objects.filter(typeof(VarConst)).toList
+		
+		val List<String> vcNames = new ArrayList<String>()
+		
+		for (vc : vcList)
+			vcNames.add(vc.nameGeneric)
+		
+		for (vc : vcList) {
+			if (vc.lambda !== null) {
+				for (param : vc.lambda.parameters) {
+					if (!vcNames.contains(param.name) ||
+							vcNames.indexOf(param.name) > vcNames.indexOf(vc.nameGeneric)
+					) {
+						error("Error - lambda of \"" + vc.nameGeneric + "\" takes reference of undefined VarConst object",
+								param, param.nameStructuralFeature
+						)
+					}
+				}
+			}
+		}
+	}
+
+	@Check
 	def checkDuplicateNamesForEntities(RaoModel model) {
 		val List<String> entities = new ArrayList<String>()
 		val List<String> duplicates = new ArrayList<String>()
@@ -142,7 +167,7 @@ class RaoValidator extends AbstractRaoValidator {
 			eObject instanceof ResourceType || eObject instanceof ResourceDeclaration || eObject instanceof Sequence ||
 				eObject instanceof Constant || eObject instanceof FunctionDeclaration || eObject instanceof Pattern ||
 				eObject instanceof Logic || eObject instanceof Search || eObject instanceof Frame ||
-				eObject instanceof Result
+				eObject instanceof Result || eObject instanceof VarConst
 		].toList
 
 		for (eObject : checklist) {
@@ -241,6 +266,7 @@ class RaoValidator extends AbstractRaoValidator {
 
 		if (entity instanceof ResourceDeclaration
 				|| entity instanceof Sequence
+				|| entity instanceof VarConst
 				|| entity instanceof DefaultMethod)
 			expectedNameCase = NameCase.FIRST_LOWER
 
@@ -344,9 +370,49 @@ class RaoValidator extends AbstractRaoValidator {
 			error("Error in declaration of \"" + entity.name + "\": cannot be null.",
 				RaoPackage.eINSTANCE.entityCreation_Constructor)
 	}
+	
+	@Check
+	def checkLambdaNotNull(VarConst varconst) {
+		if (varconst.lambda !== null && (varconst.lambda.body.checkForNull || varconst.lambda.body.checkForEmpty))
+			error("Error in declaration of \"" + varconst.name + "\": lambda's body isn't set up.",
+				RaoPackage.eINSTANCE.varConst_Lambda)
+	}
+	
+	@Check 
+	def checkVarConstParams(VarConst varconst) {
+		if (Double.valueOf(varconst.start) < Double.valueOf(varconst.stop) && 
+				Double.valueOf(varconst.step) <= 0) 
+			error("Error in declaration of \"" + varconst.name + "\": step cannot be negative or equals to zero, if start < stop",
+				RaoPackage.eINSTANCE.varConst_Step)
+				
+		if (Double.valueOf(varconst.start) > Double.valueOf(varconst.stop) && 
+				Double.valueOf(varconst.step) >= 0) 
+			error("Error in declaration of \"" + varconst.name + "\": step cannot be positive or equals to zero, if start > stop",
+				RaoPackage.eINSTANCE.varConst_Step)
+	}
+	
+	@Check
+	def checkLambdaSelfReference(VarConst varconst) {
+		if (varconst.lambda !== null) {
+			
+			var isContains = 0
+			
+			for (param : varconst.lambda.parameters) {
+				if (param.name == varconst.name)
+					isContains++
+			}
+			if (isContains == 0)
+				error("Error in declaration of \"" + varconst.name + "\": lambda should take itself in args",
+				RaoPackage.eINSTANCE.varConst_Lambda)
+		}
+	}
 
 	def private checkForNull(XExpression expression) {
 		return expression.eClass.instanceClass.equals(typeof(XNullLiteral))
+	}
+	
+	def private checkForEmpty(XExpression expression) {
+		return expression.toString.replaceAll("[\\p{Ps}\\p{Pe}]", "").strip().equals("")
 	}
 
 	def private EStructuralFeature getNameStructuralFeature(EObject object) {

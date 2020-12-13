@@ -28,6 +28,7 @@ RaoEntity
 	| Search
 	| EntityCreation
 	| ResourceDeclaration
+	| VarConst
 ;
 
 EntityCreation
@@ -35,6 +36,31 @@ EntityCreation
 	| Constant
 ;
 
+VarConst:
+	'varconst' name = ID '=' '[' 
+		start = RaoNumber ','
+		stop = RaoNumber ','
+		step = RaoNumber (','
+			lambda = LambdaExpression
+		)? ']'
+;
+
+RaoNumber:
+	Double | Integer
+;
+
+Double returns ecore::EDouble: 
+	('-')?INT '.' INT
+;
+
+Integer returns ecore::EInt:
+	('-')?INT
+;
+
+LambdaExpression:
+	'(' parameters += JvmFormalParameter (',' parameters += JvmFormalParameter)* ')' '->' body = XBlockExpression
+;
+	
 ResourceDeclaration:
 	'resource' name = ID '=' constructor = XOrExpression ';'?
 ;
