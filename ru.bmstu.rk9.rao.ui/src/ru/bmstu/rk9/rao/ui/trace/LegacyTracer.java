@@ -40,7 +40,7 @@ public class LegacyTracer {
 	private final PriorityQueue<Integer> vacantActionNumbers = new PriorityQueue<Integer>();
 	private final Map<Integer, HashMap<Integer, HashMap<Integer, Integer>>> legacyActionNumbers = new HashMap<Integer, HashMap<Integer, HashMap<Integer, Integer>>>();
 
-	static private final String delimiter = " ";
+	static private final String DELIMITER = " ";
 
 	private RealFormatter realFormatter = new RealFormatter();
 
@@ -147,7 +147,7 @@ public class LegacyTracer {
 			break;
 		}
 
-		final String headerLine = new StringJoiner(delimiter).add(traceType.toString())
+		final String headerLine = new StringJoiner(DELIMITER).add(traceType.toString())
 				.add(realFormatter.format((time))).add(legacyCode).getString();
 
 		return new TraceOutput(traceType, headerLine);
@@ -197,15 +197,15 @@ public class LegacyTracer {
 			throw new TracerException("Unexpected resource entry type: " + entryType);
 		}
 
-		final String headerLine = new StringJoiner(delimiter).add(traceType.toString())
+		final String headerLine = new StringJoiner(DELIMITER).add(traceType.toString())
 				.add(realFormatter.format((time))).add(typeNum + 1).add(legacyId).getString();
 
 		return new TraceOutput(traceType,
-				new StringJoiner(delimiter).add(headerLine).add(parseResourceParameters(data, typeNum)).getString());
+				new StringJoiner(DELIMITER).add(headerLine).add(parseResourceParameters(data, typeNum)).getString());
 	}
 
 	protected final String parseResourceParameters(final ByteBuffer data, final int typeNum) {
-		final StringJoiner stringJoiner = new StringJoiner(delimiter);
+		final StringJoiner stringJoiner = new StringJoiner(DELIMITER);
 		final int numberOfParameters = CurrentSimulator.getStaticModelData().getNumberOfResourceTypeParameters(typeNum);
 		final int finalOffset = CurrentSimulator.getStaticModelData().getResourceTypeFinalOffset(typeNum);
 
@@ -269,12 +269,12 @@ public class LegacyTracer {
 			throw new TracerException("Unexpected pattern enrty type: " + entryType);
 		}
 
-		return new TraceOutput(traceType, new StringJoiner(delimiter).add(traceType.toString())
+		return new TraceOutput(traceType, new StringJoiner(DELIMITER).add(traceType.toString())
 				.add(realFormatter.format(time)).add(parsePatternData(data, traceType)).getString());
 	}
 
 	protected final String parsePatternData(final ByteBuffer data, final TraceType patternType) {
-		final StringJoiner stringJoiner = new StringJoiner(delimiter);
+		final StringJoiner stringJoiner = new StringJoiner(DELIMITER);
 
 		int patternNumber;
 
@@ -352,11 +352,11 @@ public class LegacyTracer {
 		final TraceType traceType = TraceType.EVENT;
 
 		return new TraceOutput(traceType,
-				new StringJoiner(delimiter).add(traceType.toString()).add(time).add(parseEventData(data)).getString());
+				new StringJoiner(DELIMITER).add(traceType.toString()).add(time).add(parseEventData(data)).getString());
 	}
 
 	private String parseEventData(final ByteBuffer data) {
-		final StringJoiner stringJoiner = new StringJoiner(delimiter);
+		final StringJoiner stringJoiner = new StringJoiner(DELIMITER);
 
 		int eventNumber = data.getInt();
 		Tracer.skipPart(data, TypeSize.INT);
@@ -371,7 +371,7 @@ public class LegacyTracer {
 	protected TraceOutput parseSearchEntry(final Entry entry) {
 		final ByteBuffer header = Tracer.prepareBufferForReading(entry.getHeader());
 
-		final StringJoiner stringJoiner = new StringJoiner(delimiter);
+		final StringJoiner stringJoiner = new StringJoiner(DELIMITER);
 
 		final TraceType traceType;
 		Tracer.skipPart(header, TypeSize.BYTE);
@@ -504,19 +504,19 @@ public class LegacyTracer {
 	}
 
 	private final void addLegacySearchEntryDecision() {
-		traceList.add(new TraceOutput(TraceType.SEARCH_DECISION, new StringJoiner(delimiter).add("SD").getString()));
+		traceList.add(new TraceOutput(TraceType.SEARCH_DECISION, new StringJoiner(DELIMITER).add("SD").getString()));
 	}
 
 	private final void addLegacySearchEntriesOnStart() {
-		traceList.add(new TraceOutput(TraceType.SEARCH_SPAWN_NEW, new StringJoiner(delimiter).add("STN").add(1).add(0)
+		traceList.add(new TraceOutput(TraceType.SEARCH_SPAWN_NEW, new StringJoiner(DELIMITER).add("STN").add(1).add(0)
 				.add(0).add(0).add(-1).add(-1).add(0).add(0).getString()));
 
 		traceList.add(new TraceOutput(TraceType.SEARCH_OPEN,
-				new StringJoiner(delimiter).add("SO").add(1).add(0).add(0).add(0).getString()));
+				new StringJoiner(DELIMITER).add("SO").add(1).add(0).add(0).add(0).getString()));
 	}
 
 	private final void addLegacySearchEntriesOnFinish(double time) {
-		traceList.add(new TraceOutput(TraceType.SYSTEM, new StringJoiner(delimiter).add(TraceType.SYSTEM.toString())
+		traceList.add(new TraceOutput(TraceType.SYSTEM, new StringJoiner(DELIMITER).add(TraceType.SYSTEM.toString())
 				.add(realFormatter.format(time)).add(4).getString()));
 	}
 
@@ -533,7 +533,7 @@ public class LegacyTracer {
 		final int resultNum = header.getInt();
 
 		return new TraceOutput(TraceType.RESULT,
-				new StringJoiner(delimiter).add(TraceType.RESULT.toString()).add(realFormatter.format(time))
+				new StringJoiner(DELIMITER).add(TraceType.RESULT.toString()).add(realFormatter.format(time))
 						.add(resultNum + 1).add("").add(parseResultParameter(data, resultNum)).getString());
 	}
 

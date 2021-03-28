@@ -8,6 +8,9 @@ import ru.bmstu.rk9.rao.lib.json.JSONObject;
 import ru.bmstu.rk9.rao.lib.modeldata.ModelStructureConstants;
 import ru.bmstu.rk9.rao.lib.process.Transact;
 
+/**
+ * Available RaoEntities in the class of user model
+ */
 public class SimulatorPreinitializationInfo {
 	public SimulatorPreinitializationInfo() {
 		modelStructure = generateModelStructureStub();

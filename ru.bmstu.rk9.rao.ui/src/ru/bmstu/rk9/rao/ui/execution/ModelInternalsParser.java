@@ -142,6 +142,9 @@ public class ModelInternalsParser {
 		}
 	}
 
+	/** collects methods/classes that can change static state of model when called (but this method doesn't yet launch them) 
+	 * also collects serialization data about all fields/methods/classes (like resource types)
+	*/
 	@SuppressWarnings("unchecked")
 	public final void parseModel(RaoModel model, String modelClassName)
 			throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException,
@@ -149,7 +152,14 @@ public class ModelInternalsParser {
 
 		Class<?> modelClass = Class.forName(modelClassName, false, classLoader);
 
+		/** 27/03/2021 the following lines of code collect model declared methods that change static values of model class and interact with
+		 * CurrentSimulator
+		 */
 		try {
+			/**
+			 * init method of the model, when called the state is changed and first event is
+			 * planned
+			 */
 			Class<?> init = Class.forName(modelClassName + "$init", false, classLoader);
 			Constructor<?> initConstructor = init.getDeclaredConstructor();
 			initConstructor.setAccessible(true);
@@ -158,6 +168,7 @@ public class ModelInternalsParser {
 		}
 
 		try {
+			/** when called returns boolean, if true - must terminate */
 			Class<?> terminate = Class.forName(modelClassName + "$terminateCondition", false, classLoader);
 			Constructor<?> terminateConstructor = terminate.getDeclaredConstructor();
 			terminateConstructor.setAccessible(true);
@@ -166,6 +177,7 @@ public class ModelInternalsParser {
 		}
 
 		try {
+			/** assign initial values to resources */
 			Class<?> resourcePreinitializer = Class.forName(modelClassName + "$resourcesPreinitializer", false,
 					classLoader);
 			Constructor<?> resourcePreinitializerConstructor = resourcePreinitializer.getDeclaredConstructor();
@@ -177,6 +189,7 @@ public class ModelInternalsParser {
 
 		EList<RaoEntity> entities = model.getObjects();
 
+		/** fill in the information about resource types */
 		for (RaoEntity entity : entities) {
 			if (!(entity instanceof ru.bmstu.rk9.rao.rao.ResourceType))
 				continue;
@@ -190,10 +203,13 @@ public class ModelInternalsParser {
 					.getParameters()) {
 				DataType dataType = DataType.getByName(field.getDeclaration().getParameterType().getSimpleName());
 
-				parameters.put(new JSONObject().put(ModelStructureConstants.NAME, field.getDeclaration().getName())
+				JSONObject parameterJson = new JSONObject()
+						.put(ModelStructureConstants.NAME, field.getDeclaration().getName())
 						.put(ModelStructureConstants.TYPE, dataType).put(ModelStructureConstants.OFFSET, offset)
 						.put(ModelStructureConstants.VARIABLE_WIDTH_PARAMETER_INDEX,
-								dataType == DataType.OTHER ? variableWidthParameterIndex : -1));
+								dataType == DataType.OTHER ? variableWidthParameterIndex : -1);
+
+				parameters.put(parameterJson);
 
 				if (dataType == DataType.OTHER)
 					variableWidthParameterIndex++;
@@ -201,17 +217,19 @@ public class ModelInternalsParser {
 					offset += dataType.getSize();
 			}
 
-			simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.RESOURCE_TYPES)
-					.put(new JSONObject().put(ModelStructureConstants.NAME, name)
-							.put(ModelStructureConstants.NAMED_RESOURCES, new JSONArray())
-							.put(ModelStructureConstants.PARAMETERS, parameters)
-							.put(ModelStructureConstants.FINAL_OFFSET, offset));
+			JSONObject resourceJson = new JSONObject().put(ModelStructureConstants.NAME, name)
+					.put(ModelStructureConstants.NAMED_RESOURCES, new JSONArray())
+					.put(ModelStructureConstants.PARAMETERS, parameters)
+					.put(ModelStructureConstants.FINAL_OFFSET, offset);
 
+			simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.RESOURCE_TYPES)
+					.put(resourceJson);
 		}
 
 		for (RaoEntity entity : entities) {
 			String name = modelClassName + "." + entity.getName();
 
+			/** fill in found events */
 			if (entity instanceof ru.bmstu.rk9.rao.rao.Event) {
 				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.EVENTS)
 						.put(new JSONObject().put(ModelStructureConstants.NAME, name));
@@ -232,6 +250,8 @@ public class ModelInternalsParser {
 				}
 
 				JSONArray relevantResources = new JSONArray();
+
+				/** save java names of resources that are relevent to this pattern */
 				for (RelevantResource relevant : ((ru.bmstu.rk9.rao.rao.Pattern) entity).getRelevantResources()) {
 					LightweightTypeReference typeReference = typeResolver.resolveTypes(relevant.getValue())
 							.getActualType(relevant.getValue());
@@ -241,6 +261,7 @@ public class ModelInternalsParser {
 									NamingHelper.changeDollarToDot(typeReference.getJavaIdentifier())));
 				}
 
+				/** same to tuples which contain more relevant resources */
 				for (RelevantResourceTuple tuple : ((ru.bmstu.rk9.rao.rao.Pattern) entity).getRelevantTuples()) {
 					for (JvmTypeReference tupleType : tuple.getTypes()) {
 						relevantResources.put(new JSONObject().put(ModelStructureConstants.NAME, name).put(
@@ -249,6 +270,7 @@ public class ModelInternalsParser {
 					}
 				}
 
+				/** save patterns */
 				simulatorPreinitializationInfo.modelStructure.getJSONArray(ModelStructureConstants.PATTERNS)
 						.put(new JSONObject().put(ModelStructureConstants.NAME, name)
 								.put(ModelStructureConstants.TYPE, typeString)
@@ -278,6 +300,9 @@ public class ModelInternalsParser {
 				continue;
 			}
 
+			/** named resource is an instance of resource type
+			 * find declared instances of each resource type and save them to their jsons (json of resource types)
+			 */
 			if (entity instanceof ru.bmstu.rk9.rao.rao.ResourceDeclaration) {
 				XExpression constructor = ((ru.bmstu.rk9.rao.rao.ResourceDeclaration) entity).getConstructor();
 				LightweightTypeReference typeReference = typeResolver.resolveTypes(constructor)
@@ -339,11 +364,13 @@ public class ModelInternalsParser {
 			}
 		}
 
+		/** look only for abstract results */
 		for (Field field : modelClass.getDeclaredFields()) {
 			if (AbstractResult.class.isAssignableFrom(field.getType()))
 				resultFields.add(field);
 		}
 
+		/** 27/03/2021 ??? not sure where it is used  */
 		for (Method method : modelClass.getDeclaredMethods()) {
 			if (!method.getReturnType().equals(Boolean.TYPE))
 				continue;
