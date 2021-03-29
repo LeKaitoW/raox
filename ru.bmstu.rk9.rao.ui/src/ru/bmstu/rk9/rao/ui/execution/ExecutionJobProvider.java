@@ -60,6 +60,7 @@ public class ExecutionJobProvider {
 				CurrentSimulator.set(new Simulator());
 
 				try {
+					/** change state of static context of model via running resourcePreinitializers */
 					CurrentSimulator.preinitialize(parser.getSimulatorPreinitializationInfo());
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -78,6 +79,7 @@ public class ExecutionJobProvider {
 				display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
 
 				try {
+					/** launch init#run */
 					CurrentSimulator.initialize(parser.getSimulatorInitializationInfo());
 				} catch (Exception e) {
 					e.printStackTrace();

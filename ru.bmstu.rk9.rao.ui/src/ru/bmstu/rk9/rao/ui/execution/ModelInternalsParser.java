@@ -151,6 +151,7 @@ public class ModelInternalsParser {
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
 		Class<?> modelClass = Class.forName(modelClassName, false, classLoader);
+		// the static context of the model is available 
 
 		/** 27/03/2021 the following lines of code collect model declared methods that change static values of model class and interact with
 		 * CurrentSimulator
