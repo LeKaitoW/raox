@@ -11,6 +11,7 @@ import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import java.nio.ByteBuffer
 import ru.bmstu.rk9.rao.rao.FieldDeclaration
 import ru.bmstu.rk9.rao.lib.database.Database.DataType
+import org.eclipse.xtext.common.types.impl.JvmFormalParameterImplCustom
 
 class ResourceTypeCompiler extends RaoEntityCompiler {
 	def static asClass(ResourceType resourceType, JvmTypesBuilder jvmTypesBuilder,
@@ -26,11 +27,14 @@ class ResourceTypeCompiler extends RaoEntityCompiler {
 			superTypes += typeRef(ru.bmstu.rk9.rao.lib.resource.ComparableResource, {
 				typeRef
 			})
-
+			
+			val tmp = new JvmFormalParameterImplCustom()
+			
 			members += resourceType.toConstructor [
 				visibility = JvmVisibility.PRIVATE
 				for (param : resourceType.parameters)
 					parameters += param.toParameter(param.declaration.name, param.declaration.parameterType)
+				parameters += tmp.toParameter("simulatorId", typeRef(Double))
 				body = '''
 					«FOR param : parameters»
 						this._«param.name» = «param.name»;
