@@ -7,6 +7,7 @@ import org.eclipse.xtext.common.types.impl.TypesFactoryImpl
 import org.eclipse.xtext.common.types.JvmAnnotationType
 import java.util.List
 import java.util.function.Function
+import org.eclipse.xtext.common.types.JvmDeclaredType
 
 abstract class RaoEntityCompiler {
 	protected static extension JvmTypesBuilder currentJvmTypesBuilder;
@@ -29,4 +30,9 @@ abstract class RaoEntityCompiler {
 			«FOR o : objects»«fun.apply(o)»«IF objects.indexOf(o) != objects.size - 1», «ENDIF»«ENDFOR»
 		'''
 	}
+	
+	def protected static JvmDeclaredType createSimulatorIdParammeter() {
+		return (new JvmStatic ) 
+	}
+
 }
