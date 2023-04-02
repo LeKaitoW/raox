@@ -11,7 +11,7 @@ public class ProcessTestSuite {
 	public static void initEmptySimulation() {
 		SerializationObjectsNames.set(new ArrayList<String>());
 		SimulatorPreinitializationInfo info = new SimulatorPreinitializationInfo();
-		info.resourceClasses.add(TestResource.class);
+		info.getResourceClasses().add(TestResource.class);
 		CurrentSimulator.set(new Simulator());
 		CurrentSimulator.preinitialize(info);
 	}
