@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.eclipse.core.resources.IFile;
@@ -162,6 +163,23 @@ public class ModelInternalsParser {
 			Constructor<?> terminateConstructor = terminate.getDeclaredConstructor();
 			terminateConstructor.setAccessible(true);
 			simulatorInitializationInfo.terminateConditions.add((Supplier<Boolean>) terminateConstructor.newInstance());
+		} catch (ClassNotFoundException classException) {
+		}
+
+		try {
+			Class<?> timeFormat = Class.forName(modelClassName + "$timeFormat", false, classLoader);
+			Constructor<?> timeFormatConstructor = timeFormat.getDeclaredConstructor();
+			timeFormatConstructor.setAccessible(true);
+			simulatorInitializationInfo
+					.setTimeFormatter((Function<Double, String>) timeFormatConstructor.newInstance());
+		} catch (ClassNotFoundException classException) {
+		}
+
+		try {
+			Class<?> timeStart = Class.forName(modelClassName + "$timeStart", false, classLoader);
+			Constructor<?> timeStartConstructor = timeStart.getDeclaredConstructor();
+			timeStartConstructor.setAccessible(true);
+			simulatorInitializationInfo.setTimeStart((Supplier<Double>) timeStartConstructor.newInstance());
 		} catch (ClassNotFoundException classException) {
 		}
 

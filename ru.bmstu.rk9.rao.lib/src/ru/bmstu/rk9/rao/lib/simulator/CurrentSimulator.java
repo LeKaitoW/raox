@@ -1,6 +1,7 @@
 package ru.bmstu.rk9.rao.lib.simulator;
 
 import java.util.List;
+import java.util.function.Function;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
 import ru.bmstu.rk9.rao.lib.database.Database.SystemEntryType;
@@ -97,6 +98,10 @@ public class CurrentSimulator {
 
 	public static double getTime() {
 		return currentSimulator.getTime();
+	}
+
+	public static String formatTime(double time, Function<Double, String> defaultFormatter) {
+		return currentSimulator.formatTime(time, defaultFormatter);
 	}
 
 	public static void pushEvent(Event event) {

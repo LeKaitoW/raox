@@ -17,16 +17,16 @@ import ru.bmstu.rk9.rao.lib.naming.NamingHelper;
 import ru.bmstu.rk9.rao.lib.process.Hold.HoldAction;
 import ru.bmstu.rk9.rao.lib.process.Queue.QueueAction;
 import ru.bmstu.rk9.rao.lib.process.SelectPath.SelectPathOutputs;
+import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 import ru.bmstu.rk9.rao.ui.trace.StringJoiner.StringFormat;
 
 public class Tracer {
 	public static enum TraceType {
-		RESOURCE_CREATE("RC"), RESOURCE_KEEP("RK"), RESOURCE_ERASE("RE"), SYSTEM("ES"), OPERATION_BEGIN(
-				"EB"), OPERATION_END("EF"), EVENT("EI"), RULE("ER"), RESULT("V "), SEARCH_BEGIN("SB"), SEARCH_OPEN(
-						"SO "), SEARCH_SPAWN_NEW("STN"), SEARCH_SPAWN_WORSE("STD"), SEARCH_SPAWN_BETTER(
-								"STR"), SEARCH_RESOURCE_KEEP("SRK"), SEARCH_DECISION("SD "), SEARCH_END_ABORTED(
-										"SEA"), SEARCH_END_CONDITION("SEC"), SEARCH_END_SUCCESS(
-												"SES"), SEARCH_END_FAIL("SEN"), PROCESS("PR");
+		RESOURCE_CREATE("RC"), RESOURCE_KEEP("RK"), RESOURCE_ERASE("RE"), SYSTEM("ES"), OPERATION_BEGIN("EB"),
+		OPERATION_END("EF"), EVENT("EI"), RULE("ER"), RESULT("V "), SEARCH_BEGIN("SB"), SEARCH_OPEN("SO "),
+		SEARCH_SPAWN_NEW("STN"), SEARCH_SPAWN_WORSE("STD"), SEARCH_SPAWN_BETTER("STR"), SEARCH_RESOURCE_KEEP("SRK"),
+		SEARCH_DECISION("SD "), SEARCH_END_ABORTED("SEA"), SEARCH_END_CONDITION("SEC"), SEARCH_END_SUCCESS("SES"),
+		SEARCH_END_FAIL("SEN"), PROCESS("PR");
 
 		private final String traceCode;
 
@@ -105,9 +105,10 @@ public class Tracer {
 
 		skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
+		final String formattedTime = CurrentSimulator.getDatabase().getTimeFormatter().apply(time);
 		final Database.SystemEntryType type = Database.SystemEntryType.values()[header.get()];
 
-		final String headerLine = new StringJoiner(delimiter).add(traceType.toString()).add(time)
+		final String headerLine = new StringJoiner(delimiter).add(traceType.toString()).add(formattedTime)
 				.add(type.getDescription()).getString();
 
 		return new TraceOutput(traceType, headerLine);
@@ -123,6 +124,7 @@ public class Tracer {
 
 		skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
+		final String formattedTime = CurrentSimulator.getDatabase().getTimeFormatter().apply(time);
 		final TraceType traceType;
 
 		final Database.ResourceEntryType entryType = Database.ResourceEntryType.values()[header.get()];
@@ -151,7 +153,7 @@ public class Tracer {
 		final String resourceName = NamingHelper.convertName(name != null ? name : typeName + encloseIndex(resNum),
 				useShortNames);
 
-		return new TraceOutput(traceType, new StringJoiner(delimiter).add(traceType.toString()).add(time)
+		return new TraceOutput(traceType, new StringJoiner(delimiter).add(traceType.toString()).add(formattedTime)
 				.add(resourceName).add("=").add(parseResourceParameters(data, typeNum)).getString());
 	}
 
@@ -198,6 +200,7 @@ public class Tracer {
 
 		skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
+		final String formattedTime = CurrentSimulator.getDatabase().getTimeFormatter().apply(time);
 		final TraceType traceType;
 
 		final Database.PatternType entryType = Database.PatternType.values()[header.get()];
@@ -215,7 +218,7 @@ public class Tracer {
 			throw new TracerException("Unexpected pattern enrty type: " + entryType);
 		}
 
-		return new TraceOutput(traceType, new StringJoiner(delimiter).add(traceType.toString()).add(time)
+		return new TraceOutput(traceType, new StringJoiner(delimiter).add(traceType.toString()).add(formattedTime)
 				.add(parsePatternData(data)).getString());
 	}
 
@@ -256,10 +259,11 @@ public class Tracer {
 
 		skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
+		final String formattedTime = CurrentSimulator.getDatabase().getTimeFormatter().apply(time);
 		final TraceType traceType = TraceType.EVENT;
 
-		return new TraceOutput(traceType,
-				new StringJoiner(delimiter).add(traceType.toString()).add(time).add(parseEventData(data)).getString());
+		return new TraceOutput(traceType, new StringJoiner(delimiter).add(traceType.toString()).add(formattedTime)
+				.add(parseEventData(data)).getString());
 	}
 
 	private String parseEventData(final ByteBuffer data) {
@@ -285,12 +289,13 @@ public class Tracer {
 		skipPart(header, TypeSize.BYTE);
 		final Database.SearchEntryType entryType = Database.SearchEntryType.values()[header.get()];
 		final double time = header.getDouble();
+		final String formattedTime = CurrentSimulator.getDatabase().getTimeFormatter().apply(time);
 		final int dptNumber = header.getInt();
 
 		switch (entryType) {
 		case BEGIN: {
 			traceType = TraceType.SEARCH_BEGIN;
-			stringJoiner.add(traceType.toString()).add(time)
+			stringJoiner.add(traceType.toString()).add(formattedTime)
 					.add(NamingHelper.convertName(staticModelData.getSearchName(dptNumber), useShortNames));
 			break;
 		}
@@ -319,7 +324,7 @@ public class Tracer {
 			final int countClosed = data.getInt();
 			final int countOpen = data.getInt();
 			final int countSpawned = data.getInt();
-			stringJoiner.add(traceType.toString()).add(time)
+			stringJoiner.add(traceType.toString()).add(formattedTime)
 					.add(new StringJoiner(StringFormat.ENUMERATION)
 							.add("solution cost = " + finalCost).add("total nodes = " + (countClosed + countOpen) + " ("
 									+ countClosed + " closed + " + countOpen + " open)")
@@ -422,6 +427,7 @@ public class Tracer {
 		final int resultNum = header.getInt();
 		String resultName = NamingHelper.convertName(staticModelData.getResultName(resultNum), useShortNames);
 		final double time = header.getDouble();
+		final String formattedTime = CurrentSimulator.getDatabase().getTimeFormatter().apply(time);
 		final ResultType resultType = ResultType.values()[header.get()];
 
 		String stringValue = null;
@@ -442,8 +448,8 @@ public class Tracer {
 			break;
 		}
 
-		return new TraceOutput(TraceType.RESULT, new StringJoiner(delimiter).add(TraceType.RESULT.toString()).add(time)
-				.add(resultName).add("=").add(stringValue).getString());
+		return new TraceOutput(TraceType.RESULT, new StringJoiner(delimiter).add(TraceType.RESULT.toString())
+				.add(formattedTime).add(resultName).add("=").add(stringValue).getString());
 	}
 
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -458,12 +464,14 @@ public class Tracer {
 
 		skipPart(header, TypeSize.BYTE);
 		final double time = header.getDouble();
+		final String formattedTime = CurrentSimulator.getDatabase().getTimeFormatter().apply(time);
 		final ProcessEntryType entryType = ProcessEntryType.values()[header.get()];
 		final String blockName = entryType.getString();
 		final int transactIndex = header.getInt();
 
-		return new TraceOutput(TraceType.PROCESS, new StringJoiner(delimiter).add(TraceType.PROCESS.toString())
-				.add(time).add(blockName).add(transactIndex).add(parseProcessData(data, entryType)).getString());
+		return new TraceOutput(TraceType.PROCESS,
+				new StringJoiner(delimiter).add(TraceType.PROCESS.toString()).add(formattedTime).add(blockName)
+						.add(transactIndex).add(parseProcessData(data, entryType)).getString());
 	}
 
 	private String parseProcessData(final ByteBuffer data, final ProcessEntryType entryType) {

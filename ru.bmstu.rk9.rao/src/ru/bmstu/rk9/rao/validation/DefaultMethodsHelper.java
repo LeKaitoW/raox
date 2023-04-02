@@ -25,8 +25,10 @@ public class DefaultMethodsHelper {
 	}
 
 	public static enum GlobalMethodInfo implements AbstractMethodInfo {
-		INIT("init", ValidatorAction.NOTHING, new String[] {}), TERMINATE_CONDITION("terminateCondition",
-				ValidatorAction.NOTHING, new String[] {});
+		INIT("init", ValidatorAction.NOTHING, new String[] {}),
+		TERMINATE_CONDITION("terminateCondition", ValidatorAction.NOTHING, new String[] {}),
+		TIME_FORMAT("timeFormat", ValidatorAction.NOTHING, new String[] { "double time" }),
+		TIME_START("timeStart", ValidatorAction.NOTHING, new String[] {});
 
 		GlobalMethodInfo(String name, ValidatorAction validatorAction, String[] parameters) {
 			this.name = name;
@@ -55,8 +57,8 @@ public class DefaultMethodsHelper {
 	}
 
 	public static enum OperationMethodInfo implements AbstractMethodInfo {
-		BEGIN("begin", ValidatorAction.NOTHING, new String[] {}), END("end", ValidatorAction.NOTHING,
-				new String[] {}), DURATION("duration", ValidatorAction.NOTHING, new String[] {});
+		BEGIN("begin", ValidatorAction.NOTHING, new String[] {}), END("end", ValidatorAction.NOTHING, new String[] {}),
+		DURATION("duration", ValidatorAction.NOTHING, new String[] {});
 
 		OperationMethodInfo(String name, ValidatorAction validatorAction, String[] parameters) {
 			this.name = name;
@@ -183,8 +185,8 @@ public class DefaultMethodsHelper {
 	}
 
 	public static enum DataSourceMethodInfo implements AbstractMethodInfo {
-		EVALUATE("evaluate", ValidatorAction.NOTHING, new String[] {}), CONDITION("condition", ValidatorAction.NOTHING,
-				new String[] {});
+		EVALUATE("evaluate", ValidatorAction.NOTHING, new String[] {}),
+		CONDITION("condition", ValidatorAction.NOTHING, new String[] {});
 
 		DataSourceMethodInfo(String name, ValidatorAction validatorAction, String[] parameters) {
 			this.name = name;

@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.EventIndex;
 import ru.bmstu.rk9.rao.lib.database.CollectedDataNode.LogicIndex;
@@ -33,6 +34,7 @@ import ru.bmstu.rk9.rao.lib.pattern.Rule;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.result.AbstractResult;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 
 public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
@@ -56,8 +58,8 @@ public class Database {
 	}
 
 	public enum DataType {
-		INT(TypeSize.INT, "int", "Integer"), DOUBLE(TypeSize.DOUBLE, "double", "Double"), BOOLEAN(TypeSize.BYTE,
-				"boolean", "Boolean"), OTHER(0, "", "");
+		INT(TypeSize.INT, "int", "Integer"), DOUBLE(TypeSize.DOUBLE, "double", "Double"),
+		BOOLEAN(TypeSize.BYTE, "boolean", "Boolean"), OTHER(0, "", "");
 
 		DataType(int size, String namePrivitive, String nameClass) {
 			this.size = size;
@@ -84,8 +86,8 @@ public class Database {
 	}
 
 	public enum SerializationCategory {
-		RESOURCE("Resources"), PATTERN("Patterns"), EVENT("Events"), LOGIC("Logic"), RESULT("Results"), SEARCH(
-				"Search");
+		RESOURCE("Resources"), PATTERN("Patterns"), EVENT("Events"), LOGIC("Logic"), RESULT("Results"),
+		SEARCH("Search");
 
 		SerializationCategory(final String name) {
 			this.name = name;
@@ -161,6 +163,16 @@ public class Database {
 			addSensitivity(traceName);
 	}
 
+	private Function<Double, String> timeFormatter = SimulatorInitializationInfo.DEFAULT_TIME_FORMATTER;
+
+	public Function<Double, String> getTimeFormatter() {
+		return timeFormatter;
+	}
+
+	public void setTimeFormatter(Function<Double, String> timeFormatter) {
+		this.timeFormatter = timeFormatter;
+	}
+
 	private final HashSet<String> sensitivityList = new HashSet<String>();
 
 	public final void addSensitivity(final String name) {
@@ -195,13 +207,13 @@ public class Database {
 	}
 
 	public static enum EntryType {
-		SYSTEM(TypeSize.BYTE * 2 + TypeSize.DOUBLE, 0), RESOURCE(
-				TypeSize.BYTE * 2 + TypeSize.INT * 2 + TypeSize.DOUBLE + TypeSize.INT,
-				0), PATTERN(TypeSize.BYTE * 2 + TypeSize.DOUBLE, TypeSize.INT * 5), EVENT(
-						TypeSize.BYTE * 2 + TypeSize.DOUBLE,
-						TypeSize.INT * 2), SEARCH(TypeSize.BYTE * 2 + TypeSize.INT * 2 + TypeSize.DOUBLE, 0), RESULT(
-								TypeSize.BYTE + TypeSize.INT + TypeSize.DOUBLE + TypeSize.BYTE,
-								0), PROCESS(TypeSize.BYTE + TypeSize.DOUBLE + TypeSize.BYTE + TypeSize.INT, 0);
+		SYSTEM(TypeSize.BYTE * 2 + TypeSize.DOUBLE, 0),
+		RESOURCE(TypeSize.BYTE * 2 + TypeSize.INT * 2 + TypeSize.DOUBLE + TypeSize.INT, 0),
+		PATTERN(TypeSize.BYTE * 2 + TypeSize.DOUBLE, TypeSize.INT * 5),
+		EVENT(TypeSize.BYTE * 2 + TypeSize.DOUBLE, TypeSize.INT * 2),
+		SEARCH(TypeSize.BYTE * 2 + TypeSize.INT * 2 + TypeSize.DOUBLE, 0),
+		RESULT(TypeSize.BYTE + TypeSize.INT + TypeSize.DOUBLE + TypeSize.BYTE, 0),
+		PROCESS(TypeSize.BYTE + TypeSize.DOUBLE + TypeSize.BYTE + TypeSize.INT, 0);
 
 		public final int HEADER_SIZE;
 		final int METADATA_SIZE;
@@ -249,11 +261,10 @@ public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	public static enum SystemEntryType {
-		TRACE_START("Tracing started"), SIM_START("Simulation started"), NORMAL_TERMINATION(
-				"Simulation finished: terminate condition"), NO_MORE_EVENTS(
-						"Simulation finished: no more events"), ABORT(
-								"Simulation finished: user interrupt"), RUN_TIME_ERROR(
-										"Simulation finished: runtime error");
+		TRACE_START("Tracing started"), SIM_START("Simulation started"),
+		NORMAL_TERMINATION("Simulation finished: terminate condition"),
+		NO_MORE_EVENTS("Simulation finished: no more events"), ABORT("Simulation finished: user interrupt"),
+		RUN_TIME_ERROR("Simulation finished: runtime error");
 
 		SystemEntryType(final String description) {
 			this.description = description;
@@ -632,8 +643,8 @@ public class Database {
 	// ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― //
 
 	public static enum ProcessEntryType {
-		GENERATE("Generate"), TERMINATE("Terminate"), HOLD("Hold"), SEIZE("Seize"), RELEASE("Release"), QUEUE(
-				"Queue"), SELECT_PATH("SelectPath");
+		GENERATE("Generate"), TERMINATE("Terminate"), HOLD("Hold"), SEIZE("Seize"), RELEASE("Release"), QUEUE("Queue"),
+		SELECT_PATH("SelectPath");
 
 		private ProcessEntryType(final String block) {
 			this.block = block;

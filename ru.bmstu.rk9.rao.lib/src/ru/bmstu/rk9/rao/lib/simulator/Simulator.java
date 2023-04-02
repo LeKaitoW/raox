@@ -2,6 +2,7 @@ package ru.bmstu.rk9.rao.lib.simulator;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import ru.bmstu.rk9.rao.lib.database.Database;
@@ -36,6 +37,9 @@ public class Simulator implements ISimulator {
 		dptManager = new DPTManager(initializationInfo.decisionPoints);
 		processManager = new Process(initializationInfo.processBlocks);
 		resultManager = new ResultManager(initializationInfo.results);
+		time = initializationInfo.getTimeStart();
+		timeFormatter = initializationInfo.getTimeFormatter();
+		database.setTimeFormatter(timeFormatter);
 
 		for (Supplier<Boolean> terminateCondition : initializationInfo.terminateConditions)
 			terminateList.add(terminateCondition);
@@ -77,6 +81,16 @@ public class Simulator implements ISimulator {
 	@Override
 	public double getTime() {
 		return time;
+	}
+
+	private Function<Double, String> timeFormatter;
+
+	@Override
+	public String formatTime(double time, Function<Double, String> defaultFormatter) {
+		if (SimulatorInitializationInfo.DEFAULT_TIME_FORMATTER == timeFormatter)
+			return defaultFormatter.apply(time);
+		else
+			return timeFormatter.apply(time);
 	}
 
 	private EventScheduler eventScheduler = new EventScheduler();
