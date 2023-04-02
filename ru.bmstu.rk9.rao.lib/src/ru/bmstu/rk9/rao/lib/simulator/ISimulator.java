@@ -34,6 +34,8 @@ public interface ISimulator {
 
 	public void abortExecution();
 
+	public void runExperiments();
+
 	public SimulationStopCode run();
 
 	public List<AbstractResult<?>> getResults();

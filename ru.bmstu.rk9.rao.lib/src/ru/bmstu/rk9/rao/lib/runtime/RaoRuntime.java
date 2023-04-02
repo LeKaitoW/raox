@@ -6,4 +6,8 @@ public class RaoRuntime {
 	public static final double getCurrentTime() {
 		return CurrentSimulator.getTime();
 	}
+
+	public static final void start() {
+		Experiments.start();
+	}
 }

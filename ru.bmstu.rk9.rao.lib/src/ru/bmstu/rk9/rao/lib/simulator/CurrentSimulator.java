@@ -137,6 +137,10 @@ public class CurrentSimulator {
 		USER_INTERRUPT, NO_MORE_EVENTS, TERMINATE_CONDITION, RUNTIME_ERROR, SIMULATION_CONTINUES
 	}
 
+	public static void runExperiments() {
+		currentSimulator.runExperiments();
+	}
+
 	public static SimulationStopCode run() {
 		isRunning = true;
 
