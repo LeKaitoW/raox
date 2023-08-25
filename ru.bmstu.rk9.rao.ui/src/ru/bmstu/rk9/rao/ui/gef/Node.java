@@ -31,6 +31,7 @@ public abstract class Node implements Serializable, IAdaptable {
 		if (isAdded) {
 			child.setParent(this);
 			getListeners().firePropertyChange(PROPERTY_ADD, null, child);
+			child.assignedToParent();
 		}
 		return isAdded;
 	}
@@ -104,6 +105,9 @@ public abstract class Node implements Serializable, IAdaptable {
 	public abstract Object getPropertyValue(String propertyName);
 
 	public abstract void setPropertyValue(String propertyName, Object value);
+
+	public void assignedToParent() {
+	}
 
 	public void onDelete() {
 	}

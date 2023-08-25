@@ -23,7 +23,7 @@ public class LabelEditPart extends EditPart {
 		LabelNode node = (LabelNode) getModel();
 		LabelFigure figure = (LabelFigure) getFigure();
 
-		figure.setFont(node.getFont());
+		figure.setFont(node.getFont().getSwtFont());
 		figure.setText(node.getText());
 		figure.setForegroundColor(new Color(null, node.getTextColor()));
 		figure.setBackgroundColor(new Color(null, node.getBackgroundColor()));

@@ -8,7 +8,10 @@ import org.eclipse.ui.views.properties.PropertyDescriptor;
 
 import ru.bmstu.rk9.rao.ui.gef.CheckboxPropertyDescriptor;
 import ru.bmstu.rk9.rao.ui.gef.DefaultColors;
+import ru.bmstu.rk9.rao.ui.gef.DefaultFonts;
 import ru.bmstu.rk9.rao.ui.gef.Node;
+import ru.bmstu.rk9.rao.ui.gef.font.FontPropertyDescriptor;
+import ru.bmstu.rk9.rao.ui.gef.font.Font;
 
 public class ModelNode extends Node {
 
@@ -16,9 +19,11 @@ public class ModelNode extends Node {
 
 	protected static final String PROPERTY_SHOW_GRID = "ShowGrid";
 	protected static final String PROPERTY_BACKGROUND_COLOR = "BackgroundColor";
+	public static final String PROPERTY_FONT = "Font";
 
 	private boolean showGrid = true;
 	private RGB backgroundColor = DefaultColors.MODEL_BACKGROUND_COLOR.getRGB();
+	private Font font = DefaultFonts.DEFAULT_FONT;
 
 	public final boolean getShowGrid() {
 		return showGrid;
@@ -40,10 +45,21 @@ public class ModelNode extends Node {
 		getListeners().firePropertyChange(PROPERTY_BACKGROUND_COLOR, previousValue, backgroundColor);
 	}
 
+	public final Font getFont() {
+		return font;
+	}
+
+	public final void setFont(Font font) {
+		Font previousValue = getFont();
+		this.font = font == null ? DefaultFonts.DEFAULT_FONT : font;
+		getListeners().firePropertyChange(PROPERTY_FONT, previousValue, font);
+	}
+
 	@Override
 	public void createProperties(List<PropertyDescriptor> properties) {
 		properties.add(new CheckboxPropertyDescriptor(PROPERTY_SHOW_GRID, "Show Grid"));
 		properties.add(new ColorPropertyDescriptor(PROPERTY_BACKGROUND_COLOR, "Background color"));
+		properties.add(new FontPropertyDescriptor(PROPERTY_FONT, "Global font"));
 	}
 
 	@Override
@@ -54,6 +70,9 @@ public class ModelNode extends Node {
 
 		case PROPERTY_BACKGROUND_COLOR:
 			return getBackgroundColor();
+
+		case PROPERTY_FONT:
+			return getFont();
 		}
 
 		return null;
@@ -68,6 +87,10 @@ public class ModelNode extends Node {
 
 		case PROPERTY_BACKGROUND_COLOR:
 			setBackgroundColor((RGB) value);
+			break;
+
+		case PROPERTY_FONT:
+			setFont((Font) value);
 			break;
 		}
 	}
