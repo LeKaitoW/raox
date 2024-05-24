@@ -103,7 +103,7 @@ public class ModelInternalsParser {
 
 		URL modelURL = new URL(location + "/bin/");
 
-		URL[] urls = new URL[] { modelURL };
+		URL[] urls = BuildUtil.addJavaProjectLibraries(modelURL, project);
 
 		classLoader = new URLClassLoader(urls, CurrentSimulator.class.getClassLoader());
 
