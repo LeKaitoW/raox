@@ -1,3 +1,8 @@
+var isNavbarVisible = true;
+var isNavbarButtonVisible = false;
+const MOBILE_SCREEN_THRESHOLD = 1080;
+const ANIMATION_TRANSITION_TIME = 400;
+
 function fillContents(ul, contents) {
     for (var i = 0; i < contents.length; i++) {
         var li = $("<li>");
@@ -12,9 +17,11 @@ function fillContents(ul, contents) {
 }
 
 function generateSidebar(referenceContents, tutorialContents, userGuideContents, debugContents) {
-    var body = $("body");
+    isNavbarPresent = true;
 
-    var wrapper = $("<div>");
+    body = $("body");
+
+    wrapper = $("<div>");
     wrapper.attr("id", "wrapper");
 
     var sidebarWrapper = $("<div>");
@@ -185,6 +192,79 @@ function getDebugContents() {
     return contents;
 }
 
+function hideNavbar(navbarButton) {
+    navbarButton.fadeOut(ANIMATION_TRANSITION_TIME, function() {
+      $(this).html('☰').fadeIn(ANIMATION_TRANSITION_TIME);
+    });
+    $('#sidebar-wrapper').hide(ANIMATION_TRANSITION_TIME);
+    $('#sidebar-wrapper').removeClass('sidebar-wrapper-full');
+    $('#page-content-wrapper').show(ANIMATION_TRANSITION_TIME);
+    isNavbarVisible = false;
+}
+
+function showNavbar(navbarButton) {
+    navbarButton.fadeOut(ANIMATION_TRANSITION_TIME, function() {
+      $(this).html('⨯').fadeIn(ANIMATION_TRANSITION_TIME);
+    });
+    $('#sidebar-wrapper').show(ANIMATION_TRANSITION_TIME);
+    $('#sidebar-wrapper').addClass('sidebar-wrapper-full');
+    $('#page-content-wrapper').hide(ANIMATION_TRANSITION_TIME);
+    isNavbarVisible = true;
+}
+
+function createButton() {
+    var navbarButton = $('<button>');
+    navbarButton.addClass('navbar-button');
+    navbarButton.html('☰');
+    navbarButton.click(function() {
+        if (!isNavbarVisible) {
+            showNavbar(navbarButton);
+        } else {
+            hideNavbar(navbarButton);
+        }
+    });
+
+    $("body").append(navbarButton);
+
+    return navbarButton;
+}
+
+function transformToMobile(navbarButton) {
+    $('#sidebar-wrapper').hide(ANIMATION_TRANSITION_TIME);
+    isNavbarButtonVisible = true;
+    navbarButton.show(ANIMATION_TRANSITION_TIME);
+    navbarButton.html('☰');
+    $('.page-content').addClass('page-content-wrapper-full');
+    isNavbarVisible = false;
+}
+
+function transformToDesktop(navbarButton) {
+    $('#sidebar-wrapper').removeClass('sidebar-wrapper-full');
+    $('#sidebar-wrapper').show(ANIMATION_TRANSITION_TIME);
+    isNavbarButtonVisible = false;
+    navbarButton.hide(ANIMATION_TRANSITION_TIME);
+    $('.page-content').removeClass('page-content-wrapper-full');
+    $('#page-content-wrapper').show(ANIMATION_TRANSITION_TIME);
+}
+
+function setDisplayMode(navbarButton) {
+    if (window.innerWidth < MOBILE_SCREEN_THRESHOLD) {
+        transformToMobile(navbarButton);
+    } else {
+        transformToDesktop(navbarButton);
+    }
+}
+
 $(document).ready(function() {
     generateSidebar(getReferenceContents(), getTutorialContents(), getUserGuideContents(), getDebugContents());
+    var navbarButton = createButton();
+    navbarButton.hide();
+
+    setDisplayMode(navbarButton);
+
+    window.addEventListener('resize', function() {
+        if ((window.innerWidth < MOBILE_SCREEN_THRESHOLD && !isNavbarButtonVisible) ||
+                (window.innerWidth > MOBILE_SCREEN_THRESHOLD && isNavbarButtonVisible))
+            setDisplayMode(navbarButton);
+    });
 });
