@@ -263,14 +263,14 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		validateModel();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void configureGraphicalViewer() {
 		super.configureGraphicalViewer();
 		GraphicalViewer viewer = getGraphicalViewer();
-		viewer.setEditPartFactory(new ProcessEditPartFactory());
+		viewer.setEditPartFactory(new ProcessEditPartFactory(() -> viewer.getEditPartRegistry()));
 
 		KeyHandler keyHandler = new KeyHandler();
-
 		keyHandler.put(KeyStroke.getPressed(SWT.DEL, 127, 0),
 				getActionRegistry().getAction(ActionFactory.DELETE.getId()));
 		viewer.setKeyHandler(keyHandler);
