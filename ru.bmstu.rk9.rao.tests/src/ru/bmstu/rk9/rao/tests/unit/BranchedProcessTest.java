@@ -1,23 +1,24 @@
 package ru.bmstu.rk9.rao.tests.unit;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import ru.bmstu.rk9.rao.lib.process.Hold;
 import ru.bmstu.rk9.rao.lib.process.Block;
-import ru.bmstu.rk9.rao.lib.process.Generate;
 import ru.bmstu.rk9.rao.lib.process.Connection;
+import ru.bmstu.rk9.rao.lib.process.Generate;
+import ru.bmstu.rk9.rao.lib.process.Hold;
 import ru.bmstu.rk9.rao.lib.process.Queue;
+import ru.bmstu.rk9.rao.lib.process.Queue.Queueing;
 import ru.bmstu.rk9.rao.lib.process.Release;
 import ru.bmstu.rk9.rao.lib.process.Seize;
-import ru.bmstu.rk9.rao.lib.process.Terminate;
 import ru.bmstu.rk9.rao.lib.process.SelectPath;
-import ru.bmstu.rk9.rao.lib.process.Queue.Queueing;
+import ru.bmstu.rk9.rao.lib.process.Terminate;
 import ru.bmstu.rk9.rao.lib.resource.Resource;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
-import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator.SimulationStopCode;
+import ru.bmstu.rk9.rao.lib.simulator.SimulatorInitializationInfo;
 
 public class BranchedProcessTest {
 
@@ -33,15 +34,16 @@ public class BranchedProcessTest {
 	}
 
 	private List<Block> generateSituation() {
+		int ID = 0;
 		List<Block> blocks = new ArrayList<Block>();
-		Generate generate = new Generate(() -> 10.0);
-		Terminate terminate = new Terminate();
-		Hold hold = new Hold(() -> 15.0);
+		Generate generate = new Generate(ID++, () -> 10.0);
+		Terminate terminate = new Terminate(ID++);
+		Hold hold = new Hold(ID++, () -> 15.0);
 		Resource resource = TestResource.create();
-		Seize seize = new Seize(resource);
-		Release release = new Release(resource);
-		Queue queue = new Queue(Integer.MAX_VALUE, Queueing.FIFO);
-		SelectPath selectPath = new SelectPath(0.5);
+		Seize seize = new Seize(ID++, resource);
+		Release release = new Release(ID++, resource);
+		Queue queue = new Queue(ID++, Integer.MAX_VALUE, Queueing.FIFO);
+		SelectPath selectPath = new SelectPath(ID++, 0.5);
 		blocks.add(generate);
 		blocks.add(selectPath);
 		blocks.add(queue);

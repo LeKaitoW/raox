@@ -470,6 +470,8 @@ public class Tracer {
 		switch (entryType) {
 		case GENERATE:
 		case TERMINATE:
+		case TELEPORT_IN:
+		case TELEPORT_OUT:
 			return "";
 		case SELECT_PATH:
 			SelectPathOutputs output = SelectPathOutputs.values()[data.get()];

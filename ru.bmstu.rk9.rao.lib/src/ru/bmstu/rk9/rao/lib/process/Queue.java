@@ -2,15 +2,16 @@ package ru.bmstu.rk9.rao.lib.process;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
+
 import ru.bmstu.rk9.rao.lib.database.Database.ProcessEntryType;
 import ru.bmstu.rk9.rao.lib.database.Database.TypeSize;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
-public class Queue implements Block {
+public class Queue extends Block {
 
 	private InputDock inputDock = new InputDock();
-	private OutputDock outputDock = () -> getCurrentTransact();
+	private OutputDock outputDock = (int ID) -> getCurrentTransact();
 	private TransactQueue queue;
 	private final int capacity;
 
@@ -42,7 +43,8 @@ public class Queue implements Block {
 		FIFO, LIFO
 	};
 
-	public Queue(int capacity, Queueing queueing) {
+	public Queue(int ID, int capacity, Queueing queueing) {
+		super(ID);
 		this.capacity = capacity;
 		switch (queueing) {
 		case FIFO:
@@ -64,7 +66,7 @@ public class Queue implements Block {
 
 	@Override
 	public BlockStatus check() {
-		Transact inputTransact = inputDock.pullTransact();
+		Transact inputTransact = inputDock.pullTransact(ID);
 		if (inputTransact != null) {
 			if (queue.size() < capacity) {
 				queue.offer(inputTransact);

@@ -9,11 +9,11 @@ import ru.bmstu.rk9.rao.lib.event.Event;
 import ru.bmstu.rk9.rao.lib.process.Process.BlockStatus;
 import ru.bmstu.rk9.rao.lib.simulator.CurrentSimulator;
 
-public class Hold implements Block {
+public class Hold extends Block {
 
 	private InputDock inputDock = new InputDock();
 	private TransactStorage transactStorage = new TransactStorage();
-	private OutputDock outputDock = () -> transactStorage.pullTransact();
+	private OutputDock outputDock = (int ID) -> transactStorage.pullTransact();
 	private Supplier<Double> duration;
 
 	public static enum HoldAction {
@@ -30,7 +30,8 @@ public class Hold implements Block {
 		private final String action;
 	}
 
-	public Hold(Supplier<Double> duration) {
+	public Hold(int ID, Supplier<Double> duration) {
+		super(ID);
 		this.duration = duration;
 	}
 
@@ -48,7 +49,7 @@ public class Hold implements Block {
 			return BlockStatus.CHECK_AGAIN;
 		}
 
-		Transact transact = inputDock.pullTransact();
+		Transact transact = inputDock.pullTransact(ID);
 		if (transact == null)
 			return BlockStatus.NOTHING_TO_DO;
 

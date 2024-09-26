@@ -1,6 +1,8 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
+import java.io.EOFException;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -51,7 +53,8 @@ import ru.bmstu.rk9.rao.rao.RaoModel;
 import ru.bmstu.rk9.rao.rao.RelevantResource;
 import ru.bmstu.rk9.rao.rao.RelevantResourceTuple;
 import ru.bmstu.rk9.rao.ui.gef.process.BlockConverter;
-import ru.bmstu.rk9.rao.ui.gef.process.ProcessEditor;
+import ru.bmstu.rk9.rao.ui.gef.process.blocks.TeleportHelper;
+import ru.bmstu.rk9.rao.ui.gef.process.blocks.teleportout.TeleportOutNode;
 import ru.bmstu.rk9.rao.ui.gef.process.model.ProcessModelNode;
 
 @SuppressWarnings("restriction")
@@ -383,9 +386,22 @@ public class ModelInternalsParser {
 		}
 
 		for (IResource processFile : BuildUtil.getAllFilesInProject(project, "proc")) {
-			ProcessModelNode model = ProcessEditor.readModelFromFile((IFile) processFile);
-			if (model == null)
+			ProcessModelNode model;
+			List<TeleportOutNode> teleportNodes;
+			try (ObjectInputStream objectInputStream = new ObjectInputStream(
+					((IFile) processFile).getContents(false))) {
+				model = (ProcessModelNode) objectInputStream.readObject();
+				teleportNodes = (List<TeleportOutNode>) objectInputStream.readObject();
+			} catch (EOFException e) {
+				model = null;
+				teleportNodes = null;
+			}
+
+			if (model == null || teleportNodes == null)
 				model = new ProcessModelNode();
+			else
+				TeleportHelper.nodes = teleportNodes;
+
 			List<Block> blocks = BlockConverter.convertModelToBlocks(model, modelContentsInfo);
 			simulatorInitializationInfo.processBlocks.addAll(blocks);
 		}

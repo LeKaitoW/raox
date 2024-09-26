@@ -17,6 +17,8 @@ public class Connection implements Serializable, IAdaptable {
 	private String sourceDockName;
 	private String targetDockName;
 
+	boolean visible = true;
+
 	public Connection(BlockNode sourceBlockNode, BlockNode targetBlockNode, String sourceDockName,
 			String targetDockName) {
 		this.sourceBlockNode = sourceBlockNode;
@@ -80,5 +82,13 @@ public class Connection implements Serializable, IAdaptable {
 
 	public void setTargetDockName(String targetDockName) {
 		this.targetDockName = targetDockName;
+	}
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean value) {
+		visible = value;
 	}
 }

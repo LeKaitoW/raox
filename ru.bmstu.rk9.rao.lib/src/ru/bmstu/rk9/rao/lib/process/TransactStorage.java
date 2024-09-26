@@ -1,7 +1,7 @@
 package ru.bmstu.rk9.rao.lib.process;
 
 public class TransactStorage {
-	private Transact currentTransact;
+	protected Transact currentTransact;
 
 	public Transact pullTransact() {
 		if (currentTransact == null)

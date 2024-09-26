@@ -22,8 +22,10 @@ public class ProcessEditPartFactory implements EditPartFactory {
 	@Override
 	public EditPart createEditPart(EditPart context, Object model) {
 		if (model instanceof Connection) {
-			AbstractEditPart editPart = new ConnectionEditPart();
-			editPart.setModel(model);
+			Connection connection = (Connection) model;
+			ConnectionEditPart editPart = new ConnectionEditPart();
+			editPart.setModel(connection);
+			editPart.setVisible(connection.isVisible());
 			return editPart;
 		}
 

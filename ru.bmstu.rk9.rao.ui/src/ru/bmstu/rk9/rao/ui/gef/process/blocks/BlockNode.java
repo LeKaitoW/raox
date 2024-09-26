@@ -50,17 +50,17 @@ public abstract class BlockNode extends Node {
 		this.ID = ID;
 	}
 
-	public final String getName() {
+	public String getName() {
 		return name;
 	}
 
-	public final void setName(String name) {
+	public void setName(String name) {
 		this.name = name;
 		if (title != null)
 			title.setText(getName());
 	}
 
-	final void attachTitle(BlockTitleNode title) {
+	public final void attachTitle(BlockTitleNode title) {
 		this.title = title;
 		title.attachBlockNode(this);
 

@@ -58,9 +58,9 @@ public class QueueNode extends BlockNode implements Serializable {
 	public BlockConverterInfo createBlock(ModelContentsInfo modelContentsInfo) {
 		ru.bmstu.rk9.rao.lib.process.Queue queue;
 		if (this.capacity.isEmpty()) {
-			queue = new ru.bmstu.rk9.rao.lib.process.Queue(Integer.MAX_VALUE, this.queueing);
+			queue = new ru.bmstu.rk9.rao.lib.process.Queue(ID, Integer.MAX_VALUE, this.queueing);
 		} else {
-			queue = new ru.bmstu.rk9.rao.lib.process.Queue(Integer.valueOf(this.capacity), this.queueing);
+			queue = new ru.bmstu.rk9.rao.lib.process.Queue(ID, Integer.valueOf(this.capacity), this.queueing);
 		}
 		BlockConverterInfo queueInfo = new BlockConverterInfo();
 		queueInfo.setBlock(queue);

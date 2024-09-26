@@ -80,6 +80,7 @@ import ru.bmstu.rk9.rao.ui.gef.process.blocks.BlockNodeFactory;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.BlockTitleEditPart;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.BlockTitleFigure;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.BlockTitleNode;
+import ru.bmstu.rk9.rao.ui.gef.process.blocks.TeleportHelper;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.generate.GenerateEditPart;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.generate.GenerateFigure;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.generate.GenerateNode;
@@ -98,6 +99,12 @@ import ru.bmstu.rk9.rao.ui.gef.process.blocks.seize.SeizeNode;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.selectpath.SelectPathEditPart;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.selectpath.SelectPathFigure;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.selectpath.SelectPathNode;
+import ru.bmstu.rk9.rao.ui.gef.process.blocks.teleportin.TeleportInEditPart;
+import ru.bmstu.rk9.rao.ui.gef.process.blocks.teleportin.TeleportInFigure;
+import ru.bmstu.rk9.rao.ui.gef.process.blocks.teleportin.TeleportInNode;
+import ru.bmstu.rk9.rao.ui.gef.process.blocks.teleportout.TeleportOutEditPart;
+import ru.bmstu.rk9.rao.ui.gef.process.blocks.teleportout.TeleportOutFigure;
+import ru.bmstu.rk9.rao.ui.gef.process.blocks.teleportout.TeleportOutNode;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.terminate.TerminateEditPart;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.terminate.TerminateFigure;
 import ru.bmstu.rk9.rao.ui.gef.process.blocks.terminate.TerminateNode;
@@ -143,6 +150,8 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		addNodeInfo(QueueNode.class, QueueEditPart.class, QueueFigure.class);
 		addNodeInfo(SelectPathNode.class, SelectPathEditPart.class, SelectPathFigure.class);
 		addNodeInfo(BlockTitleNode.class, BlockTitleEditPart.class, BlockTitleFigure.class);
+		addNodeInfo(TeleportInNode.class, TeleportInEditPart.class, TeleportInFigure.class);
+		addNodeInfo(TeleportOutNode.class, TeleportOutEditPart.class, TeleportOutFigure.class);
 	}
 
 	public static boolean hasNodeInfo(Class<? extends Node> node) {
@@ -237,11 +246,21 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 		IFile file = ((IFileEditorInput) input).getFile();
 		setPartName(file.getName());
 		try {
-			ProcessModelNode model = readModelFromFile(file);
+			ProcessModelNode model;
+			List<TeleportOutNode> teleportNodes;
 
-			if (model == null)
+			try (ObjectInputStream objectInputStream = new ObjectInputStream(file.getContents(false))) {
+				model = (ProcessModelNode) objectInputStream.readObject();
+				teleportNodes = (List<TeleportOutNode>) objectInputStream.readObject();
+			} catch (EOFException e) {
+				model = null;
+				teleportNodes = null;
+			}
+
+			if (model == null || teleportNodes == null)
 				return;
 			setModel(model);
+			TeleportHelper.nodes = teleportNodes;
 
 			if (getGraphicalViewer() != null)
 				getGraphicalViewer().setContents(getModel());
@@ -254,6 +273,7 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	protected void writeToOutputStream(OutputStream outputStream) throws IOException {
 		ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
 		objectOutputStream.writeObject(getModel());
+		objectOutputStream.writeObject(TeleportHelper.nodes);
 		objectOutputStream.close();
 	}
 
@@ -391,17 +411,6 @@ public class ProcessEditor extends GraphicalEditorWithFlyoutPalette {
 	public void commandStackChanged(EventObject event) {
 		firePropertyChange(IEditorPart.PROP_DIRTY);
 		super.commandStackChanged(event);
-	}
-
-	public static ProcessModelNode readModelFromFile(IFile file)
-			throws ClassNotFoundException, IOException, CoreException {
-		ProcessModelNode model;
-		try (ObjectInputStream objectInputStream = new ObjectInputStream(file.getContents(false))) {
-			model = (ProcessModelNode) objectInputStream.readObject();
-		} catch (EOFException e) {
-			model = null;
-		}
-		return model;
 	}
 
 	private void writeModelToFile(IProgressMonitor monitor) {

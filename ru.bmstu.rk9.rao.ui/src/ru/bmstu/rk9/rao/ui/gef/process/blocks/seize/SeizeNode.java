@@ -37,7 +37,7 @@ public class SeizeNode extends BlockNodeWithResource {
 			return seizeInfo;
 		}
 		Resource releasedResource = optional.get();
-		ru.bmstu.rk9.rao.lib.process.Seize seize = new ru.bmstu.rk9.rao.lib.process.Seize(releasedResource);
+		ru.bmstu.rk9.rao.lib.process.Seize seize = new ru.bmstu.rk9.rao.lib.process.Seize(ID, releasedResource);
 		seizeInfo.setBlock(seize);
 		seizeInfo.inputDocks.put(DOCK_IN, seize.getInputDock());
 		seizeInfo.outputDocks.put(DOCK_OUT, seize.getOutputDock());
