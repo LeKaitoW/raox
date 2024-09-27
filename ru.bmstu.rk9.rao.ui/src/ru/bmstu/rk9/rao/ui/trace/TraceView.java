@@ -33,6 +33,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.PaintEvent;
@@ -42,6 +44,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -52,6 +55,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -121,10 +127,24 @@ public class TraceView extends ViewPart {
 
 		return new FrameInfo(searchNumber, dptName);
 	}
-
+	
 	@Override
 	public void createPartControl(Composite parent) {
 		viewer = new TableViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.VIRTUAL);
+		
+		
+		viewer.getTable().addControlListener(new ControlListener() {
+
+			@Override
+			public void controlResized(ControlEvent e) {
+				viewer.getTable().getColumn(0).pack();
+				
+			}
+
+			@Override
+			public void controlMoved(ControlEvent e) {
+			}
+		});
 
 		// This updates size of the column and sets correct horizontal slider width
 		viewer.getTable().addPaintListener(new PaintListener() {
@@ -135,10 +155,12 @@ public class TraceView extends ViewPart {
 		});
 
 		TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
+		
 		TableColumnLayout tableLayout = new TableColumnLayout();
 		parent.setLayout(tableLayout);
 		tableLayout.setColumnData(column.getColumn(), new ColumnWeightData(100, ColumnWeightData.MINIMUM_WIDTH));
 
+		
 		FontRegistry fontRegistry = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getFontRegistry();
 
 		Menu popupMenu = new Menu(viewer.getTable());
@@ -404,6 +426,7 @@ public class TraceView extends ViewPart {
 			TraceView.viewer.setItemCount(size);
 			if (TraceView.shouldFollowOutput())
 				TraceView.viewer.getTable().setTopIndex(size - 1);
+			    viewer.getTable().getColumn(0).pack();
 		}
 	};
 
