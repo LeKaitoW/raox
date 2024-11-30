@@ -1,8 +1,12 @@
 package ru.bmstu.rk9.rao.ui.execution;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
@@ -48,7 +52,7 @@ public class ExecutionJobProvider {
 					parser.parse();
 				} catch (Exception e) {
 					e.printStackTrace();
-					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Model parsing failed", e);
+					return niceError("Model parsing failed", e);
 				} finally {
 					parser.closeClassLoader();
 				}
@@ -63,16 +67,16 @@ public class ExecutionJobProvider {
 					CurrentSimulator.preinitialize(parser.getSimulatorPreinitializationInfo());
 				} catch (Exception e) {
 					e.printStackTrace();
-					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Simulator preinitialization failed", e);
+					return niceError("Simulator preinitialization failed", e);
 				}
 
 				try {
 					parser.postprocess();
 				} catch (ProcessParsingException e) {
-					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "invalid block parameter", e);
+					return niceError("invalid block parameter", e);
 				} catch (Exception e) {
 					e.printStackTrace();
-					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Model postprocessing failed", e);
+					return niceError("Model postprocessing failed", e);
 				}
 
 				display.syncExec(() -> AnimationView.initialize(parser.getAnimationFrames()));
@@ -81,7 +85,7 @@ public class ExecutionJobProvider {
 					CurrentSimulator.initialize(parser.getSimulatorInitializationInfo());
 				} catch (Exception e) {
 					e.printStackTrace();
-					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Simulator initialization failed", e);
+					return niceError("Simulator initialization failed", e);
 				}
 
 				final long startTime = System.currentTimeMillis();
@@ -102,7 +106,7 @@ public class ExecutionJobProvider {
 					if (e instanceof Error)
 						throw e;
 
-					return new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Execution failed", e);
+					return niceError("Execution failed", e);
 				} finally {
 					display.syncExec(() -> AnimationView.deinitialize());
 				}
@@ -137,5 +141,16 @@ public class ExecutionJobProvider {
 
 		executionJob.setPriority(Job.LONG);
 		return executionJob;
+	}
+
+	private IStatus niceError(String message, Throwable e) {
+		Throwable cause = e;
+		List<IStatus> causes = new ArrayList<>();
+		do {
+			causes.add(new Status(IStatus.ERROR, "ru.bmstu.rk9.rao.ui", "Caused by " + cause.getClass().getSimpleName(),
+					cause));
+		} while ((cause = cause.getCause()) != null);
+		IStatus[] causesArray = causes.toArray(new IStatus[causes.size()]);
+		return new MultiStatus("ru.bmstu.rk9.rao.ui", IStatus.ERROR, causesArray, message, null);
 	}
 }
